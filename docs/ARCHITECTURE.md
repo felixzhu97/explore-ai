@@ -60,7 +60,7 @@ An Express.js server providing utility endpoints.
 
 **Note:** This is currently optional and primarily serves as a reference implementation.
 
-### 3. AI Service (`services/ai`)
+### 3. AI Service (`services/vision-service`)
 
 The core FastAPI application providing vision AI capabilities.
 
@@ -141,7 +141,7 @@ Configuration is managed through environment variables and the `.env` file:
 DEVICE=cuda                    # 'cuda' or 'cpu'
 YOLO_MODEL=yolo11n.pt          # YOLO model path
 BLIP_MODEL=Salesforce/blip-image-captioning-large
-OCR_LANG=ch,en                 # OCR languages
+OCR_LANG=ch                 # OCR languages
 MAX_IMAGE_SIZE=10485760        # 10MB max file size
 MODEL_CACHE_DIR=./models       # Model cache location
 MAX_CONCURRENT_REQUESTS=4      # Request queue limit
@@ -165,7 +165,7 @@ ai-test/
 │   ├── config/                 # Shared TypeScript config
 │   └── utils/                 # Shared utilities
 ├── services/
-│   └── ai/                    # Python AI service
+│   └── vision-service/                    # Python AI service
 │       ├── src/
 │       │   ├── main.py        # FastAPI app entry
 │       │   ├── api/

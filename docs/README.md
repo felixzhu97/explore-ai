@@ -17,7 +17,7 @@ The AI Vision Service is a TypeScript/Python monorepo that combines:
 
 - **React Frontend** (`apps/web`) - User interface for image upload and results display
 - **Express.js Server** (`apps/server`) - Backend utility endpoints
-- **Python AI Service** (`services/ai`) - FastAPI-based vision AI with YOLO, BLIP, and PaddleOCR
+- **Python AI Service** (`services/vision-service`) - FastAPI-based vision AI with YOLO, BLIP, and PaddleOCR
 
 ## Features
 

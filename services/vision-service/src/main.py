@@ -1,3 +1,15 @@
+import os
+
+# Set HF mirror at startup (must be before importing transformers)
+if not os.environ.get("HF_ENDPOINT"):
+    try:
+        from .core.config import get_settings
+        settings = get_settings()
+        if settings.HF_ENDPOINT:
+            os.environ["HF_ENDPOINT"] = settings.HF_ENDPOINT
+    except Exception:
+        pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager

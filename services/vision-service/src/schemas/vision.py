@@ -35,7 +35,7 @@ class CaptionResponse(BaseModel):
 class OCRResult(BaseModel):
     text: str
     confidence: float
-    bbox: Optional[list[tuple[int, int]]] = None
+    bbox: Optional[list[list[float]]] = None
 
 
 class OCRResponse(BaseModel):

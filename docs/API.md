@@ -432,7 +432,7 @@ curl -X POST "http://localhost:8000/vision/analyze?task=analyze_image" \
 | `DEVICE` | `cuda` | Computation device (`cuda` or `cpu`) |
 | `YOLO_MODEL` | `yolo11n.pt` | YOLO model path |
 | `BLIP_MODEL` | `Salesforce/blip-image-captioning-large` | BLIP model name |
-| `OCR_LANG` | `ch,en` | PaddleOCR languages |
+| `OCR_LANG` | `ch` | PaddleOCR language |
 | `MAX_IMAGE_SIZE` | `10485760` | Max file size in bytes (10MB) |
 | `MODEL_CACHE_DIR` | `./models` | Model cache directory |
 | `MAX_CONCURRENT_REQUESTS` | `4` | Max concurrent requests |

@@ -16,7 +16,7 @@ The fastest way to get everything running.
 ### 1. Start the AI Service
 
 ```bash
-cd services/ai
+cd services/vision-service
 
 # With GPU support (requires NVIDIA Container Toolkit)
 docker compose up ai
@@ -48,7 +48,7 @@ For development with hot reloading.
 pnpm install
 
 # Install Python dependencies
-cd services/ai
+cd services/vision-service
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -57,7 +57,7 @@ pip install -r requirements.txt
 ### 2. Configure Environment
 
 ```bash
-cd services/ai
+cd services/vision-service
 cp .env.example .env
 ```
 
@@ -67,7 +67,7 @@ Edit `.env` if needed:
 DEVICE=cuda          # or 'cpu' for CPU-only inference
 YOLO_MODEL=yolo11n.pt
 BLIP_MODEL=Salesforce/blip-image-captioning-large
-OCR_LANG=ch,en
+OCR_LANG=ch
 MAX_IMAGE_SIZE=10485760  # 10MB in bytes
 ```
 
@@ -89,7 +89,7 @@ python -c "from transformers import AutoProcessor, BlipForConditionalGeneration;
 
 Terminal 1 - AI Service:
 ```bash
-cd services/ai
+cd services/vision-service
 source .venv/bin/activate
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
@@ -157,7 +157,7 @@ curl -X POST "http://localhost:8000/vision/analyze?task=caption_image" \
 Activate the virtual environment:
 
 ```bash
-source services/ai/.venv/bin/activate
+source services/vision-service/.venv/bin/activate
 ```
 
 ### GPU not detected

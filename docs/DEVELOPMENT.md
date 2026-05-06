@@ -13,7 +13,7 @@ ai-test/
 │   ├── config/        # Shared TypeScript config
 │   └── utils/         # Shared utilities
 ├── services/
-│   └── ai/           # Python AI service (FastAPI)
+│   └── vision-service/           # Python AI service (FastAPI)
 └── docs/             # Documentation
 ```
 
@@ -40,7 +40,7 @@ pnpm install
 ### 2. Python Environment
 
 ```bash
-cd services/ai
+cd services/vision-service
 
 # Create virtual environment
 python3 -m venv .venv
@@ -59,7 +59,7 @@ pip install pytest pytest-asyncio httpx
 ### 3. Environment Configuration
 
 ```bash
-cd services/ai
+cd services/vision-service
 cp .env.example .env
 ```
 
@@ -72,7 +72,7 @@ DEVICE=cuda                    # 'cuda' for GPU, 'cpu' for CPU
 # Model settings
 YOLO_MODEL=yolo11n.pt
 BLIP_MODEL=Salesforce/blip-image-captioning-large
-OCR_LANG=ch,en
+OCR_LANG=ch
 
 # Limits
 MAX_IMAGE_SIZE=10485760        # 10MB
@@ -87,7 +87,7 @@ MODEL_CACHE_DIR=./models
 ### AI Service (Python)
 
 ```bash
-cd services/ai
+cd services/vision-service
 source .venv/bin/activate
 
 # Run with hot reload
@@ -127,7 +127,7 @@ pnpm --filter @ai-test/server dev
 ### Python Tests (AI Service)
 
 ```bash
-cd services/ai
+cd services/vision-service
 source .venv/bin/activate
 
 # Run all tests
@@ -154,7 +154,7 @@ pnpm --filter @ai-test/server test
 ### Test Structure
 
 ```
-services/ai/tests/
+services/vision-service/tests/
 ├── conftest.py           # Shared fixtures
 ├── __init__.py
 ├── test_api.py          # API endpoint tests
@@ -221,7 +221,7 @@ pnpm --filter @ai-test/server lint
 ### Python
 
 ```bash
-cd services/ai
+cd services/vision-service
 # Uses pyproject.toml configuration
 # Install linter: pip install ruff
 ruff check src/
@@ -249,7 +249,7 @@ pnpm build
 ### AI Service (Docker)
 
 ```bash
-cd services/ai
+cd services/vision-service
 
 # Build image
 docker build -t ai-service:latest .
@@ -263,7 +263,7 @@ docker compose up ai
 ### GPU Variant (Recommended for AI)
 
 ```bash
-cd services/ai
+cd services/vision-service
 docker compose up ai
 ```
 
@@ -337,7 +337,7 @@ curl -X POST http://localhost:8000/vision/caption \
 ### 1. New API Endpoint
 
 ```python
-# services/ai/src/api/vision.py
+# services/vision-service/src/api/vision.py
 @router.post("/new-endpoint")
 async def new_endpoint(
     file: UploadFile = File(...),
@@ -350,7 +350,7 @@ async def new_endpoint(
 ### 2. New Schema
 
 ```python
-# services/ai/src/schemas/vision.py
+# services/vision-service/src/schemas/vision.py
 class NewResponse(BaseModel):
     field1: str
     field2: int
@@ -359,7 +359,7 @@ class NewResponse(BaseModel):
 ### 3. New Test
 
 ```python
-# services/ai/tests/test_api.py
+# services/vision-service/tests/test_api.py
 def test_new_endpoint(self, client, sample_image_bytes):
     response = client.post("/vision/new-endpoint", ...)
     assert response.status_code == 200
@@ -386,7 +386,7 @@ taskkill /PID <PID> /F
 Make sure you're in the virtual environment:
 
 ```bash
-source services/ai/.venv/bin/activate
+source services/vision-service/.venv/bin/activate
 which python
 ```
 

@@ -1,5 +1,5 @@
 services:
-  ai:
+  vision-service:
     build: .
     ports:
       - "8000:8000"
@@ -13,7 +13,7 @@ services:
               count: 1
               capabilities: [gpu]
 
-  ai-cpu:
+  vision-service-cpu:
     build: .
     ports:
       - "8001:8000"

@@ -9,7 +9,7 @@ class TestSettings:
             settings = Settings()
             assert settings.YOLO_MODEL == "yolo11n.pt"
             assert settings.BLIP_MODEL == "Salesforce/blip-image-captioning-large"
-            assert settings.OCR_LANG == "ch,en"
+            assert settings.OCR_LANG == "ch"
             assert settings.MAX_IMAGE_SIZE == 10 * 1024 * 1024
             assert settings.DEVICE == "cuda"
             assert settings.MODEL_CACHE_DIR == "./models"
