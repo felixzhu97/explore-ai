@@ -36,6 +36,9 @@
 
 ## 架构图
 
+### Wardley 地图
+![Wardley Map](docs/wardley-map.png)
+
 ### C1 系统上下文图
 ![C1 Context](docs/c4/png/C4-Context.png)
 
@@ -262,6 +265,7 @@ docker compose -f services/ai_agents/docker-compose.yml up -d
 - [架构设计](./docs/ARCHITECTURE.md)
 - [API 参考](./docs/API.md)
 - [开发指南](./docs/DEVELOPMENT.md)
+- [Wardley 地图](./docs/wardley-map.png)
 - [C4 模型](./docs/c4/README.md)
 - [RAG 服务](./services/rag/README.md)
 

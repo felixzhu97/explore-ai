@@ -11,11 +11,14 @@
 | [API 参考](./API.md) | AI 服务 REST API 端点 |
 | [开发指南](./DEVELOPMENT.md) | 本地开发环境配置和工作流程 |
 | [C4 模型](./c4/README.md) | 系统架构 C4 模型图 |
+| [Wardley 地图](./wardley-map.png) | 技术演进与依赖关系图 |
 | [RAG 服务](../services/rag/README.md) | RAG 服务文档 |
 
 ## 项目概览
 
 AI-Test Platform 是一个 TypeScript/Python monorepo 项目，整合了以下组件：
+
+![Wardley Map](./wardley-map.png)
 
 - **React 前端** (`apps/web`) - 用户界面，支持 9 个专业 Agent 面板、多语言（EN/ZH/JA/FR/ES）
 - **Express.js 服务端** (`apps/server`) - 后端工具接口
