@@ -225,7 +225,7 @@ export const translations: Record<Language, Translations> = {
       model: '模型',
       llmops: 'LLMOps',
       aiops: 'AIOps',
-      vectordb: '向量库',
+        vectordb: '向量库',
     },
     imageUploader: {
       imageLabel: '图片',

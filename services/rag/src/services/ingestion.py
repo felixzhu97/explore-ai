@@ -4,6 +4,7 @@ from loguru import logger
 from ..core.embedding import get_embedding_model, EmbeddingModel
 from ..core.vector_store import get_vector_store, VectorStore
 from ..config import get_settings
+from ..persistence.document_metadata import get_document_store, DocumentRecord, DocumentMetadataStore
 
 
 class IngestionService:
@@ -15,12 +16,14 @@ class IngestionService:
         embedding_model: Optional[EmbeddingModel] = None,
         chunk_size: Optional[int] = None,
         chunk_overlap: Optional[int] = None,
+        document_store: Optional[DocumentMetadataStore] = None,
     ):
         settings = get_settings()
         self.vector_store = vector_store or get_vector_store()
         self.embedding_model = embedding_model or get_embedding_model()
         self.chunk_size = chunk_size or settings.CHUNK_SIZE
         self.chunk_overlap = chunk_overlap or settings.CHUNK_OVERLAP
+        self.document_store = document_store or get_document_store()
 
         try:
             self.encoding = tiktoken.get_encoding("cl100k_base")
@@ -62,10 +65,29 @@ class IngestionService:
         """Ingest a document into the vector store."""
         metadata_with_id = {**metadata, "doc_id": doc_id}
 
+        # Record indexing start
+        self.document_store.add_indexing_history(
+            doc_id=doc_id,
+            action="ingest",
+            status="in_progress",
+        )
+
         chunks = self._split_text(text)
         if not chunks:
             logger.warning(f"No chunks generated for doc_id: {doc_id}")
+            self.document_store.complete_indexing_history(
+                doc_id=doc_id,
+                status="failed",
+                error_message="No chunks generated",
+            )
             return {"doc_id": doc_id, "chunks": 0}
+
+        # Update document status to indexing
+        self.document_store.update_document(
+            doc_id=doc_id,
+            status="indexing",
+            chunk_count=len(chunks),
+        )
 
         logger.info(f"Generating embeddings for {len(chunks)} chunks")
         vectors = self.embedding_model.embed(chunks)
@@ -76,6 +98,18 @@ class IngestionService:
             vectors=vectors,
             texts=chunks,
             metadata=metadata_list,
+        )
+
+        # Update document status to completed
+        self.document_store.update_document(
+            doc_id=doc_id,
+            status="completed",
+            chunk_count=len(chunks),
+            indexed_at=metadata_with_id.get("indexed_at"),
+        )
+        self.document_store.complete_indexing_history(
+            doc_id=doc_id,
+            status="completed",
         )
 
         logger.info(f"Ingested {len(chunks)} chunks for doc_id: {doc_id}")

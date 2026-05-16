@@ -66,7 +66,7 @@ class DocumentStats(BaseModel):
     filename: str
     total_chunks: int
     source: str
-    uploaded_at: Optional[float] = None
+    uploaded_at: Optional[str] = None
 
 
 class DocumentListResponse(BaseModel):

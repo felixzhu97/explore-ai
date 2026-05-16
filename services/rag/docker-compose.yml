@@ -12,6 +12,12 @@ services:
       - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Redis 缓存配置 (可选，不配置时使用内存缓存)
+      - REDIS_HOST=${REDIS_HOST:-}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+    volumes:
+      # 持久化 SQLite 数据库
+      - ./data:/app/data
     depends_on:
       - qdrant
     restart: unless-stopped
@@ -25,3 +31,12 @@ services:
     volumes:
       - ./volumes/qdrant:/qdrant/storage
     restart: unless-stopped
+
+  # Redis 缓存服务 (可选)
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./volumes/redis:/data
+  #   restart: unless-stopped

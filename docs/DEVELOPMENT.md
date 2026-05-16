@@ -467,3 +467,4 @@ python -m pytest -k "detect" -v
 - [Ultralytics YOLO](https://docs.ultralytics.com/)
 - [HuggingFace Transformers](https://huggingface.co/docs/transformers/)
 - [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)
+

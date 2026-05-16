@@ -74,6 +74,21 @@ The AI-Test Platform is a full-stack application with a microservices-inspired a
 │                      Port: 6333                                  │
 │         (Semantic Search & Document Storage)                     │
 └─────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Digital Human Service                            │
+│                 (FastAPI + Python)                                │
+│                      Port: 8004                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │  WebSocket   │  │   TTS        │  │    Expression       │  │
+│  │   Handler    │  │   Engine     │  │    Controller       │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │    Session    │  │  AI Agents   │  │      Viseme        │  │
+│  │    Manager    │  │   Client     │  │     Generator      │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## AI Agents Multi-Agent System
@@ -242,6 +257,30 @@ Retrieval-Augmented Generation service.
 - LLM-powered question answering
 - Conversation history management
 
+### 6. Digital Human Service (`services/digital-human-service`)
+
+Real-time conversational digital human service.
+
+**Responsibilities:**
+- Real-time WebSocket bidirectional communication
+- Text-to-speech synthesis (Edge TTS, OpenAI TTS, Google TTS)
+- Facial expression and gesture animation control
+- Lip-sync (Viseme) generation
+- Session management and conversation context
+
+**Tech Stack:**
+- FastAPI + Python 3.11+
+- WebSocket (FastAPI WebSocket)
+- edge-tts / OpenAI SDK / gTTS
+- Redis (session caching)
+
+**Features:**
+- Multiple TTS engine support
+- 6 basic expressions: neutral, happy, sad, surprised, angry, thinking
+- 5 gestures: idle, nod, wave, point, shrug
+- Real-time lip-sync animation
+- Emotion detection and expression response
+
 ## Data Flow
 
 ### AI Agents Request Flow
@@ -335,6 +374,21 @@ ai-test/
 │       │       ├── ingestion.py    # Document ingestion
 │       │       └── rag_chain.py    # RAG chain
 │       └── ...
+│   └── digital-human-service/  # Digital Human service
+│       ├── src/
+│       │   ├── main.py         # FastAPI app entry
+│       │   ├── api/
+│       │   │   ├── routes.py   # API routes
+│       │   │   └── websocket.py # WebSocket handlers
+│       │   ├── core/
+│       │   │   ├── config.py   # Configuration
+│       │   │   └── exceptions.py # Custom exceptions
+│       │   ├── schemas/        # Pydantic models
+│       │   └── services/
+│       │       ├── tts/        # TTS engine implementations
+│       │       ├── expression/ # Expression controller
+│       │       └── session/    # Session manager
+│       └── ...
 └── docs/                       # Documentation
 ```
 
@@ -364,6 +418,15 @@ ai-test/
 | `POST` | `/documents/ingest` | Ingest documents |
 | `POST` | `/chat` | Chat with RAG |
 
+### Digital Human Service (Port 8004)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check |
+| `GET` | `/api/tts/voices` | List available TTS voices |
+| `POST` | `/api/tts/synthesize` | Synchronous TTS synthesis |
+| `WS` | `/ws/{session_id}` | WebSocket for real-time conversation |
+
 ## Configuration
 
 ### AI Agents Configuration
@@ -384,6 +447,32 @@ OCR_LANG=ch                    # OCR languages
 MAX_IMAGE_SIZE=10485760        # 10MB max file size
 MODEL_CACHE_DIR=./models       # Model cache location
 MAX_CONCURRENT_REQUESTS=4      # Request queue limit
+```
+
+### Digital Human Service Configuration
+
+```env
+# Service Settings
+HOST=0.0.0.0
+PORT=8004
+LOG_LEVEL=INFO
+
+# AI Agents Integration
+AI_AGENTS_URL=http://localhost:8003
+AI_AGENTS_TIMEOUT=120
+
+# TTS Engine (edge, openai, gtts)
+TTS_ENGINE=edge
+EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
+OPENAI_API_KEY=sk-xxxxx        # Required for OpenAI TTS
+
+# Avatar Settings
+AVATAR_DEFAULT_EMOTION=neutral
+AVATAR_DEFAULT_GESTURE=idle
+
+# WebSocket Settings
+WEBSOCKET_HEARTBEAT_INTERVAL=30
+SESSION_TIMEOUT=3600
 ```
 
 ## Deployment Options

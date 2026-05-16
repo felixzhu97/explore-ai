@@ -8,36 +8,41 @@ from loguru import logger
 from ..schemas import ChatRequest, ChatResponse, ChatHistoryItem
 from ..services.rag_chain import RAGChain
 from ..config import get_settings
+from ..persistence.session_store import get_session_store, SessionStore
+from ..persistence.cache_manager import get_cache_manager, reset_cache_manager
 
 router = APIRouter(prefix="/chat", tags=["chat"])
-
-_chat_histories: dict[str, list[ChatHistoryItem]] = {}
 
 
 @router.post("/", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Process a chat query and return a response with sources."""
     settings = get_settings()
+    session_store = get_session_store()
 
     session_id = request.session_id or str(uuid.uuid4())
 
-    if session_id not in _chat_histories:
-        _chat_histories[session_id] = []
+    # Ensure session exists
+    session = session_store.get_session(session_id)
+    if not session:
+        session_store.create_session(session_id)
 
     try:
         rag_chain = RAGChain(top_k=request.top_k)
         response = await rag_chain.query(request)
 
-        history_item = ChatHistoryItem(
-            query=request.query,
-            answer=response.answer,
-            sources=response.sources,
-            timestamp=time.time(),
+        # Persist messages to database
+        session_store.add_message(
+            session_id=session_id,
+            role="user",
+            content=request.query,
         )
-        _chat_histories[session_id].append(history_item)
-
-        if len(_chat_histories[session_id]) > 50:
-            _chat_histories[session_id] = _chat_histories[session_id][-50:]
+        session_store.add_message(
+            session_id=session_id,
+            role="assistant",
+            content=response.answer,
+            sources=[s.model_dump() for s in response.sources],
+        )
 
         logger.info(f"Chat session {session_id}: query processed successfully")
 
@@ -120,21 +125,22 @@ async def stream_chat(request: ChatRequest):
 @router.get("/history/{session_id}")
 async def get_history(session_id: str):
     """Get chat history for a session."""
-    if session_id not in _chat_histories:
-        return {"session_id": session_id, "messages": [], "total": 0}
+    session_store = get_session_store()
+    messages = session_store.get_messages(session_id)
 
-    messages = _chat_histories[session_id]
+    if not messages:
+        return {"session_id": session_id, "messages": [], "total": 0}
 
     return {
         "session_id": session_id,
         "messages": [
             {
-                "query": item.query,
-                "answer": item.answer,
-                "sources": [s.model_dump() for s in item.sources],
-                "timestamp": item.timestamp,
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.timestamp,
+                "sources": json.loads(msg.sources) if msg.sources else [],
             }
-            for item in messages
+            for msg in messages
         ],
         "total": len(messages),
     }
@@ -143,11 +149,11 @@ async def get_history(session_id: str):
 @router.delete("/history/{session_id}")
 async def clear_history(session_id: str):
     """Clear chat history for a session."""
-    if session_id in _chat_histories:
-        del _chat_histories[session_id]
+    session_store = get_session_store()
+    success = session_store.delete_session(session_id)
+    if success:
         return {"status": "success", "message": f"History for session {session_id} cleared"}
-
-    return {"status": "success", "message": "No history found for session"}
+    return {"status": "error", "message": "Failed to clear history"}
 
 
 @router.post("/ingest-text")
@@ -196,3 +202,6 @@ async def ingest_text(
     except Exception as e:
         logger.error(f"Error ingesting text: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to ingest text: {str(e)}")
+
+
+_chat_histories: dict = {}

@@ -14,10 +14,9 @@ from ..document_loader.loader import DocumentLoaderFactory, load_from_url
 from ..services.ingestion import IngestionService
 from ..core.vector_store import get_vector_store
 from ..config import get_settings
+from ..persistence.document_metadata import get_document_store, DocumentRecord
 
 router = APIRouter(prefix="/documents", tags=["documents"])
-
-_document_registry: dict[str, dict] = {}
 
 
 @router.post("/upload", response_model=UploadResponse)
@@ -28,6 +27,7 @@ async def upload_document(
 ):
     """Upload and ingest a document."""
     settings = get_settings()
+    doc_store = get_document_store()
 
     content = await file.read()
 
@@ -57,10 +57,25 @@ async def upload_document(
         doc_id=doc_id,
     )
 
+    # Create document record
+    record = DocumentRecord(
+        doc_id=doc_id,
+        title=title or filename,
+        source=source.value,
+        filename=filename,
+        file_size=len(content),
+        mime_type=file.content_type,
+        status="pending",
+        chunk_size=settings.CHUNK_SIZE,
+        chunk_overlap=settings.CHUNK_OVERLAP,
+    )
+    doc_store.add_document(record)
+
     try:
         chunks = await DocumentLoaderFactory.load(content=content, metadata=metadata)
 
         if not chunks:
+            doc_store.update_document(doc_id=doc_id, status="failed", error_message="No content extracted")
             raise HTTPException(status_code=400, detail="No content could be extracted from the file")
 
         ingestion_service = IngestionService()
@@ -72,15 +87,6 @@ async def upload_document(
             doc_id=doc_id,
         )
 
-        _document_registry[doc_id] = {
-            "doc_id": doc_id,
-            "filename": filename,
-            "source": source.value,
-            "chunks": result["chunks"],
-            "uploaded_at": time.time(),
-            "metadata": metadata.model_dump(exclude_none=True),
-        }
-
         logger.info(f"Uploaded document {doc_id}: {filename} with {result['chunks']} chunks")
 
         return UploadResponse(
@@ -91,6 +97,7 @@ async def upload_document(
         )
 
     except Exception as e:
+        doc_store.update_document(doc_id=doc_id, status="failed", error_message=str(e))
         logger.error(f"Error uploading document: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
 
@@ -101,6 +108,7 @@ async def ingest_url(
     title: Optional[str] = Query(None, description="Document title"),
 ):
     """Ingest a document from a URL."""
+    doc_store = get_document_store()
     doc_id = str(uuid.uuid4())
 
     metadata = DocumentMetadata(
@@ -110,10 +118,20 @@ async def ingest_url(
         doc_id=doc_id,
     )
 
+    # Create document record
+    record = DocumentRecord(
+        doc_id=doc_id,
+        title=title or url,
+        source=DocumentSource.WEB.value,
+        status="pending",
+    )
+    doc_store.add_document(record)
+
     try:
         chunks = await load_from_url(url=url, metadata=metadata)
 
         if not chunks:
+            doc_store.update_document(doc_id=doc_id, status="failed", error_message="No content extracted")
             raise HTTPException(status_code=400, detail="No content could be extracted from the URL")
 
         ingestion_service = IngestionService()
@@ -125,15 +143,6 @@ async def ingest_url(
             doc_id=doc_id,
         )
 
-        _document_registry[doc_id] = {
-            "doc_id": doc_id,
-            "filename": url,
-            "source": DocumentSource.WEB.value,
-            "chunks": result["chunks"],
-            "uploaded_at": time.time(),
-            "metadata": metadata.model_dump(exclude_none=True),
-        }
-
         logger.info(f"Ingested URL {doc_id}: {url} with {result['chunks']} chunks")
 
         return UploadResponse(
@@ -144,6 +153,7 @@ async def ingest_url(
         )
 
     except Exception as e:
+        doc_store.update_document(doc_id=doc_id, status="failed", error_message=str(e))
         logger.error(f"Error ingesting URL: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to ingest URL: {str(e)}")
 
@@ -151,58 +161,71 @@ async def ingest_url(
 @router.get("/database", response_model=DocumentListResponse)
 async def list_documents_from_database():
     """List all documents stored in the vector database."""
+    doc_store = get_document_store()
+
     try:
-        vector_store = get_vector_store()
-        docs = vector_store.get_all_documents()
-        
+        # Get document list from persistent store
+        doc_records = doc_store.list_documents(limit=500)
+
         documents = [
             DocumentStats(
-                doc_id=doc["doc_id"],
-                filename=doc.get("filename", "Unknown"),
-                total_chunks=0,
-                source=doc.get("source", "unknown"),
+                doc_id=doc.doc_id,
+                filename=doc.filename or doc.title,
+                total_chunks=doc.chunk_count,
+                source=doc.source,
+                uploaded_at=doc.created_at,
             )
-            for doc in docs
+            for doc in doc_records
         ]
-        
+
         return DocumentListResponse(documents=documents, total=len(documents))
     except Exception as e:
         logger.error(f"Error listing documents from database: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to list documents: {str(e)}")
 
 
-@router.get("/", response_model=DocumentListResponse)
+@router.get("/")
 async def list_documents(collection: Optional[str] = None):
-    """List all uploaded documents."""
+    """List all uploaded documents from persistent store."""
+    doc_store = get_document_store()
+
+    doc_records = doc_store.list_documents(limit=100)
+
     documents = [
         DocumentStats(
-            doc_id=doc["doc_id"],
-            filename=doc["filename"],
-            total_chunks=doc["chunks"],
-            source=doc["source"],
-            uploaded_at=doc.get("uploaded_at"),
+            doc_id=doc.doc_id,
+            filename=doc.filename or doc.title,
+            total_chunks=doc.chunk_count,
+            source=doc.source,
+            uploaded_at=doc.created_at,
         )
-        for doc in _document_registry.values()
+        for doc in doc_records
     ]
 
-    return DocumentListResponse(documents=documents, total=len(documents))
+    return {"documents": documents, "total": len(documents)}
 
 
 @router.get("/{doc_id}/stats")
 async def get_document_stats(doc_id: str):
     """Get statistics for a specific document."""
-    if doc_id not in _document_registry:
+    doc_store = get_document_store()
+    doc = doc_store.get_document(doc_id)
+
+    if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    doc = _document_registry[doc_id]
     vector_store = get_vector_store()
 
     return {
         "doc_id": doc_id,
-        "filename": doc["filename"],
-        "total_chunks": doc["chunks"],
-        "source": doc["source"],
-        "uploaded_at": doc.get("uploaded_at"),
+        "filename": doc.filename or doc.title,
+        "title": doc.title,
+        "total_chunks": doc.chunk_count,
+        "source": doc.source,
+        "status": doc.status,
+        "created_at": doc.created_at,
+        "indexed_at": doc.indexed_at,
+        "file_size": doc.file_size,
         "vector_stats": vector_store.get_stats(),
     }
 
@@ -210,14 +233,18 @@ async def get_document_stats(doc_id: str):
 @router.delete("/{doc_id}")
 async def delete_document(doc_id: str):
     """Delete a document and its associated vectors."""
-    if doc_id not in _document_registry:
+    doc_store = get_document_store()
+    doc = doc_store.get_document(doc_id)
+
+    if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
     try:
         vector_store = get_vector_store()
         vector_store.delete_by_doc_id(doc_id)
 
-        del _document_registry[doc_id]
+        # Delete persistent record
+        doc_store.delete_document(doc_id)
 
         logger.info(f"Deleted document: {doc_id}")
 
