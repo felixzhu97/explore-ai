@@ -14,25 +14,121 @@ from loguru import logger
 import json
 import re
 
-from services.ai_agents.agents.supervisor import SupervisorAgent
-from services.ai_agents.agents.rag_agent import RAGAgent
-from services.ai_agents.agents.llmops_agent import LLMOpsAgent
-from services.ai_agents.agents.aiops_agent import AIOpsAgent
-from services.ai_agents.agents.pipeline_agent import PipelineAgent
-from services.ai_agents.agents.feature_store_agent import FeatureStoreAgent
-from services.ai_agents.agents.k8s_agent import K8sAgent
-from services.ai_agents.agents.monitoring_agent import MonitoringAgent
-from services.ai_agents.agents.vector_db_agent import VectorDBAgent
-from services.ai_agents.agents.model_agent import ModelAgent
-from services.ai_agents.agents.tts_agent import TTSAgent
+from services.ai_agents.presentation.agents.supervisor import SupervisorAgent
+from services.ai_agents.presentation.agents.rag_agent import RAGAgent
+from services.ai_agents.presentation.agents.llmops_agent import LLMOpsAgent
+from services.ai_agents.presentation.agents.aiops_agent import AIOpsAgent
+from services.ai_agents.presentation.agents.pipeline_agent import PipelineAgent
+from services.ai_agents.presentation.agents.feature_store_agent import FeatureStoreAgent
+from services.ai_agents.presentation.agents.k8s_agent import K8sAgent
+from services.ai_agents.presentation.agents.monitoring_agent import MonitoringAgent
+from services.ai_agents.presentation.agents.vector_db_agent import VectorDBAgent
+from services.ai_agents.presentation.agents.model_agent import ModelAgent
+from services.ai_agents.presentation.agents.tts_agent import TTSAgent
+from services.ai_agents.presentation.agents.video_agent import VideoAgent
 
-from services.ai_agents.tools.vector_tools import get_all_vector_tools
-from services.ai_agents.tools.k8s_tools import get_all_k8s_tools
-from services.ai_agents.tools.monitoring_tools import get_all_monitoring_tools
-from services.ai_agents.tools.model_tools import get_all_model_tools
-from services.ai_agents.tools.llmops_tools import get_all_llmops_tools
-from services.ai_agents.tools.aiops_tools import get_all_aiops_tools
-from services.ai_agents.tools.tts_tools import get_all_tts_tools
+from services.ai_agents.infrastructure.tools.vector_tools import get_all_vector_tools
+from services.ai_agents.infrastructure.tools.k8s_tools import get_all_k8s_tools
+from services.ai_agents.infrastructure.tools.monitoring_tools import get_all_monitoring_tools
+from services.ai_agents.infrastructure.tools.model_tools import get_all_model_tools
+from services.ai_agents.infrastructure.tools.llmops_tools import get_all_llmops_tools
+from services.ai_agents.infrastructure.tools.aiops_tools import get_all_aiops_tools
+from services.ai_agents.infrastructure.tools.tts_tools import get_all_tts_tools
+from services.ai_agents.infrastructure.tools.video_tools import get_all_video_tools
+
+from services.ai_agents.application.graphs.aiops_graph import AIOpsGraphWorkflow
+from services.ai_agents.application.graphs.llmops_graph import LLMOpsGraphWorkflow
+from services.ai_agents.application.graphs.rag_graph import RAGGraphWorkflow
+
+
+def get_available_workflows() -> Dict[str, Any]:
+    """Get information about available workflow graphs."""
+    return {
+        "aiops": {
+            "description": "LangGraph workflows for intelligent incident response and operations",
+            "workflows": [
+                {
+                    "name": "incident_response",
+                    "method": "create_incident_response_graph",
+                    "steps": ["create_incident", "detect_anomalies", "collect_diagnostics",
+                             "analyze_root_cause", "execute_remediation", "verify_resolution"]
+                },
+                {
+                    "name": "anomaly_detection",
+                    "method": "create_anomaly_detection_graph",
+                    "steps": ["collect_metrics", "apply_detection", "analyze_patterns", "generate_alerts"]
+                },
+                {
+                    "name": "root_cause_analysis",
+                    "method": "create_root_cause_analysis_graph",
+                    "steps": ["gather_evidence", "correlate_events", "build_dependency",
+                             "identify_root_cause", "validate_hypothesis"]
+                },
+                {
+                    "name": "remediation",
+                    "method": "create_remediation_graph",
+                    "steps": ["assess_severity", "select_strategy", "execute_fix",
+                             "monitor_recovery", "confirm_resolution"]
+                },
+                {
+                    "name": "post_incident",
+                    "method": "create_post_incident_graph",
+                    "steps": ["reconstruct_timeline", "analyze_impact", "extract_lessons",
+                             "generate_actions", "update_runbooks"]
+                }
+            ]
+        },
+        "llmops": {
+            "description": "LangGraph workflows for ML model lifecycle automation",
+            "workflows": [
+                {
+                    "name": "training_pipeline",
+                    "method": "create_training_pipeline_graph",
+                    "steps": ["register", "train", "log_metrics", "evaluate", "register_version"]
+                },
+                {
+                    "name": "deployment_pipeline",
+                    "method": "create_deployment_pipeline_graph",
+                    "steps": ["validate", "prepare_infra", "deploy", "setup_monitoring", "verify"]
+                },
+                {
+                    "name": "ab_testing",
+                    "method": "create_ab_testing_graph",
+                    "steps": ["setup_ab", "deploy_variants", "monitor", "analyze", "select_winner"]
+                },
+                {
+                    "name": "full_ml_pipeline",
+                    "method": "create_full_ml_pipeline_graph",
+                    "steps": ["validate_data", "feature_engineering", "train", "evaluate", "deploy"]
+                }
+            ]
+        },
+        "rag": {
+            "description": "LangGraph workflows for advanced RAG operations",
+            "workflows": [
+                {
+                    "name": "simple_rag",
+                    "method": "create_simple_rag_graph",
+                    "steps": ["retrieve", "generate"]
+                },
+                {
+                    "name": "multi_hop_rag",
+                    "method": "create_multi_hop_rag_graph",
+                    "steps": ["initial_retrieve", "decompose", "expand_retrieve", "synthesize"]
+                },
+                {
+                    "name": "hybrid_rag",
+                    "method": "create_hybrid_rag_graph",
+                    "steps": ["dense_retrieve", "sparse_retrieve", "fusion", "generate"]
+                },
+                {
+                    "name": "iterative_rag",
+                    "method": "create_iterative_rag_graph",
+                    "steps": ["retrieve", "generate", "evaluate", "refine_query (conditional)"]
+                }
+            ]
+        }
+    }
 
 
 def get_cors_origins() -> list[str]:
@@ -176,7 +272,7 @@ async def initialize_agents():
     
     try:
         from langchain_ollama import ChatOllama
-        from services.ai_agents.core.config import get_settings
+        from services.ai_agents.infrastructure.config import get_settings
         
         settings = get_settings()
         
@@ -203,6 +299,8 @@ async def initialize_agents():
         monitoring_agent = MonitoringAgent(llm=llm, tools=get_all_monitoring_tools())
         vector_agent = VectorDBAgent(llm=llm, tools=get_all_vector_tools())
         model_agent = ModelAgent(llm=llm, tools=get_all_model_tools())
+        tts_agent = TTSAgent(llm=llm, tools=get_all_tts_tools())
+        video_agent = VideoAgent(llm=llm, tools=get_all_video_tools())
         
         # Create supervisor with all agents
         _supervisor = SupervisorAgent(
@@ -216,6 +314,8 @@ async def initialize_agents():
             monitoring_agent=monitoring_agent,
             vector_agent=vector_agent,
             model_agent=model_agent,
+            tts_agent=tts_agent,
+            video_agent=video_agent,
         )
         
         logger.info(f"Supervisor initialized with agents: {_supervisor.available_agents}")
@@ -260,7 +360,30 @@ def create_app() -> FastAPI:
             "service": "ai_agents",
             "agents_initialized": _supervisor is not None,
             "available_agents": _supervisor.available_agents if _supervisor else [],
+            "workflows_available": True,
         }
+
+    @app.get("/workflows")
+    async def list_workflows():
+        """List all available LangGraph workflows.
+        
+        These workflows can be used programmatically:
+        
+        ```python
+        from services.ai_agents.application.graphs import AIOpsGraphWorkflow, LLMOpsGraphWorkflow, RAGGraphWorkflow
+        
+        # AIOps workflow example
+        aiops_workflow = AIOpsGraphWorkflow(llm=llm, aiops_agent=aiops_agent)
+        graph = aiops_workflow.create_incident_response_graph()
+        result = graph.invoke({"messages": [HumanMessage(content="...")]})
+        
+        # RAG workflow example
+        rag_workflow = RAGGraphWorkflow(llm=llm, rag_agent=rag_agent)
+        graph = rag_workflow.create_multi_hop_rag_graph()
+        result = graph.invoke({"messages": [HumanMessage(content="...")], "collection": "docs"})
+        ```
+        """
+        return get_available_workflows()
     
     @app.get("/agents")
     async def list_agents():

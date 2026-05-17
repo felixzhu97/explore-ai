@@ -1,6 +1,6 @@
 """Video generation domain service.
 
-This module defines the domain service interface for video generation.
+This module defines the pure domain service for video generation validation.
 The interface is a Protocol (duck-typed) - implementations must be provided
 by the infrastructure layer.
 
@@ -9,44 +9,6 @@ Domain layer rules:
 - No direct provider references
 - Only business logic validation
 """
-
-from typing import Protocol, Optional
-from ..entities.video_task import VideoTask, VideoTaskStatus
-from ..value_objects.video_config import VideoConfig
-
-
-class IVideoProvider(Protocol):
-    """Protocol for video generation providers (infrastructure concern).
-
-    This protocol defines the interface that video providers must implement.
-    Providers are infrastructure concerns and handle actual HTTP calls.
-    """
-
-    @property
-    def provider_name(self) -> str: ...
-
-    async def generate_video(self, prompt: str, **kwargs) -> dict: ...
-    async def get_task_status(self, task_id: str) -> dict: ...
-
-
-class IVideoGenerationService(Protocol):
-    """Protocol for video generation service (application/infrastructure layer).
-
-    Defines the interface for video generation operations.
-    Concrete implementation resides in infrastructure layer.
-    """
-
-    async def create_task(
-        self,
-        prompt: str,
-        config: VideoConfig,
-    ) -> VideoTask:
-        """Create a new video generation task."""
-        ...
-
-    async def get_task_status(self, task_id: str) -> VideoTask:
-        """Get updated task status from provider."""
-        ...
 
 
 class VideoGenerationService:

@@ -1,28 +1,51 @@
-"""Core utilities."""
+"""Core utilities and dependency injection for Vision Service.
 
-from .config import Settings, get_settings, VideoProvider
-from .image_gen_config import ImageGenSettings, get_image_gen_settings
-from .dependencies import (
+This module provides configuration management and dependency injection
+for the Vision Service application.
+
+New code should import from the dedicated submodules:
+    from core.config import Settings, get_settings
+    from core.di import get_yolo, get_video_provider
+"""
+
+from .config import Settings, VideoProvider, get_settings
+from .di import (
     ModelContainer,
     get_yolo,
     get_blip,
     get_easyocr,
     get_generator,
     get_video_provider,
+    get_video_generation_service,
+    get_image_generation_service,
+    get_image_generation_rules,
+    get_generate_image_use_case,
+    get_generate_variation_use_case,
+    get_upscale_image_use_case,
+    get_list_models_use_case,
+    get_analyze_image_use_case,
     _reset_instances,
 )
 
 __all__ = [
+    # Config
     "Settings",
-    "get_settings",
     "VideoProvider",
-    "ImageGenSettings",
-    "get_image_gen_settings",
+    "get_settings",
+    # DI
     "ModelContainer",
     "get_yolo",
     "get_blip",
     "get_easyocr",
     "get_generator",
     "get_video_provider",
+    "get_video_generation_service",
+    "get_image_generation_service",
+    "get_image_generation_rules",
+    "get_generate_image_use_case",
+    "get_generate_variation_use_case",
+    "get_upscale_image_use_case",
+    "get_list_models_use_case",
+    "get_analyze_image_use_case",
     "_reset_instances",
 ]

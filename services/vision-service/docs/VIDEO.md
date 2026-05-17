@@ -369,7 +369,7 @@ providers = {
 Providers are managed through dependency injection:
 
 ```python
-from src.core.dependencies import get_video_provider
+from src.core.di import get_video_provider
 
 @router.post("/video/generate")
 async def generate_video(

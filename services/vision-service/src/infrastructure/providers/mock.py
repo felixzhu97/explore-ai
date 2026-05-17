@@ -8,8 +8,6 @@ from typing import Optional
 from .base import BaseVideoProvider
 from loguru import logger
 import uuid
-import asyncio
-from datetime import datetime
 
 
 class MockVideoProvider(BaseVideoProvider):

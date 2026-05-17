@@ -8,9 +8,8 @@ orchestrates between the domain layer and external services.
 from typing import Optional
 
 from ...domain.entities.video_task import VideoTask, VideoTaskStatus, TaskNotFoundError
-from ...domain.value_objects.video_config import VideoConfig
-from ...domain.services.video_generation_service import IVideoProvider
-from ...domain.services.video_generation_service import IVideoGenerationService
+from ...domain.value_objects.common import VideoConfig
+from ...domain.ports.video_providers import IVideoProvider, IVideoGenerationService
 
 
 class VideoGenerationServiceImpl(IVideoGenerationService):

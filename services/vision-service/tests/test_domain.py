@@ -8,8 +8,7 @@ from src.domain.entities.video_task import (
     InvalidStateTransitionError,
 )
 from src.domain.entities.image import ImageGeneration, ImageModel
-from src.domain.value_objects.dimensions import Dimensions
-from src.domain.value_objects.video_config import VideoConfig, AspectRatio, VideoQuality
+from src.domain.value_objects.common import Dimensions, VideoConfig, AspectRatio, VideoQuality
 
 
 class TestVideoTask:

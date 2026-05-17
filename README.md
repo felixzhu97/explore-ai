@@ -71,38 +71,30 @@
 ## 架构图
 
 ### Wardley 地图
-
-Wardley Map
+![Wardley Map](docs/c4/png/AI-Test-Wardley-Map.png)
 
 ### C1 系统上下文图
-
-C1 Context
+![C1 Context](docs/c4/png/C4-Context.png)
 
 ### C2 容器图
-
-C2 Container
+![C2 Container](docs/c4/png/C4-Container.png)
 
 ### C3 组件图
 
 #### AI Agents 服务组件
-
-C3 AI Agents
+![C3 AI Agents](docs/c4/png/C4-Component-AI-Agents.png)
 
 #### 前端组件
-
-C3 Frontend
+![C3 Frontend](docs/c4/png/C4-Component-Frontend.png)
 
 #### RAG 服务组件
-
-C3 RAG
+![C3 RAG](docs/c4/png/C4-Component-RAG-Service.png)
 
 #### Vision Service 组件
-
-C3 Vision
+![C3 Vision](docs/c4/png/C4-Component-Vision-Service.png)
 
 #### Media Services 组件
-
-C3 Media
+![C3 Media](docs/c4/png/C4-Component-Media-Services.png)
 
 ## 技术栈
 

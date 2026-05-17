@@ -11,7 +11,7 @@ import base64
 import random
 import time
 
-from ...domain.services.image_generation_protocol import IImageGenerationService
+from ...domain.ports.image_providers import IImageGenerationService
 
 
 class ImageGenerationServiceImpl(IImageGenerationService):

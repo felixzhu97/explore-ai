@@ -2,13 +2,19 @@
 
 This use case orchestrates image generation by delegating to
 the image generation service (infrastructure layer).
+
+Business rules (validation, seed generation, etc.) are delegated
+to ImageGenerationRules in the domain layer.
 """
 
-from typing import Optional
-import uuid
 import time
 
-from ...domain.services.image_generation_protocol import IImageGenerationService
+from ...domain.ports.image_providers import IImageGenerationService
+from ...domain.services.image_generation_rules import (
+    ImageGenerationRules,
+    InvalidPromptError,
+    InvalidScaleError,
+)
 from ..dtos.image_gen_dtos import (
     GenerateImageInputDTO,
     GenerateImageOutputDTO,
@@ -23,27 +29,34 @@ from ..dtos.image_gen_dtos import (
 class GenerateImageUseCase:
     """Application use case for text-to-image generation.
 
-    This use case handles the business logic for image generation,
-    including parameter validation and response formatting.
+    This use case handles orchestration of image generation,
+    delegating business rules to the domain layer.
 
     Architecture:
         API -> GenerateImageUseCase -> IImageGenerationService (implementation)
         (api)       (application)              (infrastructure)
 
     The use case is responsible for:
-    - Input validation (business rules)
-    - Response formatting
+    - Orchestrating the workflow
     - Timing and metrics
-    - Delegating to infrastructure for actual generation
+    - Response formatting
+    - Delegating business rules to ImageGenerationRules (domain)
     """
 
-    def __init__(self, image_service: IImageGenerationService):
+    def __init__(
+        self,
+        image_service: IImageGenerationService,
+        rules: ImageGenerationRules | None = None,
+    ):
         """Initialize the use case with an image generation service.
 
         Args:
             image_service: Implementation of IImageGenerationService protocol.
+            rules: Optional ImageGenerationRules instance. If not provided,
+                   uses the default ImageGenerationRules.
         """
         self._service = image_service
+        self._rules = rules if rules is not None else ImageGenerationRules()
 
     async def execute(self, input_dto: GenerateImageInputDTO) -> GenerateImageOutputDTO:
         """Execute image generation.
@@ -55,14 +68,13 @@ class GenerateImageUseCase:
             Output data transfer object with generated images and metadata.
 
         Raises:
-            ValueError: If prompt is empty or parameters are invalid.
+            InvalidPromptError: If prompt is empty or contains only whitespace.
         """
         start_time = time.time()
 
-        if not input_dto.prompt.strip():
-            raise ValueError("Prompt cannot be empty")
+        self._rules.validate_prompt(input_dto.prompt)
 
-        seed = input_dto.seed if input_dto.seed is not None else uuid.uuid4().time_low
+        seed = self._rules.generate_seed(input_dto.seed)
 
         images = await self._service.generate(
             prompt=input_dto.prompt,
@@ -81,7 +93,7 @@ class GenerateImageUseCase:
         return GenerateImageOutputDTO(
             images=images,
             seed=seed,
-            model="stabilityai/stable-diffusion-2-1",
+            model=self._rules.DEFAULT_MODEL,
             prompt=input_dto.prompt,
             inference_steps=input_dto.num_inference_steps,
             guidance_scale=input_dto.guidance_scale,
@@ -94,12 +106,18 @@ class GenerateImageUseCase:
 class GenerateVariationUseCase:
     """Application use case for generating image variations.
 
-    Handles the business logic for creating variations of existing images.
+    Handles orchestration of image variation generation,
+    delegating business rules to the domain layer.
     """
 
-    def __init__(self, image_service: IImageGenerationService):
+    def __init__(
+        self,
+        image_service: IImageGenerationService,
+        rules: ImageGenerationRules | None = None,
+    ):
         """Initialize the use case with an image generation service."""
         self._service = image_service
+        self._rules = rules if rules is not None else ImageGenerationRules()
 
     async def execute(
         self, input_dto: GenerateVariationInputDTO
@@ -113,14 +131,13 @@ class GenerateVariationUseCase:
             Output data transfer object with generated variations.
 
         Raises:
-            ValueError: If prompt is empty or parameters are invalid.
+            InvalidPromptError: If prompt is empty or contains only whitespace.
         """
         start_time = time.time()
 
-        if not input_dto.prompt.strip():
-            raise ValueError("Prompt cannot be empty")
+        self._rules.validate_prompt(input_dto.prompt)
 
-        seed = input_dto.seed if input_dto.seed is not None else uuid.uuid4().time_low
+        seed = self._rules.generate_seed(input_dto.seed)
 
         images = await self._service.generate_variation(
             image=input_dto.image,
@@ -147,12 +164,18 @@ class GenerateVariationUseCase:
 class UpscaleImageUseCase:
     """Application use case for image upscaling.
 
-    Handles the business logic for AI-powered image upscaling.
+    Handles orchestration of AI-powered image upscaling,
+    delegating business rules to the domain layer.
     """
 
-    def __init__(self, image_service: IImageGenerationService):
+    def __init__(
+        self,
+        image_service: IImageGenerationService,
+        rules: ImageGenerationRules | None = None,
+    ):
         """Initialize the use case with an image generation service."""
         self._service = image_service
+        self._rules = rules if rules is not None else ImageGenerationRules()
 
     async def execute(self, input_dto: UpscaleImageInputDTO) -> UpscaleImageOutputDTO:
         """Execute image upscaling.
@@ -164,24 +187,16 @@ class UpscaleImageUseCase:
             Output data transfer object with upscaled image.
 
         Raises:
-            ValueError: If scale is not 2 or 4.
+            InvalidScaleError: If scale is not 2 or 4.
+            InvalidImageDataError: If image data is invalid.
         """
-        from PIL import Image
-        import base64
-        import io
-
         start_time = time.time()
 
-        if input_dto.scale not in (2, 4):
-            raise ValueError("Scale must be 2 or 4")
+        self._rules.validate_scale(input_dto.scale)
 
-        # Decode image to get original dimensions
-        try:
-            img_data = base64.b64decode(input_dto.image)
-            original_img = Image.open(io.BytesIO(img_data))
-            original_width, original_height = original_img.size
-        except Exception as e:
-            raise ValueError(f"Invalid base64 image: {e}")
+        original_dims, scaled_dims = self._rules.calculate_dimensions(
+            input_dto.image, input_dto.scale
+        )
 
         upscaled_b64 = await self._service.upscale(
             image=input_dto.image,
@@ -189,20 +204,15 @@ class UpscaleImageUseCase:
             prompt=input_dto.prompt,
         )
 
-        # Decode upscaled image to get new dimensions
-        upscaled_data = base64.b64decode(upscaled_b64)
-        upscaled_img = Image.open(io.BytesIO(upscaled_data))
-        new_width, new_height = upscaled_img.size
-
         processing_time_ms = (time.time() - start_time) * 1000
 
         return UpscaleImageOutputDTO(
             image=upscaled_b64,
             scale=input_dto.scale,
-            original_width=original_width,
-            original_height=original_height,
-            new_width=new_width,
-            new_height=new_height,
+            original_width=original_dims.width,
+            original_height=original_dims.height,
+            new_width=scaled_dims.width,
+            new_height=scaled_dims.height,
             processing_time_ms=processing_time_ms,
         )
 
@@ -223,5 +233,5 @@ class ListModelsUseCase:
         models = self._service.get_available_models()
         return ListModelsOutputDTO(
             models=models,
-            default_model="stabilityai/stable-diffusion-2-1",
+            default_model=ImageGenerationRules.DEFAULT_MODEL,
         )

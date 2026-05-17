@@ -1,8 +1,7 @@
 """Check video status use case."""
 
-from typing import Optional
 from ...domain.entities.video_task import VideoTask
-from ...domain.services.video_generation_service import IVideoGenerationService
+from ...domain.ports.video_providers import IVideoGenerationService
 
 
 class CheckVideoStatusInput:

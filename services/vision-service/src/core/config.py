@@ -1,35 +1,20 @@
-from enum import Enum
-from pydantic_settings import BaseSettings
-from functools import lru_cache
+"""Configuration module - backward compatibility redirect.
 
+This module is deprecated. Import from core.config instead.
 
-class VideoProvider(str, Enum):
-    REPLICATE = "replicate"
-    KLING = "kling"
-    RUNWAY = "runway"
-    PIKA = "pika"
-    SORA = "sora"
-    MOCK = "mock"
+    from core.config import Settings, get_settings
 
+For new code, use:
+    from core.config import Settings, VideoProvider, get_settings
+"""
 
-class Settings(BaseSettings):
-    YOLO_MODEL: str = "yolo11n.pt"
-    BLIP_MODEL: str = "Salesforce/blip-image-captioning-large"
-    OCR_LANG: str = "ch"
-    MAX_IMAGE_SIZE: int = 10 * 1024 * 1024
-    DEVICE: str = "cuda"
-    MODEL_CACHE_DIR: str = "./models"
-    MAX_CONCURRENT_REQUESTS: int = 4
-    HF_ENDPOINT: str = ""
-    VIDEO_PROVIDER: VideoProvider = VideoProvider.MOCK
+from .config.settings import Settings, VideoProvider, get_settings
+from .image_gen_config import ImageGenSettings, get_image_gen_settings
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-
-
-@lru_cache()
-def get_settings() -> Settings:
-    """Get cached settings instance."""
-    return Settings()
+__all__ = [
+    "Settings",
+    "VideoProvider",
+    "get_settings",
+    "ImageGenSettings",
+    "get_image_gen_settings",
+]

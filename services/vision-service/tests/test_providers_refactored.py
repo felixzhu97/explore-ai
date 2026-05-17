@@ -4,14 +4,14 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 
-from src.providers.base import BaseVideoProvider
-from src.providers.mock import MockVideoProvider
-from src.providers.replicate import ReplicateVideoProvider
-from src.providers.kling import KlingVideoProvider
-from src.providers.pika import PikaVideoProvider
-from src.providers.runway import RunwayVideoProvider
-from src.providers.sora import SoraVideoProvider
-from src.providers import get_provider
+from src.infrastructure.providers.base import BaseVideoProvider
+from src.infrastructure.providers.mock import MockVideoProvider
+from src.infrastructure.providers.replicate import ReplicateVideoProvider
+from src.infrastructure.providers.kling import KlingVideoProvider
+from src.infrastructure.providers.pika import PikaVideoProvider
+from src.infrastructure.providers.runway import RunwayVideoProvider
+from src.infrastructure.providers.sora import SoraVideoProvider
+from src.infrastructure.providers import get_provider
 
 
 class TestReplicateVideoProvider:

@@ -1,7 +1,6 @@
 """Video-related DTOs."""
 
 from typing import Optional
-from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -30,13 +29,6 @@ class VideoStylePreset(str, Enum):
     CINEMATIC = "cinematic"
     ABSTRACT = "abstract"
     NONE = "none"
-
-
-class VideoTaskStatus(str, Enum):
-    PENDING = "pending"
-    PROCESSING = "processing"
-    COMPLETED = "completed"
-    FAILED = "failed"
 
 
 class VideoGenerationRequestDTO(BaseModel):

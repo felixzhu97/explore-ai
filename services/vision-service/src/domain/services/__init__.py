@@ -1,12 +1,15 @@
 """Domain services."""
 
-from .video_generation_service import (
-    VideoGenerationService,
-    IVideoProvider,
-    IVideoGenerationService,
-)
+from .video_generation_service import VideoGenerationService
 from .image_generation_service import ImageGenerationService
-from .image_generation_protocol import IImageGenerationService
+from .image_generation_rules import (
+    ImageGenerationRules,
+    ImageGenerationRulesError,
+    InvalidPromptError,
+    InvalidScaleError,
+    InvalidImageDataError,
+)
+from ..ports import IVideoProvider, IVideoGenerationService, IImageGenerationService
 
 __all__ = [
     "VideoGenerationService",
@@ -14,4 +17,9 @@ __all__ = [
     "IVideoGenerationService",
     "ImageGenerationService",
     "IImageGenerationService",
+    "ImageGenerationRules",
+    "ImageGenerationRulesError",
+    "InvalidPromptError",
+    "InvalidScaleError",
+    "InvalidImageDataError",
 ]

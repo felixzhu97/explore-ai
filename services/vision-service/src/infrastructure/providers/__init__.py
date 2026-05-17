@@ -16,10 +16,10 @@ from .sora import SoraVideoProvider
 
 # Use VideoProvider enum from core config for factory mapping
 # Note: core.config is allowed here since config is at the same layer as infrastructure
-from ...core.config import VideoProvider as VideoProviderEnum
+from ...core.config.settings import VideoProvider as VideoProviderEnum
 
 # Use VideoProvider Protocol from domain layer for type hints
-from ...domain.services.video_generation_service import IVideoProvider
+from ...domain.ports.video_providers import IVideoProvider
 
 __all__ = [
     "BaseVideoProvider",
@@ -52,7 +52,7 @@ def get_provider(
     Returns:
         Configured provider instance.
     """
-    from ...core.config import get_settings
+    from ...core.config.settings import get_settings
     
     if provider_name is None:
         settings = get_settings()

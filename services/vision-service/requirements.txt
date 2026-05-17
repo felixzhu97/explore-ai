@@ -15,6 +15,9 @@ pydantic-settings>=2.5.0
 python-dotenv>=1.0.0
 httpx>=0.27.0
 loguru>=0.7.0
+# OCR Dependencies
+paddleocr>=2.9.0
+easyocr>=1.7.0
 # Image Generation Dependencies
 diffusers>=0.28.0
 scipy>=1.11.0

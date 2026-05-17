@@ -5,8 +5,8 @@ This module demonstrates how to use the Video Agent for various video generation
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from services.ai_agents.agents import VideoAgent
-from services.ai_agents.tools import get_all_video_tools
+from services.ai_agents.presentation.agents import VideoAgent
+from services.ai_agents.infrastructure.tools import get_all_video_tools
 
 
 def example_basic_video_generation():

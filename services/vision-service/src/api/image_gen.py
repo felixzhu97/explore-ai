@@ -6,6 +6,7 @@ All endpoints delegate to application layer use cases.
 
 from fastapi import APIRouter, HTTPException, Depends
 import logging
+import torch
 
 from ..application.dtos.image_gen_dtos import (
     GenerateImageInputDTO,
@@ -22,7 +23,7 @@ from ..application.use_cases.generate_image import (
     UpscaleImageUseCase,
     ListModelsUseCase,
 )
-from ..core.dependencies import (
+from ..core.di import (
     get_generate_image_use_case,
     get_generate_variation_use_case,
     get_upscale_image_use_case,
@@ -98,29 +99,21 @@ async def list_models(
 
 @router.post("/cache/clear")
 async def clear_cache(
-    use_case: UpscaleImageUseCase = Depends(get_upscale_image_use_case),
+    service=Depends(get_generate_image_use_case),
 ):
     """Clear the model cache to free GPU memory."""
-    from ..core.dependencies import get_image_generation_service
-
-    service = get_image_generation_service()
-    service.clear_cache()
+    service._service.clear_cache()
     return {"status": "ok", "message": "Cache cleared successfully"}
 
 
 @router.get("/health")
 async def health_check(
-    use_case: ListModelsUseCase = Depends(get_list_models_use_case),
+    service=Depends(get_generate_image_use_case),
 ):
     """Check the status of the image generation service."""
-    import torch
-    from ..core.dependencies import get_image_generation_service
-
-    service = get_image_generation_service()
-
     return {
         "status": "ok",
-        "device": service.device,
+        "device": service._service.device,
         "cuda_available": torch.cuda.is_available(),
         "cuda_device_count": torch.cuda.device_count() if torch.cuda.is_available() else 0,
     }

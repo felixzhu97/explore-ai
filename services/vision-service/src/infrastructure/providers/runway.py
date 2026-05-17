@@ -7,7 +7,6 @@ from typing import Optional
 from .base import BaseVideoProvider
 from loguru import logger
 import httpx
-import asyncio
 
 
 class RunwayVideoProvider(BaseVideoProvider):

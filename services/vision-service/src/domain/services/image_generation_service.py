@@ -2,7 +2,7 @@
 
 from typing import Optional, List
 from ..entities.image import ImageGeneration, ImageModel
-from ..value_objects.dimensions import Dimensions
+from ..value_objects.common import Dimensions
 
 
 class ImageGenerationService:

@@ -15,33 +15,12 @@ from ..application.use_cases.check_video_status import (
     CheckVideoStatusUseCase,
     CheckVideoStatusInput,
 )
-from ..domain.value_objects.video_config import AspectRatio as DomainAspectRatio, VideoQuality as DomainVideoQuality
 from ..domain.entities.video_task import TaskNotFoundError
-from ..core.dependencies import get_video_generation_service
+from ..core.di import get_video_generation_service
 from loguru import logger
 from datetime import datetime
 
 router = APIRouter(prefix="/video", tags=["Video Generation"])
-
-
-def _dto_to_domain_aspect_ratio(dto_ratio) -> DomainAspectRatio:
-    """Map DTO aspect ratio to domain aspect ratio."""
-    mapping = {
-        "16:9": DomainAspectRatio.RATIO_16_9,
-        "9:16": DomainAspectRatio.RATIO_9_16,
-        "1:1": DomainAspectRatio.RATIO_1_1,
-        "4:3": DomainAspectRatio.RATIO_4_3,
-    }
-    return mapping.get(dto_ratio.value, DomainAspectRatio.RATIO_16_9)
-
-
-def _dto_to_domain_quality(dto_quality) -> DomainVideoQuality:
-    """Map DTO quality to domain quality."""
-    mapping = {
-        "standard": DomainVideoQuality.STANDARD,
-        "high": DomainVideoQuality.HIGH,
-    }
-    return mapping.get(dto_quality.value, DomainVideoQuality.HIGH)
 
 
 @router.post("/generate", response_model=VideoGenerateResponse)
@@ -55,9 +34,9 @@ async def generate_video(
             prompt=request.prompt,
             negative_prompt=request.negative_prompt,
             duration=request.duration,
-            aspect_ratio=_dto_to_domain_aspect_ratio(request.aspect_ratio),
+            aspect_ratio=request.aspect_ratio.value,
             fps=request.fps,
-            quality=_dto_to_domain_quality(request.quality),
+            quality=request.quality.value,
         )
         result = await use_case.execute(input_data)
         return VideoGenerateResponse(
@@ -84,9 +63,9 @@ async def generate_video_advanced(
             prompt=request.prompt,
             negative_prompt=request.negative_prompt,
             duration=request.duration,
-            aspect_ratio=_dto_to_domain_aspect_ratio(request.aspect_ratio),
+            aspect_ratio=request.aspect_ratio.value,
             fps=request.fps,
-            quality=_dto_to_domain_quality(request.quality),
+            quality=request.quality.value,
             seed=request.seed,
         )
         result = await use_case.execute(input_data)

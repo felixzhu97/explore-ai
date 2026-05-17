@@ -3,7 +3,7 @@
 from PIL import Image
 from typing import Optional
 
-from ...core.dependencies import ObjectDetector, ImageCaptioner, OCRProcessor
+from ...domain.ports import IObjectDetector, IImageCaptioner, IOCRProcessor
 from ..dtos.vision_dtos import (
     TaskType,
     AnalyzeImageRequestDTO,
@@ -28,9 +28,9 @@ class AnalyzeImageUseCase:
 
     def __init__(
         self,
-        detector: ObjectDetector,
-        captioner: ImageCaptioner,
-        ocr: OCRProcessor,
+        detector: IObjectDetector,
+        captioner: IImageCaptioner,
+        ocr: IOCRProcessor,
     ):
         self._detector = detector
         self._captioner = captioner

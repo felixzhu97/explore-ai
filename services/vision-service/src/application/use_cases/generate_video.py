@@ -2,8 +2,28 @@
 
 from typing import Optional
 from ...domain.entities.video_task import VideoTask, VideoTaskStatus
-from ...domain.value_objects.video_config import VideoConfig, AspectRatio, VideoQuality
-from ...domain.services.video_generation_service import IVideoGenerationService
+from ...domain.value_objects.common import VideoConfig, AspectRatio, VideoQuality
+from ...domain.ports.video_providers import IVideoGenerationService
+
+
+def _normalize_aspect_ratio(value: str) -> AspectRatio:
+    """Convert string to AspectRatio domain enum."""
+    mapping = {
+        "16:9": AspectRatio.RATIO_16_9,
+        "9:16": AspectRatio.RATIO_9_16,
+        "1:1": AspectRatio.RATIO_1_1,
+        "4:3": AspectRatio.RATIO_4_3,
+    }
+    return mapping.get(value, AspectRatio.RATIO_16_9)
+
+
+def _normalize_video_quality(value: str) -> VideoQuality:
+    """Convert string to VideoQuality domain enum."""
+    mapping = {
+        "standard": VideoQuality.STANDARD,
+        "high": VideoQuality.HIGH,
+    }
+    return mapping.get(value, VideoQuality.HIGH)
 
 
 class GenerateVideoInput:
@@ -14,18 +34,26 @@ class GenerateVideoInput:
         prompt: str,
         negative_prompt: Optional[str] = None,
         duration: int = 5,
-        aspect_ratio: AspectRatio = AspectRatio.RATIO_16_9,
+        aspect_ratio: str = "16:9",
         fps: int = 24,
-        quality: VideoQuality = VideoQuality.HIGH,
+        quality: str = "high",
         seed: Optional[int] = None,
     ):
         self.prompt = prompt
         self.negative_prompt = negative_prompt
         self.duration = duration
-        self.aspect_ratio = aspect_ratio
+        self._aspect_ratio_raw = aspect_ratio
         self.fps = fps
-        self.quality = quality
+        self._quality_raw = quality
         self.seed = seed
+
+    @property
+    def aspect_ratio(self) -> AspectRatio:
+        return _normalize_aspect_ratio(self._aspect_ratio_raw)
+
+    @property
+    def quality(self) -> VideoQuality:
+        return _normalize_video_quality(self._quality_raw)
 
 
 class GenerateVideoOutput:

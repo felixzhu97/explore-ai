@@ -61,7 +61,7 @@ def mock_ocr():
 def client_with_mocks(mock_yolo, mock_blip, mock_ocr):
     """Create test client with mocked model dependencies."""
     from src.main import app
-    from src.core.dependencies import get_yolo, get_blip, get_easyocr
+    from src.core.di import get_yolo, get_blip, get_easyocr
 
     # Use FastAPI's dependency override mechanism
     app.dependency_overrides[get_yolo] = lambda: mock_yolo
