@@ -17,6 +17,19 @@ from loguru import logger
 from .api import vision, video, image_gen
 
 
+def get_cors_origins() -> list[str]:
+    """Get CORS origins from environment variable or use defaults."""
+    origins_env = os.getenv("CORS_ORIGINS", "")
+    if origins_env:
+        return [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+    return [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting AI Vision Service...")
@@ -31,12 +44,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# CORS middleware - restrictive settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
 )
 
 app.include_router(vision.router)

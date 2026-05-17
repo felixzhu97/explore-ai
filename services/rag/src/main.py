@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -14,6 +15,19 @@ from .schemas import HealthResponse
 from .persistence.cache_manager import get_cache_manager, reset_cache_manager
 from .persistence.document_metadata import get_document_store
 from .persistence.session_store import get_session_store
+
+
+def get_cors_origins() -> list[str]:
+    """Get CORS origins from environment variable or use defaults."""
+    origins_env = os.getenv("CORS_ORIGINS", "")
+    if origins_env:
+        return [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+    return [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
 
 
 _vector_store: VectorStore = None
@@ -76,12 +90,13 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # CORS middleware - restrictive settings
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=get_cors_origins(),
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
     )
 
     app.include_router(documents_router)

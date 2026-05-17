@@ -3,6 +3,7 @@
 This service provides REST API endpoints for multi-agent orchestration.
 """
 
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, Union
 from fastapi import FastAPI, HTTPException
@@ -32,6 +33,19 @@ from services.ai_agents.tools.model_tools import get_all_model_tools
 from services.ai_agents.tools.llmops_tools import get_all_llmops_tools
 from services.ai_agents.tools.aiops_tools import get_all_aiops_tools
 from services.ai_agents.tools.tts_tools import get_all_tts_tools
+
+
+def get_cors_origins() -> list[str]:
+    """Get CORS origins from environment variable or use defaults."""
+    origins_env = os.getenv("CORS_ORIGINS", "")
+    if origins_env:
+        return [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+    return [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
 
 
 def extract_clean_content(data: Any) -> str:
@@ -233,10 +247,10 @@ def create_app() -> FastAPI:
     
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=get_cors_origins(),
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
     )
     
     @app.get("/health")

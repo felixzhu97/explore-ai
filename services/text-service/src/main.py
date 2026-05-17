@@ -3,14 +3,35 @@
 A unified API service for text generation using multiple LLM providers.
 """
 
+import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from loguru import logger
 import sys
 
 from .api.routes import router
 from .core.config import get_settings
+
+
+def get_cors_origins() -> list[str]:
+    """Get CORS origins from environment variable or use defaults.
+    
+    In production, set CORS_ORIGINS to comma-separated list of allowed origins.
+    Default to localhost for development only.
+    """
+    origins_env = os.getenv("CORS_ORIGINS", "")
+    if origins_env:
+        return [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+    
+    # Development defaults (restrictive for production use)
+    return [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
 
 
 @asynccontextmanager
@@ -52,13 +73,13 @@ A unified API service for text generation using multiple LLM providers.
         lifespan=lifespan,
     )
 
-    # CORS middleware
+    # CORS middleware - restrictive settings
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=get_cors_origins(),
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
     )
 
     # Include API routes

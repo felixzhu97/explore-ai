@@ -1,10 +1,11 @@
 """API routes for Text-to-Text service."""
 
+import os
 import uuid
 import time
 import json
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from loguru import logger
 
@@ -16,7 +17,13 @@ from .schemas import (
 from ..core.llm_gateway import TextToTextService, LLMGateway
 from ..core.config import get_settings
 
+# Import shared authentication
+from services.shared.auth import verify_api_key
+
 router = APIRouter(prefix="/api/text", tags=["text-to-text"])
+
+# Enable/disable authentication based on environment
+ENABLE_AUTH = os.getenv("ENABLE_API_AUTH", "false").lower() in ("true", "1", "yes")
 
 
 # Session storage for chat history
@@ -36,7 +43,7 @@ async def health_check():
 
 
 @router.get("/providers", response_model=list[ProviderInfo])
-async def list_providers():
+async def list_providers(api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """List all available LLM providers and their models."""
     settings = get_settings()
     
@@ -63,7 +70,7 @@ async def list_providers():
 
 
 @router.get("/models", response_model=list[ModelInfo])
-async def list_models(provider: Optional[str] = None):
+async def list_models(provider: Optional[str] = None, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """List available models, optionally filtered by provider."""
     settings = get_settings()
     
@@ -100,7 +107,7 @@ async def list_models(provider: Optional[str] = None):
 
 
 @router.post("/complete", response_model=CompletionResponse)
-async def complete(request: CompletionRequest):
+async def complete(request: CompletionRequest, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Generate a text completion.
     
     Simple prompt -> completion endpoint for single-turn text generation.
@@ -138,7 +145,7 @@ async def complete(request: CompletionRequest):
 
 
 @router.post("/complete/stream")
-async def complete_stream(request: CompletionRequest):
+async def complete_stream(request: CompletionRequest, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Stream a text completion.
     
     Returns a Server-Sent Events stream of generated text chunks.
@@ -189,7 +196,7 @@ async def complete_stream(request: CompletionRequest):
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Generate a chat completion.
     
     Multi-turn conversation endpoint with optional session management.
@@ -249,7 +256,7 @@ async def chat(request: ChatRequest):
 
 
 @router.post("/chat/stream")
-async def chat_stream(request: ChatRequest):
+async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Stream a chat completion.
     
     Returns a Server-Sent Events stream for real-time response generation.
@@ -323,7 +330,7 @@ async def chat_stream(request: ChatRequest):
 
 
 @router.get("/session/{session_id}")
-async def get_session(session_id: str):
+async def get_session(session_id: str, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Get chat history for a session."""
     messages = _chat_sessions.get(session_id, [])
     return {
@@ -334,7 +341,7 @@ async def get_session(session_id: str):
 
 
 @router.delete("/session/{session_id}")
-async def clear_session(session_id: str):
+async def clear_session(session_id: str, api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Clear chat history for a session."""
     if session_id in _chat_sessions:
         del _chat_sessions[session_id]
@@ -343,7 +350,7 @@ async def clear_session(session_id: str):
 
 
 @router.post("/reset")
-async def reset_llm():
+async def reset_llm(api_key: str = Depends(verify_api_key) if ENABLE_AUTH else None):
     """Reset the cached LLM instance (for model switching)."""
     LLMGateway.reset()
     return {"status": "success", "message": "LLM cache reset"}

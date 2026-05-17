@@ -9,20 +9,20 @@
 基于 LangGraph 的智能体编排框架，提供 12 个专业智能体，由 Supervisor 作为中央协调器统一调度：
 
 
-| 智能体 | 功能 | 场景 |
-| --- | --- | --- |
-| **Supervisor** | 多智能体协调器 | 任务路由、智能调度、结果聚合 |
-| **K8s** | Kubernetes 集群管理 | Pod、Service、Deployment 管理 |
-| **VectorDB** | 向量数据库 | 嵌入管理、相似度搜索 |
-| **RAG** | 检索增强生成 | 文档问答、知识库管理 |
-| **Pipeline** | 工作流编排 | 自动化流水线编排 |
-| **LLMOps** | LLM 运维 | 训练、微调、评估 |
-| **AIOps** | 智能运维 | 事件分析、根因定位 |
-| **Feature Store** | 特征存储 | 特征工程管理 |
-| **Monitoring** | 监控系统 | 指标查询、告警配置 |
-| **Model** | ML 模型管理 | 版本控制、部署、推理 |
-| **TTS** | 语音合成 | 文本转语音、多语言配音 |
-| **Video** | 视频生成 | 文生视频、动态内容创作 |
+| 智能体               | 功能              | 场景                        |
+| ----------------- | --------------- | ------------------------- |
+| **Supervisor**    | 多智能体协调器         | 任务路由、智能调度、结果聚合            |
+| **K8s**           | Kubernetes 集群管理 | Pod、Service、Deployment 管理 |
+| **VectorDB**      | 向量数据库           | 嵌入管理、相似度搜索                |
+| **RAG**           | 检索增强生成          | 文档问答、知识库管理                |
+| **Pipeline**      | 工作流编排           | 自动化流水线编排                  |
+| **LLMOps**        | LLM 运维          | 训练、微调、评估                  |
+| **AIOps**         | 智能运维            | 事件分析、根因定位                 |
+| **Feature Store** | 特征存储            | 特征工程管理                    |
+| **Monitoring**    | 监控系统            | 指标查询、告警配置                 |
+| **Model**         | ML 模型管理         | 版本控制、部署、推理                |
+| **TTS**           | 语音合成            | 文本转语音、多语言配音               |
+| **Video**         | 视频生成            | 文生视频、动态内容创作               |
 
 
 ### Vision AI
@@ -71,30 +71,38 @@
 ## 架构图
 
 ### Wardley 地图
-![Wardley Map](docs/c4/png/AI-Test-Wardley-Map.png)
+
+Wardley Map
 
 ### C1 系统上下文图
-![C1 Context](docs/c4/png/C4-Context.png)
+
+C1 Context
 
 ### C2 容器图
-![C2 Container](docs/c4/png/C4-Container.png)
+
+C2 Container
 
 ### C3 组件图
 
 #### AI Agents 服务组件
-![C3 AI Agents](docs/c4/png/C4-Component-AI-Agents.png)
+
+C3 AI Agents
 
 #### 前端组件
-![C3 Frontend](docs/c4/png/C4-Component-Frontend.png)
+
+C3 Frontend
 
 #### RAG 服务组件
-![C3 RAG](docs/c4/png/C4-Component-RAG-Service.png)
+
+C3 RAG
 
 #### Vision Service 组件
-![C3 Vision](docs/c4/png/C4-Component-Vision-Service.png)
+
+C3 Vision
 
 #### Media Services 组件
-![C3 Media](docs/c4/png/C4-Component-Media-Services.png)
+
+C3 Media
 
 ## 技术栈
 
@@ -223,18 +231,20 @@ pnpm install
 
 ## 服务端口
 
-| 服务 | 端口 | 说明 |
-| --- | --- | --- |
-| Web 前端 | 5173 | React 开发服务器 |
-| 后端服务器 | 3000 | Express.js 服务 |
-| AI Agents | 8003 | 多智能体编排 |
-| Vision Service | 8000 | 视觉 AI（YOLO/BLIP/OCR/SD） |
-| RAG Service | 8010 | 文档检索增强生成 |
-| Text Service | 8006 | 文本生成（GPT/Claude/Ollama） |
-| TTS Service | 8013 | 语音合成 |
-| Media Gen | 8015 | 本地文生图（Stable Diffusion） |
-| Qdrant | 6333/6334 | 向量数据库 |
-| Ollama | 11434 | 本地 LLM（可选） |
+
+| 服务             | 端口        | 说明                      |
+| -------------- | --------- | ----------------------- |
+| Web 前端         | 5173      | React 开发服务器             |
+| 后端服务器          | 3000      | Express.js 服务           |
+| AI Agents      | 8003      | 多智能体编排                  |
+| Vision Service | 8000      | 视觉 AI（YOLO/BLIP/OCR/SD） |
+| RAG Service    | 8010      | 文档检索增强生成                |
+| Text Service   | 8006      | 文本生成（GPT/Claude/Ollama） |
+| TTS Service    | 8013      | 语音合成                    |
+| Media Gen      | 8015      | 本地文生图（Stable Diffusion） |
+| Qdrant         | 6333/6334 | 向量数据库                   |
+| Ollama         | 11434     | 本地 LLM（可选）              |
+
 
 ### 启动服务
 

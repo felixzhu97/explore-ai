@@ -1,41 +1,19 @@
-# Node.js
-node_modules/
-dist/
-.tsbuildinfo
-*.local
-
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+
+# Node.js
+node_modules/
+pnpm-lock.yaml
+dist/
+*.local
 
 # Virtual environments
 .venv/
 venv/
-ENV/
-env/
-
-# Models (downloaded by transformers/yolo)
-models/
-*.pt
-*.onnx
 
 # IDE
 .DS_Store
@@ -53,14 +31,13 @@ models/
 *.log
 logs/
 
-# Docker volumes (large data)
+# Data
 volumes/
-
-# Milvus
 milvus/
+models/
+*.pt
+*.onnx
 
-# Ollama models (large)
-~/.ollama/
-
-# PyTorch (large cached models)
+# Cache
 .cache/
+.pytest_cache/
