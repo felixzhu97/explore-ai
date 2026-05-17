@@ -8,6 +8,8 @@ REST API documentation for the AI-Test Platform services.
 
 - [AI Agents Service (Port 8003)](#ai-agents-service-port-8003)
 - [Vision Service (Port 8002)](#vision-service-port-8002)
+- [Text Service (Port 8004)](#text-service-port-8004)
+- [TTS Service (Port 8004)](#tts-service-port-8004)
 - [RAG Service (Port 8001)](#rag-service-port-8001)
 
 ---
@@ -275,14 +277,18 @@ Base URL: `http://localhost:8002`
 ### Endpoints Overview
 
 
-| Method | Endpoint          | Description           |
-| ------ | ----------------- | --------------------- |
-| `GET`  | `/health`         | Health check          |
-| `GET`  | `/`               | Service info          |
-| `POST` | `/vision/detect`  | Object detection      |
-| `POST` | `/vision/caption` | Image captioning      |
-| `POST` | `/vision/ocr`     | Text extraction (OCR) |
-| `POST` | `/vision/analyze` | Combined analysis     |
+| Method | Endpoint              | Description                  |
+| ------ | --------------------- | ---------------------------- |
+| `GET`  | `/health`             | Health check                  |
+| `GET`  | `/`                   | Service info                  |
+| `POST` | `/vision/detect`      | Object detection (YOLO)       |
+| `POST` | `/vision/caption`     | Image captioning (BLIP)       |
+| `POST` | `/vision/ocr`         | Text extraction (PaddleOCR)   |
+| `POST` | `/vision/analyze`     | Combined analysis             |
+| `POST` | `/image-gen/generate` | Text-to-image (Stable Diffusion) |
+| `POST` | `/image-gen/variation` | Image variation             |
+| `POST` | `/image-gen/upscale`  | Image upscaling               |
+| `POST` | `/video/generate`     | Text/image to video          |
 
 
 ---
@@ -545,6 +551,216 @@ curl -X POST "http://localhost:8002/vision/analyze?task=analyze_image" \
   }
 }
 ```
+
+---
+
+## Text Service (Port 8004)
+
+Base URL: `http://localhost:8004`
+
+Text-to-Text LLM service with multi-provider support (OpenAI, Anthropic, Ollama).
+
+### Endpoints Overview
+
+
+| Method | Endpoint               | Description              |
+| ------ | --------------------- | ------------------------ |
+| `GET`  | `/api/text/health`     | Health check             |
+| `GET`  | `/api/text/providers`   | List LLM providers       |
+| `GET`  | `/api/text/models`     | List available models     |
+| `POST` | `/api/text/complete`    | Text completion          |
+| `POST` | `/api/text/complete/stream` | Stream completion    |
+| `POST` | `/api/text/chat`       | Chat completion          |
+| `POST` | `/api/text/chat/stream` | Stream chat completion  |
+| `GET`  | `/api/text/session/{session_id}` | Get session history |
+| `DELETE` | `/api/text/session/{session_id}` | Clear session |
+
+---
+
+### Health Check
+
+#### `GET /api/text/health`
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "version": "0.1.0"
+}
+```
+
+---
+
+### List Providers
+
+#### `GET /api/text/providers`
+
+**Response:**
+
+```json
+[
+  {
+    "name": "openai",
+    "display_name": "OpenAI",
+    "models": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
+    "status": "available"
+  },
+  {
+    "name": "anthropic",
+    "display_name": "Anthropic Claude",
+    "models": ["claude-sonnet-4-20250514", "claude-opus-4-20250514"],
+    "status": "available"
+  },
+  {
+    "name": "ollama",
+    "display_name": "Ollama (Local)",
+    "models": ["qwen2.5:7b", "llama3.2"],
+    "status": "available"
+  }
+]
+```
+
+---
+
+### Text Completion
+
+#### `POST /api/text/complete`
+
+**Request:**
+
+```json
+{
+  "prompt": "Explain quantum computing in simple terms:",
+  "system_prompt": "You are a helpful assistant.",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "temperature": 0.7,
+  "max_tokens": 500
+}
+```
+
+**Response:**
+
+```json
+{
+  "text": "Quantum computing is a type of computation...",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "usage": {"latency_ms": 1234},
+  "finish_reason": "stop"
+}
+```
+
+---
+
+### Chat Completion
+
+#### `POST /api/text/chat`
+
+**Request:**
+
+```json
+{
+  "messages": [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "Hello, how are you?"}
+  ],
+  "session_id": "optional-session-id",
+  "provider": "openai",
+  "temperature": 0.7
+}
+```
+
+**Response:**
+
+```json
+{
+  "text": "I'm doing well, thank you for asking! How can I help you today?",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "session_id": "session-uuid",
+  "usage": {"latency_ms": 567, "history_length": 3},
+  "finish_reason": "stop"
+}
+```
+
+---
+
+## TTS Service (Port 8004)
+
+Base URL: `http://localhost:8004`
+
+Text-to-Speech service with multiple provider support (Azure, Google, ElevenLabs, Coqui).
+
+### Endpoints Overview
+
+
+| Method | Endpoint           | Description              |
+| ------ | ------------------ | ------------------------ |
+| `GET`  | `/tts/health`       | Health check             |
+| `GET`  | `/tts/voices`       | List available voices    |
+| `GET`  | `/tts/providers`     | List TTS providers       |
+| `POST` | `/tts/synthesize`    | Synthesize speech        |
+| `POST` | `/tts/stream`       | Stream speech            |
+
+---
+
+### Health Check
+
+#### `GET /tts/health`
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "tts_engine": "edge",
+  "ai_agents_connected": false,
+  "version": "0.1.0"
+}
+```
+
+---
+
+### List Voices
+
+#### `GET /tts/voices`
+
+**Response:**
+
+```json
+{
+  "voices": [
+    {"voice_id": "en-US-JennyNeural", "name": "Jenny", "language": "en-US"},
+    {"voice_id": "en-GB-SoniaNeural", "name": "Sonia", "language": "en-GB"},
+    {"voice_id": "zh-CN-XiaoxiaoNeural", "name": "Xiaoxiao", "language": "zh-CN"}
+  ]
+}
+```
+
+---
+
+### Synthesize Speech
+
+#### `POST /tts/synthesize`
+
+**Request:**
+
+```json
+{
+  "text": "Hello, world!",
+  "voice": "en-US-JennyNeural",
+  "language": "en-US",
+  "speed": 1.0,
+  "pitch": 0,
+  "output_format": "mp3"
+}
+```
+
+**Response:** Audio binary (mp3/wav/ogg)
 
 ---
 

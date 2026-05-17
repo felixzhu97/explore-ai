@@ -103,6 +103,57 @@ export interface Translations {
       vectordb: string;
     };
   };
+
+  // AI Hub
+  aiHub: {
+    title: string;
+    modelBadge: string;
+    statusText: string;
+    tabs: {
+      chat: string;
+      image: string;
+      tts: string;
+    };
+    chat: {
+      title: string;
+      description: string;
+      placeholder: string;
+      inputPlaceholder: string;
+      thinking: string;
+      error: string;
+    };
+    image: {
+      title: string;
+      description: string;
+      promptLabel: string;
+      promptPlaceholder: string;
+      negativePromptLabel: string;
+      negativePromptPlaceholder: string;
+      sizeLabel: string;
+      generateButton: string;
+      generating: string;
+      preview: string;
+      download: string;
+      emptyState: string;
+    };
+    tts: {
+      title: string;
+      description: string;
+      textLabel: string;
+      textPlaceholder: string;
+      voiceLabel: string;
+      speedLabel: string;
+      synthesizeButton: string;
+      synthesizing: string;
+      audioReady: string;
+      downloadAudio: string;
+    };
+    quickPrompts: {
+      greeting: string;
+      help: string;
+      creative: string;
+    };
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -222,6 +273,55 @@ export const translations: Record<Language, Translations> = {
         vectordb: 'Manage vector embeddings, similarity search, and document indexing',
       },
     },
+    aiHub: {
+      title: 'AI Hub',
+      modelBadge: 'GPT-4o + SDXL + TTS',
+      statusText: 'Services Online',
+      tabs: {
+        chat: 'Chat',
+        image: 'Image Gen',
+        tts: 'Text to Speech',
+      },
+      chat: {
+        title: 'Conversational AI',
+        description: 'Chat with AI powered by GPT-4o',
+        placeholder: 'Start a conversation with the AI...',
+        inputPlaceholder: 'Type your message...',
+        thinking: 'Thinking...',
+        error: 'An error occurred. Please try again.',
+      },
+      image: {
+        title: 'Image Generation',
+        description: 'Create images using Stable Diffusion XL',
+        promptLabel: 'Prompt',
+        promptPlaceholder: 'Describe the image you want to generate...',
+        negativePromptLabel: 'Negative Prompt',
+        negativePromptPlaceholder: 'What to avoid in the image...',
+        sizeLabel: 'Image Size',
+        generateButton: 'Generate Image',
+        generating: 'Generating...',
+        preview: 'Preview',
+        download: 'Download',
+        emptyState: 'Generate an image to see preview',
+      },
+      tts: {
+        title: 'Text to Speech',
+        description: 'Convert text to natural speech',
+        textLabel: 'Text',
+        textPlaceholder: 'Enter text to convert to speech...',
+        voiceLabel: 'Voice',
+        speedLabel: 'Speed',
+        synthesizeButton: 'Synthesize',
+        synthesizing: 'Synthesizing...',
+        audioReady: 'Audio ready',
+        downloadAudio: 'Download Audio',
+      },
+      quickPrompts: {
+        greeting: 'Hello! How can you help me?',
+        help: 'What can you do?',
+        creative: 'Write a short poem about nature',
+      },
+    },
   },
   zh: {
     nav: {
@@ -339,6 +439,55 @@ export const translations: Record<Language, Translations> = {
         vectordb: '管理向量嵌入、相似度搜索和文档索引',
       },
     },
+    aiHub: {
+      title: 'AI Hub',
+      modelBadge: 'GPT-4o + SDXL + TTS',
+      statusText: '服务在线',
+      tabs: {
+        chat: '聊天',
+        image: '图像生成',
+        tts: '语音合成',
+      },
+      chat: {
+        title: '对话 AI',
+        description: '使用 GPT-4o 驱动的 AI 对话',
+        placeholder: '开始与 AI 对话...',
+        inputPlaceholder: '输入消息...',
+        thinking: '思考中...',
+        error: '发生错误，请重试。',
+      },
+      image: {
+        title: '图像生成',
+        description: '使用 Stable Diffusion XL 创建图像',
+        promptLabel: '提示词',
+        promptPlaceholder: '描述你想要的图像...',
+        negativePromptLabel: '负面提示词',
+        negativePromptPlaceholder: '图像中要避免的内容...',
+        sizeLabel: '图像尺寸',
+        generateButton: '生成图像',
+        generating: '生成中...',
+        preview: '预览',
+        download: '下载',
+        emptyState: '生成图像以查看预览',
+      },
+      tts: {
+        title: '文本转语音',
+        description: '将文本转换为自然语音',
+        textLabel: '文本',
+        textPlaceholder: '输入要转换为语音的文本...',
+        voiceLabel: '声音',
+        speedLabel: '语速',
+        synthesizeButton: '合成',
+        synthesizing: '合成中...',
+        audioReady: '音频就绪',
+        downloadAudio: '下载音频',
+      },
+      quickPrompts: {
+        greeting: '你好！你能帮我做什么？',
+        help: '你能做什么？',
+        creative: '写一首关于自然的短诗',
+      },
+    },
   },
   ja: {
     nav: {
@@ -454,6 +603,55 @@ export const translations: Record<Language, Translations> = {
         llmops: 'LLMモデルの訓練、評価、微調整',
         aiops: 'インテリジェントオペレーション - インシデント分析、根本原因分析、自動化',
         vectordb: 'ベクトル埋め込み、類似性検索、ドキュメントインデックス管理',
+      },
+    },
+    aiHub: {
+      title: 'AI Hub',
+      modelBadge: 'GPT-4o + SDXL + TTS',
+      statusText: 'サービスオンライン',
+      tabs: {
+        chat: 'チャット',
+        image: '画像生成',
+        tts: '音声合成',
+      },
+      chat: {
+        title: '会話 AI',
+        description: 'GPT-4o搭載のAI会話',
+        placeholder: 'AIとの会話を始めましょう...',
+        inputPlaceholder: 'メッセージを入力...',
+        thinking: '考え中...',
+        error: 'エラーが発生しました。もう一度お試しください。',
+      },
+      image: {
+        title: '画像生成',
+        description: 'Stable Diffusion XLで画像を生成',
+        promptLabel: 'プロンプト',
+        promptPlaceholder: '生成したい画像を説明してください...',
+        negativePromptLabel: 'ネガティブプロンプト',
+        negativePromptPlaceholder: '画像で避けるべきもの...',
+        sizeLabel: '画像サイズ',
+        generateButton: '画像を生成',
+        generating: '生成中...',
+        preview: 'プレビュー',
+        download: 'ダウンロード',
+        emptyState: '画像を生成してプレビューを表示',
+      },
+      tts: {
+        title: 'テキスト読み上げ',
+        description: 'テキストを自然な音声に変換',
+        textLabel: 'テキスト',
+        textPlaceholder: '読み上げるテキストを入力...',
+        voiceLabel: '音声',
+        speedLabel: '速度',
+        synthesizeButton: '合成',
+        synthesizing: '合成中...',
+        audioReady: '音声準備完了',
+        downloadAudio: '音声をダウンロード',
+      },
+      quickPrompts: {
+        greeting: 'こんにちは！お手伝いできますことは？',
+        help: '何ができますか？',
+        creative: '自然についての短い詩を書いてください',
       },
     },
   },
@@ -688,6 +886,52 @@ export const translations: Record<Language, Translations> = {
         llmops: 'Entrenar, evaluar y ajustar modelos LLM',
         aiops: 'Operaciones inteligentes - análisis de incidentes, causa raíz, automatización',
         vectordb: 'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
+      },
+    },
+    aiHub: {
+      title: 'AI Hub',
+      modelBadge: 'GPT-4o + SDXL + TTS',
+      statusText: 'Servicios en línea',
+      tabs: {
+        chat: 'Chat',
+        image: 'Generación de imágenes',
+        tts: 'Texto a voz',
+      },
+      chat: {
+        title: 'IA Conversacional',
+        placeholder: 'Inicia una conversación con la IA...',
+        inputPlaceholder: 'Escribe tu mensaje...',
+        thinking: 'Pensando...',
+        error: 'Se produjo un error. Por favor, inténtalo de nuevo.',
+      },
+      image: {
+        title: 'Generación de imágenes',
+        promptLabel: 'Prompt',
+        promptPlaceholder: 'Describe la imagen que quieres generar...',
+        negativePromptLabel: 'Prompt negativo',
+        negativePromptPlaceholder: 'Lo que evitar en la imagen...',
+        sizeLabel: 'Tamaño de imagen',
+        generateButton: 'Generar imagen',
+        generating: 'Generando...',
+        preview: 'Vista previa',
+        download: 'Descargar',
+        emptyState: 'Genera una imagen para ver la vista previa',
+      },
+      tts: {
+        title: 'Texto a voz',
+        textLabel: 'Texto',
+        textPlaceholder: 'Ingresa el texto a convertir a voz...',
+        voiceLabel: 'Voz',
+        speedLabel: 'Velocidad',
+        synthesizeButton: 'Sintetizar',
+        synthesizing: 'Sintetizando...',
+        audioReady: 'Audio listo',
+        downloadAudio: 'Descargar audio',
+      },
+      quickPrompts: {
+        greeting: '¡Hola! ¿Cómo puedo ayudarte?',
+        help: '¿Qué puedes hacer?',
+        creative: 'Escribe un poema corto sobre la naturaleza',
       },
     },
   },

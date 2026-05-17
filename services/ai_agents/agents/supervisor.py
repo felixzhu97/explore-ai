@@ -29,6 +29,7 @@ from services.ai_agents.agents.llmops_agent import LLMOpsAgent
 from services.ai_agents.agents.feature_store_agent import FeatureStoreAgent
 from services.ai_agents.agents.pipeline_agent import PipelineAgent
 from services.ai_agents.agents.aiops_agent import AIOpsAgent
+from services.ai_agents.agents.video_agent import VideoAgent
 
 
 class SupervisorState(TypedDict):
@@ -82,6 +83,7 @@ class SupervisorAgent:
         "feature_store": ["feature", "features", "feature store", "transformation", "materialize"],
         "pipeline": ["pipeline", "workflow", "orchestrate", "step", "dag", "airflow"],
         "aiops": ["aiops", "anomaly", "incident", "root cause", "investigate", "alert"],
+        "video": ["video", "generate video", "text-to-video", "text to video", "t2v", "animation", "clip"],
     }
     
     def __init__(
@@ -96,6 +98,7 @@ class SupervisorAgent:
         feature_store_agent: Optional[FeatureStoreAgent] = None,
         pipeline_agent: Optional[PipelineAgent] = None,
         aiops_agent: Optional[AIOpsAgent] = None,
+        video_agent: Optional[VideoAgent] = None,
         system_prompt: Optional[str] = None,
     ):
         """Initialize the Supervisor Agent.
@@ -111,6 +114,7 @@ class SupervisorAgent:
             feature_store_agent: Optional Feature Store agent instance.
             pipeline_agent: Optional Pipeline agent instance.
             aiops_agent: Optional AIOps agent instance.
+            video_agent: Optional Video agent instance.
             system_prompt: Optional custom system prompt.
         """
         self.llm = llm
@@ -136,6 +140,8 @@ class SupervisorAgent:
             self.agents["pipeline"] = pipeline_agent
         if aiops_agent:
             self.agents["aiops"] = aiops_agent
+        if video_agent:
+            self.agents["video"] = video_agent
         
         self._graph: Optional[Runnable] = None
     

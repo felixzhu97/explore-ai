@@ -11,7 +11,7 @@ Get the AI services running in 5 minutes.
 
 ## Service Overview
 
-This project includes three AI microservices:
+This project includes 6 AI microservices:
 
 
 | Service        | Port | Description                                  |
@@ -19,6 +19,9 @@ This project includes three AI microservices:
 | RAG Service    | 8001 | Retrieval-augmented generation, document Q&A |
 | Vision Service | 8002 | Image recognition (YOLO, BLIP, OCR)          |
 | AI Agents      | 8003 | Multi-agent orchestration                    |
+| Text Service   | 8004 | Text generation (GPT, Claude, Ollama)       |
+| TTS Service    | 8004+ | Speech synthesis (Azure, Google, ElevenLabs) |
+| Media Gen      | 3456 | Local Stable Diffusion                      |
 
 
 ## Option 1: Run with Docker (Recommended)
@@ -84,6 +87,24 @@ cd ../rag
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+
+# Text Service
+cd ../text-service
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# TTS Service
+cd ../tts-service
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Media Gen Service
+cd ../media-gen
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### 2. Configure Environment
@@ -101,6 +122,18 @@ cp .env.example .env
 
 # RAG Service
 cd ../rag
+cp .env.example .env
+
+# Text Service
+cd ../text-service
+cp .env.example .env
+
+# TTS Service
+cd ../tts-service
+cp .env.example .env
+
+# Media Gen Service
+cd ../media-gen
 cp .env.example .env
 ```
 
@@ -242,6 +275,53 @@ curl -X POST http://localhost:8003/api/agents/rag_agent/invoke \
   -d '{"messages": [{"role": "user", "content": "Search for documents about ML"}]}'
 ```
 
+#### Text Service (Port 8004)
+
+```bash
+# Health check
+curl http://localhost:8004/api/text/health
+
+# List providers
+curl http://localhost:8004/api/text/providers
+
+# Text completion
+curl -X POST http://localhost:8004/api/text/complete \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Explain quantum computing:", "temperature": 0.7}'
+
+# Chat
+curl -X POST http://localhost:8004/api/text/chat \
+  -H "Content-Type: application/json" \
+  -d '{"messages": [{"role": "user", "content": "Hello"}]}'
+```
+
+#### TTS Service (Port 8004)
+
+```bash
+# Health check
+curl http://localhost:8004/tts/health
+
+# List voices
+curl http://localhost:8004/tts/voices
+
+# Synthesize speech
+curl -X POST http://localhost:8004/tts/synthesize \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello world!", "voice": "en-US-JennyNeural"}'
+```
+
+#### Media Gen Service (Port 3456)
+
+```bash
+# Health check
+curl http://localhost:3456/health
+
+# Generate image
+curl -X POST http://localhost:3456/image/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "A cat sitting on a windowsill", "width": 512, "height": 512}'
+```
+
 ## Troubleshooting
 
 ### "No module named 'torch'"
@@ -288,6 +368,15 @@ PORT=8003 uvicorn main:app --port 8003
 
 # RAG Service (default 8001)
 PORT=8001 uvicorn src.main:app --port 8001
+
+# Text Service (default 8004)
+PORT=8004 uvicorn src.main:app --port 8004
+
+# TTS Service (default 8004)
+PORT=8004 python -m uvicorn src.main:app --port 8004
+
+# Media Gen Service (default 3456)
+PORT=3456 python app.py
 ```
 
 ### Model download fails

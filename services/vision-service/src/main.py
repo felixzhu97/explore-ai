@@ -14,7 +14,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from loguru import logger
-from .api import vision
+from .api import vision, video, image_gen
 
 
 @asynccontextmanager
@@ -26,8 +26,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="AI Vision Service",
-    description="Production-grade image recognition API with YOLO, BLIP, and PaddleOCR",
-    version="0.1.0",
+    description="Production-grade image recognition and generation API with YOLO, BLIP, PaddleOCR, Stable Diffusion, and Video Generation",
+    version="0.2.0",
     lifespan=lifespan
 )
 
@@ -40,6 +40,8 @@ app.add_middleware(
 )
 
 app.include_router(vision.router)
+app.include_router(video.router)
+app.include_router(image_gen.router)
 
 
 @app.get("/health")
@@ -51,13 +53,32 @@ async def health():
 async def root():
     return {
         "name": "AI Vision Service",
-        "version": "0.1.0",
+        "version": "0.2.0",
+        "capabilities": {
+            "vision": ["object_detection", "image_captioning", "ocr"],
+            "image_generation": ["text_to_image", "variation", "upscale"],
+            "video": ["text_to_video", "image_to_video"]
+        },
         "endpoints": {
             "health": "/health",
-            "detect": "/vision/detect",
-            "caption": "/vision/caption",
-            "ocr": "/vision/ocr",
-            "analyze": "/vision/analyze"
+            "vision": {
+                "detect": "/vision/detect",
+                "caption": "/vision/caption",
+                "ocr": "/vision/ocr",
+                "analyze": "/vision/analyze"
+            },
+            "image_generation": {
+                "generate": "/image-gen/generate",
+                "variation": "/image-gen/variation",
+                "upscale": "/image-gen/upscale",
+                "models": "/image-gen/models",
+                "cache_clear": "/image-gen/cache/clear",
+                "health": "/image-gen/health"
+            },
+            "video": {
+                "generate": "/video/generate",
+                "status": "/video/status/{task_id}"
+            }
         }
     }
 

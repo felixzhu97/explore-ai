@@ -152,6 +152,8 @@ The AI Agents service uses a **Supervisor-based routing pattern** where a centra
 | **Feature Store** | Feature engineering    | Feature registration, materialization                |
 | **Monitoring**    | Observability          | Metrics, logs, alerting                              |
 | **Model**         | ML model lifecycle     | Version control, deployment, inference               |
+| **TTS**           | Text-to-speech         | Speech synthesis, voice management, streaming         |
+| **Video**         | Video generation       | Text-to-video, status tracking, provider management  |
 
 
 ### Routing Configuration
@@ -170,7 +172,9 @@ The Supervisor uses keyword-based routing to delegate tasks:
 ├── "llmops", "train", "evaluate"      → LLMOps Agent
 ├── "feature", "materialize"            → Feature Store Agent
 ├── "pipeline", "workflow", "dag"       → Pipeline Agent
-└── "aiops", "anomaly", "incident"      → AIOps Agent
+├── "aiops", "anomaly", "incident"      → AIOps Agent
+├── "tts", "speech", "voice", "synthesize" → TTS Agent
+├── "video", "generate", "animation"    → Video Agent
 ```
 
 ### Tools Structure
@@ -201,6 +205,8 @@ Local system command execution:
 | `rag_tools.py`           | Document operations        | search_documents, ingest_document, delete_document, list_collections                                 |
 | `pipeline_tools.py`      | Workflow management        | create_pipeline, run_pipeline, list_pipelines, get_run_status, add_step, cancel_run                  |
 | `feature_store_tools.py` | Feature engineering        | create_feature_group, register_feature, get_feature_vector, materialize_features, write_features     |
+| `tts_tools.py`           | Text-to-speech operations | tts_synthesize, tts_list_voices, tts_stream, tts_get_providers                                         |
+| `video_tools.py`         | Video generation operations | video_generate, video_generate_advanced, video_check_status, video_get_providers                      |
 
 
 ##### AIOps Tools Detail (`aiops_tools.py`)
@@ -253,6 +259,32 @@ Feature engineering and management tools:
 | `create_transformation` | Define custom feature engineering logic       |
 
 
+##### TTS Tools Detail (`tts_tools.py`)
+
+Text-to-speech synthesis tools for voice generation:
+
+
+| Function            | Description                                           |
+| ------------------- | ----------------------------------------------------- |
+| `tts_synthesize`    | Convert text to speech with configurable voice/speed  |
+| `tts_list_voices`   | List available TTS voices with language filtering     |
+| `tts_stream`        | Stream synthesized speech in real-time                |
+| `tts_get_providers` | Get information about available TTS providers          |
+
+
+##### Video Tools Detail (`video_tools.py`)
+
+Video generation tools for text-to-video synthesis:
+
+
+| Function                  | Description                                              |
+| ------------------------- | -------------------------------------------------------- |
+| `video_generate`          | Generate video from text description                     |
+| `video_generate_advanced` | Generate video with advanced parameters (style, seed)    |
+| `video_check_status`      | Check video generation task status and retrieve results  |
+| `video_get_providers`     | Get information about available video generation providers |
+
+
 #### LangGraph Workflows (`graphs/`)
 
 Advanced multi-stage workflows for complex operations:
@@ -263,6 +295,7 @@ Advanced multi-stage workflows for complex operations:
 | `rag_graph.py`    | RAG workflows: simple, multi-hop, hybrid, iterative |
 | `llmops_graph.py` | LLM operations and experiment tracking workflows    |
 | `aiops_graph.py`  | AIOps incident response workflows                   |
+| `video_graph.py`  | Video generation workflows with status tracking      |
 
 
 ## Component Details
@@ -290,6 +323,7 @@ A single-page application built with React 18 and Vite, designed with Apple-styl
 - `components/panels/` - Agent panels (K8sPanel, VectorDBPanel, MonitoringPanel, AIInfraPanel, etc.)
 - `components/agents/` - Chat components (AgentChat, ChatMessage, ToolResult, StatusBadge)
 - `components/panels/AIInfraPanel.tsx` - AI Infrastructure management panel
+- `components/AIHub.tsx` - AI capabilities hub with Chat, Image Generation, and TTS tabs
 - `i18n/` - Internationalization with support for English, Chinese, Japanese, French, Spanish
 - `theme.ts` - Centralized theme system with colors, typography, spacing, shadows
 - `GlobalStyles.tsx` - Global CSS styles
@@ -338,8 +372,8 @@ The core multi-agent orchestration service.
 
 **Features:**
 
-- 10 specialized agents (Supervisor, K8s, VectorDB, RAG, Pipeline, LLMOps, AIOps, Feature Store, Monitoring, Model)
-- 50+ specialized tools across all agents
+- 12 specialized agents (Supervisor, K8s, VectorDB, RAG, Pipeline, LLMOps, AIOps, Feature Store, Monitoring, Model, TTS, Video)
+- 58+ specialized tools across all agents
 - LangGraph workflows for complex multi-stage operations
 - HTTP and system command tools
 - Streaming responses via SSE
@@ -347,12 +381,14 @@ The core multi-agent orchestration service.
 
 ### 4. Vision Service (`services/vision-service`)
 
-Computer vision capabilities.
+Computer vision and image generation capabilities.
 
 **Responsibilities:**
 
 - Image processing and validation
 - Model inference (YOLO, BLIP, PaddleOCR)
+- Image generation (Stable Diffusion)
+- Video generation (Sora, Pika, Runway, Kling)
 - REST API endpoints
 
 ### 5. RAG Service (`services/rag`)
@@ -402,6 +438,73 @@ Retrieval-Augmented Generation service with enhanced persistence layer.
 - Version control for incremental updates
 - Status tracking: pending, indexing, completed, failed
 
+### 6. Text Service (`services/text-service`)
+
+Text-to-Text LLM service with multi-provider support.
+
+**Responsibilities:**
+
+- Text completion with multiple LLM providers
+- Chat completion with session management
+- Streaming responses (SSE)
+- Provider abstraction (OpenAI, Anthropic, Ollama)
+
+**Tech Stack:**
+
+- FastAPI + Python
+- LangChain / OpenAI / Anthropic SDK
+- Ollama (local LLM)
+
+**Features:**
+
+- Multi-provider support (OpenAI GPT, Anthropic Claude, Ollama)
+- Text completion and chat completion
+- Streaming responses via SSE
+- Session-based conversation history
+
+### 7. TTS Service (`services/tts-service`)
+
+Text-to-Speech service with multiple provider support.
+
+**Responsibilities:**
+
+- Speech synthesis with multiple providers
+- Voice listing and management
+- Streaming audio output
+
+**Tech Stack:**
+
+- FastAPI + Python
+- Azure Cognitive Services / Google Cloud TTS / ElevenLabs / Coqui
+
+**Features:**
+
+- Multi-provider support (Azure, Google, ElevenLabs, Coqui)
+- Multi-language voice synthesis
+- Streaming audio output
+
+### 8. Media Gen Service (`services/media-gen`)
+
+Local Text-to-Image generation using Stable Diffusion.
+
+**Responsibilities:**
+
+- Text-to-image generation
+- Model caching and memory management
+- Local inference (no external API required)
+
+**Tech Stack:**
+
+- FastAPI + Python
+- Diffusers library
+- Stable Diffusion models
+
+**Features:**
+
+- Local inference (privacy-preserving)
+- Configurable steps, guidance scale, seed
+- CUDA/MPS/CPU device support
+
 ## Data Flow
 
 ### AI Agents Request Flow
@@ -447,15 +550,16 @@ ai-test/
 │   │   │   │   │   ├── ChatMessage.tsx
 │   │   │   │   │   ├── ToolResult.tsx
 │   │   │   │   │   └── StatusBadge.tsx
-│   │   │   │   └── panels/     # Agent management panels
-│   │   │   │       ├── K8sPanel.tsx
-│   │   │   │       ├── VectorDBPanel.tsx
-│   │   │   │       ├── MonitoringPanel.tsx
-│   │   │   │       ├── AIInfraPanel.tsx      # AI Infrastructure
-│   │   │   │       ├── AIOpsPanel.tsx
-│   │   │   │       ├── LLMOpsPanel.tsx
-│   │   │   │       ├── ModelPanel.tsx
-│   │   │   │       └── SupervisorPanel.tsx
+│   │   │   │   ├── panels/     # Agent management panels
+│   │   │   │   │   ├── K8sPanel.tsx
+│   │   │   │   │   ├── VectorDBPanel.tsx
+│   │   │   │   │   ├── MonitoringPanel.tsx
+│   │   │   │   │   ├── AIInfraPanel.tsx      # AI Infrastructure
+│   │   │   │   │   ├── AIOpsPanel.tsx
+│   │   │   │   │   ├── LLMOpsPanel.tsx
+│   │   │   │   │   ├── ModelPanel.tsx
+│   │   │   │   │   └── SupervisorPanel.tsx
+│   │   │   │   └── AIHub.tsx  # AI Capabilities Hub (Chat, Image, TTS)
 │   │   │   ├── i18n/          # Internationalization
 │   │   │   │   ├── index.tsx   # i18n provider
 │   │   │   │   └── locales.ts   # Translation strings
@@ -472,7 +576,7 @@ ai-test/
 │   └── utils/                  # Shared utilities
 ├── services/
 │   ├── ai_agents/              # AI Agents service (new architecture)
-│   │   ├── agents/             # 10 specialized agents
+│   │   ├── agents/             # 12 specialized agents
 │   │   │   ├── supervisor.py   # Central coordinator
 │   │   │   ├── k8s_agent.py    # Kubernetes management
 │   │   │   ├── vector_db_agent.py  # Vector operations
@@ -482,7 +586,9 @@ ai-test/
 │   │   │   ├── aiops_agent.py  # AI operations
 │   │   │   ├── feature_store_agent.py # Feature engineering
 │   │   │   ├── monitoring_agent.py # Observability
-│   │   │   └── model_agent.py   # ML model lifecycle
+│   │   │   ├── model_agent.py   # ML model lifecycle
+│   │   │   ├── tts_agent.py     # Text-to-speech synthesis
+│   │   │   └── video_agent.py   # Video generation
 │   │   ├── core/               # Base classes, prompts, schemas
 │   │   │   ├── base.py         # Agent base class
 │   │   │   ├── prompts.py      # Prompt templates
@@ -498,11 +604,16 @@ ai-test/
 │   │   │   ├── aiops_tools.py  # Incident management
 │   │   │   ├── rag_tools.py    # Document operations
 │   │   │   ├── pipeline_tools.py # Workflow management
-│   │   │   └── feature_store_tools.py # Feature engineering
+│   │   │   ├── feature_store_tools.py # Feature engineering
+│   │   │   ├── tts_tools.py    # Text-to-speech synthesis
+│   │   │   └── video_tools.py   # Video generation
 │   │   ├── graphs/             # LangGraph workflows
 │   │   │   ├── rag_graph.py    # RAG workflows
 │   │   │   ├── llmops_graph.py # LLM operations
-│   │   │   └── aiops_graph.py # AIOps workflows
+│   │   │   ├── aiops_graph.py # AIOps workflows
+│   │   │   └── video_graph.py  # Video generation workflows
+│   │   ├── examples/           # Example usage code
+│   │   │   └── video_agent_examples.py  # Video Agent usage examples
 │   │   └── main.py             # FastAPI app entry
 │   ├── vision-service/         # Vision AI service
 │   │   ├── src/
@@ -557,11 +668,40 @@ ai-test/
 ### Vision Service (Port 8002)
 
 
+| Method | Endpoint              | Description                      |
+| ------ | --------------------- | -------------------------------- |
+| `GET`  | `/health`             | Health check                     |
+| `GET`  | `/`                   | Service info                     |
+| `POST` | `/vision/detect`      | Object detection (YOLO)          |
+| `POST` | `/vision/caption`     | Image captioning (BLIP)          |
+| `POST` | `/vision/ocr`         | Text extraction (PaddleOCR)      |
+| `POST` | `/vision/analyze`     | Combined analysis                |
+| `POST` | `/image-gen/generate` | Text-to-image (Stable Diffusion) |
+| `POST` | `/video/generate`     | Text/image to video              |
+
+
+### Text Service (Port 8004)
+
+
+| Method | Endpoint              | Description           |
+| ------ | --------------------- | --------------------- |
+| `GET`  | `/api/text/health`    | Health check          |
+| `GET`  | `/api/text/providers` | List LLM providers    |
+| `GET`  | `/api/text/models`    | List available models |
+| `POST` | `/api/text/complete`  | Text completion       |
+| `POST` | `/api/text/chat`      | Chat completion       |
+
+
+### TTS Service (Port 8004+)
+
+
 | Method | Endpoint          | Description           |
 | ------ | ----------------- | --------------------- |
-| `POST` | `/vision/detect`  | Object detection      |
-| `POST` | `/vision/caption` | Image captioning      |
-| `POST` | `/vision/ocr`     | Text extraction (OCR) |
+| `GET`  | `/tts/health`     | Health check          |
+| `GET`  | `/tts/voices`     | List available voices |
+| `GET`  | `/tts/providers`  | List TTS providers    |
+| `POST` | `/tts/synthesize` | Synthesize speech     |
+| `POST` | `/tts/stream`     | Stream speech         |
 
 
 ### RAG Service (Port 8001)

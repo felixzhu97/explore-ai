@@ -13,6 +13,8 @@ __all__ = [
     "get_all_feature_store_tools",
     "get_all_pipeline_tools",
     "get_all_aiops_tools",
+    "get_all_tts_tools",
+    "get_all_video_tools",
 ]
 
 
@@ -58,4 +60,14 @@ def get_all_pipeline_tools():
 
 def get_all_aiops_tools():
     from services.ai_agents.tools.aiops_tools import get_all_aiops_tools as _get
+    return _get()
+
+
+def get_all_tts_tools():
+    from services.ai_agents.tools.tts_tools import get_all_tts_tools as _get
+    return _get()
+
+
+def get_all_video_tools():
+    from services.ai_agents.tools.video_tools import get_all_video_tools as _get
     return _get()

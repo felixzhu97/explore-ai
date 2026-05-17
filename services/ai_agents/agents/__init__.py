@@ -14,6 +14,8 @@ from services.ai_agents.agents.llmops_agent import LLMOpsAgent
 from services.ai_agents.agents.feature_store_agent import FeatureStoreAgent
 from services.ai_agents.agents.pipeline_agent import PipelineAgent
 from services.ai_agents.agents.aiops_agent import AIOpsAgent
+from services.ai_agents.agents.tts_agent import TTSAgent
+from services.ai_agents.agents.video_agent import VideoAgent
 
 __all__ = [
     # Original agents
@@ -30,4 +32,6 @@ __all__ = [
     "FeatureStoreAgent",
     "PipelineAgent",
     "AIOpsAgent",
+    "TTSAgent",
+    "VideoAgent",
 ]

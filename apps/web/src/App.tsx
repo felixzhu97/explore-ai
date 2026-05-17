@@ -6,10 +6,11 @@ import {
 } from './components/panels';
 import { RAGChat } from './components/RAGChat';
 import { ImageUploader } from './components/ImageUploader';
+import { AIHub } from './components/AIHub';
 import { I18nProvider, useI18n, Language, languageNames } from './i18n';
 import { colors, spacing, typography, radius } from './theme';
 
-type Tab = 'aiinfra' | 'rag' | 'vision';
+type Tab = 'aiinfra' | 'rag' | 'vision' | 'aihubs';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -161,6 +162,7 @@ function AppContent() {
     { key: 'aiinfra', label: t.nav.aiinfra },
     { key: 'rag', label: t.nav.documentQA },
     { key: 'vision', label: t.nav.visionAI },
+    { key: 'aihubs', label: 'AI Hub' },
   ];
 
   useEffect(() => {
@@ -178,6 +180,7 @@ function AppContent() {
       case 'aiinfra': return <AIInfraPanel />;
       case 'rag': return <RAGChat />;
       case 'vision': return <ImageUploader />;
+      case 'aihubs': return <AIHub />;
     }
   };
 

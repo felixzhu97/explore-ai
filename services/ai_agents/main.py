@@ -23,6 +23,7 @@ from services.ai_agents.agents.k8s_agent import K8sAgent
 from services.ai_agents.agents.monitoring_agent import MonitoringAgent
 from services.ai_agents.agents.vector_db_agent import VectorDBAgent
 from services.ai_agents.agents.model_agent import ModelAgent
+from services.ai_agents.agents.tts_agent import TTSAgent
 
 from services.ai_agents.tools.vector_tools import get_all_vector_tools
 from services.ai_agents.tools.k8s_tools import get_all_k8s_tools
@@ -30,6 +31,7 @@ from services.ai_agents.tools.monitoring_tools import get_all_monitoring_tools
 from services.ai_agents.tools.model_tools import get_all_model_tools
 from services.ai_agents.tools.llmops_tools import get_all_llmops_tools
 from services.ai_agents.tools.aiops_tools import get_all_aiops_tools
+from services.ai_agents.tools.tts_tools import get_all_tts_tools
 
 
 def extract_clean_content(data: Any) -> str:

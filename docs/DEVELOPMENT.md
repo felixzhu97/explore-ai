@@ -11,28 +11,41 @@ ai-test/
 │   └── server/        # Express.js backend (TypeScript)
 ├── packages/
 │   ├── config/        # Shared TypeScript config
-│   └── utils/         # Shared utilities
+│   ├── utils/         # Shared utilities
+│   └── ai-providers/  # AI provider utilities
 ├── services/
-│   ├── vision-service/      # Vision AI service (FastAPI, Python)
+│   ├── vision-service/      # Vision AI + Image Gen service (FastAPI, Python)
 │   │   ├── src/
-│   │   │   ├── api/         # API endpoints
-│   │   │   ├── core/        # Core business logic
-│   │   │   ├── models/      # ML models
-│   │   │   └── schemas/     # Pydantic schemas
+│   │   │   ├── api/         # API endpoints (vision, video, image_gen)
+│   │   │   ├── providers/   # Video providers (sora, pika, runway, kling)
+│   │   │   └── core/        # Core business logic
 │   │   └── tests/
 │   ├── ai_agents/           # Multi-agent orchestration (FastAPI, Python)
-│   │   ├── agents/         # Agent implementations
+│   │   ├── agents/         # Agent implementations (10 agents)
 │   │   ├── core/           # Core configurations
 │   │   ├── graphs/         # LangGraph definitions
-│   │   ├── tools/          # Agent tools
+│   │   ├── tools/          # Agent tools (50+ tools)
 │   │   └── main.py         # Entry point
-│   └── rag/                # RAG service (FastAPI, Python)
-│       ├── src/
-│       │   ├── api/        # API endpoints
-│       │   ├── core/       # Core logic
-│       │   ├── schemas/    # Pydantic schemas
-│       │   └── persistence/# Data persistence
-│       └── tests/
+│   ├── rag/                # RAG service (FastAPI, Python)
+│   │   ├── src/
+│   │   │   ├── api/        # API endpoints
+│   │   │   ├── core/       # Core logic
+│   │   │   ├── services/   # RAG chain
+│   │   │   └── persistence/# Data persistence
+│   │   └── tests/
+│   ├── text-service/         # Text-to-Text LLM service (FastAPI, Python)
+│   │   ├── src/
+│   │   │   ├── api/        # API endpoints
+│   │   │   └── core/       # LLM gateway
+│   │   └── tests/
+│   ├── tts-service/          # Text-to-Speech service (FastAPI, Python)
+│   │   ├── src/
+│   │   │   ├── providers/  # TTS providers (azure, google, elevenlabs, coqui)
+│   │   │   ├── routers/    # API endpoints
+│   │   │   └── utils/     # Audio utilities
+│   │   └── tests/
+│   └── media-gen/            # Local Stable Diffusion service (FastAPI, Python)
+│       └── app.py           # App entry
 ├── docs/             # Documentation
 └── scripts/         # Build/deployment scripts
 ```
@@ -59,7 +72,7 @@ pnpm install
 
 ### 2. Python Environment
 
-The project has three Python-based microservices. Each service has its own virtual environment.
+The project has six Python-based microservices. Each service has its own virtual environment.
 
 #### Vision Service
 
@@ -194,18 +207,113 @@ PORT=8001
 LOG_LEVEL=INFO
 ```
 
+#### Text Service
+
+```bash
+cd services/text-service
+cp .env.example .env
+```
+
+Edit `.env` as needed:
+
+```env
+# Default LLM Provider
+LLM_PROVIDER=openai
+LLM_MODEL=gpt-4o-mini
+
+# OpenAI (optional)
+OPENAI_API_KEY=sk-your-key-here
+
+# Anthropic (optional)
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+
+# Ollama (local, optional)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5:7b
+
+# Service Configuration
+HOST=0.0.0.0
+PORT=8004
+LOG_LEVEL=INFO
+```
+
+#### TTS Service
+
+```bash
+cd services/tts-service
+cp .env.example .env
+```
+
+Edit `.env` as needed:
+
+```env
+# TTS Provider (azure, google, elevenlabs, coqui, edge)
+TTS_PROVIDER=azure
+
+# Azure Cognitive Services (if using Azure)
+AZURE_SPEECH_KEY=your-key
+AZURE_SPEECH_REGION=eastus
+
+# Google Cloud TTS (if using Google)
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+
+# ElevenLabs (if using ElevenLabs)
+ELEVENLABS_API_KEY=your-api-key
+
+# Coqui TTS (if using Coqui)
+COQUI_MODEL_PATH=/path/to/model
+
+# Service Configuration
+HOST=0.0.0.0
+PORT=8004
+```
+
+#### Media Gen Service
+
+```bash
+cd services/media-gen
+cp .env.example .env
+```
+
+Edit `.env` as needed:
+
+```env
+# Service Configuration
+MEDIA_GEN_PORT=3456
+
+# Stable Diffusion Model
+SD_MODEL=runwayml/stable-diffusion-v1-5
+
+# Device: auto, cpu, cuda, mps
+MEDIA_GEN_DEVICE=auto
+```
+
+# Embedding Model
+EMBEDDING_MODEL=BAAI/bge-m3
+HF_ENDPOINT=
+
+# Service Configuration
+PORT=8001
+LOG_LEVEL=INFO
+```
+
 ## Running Services
 
 ### Service Ports
 
 
-| Service        | Port | Description                         |
-| -------------- | ---- | ----------------------------------- |
-| Vision Service | 8002 | Image recognition (YOLO, BLIP, OCR) |
-| AI Agents      | 8003 | Multi-agent orchestration           |
-| RAG Service    | 8001 | Retrieval-augmented generation      |
-| Web Frontend   | 5173 | React frontend                      |
-| Backend Server | 3000 | Express.js backend                  |
+| Service        | Port | Description                                      |
+| -------------- | ---- | ----------------------------------------------- |
+| Vision Service | 8002 | Image recognition (YOLO, BLIP, OCR), Image Gen, Video |
+| AI Agents      | 8003 | Multi-agent orchestration                          |
+| RAG Service    | 8001 | Retrieval-augmented generation                     |
+| Text Service   | 8004 | Text generation (GPT, Claude, Ollama)             |
+| TTS Service    | 8004+ | Text-to-Speech (Azure, Google, ElevenLabs, Coqui) |
+| Media Gen      | 3456 | Local Stable Diffusion (CPU/GPU)                  |
+| Web Frontend   | 5173 | React frontend                                   |
+| Backend Server | 3000 | Express.js backend                              |
+| Qdrant        | 6333 | Vector database                                 |
+| Ollama         | 11434 | Local LLM (optional)                           |
 
 
 ### Vision Service (Port 8002)
@@ -268,6 +376,42 @@ uvicorn src.main:app --host 0.0.0.0 --port 8001
 ```bash
 # Run Qdrant with Docker (optional)
 docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
+```
+
+### Text Service (Port 8004)
+
+```bash
+cd services/text-service
+source .venv/bin/activate
+
+# Run with hot reload
+uvicorn src.main:app --reload --port 8004
+
+# Or with explicit host
+uvicorn src.main:app --host 0.0.0.0 --port 8004
+```
+
+### TTS Service (Port 8004+)
+
+```bash
+cd services/tts-service
+source .venv/bin/activate
+
+# Run with hot reload
+python -m uvicorn src.main:app --reload
+
+# Or with explicit host and port
+python -m uvicorn src.main:app --host 0.0.0.0 --port 8005
+```
+
+### Media Gen Service (Port 3456)
+
+```bash
+cd services/media-gen
+source .venv/bin/activate
+
+# Run the service
+python app.py
 ```
 
 ### Web Frontend (Node.js)
