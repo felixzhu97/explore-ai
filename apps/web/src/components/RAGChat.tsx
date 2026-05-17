@@ -8,7 +8,7 @@ import { colors, shadows, radius, spacing, typography } from '../theme';
 import { useI18n } from '../i18n';
 import { ImageZoomModal } from './ImageZoomModal';
 
-const RAG_API_URL = 'http://localhost:8001';
+const RAG_API_URL = import.meta.env.VITE_RAG_SERVICE_URL || 'http://localhost:8010';
 
 interface Message {
   id: string;

@@ -665,7 +665,7 @@ ai-test/
 | `POST` | `/api/agents/{agent_name}/invoke` | Invoke specific agent     |
 
 
-### Vision Service (Port 8002)
+### Vision Service (Port 8000)
 
 
 | Method | Endpoint              | Description                      |
@@ -680,7 +680,7 @@ ai-test/
 | `POST` | `/video/generate`     | Text/image to video              |
 
 
-### Text Service (Port 8004)
+### Text Service (Port 8006)
 
 
 | Method | Endpoint              | Description           |
@@ -692,7 +692,7 @@ ai-test/
 | `POST` | `/api/text/chat`      | Chat completion       |
 
 
-### TTS Service (Port 8004+)
+### TTS Service (Port 8005)
 
 
 | Method | Endpoint          | Description           |

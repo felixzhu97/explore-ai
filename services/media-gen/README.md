@@ -20,7 +20,7 @@ python app.py
 
 | Variable           | Default                          | Description                          |
 | ------------------ | -------------------------------- | ------------------------------------ |
-| `MEDIA_GEN_PORT`   | `3456`                           | Service port                         |
+| `MEDIA_GEN_PORT`   | `8015`                            | Service port                         |
 | `SD_MODEL`         | `runwayml/stable-diffusion-v1-5` | HuggingFace model ID                 |
 | `MEDIA_GEN_DEVICE` | `auto`                           | Device: `auto`, `cpu`, `cuda`, `mps` |
 
@@ -61,10 +61,10 @@ POST /cache/clear
 
 ```bash
 # Health check
-curl http://localhost:3456/health
+curl http://localhost:8015/health
 
 # Generate image
-curl -X POST http://localhost:3456/image/generate \
+curl -X POST http://localhost:8015/image/generate \
   -H "Content-Type: application/json" \
   -d '{"prompt": "A cat sitting on a windowsill", "width": 512, "height": 512}'
 ```

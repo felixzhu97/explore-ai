@@ -971,7 +971,7 @@ export function AIHub() {
         (error) => {
           let msg = error.message;
           if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('ERR_CONNECTION_REFUSED')) {
-            msg = `Text Service 不可用。请确保服务在 ${import.meta.env.VITE_TEXT_SERVICE_URL || 'http://localhost:8011'} 运行。`;
+            msg = `Text Service 不可用。请确保服务在 ${import.meta.env.VITE_TEXT_SERVICE_URL || 'http://localhost:8006'} 运行。`;
           }
           setChatError(msg);
           setChatMessages((prev) =>
@@ -988,7 +988,7 @@ export function AIHub() {
       const errorMessage = error instanceof Error ? error.message : 'Chat failed';
       let userMessage = errorMessage;
       if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('ERR_CONNECTION_REFUSED')) {
-        userMessage = `Text Service 不可用。请确保服务在 ${import.meta.env.VITE_TEXT_SERVICE_URL || 'http://localhost:8011'} 运行。`;
+        userMessage = `Text Service 不可用。请确保服务在 ${import.meta.env.VITE_TEXT_SERVICE_URL || 'http://localhost:8006'} 运行。`;
       }
       setChatError(userMessage);
       setChatMessages((prev) =>

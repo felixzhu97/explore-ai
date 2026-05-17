@@ -6,7 +6,7 @@ from typing import Optional, List
 from langchain_core.tools import tool
 
 
-TTS_SERVICE_URL = "http://localhost:8004"
+TTS_SERVICE_URL = "http://localhost:8013"
 
 
 @tool("tts_synthesize")
@@ -74,7 +74,7 @@ The synthesized audio has been generated."""
                 return f"Speech synthesis failed with status code: {response.status_code}\n{response.text}"
                 
     except httpx.ConnectError:
-        return "Error: Cannot connect to TTS service. Please ensure the TTS service is running on port 8004."
+        return "Error: Cannot connect to TTS service. Please ensure the TTS service is running on port 8013."
     except Exception as e:
         return f"Error during speech synthesis: {str(e)}"
 
@@ -136,7 +136,7 @@ def tts_list_voices(language: Optional[str] = None) -> str:
                 return f"Failed to list voices. Status: {response.status_code}"
                 
     except httpx.ConnectError:
-        return "Error: Cannot connect to TTS service. Please ensure the TTS service is running on port 8004."
+        return "Error: Cannot connect to TTS service. Please ensure the TTS service is running on port 8013."
     except Exception as e:
         return f"Error listing voices: {str(e)}"
 

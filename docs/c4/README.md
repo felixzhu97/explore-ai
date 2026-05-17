@@ -4,25 +4,29 @@
 
 ## 文件说明
 
-| 文件 | 级别 | 描述 |
-|------|------|------|
-| `context.puml` | C1 - Context | 系统上下文图，展示用户、外部系统和核心服务的关系 |
-| `container.puml` | C2 - Container | 容器图，展示主要应用容器和技术栈 |
-| `component-ai-agents.puml` | C3 - Component | AI Agents 服务内部组件架构 |
-| `component-frontend.puml` | C3 - Component | Web 前端组件架构 |
-| `component-vision-service.puml` | C3 - Component | Vision Service 组件架构 |
+
+| 文件                              | 级别             | 描述                        |
+| ------------------------------- | -------------- | ------------------------- |
+| `context.puml`                  | C1 - Context   | 系统上下文图，展示用户、外部系统和核心服务的关系  |
+| `container.puml`                | C2 - Container | 容器图，展示主要应用容器和技术栈          |
+| `component-ai-agents.puml`      | C3 - Component | AI Agents 服务内部组件架构        |
+| `component-frontend.puml`       | C3 - Component | Web 前端组件架构                |
+| `component-vision-service.puml` | C3 - Component | Vision Service 组件架构       |
 | `component-media-services.puml` | C3 - Component | TTS/Text/Media Gen 服务组件架构 |
-| `component-rag-service.puml` | C3 - Component | RAG 服务组件架构 |
-| `wardley-map.puml` | Wardley Map | 技术演进地图 |
+| `component-rag-service.puml`    | C3 - Component | RAG 服务组件架构                |
+| `wardley-map.puml`              | Wardley Map    | 技术演进地图                    |
+
 
 ## 本地库文件
 
-| 文件 | 描述 |
-|------|------|
-| `C4.puml` | C4-PlantUML 核心库 |
-| `C4_Context.puml` | Context 级别宏定义 |
+
+| 文件                  | 描述              |
+| ------------------- | --------------- |
+| `C4.puml`           | C4-PlantUML 核心库 |
+| `C4_Context.puml`   | Context 级别宏定义   |
 | `C4_Container.puml` | Container 级别宏定义 |
 | `C4_Component.puml` | Component 级别宏定义 |
+
 
 ## 查看方式
 
@@ -113,6 +117,7 @@ plantuml -o png *.puml
 ## 更新日志
 
 ### 2026-05-17
+
 - 新增 `component-vision-service.puml` - Vision Service 组件架构
 - 新增 `component-media-services.puml` - TTS/Text/Media Gen 服务组件架构
 - 更新 `context.puml` - 添加 TTS、Text、Vision Service
@@ -120,3 +125,16 @@ plantuml -o png *.puml
 - 更新 `component-ai-agents.puml` - 添加 TTS Agent、Video Agent 及详细工具
 - 更新 `component-frontend.puml` - 添加 TTS、Video 相关组件
 - 添加本地 C4 库文件 (`C4.puml`, `C4_Context.puml`, `C4_Container.puml`, `C4_Component.puml`)
+
+### 2026-05-17 (模型核对)
+
+- 核对项目实际结构，补充缺失组件：
+  - AI Agents: TTS Agent、Video Agent、TTS Tools、Video Tools
+  - RAG Service: 持久化层 (Session Store, Document Cache, Metadata Store)
+  - 更新各组件的工具详细功能列表
+- 更新 `wardley-map.puml` - 全面更新技术演进地图：
+  - Genesis: 添加 Multi-Agent Orchestration、RAG+Vector Search、Vision AI Pipeline
+  - Custom Built: 添加 12 AI Agents 架构、TTS 语音合成、Video 生成服务、Feature Store
+  - Product: 添加 Stable Diffusion、ElevenLabs/Coqui TTS、Ollama、Sentence Transformers
+  - Commodity: 添加 Kubernetes、Redis、Prometheus/Grafana、gRPC、MLflow、Feast
+

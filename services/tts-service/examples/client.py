@@ -7,7 +7,7 @@ from typing import Optional
 class TTSClient:
     """HTTP client for TTS Service."""
     
-    def __init__(self, base_url: str = "http://localhost:8004", timeout: float = 60.0):
+    def __init__(self, base_url: str = "http://localhost:8013", timeout: float = 60.0):
         """Initialize TTS client.
         
         Args:
@@ -166,7 +166,7 @@ class TTSClient:
 
 if __name__ == "__main__":
     # Initialize client
-    client = TTSClient(base_url="http://localhost:8004")
+    client = TTSClient(base_url="http://localhost:8013")
     
     # Check health
     print("=== Health Check ===")

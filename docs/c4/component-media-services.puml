@@ -8,7 +8,7 @@ title 组件图 (C3) - 媒体服务架构
 Container_Boundary(media_services, "Media Services") {
 
     ' === TTS Service ===
-    System_Boundary(tts_service, "TTS Service (Port 8004)") {
+    System_Boundary(tts_service, "TTS Service (Port 8005)") {
         Component(tts_router, "TTS Router", "FastAPI", "TTS 路由定义")
         Component(tts_provider_factory, "Provider Factory", "Python", "Provider 工厂")
         Component(azure_tts, "Azure TTS", "Python", "Azure 语音服务")
@@ -22,7 +22,7 @@ Container_Boundary(media_services, "Media Services") {
     }
 
     ' === Text Service ===
-    System_Boundary(text_service, "Text Service (Port 8000)") {
+    System_Boundary(text_service, "Text Service (Port 8006)") {
         Component(text_router, "API Router", "FastAPI", "API 路由定义")
         Component(text_schemas, "Schemas", "Pydantic", "请求/响应模型")
         Component(llm_gateway, "LLM Gateway", "Python", "多 LLM 提供者网关")

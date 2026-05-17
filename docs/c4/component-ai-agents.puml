@@ -20,6 +20,8 @@ Container_Boundary(ai_agents, "AI Agents 服务 (Port 8003)") {
     Component(feature_agent, "Feature Store Agent", "Python", "特征工程和管理")
     Component(monitoring_agent, "Monitoring Agent", "Python", "指标查询、告警配置")
     Component(model_agent, "Model Agent", "Python", "ML 模型版本控制、部署")
+    Component(tts_agent, "TTS Agent", "Python", "文本转语音合成")
+    Component(video_agent, "Video Agent", "Python", "视频生成")
 
     ' === LangGraph 工作流 ===
     Component(rag_graph, "RAG Graph", "LangGraph", "RAG 检索和生成工作流")
@@ -30,35 +32,41 @@ Container_Boundary(ai_agents, "AI Agents 服务 (Port 8003)") {
     Component(schemas, "Schemas", "Pydantic", "数据模型和枚举定义")
     Component(prompts, "Prompts", "Python", "系统提示词模板")
     Component(base, "BaseInfraAgent", "Python", "基础智能体类")
+    Component(config, "Config", "Pydantic Settings", "配置管理")
 
     ' === API 层 ===
     Component(api_router, "API Router", "FastAPI", "HTTP 端点定义")
+    Component(health, "Health Endpoint", "FastAPI", "健康检查")
 }
 
 ' === 工具层 ===
 System_Boundary(tools, "Tools Layer") {
     Component(http_tools, "HTTP Tools", "http_tools.py", "HTTP API 调用工具")
     Component(system_tools, "System Tools", "system_tools.py", "系统命令执行工具")
-    Component(k8s_tools, "K8s Tools", "k8s_tools.py", "kubectl 操作")
+    Component(k8s_tools, "K8s Tools", "k8s_tools.py", "kubectl 操作 (list_pods, get_pod_logs, scale_deployment, etc.)")
     Component(vector_tools, "Vector Tools", "vector_tools.py", "向量数据库操作")
     Component(monitoring_tools, "Monitoring Tools", "monitoring_tools.py", "Prometheus/Grafana 查询")
     Component(model_tools, "Model Tools", "model_tools.py", "MLflow 模型管理")
     Component(llmops_tools, "LLMOps Tools", "llmops_tools.py", "实验跟踪")
     Component(aiops_tools, "AIOps Tools", "aiops_tools.py", "日志分析、异常检测")
-    Component(rag_tools, "RAG Tools", "rag_tools.py", "文档操作")
+    Component(rag_tools, "RAG Tools", "rag_tools.py", "文档操作 (index_document, search_documents, rag_query)")
     Component(pipeline_tools, "Pipeline Tools", "pipeline_tools.py", "工作流管理")
     Component(feature_tools, "Feature Store Tools", "feature_store_tools.py", "Feast 集成")
+    Component(tts_tools, "TTS Tools", "tts_tools.py", "语音合成 (synthesize, list_voices, stream, get_providers)")
+    Component(video_tools, "Video Tools", "video_tools.py", "视频生成 (generate, generate_advanced, check_status)")
 }
 
 ' === 外部服务层 ===
 System_Boundary(external, "External Services") {
-    Component(vector_store, "Vector Store", "Qdrant", "向量数据库")
-    Component(llm_gateway, "LLM Gateway", "OpenAI/Claude/Ollama", "语言模型服务")
+    Component(vector_store, "Vector Store", "Qdrant", "向量数据库 (Port 6333)")
+    Component(llm_gateway, "LLM Gateway", "OpenAI/Claude/Ollama", "语言模型服务 (qwen3)")
     Component(mlflow, "MLflow", "MLflow", "实验跟踪")
     Component(feast, "Feast", "Feast", "特征存储")
     Component(k8s_cluster, "Kubernetes", "K8s API", "集群管理")
     Component(prometheus, "Prometheus", "Prometheus", "指标监控")
     Component(grafana, "Grafana", "Grafana", "可视化")
+    Component(tts_providers, "TTS Providers", "Azure/Google/ElevenLabs/Coqui", "语音合成服务")
+    Component(video_providers, "Video Providers", "Kling/Runway/Pika/Sora", "视频生成服务")
 }
 
 ' === Supervisor 路由关系 ===
@@ -71,6 +79,8 @@ Rel(supervisor, aiops_agent, "委托")
 Rel(supervisor, feature_agent, "委托")
 Rel(supervisor, monitoring_agent, "委托")
 Rel(supervisor, model_agent, "委托")
+Rel(supervisor, tts_agent, "委托")
+Rel(supervisor, video_agent, "委托")
 
 ' === 智能体与工作流关系 ===
 Rel(rag_agent, rag_graph, "使用")
@@ -91,6 +101,8 @@ Rel(monitoring_agent, monitoring_tools, "调用工具")
 Rel(model_agent, model_tools, "调用工具")
 Rel(feature_agent, feature_tools, "调用工具")
 Rel(pipeline_agent, pipeline_tools, "调用工具")
+Rel(tts_agent, tts_tools, "调用工具")
+Rel(video_agent, video_tools, "调用工具")
 
 ' === 工具与外部服务关系 ===
 Rel(http_tools, llm_gateway, "API 调用")
@@ -104,6 +116,8 @@ Rel(monitoring_tools, grafana, "可视化")
 Rel(aiops_tools, k8s_cluster, "集群操作")
 Rel(aiops_tools, prometheus, "指标查询")
 Rel(pipeline_tools, k8s_cluster, "部署")
+Rel(tts_tools, tts_providers, "语音合成")
+Rel(video_tools, video_providers, "视频生成")
 
 ' === 核心模块关系 ===
 Rel(supervisor, base, "继承")
@@ -115,5 +129,6 @@ Rel(supervisor, prompts, "使用")
 
 ' === API 层关系 ===
 Rel(api_router, supervisor, "路由到")
+Rel(api_router, health, "健康检查")
 SHOW_LEGEND()
 @enduml

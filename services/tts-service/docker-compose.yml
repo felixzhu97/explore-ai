@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8004:8004"
+      - "8013:8013"
     environment:
       - TTS_PROVIDER=${TTS_PROVIDER:-azure}
       - TTS_AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY}
@@ -17,7 +17,7 @@ services:
       - ./credentials:/app/credentials:ro
       - ./models:/app/models:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/tts/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8013/tts/health"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -56,7 +56,7 @@ cp .env.example .env
 ### 3. Run the Service
 
 ```bash
-python -m uvicorn src.main:app --reload --port 8004
+python -m uvicorn src.main:app --reload --port 8005
 ```
 
 ## Environment Variables
@@ -114,7 +114,7 @@ import httpx
 
 # Sync request
 response = httpx.post(
-    "http://localhost:8004/tts/synthesize",
+    "http://localhost:8013/tts/synthesize",
     json={
         "text": "Hello from the AI Test platform!",
         "voice": "en-US-JennyNeural",
@@ -134,7 +134,7 @@ import httpx
 async with httpx.AsyncClient(timeout=60.0) as client:
     async with client.stream(
         "POST",
-        "http://localhost:8004/tts/stream",
+        "http://localhost:8013/tts/stream",
         json={"text": "Streaming synthesis demo"}
     ) as response:
         async for chunk in response.aiter_bytes(chunk_size=8192):

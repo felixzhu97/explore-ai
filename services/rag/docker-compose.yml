@@ -2,7 +2,7 @@ services:
   rag:
     build: .
     ports:
-      - "8001:8001"
+      - "8010:8010"
     environment:
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333

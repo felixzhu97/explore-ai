@@ -307,8 +307,8 @@ LOG_LEVEL=INFO
 | Vision Service | 8002 | Image recognition (YOLO, BLIP, OCR), Image Gen, Video |
 | AI Agents      | 8003 | Multi-agent orchestration                          |
 | RAG Service    | 8001 | Retrieval-augmented generation                     |
-| Text Service   | 8004 | Text generation (GPT, Claude, Ollama)             |
-| TTS Service    | 8004+ | Text-to-Speech (Azure, Google, ElevenLabs, Coqui) |
+| Text Service   | 8006 | Text generation (GPT, Claude, Ollama)             |
+| TTS Service    | 8005 | Text-to-Speech (Azure, Google, ElevenLabs, Coqui) |
 | Media Gen      | 3456 | Local Stable Diffusion (CPU/GPU)                  |
 | Web Frontend   | 5173 | React frontend                                   |
 | Backend Server | 3000 | Express.js backend                              |
@@ -316,17 +316,17 @@ LOG_LEVEL=INFO
 | Ollama         | 11434 | Local LLM (optional)                           |
 
 
-### Vision Service (Port 8002)
+### Vision Service (Port 8000)
 
 ```bash
 cd services/vision-service
 source .venv/bin/activate
 
 # Run with hot reload
-uvicorn src.main:app --reload --port 8002
+uvicorn src.main:app --reload --port 8000
 
 # Or with explicit host
-uvicorn src.main:app --host 0.0.0.0 --port 8002
+uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### AI Agents Service (Port 8003)
@@ -378,20 +378,20 @@ uvicorn src.main:app --host 0.0.0.0 --port 8001
 docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
 ```
 
-### Text Service (Port 8004)
+### Text Service (Port 8006)
 
 ```bash
 cd services/text-service
 source .venv/bin/activate
 
 # Run with hot reload
-uvicorn src.main:app --reload --port 8004
+uvicorn src.main:app --reload --port 8006
 
 # Or with explicit host
-uvicorn src.main:app --host 0.0.0.0 --port 8004
+uvicorn src.main:app --host 0.0.0.0 --port 8006
 ```
 
-### TTS Service (Port 8004+)
+### TTS Service (Port 8005)
 
 ```bash
 cd services/tts-service

@@ -17,10 +17,11 @@ This project includes 6 AI microservices:
 | Service        | Port | Description                                  |
 | -------------- | ---- | -------------------------------------------- |
 | RAG Service    | 8001 | Retrieval-augmented generation, document Q&A |
-| Vision Service | 8002 | Image recognition (YOLO, BLIP, OCR)          |
+| Vision Service | 8000 | Image recognition (YOLO, BLIP, OCR)          |
+| Vision CPU     | 8002 | Vision Service (CPU-only variant)            |
 | AI Agents      | 8003 | Multi-agent orchestration                    |
-| Text Service   | 8004 | Text generation (GPT, Claude, Ollama)       |
-| TTS Service    | 8004+ | Speech synthesis (Azure, Google, ElevenLabs) |
+| Text Service   | 8006 | Text generation (GPT, Claude, Ollama)       |
+| TTS Service    | 8005 | Speech synthesis (Azure, Google, ElevenLabs) |
 | Media Gen      | 3456 | Local Stable Diffusion                      |
 
 
@@ -153,14 +154,14 @@ python -c "from transformers import AutoProcessor, BlipForConditionalGeneration;
 
 ### 4. Start Services
 
-#### Vision Service (Port 8002)
+#### Vision Service (Port 8000)
 
 Terminal 1:
 
 ```bash
 cd services/vision-service
 source .venv/bin/activate
-uvicorn src.main:app --host 0.0.0.0 --port 8002 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### AI Agents Service (Port 8003)
@@ -231,27 +232,27 @@ curl -X POST http://localhost:8001/api/chat \
   -d '{"message": "What is this document about?"}'
 ```
 
-#### Vision Service (Port 8002)
+#### Vision Service (Port 8000)
 
 ```bash
 # Health check
-curl http://localhost:8002/health
+curl http://localhost:8000/health
 
 # Object Detection
-curl -X POST http://localhost:8002/vision/detect \
+curl -X POST http://localhost:8000/vision/detect \
   -F "file=@your-image.jpg" \
   -F "conf=0.25"
 
 # Image Captioning
-curl -X POST http://localhost:8002/vision/caption \
+curl -X POST http://localhost:8000/vision/caption \
   -F "file=@your-image.jpg"
 
 # OCR
-curl -X POST http://localhost:8002/vision/ocr \
+curl -X POST http://localhost:8000/vision/ocr \
   -F "file=@your-image.jpg"
 
 # Combined Analysis
-curl -X POST "http://localhost:8002/vision/analyze?task=caption_image" \
+curl -X POST "http://localhost:8000/vision/analyze?task=caption_image" \
   -F "file=@your-image.jpg"
 ```
 
@@ -275,49 +276,49 @@ curl -X POST http://localhost:8003/api/agents/rag_agent/invoke \
   -d '{"messages": [{"role": "user", "content": "Search for documents about ML"}]}'
 ```
 
-#### Text Service (Port 8004)
+#### Text Service (Port 8006)
 
 ```bash
 # Health check
-curl http://localhost:8004/api/text/health
+curl http://localhost:8006/api/text/health
 
 # List providers
-curl http://localhost:8004/api/text/providers
+curl http://localhost:8006/api/text/providers
 
 # Text completion
-curl -X POST http://localhost:8004/api/text/complete \
+curl -X POST http://localhost:8006/api/text/complete \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Explain quantum computing:", "temperature": 0.7}'
 
 # Chat
-curl -X POST http://localhost:8004/api/text/chat \
+curl -X POST http://localhost:8006/api/text/chat \
   -H "Content-Type: application/json" \
   -d '{"messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-#### TTS Service (Port 8004)
+#### TTS Service (Port 8013)
 
 ```bash
 # Health check
-curl http://localhost:8004/tts/health
+curl http://localhost:8013/tts/health
 
 # List voices
-curl http://localhost:8004/tts/voices
+curl http://localhost:8013/tts/voices
 
 # Synthesize speech
-curl -X POST http://localhost:8004/tts/synthesize \
+curl -X POST http://localhost:8013/tts/synthesize \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello world!", "voice": "en-US-JennyNeural"}'
 ```
 
-#### Media Gen Service (Port 3456)
+#### Media Gen Service (Port 8015)
 
 ```bash
 # Health check
-curl http://localhost:3456/health
+curl http://localhost:8015/health
 
 # Generate image
-curl -X POST http://localhost:3456/image/generate \
+curl -X POST http://localhost:8015/image/generate \
   -H "Content-Type: application/json" \
   -d '{"prompt": "A cat sitting on a windowsill", "width": 512, "height": 512}'
 ```
@@ -360,20 +361,20 @@ python -c "import torch; print(torch.cuda.is_available())"
 Change the port by setting the `PORT` environment variable or command line:
 
 ```bash
-# Vision Service (default 8002)
+# Vision Service (default 8000)
+PORT=8000 uvicorn src.main:app --port 8000
+
+# Vision Service CPU (default 8002)
 PORT=8002 uvicorn src.main:app --port 8002
 
 # AI Agents Service (default 8003)
 PORT=8003 uvicorn main:app --port 8003
 
-# RAG Service (default 8001)
-PORT=8001 uvicorn src.main:app --port 8001
+# Text Service (default 8006)
+PORT=8006 uvicorn src.main:app --port 8006
 
-# Text Service (default 8004)
-PORT=8004 uvicorn src.main:app --port 8004
-
-# TTS Service (default 8004)
-PORT=8004 python -m uvicorn src.main:app --port 8004
+# TTS Service (default 8005)
+PORT=8005 python -m uvicorn src.main:app --port 8005
 
 # Media Gen Service (default 3456)
 PORT=3456 python app.py

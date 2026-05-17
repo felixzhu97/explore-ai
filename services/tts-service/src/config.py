@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     
     # Server settings
     host: str = Field(default="0.0.0.0", description="Server host")
-    port: int = Field(default=8004, description="Server port")
+    port: int = Field(default=8013, description="Server port")
     
     # Cache settings
     enable_cache: bool = Field(default=True, description="Enable audio caching")

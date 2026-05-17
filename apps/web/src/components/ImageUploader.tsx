@@ -22,7 +22,7 @@ interface Result {
   processing_time_ms?: number;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_VISION_SERVICE_URL || 'http://localhost:8000';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(8px); }

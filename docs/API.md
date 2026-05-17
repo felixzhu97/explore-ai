@@ -7,9 +7,9 @@ REST API documentation for the AI-Test Platform services.
 ## Table of Contents
 
 - [AI Agents Service (Port 8003)](#ai-agents-service-port-8003)
-- [Vision Service (Port 8002)](#vision-service-port-8002)
-- [Text Service (Port 8004)](#text-service-port-8004)
-- [TTS Service (Port 8004)](#tts-service-port-8004)
+- [Vision Service (Port 8000)](#vision-service-port-8000)
+- [Text Service (Port 8006)](#text-service-port-8006)
+- [TTS Service (Port 8005)](#tts-service-port-8005)
 - [RAG Service (Port 8001)](#rag-service-port-8001)
 
 ---
@@ -270,9 +270,9 @@ curl -X POST http://localhost:8003/api/agents/vector/invoke \
 
 ---
 
-## Vision Service (Port 8002)
+## Vision Service (Port 8000)
 
-Base URL: `http://localhost:8002`
+Base URL: `http://localhost:8000`
 
 ### Endpoints Overview
 
@@ -389,7 +389,7 @@ Detect objects in an image using YOLO.
 **Example:**
 
 ```bash
-curl -X POST http://localhost:8002/vision/detect \
+curl -X POST http://localhost:8000/vision/detect \
   -F "file=@image.jpg" \
   -F "conf=0.5"
 ```
@@ -433,7 +433,7 @@ Generate a natural language description of an image using BLIP.
 **Example:**
 
 ```bash
-curl -X POST http://localhost:8002/vision/caption \
+curl -X POST http://localhost:8000/vision/caption \
   -F "file=@image.jpg"
 ```
 
@@ -492,7 +492,7 @@ Extract text from an image using PaddleOCR.
 **Example:**
 
 ```bash
-curl -X POST http://localhost:8002/vision/ocr \
+curl -X POST http://localhost:8000/vision/ocr \
   -F "file=@document.jpg"
 ```
 
@@ -525,7 +525,7 @@ Run multiple AI tasks on a single image.
 **Example - Full Analysis:**
 
 ```bash
-curl -X POST "http://localhost:8002/vision/analyze?task=analyze_image" \
+curl -X POST "http://localhost:8000/vision/analyze?task=analyze_image" \
   -F "file=@photo.jpg"
 ```
 
@@ -554,9 +554,9 @@ curl -X POST "http://localhost:8002/vision/analyze?task=analyze_image" \
 
 ---
 
-## Text Service (Port 8004)
+## Text Service (Port 8006)
 
-Base URL: `http://localhost:8004`
+Base URL: `http://localhost:8006`
 
 Text-to-Text LLM service with multi-provider support (OpenAI, Anthropic, Ollama).
 
@@ -689,9 +689,9 @@ Text-to-Text LLM service with multi-provider support (OpenAI, Anthropic, Ollama)
 
 ---
 
-## TTS Service (Port 8004)
+## TTS Service (Port 8013)
 
-Base URL: `http://localhost:8004`
+Base URL: `http://localhost:8013`
 
 Text-to-Speech service with multiple provider support (Azure, Google, ElevenLabs, Coqui).
 
@@ -1550,7 +1550,7 @@ print(response.text)
 # Vision - Object Detection
 with open("image.jpg", "rb") as f:
     response = requests.post(
-        "http://localhost:8002/vision/detect",
+        "http://localhost:8000/vision/detect",
         files={"file": f}
     )
 print(response.json())
@@ -1572,7 +1572,7 @@ const response = await fetch("http://localhost:8003/api/agents/supervisor/invoke
 const formData = new FormData();
 formData.append("file", imageFile);
 
-const visionResponse = await fetch("http://localhost:8002/vision/caption", {
+const visionResponse = await fetch("http://localhost:8000/vision/caption", {
   method: "POST",
   body: formData,
 });
@@ -1589,10 +1589,10 @@ curl http://localhost:8003/health
 curl http://localhost:8003/agents
 
 # Vision
-curl -X POST http://localhost:8002/vision/caption \
+curl -X POST http://localhost:8000/vision/caption \
   -F "file=@photo.jpg"
 
-curl -X POST http://localhost:8002/vision/detect \
+curl -X POST http://localhost:8000/vision/detect \
   -F "file=@photo.jpg" \
   -F "conf=0.5"
 

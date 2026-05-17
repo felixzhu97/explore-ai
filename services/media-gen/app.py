@@ -18,7 +18,7 @@ from loguru import logger
 load_dotenv()
 
 # Configuration
-MEDIA_GEN_PORT = int(os.getenv("MEDIA_GEN_PORT", "3456"))
+MEDIA_GEN_PORT = int(os.getenv("MEDIA_GEN_PORT", "8015"))
 SD_MODEL = os.getenv("SD_MODEL", "runwayml/stable-diffusion-v1-5")
 DEVICE_CONFIG = os.getenv("MEDIA_GEN_DEVICE", "auto")
 

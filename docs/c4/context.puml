@@ -12,13 +12,14 @@ Person(data_scientist, "数据科学家", "进行数据分析和特征工程")
 
 ' AI-Test Platform 系统边界
 System_Boundary(ai_platform, "AI-Test Platform") {
-    System(web_app, "Web 应用", "React 单页应用，提供用户交互界面")
+    System(web_app, "Web 应用", "React 单页应用，提供用户交互界面 (Port 5173)")
     System(ai_agents_service, "AI Agents 服务", "多智能体协调系统，处理复杂 AI 任务 (Port 8003)")
-    System(vision_service, "Vision 服务", "视频和图像生成服务 (Port 8003)")
-    System(tts_service, "TTS 服务", "文本转语音合成服务 (Port 8004)")
-    System(text_service, "Text 服务", "文本处理和 LLM 网关服务 (Port 8000)")
-    System(rag_service, "RAG 服务", "文档检索和问答系统")
-    System(vector_store, "Vector Store", "Qdrant 向量数据库，存储文档嵌入")
+    System(vision_service, "Vision 服务", "视觉 AI 服务：目标检测、OCR、图像生成 (Port 8000)")
+    System(tts_service, "TTS 服务", "文本转语音合成服务 (Port 8005)")
+    System(text_service, "Text 服务", "文本处理和 LLM 网关服务 (Port 8006)")
+    System(rag_service, "RAG 服务", "文档检索和问答系统 (Port 8001)")
+    System(media_gen_service, "Media Gen 服务", "本地文生图服务 (Port 3456)")
+    System(vector_store, "Vector Store", "Qdrant 向量数据库，存储文档嵌入 (Port 6333)")
 }
 
 ' 外部服务
@@ -30,6 +31,7 @@ System_Ext(prometheus, "Prometheus", "指标监控和告警")
 System_Ext(grafana, "Grafana", "可视化监控仪表板")
 System_Ext(mlflow, "MLflow", "ML 实验跟踪和模型管理")
 System_Ext(feast, "Feast", "特征存储服务")
+System_Ext(qdrant, "Qdrant", "向量数据库（外部托管可选）")
 
 ' 用户关系
 Rel(ml_engineer, web_app, "配置模型", "HTTPS")
@@ -46,8 +48,10 @@ Rel(ai_agents_service, vision_service, "调用视觉 AI", "HTTP")
 Rel(ai_agents_service, tts_service, "语音合成", "HTTP")
 Rel(ai_agents_service, text_service, "文本处理/LLM", "HTTP")
 Rel(ai_agents_service, rag_service, "RAG 查询", "HTTP")
+Rel(ai_agents_service, media_gen_service, "图像生成", "HTTP")
 Rel(ai_agents_service, vector_store, "向量检索", "gRPC")
 Rel(rag_service, vector_store, "存储/检索", "gRPC")
+Rel(vision_service, media_gen_service, "图像生成", "HTTP")
 
 ' LLM 集成
 Rel(ai_agents_service, openai_api, "LLM 调用")

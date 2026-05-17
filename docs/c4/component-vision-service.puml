@@ -5,7 +5,7 @@ LAYOUT_WITH_LEGEND()
 
 title 组件图 (C3) - Vision Service 架构
 
-Container_Boundary(vision_service, "Vision Service (Port 8003)") {
+Container_Boundary(vision_service, "Vision Service (Port 8000)") {
 
     ' === API 层 ===
     System_Boundary(api_layer, "API Layer") {

@@ -6,7 +6,7 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
-    PORT: int = 8001
+    PORT: int = 8010
     LOG_LEVEL: str = "INFO"
 
     QDRANT_HOST: str = "localhost"

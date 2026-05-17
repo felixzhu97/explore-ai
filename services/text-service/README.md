@@ -44,10 +44,10 @@ OLLAMA_MODEL=qwen2.5:7b
 
 ```bash
 # Development
-uvicorn src.main:app --reload --port 8004
+uvicorn src.main:app --reload --port 8006
 
 # Production
-uvicorn src.main:app --host 0.0.0.0 --port 8004
+uvicorn src.main:app --host 0.0.0.0 --port 8006
 ```
 
 ## API Endpoints
@@ -82,7 +82,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8004
 import requests
 
 # Text completion
-response = requests.post("http://localhost:8004/api/text/complete", json={
+response = requests.post("http://localhost:8006/api/text/complete", json={
     "prompt": "Explain quantum computing in simple terms:",
     "temperature": 0.7,
     "max_tokens": 500,
@@ -90,7 +90,7 @@ response = requests.post("http://localhost:8004/api/text/complete", json={
 print(response.json()["text"])
 
 # Chat
-response = requests.post("http://localhost:8004/api/text/chat", json={
+response = requests.post("http://localhost:8006/api/text/chat", json={
     "messages": [
         {"role": "user", "content": "Hello, how are you?"}
     ],
@@ -103,7 +103,7 @@ print(response.json()["text"])
 
 ```typescript
 // Streaming completion
-const response = await fetch("http://localhost:8004/api/text/complete/stream", {
+const response = await fetch("http://localhost:8006/api/text/complete/stream", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ prompt: "Write a haiku:" })
@@ -122,12 +122,12 @@ while (reader) {
 
 ```bash
 # Text completion
-curl -X POST http://localhost:8004/api/text/complete \
+curl -X POST http://localhost:8006/api/text/complete \
     -H "Content-Type: application/json" \
     -d '{"prompt": "What is the meaning of life?", "temperature": 0.5}'
 
 # Streaming chat
-curl -X POST http://localhost:8004/api/text/chat/stream \
+curl -X POST http://localhost:8006/api/text/chat/stream \
     -H "Content-Type: application/json" \
     -d '{"messages": [{"role": "user", "content": "Hello"}]}'
 ```

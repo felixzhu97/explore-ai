@@ -5,7 +5,7 @@ import { colors, radius, shadows, spacing, typography, transitions } from '../..
 import { ChatMessage, ChatMessageData, ToolCall } from './ChatMessage';
 import { useI18n } from '../../i18n';
 
-const API_BASE = 'http://localhost:8003';
+const API_BASE = import.meta.env.VITE_AI_AGENTS_URL || 'http://localhost:8003';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(8px); }

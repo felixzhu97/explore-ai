@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Application settings with environment variable support."""
 
     HOST: str = "0.0.0.0"
-    PORT: int = 8004
+    PORT: int = 8006
     LOG_LEVEL: str = "INFO"
 
     # Default LLM Provider

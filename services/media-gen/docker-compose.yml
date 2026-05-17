@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  media-gen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8015:8015"
+    environment:
+      - MEDIA_GEN_PORT=8015
+      - SD_MODEL=${SD_MODEL:-runwayml/stable-diffusion-v1-5}
+      - MEDIA_GEN_DEVICE=${MEDIA_GEN_DEVICE:-auto}
+      - HF_ENDPOINT=${HF_ENDPOINT:-https://hf-mirror.com}
+      - HF_TOKEN=${HF_TOKEN:-}
+    volumes:
+      - ./models:/app/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # CPU-only variant
+  media-gen-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8016:8015"
+    environment:
+      - MEDIA_GEN_PORT=8015
+      - SD_MODEL=${SD_MODEL:-runwayml/stable-diffusion-v1-5}
+      - MEDIA_GEN_DEVICE=cpu
+      - HF_ENDPOINT=${HF_ENDPOINT:-https://hf-mirror.com}
+      - HF_TOKEN=${HF_TOKEN:-}
+    volumes:
+      - ./models:/app/models:ro
+    restart: unless-stopped

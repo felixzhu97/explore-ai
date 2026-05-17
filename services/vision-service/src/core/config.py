@@ -15,8 +15,10 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        case_sensitive = False
 
 
-@lru_cache
+@lru_cache()
 def get_settings() -> Settings:
+    """Get cached settings instance."""
     return Settings()

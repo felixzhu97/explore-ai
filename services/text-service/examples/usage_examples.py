@@ -7,7 +7,7 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:8004"
+BASE_URL = "http://localhost:8006"
 
 
 def example_complete():
@@ -93,7 +93,7 @@ def example_provider_switch():
 
 """
 // JavaScript: Text Completion
-const response = await fetch('http://localhost:8004/api/text/complete', {
+const response = await fetch('http://localhost:8006/api/text/complete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -106,7 +106,7 @@ const data = await response.json();
 console.log(data.text);
 
 // JavaScript: Streaming Chat
-const response = await fetch('http://localhost:8004/api/text/chat/stream', {
+const response = await fetch('http://localhost:8006/api/text/chat/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -143,7 +143,7 @@ console.log();
 
 """
 # Text completion
-curl -X POST http://localhost:8004/api/text/complete \\
+curl -X POST http://localhost:8006/api/text/complete \\
     -H "Content-Type: application/json" \\
     -d '{
         "prompt": "Explain neural networks:",
@@ -151,12 +151,12 @@ curl -X POST http://localhost:8004/api/text/complete \\
     }'
 
 # Streaming completion
-curl -X POST http://localhost:8004/api/text/complete/stream \\
+curl -X POST http://localhost:8006/api/text/complete/stream \\
     -H "Content-Type: application/json" \\
     -d '{"prompt": "Count to 5:"}'
 
 # Chat with Anthropic
-curl -X POST http://localhost:8004/api/text/chat \\
+curl -X POST http://localhost:8006/api/text/chat \\
     -H "Content-Type: application/json" \\
     -d '{
         "messages": [{"role": "user", "content": "Hello"}],
@@ -165,10 +165,10 @@ curl -X POST http://localhost:8004/api/text/chat \\
     }'
 
 # List available providers
-curl http://localhost:8004/api/text/providers
+curl http://localhost:8006/api/text/providers
 
 # List models for a provider
-curl http://localhost:8004/api/text/models?provider=openai
+curl http://localhost:8006/api/text/models?provider=openai
 """
 
 
