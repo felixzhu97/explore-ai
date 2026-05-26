@@ -74,7 +74,7 @@ export function AIInfraPanel() {
     k8s: {
       title: t.nav.kubernetes,
       description: t.agents.descriptions.k8s,
-      apiEndpoint: '/api/agents/k8s/invoke',
+      apiEndpoint: '/api/agents/kubernetes/invoke',
       quickPrompts: t.agents.quickPrompts.k8s,
     },
     monitoring: {

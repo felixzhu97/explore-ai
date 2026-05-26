@@ -57,9 +57,20 @@ playwright/.cache/
 *.webp
 *.mp4
 
+# Playwright MCP (test screenshots and logs)
+.playwright-mcp/
+*.yml
+*.log
+
 # Test coverage
 coverage/
 *.lcov
 
 # Vitest
 .vitest/
+
+# Screenshots (test outputs)
+*-screenshot.png
+page-screenshot.png
+tab-*.png
+ai-test-*.png

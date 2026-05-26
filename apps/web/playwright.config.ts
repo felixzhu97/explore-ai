@@ -82,7 +82,7 @@ export default defineConfig({
   },
 
   /* Test timeout - how long a single test can run */
-  timeout: 60000,
+  timeout: 180000, // 3 minutes for slow AI services
   
   /* Expect timeout - how long expect().toBeVisible() waits */
   expect: {
