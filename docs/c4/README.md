@@ -128,7 +128,13 @@ plantuml -o png *.puml
 - 更新 `component-frontend.puml` - 添加 TTS、Video 相关组件
 - 添加本地 C4 库文件 (`C4.puml`, `C4_Context.puml`, `C4_Container.puml`, `C4_Component.puml`)
 
-### 2026-05-17 (模型核对)
+### 2026-06-01 (沃德利地图全面更新)
+
+- 更新 `wardley-map.puml` - 基于多 agent 并行分析结果全面更新技术演进地图：
+  - **Genesis 层**：新增 LLMOps 自动化、Feature Store 特征工程
+  - **Custom Built 层**：扩展到 20+ 组件，新增 VectorDB Agent、Pipeline Agent、各领域服务（Vision/TTS/Text/RAG/Media Gen）
+  - **Product 层**：新增 LLM Provider（Ollama/OpenAI/Anthropic）、Video Provider（Kling/Runway/Pika/Sora）、前端技术栈（Zustand/Tailwind CSS）
+  - **Commodity 层**：新增 OpenTelemetry、Grafana Loki、Helm、GitHub Actions
 
 - 核对项目实际结构，补充缺失组件：
   - AI Agents: TTS Agent、Video Agent、TTS Tools、Video Tools

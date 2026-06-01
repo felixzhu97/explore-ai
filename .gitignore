@@ -62,15 +62,11 @@ playwright/.cache/
 *.yml
 *.log
 
-# Test coverage
-coverage/
-*.lcov
-
-# Vitest
-.vitest/
-
 # Screenshots (test outputs)
 *-screenshot.png
 page-screenshot.png
 tab-*.png
 ai-test-*.png
+
+# Documentation images (keep these tracked)
+!docs/png/*.png

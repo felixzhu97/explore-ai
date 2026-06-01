@@ -71,7 +71,7 @@
 ## 架构图
 
 ### Wardley 地图
-![Wardley Map](docs/c4/png/AI-Test-Wardley-Map.png)
+![Wardley Map](docs/png/AI-Test-Wardley-Map.png)
 
 ### C1 系统上下文图
 ![C1 Context](docs/c4/png/C4-Context.png)

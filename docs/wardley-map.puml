@@ -22,121 +22,231 @@ package "Genesis\n(创新阶段)" <<genesis>> #90EE90 {
     rectangle "RAG + Vector\nSearch" as gen_rag
     rectangle "Vision AI\nPipeline" as gen_vision
     rectangle "AIOps\n智能分析" as gen_aiops
+    rectangle "LLMOps\n自动化" as gen_llmops
+    rectangle "Feature Store\n特征工程" as gen_feature
 }
 
 ' ==================== CUSTOM BUILT 层 ====================
 package "Custom Built\n(定制开发)" <<custom-built>> #FFFACD {
+    ' Agent 层
     rectangle "Supervisor\n协调器" as cb_supervisor
     rectangle "12 AI Agents\n架构" as cb_agents
+
+    ' 专业 Agent
     rectangle "K8s\n管理面板" as cb_k8s
+    rectangle "VectorDB\n操作" as cb_vector
     rectangle "RAG\n检索管道" as cb_rag
-    rectangle "Vision AI\n推理服务" as cb_vision
-    rectangle "ML Pipeline\n编排" as cb_pipeline
+    rectangle "ML Model\n生命周期" as cb_model
     rectangle "TTS\n语音合成" as cb_tts
     rectangle "Video\n生成服务" as cb_video
-    rectangle "多语言\ni18n (EN/ZH/JA/FR/ES)" as cb_i18n
+    rectangle "Monitoring\n可观测性" as cb_monitor
     rectangle "Feature Store\n集成" as cb_feature
-    rectangle "Monitoring\nAgent" as cb_monitor
-    rectangle "Model\nAgent" as cb_model
+    rectangle "Pipeline\n编排" as cb_pipeline
+    rectangle "LLMOps\n自动化" as cb_llmops
+    rectangle "AIOps\n智能运维" as cb_aiops
+
+    ' 前端
+    rectangle "AIHub\n多模型对话" as cb_aihub
+    rectangle "Agent Panels\n专业面板" as cb_panels
+    rectangle "多语言\ni18n" as cb_i18n
+
+    ' 领域服务
+    rectangle "Vision Service\n视觉服务" as cb_vision_svc
+    rectangle "TTS Service\n语音服务" as cb_tts_svc
+    rectangle "Text Service\n文本服务" as cb_text_svc
+    rectangle "RAG Service\n检索服务" as cb_rag_svc
+    rectangle "Media Gen\n媒体生成" as cb_media
 }
 
 ' ==================== PRODUCT 层 ====================
-package "Product\n(商业产品)" <<product>> #ADD8E6 {
+package "Product\n(商业/开源产品)" <<product>> #ADD8E6 {
+    ' AI/LLM 框架
     rectangle "LangGraph" as prod_langgraph
     rectangle "LangChain" as prod_langchain
+    rectangle "FastAPI" as prod_fastapi
+
+    ' LLM Provider
+    rectangle "Ollama\n(本地推理)" as prod_ollama
+    rectangle "OpenAI\n(GPT-4o)" as prod_openai
+    rectangle "Anthropic\n(Claude)" as prod_anthropic
+
+    ' Vector/Embedding
     rectangle "Qdrant" as prod_qdrant
-    rectangle "React 18" as prod_react
-    rectangle "Vite" as prod_vite
+    rectangle "Sentence\nTransformers" as prod_embedding
+
+    ' Vision AI
     rectangle "YOLO11n" as prod_yolo
     rectangle "PaddleOCR" as prod_ocr
     rectangle "BLIP" as prod_blip
     rectangle "Stable Diffusion" as prod_sd
+
+    ' TTS/音频
     rectangle "ElevenLabs" as prod_elevenlabs
     rectangle "Coqui TTS" as prod_coqui
-    rectangle "Ollama" as prod_ollama
-    rectangle "Sentence\nTransformers" as prod_embedding
+    rectangle "Azure TTS" as prod_azure_tts
+    rectangle "Edge TTS" as prod_edge_tts
+
+    ' Video
+    rectangle "Kling AI" as prod_kling
+    rectangle "Runway" as prod_runway
+    rectangle "Pika" as prod_pika
+    rectangle "Sora" as prod_sora
+
+    ' 前端
+    rectangle "React 18" as prod_react
+    rectangle "Vite" as prod_vite
+    rectangle "Zustand" as prod_zustand
+    rectangle "Tailwind CSS" as prod_tailwind
 }
 
 ' ==================== COMMODITY 层 ====================
 package "Commodity\n(标准化基础设施)" <<commodity>> #D3D3D3 {
+    ' 基础设施
     rectangle "云基础设施\n(AWS/GCP/Azure)" as com_cloud
+    rectangle "Kubernetes" as com_k8s
+    rectangle "Docker\n/Container" as com_docker
+
+    ' 后端技术栈
     rectangle "Python\n/FastAPI" as com_python
     rectangle "Node.js\n/Express" as com_nodejs
-    rectangle "Docker\n/Container" as com_docker
-    rectangle "Kubernetes" as com_k8s
-    rectangle "PyTorch" as com_pytorch
+    rectangle "gRPC" as com_grpc
     rectangle "HTTP\n/WebSocket/SSE" as com_http
-    rectangle "Redis" as com_redis
+
+    ' 数据存储
     rectangle "PostgreSQL" as com_postgres
+    rectangle "Redis" as com_redis
     rectangle "S3/MinIO" as com_s3
-    rectangle "Prometheus\n/Grafana" as com_monitor
+
+    ' AI/ML 基础设施
+    rectangle "PyTorch" as com_pytorch
     rectangle "MLflow" as com_mlflow
     rectangle "Feast" as com_feast
-    rectangle "gRPC" as com_grpc
+
+    ' 可观测性
+    rectangle "Prometheus\n/Grafana" as com_monitor
+    rectangle "Grafana\nLoki" as com_loki
+    rectangle "OpenTelemetry" as com_otel
+
+    ' DevOps
+    rectangle "Git/GitHub\nActions" as com_git
+    rectangle "Helm" as com_helm
 }
 
 ' ==================== 核心依赖关系 ====================
 
 ' 用户 → Custom Built
-user -down-> cb_supervisor
+user -down-> cb_aihub
+user -down-> cb_panels
 user -down-> cb_k8s
-user -down-> cb_rag
-user -down-> cb_vision
-user -down-> cb_tts
-user -down-> cb_video
-user -down-> cb_i18n
+user -down-> cb_llmops
+user -down-> cb_aiops
 
 ' Genesis → Custom Built
-gen_multi_agent -right-> cb_agents
-gen_routing -right-> cb_supervisor
+gen_multi_agent -right-> cb_supervisor
+gen_routing -right-> cb_agents
 gen_rag -right-> cb_rag
-gen_vision -right-> cb_vision
-gen_aiops -right-> cb_monitor
+gen_vision -right-> cb_vision_svc
+gen_aiops -right-> cb_aiops
+gen_llmops -right-> cb_llmops
+gen_feature -right-> cb_feature
 
 ' Genesis 内部
 gen_multi_agent -down-> gen_routing
 gen_rag -down-> gen_vision
 
-' Custom Built → Custom Built
+' Custom Built 内部关系
 cb_supervisor -down-> cb_agents
 cb_agents -down-> cb_k8s
+cb_agents -down-> cb_vector
 cb_agents -down-> cb_rag
 cb_agents -down-> cb_tts
 cb_agents -down-> cb_video
 cb_agents -down-> cb_monitor
 cb_agents -down-> cb_model
 cb_agents -down-> cb_feature
-cb_rag -down-> cb_feature
+cb_agents -down-> cb_pipeline
+cb_agents -down-> cb_llmops
+cb_agents -down-> cb_aiops
+
+cb_rag -down-> cb_vector
+cb_llmops -down-> cb_model
+cb_llmops -down-> cb_pipeline
+cb_aiops -down-> cb_monitor
+
+cb_aihub -down-> cb_panels
+cb_panels -down-> cb_tts_svc
+cb_panels -down-> cb_vision_svc
+cb_panels -down-> cb_text_svc
+cb_panels -down-> cb_tts
+cb_panels -down-> cb_video
 
 ' Custom Built → Product
 cb_supervisor -right-> prod_langgraph
+cb_supervisor -right-> prod_fastapi
 cb_agents -right-> prod_langchain
-cb_rag -right-> prod_qdrant
-cb_rag -right-> prod_embedding
-cb_vision -right-> prod_yolo
-cb_vision -right-> prod_ocr
-cb_vision -right-> prod_blip
-cb_vision -right-> prod_sd
-cb_tts -right-> prod_elevenlabs
-cb_tts -right-> prod_coqui
 cb_agents -right-> prod_ollama
 
-' Product → Commodity
+cb_vector -right-> prod_qdrant
+cb_rag -right-> prod_embedding
+cb_rag -right-> prod_qdrant
+cb_rag -right-> cb_rag_svc
+
+cb_vision_svc -right-> prod_yolo
+cb_vision_svc -right-> prod_ocr
+cb_vision_svc -right-> prod_blip
+cb_vision_svc -right-> prod_sd
+
+cb_tts -right-> prod_elevenlabs
+cb_tts -right-> prod_coqui
+cb_tts -right-> prod_azure_tts
+cb_tts -right-> prod_edge_tts
+
+cb_video -right-> prod_kling
+cb_video -right-> prod_runway
+cb_video -right-> prod_pika
+cb_video -right-> prod_sora
+
+cb_aiops -right-> prod_langchain
+
+cb_aihub -right-> prod_react
+cb_aihub -right-> prod_vite
+cb_aihub -right-> prod_zustand
+cb_aihub -right-> prod_tailwind
+
+cb_llmops -right-> prod_langchain
+cb_llmops -right-> prod_ollama
+cb_llmops -right-> prod_openai
+cb_llmops -right-> prod_anthropic
+
+' Product → Product
 prod_langgraph -right-> prod_langchain
-prod_langchain -right-> com_python
+prod_langchain -right-> prod_fastapi
 prod_langchain -right-> com_pytorch
-prod_qdrant -right-> com_docker
-prod_qdrant -right-> com_grpc
+prod_ollama -right-> com_pytorch
 prod_embedding -right-> com_pytorch
-prod_react -right-> prod_vite
-prod_vite -right-> com_nodejs
 prod_yolo -right-> com_pytorch
 prod_ocr -right-> com_pytorch
 prod_blip -right-> com_pytorch
 prod_sd -right-> com_pytorch
+
+prod_react -right-> prod_vite
+prod_vite -right-> com_nodejs
+prod_zustand -right-> com_nodejs
+
+prod_qdrant -right-> com_docker
+prod_qdrant -right-> com_grpc
 prod_elevenlabs -right-> com_http
 prod_coqui -right-> com_python
-prod_ollama -right-> com_python
+prod_kling -right-> com_http
+prod_runway -right-> com_http
+prod_pika -right-> com_http
+prod_sora -right-> com_http
+
+' Product → Commodity
+prod_fastapi -right-> com_python
+prod_anthropic -right-> com_cloud
+prod_openai -right-> com_cloud
+prod_azure_tts -right-> com_cloud
 
 ' Commodity 内部关系
 com_python -right-> com_cloud
@@ -144,6 +254,7 @@ com_nodejs -right-> com_cloud
 com_pytorch -right-> com_cloud
 com_k8s -down-> com_docker
 com_k8s -right-> com_cloud
+com_k8s -right-> com_helm
 com_redis -right-> com_docker
 com_postgres -right-> com_docker
 com_s3 -right-> com_cloud
@@ -152,7 +263,10 @@ com_mlflow -right-> com_s3
 com_feast -right-> com_redis
 com_feast -right-> com_postgres
 com_monitor -right-> com_k8s
+com_loki -right-> com_k8s
+com_otel -right-> com_k8s
 com_http -right-> com_cloud
+com_git -right-> com_cloud
 
 ' ==================== 图例 ====================
 legend right
