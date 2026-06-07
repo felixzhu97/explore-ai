@@ -24,14 +24,17 @@ description: 迁移前端从 React 迁移到 Angular 最新稳定版本 (Angular
 ## Angular 项目初始化
 
 ```bash
+# 安装 pnpm
+npm install -g pnpm
+
 # 安装 Angular CLI
-npm install -g @angular/cli@latest
+pnpm add -g @angular/cli@latest
 
 # 创建新项目
 ng new frontend --routing --style=scss --ssr=false --skip-git
 
 # 启动开发服务器
-cd frontend && ng serve
+cd frontend && pnpm start
 ```
 
 ## 迁移检查清单

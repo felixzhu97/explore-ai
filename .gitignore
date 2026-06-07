@@ -7,7 +7,6 @@ __pycache__/
 
 # Node.js
 node_modules/
-pnpm-lock.yaml
 dist/
 *.local
 
@@ -51,15 +50,10 @@ volumes/
 playwright-report/
 test-results/
 playwright/.cache/
-*.png
-*.jpeg
-*.jpg
-*.webp
-*.mp4
+*-snapshots/
 
 # Playwright MCP (test screenshots and logs)
 .playwright-mcp/
-*.yml
 *.log
 
 # Screenshots (test outputs)
@@ -70,3 +64,6 @@ ai-test-*.png
 
 # Documentation images (keep these tracked)
 !docs/png/*.png
+
+# Angular
+.angular/
