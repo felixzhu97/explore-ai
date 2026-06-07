@@ -41,10 +41,10 @@ export interface SegmentedControlOption<T extends string = string> {
 
     .container {
       display: inline-flex;
-      background: #f5f5f7;
+      background: #ffffff;
       border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),inset 0 1px 1px rgba(0, 0, 0, 0.08);
       padding: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(0, 0, 0, 0.06);
       gap: 4px;
     }
 
@@ -59,8 +59,7 @@ export interface SegmentedControlOption<T extends string = string> {
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
+      transition: all 0.2s ease;
 
       &:hover:not([data-active="true"]):not(:disabled) {
         color: #1d1d1f;
@@ -78,8 +77,6 @@ export interface SegmentedControlOption<T extends string = string> {
 
       &--active {
         color: #1d1d1f;
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
       }
 
       &--disabled {

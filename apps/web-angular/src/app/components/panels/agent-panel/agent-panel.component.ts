@@ -36,7 +36,7 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
       justify-content: space-between;
       padding: var(--spacing-md);
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: var(--radius-lg);
     }
 
@@ -66,7 +66,7 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
     .panel-content {
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: var(--radius-lg);
       padding: var(--spacing-lg);
     }

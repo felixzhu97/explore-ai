@@ -100,7 +100,7 @@ export interface AgentInfo {
       padding: var(--spacing-md);
       background: var(--color-surface);
       border-radius: var(--radius-lg);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .empty-state {
@@ -131,7 +131,7 @@ export interface AgentInfo {
       padding: 6px 12px;
       font-size: var(--font-size-sm);
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: var(--radius-full);
       color: var(--color-primary);
       cursor: pointer;
@@ -183,7 +183,7 @@ export interface AgentInfo {
       padding: var(--spacing-md);
       font-size: var(--font-size-base);
       font-family: var(--font-family-body);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: var(--radius-lg);
       background: var(--color-surface);
       color: var(--color-text);

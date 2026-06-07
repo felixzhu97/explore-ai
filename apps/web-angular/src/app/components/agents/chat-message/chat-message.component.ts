@@ -67,7 +67,7 @@ export interface ChatMessageData {
 
       &:not(.message-content--user) {
         background: var(--color-surface);
-        border: 1px solid var(--color-border);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         border-bottom-left-radius: var(--radius-sm);
         color: var(--color-text);
       }
@@ -124,7 +124,7 @@ export interface ChatMessageData {
       }
 
       th, td {
-        border: 1px solid var(--color-border);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         padding: 0.5em;
         text-align: left;
       }

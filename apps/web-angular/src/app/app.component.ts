@@ -226,7 +226,6 @@ interface Tab {
 
     .main-content {
       padding: 32px;
-      padding-top: calc(32px + 52px); /* Extra 52px for navbar height */
     }
 
     .content-wrapper {

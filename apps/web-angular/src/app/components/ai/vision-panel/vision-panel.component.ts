@@ -4,14 +4,13 @@ import {
   inject,
   ChangeDetectionStrategy,
   computed,
-  ElementRef,
-  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ApiService, Detection } from '../services/api.service';
 import { I18nService } from '../../../i18n';
+import { SegmentedControlComponent, SegmentedControlOption } from '../../segmented-control/segmented-control.component';
 
 type TaskType = 'caption' | 'detect' | 'ocr';
 
@@ -32,23 +31,17 @@ interface VisionResult {
 @Component({
   selector: 'app-vision-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SegmentedControlComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="vision-panel">
       <!-- Tab Navigation -->
       <div class="tab-header">
-        <div class="segmented-control">
-          @for (tab of taskOptions(); track tab.value) {
-            <button
-              class="segment-button"
-              [class.active]="activeTask() === tab.value"
-              (click)="setActiveTask(tab.value)"
-            >
-              {{ tab.label }}
-            </button>
-          }
-        </div>
+        <app-segmented-control
+          [options]="taskOptions()"
+          [value]="activeTask()"
+          (changed)="setActiveTask($event)"
+        />
       </div>
 
       <!-- Main Content -->
@@ -56,21 +49,13 @@ interface VisionResult {
         <!-- Image Upload Panel -->
         <div class="panel">
           <h3 class="panel-label">{{ i18n.t().imageUploader.imageLabel }}</h3>
-        <div
-          class="image-area"
-          (click)="triggerFileInput()"
-          (drop)="onDrop($event)"
-          (dragover)="onDragOver($event)"
-        >
-          <input
-            #fileInput
-            type="file"
-            accept="image/*"
-            class="visually-hidden"
-            aria-label="Upload image"
-            (change)="onFileChange($event)"
-          />
-          @if (currentState().image) {
+          <div
+            class="image-area"
+            (click)="onImageAreaClick()"
+            (drop)="onDrop($event)"
+            (dragover)="onDragOver($event)"
+          >
+            @if (currentState().image) {
               <img
                 class="preview-image"
                 [src]="currentState().image"
@@ -176,37 +161,6 @@ interface VisionResult {
       &::-webkit-scrollbar { display: none; }
     }
 
-    .segmented-control {
-      display: inline-flex;
-      background: #f5f5f7;
-      border-radius: 12px;
-      padding: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(0, 0, 0, 0.06);
-      gap: 4px;
-    }
-
-    .segment-button {
-      padding: 8px 20px;
-      border: none;
-      background: transparent;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: #6e6e73;
-      transition: all 0.15s ease;
-    }
-
-    .segment-button:hover {
-      color: #1d1d1f;
-    }
-
-    .segment-button.active {
-      background: #ffffff;
-      color: #1d1d1f;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
     .main-area {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -220,8 +174,8 @@ interface VisionResult {
 
     .panel {
       background: #ffffff;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -240,8 +194,8 @@ interface VisionResult {
     .image-area {
       flex: 1;
       position: relative;
-      border-radius: 8px;
-      background: #f5f5f7;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.04);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -317,8 +271,8 @@ interface VisionResult {
     .spinner {
       width: 32px;
       height: 32px;
-      border: 3px solid #e5e5e5;
-      border-top-color: #0071e3;
+      border: 3px solid rgba(0, 0, 0, 0.08);
+      border-top-color: #007aff;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -342,12 +296,12 @@ interface VisionResult {
     .drop-icon {
       width: 56px;
       height: 56px;
-      border-radius: 12px;
-      background: #f5f5f7;
+      border-radius: 14px;
+      background: rgba(0, 122, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #0071e3;
+      color: #007aff;
     }
 
     .drop-text {
@@ -396,8 +350,8 @@ interface VisionResult {
       align-items: center;
       justify-content: space-between;
       padding: 12px;
-      background: #f5f5f7;
-      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 10px;
     }
 
     .detection-name {
@@ -433,7 +387,7 @@ interface VisionResult {
 
     .action-area {
       padding-top: 16px;
-      border-top: 1px solid #e5e5e5;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .action-button {
@@ -442,7 +396,7 @@ interface VisionResult {
       font-size: 15px;
       font-weight: 500;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
@@ -452,12 +406,12 @@ interface VisionResult {
     }
 
     .action-button.primary {
-      background: #0071e3;
+      background: #007aff;
       color: white;
     }
 
     .action-button:hover:not(:disabled) {
-      background: #0077ed;
+      background: #0071e3;
     }
 
     .action-button:disabled {
@@ -516,24 +470,11 @@ interface VisionResult {
     }
 
     .zoom-close:hover { background: rgba(255, 255, 255, 0.3); }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
   `],
 })
 export class VisionPanelComponent {
   private readonly api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
-  fileInput = viewChild<ElementRef>('fileInput');
 
   activeTask = signal<TaskType>('caption');
   tabStates = signal<Record<TaskType, TabState>>({
@@ -561,10 +502,13 @@ export class VisionPanelComponent {
     this.activeTask.set(task);
   }
 
-  triggerFileInput() {
-    const inputEl = this.fileInput()?.nativeElement as HTMLInputElement | undefined;
-    if (!this.currentState().image && inputEl) {
-      inputEl.click();
+  onImageAreaClick() {
+    if (!this.currentState().image) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => this.onFileChange(e);
+      input.click();
     }
   }
 

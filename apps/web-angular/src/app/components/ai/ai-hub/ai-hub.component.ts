@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ApiService, ChatMessage, ProviderInfo, ModelInfo, Voice } from '../services/api.service';
 import { I18nService } from '../../../i18n';
+import { SegmentedControlComponent, SegmentedControlOption } from '../../segmented-control/segmented-control.component';
 
 type Tab = 'chat' | 'image' | 'tts';
 
@@ -33,23 +34,17 @@ interface ImageSize {
 @Component({
   selector: 'app-ai-hub',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SegmentedControlComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="ai-hub">
       <!-- Tab Navigation -->
       <div class="tab-header">
-        <div class="segmented-control">
-          @for (tab of tabs(); track tab.value) {
-            <button
-              class="segment-button"
-              [class.active]="activeTab() === tab.value"
-              (click)="setActiveTab(tab.value)"
-            >
-              {{ tab.label }}
-            </button>
-          }
-        </div>
+        <app-segmented-control
+          [options]="tabs()"
+          [value]="activeTab()"
+          (changed)="setActiveTab($event)"
+        />
       </div>
 
       <!-- Tab Content -->
@@ -410,39 +405,11 @@ interface ImageSize {
       justify-content: center;
       padding: 16px 0;
       overflow-x: auto;
-      position: relative;
-      z-index: 10;
-      background: #f5f5f7;
-    }
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
 
-    .segmented-control {
-      display: inline-flex;
-      background: #f5f5f7;
-      border-radius: 12px;
-      padding: 4px;
-      gap: 4px;
-    }
-
-    .segment-button {
-      padding: 8px 20px;
-      border: none;
-      background: transparent;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: #6e6e73;
-      transition: all 0.2s ease;
-    }
-
-    .segment-button:hover {
-      color: #1d1d1f;
-    }
-
-    .segment-button.active {
-      background: white;
-      color: #1d1d1f;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      &::-webkit-scrollbar { display: none; }
     }
 
     .tab-content {
@@ -466,12 +433,12 @@ interface ImageSize {
       justify-content: space-between;
       padding: 16px;
       background: #ffffff;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
     }
 
     .panel-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 600;
       color: #1d1d1f;
       margin: 0;
@@ -479,14 +446,14 @@ interface ImageSize {
 
     .panel-description {
       font-size: 14px;
-      color: #6e6e73;
+      color: #86868b;
       margin: 4px 0 0 0;
     }
 
     .panel-content {
       background: #ffffff;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       padding: 24px;
     }
 
@@ -545,8 +512,8 @@ interface ImageSize {
       overflow-y: auto;
       padding: 16px;
       background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .empty-state {
@@ -616,14 +583,14 @@ interface ImageSize {
     }
 
     .message-content {
-      padding: 12px;
-      border-radius: 12px;
+      padding: 16px;
+      border-radius: 14px;
       font-size: 15px;
       line-height: 1.5;
       word-break: break-word;
       background: #f5f5f7;
       color: #1d1d1f;
-      border: 1px solid #e5e5e5;
+      border: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .message-content.user {
@@ -684,11 +651,11 @@ interface ImageSize {
 
     .chat-input {
       flex: 1;
-      padding: 12px;
+      padding: 16px;
       font-size: 15px;
       font-family: inherit;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       background: #ffffff;
       color: #1d1d1f;
       resize: none;
@@ -699,8 +666,8 @@ interface ImageSize {
 
     .chat-input:focus {
       outline: none;
-      border-color: #0071e3;
-      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+      border-color: #007aff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
     }
 
     .chat-input::placeholder {
@@ -713,21 +680,21 @@ interface ImageSize {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0071e3;
+      background: #007aff;
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       font-size: 18px;
       transition: all 0.2s ease;
     }
 
     .send-button:hover:not(:disabled) {
-      background: #0077ed;
+      background: #0071e3;
     }
 
     .send-button:active:not(:disabled) {
-      background: #005bb5;
+      background: #0056b3;
       transform: scale(0.95);
     }
 
@@ -806,15 +773,15 @@ interface ImageSize {
     .input-label {
       font-size: 14px;
       font-weight: 500;
-      color: #6e6e73;
+      color: #86868b;
     }
 
     .text-input {
-      padding: 12px;
+      padding: 12px 16px;
       font-size: 15px;
       font-family: inherit;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
       background: #ffffff;
       color: #1d1d1f;
       resize: vertical;
@@ -824,8 +791,8 @@ interface ImageSize {
 
     .text-input:focus {
       outline: none;
-      border-color: #0071e3;
-      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+      border-color: #007aff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
     }
 
     .text-input::placeholder {
@@ -833,11 +800,11 @@ interface ImageSize {
     }
 
     .text-select {
-      padding: 12px;
+      padding: 12px 16px;
       font-size: 15px;
       font-family: inherit;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
       background: #ffffff;
       color: #1d1d1f;
       cursor: pointer;
@@ -846,7 +813,7 @@ interface ImageSize {
 
     .text-select:focus {
       outline: none;
-      border-color: #0071e3;
+      border-color: #007aff;
     }
 
     .size-selector {
@@ -861,20 +828,20 @@ interface ImageSize {
       font-weight: 500;
       background: #ffffff;
       color: #1d1d1f;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .size-option:hover {
-      border-color: #0071e3;
+      border-color: #007aff;
     }
 
     .size-option.selected {
-      background: #0071e3;
+      background: #007aff;
       color: white;
-      border: none;
+      border: transparent;
     }
 
     .action-button {
@@ -884,8 +851,8 @@ interface ImageSize {
       font-family: inherit;
       background: #ffffff;
       color: #1d1d1f;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
@@ -895,13 +862,13 @@ interface ImageSize {
     }
 
     .action-button.primary {
-      background: #0071e3;
+      background: #007aff;
       color: white;
-      border: none;
+      border: transparent;
     }
 
     .action-button.primary:hover:not(:disabled) {
-      background: #0077ed;
+      background: #0071e3;
     }
 
     .action-button:disabled {
@@ -912,21 +879,21 @@ interface ImageSize {
     .image-area {
       flex: 1;
       position: relative;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #f5f5f7;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       min-height: 256px;
-      border: 2px dashed #e5e5e5;
+      border: 2px dashed rgba(0, 0, 0, 0.08);
     }
 
     .generated-image {
       max-width: 100%;
       max-height: 400px;
       object-fit: contain;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: zoom-in;
       animation: fadeIn 0.3s ease;
     }

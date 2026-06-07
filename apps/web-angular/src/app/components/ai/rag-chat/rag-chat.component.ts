@@ -272,6 +272,15 @@ interface Toast {
       flex-direction: column;
       gap: 16px;
       animation: fadeIn 0.3s ease;
+      overflow-x: hidden;
+      word-break: break-word;
+    }
+
+    @media (max-width: 640px) {
+      .rag-chat {
+        overflow-x: hidden;
+        padding: 0 8px;
+      }
     }
 
     @keyframes fadeIn {
@@ -334,7 +343,7 @@ interface Toast {
       align-items: center;
       justify-content: space-between;
       padding-bottom: 16px;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .title {
@@ -346,17 +355,17 @@ interface Toast {
 
     .model-badge {
       font-size: 12px;
-      color: #6e6e73;
+      color: #86868b;
       background: #ffffff;
       padding: 4px 8px;
       border-radius: 20px;
-      border: 1px solid #e5e5e5;
+      border: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .documents-section {
       background: #ffffff;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       padding: 16px;
     }
 
@@ -406,17 +415,17 @@ interface Toast {
       font-size: 14px;
       background: #ffffff;
       color: #1d1d1f;
-      border-radius: 12px;
-      border: 1.5px solid #e5e5e5;
+      border-radius: 14px;
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
       user-select: none;
     }
 
     .document-card:hover {
-      border-color: #0071e3;
+      border-color: #007aff;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .document-card:active {
@@ -424,9 +433,10 @@ interface Toast {
     }
 
     .document-card.selected {
-      background: #0071e3;
+      background: #007aff;
       color: white;
-      border-color: #0071e3;
+      border-color: #007aff;
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
     }
 
     .document-card.deleting {
@@ -538,8 +548,8 @@ interface Toast {
       gap: 8px;
       padding: 12px;
       background: #ffffff;
-      border: 1px dashed #e5e5e5;
-      border-radius: 12px;
+      border: 1px dashed rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       transition: all 0.15s ease;
       flex-wrap: wrap;
       align-items: center;
@@ -548,7 +558,7 @@ interface Toast {
     }
 
     .file-upload-area:hover {
-      border-color: #0071e3;
+      border-color: #007aff;
     }
 
     .file-upload-label {
@@ -557,15 +567,15 @@ interface Toast {
       gap: 8px;
       padding: 8px 16px;
       font-size: 14px;
-      color: #0071e3;
+      color: #007aff;
       cursor: pointer;
       transition: all 0.15s ease;
-      border: 1px solid #0071e3;
-      border-radius: 8px;
+      border: 1px solid #007aff;
+      border-radius: 10px;
     }
 
     .file-upload-label:hover {
-      background: #f5f5f7;
+      background: rgba(0, 122, 255, 0.12);
     }
 
     .uploaded-files {
@@ -613,7 +623,7 @@ interface Toast {
 
     .upload-progress-bar {
       height: 100%;
-      background: #0071e3;
+      background: #007aff;
       animation: pulse 1s ease-in-out infinite;
     }
 
@@ -640,10 +650,10 @@ interface Toast {
     .upload-button {
       padding: 8px 16px;
       font-size: 14px;
-      background: #0071e3;
+      background: #007aff;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.15s ease;
       margin-left: auto;
@@ -653,7 +663,7 @@ interface Toast {
     }
 
     .upload-button:hover:not(:disabled) {
-      background: #0077ed;
+      background: #0071e3;
     }
 
     .upload-button:disabled {
@@ -666,13 +676,22 @@ interface Toast {
       flex-direction: column;
       gap: 12px;
       max-height: 400px;
+      min-height: 200px;
       overflow-y: auto;
       padding: 16px;
       background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
       position: relative;
       z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .chat-container {
+        max-height: 300px;
+        padding: 12px;
+        border-radius: 8px;
+      }
     }
 
     .empty-state {
@@ -702,16 +721,16 @@ interface Toast {
       padding: 6px 12px;
       font-size: 14px;
       background: #ffffff;
-      border: 1px solid #e5e5e5;
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 20px;
-      color: #0071e3;
+      color: #007aff;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .quick-action:hover {
-      background: #f5f5f7;
-      border-color: #0071e3;
+      background: rgba(0, 122, 255, 0.12);
+      border-color: #007aff;
     }
 
     .message-bubble {
@@ -730,18 +749,18 @@ interface Toast {
 
     .message-content {
       padding: 12px;
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 15px;
       line-height: 1.6;
       word-break: break-word;
-      background: #f5f5f7;
+      background: rgba(0, 0, 0, 0.04);
       color: #1d1d1f;
     }
 
     .message-content.user {
-      background: #0071e3;
+      background: #007aff;
       color: white;
-      border-bottom-right-radius: 4px;
+      border-bottom-right-radius: 6px;
     }
 
     .message-bubble:not(.user) .message-content {
@@ -792,16 +811,16 @@ interface Toast {
 
     .source-badge {
       font-size: 12px;
-      color: #0071e3;
-      background: #f5f5f7;
+      color: #007aff;
+      background: rgba(0, 122, 255, 0.12);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .source-badge:hover {
-      background: #e5e5ea;
+      background: rgba(0, 122, 255, 0.2);
     }
 
     .sources-panel {
@@ -857,13 +876,19 @@ interface Toast {
       z-index: 2;
     }
 
+    @media (max-width: 640px) {
+      .input-area {
+        gap: 6px;
+      }
+    }
+
     .chat-input {
       flex: 1;
       padding: 12px;
       font-size: 15px;
       font-family: inherit;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       background: #ffffff;
       color: #1d1d1f;
       resize: none;
@@ -874,12 +899,21 @@ interface Toast {
 
     .chat-input:focus {
       outline: none;
-      border-color: #0071e3;
-      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+      border-color: #007aff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
     }
 
     .chat-input::placeholder {
       color: #86868b;
+    }
+
+    .chat-input::-webkit-input-placeholder {
+      color: #86868b;
+    }
+
+    .chat-input::-moz-placeholder {
+      color: #86868b;
+      opacity: 1;
     }
 
     .send-button {
@@ -888,21 +922,21 @@ interface Toast {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0071e3;
+      background: #007aff;
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       font-size: 18px;
       transition: all 0.2s ease;
     }
 
     .send-button:hover:not(:disabled) {
-      background: #0077ed;
+      background: #0071e3;
     }
 
     .send-button:active:not(:disabled) {
-      background: #005bb5;
+      background: #0056b3;
       transform: scale(0.95);
     }
 

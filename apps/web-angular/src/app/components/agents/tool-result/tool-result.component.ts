@@ -55,7 +55,7 @@ export interface ToolCall {
   styles: [`
     .tool-container {
       background: var(--color-surface-secondary);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: var(--radius-md);
       overflow: hidden;
       font-size: var(--font-size-sm);
@@ -134,7 +134,7 @@ export interface ToolCall {
 
     .tool-body {
       padding: var(--spacing-md);
-      border-top: 1px solid var(--color-border);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
       max-height: 300px;
       overflow-y: auto;
     }
