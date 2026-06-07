@@ -1,14 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject, fromEvent, takeUntil, map, catchError, throwError, mergeMap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, of } from 'rxjs';
+
+
 
 // ==================== Service URLs ====================
 
 const TEXT_SERVICE_URL = '/api/text';
-const VISION_SERVICE_URL = '/api/vision';
+const VISION_SERVICE_URL = '/vision';
 const RAG_SERVICE_URL = '/api/rag';
-const SPEECH_SERVICE_URL = '/api/speech';
-const MEDIA_GEN_SERVICE_URL = '/api/media-gen';
+const SPEECH_SERVICE_URL = '/tts';
+const MEDIA_GEN_SERVICE_URL = '/image-gen';
 
 // ==================== Types ====================
 
@@ -233,13 +235,13 @@ export class ApiService {
   // ==================== Image Generation ====================
 
   generateImage(request: ImageGenerationRequest): Observable<ImageGenerationResponse> {
-    return this.http.post<ImageGenerationResponse>(`${MEDIA_GEN_SERVICE_URL}/image/generate`, request);
+    return this.http.post<ImageGenerationResponse>(`${MEDIA_GEN_SERVICE_URL}/generate`, request);
   }
 
   // ==================== TTS ====================
 
   getVoices(): Observable<Voice[]> {
-    return this.http.get<Voice[]>(`${SPEECH_SERVICE_URL}/tts/voices`).pipe(
+    return this.http.get<Voice[]>(`${SPEECH_SERVICE_URL}/voices`).pipe(
       catchError(() => {
         return new Observable<Voice[]>((subscriber) => {
           subscriber.next([
@@ -255,7 +257,7 @@ export class ApiService {
   }
 
   synthesizeSpeech(request: SynthesizeRequest): Observable<Blob> {
-    return this.http.post(`${SPEECH_SERVICE_URL}/tts/synthesize`, request, {
+    return this.http.post(`${SPEECH_SERVICE_URL}/synthesize`, request, {
       responseType: 'blob',
     });
   }
@@ -266,7 +268,7 @@ export class ApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ caption: string; processing_time_ms?: number }>(
-      `${VISION_SERVICE_URL}/vision/caption`,
+      `${VISION_SERVICE_URL}/caption`,
       formData
     );
   }
@@ -280,14 +282,14 @@ export class ApiService {
     return this.http.post<{
       detections: { class_name: string; confidence: number; bbox: [number, number, number, number] }[];
       processing_time_ms?: number;
-    }>(`${VISION_SERVICE_URL}/vision/detect`, formData);
+    }>(`${VISION_SERVICE_URL}/detect`, formData);
   }
 
   ocrImage(file: File): Observable<{ full_text: string; processing_time_ms?: number }> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ full_text: string; processing_time_ms?: number }>(
-      `${VISION_SERVICE_URL}/vision/ocr`,
+      `${VISION_SERVICE_URL}/ocr`,
       formData
     );
   }
@@ -297,6 +299,8 @@ export class ApiService {
   getDocuments(): Observable<{ documents: { doc_id: string; filename: string }[] }> {
     return this.http.get<{ documents: { doc_id: string; filename: string }[] }>(
       `${RAG_SERVICE_URL}/documents/`
+    ).pipe(
+      catchError(() => of({ documents: [] }))
     );
   }
 
@@ -323,14 +327,17 @@ export class ApiService {
     onSources: (sources: SourceDocument[]) => void,
     onDone: () => void,
     onError: (error: Error) => void
-  ): void {
+  ): { abort: () => void } {
+    const abortController = new AbortController();
+
     fetch(`${RAG_SERVICE_URL}/chat/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
+      signal: abortController.signal,
     })
       .then((response) => {
-        if (!response.ok) throw new Error('Failed to get response');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.body?.getReader();
       })
       .then((reader) => {
@@ -357,17 +364,16 @@ export class ApiService {
               } else if (line.startsWith('data: ')) {
                 const data = line.slice(6);
 
-                if (currentEvent === 'sources') {
+                if (data === '[DONE]') {
+                  onDone();
+                  break;
+                } else if (currentEvent === 'sources') {
                   try {
-                    const sourcesData = JSON.parse(data);
-                    onSources(sourcesData);
+                    onSources(JSON.parse(data));
                   } catch {
                     // Ignore parse errors
                   }
                   currentEvent = '';
-                } else if (data === '[DONE]') {
-                  onDone();
-                  break;
                 } else if (data.startsWith('Error:')) {
                   onError(new Error(data.slice(6)));
                   break;
@@ -387,8 +393,14 @@ export class ApiService {
         read();
       })
       .catch((error) => {
-        onError(error);
+        if (error.name !== 'AbortError') {
+          onError(error);
+        }
       });
+
+    return {
+      abort: () => abortController.abort(),
+    };
   }
 
   // ==================== Utility ====================

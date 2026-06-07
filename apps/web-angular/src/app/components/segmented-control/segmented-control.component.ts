@@ -41,11 +41,11 @@ export interface SegmentedControlOption<T extends string = string> {
 
     .container {
       display: inline-flex;
-      background: transparent;
-      border-radius: 8px;
-      padding: 3px;
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(0, 0, 0, 0.06);
-      gap: 2px;
+      gap: 4px;
     }
 
     .option {
@@ -54,10 +54,10 @@ export interface SegmentedControlOption<T extends string = string> {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-size: 14px;
       font-weight: 500;
-      color: #86868b;
+      color: #6e6e73;
       background: transparent;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;

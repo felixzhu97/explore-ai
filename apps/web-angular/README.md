@@ -19,15 +19,17 @@ A modern Angular 20+ frontend application migrated from React, featuring:
 
 This project is migrated from React to Angular following these key patterns:
 
-| React | Angular |
-|-------|---------|
-| `useState` | `signal()` |
-| `useEffect` | `effect()` / `ngOnInit` |
-| `useMemo` | `computed()` |
-| `useContext` | `inject()` |
-| `Context Provider` | `injectable` services |
-| `CSS-in-JS` | SCSS + BEM |
-| `React Router` | Angular Router |
+
+| React              | Angular                 |
+| ------------------ | ----------------------- |
+| `useState`         | `signal()`              |
+| `useEffect`        | `effect()` / `ngOnInit` |
+| `useMemo`          | `computed()`            |
+| `useContext`       | `inject()`              |
+| `Context Provider` | `injectable` services   |
+| `CSS-in-JS`        | SCSS + BEM              |
+| `React Router`     | Angular Router          |
+
 
 ## Getting Started
 
@@ -72,3 +74,4 @@ src/
 - Responsive design with Apple-style aesthetics
 - Dark mode support (planned)
 - PWA support (planned)
+

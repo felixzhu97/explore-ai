@@ -4,6 +4,8 @@ import {
   inject,
   ChangeDetectionStrategy,
   computed,
+  ElementRef,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -54,13 +56,21 @@ interface VisionResult {
         <!-- Image Upload Panel -->
         <div class="panel">
           <h3 class="panel-label">{{ i18n.t().imageUploader.imageLabel }}</h3>
-          <div
-            class="image-area"
-            (click)="onImageAreaClick()"
-            (drop)="onDrop($event)"
-            (dragover)="onDragOver($event)"
-          >
-            @if (currentState().image) {
+        <div
+          class="image-area"
+          (click)="triggerFileInput()"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+        >
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            class="visually-hidden"
+            aria-label="Upload image"
+            (change)="onFileChange($event)"
+          />
+          @if (currentState().image) {
               <img
                 class="preview-image"
                 [src]="currentState().image"
@@ -168,22 +178,22 @@ interface VisionResult {
 
     .segmented-control {
       display: inline-flex;
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 3px;
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(0, 0, 0, 0.06);
-      gap: 2px;
+      gap: 4px;
     }
 
     .segment-button {
       padding: 8px 20px;
       border: none;
       background: transparent;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
-      color: #86868b;
+      color: #6e6e73;
       transition: all 0.15s ease;
     }
 
@@ -210,6 +220,7 @@ interface VisionResult {
 
     .panel {
       background: #ffffff;
+      border: 1px solid #e5e5e5;
       border-radius: 12px;
       padding: 24px;
       display: flex;
@@ -505,11 +516,24 @@ interface VisionResult {
     }
 
     .zoom-close:hover { background: rgba(255, 255, 255, 0.3); }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   `],
 })
 export class VisionPanelComponent {
   private readonly api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
+  fileInput = viewChild<ElementRef>('fileInput');
 
   activeTask = signal<TaskType>('caption');
   tabStates = signal<Record<TaskType, TabState>>({
@@ -537,13 +561,10 @@ export class VisionPanelComponent {
     this.activeTask.set(task);
   }
 
-  onImageAreaClick() {
-    if (!this.currentState().image) {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = (e) => this.onFileChange(e);
-      input.click();
+  triggerFileInput() {
+    const inputEl = this.fileInput()?.nativeElement as HTMLInputElement | undefined;
+    if (!this.currentState().image && inputEl) {
+      inputEl.click();
     }
   }
 

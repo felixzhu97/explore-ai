@@ -259,6 +259,74 @@ it('should display count', () => {
 4. **模板语法**: 使用 `*ngIf`/`@if` (Angular 17+)，避免 `*ngIf` 和 `*ngFor` 混用
 5. **类型安全**: 充分利用 TypeScript strict mode 和 Angular 模板类型检查
 
+## 多服务集成调试
+
+### 后端 404 错误诊断流程
+
+> **重要**：遇到 404 错误时，不要假设"后端未运行"。按以下顺序排查：
+
+```
+1. 验证后端运行：ps aux | grep uvicorn && curl -I http://localhost:PORT/
+2. 检查实际 URL：浏览器 DevTools → Network → 失败的请求
+3. 对比三方路径：Frontend → proxy.conf.json → Backend Route
+4. 检查 CORS：curl -I -H "Origin: http://localhost:4200" http://localhost:PORT/
+```
+
+### URL 路径对齐原则
+
+| 服务 | 前端调用 | Proxy 目标 | Backend 路由 |
+|------|---------|------------|-------------|
+| TTS | /api/speech | /tts | @app.post("/tts") |
+| Vision | /api/vision | /vision | @app.post("/vision") |
+| RAG | /api/rag/* | /* | @app.post("/rag/*") |
+
+### CORS 配置要求
+
+```python
+# backend main.py
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:4200",  # Angular
+        "http://localhost:5173",  # React
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+### proxy.conf.json 示例
+
+```json
+{
+  "/api/speech": {
+    "target": "http://localhost:8001",
+    "pathRewrite": { "^/api/speech": "/tts" }
+  },
+  "/api/vision": {
+    "target": "http://localhost:8003",
+    "pathRewrite": { "^/api/vision": "/vision" }
+  }
+}
+```
+
+### 调试命令清单
+
+```bash
+# 1. 检查后端进程
+ps aux | grep -E "(uvicorn|fastapi)" | grep -v grep
+
+# 2. 直接测试后端路由
+curl -I http://localhost:8001/tts
+
+# 3. 检查 CORS 响应头
+curl -I -H "Origin: http://localhost:4200" http://localhost:8001/tts
+
+# 4. 查看实际请求
+# 浏览器 DevTools → Network → 右键请求 → Copy → Copy as cURL
+```
+
 ## 验证清单
 
 - [ ] 所有 React 组件已转换为 Angular 组件

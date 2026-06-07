@@ -10,14 +10,16 @@
 
 ## 服务列表
 
-| 服务 | 端口 | 说明 |
-|------|------|------|
-| Vision Service | 8000 | 图像识别 (YOLO, BLIP, OCR) |
-| RAG Service | 8001 | 文档问答、检索增强生成 |
-| TTS Service | 8005 | 语音合成 |
-| Text Service | 8006 | 文本生成 (GPT, Claude, Ollama) |
-| AI Agents | 8003 | 多智能体编排 |
-| Media Gen | 3456 | 本地 Stable Diffusion |
+
+| 服务             | 端口   | 说明                         |
+| -------------- | ---- | -------------------------- |
+| Vision Service | 8000 | 图像识别 (YOLO, BLIP, OCR)     |
+| RAG Service    | 8001 | 文档问答、检索增强生成                |
+| TTS Service    | 8005 | 语音合成                       |
+| Text Service   | 8006 | 文本生成 (GPT, Claude, Ollama) |
+| AI Agents      | 8003 | 多智能体编排                     |
+| Media Gen      | 3456 | 本地 Stable Diffusion        |
+
 
 ## 启动方式
 
@@ -172,3 +174,4 @@ PORT=8080 uvicorn src.main:app --port 8080
 - [架构设计](./ARCHITECTURE.md)
 - [API 参考](./API.md)
 - [开发指南](./DEVELOPMENT.md)
+

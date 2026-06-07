@@ -5,8 +5,8 @@ import { VisionPanelComponent } from './components/ai/vision-panel/vision-panel.
 import { AiHubComponent } from './components/ai/ai-hub/ai-hub.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'aiinfra', pathMatch: 'full' },
-  { path: 'aiinfra', component: AIInfraPanelComponent },
+  { path: '', redirectTo: 'ai-infra', pathMatch: 'full' },
+  { path: 'ai-infra', component: AIInfraPanelComponent },
   { path: 'rag', component: RagChatComponent },
   { path: 'vision', component: VisionPanelComponent },
   { path: 'aihubs', component: AiHubComponent },

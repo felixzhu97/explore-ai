@@ -61,6 +61,9 @@ export interface Translations {
     uploadFailed: string;
     uploading: string;
     basedOn: string;
+    documentDeleted: string;
+    deleteFailed: string;
+    fileSelected: string;
   };
   agents: {
     startConversation: string;
@@ -199,6 +202,9 @@ export const translations: Record<Language, Translations> = {
       uploadFailed: 'Failed to upload {name}',
       uploading: 'Uploading...',
       basedOn: 'Based on {count} source(s)',
+      documentDeleted: 'Document deleted',
+      deleteFailed: 'Delete failed, please retry',
+      fileSelected: '{count} file(s) selected',
     },
     agents: {
       startConversation: 'Start a conversation with the agent',
@@ -365,6 +371,9 @@ export const translations: Record<Language, Translations> = {
       uploadFailed: '{name} 上传失败',
       uploading: '上传中...',
       basedOn: '基于 {count} 个来源',
+      documentDeleted: '文档已删除',
+      deleteFailed: '删除失败，请重试',
+      fileSelected: '已选择 {count} 个文件',
     },
     agents: {
       startConversation: '开始与 Agent 对话',
@@ -529,6 +538,9 @@ export const translations: Record<Language, Translations> = {
       uploadFailed: '{name} アップロード失敗',
       uploading: 'アップロード中...',
       basedOn: '{count} ソースに基づく',
+      documentDeleted: 'ドキュメントが削除されました',
+      deleteFailed: '削除に失敗しました。もう一度お試しください',
+      fileSelected: '{count} ファイル選択済み',
     },
     agents: {
       startConversation: 'エージェントと会話を始める',
@@ -697,6 +709,9 @@ export const translations: Record<Language, Translations> = {
       uploadFailed: 'Échec du téléchargement de {name}',
       uploading: 'Téléversement...',
       basedOn: 'Basé sur {count} source(s)',
+      documentDeleted: 'Document supprimé',
+      deleteFailed: 'Échec de la suppression, veuillez réessayer',
+      fileSelected: '{count} fichier(s) sélectionné(s)',
     },
     agents: {
       startConversation: "Démarrer une conversation avec l'agent",
@@ -865,6 +880,9 @@ export const translations: Record<Language, Translations> = {
       uploadFailed: 'Error al subir {name}',
       uploading: 'Subiendo...',
       basedOn: 'Basado en {count} fuente(s)',
+      documentDeleted: 'Documento eliminado',
+      deleteFailed: 'Error al eliminar, por favor inténtelo de nuevo',
+      fileSelected: '{count} archivo(s) seleccionado(s)',
     },
     agents: {
       startConversation: 'Iniciar una conversación con el agente',

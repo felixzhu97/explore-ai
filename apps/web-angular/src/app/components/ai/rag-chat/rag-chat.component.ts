@@ -12,6 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService, SourceDocument } from '../services/api.service';
+import { I18nService } from '../../../i18n';
 
 interface Message {
   id: string;
@@ -58,22 +59,22 @@ interface Toast {
 
       <!-- Header -->
       <div class="header">
-        <h2 class="title">RAG Chat</h2>
-        <span class="model-badge">Powered by RAG</span>
+        <h2 class="title">{{ i18n.t().ragChat.title }}</h2>
+        <span class="model-badge">{{ i18n.t().ragChat.modelBadge }}</span>
       </div>
 
       <!-- Documents Section -->
       <div class="documents-section">
         <div class="section-header">
           <h3 class="section-title">
-            📄 Documents
+            📄 {{ i18n.t().ragChat.documents }}
             @if (!isLoadingDocs()) {
               <span class="document-count">{{ availableDocs().length }}</span>
             }
           </h3>
           @if (availableDocs().length > 0 && selectedDocIds().size > 0) {
             <span class="selected-badge">
-              {{ selectedDocIds().size }} selected
+              {{ i18n.t().ragChat.selectedDocuments.replace('{count}', selectedDocIds().size.toString()) }}
             </span>
           }
         </div>
@@ -114,16 +115,16 @@ interface Toast {
           </div>
           <div class="selection-controls">
             <button class="select-button" (click)="selectAllDocs()">
-              Select All
+              {{ i18n.t().ragChat.selectAll }}
             </button>
             @if (selectedDocIds().size > 0) {
               <button class="select-button" (click)="clearDocSelection()">
-                Clear Selection
+                {{ i18n.t().ragChat.clearSelection }}
               </button>
             }
           </div>
         } @else {
-          <p class="empty-docs">No documents uploaded</p>
+          <p class="empty-docs">{{ i18n.t().ragChat.noDocuments }}</p>
         }
       </div>
 
@@ -136,10 +137,10 @@ interface Toast {
           accept=".pdf,.md,.txt,.markdown"
           multiple
           (change)="onFileSelect($event)"
-          style="display: none"
+          class="visually-hidden"
         />
         <label for="file-upload" class="file-upload-label">
-          📎 Upload Documents
+          📎 {{ i18n.t().ragChat.uploadDocs }}
         </label>
 
         @if (pendingFiles().length > 0) {
@@ -165,9 +166,9 @@ interface Toast {
             [disabled]="isUploading()"
           >
             @if (isUploading()) {
-              <span class="spinner"></span> Uploading...
+              <span class="spinner"></span> {{ i18n.t().ragChat.uploading }}
             } @else {
-              ↑ Upload ({{ pendingFiles().length }})
+              ↑ {{ i18n.t().ragChat.upload }} ({{ pendingFiles().length }})
             }
           </button>
         }
@@ -178,16 +179,16 @@ interface Toast {
         @if (messages().length === 0) {
           <div class="empty-state">
             <div class="empty-icon">💬</div>
-            <p>Ask questions about your documents</p>
+            <p>{{ i18n.t().ragChat.askQuestion }}</p>
             <div class="quick-actions">
-              <button class="quick-action" (click)="setInput('What is this document about?')">
-                What is this about?
+              <button class="quick-action" (click)="setInput(i18n.t().ragChat.whatIsThis)">
+                {{ i18n.t().ragChat.whatIsThis }}
               </button>
-              <button class="quick-action" (click)="setInput('Summarize the key points')">
-                Summarize
+              <button class="quick-action" (click)="setInput(i18n.t().ragChat.summarize)">
+                {{ i18n.t().ragChat.summarize }}
               </button>
-              <button class="quick-action" (click)="setInput('What are the main topics?')">
-                Main topics
+              <button class="quick-action" (click)="setInput(i18n.t().ragChat.keyInfo)">
+                {{ i18n.t().ragChat.keyInfo }}
               </button>
             </div>
           </div>
@@ -208,21 +209,21 @@ interface Toast {
                     class="source-badge"
                     (click)="toggleSources(msg.id)"
                   >
-                    📚 Based on {{ msg.sources.length }} source{{ msg.sources.length > 1 ? 's' : '' }}
+                    📚 {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
                     {{ expandedSources().has(msg.id) ? '▲' : '▼' }}
                   </span>
                 }
               </div>
               @if (msg.role === 'assistant' && msg.sources && expandedSources().has(msg.id)) {
                 <div class="sources-panel">
-                  <div class="sources-title">📖 Sources</div>
+                  <div class="sources-title">📖 {{ i18n.t().ragChat.sources }}</div>
                   @for (source of msg.sources.slice(0, 3); track $index) {
                     <div class="source-item">
                       <div class="source-text">
                         {{ source.text.length > 200 ? source.text.slice(0, 200) + '...' : source.text }}
                       </div>
                       <div class="source-meta">
-                        <span>Similarity: {{ (source.score * 100).toFixed(1) }}%</span>
+                        <span>{{ i18n.t().ragChat.similarity }}: {{ (source.score * 100).toFixed(1) }}%</span>
                       </div>
                     </div>
                   }
@@ -233,7 +234,7 @@ interface Toast {
           @if (isLoading() && messages()[messages().length - 1]?.role === 'assistant' && !messages()[messages().length - 1]?.content) {
             <div class="message-bubble">
               <div class="message-content">
-                <span class="spinner"></span> Thinking...
+                <span class="spinner"></span> {{ i18n.t().ragChat.thinking }}
               </div>
             </div>
           }
@@ -246,9 +247,8 @@ interface Toast {
         <textarea
           class="chat-input"
           [ngModel]="input()"
-          (ngModelChange)="setInput($event)"
           (keydown)="onInputKeyDown($event)"
-          placeholder="Ask a question about your documents..."
+          placeholder="{{ i18n.t().ragChat.inputPlaceholder }}"
           rows="1"
           [disabled]="isLoading()"
         ></textarea>
@@ -543,6 +543,8 @@ interface Toast {
       transition: all 0.15s ease;
       flex-wrap: wrap;
       align-items: center;
+      z-index: 10;
+      position: relative;
     }
 
     .file-upload-area:hover {
@@ -669,6 +671,8 @@ interface Toast {
       background: #ffffff;
       border-radius: 12px;
       border: 1px solid #e5e5e5;
+      position: relative;
+      z-index: 1;
     }
 
     .empty-state {
@@ -849,6 +853,8 @@ interface Toast {
       display: flex;
       gap: 8px;
       align-items: flex-end;
+      position: relative;
+      z-index: 2;
     }
 
     .chat-input {
@@ -919,10 +925,23 @@ interface Toast {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   `]
 })
 export class RagChatComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
+  protected readonly i18n = inject(I18nService);
   private sessionId = `session_${Date.now()}`;
 
   // State
@@ -1021,7 +1040,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
             next.delete(docId);
             return next;
           });
-          this.addToast('Document deleted', 'success');
+          this.addToast(this.i18n.t().ragChat.documentDeleted, 'success');
         }, 200);
       },
       error: () => {
@@ -1030,7 +1049,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
           next.delete(docId);
           return next;
         });
-        this.addToast('Delete failed, please retry', 'error');
+        this.addToast(this.i18n.t().ragChat.deleteFailed, 'error');
       },
     });
   }
@@ -1045,7 +1064,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
         (f) => !this.pendingFiles().some((pf) => pf.name === f.name)
       );
       this.pendingFiles.update((prev) => [...prev, ...newFiles]);
-      this.addToast(`${newFiles.length} file(s) selected`, 'info');
+      this.addToast(this.i18n.t().ragChat.fileSelected.replace('{count}', newFiles.length.toString()), 'info');
     }
     input.value = '';
   }
@@ -1079,7 +1098,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
             next.set(file.name, { id: docId, title: file.name, status: 'success' });
             return next;
           });
-          this.addToast(`${file.name} uploaded successfully`, 'success');
+          this.addToast(this.i18n.t().ragChat.uploadSuccess.replace('{name}', file.name), 'success');
 
           if (index === this.pendingFiles().length - 1) {
             this.pendingFiles.set([]);
@@ -1092,10 +1111,10 @@ export class RagChatComponent implements OnInit, OnDestroy {
         error: () => {
           this.uploadStatuses.update((statuses) => {
             const next = new Map(statuses);
-            next.set(file.name, { id: docId, title: file.name, status: 'error', error: 'Upload failed' });
+            next.set(file.name, { id: docId, title: file.name, status: 'error', error: this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name) });
             return next;
           });
-          this.addToast(`Failed to upload ${file.name}`, 'error');
+          this.addToast(this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name), 'error');
         },
         complete: () => {
           if (index === this.pendingFiles().length - 1) {
@@ -1167,7 +1186,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
 
     let fullContent = '';
 
-    this.api.ragChat(
+    const streamResult = this.api.ragChat(
       requestBody,
       (chunk) => {
         fullContent += chunk;

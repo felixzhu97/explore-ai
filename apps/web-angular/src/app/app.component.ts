@@ -226,6 +226,7 @@ interface Tab {
 
     .main-content {
       padding: 32px;
+      padding-top: calc(32px + 52px); /* Extra 52px for navbar height */
     }
 
     .content-wrapper {
@@ -259,7 +260,7 @@ export class AppComponent {
   readonly router = inject(Router);
 
   readonly tabs: Tab[] = [
-    { key: 'aiinfra', labelKey: 'aiinfra', path: '/aiinfra' },
+    { key: 'ai-infra', labelKey: 'aiinfra', path: '/ai-infra' },
     { key: 'rag', labelKey: 'documentQA', path: '/rag' },
     { key: 'vision', labelKey: 'visionAI', path: '/vision' },
     { key: 'aihubs', labelKey: 'aiHub', path: '/aihubs' },

@@ -410,6 +410,9 @@ interface ImageSize {
       justify-content: center;
       padding: 16px 0;
       overflow-x: auto;
+      position: relative;
+      z-index: 10;
+      background: #f5f5f7;
     }
 
     .segmented-control {
