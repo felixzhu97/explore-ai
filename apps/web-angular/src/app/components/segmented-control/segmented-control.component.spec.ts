@@ -115,4 +115,91 @@ describe('SegmentedControlComponent', () => {
       expect(buttons[1]).toHaveClass('option--active');
     });
   });
+
+  describe('snapshot tests', () => {
+    it('should match snapshot of rendered options', () => {
+      const buttons = fixture.nativeElement.querySelectorAll('.option');
+      const snapshot = Array.from(buttons).map(btn => ({
+        text: btn.textContent?.trim(),
+        isActive: btn.classList.contains('option--active'),
+        isDisabled: btn.classList.contains('option--disabled'),
+        ariaSelected: btn.getAttribute('aria-selected'),
+        ariaDisabled: btn.getAttribute('aria-disabled'),
+        role: btn.getAttribute('role'),
+      }));
+      
+      expect(snapshot).toEqual([
+        { text: 'Test', isActive: true, isDisabled: false, ariaSelected: 'true', ariaDisabled: null, role: 'tab' },
+        { text: 'Demo', isActive: false, isDisabled: false, ariaSelected: 'false', ariaDisabled: null, role: 'tab' },
+        { text: 'Other', isActive: false, isDisabled: true, ariaSelected: 'false', ariaDisabled: 'true', role: 'tab' },
+      ]);
+    });
+
+    it('should render all options with correct structure', () => {
+      const buttons = fixture.nativeElement.querySelectorAll('.option');
+      
+      buttons.forEach((btn, index) => {
+        expect(btn.tagName).toBe('BUTTON');
+        expect(btn.getAttribute('type')).toBe('button');
+        expect(btn.getAttribute('role')).toBe('tab');
+      });
+    });
+  });
+
+  describe('option rendering', () => {
+    it('should update UI when options change', () => {
+      const newOptions: SegmentedControlOption<'test' | 'demo' | 'other'>[] = [
+        { value: 'test', label: 'Test Updated' },
+        { value: 'demo', label: 'Demo Updated' },
+      ];
+      
+      component.options.set(newOptions);
+      fixture.detectChanges();
+      
+      const buttons = fixture.nativeElement.querySelectorAll('.option');
+      expect(buttons.length).toBe(2);
+      expect(buttons[0].textContent?.trim()).toBe('Test Updated');
+      expect(buttons[1].textContent?.trim()).toBe('Demo Updated');
+    });
+
+    it('should handle dynamic value changes', () => {
+      component.value.set('demo');
+      fixture.detectChanges();
+      
+      const buttons = fixture.nativeElement.querySelectorAll('.option');
+      expect(buttons[1]).toHaveClass('option--active');
+      expect(buttons[0]).not.toHaveClass('option--active');
+    });
+  });
+
+  describe('selectOption method', () => {
+    it('should call selectOption directly', () => {
+      const selectOptionSpy = spyOn(component, 'selectOption');
+      
+      const buttons = fixture.nativeElement.querySelectorAll('.option');
+      buttons[1].click();
+      
+      expect(selectOptionSpy).toHaveBeenCalledWith(mockOptions[1]);
+    });
+
+    it('should not select option with undefined value', () => {
+      const newOptions: SegmentedControlOption<string>[] = [
+        { value: 'test', label: 'Test' },
+      ];
+      
+      component.options.set(newOptions);
+      component.value.set('nonexistent' as any);
+      fixture.detectChanges();
+      
+      const buttons = fixture.nativeElement.querySelectorAll('.option');
+      expect(buttons[0]).not.toHaveClass('option--active');
+    });
+  });
+
+  describe('container element', () => {
+    it('should have proper role attribute on container', () => {
+      const container = fixture.nativeElement.querySelector('.container');
+      expect(container.getAttribute('role')).toBe('tablist');
+    });
+  });
 });
