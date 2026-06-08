@@ -1,0 +1,93 @@
+---
+description: Python/Java/TypeScript 后端迁移过程中的小步推进与 MCP 测试规范。适用于 microservices migration 和 java-backend-migration。
+globs: services/**/*.py apps/server/**/*.ts backend/**/*.java .cursor/skills/**/SKILL.md
+alwaysApply: false
+---
+
+# Migration Testing 规范
+
+> 本规则用于约束“一次只改一个服务、一步只切一个接口”，并要求每步都通过 MCP 工具完成可复现验证。
+
+## 强制要求
+
+### 小步迁移
+- 最小迁移单元是“单个服务”，不是“单个接口”或“单个文件”。
+- 单个服务内可以按接口拆分，但所有接口必须等价实现后，才能进入下一服务。
+- 禁止一次性修改多个服务的路由、配置、数据模型、代理配置。
+
+### MCP 验证
+- 每个服务迁移完成后，必须执行一次 MCP 验证闭环。
+- MCP 验证至少包含：
+  - 服务健康检查
+  - 关键接口调用成功
+  - 响应内容与 Python 侧一致
+  - 截图或日志留存
+
+### 回滚策略
+- 如果某个服务迁移失败，先回滚该服务，不要叠加新的修复。
+- 回滚后重新执行 Step 0 基线确认。
+
+## 小步迁移流程
+
+```
+1. 冻结基线
+   - 确认 Python 服务健康
+   - 记录接口契约和测试用例
+
+2. 初始化 Java 服务
+   - 创建 Spring Boot 项目
+   - 完成基础配置
+
+3. 逐接口迁移
+   - 单接口实现
+   - MCP 验证通过
+   - 继续下一个接口
+
+4. 完整业务路径验证
+   - 端到端流程
+   - 异常场景
+   - 性能基线对比
+
+5. 切流与灰度
+   - 5% -> 20% -> 100%
+   - 每阶段通过 MCP 观察
+
+6. 全量切流
+   - 验证通过后删除 Python 服务
+```
+
+## MCP 测试要求
+
+### 健康检查验证
+- 使用 MCP 浏览器工具访问 `/health` 接口
+- 截图记录健康状态
+- 保存到 `docs/screenshots/migration/health-{service}.png`
+
+### 接口契约验证
+- 使用 `curl` 或 MCP 浏览器调用接口
+- 对比请求/响应内容
+- 记录差异到 `docs/migration/{service}-diff.md`
+
+### 截图要求
+- 每次迁移后必须截图
+- 包含接口响应、健康检查、错误页面
+- 文件命名：`{service}-{step}-{date}.png`
+
+## 禁止行为
+- 禁止跳过 MCP 验证直接进入下一服务
+- 禁止同时迁移多个服务
+- 禁止修改测试断言以适应错误实现
+- 禁止在未验证健康检查的情况下切流
+
+## 记录模板
+
+```
+### {service} 迁移记��
+
+- 日期：{date}
+- 迁移步骤：Step {step}
+- 验证方法：MCP 浏览器 / curl
+- 验证结果：{pass/fail}
+- 截图路径：docs/screenshots/migration/{file}.png
+- 备注：{notes}
+```
