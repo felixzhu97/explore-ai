@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     hf_token: Optional[str] = None
 
     # CORS
-    cors_origins: str = "http://localhost:3000,http://localhost:4200,http://localhost:5173"
+    cors_origins: str = "http://localhost:3000,http://localhost:4200"
 
     class Config:
         env_prefix = "MEDIA_GEN_"
