@@ -10,10 +10,11 @@ description: 将 Python/FastAPI 微服务（AI Agents、RAG、TTS、Vision）迁
 | 服务 | 端口 | 依赖 | 迁移目标 |
 |------|------|------|---------|
 | `services/ai_agents` | 8003 | LangGraph, LLM Gateway | `langchain4j` |
-| `services/rag` | 8001 | Qdrant, Embedding | `qdrant-client` |
-| `services/tts-service` | 8002 | Azure, Google, ElevenLabs | Azure/Google SDK |
+| `services/rag` | 8001 | Qdrant, Embedding | `langchain4j-qdrant` |
+| `services/tts-service` | 8013 | Azure, Google, ElevenLabs | Azure/Google SDK |
 | `services/vision-service` | 8000 | YOLO, Stable Diffusion | Spring AI |
-| `services/text-service` | - | Text processing | `@Service` |
+| `services/text-service` | 8006 | Text processing | `@Service` + LLM SDK |
+| `services/media-gen` | 8015 | Image generation | Spring Boot + Media SDK |
 
 ---
 
@@ -29,7 +30,7 @@ description: 将 Python/FastAPI 微服务（AI Agents、RAG、TTS、Vision）迁
 | `Query(param)` | `@RequestParam` |
 | `Path(param)` | `@PathVariable` |
 | `Body(param)` | `@RequestBody` |
-| `Depends()` | `@Autowired` |
+| `Depends()` | `@Autowired` / 构造器注入 |
 | `HTTPException` | `@ExceptionHandler` |
 | `BackgroundTasks` | `@Async` + `@EventListener` |
 
@@ -44,14 +45,14 @@ services/rag/src/
 ├── main.py                    →  RagServiceApplication.java
 ├── api/
 │   ├── documents.py           →  DocumentController.java
-│   └── chat.py               →  ChatController.java
+│   └── chat.py               →  RagChatController.java
 ├── core/
-│   ├── vector_store.py       →  QdrantAdapter.java
-│   ├── embedding.py         →  EmbeddingService.java
-│   └── llm_gateway.py       →  LlmGateway.java
-├── document_loader/           →  DocumentParser.java
-├── persistence/               →  Repository + JPA
-└── config.py                 →  RagConfig.java
+│   ├── vector_store.py       →  VectorSearchService.java
+│   ├── embedding.py         →  LangChain4jConfig.java
+│   └── llm_gateway.py       →  ChatModelConfig.java
+├── document_loader/           →  DocumentService.java
+├── persistence/               →  DocumentRepository.java
+└── config.py                 →  RagProperties.java
 ```
 
 ### Document API 迁移
@@ -81,24 +82,22 @@ public class DocumentController {
 
     @PostMapping("/upload")
     public ResponseEntity<DocumentUploadResponse> upload(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(defaultValue = "default") String collection) {
+            @RequestParam("file") MultipartFile file) {
 
-        DocumentUploadResponse response = documentService.uploadDocument(file, collection);
+        DocumentUploadResponse response = documentService.uploadDocument(file);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<Page<DocumentDTO>> list(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(documentService.listDocuments(page, size));
+    public ResponseEntity<List<DocumentDTO>> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "100") int size) {
+        return ResponseEntity.ok(documentService.findAll(page, size));
     }
 
     @DeleteMapping("/{docId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String docId) {
-        documentService.deleteDocument(docId);
+    public Mono<Void> delete(@PathVariable String docId) {
+        return Mono.fromRunnable(() -> documentService.delete(UUID.fromString(docId)));
     }
 }
 ```
@@ -122,51 +121,40 @@ async def chat(request: ChatRequest):
 ```
 
 ```java
-// Java: ChatController.java
+// Java: RagChatController.java
 @RestController
-@RequestMapping("/api/rag/chat")
+@RequestMapping("/api/rag")
 @RequiredArgsConstructor
-public class ChatController {
+public class RagChatController {
 
-    private final ChatService chatService;
+    private final RagChatService ragChatService;
 
-    @PostMapping
-    public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
-        return ResponseEntity.ok(chatService.chat(request));
-    }
+    @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> chat(@Valid @RequestBody RagChatRequest request) {
+        List<SourceDocument> sources = ragChatService.searchSources(request.query(), request.topK());
+        String sourcesJson = sources.stream()
+                .map(s -> "{\"text\":\"" + escapeJson(s.text()) + "\",\"score\":" + s.score() + "}")
+                .collect(Collectors.joining(",", "[", "]"));
 
-    @PostMapping("/stream")
-    public Flux<String> streamChat(@Valid @RequestBody ChatRequest request) {
-        return chatService.streamChat(request);
-    }
-}
+        Flux<ServerSentEvent<String>> sourceEvent = Flux.just(
+                ServerSentEvent.<String>builder()
+                        .event("sources")
+                        .data(sourcesJson)
+                        .build()
+        );
 
-// ChatService.java
-@Service
-@RequiredArgsConstructor
-public class ChatService {
+        Flux<ServerSentEvent<String>> contentEvents = ragChatService.streamChat(request)
+                .map(chunk -> ServerSentEvent.<String>builder()
+                        .data(chunk)
+                        .build());
 
-    private final EmbeddingService embeddingService;
-    private final VectorStoreAdapter vectorStoreAdapter;
-    private final LlmGateway llmGateway;
+        Flux<ServerSentEvent<String>> doneEvent = Flux.just(
+                ServerSentEvent.<String>builder()
+                        .data("[DONE]")
+                        .build()
+        );
 
-    public ChatResponse chat(ChatRequest request) {
-        // 1. Generate embedding
-        float[] queryVector = embeddingService.embed(request.query());
-
-        // 2. Search vector store
-        List<SearchResult> results = vectorStoreAdapter.search(queryVector, 5);
-
-        // 3. Build context
-        String context = results.stream()
-            .map(SearchResult::getContent)
-            .collect(Collectors.joining("\n---\n"));
-
-        // 4. Generate response
-        String prompt = String.format("Context:\n%s\n\nQuestion: %s", context, request.query());
-        String answer = llmGateway.generate(RAG_PROMPT, prompt);
-
-        return new ChatResponse(answer, results);
+        return Flux.concat(sourceEvent, contentEvents, doneEvent);
     }
 }
 ```
@@ -174,53 +162,36 @@ public class ChatService {
 ### Qdrant Adapter
 
 ```java
-// Java: QdrantAdapter.java
-@Component
-@RequiredArgsConstructor
-public class QdrantAdapter {
+// Java: VectorSearchService.java
+@Service
+public class VectorSearchService {
 
-    private final QdrantClient qdrantClient;
-    private final ObjectMapper objectMapper;
-    private static final String COLLECTION_NAME = "documents";
+    private final EmbeddingModel embeddingModel;
+    private final EmbeddingStore<TextSegment> embeddingStore;
 
-    public void createCollection() {
-        if (!qdrantClient.collectionExists(COLLECTION_NAME)) {
-            qdrantClient.createCollection(COLLECTION_NAME,
-                VectorParams.builder().size(1536).distance(Distance.Cosine).build()
-            );
+    public List<String> searchSimilar(String query, int topK) {
+        Embedding embedding = embeddingModel.embed(query);
+        EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
+                .queryEmbedding(embedding)
+                .maxResults(topK)
+                .build();
+
+        EmbeddingSearchResult<TextSegment> result = embeddingStore.search(request);
+        return result.matches().stream()
+                .map(match -> match.embedded().text())
+                .toList();
+    }
+
+    public void addSegments(List<String> chunks) {
+        List<TextSegment> segments = chunks.stream()
+                .map(TextSegment::from)
+                .toList();
+
+        List<Embedding> embeddings = embeddingModel.embedAll(segments).content();
+
+        for (int i = 0; i < segments.size(); i++) {
+            embeddingStore.add(embeddings.get(i), segments.get(i));
         }
-    }
-
-    public String upsert(List<DocumentChunk> chunks, List<float[]> vectors) {
-        String docId = UUID.randomUUID().toString();
-        List<PointStruct> points = IntStream.range(0, chunks.size())
-            .mapToObj(i -> PointStruct.of(
-                UUID.randomUUID().toString(),
-                vectors.get(i),
-                Map.of(
-                    "doc_id", docId,
-                    "content", chunks.get(i).getContent(),
-                    "metadata", objectMapper.valueToTree(chunks.get(i).getMetadata())
-                )
-            ))
-            .toList();
-
-        qdrantClient.upsert(COLLECTION_NAME, points);
-        return docId;
-    }
-
-    public List<SearchResult> search(float[] queryVector, int topK) {
-        SearchResponse response = qdrantClient.search(
-            SearchRequest.builder()
-                .collectionName(COLLECTION_NAME)
-                .queryVector(queryVector)
-                .limit(topK)
-                .build()
-        );
-
-        return response.getResults().stream()
-            .map(this::toSearchResult)
-            .toList();
     }
 }
 ```
@@ -246,19 +217,6 @@ services/ai_agents/
 
 ### Supervisor Agent
 
-```python
-# Python: Supervisor Agent
-class SupervisorAgent:
-    def route(self, message: str) -> str:
-        intent = self.llm.classify_intent(message)
-        return intent  # "rag", "tts", "k8s", etc.
-
-    async def process(self, message: str) -> AgentResponse:
-        agent_name = self.route(message)
-        agent = self.sub_agents[agent_name]
-        return await agent.execute(message)
-```
-
 ```java
 // Java: SupervisorAgentService.java
 @Service
@@ -279,39 +237,12 @@ public class SupervisorAgentService {
         return agent.execute(intent);
     }
 }
-
-// IntentClassifier.java
-@Component
-@RequiredArgsConstructor
-public class IntentClassifier {
-
-    private final ChatModel chatModel;
-
-    public Intent classify(String message) {
-        String prompt = """
-            Classify the following message into one of these intents:
-            - rag: for document retrieval and Q&A
-            - tts: for text-to-speech
-            - vision: for image analysis
-            - k8s: for Kubernetes operations
-            - mlops: for ML pipeline operations
-
-            Message: %s
-
-            Return only the intent name.
-            """.formatted(message);
-
-        String response = chatModel.chat(prompt);
-
-        return new Intent(parseIntent(response.trim()), message);
-    }
-}
 ```
 
 ### 子 Agent 示例
 
 ```java
-// RagAgentService.java
+// Java: RagAgentService.java
 @Service
 @RequiredArgsConstructor
 public class RagAgentService implements SubAgent {
@@ -333,80 +264,20 @@ public class RagAgentService implements SubAgent {
 }
 ```
 
-### LangChain4j 集成
-
-```kotlin
-// build.gradle.kts
-dependencies {
-    implementation("dev.langchain4j:langchain4j:1.0.0")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.0.0")
-    implementation("dev.langchain4j:langchain4j-ollama:1.0.0")
-}
-```
-
-```java
-// LangChain4jConfig.java
-@Configuration
-@RequiredArgsConstructor
-public class LangChain4jConfig {
-
-    private final AppSettings appSettings;
-
-    @Bean
-    public ChatModel chatModel() {
-        return switch (appSettings.getLlmProvider()) {
-            case "openai" -> OpenAiChatModel.builder()
-                .apiKey(appSettings.getOpenAiApiKey())
-                .modelName(appSettings.getLlmModel())
-                .temperature(0.7)
-                .build();
-            case "ollama" -> new OllamaChatModel(OllamaChatModel.builder()
-                .baseUrl(appSettings.getOllamaBaseUrl())
-                .modelName(appSettings.getOllamaModel())
-                .build());
-            default -> throw new IllegalArgumentException("Unknown LLM provider");
-        };
-    }
-
-    @Bean
-    public EmbeddingModel embeddingModel() {
-        return new AllMiniLmL6V2EmbeddingModel();
-    }
-}
-```
-
 ---
 
 ## Part 3: TTS Service 迁移
 
 ### Provider 架构
 
-```python
-# Python: Provider Factory
-class TTSFactory:
-    PROVIDERS = {
-        "azure": AzureTTSProvider,
-        "google": GoogleTTSProvider,
-        "elevenlabs": ElevenLabsProvider,
-        "edge": EdgeTTSProvider,
-        "coqui": CoquiTTSProvider,
-    }
-
-    def get_provider(self, name: str) -> TTSProvider:
-        return self.PROVIDERS.get(name, EdgeTTSProvider)()
-```
-
 ```java
 // Java: TTS Provider Architecture
-
-// TtsProvider.java
 public interface TtsProvider {
     byte[] synthesize(String text, VoiceConfig config);
     List<Voice> listVoices();
     boolean healthCheck();
 }
 
-// TtsService.java
 @Service
 @RequiredArgsConstructor
 public class TtsService {
@@ -416,64 +287,12 @@ public class TtsService {
 
     public byte[] synthesize(SynthesizeRequest request) {
         TtsProvider provider = providers.get(settings.getTtsProvider());
-        return provider.synthesize(request.text(), request.voiceConfig());
-    }
-}
+        VoiceConfig config = VoiceConfig.builder()
+            .voiceId(request.voiceId())
+            .language(request.language())
+            .build();
 
-// Provider Implementations
-@Component
-@ConditionalOnProperty(name = "tts.provider", havingValue = "azure")
-public class AzureTtsProvider implements TtsProvider {
-
-    private final AzureSpeechConfig config;
-
-    @Override
-    public byte[] synthesize(String text, VoiceConfig config) {
-        SpeechConfig speechConfig = SpeechConfig.fromSubscription(
-            config.getApiKey(),
-            config.getRegion()
-        );
-
-        try (SpeechSynthesizer synthesizer = new SpeechSynthesizer(speechConfig)) {
-            SpeechSynthesisResult result = synthesizer.speakTextAsync(text).get();
-            return result.getAudioData();
-        }
-    }
-}
-
-@Component
-@ConditionalOnProperty(name = "tts.provider", havingValue = "google")
-public class GoogleTtsProvider implements TtsProvider {
-    // Google Cloud Text-to-Speech SDK integration
-}
-```
-
-### TTS Controller
-
-```java
-@RestController
-@RequestMapping("/api/tts")
-@RequiredArgsConstructor
-public class TtsController {
-
-    private final TtsService ttsService;
-
-    @PostMapping("/synthesize")
-    public ResponseEntity<byte[]> synthesize(@Valid @RequestBody SynthesizeRequest request) {
-        byte[] audio = ttsService.synthesize(request);
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, "audio/mp3")
-            .body(audio);
-    }
-
-    @GetMapping("/voices")
-    public ResponseEntity<List<Voice>> listVoices() {
-        return ResponseEntity.ok(ttsService.listVoices());
-    }
-
-    @GetMapping("/providers")
-    public ResponseEntity<List<String>> listProviders() {
-        return ResponseEntity.ok(List.of("azure", "google", "elevenlabs", "edge"));
+        return provider.synthesize(request.text(), config);
     }
 }
 ```
@@ -482,57 +301,17 @@ public class TtsController {
 
 ## Part 4: Vision Service 迁移
 
-### Vision Controller
-
-```python
-# Python: api/vision.py
-@router.post("/vision/detect")
-async def detect_objects(image: UploadFile = File(...)):
-    image_bytes = await image.read()
-    results = yolo_detector.detect(image_bytes)
-    return {"objects": results}
-```
-
 ```java
-// Java: VisionController.java
-@RestController
-@RequestMapping("/api/vision")
-@RequiredArgsConstructor
-public class VisionController {
-
-    private final VisionService visionService;
-
-    @PostMapping("/detect")
-    public ResponseEntity<DetectionResult> detect(
-            @RequestParam("image") MultipartFile image) {
-        return ResponseEntity.ok(visionService.detectObjects(image));
-    }
-
-    @PostMapping("/caption")
-    public ResponseEntity<CaptionResult> caption(
-            @RequestParam("image") MultipartFile image) {
-        return ResponseEntity.ok(visionService.captionImage(image));
-    }
-
-    @PostMapping("/ocr")
-    public ResponseEntity<OcrResult> ocr(
-            @RequestParam("image") MultipartFile image) {
-        return ResponseEntity.ok(visionService.ocr(image));
-    }
-}
-
-// VisionService.java
+// Java: VisionService.java
 @Service
 @RequiredArgsConstructor
 public class VisionService {
 
     private final ObjectDetectionAdapter yoloAdapter;
-    private final ImageCaptioningAdapter blipAdapter;
-    private final OcrAdapter ocrAdapter;
+    private final ImageGenerationAdapter imageGenAdapter;
 
     public DetectionResult detectObjects(MultipartFile image) {
-        byte[] imageBytes = image.getResource().getContentAsByteArray();
-        return yoloAdapter.detect(imageBytes);
+        return yoloAdapter.detect(image);
     }
 }
 ```
@@ -541,25 +320,8 @@ public class VisionService {
 
 ## Part 5: 健康检查迁移
 
-```python
-# Python: FastAPI Health Check
-@app.get("/health")
-async def health():
-    qdrant_connected = False
-    try:
-        vector_store.client.get_collection(collection_name)
-        qdrant_connected = True
-    except Exception:
-        pass
-
-    return HealthResponse(
-        status="ok" if qdrant_connected else "degraded",
-        qdrant_connected=qdrant_connected,
-    )
-```
-
 ```java
-// Java: Spring Boot Health Check
+// Java: HealthController.java
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -571,7 +333,6 @@ public class HealthController {
     @GetMapping("/health")
     public ResponseEntity<HealthResponse> health() {
         boolean qdrantConnected = qdrantAdapter.isConnected();
-
         String status = qdrantConnected ? "ok" : "degraded";
         return ResponseEntity.ok(new HealthResponse(
             status,
@@ -594,18 +355,19 @@ public class HealthController {
 1. **按服务拆分迁移单元，不要按功能点拆分**：把“Python 服务 -> Java 服务”视为最小迁移单元。
 2. **迁移服务前必须保证该服务的所有端点在 Java 侧已经等价实现**。
 3. **每完成一个服务，必须完成健康检查、接口契约、业务路径的 MCP 验证，再继续下一服务**。
-4. **禁止在一次提交中同时修改多个服务的路由、配置或数据模型**。
+4. **禁止在一次提交中同时修改多个服务��路由、配置或数据模型**。
 5. **遇到失败，优先回滚最近一个迁移单元，而不是继续叠加变更**。
 
 ### 逐服务迁移路径
 
 建议按以下顺序进行：
 
-1. `services/rag` -> Java `rag-service`
-2. `services/tts-service` -> Java `tts-service`
-3. `services/vision-service` -> Java `vision-service`
-4. `services/ai_agents` -> Java `ai-agents-service`
-5. `services/text-service` -> Java `text-service`
+1. `services/rag` -> Java `rag-service` (Port 9001)
+2. `services/tts-service` -> Java `tts-service` (Port 9002)
+3. `services/vision-service` -> Java `vision-service` (Port 9003)
+4. `services/ai_agents` -> Java `ai-agents-service` (Port 9004)
+5. `services/text-service` -> Java `text-service` (Port 9005)
+6. `services/media-gen` -> Java `media-gen-service` (Port 9006)
 
 每个服务遵循同一套“小步模板”：
 
@@ -657,7 +419,7 @@ Step 6: 切流与回滚方案
 
 1. 先在 Java 侧实现对应 Controller + Service + Adapter
 2. 在同一端口或不同端口启动新旧服务
-3. 使用 MCP 浏览器工具或 curl 进行对照调用
+3. 使用 curl 或 MCP 浏览器工具进行对照调用
 4. 仅当这一步验证通过，再进入下一个 endpoint
 
 **推荐验证流程**：
@@ -665,10 +427,9 @@ Step 6: 切流与回滚方案
 ```
 1. 启动 Python 服务
 2. 启动 Java 服务
-3. 使用 MCP browser_take_screenshot / browser_snapshot 查看服务页面
-4. 使用 curl 或 MCP browser_navigate 调用接口
-5. 对比响应内容
-6. 记录截图和结果到 docs/screenshots/
+3. 使用 curl 或 MCP browser_navigate 调用接口
+4. 对比响应内容
+5. 记录结果
 ```
 
 ### Step 4: 完整业务路径迁移
@@ -708,13 +469,13 @@ Step 6: 切流与回滚方案
 
 | 服务 | 接口 | 对照验证 | MCP 验证 |
 |------|------|---------|---------|
-| `rag` | `/api/rag/documents/upload` | 上传文档并检索 | 截图 + 日志 |
-| `rag` | `/api/rag/chat` | RAG 问答结果一致 | 截图 + JSON 对比 |
+| `rag` | `/api/rag/documents/upload` | 上传文档并检索 | 日志 |
+| `rag` | `/api/rag/chat` | RAG 问答结果一致 | JSON 对比 |
 | `tts` | `/api/tts/synthesize` | 音频可播放 | 控制台网络请求 |
 | `tts` | `/api/tts/voices` | 语音列表一致 | 截图 |
 | `vision` | `/api/vision/detect` | 目标检测结果一致 | 截图 |
 | `vision` | `/api/vision/caption` | 图像描述一致 | 截图 |
-| `ai_agents` | `/api/agents/chat` | 路由与回答一致 | 截图 |
+| `ai_agents` | `/api/agents/chat` | 路由与回答��致 | 截图 |
 | `ai_agents` | `/api/agents/health` | 子 Agent 健康 | 截图 |
 
 ### 常见迁移失败与处理

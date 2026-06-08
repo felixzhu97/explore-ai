@@ -1,0 +1,31 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: rag-service
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+rag:
+  qdrant:
+    host: localhost
+    port: 6333
+    collection-name: documents
+    embedding-model-name: sentence-transformers/all-MiniLM-L6-v2
+    chunk-size: 512
+    chunk-overlap: 128
+
+  llm:
+    provider: openai
+    model-name: gpt-4o
+    api-key: ${OPENAI_API_KEY:}
