@@ -310,7 +310,7 @@ LOG_LEVEL=INFO
 | Text Service   | 8006 | Text generation (GPT, Claude, Ollama)             |
 | TTS Service    | 8005 | Text-to-Speech (Azure, Google, ElevenLabs, Coqui) |
 | Media Gen      | 3456 | Local Stable Diffusion (CPU/GPU)                  |
-| Web Frontend   | 5173 | Angular frontend                                                |
+| Web Frontend   | 4200 | Angular frontend                                                |
 | Backend Server | 3000 | Express.js backend                              |
 | Qdrant        | 6333 | Vector database                                 |
 | Ollama         | 11434 | Local LLM (optional)                           |

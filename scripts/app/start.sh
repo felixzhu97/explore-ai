@@ -44,10 +44,10 @@ echo -e "${GREEN}║     AI-Test Platform (${ENV})                       ║${NC
 echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}\n"
 
 echo -e "${BLUE}[1/5] Stopping old processes...${NC}"
-for port in 5173 5174 5175 5176 3000 8000 8003 8006 8010 8013 8015 6333 11434; do
+for port in 4200 3000 8000 8003 8006 8010 8013 8015 6333 11434; do
   lsof -ti:$port 2>/dev/null | xargs kill -9 2>/dev/null || true
 done
-pkill -f "vite.*ai-test" 2>/dev/null || true
+pkill -f "ng serve.*ai-test" 2>/dev/null || true
 pkill -f "tsx.*ai-test" 2>/dev/null || true
 pkill -f "ai_agents.*main.py" 2>/dev/null || true
 pkill -f "vision-service.*uvicorn" 2>/dev/null || true
@@ -166,7 +166,7 @@ fi
 WEB_PID=$!
 sleep 5
 if kill -0 $WEB_PID 2>/dev/null; then
-  echo -e "${GREEN}  ✓ Web Frontend started on http://localhost:5173${NC}"
+  echo -e "${GREEN}  ✓ Web Frontend started on http://localhost:4200${NC}"
 else
   echo -e "${YELLOW}  ⚠ Web Frontend failed to start${NC}"
 fi
@@ -175,7 +175,7 @@ echo -e "\n${GREEN}╔═══════════════════�
 echo -e "${GREEN}║              Services Ready!                      ║${NC}"
 echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "  ${BLUE}Web Frontend${NC}   ${YELLOW}http://localhost:5173${NC}"
+echo -e "  ${BLUE}Web Frontend${NC}   ${YELLOW}http://localhost:4200${NC}"
 echo -e "  ${BLUE}Express Server${NC} ${YELLOW}http://localhost:3000${NC}"
 echo -e "  ${BLUE}AI Agents${NC}     ${YELLOW}http://localhost:8003${NC}"
 echo -e "  ${BLUE}Vision Service${NC}${YELLOW}http://localhost:8000${NC}"

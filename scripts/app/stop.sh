@@ -8,7 +8,7 @@ NC='\033[0m'
 echo -e "${YELLOW}Stopping AI-Test services...${NC}\n"
 
 echo "Stopping Node.js services..."
-lsof -ti:5173 2>/dev/null | xargs kill -9 2>/dev/null || true
+lsof -ti:4200 2>/dev/null | xargs kill -9 2>/dev/null || true
 lsof -ti:3000 2>/dev/null | xargs kill -9 2>/dev/null || true
 
 echo "Stopping Python services..."
@@ -20,7 +20,7 @@ lsof -ti:8013 2>/dev/null | xargs kill -9 2>/dev/null || true
 lsof -ti:8015 2>/dev/null | xargs kill -9 2>/dev/null || true
 
 echo "Stopping process patterns..."
-pkill -f "vite.*ai-test" 2>/dev/null || true
+pkill -f "ng serve.*ai-test" 2>/dev/null || true
 pkill -f "tsx.*ai-test" 2>/dev/null || true
 pkill -f "ai_agents.*main.py" 2>/dev/null || true
 pkill -f "vision-service.*uvicorn" 2>/dev/null || true

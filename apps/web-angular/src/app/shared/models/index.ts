@@ -1,4 +1,4 @@
-// Shared type definitions - migrated from React models
+// Shared type definitions
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';

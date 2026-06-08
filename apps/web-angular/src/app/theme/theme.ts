@@ -1,4 +1,4 @@
-// Theme configuration - migrated from React theme.ts
+// Theme configuration
 export const colors = {
   background: '#f5f5f7',
   surface: '#ffffff',

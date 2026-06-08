@@ -1,4 +1,4 @@
-// i18n model - migrated from React locales.ts
+// i18n model
 export type Language = 'en' | 'zh' | 'ja' | 'fr' | 'es';
 
 export const SUPPORTED_LANGUAGES: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];
