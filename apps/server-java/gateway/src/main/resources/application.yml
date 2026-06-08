@@ -17,3 +17,37 @@ management:
   endpoint:
     health:
       show-details: always
+
+# LangChain4j configuration for OpenAI-compatible APIs
+langchain4j:
+  open-ai:
+    base-url: ${AI_BASE_URL:https://api.deepseek.com}
+    api-key: ${AI_API_KEY:your-api-key}
+    chat-model:
+      model-name: ${AI_MODEL:deepseek-chat}
+      temperature: 0.7
+      max-tokens: 2048
+    log-requests: true
+    log-responses: true
+
+# Agent configuration
+ai:
+  agent:
+    intent-routing:
+      enabled: true
+    services:
+      rag:
+        base-url: ${RAG_SERVICE_URL:http://localhost:9001}
+        timeout: 30000
+      tts:
+        base-url: ${TTS_SERVICE_URL:http://localhost:8013}
+        timeout: 60000
+      vision:
+        base-url: ${VISION_SERVICE_URL:http://localhost:8000}
+        timeout: 30000
+      media:
+        base-url: ${MEDIA_SERVICE_URL:http://localhost:8015}
+        timeout: 120000
+      text:
+        base-url: ${TEXT_SERVICE_URL:http://localhost:8006}
+        timeout: 30000

@@ -5,13 +5,13 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 subprojects {
     apply(plugin = "java")
-    apply(plugin = "org.springframework.boot") apply false
+    apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
 
     group = "com.ai"
@@ -36,8 +36,4 @@ subprojects {
             events("passed", "skipped", "failed")
         }
     }
-}
-
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
 }

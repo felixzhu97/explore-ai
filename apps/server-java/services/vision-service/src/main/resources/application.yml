@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: vision-service
+
+server:
+  port: 8000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+vision:
+  enabled: true
+  
+  yolo:
+    enabled: true
+    model-path: /models/yolo/yolov8n.onnx
+    confidence: 0.5
+    device: cpu
+
+  blip:
+    enabled: true
+    model-path: /models/blip
+    model-name: Salesforce/blip-image-captioning-base
+    max-length: 100
+
+  ocr:
+    enabled: true
+    model-path: /tessdata
+    language: eng
+    enable-table-detection: true
+
+  stable-diffusion:
+    enabled: true
+    model-path: /models/stable-diffusion
+    model-name: stabilityai/stable-diffusion-2-1
+    default-steps: 30
+    default-width: 512
+    default-height: 512
+    cache-dir: /tmp/sd-cache
+
+logging:
+  level:
+    com.ai.vision: DEBUG
+    root: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

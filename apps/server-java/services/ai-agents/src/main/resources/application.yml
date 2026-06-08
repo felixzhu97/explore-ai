@@ -1,0 +1,61 @@
+# AI Agents Service Configuration
+spring:
+  application:
+    name: ai-agents
+
+server:
+  port: 8003
+
+# Agent configuration
+agents:
+  # LLM provider settings
+  llm:
+    provider: deepseek
+    model-name: deepseek-chat
+    api-key: ${DEEPSEEK_API_KEY:}
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    temperature: 0.7
+    max-tokens: 4096
+    timeout-seconds: 120
+
+  # Supervisor configuration
+  supervisor:
+    system-prompt: |
+      You are a Supervisor Agent that coordinates multiple specialized agents.
+
+      Available agents:
+      - rag: For document retrieval and question answering
+      - tts: For text-to-speech synthesis
+      - vision: For image analysis and generation
+      - media: For media generation
+      - text: For text processing
+      - code: For code generation and analysis
+      - data: For data analysis
+      - monitor: For system monitoring
+      - k8s: For Kubernetes operations
+      - vector: For vector database operations
+      - aiops: For incident response and operations
+
+      Route user requests to the most appropriate agent based on the request content.
+      Provide a brief explanation of why you chose this agent.
+
+  # Routing configuration
+  routing:
+    enable-fallback: true
+    default-agent: chat
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.ai.agents: DEBUG
+    dev.langchain4j: INFO

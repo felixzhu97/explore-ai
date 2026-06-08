@@ -5,21 +5,29 @@ plugins {
 }
 
 dependencies {
+    // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // Reactive
     implementation("io.projectreactor:reactor-core:3.7.0")
 
-    implementation("dev.langchain4j:langchain4j-core:1.5.0")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.5.0")
-    implementation("dev.langchain4j:langchain4j-ollama:1.5.0")
-    implementation("dev.langchain4j:langchain4j-qdrant:1.5.0")
-    implementation("dev.langchain4j:langchain4j-hugging-face:1.5.0")
+    // LangChain4j for AI (using stable 1.15.1 release)
+    implementation("dev.langchain4j:langchain4j-core:1.15.1")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.15.1")
+    implementation("dev.langchain4j:langchain4j-ollama:1.15.1")
+    implementation("dev.langchain4j:langchain4j-qdrant:1.15.1-beta25")
+    implementation("dev.langchain4j:langchain4j-hugging-face:1.15.1-beta25")
 
+    // Qdrant client
+    implementation("io.qdrant:client:1.17.0")
+
+    // Common module
     implementation(project(":common"))
 
+    // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:junit-jupiter:1.19.8")
     testImplementation("org.testcontainers:qdrant:1.19.8")

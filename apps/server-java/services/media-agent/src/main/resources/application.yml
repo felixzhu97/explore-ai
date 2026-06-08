@@ -1,0 +1,42 @@
+server:
+  port: 8015
+
+spring:
+  application:
+    name: media-agent
+  codec:
+    max-in-memory-size: 50MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+media:
+  stable-diffusion:
+    api-url: ${SD_API_URL:http://localhost:7860}
+    default-model: ${SD_DEFAULT_MODEL:runwayml/stable-diffusion-v1-5}
+    available-models:
+      - runwayml/stable-diffusion-v1-5
+      - stabilityai/stable-diffusion-xl-base-1.0
+      - sayakpaul/sd-model-finetuned
+    default-generation:
+      width: 512
+      height: 512
+      steps: 25
+      guidance-scale: 7.5
+      num-images: 1
+    http:
+      connect-timeout: 30s
+      read-timeout: 5m
+      write-timeout: 5m
+
+logging:
+  level:
+    com.ai.media: DEBUG
+    org.springframework.web.reactive: INFO
+    reactor.netty: INFO

@@ -1,0 +1,28 @@
+server:
+  port: 8013
+
+spring:
+  application:
+    name: tts-service
+
+tts:
+  provider: edge
+  default-voice: zh-CN-XiaoxiaoNeural
+  default-language: zh-CN
+  default-speed: 1.0
+  default-pitch: 0
+  output-dir: ${java.io.tmpdir}/tts-output
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.ai.tts: DEBUG
+    reactor.netty: INFO
