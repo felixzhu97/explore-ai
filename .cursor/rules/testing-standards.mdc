@@ -82,7 +82,6 @@ alwaysApply: true
 ```
 1. 启动服务
    - Angular: http://localhost:4200
-   - React: http://localhost:5173
 
 2. 使用 MCP 工具验证
    browser_navigate → 导航到页面
@@ -91,7 +90,7 @@ alwaysApply: true
    browser_click/browser_fill → 交互测试
 
 3. 验证步骤
-   - 对比 React 和 Angular 的视觉差异
+   - 检查 Angular 界面的视觉正确性
    - 检查交互行为是否一致
    - 验证动画、过渡效果
    - 检查控制台错误
@@ -270,6 +269,5 @@ cat apps/web-angular/proxy.conf.json
 
 2. **CORS 配置必须包含所有前端端口**
    - Angular dev: `http://localhost:4200`
-   - React dev: `http://localhost:5173`
 
 3. **验证顺序**：curl 测试 → 浏览器 DevTools → 对比三方配置

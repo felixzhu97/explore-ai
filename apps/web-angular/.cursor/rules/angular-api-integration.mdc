@@ -47,7 +47,7 @@ alwaysApply: true
 │ 步骤 4：检查 CORS 配置                                          │
 │ - FastAPI CORSMiddleware 的 allowed_origins                    │
 │ - 必须包含 Angular dev server 端口（默认 4200）                  │
-│ - 示例：["http://localhost:4200", "http://localhost:5173"]     │
+│ - 示例：["http://localhost:4200"]                               │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -131,7 +131,6 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:4200",  # Angular dev
-        "http://localhost:5173",  # React dev
         "http://localhost:3000",  # Next.js dev
         # 生产环境域名
     ],
