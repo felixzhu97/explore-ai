@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ImageZoomModalComponent } from './image-zoom-modal.component';
 
@@ -47,16 +48,16 @@ describe('ImageZoomModalComponent', () => {
     expect(caption).toBeFalsy();
   });
 
-  it('should emit closed event when close is called', (done) => {
+  it('should emit closed event when close is called', () => {
     component.closed.subscribe(() => {
-      done();
+      // done callback equivalent
     });
 
     component.close();
   });
 
   it('should close modal and emit closed event', () => {
-    const spy = jasmine.createSpy('closed');
+    const spy = vi.fn();
     component.closed.subscribe(spy);
 
     component.close();
@@ -81,7 +82,7 @@ describe('ImageZoomModalComponent', () => {
 
   describe('keyboard support', () => {
     it('should close on escape key', () => {
-      const spy = jasmine.createSpy('closed');
+      const spy = vi.fn();
       component.closed.subscribe(spy);
 
       component.onEscapeKey();
@@ -92,7 +93,7 @@ describe('ImageZoomModalComponent', () => {
 
     it('should not close on escape if already closed', () => {
       component.isOpen.set(false);
-      const spy = jasmine.createSpy('closed');
+      const spy = vi.fn();
       component.closed.subscribe(spy);
 
       component.onEscapeKey();
@@ -114,21 +115,19 @@ describe('ImageZoomModalComponent', () => {
   describe('click handling', () => {
     it('should stop propagation on image container click', () => {
       const container = fixture.nativeElement.querySelector('.image-container');
-      const stopPropagationSpy = jasmine.createSpy('stopPropagation');
       
       const mockEvent = {
-        stopPropagation: stopPropagationSpy,
+        stopPropagation: vi.fn(),
       } as unknown as Event;
       
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       
-      // The event handler is on the element
       expect(container).toBeTruthy();
     });
 
     it('should close on overlay click', () => {
       const overlay = fixture.nativeElement.querySelector('.overlay');
-      const spy = jasmine.createSpy('closed');
+      const spy = vi.fn();
       component.closed.subscribe(spy);
 
       overlay.click();

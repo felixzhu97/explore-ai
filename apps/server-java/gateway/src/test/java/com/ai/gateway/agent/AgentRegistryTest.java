@@ -1,180 +1,271 @@
 package com.ai.gateway.agent;
 
-import com.ai.common.agent.Agent;
-import com.ai.common.agent.AgentRequest;
-import com.ai.common.agent.AgentResponse;
-import com.ai.common.agent.AgentType;
+import com.ai.agents.domain.Agent;
+import com.ai.agents.domain.AgentCapabilities;
+import com.ai.agents.domain.AgentId;
+import com.ai.agents.domain.AgentName;
+import com.ai.agents.domain.AgentType;
+import com.ai.agents.domain.service.AgentRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DisplayName("AgentRegistry Tests")
 class AgentRegistryTest {
 
-	private AgentRegistry registry;
+    private AgentRegistry registry;
 
-	static class MockAgent implements Agent {
-		private final AgentType type;
-		private final String name;
+    @BeforeEach
+    void setUp() {
+        registry = new AgentRegistry();
+    }
 
-		MockAgent(AgentType type, String name) {
-			this.type = type;
-			this.name = name;
-		}
+    @Nested
+    @DisplayName("register")
+    class RegisterTests {
 
-		@Override
-		public String name() {
-			return name;
-		}
+        @Test
+        @DisplayName("should register agent successfully")
+        void shouldRegisterAgentSuccessfully() {
+            Agent agent = Agent.create(
+                    AgentId.of("chat-1"),
+                    AgentName.of("ChatAgent"),
+                    AgentType.CHAT,
+                    AgentCapabilities.of(AgentType.CHAT)
+            );
 
-		@Override
-		public AgentType type() {
-			return type;
-		}
+            registry.register(agent);
 
-		@Override
-		public Mono<AgentResponse> process(AgentRequest request) {
-			return Mono.just(AgentResponse.success("mock response", type));
-		}
-	}
+            assertThat(registry.hasAgent(AgentType.CHAT)).isTrue();
+        }
 
-	@BeforeEach
-	void setUp() {
-		List<Agent> agents = List.of(
-				new MockAgent(AgentType.CHAT, "ChatAgent"),
-				new MockAgent(AgentType.RAG, "RagAgent"),
-				new MockAgent(AgentType.SUPERVISOR, "SupervisorAgent")
-		);
-		registry = new AgentRegistry(agents);
-	}
+        @Test
+        @DisplayName("should throw exception when registering null agent")
+        void shouldThrowExceptionWhenRegisteringNullAgent() {
+            assertThatThrownBy(() -> registry.register(null))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("cannot be null");
+        }
 
-	@Nested
-	@DisplayName("Get Agent Tests")
-	class GetAgentTests {
+        @Test
+        @DisplayName("should register multiple agents")
+        void shouldRegisterMultipleAgents() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            registry.register("rag", "RagAgent", AgentType.RAG);
+            registry.register("supervisor", "SupervisorAgent", AgentType.SUPERVISOR);
 
-		@Test
-		@DisplayName("Should return agent when found")
-		void shouldReturnAgentWhenFound() {
-			Optional<Agent> agent = registry.getAgent(AgentType.CHAT);
+            assertThat(registry.size()).isEqualTo(3);
+        }
+    }
 
-			assertThat(agent).isPresent();
-			assertThat(agent.get().name()).isEqualTo("ChatAgent");
-		}
+    @Nested
+    @DisplayName("findByType")
+    class FindByTypeTests {
 
-		@Test
-		@DisplayName("Should return empty when agent not found")
-		void shouldReturnEmptyWhenAgentNotFound() {
-			Optional<Agent> agent = registry.getAgent(AgentType.TTS);
+        @Test
+        @DisplayName("should return agent when found")
+        void shouldReturnAgentWhenFound() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
 
-			assertThat(agent).isEmpty();
-		}
+            Optional<Agent> agent = registry.findByType(AgentType.CHAT);
 
-		@Test
-		@DisplayName("Should return required agent when found")
-		void shouldReturnRequiredAgentWhenFound() {
-			Agent agent = registry.getRequiredAgent(AgentType.RAG);
+            assertThat(agent).isPresent();
+            assertThat(agent.get().type()).isEqualTo(AgentType.CHAT);
+            assertThat(agent.get().name()).isEqualTo(AgentName.of("ChatAgent"));
+        }
 
-			assertThat(agent).isNotNull();
-			assertThat(agent.name()).isEqualTo("RagAgent");
-		}
+        @Test
+        @DisplayName("should return empty when agent not found")
+        void shouldReturnEmptyWhenAgentNotFound() {
+            Optional<Agent> agent = registry.findByType(AgentType.TTS);
 
-		@Test
-		@DisplayName("Should return null when required agent not found")
-		void shouldReturnNullWhenRequiredAgentNotFound() {
-			Agent agent = registry.getRequiredAgent(AgentType.VISION);
+            assertThat(agent).isEmpty();
+        }
+    }
 
-			assertThat(agent).isNull();
-		}
-	}
+    @Nested
+    @DisplayName("hasAgent")
+    class HasAgentTests {
 
-	@Nested
-	@DisplayName("Has Agent Tests")
-	class HasAgentTests {
+        @Test
+        @DisplayName("should return true when agent exists")
+        void shouldReturnTrueWhenAgentExists() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            registry.register("rag", "RagAgent", AgentType.RAG);
+            registry.register("supervisor", "SupervisorAgent", AgentType.SUPERVISOR);
 
-		@Test
-		@DisplayName("Should return true when agent exists")
-		void shouldReturnTrueWhenAgentExists() {
-			assertThat(registry.hasAgent(AgentType.CHAT)).isTrue();
-			assertThat(registry.hasAgent(AgentType.RAG)).isTrue();
-			assertThat(registry.hasAgent(AgentType.SUPERVISOR)).isTrue();
-		}
+            assertThat(registry.hasAgent(AgentType.CHAT)).isTrue();
+            assertThat(registry.hasAgent(AgentType.RAG)).isTrue();
+            assertThat(registry.hasAgent(AgentType.SUPERVISOR)).isTrue();
+        }
 
-		@Test
-		@DisplayName("Should return false when agent does not exist")
-		void shouldReturnFalseWhenAgentDoesNotExist() {
-			assertThat(registry.hasAgent(AgentType.TTS)).isFalse();
-			assertThat(registry.hasAgent(AgentType.VISION)).isFalse();
-			assertThat(registry.hasAgent(AgentType.MEDIA)).isFalse();
-		}
-	}
+        @Test
+        @DisplayName("should return false when agent does not exist")
+        void shouldReturnFalseWhenAgentDoesNotExist() {
+            assertThat(registry.hasAgent(AgentType.TTS)).isFalse();
+            assertThat(registry.hasAgent(AgentType.VISION)).isFalse();
+            assertThat(registry.hasAgent(AgentType.MEDIA)).isFalse();
+        }
+    }
 
-	@Nested
-	@DisplayName("Get All Agents Tests")
-	class GetAllAgentsTests {
+    @Nested
+    @DisplayName("getAllAgents")
+    class GetAllAgentsTests {
 
-		@Test
-		@DisplayName("Should return all registered agents")
-		void shouldReturnAllRegisteredAgents() {
-			Map<AgentType, Agent> allAgents = registry.getAllAgents();
+        @Test
+        @DisplayName("should return all registered agents")
+        void shouldReturnAllRegisteredAgents() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            registry.register("rag", "RagAgent", AgentType.RAG);
+            registry.register("supervisor", "SupervisorAgent", AgentType.SUPERVISOR);
 
-			assertThat(allAgents).hasSize(3);
-			assertThat(allAgents.keySet()).containsExactlyInAnyOrder(
-					AgentType.CHAT, AgentType.RAG, AgentType.SUPERVISOR
-			);
-		}
+            List<Agent> agents = registry.getAllAgents();
 
-		@Test
-		@DisplayName("Should return copy of agents map")
-		void shouldReturnCopyOfAgentsMap() {
-			Map<AgentType, Agent> firstCall = registry.getAllAgents();
-			Map<AgentType, Agent> secondCall = registry.getAllAgents();
+            assertThat(agents).hasSize(3);
+        }
 
-			assertThat(firstCall).isNotSameAs(secondCall);
-		}
-	}
+        @Test
+        @DisplayName("should return empty list when no agents registered")
+        void shouldReturnEmptyListWhenNoAgentsRegistered() {
+            List<Agent> agents = registry.getAllAgents();
 
-	@Nested
-	@DisplayName("Duplicate Agent Handling Tests")
-	class DuplicateAgentHandlingTests {
+            assertThat(agents).isEmpty();
+        }
+    }
 
-		@Test
-		@DisplayName("Should keep last agent when duplicates registered")
-		void shouldKeepLastAgentWhenDuplicatesRegistered() {
-			List<Agent> agentsWithDuplicates = List.of(
-					new MockAgent(AgentType.CHAT, "FirstChatAgent"),
-					new MockAgent(AgentType.CHAT, "SecondChatAgent")
-			);
-			AgentRegistry registryWithDuplicates = new AgentRegistry(agentsWithDuplicates);
+    @Nested
+    @DisplayName("getAvailableTypes")
+    class GetAvailableTypesTests {
 
-			Agent chatAgent = registryWithDuplicates.getRequiredAgent(AgentType.CHAT);
+        @Test
+        @DisplayName("should return all available types")
+        void shouldReturnAllAvailableTypes() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            registry.register("rag", "RagAgent", AgentType.RAG);
 
-			assertThat(chatAgent.name()).isEqualTo("SecondChatAgent");
-		}
-	}
+            Set<AgentType> types = registry.getAvailableTypes();
 
-	@Nested
-	@DisplayName("Agent Process Tests")
-	class AgentProcessTests {
+            assertThat(types).containsExactlyInAnyOrder(AgentType.CHAT, AgentType.RAG);
+        }
+    }
 
-		@Test
-		@DisplayName("Should process request through agent")
-		void shouldProcessRequestThroughAgent() {
-			Agent chatAgent = registry.getRequiredAgent(AgentType.CHAT);
-			AgentRequest request = AgentRequest.of("Hello", AgentType.CHAT);
+    @Nested
+    @DisplayName("unregister")
+    class UnregisterTests {
 
-			AgentResponse response = chatAgent.process(request).block();
+        @Test
+        @DisplayName("should unregister agent by ID")
+        void shouldUnregisterAgentById() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            AgentId agentId = AgentId.of("chat");
 
-			assertThat(response).isNotNull();
-			assertThat(response.message()).isEqualTo("mock response");
-			assertThat(response.agentType()).isEqualTo(AgentType.CHAT);
-		}
-	}
+            registry.unregister(agentId);
+
+            assertThat(registry.hasAgent(AgentType.CHAT)).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("size and isEmpty")
+    class SizeAndIsEmptyTests {
+
+        @Test
+        @DisplayName("should return correct size")
+        void shouldReturnCorrectSize() {
+            assertThat(registry.size()).isZero();
+
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            assertThat(registry.size()).isEqualTo(1);
+
+            registry.register("rag", "RagAgent", AgentType.RAG);
+            assertThat(registry.size()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("should return true when empty")
+        void shouldReturnTrueWhenEmpty() {
+            assertThat(registry.isEmpty()).isTrue();
+        }
+
+        @Test
+        @DisplayName("should return false when not empty")
+        void shouldReturnFalseWhenNotEmpty() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+
+            assertThat(registry.isEmpty()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("clear")
+    class ClearTests {
+
+        @Test
+        @DisplayName("should clear all agents")
+        void shouldClearAllAgents() {
+            registry.register("chat", "ChatAgent", AgentType.CHAT);
+            registry.register("rag", "RagAgent", AgentType.RAG);
+
+            registry.clear();
+
+            assertThat(registry.isEmpty()).isTrue();
+            assertThat(registry.size()).isZero();
+        }
+    }
+
+    @Nested
+    @DisplayName("createDefault")
+    class CreateDefaultTests {
+
+        @Test
+        @DisplayName("should create default registry with all standard agents")
+        void shouldCreateDefaultRegistryWithAllStandardAgents() {
+            AgentRegistry defaultRegistry = AgentRegistry.createDefault();
+
+            assertThat(defaultRegistry.size()).isEqualTo(7);
+            assertThat(defaultRegistry.hasAgent(AgentType.CHAT)).isTrue();
+            assertThat(defaultRegistry.hasAgent(AgentType.RAG)).isTrue();
+            assertThat(defaultRegistry.hasAgent(AgentType.TTS)).isTrue();
+            assertThat(defaultRegistry.hasAgent(AgentType.VISION)).isTrue();
+            assertThat(defaultRegistry.hasAgent(AgentType.MEDIA)).isTrue();
+            assertThat(defaultRegistry.hasAgent(AgentType.TEXT)).isTrue();
+            assertThat(defaultRegistry.hasAgent(AgentType.SUPERVISOR)).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("constructor with initial agents")
+    class ConstructorWithInitialAgentsTests {
+
+        @Test
+        @DisplayName("should create registry with initial agents")
+        void shouldCreateRegistryWithInitialAgents() {
+            List<Agent> initialAgents = List.of(
+                    Agent.create(AgentId.of("c1"), AgentName.of("Chat"), AgentType.CHAT, AgentCapabilities.of(AgentType.CHAT)),
+                    Agent.create(AgentId.of("r1"), AgentName.of("Rag"), AgentType.RAG, AgentCapabilities.of(AgentType.RAG))
+            );
+
+            AgentRegistry registryWithAgents = new AgentRegistry(initialAgents);
+
+            assertThat(registryWithAgents.size()).isEqualTo(2);
+            assertThat(registryWithAgents.hasAgent(AgentType.CHAT)).isTrue();
+            assertThat(registryWithAgents.hasAgent(AgentType.RAG)).isTrue();
+        }
+
+        @Test
+        @DisplayName("should handle null initial agents list")
+        void shouldHandleNullInitialAgentsList() {
+            AgentRegistry registryWithNull = new AgentRegistry(null);
+
+            assertThat(registryWithNull.isEmpty()).isTrue();
+        }
+    }
 }

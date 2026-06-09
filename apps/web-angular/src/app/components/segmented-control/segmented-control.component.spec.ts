@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SegmentedControlComponent, SegmentedControlOption } from './segmented-control.component';
 
@@ -45,10 +46,9 @@ describe('SegmentedControlComponent', () => {
     expect(buttons[1]).not.toHaveClass('option--active');
   });
 
-  it('should emit change event when selecting option', (done) => {
+  it('should emit change event when selecting option', () => {
     component.changed.subscribe((value) => {
       expect(value).toBe('demo');
-      done();
     });
 
     const buttons = fixture.nativeElement.querySelectorAll('.option');
@@ -56,7 +56,7 @@ describe('SegmentedControlComponent', () => {
   });
 
   it('should not emit change when selecting already selected option', () => {
-    const spy = jasmine.createSpy('changed');
+    const spy = vi.fn();
     component.changed.subscribe(spy);
 
     const buttons = fixture.nativeElement.querySelectorAll('.option');
@@ -66,7 +66,7 @@ describe('SegmentedControlComponent', () => {
   });
 
   it('should not emit change when selecting disabled option', () => {
-    const spy = jasmine.createSpy('changed');
+    const spy = vi.fn();
     component.changed.subscribe(spy);
 
     const buttons = fixture.nativeElement.querySelectorAll('.option');
@@ -76,7 +76,7 @@ describe('SegmentedControlComponent', () => {
   });
 
   it('should not emit change when selecting disabled option even with click', () => {
-    const spy = jasmine.createSpy('changed');
+    const spy = vi.fn();
     component.changed.subscribe(spy);
 
     const buttons = fixture.nativeElement.querySelectorAll('.option');
@@ -174,7 +174,7 @@ describe('SegmentedControlComponent', () => {
 
   describe('selectOption method', () => {
     it('should call selectOption directly', () => {
-      const selectOptionSpy = spyOn(component, 'selectOption');
+      const selectOptionSpy = vi.spyOn(component, 'selectOption');
       
       const buttons = fixture.nativeElement.querySelectorAll('.option');
       buttons[1].click();

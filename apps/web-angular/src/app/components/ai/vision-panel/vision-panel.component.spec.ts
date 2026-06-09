@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { VisionPanelComponent } from './vision-panel.component';
@@ -11,7 +12,7 @@ describe('VisionPanelComponent', () => {
   let httpMock: HttpTestingController;
 
   const mockI18nService = {
-    t: jasmine.createSpy('t').and.returnValue(translations.en.imageUploader),
+    t: vi.fn().mockReturnValue(translations.en.imageUploader),
   };
 
   beforeEach(async () => {
@@ -63,7 +64,6 @@ describe('VisionPanelComponent', () => {
   describe('file handling', () => {
     it('should update state on file selection', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const stateBefore = component.currentState();
       
       component.processFile(mockFile);
       fixture.detectChanges();
@@ -318,7 +318,7 @@ describe('VisionPanelComponent', () => {
 
   describe('drag and drop', () => {
     it('should call processFile on drop', () => {
-      const processFileSpy = spyOn(component, 'processFile');
+      const processFileSpy = vi.spyOn(component, 'processFile');
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
       
       const dropEvent = new DragEvent('drop', {
@@ -332,11 +332,11 @@ describe('VisionPanelComponent', () => {
     });
 
     it('should prevent default on drag over', () => {
-      const preventDefaultSpy = jasmine.createSpy('preventDefault');
+      const preventDefaultSpy = vi.fn();
       const dragEvent = new DragEvent('dragover', {
         dataTransfer: new DataTransfer(),
       });
-      spyOn(dragEvent, 'preventDefault').and.callFake(preventDefaultSpy);
+      vi.spyOn(dragEvent, 'preventDefault').mockImplementation(preventDefaultSpy);
       
       component.onDragOver(dragEvent);
       expect(preventDefaultSpy).toHaveBeenCalled();

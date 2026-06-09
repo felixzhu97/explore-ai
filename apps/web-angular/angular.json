@@ -70,6 +70,13 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "ngx-vitest:vitest",
+          "options": {
+            "config": "vitest.config.ts",
+            "tsConfig": "tsconfig.spec.json"
+          }
         }
       }
     }

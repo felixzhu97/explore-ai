@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ButtonComponent, ButtonVariant, ButtonSize } from './button.component';
 
@@ -28,7 +29,7 @@ describe('ButtonComponent', () => {
   });
 
   it('should emit click event', () => {
-    const spy = jasmine.createSpy('clicked');
+    const spy = vi.fn();
     component.clicked.subscribe(spy);
 
     component.handleClick(new MouseEvent('click'));
@@ -38,7 +39,7 @@ describe('ButtonComponent', () => {
 
   it('should not emit click when disabled', () => {
     component.disabled.set(true);
-    const spy = jasmine.createSpy('clicked');
+    const spy = vi.fn();
     component.clicked.subscribe(spy);
 
     component.handleClick(new MouseEvent('click'));
@@ -48,7 +49,7 @@ describe('ButtonComponent', () => {
 
   it('should not emit click when loading', () => {
     component.loading.set(true);
-    const spy = jasmine.createSpy('clicked');
+    const spy = vi.fn();
     component.clicked.subscribe(spy);
 
     component.handleClick(new MouseEvent('click'));

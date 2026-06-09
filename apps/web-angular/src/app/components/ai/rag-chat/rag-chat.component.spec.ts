@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { describe, it, expect, beforeEach, vi, fakeAsync, tick } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RagChatComponent } from './rag-chat.component';
 import { ApiService, SourceDocument } from '../services/api.service';
@@ -252,7 +253,7 @@ describe('RagChatComponent', () => {
 
     it('should handle Enter key without Shift', () => {
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
-      spyOn(event, 'preventDefault');
+      vi.spyOn(event, 'preventDefault');
       component.input.set('Test message');
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
@@ -264,7 +265,7 @@ describe('RagChatComponent', () => {
 
     it('should not prevent default on Shift+Enter', () => {
       const event = new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true });
-      spyOn(event, 'preventDefault');
+      vi.spyOn(event, 'preventDefault');
       
       component.onInputKeyDown(event);
       

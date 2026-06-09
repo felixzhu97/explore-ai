@@ -1,5 +1,5 @@
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DomSanitizer } from '@angular/platform-browser';
 import { ChatMessageComponent, ChatMessageData } from './chat-message.component';
 import { ToolCall } from '../tool-result/tool-result.component';
 
