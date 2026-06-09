@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0' apply false
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 ext {
@@ -29,6 +30,7 @@ allprojects {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'jacoco'
 
     java {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -58,5 +60,12 @@ subprojects {
 
     test {
         useJUnitPlatform()
+    }
+
+    jacocoTestReport {
+        reports {
+            html.required = true
+            xml.required = true
+        }
     }
 }

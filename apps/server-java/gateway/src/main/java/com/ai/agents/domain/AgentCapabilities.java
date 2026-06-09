@@ -66,4 +66,22 @@ public final class AgentCapabilities {
     public boolean supportsMedia() { return supportsMedia; }
     public boolean supportsText() { return supportsText; }
     public boolean supportsChat() { return supportsChat; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AgentCapabilities that = (AgentCapabilities) o;
+        return supportsRag == that.supportsRag &&
+                supportsTts == that.supportsTts &&
+                supportsVision == that.supportsVision &&
+                supportsMedia == that.supportsMedia &&
+                supportsText == that.supportsText &&
+                supportsChat == that.supportsChat;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(supportsRag, supportsTts, supportsVision, supportsMedia, supportsText, supportsChat);
+    }
 }

@@ -30,7 +30,7 @@ public final class Agent {
     }
 
     private void validateInvariants() {
-        if (capabilities == null || capabilities == AgentCapabilities.none()) {
+        if (capabilities == null || capabilities.equals(AgentCapabilities.none())) {
             throw new IllegalStateException("Agent must have at least one capability");
         }
     }

@@ -18,7 +18,10 @@ public final class RoutingDecision {
             double confidence,
             String reason
     ) {
-        this.targetType = Objects.requireNonNull(targetType, "Target type cannot be null");
+        if (targetType == null && targetAgentId == null) {
+            throw new IllegalArgumentException("Either targetType or targetAgentId must be provided");
+        }
+        this.targetType = targetType;
         this.targetAgentId = targetAgentId;
         if (confidence < 0.0 || confidence > 1.0) {
             throw new IllegalArgumentException("Confidence must be between 0.0 and 1.0");
