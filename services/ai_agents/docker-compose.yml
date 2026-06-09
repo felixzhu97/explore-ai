@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ai-agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: python -m uvicorn services.ai_agents.main:app --host 0.0.0.0 --port 8003 --reload
