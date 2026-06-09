@@ -29,6 +29,11 @@ public interface VectorStore {
     List<SourceDocument> searchWithScores(String query, int topK);
 
     /**
+     * Searches and returns results with scores, filtered by document IDs.
+     */
+    List<SourceDocument> searchWithScores(String query, List<String> docIds, int topK);
+
+    /**
      * Deletes all vectors for a document.
      */
     void deleteByDocId(DocumentId docId);

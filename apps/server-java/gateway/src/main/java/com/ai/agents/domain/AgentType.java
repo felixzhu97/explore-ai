@@ -1,5 +1,8 @@
 package com.ai.agents.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Agent type enumeration.
  * Defines the types of agents available in the system.
@@ -21,6 +24,7 @@ public enum AgentType {
         this.description = description;
     }
 
+    @JsonValue
     public String getId() {
         return id;
     }
@@ -29,6 +33,7 @@ public enum AgentType {
         return description;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static AgentType fromId(String id) {
         if (id == null) {
             return CHAT;

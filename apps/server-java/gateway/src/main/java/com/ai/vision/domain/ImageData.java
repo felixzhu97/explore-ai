@@ -1,5 +1,8 @@
 package com.ai.vision.domain;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -41,6 +44,24 @@ public final class ImageData {
 
     public long size() {
         return size;
+    }
+
+    public int width() {
+        BufferedImage img = getBufferedImage();
+        return img != null ? img.getWidth() : 0;
+    }
+
+    public int height() {
+        BufferedImage img = getBufferedImage();
+        return img != null ? img.getHeight() : 0;
+    }
+
+    private BufferedImage getBufferedImage() {
+        try {
+            return ImageIO.read(new ByteArrayInputStream(data));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean isEmpty() {

@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuration for RAG infrastructure components.
+ * Uses in-memory vector store by default.
+ * For production with Qdrant, use the vector infrastructure module.
  */
 @Configuration
 @EnableConfigurationProperties(RagProperties.class)
@@ -37,11 +39,13 @@ public class RagConfiguration {
 
     @Bean
     public EmbeddingClient embeddingClient() {
+        log.warn("EmbeddingClient using placeholder implementation");
         return new OpenAiEmbeddingClient();
     }
 
     @Bean
     public VectorStore vectorStore() {
+        log.info("Initializing InMemoryVectorStore (development mode)");
         return new InMemoryVectorStore();
     }
 

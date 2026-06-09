@@ -4,29 +4,25 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
-/**
- * Response DTO for OCR text recognition.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OcrResponse(
-    String text,
-    float confidence,
-    List<TextBlock> blocks
+    String task,
+    String model,
+    List<TextBlock> results,
+    String fullText,
+    double processingTimeMs
 ) {
     public record TextBlock(
         String text,
         float confidence,
-        BoundingBox bbox
+        List<List<Float>> bbox
     ) {}
 
-    public record BoundingBox(
-        float x1,
-        float y1,
-        float x2,
-        float y2
-    ) {}
-
-    public OcrResponse {
-        if (blocks == null) blocks = List.of();
+    public static OcrResponse of(String model, List<TextBlock> results, double processingTimeMs) {
+        String fullText = results.stream()
+            .map(TextBlock::text)
+            .reduce((a, b) -> a + "\n" + b)
+            .orElse("");
+        return new OcrResponse("extract_text", model, results, fullText, processingTimeMs);
     }
 }

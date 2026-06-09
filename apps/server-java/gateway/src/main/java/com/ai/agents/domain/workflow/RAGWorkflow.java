@@ -167,11 +167,20 @@ public final class RAGWorkflow {
      */
     @SuppressWarnings("unchecked")
     public List<RagAgentService.SearchResult> getResults() {
-        List<Map<String, Object>> results = (List<Map<String, Object>>) state.getStateValue("searchResults");
+        List<Map<String, Object>> results = null;
+        
+        // Try to get results from searchResults map (if search was called)
+        Map<String, Object> searchData = (Map<String, Object>) state.getStateValue("searchResults");
+        if (searchData != null && searchData.containsKey("results")) {
+            results = (List<Map<String, Object>>) searchData.get("results");
+        }
+        
+        // Fallback to allResults (if multiHopSearch was called)
         if (results == null) {
             results = (List<Map<String, Object>>) state.getStateValue("allResults");
         }
-        if (results == null) {
+        
+        if (results == null || results.isEmpty()) {
             return List.of();
         }
 

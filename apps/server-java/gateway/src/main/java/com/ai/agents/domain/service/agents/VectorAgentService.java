@@ -1,19 +1,34 @@
 package com.ai.agents.domain.service.agents;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.*;
 
 /**
  * Vector DB Agent domain service.
  * Manages ChromaDB/Qdrant vector operations.
+ * Uses in-memory storage by default.
  */
 @Service
 public final class VectorAgentService {
 
+    private static final Logger log = LoggerFactory.getLogger(VectorAgentService.class);
+
     private final Map<String, Collection> collections = new HashMap<>();
     private final Map<String, List<VectorEntry>> vectors = new HashMap<>();
+
+    public VectorAgentService() {
+        log.info("VectorAgentService initialized with in-memory storage");
+    }
+
+    @PostConstruct
+    public void initialize() {
+        log.info("VectorAgentService ready");
+    }
 
     /**
      * Create a collection.
@@ -28,6 +43,7 @@ public final class VectorAgentService {
         );
         collections.put(name, collection);
         vectors.put(name, new ArrayList<>());
+        log.info("Created collection: {}", name);
         return collection;
     }
 
@@ -74,6 +90,7 @@ public final class VectorAgentService {
         }
 
         vectors.put(collectionName, entries);
+        log.info("Added {} vectors to collection: {}", ids.size(), collectionName);
         return resultIds;
     }
 
@@ -131,6 +148,7 @@ public final class VectorAgentService {
             ));
         }
 
+        log.info("Deleted {} vectors from collection: {}", deleted, collectionName);
         return deleted > 0;
     }
 

@@ -81,7 +81,7 @@ public class VisionAgentAdapter implements AgentAdapter {
         String language = metadata != null ? (String) metadata.get("language") : "eng";
 
         return visionService.recognizeText(imageData, language)
-                .map(result -> AgentResponseDto.success(result.text(), AgentType.VISION))
+                .map(result -> AgentResponseDto.success(result.fullText(), AgentType.VISION))
                 .onErrorResume(e -> {
                     log.error("Vision OCR failed", e);
                     return Mono.just(AgentResponseDto.error("OCR failed: " + e.getMessage()));

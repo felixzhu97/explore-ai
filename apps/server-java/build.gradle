@@ -7,6 +7,7 @@ plugins {
 ext {
     set('springBootVersion', '3.4.0')
     set('langchain4jVersion', '1.5.0')
+    set('langchain4jQdrantVersion', '1.0.0-beta5')
     set('testcontainersVersion', '1.19.8')
     set('junitVersion', '5.10.2')
     set('assertjVersion', '3.26.3')
@@ -43,7 +44,6 @@ subprojects {
             dependency "dev.langchain4j:langchain4j-core:${langchain4jVersion}"
             dependency "dev.langchain4j:langchain4j-open-ai:${langchain4jVersion}"
             dependency "dev.langchain4j:langchain4j-ollama:${langchain4jVersion}"
-            dependency "dev.langchain4j:langchain4j-qdrant:${langchain4jVersion}"
             dependency "dev.langchain4j:langchain4j-hugging-face:${langchain4jVersion}"
         }
     }

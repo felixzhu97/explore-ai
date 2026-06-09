@@ -43,7 +43,7 @@ public class RagUseCase {
         log.info("Searching RAG: {}", query);
         try {
             RAGWorkflow workflow = new RAGWorkflow(domainService);
-            workflow.search(query, topK);
+            workflow = workflow.search(query, topK); // reassign to updated workflow
             var results = workflow.getResults();
 
             StringBuilder output = new StringBuilder("Search Results:\n\n");

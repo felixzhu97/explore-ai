@@ -100,6 +100,8 @@ public class AgentOrchestrationService {
         agentRegistry.register("model", "ModelAgent", AgentType.SUPERVISOR);
         agentRegistry.register("tts", "TTSAgent", AgentType.TTS);
         agentRegistry.register("video", "VideoAgent", AgentType.MEDIA);
+        agentRegistry.register("text", "TextAgent", AgentType.TEXT);
+        agentRegistry.register("vision", "VisionAgent", AgentType.VISION);
         agentRegistry.register("chat", "ChatAgent", AgentType.CHAT);
     }
 

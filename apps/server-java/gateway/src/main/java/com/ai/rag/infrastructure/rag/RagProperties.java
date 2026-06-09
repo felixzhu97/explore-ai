@@ -1,64 +1,52 @@
 package com.ai.rag.infrastructure.rag;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
  * Configuration properties for RAG service.
+ * Supports both Qdrant (production) and in-memory (development) modes.
  */
 @ConfigurationProperties("rag")
 public record RagProperties(
-        Qdrant qdrant,
-        Llm llm,
-        Embedding embedding,
-        Chunking chunking
+        @DefaultValue QdrantConfig qdrant,
+        @DefaultValue ChunkingConfig chunking
 ) {
 
-    public record Qdrant(
-            String host,
-            Integer port,
-            String collectionName,
-            Integer embeddingDimension,
-            String apiKey
+    @ConfigurationProperties("qdrant")
+    public record QdrantConfig(
+            @DefaultValue("true") boolean enabled,
+            @DefaultValue("localhost") String host,
+            @DefaultValue("6333") int port,
+            @DefaultValue("ai_test_docs") String collection,
+            @DefaultValue("1536") int vectorDimension,
+            @DefaultValue("30000") long timeout,
+            @DefaultValue("false") boolean useTls
     ) {
-        public String resolvedHost() { return host != null ? host : "localhost"; }
-        public Integer resolvedPort() { return port != null ? port : 6333; }
-        public String resolvedCollectionName() { return collectionName != null ? collectionName : "documents"; }
-        public Integer resolvedEmbeddingDimension() { return embeddingDimension != null ? embeddingDimension : 384; }
+        public String getCollection() {
+            return collection;
+        }
     }
 
-    public record Llm(
-            String provider,
-            String modelName,
-            String apiKey,
-            String baseUrl,
-            Double temperature,
-            Integer maxTokens,
-            Integer timeoutSeconds
+    @ConfigurationProperties("chunking")
+    public record ChunkingConfig(
+            @DefaultValue("500") int chunkSize,
+            @DefaultValue("50") int chunkOverlap
     ) {
-        public String resolvedProvider() { return provider != null ? provider : "openai"; }
-        public String resolvedModelName() { return modelName != null ? modelName : "gpt-4o"; }
-        public Double resolvedTemperature() { return temperature != null ? temperature : 0.7; }
-        public Integer resolvedMaxTokens() { return maxTokens != null ? maxTokens : 2048; }
-        public Integer resolvedTimeoutSeconds() { return timeoutSeconds != null ? timeoutSeconds : 60; }
+        public int resolvedChunkSize() {
+            return chunkSize > 0 ? chunkSize : 500;
+        }
+
+        public int resolvedChunkOverlap() {
+            return chunkOverlap >= 0 ? chunkOverlap : 50;
+        }
     }
 
-    public record Embedding(
-            String provider,
-            String modelName,
-            String apiKey,
-            String baseUrl,
-            Integer dimension
-    ) {
-        public String resolvedProvider() { return provider != null ? provider : "local"; }
-        public String resolvedModelName() { return modelName != null ? modelName : "sentence-transformers/all-MiniLM-L6-v2"; }
-        public Integer resolvedDimension() { return dimension != null ? dimension : 384; }
+    public QdrantConfig getQdrant() {
+        return qdrant != null ? qdrant : new QdrantConfig(true, "localhost", 6333, "ai_test_docs", 1536, 30000, false);
     }
 
-    public record Chunking(
-            Integer chunkSize,
-            Integer chunkOverlap
-    ) {
-        public int resolvedChunkSize() { return chunkSize != null ? chunkSize : 500; }
-        public int resolvedChunkOverlap() { return chunkOverlap != null ? chunkOverlap : 50; }
+    public ChunkingConfig getChunking() {
+        return chunking != null ? chunking : new ChunkingConfig(500, 50);
     }
 }

@@ -18,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tts")
@@ -29,6 +30,20 @@ public class TtsController {
 
     public TtsController(TtsApplicationService ttsService) {
         this.ttsService = ttsService;
+    }
+
+    @GetMapping("/")
+    public Mono<ResponseEntity<Map<String, Object>>> root() {
+        return Mono.just(ResponseEntity.ok(Map.of(
+            "service", "TTS Service",
+            "version", "0.2.0",
+            "architecture", "Clean Architecture",
+            "provider", ttsService.getDefaultProvider().name(),
+            "docs", "/docs",
+            "health", "/tts/health",
+            "voices", "/tts/voices",
+            "providers", "/tts/providers"
+        )));
     }
 
     @PostMapping("/synthesize")

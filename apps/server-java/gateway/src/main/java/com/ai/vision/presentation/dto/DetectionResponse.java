@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
-/**
- * Response DTO for object detection.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record DetectionResponse(
-    List<DetectedObject> objects
+    String task,
+    String model,
+    List<DetectedObject> objects,
+    int imageWidth,
+    int imageHeight,
+    double processingTimeMs
 ) {
     public record DetectedObject(
         String label,
@@ -23,4 +25,12 @@ public record DetectionResponse(
         float width,
         float height
     ) {}
+
+    public static DetectionResponse empty(String model, int width, int height) {
+        return new DetectionResponse("detect_objects", model, List.of(), width, height, 0.0);
+    }
+
+    public static DetectionResponse of(String model, List<DetectedObject> objects, int width, int height, double processingTimeMs) {
+        return new DetectionResponse("detect_objects", model, objects, width, height, processingTimeMs);
+    }
 }

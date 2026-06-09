@@ -145,7 +145,9 @@ public class AgentController {
                 Map.of("name", "rag", "description", "Document retrieval and knowledge base"),
                 Map.of("name", "monitoring", "description", "Metrics and alerting"),
                 Map.of("name", "vector", "description", "Vector database operations"),
-                Map.of("name", "model", "description", "ML model registry and versioning")
+                Map.of("name", "model", "description", "ML model registry and versioning"),
+                Map.of("name", "tts", "description", "Text-to-speech synthesis with multiple providers (Edge, Azure, Google, ElevenLabs)"),
+                Map.of("name", "vision", "description", "Vision AI: object detection (YOLO), captioning (BLIP), OCR, image generation (Stable Diffusion), video generation")
         );
         return ResponseEntity.ok(Map.of("agents", agents, "count", agents.size()));
     }

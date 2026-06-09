@@ -20,12 +20,25 @@ management:
 
 # LangChain4j configuration for OpenAI-compatible APIs
 langchain4j:
-  open-ai:
-    base-url: https://api.deepseek.com/v1
-    api-key: ${AI_API_KEY:EMPTY}
-    model-name: ${AI_MODEL:deepseek-chat}
+  chat:
+    base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
+    api-key: ${AI_API_KEY:}
+    model-name: ${AI_MODEL:deepseek-v4-flash}
     log-requests: true
     log-responses: true
+  embedding:
+    base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
+    api-key: ${AI_API_KEY:}
+    model-name: ${EMBEDDING_MODEL:text-embedding-3-small}
+
+# Qdrant vector database configuration
+qdrant:
+  enabled: ${QDRANT_ENABLED:true}
+  host: ${QDRANT_HOST:localhost}
+  port: ${QDRANT_PORT:6333}
+  collection: ${QDRANT_COLLECTION:ai_test_docs}
+  vector-dimension: ${QDRANT_VECTOR_DIM:1536}
+  timeout: ${QDRANT_TIMEOUT:30000}
 
 # Media/Image generation configuration
 media:

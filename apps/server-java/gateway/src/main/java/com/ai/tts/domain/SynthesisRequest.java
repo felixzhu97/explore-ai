@@ -44,14 +44,14 @@ public record SynthesisRequest(
     }
 
     private static void validateSpeed(float speed) {
-        if (speed < 0 || speed > 4) {
-            throw TtsDomainException.invalidRequest("Speed must be between 0 and 4, got: " + speed);
+        if (speed < 0.25f || speed > 4.0f) {
+            throw TtsDomainException.invalidRequest("Speed must be between 0.25 and 4.0, got: " + speed);
         }
     }
 
     private static void validatePitch(float pitch) {
-        if (pitch < -50 || pitch > 50) {
-            throw TtsDomainException.invalidRequest("Pitch must be between -50 and 50, got: " + pitch);
+        if (pitch < -20 || pitch > 20) {
+            throw TtsDomainException.invalidRequest("Pitch must be between -20 and 20, got: " + pitch);
         }
     }
 

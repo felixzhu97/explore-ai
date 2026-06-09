@@ -75,6 +75,25 @@ public class InMemoryVectorStore implements VectorStore {
     }
 
     @Override
+    public List<SourceDocument> searchWithScores(String query, List<String> docIds, int topK) {
+        if (docIds == null || docIds.isEmpty()) {
+            return searchWithScores(query, topK);
+        }
+        
+        Set<String> docIdSet = new HashSet<>(docIds);
+        return vectors.entrySet().stream()
+                .filter(e -> docIdSet.contains(e.getValue().docId))
+                .sorted((a, b) -> {
+                    double scoreA = calculateSimilarity(query, a.getValue().text);
+                    double scoreB = calculateSimilarity(query, b.getValue().text);
+                    return Double.compare(scoreB, scoreA);
+                })
+                .limit(topK)
+                .map(e -> SourceDocument.of(e.getValue().text, calculateSimilarity(query, e.getValue().text)))
+                .toList();
+    }
+
+    @Override
     public void deleteByDocId(DocumentId docId) {
         String prefix = docId.toString();
         vectors.keySet().removeIf(key -> key.startsWith(prefix));

@@ -85,14 +85,19 @@ public class TtsApplicationService {
     }
 
     public List<ProviderInfo> listAllProviders() {
+        String defaultName = defaultProvider.name();
         return providers.values().stream()
-                .map(TtsProvider::getInfo)
+                .map(p -> p.getInfo().name().equals(defaultName)
+                    ? ProviderInfo.active(p.getInfo().name(), p.getInfo().displayName(),
+                        p.getInfo().supportedLanguages(), p.getInfo().features())
+                    : p.getInfo())
                 .toList();
     }
 
     public ProviderInfo getCurrentProviderInfo(String providerName) {
         TtsProvider provider = resolveProvider(providerName);
-        return provider.getInfo();
+        ProviderInfo info = provider.getInfo();
+        return ProviderInfo.active(info.name(), info.displayName(), info.supportedLanguages(), info.features());
     }
 
     public boolean healthCheck(String providerName) {
