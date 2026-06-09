@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping
+@RequestMapping("/health/tts")
 public class TtsHealthController {
 
-    @GetMapping("/health")
+    @GetMapping
     public ResponseEntity<HealthResponse> health() {
         return ResponseEntity.ok(HealthResponse.healthy("tts-service"));
     }

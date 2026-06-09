@@ -1,11 +1,14 @@
 package com.ai.agents.domain.service.agents;
 
+import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 /**
  * RAG Agent domain service.
  * Manages document retrieval and knowledge base operations.
  */
+@Service
 public final class RagAgentService {
 
     private final Map<String, Document> documents = new HashMap<>();

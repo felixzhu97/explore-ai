@@ -1,6 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
 import com.ai.agents.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ import java.util.*;
  * Feature Store Agent domain service.
  * Manages feature definitions, materialization, and vector operations.
  */
+@Service
 public final class FeatureStoreAgentService {
 
     private final Map<String, FeatureVector> featureVectors = new HashMap<>();

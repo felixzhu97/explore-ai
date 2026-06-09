@@ -1,6 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
 import com.ai.agents.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ import java.util.*;
  * K8s Agent domain service.
  * Manages Kubernetes operations with domain logic.
  */
+@Service
 public final class K8sAgentService {
 
     private static final Set<String> ALLOWED_SUBCOMMANDS = Set.of(

@@ -19,7 +19,7 @@ public final class SupervisorAgent {
     );
 
     private static final Set<String> TTS_KEYWORDS = Set.of(
-            "语音", "朗读", "读出来", "text to speech", "tts", "speak", "朗读",
+            "语音", "朗读", "读出来", "text to speech", "tts", "speak",
             "audio", "声音", "speech", "语音合成"
     );
 

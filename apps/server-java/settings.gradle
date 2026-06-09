@@ -1,0 +1,4 @@
+rootProject.name = 'ai-explore-java'
+
+include 'common'
+include 'gateway'

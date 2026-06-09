@@ -1,6 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
 import com.ai.agents.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.*;
  * AIOps Agent domain service.
  * Manages incident response, anomaly detection, and root cause analysis.
  */
+@Service
 public final class AIOpsAgentService {
 
     private final Map<String, Incident> incidents = new HashMap<>();

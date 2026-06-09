@@ -1,5 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -7,6 +9,7 @@ import java.util.*;
  * Video Agent domain service.
  * Manages video generation and processing operations.
  */
+@Service
 public final class VideoAgentService {
 
     private final Map<String, VideoJob> jobs = new HashMap<>();

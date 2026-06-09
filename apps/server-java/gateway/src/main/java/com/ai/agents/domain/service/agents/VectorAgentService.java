@@ -1,5 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -7,6 +9,7 @@ import java.util.*;
  * Vector DB Agent domain service.
  * Manages ChromaDB/Qdrant vector operations.
  */
+@Service
 public final class VectorAgentService {
 
     private final Map<String, Collection> collections = new HashMap<>();

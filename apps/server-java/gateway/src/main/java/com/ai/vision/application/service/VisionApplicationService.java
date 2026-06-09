@@ -5,6 +5,7 @@ import com.ai.vision.domain.exception.VisionException;
 import com.ai.vision.presentation.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * 
  * This is the entry point for the presentation layer.
  */
+@Service
 public class VisionApplicationService {
 
     private static final Logger log = LoggerFactory.getLogger(VisionApplicationService.class);

@@ -1,6 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
 import com.ai.agents.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ import java.util.*;
  * LLMOps Agent domain service.
  * Manages ML model lifecycle, training, and deployment.
  */
+@Service
 public final class LLMOpsAgentService {
 
     private final Map<String, ModelVersion> modelVersions = new HashMap<>();

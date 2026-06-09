@@ -1,5 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -7,6 +9,7 @@ import java.util.*;
  * Monitoring Agent domain service.
  * Manages Prometheus/Grafana metrics and alerting.
  */
+@Service
 public final class MonitoringAgentService {
 
     private final Map<String, AlertRule> alertRules = new HashMap<>();

@@ -1,5 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -7,6 +9,7 @@ import java.util.*;
  * TTS Agent domain service.
  * Manages text-to-speech synthesis operations.
  */
+@Service
 public final class TTSAgentService {
 
     private final Map<String, VoiceProfile> voices = new HashMap<>();

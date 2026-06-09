@@ -21,14 +21,30 @@ management:
 # LangChain4j configuration for OpenAI-compatible APIs
 langchain4j:
   open-ai:
-    base-url: ${AI_BASE_URL:https://api.deepseek.com}
-    api-key: ${AI_API_KEY:your-api-key}
-    chat-model:
-      model-name: ${AI_MODEL:deepseek-chat}
-      temperature: 0.7
-      max-tokens: 2048
+    base-url: https://api.deepseek.com/v1
+    api-key: ${AI_API_KEY:EMPTY}
+    model-name: ${AI_MODEL:deepseek-chat}
     log-requests: true
     log-responses: true
+
+# Media/Image generation configuration
+media:
+  stable-diffusion:
+    api-url: ${SD_API_URL:http://localhost:8015}
+    default-model: stable-diffusion-xl-base-1.0
+    available-models:
+      - stable-diffusion-xl-base-1.0
+      - stable-diffusion-1.5
+    default-generation:
+      width: 512
+      height: 512
+      steps: 25
+      guidance-scale: 7.5
+      num-images: 1
+    http:
+      connect-timeout: 30s
+      read-timeout: 5m
+      write-timeout: 5m
 
 # Agent configuration
 ai:

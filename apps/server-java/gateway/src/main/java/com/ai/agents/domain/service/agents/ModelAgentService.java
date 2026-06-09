@@ -1,6 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
 import com.ai.agents.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ import java.util.*;
  * Model Agent domain service.
  * Manages ML model registry, versioning, and rollback.
  */
+@Service
 public final class ModelAgentService {
 
     private final Map<String, ModelVersion> models = new HashMap<>();

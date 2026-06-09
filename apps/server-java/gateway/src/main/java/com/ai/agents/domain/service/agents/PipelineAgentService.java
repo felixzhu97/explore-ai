@@ -1,6 +1,7 @@
 package com.ai.agents.domain.service.agents;
 
 import com.ai.agents.domain.*;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ import java.util.*;
  * Pipeline Agent domain service.
  * Manages DAG-based pipeline orchestration.
  */
+@Service
 public final class PipelineAgentService {
 
     private final Map<String, PipelineRun> pipelineRuns = new HashMap<>();
