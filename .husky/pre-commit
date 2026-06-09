@@ -21,7 +21,7 @@ fi
 
 # Run tests for packages
 echo "🧪 Running tests for packages..."
-pnpm test --silent
+pnpm test > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "❌ Package tests failed"
   exit 1
