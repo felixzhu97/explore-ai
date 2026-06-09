@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. "$(dirname -- "$0")/../.husky/_/husky.sh"
+. "$(dirname -- "$0")/_/husky.sh"
 
 echo "🔍 Running pre-commit checks..."
 
@@ -21,7 +21,7 @@ fi
 
 # Run tests for packages
 echo "🧪 Running tests for packages..."
-pnpm test
+pnpm test --silent
 if [ $? -ne 0 ]; then
   echo "❌ Package tests failed"
   exit 1
@@ -29,7 +29,7 @@ fi
 
 # Run Angular tests (Vitest)
 echo "🧪 Running Angular tests (Vitest)..."
-cd apps/web-angular && npx vitest run --reporter=verbose 2>&1
+cd apps/web-angular && npx vitest run --silent 2>&1
 if [ $? -ne 0 ]; then
   echo "❌ Angular tests failed"
   exit 1
