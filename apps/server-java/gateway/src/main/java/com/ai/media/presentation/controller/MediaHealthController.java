@@ -13,7 +13,7 @@ import java.util.Map;
  * Health check controller for media module.
  */
 @RestController
-@RequestMapping("/health")
+@RequestMapping("/api/image")
 public class MediaHealthController {
 
     @GetMapping

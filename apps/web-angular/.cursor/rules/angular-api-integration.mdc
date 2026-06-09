@@ -1,9 +1,9 @@
 ---
-description: Angular 与 Python 后端服务集成的调试规范和最佳实践。包含代理配置、CORS 设置、路由对齐等。
+description: Angular 与 Java 后端服务集成的调试规范和最佳实践。包含代理配置、CORS 设置、路由对齐等。
 alwaysApply: true
 ---
 
-# Angular 与 Python 后端集成规范
+# Angular 与 Java 后端集成规范
 
 ## 核心问题诊断流程
 
@@ -15,8 +15,8 @@ alwaysApply: true
     ▼
 ┌────────────────────────────────────────────────────────────────┐
 │ 步骤 1：验证后端是否真正运行                                     │
-│ - 检查进程：ps aux | grep uvicorn / fastapi                     │
-│ - 直接请求：curl -I http://localhost:PORT/endpoint             │
+│ - 检查进程：ps aux | grep java                                  │
+│ - 直接请求：curl -I http://localhost:9000/endpoint             │
 │ - 确认不是"后端未运行"的误判                                    │
 └────────────────────────────────────────────────────────────────┘
     │
@@ -36,8 +36,8 @@ alwaysApply: true
 │                                                                   │
 │ 示例：TTS 服务                                                   │
 │ - Frontend 调用：/api/speech                                     │
-│ - Proxy 目标：http://localhost:8001/speech                      │
-│ - Backend 定义：@app.post("/tts") 或 @app.post("/speech")      │
+│ - Proxy 目标：http://localhost:9000/api/speech                  │
+│ - Backend 定义：@PostMapping("/api/speech") 或路由路径           │
 │                                                                   │
 │ 三者必须完全对齐！                                               │
 └────────────────────────────────────────────────────────────────┘
@@ -45,9 +45,9 @@ alwaysApply: true
     ▼
 ┌────────────────────────────────────────────────────────────────┐
 │ 步骤 4：检查 CORS 配置                                          │
-│ - FastAPI CORSMiddleware 的 allowed_origins                    │
+│ - Spring Boot CORS 配置的 allowed_origins                      │
 │ - 必须包含 Angular dev server 端口（默认 4200）                  │
-│ - 示例：["http://localhost:4200"]                               │
+│ - 示例：@CrossOrigin(origins = "http://localhost:4200")         │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -55,14 +55,16 @@ alwaysApply: true
 
 ```bash
 # 1. 检查后端进程是否运行
-ps aux | grep -E "(uvicorn|fastapi)" | grep -v grep
+ps aux | grep -E "java" | grep -v grep
+# 或检查 Spring Boot 特定进程
+jps -l
 
 # 2. 直接测试后端路由（最关键！）
-curl -I http://localhost:PORT/endpoint
-# 例如：curl -I http://localhost:8001/tts
+curl -I http://localhost:9000/endpoint
+# 例如：curl -I http://localhost:9000/api/speech
 
 # 3. 检查 CORS 响应头
-curl -I -H "Origin: http://localhost:4200" http://localhost:PORT/endpoint
+curl -I -H "Origin: http://localhost:4200" http://localhost:9000/endpoint
 
 # 4. 查看 proxy 配置映射
 cat apps/web-angular/proxy.conf.json
@@ -72,12 +74,16 @@ cat apps/web-angular/proxy.conf.json
 
 ### 常见服务端口和路由
 
+所有服务通过 Java Gateway（端口 9000）统一路由：
+
 | 服务 | 端口 | 前端调用路径 | Proxy 目标 | Backend 路由 |
-|------|------|-------------|------------|-------------|
-| AI Agents | 8000 | /api/agents/* | http://localhost:8000/* | /agents/* |
-| RAG | 8002 | /api/rag/* | http://localhost:8002/* | /rag/* |
-| TTS | 8001 | /api/speech | http://localhost:8001/tts | /tts 或 /speech |
-| Vision | 8003 | /api/vision | http://localhost:8003/vision | /vision 或 /analyze |
+|---|---|----|---|----|
+| AI Agents | 9000 | /api/agents/* | http://localhost:9000/* | /api/agents/* |
+| RAG | 9000 | /api/rag/* | http://localhost:9000/* | /api/rag/* |
+| TTS | 9000 | /api/speech | http://localhost:9000/* | /api/speech |
+| Vision | 9000 | /api/vision | http://localhost:9000/* | /api/vision |
+| Text | 9000 | /api/text/* | http://localhost:9000/* | /api/text/* |
+| Media Gen | 9000 | /api/image/* | http://localhost:9000/* | /api/image/* |
 
 ### 对齐检查流程
 
@@ -86,58 +92,91 @@ cat apps/web-angular/proxy.conf.json
    → this.http.post('/api/speech', body)
 
 2. proxy.conf.json
-   → "/api/speech": { "target": "http://localhost:8001" }
-   → 注意：是否需要 rewrite？
+   → "/api": { "target": "http://localhost:9000" }
+   → 所有 API 请求统一路由到 Gateway
 
-3. Backend Route (FastAPI)
-   → @app.post("/tts", ...)  ← 必须与 proxy 后的路径一致
-   OR
-   → @app.post("/speech", ...)  ← 如果 proxy 不 rewrite
+3. Backend Route (Spring Boot)
+   → @PostMapping("/api/speech")  ← 必须与前端调用路径一致
 ```
 
 ## proxy.conf.json 最佳实践
 
+所有服务通过统一的 Gateway（端口 9000）路由：
+
 ```json
 {
   "/api": {
-    "target": "http://localhost:8000",
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
-  },
-  "/api/speech": {
-    "target": "http://localhost:8001",
-    "secure": false,
-    "pathRewrite": { "^/api/speech": "/tts" }
-  },
-  "/api/vision": {
-    "target": "http://localhost:8003",
-    "secure": false,
-    "pathRewrite": { "^/api/vision": "/vision" }
   }
 }
 ```
 
+所有 `/api/*` 请求统一转发到 Java Gateway，由 Spring Boot 内部路由分发到各个 Agent。
+
 ## CORS 配置模板
 
-```python
-# FastAPI CORS 配置
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+### 方式一：全局 CORS 配置（推荐）
 
-app = FastAPI()
+```java
+// Spring Boot 全局 CORS 配置
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:4200",  # Angular dev
-        "http://localhost:3000",  # Next.js dev
-        # 生产环境域名
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins(
+                    "http://localhost:4200",  // Angular dev
+                    "http://localhost:3000"    // Next.js dev
+                    // 生产环境域名
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
+}
+```
+
+### 方式二：Controller 级别注解
+
+```java
+// Controller 或方法级别的 CORS 配置
+@CrossOrigin(
+    origins = "http://localhost:4200",
+    methods = {RequestMethod.GET, RequestMethod.POST},
+    allowedHeaders = "*",
+    allowCredentials = "true"
 )
+@RestController
+@RequestMapping("/api/speech")
+public class TtsController {
+    // ...
+}
+```
+
+### 方式三：Spring WebFlux（响应式）
+
+```java
+// WebFlux CorsConfigurationSource
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(Arrays.asList(
+        "http://localhost:4200",
+        "http://localhost:3000"
+    ));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(Arrays.asList("*"));
+    configuration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", configuration);
+    return source;
+}
 ```
 
 ## 常见错误诊断
@@ -145,30 +184,30 @@ app.add_middleware(
 ### 404 Not Found
 
 | 原因 | 诊断方法 | 解决方案 |
-|------|---------|---------|
-| 后端未运行 | `curl -I http://localhost:PORT/` | 启动后端服务 |
+|---|---|---|
+| 后端未运行 | `curl -I http://localhost:9000/` | 启动 Spring Boot 应用 |
 | 路径不匹配 | 对比三方路径 | 修改 frontend/proxy/backend 任一 |
 | Proxy 未生效 | 检查 angular.json 是否引用 | 在 angular.json 中添加 proxyConfig |
 
 ### CORS 错误
 
 ```
-Access to fetch at 'http://localhost:8001/tts' from origin 
+Access to fetch at 'http://localhost:9000/api/speech' from origin
 'http://localhost:4200' has been blocked by CORS policy
 ```
 
 | 原因 | 诊断方法 | 解决方案 |
-|------|---------|---------|
-| origin 未列入 | curl -I 检查 Vary: Origin | 添加到 allowed_origins |
-| 方法未允许 | 检查 allow_methods | 改为 ["*"] |
-| 头部未允许 | 检查 allow_headers | 改为 ["*"] |
+|---|---|---|
+| origin 未列入 | curl -I 检查 Vary: Origin | 添加到 allowedOrigins |
+| 方法未允许 | 检查 allowedMethods | 添加 POST/GET 等 |
+| 头部未允许 | 检查 allowedHeaders | 改为 ["*"] |
 
 ### 502 Bad Gateway
 
 | 原因 | 诊断方法 | 解决方案 |
-|------|---------|---------|
-| Proxy target 错误 | 检查端口是否正确 | 修正 proxy.conf.json target |
-| 后端崩溃 | 检查后端日志 | 重启后端服务 |
+|---|---|---|
+| Gateway 未运行 | ps aux \| grep java | 启动 Spring Boot 应用 |
+| 后端崩溃 | 检查 Spring Boot 日志 | 重启应用 |
 
 ## 调试工作流总结
 
@@ -177,15 +216,15 @@ Access to fetch at 'http://localhost:8001/tts' from origin
 │                    Angular Backend 调试流程                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                   │
-│  1. 确认后端运行     ps aux | grep uvicorn                       │
+│  1. 确认后端运行     ps aux | grep java                          │
 │          ↓                                                         │
-│  2. 直接 curl 测试   curl -I http://localhost:PORT/path          │
+│  2. 直接 curl 测试   curl -I http://localhost:9000/api/path     │
 │          ↓                                                         │
 │  3. 浏览器 DevTools  查看实际请求 URL 和响应                      │
 │          ↓                                                         │
 │  4. 检查 proxy.conf  对比 frontend 调用 vs proxy 目标            │
 │          ↓                                                         │
-│  5. 检查 backend 路由 对比 proxy 目标 vs @app.post()             │
+│  5. 检查 backend 路由 对比 proxy 目标 vs @PostMapping()         │
 │          ↓                                                         │
 │  6. 检查 CORS        curl -I -H "Origin: ..." 验证              │
 │                                                                   │

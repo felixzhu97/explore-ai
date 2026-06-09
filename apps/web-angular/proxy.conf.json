@@ -1,36 +1,36 @@
 {
   "/api/agents": {
-    "target": "http://localhost:8003",
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/api/rag": {
-    "target": "http://localhost:8010",
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/api/text": {
-    "target": "http://localhost:8006",
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  "/tts": {
-    "target": "http://localhost:8013",
+  "/api/tts": {
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  "/vision": {
-    "target": "http://localhost:8000",
+  "/api/vision": {
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  "/image": {
-    "target": "http://localhost:8015",
+  "/api/image": {
+    "target": "http://localhost:9000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

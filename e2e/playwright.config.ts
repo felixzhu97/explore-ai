@@ -1,53 +1,35 @@
-// Playwright configuration is disabled.
-// To re-enable, restore the full configuration.
-// 
-// import { defineConfig, devices } from '@playwright/test';
-// 
-// export default defineConfig({
-//   testDir: '.',
-//   fullyParallel: true,
-//   forbidOnly: !!process.env.CI,
-//   retries: process.env.CI ? 2 : 0,
-//   workers: process.env.CI ? 1 : undefined,
-//   reporter: [
-//     ['html', { outputFolder: 'playwright-report' }],
-//     ['list'],
-//   ],
-// 
-//   use: {
-//     baseURL: 'http://localhost:4200',
-//     trace: 'on-first-retry',
-//     screenshot: 'only-on-failure',
-//     video: 'retain-on-failure',
-//   },
-// 
-//   projects: [
-//     {
-//       name: 'chromium',
-//       use: { ...devices['Desktop Chrome'] },
-//     },
-//     {
-//       name: 'firefox',
-//       use: { ...devices['Desktop Firefox'] },
-//     },
-//     {
-//       name: 'webkit',
-//       use: { ...devices['Desktop Safari'] },
-//     },
-//     {
-//       name: 'Mobile Chrome',
-//       use: { ...devices['Pixel 5'] },
-//     },
-//     {
-//       name: 'Mobile Safari',
-//       use: { ...devices['iPhone 12'] },
-//     },
-//   ],
-// 
-//   webServer: {
-//     command: 'pnpm --filter @ai-test/web-angular run start',
-//     url: 'http://localhost:4200',
-//     reuseExistingServer: !process.env.CI,
-//     timeout: 120 * 1000,
-//   },
-// });
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: 0,
+  workers: 1,
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'playwright-report' }],
+  ],
+
+  use: {
+    baseURL: 'http://localhost:4200',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], headless: false },
+    },
+  ],
+
+  webServer: {
+    command: 'bash scripts/app/start.sh dev',
+    url: 'http://localhost:4200',
+    reuseExistingServer: true,
+    timeout: 300 * 1000,
+    stdout: 'ignore',
+    stderr: 'pipe',
+  },
+});

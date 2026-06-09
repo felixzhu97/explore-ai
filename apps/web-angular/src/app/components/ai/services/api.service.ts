@@ -7,10 +7,10 @@ import { Observable, catchError, of } from 'rxjs';
 // ==================== Service URLs ====================
 
 const TEXT_SERVICE_URL = '/api/text';
-const VISION_SERVICE_URL = '/vision';
+const VISION_SERVICE_URL = '/api/vision';
 const RAG_SERVICE_URL = '/api/rag';
-const SPEECH_SERVICE_URL = '/tts';
-const MEDIA_GEN_SERVICE_URL = '/image-gen';
+const SPEECH_SERVICE_URL = '/api/tts';
+const MEDIA_GEN_SERVICE_URL = '/api/image';
 
 // ==================== Types ====================
 

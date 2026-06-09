@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/tts")
+@RequestMapping("/api/tts")
 public class TtsController {
 
     private static final Logger log = LoggerFactory.getLogger(TtsController.class);

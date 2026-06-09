@@ -73,6 +73,12 @@ ai-test-*.png
 # TypeScript build info
 *.tsbuildinfo
 
+# Husky
+.husky/_/
+
+# Services (legacy microservices)
+services/data/
+
 # Java/Gradle build artifacts
 apps/server-java/.gradle/
 apps/server-java/**/build/

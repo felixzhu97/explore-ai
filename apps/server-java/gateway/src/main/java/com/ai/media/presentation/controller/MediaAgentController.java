@@ -22,7 +22,7 @@ import java.util.Map;
  * Thin controller layer that delegates to Application Service.
  */
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/api/image")
 public class MediaAgentController {
 
     private static final Logger log = LoggerFactory.getLogger(MediaAgentController.class);

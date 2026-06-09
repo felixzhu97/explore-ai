@@ -1,5 +1,5 @@
 server:
-  port: 9001
+  port: 9000
 
 spring:
   application:
@@ -48,7 +48,7 @@ qdrant:
 # Media/Image generation configuration
 media:
   stable-diffusion:
-    api-url: ${SD_API_URL:http://localhost:8015}
+    api-url: ${SD_API_URL:http://localhost:9000}
     default-model: stable-diffusion-xl-base-1.0
     available-models:
       - stable-diffusion-xl-base-1.0
@@ -71,17 +71,17 @@ ai:
       enabled: true
     services:
       rag:
-        base-url: ${RAG_SERVICE_URL:http://localhost:9001}
+        base-url: ${RAG_SERVICE_URL:http://localhost:9000}
         timeout: 30000
       tts:
-        base-url: ${TTS_SERVICE_URL:http://localhost:8013}
+        base-url: ${TTS_SERVICE_URL:http://localhost:9000}
         timeout: 60000
       vision:
-        base-url: ${VISION_SERVICE_URL:http://localhost:8000}
+        base-url: ${VISION_SERVICE_URL:http://localhost:9000}
         timeout: 30000
       media:
-        base-url: ${MEDIA_SERVICE_URL:http://localhost:8015}
+        base-url: ${MEDIA_SERVICE_URL:http://localhost:9000}
         timeout: 120000
       text:
-        base-url: ${TEXT_SERVICE_URL:http://localhost:8006}
+        base-url: ${TEXT_SERVICE_URL:http://localhost:9000}
         timeout: 30000
