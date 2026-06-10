@@ -3,7 +3,7 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 组件图 (C3) - AI Chat Service 后端
+title 组件图 (C3) - AI Chat Service 后端 with RAG
 
 ' ============================================================
 ' SYSTEM BOUNDARY - 后端系统边界
@@ -11,92 +11,126 @@ title 组件图 (C3) - AI Chat Service 后端
 System_Boundary(backend_system, "AI Chat Service 后端 (Java Spring Boot)") {
 
     ' ============================================================
-    ' Interface Layer - 接口层
+    ' CHAT BACKEND - 聊天后端
     ' ============================================================
-    Container_Boundary(interface_layer, "Interface Layer") {
-        Component(chat_controller, "ChatController", "@RestController", "处理 HTTP 请求，参数验证，请求路由")
-        Component(global_exception_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理，返回标准化错误响应")
-        Component(chat_request_dto, "ChatRequest", "Java Record", "聊天请求 DTO")
-        Component(chat_response_dto, "ChatResponse", "Java Record", "聊天响应 DTO")
-        Component(message_history_response, "MessageHistoryResponse", "Java Record", "消息历史响应 DTO")
-        Component(session_info_dto, "SessionInfo", "Java Record", "会话信息 DTO")
-    }
+    Container_Boundary(chat_backend, "AI Chat Backend") {
 
-    ' ============================================================
-    ' Application Layer - 应用层
-    ' ============================================================
-    Container_Boundary(application_layer, "Application Layer") {
-        Component(send_chat_usecase, "SendChatMessageUseCase", "Java Class", "发送聊天消息用例")
-        Component(chat_app_service, "ChatApplicationService", "@Service", "聊天应用服务，协调业务用例")
-
-        ' Ports (依赖倒置接口)
-        Container_Boundary(ports, "Ports") {
-            Component(ai_chat_port, "AiChatPort", "Java Interface", "AI 聊天能力抽象接口")
-            Component(chat_session_repo_port, "ChatSessionRepositoryPort", "Java Interface", "会话仓储抽象接口")
+        ' Interface Layer
+        Container_Boundary(chat_interface, "Interface Layer") {
+            Component(chat_controller, "ChatController", "@RestController", "处理聊天 HTTP 请求")
+            Component(chat_exception_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
+            Component(chat_request_dto, "ChatRequest", "Java Record", "聊天请求 DTO")
+            Component(chat_response_dto, "ChatResponse", "Java Record", "聊天响应 DTO")
+            Component(session_info_dto, "SessionInfo", "Java Record", "会话信息 DTO")
         }
-    }
 
-    ' ============================================================
-    ' Domain Layer - 领域层 (核心业务)
-    ' ============================================================
-    Container_Boundary(domain_layer, "Domain Layer") {
+        ' Application Layer
+        Container_Boundary(chat_application, "Application Layer") {
+            Component(send_chat_usecase, "SendChatMessageUseCase", "UseCase", "发送聊天消息用例")
+            Component(chat_app_service, "ChatApplicationService", "@Service", "聊天应用服务")
+            
+            ' Ports
+            Component(ai_chat_port, "AiChatPort", "Interface", "AI 聊天能力抽象")
+            Component(chat_session_repo_port, "ChatSessionRepositoryPort", "Interface", "会话仓储抽象")
+        }
 
-        ' 聚合根和实体
-        Component(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根，管理消息列表")
-        Component(chat_message, "ChatMessage", "Entity", "聊天消息实体")
-
-        ' 领域服务
-        Component(ai_chat_service, "AiChatService", "Domain Service Interface", "AI 对话核心服务接口")
-
-        ' 值对象
-        Container_Boundary(value_objects, "Value Objects") {
+        ' Domain Layer
+        Container_Boundary(chat_domain, "Domain Layer") {
+            Component(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
+            Component(chat_message, "ChatMessage", "Entity", "聊天消息实体")
+            Component(ai_chat_service, "AiChatService", "Domain Service", "AI 对话核心服务")
+            
+            ' Value Objects
             Component(chat_session_id, "ChatSessionId", "Java Record", "会话唯一标识")
             Component(message_id, "MessageId", "Java Record", "消息唯一标识")
             Component(message_content, "MessageContent", "Java Record", "消息内容")
-        }
-
-        ' 领域事件
-        Container_Boundary(domain_events, "Domain Events") {
+            
+            ' Domain Events
             Component(chat_message_received_event, "ChatMessageReceivedEvent", "Java Record", "消息接收事件")
             Component(chat_response_generated_event, "ChatResponseGeneratedEvent", "Java Record", "响应生成事件")
-            Component(domain_event_base, "DomainEvent", "Java Sealed Class", "领域事件基类")
-        }
-
-        ' 领域异常
-        Container_Boundary(domain_exceptions, "Domain Exceptions") {
+            
+            ' Domain Exceptions
             Component(ai_service_exception, "AiServiceException", "Exception", "AI 服务异常")
             Component(chat_session_not_found, "ChatSessionNotFoundException", "Exception", "会话未找到异常")
         }
 
-        Component(domain_constants, "DomainConstants", "Java Class", "领域常量")
+        ' Infrastructure Layer
+        Container_Boundary(chat_infrastructure, "Infrastructure Layer") {
+            Component(spring_ai_adapter, "SpringAiChatAdapter", "@Component", "AI 端口适配器")
+            Component(spring_ai_service_impl, "SpringAiChatService", "@Component", "Spring AI 服务实现")
+            Component(in_memory_session_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话存储")
+            Component(chat_app_config, "ApplicationConfig", "@Configuration", "应用配置")
+        }
     }
 
     ' ============================================================
-    ' Infrastructure Layer - 基础设施层
+    ' RAG BACKEND - RAG 后端
     ' ============================================================
-    Container_Boundary(infrastructure_layer, "Infrastructure Layer") {
+    Container_Boundary(rag_backend, "RAG Backend") {
 
-        ' AI 适配器
-        Container_Boundary(ai_adapters, "AI Adapters") {
-            Component(spring_ai_adapter, "SpringAiChatAdapter", "@Service", "AI 端口适配器，实现 AiChatPort")
-            Component(spring_ai_service_impl, "SpringAiChatService", "@Service", "Spring AI 服务实现，封装 ChatModel")
+        ' Interface Layer
+        Container_Boundary(rag_interface, "Interface Layer") {
+            Component(rag_controller, "RagController", "@RestController", "处理 RAG HTTP/SSE 请求")
+            Component(rag_exception_handler, "RagExceptionHandler", "@RestControllerAdvice", "RAG 异常处理")
+            Component(rag_chat_request, "RagChatRequest", "Java Record", "RAG 聊天请求")
+            Component(rag_chat_response, "RagChatResponse", "Java Record", "RAG 聊天响应")
+            Component(document_request, "DocumentRequest", "Java Record", "文档上传请求")
+            Component(document_response, "DocumentResponse", "Java Record", "文档响应")
+        }
 
-            ' Spring AI 内部组件
-            Container_Boundary(spring_ai_internals, "Spring AI Internals") {
-                Component(chat_model, "ChatModel", "Spring AI Interface", "ChatModel 接口")
-                Component(deepseek_model, "DeepSeekChatModel", "Implementation", "DeepSeek ChatModel 实现")
-                Component(prompt, "Prompt", "Class", "提示词构建器")
-                Component(chat_response, "ChatResponse", "Class", "Chat 响应封装")
+        ' Application Layer
+        Container_Boundary(rag_application, "Application Layer") {
+            Component(rag_app_service, "RagApplicationService", "@Service", "RAG 应用服务")
+            
+            ' Use Cases
+            Component(upload_doc_usecase, "UploadDocumentUseCase", "UseCase", "上传文档用例")
+            Component(delete_doc_usecase, "DeleteDocumentUseCase", "UseCase", "删除文档用例")
+            Component(rag_chat_usecase, "RagChatUseCase", "UseCase", "RAG 问答用例")
+            
+            ' Ports
+            Component(embedding_port, "EmbeddingPort", "Interface", "文本嵌入能力抽象")
+            Component(vector_search_port, "VectorSearchPort", "Interface", "向量检索抽象")
+            Component(document_repo_port, "DocumentRepositoryPort", "Interface", "文档仓储抽象")
+        }
+
+        ' Domain Layer
+        Container_Boundary(rag_domain, "Domain Layer") {
+            Component(document, "Document", "Entity", "文档实体")
+            Component(document_chunk, "DocumentChunk", "Entity", "文档分块实体")
+            Component(source_document, "SourceDocument", "Value Object", "检索来源文档")
+            
+            Component(document_id, "DocumentId", "Java Record", "文档唯一标识")
+            Component(chunk_id, "ChunkId", "Java Record", "分块唯一标识")
+            Component(embedding_vector, "EmbeddingVector", "Java Record", "嵌入向量")
+            
+            Component(document_not_found, "DocumentNotFoundException", "Exception", "文档未找到异常")
+            Component(rag_service_exception, "RagServiceException", "Exception", "RAG 服务异常")
+        }
+
+        ' Infrastructure Layer
+        Container_Boundary(rag_infrastructure, "Infrastructure Layer") {
+            ' AI Adapters
+            Container_Boundary(rag_ai_adapters, "AI Adapters") {
+                Component(deepseek_embedding_adapter, "DeepSeekEmbeddingAdapter", "@Component", "DeepSeek 嵌入适配器")
+                Component(spring_ai_embedding_service, "SpringAiEmbeddingService", "@Component", "Spring AI Embedding 实现")
             }
+            
+            ' Vector Adapters
+            Container_Boundary(vector_adapters, "Vector Adapters") {
+                Component(pgvector_adapter, "PgVectorAdapter", "@Component", "PostgreSQL/pgvector 向量检索")
+                Component(jdbc_vector_store, "JdbcVectorStore", "Spring AI", "JDBC 向量存储")
+            }
+            
+            ' Persistence Adapters
+            Container_Boundary(rag_persistence, "Persistence Adapters") {
+                Component(jpa_document_repo, "JpaDocumentRepository", "@Repository", "JPA 文档仓储")
+                Component(jpa_chunk_repo, "JpaChunkRepository", "@Repository", "JPA 分块仓储")
+            }
+            
+            ' Configuration
+            Component(rag_properties, "RagProperties", "@ConfigurationProperties", "RAG 配置属性")
+            Component(deepseek_config, "DeepSeekConfig", "@Configuration", "DeepSeek API 配置")
         }
-
-        ' 持久化适配器
-        Container_Boundary(persistence_adapters, "Persistence Adapters") {
-            Component(in_memory_session_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话仓储实现")
-        }
-
-        ' 配置
-        Component(application_config, "ApplicationConfig", "@Configuration", "应用配置，Bean 定义")
     }
 }
 
@@ -104,45 +138,54 @@ System_Boundary(backend_system, "AI Chat Service 后端 (Java Spring Boot)") {
 ' EXTERNAL SYSTEMS - 外部系统
 ' ============================================================
 System_Boundary(external_systems, "External Systems") {
-    Component(deepseek_api, "DeepSeek API", "REST API", "DeepSeek Chat Completions API")
-    Component(concurrent_hash_map, "ConcurrentHashMap", "Java Concurrent API", "线程安全内存存储")
+    Component(deepseek_api, "DeepSeek API", "REST API", "LLM + Embedding Service")
+    Component(postgresql_pgvector, "PostgreSQL + pgvector", "PostgreSQL 17", "文档存储 + 向量检索")
 }
 
 ' ============================================================
 ' RELATIONSHIPS - 关系定义
 ' ============================================================
 
-' Interface -> Application
-Rel(chat_controller, send_chat_usecase, "调用用例")
-Rel(chat_controller, chat_response_dto, "转换响应")
-Rel(chat_controller, global_exception_handler, "委托异常")
-
-' Application Layer
+' Chat Backend Relationships
+Rel(chat_controller, send_chat_usecase, "调用")
+Rel(chat_controller, chat_exception_handler, "异常处理")
 Rel(send_chat_usecase, chat_app_service, "编排")
-Rel(chat_app_service, ai_chat_port, "依赖抽象")
-Rel(chat_app_service, chat_session_repo_port, "依赖抽象")
-Rel(chat_app_service, chat_session, "操作领域对象")
-
-' Ports 实现
-Rel(ai_chat_port, spring_ai_adapter, "由...实现")
-Rel(chat_session_repo_port, in_memory_session_repo, "由...实现")
-
-' Infrastructure Layer
+Rel(chat_app_service, ai_chat_port, "依赖")
+Rel(chat_app_service, chat_session_repo_port, "依赖")
+Rel(ai_chat_port, spring_ai_adapter, "实现")
 Rel(spring_ai_adapter, spring_ai_service_impl, "组合")
-Rel(spring_ai_service_impl, chat_model, "使用")
-Rel(chat_model, deepseek_model, "委托实现")
-
-Rel(in_memory_session_repo, chat_session, "持久化")
-
-' Domain Layer 内部
-Rel(chat_session, chat_message, "包含 (1:N)")
-Rel(chat_session, domain_event_base, "发布事件")
-Rel(chat_session, ai_chat_service, "使用领域服务")
-Rel(chat_message, message_content, "封装内容")
-
-' 外部调用
+Rel(chat_session_repo_port, in_memory_session_repo, "实现")
 Rel(spring_ai_service_impl, deepseek_api, "HTTP 调用")
-Rel(in_memory_session_repo, concurrent_hash_map, "使用存储")
+Rel(chat_session, chat_message, "包含")
+Rel(chat_app_service, chat_session, "操作")
+
+' RAG Backend Relationships
+Rel(rag_controller, rag_app_service, "调用")
+Rel(rag_controller, rag_exception_handler, "异常处理")
+Rel(rag_app_service, upload_doc_usecase, "上传文档")
+Rel(rag_app_service, delete_doc_usecase, "删除文档")
+Rel(rag_app_service, rag_chat_usecase, "RAG 问答")
+
+' RAG Use Cases -> Ports
+Rel(upload_doc_usecase, embedding_port, "依赖")
+Rel(upload_doc_usecase, vector_search_port, "依赖")
+Rel(upload_doc_usecase, document_repo_port, "依赖")
+Rel(rag_chat_usecase, embedding_port, "依赖")
+Rel(rag_chat_usecase, vector_search_port, "依赖")
+
+' Ports -> Adapters
+Rel(embedding_port, deepseek_embedding_adapter, "实现")
+Rel(vector_search_port, pgvector_adapter, "实现")
+Rel(document_repo_port, jpa_document_repo, "实现")
+
+' Adapters -> External Systems
+Rel(deepseek_embedding_adapter, deepseek_api, "生成 Embedding")
+Rel(pgvector_adapter, postgresql_pgvector, "向量存储/检索")
+Rel(jpa_document_repo, postgresql_pgvector, "文档持久化")
+Rel(jpa_chunk_repo, postgresql_pgvector, "分块持久化")
+
+' Domain Layer
+Rel(document, document_chunk, "包含多个")
 
 SHOW_LEGEND()
 @enduml
