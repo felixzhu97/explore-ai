@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: server-springai
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:your-api-key}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.ai: DEBUG
+    org.springframework.ai: DEBUG

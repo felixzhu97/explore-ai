@@ -5,7 +5,7 @@ echo "🔍 Running pre-commit checks..."
 
 # Run Angular tests (Vitest)
 echo "🧪 Running Angular tests (Vitest)..."
-cd apps/web-angular && npx vitest run --silent > /dev/null 2>&1
+cd apps/web && npx vitest run --silent > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "❌ Angular tests failed"
   exit 1
@@ -14,7 +14,7 @@ cd ../..
 
 # Run Java tests (JUnit 5)
 echo "🧪 Running Java tests (JUnit 5)..."
-cd apps/server-java && ./gradlew test --no-daemon -q 2>&1
+cd apps/server && ./gradlew test --no-daemon -q 2>&1
 if [ $? -ne 0 ]; then
   echo "❌ Java tests failed"
   exit 1
