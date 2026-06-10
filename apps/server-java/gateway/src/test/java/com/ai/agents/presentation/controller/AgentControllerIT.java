@@ -595,14 +595,7 @@ class AgentControllerIT {
         @Test
         @DisplayName("should handle chat request successfully")
         void shouldHandleChatRequestSuccessfully() throws Exception {
-            AgentRequestDto request = new AgentRequestDto(
-                    "Hello, test message",
-                    AgentType.CHAT,
-                    "test-session",
-                    null,
-                    null,
-                    null
-            );
+            AgentRequestDto request = AgentRequestDto.of("Hello, test message", AgentType.CHAT, "test-session");
 
             webTestClient.post()
                     .uri("/api/agents/chat")
@@ -618,14 +611,7 @@ class AgentControllerIT {
         @Test
         @DisplayName("should handle invoke request for valid agent type")
         void shouldHandleInvokeRequestForValidAgentType() throws Exception {
-            AgentRequestDto request = new AgentRequestDto(
-                    "Test invoke",
-                    AgentType.RAG,
-                    null,
-                    null,
-                    null,
-                    null
-            );
+            AgentRequestDto request = AgentRequestDto.of("Test invoke", AgentType.RAG);
 
             webTestClient.post()
                     .uri("/api/agents/invoke/rag")
@@ -647,7 +633,8 @@ class AgentControllerIT {
                     "supervisor-session",
                     null,
                     null,
-                    Map.of("intent", "routing")
+                    Map.of("intent", "routing"),
+                    null
             );
 
             webTestClient.post()

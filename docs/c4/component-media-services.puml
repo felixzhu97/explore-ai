@@ -8,8 +8,8 @@ title 组件图 (C3) - 媒体服务架构 (Clean Architecture)
 Container_Boundary(media_services, "Media Services") {
 
     ' === TTS Service ===
-    System_Boundary(tts_service, "TTS Service (Port 8005)") {
-        Component(tts_router, "TTS Router", "FastAPI", "/tts/synthesize, /tts/stream, /tts/voices")
+    System_Boundary(tts_service, "TTS Service") {
+        Component(tts_router, "TTS Router", "FastAPI", "语音合成端点")
         Component(tts_app_service, "TTSApplicationService", "Python", "应用服务")
         Component(synthesize_usecase, "SynthesizeSpeechUseCase", "Python", "语音合成用例")
         Component(voice_entity, "Voice Entity", "Python", "语音实体")
@@ -24,7 +24,7 @@ Container_Boundary(media_services, "Media Services") {
     }
 
     ' === Text Service ===
-    System_Boundary(text_service, "Text Service (Port 8006)") {
+    System_Boundary(text_service, "Text Service") {
         Component(text_router, "API Router", "FastAPI", "/chat, /completion")
         Component(chat_usecase, "ChatUseCase", "Python", "聊天用例")
         Component(message_entity, "Message Entity", "Python", "消息实体")
@@ -35,7 +35,7 @@ Container_Boundary(media_services, "Media Services") {
     }
 
     ' === Media Gen Service ===
-    System_Boundary(media_gen, "Media Gen Service (Port 8015)") {
+    System_Boundary(media_gen, "Media Gen Service") {
 
         ' Presentation Layer
         Component(media_app, "FastAPI App", "FastAPI", "应用入口")
@@ -48,7 +48,7 @@ Container_Boundary(media_services, "Media Services") {
         Component(gen_response_dto, "GenerationResponseDTO", "Pydantic", "响应模型")
 
         ' Domain Layer
-        Component(gen_image_entity, "GeneratedImage", "Entity", "图像实体 (不可变)")
+        Component(gen_image_entity, "GeneratedImage", "Entity", "图像实体")
         Component(gen_params, "GenerationParams", "Value Object", "生成参数")
         Component(model_cache_port, "ModelCacheRepository", "Port", "模型缓存接口")
         Component(image_encoder_port, "ImageEncoderPort", "Port", "图像编码接口")
@@ -105,8 +105,8 @@ Rel(tts_service, text_service, "调用 LLM", "HTTP")
 Rel(text_service, media_gen, "图像生成", "HTTP")
 
 ' === AI Agents 与服务关系 ===
-System_Ext(ai_agents_tts, "AI Agents - TTS Agent", "TTS Tools (Port 8003)")
-System_Ext(ai_agents_video, "AI Agents - Video Agent", "Video Tools (Port 8003)")
+System_Ext(ai_agents_tts, "AI Agents - TTS Agent", "TTS Tools")
+System_Ext(ai_agents_video, "AI Agents - Video Agent", "Video Tools")
 
 Rel(ai_agents_tts, tts_service, "调用 TTS API")
 Rel(ai_agents_video, media_gen, "调用媒体生成")

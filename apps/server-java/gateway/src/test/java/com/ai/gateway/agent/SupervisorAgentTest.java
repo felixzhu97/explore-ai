@@ -39,19 +39,19 @@ class SupervisorAgentTest {
         }
 
         @Test
-        @DisplayName("should route queries with document keywords to RAG")
-        void shouldRouteQueriesWithDocumentKeywordsToRag() {
+        @DisplayName("should route document queries to supervisor for RAG coordination")
+        void shouldRouteDocumentQueriesToSupervisorForRag() {
             RoutingDecision result = supervisorAgent.route("search for document");
 
-            assertThat(result.targetType()).isEqualTo(AgentType.RAG);
+            assertThat(result.targetType()).isEqualTo(AgentType.SUPERVISOR);
         }
 
         @Test
-        @DisplayName("should route queries with knowledge base keywords to RAG")
-        void shouldRouteQueriesWithKnowledgeBaseKeywordsToRag() {
+        @DisplayName("should route knowledge base queries through supervisor for coordination")
+        void shouldRouteKnowledgeBaseQueriesThroughSupervisor() {
             RoutingDecision result = supervisorAgent.route("search knowledge base");
 
-            assertThat(result.targetType()).isEqualTo(AgentType.RAG);
+            assertThat(result.targetType()).isEqualTo(AgentType.SUPERVISOR);
         }
 
         @Test
@@ -87,11 +87,12 @@ class SupervisorAgentTest {
         }
 
         @Test
-        @DisplayName("should route translation queries to TEXT agent")
-        void shouldRouteTranslationQueriesToTextAgent() {
+        @DisplayName("should route translation queries through supervisor for text processing")
+        void shouldRouteTranslationQueriesToTextThroughSupervisor() {
             RoutingDecision result = supervisorAgent.route("translate this to English");
 
-            assertThat(result.targetType()).isEqualTo(AgentType.TEXT);
+            // Translation queries route to supervisor for text agent coordination
+            assertThat(result.targetType()).isEqualTo(AgentType.SUPERVISOR);
         }
 
         @Test

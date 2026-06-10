@@ -36,15 +36,16 @@ public class TtsAgentAdapter implements AgentAdapter {
 
     @Override
     public Mono<AgentResponseDto> execute(Conversation conversation, AgentRequestDto request) {
-        log.info("TTS agent processing request: {}", truncate(request.message(), 50));
+        log.info("TTS agent processing request: {}", truncate(request.getUserMessage(), 50));
 
         Map<String, Object> metadata = request.metadata();
+        String text = request.getUserMessage();
         String voice = metadata != null ? (String) metadata.get("voice") : null;
         String language = metadata != null ? (String) metadata.get("language") : null;
         Float speed = metadata != null && metadata.get("speed") instanceof Number n ? n.floatValue() : 1.0f;
 
         return ttsService.synthesize(
-                        request.message(),
+                        text,
                         voice,
                         language,
                         speed,

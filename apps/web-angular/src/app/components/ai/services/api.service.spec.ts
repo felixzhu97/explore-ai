@@ -274,6 +274,715 @@ describe('ApiService', () => {
     });
   });
 
+  describe('chatStream streaming callback coverage', () => {
+    it('should call onChunk when token is received from meta event', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+      const onDone = vi.fn();
+      const onError = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        onDone,
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('event: meta\ndata: {"token":"Hello"}\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('Hello');
+    });
+
+    it('should call onDone when [DONE] is received', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onDone = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        onDone,
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onDone).toHaveBeenCalled();
+    });
+
+    it('should call onDone when done event is received', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onDone = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        onDone,
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('event: done\ndata: \n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onDone).toHaveBeenCalled();
+    });
+
+    it('should call onError when error event is received with JSON error data', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onError = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('event: error\ndata: {"error":"Something went wrong"}\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onError).toHaveBeenCalled();
+      expect(onError.mock.calls[0][0].message).toBe('Something went wrong');
+    });
+
+    it('should call onError when error event is received without JSON error data', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onError = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('event: error\ndata: Invalid error format\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onError).toHaveBeenCalled();
+      expect(onError.mock.calls[0][0].message).toBe('Stream error');
+    });
+
+    it('should handle data line without currentEvent (empty event type)', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: {"token":"chunk1"}\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('chunk1');
+    });
+
+    it('should handle non-JSON data gracefully (skip)', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // Send non-JSON data
+      readResolve({ done: false, value: encoder.encode('data: plain text data\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // Continue reading
+      readResolve({ done: true, value: new Uint8Array() });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    it('should reset currentEvent on empty line', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // Send event followed by empty line, then data without event
+      readResolve({ done: false, value: encoder.encode('event: meta\n\ndata: {"token":"after reset"}\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('after reset');
+    });
+
+    it('should not call onChunk when token is missing in parsed data', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: {"no_token_field":true}\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: true, value: new Uint8Array() });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).not.toHaveBeenCalled();
+    });
+
+    it('should handle response body without reader', async () => {
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: null,
+      } as any);
+
+      const onError = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('should continue reading when not done', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onDone = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        vi.fn(),
+        onDone,
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: true, value: new Uint8Array() });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockReader.read).toHaveBeenCalled();
+    });
+
+    it('should handle partial line in buffer', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // Send partial line, then complete it
+      readResolve({ done: false, value: encoder.encode('data: {"token":"par') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('tial"}\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: true, value: new Uint8Array() });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('partial');
+    });
+  });
+
+  describe('ragChat streaming callback coverage', () => {
+    it('should call onChunk when chunk data is received', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+      const onDone = vi.fn();
+      const onError = vi.fn();
+      const onSources = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        onChunk,
+        onSources,
+        onDone,
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: Some chunk text\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('Some chunk text');
+    });
+
+    it('should call onDone when [DONE] is received', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onDone = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        vi.fn(),
+        vi.fn(),
+        onDone,
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onDone).toHaveBeenCalled();
+    });
+
+    it('should call onSources when sources event is received', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onSources = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        vi.fn(),
+        onSources,
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({
+        done: false,
+        value: encoder.encode('event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n'),
+      });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onSources).toHaveBeenCalledWith([{ text: 'source 1', score: 0.9, metadata: {} }]);
+    });
+
+    it('should call onError when Error: prefix is received', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onError = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        vi.fn(),
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: Error:Database connection failed\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onError).toHaveBeenCalled();
+      expect(onError.mock.calls[0][0].message).toBe('Database connection failed');
+    });
+
+    it('should replace <br> with newlines in chunk data', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        onChunk,
+        vi.fn(),
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({ done: false, value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n') });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('Line 1\nLine 2\nLine 3');
+    });
+
+    it('should reset currentEvent on empty line', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        onChunk,
+        vi.fn(),
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // Send sources event followed by empty line, then chunk without event
+      readResolve({
+        done: false,
+        value: encoder.encode('event: sources\n\ndata: chunk after reset\n'),
+      });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('chunk after reset');
+    });
+
+    it('should reset currentEvent after sources event', async () => {
+      const encoder = new TextEncoder();
+      let readResolve: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as any);
+
+      const onChunk = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        onChunk,
+        vi.fn(),
+        vi.fn(),
+        vi.fn()
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      readResolve({
+        done: false,
+        value: encoder.encode('event: sources\ndata: []\ndata: chunk after sources\n'),
+      });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('chunk after sources');
+    });
+
+    it('should handle non-ok response by throwing error', async () => {
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as any);
+
+      const onError = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        vi.fn(),
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('should handle response body without reader', async () => {
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: null,
+      } as any);
+
+      const onError = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        vi.fn(),
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('should handle network error', async () => {
+      vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
+
+      const onError = vi.fn();
+
+      service.ragChat(
+        { query: 'test', session_id: 'session1' },
+        vi.fn(),
+        vi.fn(),
+        vi.fn(),
+        onError
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(onError).toHaveBeenCalled();
+    });
+  });
+
   describe('generateImage', () => {
     it('should send image generation request', () => {
       const mockResponse = {
@@ -624,24 +1333,6 @@ describe('ApiService', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
-    });
-
-    it('should not call onError on AbortError', async () => {
-      const abortError = new DOMException('Aborted', 'AbortError');
-      vi.spyOn(global, 'fetch').mockRejectedValue(abortError);
-
-      const onError = vi.fn();
-
-      service.ragChat(
-        { query: 'test', session_id: 'session1' },
-        vi.fn(),
-        vi.fn(),
-        vi.fn(),
-        onError
-      );
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(onError).not.toHaveBeenCalled();
     });
   });
 

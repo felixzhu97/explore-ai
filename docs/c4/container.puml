@@ -3,7 +3,7 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI-Test Platform
+title 容器图 (C2) - AI-Explore Platform
 
 Person(ml_engineer, "ML 工程师")
 Person(devops_engineer, "运维工程师")
@@ -11,49 +11,66 @@ Person(data_scientist, "数据科学家")
 
 ' === 前端层 ===
 System_Boundary(frontend_boundary, "前端层") {
-    Container(web_app, "Web 应用", "Angular 20+ + TypeScript + SCSS", "用户界面和交互 (AIHub, AgentPanels, TTSPanel, VideoPanel)")
+    Container(web_app, "Web 应用", "Angular 20+ + TypeScript + SCSS", "用户界面和交互")
 }
 
-' === 服务层 ===
-System_Boundary(services_boundary, "服务层") {
-    Container(ai_agents_service, "AI Agents 服务", "Python + FastAPI + LangGraph", "多智能体协调和任务编排 (Port 8003)")
-    Container(vision_service, "Vision 服务", "Python + FastAPI + YOLO/BLIP/PaddleOCR", "视觉 AI：目标检测、OCR、图像描述 (Port 8000)")
-    Container(tts_service, "TTS 服务", "Python + FastAPI", "文本转语音合成 (Azure/Google/ElevenLabs/Edge/Coqui) (Port 8005)")
-    Container(text_service, "Text 服务", "Python + FastAPI", "文本处理和 LLM 网关 (Port 8006)")
-    Container(rag_service, "RAG 服务", "Python + FastAPI + LangChain", "文档检索和问答 (Port 8001)")
-    Container(media_gen_service, "Media Gen 服务", "Python + FastAPI + Clean Architecture", "本地文生图 (Port 8015), 遵循 DDD 和分层架构")
+' === Java Gateway 层 ===
+System_Boundary(gateway_boundary, "AI Gateway 层 (Java Spring Boot)") {
+    Container(ai_gateway, "AI Gateway", "Java Spring Boot + WebFlux", "多智能体协调网关：路由编排、任务分发")
+
+    ' Gateway 内部容器
+    Container(supervisor, "Supervisor Agent", "Java Domain Service", "中央协调器：意图识别、关键词路由")
+    Container(route_usecase, "RouteMessageUseCase", "Java Application Service", "消息路由用例")
+    Container(process_usecase, "ProcessAgentUseCase", "Java Application Service", "Agent 处理用例")
+    Container(orchestration_service, "AgentOrchestrationService", "Java Application Service", "编排服务：协调路由和执行")
 }
 
-' === AI Agents 内部容器 ===
-System_Boundary(ai_agents_boundary, "AI Agents 内部组件") {
-    Container(supervisor, "Supervisor Agent", "Python", "主管智能体：意图识别、任务路由")
-    Container(k8s_agent, "K8s Agent", "Python", "Kubernetes 集群管理")
-    Container(vectordb_agent, "VectorDB Agent", "Python", "向量数据库操作")
-    Container(rag_agent, "RAG Agent", "Python", "文档检索和知识库管理")
-    Container(pipeline_agent, "Pipeline Agent", "Python", "ML/DevOps 流水线编排")
-    Container(llmops_agent, "LLMOps Agent", "Python", "ML 模型生命周期管理")
-    Container(aiops_agent, "AIOps Agent", "Python", "智能运维和异常检测")
-    Container(feature_agent, "Feature Store Agent", "Python", "特征工程和管理")
-    Container(monitoring_agent, "Monitoring Agent", "Python", "指标查询、告警配置")
-    Container(model_agent, "Model Agent", "Python", "ML 模型版本控制、部署")
-    Container(tts_agent, "TTS Agent", "Python", "文本转语音合成")
-    Container(video_agent, "Video Agent", "Python", "视频生成")
+' === 后端服务层 ===
+System_Boundary(services_boundary, "后端服务层") {
+    Container(vision_service, "Vision 服务", "Python FastAPI", "视觉 AI：目标检测、OCR、图像描述")
+    Container(tts_service, "TTS 服务", "Python FastAPI", "文本转语音合成")
+    Container(text_service, "Text 服务", "Python FastAPI", "文本处理和 LLM 网关")
+    Container(rag_service, "RAG 服务", "Python FastAPI", "文档检索和问答")
+    Container(media_gen_service, "Media Gen 服务", "Python FastAPI", "本地文生图")
 }
 
-' === AI Agents 工具层 ===
-System_Boundary(ai_tools_boundary, "AI Agents 工具层") {
-    Container(http_tools, "HTTP Tools", "Python", "HTTP API 调用")
-    Container(system_tools, "System Tools", "Python", "系统命令执行")
-    Container(k8s_tools, "K8s Tools", "Python", "Kubernetes 操作")
-    Container(monitoring_tools, "Monitoring Tools", "Python", "监控指标查询")
-    Container(vector_tools, "Vector Tools", "Python", "向量数据库操作")
-    Container(tts_tools, "TTS Tools", "Python", "语音合成工具")
-    Container(video_tools, "Video Tools", "Python", "视频生成工具")
+' === AI Agents 领域服务 (Java Domain) ===
+System_Boundary(agents_boundary, "AI Agents 领域服务") {
+    Container(k8s_agent, "K8sAgentService", "Java Domain Service", "Kubernetes 集群管理")
+    Container(vectordb_agent, "VectorAgentService", "Java Domain Service", "向量数据库操作")
+    Container(rag_agent, "RagAgentService", "Java Domain Service", "文档检索、知识库问答")
+    Container(pipeline_agent, "PipelineAgentService", "Java Domain Service", "ML/DevOps 流水线编排")
+    Container(llmops_agent, "LLMOpsAgentService", "Java Domain Service", "ML 模型生命周期管理")
+    Container(aiops_agent, "AIOpsAgentService", "Java Domain Service", "智能运维和异常检测")
+    Container(feature_agent, "FeatureStoreAgentService", "Java Domain Service", "特征工程和管理")
+    Container(monitoring_agent, "MonitoringAgentService", "Java Domain Service", "指标查询、告警配置")
+    Container(model_agent, "ModelAgentService", "Java Domain Service", "ML 模型版本控制、部署")
+    Container(tts_agent, "TTSAgentService", "Java Domain Service", "文本转语音合成")
+    Container(video_agent, "VideoAgentService", "Java Domain Service", "视频生成")
+}
+
+' === AI Gateway 基础设施 (Adapters) ===
+System_Boundary(adapters_boundary, "AI Gateway 适配器层") {
+    Container(vision_adapter, "VisionAgentAdapter", "Java Infrastructure", "视觉 AI 适配器")
+    Container(rag_adapter, "RagAgentAdapter", "Java Infrastructure", "RAG 适配器")
+    Container(tts_adapter, "TtsAgentAdapter", "Java Infrastructure", "TTS 适配器")
+    Container(chat_adapter, "ChatAgentAdapter", "Java Infrastructure", "聊天适配器")
+    Container(media_adapter, "MediaAgentAdapter", "Java Infrastructure", "媒体生成适配器")
+    Container(text_adapter, "TextAgentAdapter", "Java Infrastructure", "文本处理适配器")
+}
+
+' === AI Gateway 工具层 ===
+System_Boundary(tools_boundary, "AI Gateway 工具层") {
+    Container(k8s_tools, "K8sTools", "Java Infrastructure", "kubectl 操作工具")
+    Container(monitoring_tools, "MonitoringTools", "Java Infrastructure", "Prometheus/Grafana 查询")
+    Container(vector_tools, "VectorTools", "Java Infrastructure", "向量数据库操作")
+    Container(model_tools, "ModelTools", "Java Infrastructure", "MLflow 模型管理")
+    Container(aiops_tools, "AIOpsTools", "Java Infrastructure", "日志分析、异常检测")
 }
 
 ' === 数据层 ===
 System_Boundary(data_boundary, "数据层") {
-    ContainerDb(vector_store, "Vector Store", "Qdrant", "向量嵌入存储和检索 (Port 6333)")
+    ContainerDb(vector_store, "Vector Store", "Qdrant", "向量嵌入存储和检索")
     ContainerDb(mlflow_db, "MLflow", "PostgreSQL + S3", "ML 实验跟踪和模型注册")
     ContainerDb(feast_store, "Feast", "Redis + DB", "特征存储和在线服务")
     ContainerDb(session_store, "Session Store", "Redis", "RAG 会话状态管理")
@@ -62,7 +79,7 @@ System_Boundary(data_boundary, "数据层") {
 
 ' === 外部服务 ===
 System_Boundary(external_boundary, "外部服务") {
-    Container(ext_llm, "LLM Gateway", "OpenAI/Claude/Ollama", "大语言模型推理 (qwen3)")
+    Container(ext_llm, "LLM Gateway", "OpenAI/Claude/Ollama", "大语言模型推理")
     Container(ext_k8s, "Kubernetes", "K8s API", "集群管理")
     Container(ext_monitor, "Monitoring", "Prometheus + Grafana", "监控和可视化")
     Container(ext_tts, "TTS Providers", "Azure/Google/ElevenLabs/Edge/Coqui", "TTS 提供商")
@@ -75,48 +92,52 @@ Rel(ml_engineer, web_app, "使用")
 Rel(devops_engineer, web_app, "监控")
 Rel(data_scientist, web_app, "查询")
 
-' === 前端与服务关系 ===
-Rel(web_app, ai_agents_service, "请求/流式响应", "HTTP/SSE")
-Rel(web_app, vision_service, "视觉 AI 请求", "HTTP")
-Rel(web_app, tts_service, "语音合成请求", "HTTP")
-Rel(web_app, rag_service, "RAG 查询", "HTTP")
-Rel(web_app, media_gen_service, "图像生成请求", "HTTP")
+' === 前端与网关关系 ===
+Rel(web_app, ai_gateway, "请求/流式响应", "HTTP/SSE")
+
+' === Gateway 内部关系 ===
+Rel(ai_gateway, orchestration_service, "编排")
+Rel(orchestration_service, supervisor, "路由")
+Rel(orchestration_service, route_usecase, "路由消息")
+Rel(orchestration_service, process_usecase, "处理请求")
+Rel(route_usecase, supervisor, "执行路由")
+
+Rel(orchestration_service, k8s_agent, "委托")
+Rel(orchestration_service, vectordb_agent, "委托")
+Rel(orchestration_service, rag_agent, "委托")
+Rel(orchestration_service, llmops_agent, "委托")
+Rel(orchestration_service, aiops_agent, "委托")
+Rel(orchestration_service, pipeline_agent, "委托")
+Rel(orchestration_service, monitoring_agent, "委托")
+Rel(orchestration_service, model_agent, "委托")
+Rel(orchestration_service, tts_agent, "委托")
+Rel(orchestration_service, video_agent, "委托")
+
+' === Adapter 关系 ===
+Rel(process_usecase, vision_adapter, "使用")
+Rel(process_usecase, rag_adapter, "使用")
+Rel(process_usecase, tts_adapter, "使用")
+Rel(process_usecase, chat_adapter, "使用")
+Rel(process_usecase, media_adapter, "使用")
+Rel(process_usecase, text_adapter, "使用")
 
 ' === 服务间关系 ===
-Rel(ai_agents_service, vision_service, "调用视觉 API", "HTTP")
-Rel(ai_agents_service, tts_service, "语音合成", "HTTP")
-Rel(ai_agents_service, text_service, "文本处理/LLM", "HTTP")
-Rel(ai_agents_service, rag_service, "RAG 查询", "HTTP")
-Rel(ai_agents_service, media_gen_service, "图像生成", "HTTP")
+Rel(ai_gateway, vision_service, "调用视觉 API", "HTTP")
+Rel(ai_gateway, tts_service, "语音合成", "HTTP")
+Rel(ai_gateway, text_service, "文本处理/LLM", "HTTP")
+Rel(ai_gateway, rag_service, "RAG 查询", "HTTP")
+Rel(ai_gateway, media_gen_service, "图像生成", "HTTP")
 Rel(vision_service, media_gen_service, "图像生成", "HTTP")
-
-' === AI Agents 内部路由 ===
-Rel(ai_agents_service, supervisor, "委托任务")
-Rel(supervisor, k8s_agent, "路由到")
-Rel(supervisor, vectordb_agent, "路由到")
-Rel(supervisor, rag_agent, "路由到")
-Rel(supervisor, llmops_agent, "路由到")
-Rel(supervisor, aiops_agent, "路由到")
-Rel(supervisor, pipeline_agent, "路由到")
-Rel(supervisor, feature_agent, "路由到")
-Rel(supervisor, monitoring_agent, "路由到")
-Rel(supervisor, model_agent, "路由到")
-Rel(supervisor, tts_agent, "路由到")
-Rel(supervisor, video_agent, "路由到")
 
 ' === Agent 与工具关系 ===
 Rel(k8s_agent, k8s_tools, "使用")
-Rel(k8s_agent, http_tools, "使用")
-Rel(k8s_agent, system_tools, "使用")
-Rel(vectordb_agent, vector_tools, "使用")
-Rel(vectordb_agent, http_tools, "使用")
-Rel(rag_agent, http_tools, "使用")
 Rel(monitoring_agent, monitoring_tools, "使用")
-Rel(tts_agent, tts_tools, "使用")
-Rel(video_agent, video_tools, "使用")
+Rel(vectordb_agent, vector_tools, "使用")
+Rel(model_agent, model_tools, "使用")
+Rel(aiops_agent, aiops_tools, "使用")
 
 ' === 服务与数据层关系 ===
-Rel(rag_agent, rag_service, "文档操作", "HTTP")
+Rel(rag_adapter, rag_service, "文档操作", "HTTP")
 Rel(rag_service, vector_store, "向量存储", "gRPC")
 Rel(rag_service, session_store, "会话管理", "Redis")
 Rel(rag_service, document_store, "文档缓存", "Redis")
@@ -131,7 +152,7 @@ Rel(k8s_agent, ext_k8s, "集群操作", "kubectl")
 Rel(monitoring_agent, ext_monitor, "指标查询", "HTTP")
 Rel(pipeline_agent, ext_k8s, "部署", "kubectl")
 
-Rel(ai_agents_service, ext_llm, "LLM 调用")
+Rel(ai_gateway, ext_llm, "LLM 调用")
 Rel(tts_agent, ext_tts, "TTS API", "HTTP")
 Rel(video_agent, ext_video, "视频生成 API", "HTTP")
 Rel(vision_service, ext_image, "图像生成", "HTTP")

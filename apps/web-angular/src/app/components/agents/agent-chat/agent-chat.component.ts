@@ -317,8 +317,7 @@ export class AgentChatComponent {
     ]);
 
     try {
-      const apiBase = 'http://localhost:8003';
-      const response = await fetch(`${apiBase}${this.apiEndpoint()}`, {
+      const response = await fetch(this.apiEndpoint(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

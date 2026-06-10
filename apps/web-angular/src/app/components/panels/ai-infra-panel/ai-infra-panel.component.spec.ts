@@ -111,8 +111,8 @@ describe('AIInfraPanelComponent', () => {
 
     it('should have apiEndpoint for each config', () => {
       const configs = component['subTabConfigs']();
-      expect(configs.supervisor.apiEndpoint).toBe('/api/agents/supervisor/invoke');
-      expect(configs.k8s.apiEndpoint).toBe('/api/agents/kubernetes/invoke');
+      expect(configs.supervisor.apiEndpoint).toBe('/api/agents/supervisor/invoke/sse');
+      expect(configs.k8s.apiEndpoint).toBe('/api/agents/kubernetes/invoke/sse');
     });
 
     it('should have quickPrompts for each config', () => {

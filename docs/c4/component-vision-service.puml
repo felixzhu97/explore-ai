@@ -5,7 +5,7 @@ LAYOUT_WITH_LEGEND()
 
 title 组件图 (C4) - Vision Service DDD 架构
 
-Container_Boundary(vision_service, "Vision Service (Port 8000)") {
+Container_Boundary(vision_service, "Vision Service") {
 
     ' === API Layer ===
     System_Boundary(api_layer, "API Layer") {

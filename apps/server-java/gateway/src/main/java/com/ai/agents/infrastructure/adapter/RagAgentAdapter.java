@@ -34,9 +34,9 @@ public class RagAgentAdapter implements AgentAdapter {
 
     @Override
     public Mono<AgentResponseDto> execute(Conversation conversation, AgentRequestDto request) {
-        log.info("RAG agent processing request: {}", truncate(request.message(), 50));
+        log.info("RAG agent processing request: {}", truncate(request.getUserMessage(), 50));
 
-        String query = request.message();
+        String query = request.getUserMessage();
         int topK = request.topK() != null ? request.topK() : 5;
 
         return Mono.fromCallable(() -> {

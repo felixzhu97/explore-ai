@@ -5,13 +5,13 @@ LAYOUT_WITH_LEGEND()
 
 title 组件图 (C3) - RAG 服务架构
 
-Container_Boundary(rag_service, "RAG 服务 (Port 8001)") {
+Container_Boundary(rag_service, "RAG 服务") {
     
     ' API 层
     System_Boundary(api, "API Layer") {
         Component(api_router, "API Router", "FastAPI", "路由定义")
-        Component(document_api, "Document API", "FastAPI", "文档管理端点 (upload, list, delete)")
-        Component(chat_api, "Chat API", "FastAPI", "聊天问答端点 (query, stream, history)")
+        Component(document_api, "Document API", "FastAPI", "文档管理端点")
+        Component(chat_api, "Chat API", "FastAPI", "聊天问答端点")
     }
     
     ' 核心服务
@@ -22,7 +22,7 @@ Container_Boundary(rag_service, "RAG 服务 (Port 8001)") {
 
     ' 文档处理
     System_Boundary(document_processing, "Document Processing") {
-        Component(document_loader, "Document Loader", "LangChain", "多格式文档加载 (PDF/MD/TXT/Web)")
+        Component(document_loader, "Document Loader", "LangChain", "多格式文档加载")
         Component(text_splitter, "Text Splitter", "LangChain", "文档分块处理")
         Component(embedding_model, "Embedding Model", "Sentence Transformers", "文本嵌入生成")
     }

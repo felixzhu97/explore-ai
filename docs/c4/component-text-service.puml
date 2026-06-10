@@ -5,7 +5,7 @@ LAYOUT_WITH_LEGEND()
 
 title 组件图 (C3) - Text 服务架构
 
-Container_Boundary(text_service, "Text 服务 (Port 8006)") {
+Container_Boundary(text_service, "Text 服务") {
 
     ' === Presentation Layer ===
     System_Boundary(presentation, "Presentation Layer") {
@@ -24,9 +24,9 @@ Container_Boundary(text_service, "Text 服务 (Port 8006)") {
 
     ' === Domain Layer ===
     System_Boundary(domain, "Domain Layer") {
-        Component(message_entity, "Message", "Python", "消息实体 (role, content)")
-        Component(session_entity, "Session", "Python", "会话实体 (id, messages)")
-        Component(provider_value, "Provider", "Value Object", "LLM 提供者 (openai/claude/ollama)")
+        Component(message_entity, "Message", "Python", "消息实体")
+        Component(session_entity, "Session", "Python", "会话实体")
+        Component(provider_value, "Provider", "Value Object", "LLM 提供者")
         Component(session_repository, "SessionRepository", "Port", "会话仓储接口")
         Component(exceptions, "Domain Exceptions", "Python", "领域异常")
     }
@@ -74,7 +74,7 @@ Rel(llm_gateway, provider_value, "使用配置")
 System_Ext(ai_agents, "AI Agents Service", "Port 8003")
 System_Ext(openai_api, "OpenAI API", "GPT-4")
 System_Ext(claude_api, "Claude API", "Claude")
-System_Ext(ollama, "Ollama", "本地 LLM (qwen3)")
+System_Ext(ollama, "Ollama", "本地 LLM")
 
 Rel(llm_gateway, openai_api, "LLM 调用")
 Rel(llm_gateway, claude_api, "LLM 调用")

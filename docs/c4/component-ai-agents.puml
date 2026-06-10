@@ -3,63 +3,86 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 组件图 (C3) - AI Agents 服务内部架构
+title 组件图 (C3) - AI Gateway (Java Spring Boot) 内部架构
 
-Container_Boundary(ai_agents, "AI Agents 服务 (Port 8003)") {
+Container_Boundary(ai_gateway, "AI Gateway") {
 
-    ' === Supervisor 层 ===
-    Component(supervisor, "Supervisor Agent", "Python + LangGraph", "中央协调器：意图识别、任务路由、智能调度")
+    ' === Presentation Layer ===
+    Container_Boundary(presentation, "Presentation Layer") {
+        Component(api_controller, "AgentController", "Spring REST Controller", "HTTP 端点：/api/agents/*, SSE 流式响应")
+        Component(health_controller, "AgentHealthController", "Spring REST Controller", "健康检查端点")
+    }
 
-    ' === 智能体层 ===
-    Component(k8s_agent, "K8s Agent", "Python", "Kubernetes 集群管理")
-    Component(vectordb_agent, "VectorDB Agent", "Python", "向量数据库操作")
-    Component(rag_agent, "RAG Agent", "Python", "文档检索、知识库问答")
-    Component(pipeline_agent, "Pipeline Agent", "Python", "ML/DevOps 流水线编排")
-    Component(llmops_agent, "LLMOps Agent", "Python", "ML 模型生命周期管理")
-    Component(aiops_agent, "AIOps Agent", "Python", "智能运维和异常检测")
-    Component(feature_agent, "Feature Store Agent", "Python", "特征工程和管理")
-    Component(monitoring_agent, "Monitoring Agent", "Python", "指标查询、告警配置")
-    Component(model_agent, "Model Agent", "Python", "ML 模型版本控制、部署")
-    Component(tts_agent, "TTS Agent", "Python", "文本转语音合成")
-    Component(video_agent, "Video Agent", "Python", "视频生成")
+    ' === Application Layer ===
+    Container_Boundary(application, "Application Layer") {
+        Component(orchestration_service, "AgentOrchestrationService", "Spring @Service", "主编排服务：协调路由、Agent 选择和执行")
+        Component(route_usecase, "RouteMessageUseCase", "Spring @Service", "消息路由用例：关键词匹配、意图识别")
+        Component(process_usecase, "ProcessAgentUseCase", "Spring @Service", "Agent 处理用例：Adapter 调用、响应转换")
+        Component(rag_usecase, "RagUseCase", "Spring @Service", "RAG 用例：文档检索、问答处理")
+    }
 
-    ' === LangGraph 工作流 ===
-    Component(rag_graph, "RAG Graph", "LangGraph", "RAG 检索和生成工作流")
-    Component(llmops_graph, "LLMOps Graph", "LangGraph", "ML 流水线工作流")
-    Component(aiops_graph, "AIOps Graph", "LangGraph", "事故响应工作流")
+    ' === Domain Layer ===
+    Container_Boundary(domain, "Domain Layer (Pure Java, No Framework)") {
+        Component(supervisor, "SupervisorAgent", "Domain Service", "中央协调器：关键词路由决策")
 
-    ' === 核心模块 ===
-    Component(schemas, "Schemas", "Pydantic", "数据模型和枚举定义")
-    Component(prompts, "Prompts", "Python", "系统提示词模板")
-    Component(base, "BaseInfraAgent", "Python", "基础智能体类")
-    Component(config, "Config", "Pydantic Settings", "配置管理")
+        Component(agent_registry, "AgentRegistry", "Domain Service", "Agent 注册表：管理可用 Agent 及其类型")
+        Component(routing_decision, "RoutingDecision", "Domain Entity", "路由决策：目标类型、置信度、原因")
 
-    ' === API 层 ===
-    Component(api_router, "API Router", "FastAPI", "HTTP 端点定义")
-    Component(health, "Health Endpoint", "FastAPI", "健康检查")
-}
+        Component(agent_type, "AgentType", "Domain Enum", "枚举：CHAT, RAG, TTS, VISION, MEDIA, TEXT, SUPERVISOR, K8S, MONITORING, MODEL, LLM_OPS, AI_OPS, VIDEO, PIPELINE, VECTOR")
+        Component(agent_capabilities, "AgentCapabilities", "Domain Value Object", "Agent 能力定义")
+        Component(agent, "Agent", "Domain Entity", "Agent 实体：ID、名称、类型、能力")
+        Component(conversation, "Conversation", "Domain Entity", "会话：消息历史、上下文")
+        Component(message, "Message", "Domain Value Object", "消息：角色、内容、时间戳")
 
-' === 工具层 ===
-System_Boundary(tools, "Tools Layer") {
-    Component(http_tools, "HTTP Tools", "http_tools.py", "HTTP API 调用工具")
-    Component(system_tools, "System Tools", "system_tools.py", "系统命令执行工具")
-    Component(k8s_tools, "K8s Tools", "k8s_tools.py", "kubectl 操作 (list_pods, get_pod_logs, scale_deployment, etc.)")
-    Component(vector_tools, "Vector Tools", "vector_tools.py", "向量数据库操作")
-    Component(monitoring_tools, "Monitoring Tools", "monitoring_tools.py", "Prometheus/Grafana 查询")
-    Component(model_tools, "Model Tools", "model_tools.py", "MLflow 模型管理")
-    Component(llmops_tools, "LLMOps Tools", "llmops_tools.py", "实验跟踪")
-    Component(aiops_tools, "AIOps Tools", "aiops_tools.py", "日志分析、异常检测")
-    Component(rag_tools, "RAG Tools", "rag_tools.py", "文档操作 (index_document, search_documents, rag_query)")
-    Component(pipeline_tools, "Pipeline Tools", "pipeline_tools.py", "工作流管理")
-    Component(feature_tools, "Feature Store Tools", "feature_store_tools.py", "Feast 集成")
-    Component(tts_tools, "TTS Tools", "tts_tools.py", "语音合成 (synthesize, list_voices, stream, get_providers)")
-    Component(video_tools, "Video Tools", "video_tools.py", "视频生成 (generate, generate_advanced, check_status)")
+        Component(k8s_agent, "K8sAgentService", "Domain Service", "Kubernetes 操作：list_pods, get_pod_logs, scale_deployment")
+        Component(vectordb_agent, "VectorAgentService", "Domain Service", "向量数据库操作：embedding 检索")
+        Component(rag_agent, "RagAgentService", "Domain Service", "文档检索、知识库问答")
+        Component(pipeline_agent, "PipelineAgentService", "Domain Service", "ML/DevOps 流水线编排")
+        Component(llmops_agent, "LLMOpsAgentService", "Domain Service", "ML 模型生命周期管理")
+        Component(aiops_agent, "AIOpsAgentService", "Domain Service", "智能运维和异常检测")
+        Component(feature_agent, "FeatureStoreAgentService", "Domain Service", "特征工程和管理")
+        Component(monitoring_agent, "MonitoringAgentService", "Domain Service", "指标查询、告警配置")
+        Component(model_agent, "ModelAgentService", "Domain Service", "ML 模型版本控制、部署")
+        Component(tts_agent, "TTSAgentService", "Domain Service", "文本转语音合成")
+        Component(video_agent, "VideoAgentService", "Domain Service", "视频生成")
+
+        Component(workflow_rag, "RAGWorkflow", "Domain Workflow", "RAG 工作流：检索、生成、上下文注入")
+        Component(workflow_llmops, "LLMOpsWorkflow", "Domain Workflow", "LLMOps 工作流：训练、评估、部署")
+        Component(workflow_aiops, "AIOpsWorkflow", "Domain Workflow", "AIOps 工作流：检测、分析、响应")
+    }
+
+    ' === Infrastructure Layer ===
+    Container_Boundary(infrastructure, "Infrastructure Layer") {
+        Component(agent_adapter, "AgentAdapter", "Interface", "Agent 适配器接口")
+        Component(vision_adapter, "VisionAgentAdapter", "Spring @Component", "视觉 AI 适配器：调用 VisionApplicationService")
+        Component(rag_adapter, "RagAgentAdapter", "Spring @Component", "RAG 适配器：调用 RagChatApplicationService")
+        Component(tts_adapter, "TtsAgentAdapter", "Spring @Component", "TTS 适配器")
+        Component(chat_adapter, "ChatAgentAdapter", "Spring @Component", "聊天适配器")
+        Component(media_adapter, "MediaAgentAdapter", "Spring @Component", "媒体生成适配器")
+        Component(text_adapter, "TextAgentAdapter", "Spring @Component", "文本处理适配器")
+
+        Component(k8s_tools, "K8sTools", "Spring @Component", "kubectl 操作：listPods, getPodLogs, scaleDeployment, getNodeStatus")
+        Component(monitoring_tools, "MonitoringTools", "Spring @Component", "Prometheus/Grafana 查询")
+        Component(vector_tools, "VectorTools", "Spring @Component", "向量数据库操作")
+        Component(model_tools, "ModelTools", "Spring @Component", "MLflow 模型管理")
+        Component(aiops_tools, "AIOpsTools", "Spring @Component", "日志分析、异常检测")
+        Component(pipeline_tools, "PipelineTools", "Spring @Component", "工作流管理")
+
+        Component(llm_router, "SupervisorLLMRouter", "Infrastructure", "LLM 路由器：动态选择 LLM Provider")
+        Component(tool_result, "ToolResult", "Value Object", "工具执行结果")
+        Component(tool_call, "ToolCall", "Value Object", "工具调用记录")
+    }
 }
 
 ' === 外部服务层 ===
-System_Boundary(external, "External Services") {
-    Component(vector_store, "Vector Store", "Qdrant", "向量数据库 (Port 6333)")
-    Component(llm_gateway, "LLM Gateway", "OpenAI/Claude/Ollama", "语言模型服务 (qwen3)")
+System_Boundary(external_services, "External Services") {
+    Component(vision_service, "Vision Service", "Python FastAPI", "视觉 AI")
+    Component(tts_service, "TTS Service", "Python FastAPI", "语音合成")
+    Component(text_service, "Text Service", "Python FastAPI", "文本处理/LLM")
+    Component(rag_service, "RAG Service", "Python FastAPI", "文档检索")
+    Component(media_service, "Media Gen Service", "Python FastAPI", "图像生成")
+    Component(vector_store, "Vector Store", "Qdrant", "向量数据库")
+    Component(llm_gateway, "LLM Gateway", "OpenAI/Claude/Ollama", "语言模型服务")
     Component(mlflow, "MLflow", "MLflow", "实验跟踪")
     Component(feast, "Feast", "Feast", "特征存储")
     Component(k8s_cluster, "Kubernetes", "K8s API", "集群管理")
@@ -69,66 +92,76 @@ System_Boundary(external, "External Services") {
     Component(video_providers, "Video Providers", "Kling/Runway/Pika/Sora", "视频生成服务")
 }
 
-' === Supervisor 路由关系 ===
-Rel(supervisor, k8s_agent, "委托")
-Rel(supervisor, vectordb_agent, "委托")
-Rel(supervisor, rag_agent, "委托")
-Rel(supervisor, pipeline_agent, "委托")
-Rel(supervisor, llmops_agent, "委托")
-Rel(supervisor, aiops_agent, "委托")
-Rel(supervisor, feature_agent, "委托")
-Rel(supervisor, monitoring_agent, "委托")
-Rel(supervisor, model_agent, "委托")
-Rel(supervisor, tts_agent, "委托")
-Rel(supervisor, video_agent, "委托")
+' === Presentation -> Application ===
+Rel(api_controller, orchestration_service, "路由请求")
+Rel(api_controller, route_usecase, "获取路由")
+Rel(api_controller, process_usecase, "处理消息")
+Rel(health_controller, orchestration_service, "健康检查")
 
-' === 智能体与工作流关系 ===
-Rel(rag_agent, rag_graph, "使用")
-Rel(llmops_agent, llmops_graph, "使用")
-Rel(aiops_agent, aiops_graph, "使用")
+' === Application 层内部关系 ===
+Rel(orchestration_service, route_usecase, "路由消息")
+Rel(orchestration_service, process_usecase, "处理请求")
+Rel(orchestration_service, supervisor, "执行路由")
+Rel(route_usecase, supervisor, "关键词匹配")
+Rel(process_usecase, agent_adapter, "委托执行")
 
-' === 工作流与工具关系 ===
-Rel(rag_graph, rag_tools, "调用工具")
-Rel(llmops_graph, llmops_tools, "调用工具")
-Rel(aiops_graph, aiops_tools, "调用工具")
+' === Domain 层内部关系 ===
+Rel(supervisor, routing_decision, "返回决策")
+Rel(supervisor, agent_type, "使用枚举")
+Rel(supervisor, k8s_agent, "委托 K8S")
+Rel(supervisor, vectordb_agent, "委托 Vector")
+Rel(supervisor, rag_agent, "委托 RAG")
+Rel(supervisor, llmops_agent, "委托 LLMOps")
+Rel(supervisor, aiops_agent, "委托 AIOps")
+Rel(supervisor, pipeline_agent, "委托 Pipeline")
+Rel(supervisor, monitoring_agent, "委托 Monitoring")
+Rel(supervisor, model_agent, "委托 Model")
+Rel(supervisor, tts_agent, "委托 TTS")
+Rel(supervisor, video_agent, "委托 Video")
 
-' === 智能体与通用工具关系 ===
-Rel(k8s_agent, k8s_tools, "调用工具")
-Rel(k8s_agent, system_tools, "调用工具")
-Rel(k8s_agent, http_tools, "调用工具")
-Rel(vectordb_agent, vector_tools, "调用工具")
-Rel(monitoring_agent, monitoring_tools, "调用工具")
-Rel(model_agent, model_tools, "调用工具")
-Rel(feature_agent, feature_tools, "调用工具")
-Rel(pipeline_agent, pipeline_tools, "调用工具")
-Rel(tts_agent, tts_tools, "调用工具")
-Rel(video_agent, video_tools, "调用工具")
+Rel(orchestration_service, agent_registry, "注册/查询")
+Rel(agent_registry, agent, "管理")
+Rel(agent_registry, agent_type, "按类型查询")
 
-' === 工具与外部服务关系 ===
-Rel(http_tools, llm_gateway, "API 调用")
-Rel(vector_tools, vector_store, "向量操作")
-Rel(llmops_tools, mlflow, "实验跟踪")
-Rel(llmops_tools, llm_gateway, "模型推理")
-Rel(feature_tools, feast, "特征存取")
-Rel(k8s_tools, k8s_cluster, "K8s API")
+Rel(agent, agent_capabilities, "拥有")
+Rel(conversation, message, "包含")
+
+Rel(workflow_rag, rag_agent, "编排")
+Rel(workflow_llmops, llmops_agent, "编排")
+Rel(workflow_aiops, aiops_agent, "编排")
+
+' === Infrastructure 层关系 ===
+Rel(process_usecase, vision_adapter, "使用")
+Rel(process_usecase, rag_adapter, "使用")
+Rel(process_usecase, tts_adapter, "使用")
+Rel(process_usecase, chat_adapter, "使用")
+Rel(process_usecase, media_adapter, "使用")
+Rel(process_usecase, text_adapter, "使用")
+
+Rel(agent_adapter, vision_service, "HTTP 调用")
+Rel(agent_adapter, rag_service, "HTTP 调用")
+Rel(agent_adapter, tts_service, "HTTP 调用")
+Rel(agent_adapter, text_service, "HTTP 调用")
+
+Rel(k8s_agent, k8s_tools, "使用工具")
+Rel(monitoring_agent, monitoring_tools, "使用工具")
+Rel(model_agent, model_tools, "使用工具")
+Rel(aiops_agent, aiops_tools, "使用工具")
+
+Rel(supervisor, llm_router, "LLM 路由")
+Rel(llm_router, llm_gateway, "调用 LLM")
+
+' === 工具与外部服务 ===
+Rel(k8s_tools, k8s_cluster, "kubectl API")
 Rel(monitoring_tools, prometheus, "指标查询")
 Rel(monitoring_tools, grafana, "可视化")
+Rel(model_tools, mlflow, "实验跟踪")
+Rel(vector_tools, vector_store, "向量操作")
 Rel(aiops_tools, k8s_cluster, "集群操作")
 Rel(aiops_tools, prometheus, "指标查询")
-Rel(pipeline_tools, k8s_cluster, "部署")
-Rel(tts_tools, tts_providers, "语音合成")
-Rel(video_tools, video_providers, "视频生成")
 
-' === 核心模块关系 ===
-Rel(supervisor, base, "继承")
-Rel(k8s_agent, base, "继承")
-Rel(vectordb_agent, base, "继承")
-Rel(rag_agent, base, "继承")
-Rel(supervisor, schemas, "使用")
-Rel(supervisor, prompts, "使用")
+Rel(tts_agent, tts_providers, "TTS API")
+Rel(video_agent, video_providers, "视频生成 API")
 
-' === API 层关系 ===
-Rel(api_router, supervisor, "路由到")
-Rel(api_router, health, "健康检查")
 SHOW_LEGEND()
 @enduml

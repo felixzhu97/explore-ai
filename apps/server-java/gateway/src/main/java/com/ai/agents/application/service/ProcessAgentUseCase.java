@@ -52,10 +52,10 @@ public class ProcessAgentUseCase {
      */
     public Mono<AgentResponseDto> process(AgentRequestDto request) {
         log.info("Processing request: type={}, message={}",
-                request.agentType(), truncate(request.message(), 50));
+                request.agentType(), truncate(request.getUserMessage(), 50));
 
         AgentType targetType = request.agentType();
-        String message = request.message();
+        String message = request.getUserMessage();
 
         // Step 1: Route message to determine target agent
         AgentRoutingResult routingResult = routeMessageUseCase.route(message);
@@ -89,7 +89,7 @@ public class ProcessAgentUseCase {
      */
     public Mono<AgentResponseDto> processDirect(AgentRequestDto request, AgentType targetType) {
         log.info("Direct processing: target={}, message={}",
-                targetType, truncate(request.message(), 50));
+                targetType, truncate(request.getUserMessage(), 50));
 
         AgentAdapter adapter = agentAdapters.get(targetType);
 
@@ -98,7 +98,7 @@ public class ProcessAgentUseCase {
             return Mono.just(AgentResponseDto.error("Agent not available: " + targetType));
         }
 
-        Conversation conversation = createConversation(targetType, request.message());
+        Conversation conversation = createConversation(targetType, request.getUserMessage());
         return adapter.execute(conversation, request)
                 .doOnSuccess(r -> log.info("Direct request processed successfully: type={}", targetType))
                 .doOnError(e -> log.error("Error in direct processing: {}", e.getMessage()));

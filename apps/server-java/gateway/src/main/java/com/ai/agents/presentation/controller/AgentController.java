@@ -10,11 +10,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * REST controller for AI agent operations.
@@ -62,11 +69,22 @@ public class AgentController {
     @PostMapping("/chat")
     public Mono<ResponseEntity<Map<String, Object>>> chat(@Valid @RequestBody AgentRequestDto request) {
         log.info("Received chat request: type={}, message={}",
-                request.agentType(), truncate(request.message(), 50));
+                request.agentType(), truncate(request.getUserMessage(), 50));
 
-        return orchestrationService.chat(request)
+        // Create request with extracted user message
+        AgentRequestDto processRequest = new AgentRequestDto(
+                request.getUserMessage(),
+                request.agentType(),
+                request.sessionId(),
+                request.topK(),
+                request.model(),
+                request.metadata(),
+                null
+        );
+
+        return orchestrationService.chat(processRequest)
                 .map(response -> ResponseEntity.ok(Map.<String, Object>of(
-                        "message", response.message() != null ? response.message() : request.message(),
+                        "message", response.message() != null ? response.message() : request.getUserMessage(),
                         "agentType", response.agentType().name(),
                         "metadata", response.metadata() != null ? response.metadata() : Map.of()
                 )))
@@ -82,7 +100,18 @@ public class AgentController {
     public Mono<ResponseEntity<String>> chatStream(@Valid @RequestBody AgentRequestDto request) {
         log.info("Received streaming chat request: type={}", request.agentType());
 
-        return orchestrationService.chatStream(request)
+        // Create request with extracted user message
+        AgentRequestDto processRequest = new AgentRequestDto(
+                request.getUserMessage(),
+                request.agentType(),
+                request.sessionId(),
+                request.topK(),
+                request.model(),
+                request.metadata(),
+                null
+        );
+
+        return orchestrationService.chatStream(processRequest)
                 .map(response -> ResponseEntity.ok("data: " + (response.message() != null ? response.message() : "") + "\n\n"))
                 .onErrorResume(e -> {
                     log.error("Error in streaming chat", e);
@@ -95,11 +124,22 @@ public class AgentController {
             @PathVariable String agentType,
             @Valid @RequestBody AgentRequestDto request
     ) {
-        log.info("Direct invocation: agent={}, message={}", agentType, truncate(request.message(), 50));
+        log.info("Direct invocation: agent={}, message={}", agentType, truncate(request.getUserMessage(), 50));
 
         AgentType targetType = AgentType.fromId(agentType);
 
-        return orchestrationService.chatDirect(request, targetType)
+        // Create request with extracted user message
+        AgentRequestDto processRequest = new AgentRequestDto(
+                request.getUserMessage(),
+                targetType,
+                request.sessionId(),
+                request.topK(),
+                request.model(),
+                request.metadata(),
+                null
+        );
+
+        return orchestrationService.chatDirect(processRequest, targetType)
                 .map(response -> ResponseEntity.ok(Map.<String, Object>of(
                         "message", response.message() != null ? response.message() : "",
                         "agentType", response.agentType().name(),
@@ -115,7 +155,7 @@ public class AgentController {
 
     @PostMapping("/supervisor/invoke")
     public Mono<ResponseEntity<Map<String, Object>>> supervisorInvoke(@Valid @RequestBody AgentRequestDto request) {
-        log.info("Supervisor invocation: message={}", truncate(request.message(), 50));
+        log.info("Supervisor invocation: message={}", truncate(request.getUserMessage(), 50));
 
         return orchestrationService.chat(request)
                 .map(response -> ResponseEntity.ok(Map.<String, Object>of(
@@ -123,6 +163,138 @@ public class AgentController {
                         "agentType", response.agentType().name(),
                         "metadata", response.metadata() != null ? response.metadata() : Map.of()
                 )));
+    }
+
+    /**
+     * SSE streaming endpoint for supervisor agent invocation.
+     * Streams response chunks as Server-Sent Events.
+     * 
+     * SSE events:
+     * - event: message\ndata: <text>\n\n — for each response text chunk
+     * - event: tool_call\ndata: {"id":"...","name":"...","input":{}}\n\n — when a tool is called
+     * - event: tool_output\ndata: <output>\n\n — tool execution result
+     * - event: error\ndata: <error>\n\n — on error
+     * - data: [DONE]\n\n — stream end sentinel
+     */
+    @PostMapping(value = "/supervisor/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> supervisorInvokeStreaming(@Valid @RequestBody AgentRequestDto request) {
+        log.info("Supervisor SSE streaming invocation: message={}", truncate(request.getUserMessage(), 50));
+
+        String userMessage = request.getUserMessage();
+
+        // Create a request with extracted message
+        AgentRequestDto processRequest = new AgentRequestDto(
+                userMessage,
+                request.agentType(),
+                request.sessionId(),
+                request.topK(),
+                request.model(),
+                request.metadata(),
+                null
+        );
+
+        // Emit starting event
+        ServerSentEvent<String> startEvent = ServerSentEvent.<String>builder()
+                .event("message")
+                .data("Starting analysis...")
+                .build();
+
+        return Flux.concat(
+                // Initial "Starting" message
+                Flux.just(startEvent),
+                // Stream the response from orchestration service
+                orchestrationService.chatStream(processRequest)
+                        .publishOn(Schedulers.boundedElastic())
+                        .map(response -> {
+                            if (response.error() != null) {
+                                return ServerSentEvent.<String>builder()
+                                        .event("error")
+                                        .data(response.error())
+                                        .build();
+                            }
+
+                            String messageText = response.message() != null ? response.message() : "";
+                            return ServerSentEvent.<String>builder()
+                                    .event("message")
+                                    .data(messageText)
+                                    .build();
+                        })
+                        .flux(),
+                // Final [DONE] sentinel
+                Flux.defer(() -> {
+                    log.info("SSE stream completed");
+                    return Flux.just(ServerSentEvent.<String>builder()
+                            .data("[DONE]")
+                            .build());
+                })
+        ).doOnError(e -> {
+            log.error("SSE stream error", e);
+        });
+    }
+
+    /**
+     * SSE streaming endpoint for specific agent invocation.
+     * Streams response chunks as Server-Sent Events.
+     *
+     * SSE events:
+     * - event: message\ndata: <text>\n\n — for each response text chunk
+     * - event: tool_call\ndata: {"id":"...","name":"...","input":{}}\n\n — when a tool is called
+     * - event: tool_output\ndata: <output>\n\n — tool execution result
+     * - event: error\ndata: <error>\n\n — on error
+     * - data: [DONE]\n\n — stream end sentinel
+     */
+    @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> agentInvokeStreaming(
+            @PathVariable String agentType,
+            @Valid @RequestBody AgentRequestDto request
+    ) {
+        log.info("Agent SSE streaming invocation: agent={}, message={}", agentType, truncate(request.getUserMessage(), 50));
+
+        AgentType targetType = AgentType.fromId(agentType);
+
+        String userMessage = request.getUserMessage();
+        AgentRequestDto processRequest = new AgentRequestDto(
+                userMessage,
+                targetType,
+                request.sessionId(),
+                request.topK(),
+                request.model(),
+                request.metadata(),
+                null
+        );
+
+        ServerSentEvent<String> startEvent = ServerSentEvent.<String>builder()
+                .event("message")
+                .data("Processing with " + targetType.name() + " agent...")
+                .build();
+
+        return Flux.concat(
+                Flux.just(startEvent),
+                orchestrationService.chatDirect(processRequest, targetType)
+                        .publishOn(Schedulers.boundedElastic())
+                        .map(response -> {
+                            if (response.error() != null) {
+                                return ServerSentEvent.<String>builder()
+                                        .event("error")
+                                        .data(response.error())
+                                        .build();
+                            }
+                            String messageText = response.message() != null ? response.message() : "";
+                            return ServerSentEvent.<String>builder()
+                                    .event("message")
+                                    .data(messageText)
+                                    .build();
+                        })
+                        .flux(),
+                Flux.defer(() -> {
+                    log.info("Agent SSE stream completed for {}", agentType);
+                    return Flux.just(ServerSentEvent.<String>builder()
+                            .data("[DONE]")
+                            .build());
+                })
+        ).doOnError(e -> {
+            log.error("Agent SSE stream error for {}", agentType, e);
+        });
     }
 
     @GetMapping("/list")

@@ -35,10 +35,10 @@ public class MediaAgentAdapter implements AgentAdapter {
 
     @Override
     public Mono<AgentResponseDto> execute(Conversation conversation, AgentRequestDto request) {
-        log.info("Media agent processing request: {}", truncate(request.message(), 50));
+        log.info("Media agent processing request: {}", truncate(request.getUserMessage(), 50));
 
         Map<String, Object> metadata = request.metadata();
-        String prompt = request.message();
+        String prompt = request.getUserMessage();
 
         Integer width = metadata != null && metadata.containsKey("width") 
             ? ((Number) metadata.get("width")).intValue() : 512;

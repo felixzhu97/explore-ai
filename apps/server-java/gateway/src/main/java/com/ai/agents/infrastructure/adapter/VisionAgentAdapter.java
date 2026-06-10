@@ -39,6 +39,13 @@ public class VisionAgentAdapter implements AgentAdapter {
         Map<String, Object> metadata = request.metadata();
         String operation = metadata != null ? (String) metadata.getOrDefault("operation", "analyze") : "analyze";
 
+        // Extract image data from metadata, use request text as fallback
+        String requestText = request.getUserMessage();
+        if (requestText != null && !requestText.isBlank() && extractImageData(request).length == 0) {
+            // If no image data in metadata but we have text, use text as prompt for caption
+            return handleAnalyze(request, metadata);
+        }
+
         return switch (operation) {
             case "detect" -> handleDetect(request);
             case "caption" -> handleCaption(request);

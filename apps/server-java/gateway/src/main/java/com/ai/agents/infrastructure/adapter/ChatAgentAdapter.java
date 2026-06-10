@@ -42,12 +42,13 @@ public class ChatAgentAdapter implements AgentAdapter {
 
     @Override
     public Mono<AgentResponseDto> execute(Conversation conversation, AgentRequestDto request) {
-        log.info("Chat agent processing request: {}", truncate(request.message(), 50));
+        log.info("Chat agent processing request: {}", truncate(request.getUserMessage(), 50));
 
         return Mono.fromCallable(() -> {
             try {
+                String userMessage = request.getUserMessage();
                 dev.langchain4j.data.message.ChatMessage systemMsg = SystemMessage.from(systemPrompt);
-                dev.langchain4j.data.message.ChatMessage userMsg = UserMessage.from(request.message());
+                dev.langchain4j.data.message.ChatMessage userMsg = UserMessage.from(userMessage);
 
                 ChatResponse response = chatModel.chat(List.of(systemMsg, userMsg));
                 String answer = response.aiMessage().text();

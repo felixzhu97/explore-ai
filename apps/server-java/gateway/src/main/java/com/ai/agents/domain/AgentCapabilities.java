@@ -36,7 +36,8 @@ public final class AgentCapabilities {
             case MEDIA -> new AgentCapabilities(false, false, false, true, false, false);
             case TEXT -> new AgentCapabilities(false, false, false, false, true, false);
             case CHAT -> new AgentCapabilities(false, false, false, false, false, true);
-            case SUPERVISOR -> new AgentCapabilities(true, true, true, true, true, true);
+            case SUPERVISOR, K8S, MONITORING, MODEL, LLM_OPS, AI_OPS, VIDEO, PIPELINE, VECTOR ->
+                    new AgentCapabilities(true, true, true, true, true, true);
         };
     }
 
@@ -56,7 +57,8 @@ public final class AgentCapabilities {
             case MEDIA -> supportsMedia;
             case TEXT -> supportsText;
             case CHAT -> supportsChat;
-            case SUPERVISOR -> supportsRag && supportsTts && supportsVision && supportsMedia && supportsText && supportsChat;
+            case SUPERVISOR, K8S, MONITORING, MODEL, LLM_OPS, AI_OPS, VIDEO, PIPELINE, VECTOR ->
+                    supportsRag && supportsTts && supportsVision && supportsMedia && supportsText && supportsChat;
         };
     }
 

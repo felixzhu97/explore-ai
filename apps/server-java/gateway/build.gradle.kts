@@ -3,6 +3,7 @@ plugins {
     `java-library`
     id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.7"
+    id("jacoco")
 }
 
 group = "com.ai"

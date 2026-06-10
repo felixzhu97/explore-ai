@@ -62,7 +62,8 @@ public class TextAgentAdapter implements AgentAdapter {
         List<Map<String, String>> messages = extractMessages(metadata);
 
         if (messages.isEmpty()) {
-            messages = List.of(Map.of("role", "user", "content", request.message()));
+            String userMessage = request.getUserMessage();
+            messages = userMessage != null ? List.of(Map.of("role", "user", "content", userMessage)) : List.of();
         }
 
         Double temperature = metadata != null && metadata.containsKey("temperature")
@@ -94,8 +95,9 @@ public class TextAgentAdapter implements AgentAdapter {
 
         return Mono.fromCallable(() -> {
             try {
+                String userMessage = request.getUserMessage();
                 dev.langchain4j.data.message.ChatMessage systemMsg = SystemMessage.from(systemPromptToUse);
-                dev.langchain4j.data.message.ChatMessage userMsg = UserMessage.from(request.message());
+                dev.langchain4j.data.message.ChatMessage userMsg = UserMessage.from(userMessage);
 
                 ChatResponse response = chatModel.chat(List.of(systemMsg, userMsg));
                 String text = response.aiMessage().text();
@@ -112,11 +114,12 @@ public class TextAgentAdapter implements AgentAdapter {
     private Mono<AgentResponseDto> handleTranslate(AgentRequestDto request) {
         Map<String, Object> metadata = request.metadata();
         String targetLanguage = metadata != null ? (String) metadata.get("target_language") : "English";
+        String userMessage = request.getUserMessage() != null ? request.getUserMessage() : "";
 
         String translatePrompt = String.format(
                 "Translate the following text to %s. Only output the translation, nothing else.\n\nText: %s",
                 targetLanguage,
-                request.message()
+                userMessage
         );
 
         return Mono.fromCallable(() -> {
@@ -135,9 +138,10 @@ public class TextAgentAdapter implements AgentAdapter {
     }
 
     private Mono<AgentResponseDto> handleSummarize(AgentRequestDto request) {
+        String userMessage = request.getUserMessage() != null ? request.getUserMessage() : "";
         String summarizePrompt = String.format(
                 "Summarize the following text concisely:\n\n%s",
-                request.message()
+                userMessage
         );
 
         return Mono.fromCallable(() -> {

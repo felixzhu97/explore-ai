@@ -128,6 +128,38 @@ plantuml -o png *.puml
 - 更新 `component-frontend.puml` - 添加 TTS、Video 相关组件
 - 添加本地 C4 库文件 (`C4.puml`, `C4_Context.puml`, `C4_Container.puml`, `C4_Component.puml`)
 
+### 2026-06-10 (架构重构 - Java Gateway + Angular Frontend)
+
+**重大架构更新**：将 Python AI Agents 服务重构为 Java Spring Boot Gateway + Angular 前端
+
+- **更新 `context.puml` (C1)**：
+  - 新增 AI Gateway 作为核心入口点 (Java Spring Boot, Port 9000)
+  - 保留后端 Python 服务：Vision, TTS, Text, RAG, Media Gen
+  - 更新系统边界以反映 Gateway 架构
+
+- **更新 `container.puml` (C2)**：
+  - 重构为 Java Gateway 层 + 后端服务层分离
+  - 新增 Java Domain Services：K8sAgentService, VectorAgentService, RagAgentService 等
+  - 新增 Adapter 层：VisionAgentAdapter, RagAgentAdapter, TtsAgentAdapter 等
+  - 新增 Tools 层：K8sTools, MonitoringTools, VectorTools 等
+  - 保留 Python 后端服务层
+
+- **更新 `component-ai-agents.puml` (C3)**：
+  - 完整展示 Java Spring Boot Clean Architecture 分层：
+    - Presentation Layer: AgentController, AgentHealthController
+    - Application Layer: AgentOrchestrationService, RouteMessageUseCase, ProcessAgentUseCase
+    - Domain Layer: SupervisorAgent (关键词路由), AgentRegistry, AgentType 枚举
+    - Infrastructure Layer: AgentAdapters, Tools, SupervisorLLMRouter
+  - 展示所有 12 个 Agent 类型：K8S, VECTOR, RAG, PIPELINE, LLMOPS, AIOPS, FEATURE_STORE, MONITORING, MODEL, TTS, VIDEO, CHAT
+  - 展示 Supervisor Agent 的关键词路由机制
+
+- **更新 `component-frontend.puml` (C3)**：
+  - 展示 Angular 20+ 组件架构
+  - 新增 AIInfraPanelComponent：支持 Supervisor/K8s/Monitoring/Model/LLMOps/AIOps/VectorDB 子面板
+  - 展示 AgentChatComponent 的 SSE 流式响应处理
+  - 展示 AiService 与后端 Gateway 的交互
+  - 展示完整的组件层级：App -> AIHub -> Panels -> AgentChat
+
 ### 2026-06-01 (沃德利地图全面更新)
 
 - 更新 `wardley-map.puml` - 基于多 agent 并行分析结果全面更新技术演进地图：
