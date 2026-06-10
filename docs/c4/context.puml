@@ -3,68 +3,26 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 系统上下文图 (C1) - AI-Explore Multi-Agent AI Infrastructure Platform
+title 系统上下文图 (C1) - AI Chat Application
 
 ' 人员定义
-Person(ml_engineer, "ML 工程师", "构建和部署机器学习模型")
-Person(devops_engineer, "运维工程师", "管理系统基础设施和监控")
-Person(data_scientist, "数据科学家", "进行数据分析和特征工程")
+Person(user, "用户", "使用 AI 聊天功能进行对话")
 
-' AI-Explore Platform 系统边界
-System_Boundary(ai_platform, "AI-Explore Platform") {
-    System(web_app, "Web 应用", "Angular 20+ + TypeScript + SCSS", "用户界面和交互")
-    System(ai_gateway, "AI Gateway", "Java Spring Boot + WebFlux", "多智能体协调网关，处理路由和任务编排")
-    System(vision_service, "Vision 服务", "Python FastAPI", "视觉 AI：目标检测、OCR、图像描述")
-    System(tts_service, "TTS 服务", "Python FastAPI", "文本转语音合成")
-    System(text_service, "Text 服务", "Python FastAPI", "文本处理和 LLM 网关")
-    System(rag_service, "RAG 服务", "Python FastAPI", "文档检索和问答")
-    System(media_gen_service, "Media Gen 服务", "Python FastAPI", "本地文生图")
-    System(vector_store, "Vector Store", "Qdrant", "向量嵌入存储和检索")
+' AI Chat Application 系统边界
+System_Boundary(ai_chat_app, "AI Chat Application") {
+    System(frontend, "Web 前端", "Angular 20+ + TypeScript + SCSS", "用户界面和交互")
+    System(backend, "AI 聊天后端", "Java 25 + Spring Boot 3.5 + Spring AI 1.1.7", "聊天会话管理、AI 对话处理")
 }
 
 ' 外部服务
-System_Ext(openai_api, "OpenAI API", "GPT-4 等大语言模型服务")
-System_Ext(claude_api, "Claude API", "Anthropic Claude 语言模型服务")
-System_Ext(ollama, "Ollama", "本地 LLM 推理服务")
-System_Ext(kubernetes, "Kubernetes", "容器编排和集群管理")
-System_Ext(prometheus, "Prometheus", "指标监控和告警")
-System_Ext(grafana, "Grafana", "可视化监控仪表板")
-System_Ext(mlflow, "MLflow", "ML 实验跟踪和模型管理")
-System_Ext(feast, "Feast", "特征存储服务")
+System_Ext(deepseek_api, "DeepSeek API", "DeepSeek 大语言模型服务")
 
 ' 用户关系
-Rel(ml_engineer, web_app, "配置模型", "HTTPS")
-Rel(ml_engineer, ai_gateway, "编排智能体", "HTTPS")
-Rel(devops_engineer, web_app, "监控系统", "HTTPS")
-Rel(devops_engineer, kubernetes, "部署服务", "kubectl")
-Rel(devops_engineer, prometheus, "查看指标", "HTTP")
-Rel(data_scientist, web_app, "查询特征", "HTTPS")
-Rel(data_scientist, feast, "管理特征", "gRPC")
+Rel(user, frontend, "发送消息/接收回复", "HTTPS")
+Rel(frontend, backend, "发送请求/流式响应", "HTTP/SSE")
 
-' 内部系统关系 - 前端与网关
-Rel(web_app, ai_gateway, "发送请求/流式响应", "HTTP/SSE")
-
-' 内部系统关系 - 网关与后端服务
-Rel(ai_gateway, vision_service, "调用视觉 AI", "HTTP")
-Rel(ai_gateway, tts_service, "语音合成", "HTTP")
-Rel(ai_gateway, text_service, "文本处理/LLM", "HTTP")
-Rel(ai_gateway, rag_service, "RAG 查询", "HTTP")
-Rel(ai_gateway, media_gen_service, "图像生成", "HTTP")
-
-' 服务间关系
-Rel(rag_service, vector_store, "存储/检索", "gRPC")
-Rel(vision_service, media_gen_service, "图像生成", "HTTP")
-
-' LLM 集成
-Rel(ai_gateway, openai_api, "LLM 调用")
-Rel(ai_gateway, claude_api, "LLM 调用")
-Rel(ai_gateway, ollama, "本地 LLM")
-
-' 运维集成
-Rel(ai_gateway, mlflow, "实验跟踪")
-Rel(ai_gateway, feast, "特征存取")
-Rel(ai_gateway, prometheus, "上报指标")
-Rel(ai_gateway, kubernetes, "集群操作")
+' 后端与 LLM 关系
+Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 
 SHOW_LEGEND()
 @enduml

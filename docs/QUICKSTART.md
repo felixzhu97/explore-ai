@@ -1,177 +1,331 @@
-# Quick Start
+# AI Chat Service Quick Start Guide
 
-5 分钟启动 AI 服务。
+## AI 聊天服务快速入门指南
 
-## 前置要求
+---
 
-- Node.js >= 20
-- pnpm >= 9
-- Python >= 3.9
+## 1. Prerequisites | 前置条件
 
-## 服务列表
+### Required Software | 必需软件
 
+| Software | Version | Download |
+|----------|---------|----------|
+| Node.js | >= 20.x | [nodejs.org](https://nodejs.org) |
+| Java (JDK) | >= 25 | [adoptium.net](https://adoptium.net) |
+| pnpm | >= 8.x | `npm install -g pnpm` |
 
-| 服务             | 端口   | 说明                         |
-| -------------- | ---- | -------------------------- |
-| Vision Service | 8000 | 图像识别 (YOLO, BLIP, OCR)     |
-| RAG Service    | 8001 | 文档问答、检索增强生成                |
-| TTS Service    | 8005 | 语音合成                       |
-| Text Service   | 8006 | 文本生成 (GPT, Claude, Ollama) |
-| AI Agents      | 8003 | 多智能体编排                     |
-| Media Gen      | 3456 | 本地 Stable Diffusion        |
-
-
-## 启动方式
-
-### 一键启动 (推荐)
+### Verify Installation | 验证安装
 
 ```bash
+# Check versions / 检查版本
+node --version    # Should show v20.x.x or higher
+java --version    # Should show 25.x.x or higher
+pnpm --version    # Should show 8.x.x or higher
+```
+
+> **Note | 注意**: This project uses `pnpm` as the package manager. Please do not use `npm` or `yarn`.
+
+---
+
+## 2. Quick Installation | 快速安装
+
+### Step 1: Install Dependencies | 步骤 1: 安装依赖
+
+```bash
+# Install all dependencies (root + backend + frontend)
+# 安装所有依赖（根目录 + 后端 + 前端）
 pnpm install
-pnpm start
 ```
 
-### 手动启动
+This command will install:
+- Root workspace dependencies
+- Frontend (Angular) dependencies in `apps/web`
+- Backend (Spring Boot) dependencies (downloaded via Gradle)
+
+### Step 2: Verify Installation | 步骤 2: 验证安装
 
 ```bash
-# Vision Service
-cd services/vision-service
-pip install -r requirements.txt
-uvicorn src.main:app --port 8000
-
-# RAG Service
-cd services/rag
-pip install -r requirements.txt
-uvicorn src.main:app --port 8001
-
-# TTS Service
-cd services/tts-service
-pip install -r requirements.txt
-uvicorn src.main:app --port 8005
-
-# Text Service
-cd services/text-service
-pip install -r requirements.txt
-uvicorn src.main:app --port 8006
-
-# AI Agents
-cd services/ai_agents
-pip install -r requirements.txt
-uvicorn main:app --port 8003
-
-# Media Gen
-cd services/media-gen
-pip install -r requirements.txt
-uvicorn app:app --port 3456
+# Check installed packages
+pnpm list --depth 0
 ```
 
-## 环境配置
+---
+
+## 3. Environment Configuration | 环境配置
+
+### Step 1: Create Backend Environment File | 步骤 1: 创建后端环境文件
 
 ```bash
-# 各服务复制环境变量文件
-cd services/<service-name>
+cd apps/server
+
+# Copy example env file
 cp .env.example .env
 ```
 
-## 常用 API
+### Step 2: Configure DeepSeek API Key | 步骤 2: 配置 DeepSeek API Key
 
-### 健康检查
-
-```bash
-curl http://localhost:8006/api/text/health  # Text
-curl http://localhost:8005/tts/health       # TTS
-curl http://localhost:8001/health           # RAG
-curl http://localhost:8000/health           # Vision
-curl http://localhost:8003/health           # AI Agents
-curl http://localhost:3456/health           # Media Gen
-```
-
-### Text Service
+Edit the `.env` file in `apps/server/`:
 
 ```bash
-# 文本补全
-curl -X POST http://localhost:8006/api/text/complete \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Hello, world!"}'
+# apps/server/.env
 
-# 对话
-curl -X POST http://localhost:8006/api/text/chat \
-  -H "Content-Type: application/json" \
-  -d '{"messages": [{"role": "user", "content": "Hi"}]}'
+# DeepSeek API Configuration
+DEEPSEEK_API_KEY=your-deepseek-api-key-here
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 
-### TTS Service
+#### How to Get DeepSeek API Key | 如何获取 DeepSeek API Key
+
+1. Visit [platform.deepseek.com](https://platform.deepseek.com)
+2. Register or log in to your account
+3. Go to **API Keys** section
+4. Click **Create API Key**
+5. Copy and paste the key into `.env`
+
+> **Important | 重要**: Never commit your `.env` file to version control. It is already in `.gitignore`.
+
+---
+
+## 4. Starting Services | 启动服务
+
+### Option A: Start Both Services Together (Recommended) | 选项 A: 同时启动前后端（推荐）
 
 ```bash
-# 语音合成
-curl -X POST http://localhost:8005/tts/synthesize \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Hello!", "voice": "en-US-JennyNeural"}'
+# From root directory
+pnpm dev
 ```
 
-### RAG Service
+This will start both backend and frontend in parallel mode.
+
+### Option B: Start Services Separately | 选项 B: 分别启动服务
+
+#### Start Backend | 启动后端
 
 ```bash
-# 上传文档
-curl -X POST http://localhost:8001/api/documents/upload \
-  -F "file=@document.pdf"
-
-# 文档问答
-curl -X POST http://localhost:8001/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "文档内容是什么?"}'
+# Terminal 1: Start Spring Boot backend
+cd apps/server
+./gradlew bootRun
 ```
 
-### Vision Service
+The backend runs on **http://localhost:9000**
+
+#### Start Frontend | 启动前端
 
 ```bash
-# 目标检测
-curl -X POST http://localhost:8000/vision/detect \
-  -F "file=@image.jpg"
-
-# 图像描述
-curl -X POST http://localhost:8000/vision/caption \
-  -F "file=@image.jpg"
-
-# OCR 文字识别
-curl -X POST http://localhost:8000/vision/ocr \
-  -F "file=@image.jpg"
+# Terminal 2: Start Angular frontend
+cd apps/web
+pnpm start
 ```
 
-### Media Gen
+The frontend runs on **http://localhost:4200**
+
+### Verify Services are Running | 验证服务运行状态
 
 ```bash
-# 生成图像
-curl -X POST http://localhost:3456/image/generate \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "A beautiful sunset", "width": 512, "height": 512}'
+# Check backend health
+curl http://localhost:9000/actuator/health
+
+# Check frontend
+open http://localhost:4200
 ```
 
-## 常见问题
+---
 
-### 模块未找到
+## 5. First Use | 首次使用
+
+### Step 1: Open the Application | 步骤 1: 打开应用
+
+Open your browser and navigate to:
+- Frontend: **http://localhost:4200**
+
+### Step 2: Send Your First Message | 步骤 2: 发送第一条消息
+
+1. Find the chat input box on the page
+2. Type a message (e.g., "Hello, how are you?")
+3. Press **Enter** or click the **Send** button
+4. Wait for the AI response
+
+### Step 3: View Chat History | 步骤 3: 查看聊天历史
+
+- Your messages and AI responses are displayed in the chat area
+- Previous conversations are saved automatically
+
+---
+
+## 6. Common Commands | 常用命令
+
+### Development Commands | 开发命令
+
+| Command | Description | 说明 |
+|---------|-------------|------|
+| `pnpm dev` | Start all services | 启动所有服务 |
+| `pnpm web:dev` | Start frontend only | 仅启动前端 |
+| `pnpm server:dev` | Start backend only | 仅启动后端 |
+
+### Build Commands | 构建命令
+
+| Command | Description | 说明 |
+|---------|-------------|------|
+| `pnpm build` | Build all packages | 构建所有包 |
+| `cd apps/web && pnpm build` | Build frontend | 构建前端 |
+| `cd apps/server && ./gradlew build` | Build backend | 构建后端 |
+
+### Test Commands | 测试命令
+
+| Command | Description | 说明 |
+|---------|-------------|------|
+| `pnpm test` | Run all tests | 运行所有测试 |
+| `pnpm test:watch` | Run tests in watch mode | 监听模式运行测试 |
+| `cd apps/web && pnpm test` | Run frontend tests | 运行前端测试 |
+| `cd apps/server && ./gradlew test` | Run backend tests | 运行后端测试 |
+
+### Lint Commands | 代码检查命令
+
+| Command | Description | 说明 |
+|---------|-------------|------|
+| `pnpm lint` | Lint all packages | 检查所有包 |
+| `cd apps/web && pnpm lint` | Lint frontend | 检查前端代码 |
+
+### Clean Commands | 清理命令
+
+| Command | Description | 说明 |
+|---------|-------------|------|
+| `pnpm clean` | Clean all build artifacts | 清理所有构建产物 |
+| `cd apps/server && ./gradlew clean` | Clean backend | 清理后端构建 |
+
+---
+
+## 7. Troubleshooting | 故障排除
+
+### Common Issues | 常见问题
+
+#### Issue 1: "Connection refused" or "Backend not responding"
+
+**Symptom | 症状**: Frontend cannot connect to backend
+
+**Solutions | 解决方案**:
 
 ```bash
-# 激活虚拟环境
-source services/<service-name>/.venv/bin/activate
+# 1. Check if backend is running
+ps aux | grep java | grep -v grep
+
+# 2. Check backend port
+curl http://localhost:9000/actuator/health
+
+# 3. Restart backend
+cd apps/server && ./gradlew bootRun
 ```
 
-### GPU 未检测
+#### Issue 2: "API Key not configured" or "Invalid API Key"
+
+**Symptom | 症状**: AI responses fail or return errors
+
+**Solutions | 解决方案**:
 
 ```bash
-# 检查 CUDA
-python -c "import torch; print(torch.cuda.is_available())"
+# 1. Check .env file exists
+cat apps/server/.env
+
+# 2. Verify API key format (should start with sk-)
+grep DEEPSEEK_API_KEY apps/server/.env
+
+# 3. Restart backend after configuring
+./gradlew bootRun
 ```
 
-### 端口占用
+#### Issue 3: "CORS error" in browser console
+
+**Symptom | 症状**: Browser blocks API requests due to CORS policy
+
+**Solutions | 解决方案**:
+
+The backend is already configured to allow CORS from `http://localhost:4200`.
 
 ```bash
-# 使用环境变量修改端口
-PORT=8080 uvicorn src.main:app --port 8080
+# 1. Verify backend CORS settings
+curl -I -H "Origin: http://localhost:4200" http://localhost:9000/api/chat
+
+# 2. Check browser console for specific error details
 ```
 
-## 更多信息
+#### Issue 4: Frontend build fails
 
-- [架构设计](./ARCHITECTURE.md)
-- [API 参考](./API.md)
-- [开发指南](./DEVELOPMENT.md)
+**Symptom | 症状**: Angular build errors
 
+**Solutions | 解决方案**:
+
+```bash
+# 1. Clear node_modules and reinstall
+rm -rf node_modules apps/web/node_modules
+pnpm install
+
+# 2. Clear Angular cache
+cd apps/web
+rm -rf .angular node_modules dist
+pnpm install && pnpm build
+```
+
+#### Issue 5: Backend build fails
+
+**Symptom | 症状**: Gradle build errors
+
+**Solutions | 解决方案**:
+
+```bash
+# 1. Clean and rebuild
+cd apps/server
+./gradlew clean build
+
+# 2. Check Java version
+java --version  # Must be 25+
+
+# 3. Check Gradle wrapper
+./gradlew --version
+```
+
+### Port Reference | 端口参考
+
+| Service | Port | URL |
+|---------|------|-----|
+| Backend (Spring Boot) | 9000 | http://localhost:9000 |
+| Frontend (Angular) | 4200 | http://localhost:4200 |
+
+### Environment Variables Reference | 环境变量参考
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEEPSEEK_API_KEY` | - | Your DeepSeek API key (required) |
+| `DEEPSEEK_BASE_URL` | https://api.deepseek.com | DeepSeek API endpoint |
+
+### Need More Help? | 需要更多帮助？
+
+- **Backend Issues**: Check logs in `apps/server/build.gradle.kts`
+- **Frontend Issues**: Check `apps/web/package.json`
+- **Architecture Docs**: See [ARCHITECTURE.md](./ARCHITECTURE.md)
+
+---
+
+## Quick Reference Card | 快速参考卡
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    QUICK START SUMMARY                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. Install:     pnpm install                               │
+│                                                              │
+│  2. Configure:   apps/server/.env                           │
+│                   └─ DEEPSEEK_API_KEY=sk-xxx               │
+│                                                              │
+│  3. Start:       pnpm dev                                   │
+│                   └─ Backend:  http://localhost:9000        │
+│                   └─ Frontend: http://localhost:4200       │
+│                                                              │
+│  4. Use:         Open browser → Type message → Get reply    │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**Enjoy your AI Chat experience! | 享受您的 AI 聊天体验！**

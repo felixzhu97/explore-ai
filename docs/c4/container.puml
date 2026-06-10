@@ -3,159 +3,109 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI-Explore Platform
+title 容器图 (C2) - AI Chat Service
 
-Person(ml_engineer, "ML 工程师")
-Person(devops_engineer, "运维工程师")
-Person(data_scientist, "数据科学家")
+' === 用户 ===
+Person(user, "用户", "与 AI 助手进行自然语言对话")
 
 ' === 前端层 ===
 System_Boundary(frontend_boundary, "前端层") {
-    Container(web_app, "Web 应用", "Angular 20+ + TypeScript + SCSS", "用户界面和交互")
-}
-
-' === Java Gateway 层 ===
-System_Boundary(gateway_boundary, "AI Gateway 层 (Java Spring Boot)") {
-    Container(ai_gateway, "AI Gateway", "Java Spring Boot + WebFlux", "多智能体协调网关：路由编排、任务分发")
-
-    ' Gateway 内部容器
-    Container(supervisor, "Supervisor Agent", "Java Domain Service", "中央协调器：意图识别、关键词路由")
-    Container(route_usecase, "RouteMessageUseCase", "Java Application Service", "消息路由用例")
-    Container(process_usecase, "ProcessAgentUseCase", "Java Application Service", "Agent 处理用例")
-    Container(orchestration_service, "AgentOrchestrationService", "Java Application Service", "编排服务：协调路由和执行")
+    Container(angular_app, "Angular Web App", "Angular 20+ + TypeScript + SCSS", "提供 Web 用户界面，支持实时对话和消息历史")
 }
 
 ' === 后端服务层 ===
-System_Boundary(services_boundary, "后端服务层") {
-    Container(vision_service, "Vision 服务", "Python FastAPI", "视觉 AI：目标检测、OCR、图像描述")
-    Container(tts_service, "TTS 服务", "Python FastAPI", "文本转语音合成")
-    Container(text_service, "Text 服务", "Python FastAPI", "文本处理和 LLM 网关")
-    Container(rag_service, "RAG 服务", "Python FastAPI", "文档检索和问答")
-    Container(media_gen_service, "Media Gen 服务", "Python FastAPI", "本地文生图")
-}
+System_Boundary(backend_boundary, "后端服务层 (Java Spring Boot)") {
 
-' === AI Agents 领域服务 (Java Domain) ===
-System_Boundary(agents_boundary, "AI Agents 领域服务") {
-    Container(k8s_agent, "K8sAgentService", "Java Domain Service", "Kubernetes 集群管理")
-    Container(vectordb_agent, "VectorAgentService", "Java Domain Service", "向量数据库操作")
-    Container(rag_agent, "RagAgentService", "Java Domain Service", "文档检索、知识库问答")
-    Container(pipeline_agent, "PipelineAgentService", "Java Domain Service", "ML/DevOps 流水线编排")
-    Container(llmops_agent, "LLMOpsAgentService", "Java Domain Service", "ML 模型生命周期管理")
-    Container(aiops_agent, "AIOpsAgentService", "Java Domain Service", "智能运维和异常检测")
-    Container(feature_agent, "FeatureStoreAgentService", "Java Domain Service", "特征工程和管理")
-    Container(monitoring_agent, "MonitoringAgentService", "Java Domain Service", "指标查询、告警配置")
-    Container(model_agent, "ModelAgentService", "Java Domain Service", "ML 模型版本控制、部署")
-    Container(tts_agent, "TTSAgentService", "Java Domain Service", "文本转语音合成")
-    Container(video_agent, "VideoAgentService", "Java Domain Service", "视频生成")
-}
+    ' Interface Layer (Interface 层 - HTTP 接口)
+    Container_Boundary(interface_layer, "Interface Layer") {
+        Container(chat_controller, "ChatController", "Java REST Controller", "处理 HTTP 请求，参数验证，请求路由")
+        Container(exception_handler, "GlobalExceptionHandler", "Java Exception Handler", "统一异常处理和错误响应")
+        Container(request_dto, "Request/Response DTOs", "Java DTO", "ChatRequest, ChatResponse, MessageHistoryResponse, SessionInfo")
+    }
 
-' === AI Gateway 基础设施 (Adapters) ===
-System_Boundary(adapters_boundary, "AI Gateway 适配器层") {
-    Container(vision_adapter, "VisionAgentAdapter", "Java Infrastructure", "视觉 AI 适配器")
-    Container(rag_adapter, "RagAgentAdapter", "Java Infrastructure", "RAG 适配器")
-    Container(tts_adapter, "TtsAgentAdapter", "Java Infrastructure", "TTS 适配器")
-    Container(chat_adapter, "ChatAgentAdapter", "Java Infrastructure", "聊天适配器")
-    Container(media_adapter, "MediaAgentAdapter", "Java Infrastructure", "媒体生成适配器")
-    Container(text_adapter, "TextAgentAdapter", "Java Infrastructure", "文本处理适配器")
-}
+    ' Application Layer (应用层 - 用例编排)
+    Container_Boundary(application_layer, "Application Layer") {
+        Container(send_message_usecase, "SendChatMessageUseCase", "Java Use Case", "发送聊天消息的业务用例")
+        Container(chat_app_service, "ChatApplicationService", "Java Application Service", "聊天应用服务，协调领域对象和用例")
+    }
 
-' === AI Gateway 工具层 ===
-System_Boundary(tools_boundary, "AI Gateway 工具层") {
-    Container(k8s_tools, "K8sTools", "Java Infrastructure", "kubectl 操作工具")
-    Container(monitoring_tools, "MonitoringTools", "Java Infrastructure", "Prometheus/Grafana 查询")
-    Container(vector_tools, "VectorTools", "Java Infrastructure", "向量数据库操作")
-    Container(model_tools, "ModelTools", "Java Infrastructure", "MLflow 模型管理")
-    Container(aiops_tools, "AIOpsTools", "Java Infrastructure", "日志分析、异常检测")
+    ' Domain Layer (领域层 - 核心业务逻辑)
+    Container_Boundary(domain_layer, "Domain Layer") {
+        Container(chat_session, "ChatSession", "Java Entity / Aggregate Root", "聊天会话实体，管理会话状态和消息列表")
+        Container(chat_message, "ChatMessage", "Java Entity", "聊天消息实体，包含消息内容和类型")
+        Container(ai_service, "AiChatService", "Java Domain Service", "AI 对话核心服务，处理业务规则")
+        Container(domain_events, "Domain Events", "Java Records", "ChatMessageReceivedEvent, ChatResponseGeneratedEvent")
+
+        ' Value Objects
+        Container_Boundary(value_objects, "Value Objects") {
+            Container(chat_session_id, "ChatSessionId", "Java Value Object", "会话唯一标识")
+            Container(message_id, "MessageId", "Java Value Object", "消息唯一标识")
+            Container(message_content, "MessageContent", "Java Value Object", "消息内容，验证和管理")
+        }
+    }
+
+    ' Infrastructure Layer (基础设施层 - 外部适配)
+    Container_Boundary(infrastructure_layer, "Infrastructure Layer") {
+        Container(spring_ai_adapter, "SpringAiChatAdapter", "Java Adapter", "Spring AI 适配器，封装 DeepSeek API 调用")
+        Container(spring_ai_service, "SpringAiChatService", "Java Service", "Spring AI 服务实现，处理流式响应")
+        Container(in_memory_repo, "InMemoryChatSessionRepository", "Java Repository", "内存会话存储实现")
+        Container(app_config, "ApplicationConfig", "Java Configuration", "应用配置，Bean 定义")
+    }
+
+    ' Application Ports (应用端口 - 接口定义)
+    Container_Boundary(ports, "Application Ports") {
+        Container(ai_chat_port, "AiChatPort", "Java Interface", "AI 聊天能力抽象")
+        Container(session_repo_port, "ChatSessionRepositoryPort", "Java Interface", "会话仓储抽象")
+    }
 }
 
 ' === 数据层 ===
 System_Boundary(data_boundary, "数据层") {
-    ContainerDb(vector_store, "Vector Store", "Qdrant", "向量嵌入存储和检索")
-    ContainerDb(mlflow_db, "MLflow", "PostgreSQL + S3", "ML 实验跟踪和模型注册")
-    ContainerDb(feast_store, "Feast", "Redis + DB", "特征存储和在线服务")
-    ContainerDb(session_store, "Session Store", "Redis", "RAG 会话状态管理")
-    ContainerDb(document_store, "Document Cache", "Redis", "文档内容缓存")
+    ContainerDb(in_memory_store, "In-Memory Session Store", "ConcurrentHashMap", "会话数据内存存储")
 }
 
 ' === 外部服务 ===
 System_Boundary(external_boundary, "外部服务") {
-    Container(ext_llm, "LLM Gateway", "OpenAI/Claude/Ollama", "大语言模型推理")
-    Container(ext_k8s, "Kubernetes", "K8s API", "集群管理")
-    Container(ext_monitor, "Monitoring", "Prometheus + Grafana", "监控和可视化")
-    Container(ext_tts, "TTS Providers", "Azure/Google/ElevenLabs/Edge/Coqui", "TTS 提供商")
-    Container(ext_video, "Video Providers", "Kling/Runway/Pika/Sora/Replicate", "视频生成提供商")
-    Container(ext_image, "Image Providers", "Stable Diffusion", "本地图像生成")
+    Container(ext_deepseek, "DeepSeek API", "REST API", "DeepSeek Chat 模型，LLM 推理服务")
 }
 
-' === 用户关系 ===
-Rel(ml_engineer, web_app, "使用")
-Rel(devops_engineer, web_app, "监控")
-Rel(data_scientist, web_app, "查询")
+' === 用户与前端关系 ===
+Rel(user, angular_app, "对话交互", "HTTP/SSE")
 
-' === 前端与网关关系 ===
-Rel(web_app, ai_gateway, "请求/流式响应", "HTTP/SSE")
+' === 前端与后端关系 ===
+Rel(angular_app, chat_controller, "HTTP 请求", "REST API")
 
-' === Gateway 内部关系 ===
-Rel(ai_gateway, orchestration_service, "编排")
-Rel(orchestration_service, supervisor, "路由")
-Rel(orchestration_service, route_usecase, "路由消息")
-Rel(orchestration_service, process_usecase, "处理请求")
-Rel(route_usecase, supervisor, "执行路由")
+' === Interface Layer 内部关系 ===
+Rel(chat_controller, exception_handler, "异常传播")
+Rel(chat_controller, request_dto, "请求/响应转换")
+Rel(chat_controller, send_message_usecase, "调用用例")
 
-Rel(orchestration_service, k8s_agent, "委托")
-Rel(orchestration_service, vectordb_agent, "委托")
-Rel(orchestration_service, rag_agent, "委托")
-Rel(orchestration_service, llmops_agent, "委托")
-Rel(orchestration_service, aiops_agent, "委托")
-Rel(orchestration_service, pipeline_agent, "委托")
-Rel(orchestration_service, monitoring_agent, "委托")
-Rel(orchestration_service, model_agent, "委托")
-Rel(orchestration_service, tts_agent, "委托")
-Rel(orchestration_service, video_agent, "委托")
+' === Application Layer 内部关系 ===
+Rel(send_message_usecase, chat_app_service, "编排")
+Rel(chat_app_service, ai_chat_port, "依赖抽象")
+Rel(chat_app_service, session_repo_port, "依赖抽象")
+Rel(chat_app_service, chat_session, "操作领域对象")
 
-' === Adapter 关系 ===
-Rel(process_usecase, vision_adapter, "使用")
-Rel(process_usecase, rag_adapter, "使用")
-Rel(process_usecase, tts_adapter, "使用")
-Rel(process_usecase, chat_adapter, "使用")
-Rel(process_usecase, media_adapter, "使用")
-Rel(process_usecase, text_adapter, "使用")
+' === Domain Layer 内部关系 ===
+Rel(chat_session, chat_message, "包含")
+Rel(chat_session, ai_service, "使用领域服务")
+Rel(chat_session, domain_events, "发布事件")
+Rel(ai_service, message_content, "验证内容")
 
-' === 服务间关系 ===
-Rel(ai_gateway, vision_service, "调用视觉 API", "HTTP")
-Rel(ai_gateway, tts_service, "语音合成", "HTTP")
-Rel(ai_gateway, text_service, "文本处理/LLM", "HTTP")
-Rel(ai_gateway, rag_service, "RAG 查询", "HTTP")
-Rel(ai_gateway, media_gen_service, "图像生成", "HTTP")
-Rel(vision_service, media_gen_service, "图像生成", "HTTP")
+' === Infrastructure Layer 关系 ===
+Rel(spring_ai_adapter, ai_chat_port, "实现端口")
+Rel(spring_ai_adapter, spring_ai_service, "依赖")
+Rel(spring_ai_service, ext_deepseek, "调用 LLM API", "HTTP")
 
-' === Agent 与工具关系 ===
-Rel(k8s_agent, k8s_tools, "使用")
-Rel(monitoring_agent, monitoring_tools, "使用")
-Rel(vectordb_agent, vector_tools, "使用")
-Rel(model_agent, model_tools, "使用")
-Rel(aiops_agent, aiops_tools, "使用")
+Rel(in_memory_repo, session_repo_port, "实现端口")
+Rel(in_memory_repo, in_memory_store, "持久化")
 
-' === 服务与数据层关系 ===
-Rel(rag_adapter, rag_service, "文档操作", "HTTP")
-Rel(rag_service, vector_store, "向量存储", "gRPC")
-Rel(rag_service, session_store, "会话管理", "Redis")
-Rel(rag_service, document_store, "文档缓存", "Redis")
+' === Ports 与实现关系 ===
+Rel(ai_chat_port, spring_ai_adapter, "实现")
+Rel(session_repo_port, in_memory_repo, "实现")
 
-Rel(llmops_agent, mlflow_db, "实验跟踪", "HTTP")
-Rel(feature_agent, feast_store, "特征存取", "gRPC")
-
-' === 外部服务关系 ===
-Rel(aiops_agent, ext_k8s, "集群操作", "kubectl")
-Rel(aiops_agent, ext_monitor, "指标查询", "HTTP")
-Rel(k8s_agent, ext_k8s, "集群操作", "kubectl")
-Rel(monitoring_agent, ext_monitor, "指标查询", "HTTP")
-Rel(pipeline_agent, ext_k8s, "部署", "kubectl")
-
-Rel(ai_gateway, ext_llm, "LLM 调用")
-Rel(tts_agent, ext_tts, "TTS API", "HTTP")
-Rel(video_agent, ext_video, "视频生成 API", "HTTP")
-Rel(vision_service, ext_image, "图像生成", "HTTP")
+' === 数据层关系 ===
+Rel(in_memory_repo, in_memory_store, "读写会话数据")
 
 SHOW_LEGEND()
 @enduml
