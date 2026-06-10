@@ -1,0 +1,95 @@
+@startuml C2-Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 容器图 (C2) - AI Chat Service
+
+' ============================================================
+' PEOPLE - 人员
+' ============================================================
+Person(user, "用户", "与 AI 助手进行自然语言对话")
+
+' ============================================================
+' FRONTEND - 前端容器
+' ============================================================
+Container(angular_app, "Web Frontend", "Angular 19 + TypeScript + SCSS", "提供 Web 用户界面，支持实时对话")
+
+' ============================================================
+' BACKEND - 后端容器 (Clean Architecture 分层)
+' ============================================================
+Container_Boundary(backend, "AI Chat Backend") {
+
+    ' Interface Layer
+    Container_Boundary(interface_layer, "Interface Layer") {
+        Container(chat_controller, "ChatController", "@RestController", "处理 HTTP 请求，路由到应用层")
+        Container(exception_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
+        Container(request_dto, "Request/Response DTOs", "Java Record", "ChatRequest, ChatResponse")
+    }
+
+    ' Application Layer
+    Container_Boundary(application_layer, "Application Layer") {
+        Container(send_message_usecase, "SendChatMessageUseCase", "UseCase", "发送聊天消息用例")
+        Container(chat_app_service, "ChatApplicationService", "@Service", "应用服务，协调业务用例")
+
+        ' Ports
+        Container(ai_chat_port, "AiChatPort", "Interface", "AI 聊天能力抽象")
+        Container(session_repo_port, "ChatSessionRepositoryPort", "Interface", "会话仓储抽象")
+    }
+
+    ' Domain Layer
+    Container_Boundary(domain_layer, "Domain Layer") {
+        Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
+        Container(chat_message, "ChatMessage", "Entity", "聊天消息实体")
+        Container(ai_service, "AiChatService", "Domain Service", "AI 对话核心服务")
+        Container(value_objects, "Value Objects", "Records", "ChatSessionId, MessageId, MessageContent")
+        Container(domain_events, "Domain Events", "Records", "ChatMessageReceivedEvent, ChatResponseGeneratedEvent")
+    }
+
+    ' Infrastructure Layer
+    Container_Boundary(infrastructure_layer, "Infrastructure Layer") {
+        Container(spring_ai_adapter, "SpringAiChatAdapter", "@Service", "AI 端口适配器")
+        Container(spring_ai_service, "SpringAiChatService", "@Service", "Spring AI 服务实现")
+        Container(in_memory_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话存储")
+        Container(app_config, "ApplicationConfig", "@Configuration", "应用配置")
+    }
+}
+
+' ============================================================
+' EXTERNAL SYSTEMS - 外部系统
+' ============================================================
+ContainerDb(in_memory_store, "In-Memory Session Store", "ConcurrentHashMap", "会话数据内存存储")
+Container_Ext(deepseek_api, "DeepSeek API", "REST API", "DeepSeek Chat 模型")
+
+' ============================================================
+' RELATIONSHIPS - 关系
+' ============================================================
+Rel(user, angular_app, "对话交互", "HTTP/SSE")
+Rel(angular_app, chat_controller, "HTTP 请求", "REST")
+
+' Interface Layer
+Rel(chat_controller, send_message_usecase, "调用用例")
+Rel(chat_controller, exception_handler, "异常处理")
+
+' Application Layer
+Rel(send_message_usecase, chat_app_service, "编排")
+Rel(chat_app_service, ai_chat_port, "依赖抽象")
+Rel(chat_app_service, session_repo_port, "依赖抽象")
+
+' Ports 实现
+Rel(ai_chat_port, spring_ai_adapter, "实现")
+Rel(session_repo_port, in_memory_repo, "实现")
+
+' Infrastructure Layer
+Rel(spring_ai_adapter, spring_ai_service, "组合")
+Rel(spring_ai_service, deepseek_api, "调用 LLM", "HTTP")
+
+Rel(in_memory_repo, session_repo_port, "实现")
+Rel(in_memory_repo, in_memory_store, "持久化")
+
+' Domain Layer
+Rel(chat_session, chat_message, "包含")
+Rel(chat_app_service, chat_session, "操作领域对象")
+
+SHOW_LEGEND()
+@enduml
