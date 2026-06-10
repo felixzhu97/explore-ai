@@ -83,9 +83,13 @@ playwright/.cache/
 services/data/
 
 # Java/Gradle build artifacts
-apps/server-java/.gradle/
-apps/server-java/**/build/
-apps/server-java/**/.gradle/
+apps/server/.gradle/
+apps/server/**/build/
+apps/server/**/.gradle/
+
+# Spring Boot
+apps/server/src/main/resources/application-local.yml
+apps/server/src/main/resources/application-local*.yml
 
 # Legacy merged services (migrated to monolith)
 apps/server-java/services/ai-agents/

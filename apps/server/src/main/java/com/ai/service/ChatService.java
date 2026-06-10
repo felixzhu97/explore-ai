@@ -1,30 +1,37 @@
 package com.ai.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChatService {
     
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
     private final ChatModel chatModel;
-    private final SystemPromptTemplate systemPrompt;
     
     public ChatService(ChatModel chatModel) {
         this.chatModel = chatModel;
-        this.systemPrompt = new SystemPromptTemplate(
-            "You are a helpful AI assistant. Respond in a friendly and concise manner."
-        );
     }
     
     public String chat(String userMessage) {
-        Prompt prompt = this.systemPrompt.create(
-            new org.springframework.ai.chat.messages.UserMessage(userMessage)
-        );
+        log.info("Chat request: {}", userMessage);
+        UserMessage userMsg = new UserMessage(userMessage);
+        Prompt prompt = new Prompt(userMsg);
         
-        ChatResponse response = chatModel.call(prompt);
-        return response.getResult().getOutput().getText();
+        try {
+            ChatResponse response = chatModel.call(prompt);
+            String text = response.getResult().getOutput().getText();
+            log.info("Chat response: {}", text);
+            return text;
+        } catch (Exception e) {
+            log.error("Chat error", e);
+            throw new RuntimeException("AI service error: " + e.getMessage(), e);
+        }
     }
 }

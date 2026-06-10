@@ -1,15 +1,21 @@
 spring:
+  config:
+    import: optional:file:.env
   application:
     name: server-springai
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:your-api-key}
-      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      api-key: ${DEEPSEEK_API_KEY:your-api-key}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      chat:
+        options:
+          model: deepseek-v4-flash
 
 server:
-  port: 8080
+  port: 9000
 
 logging:
   level:
     com.ai: DEBUG
     org.springframework.ai: DEBUG
+    org.springframework.web: DEBUG
