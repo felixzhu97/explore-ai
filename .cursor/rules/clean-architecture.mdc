@@ -1,57 +1,122 @@
 ---
-description: Clean Architecture Standards. Ensures correct dependency direction and domain core without external dependencies.
+description: Clean Architecture Standards. Ensures correct dependency direction, clear layering, and domain core without external dependencies.
 globs: **/*.java **/*.ts **/*.py
 alwaysApply: true
 ---
 
 # Clean Architecture Standards
 
-## Core Rules
+## Core Principles
 
-1. **Dependencies point inward**: Domain → Application → Infrastructure → Interface
-2. **Domain is pure**: NO framework imports (Spring, JPA, Hibernate, etc.)
-3. **Interface segregation**: Consumer defines, producer implements
-4. **Data transformation**: DTOs must not leak into Domain layer
+1. **Dependency Inversion**: Outer layers depend on inner layers, inner layers know nothing about outer layers
+2. **Domain Core**: Domain layer is the core, depends on no external frameworks
+3. **Interface Segregation**: Consumer defines interfaces, producer implements them
+4. **Unidirectional Data Flow**: Data must be transformed when crossing layers
 
-## Layer Responsibilities
+## Layer Definitions
 
-| Layer | Do | Don't |
-|-------|-----|-------|
-| Domain | Entities, VOs, business rules | Import frameworks, use DI |
-| Application | Use cases, commands | Business logic |
-| Infrastructure | Persistence, external services | Define domain interfaces |
-| Interface | Controllers, DTOs | Business logic |
+| Layer | Responsibility | Dependency Rules |
+|-------|---------------|------------------|
+| Domain | Business entities, Value Objects, Aggregates, Business rules | No external dependencies |
+| Application | Use case orchestration, Command/Query handling | Depends only on Domain |
+| Infrastructure | Persistence, External services, Messaging | Implements Application interfaces |
+| Interface | Web API, UI Controllers | Depends on Application |
 
-## Correct vs Incorrect
+## Prohibitions
+
+- Domain layer must NOT import any framework classes (Spring, Jakarta, Hibernate, etc.)
+- Domain layer must NOT use dependency injection
+- Repository interfaces must be defined in Domain layer, implementations in Infrastructure layer
+- Must NOT pass outer layer data structures (e.g., HTTP DTOs) into Domain layer
+
+## Correct Examples
 
 ```java
-// ✅ Correct: Pure domain
+// ✅ Domain layer: Pure Java, no framework dependencies
+package com.ai.domain.model;
+
 public class Order {
-    public void place() {
-        if (status != DRAFT) throw new InvalidStateException();
-        status = PLACED;
+    private OrderId id;
+    private Money totalAmount;
+
+    public Money calculateShippingFee() {
+        if (totalAmount.isGreaterThanOrEqual(Money.HUNDRED)) {
+            return Money.ZERO;
+        }
+        return Money.of(10);
     }
 }
 
-// ❌ Incorrect: Domain has framework annotation
-import org.springframework.stereotype.Component;  // Forbidden!
-@Component
-public class Order { }
+// ✅ Application layer: Define repository interfaces
+package com.ai.application.repository;
+
+public interface OrderRepository {
+    Optional<Order> findById(OrderId id);
+    void save(Order order);
+}
+
+// ✅ Infrastructure layer: Implement repository
+package com.ai.infrastructure.persistence;
+
+@Repository
+public class JpaOrderRepository implements OrderRepository {
+    @Override
+    public Optional<Order> findById(OrderId id) { ... }
+}
 ```
 
-## Violations
+## Incorrect Examples
+
+```java
+// ❌ Incorrect: Domain layer depends on Spring
+package com.ai.domain.model;
+
+import org.springframework.stereotype.Component;  // Forbidden!
+
+@Component
+public class Order { ... }
+
+// ❌ Incorrect: Repository implementation in Domain layer
+package com.ai.domain.repository;
+
+public interface OrderRepository { ... }
+
+// ❌ Incorrect: Domain layer depends on JPA annotations
+package com.ai.domain.model;
+
+import jakarta.persistence.*;  // Forbidden!
+
+@Entity
+public class Order { ... }
+
+// ❌ Incorrect: Controller passes DTO directly to Domain
+public void create(@RequestBody CreateOrderDto dto) {
+    // dto contains Hibernate validation annotations, passed directly to Domain
+    orderService.create(dto);  // Forbidden!
+}
+```
+
+## Dependency Checks
+
+Run architecture checks before committing:
+
+```bash
+# Check Domain layer has no framework dependencies
+grep -r "import org.springframework" src/domain/ || echo "OK"
+grep -r "import jakarta.persistence" src/domain/ || echo "OK"
+grep -r "import javax.persistence" src/domain/ || echo "OK"
+
+# Check TypeScript
+grep -r "from '@angular'" src/domain/ || echo "OK"
+```
+
+## Violation Detection
+
+The following patterns indicate Clean Architecture violations:
 
 | Symptom | Problem |
 |---------|---------|
-| `@Service` on domain class | Violates domain independence |
-| JPA annotation in domain | Violates portability |
-| Business logic in Controller | Violates separation |
-| Entity with only getters/setters | Anemic domain model |
-
-## Quick Check
-
-```bash
-# Domain should have no framework imports
-grep -r "import org.springframework" src/domain/
-grep -r "import jakarta.persistence" src/domain/
-```
+| Domain class has `@Service`, `@Component` | Violates domain independence |
+| Entity in `infrastructure` package | Violates layering |
+| `new` to create Repository | Should be injected |
+| Business logic in Controller | Violates separation of concerns |
