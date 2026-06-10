@@ -25,6 +25,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     
+    // OpenAPI / Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")
+    
     // Reactive
     implementation("io.projectreactor:reactor-core:3.7.0")
     

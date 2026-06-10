@@ -219,6 +219,14 @@ public class AgentController {
                                     .data(messageText)
                                     .build();
                         })
+                        .onErrorResume(e -> {
+                            log.error("Error during chat stream", e);
+                            String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                            return Mono.just(ServerSentEvent.<String>builder()
+                                    .event("error")
+                                    .data("Agent error: " + errorMsg)
+                                    .build());
+                        })
                         .flux(),
                 // Final [DONE] sentinel
                 Flux.defer(() -> {
@@ -284,6 +292,14 @@ public class AgentController {
                                     .event("message")
                                     .data(messageText)
                                     .build();
+                        })
+                        .onErrorResume(e -> {
+                            log.error("Error during agent stream for {}", agentType, e);
+                            String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                            return Mono.just(ServerSentEvent.<String>builder()
+                                    .event("error")
+                                    .data("Agent error: " + errorMsg)
+                                    .build());
                         })
                         .flux(),
                 Flux.defer(() -> {

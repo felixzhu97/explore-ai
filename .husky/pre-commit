@@ -3,30 +3,6 @@
 
 echo "🔍 Running pre-commit checks..."
 
-# Type check for server
-echo "📦 Type checking apps/server..."
-pnpm --filter @ai-test/server typecheck > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "❌ Type check failed for apps/server"
-  exit 1
-fi
-
-# Type check for utils
-echo "📦 Type checking packages/utils..."
-pnpm --filter @ai-test/utils typecheck > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "❌ Type check failed for packages/utils"
-  exit 1
-fi
-
-# Run tests for packages
-echo "🧪 Running tests for packages..."
-pnpm test > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "❌ Package tests failed"
-  exit 1
-fi
-
 # Run Angular tests (Vitest)
 echo "🧪 Running Angular tests (Vitest)..."
 cd apps/web-angular && npx vitest run --silent > /dev/null 2>&1

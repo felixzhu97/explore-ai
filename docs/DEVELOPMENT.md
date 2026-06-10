@@ -437,7 +437,6 @@ pnpm dev
 
 # Or run specific service
 pnpm --filter @ai-test/web dev
-pnpm --filter @ai-test/server dev
 ```
 
 ### Multi-Service Development
@@ -456,9 +455,6 @@ cd services/rag && source .venv/bin/activate && uvicorn src.main:app --reload --
 
 # Terminal 4: Web Frontend (Angular)
 cd apps/web-angular && pnpm start
-
-# Terminal 5: Backend Server (optional)
-cd apps/server && pnpm dev
 ```
 
 ## Testing
@@ -516,7 +512,6 @@ pnpm test
 
 # Run specific package tests
 pnpm --filter @ai-test/web test
-pnpm --filter @ai-test/server test
 ```
 
 ### Test Structure
@@ -583,7 +578,6 @@ pnpm lint
 
 # Lint specific package
 pnpm --filter @ai-test/web lint
-pnpm --filter @ai-test/server lint
 ```
 
 ### Python
@@ -598,20 +592,6 @@ ruff check src/
 ## Building
 
 ### Web Frontend
-
-```bash
-cd apps/web-angular
-pnpm build
-```
-
-### Backend Server
-
-```bash
-cd apps/server
-pnpm build
-```
-
-### AI Service (Docker)
 
 ```bash
 cd services/vision-service

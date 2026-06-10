@@ -31,6 +31,9 @@ public class ChatAgentAdapter implements AgentAdapter {
     @Value("${ai.agents.chat.system-prompt:You are a helpful and friendly AI assistant.}")
     private String systemPrompt;
 
+    @Value("${langchain4j.chat.api-key:}")
+    private String apiKey;
+
     public ChatAgentAdapter(ChatModel chatModel) {
         this.chatModel = chatModel;
     }
@@ -44,21 +47,41 @@ public class ChatAgentAdapter implements AgentAdapter {
     public Mono<AgentResponseDto> execute(Conversation conversation, AgentRequestDto request) {
         log.info("Chat agent processing request: {}", truncate(request.getUserMessage(), 50));
 
-        return Mono.fromCallable(() -> {
-            try {
-                String userMessage = request.getUserMessage();
-                dev.langchain4j.data.message.ChatMessage systemMsg = SystemMessage.from(systemPrompt);
-                dev.langchain4j.data.message.ChatMessage userMsg = UserMessage.from(userMessage);
+        // Check API key availability upfront
+        if (apiKey == null || apiKey.isBlank() || "YOUR_API_KEY_HERE".equals(apiKey)) {
+            log.warn("LLM API key not configured - returning mock response");
+            return Mono.just(AgentResponseDto.success(
+                    "I'm a mock AI assistant. Please configure your LLM API key to enable real AI responses. " +
+                    "Set the AI_API_KEY environment variable or langchain4j.chat.api-key in application.yml.",
+                    AgentType.CHAT));
+        }
 
-                ChatResponse response = chatModel.chat(List.of(systemMsg, userMsg));
-                String answer = response.aiMessage().text();
+        try {
+            String userMessage = request.getUserMessage();
+            dev.langchain4j.data.message.ChatMessage systemMsg = SystemMessage.from(systemPrompt);
+            dev.langchain4j.data.message.ChatMessage userMsg = UserMessage.from(userMessage);
 
-                return AgentResponseDto.success(answer, AgentType.CHAT);
-            } catch (Exception e) {
-                log.error("Chat processing failed", e);
-                return AgentResponseDto.error("Chat failed: " + e.getMessage());
-            }
-        }).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+            ChatResponse response = chatModel.chat(List.of(systemMsg, userMsg));
+            String answer = response.aiMessage().text();
+
+            return Mono.just(AgentResponseDto.success(answer, AgentType.CHAT));
+        } catch (Exception e) {
+            log.error("Chat processing failed", e);
+            String errorMsg = extractErrorMessage(e);
+            return Mono.just(AgentResponseDto.error("Chat failed: " + errorMsg));
+        }
+    }
+
+    private String extractErrorMessage(Throwable t) {
+        String msg = t.getMessage();
+        if (msg != null && !msg.isBlank()) return msg;
+        Throwable cause = t.getCause();
+        while (cause != null) {
+            msg = cause.getMessage();
+            if (msg != null && !msg.isBlank()) return msg;
+            cause = cause.getCause();
+        }
+        return t.getClass().getSimpleName();
     }
 
     @Override

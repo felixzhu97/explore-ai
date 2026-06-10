@@ -3,6 +3,7 @@ package com.ai.agents.presentation.dto;
 import com.ai.agents.domain.AgentType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
@@ -16,21 +17,21 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AgentRequestDto(
         // Single message format
-        String message,
+        @JsonProperty("message") String message,
 
         @NotNull(message = "Agent type is required")
-        AgentType agentType,
+        @JsonProperty("agentType") AgentType agentType,
 
-        String sessionId,
+        @JsonProperty("sessionId") String sessionId,
 
-        Integer topK,
+        @JsonProperty("topK") Integer topK,
 
-        String model,
+        @JsonProperty("model") String model,
 
-        Map<String, Object> metadata,
+        @JsonProperty("metadata") Map<String, Object> metadata,
 
         // Messages array format (for SSE streaming compatibility with Angular)
-        List<ChatMessage> messages
+        @JsonProperty("messages") List<ChatMessage> messages
 ) {
     /**
      * Chat message for messages array format.
