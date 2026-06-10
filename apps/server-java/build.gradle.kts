@@ -5,13 +5,12 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 subprojects {
     apply(plugin = "java")
-    apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
 
     group = "com.ai"
@@ -20,6 +19,12 @@ subprojects {
     repositories {
         mavenCentral()
         maven { url = uri("https://repo.spring.io/milestone") }
+    }
+
+    configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.0")
+        }
     }
 
     dependencies {
@@ -37,4 +42,8 @@ subprojects {
             events("passed", "skipped", "failed")
         }
     }
+}
+
+project(":gateway") {
+    apply(plugin = "org.springframework.boot")
 }
