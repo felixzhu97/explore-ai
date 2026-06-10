@@ -83,4 +83,4 @@ When reviewing, identify:
 1. Rich model violations
 2. Missing business logic encapsulation
 3. Incorrect responsibility assignment
-4.建议 improvements
+4. Suggested improvements

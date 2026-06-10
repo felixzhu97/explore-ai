@@ -1,25 +1,25 @@
 ---
-description: Angular 20+ 编码规范和最佳实践，遵循苹果设计理念和 Angular 官方风格指南
+description: Angular 20+ coding standards and best practices following Apple design principles and Angular official style guide
 globs: **/*.ts **/*.html **/*.scss
 alwaysApply: false
 ---
 
-# Angular 编码规范
+# Angular Coding Standards
 
-## 项目结构
+## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── core/                 # 单例服务、全局配置
+│   ├── core/                 # Singleton services, global config
 │   │   ├── services/
 │   │   ├── guards/
 │   │   └── interceptors/
-│   ├── shared/                # 可复用组件、指令、管道
+│   ├── shared/               # Reusable components, directives, pipes
 │   │   ├── components/
 │   │   ├── directives/
 │   │   └── pipes/
-│   ├── features/              # 功能模块
+│   ├── features/             # Feature modules
 │   │   └── {feature}/
 │   │       ├── components/
 │   │       ├── services/
@@ -33,19 +33,19 @@ src/
     └── _typography.scss
 ```
 
-## 组件规范
+## Component Standards
 
-### 命名
+### Naming
 
-| 类型 | 规则 | 示例 |
-|------|------|------|
-| 组件文件 | kebab-case | `user-card.component.ts` |
-| 组件类 | PascalCase + Component | `UserCardComponent` |
-| 选择器 | kebab-case + 前缀 | `app-user-card` |
-| 模板文件 | 与组件同名 | `user-card.component.html` |
-| 样式文件 | 与组件同名 | `user-card.component.scss` |
+| Type | Rule | Example |
+|------|------|---------|
+| Component file | kebab-case | `user-card.component.ts` |
+| Component class | PascalCase + Component | `UserCardComponent` |
+| Selector | kebab-case + prefix | `app-user-card` |
+| Template file | Same as component | `user-card.component.html` |
+| Style file | Same as component | `user-card.component.scss` |
 
-### 组件模板
+### Component Template
 
 ```typescript
 @Component({
@@ -57,34 +57,34 @@ src/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCardComponent {
-  // 输入属性使用 input()
+  // Input properties use input()
   user = input.required<User>();
   editable = input(false);
 
-  // 输出事件使用 output()
+  // Output events use output()
   edit = output<User>();
   delete = output<string>();
 
-  // 内部状态使用 signal
+  // Internal state uses signal
   isExpanded = signal(false);
 
-  // 计算属性使用 computed
+  // Computed properties use computed
   fullName = computed(() => `${this.user().firstName} ${this.user().lastName}`);
 
-  // 依赖注入使用 inject()
+  // Dependency injection uses inject()
   private userService = inject(UserService);
 
-  // 方法使用箭头函数保持 this
+  // Methods use arrow functions to preserve this
   handleEdit = () => this.edit.emit(this.user());
 
   handleDelete = () => this.delete.emit(this.user().id);
 }
 ```
 
-### 模板语法
+### Template Syntax
 
 ```html
-<!-- 使用 @ 控制流 (Angular 17+) -->
+<!-- Use @ control flow (Angular 17+) -->
 @if (user(); as user) {
   <div class="user-card">
     <h3>{{ fullName() }}</h3>
@@ -96,28 +96,28 @@ export class UserCardComponent {
   <app-skeleton />
 }
 
-<!-- 循环 -->
+<!-- Loop -->
 @for (item of items(); track item.id) {
   <app-list-item [item]="item" />
 }
 
-<!-- 安全导航 -->
+<!-- Safe navigation -->
 <p>{{ user()?.email ?? 'No email' }}</p>
 ```
 
-## 服务规范
+## Service Standards
 
 ```typescript
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
 
-  // 公开只读信号
+  // Public readonly signals
   users = signal<User[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
 
-  // 返回 Observable 供组件订阅
+  // Return Observable for components to subscribe
   fetchUsers(): Observable<User[]> {
     return this.http.get<User[]>('/api/users').pipe(
       tap(users => this.users.set(users)),
@@ -132,10 +132,10 @@ export class UserService {
 }
 ```
 
-## 路由规范
+## Routing Standards
 
 ```typescript
-// 使用延迟加载
+// Use lazy loading
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   {
@@ -150,10 +150,10 @@ export const routes: Routes = [
 ];
 ```
 
-## 样式规范
+## Style Standards
 
 ```scss
-// 使用 BEM 命名
+// Use BEM naming
 .user-card {
   padding: var(--spacing-md);
   background: var(--bg-card);
@@ -178,7 +178,7 @@ export const routes: Routes = [
   }
 }
 
-// 变量定义
+// Variable definition
 :host {
   --spacing-xs: 8px;
   --spacing-md: 16px;
@@ -187,10 +187,10 @@ export const routes: Routes = [
 }
 ```
 
-## 类型规范
+## Type Standards
 
 ```typescript
-// 优先使用 interface 定义数据结构
+// Prefer interface for data structures
 interface User {
   id: string;
   firstName: string;
@@ -200,20 +200,20 @@ interface User {
   createdAt: Date;
 }
 
-// 使用 enum 定义枚举
+// Use enum for enumerations
 enum UserRole {
   Admin = 'admin',
   User = 'user',
   Guest = 'guest',
 }
 
-// API 响应
+// API response
 interface ApiResponse<T> {
   data: T;
   meta: PaginationMeta;
 }
 
-// 表单 DTO
+// Form DTO
 interface CreateUserDto {
   firstName: string;
   lastName: string;
@@ -221,10 +221,10 @@ interface CreateUserDto {
 }
 ```
 
-## 错误处理
+## Error Handling
 
 ```typescript
-// 组件内错误处理
+// Component error handling
 @Component({...})
 export class UserListComponent {
   private userService = inject(UserService);
@@ -236,7 +236,7 @@ export class UserListComponent {
   }
 }
 
-// 服务内错误处理
+// Service error handling
 private handleError(error: HttpErrorResponse): Observable<never> {
   const message = error.error?.message || 'An error occurred';
   this.notificationService.showError(message);
@@ -244,7 +244,7 @@ private handleError(error: HttpErrorResponse): Observable<never> {
 }
 ```
 
-## 测试规范
+## Testing Standards
 
 ```typescript
 describe('UserCardComponent', () => {

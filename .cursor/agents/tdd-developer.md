@@ -30,7 +30,7 @@ void shouldBeEligibleForFreeShippingWhenOrderExceeds100Dollars() {
 ## Naming Convention
 
 ```
-should_预期行为_when_触发条件
+should_ExpectedBehavior_when_TriggerCondition
 
 Java:      shouldBeEligibleForFreeShippingWhenOrderExceeds100Dollars
 TypeScript: should_be_eligible_for_free_shipping_when_order_exceeds_100_dollars
