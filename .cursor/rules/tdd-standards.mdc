@@ -1,0 +1,196 @@
+---
+description: TDD 测试驱动开发规范。涵盖红-绿-重构循环、测试命名、单元测试结构、Mock 使用原则。
+globs: **/*.java **/*.ts **/*.spec.ts **/*.test.ts
+alwaysApply: true
+---
+
+# TDD 测试驱动开发规范
+
+## 红-绿-重构循环
+
+```
+1. RED    → 写一个失败测试，明确期望行为
+2. GREEN  → 写最小代码使测试通过
+3. REFACTOR → 清理代码，保持测试通过
+4. 重复
+```
+
+## 测试命名规范
+
+### Java
+
+```java
+// 格式: should_预期结果_When_触发条件
+@Test
+void shouldReturnEligibleForFreeShipping_WhenTotalExceeds100Dollars() {
+    // ...
+}
+
+@Test
+void shouldThrowOrderEmptyException_WhenOrderHasNoLines() {
+    // ...
+}
+```
+
+### TypeScript
+
+```typescript
+// 格式: should_预期结果_When_触发条件
+it('should_be_eligible_for_free_shipping_when_total_exceeds_100_dollars', () => {
+  // ...
+});
+```
+
+## 测试结构（AAA 模式）
+
+```java
+class OrderPricingTest {
+
+    @Test
+    void shouldCalculateTotalAsSumOfLines() {
+        // Arrange: 准备测试数据和依赖
+        List<OrderLine> lines = List.of(
+            new OrderLine(Money.of(100), 2),
+            new OrderLine(Money.of(50), 3)
+        );
+        Order order = new Order(lines);
+
+        // Act: 执行被测操作
+        Money total = order.totalAmount();
+
+        // Assert: 验证结果
+        assertThat(total).isEqualTo(Money.of(350));
+    }
+}
+```
+
+## 单元测试原则
+
+### 必须
+
+- 测试一个行为/方法
+- 测试间无依赖
+- 确定性结果（无随机）
+- 快速执行（< 1ms）
+
+### 禁止
+
+- 测试私有方法
+- 测试实现细节
+- 硬编码期望值
+- 访问外部资源（DB、网络）
+
+## Mock 使用原则
+
+### 何时使用
+
+- 依赖外部服务
+- 依赖未完成组件
+- 需要控制被测系统边界
+
+### 何时不用
+
+- 可用 Fake 替代
+- 测试真实协作（如 JPA Repository 用 Testcontainers）
+
+```java
+// ✅ 正确：Mock 外部依赖
+@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
+
+    @Mock
+    private PaymentGateway paymentGateway;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @InjectMocks
+    private OrderService orderService;
+
+    @Test
+    void shouldProcessPaymentWhenOrderIsPlaced() {
+        // Given
+        Order order = createValidOrder();
+        when(paymentGateway.charge(any())).thenReturn(PaymentResult.success());
+
+        // When
+        orderService.placeOrder(order);
+
+        // Then
+        verify(paymentGateway).charge(order.getTotalAmount());
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+    }
+}
+
+// ❌ 错误：过度 Mock
+@Test
+void shouldCreateOrder() {
+    // Given - Mock 了所有东西，失去意义
+    when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(eventPublisher.publish(any())).thenReturn(null);
+    when(clock.now()).thenReturn(Instant.now());
+}
+```
+
+## 测试替身类型选择
+
+| 场景 | 推荐类型 | 原因 |
+|------|---------|------|
+| 填充参数 | Dummy | 不使用参数 |
+| 简化实现 | Fake | 如 InMemoryRepository |
+| 预设响应 | Stub | 控制测试数据 |
+| 验证调用 | Mock | 验证交互 |
+| 保留真实 + 记录 | Spy | 部分验证 |
+
+## 边界条件覆盖
+
+```java
+@Test
+void shouldHandleNullInput() {
+    assertThrows(NullPointerException.class, () -> service.process(null));
+}
+
+@Test
+void shouldHandleEmptyCollection() {
+    List<?> result = service.process(List.of());
+    assertThat(result).isEmpty();
+}
+
+@Test
+void shouldHandleMaximumValue() {
+    Money result = service.calculate(Money.MAX_VALUE);
+    assertThat(result).isEqualTo(Money.MAX_VALUE);
+}
+```
+
+## TDD 流程检查
+
+### 写测试前
+
+- [ ] 明确被测行为
+- [ ] 知道期望的输出/副作用
+
+### 红阶段
+
+- [ ] 测试编译失败（编译错误）或运行失败（断言失败）
+- [ ] 失败信息清晰
+
+### 绿阶段
+
+- [ ] 只写让测试通过的代码
+- [ ] 不写"完美"代码
+
+### 重构阶段
+
+- [ ] 所有测试仍然通过
+- [ ] 代码更清晰
+
+## 常见错误
+
+| 错误 | 表现 | 修正 |
+|------|------|------|
+| 反向 TDD | 先写实现后写测试 | 遵循红-绿-重构 |
+| 过度测试 | 测试所有方法 | 测行为，不测实现 |
+| 弱断言 | `assertTrue(true)` | 精确断言 |
+| 慢测试 | 单元测试访问 DB | Mock 依赖 |
+| 测试依赖 | A 测试依赖 B 测试状态 | 测试独立 |

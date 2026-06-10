@@ -1,0 +1,122 @@
+---
+description: Clean Architecture 整洁架构规范。确保依赖方向正确、层次清晰、领域核心无外部依赖。
+globs: **/*.java **/*.ts **/*.py
+alwaysApply: true
+---
+
+# Clean Architecture 整洁架构规范
+
+## 核心原则
+
+1. **依赖倒置**：外层依赖内层，内层不知外层存在
+2. **领域核心**：Domain 层是核心，不依赖任何外部框架
+3. **接口分离**：依赖方定义接口，被依赖方实现
+4. **单向数据流**：数据跨层时必须转换
+
+## 层次定义
+
+| 层次 | 职责 | 依赖规则 |
+|------|------|----------|
+| Domain | 业务实体、值对象、聚合、业务规则 | 无外部依赖 |
+| Application | 用例编排、命令/查询处理 | 仅依赖 Domain |
+| Infrastructure | 持久化、外部服务、消息 | 实现 Application 接口 |
+| Interface | Web API、UI 控制器 | 依赖 Application |
+
+## 禁止事项
+
+- Domain 层禁止 import 任何框架类（Spring、Jakarta、Hibernate 等）
+- Domain 层禁止使用依赖注入
+- Repository 接口必须在 Domain 层定义，实现类在 Infrastructure 层
+- 禁止将外层数据结构（如 HTTP DTO）传入 Domain 层
+
+## 正确示例
+
+```java
+// ✅ Domain 层：纯 Java，无框架依赖
+package com.ai.domain.model;
+
+public class Order {
+    private OrderId id;
+    private Money totalAmount;
+
+    public Money calculateShippingFee() {
+        if (totalAmount.isGreaterThanOrEqual(Money.HUNDRED)) {
+            return Money.ZERO;
+        }
+        return Money.of(10);
+    }
+}
+
+// ✅ Application 层：定义仓储接口
+package com.ai.application.repository;
+
+public interface OrderRepository {
+    Optional<Order> findById(OrderId id);
+    void save(Order order);
+}
+
+// ✅ Infrastructure 层：实现仓储
+package com.ai.infrastructure.persistence;
+
+@Repository
+public class JpaOrderRepository implements OrderRepository {
+    @Override
+    public Optional<Order> findById(OrderId id) { ... }
+}
+```
+
+## 错误示例
+
+```java
+// ❌ 错误：Domain 层依赖 Spring
+package com.ai.domain.model;
+
+import org.springframework.stereotype.Component;  // 禁止！
+
+@Component
+public class Order { ... }
+
+// ❌ 错误：Repository 实现在 Domain 层
+package com.ai.domain.repository;
+
+public interface OrderRepository { ... }
+
+// ❌ 错误：Domain 层依赖 JPA 注解
+package com.ai.domain.model;
+
+import jakarta.persistence.*;  // 禁止！
+
+@Entity
+public class Order { ... }
+
+// ❌ 错误：Controller 直接传 DTO 到 Domain
+public void create(@RequestBody CreateOrderDto dto) {
+    // dto 包含 Hibernate 验证注解，直接传入 Domain
+    orderService.create(dto);  // 禁止！
+}
+```
+
+## 依赖检查
+
+提交前运行架构检查：
+
+```bash
+# 检查 Domain 层无框架依赖
+grep -r "import org.springframework" src/domain/ || echo "OK"
+grep -r "import jakarta.persistence" src/domain/ || echo "OK"
+grep -r "import javax.persistence" src/domain/ || echo "OK"
+
+# 检查 TypeScript
+grep -r "from '@angular'" src/domain/ || echo "OK"
+```
+
+## 违规检测
+
+以下模式表明违反 Clean Architecture：
+
+| 症状 | 问题 |
+|------|------|
+| Domain 类有 `@Service`、`@Component` | 违反领域独立 |
+| Entity 在 `infrastructure` 包 | 违反分层 |
+| `new` 创建 Repository | 应通过注入 |
+| 业务逻辑在 Controller | 违反职责分离 |

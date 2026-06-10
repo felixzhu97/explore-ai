@@ -1,0 +1,280 @@
+---
+description: BDD 行为驱动开发规范。涵盖 Gherkin 语法、Scenario 编写、Step Definitions 实现、与 TDD 集成。
+globs: **/*.feature **/*.ts **/*.java
+alwaysApply: true
+---
+
+# BDD 行为驱动开发规范
+
+## 核心原则
+
+- **Given-When-Then** 结构
+- **业务语言**描述，不暴露实现
+- **单一职责**每个 Scenario
+- **可执行文档**即测试
+
+## Gherkin 语法
+
+### Feature 文件结构
+
+```gherkin
+Feature: 订单免运费计算
+  作为在线购物客户
+  我希望订单满100元免运费
+  以便降低购物成本
+
+  Scenario: 订单金额超过100元，享受免运费
+    Given 我的购物车有商品
+      | 商品名称 | 单价 | 数量 |
+      | 笔记本电脑 | 5000 | 1   |
+      | 无线鼠标   | 200  | 1   |
+    When 我点击"提交订单"
+    Then 运费应该为 0 元
+    And 系统应提示"订单满100元，免运费"
+
+  Scenario: 订单金额不足100元，收取运费
+    Given 我的购物车商品总价为 50 元
+    When 我点击"提交订单"
+    Then 运费应该为 10 元
+    And 系统应提示"订单金额不足100元，收取10元运费"
+
+  Scenario: 订单刚好100元，享受免运费
+    Given 我的购物车商品总价为 100 元
+    When 我点击"提交订单"
+    Then 运费应该为 0 元
+```
+
+### 关键词说明
+
+| 关键词 | 用途 | 可重复 |
+|--------|------|--------|
+| Feature | 功能名称 | 每文件一次 |
+| Background | 所有 Scenario 共用前置条件 | 每文件一次 |
+| Scenario | 具体场景 | 多个 |
+| Given | 前置条件 | 可多个 |
+| When | 触发动作 | 每个 Scenario 一次 |
+| Then | 预期结果 | 可多个 |
+| And | 附加条件 | 可用于 Given/When/Then |
+| But | 附加条件 | 同 And |
+| Scenario Outline | 参数化场景 | 一个，多 Examples |
+| Examples | 参数表 | 每个 Outline 一次 |
+
+### 场景参数化
+
+```gherkin
+Scenario Outline: 不同金额段的运费计算
+  Given 我的购物车商品总价为 <total> 元
+  When 我点击"提交订单"
+  Then 运费应该为 <shipping_fee> 元
+
+  Examples:
+    | total | shipping_fee |
+    | 0     | 10           |
+    | 50    | 10           |
+    | 99    | 10           |
+    | 100   | 0            |
+    | 150   | 0            |
+    | 1000  | 0            |
+```
+
+### 数据表格
+
+```gherkin
+Scenario: 批量添加商品到购物车
+  Given 我的购物车为空
+  When 我添加以下商品:
+    | 商品编号 | 商品名称 | 单价 | 数量 |
+    | P001    | 笔记本   | 5000 | 1   |
+    | P002    | 鼠标     | 200  | 2   |
+    | P003    | 键盘     | 300  | 1   |
+  Then 购物车应有 3 种商品
+  And 购物车总金额应为 5700 元
+```
+
+## Scenario 编写规范
+
+### 良好命名
+
+```gherkin
+# ✅ 清晰表达业务价值
+Scenario: VIP会员享受九折优惠
+Scenario: 订单金额达到免运费门槛时运费为零
+Scenario: 支付失败后订单保持待支付状态
+
+# ❌ 模糊或暴露实现
+Scenario: 调用calculateDiscount方法
+Scenario: 点击保存按钮后保存方法被调用
+```
+
+### 避免过度细化
+
+```gherkin
+# ✅ 关注业务结果
+Scenario: 结算时自动应用可用优惠
+  Given 购物车有商品且有可用优惠卷
+  When 完成结算
+  Then 优惠金额应从总价中扣除
+
+# ❌ 过度步骤
+Scenario: 结算时自动应用优惠
+  Given 购物车有商品
+  When 用户点击结算按钮
+  Then 系统调用优惠服务
+  And 优惠服务查询用户优惠卷
+  And 返回优惠信息
+  And 系统计算折后价格
+```
+
+## Step Definitions
+
+### Java 实现
+
+```java
+public class OrderShippingSteps {
+
+    private Order order;
+    private Money shippingFee;
+
+    @Given("我的购物车商品总价为 {int} 元")
+    public void given_my_cart_total_is(int amount) {
+        order = new Order(List.of(new OrderLine(product(), amount)));
+    }
+
+    @Given("我的购物车有商品")
+    public void given_my_cart_has_items(DataTable dataTable) {
+        List<OrderLine> lines = dataTable.asList().stream()
+            .map(row -> new OrderLine(
+                row.get("商品名称"),
+                new Money(new BigDecimal(row.get("单价")), Currency.USD),
+                Integer.parseInt(row.get("数量"))
+            ))
+            .toList();
+        order = new Order(lines);
+    }
+
+    @When("我点击{string}")
+    public void when_i_click(String button) {
+        if (button.contains("提交订单")) {
+            shippingFee = order.calculateShippingFee();
+        }
+    }
+
+    @Then("运费应该为 {int} 元")
+    public void then_shipping_fee_should_be(int expected) {
+        assertThat(shippingFee).isEqualTo(Money.of(expected));
+    }
+
+    @And("系统应提示{string}")
+    public void and_system_should_show_message(String message) {
+        assertThat(order.getLastMessage()).isEqualTo(message);
+    }
+}
+```
+
+### TypeScript 实现
+
+```typescript
+import { Given, When, Then, DataTable } from '@cucumber/cucumber';
+
+let order: Order;
+let shippingFee: Money;
+
+Given('我的购物车商品总价为 {int} 元', async function (amount: number) {
+  order = new Order([new OrderLine(product(), amount)]);
+});
+
+When('我点击{string}', async function (button: string) {
+  if (button.includes('提交订单')) {
+    shippingFee = order.calculateShippingFee();
+  }
+});
+
+Then('运费应该为 {int} 元', async function (expected: number) {
+  expect(shippingFee.value).toBe(expected);
+});
+```
+
+## BDD 与 TDD 集成
+
+```
+BDD 验收测试（What）
+    ↓ 需求来源
+TDD 单元测试（How）
+    ↓ 实现
+代码
+```
+
+### 映射关系
+
+| BDD 层 | TDD 层 | 目的 |
+|--------|--------|------|
+| Feature | Test Suite | 按功能组织 |
+| Scenario | Integration Test | 端到端流程 |
+| Step | Unit Test | 具体行为 |
+
+### 示例
+
+```gherkin
+# BDD: Feature 文件
+Feature: VIP会员折扣
+  Scenario: VIP会员购买商品享受九折
+    Given 客户张伟是VIP会员
+    And 购物车有商品总价1000元
+    When 完成结算
+    Then 实际支付金额应为900元
+```
+
+```java
+// TDD: 单元测试
+class VipDiscountTest {
+
+    @Test
+    void shouldApplyTenPercentDiscountForVipCustomers() {
+        // Given
+        Customer vipCustomer = Customer.createVip("张伟");
+        Order order = new Order(List.of(new OrderLine(product(), Money.of(1000))));
+        
+        // When
+        Money discount = discountService.calculate(order, vipCustomer);
+
+        // Then
+        assertThat(discount).isEqualTo(Money.of(100));
+    }
+}
+```
+
+## Scenario 评审清单
+
+### 业务价值
+
+- [ ] Scenario 有明确业务背景
+- [ ] 描述了用户/角色
+- [ ] 说明了业务价值
+
+### 完整性
+
+- [ ] 覆盖正向流程
+- [ ] 覆盖异常流程
+- [ ] 覆盖边界条件
+
+### 可读性
+
+- [ ] 使用业务术语
+- [ ] 无技术实现细节
+- [ ] Given/When/Then 结构清晰
+
+### 可执行性
+
+- [ ] 每个 Step 可自动化
+- [ ] 无手动步骤
+- [ ] 数据明确
+
+## 常见错误
+
+| 错误 | 表现 | 修正 |
+|------|------|------|
+| 技术描述 | "点击按钮调用 API" | "用户登录系统" |
+| 实现泄露 | "输入用户ID获取用户" | "查找用户" |
+| 过度步骤 | 10+ 步骤 | 提炼子步骤 |
+| 模糊断言 | "订单状态正确" | "订单状态应为已支付" |
+| 重复场景 | 多 Scenario 测试相同行为 | 合并或参数化 |

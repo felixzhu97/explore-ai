@@ -1,0 +1,250 @@
+---
+description: DDD 领域驱动设计规范。涵盖实体、值对象、聚合、仓储、领域服务、领域事件的设计原则。
+globs: **/*.java **/*.kt
+alwaysApply: true
+---
+
+# DDD 领域驱动设计规范
+
+## 充血模型原则
+
+> **业务逻辑必须在领域对象内部，不在 Service 层。**
+
+Service 层只做协调（编排用例），不包含业务规则。
+
+## 实体规范
+
+### 必须
+
+- 有唯一标识（Id）
+- 包含业务行为方法
+- 自验证（构造时/变更时）
+- 通过方法暴露状态变更
+
+### 禁止
+
+- 公开的 setter
+- 直接修改字段（通过业务方法修改）
+- 贫血模型（只有 getter/setter）
+
+```java
+// ✅ 充血模型
+public class Order extends AggregateRoot {
+    private OrderId id;
+    private OrderStatus status;
+
+    public void place() {
+        if (this.status != OrderStatus.DRAFT) {
+            throw new OrderInvalidStateException("只有草稿状态才能放置");
+        }
+        this.status = OrderStatus.PLACED;
+        addDomainEvent(new OrderPlacedEvent(this.id));
+    }
+
+    // 状态只能通过业务方法变更
+    // 无 public setter
+}
+
+// ❌ 贫血模型
+public class Order {
+    private OrderId id;
+    private OrderStatus status;
+
+    // 只有 getter/setter，无业务逻辑
+    public OrderStatus getStatus() { return status; }
+    public void setStatus(OrderStatus status) { this.status = status; }
+}
+```
+
+## 值对象规范
+
+### 必须
+
+- 不可变（无 setter，所有字段 final）
+- 无唯一标识
+- 通过属性值判断相等
+- 自验证
+
+### 实现方式
+
+```java
+// ✅ Java Record (推荐)
+public record Money {
+    private final BigDecimal amount;
+    private final Currency currency;
+
+    public Money {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount must be non-negative");
+        }
+        Objects.requireNonNull(currency);
+    }
+
+    public Money add(Money other) {
+        if (!this.currency.equals(other.currency)) {
+            throw new CurrencyMismatchException();
+        }
+        return new Money(this.amount.add(other.amount), this.currency);
+    }
+}
+
+// 使用
+Money price = new Money(BigDecimal.valueOf(100), Currency.USD);
+// price.add() 返回新实例，原实例不变
+Money total = price.add(Money.of(50, Currency.USD));
+```
+
+## 聚合规范
+
+### 设计原则
+
+- 聚合是**一致性边界**
+- 通过**聚合根**对外访问
+- 聚合内实体间强一致性，聚合间最终一致性
+- 聚合应尽量小（一个聚合 = 一个事务）
+
+### 规范
+
+```java
+// ✅ 聚合根
+public class Order extends AggregateRoot {
+    private List<OrderLine> lines;
+
+    // 外部只能通过聚合根添加行
+    public void addLine(Product product, int quantity) {
+        validateQuantity(quantity);
+        lines.add(new OrderLine(product.getId(), quantity));
+    }
+
+    // 返回不可变视图
+    public List<OrderLine> getLines() {
+        return Collections.unmodifiableList(lines);
+    }
+
+    // 无 public setter
+}
+
+// ❌ 错误：暴露内部实体
+public class BadOrder {
+    public List<OrderLine> lines;  // 直接暴露
+}
+```
+
+## 仓储规范
+
+### 接口位置
+
+- 接口定义在 **Domain 层**
+- 实现放在 **Infrastructure 层**
+
+### 设计原则
+
+- 只操作聚合根
+- 返回聚合根或值对象
+- 不返回 JPA Entity
+
+```java
+// ✅ Domain 层：接口定义
+package com.ai.domain.repository;
+
+public interface OrderRepository {
+    Optional<Order> findById(OrderId id);
+    void save(Order order);
+    void delete(OrderId id);
+}
+
+// ✅ Infrastructure 层：实现
+package com.ai.infrastructure.persistence;
+
+@Repository
+public class JpaOrderRepository implements OrderRepository {
+    @Override
+    public Optional<Order> findById(OrderId id) {
+        return repository.findById(id.value())
+            .map(entityMapper::toDomain);
+    }
+}
+```
+
+## 领域服务规范
+
+### 使用场景
+
+- 跨多个实体的业务逻辑
+- 不属于任何单一实体的操作
+
+### 设计原则
+
+- 无状态
+- 接收领域对象作为参数
+- 不持有领域对象引用
+
+```java
+// ✅ 领域服务
+public class PricingService {
+    
+    public Money calculatePrice(List<CartItem> items, Customer customer) {
+        Money subtotal = items.stream()
+            .map(item -> item.getProduct().getPrice().multiply(item.getQuantity()))
+            .reduce(Money.ZERO, Money::add);
+
+        if (customer.isVip()) {
+            return subtotal.multiply(0.9); // VIP 9折
+        }
+        return subtotal;
+    }
+}
+
+// ❌ 错误：Service 承担所有业务逻辑
+public class BadOrderService {
+    public void placeOrder(Order order) {
+        // 大量业务逻辑在 Service 中
+        if (order.getLines().isEmpty()) throw new EmptyOrderException();
+        if (order.getTotal().isNegative()) throw new InvalidAmountException();
+        // ...
+    }
+}
+```
+
+## 领域事件规范
+
+### 定义
+
+```java
+// ✅ 不可变事件
+public record OrderPlacedEvent(
+    OrderId orderId,
+    CustomerId customerId,
+    Money totalAmount,
+    Instant occurredAt
+) {}
+
+// ✅ 聚合根发布事件
+public class Order extends AggregateRoot {
+    private List<DomainEvent> events = new ArrayList<>();
+
+    public void place() {
+        // 业务逻辑
+        this.status = OrderStatus.PLACED;
+        // 发布事件
+        events.add(new OrderPlacedEvent(id, customerId, totalAmount, Instant.now()));
+    }
+
+    @Override
+    public List<DomainEvent> pullDomainEvents() {
+        List<DomainEvent> pulled = new ArrayList<>(events);
+        events.clear();
+        return pulled;
+    }
+}
+```
+
+## 常见反模式
+
+| 反模式 | 表现 | 修正 |
+|--------|------|------|
+| 贫血模型 | Entity 只有 getter/setter | 将业务逻辑移入 Entity |
+| 充血过度 | 所有逻辑在 Entity | 合理使用 Domain Service |
+| 聚合过大 | 一个聚合包含整个系统 | 拆分聚合 |
+| 聚合间直接引用 | `order.getCustomer()` 跨边界 | 使用 CustomerId |
+| 仓储操作非聚合根 | `save(OrderLine line)` | 只操作聚合根 |
