@@ -56,22 +56,29 @@ package "Custom Built\n(定制开发)" <<custom-built>> #FFFACD {
     rectangle "Text Service\n文本服务" as cb_text_svc
     rectangle "RAG Service\n检索服务" as cb_rag_svc
     rectangle "Media Gen\n媒体生成" as cb_media
+
+    ' Backend (Java/Spring Boot)
+    rectangle "Chat Backend\n(Java/Spring Boot)" as cb_chat_backend
+    rectangle "RAG Backend\n(Java/Spring Boot)" as cb_rag_backend
+    rectangle "Spring AI\n集成层" as cb_spring_ai
 }
 
 ' ==================== PRODUCT 层 ====================
 package "Product\n(商业/开源产品)" <<product>> #ADD8E6 {
     ' AI/LLM 框架
     rectangle "LangGraph" as prod_langgraph
-    rectangle "LangChain" as prod_langchain
-    rectangle "FastAPI" as prod_fastapi
+    rectangle "LangChain4j" as prod_langchain4j
+    rectangle "Spring AI" as prod_spring_ai
 
     ' LLM Provider
     rectangle "Ollama\n(本地推理)" as prod_ollama
     rectangle "OpenAI\n(GPT-4o)" as prod_openai
     rectangle "Anthropic\n(Claude)" as prod_anthropic
+    rectangle "DeepSeek\nAPI" as prod_deepseek
 
     ' Vector/Embedding
     rectangle "Qdrant" as prod_qdrant
+    rectangle "pgvector" as prod_pgvector
     rectangle "Sentence\nTransformers" as prod_embedding
 
     ' Vision AI
@@ -106,14 +113,15 @@ package "Commodity\n(标准化基础设施)" <<commodity>> #D3D3D3 {
     rectangle "Kubernetes" as com_k8s
     rectangle "Docker\n/Container" as com_docker
 
-    ' 后端技术栈
-    rectangle "Python\n/FastAPI" as com_python
-    rectangle "Node.js\n/Express" as com_nodejs
+    ' 后端技术栈 (Java)
+    rectangle "Java 25" as com_java
+    rectangle "Spring Boot 3.5" as com_spring_boot
+    rectangle "Spring Data JPA" as com_spring_data
     rectangle "gRPC" as com_grpc
     rectangle "HTTP\n/WebSocket/SSE" as com_http
 
     ' 数据存储
-    rectangle "PostgreSQL" as com_postgres
+    rectangle "PostgreSQL 17" as com_postgres
     rectangle "Redis" as com_redis
     rectangle "S3/MinIO" as com_s3
 
@@ -130,6 +138,7 @@ package "Commodity\n(标准化基础设施)" <<commodity>> #D3D3D3 {
     ' DevOps
     rectangle "Git/GitHub\nActions" as com_git
     rectangle "Helm" as com_helm
+    rectangle "Gradle" as com_gradle
 }
 
 ' ==================== 核心依赖关系 ====================
@@ -180,13 +189,18 @@ cb_panels -down-> cb_text_svc
 cb_panels -down-> cb_tts
 cb_panels -down-> cb_video
 
+' Backend 内部关系
+cb_chat_backend -down-> cb_spring_ai
+cb_rag_backend -down-> cb_spring_ai
+cb_rag -down-> cb_rag_backend
+
 ' Custom Built → Product
 cb_supervisor -right-> prod_langgraph
-cb_supervisor -right-> prod_fastapi
-cb_agents -right-> prod_langchain
+cb_agents -right-> prod_langchain4j
 cb_agents -right-> prod_ollama
 
 cb_vector -right-> prod_qdrant
+cb_vector -right-> prod_pgvector
 cb_rag -right-> prod_embedding
 cb_rag -right-> prod_qdrant
 cb_rag -right-> cb_rag_svc
@@ -206,22 +220,28 @@ cb_video -right-> prod_runway
 cb_video -right-> prod_pika
 cb_video -right-> prod_sora
 
-cb_aiops -right-> prod_langchain
+cb_aiops -right-> prod_langchain4j
 
 cb_aihub -right-> prod_angular
 cb_aihub -right-> prod_angular_cli
 cb_aihub -right-> prod_scss
 cb_aihub -right-> prod_rxjs
 
-cb_llmops -right-> prod_langchain
+cb_llmops -right-> prod_langchain4j
 cb_llmops -right-> prod_ollama
 cb_llmops -right-> prod_openai
 cb_llmops -right-> prod_anthropic
+cb_llmops -right-> prod_deepseek
+
+' Spring AI 集成
+cb_spring_ai -right-> prod_spring_ai
+cb_spring_ai -right-> prod_langchain4j
+cb_spring_ai -right-> prod_deepseek
 
 ' Product → Product
-prod_langgraph -right-> prod_langchain
-prod_langchain -right-> prod_fastapi
-prod_langchain -right-> com_pytorch
+prod_langgraph -right-> prod_langchain4j
+prod_langchain4j -right-> prod_spring_ai
+prod_spring_ai -right-> com_spring_boot
 prod_ollama -right-> com_pytorch
 prod_embedding -right-> com_pytorch
 prod_yolo -right-> com_pytorch
@@ -230,27 +250,28 @@ prod_blip -right-> com_pytorch
 prod_sd -right-> com_pytorch
 
 prod_angular -right-> prod_angular_cli
-prod_angular_cli -right-> com_nodejs
-prod_scss -right-> com_nodejs
+prod_angular_cli -right-> com_cloud
+prod_scss -right-> com_cloud
 
 prod_qdrant -right-> com_docker
 prod_qdrant -right-> com_grpc
+prod_pgvector -right-> com_postgres
 prod_elevenlabs -right-> com_http
-prod_coqui -right-> com_python
+prod_coqui -right-> com_pytorch
 prod_kling -right-> com_http
 prod_runway -right-> com_http
 prod_pika -right-> com_http
 prod_sora -right-> com_http
 
 ' Product → Commodity
-prod_fastapi -right-> com_python
 prod_anthropic -right-> com_cloud
 prod_openai -right-> com_cloud
 prod_azure_tts -right-> com_cloud
 
 ' Commodity 内部关系
-com_python -right-> com_cloud
-com_nodejs -right-> com_cloud
+com_spring_boot -right-> com_java
+com_spring_data -right-> com_spring_boot
+com_gradle -right-> com_java
 com_pytorch -right-> com_cloud
 com_k8s -down-> com_docker
 com_k8s -right-> com_cloud
@@ -270,11 +291,11 @@ com_git -right-> com_cloud
 
 ' ==================== 图例 ====================
 legend right
-|= 颜色 |= 阶段 |= 特点 |
-|<back:#90EE90>绿色</back>| Genesis | 创新、独特能力 |
-|<back:#FFFACD>黄色</back>| Custom Built | 差异化定制 |
-|<back:#ADD8E6>蓝色</back>| Product | 采购/开源组件 |
-|<back:#D3D3D3>灰色</back>| Commodity | 标准化基础设施 |
+||= 颜色 |= 阶段 |= 特点 |
+{<back:#90EE90>绿色</back>}| Genesis | 创新、独特能力 |
+{<back:#FFFACD>黄色</back>}| Custom Built | 差异化定制 |
+{<back:#ADD8E6>蓝色</back>}| Product | 采购/开源组件 |
+{<back:#D3D3D3>灰色</back>}| Commodity | 标准化基础设施 |
 endlegend
 
 @enduml
