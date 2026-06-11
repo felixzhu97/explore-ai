@@ -9,6 +9,8 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class SpringAiChatService implements AiChatService {
 
     private final ChatModel chatModel;
 
-    public SpringAiChatService(ChatModel chatModel) {
+    public SpringAiChatService(@Qualifier("openAiChatModel") ChatModel chatModel) {
         this.chatModel = chatModel;
     }
 

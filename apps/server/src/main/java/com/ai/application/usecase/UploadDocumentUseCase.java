@@ -55,9 +55,17 @@ public class UploadDocumentUseCase {
                     metadata
                 ).withEmbedding(embedding);
                 
-                vectorSearchPort.saveChunk(chunk);
-                embeddedChunks.add(chunk);
+                try {
+                    vectorSearchPort.saveChunk(chunk);
+                    embeddedChunks.add(chunk);
+                    log.debug("Chunk {}/{} saved successfully for document {}", i + 1, chunks.size(), document.getId());
+                } catch (Exception e) {
+                    log.error("Failed to save chunk {} for document {}: {}", i, document.getId(), e.getMessage());
+                    throw e;
+                }
             }
+            
+            log.info("All {} chunks saved to vector store for document {}", embeddedChunks.size(), document.getId());
 
             document.markReady();
             document = documentRepository.save(document);

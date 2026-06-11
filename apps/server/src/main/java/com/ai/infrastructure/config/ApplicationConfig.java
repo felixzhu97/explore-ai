@@ -13,14 +13,17 @@ import com.ai.application.usecase.UploadDocumentUseCase;
 import com.ai.domain.service.AiChatService;
 import com.ai.infrastructure.adapter.ai.SpringAiChatAdapter;
 import com.ai.infrastructure.adapter.ai.SpringAiChatService;
-import com.ai.infrastructure.adapter.embedding.DeepSeekEmbeddingAdapter;
 import com.ai.infrastructure.adapter.embedding.MockEmbeddingAdapter;
+import com.ai.infrastructure.adapter.embedding.OllamaEmbeddingAdapter;
 import com.ai.infrastructure.adapter.persistence.InMemoryChatSessionRepository;
 import com.ai.infrastructure.adapter.persistence.JpaDocumentRepository;
 import com.ai.infrastructure.adapter.vector.PgVectorAdapter;
+import jakarta.servlet.MultipartConfigElement;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.util.unit.DataSize;
 
 /**
  * Application configuration class - manages dependency injection.
@@ -28,6 +31,20 @@ import org.springframework.context.annotation.Profile;
  */
 @Configuration
 public class ApplicationConfig {
+
+    /**
+     * Configure multipart upload settings explicitly to ensure limits are applied.
+     * This bean explicitly sets 50MB limits to ensure they are not overridden by
+     * environment variables or other configuration sources.
+     */
+    @Bean
+    public MultipartConfigElement multipartConfigElement() {
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        factory.setMaxFileSize(DataSize.ofMegabytes(50));
+        factory.setMaxRequestSize(DataSize.ofMegabytes(50));
+        factory.setLocation("/tmp/uploads");
+        return factory.createMultipartConfig();
+    }
 
     @Bean
     public AiChatService aiChatService(SpringAiChatService springAiChatService) {
@@ -68,8 +85,8 @@ public class ApplicationConfig {
 
     @Bean
     public EmbeddingPort embeddingPort(
-            org.springframework.beans.factory.ObjectProvider<DeepSeekEmbeddingAdapter> deepSeekProvider,
             org.springframework.beans.factory.ObjectProvider<MockEmbeddingAdapter> mockProvider,
+            org.springframework.beans.factory.ObjectProvider<OllamaEmbeddingAdapter> ollamaProvider,
             org.springframework.core.env.Environment env) {
         
         boolean useMock = Boolean.parseBoolean(
@@ -83,12 +100,13 @@ public class ApplicationConfig {
             throw new IllegalStateException("Mock embedding adapter not available but rag.mock.embeddings=true");
         }
         
-        DeepSeekEmbeddingAdapter deepSeek = deepSeekProvider.getIfAvailable();
-        if (deepSeek != null) {
-            return deepSeek;
+        // Try Ollama first (local embedding)
+        OllamaEmbeddingAdapter ollama = ollamaProvider.getIfAvailable();
+        if (ollama != null) {
+            return ollama;
         }
         
-        // Fallback to mock if DeepSeek not available
+        // Final fallback to mock
         MockEmbeddingAdapter fallbackMock = mockProvider.getIfAvailable();
         if (fallbackMock != null) {
             return fallbackMock;

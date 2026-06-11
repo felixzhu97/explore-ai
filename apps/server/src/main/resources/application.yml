@@ -2,6 +2,8 @@ spring:
   application:
     name: server-springai
   ai:
+    ollama:
+      base-url: http://localhost:11434
     openai:
       api-key: ${DEEPSEEK_API_KEY:your-api-key}
       base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
@@ -39,7 +41,11 @@ spring:
 # RAG configuration
 rag:
   mock:
-    embeddings: true
+    embeddings: false
+  ollama:
+    embedding:
+      model: nomic-embed-text
+      dimensions: 768
   chunk:
     size: ${RAG_CHUNK_SIZE:500}
     overlap: ${RAG_CHUNK_OVERLAP:50}
@@ -52,8 +58,11 @@ server:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 50MB
+      max-request-size: 50MB
+  tomcat:
+    max-http-form-post-size: 50MB
+    max-swallow-size: 50MB
 
 # Actuator for health checks
 management:

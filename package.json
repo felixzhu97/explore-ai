@@ -13,7 +13,9 @@
     "prepare": "husky",
     "web:dev": "cd apps/web && npm start",
     "server:dev": "cd apps/server && ./gradlew bootRun",
-    "dev:all": "npm run server:dev && npm run web:dev"
+    "dev:all": "npm run server:dev && npm run web:dev",
+    "docker:up": "cd apps/server && docker compose up -d",
+    "docker:down": "cd apps/server && docker compose down"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

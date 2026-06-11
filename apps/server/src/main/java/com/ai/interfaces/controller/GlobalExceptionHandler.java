@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.Map;
@@ -73,6 +74,13 @@ public class GlobalExceptionHandler {
         log.warn("Illegal argument: {}", e.getMessage());
         return ResponseEntity.badRequest()
             .body(errorResponse("BAD_REQUEST", e.getMessage()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        log.warn("Upload size exceeded: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+            .body(errorResponse("FILE_TOO_LARGE", "Uploaded file exceeds the maximum allowed size of 50MB"));
     }
 
     @ExceptionHandler(Exception.class)

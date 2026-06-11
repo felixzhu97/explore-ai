@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.ai:spring-ai-starter-model-openai")
+    implementation("org.springframework.ai:spring-ai-starter-model-ollama")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

@@ -178,7 +178,7 @@ export const translations: Record<Language, Translations> = {
     },
     ragChat: {
       title: 'Document Q&A',
-      modelBadge: 'RAG + GPT-4o-mini',
+      modelBadge: 'RAG',
       uploadDocs: 'Upload Docs',
       upload: 'Upload',
       askQuestion: 'Ask me anything about your documents',
@@ -348,7 +348,7 @@ export const translations: Record<Language, Translations> = {
     },
     ragChat: {
       title: '文档问答',
-      modelBadge: 'RAG + GPT-4o-mini',
+      modelBadge: 'RAG',
       uploadDocs: '上传文档',
       upload: '上传',
       askQuestion: '开始问我关于文档的问题吧',
@@ -514,7 +514,7 @@ export const translations: Record<Language, Translations> = {
     },
     ragChat: {
       title: 'ドキュメント Q&A',
-      modelBadge: 'RAG + GPT-4o-mini',
+      modelBadge: 'RAG',
       uploadDocs: 'ドキュメント',
       upload: 'アップロード',
       askQuestion: 'ドキュメントについて質問してください',
@@ -685,7 +685,7 @@ export const translations: Record<Language, Translations> = {
     },
     ragChat: {
       title: "Q&R Documents",
-      modelBadge: 'RAG + GPT-4o-mini',
+      modelBadge: 'RAG',
       uploadDocs: 'Documents',
       upload: 'Téléverser',
       askQuestion: 'Posez-moi des questions sur vos documents',
@@ -856,7 +856,7 @@ export const translations: Record<Language, Translations> = {
     },
     ragChat: {
       title: 'Q&A Documentos',
-      modelBadge: 'RAG + GPT-4o-mini',
+      modelBadge: 'RAG',
       uploadDocs: 'Documentos',
       upload: 'Subir',
       askQuestion: 'Pregúntame sobre tus documentos',

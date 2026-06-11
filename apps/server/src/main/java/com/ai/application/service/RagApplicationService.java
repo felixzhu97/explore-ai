@@ -29,7 +29,9 @@ public class RagApplicationService {
     }
 
     public Document uploadDocument(String title, String fileName, Long fileSize, String content) {
-        return uploadDocumentUseCase.execute(title, fileName, fileSize, content);
+        Document document = uploadDocumentUseCase.execute(title, fileName, fileSize, content);
+        log.info("Upload completed. Document id={}, title={}, status={}", document.getId(), document.getTitle(), document.getStatus());
+        return document;
     }
 
     public List<Document> listDocuments() {
