@@ -1,0 +1,596 @@
+---
+description: Java 24+ / Spring Boot 3.4+ Clean Architecture Refactoring Standards. Strict hexagonal architecture with Domain-driven Design, Rich Domain Model, and dependency inversion. For Java backend refactoring, DDD, Clean Architecture restructuring.
+globs: **/*.java **/*.kt
+alwaysApply: true
+---
+
+# Java Clean Architecture Refactoring Standards
+
+> **核心原则**: 依赖倒置、领域优先、边界清晰
+
+---
+
+## Clean Architecture 分层 (Java 实现)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Interface Adapters                        │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │              Controllers / DTOs / Mappers            │    │
+│  └─────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────┤
+│                      Application Layer                       │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │         Use Cases / Application Services             │    │
+│  └─────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────┤
+│                        Domain Layer                           │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │    Entities / Value Objects / Aggregates / Events    │    │
+│  └─────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────┤
+│                     Infrastructure Layer                      │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │    Repositories / External Services / Persistence     │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+
+依赖规则: 外层依赖内层，Domain 层无任何外部依赖
+```
+
+---
+
+## Java 项目结构
+
+```
+src/main/java/com/ai/
+├── domain/                          # 领域层 (核心，无依赖)
+│   ├── model/                       # 聚合根、实体
+│   │   ├── Order.java
+│   │   ├── OrderId.java
+│   │   └── OrderLine.java
+│   ├── value/                       # 值对象
+│   │   ├── Money.java
+│   │   ├── Email.java
+│   │   └── Address.java
+│   ├── service/                     # 领域服务 (跨实体业务逻辑)
+│   │   └── PricingService.java
+│   ├── repository/                  # 仓储接口 (Domain 定义)
+│   │   ├── OrderRepository.java
+│   │   └── CustomerRepository.java
+│   ├── event/                       # 领域事件
+│   │   ├── OrderPlacedEvent.java
+│   │   └── DomainEvent.java
+│   └── exception/                   # 领域异常
+│       ├── OrderException.java
+│       └── DomainException.java
+│
+├── application/                     # 应用层 (用例编排)
+│   ├── usecase/                     # 用例
+│   │   ├── CreateOrderUseCase.java
+│   │   ├── CancelOrderUseCase.java
+│   │   └── GetOrderUseCase.java
+│   ├── dto/                         # 应用层 DTO
+│   │   ├── CreateOrderCommand.java
+│   │   └── OrderResult.java
+│   └── port/                        # 端口接口 (应用定义)
+│       ├── OrderQueryPort.java
+│       └── PaymentPort.java
+│
+├── infrastructure/                  # 基础设施层 (实现)
+│   ├── persistence/                 # 持久化实现
+│   │   ├── jpa/
+│   │   │   ├── OrderJpaRepository.java
+│   │   │   └── OrderEntity.java
+│   │   └── mapper/
+│   │       └── OrderEntityMapper.java
+│   ├── repository/                  # 仓储实现
+│   │   └── JpaOrderRepository.java
+│   ├── external/                    # 外部服务适配器
+│   │   ├── PaymentGatewayAdapter.java
+│   │   └── NotificationServiceAdapter.java
+│   └── config/
+│       └── InfrastructureConfig.java
+│
+└── interface/                       # 接口适配器层
+    ├── controller/                  # 控制器
+    │   └── OrderController.java
+    ├── dto/                         # API DTO
+    │   ├── request/
+    │   │   └── CreateOrderRequest.java
+    │   └── response/
+    │       └── OrderResponse.java
+    ├── mapper/                      # 映射器
+    │   └── OrderMapper.java
+    └── advice/
+        └── GlobalExceptionHandler.java
+```
+
+---
+
+## Domain 层规范
+
+### 实体 (Entity) - 充血模型
+
+```java
+// ✅ 正确: 充血模型，业务逻辑在实体内部
+package com.ai.domain.model;
+
+import com.ai.domain.event.OrderPlacedEvent;
+import com.ai.domain.exception.OrderException;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class Order extends AggregateRoot {
+
+    private final OrderId id;
+    private CustomerId customerId;
+    private OrderStatus status;
+    private final List<OrderLine> lines;
+    private Instant createdAt;
+
+    // 私有构造函数，通过工厂方法创建
+    private Order(OrderId id, CustomerId customerId) {
+        this.id = Objects.requireNonNull(id);
+        this.customerId = Objects.requireNonNull(customerId);
+        this.status = OrderStatus.DRAFT;
+        this.lines = new ArrayList<>();
+        this.createdAt = Instant.now();
+    }
+
+    public static Order create(CustomerId customerId) {
+        return new Order(new OrderId(UUID.randomUUID()), customerId);
+    }
+
+    // 唯一入口: 添加商品行
+    public void addLine(Product product, int quantity) {
+        validateCanModify();
+        if (quantity <= 0) {
+            throw OrderException.invalidQuantity(quantity);
+        }
+        lines.add(new OrderLine(product.getId(), product.getPrice(), quantity));
+    }
+
+    // 业务方法: 下单
+    public void place() {
+        validateCanPlace();
+        this.status = OrderStatus.PLACED;
+        addDomainEvent(new OrderPlacedEvent(id, customerId, calculateTotal(), Instant.now()));
+    }
+
+    // 业务方法: 取消
+    public void cancel() {
+        if (status != OrderStatus.DRAFT && status != OrderStatus.PLACED) {
+            throw OrderException.cannotCancel(status);
+        }
+        this.status = OrderStatus.CANCELLED;
+    }
+
+    // 计算逻辑
+    public Money calculateTotal() {
+        return lines.stream()
+                .map(OrderLine::subtotal)
+                .reduce(Money.ZERO, Money::add);
+    }
+
+    // 验证逻辑
+    private void validateCanPlace() {
+        if (status != OrderStatus.DRAFT) {
+            throw OrderException.invalidStatusForPlacement(status);
+        }
+        if (lines.isEmpty()) {
+            throw OrderException.empty();
+        }
+    }
+
+    private void validateCanModify() {
+        if (status != OrderStatus.DRAFT) {
+            throw OrderException.cannotModifyAfterPlacement();
+        }
+    }
+
+    // Getters (无 Setters)
+    public OrderId getId() { return id; }
+    public OrderStatus getStatus() { return status; }
+    public Money getTotalAmount() { return calculateTotal(); }
+    public List<OrderLine> getLines() { return List.copyOf(lines); }
+
+    // 状态枚举
+    public enum OrderStatus { DRAFT, PLACED, PAID, SHIPPED, CANCELLED }
+}
+```
+
+### 值对象 (Value Object)
+
+```java
+// ✅ 正确: 不可变值对象，使用 Java Record
+package com.ai.domain.value;
+
+import com.ai.domain.exception.DomainException;
+
+public record Money(
+    BigDecimal amount,
+    Currency currency
+) {
+    public Money {
+        Objects.requireNonNull(amount, "Amount cannot be null");
+        Objects.requireNonNull(currency, "Currency cannot be null");
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw DomainException.negativeAmount();
+        }
+    }
+
+    // 工厂方法
+    public static Money of(double value) {
+        return new Money(BigDecimal.valueOf(value), Currency.DEFAULT);
+    }
+
+    public static Money zero() {
+        return new Money(BigDecimal.ZERO, Currency.DEFAULT);
+    }
+
+    // 业务方法
+    public Money add(Money other) {
+        validateCurrency(other.currency());
+        return new Money(this.amount.add(other.amount), this.currency);
+    }
+
+    public Money multiply(int factor) {
+        return new Money(this.amount.multiply(BigDecimal.valueOf(factor)), this.currency);
+    }
+
+    public boolean isGreaterThanOrEqual(Money other) {
+        validateCurrency(other.currency);
+        return this.amount.compareTo(other.amount) >= 0;
+    }
+
+    private void validateCurrency(Currency other) {
+        if (!this.currency.equals(other)) {
+            throw DomainException.currencyMismatch();
+        }
+    }
+
+    // 内部枚举
+    public enum Currency {
+        USD, CNY, EUR;
+
+        public static final Currency DEFAULT = USD;
+    }
+}
+```
+
+### 聚合根 (Aggregate Root)
+
+```java
+// ✅ 正确: 聚合根管理内部一致性
+package com.ai.domain.model;
+
+public abstract class AggregateRoot {
+    private final List<DomainEvent> domainEvents = new ArrayList<>();
+
+    protected void addDomainEvent(DomainEvent event) {
+        domainEvents.add(event);
+    }
+
+    public List<DomainEvent> pullDomainEvents() {
+        List<DomainEvent> events = new ArrayList<>(domainEvents);
+        domainEvents.clear();
+        return events;
+    }
+
+    protected abstract void validate();
+}
+```
+
+### 领域事件
+
+```java
+// ✅ 正确: 不可变领域事件
+package com.ai.domain.event;
+
+public record OrderPlacedEvent(
+    OrderId orderId,
+    CustomerId customerId,
+    Money totalAmount,
+    Instant occurredAt
+) implements DomainEvent {
+
+    public static OrderPlacedEvent create(OrderId orderId, CustomerId customerId, Money totalAmount) {
+        return new OrderPlacedEvent(orderId, customerId, totalAmount, Instant.now());
+    }
+}
+```
+
+### 仓储接口 (Domain 定义)
+
+```java
+// ✅ 正确: 仓储接口定义在 Domain 层
+package com.ai.domain.repository;
+
+public interface OrderRepository {
+    Optional<Order> findById(OrderId id);
+    List<Order> findByCustomerId(CustomerId customerId);
+    List<Order> findByStatus(Order.OrderStatus status);
+    void save(Order order);
+    void delete(OrderId id);
+}
+```
+
+---
+
+## Application 层规范
+
+### 用例 (Use Case)
+
+```java
+// ✅ 正确: 用例编排，无业务逻辑
+package com.ai.application.usecase;
+
+public class CreateOrderUseCase {
+
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final EventPublisher eventPublisher;
+
+    public CreateOrderUseCase(
+            OrderRepository orderRepository,
+            ProductRepository productRepository,
+            EventPublisher eventPublisher
+    ) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    public OrderResult execute(CreateOrderCommand command) {
+        // 1. 获取客户
+        Customer customer = customerRepository.findById(command.customerId())
+                .orElseThrow(() -> CustomerException.notFound(command.customerId()));
+
+        // 2. 创建订单
+        Order order = Order.create(customer.getId());
+
+        // 3. 添加商品行
+        for (OrderItemCommand item : command.items()) {
+            Product product = productRepository.findById(item.productId())
+                    .orElseThrow(() -> ProductException.notFound(item.productId()));
+            order.addLine(product, item.quantity());
+        }
+
+        // 4. 保存
+        orderRepository.save(order);
+
+        // 5. 发布事件
+        eventPublisher.publish(order.pullDomainEvents());
+
+        // 6. 返回结果
+        return OrderResult.from(order);
+    }
+}
+```
+
+### 命令 (Command) 和查询 (Query) DTO
+
+```java
+// Command
+public record CreateOrderCommand(
+    CustomerId customerId,
+    List<OrderItemCommand> items
+) {
+    public record OrderItemCommand(ProductId productId, int quantity) {}
+}
+
+// Result
+public record OrderResult(
+    OrderId orderId,
+    Money totalAmount,
+    Order.OrderStatus status,
+    Instant createdAt
+) {
+    public static OrderResult from(Order order) {
+        return new OrderResult(
+            order.getId(),
+            order.getTotalAmount(),
+            order.getStatus(),
+            order.getCreatedAt()
+        );
+    }
+}
+```
+
+---
+
+## Infrastructure 层规范
+
+### JPA 实体映射
+
+```java
+// ✅ 正确: JPA 实体在 Infrastructure 层
+package com.ai.infrastructure.persistence.jpa;
+
+@Entity
+@Table(name = "orders")
+public class OrderEntity {
+
+    @Id
+    private UUID id;
+
+    private UUID customerId;
+
+    @Enumerated(EnumType.STRING)
+    private String status;
+
+    private Instant createdAt;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderLineEntity> lines = new ArrayList<>();
+
+    // JPA 需要的构造函数
+    protected OrderEntity() {}
+
+    // Domain 转换
+    public Order toDomain() {
+        Order order = new Order(OrderId.of(id), CustomerId.of(customerId));
+        // ... 映射逻辑
+        return order;
+    }
+
+    public static OrderEntity fromDomain(Order order) {
+        OrderEntity entity = new OrderEntity();
+        entity.id = order.getId().value();
+        entity.customerId = order.getCustomerId().value();
+        // ...
+        return entity;
+    }
+}
+```
+
+### 仓储实现
+
+```java
+// ✅ 正确: 仓储实现在 Infrastructure 层
+package com.ai.infrastructure.persistence.repository;
+
+@Repository
+public class JpaOrderRepository implements OrderRepository {
+
+    private final SpringDataOrderRepository springRepository;
+    private final OrderEntityMapper mapper;
+
+    public JpaOrderRepository(
+            SpringDataOrderRepository springRepository,
+            OrderEntityMapper mapper
+    ) {
+        this.springRepository = springRepository;
+        this.mapper = mapper;
+    }
+
+    @Override
+    public Optional<Order> findById(OrderId id) {
+        return springRepository.findById(id.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public void save(Order order) {
+        OrderEntity entity = mapper.toEntity(order);
+        springRepository.save(entity);
+    }
+}
+```
+
+---
+
+## Interface 层规范
+
+### Controller
+
+```java
+// ✅ 正确: Controller 只做请求路由
+package com.ai.interface.controller;
+
+@RestController
+@RequestMapping("/api/orders")
+@RequiredArgsConstructor
+public class OrderController {
+
+    private final CreateOrderUseCase createOrderUseCase;
+    private final GetOrderUseCase getOrderUseCase;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
+        CreateOrderCommand command = OrderMapper.toCommand(request);
+        OrderResult result = createOrderUseCase.execute(command);
+        return ResponseEntity
+                .created(URI.create("/api/orders/" + result.orderId()))
+                .body(OrderResponse.from(result));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getById(@PathVariable UUID id) {
+        return getOrderUseCase.execute(id)
+                .map(order -> ResponseEntity.ok(OrderResponse.from(order)))
+                .orElseThrow(() -> new OrderNotFoundException(id));
+    }
+}
+```
+
+### Mapper
+
+```java
+// ✅ 正确: Mapper 在 Interface 层，负责内外转换
+@Component
+public class OrderMapper {
+
+    public CreateOrderCommand toCommand(CreateOrderRequest request) {
+        return new CreateOrderCommand(
+            CustomerId.of(request.customerId()),
+            request.items().stream()
+                .map(item -> new OrderItemCommand(ProductId.of(item.productId()), item.quantity()))
+                .toList()
+        );
+    }
+
+    public OrderResponse toResponse(OrderResult result) {
+        return new OrderResponse(
+            result.orderId().value(),
+            result.totalAmount().amount(),
+            result.status().name(),
+            result.createdAt()
+        );
+    }
+}
+```
+
+---
+
+## 重构检查清单
+
+### Domain 层检查
+
+- [ ] 实体无 `@Service`、`@Component` 注解
+- [ ] 实体无 JPA/Hibernate 注解
+- [ ] 实体无 Spring 依赖
+- [ ] 业务逻辑在实体方法内
+- [ ] 无公开 setters
+- [ ] 状态变更通过业务方法
+
+### Application 层检查
+
+- [ ] 用例无业务逻辑，只做编排
+- [ ] 用例依赖仓储接口，不依赖实现
+- [ ] 使用 Command/Query DTO
+
+### Infrastructure 层检查
+
+- [ ] JPA 实体与 Domain 实体分离
+- [ ] 仓储实现实现 Domain 层接口
+- [ ] 外部服务通过适配器封装
+
+### Interface 层检查
+
+- [ ] Controller 只做请求路由
+- [ ] DTO/Request/Response 在此层
+- [ ] Mapper 负责内外转换
+
+---
+
+## 架构验证命令
+
+```bash
+# 检查 Domain 层无框架依赖
+grep -r "import org.springframework" src/domain/ || echo "✅ Domain 无 Spring 依赖"
+grep -r "import jakarta.persistence" src/domain/ || echo "✅ Domain 无 JPA 依赖"
+grep -r "import javax.persistence" src/domain/ || echo "✅ Domain 无 JPA 依赖"
+grep -r "@Entity" src/domain/ || echo "✅ Domain 无实体注解"
+
+# 检查依赖方向
+grep -r "import.*application" src/domain/ || echo "✅ Domain 不依赖 Application"
+grep -r "import.*infrastructure" src/domain/ || echo "✅ Domain 不依赖 Infrastructure"
+grep -r "import.*interface" src/domain/ || echo "✅ Domain 不依赖 Interface"
+```
