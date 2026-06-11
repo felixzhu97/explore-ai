@@ -12,11 +12,11 @@ if [ $? -ne 0 ]; then
 fi
 cd ../..
 
-# Run Java tests (JUnit 5)
-echo "🧪 Running Java tests (JUnit 5)..."
-cd apps/server && ./gradlew test --no-daemon -q 2>&1
+# Run Java tests with coverage (JUnit 5 + JaCoCo)
+echo "🧪 Running Java tests with coverage (JUnit 5 + JaCoCo)..."
+cd apps/server && ./gradlew jacocoTestCoverageVerification --no-daemon -q 2>&1
 if [ $? -ne 0 ]; then
-  echo "❌ Java tests failed"
+  echo "❌ Java coverage check failed (minimum 60% line, 50% branch)"
   exit 1
 fi
 cd ..
