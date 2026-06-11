@@ -1,0 +1,21 @@
+<div class="message-bubble" [class.message-bubble--user]="isUser()">
+  <div class="message-content" [class.message-content--user]="isUser()">
+    @if (isUser()) {
+      <p>{{ message().content }}</p>
+    } @else {
+      <div [innerHTML]="renderedContent()"></div>
+    }
+  </div>
+
+  @if (message().toolCalls && message().toolCalls!.length > 0) {
+    <div class="tool-calls">
+      @for (toolCall of message().toolCalls; track toolCall.id) {
+        <app-tool-result [toolCall]="toolCall" />
+      }
+    </div>
+  }
+
+  <div class="message-meta">
+    <span class="message-time">{{ formattedTime() }}</span>
+  </div>
+</div>

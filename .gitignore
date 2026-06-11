@@ -46,20 +46,26 @@ volumes/
 # SQLite databases
 *.db
 
-# Playwright E2E
-playwright-report/
+# Test Reports & Coverage
+coverage/
+*.lcov
+lcov.info
+*.cobertura.xml
+junit.xml
+test-output/
 test-results/
-playwright/.cache/
-*-snapshots/
+nunit-result-*.xml
 
-# Playwright MCP (test screenshots and logs)
+# Playwright
 .playwright-mcp/
 
-# Screenshots (test outputs)
-*-screenshot.png
-page-screenshot.png
-tab-*.png
-ai-test-*.png
+# Cursor MCP output
+.cursor/mcp-output/
+
+# Playwright E2E
+playwright-report/
+playwright/.cache/
+*-snapshots/
 
 # Documentation images (keep these tracked)
 !docs/png/*.png
@@ -72,3 +78,24 @@ ai-test-*.png
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Husky
+.husky/_/
+
+# Services (legacy microservices)
+services/data/
+
+# Java/Gradle build artifacts
+apps/server/.gradle/
+apps/server/**/build/
+apps/server/**/.gradle/
+
+# Spring Boot
+apps/server/src/main/resources/application-local.yml
+apps/server/src/main/resources/application-local*.yml
+
+# Legacy merged services (migrated to monolith)
+apps/server-java/services/ai-agents/
+
+# Root-level build
+build/

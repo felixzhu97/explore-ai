@@ -1,30 +1,24 @@
-#!/usr/bin/env bash
-. "$(dirname -- "$0")/../.husky/_/husky.sh"
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
 echo "🔍 Running pre-commit checks..."
 
-# Type check for server
-echo "📦 Type checking apps/server..."
-pnpm --filter @ai-test/server typecheck
+# Run Angular tests (Vitest)
+echo "🧪 Running Angular tests (Vitest)..."
+cd apps/web && npx vitest run --silent > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "❌ Type check failed for apps/server"
+  echo "❌ Angular tests failed"
   exit 1
 fi
+cd ../..
 
-# Type check for utils
-echo "📦 Type checking packages/utils..."
-pnpm --filter @ai-test/utils typecheck
+# Run Java tests (JUnit 5)
+echo "🧪 Running Java tests (JUnit 5)..."
+cd apps/server && ./gradlew test --no-daemon -q 2>&1
 if [ $? -ne 0 ]; then
-  echo "❌ Type check failed for packages/utils"
+  echo "❌ Java tests failed"
   exit 1
 fi
-
-# Run tests
-echo "🧪 Running tests..."
-pnpm test
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed"
-  exit 1
-fi
+cd ..
 
 echo "✅ All pre-commit checks passed!"

@@ -1,0 +1,196 @@
+---
+description: TDD Test-Driven Development Standards. Covers Red-Green-Refactor cycle, test naming, unit test structure, and Mock usage principles.
+globs: **/*.java **/*.ts **/*.spec.ts **/*.test.ts
+alwaysApply: true
+---
+
+# TDD Test-Driven Development Standards
+
+## Red-Green-Refactor Cycle
+
+```
+1. RED     → Write a failing test, specify expected behavior
+2. GREEN   → Write minimal code to make the test pass
+3. REFACTOR → Clean up code, keeping tests passing
+4. Repeat
+```
+
+## Test Naming Conventions
+
+### Java
+
+```java
+// Format: should_expected_result_when_trigger_condition
+@Test
+void shouldReturnEligibleForFreeShipping_WhenTotalExceeds100Dollars() {
+    // ...
+}
+
+@Test
+void shouldThrowOrderEmptyException_WhenOrderHasNoLines() {
+    // ...
+}
+```
+
+### TypeScript
+
+```typescript
+// Format: should_expected_result_when_trigger_condition
+it('should_be_eligible_for_free_shipping_when_total_exceeds_100_dollars', () => {
+  // ...
+});
+```
+
+## Test Structure (AAA Pattern)
+
+```java
+class OrderPricingTest {
+
+    @Test
+    void shouldCalculateTotalAsSumOfLines() {
+        // Arrange: Prepare test data and dependencies
+        List<OrderLine> lines = List.of(
+            new OrderLine(Money.of(100), 2),
+            new OrderLine(Money.of(50), 3)
+        );
+        Order order = new Order(lines);
+
+        // Act: Execute the operation under test
+        Money total = order.totalAmount();
+
+        // Assert: Verify the result
+        assertThat(total).isEqualTo(Money.of(350));
+    }
+}
+```
+
+## Unit Testing Principles
+
+### Must Have
+
+- Test one behavior/method
+- No dependencies between tests
+- Deterministic results (no randomness)
+- Fast execution (< 1ms)
+
+### Must NOT Have
+
+- Testing private methods
+- Testing implementation details
+- Hardcoded expected values
+- Accessing external resources (DB/network)
+
+## Mock Usage Principles
+
+### When to Use
+
+- Depending on external services
+- Depending on unfinished components
+- Need to control system under test boundary
+
+### When NOT to Use
+
+- Fake can be used instead
+- Testing real collaboration (e.g., JPA Repository using Testcontainers)
+
+```java
+// ✅ Correct: Mock external dependencies
+@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
+
+    @Mock
+    private PaymentGateway paymentGateway;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @InjectMocks
+    private OrderService orderService;
+
+    @Test
+    void shouldProcessPaymentWhenOrderIsPlaced() {
+        // Given
+        Order order = createValidOrder();
+        when(paymentGateway.charge(any())).thenReturn(PaymentResult.success());
+
+        // When
+        orderService.placeOrder(order);
+
+        // Then
+        verify(paymentGateway).charge(order.getTotalAmount());
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+    }
+}
+
+// ❌ Incorrect: Over-mocking
+@Test
+void shouldCreateOrder() {
+    // Given - Mocked everything, loses meaning
+    when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(eventPublisher.publish(any())).thenReturn(null);
+    when(clock.now()).thenReturn(Instant.now());
+}
+```
+
+## Test Double Type Selection
+
+| Scenario | Recommended Type | Reason |
+|----------|-----------------|--------|
+| Fill parameters | Dummy | Parameter not used |
+| Simplified implementation | Fake | e.g., InMemoryRepository |
+| Pre-configured responses | Stub | Control test data |
+| Verify calls | Mock | Verify interactions |
+| Retain real + record | Spy | Partial verification |
+
+## Boundary Condition Coverage
+
+```java
+@Test
+void shouldHandleNullInput() {
+    assertThrows(NullPointerException.class, () -> service.process(null));
+}
+
+@Test
+void shouldHandleEmptyCollection() {
+    List<?> result = service.process(List.of());
+    assertThat(result).isEmpty();
+}
+
+@Test
+void shouldHandleMaximumValue() {
+    Money result = service.calculate(Money.MAX_VALUE);
+    assertThat(result).isEqualTo(Money.MAX_VALUE);
+}
+```
+
+## TDD Workflow Checklist
+
+### Before Writing Tests
+
+- [ ] Clarify the behavior under test
+- [ ] Know the expected output/side effects
+
+### Red Phase
+
+- [ ] Test fails to compile (compile error) or runs failing (assertion failure)
+- [ ] Failure message is clear
+
+### Green Phase
+
+- [ ] Write only code to make tests pass
+- [ ] Do not write "perfect" code
+
+### Refactor Phase
+
+- [ ] All tests still pass
+- [ ] Code is clearer
+
+## Common Mistakes
+
+| Mistake | Symptoms | Correction |
+|---------|----------|------------|
+| Reverse TDD | Write implementation before tests | Follow Red-Green-Refactor |
+| Over-testing | Test all methods | Test behavior, not implementation |
+| Weak assertions | `assertTrue(true)` | Precise assertions |
+| Slow tests | Unit tests access DB | Mock dependencies |
+| Test dependency | Test A depends on Test B state | Tests are independent |

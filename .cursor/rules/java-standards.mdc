@@ -1,12 +1,12 @@
 ---
-description: Java 24+ / Spring Boot 3.4+ 后端编码规范，涵盖 Controller/Service/Repository 架构、DTO 设计、异常处理、安全配置
+description: Java 24+ / Spring Boot 3.4+ backend coding standards covering Controller/Service/Repository architecture, DTO design, exception handling, and security configuration
 globs: **/*.java **/*.kt **/*.gradle.kts
 alwaysApply: false
 ---
 
-# Java/Spring Boot 编码规范
+# Java/Spring Boot Coding Standards
 
-## 项目结构
+## Project Structure
 
 ```
 src/main/java/com/ai/api/
@@ -14,47 +14,47 @@ src/main/java/com/ai/api/
 │   ├── UserController.java
 │   └──advice/
 │       └── GlobalExceptionHandler.java
-├── service/                  # 业务逻辑
+├── service/                  # Business Logic
 │   ├── UserService.java
 │   └── impl/
 │       └── UserServiceImpl.java
-├── repository/               # 数据访问
+├── repository/               # Data Access
 │   └── UserRepository.java
-├── domain/                   # 领域模型
+├── domain/                   # Domain Model
 │   ├── entity/
 │   │   └── User.java
 │   └── vo/
 │       └── Email.java
-├── dto/                      # 数据传输对象
+├── dto/                      # Data Transfer Objects
 │   ├── request/
 │   │   └── CreateUserRequest.java
 │   └── response/
 │       └── UserResponse.java
-├── config/                   # 配置类
+├── config/                   # Configuration
 │   ├── SecurityConfig.java
 │   └── OpenApiConfig.java
-├── exception/                # 自定义异常
+├── exception/                # Custom Exceptions
 │   └── ResourceNotFoundException.java
 └── Application.java
 ```
 
-## 命名规范
+## Naming Conventions
 
-| 类型 | 规则 | 示例 |
-|------|------|------|
-| 类名 | PascalCase | `UserService`, `UserController` |
-| 方法名 | camelCase | `findById`, `createUser` |
-| 常量 | SCREAMING_SNAKE | `MAX_RETRY_COUNT` |
-| 包名 | lowercase | `com.ai.api.service` |
-| 测试类 | ClassName + Test | `UserServiceTest` |
-| DTO Record | PascalCase + 后缀 | `UserDTO`, `CreateUserRequest` |
+| Type | Rule | Example |
+|------|------|---------|
+| Class name | PascalCase | `UserService`, `UserController` |
+| Method name | camelCase | `findById`, `createUser` |
+| Constant | SCREAMING_SNAKE | `MAX_RETRY_COUNT` |
+| Package name | lowercase | `com.ai.api.service` |
+| Test class | ClassName + Test | `UserServiceTest` |
+| DTO Record | PascalCase + suffix | `UserDTO`, `CreateUserRequest` |
 
-## DTO 设计
+## DTO Design
 
-### 使用 Record (JDK 16+)
+### Use Record (JDK 16+)
 
 ```java
-// 查询响应
+// Query response
 public record UserDTO(
     UUID id,
     String name,
@@ -71,7 +71,7 @@ public record UserDTO(
     }
 }
 
-// 创建请求
+// Create request
 public record CreateUserRequest(
     @NotBlank(message = "Name is required")
     String name,
@@ -84,7 +84,7 @@ public record CreateUserRequest(
     String password
 ) {}
 
-// 分页响应
+// Paginated response
 public record PageResponse<T>(
     List<T> content,
     int page,
@@ -94,7 +94,7 @@ public record PageResponse<T>(
 ) {}
 ```
 
-## Controller 规范
+## Controller Standards
 
 ```java
 @RestController
@@ -148,7 +148,7 @@ public class UserController {
 }
 ```
 
-## Service 规范
+## Service Standards
 
 ```java
 @Service
@@ -173,22 +173,22 @@ public class UserService {
 
     @Transactional
     public UserDTO create(CreateUserRequest request) {
-        // 业务校验
+        // Business validation
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        // 构建实体
+        // Build entity
         User user = new User(
                 request.name(),
                 new Email(request.email()),
                 passwordEncoder.encode(request.password())
         );
 
-        // 保存
+        // Save
         User saved = userRepository.save(user);
 
-        // 发布事件
+        // Publish event
         eventPublisher.publishEvent(new UserCreatedEvent(saved));
 
         return UserDTO.from(saved);
@@ -215,33 +215,33 @@ public class UserService {
 }
 ```
 
-## Repository 规范
+## Repository Standards
 
 ```java
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    // 方法名查询
+    // Method name query
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 
-    // 自定义查询
+    // Custom query
     @Query("SELECT u FROM User u WHERE u.active = true AND u.role = :role")
     List<User> findActiveUsersByRole(@Param("role") UserRole role);
 
-    // 分页查询
+    // Paginated query
     Page<User> findByActiveTrue(Pageable pageable);
 
-    // 原生查询
+    // Native query
     @Query(value = "SELECT * FROM users WHERE name ILIKE %:name%", nativeQuery = true)
     List<User> searchByName(@Param("name") String name);
 }
 ```
 
-## 异常处理
+## Exception Handling
 
 ```java
-// 自定义异常
+// Custom exception
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(UUID id) {
@@ -256,7 +256,7 @@ public class EmailAlreadyExistsException extends RuntimeException {
     }
 }
 
-// 全局异常处理器
+// Global exception handler
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -290,7 +290,7 @@ public record ErrorResponse(String message, int status, Instant timestamp) {
 }
 ```
 
-## 安全配置
+## Security Configuration
 
 ```java
 @Configuration
@@ -336,7 +336,7 @@ public class SecurityConfig {
 }
 ```
 
-## 测试规范
+## Testing Standards
 
 ```java
 @ExtendWith(MockitoExtension.class)

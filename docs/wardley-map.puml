@@ -18,263 +18,238 @@ package "用户需求 (Anchor)" <<anchor>> #FFFFFF {
 ' ==================== GENESIS 层 ====================
 package "Genesis\n(创新阶段)" <<genesis>> #90EE90 {
     rectangle "Multi-Agent\nOrchestration" as gen_multi_agent
-    rectangle "动态任务路由\n(LangGraph)" as gen_routing
+    rectangle "动态任务路由" as gen_routing
     rectangle "RAG + Vector\nSearch" as gen_rag
     rectangle "Vision AI\nPipeline" as gen_vision
+    rectangle "TTS\n语音合成" as gen_tts
+    rectangle "Image Gen\n图像生成" as gen_image
     rectangle "AIOps\n智能分析" as gen_aiops
-    rectangle "LLMOps\n自动化" as gen_llmops
-    rectangle "Feature Store\n特征工程" as gen_feature
 }
 
 ' ==================== CUSTOM BUILT 层 ====================
 package "Custom Built\n(定制开发)" <<custom-built>> #FFFACD {
-    ' Agent 层
-    rectangle "Supervisor\n协调器" as cb_supervisor
-    rectangle "12 AI Agents\n架构" as cb_agents
 
-    ' 专业 Agent
-    rectangle "K8s\n管理面板" as cb_k8s
-    rectangle "VectorDB\n操作" as cb_vector
-    rectangle "RAG\n检索管道" as cb_rag
-    rectangle "ML Model\n生命周期" as cb_model
-    rectangle "TTS\n语音合成" as cb_tts
-    rectangle "Video\n生成服务" as cb_video
-    rectangle "Monitoring\n可观测性" as cb_monitor
-    rectangle "Feature Store\n集成" as cb_feature
-    rectangle "Pipeline\n编排" as cb_pipeline
-    rectangle "LLMOps\n自动化" as cb_llmops
-    rectangle "AIOps\n智能运维" as cb_aiops
+    ' ==================== Frontend (Angular 22) ====================
+    package "Frontend\n(Angular 22)" #F5F5DC {
+        rectangle "AppComponent\n根组件" as fe_app
+        rectangle "AIInfraPanelComponent\nAI 基础设施面板" as fe_infra
+        rectangle "RagChatComponent\nRAG 对话" as fe_rag_chat
+        rectangle "VisionPanelComponent\n视觉分析" as fe_vision
+        rectangle "AiHubComponent\nAI Hub 中心" as fe_aihub
+        rectangle "AgentChatComponent\nAgent 对话 (SSE)" as fe_agent
+        rectangle "ChatMessageComponent\n消息展示 (MD)" as fe_chat_msg
+        rectangle "ToolResultComponent\n工具结果" as fe_tool
+        rectangle "ApiService\nAPI 服务" as fe_api
+        rectangle "AiService\nAI 能力服务" as fe_ai_svc
+        rectangle "I18nService\n国际化 (5语言)" as fe_i18n
+        rectangle "ThemeService\n主题服务" as fe_theme
+    }
 
-    ' 前端
-    rectangle "AIHub\n多模型对话" as cb_aihub
-    rectangle "Agent Panels\n专业面板" as cb_panels
-    rectangle "多语言\ni18n" as cb_i18n
+    ' ==================== Chat Backend (Java/Spring Boot) ====================
+    package "Chat Backend\n(Java 25 / Spring Boot 3.5)" #E6E6FA {
+        rectangle "ChatController\nREST API" as chat_ctrl
+        rectangle "ChatApplicationService\n应用服务" as chat_app
+        rectangle "SendChatMessageUseCase\n发送消息用例" as chat_usecase
+        rectangle "ChatSession\n聚合根" as chat_session
+        rectangle "ChatMessage\n消息实体" as chat_msg
+        rectangle "AiChatService\n领域服务" as chat_domain
+        rectangle "AiChatPort\nAI 端口接口" as chat_port
+        rectangle "SpringAiChatAdapter\nSpring AI 适配器" as chat_adapter
+        rectangle "InMemoryChatSessionRepository\n内存仓储" as chat_repo
+    }
 
-    ' 领域服务
-    rectangle "Vision Service\n视觉服务" as cb_vision_svc
-    rectangle "TTS Service\n语音服务" as cb_tts_svc
-    rectangle "Text Service\n文本服务" as cb_text_svc
-    rectangle "RAG Service\n检索服务" as cb_rag_svc
-    rectangle "Media Gen\n媒体生成" as cb_media
+    ' ==================== RAG Backend (Java/Spring Boot) ====================
+    package "RAG Backend\n(Java 25 / Spring Boot 3.5)" #E6E6FA {
+        rectangle "RagController\nREST/SSE API" as rag_ctrl
+        rectangle "RagApplicationService\n应用服务" as rag_app
+        rectangle "RagChatUseCase\nRAG 问答用例" as rag_usecase
+        rectangle "Document\n文档实体" as rag_doc
+        rectangle "DocumentChunk\n分块实体" as rag_chunk
+        rectangle "EmbeddingPort\n嵌入端口接口" as rag_emb_port
+        rectangle "VectorSearchPort\n向量检索端口" as rag_vec_port
+        rectangle "DeepSeekEmbeddingAdapter\nDeepSeek 嵌入" as rag_emb_adapter
+        rectangle "PgVectorAdapter\npgvector 适配器" as rag_vec_adapter
+        rectangle "JpaDocumentRepository\nJPA 文档仓储" as rag_doc_repo
+    }
+
+    ' ==================== Domain & Shared ====================
+    package "Domain Layer\n(DDD)" #FFEFD5 {
+        rectangle "ChatSessionId\n值对象" as vo_session_id
+        rectangle "MessageId\n值对象" as vo_msg_id
+        rectangle "MessageContent\n值对象" as vo_content
+        rectangle "DocumentId\n值对象" as vo_doc_id
+        rectangle "ChunkId\n值对象" as vo_chunk_id
+        rectangle "EmbeddingVector\n值对象" as vo_emb
+        rectangle "ChatMessageReceivedEvent\n领域事件" as evt_msg_received
+        rectangle "ChatResponseGeneratedEvent\n领域事件" as evt_resp_generated
+        rectangle "AiServiceException\n异常" as exc_ai
+        rectangle "ChatSessionNotFoundException\n异常" as exc_not_found
+        rectangle "DocumentNotFoundException\n异常" as exc_doc_not_found
+    }
 }
 
 ' ==================== PRODUCT 层 ====================
 package "Product\n(商业/开源产品)" <<product>> #ADD8E6 {
-    ' AI/LLM 框架
-    rectangle "LangGraph" as prod_langgraph
-    rectangle "LangChain" as prod_langchain
-    rectangle "FastAPI" as prod_fastapi
+    ' Frontend
+    rectangle "Angular 22" as prod_angular
+    rectangle "Angular CLI" as prod_angular_cli
+    rectangle "RxJS 7" as prod_rxjs
+    rectangle "SCSS" as prod_scss
 
-    ' LLM Provider
-    rectangle "Ollama\n(本地推理)" as prod_ollama
-    rectangle "OpenAI\n(GPT-4o)" as prod_openai
-    rectangle "Anthropic\n(Claude)" as prod_anthropic
+    ' Backend Framework
+    rectangle "Spring Boot 3.5" as prod_spring_boot
+    rectangle "Spring AI 1.0" as prod_spring_ai
 
-    ' Vector/Embedding
-    rectangle "Qdrant" as prod_qdrant
-    rectangle "Sentence\nTransformers" as prod_embedding
+    ' AI/LLM
+    rectangle "DeepSeek API\n(Chat + Embedding)" as prod_deepseek
+    rectangle "DeepSeekChatModel" as prod_deepseek_chat
+    rectangle "DeepSeekEmbeddingModel" as prod_deepseek_emb
 
-    ' Vision AI
+    ' Vision
     rectangle "YOLO11n" as prod_yolo
-    rectangle "PaddleOCR" as prod_ocr
+    rectangle "PaddleOCR" as prod_paddleocr
     rectangle "BLIP" as prod_blip
     rectangle "Stable Diffusion" as prod_sd
 
-    ' TTS/音频
-    rectangle "ElevenLabs" as prod_elevenlabs
-    rectangle "Coqui TTS" as prod_coqui
-    rectangle "Azure TTS" as prod_azure_tts
+    ' TTS
     rectangle "Edge TTS" as prod_edge_tts
 
-    ' Video
-    rectangle "Kling AI" as prod_kling
-    rectangle "Runway" as prod_runway
-    rectangle "Pika" as prod_pika
-    rectangle "Sora" as prod_sora
-
-    ' 前端
-    rectangle "Angular 20+" as prod_angular
-    rectangle "Angular CLI" as prod_angular_cli
-    rectangle "SCSS" as prod_scss
-    rectangle "RxJS" as prod_rxjs
+    ' Image
+    rectangle "Flux AI" as prod_flux
 }
 
 ' ==================== COMMODITY 层 ====================
 package "Commodity\n(标准化基础设施)" <<commodity>> #D3D3D3 {
-    ' 基础设施
-    rectangle "云基础设施\n(AWS/GCP/Azure)" as com_cloud
-    rectangle "Kubernetes" as com_k8s
-    rectangle "Docker\n/Container" as com_docker
+    ' Frontend
+    rectangle "Node.js" as com_nodejs
+    rectangle "Browser APIs\n(HttpClient)" as com_browser
 
-    ' 后端技术栈
-    rectangle "Python\n/FastAPI" as com_python
-    rectangle "Node.js\n/Express" as com_nodejs
+    ' Backend
+    rectangle "Java 25" as com_java
+    rectangle "Gradle" as com_gradle
+    rectangle "Spring Data JPA" as com_spring_jpa
     rectangle "gRPC" as com_grpc
     rectangle "HTTP\n/WebSocket/SSE" as com_http
 
-    ' 数据存储
-    rectangle "PostgreSQL" as com_postgres
+    ' Database
+    rectangle "PostgreSQL 17\n+ pgvector" as com_postgres
     rectangle "Redis" as com_redis
-    rectangle "S3/MinIO" as com_s3
 
-    ' AI/ML 基础设施
-    rectangle "PyTorch" as com_pytorch
-    rectangle "MLflow" as com_mlflow
-    rectangle "Feast" as com_feast
-
-    ' 可观测性
-    rectangle "Prometheus\n/Grafana" as com_monitor
-    rectangle "Grafana\nLoki" as com_loki
-    rectangle "OpenTelemetry" as com_otel
-
-    ' DevOps
-    rectangle "Git/GitHub\nActions" as com_git
+    ' Infrastructure
+    rectangle "Kubernetes" as com_k8s
+    rectangle "Docker" as com_docker
+    rectangle "GitHub\nActions" as com_git
     rectangle "Helm" as com_helm
+
+    ' Observability
+    rectangle "Prometheus\n/Grafana" as com_prom
+    rectangle "OpenTelemetry" as com_otel
 }
 
-' ==================== 核心依赖关系 ====================
+' ==================== 依赖关系 ====================
 
-' 用户 → Custom Built
-user -down-> cb_aihub
-user -down-> cb_panels
-user -down-> cb_k8s
-user -down-> cb_llmops
-user -down-> cb_aiops
+' User → Frontend
+user -down-> fe_infra
+user -down-> fe_rag_chat
+user -down-> fe_vision
+user -down-> fe_aihub
 
-' Genesis → Custom Built
-gen_multi_agent -right-> cb_supervisor
-gen_routing -right-> cb_agents
-gen_rag -right-> cb_rag
-gen_vision -right-> cb_vision_svc
-gen_aiops -right-> cb_aiops
-gen_llmops -right-> cb_llmops
-gen_feature -right-> cb_feature
+' Frontend 内部
+fe_app -down-> fe_routes
+fe_infra -down-> fe_agent
+fe_infra -down-> fe_panels
+fe_aihub -down-> fe_agent
+fe_agent -down-> fe_chat_msg
+fe_agent -down-> fe_tool
+fe_agent -down-> fe_ai_svc
+fe_agent -down-> fe_api
+fe_agent -down-> fe_i18n
+fe_rag_chat -down-> fe_ai_svc
+fe_rag_chat -down-> fe_i18n
+fe_vision -down-> fe_ai_svc
+fe_vision -down-> fe_i18n
 
-' Genesis 内部
-gen_multi_agent -down-> gen_routing
-gen_rag -down-> gen_vision
+' Frontend → Backend
+fe_api -right-> chat_ctrl
+fe_ai_svc -right-> rag_ctrl
 
-' Custom Built 内部关系
-cb_supervisor -down-> cb_agents
-cb_agents -down-> cb_k8s
-cb_agents -down-> cb_vector
-cb_agents -down-> cb_rag
-cb_agents -down-> cb_tts
-cb_agents -down-> cb_video
-cb_agents -down-> cb_monitor
-cb_agents -down-> cb_model
-cb_agents -down-> cb_feature
-cb_agents -down-> cb_pipeline
-cb_agents -down-> cb_llmops
-cb_agents -down-> cb_aiops
+' Chat Backend 内部
+chat_ctrl -down-> chat_usecase
+chat_usecase -down-> chat_app
+chat_app -down-> chat_port
+chat_app -down-> chat_session_repo
+chat_port -down-> chat_adapter
+chat_adapter -down-> prod_spring_ai
+chat_app -down-> chat_session
+chat_session -down-> chat_msg
 
-cb_rag -down-> cb_vector
-cb_llmops -down-> cb_model
-cb_llmops -down-> cb_pipeline
-cb_aiops -down-> cb_monitor
+' RAG Backend 内部
+rag_ctrl -down-> rag_app
+rag_app -down-> rag_usecase
+rag_app -down-> rag_emb_port
+rag_app -down-> rag_vec_port
+rag_app -down-> rag_doc_repo
+rag_emb_port -down-> rag_emb_adapter
+rag_vec_port -down-> rag_vec_adapter
+rag_emb_adapter -down-> prod_deepseek_emb
+rag_usecase -down-> rag_doc
+rag_doc -down-> rag_chunk
 
-cb_aihub -down-> cb_panels
-cb_panels -down-> cb_tts_svc
-cb_panels -down-> cb_vision_svc
-cb_panels -down-> cb_text_svc
-cb_panels -down-> cb_tts
-cb_panels -down-> cb_video
+' Backend → External
+chat_adapter -right-> prod_deepseek_chat
+rag_emb_adapter -right-> prod_deepseek_emb
 
-' Custom Built → Product
-cb_supervisor -right-> prod_langgraph
-cb_supervisor -right-> prod_fastapi
-cb_agents -right-> prod_langchain
-cb_agents -right-> prod_ollama
+' Vision/TTS/Image → External
+fe_ai_svc -right-> prod_yolo
+fe_ai_svc -right-> prod_paddleocr
+fe_ai_svc -right-> prod_blip
+fe_ai_svc -right-> prod_sd
+fe_ai_svc -right-> prod_edge_tts
+fe_ai_svc -right-> prod_flux
 
-cb_vector -right-> prod_qdrant
-cb_rag -right-> prod_embedding
-cb_rag -right-> prod_qdrant
-cb_rag -right-> cb_rag_svc
-
-cb_vision_svc -right-> prod_yolo
-cb_vision_svc -right-> prod_ocr
-cb_vision_svc -right-> prod_blip
-cb_vision_svc -right-> prod_sd
-
-cb_tts -right-> prod_elevenlabs
-cb_tts -right-> prod_coqui
-cb_tts -right-> prod_azure_tts
-cb_tts -right-> prod_edge_tts
-
-cb_video -right-> prod_kling
-cb_video -right-> prod_runway
-cb_video -right-> prod_pika
-cb_video -right-> prod_sora
-
-cb_aiops -right-> prod_langchain
-
-cb_aihub -right-> prod_angular
-cb_aihub -right-> prod_angular_cli
-cb_aihub -right-> prod_scss
-cb_aihub -right-> prod_rxjs
-
-cb_llmops -right-> prod_langchain
-cb_llmops -right-> prod_ollama
-cb_llmops -right-> prod_openai
-cb_llmops -right-> prod_anthropic
-
-' Product → Product
-prod_langgraph -right-> prod_langchain
-prod_langchain -right-> prod_fastapi
-prod_langchain -right-> com_pytorch
-prod_ollama -right-> com_pytorch
-prod_embedding -right-> com_pytorch
-prod_yolo -right-> com_pytorch
-prod_ocr -right-> com_pytorch
-prod_blip -right-> com_pytorch
-prod_sd -right-> com_pytorch
-
+' Product → Commodity
 prod_angular -right-> prod_angular_cli
 prod_angular_cli -right-> com_nodejs
 prod_scss -right-> com_nodejs
+prod_rxjs -right-> com_nodejs
 
-prod_qdrant -right-> com_docker
-prod_qdrant -right-> com_grpc
-prod_elevenlabs -right-> com_http
-prod_coqui -right-> com_python
-prod_kling -right-> com_http
-prod_runway -right-> com_http
-prod_pika -right-> com_http
-prod_sora -right-> com_http
+prod_spring_boot -right-> com_java
+prod_spring_ai -right-> prod_spring_boot
+prod_spring_ai -right-> prod_deepseek
 
-' Product → Commodity
-prod_fastapi -right-> com_python
-prod_anthropic -right-> com_cloud
-prod_openai -right-> com_cloud
-prod_azure_tts -right-> com_cloud
+prod_deepseek -right-> com_http
+prod_yolo -right-> com_docker
+prod_paddleocr -right-> com_docker
+prod_blip -right-> com_docker
+prod_sd -right-> com_docker
+prod_flux -right-> com_http
 
-' Commodity 内部关系
-com_python -right-> com_cloud
-com_nodejs -right-> com_cloud
-com_pytorch -right-> com_cloud
-com_k8s -down-> com_docker
-com_k8s -right-> com_cloud
-com_k8s -right-> com_helm
-com_redis -right-> com_docker
+' Commodity 内部
+com_java -right-> com_k8s
+com_gradle -right-> com_java
+com_spring_jpa -right-> prod_spring_boot
 com_postgres -right-> com_docker
-com_s3 -right-> com_cloud
-com_mlflow -right-> com_postgres
-com_mlflow -right-> com_s3
-com_feast -right-> com_redis
-com_feast -right-> com_postgres
-com_monitor -right-> com_k8s
-com_loki -right-> com_k8s
+com_redis -right-> com_docker
+com_prom -right-> com_k8s
 com_otel -right-> com_k8s
-com_http -right-> com_cloud
-com_git -right-> com_cloud
+com_git -right-> com_k8s
+com_http -right-> com_k8s
+
+' Genesis → Custom Built
+gen_rag -right-> fe_rag_chat
+gen_rag -right-> rag_app
+gen_vision -right-> fe_vision
+gen_tts -right-> fe_ai_svc
+gen_image -right-> fe_ai_svc
+gen_aiops -right-> fe_infra
 
 ' ==================== 图例 ====================
 legend right
-|= 颜色 |= 阶段 |= 特点 |
-|<back:#90EE90>绿色</back>| Genesis | 创新、独特能力 |
-|<back:#FFFACD>黄色</back>| Custom Built | 差异化定制 |
-|<back:#ADD8E6>蓝色</back>| Product | 采购/开源组件 |
-|<back:#D3D3D3>灰色</back>| Commodity | 标准化基础设施 |
+||= 颜色 |= 阶段 |= 特点 |
+{<back:#90EE90>绿色</back>}| Genesis | 创新、独特能力 |
+{<back:#FFFACD>黄色</back>}| Custom Built | 差异化定制 |
+{<back:#ADD8E6>蓝色</back>}| Product | 采购/开源组件 |
+{<back:#D3D3D3>灰色</back>}| Commodity | 标准化基础设施 |
 endlegend
 
 @enduml

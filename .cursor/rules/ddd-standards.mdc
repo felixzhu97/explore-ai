@@ -1,0 +1,250 @@
+---
+description: DDD Domain-Driven Design Standards. Covers design principles for Entities, Value Objects, Aggregates, Repositories, Domain Services, and Domain Events.
+globs: **/*.java **/*.kt
+alwaysApply: true
+---
+
+# DDD Domain-Driven Design Standards
+
+## Rich Domain Model Principles
+
+> **Business logic must be inside domain objects, not in the Service layer.**
+
+The Service layer only orchestrates (coordinates use cases) and does not contain business rules.
+
+## Entity Standards
+
+### Must Have
+
+- Unique identifier (Id)
+- Contains business behavior methods
+- Self-validating (at construction/change time)
+- State changes exposed through methods
+
+### Must NOT Have
+
+- Public setters
+- Direct field modification (use business methods)
+- Anemic Domain Model (only getter/setter)
+
+```java
+// ✅ Rich Domain Model
+public class Order extends AggregateRoot {
+    private OrderId id;
+    private OrderStatus status;
+
+    public void place() {
+        if (this.status != OrderStatus.DRAFT) {
+            throw new OrderInvalidStateException("Only draft orders can be placed");
+        }
+        this.status = OrderStatus.PLACED;
+        addDomainEvent(new OrderPlacedEvent(this.id));
+    }
+
+    // State can only be changed through business methods
+    // No public setter
+}
+
+// ❌ Anemic Domain Model
+public class Order {
+    private OrderId id;
+    private OrderStatus status;
+
+    // Only getter/setter, no business logic
+    public OrderStatus getStatus() { return status; }
+    public void setStatus(OrderStatus status) { this.status = status; }
+}
+```
+
+## Value Object Standards
+
+### Must Have
+
+- Immutable (no setters, all fields final)
+- No unique identifier
+- Equality based on attribute values
+- Self-validating
+
+### Implementation
+
+```java
+// ✅ Java Record (Recommended)
+public record Money {
+    private final BigDecimal amount;
+    private final Currency currency;
+
+    public Money {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount must be non-negative");
+        }
+        Objects.requireNonNull(currency);
+    }
+
+    public Money add(Money other) {
+        if (!this.currency.equals(other.currency)) {
+            throw new CurrencyMismatchException();
+        }
+        return new Money(this.amount.add(other.amount), this.currency);
+    }
+}
+
+// Usage
+Money price = new Money(BigDecimal.valueOf(100), Currency.USD);
+// price.add() returns new instance, original unchanged
+Money total = price.add(Money.of(50, Currency.USD));
+```
+
+## Aggregate Standards
+
+### Design Principles
+
+- Aggregates are **consistency boundaries**
+- Access externally through the **Aggregate Root**
+- Strong consistency within aggregate, eventual consistency between aggregates
+- Aggregates should be small (one aggregate = one transaction)
+
+### Standards
+
+```java
+// ✅ Aggregate Root
+public class Order extends AggregateRoot {
+    private List<OrderLine> lines;
+
+    // External access only through aggregate root
+    public void addLine(Product product, int quantity) {
+        validateQuantity(quantity);
+        lines.add(new OrderLine(product.getId(), quantity));
+    }
+
+    // Return immutable view
+    public List<OrderLine> getLines() {
+        return Collections.unmodifiableList(lines);
+    }
+
+    // No public setter
+}
+
+// ❌ Incorrect: Exposing internal entities
+public class BadOrder {
+    public List<OrderLine> lines;  // Directly exposed
+}
+```
+
+## Repository Standards
+
+### Interface Location
+
+- Interfaces defined in **Domain layer**
+- Implementations in **Infrastructure layer**
+
+### Design Principles
+
+- Operate only on aggregate roots
+- Return aggregate roots or value objects
+- Do not return JPA Entities
+
+```java
+// ✅ Domain layer: Interface definition
+package com.ai.domain.repository;
+
+public interface OrderRepository {
+    Optional<Order> findById(OrderId id);
+    void save(Order order);
+    void delete(OrderId id);
+}
+
+// ✅ Infrastructure layer: Implementation
+package com.ai.infrastructure.persistence;
+
+@Repository
+public class JpaOrderRepository implements OrderRepository {
+    @Override
+    public Optional<Order> findById(OrderId id) {
+        return repository.findById(id.value())
+            .map(entityMapper::toDomain);
+    }
+}
+```
+
+## Domain Service Standards
+
+### Use Cases
+
+- Business logic spanning multiple entities
+- Operations not belonging to any single entity
+
+### Design Principles
+
+- Stateless
+- Accept domain objects as parameters
+- Do not hold references to domain objects
+
+```java
+// ✅ Domain Service
+public class PricingService {
+    
+    public Money calculatePrice(List<CartItem> items, Customer customer) {
+        Money subtotal = items.stream()
+            .map(item -> item.getProduct().getPrice().multiply(item.getQuantity()))
+            .reduce(Money.ZERO, Money::add);
+
+        if (customer.isVip()) {
+            return subtotal.multiply(0.9); // VIP 10% discount
+        }
+        return subtotal;
+    }
+}
+
+// ❌ Incorrect: Service takes all business logic
+public class BadOrderService {
+    public void placeOrder(Order order) {
+        // Too much business logic in Service
+        if (order.getLines().isEmpty()) throw new EmptyOrderException();
+        if (order.getTotal().isNegative()) throw new InvalidAmountException();
+        // ...
+    }
+}
+```
+
+## Domain Event Standards
+
+### Definition
+
+```java
+// ✅ Immutable event
+public record OrderPlacedEvent(
+    OrderId orderId,
+    CustomerId customerId,
+    Money totalAmount,
+    Instant occurredAt
+) {}
+
+// ✅ Aggregate root publishes events
+public class Order extends AggregateRoot {
+    private List<DomainEvent> events = new ArrayList<>();
+
+    public void place() {
+        // Business logic
+        this.status = OrderStatus.PLACED;
+        // Publish event
+        events.add(new OrderPlacedEvent(id, customerId, totalAmount, Instant.now()));
+    }
+
+    @Override
+    public List<DomainEvent> pullDomainEvents() {
+        List<DomainEvent> pulled = new ArrayList<>(events);
+        events.clear();
+        return pulled;
+    }
+}
+```
+
+## Common Anti-Patterns
+
+| Anti-Pattern | Symptoms | Correction |
+|-------------|----------|------------|
+| Anemic Domain Model | Entity only has getter/setter | Move business logic into Entity |
+| Too Rich | All logic in Entity | Use Domain Service appropriately |
+| Large Aggregate | One aggregate contains entire system | Split aggregates |
+| Direct reference between aggregates | `order.getCustomer()` crosses boundary | Use CustomerId |
+| Repository operates on non-aggregate-root | `save(OrderLine line)` | Operate only on aggregate roots |

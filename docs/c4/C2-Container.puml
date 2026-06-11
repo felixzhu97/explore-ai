@@ -1,0 +1,173 @@
+@startuml C2-Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 容器图 (C2) - AI Chat Service with RAG Backend
+
+' ============================================================
+' PEOPLE - 人员
+' ============================================================
+Person(user, "用户", "与 AI 助手进行对话，上传和管理文档")
+
+' ============================================================
+' FRONTEND - 前端容器
+' ============================================================
+Container(angular_app, "Web Frontend", "Angular 19 + TypeScript", "Web 用户界面，支持实时对话和文档管理")
+
+' ============================================================
+' CHAT BACKEND - 聊天后端容器 (Clean Architecture)
+' ============================================================
+Container_Boundary(chat_backend, "AI Chat Backend") {
+
+    ' Interface Layer
+    Container_Boundary(chat_interface, "Interface Layer") {
+        Container(chat_controller, "ChatController", "@RestController", "处理聊天 HTTP 请求")
+        Container(chat_exception_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
+        Container(chat_dto, "Chat DTOs", "Java Records", "ChatRequest, ChatResponse, SessionInfo")
+    }
+
+    ' Application Layer
+    Container_Boundary(chat_application, "Application Layer") {
+        Container(send_message_usecase, "SendChatMessageUseCase", "UseCase", "发送聊天消息用例")
+        Container(chat_app_service, "ChatApplicationService", "@Service", "应用服务")
+        Container(ai_chat_port, "AiChatPort", "Interface", "AI 聊天能力抽象")
+        Container(chat_session_port, "ChatSessionRepositoryPort", "Interface", "会话仓储抽象")
+    }
+
+    ' Domain Layer
+    Container_Boundary(chat_domain, "Domain Layer") {
+        Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
+        Container(chat_message, "ChatMessage", "Entity", "聊天消息实体")
+        Container(ai_service, "AiChatService", "Domain Service", "AI 对话核心服务")
+        Container(chat_vo, "Value Objects", "Records", "ChatSessionId, MessageId, MessageContent")
+        Container(chat_events, "Domain Events", "Records", "ChatMessageReceivedEvent, ChatResponseGeneratedEvent")
+    }
+
+    ' Infrastructure Layer
+    Container_Boundary(chat_infrastructure, "Infrastructure Layer") {
+        Container(spring_ai_adapter, "SpringAiChatAdapter", "@Component", "AI 端口适配器")
+        Container(spring_ai_service, "SpringAiChatService", "@Component", "Spring AI 服务实现")
+        Container(in_memory_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话存储")
+        Container(chat_app_config, "ApplicationConfig", "@Configuration", "应用配置")
+    }
+}
+
+' ============================================================
+' RAG BACKEND - RAG 后端容器 (Clean Architecture)
+' ============================================================
+Container_Boundary(rag_backend, "RAG Backend") {
+
+    ' Interface Layer
+    Container_Boundary(rag_interface, "Interface Layer") {
+        Container(rag_controller, "RagController", "@RestController", "处理 RAG HTTP 请求, SSE 流式响应")
+        Container(rag_exception_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
+        Container(rag_dto, "RAG DTOs", "Java Records", "RagChatRequest, RagChatResponse, DocumentDto")
+    }
+
+    ' Application Layer
+    Container_Boundary(rag_application, "Application Layer") {
+        Container(rag_app_service, "RagApplicationService", "@Service", "应用服务，协调业务用例")
+        
+        ' Ports - 定义接口
+        Container(embedding_port, "EmbeddingPort", "Interface", "文本嵌入能力抽象")
+        Container(vector_search_port, "VectorSearchPort", "Interface", "向量检索抽象")
+        Container(document_repo_port, "DocumentRepositoryPort", "Interface", "文档仓储抽象")
+        
+        ' Use Cases
+        Container(upload_doc_usecase, "UploadDocumentUseCase", "UseCase", "上传文档、文本分块、嵌入生成")
+        Container(delete_doc_usecase, "DeleteDocumentUseCase", "UseCase", "删除文档及其向量数据")
+        Container(rag_chat_usecase, "RagChatUseCase", "UseCase", "RAG 检索增强问答")
+    }
+
+    ' Domain Layer
+    Container_Boundary(rag_domain, "Domain Layer") {
+        Container(document, "Document", "Entity", "文档实体")
+        Container(document_chunk, "DocumentChunk", "Entity", "文档分块实体")
+        Container(source_doc, "SourceDocument", "Value Object", "检索来源文档")
+        Container(document_id, "DocumentId", "Value Object", "文档唯一标识")
+        Container(rag_exceptions, "Domain Exceptions", "Records", "DocumentNotFoundException, RagServiceException")
+    }
+
+    ' Infrastructure Layer
+    Container_Boundary(rag_infrastructure, "Infrastructure Layer") {
+        ' Adapters
+        Container(deepseek_embedding_adapter, "DeepSeekEmbeddingAdapter", "@Component", "DeepSeek 嵌入适配器")
+        Container(pgvector_adapter, "PgVectorAdapter", "@Component", "PostgreSQL/pgvector 向量检索")
+        Container(jpa_doc_repo, "JpaDocumentRepository", "@Component", "JPA 文档仓储实现")
+        Container(spring_data_doc_repo, "SpringDataDocumentRepository", "Spring Data JPA", "文档数据访问")
+        Container(spring_data_chunk_repo, "SpringDataChunkRepository", "Spring Data JPA", "分块数据访问")
+        
+        ' Config
+        Container(rag_config, "RagProperties", "@ConfigurationProperties", "RAG 配置属性")
+        Container(deepseek_config, "DeepSeekConfig", "@Configuration", "DeepSeek API 配置")
+        Container(postgres_config, "PostgresConfig", "@Configuration", "PostgreSQL 配置")
+    }
+}
+
+' ============================================================
+' EXTERNAL SYSTEMS - 外部系统
+' ============================================================
+ContainerDb(postgresql, "PostgreSQL + pgvector", "PostgreSQL 17", "文档元数据 + 向量嵌入存储")
+Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding")
+
+' ============================================================
+' RELATIONSHIPS - 关系
+' ============================================================
+
+' User -> Frontend
+Rel(user, angular_app, "对话交互/文档管理", "HTTP/SSE")
+
+' Frontend -> Backends
+Rel(angular_app, chat_controller, "聊天请求", "REST/SSE")
+Rel(angular_app, rag_controller, "RAG 请求", "REST/SSE")
+
+' Chat Backend Relationships
+Rel(chat_controller, send_message_usecase, "调用")
+Rel(chat_controller, chat_exception_handler, "异常处理")
+Rel(send_message_usecase, chat_app_service, "编排")
+Rel(chat_app_service, ai_chat_port, "依赖抽象")
+Rel(chat_app_service, chat_session_port, "依赖抽象")
+Rel(ai_chat_port, spring_ai_adapter, "实现")
+Rel(chat_session_port, in_memory_repo, "实现")
+Rel(spring_ai_adapter, spring_ai_service, "组合")
+Rel(spring_ai_service, deepseek_api, "调用 LLM", "HTTPS")
+Rel(in_memory_repo, chat_session_port, "实现")
+Rel(chat_session, chat_message, "包含")
+Rel(chat_app_service, chat_session, "操作领域对象")
+
+' RAG Backend Relationships
+Rel(rag_controller, rag_app_service, "调用")
+Rel(rag_controller, rag_exception_handler, "异常处理")
+Rel(rag_app_service, upload_doc_usecase, "上传文档")
+Rel(rag_app_service, delete_doc_usecase, "删除文档")
+Rel(rag_app_service, rag_chat_usecase, "RAG 问答")
+Rel(rag_app_service, document_repo_port, "依赖抽象")
+
+' RAG Use Cases -> Ports
+Rel(upload_doc_usecase, document_repo_port, "依赖")
+Rel(upload_doc_usecase, embedding_port, "依赖")
+Rel(upload_doc_usecase, vector_search_port, "依赖")
+Rel(delete_doc_usecase, document_repo_port, "依赖")
+Rel(delete_doc_usecase, vector_search_port, "依赖")
+Rel(rag_chat_usecase, embedding_port, "依赖")
+Rel(rag_chat_usecase, vector_search_port, "依赖")
+
+' Ports -> Adapters
+Rel(embedding_port, deepseek_embedding_adapter, "实现")
+Rel(vector_search_port, pgvector_adapter, "实现")
+Rel(document_repo_port, jpa_doc_repo, "实现")
+
+' Adapters -> External Systems
+Rel(deepseek_embedding_adapter, deepseek_api, "生成 Embedding", "HTTPS")
+Rel(pgvector_adapter, postgresql, "向量存储/检索", "JDBC")
+Rel(jpa_doc_repo, postgresql, "文档持久化", "JDBC")
+Rel(spring_data_doc_repo, postgresql, "数据访问")
+Rel(spring_data_chunk_repo, postgresql, "数据访问")
+
+' Domain Layer relationships
+Rel(document, document_chunk, "包含多个")
+Rel(document_chunk, source_doc, "转换为")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,131 @@
+@startuml C3-Component-Frontend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 组件图 (C3) - Angular Web 前端
+
+' ============================================================
+' SYSTEM BOUNDARY - 前端系统边界
+' ============================================================
+System_Boundary(frontend_system, "Angular Web Application (Angular 19+)") {
+
+    ' ============================================================
+    ' App Layer - 应用配置层
+    ' ============================================================
+    Container_Boundary(app_layer, "App Layer") {
+        Component(app_component, "AppComponent", "@Component", "根组件，导航和路由出口")
+        Component(app_config, "app.config.ts", "ApplicationConfig", "应用配置 providers")
+        Component(app_routes, "app.routes.ts", "Routes", "路由配置，页面映射")
+    }
+
+    ' ============================================================
+    ' Page Components - 页面组件
+    ' ============================================================
+    Container_Boundary(page_components, "Page Components") {
+        Component(ai_infra_panel, "AIInfraPanelComponent", "@Component", "AI 基础设施面板")
+        Component(rag_chat, "RagChatComponent", "@Component", "RAG 对话页面")
+        Component(vision_panel, "VisionPanelComponent", "@Component", "视觉分析面板")
+        Component(ai_hub, "AiHubComponent", "@Component", "AI Hub 中心")
+    }
+
+    ' ============================================================
+    ' Feature Components - 功能组件
+    ' ============================================================
+    Container_Boundary(feature_components, "Feature Components") {
+        Component(agent_chat, "AgentChatComponent", "@Component", "AI 代理对话组件 (SSE 流式)")
+        Component(chat_message, "ChatMessageComponent", "@Component", "聊天消息展示 (Markdown)")
+        Component(tool_result, "ToolResultComponent", "@Component", "工具调用结果展示")
+        Component(agent_panel, "AgentPanelComponent", "@Component", "代理面板容器")
+        Component(segmented_control, "SegmentedControlComponent", "@Component", "分段控制器")
+        Component(status_badge, "StatusBadgeComponent", "@Component", "状态徽章")
+    }
+
+    ' ============================================================
+    ' Shared Layer - 共享层
+    ' ============================================================
+    Container_Boundary(shared_layer, "Shared Layer") {
+        Component(i18n_service, "I18nService", "@Injectable", "国际化服务 (5 种语言)")
+        Component(theme_service, "ThemeService", "@Injectable", "主题服务")
+        Component(shared_models, "Shared Models", "Interface", "共享数据模型")
+    }
+
+    ' ============================================================
+    ' Services Layer - 服务层
+    ' ============================================================
+    Container_Boundary(services_layer, "Services Layer") {
+        Component(api_service, "ApiService", "@Injectable", "通用 API 服务 (健康检查/聊天)")
+        Component(ai_service, "AiService", "@Injectable", "AI 能力服务 (Vision/TTS/RAG/Image)")
+    }
+}
+
+' ============================================================
+' EXTERNAL SYSTEMS - 外部系统
+' ============================================================
+System_Boundary(external_systems, "External Systems") {
+    Component(backend_api, "Backend REST API", "HTTP API", "Java Spring Boot 后端 API")
+    Component(browser_apis, "Browser APIs", "Web APIs", "HttpClient, Fetch API")
+}
+
+' ============================================================
+' ROUTES - 路由定义
+' ============================================================
+Rel(app_routes, ai_infra_panel, "路由 /ai-infra")
+Rel(app_routes, rag_chat, "路由 /rag")
+Rel(app_routes, vision_panel, "路由 /vision")
+Rel(app_routes, ai_hub, "路由 /aihubs")
+
+' ============================================================
+' COMPONENT HIERARCHY - 组件层级
+' ============================================================
+Rel(app_component, app_routes, "使用路由")
+
+Rel(ai_infra_panel, segmented_control, "使用")
+Rel(ai_infra_panel, agent_panel, "使用")
+Rel(ai_infra_panel, agent_chat, "使用")
+Rel(ai_infra_panel, status_badge, "使用")
+
+Rel(ai_hub, segmented_control, "使用")
+Rel(ai_hub, agent_chat, "使用")
+
+Rel(vision_panel, segmented_control, "使用")
+
+' ============================================================
+' FEATURE COMPONENTS - 功能组件关系
+' ============================================================
+Rel(agent_chat, chat_message, "渲染消息")
+Rel(agent_chat, tool_result, "展示工具结果")
+
+' ============================================================
+' SERVICE DEPENDENCIES - 服务依赖
+' ============================================================
+Rel(agent_chat, ai_service, "使用")
+Rel(agent_chat, api_service, "使用")
+Rel(agent_chat, i18n_service, "使用")
+
+Rel(rag_chat, ai_service, "使用")
+Rel(rag_chat, i18n_service, "使用")
+
+Rel(vision_panel, ai_service, "使用")
+Rel(vision_panel, i18n_service, "使用")
+
+Rel(ai_hub, ai_service, "使用")
+Rel(ai_hub, i18n_service, "使用")
+
+Rel(ai_infra_panel, api_service, "使用")
+
+' ============================================================
+' SERVICE INTERNAL - 服务内部关系
+' ============================================================
+Rel(ai_service, api_service, "组合")
+Rel(api_service, backend_api, "HTTP 请求")
+Rel(ai_service, backend_api, "HTTP 请求")
+
+' ============================================================
+' SHARED SERVICES - 共享服务使用
+' ============================================================
+Rel(app_component, i18n_service, "注入")
+Rel(app_component, theme_service, "注入")
+
+SHOW_LEGEND()
+@enduml

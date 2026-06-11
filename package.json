@@ -1,5 +1,5 @@
 {
-  "name": "ai-test",
+  "name": "ai-explore",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -10,14 +10,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "clean": "pnpm -r run clean",
-    "start": "bash scripts/app/start.sh",
-    "start:dev": "bash scripts/app/start.sh dev",
-    "start:prod": "bash scripts/app/start.sh prod",
-    "stop": "bash scripts/app/stop.sh",
-    "prepare": "husky"
+    "prepare": "husky",
+    "web:dev": "cd apps/web && npm start",
+    "server:dev": "cd apps/server && export $(grep -v '^#' .env | xargs) && ./gradlew bootRun",
+    "dev:all": "npm run server:dev && npm run web:dev",
+    "docker:up": "cd apps/server && docker compose up -d",
+    "docker:down": "cd apps/server && docker compose down"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",

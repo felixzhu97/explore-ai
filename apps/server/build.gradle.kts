@@ -1,0 +1,56 @@
+plugins {
+    java
+    id("org.springframework.boot") version "3.5.11"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "com.ai"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    maven { url = uri("https://maven.aliyun.com/repository/public") }
+    maven { url = uri("https://maven.aliyun.com/repository/spring") }
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.ai:spring-ai-bom:1.1.7")
+    }
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.ai:spring-ai-starter-model-openai")
+    implementation("org.springframework.ai:spring-ai-starter-model-ollama")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    // PDF Processing
+    implementation("org.apache.pdfbox:pdfbox:3.0.3")
+
+    // Database
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.hypersistence:hypersistence-utils-hibernate-63:3.15.2")
+
+    // Test
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("com.h2database:h2")
+    testImplementation("org.testcontainers:testcontainers:1.20.4")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
+    testRuntimeOnly("org.testcontainers:postgresql:1.20.4")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
