@@ -26,10 +26,11 @@ public class ChatApplicationService {
 
     public ChatApplicationService(
             ChatSessionRepositoryPort repositoryPort,
-            AiChatPort aiChatPort) {
+            AiChatPort aiChatPort,
+            SendChatMessageUseCase sendChatMessageUseCase) {
         this.repositoryPort = repositoryPort;
         this.aiChatPort = aiChatPort;
-        this.sendChatMessageUseCase = new SendChatMessageUseCase(repositoryPort, aiChatPort);
+        this.sendChatMessageUseCase = sendChatMessageUseCase;
     }
 
     /**

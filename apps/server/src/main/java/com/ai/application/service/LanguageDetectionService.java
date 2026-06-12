@@ -1,14 +1,11 @@
 package com.ai.application.service;
 
-import org.springframework.stereotype.Component;
-
 import java.util.regex.Pattern;
 
 /**
  * Lightweight language detection service using JDK standard library.
  * Detects primary language based on character distribution in input text.
  */
-@Component
 public class LanguageDetectionService {
 
     private static final Pattern CJK_UNIFIED_IDEOGRAPHS = Pattern.compile("[\\u4e00-\\u9fff]");

@@ -10,6 +10,7 @@ import com.ai.application.service.LanguageDetectionService;
 import com.ai.application.service.RagApplicationService;
 import com.ai.application.usecase.DeleteDocumentUseCase;
 import com.ai.application.usecase.RagChatUseCase;
+import com.ai.application.usecase.SendChatMessageUseCase;
 import com.ai.application.usecase.UploadDocumentUseCase;
 import com.ai.domain.service.AiChatService;
 import com.ai.infrastructure.adapter.ai.SpringAiChatAdapter;
@@ -63,10 +64,18 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public ChatApplicationService chatApplicationService(
+    public SendChatMessageUseCase sendChatMessageUseCase(
             ChatSessionRepositoryPort repositoryPort,
             AiChatPort aiChatPort) {
-        return new ChatApplicationService(repositoryPort, aiChatPort);
+        return new SendChatMessageUseCase(repositoryPort, aiChatPort);
+    }
+
+    @Bean
+    public ChatApplicationService chatApplicationService(
+            ChatSessionRepositoryPort repositoryPort,
+            AiChatPort aiChatPort,
+            SendChatMessageUseCase sendChatMessageUseCase) {
+        return new ChatApplicationService(repositoryPort, aiChatPort, sendChatMessageUseCase);
     }
 
     // RAG Infrastructure Beans
