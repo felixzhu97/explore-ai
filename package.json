@@ -17,7 +17,8 @@
     "docker:up": "cd apps/server && docker compose up -d",
     "docker:down": "cd apps/server && docker compose down",
     "server:test": "cd apps/server && ./gradlew test",
-    "server:test:watch": "cd apps/server && ./gradlew test --continuous"
+    "server:test:watch": "cd apps/server && ./gradlew test --continuous",
+    "server:test:coverage": "cd apps/server && ./gradlew test jacocoTestReport"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
