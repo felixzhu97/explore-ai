@@ -495,6 +495,7 @@ export class ImageGenTabComponent {
         },
         error: (err: unknown) => {
           this.error.set(err instanceof Error ? err.message : 'Image generation failed');
+          this.isGenerating.set(false);
         },
         complete: () => {
           this.isGenerating.set(false);

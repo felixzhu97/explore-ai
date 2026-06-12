@@ -45,14 +45,19 @@ describe('VisionPanelComponent', () => {
   };
 
   beforeAll(() => {
-    vi.stubGlobal(
-      'FileReader',
-      vi.fn().mockImplementation(() => ({
-        readAsDataURL: vi.fn(),
-        onload: null,
-        result: 'data:image/png;base64,mock',
-      }))
-    );
+    vi.stubGlobal('FileReader', class {
+      onload: ((e: ProgressEvent) => void) | null = null;
+      result: string | ArrayBuffer | null = 'data:image/png;base64,mock';
+      readAsDataURL = vi.fn();
+      constructor() {
+        // Trigger onload asynchronously to simulate real behavior
+        setTimeout(() => {
+          if (this.onload) {
+            this.onload({ target: { result: this.result } } as ProgressEvent);
+          }
+        }, 0);
+      }
+    });
   });
 
   beforeEach(async () => {
@@ -170,6 +175,96 @@ describe('VisionPanelComponent', () => {
 
       expect(stopPropagationSpy).toHaveBeenCalled();
     });
+
+    it('should handle dropped file', () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          files: [mockFile],
+        },
+      } as unknown as DragEvent;
+
+      component.onDrop(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('should not process drop without file', () => {
+      createFixture();
+      const event = {
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          files: [],
+        },
+      } as unknown as DragEvent;
+
+      component.onDrop(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+  });
+
+  describe('file handling', () => {
+    it('should handle onFileChange with valid file', async () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+          value: 'test',
+        },
+      } as unknown as Event;
+
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(component.tabStates().caption.file).toBe(mockFile);
+    });
+
+    it('should clear input value after file selection', async () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+          value: 'test',
+        },
+      } as unknown as Event;
+
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect((event.target as any).value).toBe('');
+    });
+
+    it('should not process file change without file', () => {
+      createFixture();
+      const event = {
+        target: {
+          files: [],
+        },
+      } as unknown as Event;
+
+      component.onFileChange(event);
+
+      expect(component.tabStates().caption.file).toBeNull();
+    });
+
+    it('should reject non-image files with error', () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.txt', { type: 'text/plain' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+
+      component.onFileChange(event);
+
+      expect(component.tabStates().caption.error).toBe('Please select an image file');
+    });
   });
 
   describe('submit functionality', () => {
@@ -177,6 +272,120 @@ describe('VisionPanelComponent', () => {
       createFixture();
       component.submit();
       expect(mockApiService.captionImage).not.toHaveBeenCalled();
+    });
+
+    it('should submit caption task with file', async () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      component.submit();
+
+      expect(mockApiService.captionImage).toHaveBeenCalledWith(mockFile);
+    });
+
+    it('should submit detect task with file', async () => {
+      createFixture();
+      component.setActiveTask('detect');
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      component.submit();
+
+      expect(mockApiService.detectObjects).toHaveBeenCalledWith(mockFile);
+    });
+
+    it('should submit ocr task with file', async () => {
+      createFixture();
+      component.setActiveTask('ocr');
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      component.submit();
+
+      expect(mockApiService.ocrImage).toHaveBeenCalledWith(mockFile);
+    });
+
+    it('should set isLoading to true during submit', async () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Mock API to not complete immediately
+      (mockApiService.captionImage as any).mockReturnValue({
+        subscribe: vi.fn(),
+      });
+
+      component.submit();
+
+      expect(component.isLoading()).toBe(true);
+    });
+
+    it('should handle API error', async () => {
+      createFixture();
+      (mockApiService.captionImage as any).mockImplementation(() => {
+        return {
+          subscribe: ({ error }: any) => {
+            // Call error callback synchronously for test
+            error(new Error('API Error'));
+          },
+        };
+      });
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      component.submit();
+
+      expect(component.tabStates().caption.error).toBe('API Error');
+    });
+
+    it('should preserve state across tab switches', async () => {
+      createFixture();
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
+      const event = {
+        target: {
+          files: [mockFile],
+        },
+      } as unknown as Event;
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      component.setActiveTask('detect');
+      component.onFileChange(event);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      component.setActiveTask('caption');
+      expect(component.currentState().file).toBe(mockFile);
     });
   });
 

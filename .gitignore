@@ -48,9 +48,12 @@ volumes/
 
 # Test Reports & Coverage
 coverage/
+**/coverage/
 *.lcov
 lcov.info
 *.cobertura.xml
+coverage-output.txt
+**/coverage-output.txt
 junit.xml
 test-output/
 test-results/

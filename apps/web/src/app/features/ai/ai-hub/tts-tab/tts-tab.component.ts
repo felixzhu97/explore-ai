@@ -522,6 +522,7 @@ export class TtsTabComponent implements OnInit, OnDestroy {
         },
         error: (err: unknown) => {
           this.error.set(err instanceof Error ? err.message : 'Synthesis failed');
+          this.isSynthesizing.set(false);
         },
         complete: () => {
           this.isSynthesizing.set(false);
