@@ -16,7 +16,7 @@ cd ../..
 echo "🧪 Running Java tests with coverage (JUnit 5 + JaCoCo)..."
 cd apps/server && ./gradlew jacocoTestCoverageVerification --no-daemon -q 2>&1
 if [ $? -ne 0 ]; then
-  echo "❌ Java coverage check failed (minimum 90% line, 70% branch)"
+  echo "❌ Java coverage check failed (minimum 87% line, 70% branch)"
   exit 1
 fi
 cd ..
