@@ -15,7 +15,9 @@
     "server:dev": "cd apps/server && export $(grep -v '^#' .env | xargs) && ./gradlew bootRun",
     "dev:all": "npm run server:dev && npm run web:dev",
     "docker:up": "cd apps/server && docker compose up -d",
-    "docker:down": "cd apps/server && docker compose down"
+    "docker:down": "cd apps/server && docker compose down",
+    "server:test": "cd apps/server && ./gradlew test",
+    "server:test:watch": "cd apps/server && ./gradlew test --continuous"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
