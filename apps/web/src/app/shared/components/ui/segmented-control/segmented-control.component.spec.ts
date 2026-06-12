@@ -119,11 +119,11 @@ describe('SegmentedControlComponent', () => {
         { value: 'b', label: 'B' },
         { value: 'c', label: 'C' },
       ];
-      
+
       fixture.componentRef.setInput('options', options);
       fixture.componentRef.setInput('value', 'b');
       fixture.detectChanges();
-      
+
       const buttons = fixture.nativeElement.querySelectorAll('.option');
       expect(buttons[1].classList).toContain('option--active');
     });
@@ -141,18 +141,39 @@ describe('SegmentedControlComponent', () => {
         ariaDisabled: btn.getAttribute('aria-disabled'),
         role: btn.getAttribute('role'),
       }));
-      
+
       expect(snapshot).toEqual([
-        { text: 'Test', isActive: true, isDisabled: false, ariaSelected: 'true', ariaDisabled: 'false', role: 'tab' },
-        { text: 'Demo', isActive: false, isDisabled: false, ariaSelected: 'false', ariaDisabled: 'false', role: 'tab' },
-        { text: 'Other', isActive: false, isDisabled: true, ariaSelected: 'false', ariaDisabled: 'true', role: 'tab' },
+        {
+          text: 'Test',
+          isActive: true,
+          isDisabled: false,
+          ariaSelected: 'true',
+          ariaDisabled: 'false',
+          role: 'tab',
+        },
+        {
+          text: 'Demo',
+          isActive: false,
+          isDisabled: false,
+          ariaSelected: 'false',
+          ariaDisabled: 'false',
+          role: 'tab',
+        },
+        {
+          text: 'Other',
+          isActive: false,
+          isDisabled: true,
+          ariaSelected: 'false',
+          ariaDisabled: 'true',
+          role: 'tab',
+        },
       ]);
     });
 
     it('should render all options with correct structure', () => {
       createFixture();
       const buttons = fixture.nativeElement.querySelectorAll('.option') as NodeListOf<HTMLElement>;
-      
+
       buttons.forEach((btn: HTMLElement) => {
         expect(btn.tagName).toBe('BUTTON');
         expect(btn.getAttribute('type')).toBe('button');
@@ -168,10 +189,10 @@ describe('SegmentedControlComponent', () => {
         { value: 'test', label: 'Test Updated' },
         { value: 'demo', label: 'Demo Updated' },
       ];
-      
+
       fixture.componentRef.setInput('options', newOptions);
       fixture.detectChanges();
-      
+
       const buttons = fixture.nativeElement.querySelectorAll('.option');
       expect(buttons.length).toBe(2);
       expect(buttons[0].textContent?.trim()).toBe('Test Updated');
@@ -182,7 +203,7 @@ describe('SegmentedControlComponent', () => {
       createFixture();
       fixture.componentRef.setInput('value', 'demo');
       fixture.detectChanges();
-      
+
       const buttons = fixture.nativeElement.querySelectorAll('.option');
       expect(buttons[1].classList).toContain('option--active');
       expect(buttons[0].classList).not.toContain('option--active');
@@ -193,23 +214,21 @@ describe('SegmentedControlComponent', () => {
     it('should call selectOption directly', () => {
       createFixture();
       const selectOptionSpy = vi.spyOn(component, 'selectOption');
-      
+
       const buttons = fixture.nativeElement.querySelectorAll('.option');
       buttons[1].click();
-      
+
       expect(selectOptionSpy).toHaveBeenCalledWith(mockOptions[1]);
     });
 
     it('should not select option with undefined value', () => {
       createFixture();
-      const newOptions: SegmentedControlOption<string>[] = [
-        { value: 'test', label: 'Test' },
-      ];
-      
+      const newOptions: SegmentedControlOption<string>[] = [{ value: 'test', label: 'Test' }];
+
       fixture.componentRef.setInput('options', newOptions);
       fixture.componentRef.setInput('value', 'nonexistent' as any);
       fixture.detectChanges();
-      
+
       const buttons = fixture.nativeElement.querySelectorAll('.option');
       expect(buttons[0].classList).not.toContain('option--active');
     });

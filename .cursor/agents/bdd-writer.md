@@ -138,6 +138,7 @@ Then('shipping fee should be {int} yuan', async function (expected: number) {
 ## Output Format
 
 When writing BDD content:
+
 1. Feature file with clear business language
 2. Multiple scenarios covering main flows
 3. Parameterized scenarios for data-driven tests

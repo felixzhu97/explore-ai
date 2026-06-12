@@ -113,7 +113,7 @@ jobs:
       - name: Check Prettier formatting
         id: prettier
         run: |
-          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md}" 2>&1 || true
+          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md,mdc}" 2>&1 || true
         continue-on-error: true
 
       - name: Run Review Dog for Prettier
@@ -121,7 +121,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md}" 2>&1 | reviewdog -f=prettier -reporter=github-pr-review -level=warning || true
+          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md,mdc}" 2>&1 | reviewdog -f=prettier -reporter=github-pr-review -level=warning || true
 
   test:
     name: Unit Tests

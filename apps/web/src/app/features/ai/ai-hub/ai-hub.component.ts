@@ -1,12 +1,9 @@
-import {
-  Component,
-  signal,
-  computed,
-  inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SegmentedControlComponent, SegmentedControlOption } from '@shared/components/ui/segmented-control/segmented-control.component';
+import {
+  SegmentedControlComponent,
+  SegmentedControlOption,
+} from '@shared/components/ui/segmented-control/segmented-control.component';
 import { ChatTabComponent } from './chat-tab/chat-tab.component';
 import { ImageGenTabComponent } from './image-gen-tab/image-gen-tab.component';
 import { TtsTabComponent } from './tts-tab/tts-tab.component';
@@ -59,81 +56,89 @@ type Tab = 'chat' | 'image' | 'tts';
       }
     </div>
   `,
-  styles: [`
-    .ai-hub {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+  styles: [
+    `
+      .ai-hub {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
 
-    .tab-header {
-      display: flex;
-      justify-content: center;
-      padding: 16px 0;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
+      .tab-header {
+        display: flex;
+        justify-content: center;
+        padding: 16px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
 
-    .tab-header::-webkit-scrollbar {
-      display: none;
-    }
+      .tab-header::-webkit-scrollbar {
+        display: none;
+      }
 
-    .tab-content {
-      animation: fadeIn 0.3s ease;
-    }
+      .tab-content {
+        animation: fadeIn 0.3s ease;
+      }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    /* Zoom Modal */
-    .zoom-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      cursor: pointer;
-    }
+      /* Zoom Modal */
+      .zoom-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        cursor: pointer;
+      }
 
-    .zoom-content {
-      position: relative;
-      max-width: 90vw;
-      max-height: 90vh;
-    }
+      .zoom-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+      }
 
-    .zoom-content img {
-      max-width: 100%;
-      max-height: 90vh;
-      object-fit: contain;
-    }
+      .zoom-content img {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+      }
 
-    .zoom-close {
-      position: absolute;
-      top: -40px;
-      right: 0;
-      width: 32px;
-      height: 32px;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      border-radius: 50%;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      .zoom-close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .zoom-close:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-  `]
+      .zoom-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    `,
+  ],
 })
 export class AiHubComponent {
   protected readonly i18n = inject(I18nService);

@@ -40,14 +40,14 @@ src/main/java/com/ai/api/
 
 ## Naming Conventions
 
-| Type | Rule | Example |
-|------|------|---------|
-| Class name | PascalCase | `UserService`, `UserController` |
-| Method name | camelCase | `findById`, `createUser` |
-| Constant | SCREAMING_SNAKE | `MAX_RETRY_COUNT` |
-| Package name | lowercase | `com.ai.api.service` |
-| Test class | ClassName + Test | `UserServiceTest` |
-| DTO Record | PascalCase + suffix | `UserDTO`, `CreateUserRequest` |
+| Type         | Rule                | Example                         |
+| ------------ | ------------------- | ------------------------------- |
+| Class name   | PascalCase          | `UserService`, `UserController` |
+| Method name  | camelCase           | `findById`, `createUser`        |
+| Constant     | SCREAMING_SNAKE     | `MAX_RETRY_COUNT`               |
+| Package name | lowercase           | `com.ai.api.service`            |
+| Test class   | ClassName + Test    | `UserServiceTest`               |
+| DTO Record   | PascalCase + suffix | `UserDTO`, `CreateUserRequest`  |
 
 ## DTO Design
 

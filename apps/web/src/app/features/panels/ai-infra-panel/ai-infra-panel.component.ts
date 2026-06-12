@@ -1,7 +1,10 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { environment } from '@env/environment';
 import { I18nService } from '@i18n';
-import { SegmentedControlComponent, SegmentedControlOption } from '@shared/components/ui/segmented-control/segmented-control.component';
+import {
+  SegmentedControlComponent,
+  SegmentedControlOption,
+} from '@shared/components/ui/segmented-control/segmented-control.component';
 import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
 import { AgentChatComponent } from '@features/agents/agent-chat/agent-chat.component';
 import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
@@ -11,7 +14,12 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
 @Component({
   selector: 'app-ai-infra-panel',
   standalone: true,
-  imports: [SegmentedControlComponent, AgentPanelComponent, AgentChatComponent, StatusBadgeComponent],
+  imports: [
+    SegmentedControlComponent,
+    AgentPanelComponent,
+    AgentChatComponent,
+    StatusBadgeComponent,
+  ],
   template: `
     <div class="container">
       <div class="tab-header">
@@ -23,10 +31,7 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
       </div>
 
       <div class="tab-section">
-        <app-agent-panel
-          [title]="activeConfig().title"
-          [description]="activeConfig().description"
-        >
+        <app-agent-panel [title]="activeConfig().title" [description]="activeConfig().description">
           <app-status-badge slot="headerRight" status="online" />
           <app-agent-chat
             [agentInfo]="agentInfo()"
@@ -37,40 +42,48 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
       </div>
     </div>
   `,
-  styles: [`
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .tab-header {
-      display: flex;
-      justify-content: center;
-      padding: 16px 0;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-
-      &::-webkit-scrollbar {
-        display: none;
+  styles: [
+    `
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
-      @media (max-width: 640px) {
-        justify-content: flex-start;
+      .tab-header {
+        display: flex;
+        justify-content: center;
+        padding: 16px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        @media (max-width: 640px) {
+          justify-content: flex-start;
+        }
       }
-    }
 
-    .tab-section {
-      animation: fadeIn 0.3s ease;
-    }
+      .tab-section {
+        animation: fadeIn 0.3s ease;
+      }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `],
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AIInfraPanelComponent {

@@ -46,7 +46,7 @@ describe('ButtonComponent', () => {
     createFixture();
     fixture.componentRef.setInput('disabled', true);
     fixture.detectChanges();
-    
+
     const spy = vi.fn();
     component.clicked.subscribe(spy);
 
@@ -59,7 +59,7 @@ describe('ButtonComponent', () => {
     createFixture();
     fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();
-    
+
     const spy = vi.fn();
     component.clicked.subscribe(spy);
 
@@ -80,7 +80,7 @@ describe('ButtonComponent', () => {
     createFixture();
     fixture.componentRef.setInput('fullWidth', true);
     fixture.detectChanges();
-    
+
     const button = fixture.nativeElement.querySelector('button');
     expect(button.classList).toContain('button--full-width');
   });
@@ -89,7 +89,7 @@ describe('ButtonComponent', () => {
     createFixture();
     fixture.componentRef.setInput('variant', 'secondary');
     fixture.detectChanges();
-    
+
     const button = fixture.nativeElement.querySelector('button');
     expect(button.classList).toContain('button--secondary');
   });
@@ -98,7 +98,7 @@ describe('ButtonComponent', () => {
     createFixture();
     fixture.componentRef.setInput('size', 'lg');
     fixture.detectChanges();
-    
+
     const button = fixture.nativeElement.querySelector('button');
     expect(button.classList).toContain('button--lg');
   });
@@ -110,7 +110,7 @@ describe('ButtonComponent', () => {
         createFixture();
         fixture.componentRef.setInput('variant', variant);
         fixture.detectChanges();
-        
+
         const button = fixture.nativeElement.querySelector('button');
         expect(button.classList).toContain(`button--${variant}`);
       });
@@ -124,7 +124,7 @@ describe('ButtonComponent', () => {
         createFixture();
         fixture.componentRef.setInput('size', size);
         fixture.detectChanges();
-        
+
         const button = fixture.nativeElement.querySelector('button');
         expect(button.classList).toContain(`button--${size}`);
       });

@@ -55,8 +55,7 @@ export const spacing = {
 
 export const typography = {
   fontFamily: {
-    display:
-      '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    display: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     body: '"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     mono: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace',
   },

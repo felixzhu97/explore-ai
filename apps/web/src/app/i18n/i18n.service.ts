@@ -1,10 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import {
-  Language,
-  Translations,
-  translations,
-  languageNames,
-} from './i18n.model';
+import { Language, Translations, translations, languageNames } from './i18n.model';
 
 @Injectable({
   providedIn: 'root',
@@ -39,12 +34,7 @@ export class I18nService {
     localStorage.setItem('language', lang);
   }
 
-  tReplace(
-    template: string,
-    values: Record<string, string | number>
-  ): string {
-    return template.replace(/\{(\w+)\}/g, (_, key) =>
-      String(values[key] ?? `{${key}}`)
-    );
+  tReplace(template: string, values: Record<string, string | number>): string {
+    return template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? `{${key}}`));
   }
 }

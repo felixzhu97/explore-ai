@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ApiService } from './api.service';
@@ -32,7 +32,12 @@ describe('ApiService', () => {
   describe('getProviders', () => {
     it('should return providers from API', () => {
       const mockProviders = [
-        { name: 'openai', display_name: 'OpenAI', models: ['gpt-4o'], status: 'available' },
+        {
+          name: 'openai',
+          display_name: 'OpenAI',
+          models: ['gpt-4o'],
+          status: 'available',
+        },
       ];
 
       service.getProviders().subscribe((providers) => {
@@ -305,7 +310,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('event: meta\ndata: {"token":"Hello"}\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('event: meta\ndata: {"token":"Hello"}\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Hello');
@@ -371,7 +379,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('event: done\ndata: \n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('event: done\ndata: \n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onDone).toHaveBeenCalled();
@@ -404,7 +415,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('event: error\ndata: {"error":"Something went wrong"}\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('event: error\ndata: {"error":"Something went wrong"}\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
@@ -438,7 +452,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('event: error\ndata: Invalid error format\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('event: error\ndata: Invalid error format\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
@@ -472,7 +489,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: {"token":"chunk1"}\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: {"token":"chunk1"}\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('chunk1');
@@ -504,7 +524,10 @@ describe('ApiService', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       // Send non-JSON data
-      readResolve({ done: false, value: encoder.encode('data: plain text data\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: plain text data\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
       // Continue reading
       readResolve({ done: true, value: new Uint8Array() });
@@ -539,7 +562,10 @@ describe('ApiService', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       // Send event followed by empty line, then data without event
-      readResolve({ done: false, value: encoder.encode('event: meta\n\ndata: {"token":"after reset"}\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('event: meta\n\ndata: {"token":"after reset"}\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('after reset');
@@ -572,7 +598,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: {"no_token_field":true}\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: {"no_token_field":true}\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({ done: true, value: new Uint8Array() });
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -662,7 +691,10 @@ describe('ApiService', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       // Send partial line, then complete it
-      readResolve({ done: false, value: encoder.encode('data: {"token":"par') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: {"token":"par'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('tial"}\n') });
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -705,7 +737,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: Some chunk text\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: Some chunk text\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Some chunk text');
@@ -730,13 +765,7 @@ describe('ApiService', () => {
 
       const onDone = vi.fn();
 
-      service.ragChat(
-        { query: 'test', session_id: 'session1' },
-        vi.fn(),
-        vi.fn(),
-        onDone,
-        vi.fn()
-      );
+      service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
@@ -775,7 +804,9 @@ describe('ApiService', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n'),
+        value: encoder.encode(
+          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n'
+        ),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -810,7 +841,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: Error:Database connection failed\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: Error:Database connection failed\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
@@ -845,7 +879,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n') });
+      readResolve({
+        done: false,
+        value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n'),
+      });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Line 1\nLine 2\nLine 3');
@@ -1012,7 +1049,13 @@ describe('ApiService', () => {
   describe('getVoices', () => {
     it('should return voices from API', () => {
       const mockVoices = [
-        { id: 'en-US', name: 'English (US)', language: 'en-US', provider: 'default', is_default: true },
+        {
+          id: 'en-US',
+          name: 'English (US)',
+          language: 'en-US',
+          provider: 'default',
+          is_default: true,
+        },
       ];
 
       service.getVoices().subscribe((voices) => {
@@ -1072,7 +1115,10 @@ describe('ApiService', () => {
   describe('captionImage', () => {
     it('should send caption request with file', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const mockResponse = { caption: 'A beautiful sunset', processing_time_ms: 500 };
+      const mockResponse = {
+        caption: 'A beautiful sunset',
+        processing_time_ms: 500,
+      };
 
       service.captionImage(mockFile).subscribe((response) => {
         expect(response.caption).toBe('A beautiful sunset');
@@ -1089,7 +1135,11 @@ describe('ApiService', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
       const mockResponse = {
         detections: [
-          { class_name: 'person', confidence: 0.95, bbox: [0, 0, 100, 200] as [number, number, number, number] },
+          {
+            class_name: 'person',
+            confidence: 0.95,
+            bbox: [0, 0, 100, 200] as [number, number, number, number],
+          },
         ],
       };
 
@@ -1107,7 +1157,10 @@ describe('ApiService', () => {
   describe('ocrImage', () => {
     it('should send OCR request with file', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const mockResponse = { full_text: 'Hello World', processing_time_ms: 300 };
+      const mockResponse = {
+        full_text: 'Hello World',
+        processing_time_ms: 300,
+      };
 
       service.ocrImage(mockFile).subscribe((response) => {
         expect(response.full_text).toBe('Hello World');
@@ -1145,7 +1198,9 @@ describe('ApiService', () => {
 
   describe('uploadDocument', () => {
     it('should upload document file', () => {
-      const mockFile = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+      const mockFile = new File(['test content'], 'test.pdf', {
+        type: 'application/pdf',
+      });
       const mockResponse = { id: 'doc123' };
 
       service.uploadDocument(mockFile).subscribe((response) => {
@@ -1242,13 +1297,7 @@ describe('ApiService', () => {
 
       const onDone = vi.fn();
 
-      service.ragChat(
-        { query: 'test', session_id: 'session1' },
-        vi.fn(),
-        vi.fn(),
-        onDone,
-        vi.fn()
-      );
+      service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
       await new Promise((resolve) => setTimeout(resolve, 50));
     });
@@ -1345,8 +1394,12 @@ describe('ApiService', () => {
       const removeChildSpy = vi.fn();
       const clickSpy = vi.fn();
 
-      Object.defineProperty(document.body, 'appendChild', { value: appendChildSpy });
-      Object.defineProperty(document.body, 'removeChild', { value: removeChildSpy });
+      Object.defineProperty(document.body, 'appendChild', {
+        value: appendChildSpy,
+      });
+      Object.defineProperty(document.body, 'removeChild', {
+        value: removeChildSpy,
+      });
 
       (createElementSpy as any).mockReturnValue({
         href: '',
@@ -1542,12 +1595,7 @@ describe('ApiService', () => {
         },
       } as any);
 
-      service.chatStream(
-        { messages: [] },
-        vi.fn(),
-        vi.fn(),
-        vi.fn()
-      );
+      service.chatStream({ messages: [] }, vi.fn(), vi.fn(), vi.fn());
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -1660,13 +1708,7 @@ describe('ApiService', () => {
         },
       } as any);
 
-      service.ragChat(
-        { query: '', session_id: 'session123' },
-        vi.fn(),
-        vi.fn(),
-        vi.fn(),
-        vi.fn()
-      );
+      service.ragChat({ query: '', session_id: 'session123' }, vi.fn(), vi.fn(), vi.fn(), vi.fn());
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -1765,7 +1807,9 @@ describe('ApiService', () => {
 
   describe('captionImage edge cases', () => {
     it('should send correct file type for PNG', () => {
-      const mockFile = new File(['png-data'], 'test.png', { type: 'image/png' });
+      const mockFile = new File(['png-data'], 'test.png', {
+        type: 'image/png',
+      });
       const mockResponse = { caption: 'A PNG image', processing_time_ms: 500 };
 
       service.captionImage(mockFile).subscribe((response) => {
@@ -1779,7 +1823,9 @@ describe('ApiService', () => {
 
     it('should handle large file upload', () => {
       const largeContent = new Array(1024 * 1024).fill('x').join('');
-      const mockFile = new File([largeContent], 'large.jpg', { type: 'image/jpeg' });
+      const mockFile = new File([largeContent], 'large.jpg', {
+        type: 'image/jpeg',
+      });
       const mockResponse = { caption: 'Large image' };
 
       service.captionImage(mockFile).subscribe((response) => {
@@ -1796,9 +1842,21 @@ describe('ApiService', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
       const mockResponse = {
         detections: [
-          { class_name: 'person', confidence: 0.95, bbox: [0, 0, 100, 200] as [number, number, number, number] },
-          { class_name: 'car', confidence: 0.87, bbox: [150, 100, 300, 250] as [number, number, number, number] },
-          { class_name: 'dog', confidence: 0.72, bbox: [50, 150, 120, 220] as [number, number, number, number] },
+          {
+            class_name: 'person',
+            confidence: 0.95,
+            bbox: [0, 0, 100, 200] as [number, number, number, number],
+          },
+          {
+            class_name: 'car',
+            confidence: 0.87,
+            bbox: [150, 100, 300, 250] as [number, number, number, number],
+          },
+          {
+            class_name: 'dog',
+            confidence: 0.72,
+            bbox: [50, 150, 120, 220] as [number, number, number, number],
+          },
         ],
       };
 
@@ -1828,7 +1886,9 @@ describe('ApiService', () => {
 
   describe('uploadDocument edge cases', () => {
     it('should send correct file with title parameter', () => {
-      const mockFile = new File(['content'], 'document.pdf', { type: 'application/pdf' });
+      const mockFile = new File(['content'], 'document.pdf', {
+        type: 'application/pdf',
+      });
       const mockResponse = { id: 'new-doc-id' };
 
       service.uploadDocument(mockFile).subscribe((response) => {
@@ -1842,11 +1902,9 @@ describe('ApiService', () => {
     });
 
     it('should handle docx file type', () => {
-      const mockFile = new File(
-        ['word-content'],
-        'document.docx',
-        { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
-      );
+      const mockFile = new File(['word-content'], 'document.docx', {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
       const mockResponse = { id: 'docx-id' };
 
       service.uploadDocument(mockFile).subscribe((response) => {
@@ -1917,10 +1975,7 @@ describe('ApiService', () => {
 
       service.downloadBase64Image(base64);
 
-      expect(downloadBlobSpy).toHaveBeenCalledWith(
-        expect.any(Blob),
-        'image.png'
-      );
+      expect(downloadBlobSpy).toHaveBeenCalledWith(expect.any(Blob), 'image.png');
     });
 
     it('should handle PNG mime type detection from base64 header', () => {
@@ -1929,10 +1984,7 @@ describe('ApiService', () => {
 
       service.downloadBase64Image(pngBase64, 'photo.png');
 
-      expect(downloadBlobSpy).toHaveBeenCalledWith(
-        expect.any(Blob),
-        'photo.png'
-      );
+      expect(downloadBlobSpy).toHaveBeenCalledWith(expect.any(Blob), 'photo.png');
     });
   });
 

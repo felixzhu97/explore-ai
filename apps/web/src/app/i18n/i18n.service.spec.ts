@@ -178,10 +178,10 @@ describe('I18nService', () => {
     });
 
     it('should replace multiple template variables', () => {
-      const result = service.tReplace(
-        'Hello {name}, you have {count} messages',
-        { name: 'Alice', count: 5 }
-      );
+      const result = service.tReplace('Hello {name}, you have {count} messages', {
+        name: 'Alice',
+        count: 5,
+      });
       expect(result).toBe('Hello Alice, you have 5 messages');
     });
 
@@ -230,9 +230,7 @@ describe('I18nService', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.t().imageUploader).toBeDefined();
-      expect(service.t().imageUploader.dropText).toBe(
-        'Drag & drop or click to upload'
-      );
+      expect(service.t().imageUploader.dropText).toBe('Drag & drop or click to upload');
     });
 
     it('should provide ragChat translations', () => {

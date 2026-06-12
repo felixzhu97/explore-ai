@@ -22,9 +22,24 @@ const BASE_URL = '/api';
 // ==================== Default Providers ====================
 
 export const DEFAULT_PROVIDERS: ProviderInfo[] = [
-  { name: 'openai', display_name: 'OpenAI', models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'], status: 'available' },
-  { name: 'anthropic', display_name: 'Anthropic Claude', models: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku'], status: 'available' },
-  { name: 'ollama', display_name: 'Ollama (Local)', models: ['llama3', 'mistral', 'codellama'], status: 'unavailable' },
+  {
+    name: 'openai',
+    display_name: 'OpenAI',
+    models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'],
+    status: 'available',
+  },
+  {
+    name: 'anthropic',
+    display_name: 'Anthropic Claude',
+    models: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku'],
+    status: 'available',
+  },
+  {
+    name: 'ollama',
+    display_name: 'Ollama (Local)',
+    models: ['llama3', 'mistral', 'codellama'],
+    status: 'unavailable',
+  },
 ];
 
 const defaultModels: Record<string, ModelInfo[]> = {
@@ -41,8 +56,20 @@ const defaultModels: Record<string, ModelInfo[]> = {
 };
 
 const defaultVoices: Voice[] = [
-  { id: 'en-US', name: 'English (US)', language: 'en-US', provider: 'default', is_default: true },
-  { id: 'zh-CN', name: 'Chinese (Mandarin)', language: 'zh-CN', provider: 'default', is_default: false },
+  {
+    id: 'en-US',
+    name: 'English (US)',
+    language: 'en-US',
+    provider: 'default',
+    is_default: true,
+  },
+  {
+    id: 'zh-CN',
+    name: 'Chinese (Mandarin)',
+    language: 'zh-CN',
+    provider: 'default',
+    is_default: false,
+  },
 ];
 
 // ==================== API Service ====================
@@ -54,26 +81,28 @@ export class ApiService {
   // ==================== Health Check ====================
 
   health(): Observable<{ status: string }> {
-    return this.http.get<{ status: string }>(`${BASE_URL}/health`).pipe(
-      catchError(() => of({ status: 'DOWN' }))
-    );
+    return this.http
+      .get<{ status: string }>(`${BASE_URL}/health`)
+      .pipe(catchError(() => of({ status: 'DOWN' })));
   }
 
   // ==================== Text AI ====================
 
   getProviders(): Observable<ProviderInfo[]> {
-    return this.http.get<ProviderInfo[]>(`${BASE_URL}/text/providers`).pipe(
-      catchError(() => of(DEFAULT_PROVIDERS))
-    );
+    return this.http
+      .get<ProviderInfo[]>(`${BASE_URL}/text/providers`)
+      .pipe(catchError(() => of(DEFAULT_PROVIDERS)));
   }
 
   getModels(provider: string): Observable<ModelInfo[]> {
-    return this.http.get<{ provider: string; models: ModelInfo[]; count: number }>(`${BASE_URL}/text/models`, {
-      params: { provider },
-    }).pipe(
-      map((res) => res.models ?? []),
-      catchError(() => of(defaultModels[provider] ?? defaultModels['openai'] ?? []))
-    );
+    return this.http
+      .get<{ provider: string; models: ModelInfo[]; count: number }>(`${BASE_URL}/text/models`, {
+        params: { provider },
+      })
+      .pipe(
+        map((res) => res.models ?? []),
+        catchError(() => of(defaultModels[provider] ?? defaultModels['openai'] ?? []))
+      );
   }
 
   chatStream(
@@ -138,7 +167,9 @@ export class ApiService {
               try {
                 const parsed = JSON.parse(data);
                 msg = parsed.error ?? parsed.message ?? msg;
-              } catch { /* ignore */ }
+              } catch {
+                /* ignore */
+              }
               onError(new Error(msg));
               return true;
             }
@@ -186,9 +217,9 @@ export class ApiService {
   // ==================== RAG ====================
 
   getDocuments(): Observable<DocumentListResponse> {
-    return this.http.get<DocumentListResponse>(`${BASE_URL}/rag/documents/`).pipe(
-      catchError(() => of({ documents: [] }))
-    );
+    return this.http
+      .get<DocumentListResponse>(`${BASE_URL}/rag/documents/`)
+      .pipe(catchError(() => of({ documents: [] })));
   }
 
   uploadDocument(file: File, title?: string): Observable<{ id: string }> {
@@ -217,89 +248,93 @@ export class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(query),
       signal: controller.signal,
-    }).then(async (response) => {
-      if (!response.ok) {
-        onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-        return;
-      }
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
+          return;
+        }
 
-      if (!response.body) {
-        onError(new Error('No response body'));
-        return;
-      }
+        if (!response.body) {
+          onError(new Error('No response body'));
+          return;
+        }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-      const processBuffer = () => {
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
+        const processBuffer = () => {
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
 
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed) {
-            currentEvent = '';
-            continue;
-          }
-
-          if (trimmed.startsWith('event:')) {
-            currentEvent = trimmed.slice(6).trim();
-            continue;
-          }
-
-          if (trimmed.startsWith('data:')) {
-            const data = trimmed.slice(5).trim();
-
-            if (data === '[DONE]') {
-              onDone();
-              return true;
-            }
-
-            if (data.startsWith('Error:')) {
-              onError(new Error(data.slice(6)));
-              return true;
-            }
-
-            if (currentEvent === 'sources') {
-              try {
-                const sources = JSON.parse(data);
-                onSources(Array.isArray(sources) ? sources : []);
-              } catch { /* ignore */ }
-              currentEvent = ''; // Reset after processing sources
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) {
+              currentEvent = '';
               continue;
             }
 
-            // Replace <br> with newlines for chunk data
-            const displayData = data.replace(/<br\s*\/?>/gi, '\n');
-            if (displayData !== data) {
-              onChunk(displayData);
-            } else {
-              onChunk(data);
+            if (trimmed.startsWith('event:')) {
+              currentEvent = trimmed.slice(6).trim();
+              continue;
+            }
+
+            if (trimmed.startsWith('data:')) {
+              const data = trimmed.slice(5).trim();
+
+              if (data === '[DONE]') {
+                onDone();
+                return true;
+              }
+
+              if (data.startsWith('Error:')) {
+                onError(new Error(data.slice(6)));
+                return true;
+              }
+
+              if (currentEvent === 'sources') {
+                try {
+                  const sources = JSON.parse(data);
+                  onSources(Array.isArray(sources) ? sources : []);
+                } catch {
+                  /* ignore */
+                }
+                currentEvent = ''; // Reset after processing sources
+                continue;
+              }
+
+              // Replace <br> with newlines for chunk data
+              const displayData = data.replace(/<br\s*\/?>/gi, '\n');
+              if (displayData !== data) {
+                onChunk(displayData);
+              } else {
+                onChunk(data);
+              }
             }
           }
-        }
-        return false;
-      };
+          return false;
+        };
 
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          if (processBuffer()) break;
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            if (processBuffer()) break;
+          }
+          onDone();
+        } catch (err) {
+          if ((err as Error).name !== 'AbortError') {
+            onError(err as Error);
+          }
         }
-        onDone();
-      } catch (err) {
+      })
+      .catch((err) => {
         if ((err as Error).name !== 'AbortError') {
           onError(err as Error);
         }
-      }
-    }).catch((err) => {
-      if ((err as Error).name !== 'AbortError') {
-        onError(err as Error);
-      }
-    });
+      });
 
     return {
       abort: () => controller.abort(),
@@ -309,7 +344,10 @@ export class ApiService {
   // ==================== Image Generation ====================
 
   generateImage(params: ImageGenerateParams): Observable<{ images: string[]; seed?: number }> {
-    return this.http.post<{ images: string[]; seed?: number }>(`${BASE_URL}/image/generate`, params);
+    return this.http.post<{ images: string[]; seed?: number }>(
+      `${BASE_URL}/image/generate`,
+      params
+    );
   }
 
   // ==================== Vision ====================
@@ -317,7 +355,10 @@ export class ApiService {
   captionImage(file: File): Observable<{ caption: string; processing_time_ms?: number }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ caption: string; processing_time_ms?: number }>(`${BASE_URL}/vision/caption`, formData);
+    return this.http.post<{ caption: string; processing_time_ms?: number }>(
+      `${BASE_URL}/vision/caption`,
+      formData
+    );
   }
 
   detectObjects(file: File): Observable<{ detections: Detection[] }> {
@@ -329,15 +370,18 @@ export class ApiService {
   ocrImage(file: File): Observable<{ full_text: string; processing_time_ms?: number }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ full_text: string; processing_time_ms?: number }>(`${BASE_URL}/vision/ocr`, formData);
+    return this.http.post<{ full_text: string; processing_time_ms?: number }>(
+      `${BASE_URL}/vision/ocr`,
+      formData
+    );
   }
 
   // ==================== TTS ====================
 
   getVoices(): Observable<Voice[]> {
-    return this.http.get<Voice[]>(`${BASE_URL}/tts/voices`).pipe(
-      catchError(() => of(defaultVoices))
-    );
+    return this.http
+      .get<Voice[]>(`${BASE_URL}/tts/voices`)
+      .pipe(catchError(() => of(defaultVoices)));
   }
 
   synthesizeSpeech(params: TTSRequest): Observable<Blob> {

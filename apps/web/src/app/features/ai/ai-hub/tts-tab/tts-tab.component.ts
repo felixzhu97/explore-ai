@@ -41,11 +41,7 @@ import { Voice } from '@shared/models';
           <div class="control-row">
             <div class="input-group">
               <label class="input-label">{{ i18n.t().aiHub.tts.voiceLabel }}</label>
-              <select
-                class="text-select"
-                [ngModel]="voice()"
-                (ngModelChange)="setVoice($event)"
-              >
+              <select class="text-select" [ngModel]="voice()" (ngModelChange)="setVoice($event)">
                 @if (availableVoices().length > 0) {
                   @for (v of availableVoices(); track v.id) {
                     <option [value]="v.id">{{ v.name }} ({{ v.language }})</option>
@@ -60,7 +56,9 @@ import { Voice } from '@shared/models';
             </div>
 
             <div class="slider-container">
-              <label class="input-label">{{ i18n.t().aiHub.tts.speedLabel }}: {{ speed().toFixed(1) }}x</label>
+              <label class="input-label"
+                >{{ i18n.t().aiHub.tts.speedLabel }}: {{ speed().toFixed(1) }}x</label
+              >
               <input
                 type="range"
                 class="slider"
@@ -79,7 +77,8 @@ import { Voice } from '@shared/models';
             [disabled]="!text().trim() || isSynthesizing()"
           >
             @if (isSynthesizing()) {
-              <span class="btn-spinner"></span> {{ i18n.t().aiHub.tts.synthesizing }}
+              <span class="btn-spinner"></span>
+              {{ i18n.t().aiHub.tts.synthesizing }}
             } @else {
               {{ i18n.t().aiHub.tts.synthesizeButton }}
             }
@@ -115,301 +114,315 @@ import { Voice } from '@shared/models';
       </div>
     </div>
   `,
-  styles: [`
-    .panel {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-      background: #ffffff;
-      border: 1px solid var(--color-border);
-      border-radius: 14px;
-    }
-
-    .panel-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #1d1d1f;
-      margin: 0;
-    }
-
-    .panel-description {
-      font-size: 14px;
-      color: #86868b;
-      margin: 4px 0 0 0;
-    }
-
-    .panel-content {
-      background: #ffffff;
-      border: 1px solid var(--color-border);
-      border-radius: 14px;
-      padding: 24px;
-    }
-
-    .tts-section {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .input-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: #86868b;
-    }
-
-    .text-input {
-      padding: 12px 16px;
-      font-size: 15px;
-      font-family: inherit;
-      border: 1px solid var(--color-border);
-      border-radius: 10px;
-      background: #ffffff;
-      color: #1d1d1f;
-      resize: vertical;
-      min-height: 80px;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    .text-input:focus {
-      outline: none;
-      border-color: #007aff;
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
-    }
-
-    .text-input::placeholder {
-      color: #86868b;
-    }
-
-    .text-select {
-      padding: 12px 16px;
-      font-size: 15px;
-      font-family: inherit;
-      border: 1px solid var(--color-border);
-      border-radius: 10px;
-      background: #ffffff;
-      color: #1d1d1f;
-      cursor: pointer;
-      min-width: 200px;
-    }
-
-    .text-select:focus {
-      outline: none;
-      border-color: #007aff;
-    }
-
-    .control-row {
-      display: flex;
-      gap: 24px;
-      align-items: flex-end;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 640px) {
-      .control-row {
+  styles: [
+    `
+      .panel {
+        display: flex;
         flex-direction: column;
+        gap: 16px;
       }
-    }
 
-    .slider-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
-      min-width: 150px;
-    }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+      }
 
-    .slider {
-      width: 100%;
-      height: 4px;
-      background: #e5e5e5;
-      border-radius: 2px;
-      outline: none;
-      -webkit-appearance: none;
-    }
+      .panel-title {
+        font-size: 17px;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin: 0;
+      }
 
-    .slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      background: #0071e3;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
+      .panel-description {
+        font-size: 14px;
+        color: #86868b;
+        margin: 4px 0 0 0;
+      }
 
-    .slider::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-    }
+      .panel-content {
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        padding: 24px;
+      }
 
-    .action-button {
-      padding: 12px 24px;
-      font-size: 15px;
-      font-weight: 500;
-      font-family: inherit;
-      background: #ffffff;
-      color: #1d1d1f;
-      border: 1px solid var(--color-border);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
+      .tts-section {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
 
-    .action-button.primary {
-      background: #007aff;
-      color: white;
-      border: transparent;
-    }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
 
-    .action-button.primary:hover:not(:disabled) {
-      background: #0071e3;
-    }
+      .input-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #86868b;
+      }
 
-    .action-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+      .text-input {
+        padding: 12px 16px;
+        font-size: 15px;
+        font-family: inherit;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #1d1d1f;
+        resize: vertical;
+        min-height: 80px;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
 
-    .error-message {
-      padding: 12px;
-      background: #ffebee;
-      color: #c62828;
-      border-radius: 8px;
-      font-size: 14px;
-      animation: fadeIn 0.2s ease;
-      border: 1px solid #ffcdd2;
-    }
+      .text-input:focus {
+        outline: none;
+        border-color: #007aff;
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+      }
 
-    .btn-spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+      .text-input::placeholder {
+        color: #86868b;
+      }
 
-    .audio-player {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 24px;
-      background: #f5f5f7;
-      border: 1px solid #0071e333;
-      border-radius: 12px;
-      animation: fadeIn 0.3s ease;
-    }
+      .text-select {
+        padding: 12px 16px;
+        font-size: 15px;
+        font-family: inherit;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #1d1d1f;
+        cursor: pointer;
+        min-width: 200px;
+      }
 
-    .audio-controls {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+      .text-select:focus {
+        outline: none;
+        border-color: #007aff;
+      }
 
-    .play-button {
-      width: 52px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0071e3;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 18px;
-      transition: all 0.2s ease;
-    }
+      .control-row {
+        display: flex;
+        gap: 24px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
 
-    .play-button.playing {
-      background: #34c759;
-    }
+      @media (max-width: 640px) {
+        .control-row {
+          flex-direction: column;
+        }
+      }
 
-    .play-button:hover {
-      opacity: 0.9;
-      transform: scale(1.02);
-    }
+      .slider-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-width: 150px;
+      }
 
-    .play-button:active {
-      transform: scale(0.95);
-    }
+      .slider {
+        width: 100%;
+        height: 4px;
+        background: #e5e5e5;
+        border-radius: 2px;
+        outline: none;
+        -webkit-appearance: none;
+      }
 
-    .audio-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #0071e3;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+      }
 
-    .audio-label {
-      font-size: 15px;
-      font-weight: 500;
-      color: #1d1d1f;
-    }
+      .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+      }
 
-    .audio-bar {
-      height: 6px;
-      background: #e5e5e5;
-      border-radius: 3px;
-      overflow: hidden;
-    }
+      .action-button {
+        padding: 12px 24px;
+        font-size: 15px;
+        font-weight: 500;
+        font-family: inherit;
+        background: #ffffff;
+        color: #1d1d1f;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
 
-    .audio-progress {
-      height: 100%;
-      width: 0%;
-      background: #0071e3;
-      transition: width 0.1s linear;
-      border-radius: 3px;
-    }
+      .action-button.primary {
+        background: #007aff;
+        color: white;
+        border: transparent;
+      }
 
-    .download-link {
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      background: #ffffff;
-      color: #0071e3;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      width: fit-content;
-    }
+      .action-button.primary:hover:not(:disabled) {
+        background: #0071e3;
+      }
 
-    .download-link:hover {
-      background: #f5f5f7;
-      border-color: #0071e3;
-    }
+      .action-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+      .error-message {
+        padding: 12px;
+        background: #ffebee;
+        color: #c62828;
+        border-radius: 8px;
+        font-size: 14px;
+        animation: fadeIn 0.2s ease;
+        border: 1px solid #ffcdd2;
+      }
 
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-  `]
+      .btn-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+
+      .audio-player {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 24px;
+        background: #f5f5f7;
+        border: 1px solid #0071e333;
+        border-radius: 12px;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .audio-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .play-button {
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0071e3;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.2s ease;
+      }
+
+      .play-button.playing {
+        background: #34c759;
+      }
+
+      .play-button:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+      }
+
+      .play-button:active {
+        transform: scale(0.95);
+      }
+
+      .audio-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .audio-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #1d1d1f;
+      }
+
+      .audio-bar {
+        height: 6px;
+        background: #e5e5e5;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+
+      .audio-progress {
+        height: 100%;
+        width: 0%;
+        background: #0071e3;
+        transition: width 0.1s linear;
+        border-radius: 3px;
+      }
+
+      .download-link {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        background: #ffffff;
+        color: #0071e3;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        width: fit-content;
+      }
+
+      .download-link:hover {
+        background: #f5f5f7;
+        border-color: #0071e3;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `,
+  ],
 })
 export class TtsTabComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
@@ -452,7 +465,13 @@ export class TtsTabComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.availableVoices.set([
-          { id: 'en-US', name: 'English (US)', language: 'en-US', provider: 'default', is_default: true },
+          {
+            id: 'en-US',
+            name: 'English (US)',
+            language: 'en-US',
+            provider: 'default',
+            is_default: true,
+          },
         ]);
       },
     });

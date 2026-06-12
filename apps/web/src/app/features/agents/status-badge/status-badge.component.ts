@@ -21,50 +21,52 @@ const statusLabels: Record<BadgeStatus, string> = {
       {{ label() || statusLabels[status()] }}
     </span>
   `,
-  styles: [`
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-medium);
-      border-radius: var(--radius-full);
-      white-space: nowrap;
+  styles: [
+    `
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        border-radius: var(--radius-full);
+        white-space: nowrap;
 
-      &--online {
-        background: var(--color-success-light);
-        color: var(--color-success);
+        &--online {
+          background: var(--color-success-light);
+          color: var(--color-success);
+        }
+
+        &--offline {
+          background: rgba(0, 0, 0, 0.06);
+          color: var(--color-text-tertiary);
+        }
+
+        &--busy {
+          background: var(--color-warning-light);
+          color: var(--color-warning);
+        }
+
+        &--error {
+          background: var(--color-error-light);
+          color: var(--color-error);
+        }
+
+        &--pending {
+          background: var(--color-primary-light);
+          color: var(--color-primary);
+        }
       }
 
-      &--offline {
-        background: rgba(0, 0, 0, 0.06);
-        color: var(--color-text-tertiary);
+      .badge__dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
       }
-
-      &--busy {
-        background: var(--color-warning-light);
-        color: var(--color-warning);
-      }
-
-      &--error {
-        background: var(--color-error-light);
-        color: var(--color-error);
-      }
-
-      &--pending {
-        background: var(--color-primary-light);
-        color: var(--color-primary);
-      }
-    }
-
-    .badge__dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-  `],
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusBadgeComponent {

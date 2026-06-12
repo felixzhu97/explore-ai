@@ -29,11 +29,12 @@ export class ChatMessageComponent {
     if (!content) return '';
 
     const trimmed = content.trim();
-    
+
     // Check if it's raw JSON
-    const isRawJson = (trimmed.startsWith('[') || trimmed.startsWith('{')) &&
-                      !trimmed.startsWith('```') &&
-                      !trimmed.startsWith('#');
+    const isRawJson =
+      (trimmed.startsWith('[') || trimmed.startsWith('{')) &&
+      !trimmed.startsWith('```') &&
+      !trimmed.startsWith('#');
 
     if (isRawJson) {
       try {
@@ -52,7 +53,7 @@ export class ChatMessageComponent {
 
   private processContent(content: string): string {
     let html = this.escapeHtml(content);
-    
+
     // Code blocks
     html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
       return `<pre class="code-block"><code>${code.trim()}</code></pre>`;
@@ -71,7 +72,10 @@ export class ChatMessageComponent {
     html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
     // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    html = html.replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener">$1</a>'
+    );
 
     // Line breaks (but not inside code blocks)
     html = html.replace(/\n\n/g, '</p><p>');
@@ -95,8 +99,8 @@ export class ChatMessageComponent {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#039;'
+      "'": '&#039;',
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return text.replace(/[&<>"']/g, (m) => map[m]);
   }
 }

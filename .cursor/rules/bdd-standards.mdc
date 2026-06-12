@@ -46,18 +46,18 @@ Feature: Order Free Shipping Calculation
 
 ### Keyword Definitions
 
-| Keyword | Purpose | Repeatable |
-|---------|---------|------------|
-| Feature | Feature name | Once per file |
-| Background | Shared preconditions for all Scenarios | Once per file |
-| Scenario | Specific scenario | Multiple |
-| Given | Precondition | Multiple |
-| When | Trigger action | Once per Scenario |
-| Then | Expected result | Multiple |
-| And | Additional condition | Can be used with Given/When/Then |
-| But | Additional condition | Same as And |
-| Scenario Outline | Parameterized scenario | One, with multiple Examples |
-| Examples | Parameter table | Once per Outline |
+| Keyword          | Purpose                                | Repeatable                       |
+| ---------------- | -------------------------------------- | -------------------------------- |
+| Feature          | Feature name                           | Once per file                    |
+| Background       | Shared preconditions for all Scenarios | Once per file                    |
+| Scenario         | Specific scenario                      | Multiple                         |
+| Given            | Precondition                           | Multiple                         |
+| When             | Trigger action                         | Once per Scenario                |
+| Then             | Expected result                        | Multiple                         |
+| And              | Additional condition                   | Can be used with Given/When/Then |
+| But              | Additional condition                   | Same as And                      |
+| Scenario Outline | Parameterized scenario                 | One, with multiple Examples      |
+| Examples         | Parameter table                        | Once per Outline                 |
 
 ### Scenario Parameterization
 
@@ -206,11 +206,11 @@ Code
 
 ### Mapping Relationship
 
-| BDD Layer | TDD Layer | Purpose |
-|-----------|-----------|---------|
-| Feature | Test Suite | Organize by feature |
-| Scenario | Integration Test | End-to-end flow |
-| Step | Unit Test | Specific behavior |
+| BDD Layer | TDD Layer        | Purpose             |
+| --------- | ---------------- | ------------------- |
+| Feature   | Test Suite       | Organize by feature |
+| Scenario  | Integration Test | End-to-end flow     |
+| Step      | Unit Test        | Specific behavior   |
 
 ### Example
 
@@ -233,7 +233,7 @@ class VipDiscountTest {
         // Given
         Customer vipCustomer = Customer.createVip("Zhang Wei");
         Order order = new Order(List.of(new OrderLine(product(), Money.of(1000))));
-        
+
         // When
         Money discount = discountService.calculate(order, vipCustomer);
 
@@ -271,10 +271,10 @@ class VipDiscountTest {
 
 ## Common Mistakes
 
-| Mistake | Symptoms | Correction |
-|---------|----------|------------|
-| Technical description | "Click button calls API" | "User logs into system" |
-| Implementation leakage | "Input user ID to get user" | "Find user" |
-| Too many steps | 10+ steps | Extract substeps |
-| Vague assertion | "Order status correct" | "Order status should be paid" |
-| Duplicate scenarios | Multiple Scenarios test same behavior | Merge or parameterize |
+| Mistake                | Symptoms                              | Correction                    |
+| ---------------------- | ------------------------------------- | ----------------------------- |
+| Technical description  | "Click button calls API"              | "User logs into system"       |
+| Implementation leakage | "Input user ID to get user"           | "Find user"                   |
+| Too many steps         | 10+ steps                             | Extract substeps              |
+| Vague assertion        | "Order status correct"                | "Order status should be paid" |
+| Duplicate scenarios    | Multiple Scenarios test same behavior | Merge or parameterize         |

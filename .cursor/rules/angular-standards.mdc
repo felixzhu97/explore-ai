@@ -37,13 +37,13 @@ src/
 
 ### Naming
 
-| Type | Rule | Example |
-|------|------|---------|
-| Component file | kebab-case | `user-card.component.ts` |
-| Component class | PascalCase + Component | `UserCardComponent` |
-| Selector | kebab-case + prefix | `app-user-card` |
-| Template file | Same as component | `user-card.component.html` |
-| Style file | Same as component | `user-card.component.scss` |
+| Type            | Rule                   | Example                    |
+| --------------- | ---------------------- | -------------------------- |
+| Component file  | kebab-case             | `user-card.component.ts`   |
+| Component class | PascalCase + Component | `UserCardComponent`        |
+| Selector        | kebab-case + prefix    | `app-user-card`            |
+| Template file   | Same as component      | `user-card.component.html` |
+| Style file      | Same as component      | `user-card.component.scss` |
 
 ### Component Template
 
@@ -86,19 +86,19 @@ export class UserCardComponent {
 ```html
 <!-- Use @ control flow (Angular 17+) -->
 @if (user(); as user) {
-  <div class="user-card">
-    <h3>{{ fullName() }}</h3>
-    @if (editable()) {
-      <button (click)="handleEdit()">Edit</button>
-    }
-  </div>
+<div class="user-card">
+  <h3>{{ fullName() }}</h3>
+  @if (editable()) {
+  <button (click)="handleEdit()">Edit</button>
+  }
+</div>
 } @else {
-  <app-skeleton />
+<app-skeleton />
 }
 
 <!-- Loop -->
 @for (item of items(); track item.id) {
-  <app-list-item [item]="item" />
+<app-list-item [item]="item" />
 }
 
 <!-- Safe navigation -->
@@ -120,7 +120,7 @@ export class UserService {
   // Return Observable for components to subscribe
   fetchUsers(): Observable<User[]> {
     return this.http.get<User[]>('/api/users').pipe(
-      tap(users => this.users.set(users)),
+      tap((users) => this.users.set(users)),
       catchError(this.handleError)
     );
   }

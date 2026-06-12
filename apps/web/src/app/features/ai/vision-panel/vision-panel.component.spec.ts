@@ -45,11 +45,14 @@ describe('VisionPanelComponent', () => {
   };
 
   beforeAll(() => {
-    vi.stubGlobal('FileReader', vi.fn().mockImplementation(() => ({
-      readAsDataURL: vi.fn(),
-      onload: null,
-      result: 'data:image/png;base64,mock',
-    })));
+    vi.stubGlobal(
+      'FileReader',
+      vi.fn().mockImplementation(() => ({
+        readAsDataURL: vi.fn(),
+        onload: null,
+        result: 'data:image/png;base64,mock',
+      }))
+    );
   });
 
   beforeEach(async () => {
@@ -152,9 +155,9 @@ describe('VisionPanelComponent', () => {
         type: 'dragover',
         preventDefault: vi.fn(),
       } as unknown as DragEvent;
-      
+
       component.onDragOver(event);
-      
+
       expect(event.preventDefault).toHaveBeenCalled();
     });
 
@@ -162,9 +165,9 @@ describe('VisionPanelComponent', () => {
       createFixture();
       const event = new Event('click');
       const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
-      
+
       component.clearImage(event);
-      
+
       expect(stopPropagationSpy).toHaveBeenCalled();
     });
   });

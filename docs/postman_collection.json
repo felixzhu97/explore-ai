@@ -16,13 +16,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts"],
               "query": [],
               "variable": []
             },
@@ -43,13 +38,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts"],
               "query": [],
               "variable": []
             },
@@ -80,14 +70,8 @@
             },
             "url": {
               "raw": "{{host}}/api/tts/synthesize",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "synthesize"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "synthesize"],
               "query": [],
               "variable": []
             },
@@ -118,14 +102,8 @@
             },
             "url": {
               "raw": "{{host}}/api/tts/stream",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "stream"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "stream"],
               "query": [],
               "variable": []
             },
@@ -140,14 +118,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts/voices?language\u003d\u0026provider\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "voices"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "voices"],
               "query": [
                 {
                   "key": "language",
@@ -175,14 +147,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts/providers",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "providers"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "providers"],
               "query": [],
               "variable": []
             },
@@ -197,14 +163,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts/provider?provider\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "provider"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "provider"],
               "query": [
                 {
                   "key": "provider",
@@ -226,14 +186,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts/models?provider\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "models"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "models"],
               "query": [
                 {
                   "key": "provider",
@@ -255,14 +209,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/tts/health?provider\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "tts",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "tts", "health"],
               "query": [
                 {
                   "key": "provider",
@@ -306,14 +254,8 @@
             },
             "url": {
               "raw": "{{host}}/api/agents/chat",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "chat"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "chat"],
               "query": [],
               "variable": []
             },
@@ -344,15 +286,8 @@
             },
             "url": {
               "raw": "{{host}}/api/agents/chat/stream",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "chat",
-                "stream"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "chat", "stream"],
               "query": [],
               "variable": []
             },
@@ -383,15 +318,8 @@
             },
             "url": {
               "raw": "{{host}}/api/agents/invoke/:agentType",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "invoke",
-                ":agentType"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "invoke", ":agentType"],
               "query": [],
               "variable": [
                 {
@@ -428,15 +356,8 @@
             },
             "url": {
               "raw": "{{host}}/api/agents/supervisor/invoke",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "supervisor",
-                "invoke"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "supervisor", "invoke"],
               "query": [],
               "variable": []
             },
@@ -467,16 +388,8 @@
             },
             "url": {
               "raw": "{{host}}/api/agents/supervisor/invoke/sse",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "supervisor",
-                "invoke",
-                "sse"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "supervisor", "invoke", "sse"],
               "query": [],
               "variable": []
             },
@@ -507,16 +420,8 @@
             },
             "url": {
               "raw": "{{host}}/api/agents/:agentType/invoke/sse",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                ":agentType",
-                "invoke",
-                "sse"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", ":agentType", "invoke", "sse"],
               "query": [],
               "variable": [
                 {
@@ -537,14 +442,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "list"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "list"],
               "query": [],
               "variable": []
             },
@@ -559,14 +458,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/agents",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "agents"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "agents"],
               "query": [],
               "variable": []
             },
@@ -581,14 +474,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/:agentType",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                ":agentType"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", ":agentType"],
               "query": [],
               "variable": [
                 {
@@ -609,15 +496,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/:agentType/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                ":agentType",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", ":agentType", "health"],
               "query": [],
               "variable": [
                 {
@@ -638,15 +518,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/pods?namespace\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "pods"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "pods"],
               "query": [
                 {
                   "key": "namespace",
@@ -668,16 +541,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/pods/:podName?namespace\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "pods",
-                ":podName"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "pods", ":podName"],
               "query": [
                 {
                   "key": "namespace",
@@ -705,17 +570,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/pods/:podName/logs?namespace\u003d\u0026lines\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "pods",
-                ":podName",
-                "logs"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "pods", ":podName", "logs"],
               "query": [
                 {
                   "key": "namespace",
@@ -749,15 +605,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/deployments?namespace\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "deployments"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "deployments"],
               "query": [
                 {
                   "key": "namespace",
@@ -779,15 +628,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/services?namespace\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "services"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "services"],
               "query": [
                 {
                   "key": "namespace",
@@ -809,15 +651,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/nodes",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "nodes"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "nodes"],
               "query": [],
               "variable": []
             },
@@ -832,17 +667,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/k8s/deployments/:name/scale?replicas\u003d\u0026namespace\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "k8s",
-                "deployments",
-                ":name",
-                "scale"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "k8s", "deployments", ":name", "scale"],
               "query": [
                 {
                   "key": "replicas",
@@ -876,15 +702,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/aiops/detect-anomaly?metric\u003d\u0026timeRange\u003d\u0026sensitivity\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "aiops",
-                "detect-anomaly"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "aiops", "detect-anomaly"],
               "query": [
                 {
                   "key": "metric",
@@ -918,15 +737,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/aiops/incidents?title\u003d\u0026severity\u003d\u0026description\u003d\u0026affectedSystems\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "aiops",
-                "incidents"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "aiops", "incidents"],
               "query": [
                 {
                   "key": "title",
@@ -966,15 +778,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/aiops/incidents?status\u003d\u0026severity\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "aiops",
-                "incidents"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "aiops", "incidents"],
               "query": [
                 {
                   "key": "status",
@@ -1002,15 +807,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/aiops/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "aiops",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "aiops", "health"],
               "query": [],
               "variable": []
             },
@@ -1025,15 +823,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/aiops/root-cause?incidentId\u003d\u0026affectedServices\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "aiops",
-                "root-cause"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "aiops", "root-cause"],
               "query": [
                 {
                   "key": "incidentId",
@@ -1061,15 +852,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/aiops/incident-workflow?title\u003d\u0026description\u003d\u0026severity\u003d\u0026affectedSystems\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "aiops",
-                "incident-workflow"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "aiops", "incident-workflow"],
               "query": [
                 {
                   "key": "title",
@@ -1109,15 +893,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/llmops/models?modelName\u003d\u0026version\u003d\u0026artifactUri\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "llmops",
-                "models"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "llmops", "models"],
               "query": [
                 {
                   "key": "modelName",
@@ -1151,15 +928,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/llmops/models?modelName\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "llmops",
-                "models"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "llmops", "models"],
               "query": [
                 {
                   "key": "modelName",
@@ -1181,17 +951,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/llmops/models/:modelName/deploy?version\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "llmops",
-                "models",
-                ":modelName",
-                "deploy"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "llmops", "models", ":modelName", "deploy"],
               "query": [
                 {
                   "key": "version",
@@ -1219,17 +980,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/llmops/models/:modelName/rollback",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "llmops",
-                "models",
-                ":modelName",
-                "rollback"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "llmops", "models", ":modelName", "rollback"],
               "query": [],
               "variable": [
                 {
@@ -1250,15 +1002,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/pipeline/runs?pipelineName\u003d\u0026steps\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "pipeline",
-                "runs"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "pipeline", "runs"],
               "query": [
                 {
                   "key": "pipelineName",
@@ -1286,15 +1031,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/pipeline/runs?pipelineName\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "pipeline",
-                "runs"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "pipeline", "runs"],
               "query": [
                 {
                   "key": "pipelineName",
@@ -1316,16 +1054,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/pipeline/runs/:runId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "pipeline",
-                "runs",
-                ":runId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "pipeline", "runs", ":runId"],
               "query": [],
               "variable": [
                 {
@@ -1346,15 +1076,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/rag/index?content\u003d\u0026title\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "rag",
-                "index"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "rag", "index"],
               "query": [
                 {
                   "key": "content",
@@ -1382,15 +1105,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/rag/search?query\u003d\u0026topK\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "rag",
-                "search"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "rag", "search"],
               "query": [
                 {
                   "key": "query",
@@ -1418,15 +1134,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/monitoring/metrics?metric\u003d\u0026timeRange\u003d\u0026aggregation\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "monitoring",
-                "metrics"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "monitoring", "metrics"],
               "query": [
                 {
                   "key": "metric",
@@ -1460,15 +1169,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/monitoring/alerts?name\u003d\u0026metric\u003d\u0026condition\u003d\u0026threshold\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "monitoring",
-                "alerts"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "monitoring", "alerts"],
               "query": [
                 {
                   "key": "name",
@@ -1508,15 +1210,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/monitoring/alerts?status\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "monitoring",
-                "alerts"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "monitoring", "alerts"],
               "query": [
                 {
                   "key": "status",
@@ -1538,15 +1233,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/vector/collections?name\u003d\u0026dimension\u003d\u0026description\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "vector",
-                "collections"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "vector", "collections"],
               "query": [
                 {
                   "key": "name",
@@ -1580,15 +1268,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/vector/collections",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "vector",
-                "collections"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "vector", "collections"],
               "query": [],
               "variable": []
             },
@@ -1609,14 +1290,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "health"],
               "query": [],
               "variable": []
             },
@@ -1631,14 +1306,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/agents/status",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "agents",
-                "status"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "agents", "status"],
               "query": [],
               "variable": []
             },
@@ -1659,14 +1328,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/live",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "live"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "live"],
               "query": [],
               "variable": []
             },
@@ -1681,14 +1344,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/ready",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "ready"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "ready"],
               "query": [],
               "variable": []
             },
@@ -1709,13 +1366,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision"],
               "query": [],
               "variable": []
             },
@@ -1730,14 +1382,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "health"],
               "query": [],
               "variable": []
             },
@@ -1768,14 +1414,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/detect?confidence\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "detect"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "detect"],
               "query": [
                 {
                   "key": "confidence",
@@ -1813,14 +1453,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/caption",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "caption"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "caption"],
               "query": [],
               "variable": []
             },
@@ -1851,14 +1485,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/ocr?engine\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "ocr"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "ocr"],
               "query": [
                 {
                   "key": "engine",
@@ -1896,14 +1524,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/generate",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "generate"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "generate"],
               "query": [],
               "variable": []
             },
@@ -1934,14 +1556,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/variation",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "variation"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "variation"],
               "query": [],
               "variable": []
             },
@@ -1972,14 +1588,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/upscale",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "upscale"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "upscale"],
               "query": [],
               "variable": []
             },
@@ -1994,14 +1604,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/models",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "models"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "models"],
               "query": [],
               "variable": []
             },
@@ -2016,15 +1620,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/cache/clear",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "cache",
-                "clear"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "cache", "clear"],
               "query": [],
               "variable": []
             },
@@ -2039,15 +1636,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/image-gen/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "image-gen",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "image-gen", "health"],
               "query": [],
               "variable": []
             },
@@ -2078,14 +1668,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/analyze?task\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "analyze"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "analyze"],
               "query": [
                 {
                   "key": "task",
@@ -2123,15 +1707,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/video/generate",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "video",
-                "generate"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "video", "generate"],
               "query": [],
               "variable": []
             },
@@ -2162,16 +1739,8 @@
             },
             "url": {
               "raw": "{{host}}/api/vision/video/generate/advanced",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "video",
-                "generate",
-                "advanced"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "video", "generate", "advanced"],
               "query": [],
               "variable": []
             },
@@ -2186,16 +1755,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/video/status/:taskId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "video",
-                "status",
-                ":taskId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "video", "status", ":taskId"],
               "query": [],
               "variable": [
                 {
@@ -2216,14 +1777,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/vision/capabilities",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "vision",
-                "capabilities"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "vision", "capabilities"],
               "query": [],
               "variable": []
             },
@@ -2244,13 +1799,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/image",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "image"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "image"],
               "query": [],
               "variable": []
             },
@@ -2287,14 +1837,8 @@
             },
             "url": {
               "raw": "{{host}}/api/image/generate",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "image",
-                "generate"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "image", "generate"],
               "query": [],
               "variable": []
             },
@@ -2309,14 +1853,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/image/models",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "image",
-                "models"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "image", "models"],
               "query": [],
               "variable": []
             },
@@ -2331,15 +1869,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/image/models/:modelId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "image",
-                "models",
-                ":modelId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "image", "models", ":modelId"],
               "query": [],
               "variable": [
                 {
@@ -2360,14 +1891,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/image/loras",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "image",
-                "loras"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "image", "loras"],
               "query": [],
               "variable": []
             },
@@ -2382,14 +1907,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/image/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "image",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "image", "health"],
               "query": [],
               "variable": []
             },
@@ -2410,14 +1929,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "health"],
               "query": [],
               "variable": []
             },
@@ -2432,15 +1945,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/health/detailed",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "health",
-                "detailed"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "health", "detailed"],
               "query": [],
               "variable": []
             },
@@ -2455,14 +1961,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/info",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "info"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "info"],
               "query": [],
               "variable": []
             },
@@ -2483,14 +1983,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents?skip\u003d\u0026limit\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents"],
               "query": [
                 {
                   "key": "skip",
@@ -2536,15 +2030,8 @@
             },
             "url": {
               "raw": "{{host}}/api/rag/documents/upload?title\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                "upload"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", "upload"],
               "query": [
                 {
                   "key": "title",
@@ -2566,15 +2053,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/ingest-url?url\u003d\u0026title\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                "ingest-url"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", "ingest-url"],
               "query": [
                 {
                   "key": "url",
@@ -2602,15 +2082,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/:docId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                ":docId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", ":docId"],
               "query": [],
               "variable": [
                 {
@@ -2631,16 +2104,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/:docId/stats",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                ":docId",
-                "stats"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", ":docId", "stats"],
               "query": [],
               "variable": [
                 {
@@ -2661,15 +2126,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/:docId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                ":docId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", ":docId"],
               "query": [],
               "variable": [
                 {
@@ -2690,16 +2148,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/:docId/reindex",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                ":docId",
-                "reindex"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", ":docId", "reindex"],
               "query": [],
               "variable": [
                 {
@@ -2720,15 +2170,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/cleanup-all",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                "cleanup-all"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", "cleanup-all"],
               "query": [],
               "variable": []
             },
@@ -2743,15 +2186,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/documents/health",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "documents",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "documents", "health"],
               "query": [],
               "variable": []
             },
@@ -2788,14 +2224,8 @@
             },
             "url": {
               "raw": "{{host}}/api/rag/chat",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "chat"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "chat"],
               "query": [],
               "variable": []
             },
@@ -2826,15 +2256,8 @@
             },
             "url": {
               "raw": "{{host}}/api/rag/chat/stream",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "chat",
-                "stream"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "chat", "stream"],
               "query": [],
               "variable": []
             },
@@ -2849,16 +2272,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/chat/history/:sessionId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "chat",
-                "history",
-                ":sessionId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "chat", "history", ":sessionId"],
               "query": [],
               "variable": [
                 {
@@ -2879,16 +2294,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/chat/history/:sessionId",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "chat",
-                "history",
-                ":sessionId"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "chat", "history", ":sessionId"],
               "query": [],
               "variable": [
                 {
@@ -2909,15 +2316,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/rag/chat/ingest-text?text\u003d\u0026title\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "rag",
-                "chat",
-                "ingest-text"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "rag", "chat", "ingest-text"],
               "query": [
                 {
                   "key": "text",
@@ -2951,13 +2351,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/text",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "text"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "text"],
               "query": [],
               "variable": []
             },
@@ -2972,14 +2367,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/text/providers",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "text",
-                "providers"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "text", "providers"],
               "query": [],
               "variable": []
             },
@@ -2994,14 +2383,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/text/models?provider\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "text",
-                "models"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "text", "models"],
               "query": [
                 {
                   "key": "provider",
@@ -3039,14 +2422,8 @@
             },
             "url": {
               "raw": "{{host}}/api/text/chat",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "text",
-                "chat"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "text", "chat"],
               "query": [],
               "variable": []
             },
@@ -3077,15 +2454,8 @@
             },
             "url": {
               "raw": "{{host}}/api/text/chat/stream",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "text",
-                "chat",
-                "stream"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "text", "chat", "stream"],
               "query": [],
               "variable": []
             },
@@ -3100,14 +2470,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/api/text/health?provider\u003d\u0026model\u003d",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "text",
-                "health"
-              ],
+              "host": ["{{host}}"],
+              "path": ["api", "text", "health"],
               "query": [
                 {
                   "key": "provider",

@@ -15,12 +15,12 @@ alwaysApply: true
 
 ## Layer Definitions
 
-| Layer | Responsibility | Dependency Rules |
-|-------|---------------|------------------|
-| Domain | Business entities, Value Objects, Aggregates, Business rules | No external dependencies |
-| Application | Use case orchestration, Command/Query handling | Depends only on Domain |
-| Infrastructure | Persistence, External services, Messaging | Implements Application interfaces |
-| Interface | Web API, UI Controllers | Depends on Application |
+| Layer          | Responsibility                                               | Dependency Rules                  |
+| -------------- | ------------------------------------------------------------ | --------------------------------- |
+| Domain         | Business entities, Value Objects, Aggregates, Business rules | No external dependencies          |
+| Application    | Use case orchestration, Command/Query handling               | Depends only on Domain            |
+| Infrastructure | Persistence, External services, Messaging                    | Implements Application interfaces |
+| Interface      | Web API, UI Controllers                                      | Depends on Application            |
 
 ## Prohibitions
 
@@ -114,9 +114,9 @@ grep -r "from '@angular'" src/domain/ || echo "OK"
 
 The following patterns indicate Clean Architecture violations:
 
-| Symptom | Problem |
-|---------|---------|
-| Domain class has `@Service`, `@Component` | Violates domain independence |
-| Entity in `infrastructure` package | Violates layering |
-| `new` to create Repository | Should be injected |
-| Business logic in Controller | Violates separation of concerns |
+| Symptom                                   | Problem                         |
+| ----------------------------------------- | ------------------------------- |
+| Domain class has `@Service`, `@Component` | Violates domain independence    |
+| Entity in `infrastructure` package        | Violates layering               |
+| `new` to create Repository                | Should be injected              |
+| Business logic in Controller              | Violates separation of concerns |

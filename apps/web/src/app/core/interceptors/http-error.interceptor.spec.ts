@@ -1,4 +1,9 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpHandlerFn,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
@@ -11,9 +16,7 @@ describe('httpErrorInterceptor', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(withInterceptors([httpErrorInterceptor])),
-      ],
+      providers: [provideHttpClient(withInterceptors([httpErrorInterceptor]))],
     });
     notificationService = TestBed.inject(NotificationService);
   });
@@ -461,7 +464,7 @@ describe('httpErrorInterceptor', () => {
           error: () => {
             try {
               expect(notificationService.toasts().length).toBeGreaterThan(0);
-              const errorToast = notificationService.toasts().find(t => t.type === 'error');
+              const errorToast = notificationService.toasts().find((t) => t.type === 'error');
               expect(errorToast).toBeDefined();
               expect(errorToast?.message).toBe('A server error occurred. Please try again later.');
               resolve();

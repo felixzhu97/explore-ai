@@ -1,9 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  output,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 export interface SegmentedControlOption<T extends string = string> {
   value: T;
@@ -34,57 +29,61 @@ export interface SegmentedControlOption<T extends string = string> {
       }
     </div>
   `,
-  styles: [`
-    :host {
-      display: inline-block;
-    }
-
-    .container {
-      display: inline-flex;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),inset 0 1px 1px rgba(0, 0, 0, 0.08);
-      padding: 4px;
-      gap: 4px;
-    }
-
-    .option {
-      position: relative;
-      padding: 8px 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: #6e6e73;
-      background: transparent;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:hover:not([data-active="true"]):not(:disabled) {
-        color: #1d1d1f;
+  styles: [
+    `
+      :host {
+        display: inline-block;
       }
 
-      &:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+      .container {
+        display: inline-flex;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.08),
+          inset 0 1px 1px rgba(0, 0, 0, 0.08);
+        padding: 4px;
+        gap: 4px;
       }
 
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+      .option {
+        position: relative;
+        padding: 8px 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: #6e6e73;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
 
-      &--active {
-        color: #1d1d1f;
-      }
+        &:hover:not([data-active='true']):not(:disabled) {
+          color: #1d1d1f;
+        }
 
-      &--disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+        &:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        &--active {
+          color: #1d1d1f;
+        }
+
+        &--disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       }
-    }
-  `],
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SegmentedControlComponent<T extends string = string> {

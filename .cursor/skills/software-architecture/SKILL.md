@@ -9,13 +9,13 @@ description: Software Architecture Design Methodology Guide. Covers Clean Archit
 
 ### SOLID Principles
 
-| Principle | Description | Violation Symptoms |
-|-----------|-------------|-------------------|
-| **S**ingle Responsibility | A class should have only one reason to change | A class does too many things |
-| **O**pen/Closed | Open for extension, closed for modification | Modifying existing code to add new features |
-| **L**iskov Substitution | Subclasses can replace parent classes | instanceof checks, type casting |
-| **I**nterface Segregation | Small, focused interfaces | Fat interfaces, forced implementation of unused methods |
-| **D**ependency Inversion | Depend on abstractions, not concretions | Direct dependency on concrete classes |
+| Principle                 | Description                                   | Violation Symptoms                                      |
+| ------------------------- | --------------------------------------------- | ------------------------------------------------------- |
+| **S**ingle Responsibility | A class should have only one reason to change | A class does too many things                            |
+| **O**pen/Closed           | Open for extension, closed for modification   | Modifying existing code to add new features             |
+| **L**iskov Substitution   | Subclasses can replace parent classes         | instanceof checks, type casting                         |
+| **I**nterface Segregation | Small, focused interfaces                     | Fat interfaces, forced implementation of unused methods |
+| **D**ependency Inversion  | Depend on abstractions, not concretions       | Direct dependency on concrete classes                   |
 
 ### Signs of Architecture Decay
 
@@ -133,11 +133,11 @@ A Bounded Context is an explicit boundary around a semantic boundary, each conte
 
 #### Core Domain / Supporting Domain / Generic Domain
 
-| Type | Description | Investment |
-|------|-------------|------------|
-| **Core Domain** | Core competency, unique value proposition | Maximum investment, carefully crafted |
-| **Supporting Domain** | Supports the core domain, requires custom development | Moderate investment |
-| **Generic Domain** | Generic solutions, can be purchased | Minimal investment |
+| Type                  | Description                                           | Investment                            |
+| --------------------- | ----------------------------------------------------- | ------------------------------------- |
+| **Core Domain**       | Core competency, unique value proposition             | Maximum investment, carefully crafted |
+| **Supporting Domain** | Supports the core domain, requires custom development | Moderate investment                   |
+| **Generic Domain**    | Generic solutions, can be purchased                   | Minimal investment                    |
 
 #### Context Mapping
 
@@ -272,7 +272,7 @@ public class Order extends AggregateRoot {
     public void addLine(Product product, int quantity) {
         // Invariant rules validated inside aggregate root
         validateLine(product, quantity);
-        
+
         OrderLine line = new OrderLine(product.getId(), product.getPrice(), quantity);
         lines.add(line);
         recalculateTotal();
@@ -337,7 +337,7 @@ Business logic that cannot be attributed to a single entity.
 ```java
 // Cross-entity business rules
 public class PricingService {
-    
+
     // Calculate order total, considering discount rules
     public Money calculateOrderPrice(List<OrderLine> lines, Customer customer, Promotion promotion) {
         Money subtotal = lines.stream()
@@ -350,17 +350,17 @@ public class PricingService {
 
     private Money calculateDiscount(Money subtotal, Customer customer, Promotion promotion) {
         Money discount = Money.ZERO;
-        
+
         // VIP customer discount
         if (customer.isVip()) {
             discount = discount.add(subtotal.multiply(0.1));
         }
-        
+
         // Promotion discount
         if (promotion != null && promotion.isActive()) {
             discount = discount.add(promotion.applyTo(subtotal));
         }
-        
+
         // Cannot exceed order amount
         return discount.isGreaterThan(subtotal) ? subtotal : discount;
     }
@@ -413,13 +413,13 @@ public class OrderEventHandler {
 
 ### Anemic Domain Model vs Rich Domain Model
 
-| Characteristic | Anemic Domain Model (Anti-Pattern) | Rich Domain Model (Recommended) |
-|---------------|-----------------------------------|--------------------------------|
-| Entity content | Only fields + getter/setter | Fields + business behavior |
-| Business logic location | Service layer | Inside domain objects |
-| State changes | Service directly modifies fields | Domain object methods encapsulate changes |
-| Validation logic | Service or utility classes | Domain object self-validation |
-| Testability | Test Service | Test domain objects |
+| Characteristic          | Anemic Domain Model (Anti-Pattern) | Rich Domain Model (Recommended)           |
+| ----------------------- | ---------------------------------- | ----------------------------------------- |
+| Entity content          | Only fields + getter/setter        | Fields + business behavior                |
+| Business logic location | Service layer                      | Inside domain objects                     |
+| State changes           | Service directly modifies fields   | Domain object methods encapsulate changes |
+| Validation logic        | Service or utility classes         | Domain object self-validation             |
+| Testability             | Test Service                       | Test domain objects                       |
 
 ```java
 // Anemic Domain Model (Incorrect)
@@ -567,12 +567,12 @@ public class BankAccount {
 
 ### Aggregates vs Event-Driven
 
-| Pattern | Characteristics | Applicable Scenarios |
-|---------|----------------|---------------------|
-| **Aggregates** | Monolithic architecture, divided by bounded contexts | Small teams, moderate business complexity |
-| **Event-Driven** | Async collaboration via events | Independent deployment, high concurrency, cross-system |
-| **Saga** | Distributed transaction management | Requires cross-service consistency |
-| **CQRS** | Read/write separation | Large read/write ratio differences |
+| Pattern          | Characteristics                                      | Applicable Scenarios                                   |
+| ---------------- | ---------------------------------------------------- | ------------------------------------------------------ |
+| **Aggregates**   | Monolithic architecture, divided by bounded contexts | Small teams, moderate business complexity              |
+| **Event-Driven** | Async collaboration via events                       | Independent deployment, high concurrency, cross-system |
+| **Saga**         | Distributed transaction management                   | Requires cross-service consistency                     |
+| **CQRS**         | Read/write separation                                | Large read/write ratio differences                     |
 
 ### Inter-Service Communication
 
@@ -592,20 +592,25 @@ Each significant architecture decision should be documented:
 # ADR-001: Designing Order Aggregate Using Rich Domain Model
 
 ## Status
+
 Accepted
 
 ## Context
+
 Order business logic is scattered across OrderService and various places, lacking unified encapsulation.
 
 ## Decision
+
 Adopt Rich Domain Model, encapsulate order state changes and business rules inside the Order entity.
 
 ## Consequences
+
 - Order state machine fully encapsulated
 - Business rules cohesive within domain objects
 - Easy to unit test
 
 ## Drawbacks
+
 - Team needs to learn DDD Rich Domain Model
 - Aggregate design requires careful review
 ```

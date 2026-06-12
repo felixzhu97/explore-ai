@@ -134,13 +134,13 @@ void shouldCreateOrder() {
 
 ## Test Double Type Selection
 
-| Scenario | Recommended Type | Reason |
-|----------|-----------------|--------|
-| Fill parameters | Dummy | Parameter not used |
-| Simplified implementation | Fake | e.g., InMemoryRepository |
-| Pre-configured responses | Stub | Control test data |
-| Verify calls | Mock | Verify interactions |
-| Retain real + record | Spy | Partial verification |
+| Scenario                  | Recommended Type | Reason                   |
+| ------------------------- | ---------------- | ------------------------ |
+| Fill parameters           | Dummy            | Parameter not used       |
+| Simplified implementation | Fake             | e.g., InMemoryRepository |
+| Pre-configured responses  | Stub             | Control test data        |
+| Verify calls              | Mock             | Verify interactions      |
+| Retain real + record      | Spy              | Partial verification     |
 
 ## Boundary Condition Coverage
 
@@ -187,10 +187,10 @@ void shouldHandleMaximumValue() {
 
 ## Common Mistakes
 
-| Mistake | Symptoms | Correction |
-|---------|----------|------------|
-| Reverse TDD | Write implementation before tests | Follow Red-Green-Refactor |
-| Over-testing | Test all methods | Test behavior, not implementation |
-| Weak assertions | `assertTrue(true)` | Precise assertions |
-| Slow tests | Unit tests access DB | Mock dependencies |
-| Test dependency | Test A depends on Test B state | Tests are independent |
+| Mistake         | Symptoms                          | Correction                        |
+| --------------- | --------------------------------- | --------------------------------- |
+| Reverse TDD     | Write implementation before tests | Follow Red-Green-Refactor         |
+| Over-testing    | Test all methods                  | Test behavior, not implementation |
+| Weak assertions | `assertTrue(true)`                | Precise assertions                |
+| Slow tests      | Unit tests access DB              | Mock dependencies                 |
+| Test dependency | Test A depends on Test B state    | Tests are independent             |

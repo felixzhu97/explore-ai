@@ -75,10 +75,10 @@ describe('RagChatComponent', () => {
         { id: 'doc1', title: 'doc1.pdf' },
         { id: 'doc2', title: 'doc2.pdf' },
       ]);
-      
+
       component.toggleDocSelection('doc1');
       expect(component.selectedDocIds().has('doc1')).toBe(true);
-      
+
       component.toggleDocSelection('doc1');
       expect(component.selectedDocIds().has('doc1')).toBe(false);
     });
@@ -89,7 +89,7 @@ describe('RagChatComponent', () => {
         { id: 'doc1', title: 'doc1.pdf' },
         { id: 'doc2', title: 'doc2.pdf' },
       ]);
-      
+
       component.selectAllDocs();
       expect(component.selectedDocIds().size).toBe(2);
     });
@@ -97,7 +97,7 @@ describe('RagChatComponent', () => {
     it('should clear document selection', () => {
       createFixture();
       component.selectedDocIds.set(new Set(['doc1', 'doc2']));
-      
+
       component.clearDocSelection();
       expect(component.selectedDocIds().size).toBe(0);
     });
@@ -110,9 +110,9 @@ describe('RagChatComponent', () => {
       component.messages.set([]);
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
-      
+
       component.sendMessage();
-      
+
       expect(component.messages().length).toBe(2);
       expect(component.messages()[0].role).toBe('user');
       expect(component.messages()[0].content).toBe('What is this document about?');
@@ -123,9 +123,9 @@ describe('RagChatComponent', () => {
       component.input.set('Test message');
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
-      
+
       component.sendMessage();
-      
+
       expect(component.input()).toBe('');
     });
 
@@ -133,9 +133,9 @@ describe('RagChatComponent', () => {
       createFixture();
       component.input.set('   ');
       component.messages.set([]);
-      
+
       component.sendMessage();
-      
+
       expect(component.messages().length).toBe(0);
     });
   });
@@ -161,7 +161,7 @@ describe('RagChatComponent', () => {
     it('should add toast notification', () => {
       createFixture();
       component.addToast('Test message', 'success');
-      
+
       expect(component.toasts().length).toBe(1);
       expect(component.toasts()[0].message).toBe('Test message');
       expect(component.toasts()[0].type).toBe('success');
@@ -173,7 +173,7 @@ describe('RagChatComponent', () => {
       createFixture();
       component.toggleSources('msg1');
       expect(component.expandedSources().has('msg1')).toBe(true);
-      
+
       component.toggleSources('msg1');
       expect(component.expandedSources().has('msg1')).toBe(false);
     });

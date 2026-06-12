@@ -48,7 +48,7 @@ describe('ImageZoomModalComponent', () => {
   it('should not display caption when alt is empty', () => {
     createFixture('https://example.com/image.jpg', '');
     fixture.detectChanges();
-    
+
     const caption = fixture.nativeElement.querySelector('.caption');
     expect(caption).toBeFalsy();
   });
@@ -83,7 +83,7 @@ describe('ImageZoomModalComponent', () => {
     const overlay = fixture.nativeElement.querySelector('.overlay');
     expect(overlay.getAttribute('role')).toBe('dialog');
     expect(overlay.getAttribute('aria-modal')).toBe('true');
-    
+
     const closeButton = fixture.nativeElement.querySelector('.close-button');
     expect(closeButton.getAttribute('aria-label')).toBe('Close');
   });
@@ -104,9 +104,9 @@ describe('ImageZoomModalComponent', () => {
     it('should clean up body overflow on destroy', () => {
       createFixture();
       document.body.style.overflow = 'hidden';
-      
+
       component.ngOnDestroy();
-      
+
       expect(document.body.style.overflow).toBe('');
     });
   });
@@ -115,13 +115,13 @@ describe('ImageZoomModalComponent', () => {
     it('should stop propagation on image container click', () => {
       createFixture();
       const container = fixture.nativeElement.querySelector('.image-container');
-      
+
       const mockEvent = {
         stopPropagation: vi.fn(),
       } as unknown as Event;
-      
+
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      
+
       expect(container).toBeTruthy();
     });
 

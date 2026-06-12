@@ -30,11 +30,11 @@ description: Software Testing Methodology Guide. Covers TDD Test-Driven Developm
 
 ### Testing Layer Principles
 
-| Layer | Percentage | Speed | Scope | Trust Level |
-|-------|-----------|-------|-------|-------------|
-| Unit Tests | 70% | < 1ms | Single class/method | High |
-| Integration Tests | 20% | < 100ms | Component collaboration | Medium |
-| E2E Tests | 10% | < 10s | Complete system | Low (high false positives) |
+| Layer             | Percentage | Speed   | Scope                   | Trust Level                |
+| ----------------- | ---------- | ------- | ----------------------- | -------------------------- |
+| Unit Tests        | 70%        | < 1ms   | Single class/method     | High                       |
+| Integration Tests | 20%        | < 100ms | Component collaboration | Medium                     |
+| E2E Tests         | 10%        | < 10s   | Complete system         | Low (high false positives) |
 
 ## TDD Test-Driven Development
 
@@ -176,7 +176,7 @@ Feature: Order Free Shipping Calculation
     Given my shopping cart total is <total>
     When I submit the order
     Then shipping fee should be <shipping_fee>
-    
+
     Examples:
       | total | shipping_fee |
       | 50    | 10          |
@@ -263,13 +263,13 @@ class OrderPricingTest {
 
 ### Test Doubles
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| **Dummy** | Fill parameters, not used | `new Order(null, null, dummy)` |
-| **Fake** | Simplified implementation, not suitable for production | `InMemoryUserRepository` |
-| **Stub** | Pre-configured responses | `when(repo.findById(1)).thenReturn(user)` |
-| **Spy** | Record calls, retain real behavior | `Mockito.spy(list).add(1)` |
-| **Mock** | Verify interactions, verify behavior | `verify(repo).save(user)` |
+| Type      | Purpose                                                | Example                                   |
+| --------- | ------------------------------------------------------ | ----------------------------------------- |
+| **Dummy** | Fill parameters, not used                              | `new Order(null, null, dummy)`            |
+| **Fake**  | Simplified implementation, not suitable for production | `InMemoryUserRepository`                  |
+| **Stub**  | Pre-configured responses                               | `when(repo.findById(1)).thenReturn(user)` |
+| **Spy**   | Record calls, retain real behavior                     | `Mockito.spy(list).add(1)`                |
+| **Mock**  | Verify interactions, verify behavior                   | `verify(repo).save(user)`                 |
 
 ```java
 // Stub: Pre-configured return values
@@ -337,7 +337,7 @@ class OrderEdgeCaseTest {
     void shouldHandleLargeQuantity() {
         OrderLine line = new OrderLine(product(), 999_999_999);
         Order order = new Order(List.of(line));
-        
+
         assertThatCode(order::place).doesNotThrowAnyException();
     }
 
@@ -345,13 +345,13 @@ class OrderEdgeCaseTest {
     void shouldHandleZeroPriceProduct() {
         OrderLine line = new OrderLine(Product.free(), 1);
         Order order = new Order(List.of(line));
-        
+
         assertThat(order.totalAmount()).isEqualTo(Money.ZERO);
     }
 
     @Test
     void shouldHandleNegativeQuantity() {
-        assertThrows(IllegalQuantityException.class, 
+        assertThrows(IllegalQuantityException.class,
             () -> new OrderLine(product(), -1));
     }
 }
@@ -541,7 +541,7 @@ class OrderEventIntegrationTest {
 
         // When
         Order order = createPlacedOrder();
-        kafkaTemplate.send("order-events", order.getId().toString(), 
+        kafkaTemplate.send("order-events", order.getId().toString(),
             new OrderPlacedEvent(order.getId(), order.getTotalAmount()));
 
         // Then
@@ -560,7 +560,6 @@ class OrderEventIntegrationTest {
 import { test, expect } from '@playwright/test';
 
 test.describe('Order Flow', () => {
-  
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.getByTestId('login-btn').click();
@@ -574,7 +573,7 @@ test.describe('Order Flow', () => {
     await page.getByTestId('product-1').click();
     await page.getByTestId('add-to-cart').click();
     await page.getByTestId('cart-total').waitFor();
-    
+
     // Verify cart shows correct total
     await expect(page.getByTestId('cart-total')).toHaveText('$5,200');
 
@@ -606,7 +605,7 @@ test.describe('Order Flow', () => {
     // Given
     await addExpensiveItemToCart(page);
     await page.getByTestId('checkout-btn').click();
-    
+
     // Enter invalid card
     await page.getByTestId('card-number').fill('4000000000000002'); // Stripe test failure card
     await page.getByTestId('expiry').fill('12/30');
@@ -626,13 +625,13 @@ test.describe('Order Flow', () => {
 
 ### Coverage Goals
 
-| Layer | Coverage Type | Target |
-|-------|--------------|--------|
-| Domain Layer | Line Coverage | > 90% |
-| Application Layer | Path Coverage | > 80% |
-| Infrastructure | Integration Coverage | Key paths |
-| Interface Layer | Happy path | 100% |
-| Interface Layer | Error path | > 70% |
+| Layer             | Coverage Type        | Target    |
+| ----------------- | -------------------- | --------- |
+| Domain Layer      | Line Coverage        | > 90%     |
+| Application Layer | Path Coverage        | > 80%     |
+| Infrastructure    | Integration Coverage | Key paths |
+| Interface Layer   | Happy path           | 100%      |
+| Interface Layer   | Error path           | > 70%     |
 
 ### Coverage Pitfalls
 
@@ -733,12 +732,12 @@ class ContainerizedTest {
 
 ## Testing Anti-Patterns
 
-| Anti-Pattern | Symptoms | Correct Approach |
-|-------------|----------|-----------------|
-| **Testing implementation not behavior** | `assertEquals(1, service.getCount())` | Test business value |
-| **Weak assertions** | `assertTrue(result)` | Precise assertions |
-| **Over-mocking** | Mock everything | Use Fakes or real objects |
-| **Testing private methods** | `testPrivateMethod()` | Test public behavior |
-| **Slow tests** | Unit tests access DB | Mock dependencies |
-| **Brittle tests** | Tests break on implementation changes | Test intent |
-| **Commented out tests** | Skipped tests | Delete or fix |
+| Anti-Pattern                            | Symptoms                              | Correct Approach          |
+| --------------------------------------- | ------------------------------------- | ------------------------- |
+| **Testing implementation not behavior** | `assertEquals(1, service.getCount())` | Test business value       |
+| **Weak assertions**                     | `assertTrue(result)`                  | Precise assertions        |
+| **Over-mocking**                        | Mock everything                       | Use Fakes or real objects |
+| **Testing private methods**             | `testPrivateMethod()`                 | Test public behavior      |
+| **Slow tests**                          | Unit tests access DB                  | Mock dependencies         |
+| **Brittle tests**                       | Tests break on implementation changes | Test intent               |
+| **Commented out tests**                 | Skipped tests                         | Delete or fix             |

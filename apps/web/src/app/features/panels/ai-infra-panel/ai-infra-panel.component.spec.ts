@@ -154,9 +154,9 @@ describe('AIInfraPanelComponent', () => {
     });
 
     it('should work for all tab values', () => {
-      const tabs: Array<'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aiops' | 'vectordb'> = [
-        'supervisor', 'k8s', 'monitoring', 'model', 'llmops', 'aiops', 'vectordb',
-      ];
+      const tabs: Array<
+        'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aiops' | 'vectordb'
+      > = ['supervisor', 'k8s', 'monitoring', 'model', 'llmops', 'aiops', 'vectordb'];
       tabs.forEach((tab) => {
         component.onTabChange(tab);
         expect(component.activeSubTab()).toBe(tab);

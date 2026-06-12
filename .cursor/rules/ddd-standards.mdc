@@ -182,7 +182,7 @@ public class JpaOrderRepository implements OrderRepository {
 ```java
 // ✅ Domain Service
 public class PricingService {
-    
+
     public Money calculatePrice(List<CartItem> items, Customer customer) {
         Money subtotal = items.stream()
             .map(item -> item.getProduct().getPrice().multiply(item.getQuantity()))
@@ -241,10 +241,10 @@ public class Order extends AggregateRoot {
 
 ## Common Anti-Patterns
 
-| Anti-Pattern | Symptoms | Correction |
-|-------------|----------|------------|
-| Anemic Domain Model | Entity only has getter/setter | Move business logic into Entity |
-| Too Rich | All logic in Entity | Use Domain Service appropriately |
-| Large Aggregate | One aggregate contains entire system | Split aggregates |
-| Direct reference between aggregates | `order.getCustomer()` crosses boundary | Use CustomerId |
-| Repository operates on non-aggregate-root | `save(OrderLine line)` | Operate only on aggregate roots |
+| Anti-Pattern                              | Symptoms                               | Correction                       |
+| ----------------------------------------- | -------------------------------------- | -------------------------------- |
+| Anemic Domain Model                       | Entity only has getter/setter          | Move business logic into Entity  |
+| Too Rich                                  | All logic in Entity                    | Use Domain Service appropriately |
+| Large Aggregate                           | One aggregate contains entire system   | Split aggregates                 |
+| Direct reference between aggregates       | `order.getCustomer()` crosses boundary | Use CustomerId                   |
+| Repository operates on non-aggregate-root | `save(OrderLine line)`                 | Operate only on aggregate roots  |

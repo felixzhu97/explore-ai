@@ -4,13 +4,13 @@
 
 ## 技术栈
 
-| 组件 | 技术 |
-|------|------|
-| 后端 | Java 25 + Spring Boot 3.5.11 |
-| AI | Spring AI 1.1.7 (DeepSeek) |
-| 数据库 | PostgreSQL 17 + pgvector |
-| 前端 | Angular 19+ + TypeScript |
-| 容器化 | Docker + Docker Compose |
+| 组件   | 技术                         |
+| ------ | ---------------------------- |
+| 后端   | Java 25 + Spring Boot 3.5.11 |
+| AI     | Spring AI 1.1.7 (DeepSeek)   |
+| 数据库 | PostgreSQL 17 + pgvector     |
+| 前端   | Angular 19+ + TypeScript     |
+| 容器化 | Docker + Docker Compose      |
 
 ## 架构
 
@@ -75,9 +75,9 @@ Accept: text/event-stream
 
 ## 环境变量
 
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `DEEPSEEK_API_KEY` | - | 必填 |
-| `POSTGRES_URL` | jdbc:postgresql://localhost:5432/ai_rag | 数据库 |
+| 变量               | 默认值                                  | 说明   |
+| ------------------ | --------------------------------------- | ------ |
+| `DEEPSEEK_API_KEY` | -                                       | 必填   |
+| `POSTGRES_URL`     | jdbc:postgresql://localhost:5432/ai_rag | 数据库 |
 
 详见 `docs/c4/` 架构图和 `docs/wardley-map.puml` 技术演进图。

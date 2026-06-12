@@ -184,8 +184,7 @@ export const translations: Record<Language, Translations> = {
       askQuestion: 'Ask me anything about your documents',
       inputPlaceholder: 'Type your question...',
       thinking: 'Thinking...',
-      errorMessage:
-        'Sorry, an error occurred. Please ensure the RAG service is running.',
+      errorMessage: 'Sorry, an error occurred. Please ensure the RAG service is running.',
       sources: 'Sources',
       similarity: 'Similarity',
       whatIsThis: 'What is this about?',
@@ -249,16 +248,13 @@ export const translations: Record<Language, Translations> = {
         ],
       },
       descriptions: {
-        supervisor:
-          'Multi-agent orchestrator - coordinates specialized agents for complex tasks',
+        supervisor: 'Multi-agent orchestrator - coordinates specialized agents for complex tasks',
         k8s: 'Manage Kubernetes clusters, pods, services, and deployments',
-        monitoring:
-          'Query metrics, set up alerts, and analyze system performance',
+        monitoring: 'Query metrics, set up alerts, and analyze system performance',
         model: 'Manage ML models, versioning, deployment, and inference',
         llmops: 'Train, evaluate, and fine-tune LLM models',
         aiops: 'Intelligent operations - incident analysis, root cause, automation',
-        vectordb:
-          'Manage vector embeddings, similarity search, and document indexing',
+        vectordb: 'Manage vector embeddings, similarity search, and document indexing',
       },
     },
     aiHub: {
@@ -381,41 +377,13 @@ export const translations: Record<Language, Translations> = {
       thinking: '思考中...',
       errorMessage: '发生错误，请重试。',
       quickPrompts: {
-        supervisor: [
-          '列出所有可用的 Agent',
-          '委托任务给 K8s Agent',
-          '检查整体系统健康状态',
-        ],
-        k8s: [
-          '显示所有运行中的 Pod',
-          '检查集群健康状态',
-          '扩容部署到 3 个副本',
-        ],
-        monitoring: [
-          '显示过去一小时的 CPU 使用率',
-          '列出所有活跃告警',
-          '检查内存利用率',
-        ],
-        model: [
-          '列出已部署的模型',
-          '显示模型性能指标',
-          '对比推理延迟',
-        ],
-        llmops: [
-          '显示当前训练任务',
-          '列出微调后的模型',
-          '检查训练数据集状态',
-        ],
-        aiops: [
-          '分析最近的事件',
-          '显示 #123 事件的根因',
-          '列出待处理的自动化任务',
-        ],
-        vectordb: [
-          '搜索相似文档',
-          '显示索引统计信息',
-          '列出最近的嵌入向量',
-        ],
+        supervisor: ['列出所有可用的 Agent', '委托任务给 K8s Agent', '检查整体系统健康状态'],
+        k8s: ['显示所有运行中的 Pod', '检查集群健康状态', '扩容部署到 3 个副本'],
+        monitoring: ['显示过去一小时的 CPU 使用率', '列出所有活跃告警', '检查内存利用率'],
+        model: ['列出已部署的模型', '显示模型性能指标', '对比推理延迟'],
+        llmops: ['显示当前训练任务', '列出微调后的模型', '检查训练数据集状态'],
+        aiops: ['分析最近的事件', '显示 #123 事件的根因', '列出待处理的自动化任务'],
+        vectordb: ['搜索相似文档', '显示索引统计信息', '列出最近的嵌入向量'],
       },
       descriptions: {
         supervisor: '多 Agent 协调器 - 协调专业 Agent 处理复杂任务',
@@ -520,8 +488,7 @@ export const translations: Record<Language, Translations> = {
       askQuestion: 'ドキュメントについて質問してください',
       inputPlaceholder: '質問を入力...',
       thinking: '考え中...',
-      errorMessage:
-        'エラーが発生しました。RAGサービスが実行されていることを確認してください。',
+      errorMessage: 'エラーが発生しました。RAGサービスが実行されていることを確認してください。',
       sources: '参照元',
       similarity: '類似度',
       whatIsThis: 'これは何ですか？',
@@ -578,24 +545,17 @@ export const translations: Record<Language, Translations> = {
           'インシデント #123 の根本原因を表示',
           '保留中の自動化タスクを一覧表示',
         ],
-        vectordb: [
-          '類似ドキュメントを検索',
-          'インデックス統計を表示',
-          '最近のEmbeddingを一覧表示',
-        ],
+        vectordb: ['類似ドキュメントを検索', 'インデックス統計を表示', '最近のEmbeddingを一覧表示'],
       },
       descriptions: {
         supervisor:
           'マルチエージェントオーケストレーター - 専門エージェントを調整して複雑なタスクを解決',
         k8s: 'Kubernetesクラスター、Pod、サービス、デプロイメントを管理',
-        monitoring:
-          'メトリクス、クエリ、告警設定、システムパフォーマンス分析',
+        monitoring: 'メトリクス、クエリ、告警設定、システムパフォーマンス分析',
         model: 'MLモデルの管理、バージョン管理、デプロイ、推論',
         llmops: 'LLMモデルの訓練、評価、微調整',
-        aiops:
-          'インテリジェントオペレーション - インシデント分析、根本原因分析、自動化',
-        vectordb:
-          'ベクトル埋め込み、類似性検索、ドキュメントインデックス管理',
+        aiops: 'インテリジェントオペレーション - インシデント分析、根本原因分析、自動化',
+        vectordb: 'ベクトル埋め込み、類似性検索、ドキュメントインデックス管理',
       },
     },
     aiHub: {
@@ -671,7 +631,7 @@ export const translations: Record<Language, Translations> = {
       resultLabel: "Résultat d'analyse",
       dropText: 'Glisser-déposer ou cliquer',
       dropHint: 'JPG, PNG, GIF, WebP',
-      analyzing: "Analyse en cours...",
+      analyzing: 'Analyse en cours...',
       startAnalyze: "Lancer l'analyse",
       uploadToAnalyze: 'Télécharger une image à analyser',
       selectImageError: 'Veuillez sélectionner un fichier image',
@@ -681,10 +641,10 @@ export const translations: Record<Language, Translations> = {
       caption: 'Description',
       detect: 'Détection',
       ocr: 'OCR',
-      noImageYet: "Téléchargez une image pour commencer",
+      noImageYet: 'Téléchargez une image pour commencer',
     },
     ragChat: {
-      title: "Q&R Documents",
+      title: 'Q&R Documents',
       modelBadge: 'RAG',
       uploadDocs: 'Documents',
       upload: 'Téléverser',
@@ -759,14 +719,11 @@ export const translations: Record<Language, Translations> = {
         supervisor:
           'Orchestrateur multi-agents - coordonne les agents spécialisés pour les tâches complexes',
         k8s: 'Gérer les clusters Kubernetes, pods, services et déploiements',
-        monitoring:
-          'Requêter les métriques, configurer les alertes et analyser les performances',
+        monitoring: 'Requêter les métriques, configurer les alertes et analyser les performances',
         model: 'Gérer les modèles ML, versioning, déploiement et inférence',
         llmops: 'Entraîner, évaluer et affiner les modèles LLM',
-        aiops:
-          'Opérations intelligentes - analyse des incidents, cause racine, automatisation',
-        vectordb:
-          'Gérer les embeddings vectoriels, recherche de similarité et indexation',
+        aiops: 'Opérations intelligentes - analyse des incidents, cause racine, automatisation',
+        vectordb: 'Gérer les embeddings vectoriels, recherche de similarité et indexation',
       },
     },
     aiHub: {
@@ -780,7 +737,7 @@ export const translations: Record<Language, Translations> = {
       },
       chat: {
         title: 'IA Conversationnelle',
-        description: "Discutez avec une IA alimentée par GPT-4o",
+        description: 'Discutez avec une IA alimentée par GPT-4o',
         placeholder: "Commencez une conversation avec l'IA...",
         inputPlaceholder: 'Tapez votre message...',
         thinking: 'Réflexion...',
@@ -930,14 +887,11 @@ export const translations: Record<Language, Translations> = {
         supervisor:
           'Orquestador multi-agente - coordina agentes especializados para tareas complejas',
         k8s: 'Gestionar clusters Kubernetes, pods, servicios y despliegues',
-        monitoring:
-          'Consultar métricas, configurar alertas y analizar rendimiento del sistema',
+        monitoring: 'Consultar métricas, configurar alertas y analizar rendimiento del sistema',
         model: 'Gestionar modelos ML, versionado, despliegue e inferencia',
         llmops: 'Entrenar, evaluar y ajustar modelos LLM',
-        aiops:
-          'Operaciones inteligentes - análisis de incidentes, causa raíz, automatización',
-        vectordb:
-          'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
+        aiops: 'Operaciones inteligentes - análisis de incidentes, causa raíz, automatización',
+        vectordb: 'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
       },
     },
     aiHub: {

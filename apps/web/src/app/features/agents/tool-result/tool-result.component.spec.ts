@@ -38,21 +38,23 @@ describe('ToolResultComponent', () => {
   describe('formatOutput logic', () => {
     const formatOutput = (output: string): string => {
       const trimmed = output.trim();
-      
+
       const imagePattern = /(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|bmp|svg)(?:\?[^\s]*)?)/gi;
       const imageMatches = [...trimmed.matchAll(imagePattern)];
-      
+
       if (imageMatches.length > 0) {
         const imageUrl = imageMatches[0][1];
         const imageStartIndex = trimmed.indexOf(imageUrl);
         const beforeText = trimmed.substring(0, imageStartIndex).trim();
         const afterText = trimmed.substring(imageStartIndex + imageUrl.length).trim();
-        
+
         return `${beforeText ? beforeText + ' ' : ''}[Image: ${imageUrl}]${afterText ? ' ' + afterText : ''}`;
       }
 
-      if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
-          (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+      if (
+        (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+        (trimmed.startsWith('[') && trimmed.endsWith(']'))
+      ) {
         try {
           const parsed = JSON.parse(trimmed);
           return JSON.stringify(parsed, null, 2);

@@ -31,9 +31,9 @@ describe('NotificationService', () => {
   describe('showSuccess', () => {
     it('should add a success toast with default duration', async () => {
       vi.useFakeTimers();
-      
+
       service.showSuccess('Operation completed');
-      
+
       const toasts = service.toasts();
       expect(toasts.length).toBe(1);
       expect(toasts[0].message).toBe('Operation completed');
@@ -119,7 +119,7 @@ describe('NotificationService', () => {
       service.showWarning('Toast 3');
 
       const toasts = service.toasts();
-      const ids = toasts.map(t => t.id);
+      const ids = toasts.map((t) => t.id);
 
       expect(new Set(ids).size).toBe(ids.length);
     });

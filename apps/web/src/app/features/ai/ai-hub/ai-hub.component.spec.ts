@@ -98,7 +98,9 @@ describe('AiHubComponent', () => {
 
   describe('template rendering', () => {
     it('should render the component container', () => {
-      expect(fixture.nativeElement.querySelector('.ai-hub') || fixture.nativeElement.firstChild).toBeTruthy();
+      expect(
+        fixture.nativeElement.querySelector('.ai-hub') || fixture.nativeElement.firstChild
+      ).toBeTruthy();
     });
   });
 });

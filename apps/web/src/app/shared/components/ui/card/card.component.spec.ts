@@ -42,7 +42,7 @@ describe('CardComponent', () => {
     createFixture();
     fixture.componentRef.setInput('hoverable', true);
     fixture.detectChanges();
-    
+
     const card = fixture.nativeElement.querySelector('.card');
     expect(card.classList).toContain('card--interactive');
   });
@@ -51,7 +51,7 @@ describe('CardComponent', () => {
     createFixture();
     fixture.componentRef.setInput('hoverable', false);
     fixture.detectChanges();
-    
+
     const card = fixture.nativeElement.querySelector('.card');
     expect(card.classList).not.toContain('card--interactive');
   });
@@ -63,7 +63,7 @@ describe('CardComponent', () => {
         createFixture();
         fixture.componentRef.setInput('variant', variant);
         fixture.detectChanges();
-        
+
         const card = fixture.nativeElement.querySelector('.card');
         expect(card.classList).toContain(`card--${variant}`);
       });
@@ -77,7 +77,7 @@ describe('CardComponent', () => {
         createFixture();
         fixture.componentRef.setInput('padding', padding);
         fixture.detectChanges();
-        
+
         const card = fixture.nativeElement.querySelector('.card');
         expect(card.classList).toContain(`card--padding-${padding}`);
       });
@@ -89,7 +89,7 @@ describe('CardComponent', () => {
       createFixture();
       fixture.componentRef.setInput('hoverable', true);
       fixture.detectChanges();
-      
+
       const card = fixture.nativeElement.querySelector('.card');
       expect(card.classList).toContain('card--interactive');
     });
@@ -98,7 +98,7 @@ describe('CardComponent', () => {
       createFixture();
       fixture.componentRef.setInput('hoverable', true);
       fixture.detectChanges();
-      
+
       const card = fixture.nativeElement.querySelector('.card');
       expect(card.classList).toContain('card--interactive');
     });

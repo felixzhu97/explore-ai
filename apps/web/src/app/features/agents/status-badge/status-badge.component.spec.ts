@@ -34,7 +34,7 @@ describe('StatusBadgeComponent', () => {
 
     statuses.forEach((status, index) => {
       createFixture(status);
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.textContent?.trim()).toBe(expectedLabels[index]);
     });
@@ -45,7 +45,7 @@ describe('StatusBadgeComponent', () => {
 
     statuses.forEach((status) => {
       createFixture(status);
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.classList).toContain(`badge--${status}`);
     });
@@ -53,35 +53,35 @@ describe('StatusBadgeComponent', () => {
 
   it('should show dot by default', () => {
     createFixture('online', true);
-    
+
     const dot = fixture.nativeElement.querySelector('.badge__dot');
     expect(dot).toBeTruthy();
   });
 
   it('should hide dot when showDot is false', () => {
     createFixture('online', false);
-    
+
     const dot = fixture.nativeElement.querySelector('.badge__dot');
     expect(dot).toBeFalsy();
   });
 
   it('should show dot when showDot is true', () => {
     createFixture('offline', true);
-    
+
     const dot = fixture.nativeElement.querySelector('.badge__dot');
     expect(dot).toBeTruthy();
   });
 
   it('should render custom label when provided', () => {
     createFixture('online', true, 'Custom Label');
-    
+
     const badge = fixture.nativeElement.querySelector('.badge');
     expect(badge.textContent?.trim()).toBe('Custom Label');
   });
 
   it('should prefer custom label over default status label', () => {
     createFixture('busy', true, 'Processing');
-    
+
     const badge = fixture.nativeElement.querySelector('.badge');
     expect(badge.textContent?.trim()).toBe('Processing');
     expect(badge.textContent).not.toContain('Busy');
@@ -89,7 +89,7 @@ describe('StatusBadgeComponent', () => {
 
   it('should use status label when no custom label provided', () => {
     createFixture('error', true, '');
-    
+
     const badge = fixture.nativeElement.querySelector('.badge');
     expect(badge.textContent?.trim()).toBe('Error');
   });
@@ -97,35 +97,35 @@ describe('StatusBadgeComponent', () => {
   describe('status colors', () => {
     it('should have online status with success color class', () => {
       createFixture('online');
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.classList).toContain('badge--online');
     });
 
     it('should have offline status with muted color class', () => {
       createFixture('offline');
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.classList).toContain('badge--offline');
     });
 
     it('should have busy status with warning color class', () => {
       createFixture('busy');
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.classList).toContain('badge--busy');
     });
 
     it('should have error status with error color class', () => {
       createFixture('error');
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.classList).toContain('badge--error');
     });
 
     it('should have pending status with primary color class', () => {
       createFixture('pending');
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge.classList).toContain('badge--pending');
     });
@@ -134,7 +134,7 @@ describe('StatusBadgeComponent', () => {
   describe('accessibility', () => {
     it('should render badge element', () => {
       createFixture('online');
-      
+
       const badge = fixture.nativeElement.querySelector('.badge');
       expect(badge).toBeTruthy();
     });
