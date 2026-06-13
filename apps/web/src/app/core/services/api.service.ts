@@ -303,6 +303,12 @@ export class ApiService {
                 continue;
               }
 
+              // Handle plain text chunk (legacy format)
+              if (typeof parsed === 'string') {
+                onChunk(parsed);
+                continue;
+              }
+
               // Handle error format: {"type":"error","message":"..."}
               if (parsed.type === 'error' && parsed.message) {
                 onError(new Error(parsed.message));

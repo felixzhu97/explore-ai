@@ -223,7 +223,9 @@ interface Toast {
                         <div class="source-item">
                           <div class="source-text">
                             {{
-                              source.text.length > 200 ? source.text.slice(0, 200) + '...' : source.text
+                              (source.text || source.content || '').length > 200 
+                                ? (source.text || source.content || '').slice(0, 200) + '...' 
+                                : (source.text || source.content || '')
                             }}
                           </div>
                           <div class="source-meta">

@@ -190,7 +190,7 @@ public class RagController {
             // Step 2: Get real streaming AI response
             Flux<String> aiStream = aiChatService.chatStream(prompt);
 
-            // Emit sources first, then stream AI chunks
+            // Emit sources first (as SSE event with type: "sources"), then stream AI chunks
             return Flux.concat(
                     Flux.just(sourcesJson),
                     aiStream.map(text -> {
@@ -202,9 +202,14 @@ public class RagController {
                         }
                     })
             ).filter(json -> !json.isEmpty())
-                    .map(json -> ServerSentEvent.<String>builder()
-                            .data(json)
-                            .build());
+                    .map(json -> {
+                        // Check if this is a sources JSON (contains "sources" key)
+                        boolean isSources = json.contains("\"sources\"");
+                        return ServerSentEvent.<String>builder()
+                                .data(json)
+                                .event(isSources ? "sources" : null)
+                                .build();
+                    });
         } catch (JsonProcessingException e) {
             log.error("Error serializing stream data", e);
             return Flux.error(e);
