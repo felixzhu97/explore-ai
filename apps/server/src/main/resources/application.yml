@@ -60,14 +60,6 @@ rag:
 
 server:
   port: 9000
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 50MB
-      max-request-size: 50MB
-  tomcat:
-    max-http-form-post-size: 50MB
-    max-swallow-size: 50MB
 
 # Actuator for health checks
 management:
