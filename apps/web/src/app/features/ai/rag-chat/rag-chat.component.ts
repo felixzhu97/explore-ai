@@ -1432,6 +1432,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
         }
       },
       (sources: SourceDocument[]) => {
+        console.debug('[RAG] Sources received:', sources);
         this.messages.update((msgs) =>
           msgs.map((msg) => (msg.id === assistantMessageId ? { ...msg, sources } : msg))
         );

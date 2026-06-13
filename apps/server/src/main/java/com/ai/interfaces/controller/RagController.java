@@ -139,6 +139,7 @@ public class RagController {
 
     /**
      * Streaming RAG chat endpoint using Server-Sent Events.
+     * Sends sources AFTER all chunks are streamed.
      */
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "RAG streaming chat", description = "Streaming RAG chat with source documents")
@@ -147,12 +148,9 @@ public class RagController {
 
         try {
             // Convert string doc IDs to UUIDs
-            List<UUID> docUuids = null;
-            if (request.docIds() != null && !request.docIds().isEmpty()) {
-                docUuids = request.docIds().stream()
-                    .map(UUID::fromString)
-                    .collect(Collectors.toList());
-            }
+            List<UUID> docUuids = request.docIds() != null && !request.docIds().isEmpty()
+                ? request.docIds().stream().map(UUID::fromString).toList()
+                : null;
 
             // Retrieve context from specified documents (or all if not specified)
             var result = ragApplicationService.retrieveContext(
@@ -163,61 +161,55 @@ public class RagController {
 
             String context = result.context();
             List<SourceDocument> sources = result.sources();
-
-            // Build the prompt with context
             String prompt = buildPrompt(request.question(), context);
 
-            // Stream the AI response using real ChatClient streaming
-            return streamResponseReactive(prompt, sources);
-
+            // Stream chunks, then send sources at the end
+            return streamChunks(prompt)
+                    .concatWith(Flux.defer(() -> sendSources(sources)));
         } catch (Exception e) {
             log.error("Error in RAG chat", e);
             return Flux.error(e);
         }
     }
 
-    private Flux<ServerSentEvent<String>> streamResponseReactive(String prompt,
-                                                                List<SourceDocument> sources) {
+    private Flux<ServerSentEvent<String>> streamChunks(String prompt) {
+        return aiChatService.chatStream(prompt)
+                .map(text -> ServerSentEvent.<String>builder()
+                        .data("{\"type\":\"chunk\",\"text\":\"" + escapeJson(text) + "\"}")
+                        .build())
+                .doOnError(e -> log.error("Stream error", e));
+    }
+
+    private Flux<ServerSentEvent<String>> sendSources(List<SourceDocument> sources) {
+        List<SourceDocumentDto> sourceDtos = sources.stream()
+                .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
+                .toList();
+        return Flux.just(sourceDtos)
+                .map(dto -> ServerSentEvent.<String>builder()
+                        .data(toJson(new SourcesEvent(sourceDtos)))
+                        .event("sources")
+                        .build())
+                .doOnError(e -> log.error("Sources error", e));
+    }
+
+    private record SourcesEvent(List<SourceDocumentDto> sources) {}
+
+    private String toJson(Object obj) {
         try {
-            // Step 1: Build sources JSON and emit as SSE event
-            List<SourceDocumentDto> sourceDtos = sources.stream()
-                    .map(this::toSourceDocumentDto)
-                    .collect(Collectors.toList());
-            String sourcesJson = objectMapper.writeValueAsString(
-                    new SourcesWrapper(sourceDtos)
-            );
-
-            // Step 2: Get real streaming AI response
-            Flux<String> aiStream = aiChatService.chatStream(prompt);
-
-            // Emit sources first (as SSE event with type: "sources"), then stream AI chunks
-            return Flux.concat(
-                    Flux.just(sourcesJson),
-                    aiStream.map(text -> {
-                        try {
-                            return objectMapper.writeValueAsString(new ChunkData("chunk", text));
-                        } catch (JsonProcessingException e) {
-                            log.error("Error serializing chunk", e);
-                            return "";
-                        }
-                    })
-            ).filter(json -> !json.isEmpty())
-                    .map(json -> {
-                        // Check if this is a sources JSON (contains "sources" key)
-                        boolean isSources = json.contains("\"sources\"");
-                        return ServerSentEvent.<String>builder()
-                                .data(json)
-                                .event(isSources ? "sources" : null)
-                                .build();
-                    });
+            return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            log.error("Error serializing stream data", e);
-            return Flux.error(e);
+            log.error("JSON serialization error", e);
+            return "{}";
         }
     }
 
-    private record ChunkData(String type, String text) {}
-    private record SourcesWrapper(List<SourceDocumentDto> sources) {}
+    private String escapeJson(String text) {
+        return text.replace("\\", "\\\\")
+                   .replace("\"", "\\\"")
+                   .replace("\n", "\\n")
+                   .replace("\r", "\\r")
+                   .replace("\t", "\\t");
+    }
 
     private String buildPrompt(String question, String context) {
         String languageCode = languageDetectionService.detect(question);
@@ -230,22 +222,11 @@ public class RagController {
             document.getTitle(),
             document.getStatus().name(),
             document.getCreatedAt(),
-            0 // chunkCount not available from Document model
-        );
-    }
-
-    private SourceDocumentDto toSourceDocumentDto(SourceDocument source) {
-        return new SourceDocumentDto(
-            null, // id not available in SourceDocument
-            source.text(),
-            (float) source.score(),
-            source.metadata()
+            0
         );
     }
 
     private String truncate(String text) {
-        if (text == null) return "null";
-        if (text.length() <= 50) return text;
-        return text.substring(0, 50) + "...";
+        return text == null ? "null" : text.length() <= 50 ? text : text.substring(0, 50) + "...";
     }
 }
