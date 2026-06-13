@@ -739,7 +739,7 @@ describe('ApiService', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Some chunk text\n'),
+        value: encoder.encode('data: {"type":"chunk","text":"Some chunk text"}\n'),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -774,7 +774,7 @@ describe('ApiService', () => {
       expect(onDone).toHaveBeenCalled();
     });
 
-    it('should call onSources when sources event is received', async () => {
+    it('should call onSources when sources JSON is received', async () => {
       const encoder = new TextEncoder();
       let readResolve!: (value: any) => void;
 
@@ -804,16 +804,14 @@ describe('ApiService', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode(
-          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n'
-        ),
+        value: encoder.encode('data: {"sources":[{"text":"source 1","score":0.9,"metadata":{}}]}\n'),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onSources).toHaveBeenCalledWith([{ text: 'source 1', score: 0.9, metadata: {} }]);
     });
 
-    it('should call onError when Error: prefix is received', async () => {
+    it('should call onError when error JSON is received', async () => {
       const encoder = new TextEncoder();
       let readResolve!: (value: any) => void;
 
@@ -843,7 +841,7 @@ describe('ApiService', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Error:Database connection failed\n'),
+        value: encoder.encode('data: {"type":"error","message":"Database connection failed"}\n'),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -851,7 +849,7 @@ describe('ApiService', () => {
       expect(onError.mock.calls[0][0].message).toBe('Database connection failed');
     });
 
-    it('should replace <br> with newlines in chunk data', async () => {
+    it('should call onChunk when chunk JSON is received', async () => {
       const encoder = new TextEncoder();
       let readResolve!: (value: any) => void;
 
@@ -881,14 +879,14 @@ describe('ApiService', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n'),
+        value: encoder.encode('data: {"type":"chunk","text":"Hello world"}\n'),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(onChunk).toHaveBeenCalledWith('Line 1\nLine 2\nLine 3');
+      expect(onChunk).toHaveBeenCalledWith('Hello world');
     });
 
-    it('should reset currentEvent on empty line', async () => {
+    it('should handle sources followed by chunks in sequence', async () => {
       const encoder = new TextEncoder();
       let readResolve!: (value: any) => void;
 
@@ -906,27 +904,36 @@ describe('ApiService', () => {
       } as any);
 
       const onChunk = vi.fn();
+      const onSources = vi.fn();
 
       service.ragChat(
         { query: 'test', session_id: 'session1' },
         onChunk,
-        vi.fn(),
+        onSources,
         vi.fn(),
         vi.fn()
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-      // Send sources event followed by empty line, then chunk without event
+      // Send sources JSON first
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\n\ndata: chunk after reset\n'),
+        value: encoder.encode('data: {"sources":[{"text":"source 1"}]}\n'),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(onChunk).toHaveBeenCalledWith('chunk after reset');
+      // Then send chunk JSON
+      readResolve({
+        done: false,
+        value: encoder.encode('data: {"type":"chunk","text":"Hello"}\n'),
+      });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(onSources).toHaveBeenCalled();
+      expect(onChunk).toHaveBeenCalledWith('Hello');
     });
 
-    it('should reset currentEvent after sources event', async () => {
+    it('should process multiple JSON events in sequence', async () => {
       const encoder = new TextEncoder();
       let readResolve!: (value: any) => void;
 
@@ -954,9 +961,10 @@ describe('ApiService', () => {
       );
 
       await new Promise((resolve) => setTimeout(resolve, 10));
+      // Send multiple JSON events
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\ndata: []\ndata: chunk after sources\n'),
+        value: encoder.encode('data: {"sources":[]}\ndata: {"type":"chunk","text":"chunk after sources"}\n'),
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
 

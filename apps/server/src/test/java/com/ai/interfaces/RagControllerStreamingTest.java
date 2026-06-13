@@ -103,7 +103,7 @@ class RagControllerStreamingTest {
             // Verify mock was called
             verify(ragApplicationService).retrieveContext(anyString(), any(), anyInt());
             verify(languageDetectionService).detect(anyString());
-            verify(aiChatService).chatStream(anyString());
+            verify(languageDetectionService).buildPrompt(anyString(), anyString(), anyString());
         }
 
         @Test

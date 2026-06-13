@@ -102,15 +102,33 @@ public class LanguageDetectionService {
                 # 用户问题
                 %s
 
-                ## 回答指南
-                - 请使用中文回答
-                - 根据内容使用 **粗体**、*斜体*、列表和代码块
-                - 将不同的观点分段落陈述（段落之间留空行）
-                - 使用 ## 标题来组织您的回答结构
-                - 不要将所有内容写在一个段落中
-                - 如果答案不在文档内容中，请明确说明
+                ## 格式要求（必须严格遵守）
 
-                # 回答""";
+                - 标题符号后必须加空格：`# 标题` 而不是 `#标题`
+                - 粗体符号前后必须加空格：`** 关键词 **` 而不是 `**关键词**`
+                - 列表符号后必须加空格：`- 要点` 而不是 `-要点`
+                - **段落之间必须用两个换行符分隔（空一行）**：每个标题、每个列表项之间都要有空行
+                - **每个段落（标题或正文）的尾部必须加 `\n\n`**
+                - 使用标准 Markdown 语法
+
+                ## 正确示例（严格模仿此格式，每个段落尾部都有空行）
+
+                # 概述\n\n
+
+                **人工智能**（AI）是计算机科学的重要分支。\n\n
+
+                # 主要特点\n\n
+
+                - **机器学习**：让计算机从数据中学习\n
+                - **自然语言处理**：理解和生成人类语言\n\n
+
+                # 应用领域\n\n
+
+                AI 广泛应用于医疗、金融、教育等行业。\n\n
+
+                # 回答
+
+                """;
             case "ja" -> """
                 あなたは有帮助なアシスタントです。以下のドキュメントの内容に基づいて、構造化されたマークダウン形式でユーザーの質問に回答してください。
 
@@ -120,15 +138,35 @@ public class LanguageDetectionService {
                 # ユーザーの質問
                 %s
 
-                ## 回答ガイドライン
-                - 日本語で回答してください
-                - 内容に応じて **太字**、*斜体*、リスト、コードブロックを使用してください
-                - 異なるアイデアは段落に分けてください（段落間に空行を置いてください）
-                - ## 見出しを使用して回答を構造化してください
-                - すべてを1つの段落に書かないでください
-                - 答えがドキュメント内容にない場合は、その旨を明確に述べてください
+                ## フォーマット要件（厳守必須）
 
-                # 回答""";
+                - 見出し記号の後にスペースが必要：`# 見出し` 而不是 `#見出し`
+                - 太字記号の前後にスペースが必要：`** キーワード **` 而不是 `**キーワード**`
+                - リスト記号の後にスペースが必要：`- 要点` 而不是 `-要点`
+                - **段落の間に必ず空行を挿入（2つの改行で区切る）**：各見出し、リスト項目同士は必ず空行で分隔
+                - **各段落（見出しまたは本文）の末尾に `\n\n` を追加すること**
+                - 標準的な Markdown 構文を使用
+
+                ## 正しい例（この形式を厳密に真似ること、各段落の末尾に空行がある）
+
+                # 概要\n\n
+
+                **人工知能**（AI）はコンピュータ科学の重要な分支です。\n\n
+
+                # 主な特徴\n\n
+
+                - **機械学習**：コンピュータにデータから学習させる\n
+                - **自然言語処理**：人間の言語を理解し生成する\n\n
+
+
+
+                # 応用分野\n\n
+
+                AI は医療、金融、教育などの分野で広く応用されています。\n\n
+
+                # 回答
+
+                """;
             default -> """
                 You are a helpful assistant. Answer the user's question using structured Markdown.
 
@@ -138,14 +176,37 @@ public class LanguageDetectionService {
                 # Question
                 %s
 
-                ## Answer Guidelines
-                - Use **bold**, *italic*, lists, and code blocks as appropriate
-                - Separate ideas into paragraphs (leave blank lines between them)
-                - Use ## headings to structure your response
-                - Do NOT write everything in one paragraph
-                - If the answer is not in the context, say so clearly
+                ## Format Requirements (MUST STRICTLY FOLLOW)
 
-                # Answer""";
+                - Space after heading symbols: `# Heading` NOT `#Heading`
+                - Space around bold symbols: `** keyword **` NOT `**keyword**`
+                - Space after list symbols: `- Bullet point` NOT `-Bullet point`
+                - **Blank line between paragraphs (use two line breaks to separate)**: Always add empty line between headings and lists
+                - **Add `\n\n` at the end of every paragraph (heading or body text)**
+                - Use standard Markdown syntax
+
+                ## Correct Example (STRICTLY follow this format, each paragraph ends with blank line)
+
+                # Overview\n\n
+
+                **Artificial Intelligence** (AI) is an important branch of computer science.\n\n
+
+
+
+                # Key Features\n\n
+
+                - **Machine Learning**: Enabling computers to learn from data\n
+                - **Natural Language Processing**: Understanding and generating human language\n\n
+
+
+
+                # Application Areas\n\n
+
+                AI is widely applied in healthcare, finance, education, and other industries.\n\n
+
+                # Answer
+
+                """;
         };
     }
 }

@@ -11,8 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@i18n';
 import { SourceDocument } from '@shared/models';
@@ -42,7 +41,8 @@ interface Toast {
 @Component({
   selector: 'app-rag-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownModule],
+  providers: [provideMarkdown()],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="rag-chat">
@@ -206,37 +206,41 @@ interface Toast {
                 @if (msg.role === 'user') {
                   {{ msg.content }}
                 } @else {
-                  <div class="markdown-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+                  <div class="markdown-content">
+                    <markdown [data]="msg.content"></markdown>
+                  </div>
                 }
               </div>
               <div class="message-meta">
                 <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
-                @if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
-                  <span class="source-badge" (click)="toggleSources(msg.id)">
+              </div>
+              @if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
+                <div class="message-footer">
+                  @if (expandedSources().has(msg.id)) {
+                    <div class="sources-panel">
+                      <div class="sources-title">📖 {{ i18n.t().ragChat.sources }}</div>
+                      @for (source of msg.sources.slice(0, 3); track $index) {
+                        <div class="source-item">
+                          <div class="source-text">
+                            {{
+                              source.text.length > 200 ? source.text.slice(0, 200) + '...' : source.text
+                            }}
+                          </div>
+                          <div class="source-meta">
+                            <span
+                              >{{ i18n.t().ragChat.similarity }}:
+                              {{ (source.score * 100).toFixed(1) }}%</span
+                            >
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                  <div class="source-badge" (click)="toggleSources(msg.id)">
                     📚
                     {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
                     {{ expandedSources().has(msg.id) ? '▲' : '▼' }}
-                  </span>
-                }
-              </div>
-              @if (msg.role === 'assistant' && msg.sources && expandedSources().has(msg.id)) {
-                <div class="sources-panel">
-                  <div class="sources-title">📖 {{ i18n.t().ragChat.sources }}</div>
-                  @for (source of msg.sources.slice(0, 3); track $index) {
-                    <div class="source-item">
-                      <div class="source-text">
-                        {{
-                          source.text.length > 200 ? source.text.slice(0, 200) + '...' : source.text
-                        }}
-                      </div>
-                      <div class="source-meta">
-                        <span
-                          >{{ i18n.t().ragChat.similarity }}:
-                          {{ (source.score * 100).toFixed(1) }}%</span
-                        >
-                      </div>
-                    </div>
-                  }
+                  </div>
                 </div>
               }
             </div>
@@ -812,8 +816,22 @@ interface Toast {
 
       .markdown-content {
         line-height: 1.6;
-        white-space: pre-wrap;
         word-break: break-word;
+
+        p {
+          margin: 0.6em 0;
+          &:empty { display: none; }
+        }
+
+        > p:first-child { margin-top: 0; }
+        > p:last-child { margin-bottom: 0; }
+
+        br {
+          display: block;
+          margin: 0.2em 0;
+          content: "";
+          line-height: 0.8;
+        }
       }
 
       .markdown-content h1,
@@ -915,6 +933,14 @@ interface Toast {
         display: flex;
         align-items: center;
         gap: 8px;
+        margin-top: 4px;
+        padding: 0 4px;
+      }
+
+      .message-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
         margin-top: 4px;
         padding: 0 4px;
       }
@@ -1384,6 +1410,11 @@ export class RagChatComponent implements OnInit, OnDestroy {
         displayedContent += chunk;
         this.charCountSinceLastRender += chunk.length;
 
+        if (displayedContent.length <= 500) {
+          console.log('[RAG Chat] Chunk received:', JSON.stringify(chunk));
+          console.log('[RAG Chat] Accumulated content:', JSON.stringify(displayedContent));
+        }
+
         this.messages.update((msgs) =>
           msgs.map((msg) =>
             msg.id === assistantMessageId ? { ...msg, content: displayedContent } : msg
@@ -1411,6 +1442,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
           return next;
         });
         this.isLoading.set(false);
+        console.log('[RAG Chat] Final content:', displayedContent);
       },
       (err: Error) => {
         this.messages.update((msgs) =>
@@ -1459,26 +1491,5 @@ export class RagChatComponent implements OnInit, OnDestroy {
 
   formatTime(timestamp: number): string {
     return new Date(timestamp).toLocaleTimeString();
-  }
-
-  renderMarkdown(content: string): string {
-    if (!content) return '';
-
-    // Configure marked for better output
-    marked.setOptions({
-      gfm: true,
-      breaks: true,
-    });
-
-    // Convert markdown to HTML
-    const html = marked.parse(content) as string;
-
-    // Sanitize HTML to prevent XSS
-    const cleanHtml = DOMPurify.sanitize(html, {
-      ADD_TAGS: ['pre', 'code'],
-      ADD_ATTR: ['class'],
-    });
-
-    return cleanHtml;
   }
 }

@@ -177,32 +177,42 @@ public class RagController {
     }
 
     private Flux<ServerSentEvent<String>> streamResponseReactive(String prompt,
-                                                                 List<SourceDocument> sources) {
-        // Use real ChatClient streaming
-        return aiChatService.chatStream(prompt)
-                .map(word -> ServerSentEvent.<String>builder()
-                        .data(word)
-                        .build())
-                .concatWith(Flux.defer(() -> {
-                    // Send sources event at the end
-                    try {
-                        List<SourceDocumentDto> sourceDtos = sources.stream()
-                                .map(this::toSourceDocumentDto)
-                                .collect(Collectors.toList());
+                                                                List<SourceDocument> sources) {
+        try {
+            // Step 1: Build sources JSON and emit as SSE event
+            List<SourceDocumentDto> sourceDtos = sources.stream()
+                    .map(this::toSourceDocumentDto)
+                    .collect(Collectors.toList());
+            String sourcesJson = objectMapper.writeValueAsString(
+                    new SourcesWrapper(sourceDtos)
+            );
 
-                        String sourcesJson = objectMapper.writeValueAsString(sourceDtos);
+            // Step 2: Get real streaming AI response
+            Flux<String> aiStream = aiChatService.chatStream(prompt);
 
-                        return Flux.just(ServerSentEvent.<String>builder()
-                                .event("sources")
-                                .data(sourcesJson)
-                                .build());
-                    } catch (JsonProcessingException e) {
-                        log.error("Error serializing sources", e);
-                        return Flux.empty();
-                    }
-                }))
-                .doOnError(e -> log.error("Error in streaming", e));
+            // Emit sources first, then stream AI chunks
+            return Flux.concat(
+                    Flux.just(sourcesJson),
+                    aiStream.map(text -> {
+                        try {
+                            return objectMapper.writeValueAsString(new ChunkData("chunk", text));
+                        } catch (JsonProcessingException e) {
+                            log.error("Error serializing chunk", e);
+                            return "";
+                        }
+                    })
+            ).filter(json -> !json.isEmpty())
+                    .map(json -> ServerSentEvent.<String>builder()
+                            .data(json)
+                            .build());
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing stream data", e);
+            return Flux.error(e);
+        }
     }
+
+    private record ChunkData(String type, String text) {}
+    private record SourcesWrapper(List<SourceDocumentDto> sources) {}
 
     private String buildPrompt(String question, String context) {
         String languageCode = languageDetectionService.detect(question);

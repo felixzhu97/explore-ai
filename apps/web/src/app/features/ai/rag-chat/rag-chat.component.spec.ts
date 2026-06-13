@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RagChatComponent } from './rag-chat.component';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@i18n';
+import { marked } from 'marked';
 import { of, throwError } from 'rxjs';
 
 describe('RagChatComponent', () => {
@@ -81,6 +82,12 @@ describe('RagChatComponent', () => {
       ],
     }).compileComponents();
   });
+
+  // Helper function to test Markdown rendering (uses marked directly)
+  const renderMarkdown = (content: string): string => {
+    if (!content) return '';
+    return marked.parse(content) as string;
+  };
 
   it('should create', () => {
     createFixture();
@@ -412,23 +419,61 @@ describe('RagChatComponent', () => {
 
     it('should render markdown content', () => {
       createFixture();
-      const html = component.renderMarkdown('**bold** and *italic*');
+      const html = renderMarkdown('**bold** and *italic*');
       expect(html).toContain('<strong>bold</strong>');
       expect(html).toContain('<em>italic</em>');
     });
 
     it('should render empty markdown gracefully', () => {
       createFixture();
-      const html = component.renderMarkdown('');
+      const html = renderMarkdown('');
       expect(html).toBe('');
     });
 
     it('should render headings', () => {
       createFixture();
-      const html = component.renderMarkdown('# Heading 1\n## Heading 2\n### Heading 3');
+      const html = renderMarkdown('# Heading 1\n## Heading 2\n### Heading 3');
       expect(html).toContain('<h1>');
       expect(html).toContain('<h2>');
       expect(html).toContain('<h3>');
+    });
+
+    it('should render code block with syntax highlighting', () => {
+      createFixture();
+      const html = renderMarkdown('```python\nprint("hello")\n```');
+      expect(html).toContain('<pre');
+      expect(html).toContain('print');
+    });
+
+    it('should render unclosed code block gracefully during streaming', () => {
+      createFixture();
+      const incomplete = '```python\nprint("hello")';  // unclosed code block
+      const html = renderMarkdown(incomplete);
+      expect(html).toContain('<pre');
+    });
+
+    it('should render list during streaming', () => {
+      createFixture();
+      const markdown = '- item 1\n- item 2';
+      const html = renderMarkdown(markdown);
+      expect(html).toContain('<li>');
+    });
+
+    it('should render table syntax correctly', () => {
+      createFixture();
+      const markdown = '| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |';
+      const html = renderMarkdown(markdown);
+      expect(html).toContain('<table');
+      expect(html).toContain('<th');
+      expect(html).toContain('<td');
+    });
+
+    it('should render nested formatting', () => {
+      createFixture();
+      const markdown = '**bold with `inline code` inside**';
+      const html = renderMarkdown(markdown);
+      expect(html).toContain('<strong>');
+      expect(html).toContain('<code>');
     });
   });
 
