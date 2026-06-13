@@ -7,23 +7,23 @@ import com.ai.domain.vo.ChatSessionId;
 import com.ai.domain.vo.MessageId;
 import com.ai.interfaces.controller.ChatController;
 import com.ai.interfaces.controller.GlobalExceptionHandler;
-import com.ai.interfaces.dto.SessionInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -33,25 +33,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * ChatController Session Management Tests
  *
- * Tests using @WebMvcTest and MockMvc for session management endpoints:
+ * Tests using standalone MockMvc setup for session management endpoints:
  * - Create session (with/without title)
  * - Get all sessions
  * - Get specific session messages (exists/not exists)
  * - Delete session
  */
-@WebMvcTest(ChatController.class)
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ChatController Session Management Tests")
 class ChatControllerSessionTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private ChatApplicationService chatService;
+
+    @InjectMocks
+    private ChatController chatController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(chatController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("shouldCreateSession_WhenValidRequest")

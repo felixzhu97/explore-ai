@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.5.11"
+    id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
 }
@@ -22,7 +22,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.ai:spring-ai-bom:1.1.7")
+        mavenBom("org.springframework.ai:spring-ai-bom:2.0.0")
     }
 }
 
@@ -42,8 +42,10 @@ dependencies {
 
     // Database
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("io.hypersistence:hypersistence-utils-hibernate-63:3.15.2")
+    runtimeOnly("io.hypersistence:hypersistence-utils-hibernate-73:3.15.2")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

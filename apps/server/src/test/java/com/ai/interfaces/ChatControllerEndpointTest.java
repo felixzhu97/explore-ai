@@ -5,15 +5,17 @@ import com.ai.domain.model.AiServiceException;
 import com.ai.interfaces.controller.ChatController;
 import com.ai.interfaces.controller.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Map;
 
@@ -25,26 +27,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * ChatController Endpoint Tests
  *
- * Tests using @WebMvcTest and MockMvc for chat endpoints:
+ * Tests using standalone MockMvc setup for chat endpoints:
  * - POST /api/chat - chat with valid request
  * - POST /api/chat/simple - simple map-based request
  * - GET /api/health - health check
  * - Error handling for invalid requests and internal errors
  * - truncate() boundary conditions
  */
-@WebMvcTest(ChatController.class)
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ChatController Endpoint Tests")
 class ChatControllerEndpointTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private ChatApplicationService chatService;
+
+    @InjectMocks
+    private ChatController chatController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(chatController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("POST /api/chat endpoint")
@@ -271,7 +280,6 @@ class ChatControllerEndpointTest {
         void shouldTruncateTextWhenLengthExceeds50() throws Exception {
             // Arrange
             String longText = "123456789012345678901234567890123456789012345678901"; // 51 chars
-            String expectedTruncated = "12345678901234567890123456789012345678901234567890..."; // 53 chars
             when(chatService.processChatMessage(anyString())).thenReturn("Response");
 
             String requestBody = objectMapper.writeValueAsString(Map.of(

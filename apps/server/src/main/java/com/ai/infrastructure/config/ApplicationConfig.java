@@ -21,19 +21,15 @@ import com.ai.infrastructure.adapter.embedding.OllamaEmbeddingAdapter;
 import com.ai.infrastructure.adapter.persistence.InMemoryChatSessionRepository;
 import com.ai.infrastructure.adapter.persistence.JpaDocumentRepository;
 import com.ai.infrastructure.adapter.vector.PgVectorAdapter;
-import jakarta.servlet.MultipartConfigElement;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-import org.springframework.util.unit.DataSize;
 
 /**
  * Application configuration class - manages dependency injection.
@@ -41,20 +37,6 @@ import org.springframework.util.unit.DataSize;
  */
 @Configuration
 public class ApplicationConfig {
-
-    /**
-     * Configure multipart upload settings explicitly to ensure limits are applied.
-     * This bean explicitly sets 50MB limits to ensure they are not overridden by
-     * environment variables or other configuration sources.
-     */
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofMegabytes(50));
-        factory.setMaxRequestSize(DataSize.ofMegabytes(50));
-        factory.setLocation("/tmp/uploads");
-        return factory.createMultipartConfig();
-    }
 
     /**
      * Configure ChatMemory for conversation history management.
@@ -134,6 +116,11 @@ public class ApplicationConfig {
     @Bean
     public LanguageDetectionService languageDetectionService() {
         return new LanguageDetectionService();
+    }
+
+    @Bean
+    public com.fasterxml.jackson.databind.ObjectMapper objectMapper() {
+        return new com.fasterxml.jackson.databind.ObjectMapper();
     }
 
     @Bean

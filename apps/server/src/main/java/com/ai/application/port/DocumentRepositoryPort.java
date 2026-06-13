@@ -11,7 +11,8 @@ public interface DocumentRepositoryPort {
     Optional<Document> findById(UUID id);
     List<Document> findAll();
     void delete(UUID id);
-    
+    void flush();
+
     void saveChunk(DocumentChunk chunk);
     List<DocumentChunk> findChunksByDocumentId(UUID documentId);
     void deleteChunksByDocumentId(UUID documentId);

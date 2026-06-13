@@ -5,20 +5,23 @@ import com.ai.application.service.RagApplicationService;
 import com.ai.application.usecase.RagChatUseCase;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.service.AiChatService;
-import com.ai.domain.exception.RagServiceException;
 import com.ai.infrastructure.adapter.document.PdfTextExtractor;
 import com.ai.interfaces.controller.GlobalExceptionHandler;
 import com.ai.interfaces.controller.RagController;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -31,37 +34,45 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * RagController Streaming Tests
  *
- * Tests for streaming RAG endpoints using MockMvc.
- * Note: Full streaming response testing requires WebTestClient for reactive streams.
+ * Tests for streaming RAG endpoints using standalone MockMvc setup.
  */
-@WebMvcTest(RagController.class)
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("RagController Streaming Tests")
 class RagControllerStreamingTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private RagApplicationService ragApplicationService;
 
-    @MockBean
+    @Mock
     private LanguageDetectionService languageDetectionService;
 
-    @MockBean
+    @Mock
     private AiChatService aiChatService;
 
-    @MockBean
+    @Mock
     private PdfTextExtractor pdfTextExtractor;
+
+    @InjectMocks
+    private RagController ragController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(ragController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("POST /api/rag/chat/stream endpoint")
