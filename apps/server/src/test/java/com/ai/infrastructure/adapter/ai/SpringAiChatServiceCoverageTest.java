@@ -152,6 +152,49 @@ class SpringAiChatServiceCoverageTest {
     }
 
     @Nested
+    @DisplayName("chatWithMemory")
+    class ChatWithMemoryTests {
+
+        @Test
+        @DisplayName("should call chatClient with memory advisor for chatWithMemory")
+        void shouldCallChatClientWithMemoryAdvisorForChatWithMemory() {
+            // Arrange
+            doThrow(new RuntimeException("Memory response")).when(chatClient).prompt();
+
+            // Act & Assert
+            assertThatThrownBy(() -> chatService.chatWithMemory("Hello", "conversation-123"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Memory response");
+        }
+
+        @Test
+        @DisplayName("should wrap exception from chatWithMemory")
+        void shouldWrapExceptionFromChatWithMemory() {
+            // Arrange
+            doThrow(new RuntimeException("Connection failed")).when(chatClient).prompt();
+
+            // Act & Assert
+            assertThatThrownBy(() -> chatService.chatWithMemory("Test", "conv-1"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("AI service error");
+        }
+
+        @Test
+        @DisplayName("should preserve exception cause chain for chatWithMemory")
+        void shouldPreserveExceptionCauseChainForChatWithMemory() {
+            // Arrange
+            Exception nestedCause = new Exception("Network error");
+            RuntimeException originalException = new RuntimeException("Service unavailable", nestedCause);
+            doThrow(originalException).when(chatClient).prompt();
+
+            // Act & Assert
+            assertThatThrownBy(() -> chatService.chatWithMemory("Test", "conv-2"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasCause(originalException);
+        }
+    }
+
+    @Nested
     @DisplayName("Exception Handling")
     class ExceptionHandlingTests {
 

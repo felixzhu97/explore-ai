@@ -50,6 +50,11 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
     }
 
     @Override
+    public void flush() {
+        documentRepository.flush();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Optional<Document> findById(UUID id) {
         log.debug("Finding document by id: {}", id);

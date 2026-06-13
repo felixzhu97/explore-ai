@@ -40,6 +40,7 @@ public class UploadDocumentUseCase {
         Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
         document.markProcessing();
         document = documentRepository.save(document);
+        documentRepository.flush();
 
         try {
             List<String> chunks = chunkText(content);

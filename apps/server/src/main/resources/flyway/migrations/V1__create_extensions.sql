@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     content TEXT NOT NULL,
     chunk_index INTEGER NOT NULL,
     metadata JSONB,
-    embedding vector(1536),
+    embedding vector(1024),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

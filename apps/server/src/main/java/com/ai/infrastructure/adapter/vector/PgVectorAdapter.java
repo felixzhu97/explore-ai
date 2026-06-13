@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -105,7 +106,7 @@ public class PgVectorAdapter implements VectorSearchPort {
                 chunk.getContent(),
                 chunk.getChunkIndex(),
                 embeddingString,
-                chunk.getCreatedAt().toString());
+                Timestamp.from(chunk.getCreatedAt()));
 
         log.info("Chunk saved to vector store: id={}", chunk.getId());
     }

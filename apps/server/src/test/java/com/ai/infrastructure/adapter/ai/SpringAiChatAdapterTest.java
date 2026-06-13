@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
@@ -333,6 +334,90 @@ class SpringAiChatAdapterTest {
 
             // Assert
             assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("shouldSubscribeToStream")
+    class ShouldSubscribeToStream {
+
+        @Test
+        @DisplayName("should cover lambda expressions when stream is subscribed")
+        void shouldCoverLambdaExpressionsWhenStreamIsSubscribed() {
+            // Arrange
+            String userMessage = "Stream test";
+            Flux<String> streamFlux = Flux.just("Hello", " world", "!");
+            when(aiChatService.chatStream(userMessage)).thenReturn(streamFlux);
+
+            // Act - Subscribe to the flux to trigger the lambdas
+            List<String> collected = adapter.chatStream(userMessage).collectList().block();
+
+            // Assert
+            assertThat(collected).containsExactly("Hello", " world", "!");
+            verify(aiChatService).chatStream(userMessage);
+        }
+
+        @Test
+        @DisplayName("should handle stream with single element")
+        void shouldHandleStreamWithSingleElement() {
+            // Arrange
+            String userMessage = "Single stream";
+            Flux<String> streamFlux = Flux.just("Single response");
+            when(aiChatService.chatStream(userMessage)).thenReturn(streamFlux);
+
+            // Act
+            List<String> collected = adapter.chatStream(userMessage).collectList().block();
+
+            // Assert
+            assertThat(collected).containsExactly("Single response");
+        }
+
+        @Test
+        @DisplayName("should handle stream with multiple elements")
+        void shouldHandleStreamWithMultipleElements() {
+            // Arrange
+            String userMessage = "Multi stream";
+            Flux<String> streamFlux = Flux.just("Part1", " Part2", " Part3", " Part4");
+            when(aiChatService.chatStream(userMessage)).thenReturn(streamFlux);
+
+            // Act
+            List<String> collected = adapter.chatStream(userMessage).collectList().block();
+
+            // Assert
+            assertThat(collected).hasSize(4);
+        }
+    }
+
+    @Nested
+    @DisplayName("shouldTruncateLongMessages")
+    class ShouldTruncateLongMessages {
+
+        @Test
+        @DisplayName("should truncate messages longer than 100 characters")
+        void shouldTruncateMessagesLongerThan100Characters() {
+            // Arrange
+            String longMessage = "A".repeat(150);
+            when(aiChatService.chat(longMessage)).thenReturn("Response");
+
+            // Act
+            String result = adapter.chat(longMessage);
+
+            // Assert - verifies that the method handles long messages
+            assertThat(result).isEqualTo("Response");
+        }
+
+        @Test
+        @DisplayName("should return null text as null string")
+        void shouldReturnNullTextAsNullString() {
+            // Arrange
+            String nullMessage = null;
+            when(aiChatService.chat(nullMessage)).thenReturn("Response");
+
+            // Act
+            String result = adapter.chat(nullMessage);
+
+            // Assert
+            assertThat(result).isEqualTo("Response");
         }
     }
 

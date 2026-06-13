@@ -4,16 +4,21 @@ spring:
   ai:
     ollama:
       base-url: http://localhost:11434
+      chat:
+        model: llama3.2
+      embedding:
+        model: nomic-embed-text
     openai:
       api-key: ${DEEPSEEK_API_KEY:your-api-key}
       base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
       chat:
-        options:
-          model: deepseek-v4-flash
+        model: deepseek-v4-flash
       embedding:
-        options:
-          model: text-embedding-3-small
-
+        model: text-embedding-3-small
+  flyway:
+    enabled: true
+    locations: classpath:flyway/migrations
+    baseline-on-migrate: true
   # Database configuration
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_rag}

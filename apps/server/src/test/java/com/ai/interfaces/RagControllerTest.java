@@ -4,25 +4,29 @@ import com.ai.application.service.LanguageDetectionService;
 import com.ai.application.service.RagApplicationService;
 import com.ai.application.usecase.RagChatUseCase;
 import com.ai.domain.model.Document;
-import com.ai.domain.model.SourceDocument;
 import com.ai.domain.model.DocumentStatus;
 import com.ai.domain.service.AiChatService;
 import com.ai.domain.vo.DocumentId;
 import com.ai.infrastructure.adapter.document.PdfTextExtractor;
+import com.ai.interfaces.controller.GlobalExceptionHandler;
 import com.ai.interfaces.controller.RagController;
 import com.ai.interfaces.dto.DocumentSummaryDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,32 +39,41 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * RagController Tests
  *
- * Tests using @WebMvcTest and MockMvc for the RAG controller layer:
+ * Tests using standalone MockMvc setup for the RAG controller layer:
  * - Document upload, list, delete operations
  * - Streaming response format (SSE)
  * - Exception handling
  */
-@WebMvcTest(RagController.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("RagController Tests")
 class RagControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private RagApplicationService ragApplicationService;
 
-    @MockBean
+    @Mock
     private LanguageDetectionService languageDetectionService;
 
-    @MockBean
+    @Mock
     private AiChatService aiChatService;
 
-    @MockBean
+    @Mock
     private PdfTextExtractor pdfTextExtractor;
+
+    @InjectMocks
+    private RagController ragController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(ragController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("shouldReturnDocumentsList_WhenGetDocuments")
@@ -71,10 +84,6 @@ class RagControllerTest {
         void shouldReturnDocumentsListWhenGetDocumentsCalled() throws Exception {
             // Arrange
             Document doc = createTestDocument("Test Document", DocumentStatus.READY);
-            DocumentSummaryDto summary = new DocumentSummaryDto(
-                doc.getId().value(), doc.getTitle(), doc.getStatus().name(),
-                doc.getCreatedAt(), 0
-            );
             when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
 
             // Act & Assert
