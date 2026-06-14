@@ -1,6 +1,7 @@
 package com.ai.infrastructure.adapter.persistence;
 
 import com.ai.application.port.ChatSessionRepositoryPort;
+import com.ai.domain.model.ChatMessage;
 import com.ai.domain.model.ChatSession;
 import com.ai.domain.vo.ChatSessionId;
 
@@ -55,5 +56,24 @@ public class InMemoryChatSessionRepository implements ChatSessionRepositoryPort 
      */
     public int size() {
         return storage.size();
+    }
+
+    /**
+     * Finds all sessions with pagination.
+     */
+    public List<ChatSession> findAll(int limit, int offset) {
+        return storage.values().stream()
+            .sorted((a, b) -> b.getLastActivityAt().compareTo(a.getLastActivityAt()))
+            .skip(offset)
+            .limit(limit)
+            .toList();
+    }
+
+    /**
+     * Finds messages for a session with a limit.
+     */
+    public List<ChatMessage> findMessages(ChatSessionId sessionId, int limit) {
+        return storage.get(sessionId)
+            .getRecentMessages(limit);
     }
 }

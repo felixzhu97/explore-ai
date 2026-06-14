@@ -1,0 +1,68 @@
+package com.ai.infrastructure.adapter.tool.composite;
+
+import com.ai.application.port.ToolRegistryPort;
+import com.ai.application.tool.ToolDefinition;
+import com.ai.application.tool.ToolExecutor;
+import com.ai.application.tool.ToolInvocation;
+import com.ai.application.tool.ToolResult;
+import com.ai.infrastructure.adapter.tool.ToolProvider;
+import com.ai.infrastructure.adapter.tool.JsonSchemaBuilder;
+import com.ai.infrastructure.adapter.tool.composite.support.CompositeToolSupport;
+import com.ai.infrastructure.adapter.tool.composite.support.CompositeToolSupport.CompositeResult;
+import com.ai.infrastructure.adapter.tool.composite.support.CompositeToolSupport.SubToolCall;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Composite tool: monitoring health check.
+ */
+@Component
+public class MonitoringHealthTool implements ToolProvider {
+
+    private final ToolRegistryPort registry;
+    private final CompositeToolSupport support;
+
+    public MonitoringHealthTool(ToolRegistryPort registry) {
+        this.registry = registry;
+        this.support = new CompositeToolSupport(registry);
+    }
+
+    @Override
+    public ToolDefinition definition() {
+        Map<String, Object> props = JsonSchemaBuilder.toProperties(
+            JsonSchemaBuilder.integerProp("topK", "Number of top results (default 5)", false)
+        );
+        return ToolDefinition.composite(
+            "monitoring_health",
+            "Monitoring health check: retrieves JVM, load, memory, CPU, and disk metrics.",
+            JsonSchemaBuilder.objectSchema(List.of(), props),
+            "composite"
+        );
+    }
+
+    @Override
+    public ToolExecutor executor() {
+        return this::execute;
+    }
+
+    public ToolResult execute(ToolInvocation invocation) {
+        try {
+            List<SubToolCall> calls = List.of(
+                new SubToolCall("get_jvm", Map.of()),
+                new SubToolCall("get_load", Map.of()),
+                new SubToolCall("get_memory", Map.of()),
+                new SubToolCall("get_cpu", Map.of()),
+                new SubToolCall("get_disk", Map.of())
+            );
+
+            CompositeResult result = support.executeAll(calls);
+
+            String md = "# Monitoring Health Check\n\n" + result.markdown();
+            return ToolResult.success(md, result.structured());
+        } catch (Exception e) {
+            return ToolResult.error("monitoring_health failed: " + e.getMessage());
+        }
+    }
+}

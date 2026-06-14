@@ -14,7 +14,10 @@ import java.util.UUID;
 /**
  * Tool for searching documents in the RAG system.
  * Provides AI models with the ability to search for relevant documents.
+ *
+ * @deprecated Use {@code rag_search} / {@code rag_search_in_docs} (tool platform) instead.
  */
+@java.lang.Deprecated(since = "0.2.0", forRemoval = true)
 @Component
 public class DocumentSearchTool {
 
