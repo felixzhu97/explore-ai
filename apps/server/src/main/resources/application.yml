@@ -1,88 +1,93 @@
 spring:
-  application:
-    name: server-springai
-  ai:
-    ollama:
-      base-url: http://localhost:11434
-      chat:
-        model: llama3.2
-      embedding:
-        model: nomic-embed-text
-    openai:
-      api-key: ${DEEPSEEK_API_KEY:your-api-key}
-      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
-      chat:
-        model: deepseek-v4-flash
-      embedding:
-        model: text-embedding-3-small
-  flyway:
-    enabled: true
-    locations: classpath:flyway/migrations
-    baseline-on-migrate: true
-  # Database configuration
-  datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_rag}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+application:
+name: server-springai
+ai:
+ollama:
+base-url: http://localhost:11434
+chat:
+model: llama3.2
+embedding:
+model: nomic-embed-text
+openai:
+api-key: ${DEEPSEEK_API_KEY:your-api-key}
+base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+chat:
+model: deepseek-v4-flash
+embedding:
+model: text-embedding-3-small
+flyway:
+enabled: true
+locations: classpath:flyway/migrations
+baseline-on-migrate: true
 
-  # JPA configuration
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    open-in-view: false
+# Database configuration
+
+datasource:
+url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_rag}
+username: ${POSTGRES_USER:postgres}
+password: ${POSTGRES_PASSWORD:postgres}
+driver-class-name: org.postgresql.Driver
+hikari:
+maximum-pool-size: 10
+minimum-idle: 5
+connection-timeout: 30000
+idle-timeout: 600000
+max-lifetime: 1800000
+
+# JPA configuration
+
+jpa:
+hibernate:
+ddl-auto: update
+show-sql: false
+properties:
+hibernate:
+dialect: org.hibernate.dialect.PostgreSQLDialect
+format_sql: true
+open-in-view: false
 
 # RAG configuration
+
 rag:
-  mock:
-    embeddings: false
-  ollama:
-    embedding:
-      model: nomic-embed-text
-      dimensions: 768
-  chunk:
-    size: ${RAG_CHUNK_SIZE:500}
-    overlap: ${RAG_CHUNK_OVERLAP:50}
-  retrieval:
-    top-k: ${RAG_TOP_K:5}
-    score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
+mock:
+embeddings: false
+ollama:
+embedding:
+model: nomic-embed-text
+dimensions: 768
+chunk:
+size: ${RAG_CHUNK_SIZE:500}
+overlap: ${RAG_CHUNK_OVERLAP:50}
+retrieval:
+top-k: ${RAG_TOP_K:5}
+score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
 
 server:
-  port: 9000
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 50MB
-      max-request-size: 50MB
-  tomcat:
-    max-http-form-post-size: 50MB
-    max-swallow-size: 50MB
+port: 9000
+servlet:
+multipart:
+enabled: true
+max-file-size: 50MB
+max-request-size: 50MB
+tomcat:
+max-http-form-post-size: 50MB
+max-swallow-size: 50MB
 
 # Actuator for health checks
+
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: when_authorized
+endpoints:
+web:
+exposure:
+include: health,info,metrics
+endpoint:
+health:
+show-details: when_authorized
 
 logging:
-  level:
-    com.ai: DEBUG
-    org.springframework.ai: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+level:
+com.ai: DEBUG
+org.springframework.ai: DEBUG
+org.springframework.web: DEBUG
+org.hibernate.SQL: INFO
+org.hibernate.type.descriptor.sql.BasicBinder: TRACE

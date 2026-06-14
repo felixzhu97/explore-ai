@@ -38,8 +38,18 @@ describe('ChatTabComponent', () => {
     mockApiService = {
       getProviders: vi.fn().mockReturnValue(
         of([
-          { name: 'openai', display_name: 'OpenAI', models: ['gpt-4o', 'gpt-4o-mini'], status: 'available' },
-          { name: 'anthropic', display_name: 'Anthropic', models: ['claude-3'], status: 'available' },
+          {
+            name: 'openai',
+            display_name: 'OpenAI',
+            models: ['gpt-4o', 'gpt-4o-mini'],
+            status: 'available',
+          },
+          {
+            name: 'anthropic',
+            display_name: 'Anthropic',
+            models: ['claude-3'],
+            status: 'available',
+          },
         ])
       ),
       getModels: vi.fn().mockReturnValue(
@@ -356,10 +366,12 @@ describe('ChatTabComponent', () => {
     it('should set error on fetch failure', async () => {
       createFixture();
       component.input.set('Hello');
-      (mockApiService.chatStream as any).mockImplementation((_: any, __: any, ___: any, onError: any) => {
-        onError(new Error('Network error'));
-        return { abort: vi.fn() };
-      });
+      (mockApiService.chatStream as any).mockImplementation(
+        (_: any, __: any, ___: any, onError: any) => {
+          onError(new Error('Network error'));
+          return { abort: vi.fn() };
+        }
+      );
       component.send();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.error()).toBeTruthy();
@@ -368,10 +380,12 @@ describe('ChatTabComponent', () => {
     it('should set isLoading to false on error', async () => {
       createFixture();
       component.input.set('Hello');
-      (mockApiService.chatStream as any).mockImplementation((_: any, __: any, ___: any, onError: any) => {
-        onError(new Error('Network error'));
-        return { abort: vi.fn() };
-      });
+      (mockApiService.chatStream as any).mockImplementation(
+        (_: any, __: any, ___: any, onError: any) => {
+          onError(new Error('Network error'));
+          return { abort: vi.fn() };
+        }
+      );
       component.send();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.isLoading()).toBe(false);
@@ -380,10 +394,12 @@ describe('ChatTabComponent', () => {
     it('should show user-friendly message for network errors', async () => {
       createFixture();
       component.input.set('Hello');
-      (mockApiService.chatStream as any).mockImplementation((_: any, __: any, ___: any, onError: any) => {
-        onError(new Error('Failed to fetch'));
-        return { abort: vi.fn() };
-      });
+      (mockApiService.chatStream as any).mockImplementation(
+        (_: any, __: any, ___: any, onError: any) => {
+          onError(new Error('Failed to fetch'));
+          return { abort: vi.fn() };
+        }
+      );
       component.send();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.error()).toContain('unavailable');
@@ -394,10 +410,12 @@ describe('ChatTabComponent', () => {
     it('should set isLoading to false on completion', () => {
       createFixture();
       component.input.set('Hello');
-      (mockApiService.chatStream as any).mockImplementation((_: any, _onChunk: any, onDone: any, _onError: any) => {
-        onDone();
-        return { abort: vi.fn() };
-      });
+      (mockApiService.chatStream as any).mockImplementation(
+        (_: any, _onChunk: any, onDone: any, _onError: any) => {
+          onDone();
+          return { abort: vi.fn() };
+        }
+      );
       component.send();
       expect(component.isLoading()).toBe(false);
     });
@@ -405,10 +423,12 @@ describe('ChatTabComponent', () => {
     it('should set abortController to null on completion', () => {
       createFixture();
       component.input.set('Hello');
-      (mockApiService.chatStream as any).mockImplementation((_: any, _onChunk: any, onDone: any, _onError: any) => {
-        onDone();
-        return { abort: vi.fn() };
-      });
+      (mockApiService.chatStream as any).mockImplementation(
+        (_: any, _onChunk: any, onDone: any, _onError: any) => {
+          onDone();
+          return { abort: vi.fn() };
+        }
+      );
       component.send();
       expect(component['abortController']).toBeNull();
     });

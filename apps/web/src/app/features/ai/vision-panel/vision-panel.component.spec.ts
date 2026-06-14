@@ -45,19 +45,24 @@ describe('VisionPanelComponent', () => {
   };
 
   beforeAll(() => {
-    vi.stubGlobal('FileReader', class {
-      onload: ((e: ProgressEvent) => void) | null = null;
-      result: string | ArrayBuffer | null = 'data:image/png;base64,mock';
-      readAsDataURL = vi.fn();
-      constructor() {
-        // Trigger onload asynchronously to simulate real behavior
-        setTimeout(() => {
-          if (this.onload) {
-            this.onload({ target: { result: this.result } } as unknown as ProgressEvent<EventTarget>);
-          }
-        }, 0);
+    vi.stubGlobal(
+      'FileReader',
+      class {
+        onload: ((e: ProgressEvent) => void) | null = null;
+        result: string | ArrayBuffer | null = 'data:image/png;base64,mock';
+        readAsDataURL = vi.fn();
+        constructor() {
+          // Trigger onload asynchronously to simulate real behavior
+          setTimeout(() => {
+            if (this.onload) {
+              this.onload({
+                target: { result: this.result },
+              } as unknown as ProgressEvent<EventTarget>);
+            }
+          }, 0);
+        }
       }
-    });
+    );
   });
 
   beforeEach(async () => {

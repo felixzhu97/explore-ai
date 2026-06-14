@@ -5,14 +5,12 @@ on:
     branches: ["main", "java-angular", "feature/**"]
 
 jobs:
-  review:
-    name: ESLint & Prettier
+  lint:
+    name: ESLint
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
       contents: read
-      checks: write
-
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,28 +23,121 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'pnpm'
+          node-version: "24"
+          cache: "pnpm"
 
-      - name: ESLint (Web)
-        uses: reviewdog/action-eslint@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          eslint_flags: '.'
-          level: warning
-          reporter: github-pr-review
-          workdir: apps/web
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Prettier
-        uses: reviewdog/action-reviewdog@v1
+      - name: ESLint
+        run: npx eslint "apps/web/src/**/*.ts" --ext .ts
+
+      - name: Install reviewdog
+        if: failure()
+        uses: reviewdog/action-setup@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           reviewdog_version: v0.20.3
-          tool_name: prettier
-          level: warning
-          fail_on_error: false
-          reporter: github-pr-review
+
+      - name: Run Review Dog for ESLint
+        if: failure()
         env:
-          PRETTIERDOG_IGNORE_UNCHANGED: "true"
-        entrypoint: |
-          pnpm prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}" --log-level warn 2>&1 || true
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx eslint "apps/web/src/**/*.ts" --ext .ts 2>&1 |
+            reviewdog -f=eslint -reporter=github-pr-review -level=error
+
+  typescript:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript Check (Web)
+        run: |
+          npx tsc --noEmit -p apps/web/tsconfig.app.json &&
+            npx tsc --noEmit -p apps/web/tsconfig.spec.json
+
+      - name: Install reviewdog
+        if: failure()
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: v0.20.3
+
+      - name: Run Review Dog for TypeScript
+        if: failure()
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx tsc --noEmit -p apps/web/tsconfig.app.json &&
+            npx tsc --noEmit -p apps/web/tsconfig.spec.json 2>&1 |
+            reviewdog -f=tsc -reporter=github-pr-review -level=error
+
+  prettier:
+    name: Code Format Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check Prettier formatting
+        run: npx prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests (Vitest + jsdom)
+        run: pnpm --filter web exec vitest run

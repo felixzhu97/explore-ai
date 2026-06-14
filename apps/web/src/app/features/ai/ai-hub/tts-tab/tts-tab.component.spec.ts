@@ -34,9 +34,27 @@ describe('TtsTabComponent', () => {
     mockApiService = {
       getVoices: vi.fn().mockReturnValue(
         of([
-          { id: 'en-US', name: 'English (US)', language: 'en-US', provider: 'default', is_default: true },
-          { id: 'en-GB', name: 'English (UK)', language: 'en-GB', provider: 'default', is_default: false },
-          { id: 'zh-CN', name: 'Chinese', language: 'zh-CN', provider: 'default', is_default: false },
+          {
+            id: 'en-US',
+            name: 'English (US)',
+            language: 'en-US',
+            provider: 'default',
+            is_default: true,
+          },
+          {
+            id: 'en-GB',
+            name: 'English (UK)',
+            language: 'en-GB',
+            provider: 'default',
+            is_default: false,
+          },
+          {
+            id: 'zh-CN',
+            name: 'Chinese',
+            language: 'zh-CN',
+            provider: 'default',
+            is_default: false,
+          },
         ])
       ),
       synthesizeSpeech: vi.fn().mockReturnValue(of(new Blob(['audio'], { type: 'audio/mp3' }))),
@@ -258,9 +276,7 @@ describe('TtsTabComponent', () => {
     it('should set generic error for non-Error objects', async () => {
       createFixture();
       component.text.set('Hello');
-      (mockApiService.synthesizeSpeech as any).mockReturnValue(
-        throwError(() => 'String error')
-      );
+      (mockApiService.synthesizeSpeech as any).mockReturnValue(throwError(() => 'String error'));
       component.synthesize();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.error()).toBe('Synthesis failed');
@@ -335,7 +351,9 @@ describe('TtsTabComponent', () => {
 
   describe('available voices fallback', () => {
     it('should have default voices when API fails', async () => {
-      (mockApiService.getVoices as any).mockReturnValue(throwError(() => new Error('Network error')));
+      (mockApiService.getVoices as any).mockReturnValue(
+        throwError(() => new Error('Network error'))
+      );
       createFixture();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.availableVoices().length).toBeGreaterThan(0);

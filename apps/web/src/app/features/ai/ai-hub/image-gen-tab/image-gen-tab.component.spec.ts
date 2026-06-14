@@ -276,9 +276,7 @@ describe('ImageGenTabComponent', () => {
     it('should set generic error for non-Error objects', async () => {
       createFixture();
       component.prompt.set('A cat');
-      (mockApiService.generateImage as any).mockReturnValue(
-        throwError(() => 'String error')
-      );
+      (mockApiService.generateImage as any).mockReturnValue(throwError(() => 'String error'));
       component.generate();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.error()).toBe('Image generation failed');
@@ -287,9 +285,7 @@ describe('ImageGenTabComponent', () => {
     it('should set isGenerating to false on error', async () => {
       createFixture();
       component.prompt.set('A cat');
-      (mockApiService.generateImage as any).mockReturnValue(
-        throwError(() => new Error('Failed'))
-      );
+      (mockApiService.generateImage as any).mockReturnValue(throwError(() => new Error('Failed')));
       component.generate();
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
       expect(component.isGenerating()).toBe(false);

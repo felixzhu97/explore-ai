@@ -7,3 +7,4 @@ apps/web/dist/
 apps/web/coverage/
 *.lock
 pnpm-lock.yaml
+.github/

@@ -1,8 +1,4 @@
-import {
-  HttpRequest,
-  HttpHandlerFn,
-  HttpErrorResponse,
-} from '@angular/common/http';
+import { HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
