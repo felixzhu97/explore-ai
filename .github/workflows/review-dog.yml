@@ -12,34 +12,13 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: ESLint
-        run: pnpm -C apps/web exec eslint "src/**/*.ts" --ext .ts
-
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
       - name: Install reviewdog
-        if: failure()
         uses: reviewdog/action-setup@v1
         with:
           reviewdog_version: v0.20.3
-
-      - name: Run Review Dog for ESLint
-        if: failure()
+      - name: Run ESLint with reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -53,41 +32,18 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: TypeScript Check (Web)
-        run: |
-          pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json &&
-            pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json
-
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
       - name: Install reviewdog
-        if: failure()
         uses: reviewdog/action-setup@v1
         with:
           reviewdog_version: v0.20.3
-
-      - name: Run Review Dog for TypeScript
-        if: failure()
+      - name: Run TypeScript check with reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json &&
-            pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json 2>&1 |
+          (pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json &&
+            pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json) 2>&1 |
             reviewdog -f=tsc -reporter=github-pr-review -level=error
 
   prettier:
@@ -96,23 +52,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
       - name: Check Prettier formatting
         run: pnpm prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
 
@@ -122,22 +63,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
       - name: Run tests (Vitest + jsdom)
         run: pnpm --filter web exec vitest run

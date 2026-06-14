@@ -82,8 +82,16 @@ jobs:
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-    - name: Build Java/Kotlin
+    - name: Download prebuilt Java/Kotlin outputs
       if: matrix.language == 'java-kotlin'
+      uses: actions/download-artifact@v4
+      with:
+        name: java-build-outputs
+        path: apps/server/build
+      continue-on-error: true
+
+    - name: Build Java/Kotlin (fallback if artifact missing)
+      if: matrix.language == 'java-kotlin' && hashFiles('apps/server/build/classes/java/main') == ''
       shell: bash
       run: |
         cd apps/server

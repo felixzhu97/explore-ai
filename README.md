@@ -81,3 +81,23 @@ Accept: text/event-stream
 | `POSTGRES_URL`     | jdbc:postgresql://localhost:5432/ai_rag | 数据库 |
 
 详见 `docs/c4/` 架构图和 `docs/wardley-map.puml` 技术演进图。
+
+## CI/CD
+
+### Workflows overview
+
+| 文件 | 用途 |
+| ---- | ---- |
+| `backend-ci.yml` | Java/Gradle build + tests + JaCoCo coverage |
+| `codeql.yml` | Security scanning for Java/Kotlin and TypeScript |
+| `review-dog.yml` | Frontend quality (ESLint, TypeScript, Prettier, Vitest) with reviewdog PR comments |
+
+### Branch triggers
+
+> The trigger branch list `["main", "java-angular", "feature/**"]` is intentionally **duplicated** across all 3 workflow files. GitHub Actions does not support a shared trigger definition.
+
+**If you add or remove a protected branch, update all 3 files in the same PR.**
+
+- `.github/workflows/backend-ci.yml`
+- `.github/workflows/codeql.yml`
+- `.github/workflows/review-dog.yml`
