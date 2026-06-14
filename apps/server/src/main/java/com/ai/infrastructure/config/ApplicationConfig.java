@@ -18,15 +18,21 @@ import com.ai.infrastructure.adapter.ai.SpringAiChatAdapter;
 import com.ai.infrastructure.adapter.ai.SpringAiChatService;
 import com.ai.infrastructure.adapter.embedding.MockEmbeddingAdapter;
 import com.ai.infrastructure.adapter.embedding.OllamaEmbeddingAdapter;
+import com.ai.infrastructure.adapter.monitor.OshiSystemInfoProvider;
+import com.ai.infrastructure.adapter.monitor.SystemInfoProvider;
 import com.ai.infrastructure.adapter.persistence.InMemoryChatSessionRepository;
 import com.ai.infrastructure.adapter.persistence.JpaDocumentRepository;
 import com.ai.infrastructure.adapter.vector.PgVectorAdapter;
+import com.ai.infrastructure.adapter.web.DuckDuckGoWebSearchAdapter;
+import com.ai.infrastructure.adapter.web.WebSearchPort;
+import oshi.SystemInfo;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -36,6 +42,7 @@ import org.springframework.context.annotation.Primary;
  * Connects infrastructure layer with domain/application layers.
  */
 @Configuration
+@EnableConfigurationProperties({MonitorProperties.class, WebSearchProperties.class})
 public class ApplicationConfig {
 
     /**
@@ -203,5 +210,22 @@ public class ApplicationConfig {
             RagChatUseCase ragChatUseCase,
             DocumentRepositoryPort documentRepositoryPort) {
         return new RagApplicationService(uploadDocumentUseCase, deleteDocumentUseCase, ragChatUseCase, documentRepositoryPort);
+    }
+
+    // === Monitor Tools ===
+
+    /**
+     * Enable configuration properties scanning for monitor and web search settings.
+     */
+    @Bean
+    public SystemInfoProvider systemInfoProvider(MonitorProperties monitorProperties) {
+        return new OshiSystemInfoProvider(monitorProperties);
+    }
+
+    // === Web Search ===
+
+    @Bean
+    public WebSearchPort webSearchPort(WebSearchProperties webSearchProperties) {
+        return new DuckDuckGoWebSearchAdapter(webSearchProperties);
     }
 }

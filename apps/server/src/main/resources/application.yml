@@ -60,14 +60,6 @@ rag:
 
 server:
   port: 9000
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 50MB
-      max-request-size: 50MB
-  tomcat:
-    max-http-form-post-size: 50MB
-    max-swallow-size: 50MB
 
 # Actuator for health checks
 management:
@@ -87,27 +79,15 @@ logging:
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# === MCP Server ===
-spring.ai.mcp.server:
-  name: ai-infra-tools
-  version: 0.2.0
-  sse:
-    endpoint: /mcp/sse
-    message-endpoint: /mcp/messages
-  stdio: false
-spring.ai.tool.calling:
-  max-iterations: 5
-  timeout-ms: 30000
-
-# === Web search (via jsoup + DuckDuckGo HTML endpoint) ===
+# DuckDuckGo web search configuration
 duckduckgo:
   base-url: https://html.duckduckgo.com/html/
-  user-agent: "Mozilla/5.0 (compatible; ai-infra/0.1)"
+  user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
   default-max-results: 5
   default-region: us-en
   timeout-ms: 5000
 
-# === Local monitor (oshi + jmx) ===
+# System monitoring configuration
 monitor:
   cpu-sample-seconds: 1
   jvm-refresh-ms: 5000

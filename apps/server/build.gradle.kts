@@ -37,14 +37,10 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    // MCP Server (webmvc, includes SSE + Streamable)
-    implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
-    testImplementation("org.springframework.ai:spring-ai-starter-mcp-server")
-
-    // Local system monitoring
+    // System monitoring via oshi
     implementation("com.github.oshi:oshi-core:6.8.0")
 
-    // HTML parsing (for DuckDuckGo web search via HTML endpoint)
+    // Web scraping for DuckDuckGo search
     implementation("org.jsoup:jsoup:1.18.3")
 
     // PDF Processing
@@ -61,7 +57,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("io.projectreactor:reactor-test")
-    testRuntimeOnly("com.h2database:h2")
+    testImplementation("com.github.tomakehurst:wiremock:3.0.1")
+    testImplementation("com.h2database:h2")
     testImplementation("org.testcontainers:testcontainers:1.20.4")
     testImplementation("org.testcontainers:junit-jupiter:1.20.4")
     testRuntimeOnly("org.testcontainers:postgresql:1.20.4")
