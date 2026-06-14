@@ -1,21 +1,22 @@
 name: Backend CI (Java / Gradle)
 
 on:
-push:
-branches: [main, java-angular, "feature/**"]
-pull_request:
-branches: [main, java-angular, "feature/**"]
+  push:
+    branches: [main, java-angular, "feature/**"]
+  pull_request:
+    branches: [main, java-angular, "feature/**"]
 
 jobs:
-build:
-name: Build & Test
-runs-on: ubuntu-latest
-permissions:
-contents: read
-steps: - name: Checkout code
-uses: actions/checkout@v4
-with:
-fetch-depth: 0
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Java 25 (Temurin)
         uses: actions/setup-java@v4
