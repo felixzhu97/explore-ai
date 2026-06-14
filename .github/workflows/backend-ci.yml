@@ -1,0 +1,46 @@
+name: Backend CI (Java / Gradle)
+
+on:
+  push:
+    branches: [main, java-angular, "feature/**"]
+  pull_request:
+    branches: [main, java-angular, "feature/**"]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 25 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x apps/server/gradlew
+
+      - name: Build (skip tests)
+        working-directory: apps/server
+        run: ./gradlew build -x test --no-daemon
+
+      - name: Run tests with coverage
+        working-directory: apps/server
+        run: ./gradlew test jacocoTestReport --no-daemon
+
+      - name: Upload JaCoCo coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: apps/server/build/reports/jacocoTestReport
+          retention-days: 14
+          if-no-files-found: warn
