@@ -40,6 +40,9 @@ dependencies {
     // System monitoring via oshi
     implementation("com.github.oshi:oshi-core:6.8.0")
 
+    // MCP Server (webmvc, JSON-RPC over HTTP)
+    implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+
     // Web scraping for DuckDuckGo search
     implementation("org.jsoup:jsoup:1.18.3")
 

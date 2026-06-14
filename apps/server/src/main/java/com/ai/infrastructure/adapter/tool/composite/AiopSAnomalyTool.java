@@ -10,6 +10,7 @@ import com.ai.infrastructure.adapter.tool.JsonSchemaBuilder;
 import com.ai.infrastructure.adapter.tool.composite.support.CompositeToolSupport;
 import com.ai.infrastructure.adapter.tool.composite.support.CompositeToolSupport.CompositeResult;
 import com.ai.infrastructure.adapter.tool.composite.support.CompositeToolSupport.SubToolCall;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class AiopSAnomalyTool implements ToolProvider {
     private final ToolRegistryPort registry;
     private final CompositeToolSupport support;
 
-    public AiopSAnomalyTool(ToolRegistryPort registry) {
+    public AiopSAnomalyTool(@Lazy ToolRegistryPort registry) {
         this.registry = registry;
         this.support = new CompositeToolSupport(registry);
     }

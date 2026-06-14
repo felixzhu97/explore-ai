@@ -139,6 +139,7 @@ public class ApplicationConfig {
     }
 
     @Bean
+    @Primary
     public DocumentRepositoryPort documentRepositoryPort(JpaDocumentRepository jpaDocumentRepository) {
         return jpaDocumentRepository;
     }

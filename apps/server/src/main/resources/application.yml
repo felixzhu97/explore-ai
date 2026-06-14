@@ -1,4 +1,7 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
   application:
     name: server-springai
   ai:
@@ -15,6 +18,13 @@ spring:
         model: deepseek-v4-flash
       embedding:
         model: text-embedding-3-small
+    mcp:
+      server:
+        enabled: true
+        name: ai-explore-mcp-server
+        version: 0.2.0
+        protocol: STREAMABLE
+        mcp-endpoint: /mcp
   flyway:
     enabled: true
     locations: classpath:flyway/migrations

@@ -5,6 +5,7 @@ import com.ai.application.tool.ToolInvocation;
 import com.ai.application.tool.ToolResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.*;
 
@@ -17,7 +18,7 @@ public class CompositeToolSupport {
 
     private final ToolRegistryPort registry;
 
-    public CompositeToolSupport(ToolRegistryPort registry) {
+    public CompositeToolSupport(@Lazy ToolRegistryPort registry) {
         this.registry = registry;
     }
 
