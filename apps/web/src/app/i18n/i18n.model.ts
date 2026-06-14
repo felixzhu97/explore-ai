@@ -18,6 +18,8 @@ export interface Translations {
     llmops: string;
     aiops: string;
     vectordb: string;
+    mcpTools: string;
+    functionCall: string;
   };
   imageUploader: {
     imageLabel: string;
@@ -87,6 +89,8 @@ export interface Translations {
       llmops: string;
       aiops: string;
       vectordb: string;
+      mcpTools: string;
+      functionCall: string;
     };
   };
   aiHub: {
@@ -158,6 +162,8 @@ export const translations: Record<Language, Translations> = {
       llmops: 'LLMOps',
       aiops: 'AIOps',
       vectordb: 'VectorDB',
+      mcpTools: 'MCP Tools',
+      functionCall: 'Function Call',
     },
     imageUploader: {
       imageLabel: 'Image',
@@ -255,6 +261,8 @@ export const translations: Record<Language, Translations> = {
         llmops: 'Train, evaluate, and fine-tune LLM models',
         aiops: 'Intelligent operations - incident analysis, root cause, automation',
         vectordb: 'Manage vector embeddings, similarity search, and document indexing',
+        mcpTools: 'Browse and invoke MCP tools (RAG, Chat, Monitor, Web Search).',
+        functionCall: 'Chat with auto Function Calling - watch tool calls execute live.',
       },
     },
     aiHub: {
@@ -324,6 +332,8 @@ export const translations: Record<Language, Translations> = {
       llmops: 'LLMOps',
       aiops: 'AIOps',
       vectordb: '向量库',
+      mcpTools: 'MCP 工具',
+      functionCall: '函数调用',
     },
     imageUploader: {
       imageLabel: '图片',
@@ -393,6 +403,8 @@ export const translations: Record<Language, Translations> = {
         llmops: '训练、评估和微调 LLM 模型',
         aiops: '智能运维 - 事件分析、根因定位、自动化',
         vectordb: '管理向量嵌入、相似度搜索和文档索引',
+        mcpTools: '浏览和调用 MCP 工具（RAG、聊天、监控、网络搜索）',
+        functionCall: '自动函数调用对话 - 实时观看工具调用执行',
       },
     },
     aiHub: {
@@ -462,6 +474,8 @@ export const translations: Record<Language, Translations> = {
       llmops: 'LLMOps',
       aiops: 'AIOps',
       vectordb: 'VectorDB',
+      mcpTools: 'MCPツール',
+      functionCall: '関数呼び出し',
     },
     imageUploader: {
       imageLabel: '画像',
@@ -556,6 +570,8 @@ export const translations: Record<Language, Translations> = {
         llmops: 'LLMモデルの訓練、評価、微調整',
         aiops: 'インテリジェントオペレーション - インシデント分析、根本原因分析、自動化',
         vectordb: 'ベクトル埋め込み、類似性検索、ドキュメントインデックス管理',
+        mcpTools: 'MCPツールの閲覧と呼び出し（RAG、チャット、監視、Web検索）',
+        functionCall: '自動関数呼び出しチャット - ツール呼び出しの実行をリアルタイムで監視',
       },
     },
     aiHub: {
@@ -625,6 +641,8 @@ export const translations: Record<Language, Translations> = {
       llmops: 'LLMOps',
       aiops: 'AIOps',
       vectordb: 'VectorDB',
+      mcpTools: 'Outils MCP',
+      functionCall: 'Appel de fonction',
     },
     imageUploader: {
       imageLabel: 'Image',
@@ -724,6 +742,8 @@ export const translations: Record<Language, Translations> = {
         llmops: 'Entraîner, évaluer et affiner les modèles LLM',
         aiops: 'Opérations intelligentes - analyse des incidents, cause racine, automatisation',
         vectordb: 'Gérer les embeddings vectoriels, recherche de similarité et indexation',
+        mcpTools: 'Parcourir et invoquer les outils MCP (RAG, Chat, Surveillance, Recherche Web)',
+        functionCall: 'Chat avec appel automatique de fonctions - regarder les appels d outils s exécuter en direct',
       },
     },
     aiHub: {
@@ -793,6 +813,8 @@ export const translations: Record<Language, Translations> = {
       llmops: 'LLMOps',
       aiops: 'AIOps',
       vectordb: 'VectorDB',
+      mcpTools: 'Herramientas MCP',
+      functionCall: 'Llamada de funcion',
     },
     imageUploader: {
       imageLabel: 'Imagen',
@@ -892,6 +914,8 @@ export const translations: Record<Language, Translations> = {
         llmops: 'Entrenar, evaluar y ajustar modelos LLM',
         aiops: 'Operaciones inteligentes - análisis de incidentes, causa raíz, automatización',
         vectordb: 'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
+        mcpTools: 'Explorar e invocar herramientas MCP (RAG, Chat, Monitoreo, Busqueda Web)',
+        functionCall: 'Chat con llamadas de función automáticas - ver cómo se ejecutan las llamadas de herramientas en directo',
       },
     },
     aiHub: {

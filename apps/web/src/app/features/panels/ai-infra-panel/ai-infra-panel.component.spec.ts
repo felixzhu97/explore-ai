@@ -5,6 +5,8 @@ import { SegmentedControlComponent } from '@shared/components/ui/segmented-contr
 import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
 import { AgentChatComponent } from '@features/agents/agent-chat/agent-chat.component';
 import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
+import { McpToolsTabComponent } from './mcp-tools-tab/mcp-tools-tab.component';
+import { FcPlaygroundTabComponent } from './fc-playground-tab/fc-playground-tab.component';
 import { I18nService } from '@i18n';
 import { signal } from '@angular/core';
 
@@ -21,6 +23,8 @@ describe('AIInfraPanelComponent', () => {
       llmops: 'LLMOps',
       aiops: 'AIOps',
       vectordb: 'Vector DB',
+      mcpTools: 'MCP Tools',
+      functionCall: 'Function Call',
     },
     agents: {
       descriptions: {
@@ -31,6 +35,8 @@ describe('AIInfraPanelComponent', () => {
         llmops: 'LLMOps Agent',
         aiops: 'AIOps Agent',
         vectordb: 'Vector DB Agent',
+        mcpTools: 'MCP Tools Agent',
+        functionCall: 'Function Call Agent',
       },
       quickPrompts: {
         supervisor: ['How are you?'],
@@ -54,7 +60,10 @@ describe('AIInfraPanelComponent', () => {
         AIInfraPanelComponent,
         SegmentedControlComponent,
         AgentPanelComponent,
+        AgentChatComponent,
         StatusBadgeComponent,
+        McpToolsTabComponent,
+        FcPlaygroundTabComponent,
       ],
       providers: [{ provide: I18nService, useValue: mockI18nService }],
     }).compileComponents();
@@ -74,8 +83,8 @@ describe('AIInfraPanelComponent', () => {
   });
 
   describe('subTabOptions computed', () => {
-    it('should return 7 tab options', () => {
-      expect(component.subTabOptions().length).toBe(7);
+    it('should return 9 tab options', () => {
+      expect(component.subTabOptions().length).toBe(9);
     });
 
     it('should have correct tab values', () => {
@@ -88,6 +97,8 @@ describe('AIInfraPanelComponent', () => {
       expect(values).toContain('llmops');
       expect(values).toContain('aiops');
       expect(values).toContain('vectordb');
+      expect(values).toContain('mcp-tools');
+      expect(values).toContain('function-call');
     });
 
     it('should have labels from i18n', () => {
@@ -107,6 +118,8 @@ describe('AIInfraPanelComponent', () => {
       expect(Object.keys(configs)).toContain('llmops');
       expect(Object.keys(configs)).toContain('aiops');
       expect(Object.keys(configs)).toContain('vectordb');
+      expect(Object.keys(configs)).toContain('mcp-tools');
+      expect(Object.keys(configs)).toContain('function-call');
     });
 
     it('should have apiEndpoint for each config', () => {
