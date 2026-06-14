@@ -86,3 +86,28 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# === MCP Server ===
+spring.ai.mcp.server:
+  name: ai-infra-tools
+  version: 0.2.0
+  sse:
+    endpoint: /mcp/sse
+    message-endpoint: /mcp/messages
+  stdio: false
+spring.ai.tool.calling:
+  max-iterations: 5
+  timeout-ms: 30000
+
+# === Web search (via jsoup + DuckDuckGo HTML endpoint) ===
+duckduckgo:
+  base-url: https://html.duckduckgo.com/html/
+  user-agent: "Mozilla/5.0 (compatible; ai-infra/0.1)"
+  default-max-results: 5
+  default-region: us-en
+  timeout-ms: 5000
+
+# === Local monitor (oshi + jmx) ===
+monitor:
+  cpu-sample-seconds: 1
+  jvm-refresh-ms: 5000

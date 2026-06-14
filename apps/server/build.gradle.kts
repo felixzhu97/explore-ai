@@ -37,6 +37,16 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
+    // MCP Server (webmvc, includes SSE + Streamable)
+    implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+    testImplementation("org.springframework.ai:spring-ai-starter-mcp-server")
+
+    // Local system monitoring
+    implementation("com.github.oshi:oshi-core:6.8.0")
+
+    // HTML parsing (for DuckDuckGo web search via HTML endpoint)
+    implementation("org.jsoup:jsoup:1.18.3")
+
     // PDF Processing
     implementation("org.apache.pdfbox:pdfbox:3.0.3")
 
