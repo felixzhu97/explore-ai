@@ -4,6 +4,7 @@ import { AIInfraPanelComponent } from './ai-infra-panel.component';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
 import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
+import { AgentChatComponent } from '@features/agents/agent-chat/agent-chat.component';
 import { McpToolsTabComponent } from './mcp-tools-tab/mcp-tools-tab.component';
 import { FcPlaygroundTabComponent } from './fc-playground-tab/fc-playground-tab.component';
 import { I18nService } from '@i18n';

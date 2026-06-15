@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FcPlaygroundTabComponent } from "./fc-playground-tab.component";
-import { FunctionCallService, FunctionCallEvent } from "@core/services/function-call.service";
-import { NotificationService } from "@core/services/notification.service";
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FcPlaygroundTabComponent } from './fc-playground-tab.component';
+import { FunctionCallService, FunctionCallEvent } from '@core/services/function-call.service';
+import { NotificationService } from '@core/services/notification.service';
 
-describe("FcPlaygroundTabComponent", () => {
+describe('FcPlaygroundTabComponent', () => {
   let component: FcPlaygroundTabComponent;
   let fixture: ComponentFixture<FcPlaygroundTabComponent>;
   let mockFcService: any;
@@ -33,22 +33,22 @@ describe("FcPlaygroundTabComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should start with empty messages", () => {
+  it('should start with empty messages', () => {
     expect(component.messages().length).toBe(0);
   });
 
-  it("should not send message when input is empty", () => {
-    component.inputValue = "";
+  it('should not send message when input is empty', () => {
+    component.inputValue = '';
     component.sendMessage();
     expect(mockFcService.chatStream).not.toHaveBeenCalled();
   });
 
-    it("should add user message to messages array", () => {
-    component.inputValue = "Hello";
+  it('should add user message to messages array', () => {
+    component.inputValue = 'Hello';
     mockFcService.chatStream.mockReturnValue({
       subscribe: vi.fn(),
     });
@@ -56,32 +56,32 @@ describe("FcPlaygroundTabComponent", () => {
     component.sendMessage();
 
     expect(component.messages().length).toBe(2); // user + assistant
-    expect(component.messages()[0].role).toBe("user");
-    expect(component.messages()[0].content).toBe("Hello");
+    expect(component.messages()[0].role).toBe('user');
+    expect(component.messages()[0].content).toBe('Hello');
   });
 
-  it("should clear input after sending", () => {
-    component.inputValue = "Hello";
+  it('should clear input after sending', () => {
+    component.inputValue = 'Hello';
     mockFcService.chatStream.mockReturnValue({
       subscribe: vi.fn(),
     });
 
     component.sendMessage();
 
-    expect(component.inputValue).toBe("");
+    expect(component.inputValue).toBe('');
   });
 
-  it("should toggle tool call expansion", () => {
-    const messageId = "msg1";
-    const toolCallId = "tool1";
+  it('should toggle tool call expansion', () => {
+    const messageId = 'msg1';
+    const toolCallId = 'tool1';
 
     component.messages.set([
       {
         id: messageId,
-        role: "assistant",
-        content: "",
+        role: 'assistant',
+        content: '',
         timestamp: Date.now(),
-        toolCalls: [{ id: toolCallId, name: "test", args: {}, expanded: false }],
+        toolCalls: [{ id: toolCallId, name: 'test', args: {}, expanded: false }],
       },
     ]);
 

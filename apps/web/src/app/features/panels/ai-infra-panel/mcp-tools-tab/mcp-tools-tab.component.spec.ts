@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { McpToolsTabComponent } from "./mcp-tools-tab.component";
-import { McpService } from "@core/services/mcp.service";
-import { NotificationService } from "@core/services/notification.service";
-import { CardComponent } from "@shared/components/ui/card/card.component";
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { McpToolsTabComponent } from './mcp-tools-tab.component';
+import { McpService } from '@core/services/mcp.service';
+import { NotificationService } from '@core/services/notification.service';
+import { CardComponent } from '@shared/components/ui/card/card.component';
 
-describe("McpToolsTabComponent", () => {
+describe('McpToolsTabComponent', () => {
   let component: McpToolsTabComponent;
   let fixture: ComponentFixture<McpToolsTabComponent>;
   let mockMcpService: any;
@@ -34,11 +34,11 @@ describe("McpToolsTabComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should load tools on init", () => {
+  it('should load tools on init', () => {
     mockMcpService.listTools.mockReturnValue({
       subscribe: (handlers: any) => {
         handlers.next([]);
@@ -50,10 +50,10 @@ describe("McpToolsTabComponent", () => {
     expect(mockMcpService.listTools).toHaveBeenCalled();
   });
 
-  it("should open tool modal", () => {
+  it('should open tool modal', () => {
     const tool = {
-      name: "test_tool",
-      description: "Test tool",
+      name: 'test_tool',
+      description: 'Test tool',
       inputSchema: {},
     };
 
@@ -62,29 +62,29 @@ describe("McpToolsTabComponent", () => {
     expect(component.selectedTool()).toEqual(tool);
   });
 
-  it("should close modal", () => {
+  it('should close modal', () => {
     component.closeModal();
 
     expect(component.selectedTool()).toBeNull();
   });
 
-  it("should get tool params from schema", () => {
+  it('should get tool params from schema', () => {
     const tool = {
-      name: "test_tool",
-      description: "Test tool",
+      name: 'test_tool',
+      description: 'Test tool',
       inputSchema: {
         properties: {
-          query: { type: "string", description: "Search query" },
-          limit: { type: "number" },
+          query: { type: 'string', description: 'Search query' },
+          limit: { type: 'number' },
         },
-        required: ["query"],
+        required: ['query'],
       },
     };
 
     const params = component.getToolParams(tool);
 
     expect(params.length).toBe(2);
-    expect(params.find((p) => p.name === "query")?.required).toBe(true);
-    expect(params.find((p) => p.name === "limit")?.required).toBe(false);
+    expect(params.find((p) => p.name === 'query')?.required).toBe(true);
+    expect(params.find((p) => p.name === 'limit')?.required).toBe(false);
   });
 });

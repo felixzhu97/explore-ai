@@ -1,20 +1,29 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject } from "@angular/core";
-import { environment } from "@env/environment";
-import { I18nService } from "@i18n";
+import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { environment } from '@env/environment';
+import { I18nService } from '@i18n';
 import {
   SegmentedControlComponent,
   SegmentedControlOption,
-} from "@shared/components/ui/segmented-control/segmented-control.component";
-import { AgentPanelComponent } from "@features/panels/agent-panel/agent-panel.component";
-import { AgentChatComponent } from "@features/agents/agent-chat/agent-chat.component";
-import { StatusBadgeComponent } from "@features/agents/status-badge/status-badge.component";
-import { McpToolsTabComponent } from "./mcp-tools-tab/mcp-tools-tab.component";
-import { FcPlaygroundTabComponent } from "./fc-playground-tab/fc-playground-tab.component";
+} from '@shared/components/ui/segmented-control/segmented-control.component';
+import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
+import { AgentChatComponent } from '@features/agents/agent-chat/agent-chat.component';
+import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
+import { McpToolsTabComponent } from './mcp-tools-tab/mcp-tools-tab.component';
+import { FcPlaygroundTabComponent } from './fc-playground-tab/fc-playground-tab.component';
 
-type SubTabKey = "supervisor" | "k8s" | "monitoring" | "model" | "llmops" | "aiops" | "vectordb" | "mcp-tools" | "function-call";
+type SubTabKey =
+  | 'supervisor'
+  | 'k8s'
+  | 'monitoring'
+  | 'model'
+  | 'llmops'
+  | 'aiops'
+  | 'vectordb'
+  | 'mcp-tools'
+  | 'function-call';
 
 @Component({
-  selector: "app-ai-infra-panel",
+  selector: 'app-ai-infra-panel',
   standalone: true,
   imports: [
     SegmentedControlComponent,
@@ -35,12 +44,15 @@ type SubTabKey = "supervisor" | "k8s" | "monitoring" | "model" | "llmops" | "aio
       </div>
 
       <div class="tab-section">
-        @if (activeSubTab() === "mcp-tools") {
+        @if (activeSubTab() === 'mcp-tools') {
           <app-mcp-tools-tab />
-        } @else if (activeSubTab() === "function-call") {
+        } @else if (activeSubTab() === 'function-call') {
           <app-fc-playground-tab />
         } @else {
-          <app-agent-panel [title]="activeConfig().title" [description]="activeConfig().description">
+          <app-agent-panel
+            [title]="activeConfig().title"
+            [description]="activeConfig().description"
+          >
             <app-status-badge slot="headerRight" status="online" />
             <app-agent-chat
               [agentInfo]="agentInfo()"
@@ -52,52 +64,54 @@ type SubTabKey = "supervisor" | "k8s" | "monitoring" | "model" | "llmops" | "aio
       </div>
     </div>
   `,
-  styles: [`
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .tab-header {
-      display: flex;
-      justify-content: center;
-      padding: 16px 0;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-
-      &::-webkit-scrollbar {
-        display: none;
+  styles: [
+    `
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
-      @media (max-width: 640px) {
-        justify-content: flex-start;
-      }
-    }
+      .tab-header {
+        display: flex;
+        justify-content: center;
+        padding: 16px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
 
-    .tab-section {
-      animation: fadeIn 0.3s ease;
-    }
+        &::-webkit-scrollbar {
+          display: none;
+        }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
+        @media (max-width: 640px) {
+          justify-content: flex-start;
+        }
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .tab-section {
+        animation: fadeIn 0.3s ease;
       }
-    }
-  `],
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AIInfraPanelComponent {
   private readonly i18n = inject(I18nService);
 
-  activeSubTab = signal<SubTabKey>("supervisor");
+  activeSubTab = signal<SubTabKey>('supervisor');
 
   private readonly subTabConfigs = computed(() => {
     const t = this.i18n.t();
@@ -144,11 +158,11 @@ export class AIInfraPanelComponent {
         apiEndpoint: environment.agents.vector,
         quickPrompts: t.agents.quickPrompts.vectordb,
       },
-      "mcp-tools": {
+      'mcp-tools': {
         title: t.nav.mcpTools,
         description: t.agents.descriptions.mcpTools,
       },
-      "function-call": {
+      'function-call': {
         title: t.nav.functionCall,
         description: t.agents.descriptions.functionCall,
       },
@@ -158,15 +172,15 @@ export class AIInfraPanelComponent {
   subTabOptions = computed<SegmentedControlOption<SubTabKey>[]>(() => {
     const t = this.i18n.t();
     return [
-      { value: "supervisor", label: t.nav.supervisor },
-      { value: "k8s", label: t.nav.kubernetes },
-      { value: "monitoring", label: t.nav.monitoring },
-      { value: "model", label: t.nav.model },
-      { value: "llmops", label: t.nav.llmops },
-      { value: "aiops", label: t.nav.aiops },
-      { value: "vectordb", label: t.nav.vectordb },
-      { value: "mcp-tools", label: t.nav.mcpTools },
-      { value: "function-call", label: t.nav.functionCall },
+      { value: 'supervisor', label: t.nav.supervisor },
+      { value: 'k8s', label: t.nav.kubernetes },
+      { value: 'monitoring', label: t.nav.monitoring },
+      { value: 'model', label: t.nav.model },
+      { value: 'llmops', label: t.nav.llmops },
+      { value: 'aiops', label: t.nav.aiops },
+      { value: 'vectordb', label: t.nav.vectordb },
+      { value: 'mcp-tools', label: t.nav.mcpTools },
+      { value: 'function-call', label: t.nav.functionCall },
     ];
   });
 
@@ -175,7 +189,7 @@ export class AIInfraPanelComponent {
   agentInfo = computed(() => ({
     name: this.activeConfig().title,
     description: this.activeConfig().description,
-    status: "online" as const,
+    status: 'online' as const,
   }));
 
   onTabChange(value: SubTabKey) {

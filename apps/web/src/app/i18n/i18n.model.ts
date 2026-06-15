@@ -743,7 +743,8 @@ export const translations: Record<Language, Translations> = {
         aiops: 'Opérations intelligentes - analyse des incidents, cause racine, automatisation',
         vectordb: 'Gérer les embeddings vectoriels, recherche de similarité et indexation',
         mcpTools: 'Parcourir et invoquer les outils MCP (RAG, Chat, Surveillance, Recherche Web)',
-        functionCall: 'Chat avec appel automatique de fonctions - regarder les appels d outils s exécuter en direct',
+        functionCall:
+          'Chat avec appel automatique de fonctions - regarder les appels d outils s exécuter en direct',
       },
     },
     aiHub: {
@@ -915,7 +916,8 @@ export const translations: Record<Language, Translations> = {
         aiops: 'Operaciones inteligentes - análisis de incidentes, causa raíz, automatización',
         vectordb: 'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
         mcpTools: 'Explorar e invocar herramientas MCP (RAG, Chat, Monitoreo, Busqueda Web)',
-        functionCall: 'Chat con llamadas de función automáticas - ver cómo se ejecutan las llamadas de herramientas en directo',
+        functionCall:
+          'Chat con llamadas de función automáticas - ver cómo se ejecutan las llamadas de herramientas en directo',
       },
     },
     aiHub: {
