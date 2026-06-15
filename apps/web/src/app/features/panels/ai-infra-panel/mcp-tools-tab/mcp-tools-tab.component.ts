@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { JsonPipe } from '@angular/common';
 import { CardComponent } from '@shared/components/ui/card/card.component';
 import { McpService, ToolDefinition, ToolInvokeResult } from '@core/services/mcp.service';
 import { NotificationService } from '@core/services/notification.service';
@@ -7,7 +8,7 @@ import { NotificationService } from '@core/services/notification.service';
 @Component({
   selector: 'app-mcp-tools-tab',
   standalone: true,
-  imports: [CardComponent, FormsModule],
+  imports: [CardComponent, FormsModule, JsonPipe],
   template: `
     <div class="container">
       <div class="header">
@@ -53,7 +54,7 @@ import { NotificationService } from '@core/services/notification.service';
             <div class="modal-body">
               <p class="modal-description">{{ selectedTool()!.description }}</p>
 
-              <form class="invoke-form" (submit)="invokeTool()">
+              <form class="invoke-form" (submit)="invokeTool($event)">
                 <h4>Parameters</h4>
                 @for (param of getToolParams(selectedTool()!); track param.name) {
                   <div class="form-group">

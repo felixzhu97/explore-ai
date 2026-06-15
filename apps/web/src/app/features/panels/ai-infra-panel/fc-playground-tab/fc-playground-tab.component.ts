@@ -8,6 +8,7 @@ import {
   effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { JsonPipe } from '@angular/common';
 import { FunctionCallService, FunctionCallEvent } from '@core/services/function-call.service';
 import { NotificationService } from '@core/services/notification.service';
 
@@ -31,7 +32,7 @@ interface ToolCallCard {
 @Component({
   selector: 'app-fc-playground-tab',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, JsonPipe],
   template: `
     <div class="container">
       <div class="header">
@@ -557,7 +558,7 @@ export class FcPlaygroundTabComponent {
             break;
         }
       },
-      error: (err) => {
+      error: (_err) => {
         this.isLoading.set(false);
         this.appendToAssistantMessage(assistantMessageId, 'An error occurred.');
         this.notification.showError('Failed to send message');

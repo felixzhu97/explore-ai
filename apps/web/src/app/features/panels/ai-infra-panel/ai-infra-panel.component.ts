@@ -161,10 +161,14 @@ export class AIInfraPanelComponent {
       'mcp-tools': {
         title: t.nav.mcpTools,
         description: t.agents.descriptions.mcpTools,
+        apiEndpoint: '',
+        quickPrompts: [],
       },
       'function-call': {
         title: t.nav.functionCall,
         description: t.agents.descriptions.functionCall,
+        apiEndpoint: '',
+        quickPrompts: [],
       },
     };
   });

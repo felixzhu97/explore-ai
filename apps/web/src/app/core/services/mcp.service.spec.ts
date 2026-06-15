@@ -106,8 +106,6 @@ describe('McpService', () => {
     });
 
     it('should generate unique id for each request', () => {
-      const mockResult = { content: 'result', isError: false };
-
       service.invokeTool('tool1', {}).subscribe();
       service.invokeTool('tool2', {}).subscribe();
 
