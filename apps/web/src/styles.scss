@@ -141,3 +141,8 @@ pre {
   font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
   overflow-x: auto;
 }
+
+// Restore default ul/ol padding (reset removed it)
+ul, ol {
+  padding-inline-start: 40px;
+}

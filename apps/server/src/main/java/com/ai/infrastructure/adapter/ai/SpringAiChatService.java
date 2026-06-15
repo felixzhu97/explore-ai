@@ -85,6 +85,8 @@ public class SpringAiChatService implements AiChatService {
             .user(userMessage)
             .stream()
             .content()
+            .bufferTimeout(150, Duration.ofMillis(200))
+            .map(list -> String.join("", list))
             .doOnError(e -> log.error("Stream error", e))
             .doOnComplete(() -> log.info("Stream completed"));
     }

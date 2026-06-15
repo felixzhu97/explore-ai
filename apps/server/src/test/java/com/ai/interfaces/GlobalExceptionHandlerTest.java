@@ -289,7 +289,9 @@ class GlobalExceptionHandlerTest {
             // Assert
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
             assertThat(response.getBody()).containsEntry("error", "FILE_TOO_LARGE");
-            assertThat(response.getBody()).containsEntry("message", "Uploaded file exceeds the maximum allowed size of 50MB");
+            // The message is no longer hardcoded to a specific MB value, so the
+            // front-end can render a generic "file too large" prompt.
+            assertThat(response.getBody()).containsEntry("message", "Uploaded file exceeds the maximum allowed size");
             assertThat(response.getBody()).containsEntry("type", "error");
         }
     }

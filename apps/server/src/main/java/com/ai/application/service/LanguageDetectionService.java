@@ -1,5 +1,8 @@
 package com.ai.application.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 /**
@@ -86,66 +89,28 @@ public class LanguageDetectionService {
     private String getNoContextMessage(String languageCode) {
         return switch (languageCode) {
             case "zh" -> "没有找到相关的文档来回答您的问题。请先上传一些文档。";
-            case "ja" -> "您的質問にお答えできる関連ドキュメントがありません。まずドキュメントをアップロードしてください。";
+            case "ja" -> "関連ドキュメントがありません。まずドキュメントをアップロードしてください。";
             default -> "I don't have relevant documents to answer your question. Please upload some documents first.";
         };
     }
 
     private String getPromptTemplate(String languageCode) {
-        return switch (languageCode) {
-            case "zh" -> """
-                你是一个有用的助手。请根据以下文档内容，用结构化的 Markdown 格式回答用户的问题。
+        return loadPromptTemplate(languageCode);
+    }
 
-                # 文档内容
-                %s
-
-                # 用户问题
-                %s
-
-                ## 回答指南
-                - 请使用中文回答
-                - 根据内容使用 **粗体**、*斜体*、列表和代码块
-                - 将不同的观点分段落陈述（段落之间留空行）
-                - 使用 ## 标题来组织您的回答结构
-                - 不要将所有内容写在一个段落中
-                - 如果答案不在文档内容中，请明确说明
-
-                # 回答""";
-            case "ja" -> """
-                あなたは有帮助なアシスタントです。以下のドキュメントの内容に基づいて、構造化されたマークダウン形式でユーザーの質問に回答してください。
-
-                # ドキュメント内容
-                %s
-
-                # ユーザーの質問
-                %s
-
-                ## 回答ガイドライン
-                - 日本語で回答してください
-                - 内容に応じて **太字**、*斜体*、リスト、コードブロックを使用してください
-                - 異なるアイデアは段落に分けてください（段落間に空行を置いてください）
-                - ## 見出しを使用して回答を構造化してください
-                - すべてを1つの段落に書かないでください
-                - 答えがドキュメント内容にない場合は、その旨を明確に述べてください
-
-                # 回答""";
-            default -> """
-                You are a helpful assistant. Answer the user's question using structured Markdown.
-
-                # Context
-                %s
-
-                # Question
-                %s
-
-                ## Answer Guidelines
-                - Use **bold**, *italic*, lists, and code blocks as appropriate
-                - Separate ideas into paragraphs (leave blank lines between them)
-                - Use ## headings to structure your response
-                - Do NOT write everything in one paragraph
-                - If the answer is not in the context, say so clearly
-
-                # Answer""";
+    private String loadPromptTemplate(String languageCode) {
+        String resourcePath = switch (languageCode) {
+            case "zh" -> "prompts/rag-chat-zh.txt";
+            case "ja" -> "prompts/rag-chat-ja.txt";
+            default -> "prompts/rag-chat-en.txt";
         };
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                throw new IllegalStateException("Prompt template not found: " + resourcePath);
+            }
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load prompt template: " + resourcePath, e);
+        }
     }
 }

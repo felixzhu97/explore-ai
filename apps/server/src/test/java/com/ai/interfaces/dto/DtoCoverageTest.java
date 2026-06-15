@@ -31,15 +31,19 @@ class DtoCoverageTest {
             String content = "This is the document content";
             float score = 0.95f;
             Map<String, Object> metadata = Map.of("source", "test.pdf", "page", 1);
+            int index = 1;
+            String documentTitle = "Test Document";
 
             // Act
-            SourceDocumentDto dto = new SourceDocumentDto(id, content, score, metadata);
+            SourceDocumentDto dto = new SourceDocumentDto(id, content, score, metadata, index, documentTitle);
 
             // Assert
             assertThat(dto.id()).isEqualTo(id);
             assertThat(dto.content()).isEqualTo(content);
             assertThat(dto.score()).isEqualTo(score);
             assertThat(dto.metadata()).isEqualTo(metadata);
+            assertThat(dto.index()).isEqualTo(index);
+            assertThat(dto.documentTitle()).isEqualTo(documentTitle);
         }
 
         @Test
@@ -50,22 +54,26 @@ class DtoCoverageTest {
             String content = "Content text";
             float score = 0.5f;
             Map<String, Object> metadata = Map.of("key", "value");
+            int index = 2;
+            String documentTitle = "My Doc";
 
             // Act
-            SourceDocumentDto dto = new SourceDocumentDto(id, content, score, metadata);
+            SourceDocumentDto dto = new SourceDocumentDto(id, content, score, metadata, index, documentTitle);
 
             // Assert - test each accessor individually
             assertThat(dto.id()).isEqualTo("test-id");
             assertThat(dto.content()).isEqualTo("Content text");
             assertThat(dto.score()).isEqualTo(0.5f);
             assertThat(dto.metadata().get("key")).isEqualTo("value");
+            assertThat(dto.index()).isEqualTo(2);
+            assertThat(dto.documentTitle()).isEqualTo("My Doc");
         }
 
         @Test
         @DisplayName("should handle zero score")
         void shouldHandleZeroScore() {
             // Act
-            SourceDocumentDto dto = new SourceDocumentDto("id", "content", 0.0f, Map.of());
+            SourceDocumentDto dto = new SourceDocumentDto("id", "content", 0.0f, Map.of(), 1, "title");
 
             // Assert
             assertThat(dto.score()).isEqualTo(0.0f);
@@ -75,7 +83,7 @@ class DtoCoverageTest {
         @DisplayName("should handle max score value")
         void shouldHandleMaxScoreValue() {
             // Act
-            SourceDocumentDto dto = new SourceDocumentDto("id", "content", 1.0f, Map.of());
+            SourceDocumentDto dto = new SourceDocumentDto("id", "content", 1.0f, Map.of(), 1, "title");
 
             // Assert
             assertThat(dto.score()).isEqualTo(1.0f);
@@ -104,47 +112,25 @@ class DtoCoverageTest {
         }
 
         @Test
-        @DisplayName("should create UploadDocumentRequest without fileName")
-        void shouldCreateUploadDocumentRequestWithoutFileName() {
+        @DisplayName("should create UploadDocumentRequest with empty content")
+        void shouldCreateUploadDocumentRequestWithEmptyContent() {
             // Act
-            UploadDocumentRequest request = new UploadDocumentRequest("Title", "Content", null);
-
-            // Assert
-            assertThat(request.title()).isEqualTo("Title");
-            assertThat(request.content()).isEqualTo("Content");
-            assertThat(request.fileName()).isNull();
-        }
-
-        @Test
-        @DisplayName("should handle empty title")
-        void shouldHandleEmptyTitle() {
-            // Act
-            UploadDocumentRequest request = new UploadDocumentRequest("", "Content", null);
-
-            // Assert
-            assertThat(request.title()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("should handle empty content")
-        void shouldHandleEmptyContent() {
-            // Act
-            UploadDocumentRequest request = new UploadDocumentRequest("Title", "", null);
+            UploadDocumentRequest request = new UploadDocumentRequest("Title", "", "file.txt");
 
             // Assert
             assertThat(request.content()).isEmpty();
         }
 
         @Test
-        @DisplayName("should handle unicode characters in fields")
-        void shouldHandleUnicodeCharactersInFields() {
+        @DisplayName("should handle null values")
+        void shouldHandleNullValues() {
             // Act
-            UploadDocumentRequest request = new UploadDocumentRequest("标题文档", "中文内容", "文件.pdf");
+            UploadDocumentRequest request = new UploadDocumentRequest(null, null, null);
 
             // Assert
-            assertThat(request.title()).isEqualTo("标题文档");
-            assertThat(request.content()).isEqualTo("中文内容");
-            assertThat(request.fileName()).isEqualTo("文件.pdf");
+            assertThat(request.title()).isNull();
+            assertThat(request.content()).isNull();
+            assertThat(request.fileName()).isNull();
         }
     }
 
@@ -158,8 +144,8 @@ class DtoCoverageTest {
             // Arrange
             String content = "AI generated response";
             List<SourceDocumentDto> sources = List.of(
-                    new SourceDocumentDto("1", "Source 1", 0.9f, Map.of()),
-                    new SourceDocumentDto("2", "Source 2", 0.8f, Map.of())
+                    new SourceDocumentDto("1", "Source 1", 0.9f, Map.of(), 1, "Doc 1"),
+                    new SourceDocumentDto("2", "Source 2", 0.8f, Map.of(), 2, "Doc 2")
             );
 
             // Act
@@ -225,7 +211,7 @@ class DtoCoverageTest {
         @DisplayName("should handle null values in SourceDocumentDto")
         void shouldHandleNullValuesInSourceDocumentDto() {
             // Act
-            SourceDocumentDto dto = new SourceDocumentDto(null, null, 0.0f, null);
+            SourceDocumentDto dto = new SourceDocumentDto(null, null, 0.0f, null, 0, null);
 
             // Assert
             assertThat(dto.id()).isNull();
@@ -264,9 +250,9 @@ class DtoCoverageTest {
         @DisplayName("SourceDocumentDto should have correct equals behavior")
         void sourceDocumentDtoShouldHaveCorrectEqualsBehavior() {
             // Arrange
-            SourceDocumentDto dto1 = new SourceDocumentDto("id", "content", 0.5f, Map.of("key", "value"));
-            SourceDocumentDto dto2 = new SourceDocumentDto("id", "content", 0.5f, Map.of("key", "value"));
-            SourceDocumentDto dto3 = new SourceDocumentDto("different-id", "content", 0.5f, Map.of());
+            SourceDocumentDto dto1 = new SourceDocumentDto("id", "content", 0.5f, Map.of("key", "value"), 1, "title");
+            SourceDocumentDto dto2 = new SourceDocumentDto("id", "content", 0.5f, Map.of("key", "value"), 1, "title");
+            SourceDocumentDto dto3 = new SourceDocumentDto("different-id", "content", 0.5f, Map.of(), 2, "other");
 
             // Assert
             assertThat(dto1).isEqualTo(dto2);

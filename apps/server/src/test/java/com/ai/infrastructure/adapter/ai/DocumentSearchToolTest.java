@@ -51,8 +51,8 @@ class DocumentSearchToolTest {
             // Arrange
             String query = "test query";
             List<SourceDocument> sources = List.of(
-                new SourceDocument("Document 1 content", 0.95, Map.of()),
-                new SourceDocument("Document 2 content", 0.85, Map.of())
+                new SourceDocument(1, "Document 1 content", 0.95, "doc1", Map.of()),
+                new SourceDocument(2, "Document 2 content", 0.85, "doc2", Map.of())
             );
             RetrievalResult result = new RetrievalResult("context", sources, "enriched query");
             when(ragApplicationService.retrieveContext(eq(query), isNull(), eq(5))).thenReturn(result);
@@ -120,7 +120,7 @@ class DocumentSearchToolTest {
         void shouldHandleSingleResult() {
             // Arrange
             String query = "single result query";
-            SourceDocument singleDoc = new SourceDocument("Single document content", 0.99, Map.of());
+            SourceDocument singleDoc = new SourceDocument(1, "Single document content", 0.99, "single", Map.of());
             RetrievalResult result = new RetrievalResult("context", List.of(singleDoc), "enriched query");
             when(ragApplicationService.retrieveContext(any(), any(), anyInt())).thenReturn(result);
 
@@ -137,7 +137,7 @@ class DocumentSearchToolTest {
         void shouldFormatRelevanceScoresWith2DecimalPlaces() {
             // Arrange
             String query = "test query";
-            SourceDocument doc = new SourceDocument("content", 0.123456789, Map.of());
+            SourceDocument doc = new SourceDocument(1, "content", 0.123456789, "test", Map.of());
             RetrievalResult result = new RetrievalResult("context", List.of(doc), "enriched query");
             when(ragApplicationService.retrieveContext(any(), any(), anyInt())).thenReturn(result);
 
@@ -191,7 +191,7 @@ class DocumentSearchToolTest {
             String query = "test query";
             String docIds = "550e8400-e29b-41d4-a716-446655440000,550e8400-e29b-41d4-a716-446655440001";
             List<SourceDocument> sources = List.of(
-                new SourceDocument("Found document", 0.92, Map.of("docId", "550e8400-e29b-41d4-a716-446655440000"))
+                new SourceDocument(1, "Found document", 0.92, "found", Map.of("docId", "550e8400-e29b-41d4-a716-446655440000"))
             );
             RetrievalResult result = new RetrievalResult("context", sources, "enriched query");
             when(ragApplicationService.retrieveContext(eq(query), any(), eq(5))).thenReturn(result);
@@ -320,9 +320,9 @@ class DocumentSearchToolTest {
             // Arrange
             String query = "multi doc query";
             List<SourceDocument> sources = List.of(
-                new SourceDocument("First content", 0.9, Map.of()),
-                new SourceDocument("Second content", 0.8, Map.of()),
-                new SourceDocument("Third content", 0.7, Map.of())
+                new SourceDocument(1, "First content", 0.9, "first", Map.of()),
+                new SourceDocument(2, "Second content", 0.8, "second", Map.of()),
+                new SourceDocument(3, "Third content", 0.7, "third", Map.of())
             );
             RetrievalResult result = new RetrievalResult("context", sources, "enriched query");
             when(ragApplicationService.retrieveContext(any(), any(), anyInt())).thenReturn(result);
@@ -345,7 +345,7 @@ class DocumentSearchToolTest {
             // Arrange
             String query = "metadata test";
             Map<String, Object> metadata = Map.of("source", "test.pdf", "page", 1);
-            SourceDocument doc = new SourceDocument("Content with metadata", 0.95, metadata);
+            SourceDocument doc = new SourceDocument(1, "Content with metadata", 0.95, "test", metadata);
             RetrievalResult result = new RetrievalResult("context", List.of(doc), "enriched query");
             when(ragApplicationService.retrieveContext(any(), any(), anyInt())).thenReturn(result);
 
