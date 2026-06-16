@@ -10,8 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@i18n';
 import { SourceDocument } from '@shared/models';
@@ -41,7 +40,8 @@ interface Toast {
 @Component({
   selector: 'app-rag-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownModule],
+  providers: [provideMarkdown()],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="rag-chat">
@@ -205,39 +205,14 @@ interface Toast {
                 @if (msg.role === 'user') {
                   {{ msg.content }}
                 } @else {
-                  <div class="markdown-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+                  <div class="markdown-content">
+                    <markdown [data]="msg.content"></markdown>
+                  </div>
                 }
               </div>
               <div class="message-meta">
                 <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
-                @if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
-                  <span class="source-badge" (click)="toggleSources(msg.id)">
-                    📚
-                    {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
-                    {{ expandedSources().has(msg.id) ? '▲' : '▼' }}
-                  </span>
-                }
               </div>
-              @if (msg.role === 'assistant' && msg.sources && expandedSources().has(msg.id)) {
-                <div class="sources-panel">
-                  <div class="sources-title">📖 {{ i18n.t().ragChat.sources }}</div>
-                  @for (source of msg.sources.slice(0, 3); track $index) {
-                    <div class="source-item">
-                      <div class="source-text">
-                        {{
-                          source.text.length > 200 ? source.text.slice(0, 200) + '...' : source.text
-                        }}
-                      </div>
-                      <div class="source-meta">
-                        <span
-                          >{{ i18n.t().ragChat.similarity }}:
-                          {{ (source.score * 100).toFixed(1) }}%</span
-                        >
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
             </div>
           }
           @if (
@@ -811,8 +786,28 @@ interface Toast {
 
       .markdown-content {
         line-height: 1.6;
-        white-space: pre-wrap;
         word-break: break-word;
+
+        p {
+          margin: 0.6em 0;
+          &:empty {
+            display: none;
+          }
+        }
+
+        > p:first-child {
+          margin-top: 0;
+        }
+        > p:last-child {
+          margin-bottom: 0;
+        }
+
+        br {
+          display: block;
+          margin: 0.2em 0;
+          content: '';
+          line-height: 0.8;
+        }
       }
 
       .markdown-content h1,
@@ -841,7 +836,6 @@ interface Toast {
       .markdown-content ul,
       .markdown-content ol {
         margin: 0.5em 0;
-        padding-left: 1.5em;
       }
 
       .markdown-content li {
@@ -920,65 +914,6 @@ interface Toast {
 
       .message-time {
         font-size: 11px;
-        color: #86868b;
-      }
-
-      .source-badge {
-        font-size: 12px;
-        color: #007aff;
-        background: rgba(0, 122, 255, 0.12);
-        padding: 2px 6px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-      }
-
-      .source-badge:hover {
-        background: rgba(0, 122, 255, 0.2);
-      }
-
-      .sources-panel {
-        margin-top: 8px;
-        padding: 8px;
-        background: #ffffff;
-        border-radius: 8px;
-        border: 1px solid #e5e5e5;
-        font-size: 14px;
-        width: 100%;
-        max-width: 400px;
-      }
-
-      .sources-title {
-        font-weight: 500;
-        color: #6e6e73;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-
-      .source-item {
-        padding: 8px;
-        background: #f5f5f7;
-        border-radius: 4px;
-        margin-bottom: 8px;
-        border-left: 3px solid #0071e3;
-      }
-
-      .source-item:last-of-type {
-        margin-bottom: 0;
-      }
-
-      .source-text {
-        color: #1d1d1f;
-        line-height: 1.6;
-        margin-bottom: 4px;
-      }
-
-      .source-meta {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
         color: #86868b;
       }
 
@@ -1108,7 +1043,6 @@ export class RagChatComponent implements OnInit, OnDestroy {
   availableDocs = signal<{ id: string; title: string }[]>([]);
   selectedDocIds = signal<Set<string>>(new Set());
   toasts = signal<Toast[]>([]);
-  expandedSources = signal<Set<string>>(new Set());
   isLoadingDocs = signal(true);
   deletingDocIds = signal<Set<string>>(new Set());
   isUploading = signal(false);
@@ -1383,6 +1317,11 @@ export class RagChatComponent implements OnInit, OnDestroy {
         displayedContent += chunk;
         this.charCountSinceLastRender += chunk.length;
 
+        if (displayedContent.length <= 500) {
+          console.log('[RAG Chat] Chunk received:', JSON.stringify(chunk));
+          console.log('[RAG Chat] Accumulated content:', JSON.stringify(displayedContent));
+        }
+
         this.messages.update((msgs) =>
           msgs.map((msg) =>
             msg.id === assistantMessageId ? { ...msg, content: displayedContent } : msg
@@ -1399,6 +1338,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
         }
       },
       (sources: SourceDocument[]) => {
+        console.debug('[RAG] Sources received:', sources);
         this.messages.update((msgs) =>
           msgs.map((msg) => (msg.id === assistantMessageId ? { ...msg, sources } : msg))
         );
@@ -1410,6 +1350,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
           return next;
         });
         this.isLoading.set(false);
+        console.log('[RAG Chat] Final content:', displayedContent);
       },
       (_err: Error) => {
         this.messages.update((msgs) =>
@@ -1432,18 +1373,6 @@ export class RagChatComponent implements OnInit, OnDestroy {
     );
   }
 
-  toggleSources(messageId: string) {
-    this.expandedSources.update((ids) => {
-      const next = new Set(ids);
-      if (next.has(messageId)) {
-        next.delete(messageId);
-      } else {
-        next.add(messageId);
-      }
-      return next;
-    });
-  }
-
   // ==================== Toast ====================
 
   addToast(message: string, type: Toast['type']) {
@@ -1458,26 +1387,5 @@ export class RagChatComponent implements OnInit, OnDestroy {
 
   formatTime(timestamp: number): string {
     return new Date(timestamp).toLocaleTimeString();
-  }
-
-  renderMarkdown(content: string): string {
-    if (!content) return '';
-
-    // Configure marked for better output
-    marked.setOptions({
-      gfm: true,
-      breaks: true,
-    });
-
-    // Convert markdown to HTML
-    const html = marked.parse(content) as string;
-
-    // Sanitize HTML to prevent XSS
-    const cleanHtml = DOMPurify.sanitize(html, {
-      ADD_TAGS: ['pre', 'code'],
-      ADD_ATTR: ['class'],
-    });
-
-    return cleanHtml;
   }
 }

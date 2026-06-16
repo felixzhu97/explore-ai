@@ -173,7 +173,7 @@ export class ApiService {
               return true;
             }
 
-            // Default: treat as token
+            // Default: treat as token - decode preserved paragraph breaks
             let token: string | null = null;
             try {
               const parsed = JSON.parse(data);
@@ -181,7 +181,11 @@ export class ApiService {
             } catch {
               token = data;
             }
-            if (token) onChunk(token);
+            if (token && token.length > 0) {
+              // Decode \u0001\u0001 back to \n\n (paragraph break)
+              token = token.replace(/\u0001\u0001/g, '\n\n');
+              onChunk(token);
+            }
           }
         }
         return false;
@@ -240,7 +244,6 @@ export class ApiService {
     onError: (err: Error) => void
   ): { abort: () => void } {
     const controller = new AbortController();
-    let currentEvent = '';
 
     fetch(`${BASE_URL}/rag/chat/stream`, {
       method: 'POST',
@@ -269,50 +272,51 @@ export class ApiService {
 
           for (const line of lines) {
             const trimmed = line.trim();
-            if (!trimmed) {
-              currentEvent = '';
+            if (!trimmed) continue;
+
+            // JSON-Lines format: strip SSE "data:" prefix, then expect a complete JSON object
+            const jsonStr = trimmed.startsWith('data:') ? trimmed.slice(5).trim() : trimmed;
+
+            // Handle [DONE] signal
+            if (jsonStr === '[DONE]') {
+              onDone();
+              return;
+            }
+
+            if (!jsonStr.startsWith('{') || !jsonStr.endsWith('}')) {
               continue;
             }
 
-            if (trimmed.startsWith('event:')) {
-              currentEvent = trimmed.slice(6).trim();
-              continue;
-            }
+            try {
+              const parsed = JSON.parse(jsonStr);
 
-            if (trimmed.startsWith('data:')) {
-              const data = trimmed.slice(5).trim();
-
-              if (data === '[DONE]') {
-                onDone();
-                return true;
-              }
-
-              if (data.startsWith('Error:')) {
-                onError(new Error(data.slice(6)));
-                return true;
-              }
-
-              if (currentEvent === 'sources') {
-                try {
-                  const sources = JSON.parse(data);
-                  onSources(Array.isArray(sources) ? sources : []);
-                } catch {
-                  /* ignore */
-                }
-                currentEvent = ''; // Reset after processing sources
+              // Handle sources wrapper format: {"sources":[{...}]}
+              if (Array.isArray(parsed.sources)) {
+                onSources(parsed.sources);
                 continue;
               }
 
-              // Replace <br> with newlines for chunk data
-              const displayData = data.replace(/<br\s*\/?>/gi, '\n');
-              if (displayData !== data) {
-                onChunk(displayData);
-              } else {
-                onChunk(data);
+              // Handle chunk format: {"type":"chunk","text":"..."}
+              if (parsed.type === 'chunk' && typeof parsed.text === 'string') {
+                onChunk(parsed.text);
+                continue;
               }
+
+              // Handle plain text chunk (legacy format)
+              if (typeof parsed === 'string') {
+                onChunk(parsed);
+                continue;
+              }
+
+              // Handle error format: {"type":"error","message":"..."}
+              if (parsed.type === 'error' && parsed.message) {
+                onError(new Error(parsed.message));
+                continue;
+              }
+            } catch {
+              /* ignore parse errors */
             }
           }
-          return false;
         };
 
         try {
@@ -320,7 +324,7 @@ export class ApiService {
             const { done, value } = await reader.read();
             if (done) break;
             buffer += decoder.decode(value, { stream: true });
-            if (processBuffer()) break;
+            processBuffer();
           }
           onDone();
         } catch (err) {

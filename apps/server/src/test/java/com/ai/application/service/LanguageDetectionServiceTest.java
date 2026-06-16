@@ -351,8 +351,7 @@ class LanguageDetectionServiceTest {
             // Assert
             assertThat(result).contains("文档内容");
             assertThat(result).contains("用户问题");
-            assertThat(result).contains("回答指南");
-            assertThat(result).contains("请使用中文回答");
+            assertThat(result).contains("格式要求");
             assertThat(result).contains(TEST_CONTEXT);
             assertThat(result).contains(TEST_QUESTION);
         }
@@ -366,8 +365,7 @@ class LanguageDetectionServiceTest {
             // Assert
             assertThat(result).contains("ドキュメント内容");
             assertThat(result).contains("ユーザーの質問");
-            assertThat(result).contains("回答ガイドライン");
-            assertThat(result).contains("日本語で回答してください");
+            assertThat(result).contains("フォーマット要件");
             assertThat(result).contains(TEST_CONTEXT);
             assertThat(result).contains(TEST_QUESTION);
         }
@@ -381,8 +379,9 @@ class LanguageDetectionServiceTest {
             // Assert
             assertThat(result).contains("# Context");
             assertThat(result).contains("# Question");
-            assertThat(result).contains("## Answer Guidelines");
-            assertThat(result).contains("Use **bold**, *italic*");
+            assertThat(result).contains("## Format Requirements");
+            assertThat(result).contains("Blank line");
+            assertThat(result).contains("MUST STRICTLY FOLLOW");
             assertThat(result).contains(TEST_CONTEXT);
             assertThat(result).contains(TEST_QUESTION);
         }
@@ -464,10 +463,9 @@ class LanguageDetectionServiceTest {
             String result = service.buildPrompt(TEST_QUESTION, TEST_CONTEXT, "zh");
 
             // Assert
-            assertThat(result).contains("**粗体**");
-            assertThat(result).contains("*斜体*");
+            assertThat(result).contains("** 关键词 **");
             assertThat(result).contains("列表");
-            assertThat(result).contains("代码块");
+            assertThat(result).contains("Markdown");
         }
 
         @Test
@@ -477,8 +475,8 @@ class LanguageDetectionServiceTest {
             String result = service.buildPrompt(TEST_QUESTION, TEST_CONTEXT, "zh");
 
             // Assert
-            assertThat(result).contains("段落之间留空行");
-            assertThat(result).contains("## 标题");
+            assertThat(result).contains("段落之间必须用两个换行符分隔");
+            assertThat(result).contains("# 标题");
         }
 
         @Test
@@ -487,8 +485,9 @@ class LanguageDetectionServiceTest {
             // Act
             String result = service.buildPrompt(TEST_QUESTION, TEST_CONTEXT, "zh");
 
-            // Assert
-            assertThat(result).contains("如果答案不在文档内容中");
+            // Assert - verify markdown formatting rules are present
+            assertThat(result).contains("格式要求");
+            assertThat(result).contains("必须严格遵守");
         }
 
         @Test
@@ -497,8 +496,71 @@ class LanguageDetectionServiceTest {
             // Act
             String result = service.buildPrompt(TEST_QUESTION, TEST_CONTEXT, "en");
 
-            // Assert
-            assertThat(result).contains("If the answer is not in the context");
+            // Assert - verify format requirements are present
+            assertThat(result).contains("Format Requirements");
+            assertThat(result).contains("MUST STRICTLY FOLLOW");
         }
+
+        @Test
+        @DisplayName("should include code block guidelines for Chinese")
+        void shouldIncludeCodeBlockGuidelinesForChinese() {
+            String result = service.buildPrompt("Q", "C", "zh");
+            // Verify example section title exists and example body follows 总-分-总 structure
+            assertThat(result).contains("## 正确示例");
+            assertThat(result).contains("# 概述");
+            assertThat(result).contains("# 核心要点");
+            assertThat(result).contains("# 总结");
+        }
+
+        @Test
+        @DisplayName("should include code block guidelines for Japanese")
+        void shouldIncludeCodeBlockGuidelinesForJapanese() {
+            String result = service.buildPrompt("Q", "C", "ja");
+            // Verify example section title exists and example body follows 総-分-総 structure
+            assertThat(result).contains("## 正しい例");
+            assertThat(result).contains("# 概要");
+            assertThat(result).contains("# コアポイント");
+            assertThat(result).contains("# まとめ");
+        }
+
+        @Test
+        @DisplayName("should include code block guidelines for English")
+        void shouldIncludeCodeBlockGuidelinesForEnglish() {
+            String result = service.buildPrompt("Q", "C", "en");
+            // Verify example section title exists and example body follows General-Specific-General structure
+            assertThat(result).contains("## Correct Example");
+            assertThat(result).contains("# Overview");
+            assertThat(result).contains("# Core Points");
+            assertThat(result).contains("# Summary");
+        }
+
+        @Test
+        @DisplayName("should include Markdown output guidelines for Chinese")
+        void shouldIncludeMarkdownOutputGuidelinesForChinese() {
+            String result = service.buildPrompt("Q", "C", "zh");
+            assertThat(result).contains("Markdown");
+        }
+
+        @Test
+        @DisplayName("should include Markdown output guidelines for English")
+        void shouldIncludeMarkdownOutputGuidelinesForEnglish() {
+            String result = service.buildPrompt("Q", "C", "en");
+            assertThat(result).contains("Markdown");
+        }
+
+        @Test
+        @DisplayName("should include paragraph separation guidelines for Chinese")
+        void shouldIncludeParagraphSeparationForChinese() {
+            String result = service.buildPrompt("Q", "C", "zh");
+            assertThat(result).contains("段落");
+        }
+
+        @Test
+        @DisplayName("should include blank line guidelines for English")
+        void shouldIncludeBlankLineGuidelinesForEnglish() {
+            String result = service.buildPrompt("Q", "C", "en");
+            assertThat(result).matches("(?s).*(blank line|paragraph).*");
+        }
+
     }
 }

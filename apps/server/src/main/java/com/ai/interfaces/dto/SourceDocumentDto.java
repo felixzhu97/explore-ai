@@ -9,5 +9,7 @@ public record SourceDocumentDto(
     String id,
     String content,
     float score,
-    Map<String, Object> metadata
+    Map<String, Object> metadata,
+    int index,
+    String documentTitle
 ) {}

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * SourceDocument Record Tests
@@ -28,18 +29,22 @@ class SourceDocumentTest {
         @DisplayName("should create with all fields")
         void shouldCreateWithAllFields() {
             // Arrange
+            int index = 1;
             String text = "This is the document text.";
             double score = 0.95;
+            String documentTitle = "Test Document";
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("source", "test.pdf");
             metadata.put("page", 1);
 
             // Act
-            SourceDocument sourceDocument = new SourceDocument(text, score, metadata);
+            SourceDocument sourceDocument = new SourceDocument(index, text, score, documentTitle, metadata);
 
             // Assert
+            assertThat(sourceDocument.index()).isEqualTo(index);
             assertThat(sourceDocument.text()).isEqualTo(text);
             assertThat(sourceDocument.score()).isEqualTo(score);
+            assertThat(sourceDocument.documentTitle()).isEqualTo(documentTitle);
             assertThat(sourceDocument.metadata()).isEqualTo(metadata);
         }
 
@@ -47,7 +52,7 @@ class SourceDocumentTest {
         @DisplayName("should create with empty metadata")
         void shouldCreateWithEmptyMetadata() {
             // Act
-            SourceDocument sourceDocument = new SourceDocument("text", 0.5, new HashMap<>());
+            SourceDocument sourceDocument = new SourceDocument(1, "text", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(sourceDocument.metadata()).isEmpty();
@@ -57,7 +62,7 @@ class SourceDocumentTest {
         @DisplayName("should create with null metadata")
         void shouldCreateWithNullMetadata() {
             // Act
-            SourceDocument sourceDocument = new SourceDocument("text", 0.5, null);
+            SourceDocument sourceDocument = new SourceDocument(1, "text", 0.5, "title", null);
 
             // Assert
             assertThat(sourceDocument.metadata()).isNull();
@@ -67,27 +72,27 @@ class SourceDocumentTest {
         @DisplayName("should create with zero score")
         void shouldCreateWithZeroScore() {
             // Act
-            SourceDocument sourceDocument = new SourceDocument("text", 0.0, new HashMap<>());
+            SourceDocument sourceDocument = new SourceDocument(1, "text", 0.0, "title", new HashMap<>());
 
             // Assert
             assertThat(sourceDocument.score()).isZero();
         }
 
         @Test
-        @DisplayName("should create with negative score")
-        void shouldCreateWithNegativeScore() {
+        @DisplayName("should create with boundary score of 1.0")
+        void shouldCreateWithBoundaryScoreOfOne() {
             // Act
-            SourceDocument sourceDocument = new SourceDocument("text", -0.5, new HashMap<>());
+            SourceDocument sourceDocument = new SourceDocument(1, "text", 1.0, "title", new HashMap<>());
 
             // Assert
-            assertThat(sourceDocument.score()).isNegative();
+            assertThat(sourceDocument.score()).isEqualTo(1.0);
         }
 
         @Test
         @DisplayName("should create with empty text")
         void shouldCreateWithEmptyText() {
             // Act
-            SourceDocument sourceDocument = new SourceDocument("", 0.5, new HashMap<>());
+            SourceDocument sourceDocument = new SourceDocument(1, "", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(sourceDocument.text()).isEmpty();
@@ -100,7 +105,7 @@ class SourceDocumentTest {
             String specialText = "Hello! ¿Cómo estás? 你好世界! 🎉";
 
             // Act
-            SourceDocument sourceDocument = new SourceDocument(specialText, 0.9, new HashMap<>());
+            SourceDocument sourceDocument = new SourceDocument(1, specialText, 0.9, "title", new HashMap<>());
 
             // Assert
             assertThat(sourceDocument.text()).isEqualTo(specialText);
@@ -120,19 +125,30 @@ class SourceDocumentTest {
             Map<String, Object> metadata2 = new HashMap<>();
             metadata2.put("key", "value");
 
-            SourceDocument doc1 = new SourceDocument("text", 0.5, metadata1);
-            SourceDocument doc2 = new SourceDocument("text", 0.5, metadata2);
+            SourceDocument doc1 = new SourceDocument(1, "text", 0.5, "title", metadata1);
+            SourceDocument doc2 = new SourceDocument(1, "text", 0.5, "title", metadata2);
 
             // Assert
             assertThat(doc1).isEqualTo(doc2);
         }
 
         @Test
+        @DisplayName("should not be equal when different index")
+        void shouldNotBeEqualWhenDifferentIndex() {
+            // Arrange
+            SourceDocument doc1 = new SourceDocument(1, "text", 0.5, "title", new HashMap<>());
+            SourceDocument doc2 = new SourceDocument(2, "text", 0.5, "title", new HashMap<>());
+
+            // Assert
+            assertThat(doc1).isNotEqualTo(doc2);
+        }
+
+        @Test
         @DisplayName("should not be equal when different text")
         void shouldNotBeEqualWhenDifferentText() {
             // Arrange
-            SourceDocument doc1 = new SourceDocument("text1", 0.5, new HashMap<>());
-            SourceDocument doc2 = new SourceDocument("text2", 0.5, new HashMap<>());
+            SourceDocument doc1 = new SourceDocument(1, "text1", 0.5, "title", new HashMap<>());
+            SourceDocument doc2 = new SourceDocument(1, "text2", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(doc1).isNotEqualTo(doc2);
@@ -142,8 +158,8 @@ class SourceDocumentTest {
         @DisplayName("should not be equal when different score")
         void shouldNotBeEqualWhenDifferentScore() {
             // Arrange
-            SourceDocument doc1 = new SourceDocument("text", 0.5, new HashMap<>());
-            SourceDocument doc2 = new SourceDocument("text", 0.6, new HashMap<>());
+            SourceDocument doc1 = new SourceDocument(1, "text", 0.5, "title", new HashMap<>());
+            SourceDocument doc2 = new SourceDocument(1, "text", 0.6, "title", new HashMap<>());
 
             // Assert
             assertThat(doc1).isNotEqualTo(doc2);
@@ -158,8 +174,8 @@ class SourceDocumentTest {
             Map<String, Object> metadata2 = new HashMap<>();
             metadata2.put("key", "value2");
 
-            SourceDocument doc1 = new SourceDocument("text", 0.5, metadata1);
-            SourceDocument doc2 = new SourceDocument("text", 0.5, metadata2);
+            SourceDocument doc1 = new SourceDocument(1, "text", 0.5, "title", metadata1);
+            SourceDocument doc2 = new SourceDocument(1, "text", 0.5, "title", metadata2);
 
             // Assert
             assertThat(doc1).isNotEqualTo(doc2);
@@ -169,7 +185,7 @@ class SourceDocumentTest {
         @DisplayName("should not be equal to null")
         void shouldNotBeEqualToNull() {
             // Arrange
-            SourceDocument doc = new SourceDocument("text", 0.5, new HashMap<>());
+            SourceDocument doc = new SourceDocument(1, "text", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(doc).isNotEqualTo(null);
@@ -179,7 +195,7 @@ class SourceDocumentTest {
         @DisplayName("should not be equal to different type")
         void shouldNotBeEqualToDifferentType() {
             // Arrange
-            SourceDocument doc = new SourceDocument("text", 0.5, new HashMap<>());
+            SourceDocument doc = new SourceDocument(1, "text", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(doc).isNotEqualTo("not a source document");
@@ -189,7 +205,7 @@ class SourceDocumentTest {
         @DisplayName("should be reflexive")
         void shouldBeReflexive() {
             // Arrange
-            SourceDocument doc = new SourceDocument("text", 0.5, new HashMap<>());
+            SourceDocument doc = new SourceDocument(1, "text", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(doc).isEqualTo(doc);
@@ -209,8 +225,8 @@ class SourceDocumentTest {
             Map<String, Object> metadata2 = new HashMap<>();
             metadata2.put("key", "value");
 
-            SourceDocument doc1 = new SourceDocument("text", 0.5, metadata1);
-            SourceDocument doc2 = new SourceDocument("text", 0.5, metadata2);
+            SourceDocument doc1 = new SourceDocument(1, "text", 0.5, "title", metadata1);
+            SourceDocument doc2 = new SourceDocument(1, "text", 0.5, "title", metadata2);
 
             // Assert
             assertThat(doc1.hashCode()).isEqualTo(doc2.hashCode());
@@ -220,8 +236,8 @@ class SourceDocumentTest {
         @DisplayName("should have different hashCode for different instances")
         void shouldHaveDifferentHashCodeForDifferentInstances() {
             // Arrange
-            SourceDocument doc1 = new SourceDocument("text1", 0.5, new HashMap<>());
-            SourceDocument doc2 = new SourceDocument("text2", 0.5, new HashMap<>());
+            SourceDocument doc1 = new SourceDocument(1, "text1", 0.5, "title", new HashMap<>());
+            SourceDocument doc2 = new SourceDocument(2, "text1", 0.5, "title", new HashMap<>());
 
             // Assert
             assertThat(doc1.hashCode()).isNotEqualTo(doc2.hashCode());
@@ -240,12 +256,70 @@ class SourceDocumentTest {
             metadata.put("source", "test");
 
             // Act
-            SourceDocument doc = new SourceDocument("test text", 0.8, metadata);
+            SourceDocument doc = new SourceDocument(1, "test text", 0.8, "Test Document", metadata);
 
             // Assert
+            assertThat(doc.index()).isEqualTo(1);
             assertThat(doc.text()).isNotNull();
             assertThat(doc.score()).isNotNull();
+            assertThat(doc.documentTitle()).isEqualTo("Test Document");
             assertThat(doc.metadata()).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validation")
+    class Validation {
+
+        @Test
+        @DisplayName("should throw when index is zero")
+        void shouldThrowWhenIndexIsZero() {
+            assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(0, "text", 0.5, "title", new HashMap<>()));
+        }
+
+        @Test
+        @DisplayName("should throw when index is negative")
+        void shouldThrowWhenIndexIsNegative() {
+            assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(-1, "text", 0.5, "title", new HashMap<>()));
+        }
+
+        @Test
+        @DisplayName("should throw when text is null")
+        void shouldThrowWhenTextIsNull() {
+            assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(1, null, 0.5, "title", new HashMap<>()));
+        }
+
+        @Test
+        @DisplayName("should throw when documentTitle is null")
+        void shouldThrowWhenDocumentTitleIsNull() {
+            assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(1, "text", 0.5, null, new HashMap<>()));
+        }
+
+        @Test
+        @DisplayName("should throw when score is negative")
+        void shouldThrowWhenScoreIsNegative() {
+            assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(1, "text", -0.1, "title", new HashMap<>()));
+        }
+
+        @Test
+        @DisplayName("should throw when score exceeds 1.0")
+        void shouldThrowWhenScoreExceedsOne() {
+            assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(1, "text", 1.5, "title", new HashMap<>()));
+        }
+
+        @Test
+        @DisplayName("should include score value in exception message")
+        void shouldIncludeScoreInExceptionMessage() {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new SourceDocument(1, "text", 2.5, "title", new HashMap<>()));
+
+            assertThat(exception.getMessage()).contains("2.5");
         }
     }
 }

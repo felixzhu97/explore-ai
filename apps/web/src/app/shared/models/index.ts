@@ -95,9 +95,12 @@ export interface RagQuery {
 }
 
 export interface SourceDocument {
-  text: string;
+  text?: string;
+  content?: string;
   score: number;
   metadata: Record<string, unknown>;
+  index?: number;
+  documentTitle?: string;
 }
 
 export interface RAGSource {
