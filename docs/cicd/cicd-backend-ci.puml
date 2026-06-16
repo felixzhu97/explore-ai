@@ -1,0 +1,49 @@
+@startuml cicd-backend-ci
+!pragma activityFlow
+skinparam activityBackgroundColor #FAFAFA
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #F0F0F0
+skinparam activityDiamondBorderColor #333333
+skinparam arrowColor #333333
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F9A825
+skinparam packageStyle rectangle
+
+title CI/CD Workflow - backend-ci
+
+|#palegreen|**Workflow: backend-ci.yml**|
+start
+note right
+**Trigger:** push | pull_request
+**Branches:** main, java-angular, feature/**
+end note
+
+:Checkout code;
+note right: `actions/checkout@v4` (fetch-depth: 0)
+
+:Setup Java 25 (Temurin);
+note right: `actions/setup-java@v4` (cache: gradle)
+
+:Make gradlew executable;
+note right: `chmod +x apps/server/gradlew`
+
+:Build (skip tests);
+note right: `./gradlew build -x test --no-daemon`
+
+:Run tests with coverage;
+note right: `./gradlew test jacocoTestReport --no-daemon`
+
+:Upload JaCoCo coverage report;
+note right
+`actions/upload-artifact@v4`
+(name: jacoco-report)
+end note
+
+:Upload Java build outputs for CodeQL;
+note right
+`actions/upload-artifact@v4`
+(name: java-build-outputs)
+end note
+
+stop
+@enduml
