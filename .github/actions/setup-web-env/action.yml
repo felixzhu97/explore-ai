@@ -1,0 +1,27 @@
+name: 'Setup Web Env'
+description: 'Checkout (shallow) + pnpm + Node 24 + install deps for the apps/web workspace'
+inputs:
+  node-version:
+    description: 'Node.js version'
+    required: false
+    default: '24'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile

@@ -1,0 +1,80 @@
+@startuml cicd-codeql
+!pragma activityFlow
+skinparam activityBackgroundColor #FAFAFA
+skinparam activityBorderColor #333333
+skinparam arrowColor #333333
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F9A825
+skinparam packageStyle rectangle
+
+title CI/CD Workflow - codeql
+
+|#orange|**Workflow: codeql.yml**|
+start
+note right
+**Trigger:** push | pull_request + cron (weekly)
+**Branches:** main, java-angular, feature/**
+**Schedule:** `cron: '20 5 * * 3'` (every Wed 05:20 UTC)
+end note
+
+fork
+  :**Java / Kotlin Lane**
+  (matrix.language == java-kotlin);
+  note right: ## Java-Kotlin Lane
+
+  :Checkout repository;
+  note right: `actions/checkout@v4`
+
+  :Setup Java;
+  note right
+  `actions/setup-java@v4`
+  (Temurin 25, cache: gradle)
+  end note
+
+  :Initialize CodeQL;
+  note right
+  `github/codeql-action/init@v4`
+  (build-mode: none)
+  end note
+
+  :Download prebuilt Java/Kotlin outputs;
+  note right
+  `actions/download-artifact@v4`
+  (name: java-build-outputs)
+  (continue-on-error: true)
+  end note
+
+  if (artifact missing?) then (yes)
+    :Build Java/Kotlin (fallback);
+    note right
+    `./gradlew build -x test --no-daemon`
+    (triggered when
+    `hashFiles('apps/server/build/classes/java/main') == ''`)
+    end note
+  else (no)
+  endif
+
+  :Perform CodeQL Analysis;
+  note right: `github/codeql-action/analyze@v4`
+
+fork again
+  :**JavaScript / TypeScript Lane**
+  (matrix.language == javascript-typescript);
+  note right: ## JavaScript-TypeScript Lane
+
+  :Checkout repository;
+  note right: `actions/checkout@v4`
+
+  :Initialize CodeQL;
+  note right
+  `github/codeql-action/init@v4`
+  (build-mode: none)
+  end note
+
+  :Perform CodeQL Analysis;
+  note right: `github/codeql-action/analyze@v4`
+end fork
+
+stop
+
+@enduml
