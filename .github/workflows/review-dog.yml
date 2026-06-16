@@ -2,49 +2,33 @@ name: Code Review with Review Dog
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches: [main, master]
+    branches: ["main", "java-angular", "feature/**"]
 
 jobs:
   lint:
-    name: Lint & Code Review
+    name: ESLint
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-      checks: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
+      - name: Install reviewdog
+        uses: reviewdog/action-setup@v1
         with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: ESLint
-        id: eslint
-        run: |
-          pnpm lint 2>&1 || true
-        continue-on-error: true
-
-      - name: Run Review Dog for ESLint
-        if: always()
+          reviewdog_version: v0.20.3
+      - name: Run ESLint with reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pnpm lint 2>&1 | reviewdog -f=eslint -reporter=github-pr-review -level=error || true
+          pnpm -C apps/web exec eslint "src/**/*.ts" --ext .ts 2>&1 |
+            reviewdog -f=eslint -reporter=github-pr-review -level=error
 
   typescript:
     name: TypeScript Check
@@ -52,109 +36,54 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      checks: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
+      - name: Install reviewdog
+        uses: reviewdog/action-setup@v1
         with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: TypeScript Check (Web)
-        id: tsc
-        run: |
-          cd apps/web && npx tsc --noEmit 2>&1 || true
-        continue-on-error: true
-
-      - name: Run Review Dog for TypeScript
-        if: always()
+          reviewdog_version: v0.20.3
+      - name: Run TypeScript check with reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd apps/web && npx tsc --noEmit 2>&1 | reviewdog -f=tsc -reporter=github-pr-review -level=error || true
+          (pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json &&
+            pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json) 2>&1 |
+            reviewdog -f=tsc -reporter=github-pr-review -level=error
 
   prettier:
     name: Code Format Check
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
       - name: Check Prettier formatting
-        id: prettier
-        run: |
-          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md,mdc}" 2>&1 || true
-        continue-on-error: true
-
-      - name: Run Review Dog for Prettier
-        if: always()
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md,mdc}" 2>&1 | reviewdog -f=prettier -reporter=github-pr-review -level=warning || true
+        run: pnpm prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run tests
-        id: test
-        run: |
-          if [ -z "$(find . -name '*.test.ts' -o -name '*.test.tsx' 2>/dev/null)" ]; then
-            echo "No test files found, skipping tests"
-            exit 0
-          fi
-          pnpm test --run
-        continue-on-error: true
+      - name: Setup web env
+        uses: ./.github/actions/setup-web-env
+      - name: Run tests (Vitest + jsdom)
+        run: pnpm --filter web exec vitest run

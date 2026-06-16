@@ -1,0 +1,77 @@
+@startuml cicd-review-dog
+!pragma activityFlow
+skinparam activityBackgroundColor #FAFAFA
+skinparam activityBorderColor #333333
+skinparam arrowColor #333333
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F9A825
+skinparam packageStyle rectangle
+
+title CI/CD Workflow - review-dog
+
+|#lightskyblue|**Workflow: review-dog.yml**|
+start
+note right
+**Trigger:** pull_request only
+**Branches:** main, java-angular, feature/**
+end note
+
+fork
+  :**Job: ESLint**;
+  :Checkout code;
+  note right: `actions/checkout@v4` (fetch-depth: 1)
+  :Setup web env;
+  note right: `.github/actions/setup-web-env`
+  :Install reviewdog;
+  note right
+  `reviewdog/action-setup@v1`
+  (v0.20.3)
+  end note
+  :Run ESLint with reviewdog;
+  note right
+  `pnpm -C apps/web exec eslint "src/**/*.ts" --ext .ts`
+  +
+  `reviewdog -f=eslint -reporter=github-pr-review -level=error`
+  end note
+
+fork again
+  :**Job: TypeScript Check**;
+  :Checkout code;
+  note right: `actions/checkout@v4` (fetch-depth: 1)
+  :Setup web env;
+  note right: `.github/actions/setup-web-env`
+  :Install reviewdog;
+  note right
+  `reviewdog/action-setup@v1`
+  (v0.20.3)
+  end note
+  :Run TypeScript check with reviewdog;
+  note right
+  `pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json`
+  +
+  `pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json`
+  +
+  `reviewdog -f=tsc -reporter=github-pr-review -level=error`
+  end note
+
+fork again
+  :**Job: Prettier Format Check**;
+  :Checkout code;
+  note right: `actions/checkout@v4` (fetch-depth: 1)
+  :Setup web env;
+  note right: `.github/actions/setup-web-env`
+  :Check Prettier formatting;
+  note right: `pnpm prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}" (no reviewdog - CI gate only)`
+
+fork again
+  :**Job: Unit Tests (Vitest)**;
+  :Checkout code;
+  note right: `actions/checkout@v4` (fetch-depth: 1)
+  :Setup web env;
+  note right: `.github/actions/setup-web-env`
+  :Run tests (Vitest + jsdom);
+  note right: `pnpm --filter web exec vitest run` (no reviewdog - CI gate only)`
+end fork
+
+stop
+@enduml

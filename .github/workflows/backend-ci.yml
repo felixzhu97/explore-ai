@@ -1,0 +1,60 @@
+name: Backend CI (Java / Gradle)
+
+on:
+  push:
+    branches: [main, java-angular, "feature/**"]
+  pull_request:
+    branches: [main, java-angular, "feature/**"]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Java 25 (Temurin)
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9  # v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x apps/server/gradlew
+
+      - name: Build (skip tests)
+        working-directory: apps/server
+        run: ./gradlew build -x test --no-daemon
+
+      - name: Run tests with coverage
+        working-directory: apps/server
+        run: ./gradlew test jacocoTestReport --no-daemon
+
+      - name: Upload JaCoCo coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: jacoco-report
+          path: apps/server/build/reports/jacocoTestReport
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload Java build outputs for CodeQL
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: java-build-outputs
+          path: |
+            apps/server/build/classes
+            apps/server/build/libs
+            apps/server/build/generated
+            apps/server/build/resources
+          retention-days: 7
+          if-no-files-found: warn

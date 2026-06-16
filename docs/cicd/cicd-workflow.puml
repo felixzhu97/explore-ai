@@ -1,0 +1,53 @@
+@startuml cicd-workflow
+!pragma activityFlow
+skinparam activityBackgroundColor #FAFAFA
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #F0F0F0
+skinparam activityDiamondBorderColor #333333
+skinparam arrowColor #333333
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F9A825
+skinparam packageStyle rectangle
+
+title CI/CD Workflow Overview - GitHub Actions
+
+|#palegreen|**Workflow: backend-ci.yml**|
+start
+note right
+**Trigger:** push | pull_request
+**Branches:** main, java-angular, feature/**
+end note
+:**backend-ci**
+(trigger: push | pull_request);
+stop
+
+|#orange|**Workflow: codeql.yml**|
+start
+note right
+**Trigger:** push | pull_request + cron (weekly)
+**Branches:** main, java-angular, feature/**
+**Schedule:** cron: '20 5 * * 3' (Wed 05:20 UTC)
+end note
+:**codeql**
+(trigger: push | pull_request + cron
+ + matrix: java-kotlin + javascript-typescript);
+stop
+
+|#lightskyblue|**Workflow: review-dog.yml**|
+start
+note right
+**Trigger:** pull_request only
+**Branches:** main, java-angular, feature/**
+end note
+:**review-dog**
+(trigger: pull_request
+ + 4 parallel jobs: eslint | tsc | prettier | vitest);
+stop
+
+legend right
+| Workflow | Trigger | Color |
+| backend-ci | push / pull_request | #palegreen |
+| codeql | push / pull_request / cron | #orange |
+| review-dog | pull_request | #lightskyblue |
+endlegend
+@enduml

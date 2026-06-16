@@ -3,37 +3,38 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 系统上下文图 (C1) - AI Chat Application with RAG
+title 系统上下文图 (C1) - AI Chat & Agent Platform
 
 ' ============================================================
 ' PEOPLE - 人员
 ' ============================================================
-Person(user, "用户", "与 AI 助手进行自然语言对话, 上传文档进行问答")
+Person(user, "用户", "与 AI 助手对话、上传文档、调用工具、查看监控")
 
 ' ============================================================
-' AI Chat Application 系统边界
+' AI Chat & Agent Platform 系统边界
 ' ============================================================
-System_Boundary(ai_chat_app, "AI Chat Application") {
-    System(frontend, "Web Frontend", "Angular 19 + TypeScript + SCSS", "Web 用户界面")
-    System(chat_backend, "AI Chat Backend", "Java 25 + Spring Boot 3.5", "会话管理、AI 对话处理")
-    System(rag_backend, "RAG Backend", "Java 25 + Spring Boot 3.5 + pgvector", "文档管理、向量检索、RAG 增强问答")
+System_Boundary(ai_platform, "AI Chat & Agent Platform") {
+    System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界面")
+    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "会话管理·AI 对话·RAG 检索·工具编排·MCP Agent")
 }
 
 ' ============================================================
 ' EXTERNAL SYSTEMS - 外部系统
 ' ============================================================
-System_Ext(deepseek_api, "DeepSeek API", "DeepSeek LLM + Embedding Service")
-System_Ext(postgresql, "PostgreSQL + pgvector", "向量数据库，存储文档和向量嵌入")
+System_Ext(deepseek_api, "DeepSeek API", "DeepSeek LLM + Text Embedding")
+System_Ext(postgresql, "PostgreSQL + pgvector", "向量数据库，文档与向量嵌入存储，端口 5432")
+System_Ext(duckduckgo, "DuckDuckGo Search", "Web 搜索服务")
+System_Ext(ollama, "Ollama", "本地 Embedding 模型服务，端口 11434")
 
 ' ============================================================
 ' RELATIONSHIPS - 关系
 ' ============================================================
-Rel(user, frontend, "发送消息/上传文档/接收回复", "HTTPS")
-Rel(frontend, chat_backend, "HTTP/SSE 请求", "HTTP/SSE")
-Rel(frontend, rag_backend, "HTTP/SSE 请求(文档/RAG问答)", "HTTP/SSE")
-Rel(chat_backend, deepseek_api, "LLM 调用", "HTTPS")
-Rel(rag_backend, deepseek_api, "Embedding 生成/LLM 调用", "HTTPS")
-Rel(rag_backend, postgresql, "向量搜索/文档存储", "JDBC")
+Rel(user, frontend, "对话 / 上传文档 / 调用工具 / 查看监控", "HTTPS")
+Rel(frontend, backend, "HTTP/SSE 请求", "HTTP :9000")
+Rel(backend, deepseek_api, "LLM 调用 / Embedding 生成", "HTTPS")
+Rel(backend, postgresql, "向量搜索 / 文档存储", "JDBC :5432")
+Rel(backend, duckduckgo, "Web 搜索", "HTTPS")
+Rel(backend, ollama, "本地 Embedding 生成", "HTTP :11434")
 
 SHOW_LEGEND()
 @enduml
