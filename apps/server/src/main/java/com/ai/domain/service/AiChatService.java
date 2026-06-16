@@ -25,4 +25,21 @@ public interface AiChatService {
      * @return AI response text
      */
     String chatWithHistory(List<ChatMessage> messages);
+
+    /**
+     * Sends a message to AI and returns a streaming response.
+     *
+     * @param userMessage user message text
+     * @return flux of response text chunks
+     */
+    reactor.core.publisher.Flux<String> chatStream(String userMessage);
+
+    /**
+     * Sends a message with system prompt and returns a streaming response.
+     *
+     * @param userMessage   user message text
+     * @param systemPrompt system prompt to prepend
+     * @return flux of response text chunks
+     */
+    reactor.core.publisher.Flux<String> chatStream(String userMessage, String systemPrompt);
 }

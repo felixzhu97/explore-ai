@@ -6,6 +6,7 @@ import com.ai.domain.service.AiChatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -46,6 +47,19 @@ public class SpringAiChatAdapter implements AiChatPort {
             return response;
         } catch (Exception e) {
             log.error("AI chat with history failed", e);
+            throw new RuntimeException("AI service error: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Flux<String> chatStream(String userMessage) {
+        log.info("Sending streaming message to AI: {}", truncateForLog(userMessage));
+        try {
+            return aiChatService.chatStream(userMessage)
+                .doOnNext(chunk -> log.debug("Stream chunk received: {} chars", chunk.length()))
+                .doOnError(e -> log.error("AI stream failed", e));
+        } catch (Exception e) {
+            log.error("AI chat stream failed", e);
             throw new RuntimeException("AI service error: " + e.getMessage(), e);
         }
     }

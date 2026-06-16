@@ -5,18 +5,19 @@ import com.ai.interfaces.controller.ChatController;
 import com.ai.interfaces.controller.GlobalExceptionHandler;
 import com.ai.interfaces.dto.ChatRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,23 +27,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * ChatController Integration Tests
  * 
- * Tests using @WebMvcTest and MockMvc for controller layer:
+ * Tests using standalone MockMvc setup for controller layer:
  * - Naming convention: should_expected_result_when_condition
  * - Uses AAA pattern (Arrange-Act-Assert)
  */
-@WebMvcTest(controllers = ChatController.class)
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ChatController Integration Tests")
 class ChatControllerIntegrationTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private ChatApplicationService chatService;
+
+    @InjectMocks
+    private ChatController chatController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(chatController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("shouldReturnOk_WhenValidMessage")

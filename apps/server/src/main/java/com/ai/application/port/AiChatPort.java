@@ -23,4 +23,12 @@ public interface AiChatPort {
      * @return AI response text
      */
     String chatWithHistory(java.util.List<ChatMessage> messages);
+
+    /**
+     * Sends a message to AI and returns a streaming response.
+     *
+     * @param userMessage user message text
+     * @return flux of response text chunks
+     */
+    reactor.core.publisher.Flux<String> chatStream(String userMessage);
 }

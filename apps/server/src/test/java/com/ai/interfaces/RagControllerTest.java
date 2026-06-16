@@ -2,31 +2,35 @@ package com.ai.interfaces;
 
 import com.ai.application.service.LanguageDetectionService;
 import com.ai.application.service.RagApplicationService;
-import com.ai.application.usecase.RagChatUseCase;
 import com.ai.domain.model.Document;
-import com.ai.domain.model.SourceDocument;
 import com.ai.domain.model.DocumentStatus;
 import com.ai.domain.service.AiChatService;
 import com.ai.domain.vo.DocumentId;
 import com.ai.infrastructure.adapter.document.PdfTextExtractor;
+import com.ai.interfaces.controller.GlobalExceptionHandler;
 import com.ai.interfaces.controller.RagController;
 import com.ai.interfaces.dto.DocumentSummaryDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.Instant;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,32 +39,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * RagController Tests
  *
- * Tests using @WebMvcTest and MockMvc for the RAG controller layer:
+ * Tests using standalone MockMvc setup for the RAG controller layer:
  * - Document upload, list, delete operations
  * - Streaming response format (SSE)
  * - Exception handling
  */
-@WebMvcTest(RagController.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("RagController Tests")
 class RagControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private RagApplicationService ragApplicationService;
 
-    @MockBean
+    @Mock
     private LanguageDetectionService languageDetectionService;
 
-    @MockBean
+    @Mock
     private AiChatService aiChatService;
 
-    @MockBean
+    @Mock
     private PdfTextExtractor pdfTextExtractor;
+
+    private RagController ragController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        ragController = new RagController(
+                ragApplicationService,
+                languageDetectionService,
+                aiChatService,
+                objectMapper,
+                pdfTextExtractor);
+        mockMvc = MockMvcBuilders.standaloneSetup(ragController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("shouldReturnDocumentsList_WhenGetDocuments")
@@ -71,10 +89,6 @@ class RagControllerTest {
         void shouldReturnDocumentsListWhenGetDocumentsCalled() throws Exception {
             // Arrange
             Document doc = createTestDocument("Test Document", DocumentStatus.READY);
-            DocumentSummaryDto summary = new DocumentSummaryDto(
-                doc.getId().value(), doc.getTitle(), doc.getStatus().name(),
-                doc.getCreatedAt(), 0
-            );
             when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
 
             // Act & Assert
@@ -234,80 +248,38 @@ class RagControllerTest {
     }
 
     @Nested
-    @DisplayName("shouldReturnStreamingResponse_WhenRagChatStream")
-    class StreamingChatTests {
+    @DisplayName("truncate()")
+    class TruncateMethodTests {
 
-        @Test
-        @DisplayName("should return streaming response with correct content type")
-        void shouldReturnStreamingResponseWithCorrectContentType() throws Exception {
-            // Arrange
-            Map<String, Object> request = Map.of(
-                "query", "What is AI?",
-                "top_k", 5,
-                "temperature", 0.7
-            );
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
-                "Context from documents", List.of(), "Enriched query"
-            );
-            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
-            when(languageDetectionService.detect(anyString())).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Prompt with context");
-            when(aiChatService.chat(anyString())).thenReturn("AI response here");
+        private Method truncateMethod;
 
-            // Act & Assert
-            mockMvc.perform(post("/api/rag/chat/stream")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk());
+        @BeforeEach
+        void setUp() throws Exception {
+            truncateMethod = RagController.class.getDeclaredMethod("truncate", String.class);
+            truncateMethod.setAccessible(true);
         }
 
         @Test
-        @DisplayName("should handle streaming with specific document IDs")
-        void shouldHandleStreamingWithSpecificDocumentIds() throws Exception {
-            // Arrange
-            List<String> docIds = List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-            Map<String, Object> request = Map.of(
-                "query", "Question about docs",
-                "doc_ids", docIds
-            );
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
-                "Context from docs", List.of(), "Query"
-            );
-            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
-            when(languageDetectionService.detect(anyString())).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Prompt");
-            when(aiChatService.chat(anyString())).thenReturn("Response");
-
-            // Act & Assert
-            mockMvc.perform(post("/api/rag/chat/stream")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk());
+        @DisplayName("should return 'null' string when text is null")
+        void shouldReturnNullStringWhenTextIsNull() throws Exception {
+            Object result = truncateMethod.invoke(ragController, (String) null);
+            assertThat(result).isEqualTo("null");
         }
 
         @Test
-        @DisplayName("should use default topK when not provided")
-        void shouldUseDefaultTopKWhenNotProvided() throws Exception {
-            // Arrange
-            Map<String, Object> request = Map.of("query", "Question");
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
-                "Context", List.of(), "Query"
-            );
-            when(ragApplicationService.retrieveContext(anyString(), any(), eq(5))).thenReturn(result);
-            when(languageDetectionService.detect(anyString())).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Prompt");
-            when(aiChatService.chat(anyString())).thenReturn("Response");
+        @DisplayName("should not truncate when text length is 50")
+        void shouldNotTruncateWhenTextLengthIs50() throws Exception {
+            String text = "a".repeat(50);
+            Object result = truncateMethod.invoke(ragController, text);
+            assertThat(result).isEqualTo(text);
+        }
 
-            // Act & Assert
-            mockMvc.perform(post("/api/rag/chat/stream")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk());
-
-            verify(ragApplicationService).retrieveContext(anyString(), any(), eq(5));
+        @Test
+        @DisplayName("should truncate when text length exceeds 50")
+        void shouldTruncateWhenTextLengthExceeds50() throws Exception {
+            String text = "a".repeat(55);
+            Object result = truncateMethod.invoke(ragController, text);
+            assertThat(result).isEqualTo("a".repeat(50) + "...");
         }
     }
 

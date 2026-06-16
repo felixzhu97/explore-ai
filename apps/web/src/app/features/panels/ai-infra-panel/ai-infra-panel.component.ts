@@ -8,8 +8,19 @@ import {
 import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
 import { AgentChatComponent } from '@features/agents/agent-chat/agent-chat.component';
 import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
+import { McpToolsTabComponent } from './mcp-tools-tab/mcp-tools-tab.component';
+import { FcPlaygroundTabComponent } from './fc-playground-tab/fc-playground-tab.component';
 
-type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aiops' | 'vectordb';
+type SubTabKey =
+  | 'supervisor'
+  | 'k8s'
+  | 'monitoring'
+  | 'model'
+  | 'llmops'
+  | 'aiops'
+  | 'vectordb'
+  | 'mcp-tools'
+  | 'function-call';
 
 @Component({
   selector: 'app-ai-infra-panel',
@@ -19,6 +30,8 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
     AgentPanelComponent,
     AgentChatComponent,
     StatusBadgeComponent,
+    McpToolsTabComponent,
+    FcPlaygroundTabComponent,
   ],
   template: `
     <div class="container">
@@ -31,14 +44,23 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
       </div>
 
       <div class="tab-section">
-        <app-agent-panel [title]="activeConfig().title" [description]="activeConfig().description">
-          <app-status-badge slot="headerRight" status="online" />
-          <app-agent-chat
-            [agentInfo]="agentInfo()"
-            [apiEndpoint]="activeConfig().apiEndpoint"
-            [quickPrompts]="activeConfig().quickPrompts"
-          />
-        </app-agent-panel>
+        @if (activeSubTab() === 'mcp-tools') {
+          <app-mcp-tools-tab />
+        } @else if (activeSubTab() === 'function-call') {
+          <app-fc-playground-tab />
+        } @else {
+          <app-agent-panel
+            [title]="activeConfig().title"
+            [description]="activeConfig().description"
+          >
+            <app-status-badge slot="headerRight" status="online" />
+            <app-agent-chat
+              [agentInfo]="agentInfo()"
+              [apiEndpoint]="activeConfig().apiEndpoint"
+              [quickPrompts]="activeConfig().quickPrompts"
+            />
+          </app-agent-panel>
+        }
       </div>
     </div>
   `,
@@ -136,6 +158,18 @@ export class AIInfraPanelComponent {
         apiEndpoint: environment.agents.vector,
         quickPrompts: t.agents.quickPrompts.vectordb,
       },
+      'mcp-tools': {
+        title: t.nav.mcpTools,
+        description: t.agents.descriptions.mcpTools,
+        apiEndpoint: '',
+        quickPrompts: [],
+      },
+      'function-call': {
+        title: t.nav.functionCall,
+        description: t.agents.descriptions.functionCall,
+        apiEndpoint: '',
+        quickPrompts: [],
+      },
     };
   });
 
@@ -149,6 +183,8 @@ export class AIInfraPanelComponent {
       { value: 'llmops', label: t.nav.llmops },
       { value: 'aiops', label: t.nav.aiops },
       { value: 'vectordb', label: t.nav.vectordb },
+      { value: 'mcp-tools', label: t.nav.mcpTools },
+      { value: 'function-call', label: t.nav.functionCall },
     ];
   });
 

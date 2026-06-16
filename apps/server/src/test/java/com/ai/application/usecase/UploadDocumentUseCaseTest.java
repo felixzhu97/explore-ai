@@ -244,6 +244,20 @@ class UploadDocumentUseCaseTest {
                 assertThat(chunks.get(i).getChunkIndex()).isEqualTo(i);
             }
         }
+
+        @Test
+        @DisplayName("should flush repository after saving document")
+        void shouldFlushRepositoryAfterSavingDocument() {
+            // Arrange
+            when(documentRepository.save(any(Document.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(embeddingPort.embed(any(String.class))).thenReturn(new float[]{0.1f});
+
+            // Act
+            useCase.execute(TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, "Content.");
+
+            // Assert - verify flush was called to ensure document is persisted before chunks
+            verify(documentRepository).flush();
+        }
     }
 
     @Nested

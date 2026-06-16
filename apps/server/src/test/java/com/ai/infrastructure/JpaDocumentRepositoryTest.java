@@ -347,6 +347,21 @@ class JpaDocumentRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("flush")
+    class Flush {
+
+        @Test
+        @DisplayName("should call flush on documentRepository")
+        void shouldCallFlushOnDocumentRepository() {
+            // Act
+            repository.flush();
+
+            // Assert
+            verify(documentRepository).flush();
+        }
+    }
+
     private Document createTestDocument(DocumentStatus status) {
         return new Document(
                 DocumentId.of(TEST_DOCUMENT_ID),

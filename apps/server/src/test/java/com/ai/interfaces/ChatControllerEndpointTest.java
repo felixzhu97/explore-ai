@@ -2,20 +2,29 @@ package com.ai.interfaces;
 
 import com.ai.application.service.ChatApplicationService;
 import com.ai.domain.model.AiServiceException;
+import com.ai.domain.model.ChatMessage;
+import com.ai.domain.model.ChatSession;
+import com.ai.domain.model.ChatSessionStatus;
+import com.ai.domain.vo.ChatSessionId;
 import com.ai.interfaces.controller.ChatController;
 import com.ai.interfaces.controller.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -25,26 +34,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * ChatController Endpoint Tests
  *
- * Tests using @WebMvcTest and MockMvc for chat endpoints:
+ * Tests using standalone MockMvc setup for chat endpoints:
  * - POST /api/chat - chat with valid request
  * - POST /api/chat/simple - simple map-based request
  * - GET /api/health - health check
  * - Error handling for invalid requests and internal errors
  * - truncate() boundary conditions
  */
-@WebMvcTest(ChatController.class)
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ChatController Endpoint Tests")
 class ChatControllerEndpointTest {
 
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private ChatApplicationService chatService;
+
+    @InjectMocks
+    private ChatController chatController;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(chatController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Nested
     @DisplayName("POST /api/chat endpoint")
@@ -271,7 +287,6 @@ class ChatControllerEndpointTest {
         void shouldTruncateTextWhenLengthExceeds50() throws Exception {
             // Arrange
             String longText = "123456789012345678901234567890123456789012345678901"; // 51 chars
-            String expectedTruncated = "12345678901234567890123456789012345678901234567890..."; // 53 chars
             when(chatService.processChatMessage(anyString())).thenReturn("Response");
 
             String requestBody = objectMapper.writeValueAsString(Map.of(
@@ -298,6 +313,174 @@ class ChatControllerEndpointTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/sessions/{sessionId}/messages endpoint")
+    class GetMessagesEndpointTests {
+
+        @Test
+        @DisplayName("should return 200 with message history when session exists")
+        void shouldReturn200WithMessageHistoryWhenSessionExists() throws Exception {
+            // Arrange
+            String sessionId = "session-123";
+            ChatSession session = ChatSession.of(
+                ChatSessionId.of(sessionId),
+                "Test Session",
+                Instant.now()
+            );
+            session.addUserMessage("Hello");
+            session.addAssistantMessage("Hi there!");
+            when(chatService.getSession(sessionId)).thenReturn(Optional.of(session));
+
+            // Act & Assert
+            mockMvc.perform(get("/api/sessions/{sessionId}/messages", sessionId))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.sessionId").value(sessionId))
+                    .andExpect(jsonPath("$.messages").isArray());
+        }
+
+        @Test
+        @DisplayName("should return 404 when session not found")
+        void shouldReturn404WhenSessionNotFound() throws Exception {
+            // Arrange
+            String sessionId = "non-existent-session";
+            when(chatService.getSession(sessionId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            mockMvc.perform(get("/api/sessions/{sessionId}/messages", sessionId))
+                    .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/sessions endpoint")
+    class CreateSessionEndpointTests {
+
+        @Test
+        @DisplayName("should return 200 with session info when creating with title")
+        void shouldReturn200WithSessionInfoWhenCreatingWithTitle() throws Exception {
+            // Arrange
+            ChatSession session = ChatSession.of(
+                ChatSessionId.of("new-session-id"),
+                "My Chat Title",
+                Instant.now()
+            );
+            when(chatService.createSession("My Chat Title")).thenReturn(session);
+
+            String requestBody = objectMapper.writeValueAsString(Map.of(
+                    "title", "My Chat Title"
+            ));
+
+            // Act & Assert
+            mockMvc.perform(post("/api/sessions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.sessionId").value("new-session-id"))
+                    .andExpect(jsonPath("$.title").value("My Chat Title"));
+        }
+
+        @Test
+        @DisplayName("should return 200 with default title when creating without title")
+        void shouldReturn200WithDefaultTitleWhenCreatingWithoutTitle() throws Exception {
+            // Arrange
+            ChatSession session = ChatSession.of(
+                ChatSessionId.of("new-session-id"),
+                "New Chat",
+                Instant.now()
+            );
+            when(chatService.createSession("New Chat")).thenReturn(session);
+
+            String requestBody = objectMapper.writeValueAsString(Map.of());
+
+            // Act & Assert
+            mockMvc.perform(post("/api/sessions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.sessionId").exists())
+                    .andExpect(jsonPath("$.title").value("New Chat"));
+        }
+
+        @Test
+        @DisplayName("should return 200 with default title when body is null")
+        void shouldReturn200WithDefaultTitleWhenBodyIsNull() throws Exception {
+            // Arrange
+            ChatSession session = ChatSession.of(
+                ChatSessionId.of("new-session-id"),
+                "New Chat",
+                Instant.now()
+            );
+            when(chatService.createSession("New Chat")).thenReturn(session);
+
+            // Act & Assert
+            mockMvc.perform(post("/api/sessions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.title").value("New Chat"));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/sessions endpoint")
+    class GetAllSessionsEndpointTests {
+
+        @Test
+        @DisplayName("should return 200 with list of sessions")
+        void shouldReturn200WithListOfSessions() throws Exception {
+            // Arrange
+            ChatSession session1 = ChatSession.of(
+                ChatSessionId.of("session-1"),
+                "Chat 1",
+                Instant.now()
+            );
+            ChatSession session2 = ChatSession.of(
+                ChatSessionId.of("session-2"),
+                "Chat 2",
+                Instant.now()
+            );
+            when(chatService.getAllSessions()).thenReturn(List.of(session1, session2));
+
+            // Act & Assert
+            mockMvc.perform(get("/api/sessions"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$.length()").value(2));
+        }
+
+        @Test
+        @DisplayName("should return empty list when no sessions exist")
+        void shouldReturnEmptyListWhenNoSessionsExist() throws Exception {
+            // Arrange
+            when(chatService.getAllSessions()).thenReturn(List.of());
+
+            // Act & Assert
+            mockMvc.perform(get("/api/sessions"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$.length()").value(0));
+        }
+    }
+
+    @Nested
+    @DisplayName("DELETE /api/sessions/{sessionId} endpoint")
+    class DeleteSessionEndpointTests {
+
+        @Test
+        @DisplayName("should return 204 when session is deleted successfully")
+        void shouldReturn204WhenSessionIsDeletedSuccessfully() throws Exception {
+            // Arrange
+            String sessionId = "session-to-delete";
+            doNothing().when(chatService).deleteSession(sessionId);
+
+            // Act & Assert
+            mockMvc.perform(delete("/api/sessions/{sessionId}", sessionId))
+                    .andExpect(status().isNoContent());
+
+            verify(chatService).deleteSession(sessionId);
         }
     }
 }

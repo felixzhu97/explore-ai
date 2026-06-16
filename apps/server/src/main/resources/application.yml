@@ -1,19 +1,34 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
   application:
     name: server-springai
   ai:
     ollama:
       base-url: http://localhost:11434
+      chat:
+        model: llama3.2
+      embedding:
+        model: nomic-embed-text
     openai:
       api-key: ${DEEPSEEK_API_KEY:your-api-key}
       base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
       chat:
-        options:
-          model: deepseek-v4-flash
+        model: deepseek-v4-flash
       embedding:
-        options:
-          model: text-embedding-3-small
-
+        model: text-embedding-3-small
+    mcp:
+      server:
+        enabled: true
+        name: ai-explore-mcp-server
+        version: 0.2.0
+        protocol: STREAMABLE
+        mcp-endpoint: /mcp
+  flyway:
+    enabled: true
+    locations: classpath:flyway/migrations
+    baseline-on-migrate: true
   # Database configuration
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_rag}
@@ -55,14 +70,6 @@ rag:
 
 server:
   port: 9000
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 50MB
-      max-request-size: 50MB
-  tomcat:
-    max-http-form-post-size: 50MB
-    max-swallow-size: 50MB
 
 # Actuator for health checks
 management:
@@ -81,3 +88,16 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# DuckDuckGo web search configuration
+duckduckgo:
+  base-url: https://html.duckduckgo.com/html/
+  user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+  default-max-results: 5
+  default-region: us-en
+  timeout-ms: 5000
+
+# System monitoring configuration
+monitor:
+  cpu-sample-seconds: 1
+  jvm-refresh-ms: 5000

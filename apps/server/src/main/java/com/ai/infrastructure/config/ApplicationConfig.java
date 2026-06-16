@@ -13,39 +13,79 @@ import com.ai.application.usecase.RagChatUseCase;
 import com.ai.application.usecase.SendChatMessageUseCase;
 import com.ai.application.usecase.UploadDocumentUseCase;
 import com.ai.domain.service.AiChatService;
+import com.ai.infrastructure.adapter.ai.DocumentSearchTool;
 import com.ai.infrastructure.adapter.ai.SpringAiChatAdapter;
 import com.ai.infrastructure.adapter.ai.SpringAiChatService;
 import com.ai.infrastructure.adapter.embedding.MockEmbeddingAdapter;
 import com.ai.infrastructure.adapter.embedding.OllamaEmbeddingAdapter;
+import com.ai.infrastructure.adapter.monitor.OshiSystemInfoProvider;
+import com.ai.infrastructure.adapter.monitor.SystemInfoProvider;
 import com.ai.infrastructure.adapter.persistence.InMemoryChatSessionRepository;
 import com.ai.infrastructure.adapter.persistence.JpaDocumentRepository;
 import com.ai.infrastructure.adapter.vector.PgVectorAdapter;
-import jakarta.servlet.MultipartConfigElement;
-import org.springframework.boot.web.servlet.MultipartConfigFactory;
+import com.ai.infrastructure.adapter.web.DuckDuckGoWebSearchAdapter;
+import com.ai.infrastructure.adapter.web.WebSearchPort;
+import oshi.SystemInfo;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.util.unit.DataSize;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Application configuration class - manages dependency injection.
  * Connects infrastructure layer with domain/application layers.
  */
 @Configuration
+@EnableConfigurationProperties({MonitorProperties.class, WebSearchProperties.class})
 public class ApplicationConfig {
 
     /**
-     * Configure multipart upload settings explicitly to ensure limits are applied.
-     * This bean explicitly sets 50MB limits to ensure they are not overridden by
-     * environment variables or other configuration sources.
+     * Configure ChatMemory for conversation history management.
+     * Uses MessageWindowChatMemory which keeps the last N messages (default 20).
      */
     @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofMegabytes(50));
-        factory.setMaxRequestSize(DataSize.ofMegabytes(50));
-        factory.setLocation("/tmp/uploads");
-        return factory.createMultipartConfig();
+    public ChatMemory chatMemory() {
+        return MessageWindowChatMemory.builder().build();
+    }
+
+    /**
+     * Primary ChatModel bean to resolve ambiguity when both Ollama and OpenAI
+     * ChatModel beans are auto-configured by Spring AI.
+     * Spring AI's ChatClientAutoConfiguration requires a single ChatModel.
+     */
+    @Bean
+    @Primary
+    public ChatModel primaryChatModel(@Qualifier("openAiChatModel") ChatModel openAiChatModel) {
+        return openAiChatModel;
+    }
+
+    /**
+     * Configure MessageChatMemoryAdvisor for automatic conversation history injection.
+     */
+    @Bean
+    public MessageChatMemoryAdvisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
+        return MessageChatMemoryAdvisor.builder(chatMemory).build();
+    }
+
+    /**
+     * Configure ChatClient with memory and tool support.
+     * Uses the ChatModel directly (injected via @Qualifier) to build the ChatClient.
+     */
+    @Bean
+    public ChatClient chatClient(
+                                 @Qualifier("openAiChatModel") org.springframework.ai.chat.model.ChatModel chatModel,
+                                 MessageChatMemoryAdvisor memoryAdvisor,
+                                 DocumentSearchTool documentSearchTool) {
+        return ChatClient.builder(chatModel)
+            .defaultAdvisors(memoryAdvisor)
+            .defaultTools(documentSearchTool)
+            .build();
     }
 
     @Bean
@@ -86,6 +126,11 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public com.fasterxml.jackson.databind.ObjectMapper objectMapper() {
+        return new com.fasterxml.jackson.databind.ObjectMapper();
+    }
+
+    @Bean
     public JpaDocumentRepository jpaDocumentRepository(
             com.ai.infrastructure.adapter.persistence.SpringDataDocumentRepository documentRepository,
             com.ai.infrastructure.adapter.persistence.SpringDataChunkRepository chunkRepository,
@@ -94,6 +139,7 @@ public class ApplicationConfig {
     }
 
     @Bean
+    @Primary
     public DocumentRepositoryPort documentRepositoryPort(JpaDocumentRepository jpaDocumentRepository) {
         return jpaDocumentRepository;
     }
@@ -165,5 +211,22 @@ public class ApplicationConfig {
             RagChatUseCase ragChatUseCase,
             DocumentRepositoryPort documentRepositoryPort) {
         return new RagApplicationService(uploadDocumentUseCase, deleteDocumentUseCase, ragChatUseCase, documentRepositoryPort);
+    }
+
+    // === Monitor Tools ===
+
+    /**
+     * Enable configuration properties scanning for monitor and web search settings.
+     */
+    @Bean
+    public SystemInfoProvider systemInfoProvider(MonitorProperties monitorProperties) {
+        return new OshiSystemInfoProvider(monitorProperties);
+    }
+
+    // === Web Search ===
+
+    @Bean
+    public WebSearchPort webSearchPort(WebSearchProperties webSearchProperties) {
+        return new DuckDuckGoWebSearchAdapter(webSearchProperties);
     }
 }

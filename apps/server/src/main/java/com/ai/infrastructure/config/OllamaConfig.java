@@ -3,7 +3,6 @@ package com.ai.infrastructure.config;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.ai.ollama.api.OllamaApi;
-import org.springframework.ai.ollama.api.OllamaEmbeddingOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -20,9 +19,6 @@ public class OllamaConfig {
     @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
     private String baseUrl;
 
-    @Value("${rag.ollama.embedding.model:nomic-embed-text}")
-    private String modelName;
-
     @Bean
     @ConditionalOnProperty(name = "rag.mock.embeddings", havingValue = "false", matchIfMissing = true)
     @NonNull
@@ -31,13 +27,8 @@ public class OllamaConfig {
                 .baseUrl(baseUrl)
                 .build();
 
-        OllamaEmbeddingOptions options = OllamaEmbeddingOptions.builder()
-                .model(modelName)
-                .build();
-
         return OllamaEmbeddingModel.builder()
                 .ollamaApi(api)
-                .defaultOptions(options)
                 .build();
     }
 }

@@ -5,16 +5,15 @@ import com.ai.application.port.VectorSearchPort;
 import com.ai.domain.model.ChatMessage;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.SourceDocument;
+import com.ai.domain.service.RagContextFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RagChatUseCase {
     private static final Logger log = LoggerFactory.getLogger(RagChatUseCase.class);
     private static final int DEFAULT_TOP_K = 5;
-    private static final int MAX_SOURCE_LENGTH = 500;
     private static final int MAX_HISTORY_MESSAGES = 10;
 
     private final EmbeddingPort embeddingPort;
@@ -44,18 +43,17 @@ public class RagChatUseCase {
             chunks = vectorSearchPort.search(queryEmbedding, topK > 0 ? topK : DEFAULT_TOP_K);
         }
 
-        String context = chunks.stream()
-            .map(DocumentChunk::getContent)
-            .collect(Collectors.joining("\n\n"));
+        List<SourceDocument> sources = new ArrayList<>();
 
-        List<SourceDocument> sources = chunks.stream()
-            .map(chunk -> new SourceDocument(
-                chunk.getContent().substring(0, Math.min(MAX_SOURCE_LENGTH, chunk.getContent().length())),
-                calculateSimilarity(queryEmbedding, chunk.getEmbedding()),
-                chunk.getMetadata()
-            ))
-            .sorted(Comparator.comparingDouble(SourceDocument::score).reversed())
-            .toList();
+        for (int i = 0; i < chunks.size(); i++) {
+            DocumentChunk chunk = chunks.get(i);
+            int sourceIndex = i + 1;
+
+            SourceDocument source = RagContextFormatter.formatSource(chunk, sourceIndex, queryEmbedding);
+            sources.add(source);
+        }
+
+        String context = RagContextFormatter.buildContextWithSources(chunks, queryEmbedding);
 
         log.info("Retrieved {} chunks", chunks.size());
         return new RetrievalResult(context, sources, enrichedQuery);
@@ -80,16 +78,5 @@ public class RagChatUseCase {
 
         return "Previous conversation:\n" + historyContext +
                "\nCurrent question: " + query;
-    }
-
-    private double calculateSimilarity(float[] a, float[] b) {
-        if (a == null || b == null) return 0.0;
-        double dotProduct = 0.0, normA = 0.0, normB = 0.0;
-        for (int i = 0; i < a.length; i++) {
-            dotProduct += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB) + 1e-10);
     }
 }
