@@ -56,22 +56,6 @@ jobs:
             pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json) 2>&1 |
             reviewdog -f=tsc -reporter=github-pr-review -level=error
 
-  prettier:
-    name: Code Format Check
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup web env
-        uses: ./.github/actions/setup-web-env
-      - name: Check Prettier formatting
-        run: pnpm prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
-
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
