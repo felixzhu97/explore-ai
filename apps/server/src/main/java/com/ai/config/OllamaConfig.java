@@ -37,7 +37,7 @@ public class OllamaConfig {
 
         return OllamaEmbeddingModel.builder()
                 .ollamaApi(api)
-                .defaultOptions(options)
+                .options(options)
                 .build();
     }
 }

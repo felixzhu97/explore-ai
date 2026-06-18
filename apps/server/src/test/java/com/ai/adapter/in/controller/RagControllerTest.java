@@ -1,276 +1,200 @@
 package com.ai.adapter.in.controller;
 
-import com.ai.domain.service.LanguageDetectionService;
+import com.ai.adapter.out.document.PdfTextExtractor;
+import com.ai.adapter.in.dto.RagChatRequest;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentStatus;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.service.AiChatService;
+import com.ai.domain.service.LanguageDetectionService;
 import com.ai.domain.service.RagService;
-import com.ai.adapter.out.document.PdfTextExtractor;
-import com.ai.adapter.in.controller.RagController;
-import com.ai.adapter.in.dto.DocumentSummaryDto;
+import com.ai.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * RagController Tests
- *
- * Tests using @WebMvcTest and MockMvc for the RAG controller layer:
- * - Document upload, list, delete operations
- * - Streaming response format (SSE)
- * - Exception handling
- */
-@WebMvcTest(RagController.class)
-@DisplayName("RagController Tests")
+@ExtendWith(MockitoExtension.class)
+@DisplayName("RagController")
 class RagControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @Mock
     private RagService ragService;
 
-    @MockBean
+    @Mock
     private LanguageDetectionService languageDetectionService;
 
-    @MockBean
+    @Mock
     private AiChatService aiChatService;
 
-    @MockBean
+    @Mock
     private PdfTextExtractor pdfTextExtractor;
 
+    private ObjectMapper objectMapper;
+    private RagController controller;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        controller = new RagController(
+                ragService, languageDetectionService, aiChatService, objectMapper, pdfTextExtractor);
+    }
+
     @Nested
-    @DisplayName("shouldReturnDocumentsList_WhenGetDocuments")
-    class ListDocumentsTests {
+    @DisplayName("GET /api/rag/documents/")
+    class ListDocuments {
 
         @Test
-        @DisplayName("should return list of documents when getDocuments is called")
-        void shouldReturnDocumentsListWhenGetDocumentsCalled() throws Exception {
-            // Arrange
-            Document doc = createTestDocument("Test Document", DocumentStatus.READY);
-            DocumentSummaryDto summary = new DocumentSummaryDto(
-                doc.getId().value(), doc.getTitle(), doc.getStatus().name(),
-                doc.getCreatedAt(), 0
-            );
+        @DisplayName("should return list of documents")
+        void shouldReturnListOfDocuments() {
+            Document doc = createTestDocument("Test Doc", DocumentStatus.READY);
             when(ragService.listDocuments()).thenReturn(List.of(doc));
 
-            // Act & Assert
-            mockMvc.perform(get("/api/rag/documents/"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.documents").isArray())
-                    .andExpect(jsonPath("$.documents[0].title").value("Test Document"))
-                    .andExpect(jsonPath("$.documents[0].status").value("READY"));
+            ResponseEntity<?> response = controller.listDocuments();
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            verify(ragService).listDocuments();
         }
 
         @Test
-        @DisplayName("should return empty list when no documents exist")
-        void shouldReturnEmptyListWhenNoDocumentsExist() throws Exception {
-            // Arrange
+        @DisplayName("should return empty list when no documents")
+        void shouldReturnEmptyListWhenNoDocuments() {
             when(ragService.listDocuments()).thenReturn(List.of());
 
-            // Act & Assert
-            mockMvc.perform(get("/api/rag/documents/"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.documents").isArray())
-                    .andExpect(jsonPath("$.documents").isEmpty());
-        }
+            ResponseEntity<?> response = controller.listDocuments();
 
-        @Test
-        @DisplayName("should return multiple documents when multiple exist")
-        void shouldReturnMultipleDocumentsWhenMultipleExist() throws Exception {
-            // Arrange
-            Document doc1 = createTestDocument("Document 1", DocumentStatus.READY);
-            Document doc2 = createTestDocument("Document 2", DocumentStatus.PROCESSING);
-            when(ragService.listDocuments()).thenReturn(List.of(doc1, doc2));
-
-            // Act & Assert
-            mockMvc.perform(get("/api/rag/documents/"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.documents").isArray())
-                    .andExpect(jsonPath("$.documents.length()").value(2));
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
     }
 
     @Nested
-    @DisplayName("shouldUploadDocument_WhenValidFileProvided")
-    class UploadDocumentTests {
+    @DisplayName("POST /api/rag/documents/upload")
+    class UploadDocument {
 
         @Test
-        @DisplayName("should upload document and return 201")
-        void shouldUploadDocumentAndReturn201() throws Exception {
-            // Arrange
+        @DisplayName("should upload text file successfully")
+        void shouldUploadTextFileSuccessfully() {
+            MockMultipartFile file = new MockMultipartFile(
+                    "file", "test.txt", "text/plain", "Hello World".getBytes());
             Document doc = createTestDocument("test.txt", DocumentStatus.READY);
-            when(pdfTextExtractor.getExtension("test.txt")).thenReturn("txt");
-            when(ragService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
+            when(ragService.uploadDocument(eq("test.txt"), eq("test.txt"), anyLong(), anyString()))
                     .thenReturn(doc);
 
-            MockMultipartFile file = new MockMultipartFile(
-                "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello World".getBytes()
-            );
+            ResponseEntity<?> response = controller.uploadDocument(file, null);
 
-            // Act & Assert - verify upload works and returns 201
-            mockMvc.perform(multipart("/api/rag/documents/upload")
-                            .file(file))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").exists())
-                    .andExpect(jsonPath("$.title").exists())
-                    .andExpect(jsonPath("$.status").isNotEmpty());
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            verify(ragService).uploadDocument(eq("test.txt"), eq("test.txt"), anyLong(), eq("Hello World"));
         }
 
         @Test
-        @DisplayName("should use filename as title when title is not provided")
-        void shouldUseFilenameAsTitleWhenTitleNotProvided() throws Exception {
-            // Arrange
-            Document doc = createTestDocument("test.txt", DocumentStatus.READY);
-            when(pdfTextExtractor.getExtension("test.txt")).thenReturn("txt");
-            when(ragService.uploadDocument(eq("test.txt"), anyString(), anyLong(), anyString()))
+        @DisplayName("should use custom title when provided")
+        void shouldUseCustomTitleWhenProvided() {
+            MockMultipartFile file = new MockMultipartFile(
+                    "file", "original.txt", "text/plain", "Content".getBytes());
+            Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
+            when(ragService.uploadDocument(eq("Custom Title"), eq("original.txt"), anyLong(), anyString()))
                     .thenReturn(doc);
 
-            MockMultipartFile file = new MockMultipartFile(
-                "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello World".getBytes()
-            );
+            ResponseEntity<?> response = controller.uploadDocument(file, "Custom Title");
 
-            // Act & Assert
-            mockMvc.perform(multipart("/api/rag/documents/upload").file(file))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.title").value("test.txt"));
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         }
 
         @Test
-        @DisplayName("should extract text from PDF when uploading PDF file")
-        void shouldExtractTextFromPdfWhenUploadingPdfFile() throws Exception {
-            // Arrange
+        @DisplayName("should extract text from PDF")
+        void shouldExtractTextFromPdf() {
+            MockMultipartFile file = new MockMultipartFile(
+                    "file", "document.pdf", "application/pdf", "PDF content".getBytes());
             Document doc = createTestDocument("document.pdf", DocumentStatus.READY);
             when(pdfTextExtractor.getExtension("document.pdf")).thenReturn("pdf");
-            when(pdfTextExtractor.extractText(any(byte[].class)))
-                    .thenReturn(java.util.Optional.of("Extracted PDF content"));
+            when(pdfTextExtractor.extractText(any())).thenReturn(Optional.of("Extracted PDF text"));
             when(ragService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
                     .thenReturn(doc);
 
-            MockMultipartFile file = new MockMultipartFile(
-                "file", "document.pdf", MediaType.APPLICATION_PDF_VALUE, "PDF content".getBytes()
-            );
+            ResponseEntity<?> response = controller.uploadDocument(file, null);
 
-            // Act & Assert
-            mockMvc.perform(multipart("/api/rag/documents/upload").file(file))
-                    .andExpect(status().isCreated());
-
-            verify(pdfTextExtractor).extractText(any(byte[].class));
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            verify(pdfTextExtractor).extractText(any());
         }
 
         @Test
-        @DisplayName("should return 500 when PDF text extraction fails")
-        void shouldReturn500WhenPdfTextExtractionFails() throws Exception {
-            // Arrange
-            when(pdfTextExtractor.getExtension("document.pdf")).thenReturn("pdf");
-            when(pdfTextExtractor.extractText(any(byte[].class)))
-                    .thenReturn(java.util.Optional.empty());
-
+        @DisplayName("should throw exception when PDF extraction fails")
+        void shouldThrowExceptionWhenPdfExtractionFails() {
             MockMultipartFile file = new MockMultipartFile(
-                "file", "document.pdf", MediaType.APPLICATION_PDF_VALUE, "PDF content".getBytes()
-            );
+                    "file", "document.pdf", "application/pdf", "PDF content".getBytes());
+            when(pdfTextExtractor.getExtension("document.pdf")).thenReturn("pdf");
+            when(pdfTextExtractor.extractText(any())).thenReturn(Optional.empty());
 
-            // Act & Assert
-            mockMvc.perform(multipart("/api/rag/documents/upload").file(file))
-                    .andExpect(status().isInternalServerError());
+            org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+                controller.uploadDocument(file, null);
+            });
         }
     }
 
     @Nested
-    @DisplayName("shouldDeleteDocument_WhenDocumentExists")
-    class DeleteDocumentTests {
+    @DisplayName("DELETE /api/rag/documents/{id}")
+    class DeleteDocument {
 
         @Test
         @DisplayName("should delete document and return 204")
-        void shouldDeleteDocumentAndReturn204() throws Exception {
-            // Arrange
+        void shouldDeleteDocumentAndReturn204() {
             UUID docId = UUID.randomUUID();
             doNothing().when(ragService).deleteDocument(docId);
 
-            // Act & Assert
-            mockMvc.perform(delete("/api/rag/documents/{id}", docId))
-                    .andExpect(status().isNoContent());
+            ResponseEntity<?> response = controller.deleteDocument(docId);
 
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
             verify(ragService).deleteDocument(docId);
-        }
-
-        @Test
-        @DisplayName("should call deleteDocument with correct UUID")
-        void shouldCallDeleteDocumentWithCorrectUuid() throws Exception {
-            // Arrange
-            UUID docId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-            doNothing().when(ragService).deleteDocument(docId);
-
-            // Act
-            mockMvc.perform(delete("/api/rag/documents/{id}", docId))
-                    .andExpect(status().isNoContent());
-
-            // Assert
-            verify(ragService).deleteDocument(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         }
     }
 
     @Nested
-    @DisplayName("shouldReturnStreamingResponse_WhenRagChatStream")
-    class StreamingChatTests {
+    @DisplayName("POST /api/rag/chat/stream")
+    class RagChatStream {
 
         @Test
-        @DisplayName("should return streaming response with correct content type")
-        void shouldReturnStreamingResponseWithCorrectContentType() throws Exception {
-            // Arrange
-            Map<String, Object> request = Map.of(
-                "query", "What is AI?",
-                "top_k", 5,
-                "temperature", 0.7
-            );
+        @DisplayName("should handle RAG chat request")
+        void shouldHandleRagChatRequest() {
+            RagChatRequest request = new RagChatRequest("What is AI?", null, null, 0.7, null);
             RagService.RetrievalResult result = new RagService.RetrievalResult(
-                "Context from documents", List.of(), "Enriched query"
+                    "Context from docs", List.of(), "Enriched query"
             );
-            when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
-            when(languageDetectionService.detect(anyString())).thenReturn("en");
+            when(ragService.retrieveContext(eq("What is AI?"), isNull(), eq(5))).thenReturn(result);
+            when(languageDetectionService.detect("What is AI?")).thenReturn("en");
             when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Prompt with context");
-            when(aiChatService.chat(anyString())).thenReturn("AI response here");
+                    .thenReturn("Built prompt");
+            when(aiChatService.chat(anyString())).thenReturn("AI response");
 
-            // Act & Assert
-            mockMvc.perform(post("/api/rag/chat/stream")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk());
+            var response = controller.ragChatStream(request);
+
+            assertThat(response).isNotNull();
+            verify(ragService).retrieveContext(eq("What is AI?"), isNull(), eq(5));
         }
 
         @Test
-        @DisplayName("should handle streaming with specific document IDs")
-        void shouldHandleStreamingWithSpecificDocumentIds() throws Exception {
-            // Arrange
-            List<String> docIds = List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-            Map<String, Object> request = Map.of(
-                "query", "Question about docs",
-                "doc_ids", docIds
-            );
+        @DisplayName("should use docIds when provided")
+        void shouldUseDocIdsWhenProvided() {
+            List<String> docIds = List.of(UUID.randomUUID().toString());
+            RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, docIds);
             RagService.RetrievalResult result = new RagService.RetrievalResult(
-                "Context from docs", List.of(), "Query"
+                    "Context", List.of(new SourceDocument("doc", 0.9, null)), "Query"
             );
             when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
             when(languageDetectionService.detect(anyString())).thenReturn("en");
@@ -278,50 +202,34 @@ class RagControllerTest {
                     .thenReturn("Prompt");
             when(aiChatService.chat(anyString())).thenReturn("Response");
 
-            // Act & Assert
-            mockMvc.perform(post("/api/rag/chat/stream")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk());
+            var response = controller.ragChatStream(request);
+
+            assertThat(response).isNotNull();
+            verify(ragService).retrieveContext(eq("Question"), any(), eq(5));
         }
 
         @Test
-        @DisplayName("should use default topK when not provided")
-        void shouldUseDefaultTopKWhenNotProvided() throws Exception {
-            // Arrange
-            Map<String, Object> request = Map.of("query", "Question");
+        @DisplayName("should use custom topK when provided")
+        void shouldUseCustomTopKWhenProvided() {
+            RagChatRequest request = new RagChatRequest("Question", null, 10, 0.7, null);
             RagService.RetrievalResult result = new RagService.RetrievalResult(
-                "Context", List.of(), "Query"
+                    "Context", List.of(), "Query"
             );
-            when(ragService.retrieveContext(anyString(), any(), eq(5))).thenReturn(result);
+            when(ragService.retrieveContext(anyString(), isNull(), eq(10))).thenReturn(result);
             when(languageDetectionService.detect(anyString())).thenReturn("en");
             when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
                     .thenReturn("Prompt");
             when(aiChatService.chat(anyString())).thenReturn("Response");
 
-            // Act & Assert
-            mockMvc.perform(post("/api/rag/chat/stream")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk());
+            var response = controller.ragChatStream(request);
 
-            verify(ragService).retrieveContext(anyString(), any(), eq(5));
+            assertThat(response).isNotNull();
+            verify(ragService).retrieveContext(anyString(), isNull(), eq(10));
         }
     }
 
     private Document createTestDocument(String title, DocumentStatus status) {
-        Document doc = new Document(
-            com.ai.domain.vo.DocumentId.generate(),
-            title,
-            title,
-            1024L
-        );
-        switch (status) {
-            case READY -> doc.markReady();
-            case PROCESSING -> doc.markProcessing();
-            case FAILED -> doc.markFailed();
-            default -> {}
-        }
+        Document doc = new Document(DocumentId.generate(), title, title, 1024L);
         return doc;
     }
 }

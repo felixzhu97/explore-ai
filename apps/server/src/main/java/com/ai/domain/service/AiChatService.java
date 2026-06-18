@@ -6,33 +6,25 @@ import com.ai.domain.model.ChatSessionNotFoundException;
 import com.ai.domain.repository.ChatSessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Simplified AI Chat Service.
- * Single service containing business logic for AI chat interactions.
+ * AI Chat Service using Spring AI 2.0 ChatClient API.
  */
 @Service
 public class AiChatService {
 
     private static final Logger log = LoggerFactory.getLogger(AiChatService.class);
 
-    private final ChatModel chatModel;
+    private final ChatClient chatClient;
     private final ChatSessionRepository repository;
 
-    public AiChatService(
-            @Qualifier("openAiChatModel") ChatModel chatModel,
-            ChatSessionRepository repository) {
-        this.chatModel = chatModel;
+    public AiChatService(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository) {
+        this.chatClient = chatClientBuilder.build();
         this.repository = repository;
     }
 
@@ -41,14 +33,14 @@ public class AiChatService {
      */
     public String chat(String userMessage) {
         log.info("Simple chat request: {}", truncateForLog(userMessage));
-        UserMessage userMsg = new UserMessage(userMessage);
-        Prompt prompt = new Prompt(userMsg);
 
         try {
-            ChatResponse response = chatModel.call(prompt);
-            String text = extractText(response);
-            log.info("Chat response: {}", truncateForLog(text));
-            return text;
+            String response = chatClient.prompt()
+                    .user(userMessage)
+                    .call()
+                    .content();
+            log.info("Chat response: {}", truncateForLog(response));
+            return response != null ? response : "";
         } catch (Exception e) {
             log.error("Chat error", e);
             throw new RuntimeException("AI service error: " + e.getMessage(), e);
@@ -61,22 +53,20 @@ public class AiChatService {
     public String chatWithHistory(List<ChatMessage> messages) {
         log.info("Chat request with {} messages", messages.size());
 
-        List<org.springframework.ai.chat.messages.Message> springMessages = new ArrayList<>();
-        for (ChatMessage msg : messages) {
-            if (msg.isFromUser()) {
-                springMessages.add(new UserMessage(msg.getText()));
-            } else {
-                springMessages.add(new AssistantMessage(msg.getText()));
-            }
-        }
-
-        Prompt prompt = new Prompt(springMessages);
-
         try {
-            ChatResponse response = chatModel.call(prompt);
-            String text = extractText(response);
-            log.info("Chat response received: {} characters", text.length());
-            return text;
+            var promptBuilder = chatClient.prompt();
+
+            for (ChatMessage msg : messages) {
+                if (msg.isFromUser()) {
+                    promptBuilder.user(msg.getText());
+                } else {
+                    promptBuilder.system(sp -> sp.text(msg.getText()));
+                }
+            }
+
+            String response = promptBuilder.call().content();
+            log.info("Chat response received: {} characters", response != null ? response.length() : 0);
+            return response != null ? response : "";
         } catch (Exception e) {
             log.error("Chat error", e);
             throw new RuntimeException("AI service error: " + e.getMessage(), e);
@@ -92,7 +82,7 @@ public class AiChatService {
         try {
             ChatSession session = repository.findById(
                     com.ai.domain.vo.ChatSessionId.of(sessionId))
-                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+                    .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
 
             session.addUserMessage(userMessage);
             repository.save(session);
@@ -114,7 +104,7 @@ public class AiChatService {
      */
     public String processChatMessage(String userMessage) {
         log.info("Processing chat message in default session");
-        
+
         ChatSession session = repository.getOrCreateDefaultSession();
         session.addUserMessage(userMessage);
 
@@ -146,7 +136,7 @@ public class AiChatService {
     /**
      * Retrieves a session by ID.
      */
-    public java.util.Optional<ChatSession> getSession(String sessionId) {
+    public Optional<ChatSession> getSession(String sessionId) {
         return repository.findById(com.ai.domain.vo.ChatSessionId.of(sessionId));
     }
 
@@ -155,8 +145,8 @@ public class AiChatService {
      */
     public List<ChatMessage> getSessionHistory(String sessionId) {
         return repository.findById(com.ai.domain.vo.ChatSessionId.of(sessionId))
-            .map(ChatSession::getMessages)
-            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+                .map(ChatSession::getMessages)
+                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
     }
 
     /**
@@ -164,8 +154,8 @@ public class AiChatService {
      */
     public List<ChatMessage> getRecentMessages(String sessionId, int count) {
         return repository.findById(com.ai.domain.vo.ChatSessionId.of(sessionId))
-            .map(session -> session.getRecentMessages(count))
-            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+                .map(session -> session.getRecentMessages(count))
+                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
     }
 
     /**
@@ -183,9 +173,11 @@ public class AiChatService {
         return repository.findAll();
     }
 
-    private String extractText(ChatResponse response) {
-        String text = response.getResult().getOutput().getText();
-        return text != null ? text : "";
+    /**
+     * Get the underlying ChatClient for advanced operations like tool calling.
+     */
+    public ChatClient getChatClient() {
+        return chatClient;
     }
 
     private String truncateForLog(String text) {
