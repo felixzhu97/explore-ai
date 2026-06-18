@@ -1,20 +1,14 @@
 package com.ai.infrastructure.config;
 
-import com.ai.application.port.AiChatPort;
-import com.ai.application.port.ChatSessionRepositoryPort;
+import com.ai.domain.repository.ChatSessionRepository;
 import com.ai.application.port.DocumentRepositoryPort;
 import com.ai.application.port.EmbeddingPort;
 import com.ai.application.port.VectorSearchPort;
-import com.ai.application.service.ChatApplicationService;
 import com.ai.application.service.LanguageDetectionService;
 import com.ai.application.service.RagApplicationService;
 import com.ai.application.usecase.DeleteDocumentUseCase;
 import com.ai.application.usecase.RagChatUseCase;
-import com.ai.application.usecase.SendChatMessageUseCase;
 import com.ai.application.usecase.UploadDocumentUseCase;
-import com.ai.domain.service.AiChatService;
-import com.ai.infrastructure.adapter.ai.SpringAiChatAdapter;
-import com.ai.infrastructure.adapter.ai.SpringAiChatService;
 import com.ai.infrastructure.adapter.embedding.MockEmbeddingAdapter;
 import com.ai.infrastructure.adapter.embedding.OllamaEmbeddingAdapter;
 import com.ai.infrastructure.adapter.persistence.InMemoryChatSessionRepository;
@@ -24,21 +18,14 @@ import jakarta.servlet.MultipartConfigElement;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.util.unit.DataSize;
 
 /**
- * Application configuration class - manages dependency injection.
- * Connects infrastructure layer with domain/application layers.
+ * Application configuration class.
  */
 @Configuration
 public class ApplicationConfig {
 
-    /**
-     * Configure multipart upload settings explicitly to ensure limits are applied.
-     * This bean explicitly sets 50MB limits to ensure they are not overridden by
-     * environment variables or other configuration sources.
-     */
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
@@ -49,33 +36,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AiChatService aiChatService(SpringAiChatService springAiChatService) {
-        return springAiChatService;
-    }
-
-    @Bean
-    public AiChatPort aiChatPort(SpringAiChatAdapter springAiChatAdapter) {
-        return springAiChatAdapter;
-    }
-
-    @Bean
-    public InMemoryChatSessionRepository chatSessionRepository() {
+    public ChatSessionRepository chatSessionRepository() {
         return new InMemoryChatSessionRepository();
-    }
-
-    @Bean
-    public SendChatMessageUseCase sendChatMessageUseCase(
-            ChatSessionRepositoryPort repositoryPort,
-            AiChatPort aiChatPort) {
-        return new SendChatMessageUseCase(repositoryPort, aiChatPort);
-    }
-
-    @Bean
-    public ChatApplicationService chatApplicationService(
-            ChatSessionRepositoryPort repositoryPort,
-            AiChatPort aiChatPort,
-            SendChatMessageUseCase sendChatMessageUseCase) {
-        return new ChatApplicationService(repositoryPort, aiChatPort, sendChatMessageUseCase);
     }
 
     // RAG Infrastructure Beans
@@ -115,13 +77,11 @@ public class ApplicationConfig {
             throw new IllegalStateException("Mock embedding adapter not available but rag.mock.embeddings=true");
         }
         
-        // Try Ollama first (local embedding)
         OllamaEmbeddingAdapter ollama = ollamaProvider.getIfAvailable();
         if (ollama != null) {
             return ollama;
         }
         
-        // Final fallback to mock
         MockEmbeddingAdapter fallbackMock = mockProvider.getIfAvailable();
         if (fallbackMock != null) {
             return fallbackMock;

@@ -1,6 +1,6 @@
 package com.ai.interfaces.controller;
 
-import com.ai.application.service.ChatApplicationService;
+import com.ai.service.AiChatService;
 import com.ai.interfaces.dto.ChatRequest;
 import com.ai.interfaces.dto.ChatResponse;
 import com.ai.interfaces.dto.MessageHistoryResponse;
@@ -15,18 +15,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Chat REST controller.
- * Handles HTTP requests and delegates to application service.
+ * Chat REST Controller.
  */
 @RestController
 @RequestMapping("/api")
-public class ChatController {
+public class AiController {
 
-    private static final Logger log = LoggerFactory.getLogger(ChatController.class);
+    private static final Logger log = LoggerFactory.getLogger(AiController.class);
 
-    private final ChatApplicationService chatService;
+    private final AiChatService chatService;
 
-    public ChatController(ChatApplicationService chatService) {
+    public AiController(AiChatService chatService) {
         this.chatService = chatService;
     }
 

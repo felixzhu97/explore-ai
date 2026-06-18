@@ -4,7 +4,7 @@ import com.ai.application.service.LanguageDetectionService;
 import com.ai.application.service.RagApplicationService;
 import com.ai.application.usecase.RagChatUseCase;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.AiChatService;
+import com.ai.service.AiChatService;
 import com.ai.domain.exception.RagServiceException;
 import com.ai.infrastructure.adapter.document.PdfTextExtractor;
 import com.ai.interfaces.controller.GlobalExceptionHandler;

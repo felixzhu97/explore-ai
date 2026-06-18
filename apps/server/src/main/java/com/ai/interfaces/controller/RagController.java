@@ -4,7 +4,7 @@ import com.ai.application.service.LanguageDetectionService;
 import com.ai.application.service.RagApplicationService;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.AiChatService;
+import com.ai.service.AiChatService;
 import com.ai.infrastructure.adapter.document.PdfTextExtractor;
 import com.ai.interfaces.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -1,6 +1,6 @@
 package com.ai.infrastructure.adapter.persistence;
 
-import com.ai.application.port.ChatSessionRepositoryPort;
+import com.ai.domain.repository.ChatSessionRepository;
 import com.ai.domain.model.ChatSession;
 import com.ai.domain.vo.ChatSessionId;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * In-memory session repository implementation.
  * Simple in-memory storage for development and testing environments.
  */
-public class InMemoryChatSessionRepository implements ChatSessionRepositoryPort {
+public class InMemoryChatSessionRepository implements ChatSessionRepository {
 
     private final Map<ChatSessionId, ChatSession> storage = new ConcurrentHashMap<>();
 

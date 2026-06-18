@@ -6,7 +6,7 @@ import com.ai.application.usecase.RagChatUseCase;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.model.DocumentStatus;
-import com.ai.domain.service.AiChatService;
+import com.ai.service.AiChatService;
 import com.ai.domain.vo.DocumentId;
 import com.ai.infrastructure.adapter.document.PdfTextExtractor;
 import com.ai.interfaces.controller.RagController;
