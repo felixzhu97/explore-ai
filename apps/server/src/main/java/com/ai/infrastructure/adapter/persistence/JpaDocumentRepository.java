@@ -1,6 +1,5 @@
 package com.ai.infrastructure.adapter.persistence;
 
-import com.ai.application.port.DocumentRepositoryPort;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.DocumentStatus;
@@ -17,11 +16,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * JPA implementation of DocumentRepositoryPort.
- * Uses Spring Data JPA repositories for persistence.
+ * Document repository using Spring Data JPA.
  */
 @Component
-public class JpaDocumentRepository implements DocumentRepositoryPort {
+public class JpaDocumentRepository {
 
     private static final Logger log = LoggerFactory.getLogger(JpaDocumentRepository.class);
 
@@ -37,7 +35,6 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
         this.objectMapper = objectMapper;
     }
 
-    @Override
     @Transactional
     public Document save(Document document) {
         log.debug("Saving document: id={}, title={}", document.getId(), document.getTitle());
@@ -49,14 +46,12 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
         return toDomain(saved);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public Optional<Document> findById(UUID id) {
         log.debug("Finding document by id: {}", id);
         return documentRepository.findById(id).map(this::toDomain);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public List<Document> findAll() {
         log.debug("Finding all documents");
@@ -65,7 +60,6 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
                 .collect(Collectors.toList());
     }
 
-    @Override
     @Transactional
     public void delete(UUID id) {
         log.debug("Deleting document: id={}", id);
@@ -74,7 +68,6 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
         log.info("Document deleted successfully: id={}", id);
     }
 
-    @Override
     @Transactional
     public void saveChunk(DocumentChunk chunk) {
         log.debug("Saving chunk: id={}, documentId={}, chunkIndex={}", 
@@ -86,7 +79,6 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
         log.info("Chunk saved successfully: id={}", chunk.getId());
     }
 
-    @Override
     @Transactional(readOnly = true)
     public List<DocumentChunk> findChunksByDocumentId(UUID documentId) {
         log.debug("Finding chunks by documentId: {}", documentId);
@@ -95,7 +87,6 @@ public class JpaDocumentRepository implements DocumentRepositoryPort {
                 .collect(Collectors.toList());
     }
 
-    @Override
     @Transactional
     public void deleteChunksByDocumentId(UUID documentId) {
         log.debug("Deleting chunks by documentId: {}", documentId);

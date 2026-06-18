@@ -1,6 +1,5 @@
 package com.ai.infrastructure.adapter.vector;
 
-import com.ai.application.port.VectorSearchPort;
 import com.ai.domain.model.DocumentChunk;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,11 +21,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * PgVector adapter implementing VectorSearchPort.
+ * PgVector adapter for vector search.
  * Uses JDBC for raw SQL operations against PostgreSQL with pgvector extension.
  */
 @Component
-public class PgVectorAdapter implements VectorSearchPort {
+public class PgVectorAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(PgVectorAdapter.class);
 
@@ -40,14 +39,12 @@ public class PgVectorAdapter implements VectorSearchPort {
         this.objectMapper = objectMapper;
     }
 
-    @Override
     @Transactional
     public List<DocumentChunk> search(float[] queryEmbedding, int topK) {
         log.debug("Searching vectors with topK={}", topK);
         return search(queryEmbedding, topK, null);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> docIds) {
         log.debug("Searching vectors with topK={}, docIds filter={}", topK, 
@@ -81,7 +78,6 @@ public class PgVectorAdapter implements VectorSearchPort {
         }
     }
 
-    @Override
     @Transactional
     public void saveChunk(DocumentChunk chunk) {
         log.debug("Saving chunk to vector store: id={}, documentId={}",

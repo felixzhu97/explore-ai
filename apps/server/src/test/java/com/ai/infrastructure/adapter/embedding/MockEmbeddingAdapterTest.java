@@ -121,7 +121,7 @@ class MockEmbeddingAdapterTest {
             List<String> texts = List.of("Text 1", "Text 2");
 
             // Act
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert
             for (float[] embedding : results) {
@@ -207,7 +207,7 @@ class MockEmbeddingAdapterTest {
             List<String> texts = List.of("Text one", "Text two", "Text three", "Text four", "Text five");
 
             // Act
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert
             assertThat(results).hasSize(texts.size());
@@ -220,7 +220,7 @@ class MockEmbeddingAdapterTest {
             List<String> texts = List.of("First", "Second", "Third");
 
             // Act
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert
             assertThat(results).hasSize(3);
@@ -236,7 +236,7 @@ class MockEmbeddingAdapterTest {
             List<String> emptyList = List.of();
 
             // Act
-            List<float[]> results = adapter.embed(emptyList);
+            List<float[]> results = adapter.embedBatch(emptyList);
 
             // Assert
             assertThat(results).isEmpty();
@@ -249,7 +249,7 @@ class MockEmbeddingAdapterTest {
             List<String> singleItem = List.of("Only one");
 
             // Act
-            List<float[]> results = adapter.embed(singleItem);
+            List<float[]> results = adapter.embedBatch(singleItem);
 
             // Assert
             assertThat(results).hasSize(1);
@@ -267,7 +267,7 @@ class MockEmbeddingAdapterTest {
             }
 
             // Act
-            List<float[]> results = adapter.embed(largeBatch);
+            List<float[]> results = adapter.embedBatch(largeBatch);
 
             // Assert
             assertThat(results).hasSize(batchSize);

@@ -1,6 +1,6 @@
 package com.ai.infrastructure;
 
-import com.ai.application.port.DocumentRepositoryPort;
+import com.ai.infrastructure.adapter.persistence.JpaDocumentRepository;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.DocumentStatus;

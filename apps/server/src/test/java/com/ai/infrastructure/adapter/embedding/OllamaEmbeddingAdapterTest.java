@@ -1,6 +1,6 @@
 package com.ai.infrastructure.adapter.embedding;
 
-import com.ai.application.port.EmbeddingPort;
+import com.ai.infrastructure.adapter.embedding.EmbeddingAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -138,7 +138,7 @@ class OllamaEmbeddingAdapterTest {
             when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(embeddingResponse);
 
             // Act
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert
             assertThat(results).hasSize(3);
@@ -157,7 +157,7 @@ class OllamaEmbeddingAdapterTest {
 
             // Act
             try {
-                adapter.embed(texts);
+                adapter.embedBatch(texts);
             } catch (Exception ignored) {
             }
 
@@ -179,7 +179,7 @@ class OllamaEmbeddingAdapterTest {
             when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(embeddingResponse);
 
             // Act
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert
             assertThat(results).hasSize(1);
@@ -227,7 +227,7 @@ class OllamaEmbeddingAdapterTest {
             when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(embeddingResponse);
 
             // Act - Batch with empty results returns empty list (no exception thrown)
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert - Returns empty list, not an exception
             assertThat(results).isEmpty();
@@ -263,7 +263,7 @@ class OllamaEmbeddingAdapterTest {
                     .thenThrow(new RuntimeException("API timeout"));
 
             // Act & Assert
-            assertThatThrownBy(() -> adapter.embed(texts))
+            assertThatThrownBy(() -> adapter.embedBatch(texts))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Batch embedding generation failed");
         }
@@ -343,7 +343,7 @@ class OllamaEmbeddingAdapterTest {
             when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(embeddingResponse);
 
             // Act
-            List<float[]> results = adapter.embed(texts);
+            List<float[]> results = adapter.embedBatch(texts);
 
             // Assert
             assertThat(results).hasSize(2);

@@ -1,6 +1,5 @@
 package com.ai.infrastructure.adapter.embedding;
 
-import com.ai.application.port.EmbeddingPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,14 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Ollama embedding adapter implementing EmbeddingPort.
- * Uses Spring AI's Ollama embedding model for local inference.
- * Only activated when mock embeddings are disabled.
- */
 @Component
 @ConditionalOnProperty(name = "rag.mock.embeddings", havingValue = "false", matchIfMissing = true)
-public class OllamaEmbeddingAdapter implements EmbeddingPort {
+public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaEmbeddingAdapter.class);
 
@@ -34,7 +28,6 @@ public class OllamaEmbeddingAdapter implements EmbeddingPort {
         this.dimensions = dimensions;
     }
 
-    @Override
     public float[] embed(String text) {
         log.debug("Generating Ollama embedding for text (length={})", text.length());
         
@@ -47,7 +40,6 @@ public class OllamaEmbeddingAdapter implements EmbeddingPort {
             }
             
             float[] result = response.getResults().get(0).getOutput();
-            
             log.debug("Generated Ollama embedding with {} dimensions", result.length);
             return result;
             
@@ -57,8 +49,7 @@ public class OllamaEmbeddingAdapter implements EmbeddingPort {
         }
     }
 
-    @Override
-    public List<float[]> embed(List<String> texts) {
+    public List<float[]> embedBatch(List<String> texts) {
         log.debug("Generating Ollama embeddings for {} texts", texts.size());
         
         try {
@@ -75,7 +66,6 @@ public class OllamaEmbeddingAdapter implements EmbeddingPort {
         }
     }
 
-    @Override
     public int getDimensions() {
         return dimensions;
     }

@@ -74,4 +74,25 @@ public class DocumentEntity {
     public enum DocumentStatus {
         UPLOADING, PROCESSING, READY, FAILED
     }
+
+    public static DocumentEntity fromDomain(com.ai.domain.model.Document document) {
+        return new DocumentEntity(
+            document.getId().value(),
+            document.getTitle(),
+            document.getFileName(),
+            document.getFileSize(),
+            DocumentStatus.valueOf(document.getStatus().name()),
+            document.getCreatedAt(),
+            document.getUpdatedAt()
+        );
+    }
+
+    public com.ai.domain.model.Document toDomain() {
+        return new com.ai.domain.model.Document(
+            com.ai.domain.vo.DocumentId.of(id),
+            title,
+            fileName,
+            fileSize
+        );
+    }
 }
