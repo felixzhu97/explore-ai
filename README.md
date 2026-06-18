@@ -1,83 +1,57 @@
 # AI-Explore
 
-基于 Spring AI + Angular 的 AI 聊天应用，支持 RAG 文档问答。
+基于 Spring AI + Angular 的 AI 聊天应用，支持 RAG 文档问答和 Tool Calling。
 
 ## 技术栈
 
-| 组件   | 技术                         |
-| ------ | ---------------------------- |
-| 后端   | Java 25 + Spring Boot 3.5.11 |
-| AI     | Spring AI 1.1.7 (DeepSeek)   |
-| 数据库 | PostgreSQL 17 + pgvector     |
-| 前端   | Angular 19+ + TypeScript     |
-| 容器化 | Docker + Docker Compose      |
-
-## 架构
-
-Clean Architecture + DDD，详见 `docs/c4/`
+| 组件   | 技术                          |
+| ------ | ----------------------------- |
+| 后端   | Java 25 + Spring Boot 4.0     |
+| AI     | Spring AI 2.0 (DeepSeek)     |
+| 数据库 | PostgreSQL 17 + pgvector      |
+| 前端   | Angular 22 + TypeScript      |
 
 ## 快速启动
 
-### 1. 配置
-
-创建 `apps/server/.env`:
-
-```env
-DEEPSEEK_API_KEY=your-deepseek-api-key
-```
-
-### 2. 启动 (Docker)
-
 ```bash
+# 配置
+echo "DEEPSEEK_API_KEY=your-key" > apps/server/.env
+
+# Docker 启动
 cd apps/server && docker-compose up -d
+
+# 本地开发
+cd apps/server && docker-compose up postgres -d && ./gradlew bootRun
 ```
 
-- 应用: http://localhost:8080
-- 健康检查: http://localhost:8080/actuator/health
-
-### 3. 本地开发
-
-```bash
-cd apps/server
-docker-compose up postgres -d
-./gradlew bootRun
-```
+- 应用: http://localhost:9000
+- 健康检查: http://localhost:9000/actuator/health
 
 ## API
 
-### 聊天
+### Chat
 
 ```bash
-# 发送消息
-curl -X POST http://localhost:8080/api/chat \
+curl -X POST http://localhost:9000/api/ai/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "你好"}'
-
-# 列出会话
-curl http://localhost:8080/api/sessions
-
-# 获取历史
-curl http://localhost:8080/api/sessions/{id}/messages
 ```
 
 ### RAG
 
 ```bash
 # 上传文档
-POST /api/rag/documents/upload
-{"title": "产品手册", "content": "文档内容..."}
+curl -X POST http://localhost:9000/api/rag/documents/upload \
+  -H "Content-Type: application/json" \
+  -d '{"title": "手册", "content": "文档内容..."}'
 
 # 流式问答
-POST /api/rag/chat/stream
-Accept: text/event-stream
-{"question": "产品功能是什么？"}
+curl -X POST http://localhost:9000/api/rag/chat/stream \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{"question": "产品功能是什么？"}'
 ```
 
-## 环境变量
+## 架构
 
-| 变量               | 默认值                                  | 说明   |
-| ------------------ | --------------------------------------- | ------ |
-| `DEEPSEEK_API_KEY` | -                                       | 必填   |
-| `POSTGRES_URL`     | jdbc:postgresql://localhost:5432/ai_rag | 数据库 |
-
-详见 `docs/c4/` 架构图和 `docs/wardley-map.puml` 技术演进图。
+Clean Architecture + DDD，详见 `docs/c4/`

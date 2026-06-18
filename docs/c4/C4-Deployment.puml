@@ -23,17 +23,14 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Java Runtime - Spring Boot Backend
     ' ============================================================
     Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine / jre-alpine") {
-        Container(backend, "Spring Boot Backend", "eclipse-temurin:25-jre-alpine", "AI Chat + RAG + Tooling & Agent / REST / SSE / MCP\nSpring Boot 4.1 / Java 25 / Spring AI 2.0", "9000")
-        Deployment_Node(mcp_endpoint, "MCP Server", "Embedded in Spring Boot") {
-            Container(mcp_server, "MCP JSON-RPC Endpoint", "Spring AI 2.0 MCP", "/mcp\nTool Registry + Tool Callbacks", "")
-        }
+        Container(backend, "Spring Boot Backend", "eclipse-temurin:25-jre-alpine", "AI Chat + RAG + Tool Calling\nSpring Boot 4.0 / Java 25 / Spring AI 2.0", "9000")
     }
 
     ' ============================================================
-    ' Node.js - Angular Dev Server (Angular 22 / AnalogJS Vite)
+    ' Node.js - Angular Dev Server
     ' ============================================================
-    Deployment_Node(node_runtime, "Node 24 + pnpm", "Node 24") {
-        Container(angular_dev, "Angular 22 Dev Server", "Angular CLI + AnalogJS Vite", "Web UI\nproxy.conf.json: /api/* → localhost:9000", "4200")
+    Deployment_Node(node_runtime, "Node 22 + pnpm", "Node 22") {
+        Container(angular_dev, "Angular 22 Dev Server", "Angular CLI", "Web UI\nproxy.conf.json: /api/* → localhost:9000", "4200")
     }
 }
 
@@ -42,10 +39,6 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
 ' ============================================================
 Deployment_Node(deepseek_node, "DeepSeek API", "HTTPS") {
     Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM Chat + Text Embedding", "HTTPS")
-}
-
-Deployment_Node(duckduckgo_node, "DuckDuckGo", "HTTPS") {
-    Container_Ext(duckduckgo_api, "DuckDuckGo Search", "HTTPS API", "Web Search API", "HTTPS")
 }
 
 Deployment_Node(ollama_node, "Ollama (Local or Docker)", "localhost:11434") {
@@ -62,17 +55,11 @@ Rel(user, angular_dev, "Browses (HTTP)", "TCP")
 ' Angular proxy to Backend
 Rel(angular_dev, backend, "/api/* → localhost:9000", "HTTP/SSE")
 
-' Backend to MCP Server (embedded)
-Rel(backend, mcp_server, "MCP JSON-RPC", "In-Process")
-
 ' Backend to PostgreSQL
 Rel(backend, postgresql_pgvector, "JDBC", "TCP :5432")
 
 ' Backend to DeepSeek API
 Rel_D(backend, deepseek_api, "LLM Chat + Embedding", "HTTPS")
-
-' Backend to DuckDuckGo
-Rel_D(backend, duckduckgo_api, "Web Search", "HTTPS")
 
 ' Backend to Ollama
 Rel(backend, ollama_svc, "Embedding Generation", "HTTP :11434")

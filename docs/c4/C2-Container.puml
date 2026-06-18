@@ -3,12 +3,12 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tooling & Agent)
+title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tool Calling)
 
 ' ============================================================
 ' PEOPLE - 人员
 ' ============================================================
-Person(user, "用户", "与 AI 助手对话，上传和管理文档，调用 MCP 工具")
+Person(user, "用户", "与 AI 助手对话，上传和管理文档，调用工具")
 
 ' ============================================================
 ' FRONTEND - 前端容器
@@ -18,24 +18,18 @@ Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界
 ' ============================================================
 ' AI PLATFORM BACKEND - 后端容器 (Clean Architecture)
 ' ============================================================
-Container(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "会话管理·RAG·工具编排·MCP Agent，端口 9000")
+Container(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling，端口 9000")
 
 ' ============================================================
 ' DOMAIN 1: CHAT DOMAIN
 ' ============================================================
 Container_Boundary(chat_domain, "Chat Domain") {
-    Container(chat_controller, "ChatController", "@RestController", "聊天 HTTP/SSE 请求")
+    Container(chat_controller, "AiController", "@RestController", "聊天 HTTP/SSE 请求")
     Container(chat_dto, "Chat DTOs", "Java Records", "请求/响应/会话信息 DTO")
-    Container(send_msg_usecase, "SendChatMessageUseCase", "UseCase", "发送聊天消息用例")
-    Container(chat_app_svc, "ChatApplicationService", "@Service", "聊天应用服务")
-    Container(ai_chat_port, "AiChatPort", "Interface (Port)", "AI 聊天能力抽象")
-    Container(chat_sess_repo_port, "ChatSessionRepositoryPort", "Interface (Port)", "会话仓储抽象")
+    Container(ai_chat_svc, "AiChatService", "Domain Service", "AI 对话核心服务")
     Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
     Container(chat_message, "ChatMessage", "Entity", "聊天消息实体")
-    Container(ai_chat_svc, "AiChatService", "Domain Service", "AI 对话核心服务")
     Container(in_mem_sess_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话存储")
-    Container(spring_ai_chat_adapter, "SpringAiChatAdapter", "@Component", "AI 聊天端口适配器")
-    Container(spring_ai_chat_svc, "SpringAiChatService", "@Component", "Spring AI 服务实现")
 }
 
 ' ============================================================
@@ -44,13 +38,10 @@ Container_Boundary(chat_domain, "Chat Domain") {
 Container_Boundary(rag_domain, "RAG Domain") {
     Container(rag_controller, "RagController", "@RestController", "RAG HTTP/SSE 请求")
     Container(rag_dto, "RAG DTOs", "Java Records", "RAG 聊天 / 文档上传请求 DTO")
-    Container(rag_app_svc, "RagApplicationService", "@Service", "RAG 应用服务")
-    Container(upload_doc_usecase, "UploadDocumentUseCase", "UseCase", "上传文档、分块、嵌入生成")
-    Container(delete_doc_usecase, "DeleteDocumentUseCase", "UseCase", "删除文档及向量数据")
-    Container(rag_chat_usecase, "RagChatUseCase", "UseCase", "RAG 检索增强问答")
-    Container(embedding_port, "EmbeddingPort", "Interface (Port)", "文本嵌入能力抽象")
+    Container(rag_app_svc, "RagService", "Domain Service", "RAG 服务")
+    Container(embedding_port, "EmbeddingAdapter", "Interface (Port)", "文本嵌入能力抽象")
     Container(vector_search_port, "VectorSearchPort", "Interface (Port)", "向量检索抽象")
-    Container(doc_repo_port, "DocumentRepositoryPort", "Interface (Port)", "文档仓储抽象")
+    Container(doc_repo_port, "DocumentRepository", "Interface (Port)", "文档仓储抽象")
     Container(document, "Document", "Entity", "文档实体")
     Container(doc_chunk, "DocumentChunk", "Entity", "文档分块实体")
     Container(ollama_emb_adapter, "OllamaEmbeddingAdapter", "@Component", "Ollama Embedding 适配器")
@@ -63,68 +54,26 @@ Container_Boundary(rag_domain, "RAG Domain") {
 }
 
 ' ============================================================
-' DOMAIN 3: TOOLING & AGENT DOMAIN
+' DOMAIN 3: TOOL CALLING DOMAIN
 ' ============================================================
-Container_Boundary(agent_domain, "Tooling & Agent Domain") {
-    Container(agent_controller, "AgentInvokeController", "@RestController", "9-Tab MCP Agent SSE 流式调用")
-    Container(fc_controller, "FunctionCallController", "@RestController", "OpenAI 风格 Function Call")
-    Container(fc_dto, "FunctionCall DTOs", "Java Records", "Function Call 请求/响应 DTO")
-    Container(tool_reg_port, "ToolRegistryPort", "Interface (Port)", "工具注册抽象")
-    Container(in_mem_tool_reg, "InMemoryToolRegistry", "@Component", "内存工具注册表")
-    Container(mcp_adapter, "McpToolCallbackAdapter", "@Component", "MCP 工具回调适配器")
-    Container(tool_provider, "ToolProvider", "@Component", "工具提供者")
-    Container(lang_detect_svc, "LanguageDetectionService", "@Service", "语言检测服务")
-
-    ' Tool Sub-Groups
-    Container_Boundary(chat_tools, "Chat Tools") {
-        Container(get_chat_hist_tool, "GetChatHistoryTool", "*Tool", "获取聊天历史")
-        Container(list_sessions_tool, "ListSessionsTool", "*Tool", "列出会话列表")
-    }
-    Container_Boundary(rag_tools, "RAG Tools") {
-        Container(doc_delete_tool, "DocumentDeleteTool", "*Tool", "删除文档")
-        Container(doc_get_tool, "DocumentGetTool", "*Tool", "获取文档")
-        Container(doc_list_tool, "DocumentListTool", "*Tool", "列出文档")
-        Container(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索")
-        Container(rag_search_docs_tool, "RagSearchInDocsTool", "*Tool", "文档内搜索")
-    }
-    Container_Boundary(web_tools, "Web Tools") {
-        Container(web_search_tool, "WebSearchTool", "*Tool", "Web 搜索")
-    }
-    Container_Boundary(monitor_tools, "Monitor Tools") {
-        Container(get_cpu_tool, "GetCpuTool", "*Tool", "CPU 监控")
-        Container(get_disk_tool, "GetDiskTool", "*Tool", "磁盘监控")
-        Container(get_jvm_tool, "GetJvmTool", "*Tool", "JVM 监控")
-        Container(get_load_tool, "GetLoadTool", "*Tool", "负载监控")
-        Container(get_mem_tool, "GetMemoryTool", "*Tool", "内存监控")
-    }
-    Container_Boundary(composite_tools, "Composite Tools") {
-        Container(supervisor_tool, "SupervisorOverviewTool", "*Tool", "Supervisor 总览")
-        Container(k8s_audit_tool, "K8sResourceAuditTool", "*Tool", "K8s 资源审计")
-        Container(llmops_pipe_tool, "LlmoopsPipelineTool", "*Tool", "LLMOps 流水线")
-        Container(model_eval_tool, "ModelEvaluationTool", "*Tool", "模型评估")
-        Container(mon_health_tool, "MonitoringHealthTool", "*Tool", "监控健康检查")
-        Container(vector_db_tool, "VectorDbInspectTool", "*Tool", "向量库检查")
-        Container(aiop_anomaly_tool, "AiopSAnomalyTool", "*Tool", "AIOps 异常检测")
-    }
+Container_Boundary(tool_domain, "Tool Calling Domain") {
+    Container(tool_controller, "ToolCallingController", "@RestController", "工具调用 HTTP 请求")
+    Container(tool_dto, "Tool DTOs", "Java Records", "工具列表/调用请求 DTO")
+    Container(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索工具")
+    Container(weather_tool, "WeatherTools", "*Tool", "天气查询工具")
 }
 
 ' ============================================================
-' DOMAIN 4: CROSS-CUTTING
+' CROSS-CUTTING - 跨领域
 ' ============================================================
 Container_Boundary(crosscut_domain, "Cross-Cutting") {
     Container(app_config, "ApplicationConfig", "@Configuration", "应用总配置")
-    Container(mcp_server_config, "McpServerConfig", "@Configuration", "MCP 服务器配置")
-    Container(tool_reg_config, "ToolRegistryConfig", "@Configuration", "工具注册配置")
     Container(postgres_config, "PostgresConfig", "@Configuration", "PostgreSQL 配置")
     Container(ollama_config, "OllamaConfig", "@Configuration", "Ollama 配置")
     Container(rag_props, "RagProperties", "@ConfigurationProperties", "RAG 配置属性")
-    Container(monitor_props, "MonitorProperties", "@ConfigurationProperties", "监控配置属性")
-    Container(websearch_props, "WebSearchProperties", "@ConfigurationProperties", "Web 搜索配置属性")
+    Container(chat_config, "ChatConfig", "@Configuration", "聊天配置")
     Container(cors_config, "WebCorsConfig", "@Configuration", "跨域配置")
-    Container(osh_sysinfo, "OshiSystemInfoProvider", "@Component", "系统信息提供者")
-    Container(ddg_adapter, "DuckDuckGoWebSearchAdapter", "@Component", "DuckDuckGo Web 搜索适配器")
-    Container(websearch_port, "WebSearchPort", "Interface", "Web 搜索抽象")
-    Container(doc_search_tool, "DocumentSearchTool", "@Component", "文档搜索工具")
+    Container(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
 }
 
 ' ============================================================
@@ -132,7 +81,6 @@ Container_Boundary(crosscut_domain, "Cross-Cutting") {
 ' ============================================================
 ContainerDb(postgresql, "PostgreSQL + pgvector", "PostgreSQL 17", "文档元数据 + 向量嵌入", "5432")
 Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding", "HTTPS")
-Container_Ext(duckduckgo_api, "DuckDuckGo Search", "HTTPS API", "Web 搜索", "HTTPS")
 Container_Ext(ollama_svc, "Ollama", "REST API", "本地 Embedding 模型", "11434")
 
 ' ============================================================
@@ -140,38 +88,26 @@ Container_Ext(ollama_svc, "Ollama", "REST API", "本地 Embedding 模型", "1143
 ' ============================================================
 
 ' User <-> Frontend
-Rel(user, angular_app, "对话 / 文档 / 工具调用 / 监控", "HTTP/SSE")
+Rel(user, angular_app, "对话 / 文档 / 工具调用", "HTTP/SSE")
 
 ' Frontend -> Backend
 Rel(angular_app, chat_controller, "聊天请求", "HTTP/SSE :9000")
 Rel(angular_app, rag_controller, "RAG 请求", "HTTP/SSE :9000")
-Rel(angular_app, agent_controller, "Agent SSE 调用", "SSE :9000")
-Rel(angular_app, fc_controller, "Function Call", "HTTP/SSE :9000")
+Rel(angular_app, tool_controller, "工具调用", "HTTP :9000")
 
 ' Chat Domain
-Rel(chat_controller, send_msg_usecase, "调用")
-Rel(send_msg_usecase, chat_app_svc, "编排")
-Rel(chat_app_svc, ai_chat_port, "依赖抽象")
-Rel(chat_app_svc, chat_sess_repo_port, "依赖抽象")
-Rel(ai_chat_port, spring_ai_chat_adapter, "实现")
-Rel(chat_sess_repo_port, in_mem_sess_repo, "实现")
-Rel(spring_ai_chat_adapter, spring_ai_chat_svc, "组合")
-Rel(spring_ai_chat_svc, deepseek_api, "LLM 调用", "HTTPS")
-Rel(chat_app_svc, chat_session, "操作领域对象")
+Rel(chat_controller, ai_chat_svc, "调用")
+Rel(ai_chat_svc, chat_session, "操作领域对象")
 Rel(chat_session, chat_message, "包含")
+Rel(ai_chat_svc, in_mem_sess_repo, "依赖")
+Rel(in_mem_sess_repo, deepseek_api, "LLM 调用", "HTTPS")
 
 ' RAG Domain
 Rel(rag_controller, rag_app_svc, "调用")
-Rel(rag_app_svc, upload_doc_usecase, "上传文档")
-Rel(rag_app_svc, delete_doc_usecase, "删除文档")
-Rel(rag_app_svc, rag_chat_usecase, "RAG 问答")
-Rel(upload_doc_usecase, embedding_port, "依赖")
-Rel(upload_doc_usecase, vector_search_port, "依赖")
-Rel(upload_doc_usecase, doc_repo_port, "依赖")
-Rel(rag_chat_usecase, embedding_port, "依赖")
-Rel(rag_chat_usecase, vector_search_port, "依赖")
-Rel(delete_doc_usecase, doc_repo_port, "依赖")
-Rel(delete_doc_usecase, vector_search_port, "依赖")
+Rel(rag_app_svc, embedding_port, "依赖")
+Rel(rag_app_svc, vector_search_port, "依赖")
+Rel(rag_app_svc, doc_repo_port, "依赖")
+Rel(rag_app_svc, pdf_extractor, "PDF 处理")
 Rel(embedding_port, ollama_emb_adapter, "实现")
 Rel(embedding_port, mock_emb_adapter, "实现")
 Rel(vector_search_port, pgvector_adapter, "实现")
@@ -183,21 +119,11 @@ Rel(jpa_doc_repo, postgresql, "文档持久化", "JDBC :5432")
 Rel(ollama_emb_adapter, ollama_svc, "Embedding 生成", "HTTP :11434")
 Rel(document, doc_chunk, "包含多个")
 
-' Tooling & Agent Domain
-Rel(agent_controller, tool_reg_port, "查询工具列表")
-Rel(agent_controller, in_mem_tool_reg, "注册/调用工具")
-Rel(fc_controller, tool_reg_port, "查询")
-Rel(in_mem_tool_reg, mcp_adapter, "MCP 适配")
-Rel(tool_reg_port, lang_detect_svc, "语言检测")
-Rel(chat_tools, tool_provider, "工具提供者")
-Rel(rag_tools, tool_provider, "工具提供者")
-Rel(web_tools, web_search_tool, "Web 搜索")
-Rel(monitor_tools, osh_sysinfo, "系统信息")
-Rel(composite_tools, lang_detect_svc, "复合工具")
-Rel(doc_search_tool, doc_repo_port, "文档检索")
-Rel(web_search_tool, websearch_port, "Web 搜索抽象")
-Rel(websearch_port, ddg_adapter, "实现")
-Rel(ddg_adapter, duckduckgo_api, "Web 搜索", "HTTPS")
+' Tool Calling Domain
+Rel(tool_controller, rag_search_tool, "RAG 搜索")
+Rel(tool_controller, weather_tool, "天气查询")
+Rel(rag_search_tool, rag_app_svc, "RAG 服务")
+Rel(weather_tool, deepseek_api, "天气 API", "HTTPS")
 
 SHOW_LEGEND()
 @enduml

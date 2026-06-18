@@ -67,7 +67,7 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test)
     classDirectories.setFrom(files(classDirectories.files.map { f ->
         fileTree(f) {
-            exclude("com/ai/config/**", "com/ai/domain/repository/**", "com/ai/**")
+            exclude("com/ai/config/**", "com/ai/domain/repository/**")
         }
     }))
 }
