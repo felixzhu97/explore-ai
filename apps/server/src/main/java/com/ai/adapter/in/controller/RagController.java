@@ -1,12 +1,12 @@
-package com.ai.adapter.in.controller;
+package com.ai.interfaces.controller;
 
-import com.ai.domain.service.LanguageDetectionService;
+import com.ai.application.service.LanguageDetectionService;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.AiChatService;
-import com.ai.domain.service.RagService;
-import com.ai.adapter.out.document.PdfTextExtractor;
-import com.ai.adapter.in.dto.*;
+import com.ai.service.AiChatService;
+import com.ai.service.RagService;
+import com.ai.infrastructure.adapter.document.PdfTextExtractor;
+import com.ai.interfaces.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
