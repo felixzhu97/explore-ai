@@ -1,12 +1,12 @@
-package com.ai.interfaces;
+package com.ai.adapter.in.controller;
 
-import com.ai.service.AiChatService;
+import com.ai.domain.service.AiChatService;
 import com.ai.domain.model.ChatMessage;
 import com.ai.domain.model.ChatSession;
 import com.ai.domain.vo.ChatSessionId;
 import com.ai.domain.vo.MessageId;
-import com.ai.interfaces.controller.AiController;
-import com.ai.interfaces.controller.GlobalExceptionHandler;
+import com.ai.adapter.in.controller.AiController;
+import com.ai.adapter.in.controller.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

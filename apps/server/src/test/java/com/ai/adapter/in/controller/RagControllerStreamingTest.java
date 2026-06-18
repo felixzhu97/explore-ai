@@ -1,14 +1,12 @@
-package com.ai.interfaces;
+package com.ai.adapter.in.controller;
 
-import com.ai.application.service.LanguageDetectionService;
-import com.ai.application.service.RagApplicationService;
-import com.ai.application.usecase.RagChatUseCase;
+import com.ai.domain.service.LanguageDetectionService;
 import com.ai.domain.model.SourceDocument;
-import com.ai.service.AiChatService;
-import com.ai.domain.exception.RagServiceException;
-import com.ai.infrastructure.adapter.document.PdfTextExtractor;
-import com.ai.interfaces.controller.GlobalExceptionHandler;
-import com.ai.interfaces.controller.RagController;
+import com.ai.domain.service.AiChatService;
+import com.ai.domain.service.RagService;
+import com.ai.adapter.out.document.PdfTextExtractor;
+import com.ai.adapter.in.controller.GlobalExceptionHandler;
+import com.ai.adapter.in.controller.RagController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,7 +49,7 @@ class RagControllerStreamingTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private RagApplicationService ragApplicationService;
+    private RagService ragService;
 
     @MockBean
     private LanguageDetectionService languageDetectionService;
@@ -70,12 +68,12 @@ class RagControllerStreamingTest {
         @DisplayName("should call services for streaming RAG chat request")
         void shouldCallServicesForStreamingRagChatRequest() throws Exception {
             // Arrange
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
+            RagService.RetrievalResult result = new RagService.RetrievalResult(
                     "Context from documents",
                     List.of(new SourceDocument("Document 1", 0.9, null)),
                     "Enriched query"
             );
-            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
+            when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
             when(languageDetectionService.detect(anyString())).thenReturn("en");
             when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString())).thenReturn("Built prompt");
 
@@ -88,7 +86,7 @@ class RagControllerStreamingTest {
                     .andExpect(status().isOk());
 
             // Verify mock was called
-            verify(ragApplicationService).retrieveContext(anyString(), any(), anyInt());
+            verify(ragService).retrieveContext(anyString(), any(), anyInt());
             verify(languageDetectionService).detect(anyString());
         }
 
@@ -100,10 +98,10 @@ class RagControllerStreamingTest {
                     UUID.randomUUID().toString(),
                     UUID.randomUUID().toString()
             );
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
+            RagService.RetrievalResult result = new RagService.RetrievalResult(
                     "Context from specific docs", List.of(), "Query"
             );
-            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
+            when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
             when(aiChatService.chat(anyString())).thenReturn("Response");
 
             String requestBody = String.format("{\"query\": \"Question\", \"doc_ids\": [\"%s\", \"%s\"]}",
@@ -116,17 +114,17 @@ class RagControllerStreamingTest {
                     .andExpect(status().isOk());
 
             // Verify
-            verify(ragApplicationService).retrieveContext(anyString(), any(), anyInt());
+            verify(ragService).retrieveContext(anyString(), any(), anyInt());
         }
 
         @Test
         @DisplayName("should use custom topK parameter when provided")
         void shouldUseCustomTopKParameterWhenProvided() throws Exception {
             // Arrange
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
+            RagService.RetrievalResult result = new RagService.RetrievalResult(
                     "Context", List.of(), "Query"
             );
-            when(ragApplicationService.retrieveContext(anyString(), any(), eq(10))).thenReturn(result);
+            when(ragService.retrieveContext(anyString(), any(), eq(10))).thenReturn(result);
             when(aiChatService.chat(anyString())).thenReturn("Response");
 
             String requestBody = "{\"query\": \"Question\", \"top_k\": 10}";
@@ -138,17 +136,17 @@ class RagControllerStreamingTest {
                     .andExpect(status().isOk());
 
             // Verify custom topK was used
-            verify(ragApplicationService).retrieveContext(anyString(), any(), eq(10));
+            verify(ragService).retrieveContext(anyString(), any(), eq(10));
         }
 
         @Test
         @DisplayName("should use default topK when not provided")
         void shouldUseDefaultTopKWhenNotProvided() throws Exception {
             // Arrange
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
+            RagService.RetrievalResult result = new RagService.RetrievalResult(
                     "Context", List.of(), "Query"
             );
-            when(ragApplicationService.retrieveContext(anyString(), any(), eq(5))).thenReturn(result);
+            when(ragService.retrieveContext(anyString(), any(), eq(5))).thenReturn(result);
             when(aiChatService.chat(anyString())).thenReturn("Response");
 
             String requestBody = "{\"query\": \"Question\"}";
@@ -160,17 +158,17 @@ class RagControllerStreamingTest {
                     .andExpect(status().isOk());
 
             // Verify default topK (5) was used
-            verify(ragApplicationService).retrieveContext(anyString(), any(), eq(5));
+            verify(ragService).retrieveContext(anyString(), any(), eq(5));
         }
 
         @Test
         @DisplayName("should handle null docIds in streaming request")
         void shouldHandleNullDocIdsInStreamingRequest() throws Exception {
             // Arrange
-            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
+            RagService.RetrievalResult result = new RagService.RetrievalResult(
                     "Context", List.of(), "Query"
             );
-            when(ragApplicationService.retrieveContext(anyString(), isNull(), anyInt())).thenReturn(result);
+            when(ragService.retrieveContext(anyString(), isNull(), anyInt())).thenReturn(result);
             when(aiChatService.chat(anyString())).thenReturn("Response");
 
             String requestBody = "{\"query\": \"Question\", \"doc_ids\": null}";
@@ -181,7 +179,7 @@ class RagControllerStreamingTest {
                             .content(requestBody))
                     .andExpect(status().isOk());
 
-            verify(ragApplicationService).retrieveContext(eq("Question"), isNull(), anyInt());
+            verify(ragService).retrieveContext(eq("Question"), isNull(), anyInt());
         }
     }
 }

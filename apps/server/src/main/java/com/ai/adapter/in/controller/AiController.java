@@ -1,10 +1,10 @@
-package com.ai.interfaces.controller;
+package com.ai.adapter.in.controller;
 
-import com.ai.service.AiChatService;
-import com.ai.interfaces.dto.ChatRequest;
-import com.ai.interfaces.dto.ChatResponse;
-import com.ai.interfaces.dto.MessageHistoryResponse;
-import com.ai.interfaces.dto.SessionInfo;
+import com.ai.domain.service.AiChatService;
+import com.ai.adapter.in.dto.ChatRequest;
+import com.ai.adapter.in.dto.ChatResponse;
+import com.ai.adapter.in.dto.MessageHistoryResponse;
+import com.ai.adapter.in.dto.SessionInfo;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
