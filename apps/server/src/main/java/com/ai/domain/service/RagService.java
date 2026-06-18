@@ -1,12 +1,13 @@
-package com.ai.domain.service;
+package com.ai.service;
 
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.vo.DocumentId;
-import com.ai.adapter.out.embedding.EmbeddingAdapter;
-import com.ai.adapter.out.persistence.JpaDocumentRepository;
-import com.ai.adapter.out.vector.PgVectorAdapter;
+import com.ai.infrastructure.adapter.embedding.EmbeddingAdapter;
+import com.ai.infrastructure.adapter.persistence.JpaDocumentRepository;
+import com.ai.infrastructure.adapter.vector.PgVectorAdapter;
+import com.ai.interfaces.dto.UploadDocumentResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

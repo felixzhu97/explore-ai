@@ -1,8 +1,7 @@
-package com.ai.adapter.out.embedding;
+package com.ai.infrastructure.adapter.embedding;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -15,18 +14,13 @@ import java.util.stream.Collectors;
 public class MockEmbeddingAdapter implements EmbeddingAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(MockEmbeddingAdapter.class);
-    private final int dimensions;
+    private static final int DIMENSIONS = 1536;
     private final Random random = new Random();
 
-    public MockEmbeddingAdapter(
-            @Value("${rag.ollama.embedding.dimensions:768}") int dimensions) {
-        this.dimensions = dimensions;
-    }
-
     public float[] embed(String text) {
-        log.debug("Mock embedding for text (length={}, dimensions={})", text.length(), dimensions);
-        float[] embedding = new float[dimensions];
-        for (int i = 0; i < dimensions; i++) {
+        log.debug("Mock embedding for text (length={})", text.length());
+        float[] embedding = new float[DIMENSIONS];
+        for (int i = 0; i < DIMENSIONS; i++) {
             embedding[i] = random.nextFloat() * 2 - 1;
         }
         return embedding;
@@ -37,6 +31,6 @@ public class MockEmbeddingAdapter implements EmbeddingAdapter {
     }
 
     public int getDimensions() {
-        return dimensions;
+        return DIMENSIONS;
     }
 }
