@@ -1,14 +1,16 @@
-package com.ai.adapter.in.controller;
+package com.ai.interfaces;
 
-import com.ai.domain.service.LanguageDetectionService;
+import com.ai.application.service.LanguageDetectionService;
+import com.ai.application.service.RagApplicationService;
+import com.ai.application.usecase.RagChatUseCase;
 import com.ai.domain.model.Document;
-import com.ai.domain.model.DocumentStatus;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.AiChatService;
-import com.ai.domain.service.RagService;
-import com.ai.adapter.out.document.PdfTextExtractor;
-import com.ai.adapter.in.controller.RagController;
-import com.ai.adapter.in.dto.DocumentSummaryDto;
+import com.ai.domain.model.DocumentStatus;
+import com.ai.service.AiChatService;
+import com.ai.domain.vo.DocumentId;
+import com.ai.infrastructure.adapter.document.PdfTextExtractor;
+import com.ai.interfaces.controller.RagController;
+import com.ai.interfaces.dto.DocumentSummaryDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -49,7 +51,7 @@ class RagControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private RagService ragService;
+    private RagApplicationService ragApplicationService;
 
     @MockBean
     private LanguageDetectionService languageDetectionService;
@@ -73,7 +75,7 @@ class RagControllerTest {
                 doc.getId().value(), doc.getTitle(), doc.getStatus().name(),
                 doc.getCreatedAt(), 0
             );
-            when(ragService.listDocuments()).thenReturn(List.of(doc));
+            when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
 
             // Act & Assert
             mockMvc.perform(get("/api/rag/documents/"))
@@ -87,7 +89,7 @@ class RagControllerTest {
         @DisplayName("should return empty list when no documents exist")
         void shouldReturnEmptyListWhenNoDocumentsExist() throws Exception {
             // Arrange
-            when(ragService.listDocuments()).thenReturn(List.of());
+            when(ragApplicationService.listDocuments()).thenReturn(List.of());
 
             // Act & Assert
             mockMvc.perform(get("/api/rag/documents/"))
@@ -102,7 +104,7 @@ class RagControllerTest {
             // Arrange
             Document doc1 = createTestDocument("Document 1", DocumentStatus.READY);
             Document doc2 = createTestDocument("Document 2", DocumentStatus.PROCESSING);
-            when(ragService.listDocuments()).thenReturn(List.of(doc1, doc2));
+            when(ragApplicationService.listDocuments()).thenReturn(List.of(doc1, doc2));
 
             // Act & Assert
             mockMvc.perform(get("/api/rag/documents/"))
@@ -122,7 +124,7 @@ class RagControllerTest {
             // Arrange
             Document doc = createTestDocument("test.txt", DocumentStatus.READY);
             when(pdfTextExtractor.getExtension("test.txt")).thenReturn("txt");
-            when(ragService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
+            when(ragApplicationService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
                     .thenReturn(doc);
 
             MockMultipartFile file = new MockMultipartFile(
@@ -144,7 +146,7 @@ class RagControllerTest {
             // Arrange
             Document doc = createTestDocument("test.txt", DocumentStatus.READY);
             when(pdfTextExtractor.getExtension("test.txt")).thenReturn("txt");
-            when(ragService.uploadDocument(eq("test.txt"), anyString(), anyLong(), anyString()))
+            when(ragApplicationService.uploadDocument(eq("test.txt"), anyString(), anyLong(), anyString()))
                     .thenReturn(doc);
 
             MockMultipartFile file = new MockMultipartFile(
@@ -165,7 +167,7 @@ class RagControllerTest {
             when(pdfTextExtractor.getExtension("document.pdf")).thenReturn("pdf");
             when(pdfTextExtractor.extractText(any(byte[].class)))
                     .thenReturn(java.util.Optional.of("Extracted PDF content"));
-            when(ragService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
+            when(ragApplicationService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
                     .thenReturn(doc);
 
             MockMultipartFile file = new MockMultipartFile(
@@ -206,13 +208,13 @@ class RagControllerTest {
         void shouldDeleteDocumentAndReturn204() throws Exception {
             // Arrange
             UUID docId = UUID.randomUUID();
-            doNothing().when(ragService).deleteDocument(docId);
+            doNothing().when(ragApplicationService).deleteDocument(docId);
 
             // Act & Assert
             mockMvc.perform(delete("/api/rag/documents/{id}", docId))
                     .andExpect(status().isNoContent());
 
-            verify(ragService).deleteDocument(docId);
+            verify(ragApplicationService).deleteDocument(docId);
         }
 
         @Test
@@ -220,14 +222,14 @@ class RagControllerTest {
         void shouldCallDeleteDocumentWithCorrectUuid() throws Exception {
             // Arrange
             UUID docId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-            doNothing().when(ragService).deleteDocument(docId);
+            doNothing().when(ragApplicationService).deleteDocument(docId);
 
             // Act
             mockMvc.perform(delete("/api/rag/documents/{id}", docId))
                     .andExpect(status().isNoContent());
 
             // Assert
-            verify(ragService).deleteDocument(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+            verify(ragApplicationService).deleteDocument(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         }
     }
 
@@ -244,10 +246,10 @@ class RagControllerTest {
                 "top_k", 5,
                 "temperature", 0.7
             );
-            RagService.RetrievalResult result = new RagService.RetrievalResult(
+            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
                 "Context from documents", List.of(), "Enriched query"
             );
-            when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
+            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
             when(languageDetectionService.detect(anyString())).thenReturn("en");
             when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
                     .thenReturn("Prompt with context");
@@ -269,10 +271,10 @@ class RagControllerTest {
                 "query", "Question about docs",
                 "doc_ids", docIds
             );
-            RagService.RetrievalResult result = new RagService.RetrievalResult(
+            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
                 "Context from docs", List.of(), "Query"
             );
-            when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
+            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
             when(languageDetectionService.detect(anyString())).thenReturn("en");
             when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
                     .thenReturn("Prompt");
@@ -290,10 +292,10 @@ class RagControllerTest {
         void shouldUseDefaultTopKWhenNotProvided() throws Exception {
             // Arrange
             Map<String, Object> request = Map.of("query", "Question");
-            RagService.RetrievalResult result = new RagService.RetrievalResult(
+            RagChatUseCase.RetrievalResult result = new RagChatUseCase.RetrievalResult(
                 "Context", List.of(), "Query"
             );
-            when(ragService.retrieveContext(anyString(), any(), eq(5))).thenReturn(result);
+            when(ragApplicationService.retrieveContext(anyString(), any(), eq(5))).thenReturn(result);
             when(languageDetectionService.detect(anyString())).thenReturn("en");
             when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
                     .thenReturn("Prompt");
@@ -305,13 +307,13 @@ class RagControllerTest {
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
 
-            verify(ragService).retrieveContext(anyString(), any(), eq(5));
+            verify(ragApplicationService).retrieveContext(anyString(), any(), eq(5));
         }
     }
 
     private Document createTestDocument(String title, DocumentStatus status) {
         Document doc = new Document(
-            com.ai.domain.vo.DocumentId.generate(),
+            DocumentId.generate(),
             title,
             title,
             1024L

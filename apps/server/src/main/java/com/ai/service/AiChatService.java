@@ -1,4 +1,4 @@
-package com.ai.domain.service;
+package com.ai.service;
 
 import com.ai.domain.model.ChatMessage;
 import com.ai.domain.model.ChatSession;

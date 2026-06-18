@@ -1,4 +1,4 @@
-package com.ai.adapter.out.embedding;
+package com.ai.infrastructure.adapter.embedding;
 
 import java.util.List;
 
