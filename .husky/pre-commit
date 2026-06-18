@@ -3,6 +3,6 @@
 set -e
 
 echo "🔍 Running lint-staged (pre-commit)..."
-npx lint-staged
+pnpm exec lint-staged
 
 echo "✅ Lint-staged checks passed!"
