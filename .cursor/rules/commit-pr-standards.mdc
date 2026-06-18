@@ -1,0 +1,121 @@
+---
+description: Git commit and PR standards with real-time web references
+alwaysApply: true
+---
+
+# Commit & Pull Request Standards
+
+## Core Principles
+
+1. **One commit = One complete change**: Each commit delivers one finished piece of work
+2. **Chain PRs**: Each PR is based on the previous branch (not main)
+3. **References**: Always search the web in real-time for authoritative sources
+
+---
+
+## Commit Message Format
+
+```
+<type>: <short description>
+
+References:
+- [Title](URL)
+```
+
+### Type Prefixes
+
+| Type | Use Case |
+|------|----------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `refactor` | Code refactoring without behavior change |
+| `docs` | Documentation only |
+| `test` | Adding or updating tests |
+| `chore` | Build, CI, dependencies |
+| `perf` | Performance improvement |
+| `ci` | CI configuration |
+
+### Rules
+
+1. Subject: max 50 characters, imperative mood, no trailing period
+2. References: **always search web in real-time** and cite authoritative sources
+3. Complete work: commit must be self-contained, no partial changes
+
+### Examples
+
+```
+fix: adapt MockEmbeddingAdapterTest to no-arg constructor
+
+References:
+- [JUnit 5 @Nested Test Classes - Baeldung](https://www.baeldung.com/junit-5-nested-test-classes)
+```
+
+```
+feat: implement structured output with Spring AI
+
+References:
+- [Structured Output - Spring AI Reference](https://docs.spring.io/spring-ai/reference/api/structured-output.html)
+```
+
+---
+
+## Pull Request Format
+
+PR body mirrors the commit message. References must be identical.
+
+```markdown
+## References
+- [Title](URL)
+```
+
+---
+
+## Workflow
+
+```bash
+# 1. Checkout previous branch
+git checkout feat/previous-feature
+
+# 2. Create new branch from it
+git checkout -b feat/your-new-feature
+
+# 3. Make complete change
+# 4. Search web for authoritative references
+# 5. Commit with references
+
+git commit -m "feat: description
+
+References:
+- [Title](URL)
+"
+
+# 6. Push and create PR (base: previous branch)
+git push -u origin HEAD
+gh pr create --title "feat: description" --base feat/previous-feature --body "$(cat <<'EOF'
+## References
+- [Title](URL)
+EOF
+)"
+```
+
+### Branch Chain Example
+
+```
+main
+  └── feat/base-feature      # PR #1 → base: main
+        └── feat/extend-1    # PR #2 → base: feat/base-feature
+              └── feat/extend-2    # PR #3 → base: feat/extend-1
+```
+
+---
+
+## Common Mistakes
+
+| Mistake | Correction |
+|---------|------------|
+| No references | Always search web in real-time for authoritative sources |
+| Multiple unrelated changes | Split into separate commits/branches/PRs |
+| Partial work in commit | Complete the change before committing |
+| Subject with period | Remove trailing punctuation |
+| Past tense | Use imperative: `add` not `added` |
+| PR base on main | Always base on previous branch |
