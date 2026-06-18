@@ -23,6 +23,8 @@ class MockEmbeddingAdapterTest {
 
     private MockEmbeddingAdapter adapter;
 
+    private static final int EXPECTED_DIMENSIONS = 1536;
+
     @BeforeEach
     void setUp() {
         adapter = new MockEmbeddingAdapter();
@@ -33,8 +35,8 @@ class MockEmbeddingAdapterTest {
     class ShouldReturnEmbeddingWithCorrectDimensions {
 
         @Test
-        @DisplayName("should return embedding with 768 dimensions")
-        void shouldReturnEmbeddingWith768Dimensions() {
+        @DisplayName("should return embedding with 1536 dimensions")
+        void shouldReturnEmbeddingWith1536Dimensions() {
             // Arrange
             String testText = "Hello, world!";
 
@@ -43,7 +45,7 @@ class MockEmbeddingAdapterTest {
 
             // Assert
             assertThat(result).isNotNull();
-            assertThat(result).hasSize(adapter.getDimensions());
+            assertThat(result).hasSize(EXPECTED_DIMENSIONS);
         }
 
         @Test
@@ -55,7 +57,7 @@ class MockEmbeddingAdapterTest {
             // Act & Assert
             for (String text : testTexts) {
                 float[] result = adapter.embed(text);
-                assertThat(result).hasSize(adapter.getDimensions());
+                assertThat(result).hasSize(EXPECTED_DIMENSIONS);
             }
         }
 
@@ -66,7 +68,7 @@ class MockEmbeddingAdapterTest {
             int dimensions = adapter.getDimensions();
 
             // Assert
-            assertThat(dimensions).isEqualTo(adapter.getDimensions());
+            assertThat(dimensions).isEqualTo(EXPECTED_DIMENSIONS);
         }
     }
 
@@ -223,7 +225,7 @@ class MockEmbeddingAdapterTest {
             // Assert
             assertThat(results).hasSize(3);
             for (float[] embedding : results) {
-                assertThat(embedding).hasSize(adapter.getDimensions());
+                assertThat(embedding).hasSize(EXPECTED_DIMENSIONS);
             }
         }
 
@@ -251,7 +253,7 @@ class MockEmbeddingAdapterTest {
 
             // Assert
             assertThat(results).hasSize(1);
-            assertThat(results.get(0)).hasSize(adapter.getDimensions());
+            assertThat(results.get(0)).hasSize(EXPECTED_DIMENSIONS);
         }
 
         @Test
@@ -270,7 +272,7 @@ class MockEmbeddingAdapterTest {
             // Assert
             assertThat(results).hasSize(batchSize);
             for (float[] embedding : results) {
-                assertThat(embedding).hasSize(adapter.getDimensions());
+                assertThat(embedding).hasSize(EXPECTED_DIMENSIONS);
             }
         }
     }
@@ -286,7 +288,7 @@ class MockEmbeddingAdapterTest {
             float[] result = adapter.embed("");
 
             // Assert
-            assertThat(result).hasSize(adapter.getDimensions());
+            assertThat(result).hasSize(EXPECTED_DIMENSIONS);
             for (float value : result) {
                 assertThat(value).isGreaterThanOrEqualTo(-1.0f);
                 assertThat(value).isLessThanOrEqualTo(1.0f);
@@ -307,7 +309,7 @@ class MockEmbeddingAdapterTest {
             float[] result = adapter.embed(veryLongText);
 
             // Assert
-            assertThat(result).hasSize(adapter.getDimensions());
+            assertThat(result).hasSize(EXPECTED_DIMENSIONS);
         }
 
         @Test
@@ -320,7 +322,7 @@ class MockEmbeddingAdapterTest {
             float[] result = adapter.embed(unicodeText);
 
             // Assert
-            assertThat(result).hasSize(adapter.getDimensions());
+            assertThat(result).hasSize(EXPECTED_DIMENSIONS);
         }
 
         @Test
@@ -333,7 +335,7 @@ class MockEmbeddingAdapterTest {
             float[] result = adapter.embed(specialChars);
 
             // Assert
-            assertThat(result).hasSize(adapter.getDimensions());
+            assertThat(result).hasSize(EXPECTED_DIMENSIONS);
         }
     }
 }
