@@ -1,4 +1,4 @@
-package com.ai.infrastructure.adapter.embedding;
+package com.ai.adapter.out.embedding;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
