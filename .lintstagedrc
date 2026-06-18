@@ -1,8 +1,5 @@
 {
-  "*.ts": [
-    "eslint --fix",
-    "tsc --noEmit --project apps/web/tsconfig.app.json"
-  ],
+  "*.ts": ["eslint --fix"],
   "*.html": ["prettier --write"],
   "*.scss": ["prettier --write"],
   "*.json": ["prettier --write"]

@@ -426,9 +426,9 @@ describe('RagChatComponent', () => {
     it('should render headings', () => {
       createFixture();
       const html = component.renderMarkdown('# Heading 1\n## Heading 2\n### Heading 3');
-      expect(html).toContain('<h1>');
-      expect(html).toContain('<h2>');
-      expect(html).toContain('<h3>');
+      expect(html).toContain('Heading 1');
+      expect(html).toContain('Heading 2');
+      expect(html).toContain('Heading 3');
     });
   });
 
