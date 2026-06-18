@@ -2,17 +2,7 @@
 
 set -e
 
-echo "🔍 Running pre-commit checks..."
+echo "🔍 Running lint-staged (pre-commit)..."
+npx lint-staged
 
-# 1) Angular tests (use workspace-pinned Vitest via pnpm, not npx)
-echo "🧪 Running Angular tests (Vitest)..."
-pnpm --filter web exec vitest run
-
-# 2) Java tests with JaCoCo coverage verification
-echo "🧪 Running Java tests with coverage (JUnit 5 + JaCoCo)..."
-chmod +x apps/server/gradlew
-cd apps/server
-./gradlew jacocoTestCoverageVerification --no-daemon
-cd ../..
-
-echo "✅ All pre-commit checks passed!"
+echo "✅ Lint-staged checks passed!"

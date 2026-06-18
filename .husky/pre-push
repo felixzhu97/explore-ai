@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+set -e
+
+echo "🔍 Running pre-push checks..."
+
+# 1) Angular tests (Vitest)
+echo "🧪 Running Angular tests (Vitest)..."
+cd apps/web && pnpm exec vitest run
+
+# 2) Java tests with JaCoCo coverage verification
+echo "🧪 Running Java tests with coverage (JUnit 5 + JaCoCo)..."
+chmod +x apps/server/gradlew
+cd apps/server
+./gradlew jacocoTestCoverageVerification --no-daemon
+cd ../..
+
+echo "✅ All pre-push checks passed!"

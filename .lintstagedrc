@@ -1,0 +1,6 @@
+{
+  "*.ts": ["eslint --fix", "tsc --noEmit"],
+  "*.html": ["prettier --write"],
+  "*.scss": ["prettier --write"],
+  "*.json": ["prettier --write"]
+}
