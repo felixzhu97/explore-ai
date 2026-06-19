@@ -9,7 +9,6 @@ import com.ai.adapter.out.embedding.EmbeddingAdapter;
 import com.ai.adapter.out.vector.PgVectorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,22 +21,18 @@ public class RagService {
     private static final Logger log = LoggerFactory.getLogger(RagService.class);
     private static final int DEFAULT_TOP_K = 5;
     private static final int MAX_SOURCE_LENGTH = 500;
-    private static final int MAX_HISTORY_MESSAGES = 10;
 
-    private final int chunkSize;
-    private final int chunkOverlap;
+    private final ChunkingService chunkingService;
     private final EmbeddingAdapter embeddingAdapter;
     private final PgVectorAdapter vectorAdapter;
     private final DocumentRepository documentRepository;
 
     public RagService(
-            @Value("${rag.chunk.size:500}") int chunkSize,
-            @Value("${rag.chunk.overlap:50}") int chunkOverlap,
+            ChunkingService chunkingService,
             EmbeddingAdapter embeddingAdapter,
             PgVectorAdapter vectorAdapter,
             DocumentRepository documentRepository) {
-        this.chunkSize = chunkSize;
-        this.chunkOverlap = chunkOverlap;
+        this.chunkingService = chunkingService;
         this.embeddingAdapter = embeddingAdapter;
         this.vectorAdapter = vectorAdapter;
         this.documentRepository = documentRepository;
@@ -58,7 +53,7 @@ public class RagService {
         document = saveDocument(document);
 
         try {
-            List<String> chunks = chunkText(content);
+            List<String> chunks = chunkingService.chunk(content);
             log.info("Split into {} chunks", chunks.size());
 
             List<DocumentChunk> embeddedChunks = new ArrayList<>();
@@ -152,33 +147,6 @@ public class RagService {
 
     private Document saveDocument(Document document) {
         return documentRepository.save(document);
-    }
-
-    private List<String> chunkText(String text) {
-        List<String> chunks = new ArrayList<>();
-        String[] sentences = text.split("(?<=[.!?。！？])\\s*");
-        StringBuilder currentChunk = new StringBuilder();
-        int currentLength = 0;
-
-        for (String sentence : sentences) {
-            int sentenceLength = sentence.length();
-            if (currentLength + sentenceLength > chunkSize && currentLength > 0) {
-                chunks.add(currentChunk.toString().trim());
-                String overlap = currentChunk.toString();
-                currentChunk = new StringBuilder(
-                    overlap.length() > chunkOverlap
-                        ? overlap.substring(overlap.length() - chunkOverlap)
-                        : overlap
-                );
-                currentLength = currentChunk.length();
-            }
-            currentChunk.append(sentence).append(" ");
-            currentLength += sentenceLength + 1;
-        }
-        if (currentChunk.length() > 0) {
-            chunks.add(currentChunk.toString().trim());
-        }
-        return chunks;
     }
 
     private double calculateSimilarity(float[] a, float[] b) {

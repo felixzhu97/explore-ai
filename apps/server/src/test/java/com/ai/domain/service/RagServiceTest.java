@@ -1,11 +1,11 @@
 package com.ai.domain.service;
 
 import com.ai.adapter.out.embedding.EmbeddingAdapter;
-import com.ai.adapter.out.persistence.JpaDocumentRepository;
 import com.ai.adapter.out.vector.PgVectorAdapter;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.SourceDocument;
+import com.ai.domain.repository.DocumentRepository;
 import com.ai.domain.vo.DocumentId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,19 +45,19 @@ class RagServiceTest {
     private PgVectorAdapter vectorAdapter;
 
     @Mock
-    private JpaDocumentRepository documentRepository;
+    private ChunkingService chunkingService;
+
+    @Mock
+    private DocumentRepository documentRepository;
 
     private RagService ragService;
 
-    private static final int CHUNK_SIZE = 500;
-    private static final int CHUNK_OVERLAP = 50;
     private static final int EMBEDDING_DIMENSIONS = 384;
 
     @BeforeEach
     void setUp() {
         ragService = new RagService(
-                CHUNK_SIZE,
-                CHUNK_OVERLAP,
+                chunkingService,
                 embeddingAdapter,
                 vectorAdapter,
                 documentRepository
@@ -82,6 +82,7 @@ class RagServiceTest {
             float[] mockEmbedding = createMockEmbedding();
 
             when(documentRepository.save(any(Document.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(chunkingService.chunk(content)).thenReturn(List.of(content));
             when(embeddingAdapter.embed(anyString())).thenReturn(mockEmbedding);
             doNothing().when(vectorAdapter).saveChunk(any(DocumentChunk.class));
 
@@ -102,12 +103,14 @@ class RagServiceTest {
         @DisplayName("should throw exception when embedding fails")
         void shouldThrowExceptionWhenEmbeddingFails() {
             // Arrange
+            String content = "Short content.";
             when(documentRepository.save(any(Document.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(chunkingService.chunk(content)).thenReturn(List.of(content));
             when(embeddingAdapter.embed(anyString())).thenThrow(new RuntimeException("Embedding failed"));
             doNothing().when(vectorAdapter).saveChunk(any(DocumentChunk.class));
 
             // Act & Assert
-            assertThatThrownBy(() -> ragService.uploadDocument("Title", "file.txt", 100L, "content"))
+            assertThatThrownBy(() -> ragService.uploadDocument("Title", "file.txt", 100L, content))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Failed to process document");
         }
@@ -116,12 +119,14 @@ class RagServiceTest {
         @DisplayName("should mark document as failed when processing fails")
         void shouldMarkDocumentAsFailedWhenProcessingFails() {
             // Arrange
+            String content = "Short content.";
             when(documentRepository.save(any(Document.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(chunkingService.chunk(content)).thenReturn(List.of(content));
             when(embeddingAdapter.embed(anyString())).thenThrow(new RuntimeException("Embedding failed"));
 
             // Act
             try {
-                ragService.uploadDocument("Title", "file.txt", 100L, "content");
+                ragService.uploadDocument("Title", "file.txt", 100L, content);
             } catch (Exception ignored) {}
 
             // Assert
@@ -135,12 +140,14 @@ class RagServiceTest {
         @DisplayName("should throw exception when vector save fails")
         void shouldThrowExceptionWhenVectorSaveFails() {
             // Arrange
+            String content = "Short content for testing.";
             when(documentRepository.save(any(Document.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(chunkingService.chunk(content)).thenReturn(List.of(content));
             when(embeddingAdapter.embed(anyString())).thenReturn(createMockEmbedding());
             doThrow(new RuntimeException("Vector store error")).when(vectorAdapter).saveChunk(any(DocumentChunk.class));
 
             // Act & Assert
-            assertThatThrownBy(() -> ragService.uploadDocument("Title", "file.txt", 100L, "Sentence one. Sentence two."))
+            assertThatThrownBy(() -> ragService.uploadDocument("Title", "file.txt", 100L, content))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Failed to process document");
         }
@@ -151,16 +158,18 @@ class RagServiceTest {
             // Arrange
             String title = "My Document";
             String fileName = "doc.pdf";
+            String content = "Short content.";
             float[] mockEmbedding = createMockEmbedding();
 
             when(documentRepository.save(any(Document.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(chunkingService.chunk(content)).thenReturn(List.of(content));
             when(embeddingAdapter.embed(anyString())).thenReturn(mockEmbedding);
 
             ArgumentCaptor<DocumentChunk> chunkCaptor = ArgumentCaptor.forClass(DocumentChunk.class);
             doNothing().when(vectorAdapter).saveChunk(chunkCaptor.capture());
 
             // Act
-            ragService.uploadDocument(title, fileName, 100L, "Short content.");
+            ragService.uploadDocument(title, fileName, 100L, content);
 
             // Assert
             DocumentChunk chunk = chunkCaptor.getValue();
