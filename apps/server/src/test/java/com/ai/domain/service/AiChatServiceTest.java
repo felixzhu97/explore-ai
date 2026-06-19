@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,10 +29,10 @@ class AiChatServiceTest {
     private ChatClient chatClient;
 
     @Mock
-    private ChatClient.Builder chatClientBuilder;
+    private ChatSessionRepository repository;
 
     @Mock
-    private ChatSessionRepository repository;
+    private ChatMemory chatMemory;
 
     private AiChatService service;
 
@@ -39,8 +40,7 @@ class AiChatServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(chatClientBuilder.build()).thenReturn(chatClient);
-        service = new AiChatService(chatClientBuilder, repository);
+        service = new AiChatService(chatClient, repository, chatMemory);
     }
 
     @Nested

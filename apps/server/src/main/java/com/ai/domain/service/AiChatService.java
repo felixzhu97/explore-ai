@@ -7,13 +7,14 @@ import com.ai.domain.repository.ChatSessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * AI Chat Service using Spring AI 2.0 ChatClient API.
+ * AI Chat Service using Spring AI 2.0 ChatClient API with Chat Memory support.
  */
 @Service
 public class AiChatService {
@@ -22,20 +23,30 @@ public class AiChatService {
 
     private final ChatClient chatClient;
     private final ChatSessionRepository repository;
+    private final ChatMemory chatMemory;
 
-    public AiChatService(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository) {
-        this.chatClient = chatClientBuilder.build();
+    public AiChatService(ChatClient chatClient, ChatSessionRepository repository, ChatMemory chatMemory) {
+        this.chatClient = chatClient;
         this.repository = repository;
+        this.chatMemory = chatMemory;
     }
 
     /**
-     * Sends a message to AI and returns the response.
+     * Sends a message to AI with Chat Memory context and returns the response.
      */
     public String chat(String userMessage) {
-        log.info("Simple chat request: {}", truncateForLog(userMessage));
+        return chatWithMemory("default", userMessage);
+    }
+
+    /**
+     * Sends a message to AI with Chat Memory context for a specific session.
+     */
+    public String chatWithMemory(String conversationId, String userMessage) {
+        log.info("Chat with memory request for conversation: {}", truncateForLog(conversationId));
 
         try {
             String response = chatClient.prompt()
+                    .advisors(a -> a.param("conversation_id", conversationId))
                     .user(userMessage)
                     .call()
                     .content();
@@ -178,6 +189,14 @@ public class AiChatService {
      */
     public ChatClient getChatClient() {
         return chatClient;
+    }
+
+    /**
+     * Clear conversation memory for a specific conversation ID.
+     */
+    public void clearConversationMemory(String conversationId) {
+        log.info("Clearing conversation memory for: {}", conversationId);
+        chatMemory.clear(conversationId);
     }
 
     private String truncateForLog(String text) {
