@@ -1,10 +1,13 @@
 package com.ai.adapter.in.controller;
 
 import com.ai.domain.service.AiChatService;
+import com.ai.domain.service.StructuredOutputService;
 import com.ai.adapter.in.dto.ChatRequest;
 import com.ai.adapter.in.dto.ChatResponse;
 import com.ai.adapter.in.dto.MessageHistoryResponse;
 import com.ai.adapter.in.dto.SessionInfo;
+import com.ai.adapter.in.dto.TextAnalysisRequest;
+import com.ai.adapter.in.dto.TextAnalysisResult;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +27,11 @@ public class AiController {
     private static final Logger log = LoggerFactory.getLogger(AiController.class);
 
     private final AiChatService chatService;
+    private final StructuredOutputService structuredOutputService;
 
-    public AiController(AiChatService chatService) {
+    public AiController(AiChatService chatService, StructuredOutputService structuredOutputService) {
         this.chatService = chatService;
+        this.structuredOutputService = structuredOutputService;
     }
 
     /**
@@ -113,6 +118,28 @@ public class AiController {
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         return ResponseEntity.ok(Map.of("status", "UP"));
+    }
+
+    /**
+     * Analyzes text and returns structured result.
+     * Demonstrates Spring AI 2.0 structured output with .entity() method.
+     */
+    @PostMapping("/chat/analyze")
+    public ResponseEntity<TextAnalysisResult> analyzeText(@Valid @RequestBody TextAnalysisRequest request) {
+        if (request.text() == null || request.text().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        log.info("Text analysis request: {} chars", request.text().length());
+
+        TextAnalysisResult result;
+        if (request.language() != null && !request.language().isBlank()) {
+            result = structuredOutputService.analyzeTextWithLanguage(request.text(), request.language());
+        } else {
+            result = structuredOutputService.analyzeText(request.text());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     private String truncate(String text) {

@@ -7,6 +7,7 @@ import com.ai.domain.repository.ChatSessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import org.springframework.retry.support.RetryTemplate;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * AI Chat Service using Spring AI 2.0 ChatClient API with retry support.
+ * AI Chat Service using Spring AI 2.0 ChatClient API with retry and Chat Memory support.
  */
 @Service
 public class AiChatService {
@@ -24,11 +25,14 @@ public class AiChatService {
     private final ChatClient chatClient;
     private final ChatSessionRepository repository;
     private final RetryTemplate retryTemplate;
+    private final ChatMemory chatMemory;
 
-    public AiChatService(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository, RetryTemplate retryTemplate) {
+    public AiChatService(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository,
+                         RetryTemplate retryTemplate, ChatMemory chatMemory) {
         this.chatClient = chatClientBuilder.build();
         this.repository = repository;
         this.retryTemplate = retryTemplate;
+        this.chatMemory = chatMemory;
     }
 
     /**
@@ -178,6 +182,14 @@ public class AiChatService {
      */
     public ChatClient getChatClient() {
         return chatClient;
+    }
+
+    /**
+     * Clear conversation memory for a specific conversation ID.
+     */
+    public void clearConversationMemory(String conversationId) {
+        log.info("Clearing conversation memory for: {}", conversationId);
+        chatMemory.clear(conversationId);
     }
 
     private String truncateForLog(String text) {

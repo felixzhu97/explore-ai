@@ -1,7 +1,10 @@
 package com.ai.adapter.in.controller;
 
 import com.ai.adapter.in.dto.ChatRequest;
+import com.ai.adapter.in.dto.TextAnalysisRequest;
+import com.ai.adapter.in.dto.TextAnalysisResult;
 import com.ai.domain.service.AiChatService;
+import com.ai.domain.service.StructuredOutputService;
 import com.ai.domain.model.ChatSession;
 import com.ai.domain.model.ChatMessage;
 import com.ai.domain.vo.ChatSessionId;
@@ -31,11 +34,14 @@ class AiControllerTest {
     @Mock
     private AiChatService chatService;
 
+    @Mock
+    private StructuredOutputService structuredOutputService;
+
     private AiController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new AiController(chatService);
+        controller = new AiController(chatService, structuredOutputService);
     }
 
     @Nested
@@ -234,6 +240,66 @@ class AiControllerTest {
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().get("status")).isEqualTo("UP");
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/chat/analyze")
+    class AnalyzeTextEndpoint {
+
+        @Test
+        @DisplayName("should return analysis result for valid text")
+        void shouldReturnAnalysisResultForValidText() {
+            TextAnalysisResult expectedResult = new TextAnalysisResult(
+                "This is a summary",
+                TextAnalysisResult.Sentiment.POSITIVE,
+                List.of("Key point 1", "Key point 2"),
+                List.of("Entity 1"),
+                "English"
+            );
+            when(structuredOutputService.analyzeText("Hello world")).thenReturn(expectedResult);
+
+            var response = controller.analyzeText(new TextAnalysisRequest("Hello world", null));
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().summary()).isEqualTo("This is a summary");
+            assertThat(response.getBody().sentiment()).isEqualTo(TextAnalysisResult.Sentiment.POSITIVE);
+        }
+
+        @Test
+        @DisplayName("should use language when provided")
+        void shouldUseLanguageWhenProvided() {
+            TextAnalysisResult expectedResult = new TextAnalysisResult(
+                "这是摘要",
+                TextAnalysisResult.Sentiment.NEUTRAL,
+                List.of("要点1"),
+                List.of(),
+                "Chinese"
+            );
+            when(structuredOutputService.analyzeTextWithLanguage("你好世界", "Chinese"))
+                .thenReturn(expectedResult);
+
+            var response = controller.analyzeText(new TextAnalysisRequest("你好世界", "Chinese"));
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().language()).isEqualTo("Chinese");
+        }
+
+        @Test
+        @DisplayName("should return 400 for blank text")
+        void shouldReturn400ForBlankText() {
+            var response = controller.analyzeText(new TextAnalysisRequest("   ", null));
+
+            assertThat(response.getStatusCode().value()).isEqualTo(400);
+        }
+
+        @Test
+        @DisplayName("should return 400 for null text")
+        void shouldReturn400ForNullText() {
+            var response = controller.analyzeText(new TextAnalysisRequest(null, null));
+
+            assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
     }
 
