@@ -1,0 +1,58 @@
+---
+description: 代码审查清单，对齐项目架构规范
+globs: **/*.java **/*.ts **/*.tsx **/*.kt
+alwaysApply: true
+---
+
+# Code Review Checklist
+
+## 架构合规
+
+- [ ] 遵循六边形架构 (adapter/in → domain ← adapter/out)
+- [ ] Domain 层无框架依赖 (@Entity, @Service 不在 domain)
+- [ ] Repository 接口定义在 Domain 层
+- [ ] 无循环依赖 (adapter → domain → adapter)
+
+## 代码质量
+
+- [ ] 无 God Class (> 300 行需拆分)
+- [ ] 遵循单一职责原则 (SRP)
+- [ ] 方法长度不超过 20 行
+- [ ] 无注释掉的代码
+- [ ] 错误处理完善 (异常转换)
+
+## 命名规范
+
+| 类型 | Java | TypeScript |
+|------|------|------------|
+| 类名 | PascalCase | PascalCase |
+| 方法名 | camelCase | camelCase |
+| 常量 | UPPER_SNAKE_CASE | UPPER_SNAKE_CASE |
+| 包名 | lowercase | - |
+| 文件名 | PascalCase.java | PascalCase.ts |
+
+## 测试覆盖
+
+- [ ] 领域逻辑有单元测试
+- [ ] 测试遵循命名约定 (`should_expected_when_condition`)
+- [ ] 无硬编码测试数据 (使用 Factory/Fixture)
+- [ ] 边界条件已覆盖 (null, empty, max)
+
+## 安全
+
+- [ ] 代码中无敏感信息 (密码、Token 硬编码)
+- [ ] 输入验证存在 (@Valid, Zod schema)
+- [ ] SQL 注入防护 (参数化查询)
+- [ ] XSS 防护 (转义输出)
+
+## 性能
+
+- [ ] 无 N+1 查询问题
+- [ ] 集合操作使用 Stream API (Java) / 数组方法 (TS)
+- [ ] 大数据量场景考虑分页/流式处理
+
+## 文档
+
+- [ ] Public API 有 JSDoc / Javadoc
+- [ ] 复杂业务逻辑有注释说明意图
+- [ ] 无 TODO/FIXME 遗留
