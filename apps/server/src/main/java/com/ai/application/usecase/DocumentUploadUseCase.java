@@ -12,10 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Application layer use case for document upload orchestration.
- * Coordinates between adapters (PdfTextExtractor) and application services.
- */
 @Service
 public class DocumentUploadUseCase {
 

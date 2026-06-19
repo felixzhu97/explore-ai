@@ -1,8 +1,8 @@
 package com.ai.adapter.out.tools;
 
+import com.ai.application.service.RagApplicationService;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.RagService;
 import com.ai.domain.vo.DocumentId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 class RagSearchToolTest {
 
     @Mock
-    private RagService ragService;
+    private RagApplicationService ragApplicationService;
 
     private RagSearchTool ragSearchTool;
 
@@ -36,7 +35,7 @@ class RagSearchToolTest {
 
     @BeforeEach
     void setUp() {
-        ragSearchTool = new RagSearchTool(ragService);
+        ragSearchTool = new RagSearchTool(ragApplicationService);
     }
 
     @Nested
@@ -50,10 +49,10 @@ class RagSearchToolTest {
                     new SourceDocument("Test content 1", 0.95, Map.of("title", TEST_DOC_TITLE)),
                     new SourceDocument("Test content 2", 0.85, Map.of("title", TEST_DOC_TITLE))
             );
-            RagService.RetrievalResult retrievalResult = new RagService.RetrievalResult(
+            RagApplicationService.RetrievalResult retrievalResult = new RagApplicationService.RetrievalResult(
                     "context", sources, "query"
             );
-            when(ragService.retrieveContext(eq("test query"), isNull(), eq(5)))
+            when(ragApplicationService.retrieveContext(eq("test query"), isNull(), eq(5)))
                     .thenReturn(retrievalResult);
 
             String result = ragSearchTool.searchDocuments("test query", null);
@@ -70,25 +69,25 @@ class RagSearchToolTest {
             List<SourceDocument> sources = List.of(
                     new SourceDocument("Test content", 0.95, Map.of("title", TEST_DOC_TITLE))
             );
-            RagService.RetrievalResult retrievalResult = new RagService.RetrievalResult(
+            RagApplicationService.RetrievalResult retrievalResult = new RagApplicationService.RetrievalResult(
                     "context", sources, "query"
             );
-            when(ragService.retrieveContext(eq("test query"), anyList(), eq(5)))
+            when(ragApplicationService.retrieveContext(eq("test query"), anyList(), eq(5)))
                     .thenReturn(retrievalResult);
 
             String result = ragSearchTool.searchDocuments("test query", List.of(TEST_DOC_ID));
 
             assertThat(result).contains("找到以下相关文档片段");
-            verify(ragService).retrieveContext(eq("test query"), anyList(), eq(5));
+            verify(ragApplicationService).retrieveContext(eq("test query"), anyList(), eq(5));
         }
 
         @Test
         @DisplayName("should return message when no results found")
         void shouldReturnMessageWhenNoResultsFound() {
-            RagService.RetrievalResult retrievalResult = new RagService.RetrievalResult(
+            RagApplicationService.RetrievalResult retrievalResult = new RagApplicationService.RetrievalResult(
                     "", Collections.emptyList(), "query"
             );
-            when(ragService.retrieveContext(anyString(), any(), anyInt()))
+            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt()))
                     .thenReturn(retrievalResult);
 
             String result = ragSearchTool.searchDocuments("nonexistent", null);
@@ -102,7 +101,7 @@ class RagSearchToolTest {
             String result = ragSearchTool.searchDocuments("  ", null);
 
             assertThat(result).isEqualTo("请提供有效的搜索查询");
-            verifyNoInteractions(ragService);
+            verifyNoInteractions(ragApplicationService);
         }
 
         @Test
@@ -111,7 +110,7 @@ class RagSearchToolTest {
             String result = ragSearchTool.searchDocuments(null, null);
 
             assertThat(result).isEqualTo("请提供有效的搜索查询");
-            verifyNoInteractions(ragService);
+            verifyNoInteractions(ragApplicationService);
         }
 
         @Test
@@ -121,10 +120,10 @@ class RagSearchToolTest {
             List<SourceDocument> sources = List.of(
                     new SourceDocument(longContent, 0.95, Map.of("title", TEST_DOC_TITLE))
             );
-            RagService.RetrievalResult retrievalResult = new RagService.RetrievalResult(
+            RagApplicationService.RetrievalResult retrievalResult = new RagApplicationService.RetrievalResult(
                     "context", sources, "query"
             );
-            when(ragService.retrieveContext(anyString(), any(), anyInt()))
+            when(ragApplicationService.retrieveContext(anyString(), any(), anyInt()))
                     .thenReturn(retrievalResult);
 
             String result = ragSearchTool.searchDocuments("test", null);
@@ -151,7 +150,7 @@ class RagSearchToolTest {
         void shouldReturnDocumentList() {
             DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
             Document doc = new Document(docId, TEST_DOC_TITLE, "test.pdf", 1024L);
-            when(ragService.listDocuments()).thenReturn(List.of(doc));
+            when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
 
             String result = ragSearchTool.listDocuments();
 
@@ -163,7 +162,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should return message when no documents")
         void shouldReturnMessageWhenNoDocuments() {
-            when(ragService.listDocuments()).thenReturn(Collections.emptyList());
+            when(ragApplicationService.listDocuments()).thenReturn(Collections.emptyList());
 
             String result = ragSearchTool.listDocuments();
 
@@ -173,7 +172,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should handle service exception")
         void shouldHandleServiceException() {
-            when(ragService.listDocuments()).thenThrow(new RuntimeException("Service error"));
+            when(ragApplicationService.listDocuments()).thenThrow(new RuntimeException("Service error"));
 
             String result = ragSearchTool.listDocuments();
 

@@ -2,11 +2,13 @@ package com.ai.domain.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Domain service for centralized prompt templates.
  * Provides consistent prompt patterns across different use cases.
  */
+@Component
 public class PromptTemplates {
 
     private static final Logger log = LoggerFactory.getLogger(PromptTemplates.class);

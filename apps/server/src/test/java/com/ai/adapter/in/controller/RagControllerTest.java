@@ -1,16 +1,14 @@
 package com.ai.adapter.in.controller;
 
 import com.ai.adapter.out.streaming.StreamingService;
-import com.ai.adapter.out.document.PdfTextExtractor;
+import com.ai.application.service.RagApplicationService;
+import com.ai.application.usecase.DocumentUploadUseCase;
+import com.ai.application.usecase.RagChatUseCase;
 import com.ai.adapter.in.dto.RagChatRequest;
+import com.ai.adapter.in.dto.SourceDocumentDto;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentStatus;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.AiChatService;
-import com.ai.domain.service.LanguageDetectionService;
-import com.ai.domain.service.PromptTemplates;
-import com.ai.domain.service.RagService;
-import com.ai.domain.usecase.DocumentUploadUseCase;
 import com.ai.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +20,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,19 +37,13 @@ import static org.mockito.Mockito.*;
 class RagControllerTest {
 
     @Mock
-    private RagService ragService;
-
-    @Mock
-    private AiChatService aiChatService;
-
-    @Mock
-    private LanguageDetectionService languageDetectionService;
-
-    @Mock
-    private PromptTemplates promptTemplates;
+    private RagApplicationService ragApplicationService;
 
     @Mock
     private DocumentUploadUseCase documentUploadUseCase;
+
+    @Mock
+    private RagChatUseCase ragChatUseCase;
 
     @Mock
     private StreamingService streamingService;
@@ -63,7 +55,7 @@ class RagControllerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         controller = new RagController(
-                ragService, aiChatService, languageDetectionService, promptTemplates, documentUploadUseCase, streamingService);
+                ragApplicationService, documentUploadUseCase, ragChatUseCase, streamingService);
     }
 
     @Nested
@@ -74,18 +66,18 @@ class RagControllerTest {
         @DisplayName("should return list of documents")
         void shouldReturnListOfDocuments() {
             Document doc = createTestDocument("Test Doc", DocumentStatus.READY);
-            when(ragService.listDocuments()).thenReturn(List.of(doc));
+            when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
 
             ResponseEntity<?> response = controller.listDocuments();
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(ragService).listDocuments();
+            verify(ragApplicationService).listDocuments();
         }
 
         @Test
         @DisplayName("should return empty list when no documents")
         void shouldReturnEmptyListWhenNoDocuments() {
-            when(ragService.listDocuments()).thenReturn(List.of());
+            when(ragApplicationService.listDocuments()).thenReturn(List.of());
 
             ResponseEntity<?> response = controller.listDocuments();
 
@@ -156,12 +148,12 @@ class RagControllerTest {
         @DisplayName("should delete document and return 204")
         void shouldDeleteDocumentAndReturn204() {
             UUID docId = UUID.randomUUID();
-            doNothing().when(ragService).deleteDocument(docId);
+            doNothing().when(ragApplicationService).deleteDocument(docId);
 
             ResponseEntity<?> response = controller.deleteDocument(docId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-            verify(ragService).deleteDocument(docId);
+            verify(ragApplicationService).deleteDocument(docId);
         }
     }
 
@@ -169,62 +161,57 @@ class RagControllerTest {
     @DisplayName("POST /api/rag/chat/stream")
     class RagChatStream {
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should handle RAG chat request")
         void shouldHandleRagChatRequest() {
             RagChatRequest request = new RagChatRequest("What is AI?", null, null, 0.7, null);
-            RagService.RetrievalResult result = new RagService.RetrievalResult(
-                    "Context from docs", List.of(), "Enriched query"
+            RagChatUseCase.ChatResult chatResult = new RagChatUseCase.ChatResult(
+                    "AI response", List.of()
             );
-            when(ragService.retrieveContext(eq("What is AI?"), isNull(), eq(5))).thenReturn(result);
-            when(languageDetectionService.detect("What is AI?")).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Built prompt");
-            when(aiChatService.chat(anyString())).thenReturn("AI response");
+            when(ragChatUseCase.chat(eq("What is AI?"), isNull(), eq(5))).thenReturn(chatResult);
+            when(streamingService.streamWithSources(eq("AI response"), anyList()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response").build()));
 
-            var response = controller.ragChatStream(request);
+            Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
             assertThat(response).isNotNull();
-            verify(ragService).retrieveContext(eq("What is AI?"), isNull(), eq(5));
+            verify(ragChatUseCase).chat(eq("What is AI?"), isNull(), eq(5));
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should use docIds when provided")
         void shouldUseDocIdsWhenProvided() {
             List<String> docIds = List.of(UUID.randomUUID().toString());
             RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, docIds);
-            RagService.RetrievalResult result = new RagService.RetrievalResult(
-                    "Context", List.of(new SourceDocument("doc", 0.9, null)), "Query"
+            RagChatUseCase.ChatResult chatResult = new RagChatUseCase.ChatResult(
+                    "Response", List.of(new SourceDocument("doc", 0.9, null))
             );
-            when(ragService.retrieveContext(anyString(), any(), anyInt())).thenReturn(result);
-            when(languageDetectionService.detect(anyString())).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Prompt");
-            when(aiChatService.chat(anyString())).thenReturn("Response");
+            when(ragChatUseCase.chat(anyString(), any(), anyInt())).thenReturn(chatResult);
+            when(streamingService.streamWithSources(eq("Response"), anyList()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response").build()));
 
-            var response = controller.ragChatStream(request);
+            Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
             assertThat(response).isNotNull();
-            verify(ragService).retrieveContext(eq("Question"), any(), eq(5));
         }
 
+        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should use custom topK when provided")
         void shouldUseCustomTopKWhenProvided() {
             RagChatRequest request = new RagChatRequest("Question", null, 10, 0.7, null);
-            RagService.RetrievalResult result = new RagService.RetrievalResult(
-                    "Context", List.of(), "Query"
+            RagChatUseCase.ChatResult chatResult = new RagChatUseCase.ChatResult(
+                    "Response", List.of()
             );
-            when(ragService.retrieveContext(anyString(), isNull(), eq(10))).thenReturn(result);
-            when(languageDetectionService.detect(anyString())).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
-                    .thenReturn("Prompt");
-            when(aiChatService.chat(anyString())).thenReturn("Response");
+            when(ragChatUseCase.chat(anyString(), isNull(), eq(10))).thenReturn(chatResult);
+            when(streamingService.streamWithSources(eq("Response"), anyList()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response").build()));
 
-            var response = controller.ragChatStream(request);
+            Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
             assertThat(response).isNotNull();
-            verify(ragService).retrieveContext(anyString(), isNull(), eq(10));
         }
     }
 

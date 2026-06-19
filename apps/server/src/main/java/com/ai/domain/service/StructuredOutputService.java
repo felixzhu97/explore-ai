@@ -5,10 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.AdvisorParams;
+import org.springframework.stereotype.Service;
 
 /**
  * Domain service for structured output using Spring AI 2.0 .entity() method.
  */
+@Service
 public class StructuredOutputService {
 
     private static final Logger log = LoggerFactory.getLogger(StructuredOutputService.class);

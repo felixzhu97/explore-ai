@@ -3,11 +3,9 @@ package com.ai.adapter.in.controller;
 import com.ai.adapter.out.streaming.StreamingService;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
-import com.ai.domain.service.AiChatService;
-import com.ai.domain.service.LanguageDetectionService;
-import com.ai.domain.service.PromptTemplates;
 import com.ai.application.service.RagApplicationService;
 import com.ai.application.usecase.DocumentUploadUseCase;
+import com.ai.application.usecase.RagChatUseCase;
 import com.ai.adapter.in.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  * REST Controller for RAG operations.
- * Thin controller - handles HTTP concerns only, delegates business logic to domain services/use cases.
+ * Thin controller - handles HTTP concerns only, delegates business logic to application services.
  */
 @Slf4j
 @RestController
@@ -36,24 +34,18 @@ import java.util.stream.Collectors;
 public class RagController {
 
     private final RagApplicationService ragApplicationService;
-    private final AiChatService aiChatService;
-    private final LanguageDetectionService languageDetectionService;
-    private final PromptTemplates promptTemplates;
     private final DocumentUploadUseCase documentUploadUseCase;
+    private final RagChatUseCase ragChatUseCase;
     private final StreamingService streamingService;
 
     public RagController(
             RagApplicationService ragApplicationService,
-            AiChatService aiChatService,
-            LanguageDetectionService languageDetectionService,
-            PromptTemplates promptTemplates,
             DocumentUploadUseCase documentUploadUseCase,
+            RagChatUseCase ragChatUseCase,
             StreamingService streamingService) {
         this.ragApplicationService = ragApplicationService;
-        this.aiChatService = aiChatService;
-        this.languageDetectionService = languageDetectionService;
-        this.promptTemplates = promptTemplates;
         this.documentUploadUseCase = documentUploadUseCase;
+        this.ragChatUseCase = ragChatUseCase;
         this.streamingService = streamingService;
     }
 
@@ -75,7 +67,6 @@ public class RagController {
             @RequestParam(value = "title", required = false) String title) {
 
         log.info("Uploading document: {}", file.getOriginalFilename());
-
         var result = documentUploadUseCase.upload(file, title);
 
         UploadDocumentResponse response = new UploadDocumentResponse(
@@ -102,40 +93,18 @@ public class RagController {
         log.info("RAG chat request: {}", truncate(request.question()));
 
         try {
-            List<UUID> docUuids = null;
-            if (request.docIds() != null && !request.docIds().isEmpty()) {
-                docUuids = request.docIds().stream()
-                    .map(UUID::fromString)
-                    .collect(Collectors.toList());
-            }
+            var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
 
-            var result = ragApplicationService.retrieveContext(
-                request.question(),
-                docUuids,
-                request.topK() != null ? request.topK() : 5
-            );
-
-            String context = result.context();
-            List<SourceDocument> sources = result.sources();
-            String prompt = buildPrompt(request.question(), context);
-            String aiResponse = aiChatService.chat(prompt);
-
-            List<SourceDocumentDto> sourceDtos = sources.stream()
+            List<SourceDocumentDto> sourceDtos = chatResult.sources().stream()
                     .map(this::toSourceDocumentDto)
                     .collect(Collectors.toList());
 
-            return streamingService.streamWithSources(aiResponse, sourceDtos);
+            return streamingService.streamWithSources(chatResult.response(), sourceDtos);
 
         } catch (Exception e) {
             log.error("Error in RAG chat", e);
             return Flux.error(e);
         }
-    }
-
-    private String buildPrompt(String question, String context) {
-        String languageCode = languageDetectionService.detect(question);
-        languageDetectionService.buildPrompt(question, context, languageCode);
-        return promptTemplates.buildQuestionAnswerPrompt(context, question);
     }
 
     private DocumentSummaryDto toDocumentSummaryDto(Document document) {
@@ -153,8 +122,7 @@ public class RagController {
     }
 
     private String truncate(String text) {
-        if (text == null) return "null";
-        if (text.length() <= 50) return text;
+        if (text == null || text.length() <= 50) return text;
         return text.substring(0, 50) + "...";
     }
 }
