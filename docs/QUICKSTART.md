@@ -8,11 +8,13 @@
 
 ### Required Software | 必需软件
 
+
 | Software   | Version | Download                             |
 | ---------- | ------- | ------------------------------------ |
 | Node.js    | >= 20.x | [nodejs.org](https://nodejs.org)     |
 | Java (JDK) | >= 25   | [adoptium.net](https://adoptium.net) |
 | pnpm       | >= 8.x  | `npm install -g pnpm`                |
+
 
 ### Verify Installation | 验证安装
 
@@ -108,7 +110,7 @@ cd apps/server
 ./gradlew bootRun
 ```
 
-The backend runs on **http://localhost:9000**
+The backend runs on **[http://localhost:9000](http://localhost:9000)**
 
 #### Start Frontend | 启动前端
 
@@ -118,7 +120,7 @@ cd apps/web
 pnpm start
 ```
 
-The frontend runs on **http://localhost:4200**
+The frontend runs on **[http://localhost:4200](http://localhost:4200)**
 
 ### Verify Services are Running | 验证服务运行状态
 
@@ -138,7 +140,7 @@ open http://localhost:4200
 
 Open your browser and navigate to:
 
-- Frontend: **http://localhost:4200**
+- Frontend: **[http://localhost:4200](http://localhost:4200)**
 
 ### Step 2: Send Your First Message | 步骤 2: 发送第一条消息
 
@@ -158,42 +160,52 @@ Open your browser and navigate to:
 
 ### Development Commands | 开发命令
 
-| Command           | Description         | 说明         |
-| ----------------- | ------------------- | ------------ |
+
+| Command           | Description         | 说明     |
+| ----------------- | ------------------- | ------ |
 | `pnpm dev`        | Start all services  | 启动所有服务 |
-| `pnpm web:dev`    | Start frontend only | 仅启动前端   |
-| `pnpm server:dev` | Start backend only  | 仅启动后端   |
+| `pnpm web:dev`    | Start frontend only | 仅启动前端  |
+| `pnpm server:dev` | Start backend only  | 仅启动后端  |
+
 
 ### Build Commands | 构建命令
 
-| Command                             | Description        | 说明       |
-| ----------------------------------- | ------------------ | ---------- |
+
+| Command                             | Description        | 说明    |
+| ----------------------------------- | ------------------ | ----- |
 | `pnpm build`                        | Build all packages | 构建所有包 |
-| `cd apps/web && pnpm build`         | Build frontend     | 构建前端   |
-| `cd apps/server && ./gradlew build` | Build backend      | 构建后端   |
+| `cd apps/web && pnpm build`         | Build frontend     | 构建前端  |
+| `cd apps/server && ./gradlew build` | Build backend      | 构建后端  |
+
 
 ### Test Commands | 测试命令
 
-| Command                            | Description             | 说明             |
-| ---------------------------------- | ----------------------- | ---------------- |
-| `pnpm test`                        | Run all tests           | 运行所有测试     |
+
+| Command                            | Description             | 说明       |
+| ---------------------------------- | ----------------------- | -------- |
+| `pnpm test`                        | Run all tests           | 运行所有测试   |
 | `pnpm test:watch`                  | Run tests in watch mode | 监听模式运行测试 |
-| `cd apps/web && pnpm test`         | Run frontend tests      | 运行前端测试     |
-| `cd apps/server && ./gradlew test` | Run backend tests       | 运行后端测试     |
+| `cd apps/web && pnpm test`         | Run frontend tests      | 运行前端测试   |
+| `cd apps/server && ./gradlew test` | Run backend tests       | 运行后端测试   |
+
 
 ### Lint Commands | 代码检查命令
 
-| Command                    | Description       | 说明         |
-| -------------------------- | ----------------- | ------------ |
-| `pnpm lint`                | Lint all packages | 检查所有包   |
+
+| Command                    | Description       | 说明     |
+| -------------------------- | ----------------- | ------ |
+| `pnpm lint`                | Lint all packages | 检查所有包  |
 | `cd apps/web && pnpm lint` | Lint frontend     | 检查前端代码 |
+
 
 ### Clean Commands | 清理命令
 
-| Command                             | Description               | 说明             |
-| ----------------------------------- | ------------------------- | ---------------- |
+
+| Command                             | Description               | 说明       |
+| ----------------------------------- | ------------------------- | -------- |
 | `pnpm clean`                        | Clean all build artifacts | 清理所有构建产物 |
-| `cd apps/server && ./gradlew clean` | Clean backend             | 清理后端构建     |
+| `cd apps/server && ./gradlew clean` | Clean backend             | 清理后端构建   |
+
 
 ---
 
@@ -287,17 +299,21 @@ java --version  # Must be 25+
 
 ### Port Reference | 端口参考
 
-| Service               | Port | URL                   |
-| --------------------- | ---- | --------------------- |
-| Backend (Spring Boot) | 9000 | http://localhost:9000 |
-| Frontend (Angular)    | 4200 | http://localhost:4200 |
+
+| Service               | Port | URL                                            |
+| --------------------- | ---- | ---------------------------------------------- |
+| Backend (Spring Boot) | 9000 | [http://localhost:9000](http://localhost:9000) |
+| Frontend (Angular)    | 4200 | [http://localhost:4200](http://localhost:4200) |
+
 
 ### Environment Variables Reference | 环境变量参考
 
-| Variable            | Default                  | Description                      |
-| ------------------- | ------------------------ | -------------------------------- |
-| `DEEPSEEK_API_KEY`  | -                        | Your DeepSeek API key (required) |
-| `DEEPSEEK_BASE_URL` | https://api.deepseek.com | DeepSeek API endpoint            |
+
+| Variable            | Default                                              | Description                      |
+| ------------------- | ---------------------------------------------------- | -------------------------------- |
+| `DEEPSEEK_API_KEY`  | -                                                    | Your DeepSeek API key (required) |
+| `DEEPSEEK_BASE_URL` | [https://api.deepseek.com](https://api.deepseek.com) | DeepSeek API endpoint            |
+
 
 ### Need More Help? | 需要更多帮助？
 

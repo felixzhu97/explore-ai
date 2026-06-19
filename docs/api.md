@@ -15,7 +15,11 @@ BASE_URL="http://localhost:9000"
 3. [Session API](#session-api)
 4. [RAG API](#rag-api)
 5. [Tool Calling API](#tool-calling-api)
-6. [Error Codes](#error-codes)
+6. [Image Generation API](#image-generation-api)
+7. [Audio/TTS API](#audio-tts-api)
+8. [MCP Server API](#mcp-server-api)
+9. [MCP Client API](#mcp-client-api)
+10. [Error Codes](#error-codes)
 
 ---
 
@@ -610,6 +614,454 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
   -d '{
     "question": "Find documents about artificial intelligence"
   }'
+```
+
+---
+
+## Image Generation API
+
+### Generate Image
+
+Generate an image from a text prompt.
+
+```bash
+curl -X POST "${BASE_URL}/api/images/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A beautiful sunset over the ocean",
+    "model": "dall-e-3",
+    "quality": "standard",
+    "width": 1024,
+    "height": 1024,
+    "n": 1
+  }'
+```
+
+**Request Body**
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `prompt` | string | Yes | Image description (max 4,000 characters) |
+| `model` | string | No | Model to use (e.g., "dall-e-3", "dall-e-2") |
+| `quality` | string | No | Image quality: "standard" or "hd" |
+| `width` | integer | No | Image width in pixels (256, 512, 1024, or 1792) |
+| `height` | integer | No | Image height in pixels (256, 512, 1024, or 1792) |
+| `n` | integer | No | Number of images to generate (1-10, default: 1) |
+
+**Response Example**
+
+```json
+{
+  "imageUrl": "https://example.com/images/abc123.png",
+  "model": "dall-e-3",
+  "prompt": "A beautiful sunset over the ocean"
+}
+```
+
+---
+
+### Get Available Models
+
+Get list of available image generation models.
+
+```bash
+curl -X GET "${BASE_URL}/api/images/models"
+```
+
+**Response Example**
+
+```json
+{
+  "models": [
+    {
+      "id": "dall-e-3",
+      "name": "DALL-E 3",
+      "description": "Most capable model for generating images from text"
+    },
+    {
+      "id": "dall-e-2",
+      "name": "DALL-E 2",
+      "description": "Faster and more affordable image generation"
+    }
+  ]
+}
+```
+
+---
+
+### Get Available Image Sizes
+
+Get list of supported image dimensions.
+
+```bash
+curl -X GET "${BASE_URL}/api/images/sizes"
+```
+
+**Response Example**
+
+```json
+{
+  "sizes": [
+    { "width": 256, "height": 256 },
+    { "width": 512, "height": 512 },
+    { "width": 1024, "height": 1024 },
+    { "width": 1792, "height": 1024 },
+    { "width": 1024, "height": 1792 }
+  ]
+}
+```
+
+---
+
+### Get Quality Options
+
+Get available image quality options.
+
+```bash
+curl -X GET "${BASE_URL}/api/images/qualities"
+```
+
+**Response Example**
+
+```json
+{
+  "qualities": [
+    {
+      "id": "standard",
+      "name": "Standard",
+      "description": "Standard quality, faster generation"
+    },
+    {
+      "id": "hd",
+      "name": "HD",
+      "description": "Higher quality with more detail"
+    }
+  ]
+}
+```
+
+---
+
+## Audio/TTS API
+
+### Text to Speech
+
+Convert text to speech and receive audio file.
+
+```bash
+curl -X POST "${BASE_URL}/api/audio/speak" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello, welcome to our AI service!"
+  }' \
+  --output audio.mp3
+```
+
+**Request Body**
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `text` | string | Yes | Text to convert to speech |
+| `model` | string | No | TTS model to use |
+| `voice` | string | No | Voice ID to use |
+
+**Response**
+
+Binary audio file (audio/mpeg format, .mp3).
+
+---
+
+### Stream TTS (Real-time)
+
+Stream text-to-speech in real-time.
+
+```bash
+curl -X GET "${BASE_URL}/api/audio/stream?text=Hello%20World"
+```
+
+**Query Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `text` | string | Yes | Text to convert |
+| `model` | string | No | TTS model |
+| `voice` | string | No | Voice ID |
+
+**Response**
+
+Streaming audio (audio/mpeg format).
+
+---
+
+### Get Available Voices
+
+Get list of available TTS voices.
+
+```bash
+curl -X GET "${BASE_URL}/api/audio/voices"
+```
+
+**Response Example**
+
+```json
+{
+  "voices": [
+    {
+      "id": "alloy",
+      "name": "Alloy",
+      "language": "en",
+      "gender": "neutral"
+    },
+    {
+      "id": "echo",
+      "name": "Echo",
+      "language": "en",
+      "gender": "male"
+    },
+    {
+      "id": "fable",
+      "name": "Fable",
+      "language": "en",
+      "gender": "male"
+    },
+    {
+      "id": "onyx",
+      "name": "Onyx",
+      "language": "en",
+      "gender": "male"
+    },
+    {
+      "id": "nova",
+      "name": "Nova",
+      "language": "en",
+      "gender": "female"
+    },
+    {
+      "id": "shimmer",
+      "name": "Shimmer",
+      "language": "en",
+      "gender": "female"
+    }
+  ]
+}
+```
+
+---
+
+### Get Available TTS Models
+
+Get list of available TTS models.
+
+```bash
+curl -X GET "${BASE_URL}/api/audio/models"
+```
+
+**Response Example**
+
+```json
+{
+  "models": [
+    {
+      "id": "tts-1",
+      "name": "TTS-1",
+      "description": "Standard TTS model"
+    },
+    {
+      "id": "tts-1-hd",
+      "name": "TTS-1 HD",
+      "description": "High definition TTS model"
+    }
+  ]
+}
+```
+
+---
+
+## MCP Server API
+
+### Health Check
+
+Check MCP server health status.
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/health"
+```
+
+**Response Example**
+
+```json
+{
+  "status": "UP",
+  "server": "MCP Server",
+  "version": "1.0.0",
+  "protocol": "2024-11-05"
+}
+```
+
+---
+
+### Get MCP Server Info
+
+Get detailed MCP server information.
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/info"
+```
+
+**Response Example**
+
+```json
+{
+  "name": "Example MCP Server",
+  "version": "1.0.0",
+  "description": "A sample MCP server implementation",
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  },
+  "availableTools": [
+    {
+      "name": "get_weather",
+      "description": "Get weather information for a city",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": { "type": "string" }
+        },
+        "required": ["city"]
+      }
+    }
+  ],
+  "availableResources": [
+    {
+      "uri": "weather://current",
+      "name": "Current Weather",
+      "description": "Current weather conditions"
+    }
+  ],
+  "availablePrompts": [
+    {
+      "name": "weather_query",
+      "description": "Query weather for a location",
+      "arguments": [
+        { "name": "city", "required": true, "description": "City name" }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## MCP Client API
+
+### Get Client Status
+
+Get MCP client connection status.
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/client/status"
+```
+
+**Response Example**
+
+```json
+{
+  "status": "CONNECTED",
+  "registeredTools": 5,
+  "connectedServers": ["weather-server", "docs-server"]
+}
+```
+
+---
+
+### List Registered Tools
+
+List all MCP tools registered with the client.
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/client/tools"
+```
+
+**Response Example**
+
+```json
+{
+  "tools": [
+    {
+      "name": "get_weather",
+      "server": "weather-server",
+      "description": "Get weather for a city"
+    },
+    {
+      "name": "search_documents",
+      "server": "docs-server",
+      "description": "Search knowledge base"
+    }
+  ]
+}
+```
+
+---
+
+### List Connected Servers
+
+List all connected MCP servers.
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/client/servers"
+```
+
+**Response Example**
+
+```json
+{
+  "servers": [
+    {
+      "name": "weather-server",
+      "version": "1.0.0",
+      "status": "CONNECTED"
+    },
+    {
+      "name": "docs-server",
+      "version": "1.0.0",
+      "status": "CONNECTED"
+    }
+  ]
+}
+```
+
+---
+
+### Chat with MCP Tools
+
+Chat with AI using available MCP tools.
+
+```bash
+curl -X POST "${BASE_URL}/api/mcp/client/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What is the weather in Beijing?",
+    "docIds": []
+  }'
+```
+
+**Request Body**
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `question` | string | Yes | Question text |
+| `docIds` | array | No | Document IDs for RAG context |
+
+**Response Example**
+
+```json
+{
+  "answer": "The weather in Beijing today is sunny with a temperature of 25°C.",
+  "toolCalls": ["get_weather"],
+  "sessionId": "session-123"
+}
 ```
 
 ---

@@ -3,12 +3,12 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tool Calling)
+title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tool Calling + Image + TTS + MCP)
 
 ' ============================================================
 ' PEOPLE - 人员
 ' ============================================================
-Person(user, "用户", "与 AI 助手对话，上传和管理文档，调用工具")
+|Person(user, "用户", "与 AI 助手对话，上传和管理文档，调用工具")
 
 ' ============================================================
 ' FRONTEND - 前端容器
@@ -18,7 +18,7 @@ Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界
 ' ============================================================
 ' AI PLATFORM BACKEND - 后端容器 (Clean Architecture)
 ' ============================================================
-Container(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling，端口 9000")
+Container(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling·图像生成·TTS·MCP，端口 9000")
 
 ' ============================================================
 ' DOMAIN 1: CHAT DOMAIN
@@ -64,6 +64,44 @@ Container_Boundary(tool_domain, "Tool Calling Domain") {
 }
 
 ' ============================================================
+' DOMAIN 4: IMAGE GENERATION DOMAIN
+' ============================================================
+Container_Boundary(image_domain, "Image Generation Domain") {
+    Container(image_controller, "ImageController", "@RestController", "图像生成 HTTP 请求")
+    Container(image_dto, "Image DTOs", "Java Records", "图像生成请求/响应 DTO")
+    Container(image_svc, "ImageGenerationService", "Domain Service", "图像生成核心服务")
+    Container(image_adapter, "OpenAiImageAdapter", "@Component", "DALL-E 图像生成适配器")
+}
+
+' ============================================================
+' DOMAIN 5: AUDIO/TTS DOMAIN
+' ============================================================
+Container_Boundary(tts_domain, "Audio/TTS Domain") {
+    Container(audio_controller, "AudioController", "@RestController", "TTS HTTP 请求")
+    Container(tts_dto, "TTS DTOs", "Java Records", "TTS 请求/响应 DTO")
+    Container(tts_svc, "TextToSpeechService", "Domain Service", "语音合成核心服务")
+    Container(tts_adapter, "OpenAiTtsAdapter", "@Component", "OpenAI TTS 适配器")
+}
+
+' ============================================================
+' DOMAIN 6: MCP SERVER DOMAIN
+' ============================================================
+Container_Boundary(mcp_server_domain, "MCP Server Domain") {
+    Container(mcp_controller, "McpController", "@RestController", "MCP Server HTTP 请求")
+    Container(mcp_server_dto, "MCP DTOs", "Java Records", "MCP 工具调用请求/响应 DTO")
+    Container(mcp_server_svc, "McpServerService", "Domain Service", "MCP Server 核心服务")
+}
+
+' ============================================================
+' DOMAIN 7: MCP CLIENT DOMAIN
+' ============================================================
+Container_Boundary(mcp_client_domain, "MCP Client Domain") {
+    Container(mcp_client_controller, "McpClientController", "@RestController", "MCP Client HTTP 请求")
+    Container(mcp_client_dto, "MCP Client DTOs", "Java Records", "MCP Client 请求/响应 DTO")
+    Container(mcp_client_svc, "AiMcpClientService", "Domain Service", "MCP Client 核心服务")
+}
+
+' ============================================================
 ' CROSS-CUTTING - 跨领域
 ' ============================================================
 Container_Boundary(crosscut_domain, "Cross-Cutting") {
@@ -82,6 +120,8 @@ Container_Boundary(crosscut_domain, "Cross-Cutting") {
 ContainerDb(postgresql, "PostgreSQL + pgvector", "PostgreSQL 17", "文档元数据 + 向量嵌入", "5432")
 Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding", "HTTPS")
 Container_Ext(ollama_svc, "Ollama", "REST API", "本地 Embedding 模型", "11434")
+Container_Ext(dalle_api, "DALL-E API", "REST API", "图像生成服务", "HTTPS")
+Container_Ext(tts_ext_api, "TTS Service", "REST API", "语音合成服务", "HTTPS")
 
 ' ============================================================
 ' RELATIONSHIPS - 关系
@@ -94,6 +134,10 @@ Rel(user, angular_app, "对话 / 文档 / 工具调用", "HTTP/SSE")
 Rel(angular_app, chat_controller, "聊天请求", "HTTP/SSE :9000")
 Rel(angular_app, rag_controller, "RAG 请求", "HTTP/SSE :9000")
 Rel(angular_app, tool_controller, "工具调用", "HTTP :9000")
+Rel(angular_app, image_controller, "图像生成", "HTTP :9000")
+Rel(angular_app, audio_controller, "TTS 请求", "HTTP :9000")
+Rel(angular_app, mcp_controller, "MCP Server", "HTTP :9000")
+Rel(angular_app, mcp_client_controller, "MCP Client", "HTTP :9000")
 
 ' Chat Domain
 Rel(chat_controller, ai_chat_svc, "调用")
@@ -124,6 +168,22 @@ Rel(tool_controller, rag_search_tool, "RAG 搜索")
 Rel(tool_controller, weather_tool, "天气查询")
 Rel(rag_search_tool, rag_app_svc, "RAG 服务")
 Rel(weather_tool, deepseek_api, "天气 API", "HTTPS")
+
+' Image Generation Domain
+Rel(image_controller, image_svc, "调用")
+Rel(image_svc, image_adapter, "依赖")
+Rel(image_adapter, dalle_api, "图像生成", "HTTPS")
+
+' Audio/TTS Domain
+Rel(audio_controller, tts_svc, "调用")
+Rel(tts_svc, tts_adapter, "依赖")
+Rel(tts_adapter, tts_ext_api, "语音合成", "HTTPS")
+
+' MCP Server Domain
+Rel(mcp_controller, mcp_server_svc, "调用")
+
+' MCP Client Domain
+Rel(mcp_client_controller, mcp_client_svc, "调用")
 
 SHOW_LEGEND()
 @enduml

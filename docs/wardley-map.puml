@@ -24,6 +24,7 @@ package "Genesis\n(创新阶段)" <<genesis>> #90EE90 {
     rectangle "TTS\n语音合成" as gen_tts
     rectangle "Image Gen\n图像生成" as gen_image
     rectangle "AIOps\n智能分析" as gen_aiops
+    rectangle "MCP Server\n/Client" as gen_mcp
 }
 
 ' ==================== CUSTOM BUILT 层 ====================
@@ -72,6 +73,21 @@ package "Custom Built\n(定制开发)" <<custom-built>> #FFFACD {
         rectangle "JpaDocumentRepository\nJPA 文档仓储" as rag_doc_repo
     }
 
+    ' ==================== MCP Backend (Java/Spring Boot) ====================
+    package "MCP Backend\n(Java 25 / Spring AI 2.0)" #E6E6FA {
+        rectangle "McpController\nREST API" as mcp_ctrl
+        rectangle "McpClientController\nMCP Client 控制" as mcp_client_ctrl
+        rectangle "AiMcpClientService\nMCP 客户端服务" as mcp_client_svc
+    }
+
+    ' ==================== Image/TTS Backend (Java/Spring Boot) ====================
+    package "Image/TTS Backend\n(Java 25 / Spring AI 2.0)" #E6E6FA {
+        rectangle "ImageController\nREST API" as img_ctrl
+        rectangle "ImageGenerationService\n图像生成服务" as img_svc
+        rectangle "AudioController\nREST API" as audio_ctrl
+        rectangle "TextToSpeechService\nTTS 服务" as tts_svc
+    }
+
     ' ==================== Domain & Shared ====================
     package "Domain Layer\n(DDD)" #FFEFD5 {
         rectangle "ChatSessionId\n值对象" as vo_session_id
@@ -98,7 +114,7 @@ package "Product\n(商业/开源产品)" <<product>> #ADD8E6 {
 
     ' Backend Framework
     rectangle "Spring Boot 3.5" as prod_spring_boot
-    rectangle "Spring AI 1.0" as prod_spring_ai
+    rectangle "Spring AI 2.0" as prod_spring_ai
 
     ' AI/LLM
     rectangle "DeepSeek API\n(Chat + Embedding)" as prod_deepseek
@@ -113,9 +129,10 @@ package "Product\n(商业/开源产品)" <<product>> #ADD8E6 {
 
     ' TTS
     rectangle "Edge TTS" as prod_edge_tts
+    rectangle "DeepSeek TTS" as prod_deepseek_tts
 
     ' Image
-    rectangle "Flux AI" as prod_flux
+    rectangle "DALL-E" as prod_dalle
 }
 
 ' ==================== COMMODITY 层 ====================
@@ -205,7 +222,7 @@ fe_ai_svc -right-> prod_paddleocr
 fe_ai_svc -right-> prod_blip
 fe_ai_svc -right-> prod_sd
 fe_ai_svc -right-> prod_edge_tts
-fe_ai_svc -right-> prod_flux
+fe_ai_svc -right-> prod_dalle
 
 ' Product → Commodity
 prod_angular -right-> prod_angular_cli
@@ -222,7 +239,17 @@ prod_yolo -right-> com_docker
 prod_paddleocr -right-> com_docker
 prod_blip -right-> com_docker
 prod_sd -right-> com_docker
-prod_flux -right-> com_http
+prod_dalle -right-> com_http
+
+' ==================== MCP Backend ====================
+mcp_ctrl -down-> mcp_client_svc
+mcp_client_svc -right-> prod_spring_ai
+
+' ==================== Image/TTS Backend ====================
+img_ctrl -down-> img_svc
+audio_ctrl -down-> tts_svc
+img_svc -right-> prod_dalle
+tts_svc -right-> prod_deepseek_tts
 
 ' Commodity 内部
 com_java -right-> com_k8s
@@ -242,6 +269,7 @@ gen_vision -right-> fe_vision
 gen_tts -right-> fe_ai_svc
 gen_image -right-> fe_ai_svc
 gen_aiops -right-> fe_infra
+gen_mcp -right-> mcp_ctrl
 
 ' ==================== 图例 ====================
 legend right

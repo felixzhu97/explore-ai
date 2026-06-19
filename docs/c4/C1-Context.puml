@@ -8,14 +8,14 @@ title 系统上下文图 (C1) - AI Chat & Agent Platform
 ' ============================================================
 ' PEOPLE - 人员
 ' ============================================================
-Person(user, "用户", "与 AI 助手对话、上传文档、调用工具、查看监控")
+|Person(user, "用户", "与 AI 助手对话、上传文档、调用工具、查看监控")
 
 ' ============================================================
 ' AI Chat & Agent Platform 系统边界
 ' ============================================================
 System_Boundary(ai_platform, "AI Chat & Agent Platform") {
     System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界面")
-    System(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·AI 对话·RAG 检索·Tool Calling")
+    System(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·AI 对话·RAG 检索·Tool Calling·图像生成·TTS·MCP")
 }
 
 ' ============================================================
@@ -24,6 +24,8 @@ System_Boundary(ai_platform, "AI Chat & Agent Platform") {
 System_Ext(deepseek_api, "DeepSeek API", "DeepSeek LLM + Text Embedding")
 System_Ext(postgresql, "PostgreSQL + pgvector", "向量数据库，文档与向量嵌入存储，端口 5432")
 System_Ext(ollama, "Ollama", "本地 Embedding 模型服务，端口 11434")
+System_Ext(dalle_api, "DALL-E API", "OpenAI 图像生成服务")
+System_Ext(tts_api, "TTS Service", "Text-to-Speech 语音合成服务")
 
 ' ============================================================
 ' RELATIONSHIPS - 关系
@@ -33,6 +35,8 @@ Rel(frontend, backend, "HTTP/SSE 请求", "HTTP :9000")
 Rel(backend, deepseek_api, "LLM 调用 / Embedding 生成", "HTTPS")
 Rel(backend, postgresql, "向量搜索 / 文档存储", "JDBC :5432")
 Rel(backend, ollama, "本地 Embedding 生成", "HTTP :11434")
+Rel(backend, dalle_api, "图像生成请求", "HTTPS")
+Rel(backend, tts_api, "语音合成请求", "HTTPS")
 
 SHOW_LEGEND()
 @enduml
