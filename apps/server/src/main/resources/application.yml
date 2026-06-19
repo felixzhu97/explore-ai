@@ -33,6 +33,11 @@ spring:
           model: dall-e-3
           quality: standard
           size: 1024x1024
+      audio:
+        speech:
+          options:
+            model: gpt-4o-mini-tts
+            voice: alloy
 
   # Database configuration
   datasource:
