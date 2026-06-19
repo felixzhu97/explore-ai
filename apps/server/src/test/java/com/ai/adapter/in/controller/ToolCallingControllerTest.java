@@ -1,5 +1,6 @@
 package com.ai.adapter.in.controller;
 
+import com.ai.adapter.out.streaming.StreamingService;
 import com.ai.adapter.out.tools.RagSearchTool;
 import com.ai.adapter.out.tools.WeatherTools;
 import org.junit.jupiter.api.DisplayName;
@@ -31,11 +32,14 @@ class ToolCallingControllerTest {
     @Mock
     private RagSearchTool ragSearchTool;
 
+    @Mock
+    private StreamingService streamingService;
+
     private ToolCallingController controller;
 
     private void createController() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        controller = new ToolCallingController(chatClientBuilder, weatherTools, ragSearchTool);
+        controller = new ToolCallingController(chatClientBuilder, weatherTools, ragSearchTool, streamingService);
     }
 
     @Nested

@@ -1,5 +1,6 @@
 package com.ai.adapter.in.controller;
 
+import com.ai.adapter.out.streaming.StreamingService;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.service.AiChatService;
@@ -8,8 +9,6 @@ import com.ai.domain.service.PromptTemplates;
 import com.ai.domain.service.RagService;
 import com.ai.domain.usecase.DocumentUploadUseCase;
 import com.ai.adapter.in.dto.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,7 +40,7 @@ public class RagController {
     private final LanguageDetectionService languageDetectionService;
     private final PromptTemplates promptTemplates;
     private final DocumentUploadUseCase documentUploadUseCase;
-    private final ObjectMapper objectMapper;
+    private final StreamingService streamingService;
 
     public RagController(
             RagService ragService,
@@ -50,13 +48,13 @@ public class RagController {
             LanguageDetectionService languageDetectionService,
             PromptTemplates promptTemplates,
             DocumentUploadUseCase documentUploadUseCase,
-            ObjectMapper objectMapper) {
+            StreamingService streamingService) {
         this.ragService = ragService;
         this.aiChatService = aiChatService;
         this.languageDetectionService = languageDetectionService;
         this.promptTemplates = promptTemplates;
         this.documentUploadUseCase = documentUploadUseCase;
-        this.objectMapper = objectMapper;
+        this.streamingService = streamingService;
     }
 
     @GetMapping("/documents/")
@@ -122,34 +120,16 @@ public class RagController {
             String prompt = buildPrompt(request.question(), context);
             String aiResponse = aiChatService.chat(prompt);
 
-            return streamResponseReactive(aiResponse, sources);
+            List<SourceDocumentDto> sourceDtos = sources.stream()
+                    .map(this::toSourceDocumentDto)
+                    .collect(Collectors.toList());
+
+            return streamingService.streamWithSources(aiResponse, sourceDtos);
 
         } catch (Exception e) {
             log.error("Error in RAG chat", e);
             return Flux.error(e);
         }
-    }
-
-    private Flux<ServerSentEvent<String>> streamResponseReactive(String prompt, List<SourceDocument> sources) {
-        String[] words = prompt.split(" ");
-        return Flux.fromArray(words)
-                .delayElements(Duration.ofMillis(30))
-                .map(word -> ServerSentEvent.<String>builder().data(word + " ").build())
-                .concatWith(Flux.defer(() -> {
-                    try {
-                        List<SourceDocumentDto> sourceDtos = sources.stream()
-                                .map(this::toSourceDocumentDto)
-                                .collect(Collectors.toList());
-                        String sourcesJson = objectMapper.writeValueAsString(sourceDtos);
-                        return Flux.just(ServerSentEvent.<String>builder()
-                                .event("sources")
-                                .data(sourcesJson)
-                                .build());
-                    } catch (JsonProcessingException e) {
-                        log.error("Error serializing sources", e);
-                        return Flux.empty();
-                    }
-                }));
     }
 
     private String buildPrompt(String question, String context) {
