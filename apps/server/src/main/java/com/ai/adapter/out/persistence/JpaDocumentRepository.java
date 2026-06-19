@@ -3,6 +3,7 @@ package com.ai.adapter.out.persistence;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.DocumentStatus;
+import com.ai.domain.repository.DocumentRepository;
 import com.ai.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  * Document repository using Spring Data JPA.
  */
 @Component
-public class JpaDocumentRepository {
+public class JpaDocumentRepository implements DocumentRepository {
 
     private static final Logger log = LoggerFactory.getLogger(JpaDocumentRepository.class);
 

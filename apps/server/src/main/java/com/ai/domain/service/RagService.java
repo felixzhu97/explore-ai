@@ -3,9 +3,9 @@ package com.ai.domain.service;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.DocumentChunk;
 import com.ai.domain.model.SourceDocument;
+import com.ai.domain.repository.DocumentRepository;
 import com.ai.domain.vo.DocumentId;
 import com.ai.adapter.out.embedding.EmbeddingAdapter;
-import com.ai.adapter.out.persistence.JpaDocumentRepository;
 import com.ai.adapter.out.vector.PgVectorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +28,14 @@ public class RagService {
     private final int chunkOverlap;
     private final EmbeddingAdapter embeddingAdapter;
     private final PgVectorAdapter vectorAdapter;
-    private final JpaDocumentRepository documentRepository;
+    private final DocumentRepository documentRepository;
 
     public RagService(
             @Value("${rag.chunk.size:500}") int chunkSize,
             @Value("${rag.chunk.overlap:50}") int chunkOverlap,
             EmbeddingAdapter embeddingAdapter,
             PgVectorAdapter vectorAdapter,
-            JpaDocumentRepository documentRepository) {
+            DocumentRepository documentRepository) {
         this.chunkSize = chunkSize;
         this.chunkOverlap = chunkOverlap;
         this.embeddingAdapter = embeddingAdapter;
