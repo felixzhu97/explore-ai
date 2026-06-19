@@ -145,6 +145,51 @@ class RagApplicationServiceTest {
 
             verify(pdfTextExtractor).extractText(fileContent);
         }
+
+        @Test
+        @DisplayName("should throw exception when PDF extraction returns empty")
+        void shouldThrowExceptionWhenPdfExtractionReturnsEmpty() {
+            // Arrange
+            String title = "Test PDF";
+            String fileName = "test.pdf";
+            Long fileSize = 2048L;
+            byte[] fileContent = "PDF content".getBytes();
+
+            when(pdfTextExtractor.getExtension(fileName)).thenReturn("pdf");
+            when(pdfTextExtractor.extractText(fileContent)).thenReturn(Optional.empty());
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            // Act & Assert
+            assertThatThrownBy(() -> ragApplicationService.uploadDocumentFromBytes(title, fileName, fileSize, fileContent))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Failed to process document")
+                    .hasMessageContaining("PDF text extraction returned empty");
+        }
+
+        @Test
+        @DisplayName("should handle non-PDF files as raw bytes")
+        void shouldHandleNonPdfFilesAsRawBytes() {
+            // Arrange
+            String title = "Test File";
+            String fileName = "test.txt";
+            Long fileSize = 1024L;
+            byte[] fileContent = "Raw text content".getBytes();
+            List<String> chunks = List.of("Raw text content");
+
+            when(pdfTextExtractor.getExtension(fileName)).thenReturn("txt");
+            when(chunkingService.chunk(anyString())).thenReturn(chunks);
+            when(embeddingAdapter.embed(anyString())).thenReturn(new float[]{0.1f});
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            // Act
+            RagApplicationService.UploadResult result = ragApplicationService.uploadDocumentFromBytes(title, fileName, fileSize, fileContent);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.status()).isEqualTo("READY");
+
+            verify(pdfTextExtractor, never()).extractText(any());
+        }
     }
 
     @Nested
@@ -312,6 +357,43 @@ class RagApplicationServiceTest {
         @Test
         @DisplayName("should return 0.0 when embedding is null")
         void shouldReturnZeroWhenEmbeddingIsNull() {
+            // Arrange
+            float[] queryEmbedding = {0.1f, 0.2f};
+            DocumentChunk chunkWithNullEmbedding = new DocumentChunk(
+                    UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of());
+
+            when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);
+            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunkWithNullEmbedding));
+
+            // Act
+            RagApplicationService.RetrievalResult result = ragApplicationService.retrieveContext("test", null, 5);
+
+            // Assert
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should return 0.0 when vectors have different lengths")
+        void shouldReturnZeroWhenVectorsHaveDifferentLengths() {
+            // Arrange - This tests calculateSimilarity null check and length mismatch
+            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of())
+                    .withEmbedding(new float[]{0.5f, 0.5f}); // Different length
+
+            when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);
+            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+
+            // Act
+            RagApplicationService.RetrievalResult result = ragApplicationService.retrieveContext("test", null, 5);
+
+            // Assert - similarity should be 0.0 due to length mismatch
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should return 0.0 when either vector is null")
+        void shouldReturnZeroWhenEitherVectorIsNull() {
             // Arrange
             float[] queryEmbedding = {0.1f, 0.2f};
             DocumentChunk chunkWithNullEmbedding = new DocumentChunk(

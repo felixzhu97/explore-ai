@@ -215,7 +215,205 @@ class RetrievalServiceTest {
         return embedding;
     }
 
-    // ============ Boundary Tests for Coverage ============
+    // ============ calculateSimilarity edge cases (via private method testing) ============
+
+    @Nested
+    @DisplayName("calculateSimilarity edge cases")
+    class CalculateSimilarityEdgeCases {
+
+        @Test
+        @DisplayName("should return zero when query embedding is null")
+        void shouldReturnZeroWhenQueryEmbeddingIsNull() {
+            // Arrange
+            String query = "Test query";
+            float[] nullQueryEmbedding = null;
+            float[] validChunkEmbedding = createMockEmbedding();
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            ).withEmbedding(validChunkEmbedding);
+
+            when(embeddingAdapter.embed(query)).thenReturn(nullQueryEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert - should handle gracefully
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should return zero when chunk embedding is null")
+        void shouldReturnZeroWhenChunkEmbeddingIsNull() {
+            // Arrange
+            String query = "Test query";
+            float[] validQueryEmbedding = createMockEmbedding();
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            ); // No embedding set
+
+            when(embeddingAdapter.embed(query)).thenReturn(validQueryEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert - should handle gracefully
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should return zero when both embeddings are null")
+        void shouldReturnZeroWhenBothEmbeddingsAreNull() {
+            // Arrange
+            String query = "Test query";
+            float[] nullEmbedding = null;
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            );
+
+            when(embeddingAdapter.embed(query)).thenReturn(nullEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should return zero when embeddings have different lengths")
+        void shouldReturnZeroWhenEmbeddingsHaveDifferentLengths() {
+            // Arrange
+            String query = "Test query";
+            float[] queryEmbedding = new float[384]; // Standard size
+            Arrays.fill(queryEmbedding, 0.1f);
+
+            float[] chunkEmbedding = new float[256]; // Different size
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            ).withEmbedding(chunkEmbedding);
+
+            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should return zero when embeddings have zero magnitude")
+        void shouldReturnZeroWhenEmbeddingsHaveZeroMagnitude() {
+            // Arrange
+            String query = "Test query";
+            float[] zeroQueryEmbedding = new float[384]; // All zeros
+            float[] zeroChunkEmbedding = new float[384]; // All zeros
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            ).withEmbedding(zeroChunkEmbedding);
+
+            when(embeddingAdapter.embed(query)).thenReturn(zeroQueryEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("should calculate high similarity for identical embeddings")
+        void shouldCalculateHighSimilarityForIdenticalEmbeddings() {
+            // Arrange
+            String query = "Test query";
+            float[] identicalEmbedding = createMockEmbedding();
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            ).withEmbedding(identicalEmbedding);
+
+            when(embeddingAdapter.embed(query)).thenReturn(identicalEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert - identical vectors should have similarity close to 1.0
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.001));
+        }
+
+        @Test
+        @DisplayName("should calculate negative similarity for opposite embeddings")
+        void shouldCalculateNegativeSimilarityForOppositeEmbeddings() {
+            // Arrange
+            String query = "Test query";
+            float[] queryEmbedding = createMockEmbedding();
+            float[] oppositeChunkEmbedding = createMockEmbedding();
+            for (int i = 0; i < oppositeChunkEmbedding.length; i++) {
+                oppositeChunkEmbedding[i] = -queryEmbedding[i]; // Opposite direction
+            }
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "content",
+                    0,
+                    Map.of()
+            ).withEmbedding(oppositeChunkEmbedding);
+
+            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert - opposite vectors should have similarity close to -1.0
+            assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).score()).isCloseTo(-1.0, org.assertj.core.data.Offset.offset(0.001));
+        }
+    }
+
+    // ============ Edge Cases for Coverage ============
 
     @Nested
     @DisplayName("retrieve with edge cases")
@@ -276,31 +474,30 @@ class RetrievalServiceTest {
         }
 
         @Test
-        @DisplayName("should return zero similarity for null embeddings")
-        void shouldReturnZeroSimilarityForNullEmbeddings() {
-            // This tests calculateSimilarity with null input
-            float[] nullEmbedding = null;
-            float[] validEmbedding = createMockEmbedding();
-
-            // We can't directly call private method, but we can test through integration
-            // when embeddings are computed as null from adapter
-            when(embeddingAdapter.embed("query")).thenReturn(nullEmbedding);
+        @DisplayName("should truncate content exactly at boundary")
+        void shouldTruncateContentExactlyAtBoundary() {
+            // Arrange
+            String query = "Test query";
+            float[] mockEmbedding = createMockEmbedding();
+            String boundaryContent = "A".repeat(500); // Exactly at MAX_SOURCE_LENGTH
 
             DocumentChunk chunk = new DocumentChunk(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
-                    "content",
+                    boundaryContent,
                     0,
                     Map.of()
-            ).withEmbedding(validEmbedding);
+            ).withEmbedding(createMockEmbedding());
 
+            when(embeddingAdapter.embed(query)).thenReturn(mockEmbedding);
             when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
 
             // Act
-            RetrievalService.RetrievalResult result = retrievalService.retrieve("query", null, 5);
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
 
-            // Assert - should handle gracefully
+            // Assert
             assertThat(result.sources()).hasSize(1);
+            assertThat(result.sources().get(0).text()).hasSize(500);
         }
 
         @Test
@@ -342,6 +539,102 @@ class RetrievalServiceTest {
             // Assert - sources should be sorted by score descending
             assertThat(result.sources()).hasSize(2);
             assertThat(result.sources().get(0).score()).isGreaterThan(result.sources().get(1).score());
+        }
+
+        @Test
+        @DisplayName("should join multiple chunks with double newline")
+        void shouldJoinMultipleChunksWithDoubleNewline() {
+            // Arrange
+            String query = "Test query";
+            float[] mockEmbedding = createMockEmbedding();
+
+            DocumentChunk chunk1 = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "First chunk",
+                    0,
+                    Map.of()
+            ).withEmbedding(createMockEmbedding());
+
+            DocumentChunk chunk2 = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "Second chunk",
+                    0,
+                    Map.of()
+            ).withEmbedding(createMockEmbedding());
+
+            when(embeddingAdapter.embed(query)).thenReturn(mockEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk1, chunk2));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert
+            assertThat(result.context()).contains("First chunk");
+            assertThat(result.context()).contains("Second chunk");
+            assertThat(result.context()).contains("\n\n");
+        }
+
+        @Test
+        @DisplayName("should handle single chunk in context")
+        void shouldHandleSingleChunkInContext() {
+            // Arrange
+            String query = "Test query";
+            float[] mockEmbedding = createMockEmbedding();
+            String content = "Single chunk content";
+
+            DocumentChunk chunk = new DocumentChunk(
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    content,
+                    0,
+                    Map.of()
+            ).withEmbedding(createMockEmbedding());
+
+            when(embeddingAdapter.embed(query)).thenReturn(mockEmbedding);
+            when(vectorAdapter.search(any(), anyInt())).thenReturn(List.of(chunk));
+
+            // Act
+            RetrievalService.RetrievalResult result = retrievalService.retrieve(query, null, 5);
+
+            // Assert
+            assertThat(result.context()).isEqualTo(content);
+            assertThat(result.sources()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("should use default topK when topK is negative")
+        void shouldUseDefaultTopKWhenTopKIsNegative() {
+            // Arrange
+            String query = "Test query";
+            float[] mockEmbedding = createMockEmbedding();
+
+            when(embeddingAdapter.embed(query)).thenReturn(mockEmbedding);
+            when(vectorAdapter.search(any(), eq(5))).thenReturn(List.of());
+
+            // Act
+            retrievalService.retrieve(query, null, -1);
+
+            // Assert
+            verify(vectorAdapter).search(any(), eq(5));
+        }
+
+        @Test
+        @DisplayName("should use default topK when topK is zero")
+        void shouldUseDefaultTopKWhenTopKIsZero() {
+            // Arrange
+            String query = "Test query";
+            float[] mockEmbedding = createMockEmbedding();
+
+            when(embeddingAdapter.embed(query)).thenReturn(mockEmbedding);
+            when(vectorAdapter.search(any(), eq(5))).thenReturn(List.of());
+
+            // Act
+            retrievalService.retrieve(query, null, 0);
+
+            // Assert
+            verify(vectorAdapter).search(any(), eq(5));
         }
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,6 +134,89 @@ class ToolCallingControllerTest {
 
             assertThat(result).isEqualTo("Document 1\nDocument 2");
             verify(ragSearchTool).listDocuments();
+        }
+    }
+
+    @Nested
+    @DisplayName("chatWithTools")
+    class ChatWithTools {
+
+        @Test
+        @DisplayName("should handle exception and return error message")
+        void shouldHandleExceptionAndReturnErrorMessage() {
+            createController();
+            ToolCallingController.ToolChatRequest request = 
+                new ToolCallingController.ToolChatRequest("Test question", null);
+            
+            // The chatWithTools method catches exceptions and returns error message
+            // This test verifies the exception handling path
+            when(chatClient.prompt()).thenThrow(new RuntimeException("Service unavailable"));
+
+            ToolCallingController.ToolChatResponse response = controller.chatWithTools(request);
+
+            assertThat(response.answer()).contains("处理您的请求时发生错误");
+        }
+    }
+
+    @Nested
+    @DisplayName("chatWithToolsStream")
+    class ChatWithToolsStream {
+
+        @Test
+        @DisplayName("should return error flux when exception occurs")
+        void shouldReturnErrorFluxWhenExceptionOccurs() {
+            createController();
+            ToolCallingController.ToolChatRequest request = 
+                new ToolCallingController.ToolChatRequest("Error test", null);
+            
+            when(chatClient.prompt()).thenThrow(new RuntimeException("Stream error"));
+
+            var result = controller.chatWithToolsStream(request);
+
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("truncate")
+    class Truncate {
+
+        @Test
+        @DisplayName("should return null for null input")
+        void shouldReturnNullForNullInput() throws Exception {
+            createController();
+            java.lang.reflect.Method truncateMethod = ToolCallingController.class.getDeclaredMethod("truncate", String.class);
+            truncateMethod.setAccessible(true);
+            
+            String result = (String) truncateMethod.invoke(controller, (String) null);
+            
+            assertThat(result).isEqualTo("null");
+        }
+
+        @Test
+        @DisplayName("should return same string for short text")
+        void shouldReturnSameStringForShortText() throws Exception {
+            createController();
+            java.lang.reflect.Method truncateMethod = ToolCallingController.class.getDeclaredMethod("truncate", String.class);
+            truncateMethod.setAccessible(true);
+            
+            String result = (String) truncateMethod.invoke(controller, "Short text");
+            
+            assertThat(result).isEqualTo("Short text");
+        }
+
+        @Test
+        @DisplayName("should truncate long text with ellipsis")
+        void shouldTruncateLongTextWithEllipsis() throws Exception {
+            createController();
+            java.lang.reflect.Method truncateMethod = ToolCallingController.class.getDeclaredMethod("truncate", String.class);
+            truncateMethod.setAccessible(true);
+            
+            String longText = "A".repeat(100);
+            String result = (String) truncateMethod.invoke(controller, longText);
+            
+            assertThat(result).hasSize(53); // 50 chars + "..."
+            assertThat(result).endsWith("...");
         }
     }
 }
