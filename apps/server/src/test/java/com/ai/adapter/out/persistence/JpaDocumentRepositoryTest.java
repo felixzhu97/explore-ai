@@ -1,4 +1,4 @@
-package com.ai.adapter.out;
+package com.ai.adapter.out.persistence;
 
 import com.ai.adapter.out.persistence.JpaDocumentRepository;
 import com.ai.domain.model.Document;

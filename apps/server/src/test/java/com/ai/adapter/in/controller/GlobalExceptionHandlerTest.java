@@ -1,9 +1,9 @@
 package com.ai.adapter.in.controller;
 
 import com.ai.adapter.in.dto.ErrorResponse;
+import com.ai.domain.exception.AiServiceException;
 import com.ai.domain.exception.DocumentNotFoundException;
 import com.ai.domain.exception.RagServiceException;
-import com.ai.domain.exception.AiServiceException;
 import com.ai.domain.model.ChatSessionNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,18 +11,26 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
- * GlobalExceptionHandler Tests
+ * GlobalExceptionHandler Unit Tests
+ * 
+ * Tests all exception handler methods using AAA pattern:
+ * - Naming convention: should_expected_when_condition
+ * - Covers all exception types handled
+ * - Tests edge cases and boundary conditions
  */
-@DisplayName("GlobalExceptionHandler Tests")
+@DisplayName("GlobalExceptionHandler")
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler handler;
@@ -33,41 +41,82 @@ class GlobalExceptionHandlerTest {
     }
 
     @Nested
-    @DisplayName("shouldReturn404_WhenSessionNotFound")
-    class ChatSessionNotFoundTests {
+    @DisplayName("ChatSessionNotFoundException")
+    class HandleSessionNotFound {
 
         @Test
-        @DisplayName("should return 404 when ChatSessionNotFoundException is thrown")
-        void shouldReturn404WhenChatSessionNotFoundExceptionThrown() {
-            String sessionId = "session-123";
-            ChatSessionNotFoundException exception = new ChatSessionNotFoundException(sessionId);
+        @DisplayName("should return 404 with SESSION_NOT_FOUND error code")
+        void shouldReturn404WithSessionNotFoundErrorCode() {
+            ChatSessionNotFoundException exception = new ChatSessionNotFoundException("test-session-123");
 
             ResponseEntity<ErrorResponse> response = handler.handleSessionNotFound(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("SESSION_NOT_FOUND");
+            assertThat(response.getBody().message()).contains("test-session-123");
         }
 
         @Test
-        @DisplayName("should include session ID in error message")
-        void shouldIncludeSessionIdInErrorMessage() {
-            String sessionId = "abc-456";
-            ChatSessionNotFoundException exception = new ChatSessionNotFoundException(sessionId);
+        @DisplayName("should handle session not found with different session id")
+        void shouldHandleSessionNotFoundWithDifferentSessionId() {
+            ChatSessionNotFoundException exception = new ChatSessionNotFoundException("another-session");
 
             ResponseEntity<ErrorResponse> response = handler.handleSessionNotFound(exception);
 
-            assertThat(response.getBody().message()).contains(sessionId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            assertThat(response.getBody().message()).contains("another-session");
         }
     }
 
     @Nested
-    @DisplayName("shouldReturn404_WhenDocumentNotFound")
-    class DocumentNotFoundTests {
+    @DisplayName("AiServiceException")
+    class HandleAiServiceError {
 
         @Test
-        @DisplayName("should return 404 when DocumentNotFoundException is thrown")
-        void shouldReturn404WhenDocumentNotFoundExceptionThrown() {
+        @DisplayName("should return 503 with AI_SERVICE_ERROR error code")
+        void shouldReturn503WithAiServiceErrorCode() {
+            AiServiceException exception = new AiServiceException("OpenAI API error");
+
+            ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().errorCode()).isEqualTo("AI_SERVICE_ERROR");
+            assertThat(response.getBody().message()).contains("OpenAI API error");
+        }
+
+        @Test
+        @DisplayName("should return 503 with custom error code")
+        void shouldReturn503WithCustomErrorCode() {
+            AiServiceException exception = new AiServiceException("Rate limit exceeded", "RATE_LIMIT", null);
+
+            ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+            assertThat(response.getBody().errorCode()).isEqualTo("RATE_LIMIT");
+        }
+
+        @Test
+        @DisplayName("should handle exception with cause")
+        void shouldHandleExceptionWithCause() {
+            Throwable cause = new RuntimeException("Network timeout");
+            AiServiceException exception = new AiServiceException("Service unavailable", cause);
+
+            ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+            assertThat(response.getBody().message()).contains("Service unavailable");
+        }
+    }
+
+    @Nested
+    @DisplayName("DocumentNotFoundException")
+    class HandleDocumentNotFound {
+
+        @Test
+        @DisplayName("should return 404 with DOCUMENT_NOT_FOUND error code")
+        void shouldReturn404WithDocumentNotFoundErrorCode() {
             UUID docId = UUID.randomUUID();
             DocumentNotFoundException exception = new DocumentNotFoundException(docId);
 
@@ -76,153 +125,209 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_NOT_FOUND");
+            assertThat(response.getBody().message()).contains(docId.toString());
+        }
+
+        @Test
+        @DisplayName("should handle document not found with specific UUID")
+        void shouldHandleDocumentNotFoundWithSpecificUuid() {
+            UUID specificId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+            DocumentNotFoundException exception = new DocumentNotFoundException(specificId);
+
+            ResponseEntity<ErrorResponse> response = handler.handleDocumentNotFound(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_NOT_FOUND");
         }
     }
 
     @Nested
-    @DisplayName("shouldReturn503_WhenAiServiceError")
-    class AiServiceExceptionTests {
+    @DisplayName("RagServiceException")
+    class HandleRagServiceError {
 
         @Test
-        @DisplayName("should return 503 when AiServiceException is thrown")
-        void shouldReturn503WhenAiServiceExceptionThrown() {
-            AiServiceException exception = new AiServiceException("AI service unavailable");
-
-            ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().errorCode()).isEqualTo("AI_SERVICE_ERROR");
-        }
-
-        @Test
-        @DisplayName("should handle AiServiceException with cause")
-        void shouldHandleAiServiceExceptionWithCause() {
-            Throwable cause = new RuntimeException("Connection timeout");
-            AiServiceException exception = new AiServiceException("AI service failed", cause);
-
-            ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            assertThat(response.getBody().errorCode()).isEqualTo("AI_SERVICE_ERROR");
-        }
-    }
-
-    @Nested
-    @DisplayName("shouldReturn500_WhenRagServiceError")
-    class RagServiceExceptionTests {
-
-        @Test
-        @DisplayName("should return 500 when RagServiceException is thrown")
-        void shouldReturn500WhenRagServiceExceptionThrown() {
-            RagServiceException exception = new RagServiceException("RAG processing failed");
+        @DisplayName("should return 500 with RAG_SERVICE_ERROR error code")
+        void shouldReturn500WithRagServiceErrorCode() {
+            RagServiceException exception = new RagServiceException("Vector store connection failed");
 
             ResponseEntity<ErrorResponse> response = handler.handleRagServiceError(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("RAG_SERVICE_ERROR");
+            assertThat(response.getBody().message()).contains("Vector store connection failed");
+        }
+
+        @Test
+        @DisplayName("should handle exception with nested cause")
+        void shouldHandleExceptionWithNestedCause() {
+            Throwable cause = new RuntimeException("Database error");
+            RagServiceException exception = new RagServiceException("Search failed", cause);
+
+            ResponseEntity<ErrorResponse> response = handler.handleRagServiceError(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody().message()).contains("Search failed");
         }
     }
 
     @Nested
-    @DisplayName("shouldReturn400_WhenValidationError")
-    class MethodArgumentNotValidExceptionTests {
+    @DisplayName("MethodArgumentNotValidException")
+    class HandleValidationError {
 
         @Test
-        @DisplayName("should return 400 when MethodArgumentNotValidException is thrown")
-        void shouldReturn400WhenMethodArgumentNotValidExceptionThrown() {
-            MethodArgumentNotValidException exception = createValidationException("message", "Message is required");
+        @DisplayName("should return 400 with VALIDATION_ERROR error code")
+        void shouldReturn400WithValidationErrorCode() {
+            BindingResult bindingResult = mock(BindingResult.class);
+            when(bindingResult.getFieldErrors()).thenReturn(java.util.List.of(
+                new FieldError("object", "field1", "must not be null"),
+                new FieldError("object", "field2", "must not be blank")
+            ));
+
+            MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
+                null, bindingResult
+            );
 
             ResponseEntity<ErrorResponse> response = handler.handleValidationError(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("VALIDATION_ERROR");
+            assertThat(response.getBody().message()).contains("field1");
+            assertThat(response.getBody().message()).contains("field2");
         }
 
         @Test
-        @DisplayName("should include field errors in message")
-        void shouldIncludeFieldErrorsInMessage() {
-            MethodArgumentNotValidException exception = createValidationException("message", "must not be blank");
+        @DisplayName("should format field errors as comma-separated")
+        void shouldFormatFieldErrorsAsCommaSeparated() {
+            BindingResult bindingResult = mock(BindingResult.class);
+            when(bindingResult.getFieldErrors()).thenReturn(java.util.List.of(
+                new FieldError("object", "name", "required"),
+                new FieldError("object", "email", "invalid format")
+            ));
+
+            MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
+                null, bindingResult
+            );
 
             ResponseEntity<ErrorResponse> response = handler.handleValidationError(exception);
 
-            assertThat(response.getBody().message()).contains("message:");
+            assertThat(response.getBody().message()).contains("name: required");
+            assertThat(response.getBody().message()).contains("email: invalid format");
+        }
+
+        @Test
+        @DisplayName("should handle exception with empty field errors")
+        void shouldHandleExceptionWithEmptyFieldErrors() {
+            BindingResult bindingResult = mock(BindingResult.class);
+            when(bindingResult.getFieldErrors()).thenReturn(java.util.List.of());
+
+            MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
+                null, bindingResult
+            );
+
+            ResponseEntity<ErrorResponse> response = handler.handleValidationError(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody().errorCode()).isEqualTo("VALIDATION_ERROR");
         }
     }
 
     @Nested
-    @DisplayName("shouldReturn400_WhenIllegalArgument")
-    class IllegalArgumentExceptionTests {
+    @DisplayName("IllegalArgumentException")
+    class HandleIllegalArgument {
 
         @Test
-        @DisplayName("should return 400 when IllegalArgumentException is thrown")
-        void shouldReturn400WhenIllegalArgumentExceptionThrown() {
-            IllegalArgumentException exception = new IllegalArgumentException("Invalid parameter");
+        @DisplayName("should return 400 with BAD_REQUEST error code")
+        void shouldReturn400WithBadRequestErrorCode() {
+            IllegalArgumentException exception = new IllegalArgumentException("Invalid parameter value");
 
             ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
+            assertThat(response.getBody().message()).contains("Invalid parameter value");
+        }
+
+        @Test
+        @DisplayName("should handle empty message")
+        void shouldHandleEmptyMessage() {
+            IllegalArgumentException exception = new IllegalArgumentException("");
+
+            ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
         }
     }
 
     @Nested
-    @DisplayName("shouldReturn413_WhenFileTooLarge")
-    class MaxUploadSizeExceededExceptionTests {
+    @DisplayName("MaxUploadSizeExceededException")
+    class HandleMaxUploadSizeExceeded {
 
         @Test
-        @DisplayName("should return 413 when MaxUploadSizeExceededException is thrown")
-        void shouldReturn413WhenMaxUploadSizeExceededExceptionThrown() {
-            org.springframework.web.multipart.MaxUploadSizeExceededException exception = 
-                new org.springframework.web.multipart.MaxUploadSizeExceededException(52428800L);
+        @DisplayName("should return 413 with FILE_TOO_LARGE error code")
+        void shouldReturn413WithFileTooLargeErrorCode() {
+            MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(52428800L);
 
             ResponseEntity<ErrorResponse> response = handler.handleMaxUploadSizeExceeded(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
+            assertThat(response.getBody().message()).contains("50MB");
+        }
+
+        @Test
+        @DisplayName("should handle exception with different max size")
+        void shouldHandleExceptionWithDifferentMaxSize() {
+            MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(1024L);
+
+            ResponseEntity<ErrorResponse> response = handler.handleMaxUploadSizeExceeded(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+            assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
         }
     }
 
     @Nested
-    @DisplayName("shouldReturn500_WhenGenericException")
-    class GenericExceptionTests {
+    @DisplayName("Generic Exception Handler")
+    class HandleGenericException {
 
         @Test
-        @DisplayName("should return 500 when generic Exception is thrown")
-        void shouldReturn500WhenGenericExceptionThrown() {
-            Exception exception = new Exception("Something went wrong");
+        @DisplayName("should return 500 with INTERNAL_ERROR error code")
+        void shouldReturn500WithInternalErrorCode() {
+            Exception exception = new RuntimeException("Unexpected error");
 
             ResponseEntity<ErrorResponse> response = handler.handleGenericException(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("INTERNAL_ERROR");
+            assertThat(response.getBody().message()).contains("unexpected error");
         }
 
         @Test
-        @DisplayName("should hide internal error details from client")
-        void shouldHideInternalErrorDetailsFromClient() {
-            Exception exception = new RuntimeException("Database connection failed");
+        @DisplayName("should handle NullPointerException")
+        void shouldHandleNullPointerException() {
+            NullPointerException exception = new NullPointerException("Cannot invoke method on null");
 
             ResponseEntity<ErrorResponse> response = handler.handleGenericException(exception);
 
-            assertThat(response.getBody().message()).isEqualTo("An unexpected error occurred");
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody().errorCode()).isEqualTo("INTERNAL_ERROR");
         }
-    }
 
-    private MethodArgumentNotValidException createValidationException(String field, String message) {
-        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new TestRequest(), "testRequest");
-        bindingResult.addError(new FieldError("testRequest", field, message));
-        return new MethodArgumentNotValidException(null, bindingResult);
-    }
+        @Test
+        @DisplayName("should handle exception with cause")
+        void shouldHandleExceptionWithCause() {
+            Exception exception = new RuntimeException("Outer error", new RuntimeException("Inner error"));
 
-    static class TestRequest {
-        private String message;
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
+            ResponseEntity<ErrorResponse> response = handler.handleGenericException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody().errorCode()).isEqualTo("INTERNAL_ERROR");
+        }
     }
 }

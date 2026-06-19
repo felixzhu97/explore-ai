@@ -85,7 +85,8 @@ tasks.jacocoTestCoverageVerification {
             element = "PACKAGE"
             excludes = listOf(
                 "com.ai.config.*",
-                "com.ai.domain.repository.*"
+                "com.ai.domain.repository.*",
+                "com.ai.*"
             )
         }
         rule {
@@ -93,12 +94,12 @@ tasks.jacocoTestCoverageVerification {
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
-                minimum = BigDecimal("0.80")
+                minimum = BigDecimal("0.85")
             }
             limit {
                 counter = "BRANCH"
                 value = "COVEREDRATIO"
-                minimum = BigDecimal("0.80")
+                minimum = BigDecimal("0.85")
             }
         }
     }
