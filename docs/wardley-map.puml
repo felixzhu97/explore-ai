@@ -1,283 +1,179 @@
 @startuml AI-Test-Wardley-Map
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
 skinparam backgroundColor #FFFFFF
-skinparam defaultFontSize 10
+skinparam defaultFontSize 9
 skinparam dpi 150
-skinparam linetype ortho
-skinparam rectangleRoundCorner 8
 
-title AI-Test Platform - Wardley Map 技术演进地图
+title AI-Test Platform 技术演进地图 (C4 Container)
 
-' ==================== EVOLUTION AXIS ====================
-top to bottom direction
+' ============================================================
+' ANCHOR - 用户 (最高可见度)
+' ============================================================
+Person(user, "用户", "ML 工程师 / 运维工程师 / 数据科学家")
 
-' 顶层：用户需求
-package "用户需求 (Anchor)" <<anchor>> #FFFFFF {
-    rectangle "ML 工程师 / 运维工程师 / 数据科学家" as user
+' ============================================================
+' GENESIS 阶段 - 创新/定制能力 (左下角，演化早期)
+' ============================================================
+Container_Boundary(genesis, "Genesis (创新阶段)") {
+    Container(multi_agent, "Multi-Agent Orchestration", "Java", "多 Agent 编排与任务路由")
+    Container(rag, "RAG + Vector Search", "Java/Spring AI", "文档检索与向量搜索")
+    Container(vision_ai, "Vision AI Pipeline", "Java", "图像分析处理流水线")
+    Container(tts, "TTS 语音合成", "Java/Spring AI", "文本转语音服务")
+    Container(image_gen, "Image Gen 图像生成", "Java/Spring AI", "AI 图像生成")
+    Container(aiops, "AIOps 智能分析", "Java", "运维智能分析与告警")
+    Container(mcp, "MCP Server/Client", "Java/Spring AI", "Model Context Protocol")
 }
 
-' ==================== GENESIS 层 ====================
-package "Genesis\n(创新阶段)" <<genesis>> #90EE90 {
-    rectangle "Multi-Agent\nOrchestration" as gen_multi_agent
-    rectangle "动态任务路由" as gen_routing
-    rectangle "RAG + Vector\nSearch" as gen_rag
-    rectangle "Vision AI\nPipeline" as gen_vision
-    rectangle "TTS\n语音合成" as gen_tts
-    rectangle "Image Gen\n图像生成" as gen_image
-    rectangle "AIOps\n智能分析" as gen_aiops
-    rectangle "MCP Server\n/Client" as gen_mcp
+' ============================================================
+' CUSTOM BUILT 阶段 - 定制开发 (中部，差异化能力)
+' ============================================================
+Container_Boundary(frontend, "Frontend (Angular 22)") {
+    Container(fe_app, "AppComponent", "Angular 22", "根组件")
+    Container(fe_infra, "AIInfraPanel", "Angular 22", "AI 基础设施面板")
+    Container(fe_rag_chat, "RagChatComponent", "Angular 22", "RAG 对话组件")
+    Container(fe_vision, "VisionPanel", "Angular 22", "视觉分析面板")
+    Container(fe_agent, "AgentChatComponent", "Angular 22", "Agent 对话 (SSE)")
+    Container(fe_ai_service, "AiService", "Angular 22", "AI 能力服务")
+    Container(fe_api, "ApiService", "Angular 22", "API 通信服务")
 }
 
-' ==================== CUSTOM BUILT 层 ====================
-package "Custom Built\n(定制开发)" <<custom-built>> #FFFACD {
-
-    ' ==================== Frontend (Angular 22) ====================
-    package "Frontend\n(Angular 22)" #F5F5DC {
-        rectangle "AppComponent\n根组件" as fe_app
-        rectangle "AIInfraPanelComponent\nAI 基础设施面板" as fe_infra
-        rectangle "RagChatComponent\nRAG 对话" as fe_rag_chat
-        rectangle "VisionPanelComponent\n视觉分析" as fe_vision
-        rectangle "AiHubComponent\nAI Hub 中心" as fe_aihub
-        rectangle "AgentChatComponent\nAgent 对话 (SSE)" as fe_agent
-        rectangle "ChatMessageComponent\n消息展示 (MD)" as fe_chat_msg
-        rectangle "ToolResultComponent\n工具结果" as fe_tool
-        rectangle "ApiService\nAPI 服务" as fe_api
-        rectangle "AiService\nAI 能力服务" as fe_ai_svc
-        rectangle "I18nService\n国际化 (5语言)" as fe_i18n
-        rectangle "ThemeService\n主题服务" as fe_theme
-    }
-
-    ' ==================== Chat Backend (Java/Spring Boot) ====================
-    package "Chat Backend\n(Java 25 / Spring Boot 3.5)" #E6E6FA {
-        rectangle "ChatController\nREST API" as chat_ctrl
-        rectangle "ChatApplicationService\n应用服务" as chat_app
-        rectangle "SendChatMessageUseCase\n发送消息用例" as chat_usecase
-        rectangle "ChatSession\n聚合根" as chat_session
-        rectangle "ChatMessage\n消息实体" as chat_msg
-        rectangle "AiChatService\n领域服务" as chat_domain
-        rectangle "AiChatPort\nAI 端口接口" as chat_port
-        rectangle "SpringAiChatAdapter\nSpring AI 适配器" as chat_adapter
-        rectangle "InMemoryChatSessionRepository\n内存仓储" as chat_repo
-    }
-
-    ' ==================== RAG Backend (Java/Spring Boot) ====================
-    package "RAG Backend\n(Java 25 / Spring Boot 3.5)" #E6E6FA {
-        rectangle "RagController\nREST/SSE API" as rag_ctrl
-        rectangle "RagApplicationService\n应用服务" as rag_app
-        rectangle "RagChatUseCase\nRAG 问答用例" as rag_usecase
-        rectangle "Document\n文档实体" as rag_doc
-        rectangle "DocumentChunk\n分块实体" as rag_chunk
-        rectangle "EmbeddingPort\n嵌入端口接口" as rag_emb_port
-        rectangle "VectorSearchPort\n向量检索端口" as rag_vec_port
-        rectangle "DeepSeekEmbeddingAdapter\nDeepSeek 嵌入" as rag_emb_adapter
-        rectangle "PgVectorAdapter\npgvector 适配器" as rag_vec_adapter
-        rectangle "JpaDocumentRepository\nJPA 文档仓储" as rag_doc_repo
-    }
-
-    ' ==================== MCP Backend (Java/Spring Boot) ====================
-    package "MCP Backend\n(Java 25 / Spring AI 2.0)" #E6E6FA {
-        rectangle "McpController\nREST API" as mcp_ctrl
-        rectangle "McpClientController\nMCP Client 控制" as mcp_client_ctrl
-        rectangle "AiMcpClientService\nMCP 客户端服务" as mcp_client_svc
-    }
-
-    ' ==================== Image/TTS Backend (Java/Spring Boot) ====================
-    package "Image/TTS Backend\n(Java 25 / Spring AI 2.0)" #E6E6FA {
-        rectangle "ImageController\nREST API" as img_ctrl
-        rectangle "ImageGenerationService\n图像生成服务" as img_svc
-        rectangle "AudioController\nREST API" as audio_ctrl
-        rectangle "TextToSpeechService\nTTS 服务" as tts_svc
-    }
-
-    ' ==================== Domain & Shared ====================
-    package "Domain Layer\n(DDD)" #FFEFD5 {
-        rectangle "ChatSessionId\n值对象" as vo_session_id
-        rectangle "MessageId\n值对象" as vo_msg_id
-        rectangle "MessageContent\n值对象" as vo_content
-        rectangle "DocumentId\n值对象" as vo_doc_id
-        rectangle "ChunkId\n值对象" as vo_chunk_id
-        rectangle "EmbeddingVector\n值对象" as vo_emb
-        rectangle "ChatMessageReceivedEvent\n领域事件" as evt_msg_received
-        rectangle "ChatResponseGeneratedEvent\n领域事件" as evt_resp_generated
-        rectangle "AiServiceException\n异常" as exc_ai
-        rectangle "ChatSessionNotFoundException\n异常" as exc_not_found
-        rectangle "DocumentNotFoundException\n异常" as exc_doc_not_found
-    }
+Container_Boundary(chat_backend, "Chat Backend (Java 25)") {
+    Container(chat_ctrl, "ChatController", "REST API", "HTTP 接口")
+    Container(chat_app, "ChatApplicationService", "Java", "应用服务")
+    Container(chat_session, "ChatSession", "DDD Aggregate", "会话聚合根")
+    Container(chat_adapter, "SpringAiChatAdapter", "Spring AI 2.0", "AI 适配器")
 }
 
-' ==================== PRODUCT 层 ====================
-package "Product\n(商业/开源产品)" <<product>> #ADD8E6 {
-    ' Frontend
-    rectangle "Angular 22" as prod_angular
-    rectangle "Angular CLI" as prod_angular_cli
-    rectangle "RxJS 7" as prod_rxjs
-    rectangle "SCSS" as prod_scss
-
-    ' Backend Framework
-    rectangle "Spring Boot 3.5" as prod_spring_boot
-    rectangle "Spring AI 2.0" as prod_spring_ai
-
-    ' AI/LLM
-    rectangle "DeepSeek API\n(Chat + Embedding)" as prod_deepseek
-    rectangle "DeepSeekChatModel" as prod_deepseek_chat
-    rectangle "DeepSeekEmbeddingModel" as prod_deepseek_emb
-
-    ' Vision
-    rectangle "YOLO11n" as prod_yolo
-    rectangle "PaddleOCR" as prod_paddleocr
-    rectangle "BLIP" as prod_blip
-    rectangle "Stable Diffusion" as prod_sd
-
-    ' TTS
-    rectangle "Edge TTS" as prod_edge_tts
-    rectangle "DeepSeek TTS" as prod_deepseek_tts
-
-    ' Image
-    rectangle "DALL-E" as prod_dalle
+Container_Boundary(rag_backend, "RAG Backend (Java 25)") {
+    Container(rag_ctrl, "RagController", "REST/SSE API", "HTTP 接口")
+    Container(rag_app, "RagApplicationService", "Java", "应用服务")
+    Container(rag_emb, "DeepSeekEmbeddingAdapter", "Spring AI", "嵌入模型适配器")
+    Container(rag_vec, "PgVectorAdapter", "pgvector", "向量数据库适配器")
+    Container(rag_doc_repo, "JpaDocumentRepository", "Spring Data JPA", "文档仓储")
 }
 
-' ==================== COMMODITY 层 ====================
-package "Commodity\n(标准化基础设施)" <<commodity>> #D3D3D3 {
-    ' Frontend
-    rectangle "Node.js" as com_nodejs
-    rectangle "Browser APIs\n(HttpClient)" as com_browser
-
-    ' Backend
-    rectangle "Java 25" as com_java
-    rectangle "Gradle" as com_gradle
-    rectangle "Spring Data JPA" as com_spring_jpa
-    rectangle "gRPC" as com_grpc
-    rectangle "HTTP\n/WebSocket/SSE" as com_http
-
-    ' Database
-    rectangle "PostgreSQL 17\n+ pgvector" as com_postgres
-    rectangle "Redis" as com_redis
-
-    ' Infrastructure
-    rectangle "Kubernetes" as com_k8s
-    rectangle "Docker" as com_docker
-    rectangle "GitHub\nActions" as com_git
-    rectangle "Helm" as com_helm
-
-    ' Observability
-    rectangle "Prometheus\n/Grafana" as com_prom
-    rectangle "OpenTelemetry" as com_otel
+Container_Boundary(mcp_backend, "MCP Backend (Java 25)") {
+    Container(mcp_ctrl, "McpController", "REST API", "MCP 服务控制")
+    Container(mcp_client, "AiMcpClientService", "Java", "MCP 客户端服务")
 }
 
-' ==================== 依赖关系 ====================
+Container_Boundary(domain, "Domain Layer (DDD)") {
+    Container(vo, "Value Objects", "Java Record", "SessionId/MessageId/Email")
+    Container(domain_evt, "Domain Events", "Java", "领域事件")
+    Container(domain_exc, "Domain Exceptions", "Java", "业务异常")
+}
 
-' User → Frontend
-user -down-> fe_infra
-user -down-> fe_rag_chat
-user -down-> fe_vision
-user -down-> fe_aihub
+' ============================================================
+' PRODUCT 阶段 - 商业/开源组件 (右侧，采购能力)
+' ============================================================
+Container_Boundary(products, "Product (商业/开源)") {
+    Container(angular, "Angular 22", "Framework", "前端框架")
+    Container(spring_boot, "Spring Boot 3.5", "Framework", "后端框架")
+    Container(spring_ai, "Spring AI 2.0", "Library", "AI 集成框架")
+    Container(deepseek, "DeepSeek API", "LLM Service", "大语言模型 + Embedding")
+    Container(yolo, "YOLO11n", "ML Model", "目标检测模型")
+    Container(paddleocr, "PaddleOCR", "ML Model", "OCR 文字识别")
+    Container(blip, "BLIP", "ML Model", "图像描述生成")
+    Container(dalle, "DALL-E", "API", "图像生成服务")
+    Container(edge_tts, "Edge TTS", "API", "微软语音合成")
+}
+
+' ============================================================
+' COMMODITY 阶段 - 标准化基础设施 (右下角，演化后期)
+' ============================================================
+Container_Boundary(commodity, "Commodity (标准化基础设施)") {
+    Container(nodejs, "Node.js", "Runtime", "前端运行时")
+    Container(java, "Java 25", "Runtime", "后端运行时")
+    Container(postgres, "PostgreSQL 17 + pgvector", "Database", "关系型 + 向量数据库")
+    Container(redis, "Redis", "Cache", "缓存服务")
+    Container(k8s, "Kubernetes", "Orchestration", "容器编排")
+    Container(docker, "Docker", "Container", "容器化")
+    Container(http, "HTTP/WebSocket/SSE", "Protocol", "通信协议")
+    Container(prom, "Prometheus/Grafana", "Monitoring", "监控告警")
+    Container(otel, "OpenTelemetry", "Observability", "可观测性")
+    Container(gradle, "Gradle", "Build Tool", "构建工具")
+    Container(gha, "GitHub Actions", "CI/CD", "持续集成部署")
+}
+
+' ============================================================
+' RELATIONSHIPS - 依赖关系
+' ============================================================
+
+' 用户 -> Frontend
+Rel(user, fe_infra, "查看监控")
+Rel(user, fe_rag_chat, "RAG 对话")
+Rel(user, fe_vision, "图像分析")
+Rel(user, fe_agent, "Agent 对话")
 
 ' Frontend 内部
-fe_app -down-> fe_routes
-fe_infra -down-> fe_agent
-fe_infra -down-> fe_panels
-fe_aihub -down-> fe_agent
-fe_agent -down-> fe_chat_msg
-fe_agent -down-> fe_tool
-fe_agent -down-> fe_ai_svc
-fe_agent -down-> fe_api
-fe_agent -down-> fe_i18n
-fe_rag_chat -down-> fe_ai_svc
-fe_rag_chat -down-> fe_i18n
-fe_vision -down-> fe_ai_svc
-fe_vision -down-> fe_i18n
+Rel(fe_app, fe_ai_service, "调用")
+Rel(fe_infra, fe_agent, "Agent 入口")
+Rel(fe_ai_service, fe_api, "HTTP 请求")
 
-' Frontend → Backend
-fe_api -right-> chat_ctrl
-fe_ai_svc -right-> rag_ctrl
+' Frontend -> Backend
+Rel(fe_api, chat_ctrl, "聊天请求")
+Rel(fe_api, rag_ctrl, "RAG 请求")
+Rel(fe_ai_service, rag_emb, "Embedding")
+Rel(fe_ai_service, yolo, "目标检测")
+Rel(fe_ai_service, dalle, "图像生成")
+Rel(fe_ai_service, edge_tts, "语音合成")
 
-' Chat Backend 内部
-chat_ctrl -down-> chat_usecase
-chat_usecase -down-> chat_app
-chat_app -down-> chat_port
-chat_app -down-> chat_session_repo
-chat_port -down-> chat_adapter
-chat_adapter -down-> prod_spring_ai
-chat_app -down-> chat_session
-chat_session -down-> chat_msg
+' Chat Backend
+Rel(chat_ctrl, chat_app, "应用服务")
+Rel(chat_app, chat_session, "会话管理")
+Rel(chat_app, chat_adapter, "AI 调用")
+Rel(chat_adapter, deepseek, "LLM 请求")
 
-' RAG Backend 内部
-rag_ctrl -down-> rag_app
-rag_app -down-> rag_usecase
-rag_app -down-> rag_emb_port
-rag_app -down-> rag_vec_port
-rag_app -down-> rag_doc_repo
-rag_emb_port -down-> rag_emb_adapter
-rag_vec_port -down-> rag_vec_adapter
-rag_emb_adapter -down-> prod_deepseek_emb
-rag_usecase -down-> rag_doc
-rag_doc -down-> rag_chunk
+' RAG Backend
+Rel(rag_ctrl, rag_app, "应用服务")
+Rel(rag_app, rag_emb, "嵌入生成")
+Rel(rag_app, rag_vec, "向量检索")
+Rel(rag_app, rag_doc_repo, "文档存储")
+Rel(rag_emb, deepseek, "Embedding")
+Rel(rag_vec, postgres, "向量查询")
 
-' Backend → External
-chat_adapter -right-> prod_deepseek_chat
-rag_emb_adapter -right-> prod_deepseek_emb
+' MCP Backend
+Rel(mcp_ctrl, mcp_client, "客户端服务")
+Rel(mcp_client, spring_ai, "AI 集成")
 
-' Vision/TTS/Image → External
-fe_ai_svc -right-> prod_yolo
-fe_ai_svc -right-> prod_paddleocr
-fe_ai_svc -right-> prod_blip
-fe_ai_svc -right-> prod_sd
-fe_ai_svc -right-> prod_edge_tts
-fe_ai_svc -right-> prod_dalle
+' Domain Layer
+Rel(chat_session, vo, "值对象")
+Rel(chat_app, domain_evt, "事件发布")
+Rel(chat_app, domain_exc, "异常处理")
 
-' Product → Commodity
-prod_angular -right-> prod_angular_cli
-prod_angular_cli -right-> com_nodejs
-prod_scss -right-> com_nodejs
-prod_rxjs -right-> com_nodejs
+' Genesis -> Custom Built
+Rel(multi_agent, fe_agent, "编排")
+Rel(multi_agent, chat_app, "编排")
+Rel(rag, fe_rag_chat, "检索")
+Rel(rag, rag_app, "检索")
+Rel(vision_ai, fe_vision, "分析")
+Rel(tts, fe_ai_service, "合成")
+Rel(image_gen, fe_ai_service, "生成")
+Rel(aiops, fe_infra, "监控")
+Rel(mcp, mcp_ctrl, "协议")
 
-prod_spring_boot -right-> com_java
-prod_spring_ai -right-> prod_spring_boot
-prod_spring_ai -right-> prod_deepseek
-
-prod_deepseek -right-> com_http
-prod_yolo -right-> com_docker
-prod_paddleocr -right-> com_docker
-prod_blip -right-> com_docker
-prod_sd -right-> com_docker
-prod_dalle -right-> com_http
-
-' ==================== MCP Backend ====================
-mcp_ctrl -down-> mcp_client_svc
-mcp_client_svc -right-> prod_spring_ai
-
-' ==================== Image/TTS Backend ====================
-img_ctrl -down-> img_svc
-audio_ctrl -down-> tts_svc
-img_svc -right-> prod_dalle
-tts_svc -right-> prod_deepseek_tts
+' Product -> Commodity
+Rel(angular, nodejs, "运行时")
+Rel(spring_boot, java, "运行时")
+Rel(spring_ai, spring_boot, "集成")
+Rel(deepseek, http, "API 调用")
+Rel(dalle, http, "API 调用")
+Rel(yolo, docker, "容器")
+Rel(paddleocr, docker, "容器")
+Rel(blip, docker, "容器")
+Rel(edge_tts, http, "API 调用")
 
 ' Commodity 内部
-com_java -right-> com_k8s
-com_gradle -right-> com_java
-com_spring_jpa -right-> prod_spring_boot
-com_postgres -right-> com_docker
-com_redis -right-> com_docker
-com_prom -right-> com_k8s
-com_otel -right-> com_k8s
-com_git -right-> com_k8s
-com_http -right-> com_k8s
+Rel(java, k8s, "部署")
+Rel(gradle, java, "构建")
+Rel(postgres, docker, "容器")
+Rel(redis, docker, "容器")
+Rel(prom, k8s, "监控")
+Rel(otel, k8s, "追踪")
+Rel(http, k8s, "服务")
+Rel(gha, k8s, "部署")
 
-' Genesis → Custom Built
-gen_rag -right-> fe_rag_chat
-gen_rag -right-> rag_app
-gen_vision -right-> fe_vision
-gen_tts -right-> fe_ai_svc
-gen_image -right-> fe_ai_svc
-gen_aiops -right-> fe_infra
-gen_mcp -right-> mcp_ctrl
-
-' ==================== 图例 ====================
-legend right
-||= 颜色 |= 阶段 |= 特点 |
-{<back:#90EE90>绿色</back>}| Genesis | 创新、独特能力 |
-{<back:#FFFACD>黄色</back>}| Custom Built | 差异化定制 |
-{<back:#ADD8E6>蓝色</back>}| Product | 采购/开源组件 |
-{<back:#D3D3D3>灰色</back>}| Commodity | 标准化基础设施 |
-endlegend
-
+SHOW_LEGEND()
 @enduml
