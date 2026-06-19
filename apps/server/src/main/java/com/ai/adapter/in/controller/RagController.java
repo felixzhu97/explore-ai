@@ -1,6 +1,7 @@
 package com.ai.adapter.in.controller;
 
 import com.ai.domain.service.LanguageDetectionService;
+import com.ai.domain.service.PromptTemplates;
 import com.ai.domain.model.Document;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.service.AiChatService;
@@ -36,17 +37,20 @@ public class RagController {
 
     private final RagService ragService;
     private final LanguageDetectionService languageDetectionService;
+    private final PromptTemplates promptTemplates;
     private final AiChatService aiChatService;
     private final ObjectMapper objectMapper;
     private final PdfTextExtractor pdfTextExtractor;
 
     public RagController(RagService ragService,
                          LanguageDetectionService languageDetectionService,
+                         PromptTemplates promptTemplates,
                          AiChatService aiChatService,
                          ObjectMapper objectMapper,
                          PdfTextExtractor pdfTextExtractor) {
         this.ragService = ragService;
         this.languageDetectionService = languageDetectionService;
+        this.promptTemplates = promptTemplates;
         this.aiChatService = aiChatService;
         this.objectMapper = objectMapper;
         this.pdfTextExtractor = pdfTextExtractor;
@@ -168,7 +172,8 @@ public class RagController {
 
     private String buildPrompt(String question, String context) {
         String languageCode = languageDetectionService.detect(question);
-        return languageDetectionService.buildPrompt(question, context, languageCode);
+        String basePrompt = languageDetectionService.buildPrompt(question, context, languageCode);
+        return promptTemplates.buildQuestionAnswerPrompt(context, question);
     }
 
     private DocumentSummaryDto toDocumentSummaryDto(Document document) {
