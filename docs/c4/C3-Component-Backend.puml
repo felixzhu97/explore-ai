@@ -14,10 +14,8 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
     ' INTERFACE LAYER (adapter/in)
     ' ============================================================
     Container_Boundary(iface_layer, "Interface Layer") {
-        ' Controllers
+        ' Chat Controllers
         Component(ai_ctrl, "AiController", "@RestController", "聊天 HTTP/SSE 请求，/api/ai/*")
-        Component(rag_ctrl, "RagController", "@RestController", "RAG HTTP/SSE 请求，/api/rag/*")
-        Component(tool_ctrl, "ToolCallingController", "@RestController", "工具调用请求，/api/function-call/*")
         Component(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
 
         ' Chat DTOs
@@ -25,6 +23,10 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Component(chat_resp_dto, "ChatResponse", "Java Record", "聊天响应 DTO")
         Component(sess_info_dto, "SessionInfo", "Java Record", "会话信息 DTO")
         Component(msg_hist_dto, "MessageHistoryResponse", "Java Record", "消息历史响应")
+
+        ' RAG Controllers
+        Component(rag_ctrl, "RagController", "@RestController", "RAG HTTP/SSE 请求，/api/rag/*")
+        Component(tool_ctrl, "ToolCallingController", "@RestController", "工具调用请求，/api/function-call/*")
 
         ' RAG DTOs
         Component(rag_chat_req, "RagChatRequest", "Java Record", "RAG 聊天请求")
@@ -34,6 +36,26 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Component(doc_list_resp, "DocumentListResponse", "Java Record", "文档列表响应")
         Component(doc_summary_dto, "DocumentSummaryDto", "Java Record", "文档摘要 DTO")
         Component(source_doc_dto, "SourceDocumentDto", "Java Record", "来源文档 DTO")
+
+        ' Image Generation Controllers & DTOs
+        Component(image_ctrl, "ImageController", "@RestController", "图像生成 HTTP 请求，/api/image/*")
+        Component(image_req_dto, "ImageGenerationRequest", "Java Record", "图像生成请求")
+        Component(image_resp_dto, "ImageGenerationResponse", "Java Record", "图像生成响应")
+
+        ' Audio/TTS Controllers & DTOs
+        Component(audio_ctrl, "AudioController", "@RestController", "TTS HTTP 请求，/api/audio/*")
+        Component(tts_req_dto, "TtsRequest", "Java Record", "TTS 请求")
+        Component(tts_resp_dto, "TtsResponse", "Java Record", "TTS 响应")
+
+        ' MCP Server Controllers & DTOs
+        Component(mcp_ctrl, "McpController", "@RestController", "MCP Server HTTP 请求，/api/mcp/*")
+        Component(mcp_req_dto, "McpRequest", "Java Record", "MCP 调用请求")
+        Component(mcp_resp_dto, "McpResponse", "Java Record", "MCP 调用响应")
+
+        ' MCP Client Controllers & DTOs
+        Component(mcp_client_ctrl, "McpClientController", "@RestController", "MCP Client HTTP 请求，/api/mcp-client/*")
+        Component(mcp_client_req_dto, "McpClientRequest", "Java Record", "MCP Client 请求")
+        Component(mcp_client_resp_dto, "McpClientResponse", "Java Record", "MCP Client 响应")
     }
 
     ' ============================================================
@@ -57,6 +79,26 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
             Component(lang_detect_svc, "LanguageDetectionService", "Domain Service", "语言检测服务")
         }
 
+        ' Image Generation Domain
+        Container_Boundary(image_domain, "Image Generation Domain") {
+            Component(image_gen_svc, "ImageGenerationService", "Domain Service", "图像生成核心服务")
+        }
+
+        ' Audio/TTS Domain
+        Container_Boundary(tts_domain, "Audio/TTS Domain") {
+            Component(tts_svc, "TextToSpeechService", "Domain Service", "语音合成核心服务")
+        }
+
+        ' MCP Server Domain
+        Container_Boundary(mcp_server_domain, "MCP Server Domain") {
+            Component(mcp_server_svc, "McpServerService", "Domain Service", "MCP Server 核心服务")
+        }
+
+        ' MCP Client Domain
+        Container_Boundary(mcp_client_domain, "MCP Client Domain") {
+            Component(mcp_client_svc, "AiMcpClientService", "Domain Service", "MCP Client 核心服务")
+        }
+
         ' Value Objects
         Container_Boundary(value_objects, "Value Objects") {
             Component(chat_sess_id, "ChatSessionId", "Java Record", "会话唯一标识")
@@ -73,7 +115,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
             Component(rag_svc_exc, "RagServiceException", "Exception", "RAG 服务异常")
         }
 
-        ' Ports (interfaces defined in Domain)
+        ' Domain Ports
         Container_Boundary(domain_ports, "Domain Ports") {
             Component(chat_sess_repo_port, "ChatSessionRepository", "Interface", "会话仓储抽象")
         }
@@ -122,6 +164,16 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
             Component(pdf_extractor, "PdfTextExtractor", "@Component", "PDF 文本提取")
         }
 
+        ' Image Generation Adapters
+        Container_Boundary(image_adapters, "Image Generation Adapters") {
+            Component(openai_image_adapter, "OpenAiImageAdapter", "@Component", "DALL-E 图像生成适配器")
+        }
+
+        ' Audio/TTS Adapters
+        Container_Boundary(tts_adapters, "Audio/TTS Adapters") {
+            Component(openai_tts_adapter, "OpenAiTtsAdapter", "@Component", "OpenAI TTS 适配器")
+        }
+
         ' Tool Implementations
         Container_Boundary(tool_impls, "Tool Implementations") {
             Component(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索工具")
@@ -137,6 +189,8 @@ System_Boundary(ext_systems, "External Systems") {
     Component(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding，HTTPS")
     Component(postgresql_pgvector, "PostgreSQL + pgvector", "PostgreSQL 17", "文档存储 + 向量检索，端口 5432")
     Component(ollama_ext, "Ollama", "REST API", "本地 Embedding 模型，端口 11434")
+    Component(dalle_ext, "DALL-E API", "REST API", "图像生成服务，HTTPS")
+    Component(tts_ext, "TTS Service", "REST API", "语音合成服务，HTTPS")
 }
 
 ' ============================================================
@@ -151,6 +205,14 @@ Rel(rag_ctrl, rag_app_svc, "调用")
 Rel(rag_ctrl, ex_handler, "异常处理")
 Rel(tool_ctrl, rag_search_tool, "工具调用")
 Rel(tool_ctrl, weather_tools, "工具调用")
+Rel(image_ctrl, image_gen_svc, "调用")
+Rel(image_ctrl, ex_handler, "异常处理")
+Rel(audio_ctrl, tts_svc, "调用")
+Rel(audio_ctrl, ex_handler, "异常处理")
+Rel(mcp_ctrl, mcp_server_svc, "调用")
+Rel(mcp_ctrl, ex_handler, "异常处理")
+Rel(mcp_client_ctrl, mcp_client_svc, "调用")
+Rel(mcp_client_ctrl, ex_handler, "异常处理")
 
 ' Domain - Chat
 Rel(ai_chat_svc, chat_session, "操作领域对象")
@@ -164,6 +226,12 @@ Rel(document, doc_chunk, "包含多个")
 Rel(doc_chunk, source_doc, "转换为")
 Rel(rag_svc, lang_detect_svc, "语言检测")
 
+' Domain - Image Generation
+Rel(image_gen_svc, openai_image_adapter, "依赖")
+
+' Domain - Audio/TTS
+Rel(tts_svc, openai_tts_adapter, "依赖")
+
 ' Domain Ports -> Infrastructure
 Rel(emb_adapter, ollama_emb_adapter, "实现")
 Rel(emb_adapter, mock_emb_adapter, "实现")
@@ -176,6 +244,8 @@ Rel(jpa_doc_repo, postgresql_pgvector, "文档持久化", "JDBC :5432")
 Rel(jpa_doc_repo, spring_data_doc_repo, "组合")
 Rel(jpa_doc_repo, spring_data_chunk_repo, "组合")
 Rel(weather_tools, deepseek_api, "天气查询", "HTTPS")
+Rel(openai_image_adapter, dalle_ext, "图像生成", "HTTPS")
+Rel(openai_tts_adapter, tts_ext, "语音合成", "HTTPS")
 
 ' Tool -> Domain Service
 Rel(rag_search_tool, rag_svc, "RAG 服务")

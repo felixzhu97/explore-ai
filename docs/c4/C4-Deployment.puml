@@ -23,7 +23,7 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Java Runtime - Spring Boot Backend
     ' ============================================================
     Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine / jre-alpine") {
-        Container(backend, "Spring Boot Backend", "eclipse-temurin:25-jre-alpine", "AI Chat + RAG + Tool Calling\nSpring Boot 4.0 / Java 25 / Spring AI 2.0", "9000")
+        Container(backend, "Spring Boot Backend", "eclipse-temurin:25-jre-alpine", "AI Chat + RAG + Tool Calling + Image + TTS + MCP\nSpring Boot 4.0 / Java 25 / Spring AI 2.0", "9000")
     }
 
     ' ============================================================
@@ -45,6 +45,14 @@ Deployment_Node(ollama_node, "Ollama (Local or Docker)", "localhost:11434") {
     Container_Ext(ollama_svc, "Ollama", "REST API", "Local Embedding Model (nomic-embed-text)", "11434")
 }
 
+Deployment_Node(dalle_node, "DALL-E API (OpenAI)", "HTTPS") {
+    Container_Ext(dalle_api, "DALL-E API", "REST API", "Image Generation Service", "HTTPS")
+}
+
+Deployment_Node(tts_node, "TTS Service (OpenAI)", "HTTPS") {
+    Container_Ext(tts_api, "TTS Service", "REST API", "Text-to-Speech Service", "HTTPS")
+}
+
 ' ============================================================
 ' RELATIONSHIPS - 关系
 ' ============================================================
@@ -63,6 +71,12 @@ Rel_D(backend, deepseek_api, "LLM Chat + Embedding", "HTTPS")
 
 ' Backend to Ollama
 Rel(backend, ollama_svc, "Embedding Generation", "HTTP :11434")
+
+' Backend to DALL-E API
+Rel_D(backend, dalle_api, "Image Generation", "HTTPS")
+
+' Backend to TTS Service
+Rel_D(backend, tts_api, "Text-to-Speech", "HTTPS")
 
 SHOW_LEGEND()
 @enduml
