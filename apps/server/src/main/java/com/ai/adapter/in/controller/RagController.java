@@ -7,7 +7,7 @@ import com.ai.domain.service.AiChatService;
 import com.ai.domain.service.LanguageDetectionService;
 import com.ai.domain.service.PromptTemplates;
 import com.ai.domain.service.RagService;
-import com.ai.domain.usecase.DocumentUploadUseCase;
+import com.ai.application.usecase.DocumentUploadUseCase;
 import com.ai.adapter.in.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

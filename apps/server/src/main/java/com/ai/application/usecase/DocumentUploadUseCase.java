@@ -1,4 +1,4 @@
-package com.ai.domain.usecase;
+package com.ai.application.usecase;
 
 import com.ai.adapter.out.document.PdfTextExtractor;
 import com.ai.domain.model.Document;
@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Use case for uploading documents to the RAG system.
- * Handles file reading, content extraction, and delegates to RagService.
+ * Application layer use case for document upload orchestration.
+ * Coordinates between adapters (PdfTextExtractor) and domain services (RagService).
  */
 @Service
 public class DocumentUploadUseCase {
