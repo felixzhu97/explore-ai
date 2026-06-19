@@ -1,8 +1,6 @@
 package com.ai.adapter.out.tools;
 
 import com.ai.application.service.RagApplicationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
@@ -18,7 +16,6 @@ import java.util.stream.Collectors;
 @Component
 public class RagSearchTool {
 
-    private static final Logger log = LoggerFactory.getLogger(RagSearchTool.class);
     private static final int DEFAULT_TOP_K = 5;
     private static final int MAX_CONTENT_LENGTH = 500;
 
@@ -33,8 +30,6 @@ public class RagSearchTool {
             @ToolParam(description = "搜索查询，用于在文档中查找相关内容") String query,
             @ToolParam(description = "要搜索的文档ID列表（可选，不提供则搜索所有文档）", required = false) List<String> docIds
     ) {
-        log.info("Searching documents with query: {}", query);
-
         if (query == null || query.isBlank()) {
             return "请提供有效的搜索查询";
         }
@@ -77,18 +72,14 @@ public class RagSearchTool {
             return response.toString();
 
         } catch (IllegalArgumentException e) {
-            log.warn("Invalid document ID format: {}", e.getMessage());
             return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
         } catch (Exception e) {
-            log.error("Error searching documents", e);
             return "搜索文档时发生错误：" + e.getMessage();
         }
     }
 
     @Tool(description = "列出知识库中的所有可用文档，返回文档ID和标题")
     public String listDocuments() {
-        log.info("Listing all documents");
-
         try {
             var documents = ragApplicationService.listDocuments();
 
@@ -109,7 +100,6 @@ public class RagSearchTool {
             return response.toString();
 
         } catch (Exception e) {
-            log.error("Error listing documents", e);
             return "获取文档列表时发生错误：" + e.getMessage();
         }
     }

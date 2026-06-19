@@ -55,8 +55,6 @@ public class Document {
         return title.trim();
     }
 
-    // ============ State Transition Methods ============
-
     /**
      * Marks document as processing (after upload, before chunks are saved).
      * Can be called from UPLOADING or FAILED states (for retry).
@@ -97,8 +95,6 @@ public class Document {
         this.retryCount++;
         this.updatedAt = Instant.now();
     }
-
-    // ============ Query Methods ============
 
     public boolean isReady() {
         return this.status == DocumentStatus.READY;
@@ -144,8 +140,6 @@ public class Document {
         return Duration.between(updatedAt, Instant.now());
     }
 
-    // ============ Validation ============
-
     private void validateTransitionTo(DocumentStatus targetStatus) {
         if (!canTransitionTo(targetStatus)) {
             throw new IllegalStateException(
@@ -164,11 +158,6 @@ public class Document {
         };
     }
 
-    // ============ Update Methods ============
-
-    /**
-     * Updates the document title.
-     */
     public void updateTitle(String newTitle) {
         if (isReady()) {
             throw new IllegalStateException("Cannot update title of ready document");
@@ -176,8 +165,6 @@ public class Document {
         this.title = validateTitle(newTitle);
         this.updatedAt = Instant.now();
     }
-
-    // ============ Getters ============
 
     public DocumentId getId() { return id; }
     public String getTitle() { return title; }

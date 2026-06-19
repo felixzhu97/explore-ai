@@ -190,7 +190,7 @@ class ToolCallingControllerTest {
             
             String result = (String) truncateMethod.invoke(controller, (String) null);
             
-            assertThat(result).isEqualTo("null");
+            assertThat(result).isNull();
         }
 
         @Test

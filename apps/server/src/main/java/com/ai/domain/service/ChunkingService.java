@@ -64,9 +64,6 @@ public class ChunkingService {
             return List.of();
         }
 
-        log.debug("Chunking text of length {} with size={}, overlap={}", 
-                  text.length(), chunkSize, chunkOverlap);
-
         List<String> chunks = new ArrayList<>();
         Pattern firstSeparator = DEFAULT_SEPARATOR_PATTERNS[0];
         String[] segments = firstSeparator.split(text);

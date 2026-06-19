@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
@@ -22,12 +21,6 @@ public class PdfTextExtractor {
 
     private static final Logger log = LoggerFactory.getLogger(PdfTextExtractor.class);
 
-    /**
-     * Extract text from a PDF file.
-     *
-     * @param bytes the PDF file content as bytes
-     * @return extracted text content, or empty if extraction fails
-     */
     public Optional<String> extractText(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             log.warn("Cannot extract text from empty PDF bytes");
@@ -47,7 +40,6 @@ public class PdfTextExtractor {
                 return Optional.empty();
             }
 
-            log.info("Successfully extracted {} characters from PDF", text.length());
             return Optional.of(text.trim());
 
         } catch (IOException e) {
@@ -56,29 +48,16 @@ public class PdfTextExtractor {
         }
     }
 
-    /**
-     * Check if the content is a PDF file.
-     *
-     * @param content the file content
-     * @return true if the content appears to be a PDF
-     */
     public boolean isPdf(byte[] content) {
         if (content == null || content.length < 4) {
             return false;
         }
-        // PDF files start with "%PDF"
-        return content[0] == 0x25 && // %
-               content[1] == 0x50 && // P
-               content[2] == 0x44 && // D
-               content[3] == 0x46;   // F
+        return content[0] == 0x25 &&
+               content[1] == 0x50 &&
+               content[2] == 0x44 &&
+               content[3] == 0x46;
     }
 
-    /**
-     * Get the file extension from filename.
-     *
-     * @param filename the filename
-     * @return the extension in lowercase without dot
-     */
     public String getExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
             return "";

@@ -2,8 +2,6 @@ package com.ai.adapter.out.streaming;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -17,9 +15,7 @@ import java.time.Duration;
 @Service
 public class StreamingService {
 
-    private static final Logger log = LoggerFactory.getLogger(StreamingService.class);
     private static final Duration DEFAULT_WORD_DELAY = Duration.ofMillis(30);
-
     private final ObjectMapper objectMapper;
 
     public StreamingService(ObjectMapper objectMapper) {
@@ -90,7 +86,6 @@ public class StreamingService {
             String sourcesJson = objectMapper.writeValueAsString(sources);
             return streamWithSources(text, sourcesJson);
         } catch (JsonProcessingException e) {
-            log.error("Error serializing sources", e);
             return streamWords(text);
         }
     }
@@ -107,7 +102,6 @@ public class StreamingService {
             String sourcesJson = sourcesSerializer.serialize();
             return streamWithSources(text, sourcesJson);
         } catch (JsonProcessingException e) {
-            log.error("Error serializing sources", e);
             return streamWords(text);
         }
     }

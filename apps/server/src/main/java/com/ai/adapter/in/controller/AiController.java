@@ -9,8 +9,6 @@ import com.ai.adapter.in.dto.SessionInfo;
 import com.ai.adapter.in.dto.TextAnalysisRequest;
 import com.ai.adapter.in.dto.TextAnalysisResult;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +21,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class AiController {
-
-    private static final Logger log = LoggerFactory.getLogger(AiController.class);
 
     private final AiChatService chatService;
     private final StructuredOutputService structuredOutputService;
@@ -43,8 +39,6 @@ public class AiController {
             return ResponseEntity.badRequest()
                 .body(ChatResponse.of("Please provide a message."));
         }
-
-        log.info("Received chat request: {}", truncate(request.message()));
 
         String response;
         if (request.sessionId() != null && !request.sessionId().isBlank()) {
@@ -130,8 +124,6 @@ public class AiController {
             return ResponseEntity.badRequest().build();
         }
 
-        log.info("Text analysis request: {} chars", request.text().length());
-
         TextAnalysisResult result;
         if (request.language() != null && !request.language().isBlank()) {
             result = structuredOutputService.analyzeTextWithLanguage(request.text(), request.language());
@@ -140,11 +132,5 @@ public class AiController {
         }
 
         return ResponseEntity.ok(result);
-    }
-
-    private String truncate(String text) {
-        if (text == null) return "null";
-        if (text.length() <= 50) return text;
-        return text.substring(0, 50) + "...";
     }
 }

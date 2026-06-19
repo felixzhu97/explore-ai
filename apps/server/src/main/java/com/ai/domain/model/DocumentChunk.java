@@ -37,7 +37,6 @@ public class DocumentChunk {
         return new DocumentChunk(this.id, this.documentId, this.content, this.chunkIndex, this.metadata, embedding, this.createdAt);
     }
 
-    // Getters
     public UUID getId() { return id; }
     public UUID getDocumentId() { return documentId; }
     public String getContent() { return content; }

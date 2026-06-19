@@ -51,7 +51,6 @@ public class DocumentChunkEntity {
         this.createdAt = createdAt;
     }
 
-    // Getters and setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

@@ -1,7 +1,5 @@
 package com.ai.adapter.out.embedding;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingRequest;
@@ -16,8 +14,6 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = "rag.mock.embeddings", havingValue = "false", matchIfMissing = true)
 public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(OllamaEmbeddingAdapter.class);
-
     private final EmbeddingModel embeddingModel;
     private final int dimensions;
 
@@ -29,8 +25,6 @@ public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
     }
 
     public float[] embed(String text) {
-        log.debug("Generating Ollama embedding for text (length={})", text.length());
-        
         try {
             EmbeddingRequest request = new EmbeddingRequest(List.of(text), null);
             EmbeddingResponse response = embeddingModel.call(request);
@@ -39,19 +33,14 @@ public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
                 throw new RuntimeException("Empty embedding response from Ollama API");
             }
             
-            float[] result = response.getResults().get(0).getOutput();
-            log.debug("Generated Ollama embedding with {} dimensions", result.length);
-            return result;
+            return response.getResults().get(0).getOutput();
             
         } catch (Exception e) {
-            log.error("Failed to generate embedding for text", e);
             throw new RuntimeException("Embedding generation failed: " + e.getMessage(), e);
         }
     }
 
     public List<float[]> embedBatch(List<String> texts) {
-        log.debug("Generating Ollama embeddings for {} texts", texts.size());
-        
         try {
             EmbeddingRequest request = new EmbeddingRequest(texts, null);
             EmbeddingResponse response = embeddingModel.call(request);
@@ -61,7 +50,6 @@ public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
                     .collect(Collectors.toList());
             
         } catch (Exception e) {
-            log.error("Failed to generate embeddings for batch", e);
             throw new RuntimeException("Batch embedding generation failed: " + e.getMessage(), e);
         }
     }

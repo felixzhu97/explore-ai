@@ -38,7 +38,7 @@ public class DocumentEntity {
     public DocumentEntity() {
     }
 
-    public DocumentEntity(UUID id, String title, String fileName, Long fileSize, 
+    public DocumentEntity(UUID id, String title, String fileName, Long fileSize,
                           DocumentStatus status, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.title = title;
@@ -49,7 +49,6 @@ public class DocumentEntity {
         this.updatedAt = updatedAt;
     }
 
-    // Getters and setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

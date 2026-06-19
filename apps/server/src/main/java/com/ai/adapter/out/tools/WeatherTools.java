@@ -1,7 +1,5 @@
 package com.ai.adapter.out.tools;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
@@ -15,8 +13,6 @@ import java.util.Random;
  */
 @Component
 public class WeatherTools {
-
-    private static final Logger log = LoggerFactory.getLogger(WeatherTools.class);
 
     private final Random random = new Random();
 
@@ -35,8 +31,6 @@ public class WeatherTools {
 
     @Tool(description = "获取指定城市的当前天气信息，包括温度、天气状况和湿度")
     public String getWeather(@ToolParam(description = "城市名称（中文或英文，如：北京、beijing）") String city) {
-        log.info("Getting weather for city: {}", city);
-
         if (city == null || city.isBlank()) {
             return "请提供有效的城市名称";
         }
@@ -68,8 +62,6 @@ public class WeatherTools {
             @ToolParam(description = "城市名称（中文或英文）") String city,
             @ToolParam(description = "预报天数（1-7天）", required = false) Integer days
     ) {
-        log.info("Getting forecast for city: {} for {} days", city, days);
-
         if (city == null || city.isBlank()) {
             return "请提供有效的城市名称";
         }

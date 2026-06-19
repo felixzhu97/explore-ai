@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 @Component
 public class JpaDocumentRepository implements DocumentRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(JpaDocumentRepository.class);
-
     private final SpringDataDocumentRepository documentRepository;
     private final SpringDataChunkRepository chunkRepository;
     private final ObjectMapper objectMapper;
@@ -38,24 +36,18 @@ public class JpaDocumentRepository implements DocumentRepository {
 
     @Transactional
     public Document save(Document document) {
-        log.debug("Saving document: id={}, title={}", document.getId(), document.getTitle());
-        
         DocumentEntity entity = toEntity(document);
         DocumentEntity saved = documentRepository.save(entity);
-        
-        log.info("Document saved successfully: id={}", saved.getId());
         return toDomain(saved);
     }
 
     @Transactional(readOnly = true)
     public Optional<Document> findById(UUID id) {
-        log.debug("Finding document by id: {}", id);
         return documentRepository.findById(id).map(this::toDomain);
     }
 
     @Transactional(readOnly = true)
     public List<Document> findAll() {
-        log.debug("Finding all documents");
         return documentRepository.findAll().stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
@@ -63,39 +55,27 @@ public class JpaDocumentRepository implements DocumentRepository {
 
     @Transactional
     public void delete(UUID id) {
-        log.debug("Deleting document: id={}", id);
         chunkRepository.deleteByDocumentId(id);
         documentRepository.deleteById(id);
-        log.info("Document deleted successfully: id={}", id);
     }
 
     @Transactional
     public void saveChunk(DocumentChunk chunk) {
-        log.debug("Saving chunk: id={}, documentId={}, chunkIndex={}", 
-                  chunk.getId(), chunk.getDocumentId(), chunk.getChunkIndex());
-        
-        DocumentChunkEntity entity = toEntity(chunk);
+        DocumentChunkEntity entity = toChunkEntity(chunk);
         chunkRepository.save(entity);
-        
-        log.info("Chunk saved successfully: id={}", chunk.getId());
     }
 
     @Transactional(readOnly = true)
     public List<DocumentChunk> findChunksByDocumentId(UUID documentId) {
-        log.debug("Finding chunks by documentId: {}", documentId);
         return chunkRepository.findByDocumentId(documentId).stream()
-                .map(this::toDomain)
+                .map(this::toChunkDomain)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteChunksByDocumentId(UUID documentId) {
-        log.debug("Deleting chunks by documentId: {}", documentId);
         chunkRepository.deleteByDocumentId(documentId);
-        log.info("Chunks deleted successfully for documentId: {}", documentId);
     }
-
-    // Mapping methods
 
     private DocumentEntity toEntity(Document document) {
         DocumentEntity.DocumentStatus status;
@@ -139,7 +119,7 @@ public class JpaDocumentRepository implements DocumentRepository {
         );
     }
 
-    private DocumentChunkEntity toEntity(DocumentChunk chunk) {
+    private DocumentChunkEntity toChunkEntity(DocumentChunk chunk) {
         Float[] embeddingArray = null;
         if (chunk.getEmbedding() != null) {
             embeddingArray = new Float[chunk.getEmbedding().length];
@@ -153,7 +133,6 @@ public class JpaDocumentRepository implements DocumentRepository {
             try {
                 metadataJson = objectMapper.writeValueAsString(chunk.getMetadata());
             } catch (JsonProcessingException e) {
-                log.error("Failed to serialize chunk metadata", e);
                 throw new IllegalStateException("Failed to serialize chunk metadata", e);
             }
         }
@@ -169,7 +148,7 @@ public class JpaDocumentRepository implements DocumentRepository {
         );
     }
 
-    private DocumentChunk toDomain(DocumentChunkEntity entity) {
+    private DocumentChunk toChunkDomain(DocumentChunkEntity entity) {
         float[] embedding = null;
         if (entity.getEmbedding() != null) {
             embedding = new float[entity.getEmbedding().length];
@@ -181,10 +160,9 @@ public class JpaDocumentRepository implements DocumentRepository {
         Map<String, Object> metadata = new HashMap<>();
         if (entity.getMetadata() != null && !entity.getMetadata().isEmpty()) {
             try {
-                metadata = objectMapper.readValue(entity.getMetadata(), 
+                metadata = objectMapper.readValue(entity.getMetadata(),
                         new TypeReference<Map<String, Object>>() {});
-            } catch (JsonProcessingException e) {
-                log.error("Failed to deserialize chunk metadata", e);
+            } catch (JsonProcessingException ignored) {
             }
         }
 

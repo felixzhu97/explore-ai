@@ -73,7 +73,6 @@ public class AiChatService {
             }
 
             String response = promptBuilder.call().content();
-            log.info("Chat response received: {} characters", response != null ? response.length() : 0);
             return response != null ? response : "";
         });
     }
@@ -82,8 +81,6 @@ public class AiChatService {
      * Processes a chat message in a session.
      */
     public String processChatMessage(String sessionId, String userMessage) {
-        log.info("Processing chat message for session: {}", sessionId);
-
         try {
             ChatSession session = repository.findById(
                     com.ai.domain.vo.ChatSessionId.of(sessionId))
@@ -108,8 +105,6 @@ public class AiChatService {
      * Processes a chat message in the default session.
      */
     public String processChatMessage(String userMessage) {
-        log.info("Processing chat message in default session");
-
         ChatSession session = repository.getOrCreateDefaultSession();
         session.addUserMessage(userMessage);
 
@@ -189,7 +184,6 @@ public class AiChatService {
      * Clear conversation memory for a specific conversation ID.
      */
     public void clearConversationMemory(String conversationId) {
-        log.info("Clearing conversation memory for: {}", conversationId);
         chatMemory.clear(conversationId);
     }
 

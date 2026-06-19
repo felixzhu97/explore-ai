@@ -1,8 +1,6 @@
 package com.ai.domain.service;
 
 import com.ai.adapter.in.dto.TextAnalysisResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.stereotype.Service;
@@ -12,8 +10,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StructuredOutputService {
-
-    private static final Logger log = LoggerFactory.getLogger(StructuredOutputService.class);
 
     private final ChatClient chatClient;
 
@@ -44,20 +40,13 @@ public class StructuredOutputService {
      * @return Structured analysis result
      */
     public TextAnalysisResult analyzeText(String text) {
-        log.info("Analyzing text of length: {}", text != null ? text.length() : 0);
-
         String prompt = ANALYSIS_PROMPT.replace("{text}", text);
 
-        TextAnalysisResult result = chatClient.prompt()
+        return chatClient.prompt()
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(prompt)
                 .call()
                 .entity(TextAnalysisResult.class);
-
-        log.info("Analysis completed: sentiment={}, keyPoints={}", 
-                result.sentiment(), result.keyPoints() != null ? result.keyPoints().size() : 0);
-
-        return result;
     }
 
     /**
@@ -68,16 +57,12 @@ public class StructuredOutputService {
      * @return Structured analysis result
      */
     public TextAnalysisResult analyzeTextWithLanguage(String text, String language) {
-        log.info("Analyzing text in language: {}", language);
-
         String prompt = ANALYSIS_PROMPT.replace("{text}", text);
 
-        TextAnalysisResult result = chatClient.prompt()
+        return chatClient.prompt()
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(prompt)
                 .call()
                 .entity(TextAnalysisResult.class);
-
-        return result;
     }
 }

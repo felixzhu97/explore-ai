@@ -18,7 +18,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * PgVector adapter for vector search.
@@ -41,27 +40,21 @@ public class PgVectorAdapter {
 
     @Transactional
     public List<DocumentChunk> search(float[] queryEmbedding, int topK) {
-        log.debug("Searching vectors with topK={}", topK);
         return search(queryEmbedding, topK, null);
     }
 
     @Transactional(readOnly = true)
     public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> docIds) {
-        log.debug("Searching vectors with topK={}, docIds filter={}", topK, 
-                  docIds != null ? docIds.size() : "none");
-        
         String embeddingString = arrayToPostgresString(queryEmbedding);
-        
+
         String sql;
         if (docIds != null && !docIds.isEmpty()) {
-            // Use parameterized query with = ANY(?) for SQL injection prevention
             sql = "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at " +
                   "FROM " + TABLE_NAME + " " +
                   "WHERE document_id = ANY(?) " +
                   "ORDER BY embedding <=> ?::vector " +
                   "LIMIT ?";
 
-            log.debug("Executing vector search SQL with docIds filter");
             return jdbcTemplate.query(sql,
                     new Object[]{docIds.toArray(new UUID[0]), embeddingString, topK},
                     new ChunkRowMapper());
@@ -71,7 +64,6 @@ public class PgVectorAdapter {
                   "ORDER BY embedding <=> ?::vector " +
                   "LIMIT ?";
 
-            log.debug("Executing vector search SQL");
             return jdbcTemplate.query(sql,
                     new Object[]{embeddingString, topK},
                     new ChunkRowMapper());
@@ -80,13 +72,9 @@ public class PgVectorAdapter {
 
     @Transactional
     public void saveChunk(DocumentChunk chunk) {
-        log.debug("Saving chunk to vector store: id={}, documentId={}",
-                  chunk.getId(), chunk.getDocumentId());
-
         String embeddingString = arrayToPostgresString(chunk.getEmbedding());
         String metadataJson = metadataToJson(chunk.getMetadata());
 
-        // Use parameterized query for content to prevent SQL injection
         String sql = "INSERT INTO " + TABLE_NAME +
                 " (id, document_id, content, chunk_index, embedding, metadata, created_at) " +
                 "VALUES (?, ?, ?, ?, ?::vector, " + metadataJson + ", ?) " +
@@ -102,8 +90,6 @@ public class PgVectorAdapter {
                 chunk.getChunkIndex(),
                 embeddingString,
                 chunk.getCreatedAt().toString());
-
-        log.info("Chunk saved to vector store: id={}", chunk.getId());
     }
 
     private String arrayToPostgresString(float[] array) {
@@ -137,11 +123,11 @@ public class PgVectorAdapter {
             UUID documentId = UUID.fromString(rs.getString("document_id"));
             String content = rs.getString("content");
             int chunkIndex = rs.getInt("chunk_index");
-            
+
             float[] embedding = parsePostgresVector(rs.getString("embedding"));
-            
+
             Map<String, Object> metadata = parseMetadata(rs.getString("metadata"));
-            
+
             Instant createdAt = parseTimestamp(rs.getString("created_at"));
 
             return new DocumentChunk(id, documentId, content, chunkIndex, metadata)
@@ -152,7 +138,7 @@ public class PgVectorAdapter {
             if (vectorString == null || vectorString.isEmpty()) {
                 return new float[0];
             }
-            
+
             String cleaned = vectorString.replace("[", "").replace("]", "");
             String[] parts = cleaned.split(",");
             float[] result = new float[parts.length];

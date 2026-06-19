@@ -10,7 +10,6 @@ import com.ai.adapter.in.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,8 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,11 +28,12 @@ import java.util.stream.Collectors;
  * REST Controller for RAG operations.
  * Thin controller - handles HTTP concerns only, delegates business logic to application services.
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/rag")
 @Tag(name = "RAG", description = "RAG document management and chat")
 public class RagController {
+
+    private static final Logger log = LoggerFactory.getLogger(RagController.class);
 
     private final RagApplicationService ragApplicationService;
     private final DocumentUploadUseCase documentUploadUseCase;
@@ -52,7 +54,6 @@ public class RagController {
     @GetMapping("/documents/")
     @Operation(summary = "List all documents")
     public ResponseEntity<DocumentListResponse> listDocuments() {
-        log.info("Listing all documents");
         List<Document> documents = ragApplicationService.listDocuments();
         List<DocumentSummaryDto> summaries = documents.stream()
             .map(this::toDocumentSummaryDto)
@@ -65,8 +66,6 @@ public class RagController {
     public ResponseEntity<UploadDocumentResponse> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "title", required = false) String title) {
-
-        log.info("Uploading document: {}", file.getOriginalFilename());
         var result = documentUploadUseCase.upload(file, title);
 
         UploadDocumentResponse response = new UploadDocumentResponse(
@@ -82,7 +81,6 @@ public class RagController {
     @DeleteMapping("/documents/{id}")
     @Operation(summary = "Delete a document")
     public ResponseEntity<Void> deleteDocument(@PathVariable UUID id) {
-        log.info("Deleting document: {}", id);
         ragApplicationService.deleteDocument(id);
         return ResponseEntity.noContent().build();
     }
@@ -90,8 +88,6 @@ public class RagController {
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "RAG streaming chat")
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
-        log.info("RAG chat request: {}", truncate(request.question()));
-
         try {
             var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
 

@@ -42,8 +42,6 @@ public class RetrievalService {
      * Retrieves relevant context from vector store for a given query.
      */
     public RetrievalResult retrieve(String query, List<UUID> docIds, int topK) {
-        log.info("RAG retrieval for query: {}", query);
-
         float[] queryEmbedding = embeddingAdapter.embed(query);
 
         List<DocumentChunk> chunks;
@@ -67,7 +65,6 @@ public class RetrievalService {
             .sorted(Comparator.comparingDouble(SourceDocument::score).reversed())
             .toList();
 
-        log.info("Retrieved {} chunks", chunks.size());
         return new RetrievalResult(context, sources, query);
     }
 
