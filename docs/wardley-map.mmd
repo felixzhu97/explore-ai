@@ -1,0 +1,102 @@
+wardley-beta
+title AI-Test Platform - Wardley Map 技术演进地图
+size [1400, 900]
+
+evolution Genesis -> Custom Built -> Product -> Commodity
+
+' 用户需求 (Anchors) - 高可见度，高演化
+anchor "ML/运维/数据科学家" [0.90, 0.95]
+
+' Genesis 层 - 创新阶段，低可见度
+component "Multi-Agent\nOrchestration" [0.25, 0.15] (build)
+component "动态任务路由" [0.35, 0.20] (build)
+component "RAG + Vector\nSearch" [0.40, 0.30] (build)
+component "Vision AI\nPipeline" [0.30, 0.25] (build)
+component "TTS\n语音合成" [0.35, 0.28] (build)
+component "Image Gen\n图像生成" [0.30, 0.22] (build)
+component "AIOps\n智能分析" [0.40, 0.25] (build)
+component "MCP Server/Client" [0.35, 0.18] (build)
+
+' Custom Built 层 - 差异化定制
+component "Angular 22\nFrontend" [0.60, 0.45] (build)
+component "Java 25/Spring Boot\nBackend" [0.55, 0.50] (build)
+component "DDD\nDomain Layer" [0.50, 0.55] (build)
+component "Hexagonal\nArchitecture" [0.45, 0.48] (build)
+component "AIInfraPanel" [0.70, 0.55] (build)
+component "RagChat" [0.68, 0.52] (build)
+component "VisionPanel" [0.65, 0.48] (build)
+component "AgentChat (SSE)" [0.70, 0.50] (build)
+
+' Product 层 - 商业/开源产品
+component "DeepSeek API" [0.75, 0.65] (buy)
+component "Spring AI 2.0" [0.70, 0.70] (buy)
+component "Angular CLI" [0.72, 0.75] (market)
+component "YOLO11n" [0.55, 0.60] (buy)
+component "PaddleOCR" [0.50, 0.58] (buy)
+component "BLIP" [0.48, 0.55] (buy)
+component "Stable Diffusion" [0.52, 0.62] (buy)
+component "Edge TTS" [0.60, 0.68] (buy)
+component "DALL-E" [0.55, 0.65] (buy)
+
+' Commodity 层 - 标准化基础设施
+component "Java 25" [0.40, 0.85] (market)
+component "Node.js" [0.50, 0.90] (market)
+component "PostgreSQL 17\n+ pgvector" [0.35, 0.88] (market)
+component "Redis" [0.38, 0.85] (market)
+component "Kubernetes" [0.30, 0.92] (market)
+component "Docker" [0.35, 0.90] (market)
+component "HTTP/WebSocket/SSE" [0.45, 0.88] (market)
+component "Spring Data JPA" [0.48, 0.82] (market)
+component "Prometheus/Grafana" [0.32, 0.85] (market)
+
+' 依赖关系
+"ML/运维/数据科学家" -> "Angular 22\nFrontend"
+"Angular 22\nFrontend" -> "DeepSeek API"
+"Angular 22\nFrontend" -> "AgentChat (SSE)"
+
+"AgentChat (SSE)" -> "Java 25/Spring Boot\nBackend"
+"RagChat" -> "Java 25/Spring Boot\nBackend"
+"VisionPanel" -> "Java 25/Spring Boot\nBackend"
+
+"Java 25/Spring Boot\nBackend" -> "Spring AI 2.0"
+"Java 25/Spring Boot\nBackend" -> "DDD\nDomain Layer"
+"Java 25/Spring Boot\nBackend" -> "Hexagonal\nArchitecture"
+
+"Spring AI 2.0" -> "DeepSeek API"
+"DeepSeek API" -> "HTTP/WebSocket/SSE"
+
+"RAG + Vector\nSearch" -> "RagChat"
+"Vision AI\nPipeline" -> "VisionPanel"
+"MCP Server/Client" -> "AgentChat (SSE)"
+"AIOps\n智能分析" -> "AIInfraPanel"
+
+"Vision AI\nPipeline" -> YOLO11n
+"Vision AI\nPipeline" -> PaddleOCR
+"Vision AI\nPipeline" -> BLIP
+
+"Image Gen\n图像生成" -> "Stable Diffusion"
+"Image Gen\n图像生成" -> DALL-E
+
+"TTS\n语音合成" -> "Edge TTS"
+
+"Java 25/Spring Boot\nBackend" -> "PostgreSQL 17\n+ pgvector"
+"Java 25/Spring Boot\nBackend" -> Redis
+"Java 25/Spring Boot\nBackend" -> "Spring Data JPA"
+
+"PostgreSQL 17\n+ pgvector" -> Docker
+Redis -> Docker
+"Java 25" -> Kubernetes
+Docker -> Kubernetes
+"Prometheus/Grafana" -> Kubernetes
+
+' 演进箭头
+evolve "RAG + Vector\nSearch" 0.50
+evolve "Vision AI\nPipeline" 0.45
+evolve "MCP Server/Client" 0.40
+evolve "Angular 22\nFrontend" 0.65
+evolve "Java 25/Spring Boot\nBackend" 0.70
+
+' 注释
+note "差异化竞争力" [0.50, 0.40]
+note "核心技术栈" [0.55, 0.60]
+note "基础设施" [0.35, 0.80]
