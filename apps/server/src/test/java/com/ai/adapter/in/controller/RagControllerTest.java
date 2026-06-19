@@ -7,6 +7,7 @@ import com.ai.domain.model.DocumentStatus;
 import com.ai.domain.model.SourceDocument;
 import com.ai.domain.service.AiChatService;
 import com.ai.domain.service.LanguageDetectionService;
+import com.ai.domain.service.PromptTemplates;
 import com.ai.domain.service.RagService;
 import com.ai.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,9 @@ class RagControllerTest {
     private LanguageDetectionService languageDetectionService;
 
     @Mock
+    private PromptTemplates promptTemplates;
+
+    @Mock
     private AiChatService aiChatService;
 
     @Mock
@@ -54,7 +58,7 @@ class RagControllerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         controller = new RagController(
-                ragService, languageDetectionService, aiChatService, objectMapper, pdfTextExtractor);
+                ragService, languageDetectionService, promptTemplates, aiChatService, objectMapper, pdfTextExtractor);
     }
 
     @Nested
