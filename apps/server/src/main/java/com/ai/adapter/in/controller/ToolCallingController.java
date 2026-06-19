@@ -1,5 +1,6 @@
 package com.ai.adapter.in.controller;
 
+import com.ai.adapter.out.streaming.StreamingService;
 import com.ai.adapter.out.tools.RagSearchTool;
 import com.ai.adapter.out.tools.WeatherTools;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +13,6 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
 import java.util.List;
 
 /**
@@ -28,14 +28,17 @@ public class ToolCallingController {
     private final ChatClient chatClient;
     private final WeatherTools weatherTools;
     private final RagSearchTool ragSearchTool;
+    private final StreamingService streamingService;
 
     public ToolCallingController(
             ChatClient.Builder chatClientBuilder,
             WeatherTools weatherTools,
-            RagSearchTool ragSearchTool) {
+            RagSearchTool ragSearchTool,
+            StreamingService streamingService) {
         this.chatClient = chatClientBuilder.build();
         this.weatherTools = weatherTools;
         this.ragSearchTool = ragSearchTool;
+        this.streamingService = streamingService;
     }
 
     @GetMapping("/weather")
@@ -92,7 +95,7 @@ public class ToolCallingController {
 
             log.info("Tool chat response: {}", truncate(response));
 
-            return streamResponse(response);
+            return streamingService.streamWords(response);
 
         } catch (Exception e) {
             log.error("Error in tool chat", e);
@@ -120,17 +123,6 @@ public class ToolCallingController {
             log.error("Error in tool chat", e);
             return new ToolChatResponse("抱歉，处理您的请求时发生错误：" + e.getMessage(), null);
         }
-    }
-
-    private Flux<ServerSentEvent<String>> streamResponse(String content) {
-        if (content == null || content.isEmpty()) {
-            return Flux.just(ServerSentEvent.<String>builder().data("").build());
-        }
-
-        String[] words = content.split(" ");
-        return Flux.fromArray(words)
-                .delayElements(Duration.ofMillis(30))
-                .map(word -> ServerSentEvent.<String>builder().data(word + " ").build());
     }
 
     private String truncate(String text) {

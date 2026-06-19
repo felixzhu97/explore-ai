@@ -1,5 +1,6 @@
 package com.ai.adapter.in.controller;
 
+import com.ai.adapter.out.streaming.StreamingService;
 import com.ai.adapter.out.document.PdfTextExtractor;
 import com.ai.adapter.in.dto.RagChatRequest;
 import com.ai.domain.model.Document;
@@ -52,6 +53,9 @@ class RagControllerTest {
     @Mock
     private DocumentUploadUseCase documentUploadUseCase;
 
+    @Mock
+    private StreamingService streamingService;
+
     private ObjectMapper objectMapper;
     private RagController controller;
 
@@ -59,7 +63,7 @@ class RagControllerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         controller = new RagController(
-                ragService, aiChatService, languageDetectionService, promptTemplates, documentUploadUseCase, objectMapper);
+                ragService, aiChatService, languageDetectionService, promptTemplates, documentUploadUseCase, streamingService);
     }
 
     @Nested
