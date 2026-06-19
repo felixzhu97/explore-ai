@@ -1,5 +1,5 @@
 ---
-description: BDD Behavior-Driven Development Standards. Covers Gherkin syntax, Scenario writing, Step Definitions implementation, and TDD integration.
+description: BDD Behavior-Driven Development Standards. Covers Gherkin syntax, Scenario writing, and Given-When-Then structure.
 globs: **/*.feature **/*.ts **/*.java
 alwaysApply: true
 ---
@@ -9,190 +9,93 @@ alwaysApply: true
 ## Core Principles
 
 - **Given-When-Then** structure
-- Describe in **business language**, not exposing implementation
+- **Business language**, not implementation details
 - **Single responsibility** for each Scenario
 - **Executable documentation** is the test
 
-## Gherkin Syntax
+## Gherkin Keywords
 
-### Feature File Structure
-
-```gherkin
-Feature: Order Free Shipping Calculation
-  As an online shopping customer
-  I want free shipping on orders over 100 yuan
-  So that I can reduce shopping costs
-
-  Scenario: Order amount exceeds 100 yuan, enjoy free shipping
-    Given my shopping cart has items
-      | Item Name | Unit Price | Quantity |
-      | Laptop    | 5000       | 1        |
-      | Wireless Mouse | 200    | 1        |
-    When I click "Submit Order"
-    Then shipping fee should be 0 yuan
-    And system should show message "Order over 100 yuan, free shipping"
-
-  Scenario: Order amount below 100 yuan, shipping fee charged
-    Given my shopping cart total is 50 yuan
-    When I click "Submit Order"
-    Then shipping fee should be 10 yuan
-    And system should show message "Order below 100 yuan, 10 yuan shipping fee"
-
-  Scenario: Order exactly 100 yuan, enjoy free shipping
-    Given my shopping cart total is 100 yuan
-    When I click "Submit Order"
-    Then shipping fee should be 0 yuan
-```
-
-### Keyword Definitions
-
-| Keyword          | Purpose                                | Repeatable                       |
-| ---------------- | -------------------------------------- | -------------------------------- |
-| Feature          | Feature name                           | Once per file                    |
-| Background       | Shared preconditions for all Scenarios | Once per file                    |
-| Scenario         | Specific scenario                      | Multiple                         |
-| Given            | Precondition                           | Multiple                         |
-| When             | Trigger action                         | Once per Scenario                |
-| Then             | Expected result                        | Multiple                         |
-| And              | Additional condition                   | Can be used with Given/When/Then |
-| But              | Additional condition                   | Same as And                      |
-| Scenario Outline | Parameterized scenario                 | One, with multiple Examples      |
-| Examples         | Parameter table                        | Once per Outline                 |
-
-### Scenario Parameterization
-
-```gherkin
-Scenario Outline: Shipping fee calculation for different amounts
-  Given my shopping cart total is <total> yuan
-  When I click "Submit Order"
-  Then shipping fee should be <shipping_fee> yuan
-
-  Examples:
-    | total | shipping_fee |
-    | 0     | 10           |
-    | 50    | 10           |
-    | 99    | 10           |
-    | 100   | 0            |
-    | 150   | 0            |
-    | 1000  | 0            |
-```
-
-### Data Tables
-
-```gherkin
-Scenario: Batch add items to shopping cart
-  Given my shopping cart is empty
-  When I add the following items:
-    | Item ID | Item Name | Unit Price | Quantity |
-    | P001    | Laptop    | 5000       | 1        |
-    | P002    | Mouse     | 200        | 2        |
-    | P003    | Keyboard  | 300        | 1        |
-  Then shopping cart should have 3 items
-  And shopping cart total should be 5700 yuan
-```
+| Keyword | Purpose | Repeatable |
+|---------|---------|------------|
+| Feature | Feature name | Once per file |
+| Background | Shared preconditions | Once per file |
+| Scenario | Specific scenario | Multiple |
+| Given | Precondition | Multiple |
+| When | Trigger action | Once per Scenario |
+| Then | Expected result | Multiple |
+| And/But | Additional condition | Yes |
+| Scenario Outline | Parameterized scenario | One |
+| Examples | Parameter table | Once per Outline |
 
 ## Scenario Writing Standards
 
 ### Good Naming
 
 ```gherkin
-# ✅ Clearly express business value
+# Business value focused
 Scenario: VIP member enjoys 10% discount
-Scenario: Shipping fee is zero when order reaches free shipping threshold
 Scenario: Order remains pending after payment failure
 
-# ❌ Vague or exposing implementation
+# Implementation focused - AVOID
 Scenario: Call calculateDiscount method
-Scenario: Save method called after clicking save button
+Scenario: Save method called after clicking button
+```
+
+### Structure
+
+```
+Feature: [What the feature does]
+  As a [role]
+  I want [action]
+  So that [benefit]
+
+  Scenario: [What happens]
+    Given [precondition]
+    When [action]
+    Then [expected result]
 ```
 
 ### Avoid Over-Detailing
 
 ```gherkin
-# ✅ Focus on business results
+# Focus on outcomes, not implementation
 Scenario: Automatically apply available discount at checkout
   Given shopping cart has items and has available coupon
   When checkout is completed
   Then discount amount should be deducted from total
 
-# ❌ Over-detailed steps
-Scenario: Automatically apply discount at checkout
-  Given shopping cart has items
-  When user clicks checkout button
+# Implementation details - AVOID
+Scenario: Apply discount
+  Given user clicks checkout
   Then system calls discount service
   And discount service queries user coupons
-  And returns discount information
-  And system calculates discounted price
 ```
 
-## Step Definitions
+## Quick Checklist
 
-### Java Implementation
+### Business Value
 
-```java
-public class OrderShippingSteps {
+- [ ] Scenario has clear business context
+- [ ] Describes user/role and business value
 
-    private Order order;
-    private Money shippingFee;
+### Completeness
 
-    @Given("my shopping cart total is {int} yuan")
-    public void given_my_cart_total_is(int amount) {
-        order = new Order(List.of(new OrderLine(product(), amount)));
-    }
+- [ ] Covers positive and exception flows
+- [ ] Covers boundary conditions
+- [ ] Parameterized where appropriate (Scenario Outline)
 
-    @Given("my shopping cart has items")
-    public void given_my_cart_has_items(DataTable dataTable) {
-        List<OrderLine> lines = dataTable.asList().stream()
-            .map(row -> new OrderLine(
-                row.get("Item Name"),
-                new Money(new BigDecimal(row.get("Unit Price")), Currency.USD),
-                Integer.parseInt(row.get("Quantity"))
-            ))
-            .toList();
-        order = new Order(lines);
-    }
+### Readability
 
-    @When("I click {string}")
-    public void when_i_click(String button) {
-        if (button.contains("Submit Order")) {
-            shippingFee = order.calculateShippingFee();
-        }
-    }
+- [ ] Uses business terminology
+- [ ] No technical implementation details
+- [ ] Given/When/Then structure is clear
+- [ ] Steps are concise (< 20 words)
 
-    @Then("shipping fee should be {int} yuan")
-    public void then_shipping_fee_should_be(int expected) {
-        assertThat(shippingFee).isEqualTo(Money.of(expected));
-    }
+### Executability
 
-    @And("system should show message {string}")
-    public void and_system_should_show_message(String message) {
-        assertThat(order.getLastMessage()).isEqualTo(message);
-    }
-}
-```
-
-### TypeScript Implementation
-
-```typescript
-import { Given, When, Then, DataTable } from '@cucumber/cucumber';
-
-let order: Order;
-let shippingFee: Money;
-
-Given('my shopping cart total is {int} yuan', async function (amount: number) {
-  order = new Order([new OrderLine(product(), amount)]);
-});
-
-When('I click {string}', async function (button: string) {
-  if (button.includes('Submit Order')) {
-    shippingFee = order.calculateShippingFee();
-  }
-});
-
-Then('shipping fee should be {int} yuan', async function (expected: number) {
-  expect(shippingFee.value).toBe(expected);
-});
-```
+- [ ] Each Step can be automated
+- [ ] No manual steps
+- [ ] Data is explicit in Examples or Data Tables
 
 ## BDD and TDD Integration
 
@@ -204,77 +107,15 @@ TDD Unit Tests (How)
 Code
 ```
 
-### Mapping Relationship
+| BDD Layer | TDD Layer | Purpose |
+|-----------|-----------|---------|
+| Feature | Test Suite | Organize by feature |
+| Scenario | Integration Test | End-to-end flow |
+| Step | Unit Test | Specific behavior |
 
-| BDD Layer | TDD Layer        | Purpose             |
-| --------- | ---------------- | ------------------- |
-| Feature   | Test Suite       | Organize by feature |
-| Scenario  | Integration Test | End-to-end flow     |
-| Step      | Unit Test        | Specific behavior   |
+## Detailed Guidelines
 
-### Example
+For detailed examples and Step Definitions, refer to:
 
-```gherkin
-# BDD: Feature file
-Feature: VIP Member Discount
-  Scenario: VIP member enjoys 10% discount on purchase
-    Given customer Zhang Wei is a VIP member
-    And shopping cart total is 1000 yuan
-    When checkout is completed
-    Then actual payment amount should be 900 yuan
-```
-
-```java
-// TDD: Unit tests
-class VipDiscountTest {
-
-    @Test
-    void shouldApplyTenPercentDiscountForVipCustomers() {
-        // Given
-        Customer vipCustomer = Customer.createVip("Zhang Wei");
-        Order order = new Order(List.of(new OrderLine(product(), Money.of(1000))));
-
-        // When
-        Money discount = discountService.calculate(order, vipCustomer);
-
-        // Then
-        assertThat(discount).isEqualTo(Money.of(100));
-    }
-}
-```
-
-## Scenario Review Checklist
-
-### Business Value
-
-- [ ] Scenario has clear business context
-- [ ] Describes user/role
-- [ ] Explains business value
-
-### Completeness
-
-- [ ] Covers positive flows
-- [ ] Covers exception flows
-- [ ] Covers boundary conditions
-
-### Readability
-
-- [ ] Uses business terminology
-- [ ] No technical implementation details
-- [ ] Given/When/Then structure is clear
-
-### Executability
-
-- [ ] Each Step can be automated
-- [ ] No manual steps
-- [ ] Data is explicit
-
-## Common Mistakes
-
-| Mistake                | Symptoms                              | Correction                    |
-| ---------------------- | ------------------------------------- | ----------------------------- |
-| Technical description  | "Click button calls API"              | "User logs into system"       |
-| Implementation leakage | "Input user ID to get user"           | "Find user"                   |
-| Too many steps         | 10+ steps                             | Extract substeps              |
-| Vague assertion        | "Order status correct"                | "Order status should be paid" |
-| Duplicate scenarios    | Multiple Scenarios test same behavior | Merge or parameterize         |
+- [Software Testing Skill](../skills/software-testing/SKILL.md)
+- [BDD Reference - Cucumber](https://cucumber.io/docs/bdd/)
