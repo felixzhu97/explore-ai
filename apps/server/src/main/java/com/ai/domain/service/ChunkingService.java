@@ -3,7 +3,6 @@ package com.ai.domain.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.regex.Pattern;
  * Domain service for text chunking operations.
  * Uses Recursive Character Text Splitting strategy.
  */
-@Service
 public class ChunkingService {
 
     private static final Logger log = LoggerFactory.getLogger(ChunkingService.class);

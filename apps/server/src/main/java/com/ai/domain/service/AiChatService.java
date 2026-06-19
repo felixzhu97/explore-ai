@@ -18,7 +18,6 @@ import java.util.Optional;
  * Domain service for AI chat operations using Spring AI ChatClient API.
  * Contains chat logic with retry and memory support.
  */
-@Service
 public class AiChatService {
 
     private static final Logger log = LoggerFactory.getLogger(AiChatService.class);
