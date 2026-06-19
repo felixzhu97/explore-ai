@@ -1,6 +1,8 @@
 ---
 name: spring-ai
 description: Spring AI 2.0 Development Guide. Covers ChatClient API, Structured Output, RAG, Tool Calling, Embeddings, Vector Store, MCP Integration, Clean Architecture Integration.
+version: "2.0"
+lastUpdated: "2026-06-20"
 ---
 
 > **Prerequisite**: This skill is based on Spring AI 2.0 official documentation and best practices for building AI applications

@@ -1,6 +1,8 @@
 ---
 name: software-architecture
 description: Software Architecture Design Methodology Guide. Covers Clean Architecture, DDD, Hexagonal, Event-Driven, Microservices patterns, C4 Model, and ADRs — with detailed references for each topic.
+version: "1.0"
+lastUpdated: "2026-06-20"
 ---
 
 # Software Architecture

@@ -1,6 +1,8 @@
 ---
 name: software-testing
 description: Software Testing Methodology Guide. Covers TDD Test-Driven Development, BDD Behavior-Driven Development, Testing Pyramid, Unit Testing, Integration Testing, E2E Testing Strategies and Practices. Detailed references for each topic are available in the references/ directory.
+version: "1.0"
+lastUpdated: "2026-06-20"
 ---
 
 # Software Testing

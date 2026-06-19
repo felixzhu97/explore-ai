@@ -1,6 +1,8 @@
 ---
 name: software-development
 description: Clean Code and Clean Architecture Development Practice Guide. Covers naming conventions, functions, comments, error handling, formatting, testing, and layered architecture with Java/TypeScript examples.
+version: "1.0"
+lastUpdated: "2026-06-20"
 ---
 
 # Software Development

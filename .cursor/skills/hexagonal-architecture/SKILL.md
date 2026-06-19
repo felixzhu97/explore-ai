@@ -1,6 +1,8 @@
 ---
 name: hexagonal-architecture
 description: Hexagonal Architecture 重构指南。将现有代码重构为端口-适配器架构，同时保留 DDD 充血模型。
+version: "1.0"
+lastUpdated: "2026-06-20"
 ---
 
 > **前置规则**: 本 skill 基于 `.cursor/rules/hexagonal-architecture.mdc` 中定义的规则执行重构
