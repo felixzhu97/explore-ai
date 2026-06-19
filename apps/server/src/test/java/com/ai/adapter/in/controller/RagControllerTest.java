@@ -9,6 +9,7 @@ import com.ai.domain.service.AiChatService;
 import com.ai.domain.service.LanguageDetectionService;
 import com.ai.domain.service.PromptTemplates;
 import com.ai.domain.service.RagService;
+import com.ai.domain.usecase.DocumentUploadUseCase;
 import com.ai.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,16 +41,16 @@ class RagControllerTest {
     private RagService ragService;
 
     @Mock
+    private AiChatService aiChatService;
+
+    @Mock
     private LanguageDetectionService languageDetectionService;
 
     @Mock
     private PromptTemplates promptTemplates;
 
     @Mock
-    private AiChatService aiChatService;
-
-    @Mock
-    private PdfTextExtractor pdfTextExtractor;
+    private DocumentUploadUseCase documentUploadUseCase;
 
     private ObjectMapper objectMapper;
     private RagController controller;
@@ -58,7 +59,7 @@ class RagControllerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         controller = new RagController(
-                ragService, languageDetectionService, promptTemplates, aiChatService, objectMapper, pdfTextExtractor);
+                ragService, aiChatService, languageDetectionService, promptTemplates, documentUploadUseCase, objectMapper);
     }
 
     @Nested
@@ -98,13 +99,16 @@ class RagControllerTest {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "test.txt", "text/plain", "Hello World".getBytes());
             Document doc = createTestDocument("test.txt", DocumentStatus.READY);
-            when(ragService.uploadDocument(eq("test.txt"), eq("test.txt"), anyLong(), anyString()))
-                    .thenReturn(doc);
+
+            DocumentUploadUseCase.UploadResult uploadResult =
+                    new DocumentUploadUseCase.UploadResult(doc.getId(), "test.txt", "READY", 0);
+            when(documentUploadUseCase.upload(any(MultipartFile.class), isNull()))
+                    .thenReturn(uploadResult);
 
             ResponseEntity<?> response = controller.uploadDocument(file, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            verify(ragService).uploadDocument(eq("test.txt"), eq("test.txt"), anyLong(), eq("Hello World"));
+            verify(documentUploadUseCase).upload(any(MultipartFile.class), isNull());
         }
 
         @Test
@@ -113,38 +117,26 @@ class RagControllerTest {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "original.txt", "text/plain", "Content".getBytes());
             Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
-            when(ragService.uploadDocument(eq("Custom Title"), eq("original.txt"), anyLong(), anyString()))
-                    .thenReturn(doc);
+
+            DocumentUploadUseCase.UploadResult uploadResult =
+                    new DocumentUploadUseCase.UploadResult(doc.getId(), "Custom Title", "READY", 0);
+            when(documentUploadUseCase.upload(any(MultipartFile.class), eq("Custom Title")))
+                    .thenReturn(uploadResult);
 
             ResponseEntity<?> response = controller.uploadDocument(file, "Custom Title");
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            verify(documentUploadUseCase).upload(any(MultipartFile.class), eq("Custom Title"));
         }
 
         @Test
-        @DisplayName("should extract text from PDF")
-        void shouldExtractTextFromPdf() {
+        @DisplayName("should throw exception when upload fails")
+        void shouldThrowExceptionWhenUploadFails() {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "document.pdf", "application/pdf", "PDF content".getBytes());
-            Document doc = createTestDocument("document.pdf", DocumentStatus.READY);
-            when(pdfTextExtractor.getExtension("document.pdf")).thenReturn("pdf");
-            when(pdfTextExtractor.extractText(any())).thenReturn(Optional.of("Extracted PDF text"));
-            when(ragService.uploadDocument(anyString(), anyString(), anyLong(), anyString()))
-                    .thenReturn(doc);
 
-            ResponseEntity<?> response = controller.uploadDocument(file, null);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            verify(pdfTextExtractor).extractText(any());
-        }
-
-        @Test
-        @DisplayName("should throw exception when PDF extraction fails")
-        void shouldThrowExceptionWhenPdfExtractionFails() {
-            MockMultipartFile file = new MockMultipartFile(
-                    "file", "document.pdf", "application/pdf", "PDF content".getBytes());
-            when(pdfTextExtractor.getExtension("document.pdf")).thenReturn("pdf");
-            when(pdfTextExtractor.extractText(any())).thenReturn(Optional.empty());
+            when(documentUploadUseCase.upload(any(MultipartFile.class), isNull()))
+                    .thenThrow(new RuntimeException("Upload failed"));
 
             org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
                 controller.uploadDocument(file, null);
