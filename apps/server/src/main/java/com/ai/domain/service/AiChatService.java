@@ -9,12 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import org.springframework.retry.support.RetryTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * AI Chat Service using Spring AI 2.0 ChatClient API with Chat Memory support.
+ * AI Chat Service using Spring AI 2.0 ChatClient API with retry and Chat Memory support.
  */
 @Service
 public class AiChatService {
@@ -23,48 +24,43 @@ public class AiChatService {
 
     private final ChatClient chatClient;
     private final ChatSessionRepository repository;
+    private final RetryTemplate retryTemplate;
     private final ChatMemory chatMemory;
 
-    public AiChatService(ChatClient chatClient, ChatSessionRepository repository, ChatMemory chatMemory) {
-        this.chatClient = chatClient;
+    public AiChatService(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository,
+                         RetryTemplate retryTemplate, ChatMemory chatMemory) {
+        this.chatClient = chatClientBuilder.build();
         this.repository = repository;
+        this.retryTemplate = retryTemplate;
         this.chatMemory = chatMemory;
     }
 
     /**
-     * Sends a message to AI with Chat Memory context and returns the response.
+     * Sends a message to AI with retry support and returns the response.
      */
     public String chat(String userMessage) {
-        return chatWithMemory("default", userMessage);
-    }
+        log.info("Chat request with retry: {}", truncateForLog(userMessage));
 
-    /**
-     * Sends a message to AI with Chat Memory context for a specific session.
-     */
-    public String chatWithMemory(String conversationId, String userMessage) {
-        log.info("Chat with memory request for conversation: {}", truncateForLog(conversationId));
-
-        try {
+        return retryTemplate.execute(context -> {
+            if (context.getRetryCount() > 0) {
+                log.info("Retry attempt {} for chat request", context.getRetryCount());
+            }
             String response = chatClient.prompt()
-                    .advisors(a -> a.param("conversation_id", conversationId))
                     .user(userMessage)
                     .call()
                     .content();
             log.info("Chat response: {}", truncateForLog(response));
             return response != null ? response : "";
-        } catch (Exception e) {
-            log.error("Chat error", e);
-            throw new RuntimeException("AI service error: " + e.getMessage(), e);
-        }
+        });
     }
 
     /**
-     * Sends message history to AI and returns the response.
+     * Sends message history to AI with retry support.
      */
     public String chatWithHistory(List<ChatMessage> messages) {
         log.info("Chat request with {} messages", messages.size());
 
-        try {
+        return retryTemplate.execute(context -> {
             var promptBuilder = chatClient.prompt();
 
             for (ChatMessage msg : messages) {
@@ -78,10 +74,7 @@ public class AiChatService {
             String response = promptBuilder.call().content();
             log.info("Chat response received: {} characters", response != null ? response.length() : 0);
             return response != null ? response : "";
-        } catch (Exception e) {
-            log.error("Chat error", e);
-            throw new RuntimeException("AI service error: " + e.getMessage(), e);
-        }
+        });
     }
 
     /**
