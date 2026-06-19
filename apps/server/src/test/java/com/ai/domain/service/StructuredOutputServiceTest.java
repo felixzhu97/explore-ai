@@ -12,8 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * StructuredOutputService Unit Tests
  *
- * Tests for TextAnalysisResult record and structured output concepts.
- * Note: Integration with Spring AI ChatClient is tested via integration tests.
+ * Tests for TextAnalysisResult record.
+ * Note: analyzeText and analyzeTextWithLanguage require Spring AI integration tests
+ * as they depend on ChatClient's fluent API with .entity() method.
  */
 @DisplayName("StructuredOutputService")
 class StructuredOutputServiceTest {
@@ -25,7 +26,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should create TextAnalysisResult with all fields")
         void shouldCreateTextAnalysisResultWithAllFields() {
-            // Act
             TextAnalysisResult result = new TextAnalysisResult(
                 "Test summary",
                 TextAnalysisResult.Sentiment.POSITIVE,
@@ -34,7 +34,6 @@ class StructuredOutputServiceTest {
                 "English"
             );
 
-            // Assert
             assertThat(result.summary()).isEqualTo("Test summary");
             assertThat(result.sentiment()).isEqualTo(TextAnalysisResult.Sentiment.POSITIVE);
             assertThat(result.keyPoints()).hasSize(2);
@@ -45,7 +44,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should support all sentiment types")
         void shouldSupportAllSentimentTypes() {
-            // Assert
             assertThat(TextAnalysisResult.Sentiment.values())
                 .containsExactlyInAnyOrder(
                     TextAnalysisResult.Sentiment.POSITIVE,
@@ -57,7 +55,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should handle null key points")
         void shouldHandleNullKeyPoints() {
-            // Act
             TextAnalysisResult result = new TextAnalysisResult(
                 "Summary",
                 TextAnalysisResult.Sentiment.NEUTRAL,
@@ -66,7 +63,6 @@ class StructuredOutputServiceTest {
                 "English"
             );
 
-            // Assert
             assertThat(result.keyPoints()).isNull();
             assertThat(result.entities()).isNull();
         }
@@ -74,7 +70,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should handle empty key points list")
         void shouldHandleEmptyKeyPointsList() {
-            // Act
             TextAnalysisResult result = new TextAnalysisResult(
                 "Summary",
                 TextAnalysisResult.Sentiment.NEUTRAL,
@@ -83,7 +78,6 @@ class StructuredOutputServiceTest {
                 "English"
             );
 
-            // Assert
             assertThat(result.keyPoints()).isEmpty();
             assertThat(result.entities()).isEmpty();
         }
@@ -91,7 +85,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should have correct equals and hashCode")
         void shouldHaveCorrectEqualsAndHashCode() {
-            // Arrange
             TextAnalysisResult result1 = new TextAnalysisResult(
                 "Summary", TextAnalysisResult.Sentiment.POSITIVE,
                 List.of("Key"), List.of("Entity"), "English"
@@ -101,7 +94,6 @@ class StructuredOutputServiceTest {
                 List.of("Key"), List.of("Entity"), "English"
             );
 
-            // Assert
             assertThat(result1).isEqualTo(result2);
             assertThat(result1.hashCode()).isEqualTo(result2.hashCode());
         }
@@ -109,7 +101,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should not be equal when different summary")
         void shouldNotBeEqualWhenDifferentSummary() {
-            // Arrange
             TextAnalysisResult result1 = new TextAnalysisResult(
                 "Summary 1", TextAnalysisResult.Sentiment.POSITIVE,
                 List.of("Key"), List.of("Entity"), "English"
@@ -119,14 +110,12 @@ class StructuredOutputServiceTest {
                 List.of("Key"), List.of("Entity"), "English"
             );
 
-            // Assert
             assertThat(result1).isNotEqualTo(result2);
         }
 
         @Test
         @DisplayName("should not be equal when different sentiment")
         void shouldNotBeEqualWhenDifferentSentiment() {
-            // Arrange
             TextAnalysisResult result1 = new TextAnalysisResult(
                 "Summary", TextAnalysisResult.Sentiment.POSITIVE,
                 List.of("Key"), List.of("Entity"), "English"
@@ -136,23 +125,19 @@ class StructuredOutputServiceTest {
                 List.of("Key"), List.of("Entity"), "English"
             );
 
-            // Assert
             assertThat(result1).isNotEqualTo(result2);
         }
 
         @Test
         @DisplayName("should have correct toString")
         void shouldHaveCorrectToString() {
-            // Arrange
             TextAnalysisResult result = new TextAnalysisResult(
                 "Summary", TextAnalysisResult.Sentiment.POSITIVE,
                 List.of("Key"), List.of("Entity"), "English"
             );
 
-            // Act
             String str = result.toString();
 
-            // Assert
             assertThat(str).contains("summary=Summary");
             assertThat(str).contains("sentiment=POSITIVE");
         }
@@ -160,7 +145,6 @@ class StructuredOutputServiceTest {
         @Test
         @DisplayName("should be immutable")
         void shouldBeImmutable() {
-            // Act
             TextAnalysisResult result = new TextAnalysisResult(
                 "Summary",
                 TextAnalysisResult.Sentiment.POSITIVE,
@@ -169,8 +153,48 @@ class StructuredOutputServiceTest {
                 "English"
             );
 
-            // Assert - record fields are final
             assertThat(result.summary()).isEqualTo("Summary");
+        }
+
+        @Test
+        @DisplayName("should handle all sentiment values")
+        void shouldHandleAllSentimentValues() {
+            for (TextAnalysisResult.Sentiment sentiment : TextAnalysisResult.Sentiment.values()) {
+                TextAnalysisResult result = new TextAnalysisResult(
+                    "Test", sentiment, List.of(), List.of(), "en"
+                );
+                assertThat(result.sentiment()).isEqualTo(sentiment);
+            }
+        }
+
+        @Test
+        @DisplayName("should handle long text in summary")
+        void shouldHandleLongTextInSummary() {
+            String longSummary = "a".repeat(1000);
+            TextAnalysisResult result = new TextAnalysisResult(
+                longSummary,
+                TextAnalysisResult.Sentiment.POSITIVE,
+                List.of("Key"),
+                List.of("Entity"),
+                "English"
+            );
+
+            assertThat(result.summary()).hasSize(1000);
+        }
+
+        @Test
+        @DisplayName("should handle unicode text")
+        void shouldHandleUnicodeText() {
+            TextAnalysisResult result = new TextAnalysisResult(
+                "中文摘要",
+                TextAnalysisResult.Sentiment.POSITIVE,
+                List.of("要点一", "要点二"),
+                List.of("实体"),
+                "Chinese"
+            );
+
+            assertThat(result.summary()).isEqualTo("中文摘要");
+            assertThat(result.language()).isEqualTo("Chinese");
         }
     }
 }
