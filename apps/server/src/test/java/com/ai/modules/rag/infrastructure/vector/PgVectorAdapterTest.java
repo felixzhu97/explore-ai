@@ -1,463 +1,510 @@
-package com.ai.adapter.out;
+package com.ai.modules.rag.infrastructure.vector;
 
-import com.ai.modules.rag.infrastructure.vector.PgVectorAdapter;
 import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import org.mockito.ArgumentMatchers;
+import static org.mockito.AdditionalMatchers.*;
 
-/**
- * PgVectorAdapter Unit Tests
- * 
- * Tests using Mockito to mock external dependencies (JdbcTemplate):
- * - Naming convention: should_expected_result_when_condition
- * - Uses AAA pattern (Arrange-Act-Assert)
- * - Tests vector search, SQL construction, and data mapping
- */
-@ExtendWith(MockitoExtension.class)
-@DisplayName("PgVectorAdapter")
+@DisplayName("PgVectorAdapter Tests")
 class PgVectorAdapterTest {
 
-    @Mock
     private JdbcTemplate jdbcTemplate;
-
-    private PgVectorAdapter adapter;
-
-    private static final UUID TEST_DOCUMENT_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private static final UUID TEST_CHUNK_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174001");
+    private ObjectMapper objectMapper;
+    private PgVectorAdapter pgVectorAdapter;
 
     @BeforeEach
     void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        adapter = new PgVectorAdapter(jdbcTemplate, objectMapper);
+        jdbcTemplate = mock(JdbcTemplate.class);
+        objectMapper = new ObjectMapper();
+        pgVectorAdapter = new PgVectorAdapter(jdbcTemplate, objectMapper);
     }
 
-    @Nested
-    @DisplayName("search")
-    class Search {
-
-        @Test
-        @DisplayName("should execute search query with correct parameters")
-        void shouldExecuteSearchQueryWithCorrectParameters() {
-            // Arrange
-            float[] queryEmbedding = createMockEmbedding(4);
-            int topK = 5;
-            List<DocumentChunk> mockResults = List.of();
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(mockResults);
-
-            // Act
-            adapter.search(queryEmbedding, topK);
-
-            // Assert
-            ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-            verify(jdbcTemplate).query(
-                    anyString(),
-                    captor.capture(),
-                    any(RowMapper.class)
-            );
-            assertThat(captor.getValue()).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("should return list of document chunks from search results")
-        void shouldReturnListOfDocumentChunksFromSearchResults() {
-            // Arrange
-            float[] queryEmbedding = createMockEmbedding(4);
-            int topK = 3;
-            List<DocumentChunk> expectedChunks = createMockChunks(2);
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(expectedChunks);
-
-            // Act
-            List<DocumentChunk> results = adapter.search(queryEmbedding, topK);
-
-            // Assert
-            assertThat(results).isEqualTo(expectedChunks);
-        }
-
-        @Test
-        @DisplayName("should search with docIds filter when provided")
-        void shouldSearchWithDocIdsFilterWhenProvided() {
-            // Arrange
-            float[] queryEmbedding = createMockEmbedding(4);
-            int topK = 5;
-            List<UUID> docIds = List.of(TEST_DOCUMENT_ID, UUID.randomUUID());
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(List.of());
-
-            // Act
-            adapter.search(queryEmbedding, topK, docIds);
-
-            // Assert
-            ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-            verify(jdbcTemplate).query(
-                    contains("document_id = ANY"),
-                    captor.capture(),
-                    any(RowMapper.class)
-            );
-            assertThat(captor.getValue()).hasSize(3); // docIds array, embedding, topK
-        }
-
-        @Test
-        @DisplayName("should ignore empty docIds list and not include filter")
-        void shouldIgnoreEmptyDocIdsListAndNotIncludeFilter() {
-            // Arrange
-            float[] queryEmbedding = createMockEmbedding(4);
-            int topK = 5;
-            List<UUID> emptyDocIds = List.of();
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(List.of());
-
-            // Act
-            adapter.search(queryEmbedding, topK, emptyDocIds);
-
-            // Assert - verify docIds filter is not present when empty
-            verify(jdbcTemplate).query(
-                    contains("ORDER BY embedding"),
-                    ArgumentMatchers.<Object[]>any(),
-                    any(RowMapper.class)
-            );
-        }
-    }
-
-    @Nested
-    @DisplayName("saveChunk")
-    class SaveChunk {
-
-        @Test
-        @DisplayName("should insert chunk with correct values")
-        void shouldInsertChunkWithCorrectValues() {
-            // Arrange
-            DocumentChunk chunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert
-            ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-            verify(jdbcTemplate).update(
-                    contains("INSERT INTO"),
-                    captor.capture()
-            );
-            Object[] params = captor.getValue();
-            assertThat(params[0]).isEqualTo(chunk.getId());
-            assertThat(params[1]).isEqualTo(chunk.getDocumentId());
-            assertThat(params[2]).isEqualTo(chunk.getContent());
-            assertThat(params[3]).isEqualTo(chunk.getChunkIndex());
-        }
-
-        @Test
-        @DisplayName("should convert embedding array to postgres string format")
-        void shouldConvertEmbeddingArrayToPostgresStringFormat() {
-            // Arrange
-            float[] embedding = {1.0f, 2.0f, 3.0f, 4.0f};
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    Map.of()
-            ).withEmbedding(embedding);
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert
-            ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-            verify(jdbcTemplate).update(
-                    anyString(),
-                    captor.capture()
-            );
-            // The embedding string should be the 4th parameter (index 4 in the params array)
-            Object embeddingParam = captor.getValue()[4];
-            assertThat(embeddingParam).isEqualTo("[1.0,2.0,3.0,4.0]");
-        }
-
-        @Test
-        @DisplayName("should handle chunk with null metadata")
-        void shouldHandleChunkWithNullMetadata() {
-            // Arrange
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    null
-            ).withEmbedding(createMockEmbedding(4));
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert - metadata is in VALUES clause with NULL placeholder
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).update(
-                    sqlCaptor.capture(),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class)
-            );
-            String sql = sqlCaptor.getValue();
-            assertThat(sql).contains("metadata");
-            assertThat(sql).contains("NULL");
-        }
-
-        @Test
-        @DisplayName("should serialize metadata to JSON")
-        void shouldSerializeMetadataToJson() {
-            // Arrange
-            Map<String, Object> metadata = Map.of("source", "test", "page", 1);
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    metadata
-            ).withEmbedding(createMockEmbedding(4));
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert - verify update was called
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).update(
-                    sqlCaptor.capture(),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class)
-            );
-            assertThat(sqlCaptor.getValue()).contains("INSERT INTO");
-        }
-
-        @Test
-        @DisplayName("should handle empty metadata map")
-        void shouldHandleEmptyMetadataMap() {
-            // Arrange
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    Map.of()
-            ).withEmbedding(createMockEmbedding(4));
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert - empty metadata should use NULL in VALUES clause
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).update(
-                    sqlCaptor.capture(),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class)
-            );
-            String sql = sqlCaptor.getValue();
-            // metadata field appears once in VALUES clause as NULL
-            assertThat(sql).contains("metadata");
-            assertThat(sql).contains("NULL");
-        }
-    }
-
-    @Nested
-    @DisplayName("RowMapper behavior")
-    class RowMapperBehavior {
-
-        @Test
-        @DisplayName("should call RowMapper with correct SQL")
-        void shouldCallRowMapperWithCorrectSql() {
-            // Arrange
-            float[] queryEmbedding = createMockEmbedding(4);
-            int topK = 5;
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(List.of());
-
-            // Act
-            adapter.search(queryEmbedding, topK);
-
-            // Assert - verify SQL contains expected columns
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).query(
-                    sqlCaptor.capture(),
-                    ArgumentMatchers.<Object[]>any(),
-                    any(RowMapper.class)
-            );
-            String sql = sqlCaptor.getValue();
-            assertThat(sql).contains("id");
-            assertThat(sql).contains("document_id");
-            assertThat(sql).contains("content");
-            assertThat(sql).contains("embedding");
-            assertThat(sql).contains("metadata");
-        }
-
-        @Test
-        @DisplayName("should pass embedding vector as string parameter")
-        void shouldPassEmbeddingVectorAsStringParameter() {
-            // Arrange
-            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
-            int topK = 5;
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(List.of());
-
-            // Act
-            adapter.search(queryEmbedding, topK);
-
-            // Assert
-            ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-            verify(jdbcTemplate).query(
-                    anyString(),
-                    captor.capture(),
-                    any(RowMapper.class)
-            );
-            assertThat(captor.getValue()[0]).isEqualTo("[0.1,0.2,0.3]");
-            assertThat(captor.getValue()[1]).isEqualTo(5);
-        }
-    }
-
-    @Nested
-    @DisplayName("SQL Construction")
-    class SqlConstruction {
-
-        @Test
-        @DisplayName("should use cosine distance operator for ordering")
-        void shouldUseCosineDistanceOperatorForOrdering() {
-            // Arrange
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(List.of());
-
-            // Act
-            adapter.search(createMockEmbedding(4), 5);
-
-            // Assert
-            verify(jdbcTemplate).query(
-                    contains("<=>"),
-                    ArgumentMatchers.<Object[]>any(),
-                    any(RowMapper.class)
-            );
-        }
-
-        @Test
-        @DisplayName("should cast embedding to vector type")
-        void shouldCastEmbeddingToVectorType() {
-            // Arrange
-            when(jdbcTemplate.query(anyString(), ArgumentMatchers.<Object[]>any(), any(RowMapper.class)))
-                    .thenReturn(List.of());
-
-            // Act
-            adapter.search(createMockEmbedding(4), 5);
-
-            // Assert
-            verify(jdbcTemplate).query(
-                    contains("::vector"),
-                    ArgumentMatchers.<Object[]>any(),
-                    any(RowMapper.class)
-            );
-        }
-
-        @Test
-        @DisplayName("should use upsert pattern with ON CONFLICT")
-        void shouldUseUpsertPatternWithOnConflict() {
-            // Arrange
-            DocumentChunk chunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).update(
-                    sqlCaptor.capture(),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class)
-            );
-            String sql = sqlCaptor.getValue();
-            assertThat(sql).contains("ON CONFLICT");
-        }
-
-        @Test
-        @DisplayName("should update content, embedding, and metadata on conflict")
-        void shouldUpdateContentEmbeddingAndMetadataOnConflict() {
-            // Arrange
-            DocumentChunk chunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
-
-            // Act
-            adapter.saveChunk(chunk);
-
-            // Assert
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).update(
-                    sqlCaptor.capture(),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class),
-                    any(Object.class)
-            );
-            String sql = sqlCaptor.getValue();
-            assertThat(sql).contains("content = EXCLUDED.content");
-            assertThat(sql).contains("embedding = EXCLUDED.embedding");
-            assertThat(sql).contains("metadata = EXCLUDED.metadata");
-        }
-    }
-
-    private float[] createMockEmbedding(int dimensions) {
-        float[] embedding = new float[dimensions];
-        for (int i = 0; i < dimensions; i++) {
-            embedding[i] = (float) (i + 1) * 0.1f;
-        }
-        return embedding;
-    }
-
-    private List<DocumentChunk> createMockChunks(int count) {
-        List<DocumentChunk> chunks = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            chunks.add(createMockChunk(UUID.randomUUID(), TEST_DOCUMENT_ID));
-        }
-        return chunks;
-    }
-
-    private DocumentChunk createMockChunk(UUID id, UUID documentId) {
+    private DocumentChunk createTestChunk(UUID id, UUID documentId, String content) {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", "test");
-        metadata.put("page", 1);
-        
-        return new DocumentChunk(
-                id,
-                documentId,
-                "Test content " + id,
-                0,
-                metadata
-        ).withEmbedding(createMockEmbedding(4));
+        return new DocumentChunk(id, documentId, content, 0, metadata);
+    }
+
+    private DocumentChunk createTestChunkWithEmbedding(UUID id, UUID documentId, String content, float[] embedding) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("source", "test");
+        DocumentChunk chunk = new DocumentChunk(id, documentId, content, 0, metadata);
+        return chunk.withEmbedding(embedding);
+    }
+
+    @Nested
+    @DisplayName("Search Tests")
+    class SearchTests {
+
+        @Test
+        @DisplayName("should return empty list when no results found")
+        void shouldReturnEmptyList_whenNoResultsFound() {
+            // Given
+            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
+            int topK = 5;
+            when(jdbcTemplate.query(anyString(), any(Object[].class), any(RowMapper.class)))
+                    .thenReturn(Collections.emptyList());
+
+            // When
+            List<DocumentChunk> result = pgVectorAdapter.search(queryEmbedding, topK);
+
+            // Then
+            assertThat(result).isEmpty();
+            verify(jdbcTemplate).query(
+                    contains("SELECT"),
+                    eq(new Object[]{"[0.1,0.2,0.3]", topK}),
+                    any(RowMapper.class)
+            );
+        }
+
+        @Test
+        @DisplayName("should return chunks when results found")
+        void shouldReturnChunks_whenResultsFound() {
+            // Given
+            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
+            int topK = 5;
+            UUID chunkId = UUID.randomUUID();
+            UUID docId = UUID.randomUUID();
+            String content = "Test content";
+            float[] embedding = {0.1f, 0.2f, 0.3f};
+
+            DocumentChunk expectedChunk = createTestChunkWithEmbedding(chunkId, docId, content, embedding);
+
+            when(jdbcTemplate.query(anyString(), any(Object[].class), any(RowMapper.class)))
+                    .thenReturn(List.of(expectedChunk));
+
+            // When
+            List<DocumentChunk> result = pgVectorAdapter.search(queryEmbedding, topK);
+
+            // Then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getContent()).isEqualTo(content);
+        }
+
+        @Test
+        @DisplayName("should filter by document IDs when provided")
+        void shouldFilterByDocumentIds_whenProvided() {
+            // Given
+            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
+            int topK = 5;
+            List<UUID> docIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+
+            when(jdbcTemplate.query(anyString(), any(Object[].class), any(RowMapper.class)))
+                    .thenReturn(Collections.emptyList());
+
+            // When
+            List<DocumentChunk> result = pgVectorAdapter.search(queryEmbedding, topK, docIds);
+
+            // Then
+            assertThat(result).isEmpty();
+            verify(jdbcTemplate).query(
+                    contains("WHERE document_id = ANY"),
+                    any(Object[].class),
+                    any(RowMapper.class)
+            );
+        }
+
+        @Test
+        @DisplayName("should use simple search when document IDs is empty")
+        void shouldUseSimpleSearch_whenDocumentIdsIsEmpty() {
+            // Given
+            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
+            int topK = 5;
+            List<UUID> docIds = Collections.emptyList();
+
+            when(jdbcTemplate.query(anyString(), any(Object[].class), any(RowMapper.class)))
+                    .thenReturn(Collections.emptyList());
+
+            // When
+            List<DocumentChunk> result = pgVectorAdapter.search(queryEmbedding, topK, docIds);
+
+            // Then
+            assertThat(result).isEmpty();
+            verify(jdbcTemplate).query(
+                    not(contains("WHERE document_id = ANY")),
+                    any(Object[].class),
+                    any(RowMapper.class)
+            );
+        }
+
+        @Test
+        @DisplayName("should use simple search when document IDs is null")
+        void shouldUseSimpleSearch_whenDocumentIdsIsNull() {
+            // Given
+            float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
+            int topK = 5;
+
+            when(jdbcTemplate.query(anyString(), any(Object[].class), any(RowMapper.class)))
+                    .thenReturn(Collections.emptyList());
+
+            // When
+            List<DocumentChunk> result = pgVectorAdapter.search(queryEmbedding, topK, null);
+
+            // Then
+            assertThat(result).isEmpty();
+            verify(jdbcTemplate).query(
+                    not(contains("WHERE document_id = ANY")),
+                    any(Object[].class),
+                    any(RowMapper.class)
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("SaveChunk Tests")
+    class SaveChunkTests {
+
+        @Test
+        @DisplayName("should save chunk successfully")
+        void shouldSaveChunk_successfully() {
+            // Given
+            UUID chunkId = UUID.randomUUID();
+            UUID documentId = UUID.randomUUID();
+            String content = "Test content";
+            float[] embedding = {0.1f, 0.2f, 0.3f};
+            DocumentChunk chunk = createTestChunkWithEmbedding(chunkId, documentId, content, embedding);
+
+            when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+
+            // When
+            pgVectorAdapter.saveChunk(chunk);
+
+            // Then
+            verify(jdbcTemplate).update(
+                    contains("INSERT INTO"),
+                    eq(chunkId),
+                    eq(documentId),
+                    eq(content),
+                    eq(0),
+                    eq("[0.1,0.2,0.3]"),
+                    anyString()
+            );
+        }
+
+        @Test
+        @DisplayName("should save chunk with null metadata")
+        void shouldSaveChunk_withNullMetadata() {
+            // Given
+            UUID chunkId = UUID.randomUUID();
+            UUID documentId = UUID.randomUUID();
+            String content = "Test content";
+            float[] embedding = {0.5f, 0.6f};
+            DocumentChunk chunk = new DocumentChunk(chunkId, documentId, content, 0, null)
+                    .withEmbedding(embedding);
+
+            when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+
+            // When
+            pgVectorAdapter.saveChunk(chunk);
+
+            // Then
+            verify(jdbcTemplate).update(
+                    contains("NULL"),
+                    eq(chunkId),
+                    eq(documentId),
+                    eq(content),
+                    eq(0),
+                    eq("[0.5,0.6]"),
+                    anyString()
+            );
+        }
+
+        @Test
+        @DisplayName("should save chunk with empty metadata")
+        void shouldSaveChunk_withEmptyMetadata() {
+            // Given
+            UUID chunkId = UUID.randomUUID();
+            UUID documentId = UUID.randomUUID();
+            String content = "Test content";
+            float[] embedding = {1.0f};
+            DocumentChunk chunk = new DocumentChunk(chunkId, documentId, content, 0, Collections.emptyMap())
+                    .withEmbedding(embedding);
+
+            when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+
+            // When
+            pgVectorAdapter.saveChunk(chunk);
+
+            // Then
+            verify(jdbcTemplate).update(
+                    contains("NULL"),
+                    eq(chunkId),
+                    eq(documentId),
+                    eq(content),
+                    eq(0),
+                    eq("[1.0]"),
+                    anyString()
+            );
+        }
+
+        @Test
+        @DisplayName("should escape single quotes in metadata JSON")
+        void shouldEscapeSingleQuotes_inMetadataJson() throws Exception {
+            // Given
+            UUID chunkId = UUID.randomUUID();
+            UUID documentId = UUID.randomUUID();
+            String content = "Test";
+            float[] embedding = {0.1f};
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("quote", "O'Reilly");
+            DocumentChunk chunk = new DocumentChunk(chunkId, documentId, content, 0, metadata)
+                    .withEmbedding(embedding);
+
+            when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+
+            // When
+            pgVectorAdapter.saveChunk(chunk);
+
+            // Then
+            verify(jdbcTemplate).update(
+                    argThat(sql -> sql.contains("O''Reilly")),
+                    any(Object[].class)
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("ArrayToPostgresString Tests")
+    class ArrayToPostgresStringTests {
+
+        @Test
+        @DisplayName("should convert float array to postgres string")
+        void shouldConvertFloatArray_toPostgresString() throws Exception {
+            // Given
+            float[] embedding = {0.1f, -0.2f, 0.3f, 1.0f};
+
+            // When
+            String result = invokePrivateStringMethod("arrayToPostgresString", float[].class, embedding);
+
+            // Then
+            assertThat(result).isEqualTo("[0.1,-0.2,0.3,1.0]");
+        }
+
+        @Test
+        @DisplayName("should handle single element array")
+        void shouldHandleSingleElementArray() throws Exception {
+            // Given
+            float[] embedding = {0.5f};
+
+            // When
+            String result = invokePrivateStringMethod("arrayToPostgresString", float[].class, embedding);
+
+            // Then
+            assertThat(result).isEqualTo("[0.5]");
+        }
+
+        @Test
+        @DisplayName("should handle empty array")
+        void shouldHandleEmptyArray() throws Exception {
+            // Given
+            float[] embedding = {};
+
+            // When
+            String result = invokePrivateStringMethod("arrayToPostgresString", float[].class, embedding);
+
+            // Then
+            assertThat(result).isEqualTo("[]");
+        }
+    }
+
+    @Nested
+    @DisplayName("MetadataToJson Tests")
+    class MetadataToJsonTests {
+
+        @Test
+        @DisplayName("should convert metadata to JSON string")
+        void shouldConvertMetadata_toJsonString() throws Exception {
+            // Given
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("key", "value");
+            metadata.put("number", 42);
+
+            // When
+            String result = invokePrivateStringMethod("metadataToJson", Map.class, metadata);
+
+            // Then
+            assertThat(result).contains("key");
+            assertThat(result).contains("value");
+            assertThat(result).contains("42");
+        }
+
+        @Test
+        @DisplayName("should return NULL for null metadata")
+        void shouldReturnNull_forNullMetadata() throws Exception {
+            // When
+            String result = invokePrivateStringMethod("metadataToJson", Map.class, (Object) null);
+
+            // Then
+            assertThat(result).isEqualTo("NULL");
+        }
+
+        @Test
+        @DisplayName("should return NULL for empty metadata")
+        void shouldReturnNull_forEmptyMetadata() throws Exception {
+            // Given
+            Map<String, Object> metadata = Collections.emptyMap();
+
+            // When
+            String result = invokePrivateStringMethod("metadataToJson", Map.class, metadata);
+
+            // Then
+            assertThat(result).isEqualTo("NULL");
+        }
+
+        @Test
+        @DisplayName("should return NULL when JSON serialization fails")
+        void shouldReturnNull_whenJsonSerializationFails() throws Exception {
+            // Given
+            ObjectMapper failingMapper = new ObjectMapper();
+            PgVectorAdapter adapterWithFailingMapper = new PgVectorAdapter(jdbcTemplate, failingMapper);
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("circular", new CircularReference());
+
+            // When
+            String result = invokePrivateStringMethod(adapterWithFailingMapper, "metadataToJson", Map.class, metadata);
+
+            // Then
+            assertThat(result).isEqualTo("NULL");
+        }
+    }
+
+    @Nested
+    @DisplayName("ChunkRowMapper Tests")
+    class ChunkRowMapperTests {
+
+        @Test
+        @DisplayName("should map result set to document chunk")
+        void shouldMapResultSet_toDocumentChunk() throws SQLException {
+            // Given
+            UUID chunkId = UUID.randomUUID();
+            UUID documentId = UUID.randomUUID();
+            String content = "Test content";
+            int chunkIndex = 1;
+            String embedding = "[0.1,0.2,0.3]";
+            String metadata = "{\"source\":\"test\"}";
+            String createdAt = "2024-01-01T00:00:00Z";
+
+            ResultSet rs = mock(ResultSet.class);
+            when(rs.getString("id")).thenReturn(chunkId.toString());
+            when(rs.getString("document_id")).thenReturn(documentId.toString());
+            when(rs.getString("content")).thenReturn(content);
+            when(rs.getInt("chunk_index")).thenReturn(chunkIndex);
+            when(rs.getString("embedding")).thenReturn(embedding);
+            when(rs.getString("metadata")).thenReturn(metadata);
+            when(rs.getString("created_at")).thenReturn(createdAt);
+
+            PgVectorAdapter.ChunkRowMapper rowMapper = pgVectorAdapter.new ChunkRowMapper();
+
+            // When
+            DocumentChunk result = rowMapper.mapRow(rs, 0);
+
+            // Then
+            assertThat(result.getId()).isEqualTo(chunkId);
+            assertThat(result.getDocumentId()).isEqualTo(documentId);
+            assertThat(result.getContent()).isEqualTo(content);
+            assertThat(result.getChunkIndex()).isEqualTo(chunkIndex);
+            assertThat(result.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
+            assertThat(result.getMetadata()).containsEntry("source", "test");
+        }
+
+        @Test
+        @DisplayName("should handle null embedding")
+        void shouldHandleNullEmbedding() throws SQLException {
+            // Given
+            ResultSet rs = mock(ResultSet.class);
+            when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("content")).thenReturn("Test");
+            when(rs.getInt("chunk_index")).thenReturn(0);
+            when(rs.getString("embedding")).thenReturn(null);
+            when(rs.getString("metadata")).thenReturn(null);
+            when(rs.getString("created_at")).thenReturn(null);
+
+            PgVectorAdapter.ChunkRowMapper rowMapper = pgVectorAdapter.new ChunkRowMapper();
+
+            // When
+            DocumentChunk result = rowMapper.mapRow(rs, 0);
+
+            // Then
+            assertThat(result.getEmbedding()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should handle empty embedding string")
+        void shouldHandleEmptyEmbeddingString() throws SQLException {
+            // Given
+            ResultSet rs = mock(ResultSet.class);
+            when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("content")).thenReturn("Test");
+            when(rs.getInt("chunk_index")).thenReturn(0);
+            when(rs.getString("embedding")).thenReturn("");
+            when(rs.getString("metadata")).thenReturn(null);
+            when(rs.getString("created_at")).thenReturn(null);
+
+            PgVectorAdapter.ChunkRowMapper rowMapper = pgVectorAdapter.new ChunkRowMapper();
+
+            // When
+            DocumentChunk result = rowMapper.mapRow(rs, 0);
+
+            // Then
+            assertThat(result.getEmbedding()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should use current time when created_at is null")
+        void shouldUseCurrentTime_whenCreatedAtIsNull() throws SQLException {
+            // Given
+            ResultSet rs = mock(ResultSet.class);
+            when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("content")).thenReturn("Test");
+            when(rs.getInt("chunk_index")).thenReturn(0);
+            when(rs.getString("embedding")).thenReturn("[0.1]");
+            when(rs.getString("metadata")).thenReturn(null);
+            when(rs.getString("created_at")).thenReturn(null);
+
+            Instant beforeTest = Instant.now();
+            PgVectorAdapter.ChunkRowMapper rowMapper = pgVectorAdapter.new ChunkRowMapper();
+
+            // When
+            DocumentChunk result = rowMapper.mapRow(rs, 0);
+
+            // Then
+            assertThat(result.getCreatedAt()).isAfterOrEqualTo(beforeTest);
+        }
+
+    }
+
+    // Helper method to invoke private methods via reflection
+    private String invokePrivateStringMethod(String methodName, Class<?> paramType, Object param) throws Exception {
+        var method = PgVectorAdapter.class.getDeclaredMethod(methodName, paramType);
+        method.setAccessible(true);
+        return (String) method.invoke(pgVectorAdapter, param);
+    }
+
+    private String invokePrivateStringMethod(PgVectorAdapter adapter, String methodName, Class<?> paramType, Object param) throws Exception {
+        var method = PgVectorAdapter.class.getDeclaredMethod(methodName, paramType);
+        method.setAccessible(true);
+        return (String) method.invoke(adapter, param);
+    }
+
+    // Helper class for testing JSON serialization failure
+    private static class CircularReference {
+        private final CircularReference self = this;
     }
 }
