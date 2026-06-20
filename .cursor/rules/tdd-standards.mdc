@@ -61,9 +61,8 @@ should_expected_result_when_trigger_condition
 | Mock | Verify interactions |
 | Spy | Partial verification with real object |
 
-## Detailed Guidelines
+## References
 
-For detailed examples and advanced topics, refer to:
-
-- [Software Testing Skill](../skills/software-testing/SKILL.md)
-- [TDD Unit Testing Skill](file:///Users/felixzhu/.cursor/skills/tdd-unit-testing/SKILL.md)
+- [Test Driven Development - Martin Fowler Bliki](https://www.martinfowler.com/bliki/TestDrivenDevelopment.html)
+- [Test-Driven Development - Wikipedia](https://en.wikipedia.org/wiki/Test-driven_development)
+- [Test-Driven Development: By Example - Kent Beck (Book)](https://www.goodreads.com/book/show/97502.Test_Driven_Development)

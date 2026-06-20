@@ -117,5 +117,7 @@ Code
 
 For detailed examples and Step Definitions, refer to:
 
-- [Software Testing Skill](../skills/software-testing/SKILL.md)
-- [BDD Reference - Cucumber](https://cucumber.io/docs/bdd/)
+## References
+
+- [Behaviour-Driven Development - Cucumber Official](https://cucumber.io/docs/bdd/)
+- [Gherkin Reference - Cucumber Official](https://cucumber.io/docs/gherkin/)
