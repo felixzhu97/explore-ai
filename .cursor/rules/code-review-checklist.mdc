@@ -6,13 +6,6 @@ alwaysApply: true
 
 # Code Review Checklist
 
-## 架构合规
-
-- [ ] 遵循六边形架构 (adapter/in → domain ← adapter/out)
-- [ ] Domain 层无框架依赖 (@Entity, @Service 不在 domain)
-- [ ] Repository 接口定义在 Domain 层
-- [ ] 无循环依赖 (adapter → domain → adapter)
-
 ## 代码质量
 
 - [ ] 无 God Class (> 300 行需拆分)
