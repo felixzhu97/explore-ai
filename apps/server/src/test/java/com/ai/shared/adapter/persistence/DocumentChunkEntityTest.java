@@ -1,6 +1,6 @@
 package com.ai.adapter.out.persistence;
 
-import com.ai.modules.rag.domain.model.DocumentChunkEntity;
+import com.ai.modules.rag.infrastructure.storage.DocumentChunkEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -2,13 +2,12 @@ package com.ai.adapter.out;
 
 import com.ai.domain.model.ChatSession;
 import com.ai.domain.vo.ChatSessionId;
-import com.ai.adapter.out.persistence.InMemoryChatSessionRepository;
+import com.ai.modules.ai.infrastructure.store.InMemoryChatSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 

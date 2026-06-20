@@ -1,6 +1,6 @@
 package com.ai.adapter.out.embedding;
 
-import com.ai.adapter.out.embedding.EmbeddingAdapter;
+import com.ai.modules.rag.infrastructure.llm.OllamaEmbeddingAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -1,5 +1,6 @@
 package com.ai.adapter.out.embedding;
 
+import com.ai.modules.rag.infrastructure.llm.MockEmbeddingAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -1,6 +1,9 @@
 package com.ai.adapter.out.persistence;
 
-import com.ai.modules.rag.domain.model.DocumentEntity;
+import com.ai.modules.rag.domain.model.Document;
+import com.ai.modules.rag.infrastructure.storage.DocumentEntity;
+import com.ai.modules.rag.domain.model.DocumentStatus;
+import com.ai.modules.rag.domain.vo.DocumentId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -116,8 +119,8 @@ class DocumentEntityTest {
         @Test
         @DisplayName("should create entity from domain Document with UPLOADING status")
         void shouldCreateEntityFromDomainWithUploadingStatus() {
-            com.ai.domain.model.Document document = new com.ai.domain.model.Document(
-                    com.ai.domain.vo.DocumentId.of(TEST_ID),
+            Document document = new Document(
+                    DocumentId.of(TEST_ID),
                     "Test Title",
                     "test.pdf",
                     1024L
@@ -135,12 +138,12 @@ class DocumentEntityTest {
         @Test
         @DisplayName("should create entity from domain Document with PROCESSING status")
         void shouldCreateEntityFromDomainWithProcessingStatus() {
-            com.ai.domain.model.Document document = new com.ai.domain.model.Document(
-                    com.ai.domain.vo.DocumentId.of(TEST_ID),
+            Document document = new Document(
+                    DocumentId.of(TEST_ID),
                     "Processing Doc",
                     "doc.pdf",
                     2048L,
-                    com.ai.domain.model.DocumentStatus.PROCESSING,
+                    DocumentStatus.PROCESSING,
                     Instant.now(),
                     Instant.now()
             );
@@ -153,12 +156,12 @@ class DocumentEntityTest {
         @Test
         @DisplayName("should create entity from domain Document with READY status")
         void shouldCreateEntityFromDomainWithReadyStatus() {
-            com.ai.domain.model.Document document = new com.ai.domain.model.Document(
-                    com.ai.domain.vo.DocumentId.of(TEST_ID),
+            Document document = new Document(
+                    DocumentId.of(TEST_ID),
                     "Ready Doc",
                     "ready.pdf",
                     4096L,
-                    com.ai.domain.model.DocumentStatus.READY,
+                    DocumentStatus.READY,
                     Instant.now(),
                     Instant.now()
             );
@@ -171,12 +174,12 @@ class DocumentEntityTest {
         @Test
         @DisplayName("should create entity from domain Document with FAILED status")
         void shouldCreateEntityFromDomainWithFailedStatus() {
-            com.ai.domain.model.Document document = new com.ai.domain.model.Document(
-                    com.ai.domain.vo.DocumentId.of(TEST_ID),
+            Document document = new Document(
+                    DocumentId.of(TEST_ID),
                     "Failed Doc",
                     "failed.pdf",
                     512L,
-                    com.ai.domain.model.DocumentStatus.FAILED,
+                    DocumentStatus.FAILED,
                     Instant.now(),
                     Instant.now()
             );
@@ -189,8 +192,8 @@ class DocumentEntityTest {
         @Test
         @DisplayName("should handle null fileName")
         void shouldHandleNullFileName() {
-            com.ai.domain.model.Document document = new com.ai.domain.model.Document(
-                    com.ai.domain.vo.DocumentId.of(TEST_ID),
+            Document document = new Document(
+                    DocumentId.of(TEST_ID),
                     "No File",
                     null,
                     null
@@ -216,7 +219,7 @@ class DocumentEntityTest {
                     DocumentEntity.DocumentStatus.READY, now, now
             );
 
-            com.ai.domain.model.Document document = entity.toDomain();
+            Document document = entity.toDomain();
 
             assertThat(document.getId().value()).isEqualTo(TEST_ID);
             assertThat(document.getTitle()).isEqualTo("Domain Doc");
@@ -236,7 +239,7 @@ class DocumentEntityTest {
             entity.setCreatedAt(Instant.now());
             entity.setUpdatedAt(Instant.now());
 
-            com.ai.domain.model.Document document = entity.toDomain();
+            Document document = entity.toDomain();
 
             assertThat(document.getFileName()).isNull();
             assertThat(document.getFileSize()).isNull();

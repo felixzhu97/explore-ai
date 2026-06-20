@@ -1,11 +1,11 @@
 package com.ai.domain;
 
+import com.ai.modules.ai.domain.vo.DomainConstants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;

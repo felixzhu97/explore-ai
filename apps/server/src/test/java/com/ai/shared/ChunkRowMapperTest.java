@@ -1,7 +1,7 @@
 package com.ai.adapter.out;
 
 import com.ai.modules.rag.infrastructure.vector.PgVectorAdapter;
-import com.ai.domain.model.DocumentChunk;
+import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
