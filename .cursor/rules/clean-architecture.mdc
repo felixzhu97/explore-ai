@@ -1,0 +1,430 @@
+---
+description: Clean Architecture patterns - layered architecture, dependency rule
+alwaysApply: true
+---
+
+# Clean Architecture Standards
+
+> Based on Robert C. Martin's "Clean Architecture"
+
+## Core Principle: The Dependency Rule
+
+> Source code dependencies must point only inward. Outer circles can depend on inner circles. Inner circles know nothing about outer circles.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Frameworks & Drivers                         │
+│                  (Database, Web Framework)                      │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │
+┌─────────────────────────────────────────────────────────────────┐
+│                      Interface Adapters                        │
+│              (Controllers, Gateways, Presenters)                 │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │
+┌─────────────────────────────────────────────────────────────────┐
+│                         Use Cases                               │
+│                   (Application Business Rules)                  │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │
+┌─────────────────────────────────────────────────────────────────┐
+│                          Entities                              │
+│                   (Enterprise Business Rules)                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## The Four Circles
+
+| Circle | Contents | Depends On |
+|--------|----------|------------|
+| **Entities** | Enterprise business rules (entities, value objects) | Nothing (innermost) |
+| **Use Cases** | Application business rules (interactors, commands) | Entities |
+| **Interface Adapters** | Controllers, presenters, gateways, DTOs | Use Cases, Entities |
+| **Frameworks** | Databases, web frameworks, external services | Interface Adapters |
+
+---
+
+## Project Structure
+
+### Java
+
+```
+src/main/java/com/example/
+├── entity/                    # Innermost circle
+│ ├── model/                   # Aggregates, Entities
+│ ├── vo/                      # Value Objects
+│ └── service/                 # Domain Services
+│
+├── usecase/                   # Application layer
+│ ├── {feature}/
+│ │   ├── {FeatureName}Input.java    # Input data structure
+│ │   ├── {FeatureName}Output.java   # Output data structure
+│ │   └── {FeatureName}UseCase.java # Interface + Implementation
+│ └── port/                          # External interfaces
+│
+├── interfaceadapter/          # Interface Adapters circle
+│ ├── controller/             # REST controllers
+│ ├── presenter/              # Output presenters
+│ └── gateway/               # Database/external gateways
+│
+└── framework/                # Outermost circle
+    ├── persistence/         # Database implementation
+    └── external/           # External services
+```
+
+### TypeScript
+
+```
+src/
+├── entity/                    # Innermost circle
+│ ├── models/
+│ ├── value-objects/
+│ └── services/
+│
+├── usecase/                   # Application layer
+│ ├── {feature}/
+│ │   ├── create-order.input.ts
+│ │   ├── create-order.output.ts
+│ │   └── create-order.use-case.ts
+│ └── port/                          # External interfaces
+│
+├── interfaceadapter/          # Interface Adapters
+│ ├── controller/
+│ ├── presenter/
+│ └── gateway/
+│
+└── framework/                # Outermost circle
+    ├── database/
+    └── external/
+```
+
+---
+
+## Entities (Innermost Circle)
+
+### Rule: No Framework Dependencies
+
+Domain must be pure — no framework annotations, no database knowledge.
+
+```java
+// ❌ BAD - Framework annotations in entity
+@Entity
+@Table(name = "orders")
+public class Order {
+  @Id private UUID id;
+}
+
+// ✅ GOOD - Pure entity
+public class Order {
+  private final OrderId id;
+  private OrderStatus status;
+  // No framework annotations
+}
+```
+
+```typescript
+// ❌ BAD - ORM decorator in entity
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: string;
+}
+
+// ✅ GOOD - Plain class
+export class User {
+  readonly id: UserId;
+  readonly email: Email;
+}
+```
+
+### Factory Methods
+
+```java
+public class Order {
+  private final OrderId id;
+  private OrderStatus status;
+  private final List<OrderLine> lines;
+  
+  // Private constructor - use factory method
+  private Order(OrderId id, OrderStatus status) {
+    this.id = Objects.requireNonNull(id);
+    this.status = status;
+    this.lines = new ArrayList<>();
+  }
+  
+  // Factory for new orders
+  public static Order create() {
+    return new Order(OrderId.generate(), OrderStatus.DRAFT);
+  }
+  
+  // Reconstitution from persistence
+  public static Order reconstitute(OrderId id, OrderStatus status, List<OrderLine> lines) {
+    Order order = new Order(id, status);
+    order.lines.addAll(lines);
+    return order;
+  }
+  
+  // Business logic in entity
+  public void place() {
+    if (lines.isEmpty()) throw new OrderException.EmptyOrder();
+    this.status = OrderStatus.PLACED;
+  }
+}
+```
+
+### Immutable Value Objects
+
+```java
+// ✅ GOOD - Immutable value object
+public record Money(BigDecimal amount, Currency currency) {
+  public Money {
+    Objects.requireNonNull(amount);
+    Objects.requireNonNull(currency);
+  }
+  
+  public Money add(Money other) {
+    if (!this.currency.equals(other.currency))
+      throw new CurrencyMismatchException();
+    return new Money(this.amount.add(other.amount), this.currency);
+  }
+}
+```
+
+---
+
+## Use Cases (Application Circle)
+
+### Input & Output Data Structures
+
+```java
+// Input - what the use case needs
+public record PlaceOrderInput(
+  List<OrderLineInput> lines,
+  ShippingAddressInput shipping
+) {
+  public record OrderLineInput(UUID productId, int quantity) {}
+  public record ShippingAddressInput(String street, String city, String zip) {}
+}
+
+// Output - what the use case returns
+public record PlaceOrderOutput(
+  UUID orderId,
+  OrderStatus status,
+  Money total
+) {}
+```
+
+```typescript
+// Input
+export interface PlaceOrderInput {
+  lines: ReadonlyArray<{ productId: ProductId; quantity: number }>;
+  shipping: { street: string; city: string; zip: string };
+}
+
+// Output
+export interface PlaceOrderOutput {
+  orderId: OrderId;
+  status: OrderStatus;
+  total: Money;
+}
+```
+
+### Use Case Implementation
+
+```java
+// Interface (in usecase/{feature}/)
+public interface PlaceOrderUseCase {
+  PlaceOrderOutput execute(PlaceOrderInput input);
+}
+
+// Implementation
+public class PlaceOrderUseCaseImpl implements PlaceOrderUseCase {
+  private final OrderGateway orderGateway;
+  private final ProductGateway productGateway;
+  
+  public PlaceOrderUseCaseImpl(OrderGateway orderGateway, ProductGateway productGateway) {
+    this.orderGateway = orderGateway;
+    this.productGateway = productGateway;
+  }
+  
+  @Override
+  public PlaceOrderOutput execute(PlaceOrderInput input) {
+    Order order = Order.create();
+    
+    for (var line : input.lines()) {
+      Product product = productGateway.findById(line.productId())
+        .orElseThrow(() -> ProductNotFoundException.forId(line.productId()));
+      order.addLine(product, line.quantity());
+    }
+    
+    order.place();
+    orderGateway.save(order);
+    
+    return new PlaceOrderOutput(order.getId(), order.getStatus(), order.getTotal());
+  }
+}
+```
+
+---
+
+## Interface Adapters
+
+Interface Adapters convert data between use cases/entities and external agencies.
+
+### Controllers (Driving Adapters)
+
+```java
+// Converts HTTP request to use case input
+@RestController
+@RequiredArgsConstructor
+class OrderController {
+  private final PlaceOrderUseCase placeOrderUseCase;
+  
+  @PostMapping("/orders")
+  public ResponseEntity<PlaceOrderResponse> placeOrder(@RequestBody @Valid PlaceOrderRequest request) {
+    PlaceOrderInput input = toInput(request);
+    PlaceOrderOutput output = placeOrderUseCase.execute(input);
+    return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(output));
+  }
+  
+  private PlaceOrderInput toInput(PlaceOrderRequest request) {
+    return new PlaceOrderInput(
+      request.lines().stream()
+        .map(l -> new OrderLineInput(l.productId(), l.quantity()))
+        .toList(),
+      new ShippingAddressInput(
+        request.shipping().street(),
+        request.shipping().city(),
+        request.shipping().zip()
+      )
+    );
+  }
+}
+```
+
+### Gateways (Driven Adapters)
+
+```java
+// Interface (defined in use case circle)
+public interface OrderGateway {
+  Optional<Order> findById(OrderId id);
+  void save(Order order);
+}
+
+// Implementation (in interfaceadapter/gateway/)
+@Repository
+@RequiredArgsConstructor
+class JpaOrderGateway implements OrderGateway {
+  private final SpringDataOrderRepository repository;
+  
+  @Override
+  public Optional<Order> findById(OrderId id) {
+    return repository.findById(id.value()).map(this::toDomain);
+  }
+  
+  @Override
+  public void save(Order order) {
+    repository.save(toEntity(order));
+  }
+  
+  private Order toDomain(OrderEntity entity) {
+    return Order.reconstitute(/* ... */);
+  }
+  
+  private OrderEntity toEntity(Order order) {
+    return OrderEntity.builder()
+      .id(order.getId().value())
+      .status(order.getStatus())
+      .build();
+  }
+}
+```
+
+---
+
+## Frameworks (Outermost Circle)
+
+Frameworks contain database implementations, web servers, external services.
+
+```java
+// This circle knows about database, ORM, etc.
+// All SQL stays here
+
+@Repository
+public class JpaOrderRepository implements OrderGateway {
+  // JPA/Hibernate code lives here
+  // SQL queries stay in this circle
+}
+```
+
+---
+
+## Key Principles
+
+### Data Structure Crossing Boundaries
+
+Pass simple data structures across boundaries, never domain entities.
+
+```java
+// ✅ GOOD - Input/Output data structures cross boundaries
+public PlaceOrderOutput execute(PlaceOrderInput input) { /* ... */ }
+
+// ❌ BAD - Domain entity crosses boundary
+public void process(Order order) { /* ... */ }
+```
+
+### Dependency Inversion
+
+```
+                    UseCase
+                       │
+            ┌──────────┴──────────┐
+            │  OrderGateway      │  ← Interface in use case circle
+            └──────────┬──────────┘
+                       │
+                 JpaOrderGateway  ← Implementation in framework circle
+```
+
+### Composition Root
+
+Wire dependencies in one place.
+
+```java
+@Configuration
+class AppConfig {
+  @Bean
+  public OrderGateway orderGateway(JpaOrderRepository repository) {
+    return repository;
+  }
+  
+  @Bean
+  public PlaceOrderUseCase placeOrderUseCase(OrderGateway gateway, ProductGateway productGateway) {
+    return new PlaceOrderUseCaseImpl(gateway, productGateway);
+  }
+}
+```
+
+---
+
+## Architecture Checklist
+
+- [ ] Entities circle has no framework annotations
+- [ ] Use case interfaces define application behavior
+- [ ] Source code dependencies point inward only
+- [ ] Entities use factory methods (private constructors)
+- [ ] Value Objects are immutable
+- [ ] Business logic in entities/use cases
+- [ ] Gateways implement interfaces defined in use case circle
+- [ ] Simple data structures cross boundaries
+- [ ] All database/SQL code in outermost circle
+- [ ] Composition root wires all dependencies
+
+## References
+
+- [The Clean Architecture - Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [The Dependency Rule - InformIT](https://www.informit.com/articles/article.aspx?p=2832399)
