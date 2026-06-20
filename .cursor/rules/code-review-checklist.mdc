@@ -8,10 +8,11 @@ alwaysApply: true
 
 ## 架构合规
 
-- [ ] 遵循六边形架构 (adapter/in → domain ← adapter/out)
-- [ ] Domain 层无框架依赖 (@Entity, @Service 不在 domain)
-- [ ] Repository 接口定义在 Domain 层
-- [ ] 无循环依赖 (adapter → domain → adapter)
+- [ ] 遵循整洁架构 (entity → usecase → interfaceadapter → framework)
+- [ ] Entity/USecase 层无框架依赖 (@Entity, @Service, @Component 不在 entity/usecase)
+- [ ] Repository 接口定义在 use case 层，Gateway 实现在 interfaceadapter 层
+- [ ] 无循环依赖，依赖方向指向内层
+- [ ] 使用 Input/Output 数据结构跨边界
 
 ## 代码质量
 

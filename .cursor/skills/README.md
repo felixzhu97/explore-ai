@@ -9,8 +9,7 @@
 | Skill | 版本 | 描述 |
 |-------|------|------|
 | [software-architecture](./software-architecture/) | v1.0 | 软件架构设计方法论，涵盖 Clean Architecture、DDD、C4 模型 |
-| [hexagonal-architecture](./hexagonal-architecture/) | v1.0 | 六边形架构重构指南，Ports & Adapters 模式 |
-| [clean-architecture](./clean-architecture/) | - | 苹果风格整洁架构开发规范 |
+| [clean-architecture](./clean-architecture/) | v1.0 | 苹果风格整洁架构开发规范，四层架构、依赖倒置 |
 
 ### 开发实践
 
