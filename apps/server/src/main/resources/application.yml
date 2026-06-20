@@ -28,6 +28,11 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+      image:
+        options:
+          model: dall-e-3
+          quality: standard
+          size: 1024x1024
 
   # Database configuration
   datasource:
