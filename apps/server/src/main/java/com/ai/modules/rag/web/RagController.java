@@ -1,11 +1,11 @@
 package com.ai.modules.rag.web;
 
 import com.ai.modules.ai.infrastructure.streaming.StreamingService;
-import com.ai.domain.model.Document;
-import com.ai.domain.model.SourceDocument;
-import com.ai.application.service.RagApplicationService;
-import com.ai.application.usecase.DocumentUploadUseCase;
-import com.ai.application.usecase.RagChatUseCase;
+import com.ai.modules.rag.domain.model.Document;
+import com.ai.modules.rag.domain.model.SourceDocument;
+import com.ai.modules.rag.application.usecase.RagApplicationService;
+import com.ai.modules.rag.application.usecase.DocumentUploadUseCase;
+import com.ai.modules.rag.application.usecase.RagChatUseCase;
 import com.ai.modules.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -22,17 +22,17 @@ public class RagChatUseCase {
     private static final int DEFAULT_TOP_K = 5;
 
     private final RagApplicationService ragApplicationService;
-    private final AiChatUseCase aiChatService;
+    private final AiChatUseCase aiChatUseCase;
     private final LanguageDetectionService languageDetectionService;
     private final PromptTemplates promptTemplates;
 
     public RagChatUseCase(
             RagApplicationService ragApplicationService,
-            AiChatUseCase aiChatService,
+            AiChatUseCase aiChatUseCase,
             LanguageDetectionService languageDetectionService,
             PromptTemplates promptTemplates) {
         this.ragApplicationService = ragApplicationService;
-        this.aiChatService = aiChatService;
+        this.aiChatUseCase = aiChatUseCase;
         this.languageDetectionService = languageDetectionService;
         this.promptTemplates = promptTemplates;
     }
@@ -65,7 +65,7 @@ public class RagChatUseCase {
         List<SourceDocument> sources = retrievalResult.sources();
 
         String prompt = buildPrompt(question, context);
-        String aiResponse = aiChatService.chat(prompt);
+        String aiResponse = aiChatUseCase.chat(prompt);
 
         log.info("RAG chat completed successfully");
         return new ChatResult(aiResponse, sources);

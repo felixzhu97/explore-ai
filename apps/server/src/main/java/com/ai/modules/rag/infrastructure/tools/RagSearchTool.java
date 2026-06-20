@@ -1,6 +1,6 @@
 package com.ai.modules.rag.infrastructure.tools;
 
-import com.ai.application.service.RagApplicationService;
+import com.ai.modules.rag.application.usecase.RagApplicationService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;

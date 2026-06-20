@@ -2,7 +2,7 @@ package com.ai.modules.mcp.server;
 
 import com.ai.modules.rag.infrastructure.tools.RagSearchTool;
 import com.ai.modules.ai.infrastructure.tools.WeatherTools;
-import com.ai.domain.service.AiChatService;
+import com.ai.modules.ai.application.usecase.AiChatUseCase;
 import org.springframework.ai.mcp.annotation.*;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -31,12 +31,12 @@ public class AiMcpServerService {
 
     private final WeatherTools weatherTools;
     private final RagSearchTool ragSearchTool;
-    private final AiChatService aiChatService;
+    private final AiChatUseCase aiChatUseCase;
 
-    public AiMcpServerService(WeatherTools weatherTools, RagSearchTool ragSearchTool, AiChatService aiChatService) {
+    public AiMcpServerService(WeatherTools weatherTools, RagSearchTool ragSearchTool, AiChatUseCase aiChatUseCase) {
         this.weatherTools = weatherTools;
         this.ragSearchTool = ragSearchTool;
-        this.aiChatService = aiChatService;
+        this.aiChatUseCase = aiChatUseCase;
     }
 
     /**
@@ -93,7 +93,7 @@ public class AiMcpServerService {
     public String aiChat(
             @McpToolParam(description = "The message to send to the AI", required = true) String message) {
         log.info("MCP tool: aiChat called with message: {}", truncate(message, 50));
-        return aiChatService.chat(message);
+        return aiChatUseCase.chat(message);
     }
 
     /**

@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
  * Uses Recursive Character Text Splitting strategy.
  */
 @Service
-public class ChunkingUserCase {
+public class ChunkingService {
 
-    private static final Logger log = LoggerFactory.getLogger(ChunkingUserCase.class);
+    private static final Logger log = LoggerFactory.getLogger(ChunkingService.class);
 
     private static final String[] DEFAULT_SEPARATORS = {
         "\n\n",   // Paragraph break (highest priority)
@@ -41,7 +41,7 @@ public class ChunkingUserCase {
     private final int chunkSize;
     private final int chunkOverlap;
 
-    public ChunkingUserCase(
+    public ChunkingService(
             @Value("${rag.chunk.size:500}") int chunkSize,
             @Value("${rag.chunk.overlap:50}") int chunkOverlap) {
         this.chunkSize = chunkSize;
