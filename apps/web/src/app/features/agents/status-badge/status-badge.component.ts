@@ -10,63 +10,26 @@ const statusLabels: Record<BadgeStatus, string> = {
   pending: 'Pending',
 };
 
+const statusClasses: Record<BadgeStatus, string> = {
+  online: 'bg-success-light text-success',
+  offline: 'bg-black/6 text-text-tertiary',
+  busy: 'bg-warning-light text-warning',
+  error: 'bg-error-light text-error',
+  pending: 'bg-primary-light text-primary',
+};
+
 @Component({
   selector: 'app-status-badge',
   standalone: true,
   template: `
-    <span class="badge" [class]="'badge--' + status()">
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-full whitespace-nowrap"
+      [class]="statusClasses[status()]">
       @if (showDot()) {
-        <span class="badge__dot"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
       }
       {{ label() || statusLabels[status()] }}
     </span>
   `,
-  styles: [
-    `
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-medium);
-        border-radius: var(--radius-full);
-        white-space: nowrap;
-
-        &--online {
-          background: var(--color-success-light);
-          color: var(--color-success);
-        }
-
-        &--offline {
-          background: rgba(0, 0, 0, 0.06);
-          color: var(--color-text-tertiary);
-        }
-
-        &--busy {
-          background: var(--color-warning-light);
-          color: var(--color-warning);
-        }
-
-        &--error {
-          background: var(--color-error-light);
-          color: var(--color-error);
-        }
-
-        &--pending {
-          background: var(--color-primary-light);
-          color: var(--color-primary);
-        }
-      }
-
-      .badge__dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: currentColor;
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusBadgeComponent {
@@ -75,4 +38,5 @@ export class StatusBadgeComponent {
   showDot = input<boolean>(true);
 
   protected readonly statusLabels = statusLabels;
+  protected readonly statusClasses = statusClasses;
 }

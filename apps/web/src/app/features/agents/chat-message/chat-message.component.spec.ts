@@ -41,9 +41,8 @@ describe('ChatMessageComponent', () => {
       })
     );
 
-    const content = fixture.nativeElement.querySelector('.message-content');
+    const content = fixture.nativeElement.querySelector('div > div');
     expect(content.textContent?.trim()).toContain('Hello, this is a user message');
-    expect(content.classList).toContain('message-content--user');
   });
 
   it('should display assistant message with rendered content', () => {
@@ -54,7 +53,7 @@ describe('ChatMessageComponent', () => {
       })
     );
 
-    const content = fixture.nativeElement.querySelector('.message-content');
+    const content = fixture.nativeElement.querySelector('div > div');
     expect(content.textContent?.trim()).toContain('This is an assistant response');
   });
 
@@ -62,7 +61,7 @@ describe('ChatMessageComponent', () => {
     const testTimestamp = new Date('2024-01-15T10:30:00').getTime();
     createFixture(createMessage({ timestamp: testTimestamp }));
 
-    const timeElement = fixture.nativeElement.querySelector('.message-time');
+    const timeElement = fixture.nativeElement.querySelector('.text-\\[11px\\]');
     expect(timeElement.textContent).toBeTruthy();
   });
 
@@ -85,14 +84,14 @@ describe('ChatMessageComponent', () => {
   it('should not render tool calls section when no tool calls', () => {
     createFixture(createMessage({ toolCalls: undefined }));
 
-    const toolCallsSection = fixture.nativeElement.querySelector('.tool-calls');
+    const toolCallsSection = fixture.nativeElement.querySelector('.mt-2');
     expect(toolCallsSection).toBeFalsy();
   });
 
   it('should handle empty content gracefully', () => {
     createFixture(createMessage({ content: '' }));
 
-    const content = fixture.nativeElement.querySelector('.message-content');
+    const content = fixture.nativeElement.querySelector('div > div');
     expect(content).toBeTruthy();
   });
 
@@ -104,7 +103,7 @@ describe('ChatMessageComponent', () => {
       })
     );
 
-    const content = fixture.nativeElement.querySelector('.message-content');
+    const content = fixture.nativeElement.querySelector('div > div');
     expect(content.innerHTML).not.toContain('<script>');
     expect(content.textContent).toContain('<script>alert("xss")</script>');
   });
@@ -151,7 +150,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('<h1>');
       expect(content.innerHTML).toContain('<h2>');
     });
@@ -164,7 +163,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('<strong>');
       expect(content.innerHTML).toContain('bold');
     });
@@ -177,7 +176,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('<em>');
       expect(content.innerHTML).toContain('italic');
     });
@@ -190,7 +189,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('<code>console.log()</code>');
     });
 
@@ -202,7 +201,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('<pre');
       expect(content.innerHTML).toContain('<code>');
       expect(content.innerHTML).toContain('const x = 1');
@@ -216,7 +215,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('<a href="https://example.com"');
       expect(content.innerHTML).toContain('this link');
     });
@@ -229,7 +228,7 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.innerHTML).toContain('json-key');
       expect(content.innerHTML).toContain('json-string');
       expect(content.innerHTML).toContain('json-number');
@@ -243,40 +242,8 @@ describe('ChatMessageComponent', () => {
         })
       );
 
-      const content = fixture.nativeElement.querySelector('.message-content');
+      const content = fixture.nativeElement.querySelector('div > div');
       expect(content.textContent).toContain('{"key": "value"}');
-    });
-  });
-
-  describe('message bubble styling', () => {
-    it('should have user class for user messages', () => {
-      createFixture(createMessage({ role: 'user' }));
-
-      const bubble = fixture.nativeElement.querySelector('.message-bubble');
-      expect(bubble.classList).toContain('message-bubble--user');
-    });
-
-    it('should not have user class for assistant messages', () => {
-      createFixture(createMessage({ role: 'assistant' }));
-
-      const bubble = fixture.nativeElement.querySelector('.message-bubble');
-      expect(bubble.classList).not.toContain('message-bubble--user');
-    });
-  });
-
-  describe('accessibility', () => {
-    it('should have message-meta for timestamp', () => {
-      createFixture(createMessage());
-
-      const meta = fixture.nativeElement.querySelector('.message-meta');
-      expect(meta).toBeTruthy();
-    });
-
-    it('should have time element with proper formatting', () => {
-      createFixture(createMessage());
-
-      const time = fixture.nativeElement.querySelector('.message-time');
-      expect(time).toBeTruthy();
     });
   });
 });

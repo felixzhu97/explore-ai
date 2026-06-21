@@ -9,8 +9,29 @@ export type { ChatMessageData };
   selector: 'app-chat-message',
   standalone: true,
   imports: [ToolResultComponent],
-  templateUrl: './chat-message.component.html',
-  styleUrl: './chat-message.component.scss',
+  template: `
+    <div class="flex flex-col max-w-[80%] self-start items-start animate-[fadeIn_0.2s_ease]" [class]="isUser() ? 'self-end items-end' : 'self-start items-start'">
+      <div class="px-4 py-3 text-sm leading-relaxed break-words rounded-xl" [class]="isUser() ? 'bg-primary text-white rounded-br-sm' : 'bg-surface border border-[--color-border] text-text rounded-bl-sm'">
+        @if (isUser()) {
+          <p class="m-0">{{ message().content }}</p>
+        } @else {
+          <div [innerHTML]="renderedContent()"></div>
+        }
+      </div>
+
+      @if (message().toolCalls && message().toolCalls!.length > 0) {
+        <div class="mt-2 w-full max-w-[500px]">
+          @for (toolCall of message().toolCalls; track toolCall.id) {
+            <app-tool-result [toolCall]="toolCall" />
+          }
+        </div>
+      }
+
+      <div class="flex items-center gap-2 mt-1 px-1">
+        <span class="text-[11px] text-text-tertiary">{{ formattedTime() }}</span>
+      </div>
+    </div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatMessageComponent {
