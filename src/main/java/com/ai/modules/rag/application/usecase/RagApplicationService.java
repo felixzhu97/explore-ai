@@ -4,6 +4,7 @@ import com.ai.modules.rag.domain.model.Document;
 import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.ai.modules.rag.domain.model.SourceDocument;
 import com.ai.modules.rag.domain.repository.IDocumentRepository;
+import com.ai.modules.rag.domain.util.VectorSimilarity;
 import com.ai.modules.rag.infrastructure.parser.PdfTextExtractor;
 import com.ai.modules.rag.infrastructure.llm.EmbeddingAdapter;
 import com.ai.modules.rag.infrastructure.vector.PgVectorAdapter;
@@ -173,7 +174,7 @@ public class RagApplicationService {
                 String truncated = chunk.getContent().length() > 500
                     ? chunk.getContent().substring(0, 500)
                     : chunk.getContent();
-                return new SourceDocument(truncated, calculateSimilarity(queryEmbedding, chunk.getEmbedding()), chunk.getMetadata());
+                return new SourceDocument(truncated, VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()), chunk.getMetadata());
             })
             .sorted(Comparator.comparingDouble(SourceDocument::score).reversed())
             .toList();
@@ -219,17 +220,5 @@ public class RagApplicationService {
             }
         }
         return savedCount;
-    }
-
-    private double calculateSimilarity(float[] a, float[] b) {
-        if (a == null || b == null || a.length != b.length) return 0.0;
-        double dotProduct = 0.0, normA = 0.0, normB = 0.0;
-        for (int i = 0; i < a.length; i++) {
-            dotProduct += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        double denominator = Math.sqrt(normA) * Math.sqrt(normB);
-        return denominator > 0 ? dotProduct / denominator : 0.0;
     }
 }
