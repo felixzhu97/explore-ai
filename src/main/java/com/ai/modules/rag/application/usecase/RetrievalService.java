@@ -1,9 +1,10 @@
 package com.ai.modules.rag.application.usecase;
 
-import com.ai.modules.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.modules.rag.infrastructure.vector.PgVectorAdapter;
 import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.ai.modules.rag.domain.model.SourceDocument;
+import com.ai.modules.rag.domain.util.VectorSimilarity;
+import com.ai.modules.rag.infrastructure.llm.EmbeddingAdapter;
+import com.ai.modules.rag.infrastructure.vector.PgVectorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public class RetrievalService {
         List<SourceDocument> sources = chunks.stream()
             .map(chunk -> new SourceDocument(
                 truncateContent(chunk.getContent()),
-                calculateSimilarity(queryEmbedding, chunk.getEmbedding()),
+                VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()),
                 chunk.getMetadata()
             ))
             .sorted(Comparator.comparingDouble(SourceDocument::score).reversed())
@@ -73,17 +74,5 @@ public class RetrievalService {
             return content;
         }
         return content.substring(0, MAX_SOURCE_LENGTH);
-    }
-
-    private double calculateSimilarity(float[] a, float[] b) {
-        if (a == null || b == null || a.length != b.length) return 0.0;
-        double dotProduct = 0.0, normA = 0.0, normB = 0.0;
-        for (int i = 0; i < a.length; i++) {
-            dotProduct += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        double denominator = Math.sqrt(normA) * Math.sqrt(normB);
-        return denominator > 0 ? dotProduct / denominator : 0.0;
     }
 }
