@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  Language,
-  SUPPORTED_LANGUAGES,
-  Translations,
-  translations,
-  languageNames,
-} from './i18n.model';
+import { Language, SUPPORTED_LANGUAGES, translations, languageNames } from './i18n.model';
 
 describe('i18n.model', () => {
   describe('Language type', () => {

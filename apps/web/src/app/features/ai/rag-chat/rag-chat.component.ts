@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
 import { NotificationService } from '@core/services/notification.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import { SourceDocument } from '@shared/models';
 import { DEFAULT_TEMPERATURE, DEFAULT_TOP_K } from '@core/constants';
 

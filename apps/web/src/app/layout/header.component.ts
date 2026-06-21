@@ -6,7 +6,7 @@ import {
   HostListener,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@i18n';
+import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core/i18n';
 
 interface NavTab {
   key: string;

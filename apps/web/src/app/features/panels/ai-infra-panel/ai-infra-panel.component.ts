@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { environment } from '@env/environment';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import {
   SegmentedControlComponent,
   SegmentedControlOption,

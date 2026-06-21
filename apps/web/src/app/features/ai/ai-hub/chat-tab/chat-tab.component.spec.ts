@@ -4,7 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ChatTabComponent } from './chat-tab.component';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import { Observable, of } from 'rxjs';
 
 describe('ChatTabComponent', () => {
