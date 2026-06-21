@@ -111,9 +111,4 @@ public class ToolCallingController {
 
     public record ToolChatResponse(String answer, List<String> toolCalls) {
     }
-
-    private String truncate(String text) {
-        if (text == null || text.length() <= 50) return text;
-        return text.substring(0, 50) + "...";
-    }
 }
