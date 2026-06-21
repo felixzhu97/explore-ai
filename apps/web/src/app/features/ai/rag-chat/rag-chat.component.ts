@@ -11,10 +11,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
-import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@i18n';
 import { SourceDocument } from '@shared/models';
 import { DEFAULT_TEMPERATURE, DEFAULT_TOP_K } from '@core/constants';
+import { RagChatService } from './rag-chat.service';
 
 interface Message {
   id: string;
@@ -22,14 +22,6 @@ interface Message {
   content: string;
   sources?: SourceDocument[];
   timestamp: number;
-}
-
-interface UploadedDocument {
-  id: string;
-  title: string;
-  status: 'uploading' | 'success' | 'error';
-  progress?: number;
-  error?: string;
 }
 
 @Component({
@@ -50,48 +42,48 @@ interface UploadedDocument {
         <div class="section-header">
           <h3 class="section-title">
             📄 {{ i18n.t().ragChat.documents }}
-            @if (!isLoadingDocs()) {
-              <span class="document-count">{{ availableDocs().length }}</span>
+            @if (!ragService.isLoadingDocs()) {
+              <span class="document-count">{{ ragService.availableDocs().length }}</span>
             }
           </h3>
-          @if (availableDocs().length > 0 && selectedDocIds().size > 0) {
+          @if (ragService.availableDocs().length > 0 && ragService.selectedDocIds().size > 0) {
             <span class="selected-badge">
               {{
                 i18n
                   .t()
-                  .ragChat.selectedDocuments.replace('{count}', selectedDocIds().size.toString())
+                  .ragChat.selectedDocuments.replace('{count}', ragService.selectedDocIds().size.toString())
               }}
             </span>
           }
         </div>
 
-        @if (isLoadingDocs()) {
+        @if (ragService.isLoadingDocs()) {
           <div class="skeleton-row">
             <div class="skeleton skeleton-doc"></div>
             <div class="skeleton skeleton-doc" style="width: 100px"></div>
             <div class="skeleton skeleton-doc" style="width: 140px"></div>
           </div>
-        } @else if (availableDocs().length > 0) {
+        } @else if (ragService.availableDocs().length > 0) {
           <div class="documents-list">
-            @for (doc of availableDocs(); track $index) {
+            @for (doc of ragService.availableDocs(); track $index) {
               <div
                 class="document-card"
-                [class.selected]="selectedDocIds().has(doc.id)"
-                [class.deleting]="deletingDocIds().has(doc.id)"
-                (click)="toggleDocSelection(doc.id)"
+                [class.selected]="ragService.selectedDocIds().has(doc.id)"
+                [class.deleting]="ragService.deletingDocIds().has(doc.id)"
+                (click)="ragService.toggleDocSelection(doc.id)"
                 (keydown)="onDocKeyDown($event, doc.id)"
                 tabindex="0"
                 role="checkbox"
-                [attr.aria-checked]="selectedDocIds().has(doc.id)"
+                [attr.aria-checked]="ragService.selectedDocIds().has(doc.id)"
               >
                 <span class="doc-icon">
-                  {{ selectedDocIds().has(doc.id) ? '✓' : '📄' }}
+                  {{ ragService.selectedDocIds().has(doc.id) ? '✓' : '📄' }}
                 </span>
                 <span class="doc-title">{{ doc.title }}</span>
                 <button
                   class="delete-button"
-                  [class.selected]="selectedDocIds().has(doc.id)"
-                  (click)="deleteDocument(doc.id, $event)"
+                  [class.selected]="ragService.selectedDocIds().has(doc.id)"
+                  (click)="onDeleteDoc(doc.id, $event)"
                   aria-label="Delete {{ doc.title }}"
                 >
                   ✕
@@ -100,11 +92,11 @@ interface UploadedDocument {
             }
           </div>
           <div class="selection-controls">
-            <button class="select-button" (click)="selectAllDocs()">
+            <button class="select-button" (click)="ragService.selectAllDocs()">
               {{ i18n.t().ragChat.selectAll }}
             </button>
-            @if (selectedDocIds().size > 0) {
-              <button class="select-button" (click)="clearDocSelection()">
+            @if (ragService.selectedDocIds().size > 0) {
+              <button class="select-button" (click)="ragService.clearDocSelection()">
                 {{ i18n.t().ragChat.clearSelection }}
               </button>
             }
@@ -129,28 +121,28 @@ interface UploadedDocument {
           📎 {{ i18n.t().ragChat.uploadDocs }}
         </label>
 
-        @if (pendingFiles().length > 0) {
+        @if (ragService.pendingFiles().length > 0) {
           <div class="uploaded-files">
-            @for (file of pendingFiles(); track file.name; let i = $index) {
-              <div class="file-tag" [class]="getUploadStatus(file.name)?.status || 'pending'">
-                @if (getUploadStatus(file.name)?.status === 'uploading') {
+            @for (file of ragService.pendingFiles(); track file.name; let i = $index) {
+              <div class="file-tag" [class]="ragService.getUploadStatus(file.name)?.status || 'pending'">
+                @if (ragService.getUploadStatus(file.name)?.status === 'uploading') {
                   <div class="upload-progress">
                     <div class="upload-progress-bar" [style.width.%]="50"></div>
                   </div>
                 }
                 {{ file.name }}
-                <button class="remove-button" (click)="removePendingFile(i)">×</button>
+                <button class="remove-button" (click)="ragService.removePendingFile(i)">×</button>
               </div>
             }
           </div>
         }
 
-        @if (pendingFiles().length > 0) {
-          <button class="upload-button" (click)="uploadFiles()" [disabled]="isUploading()">
-            @if (isUploading()) {
+        @if (ragService.pendingFiles().length > 0) {
+          <button class="upload-button" (click)="ragService.uploadFiles()" [disabled]="ragService.isUploading()">
+            @if (ragService.isUploading()) {
               <span class="spinner"></span> {{ i18n.t().ragChat.uploading }}
             } @else {
-              ↑ {{ i18n.t().ragChat.upload }} ({{ pendingFiles().length }})
+              ↑ {{ i18n.t().ragChat.upload }} ({{ ragService.pendingFiles().length }})
             }
           </button>
         }
@@ -1015,133 +1007,48 @@ interface UploadedDocument {
   ],
 })
 export class RagChatComponent implements OnInit {
-  private api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
-  protected markdown = inject(MarkdownService);
-  protected notifications = inject(NotificationService);
+  protected readonly ragService = inject(RagChatService);
+  private readonly api = inject(ApiService);
+  private readonly markdown = inject(MarkdownService);
   private sessionId = `session_${Date.now()}`;
 
-  // State
+  // Chat state only
   messages = signal<Message[]>([]);
   input = signal('');
   isLoading = signal(false);
-  pendingFiles = signal<File[]>([]);
-  uploadStatuses = signal<Map<string, UploadedDocument>>(new Map());
-  availableDocs = signal<{ id: string; title: string }[]>([]);
-  selectedDocIds = signal<Set<string>>(new Set());
   expandedSources = signal<Set<string>>(new Set());
-  isLoadingDocs = signal(true);
-  deletingDocIds = signal<Set<string>>(new Set());
-  isUploading = signal(false);
 
   // Refs
   fileInput = viewChild<ElementRef>('fileInput');
   messagesEnd = viewChild<ElementRef>('messagesEnd');
   chatContainer = viewChild<ElementRef>('chatContainer');
 
-  // Streaming state: track which assistant messages are still receiving chunks
+  // Streaming state
   readonly streamingMessageIds = signal<Set<string>>(new Set());
   private charCountSinceLastRender = 0;
   private readonly RENDER_THROTTLE = 15;
 
   ngOnInit() {
-    this.fetchAvailableDocs();
+    this.ragService.fetchAvailableDocs();
   }
 
   ngOnDestroy() {
     // Cleanup
   }
 
-  // ==================== Documents ====================
-
-  fetchAvailableDocs() {
-    this.isLoadingDocs.set(true);
-    this.api.getDocuments().subscribe({
-      next: (data) => {
-        const docs = (data.documents || []).map((d: any) => ({
-          id: d.id || d.doc_id || '',
-          title: d.title || d.filename || d.name || 'Untitled',
-        }));
-        this.availableDocs.set(docs);
-        this.selectedDocIds.set(new Set(docs.map((d) => d.id)));
-        console.debug('[RAG] Loaded docs:', docs);
-      },
-      error: (err) => {
-        console.error('[RAG] Failed to load docs:', err);
-        this.availableDocs.set([]);
-      },
-      complete: () => {
-        this.isLoadingDocs.set(false);
-      },
-    });
-  }
-
-  toggleDocSelection(docId: string) {
-    this.selectedDocIds.update((ids) => {
-      const next = new Set(ids);
-      if (next.has(docId)) {
-        next.delete(docId);
-      } else {
-        next.add(docId);
-      }
-      return next;
-    });
-  }
-
-  selectAllDocs() {
-    this.selectedDocIds.set(new Set(this.availableDocs().map((d) => d.id)));
-  }
-
-  clearDocSelection() {
-    this.selectedDocIds.set(new Set());
-  }
+  // ==================== Document Events ====================
 
   onDocKeyDown(event: KeyboardEvent, docId: string) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      this.toggleDocSelection(docId);
+      this.ragService.toggleDocSelection(docId);
     }
   }
 
-  deleteDocument(docId: string, event: Event) {
+  onDeleteDoc(docId: string, event: Event) {
     event.stopPropagation();
-
-    // Defensive check - ensure docId is valid
-    if (!docId || docId === 'undefined' || docId === 'null') {
-      console.error('[RAG] Invalid document ID:', docId);
-      this.notifications.showError('Cannot delete: document ID is invalid');
-      return;
-    }
-
-    console.debug('[RAG] Deleting document:', docId);
-    this.deletingDocIds.update((ids) => new Set(ids).add(docId));
-
-    this.api.deleteDocument(docId).subscribe({
-      next: () => {
-        setTimeout(() => {
-          this.availableDocs.update((docs) => docs.filter((d) => d.id !== docId));
-          this.selectedDocIds.update((ids) => {
-            const next = new Set(ids);
-            next.delete(docId);
-            return next;
-          });
-          this.deletingDocIds.update((ids) => {
-            const next = new Set(ids);
-            next.delete(docId);
-            return next;
-          });
-          this.notifications.showSuccess(this.i18n.t().ragChat.documentDeleted);
-        }, 200);
-      },
-      error: () => {
-        this.deletingDocIds.update((ids) => {
-          const next = new Set(ids);
-          next.delete(docId);
-          return next;
-        });
-        this.notifications.showError(this.i18n.t().ragChat.deleteFailed);
-      },
-    });
+    this.ragService.deleteDocument(docId);
   }
 
   // ==================== File Upload ====================
@@ -1150,93 +1057,9 @@ export class RagChatComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const files = input.files;
     if (files) {
-      const newFiles = Array.from(files).filter(
-        (f) => !this.pendingFiles().some((pf) => pf.name === f.name)
-      );
-      this.pendingFiles.update((prev) => [...prev, ...newFiles]);
-      this.notifications.showInfo(
-        this.i18n.t().ragChat.fileSelected.replace('{count}', newFiles.length.toString())
-      );
+      this.ragService.onFileSelect(Array.from(files));
     }
     input.value = '';
-  }
-
-  removePendingFile(index: number) {
-    this.pendingFiles.update((files) => files.filter((_, i) => i !== index));
-  }
-
-  getUploadStatus(filename: string): UploadedDocument | undefined {
-    return this.uploadStatuses().get(filename);
-  }
-
-  uploadFiles() {
-    if (this.pendingFiles().length === 0) return;
-
-    this.isUploading.set(true);
-
-    const uploadFile = (file: File, index: number) => {
-      const docId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      this.uploadStatuses.update((statuses) => {
-        const next = new Map(statuses);
-        next.set(file.name, {
-          id: docId,
-          title: file.name,
-          status: 'uploading',
-          progress: 0,
-        });
-        return next;
-      });
-
-      return this.api.uploadDocument(file).subscribe({
-        next: () => {
-          this.uploadStatuses.update((statuses) => {
-            const next = new Map(statuses);
-            next.set(file.name, {
-              id: docId,
-              title: file.name,
-              status: 'success',
-            });
-            return next;
-          });
-          this.notifications.showSuccess(
-            this.i18n.t().ragChat.uploadSuccess.replace('{name}', file.name)
-          );
-
-          if (index === this.pendingFiles().length - 1) {
-            this.pendingFiles.set([]);
-            this.fetchAvailableDocs();
-            setTimeout(() => {
-              this.uploadStatuses.set(new Map());
-            }, 2000);
-          }
-        },
-        error: () => {
-          this.uploadStatuses.update((statuses) => {
-            const next = new Map(statuses);
-            next.set(file.name, {
-              id: docId,
-              title: file.name,
-              status: 'error',
-              error: this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name),
-            });
-            return next;
-          });
-          this.notifications.showError(
-            this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name)
-          );
-        },
-        complete: () => {
-          if (index === this.pendingFiles().length - 1) {
-            this.isUploading.set(false);
-          }
-        },
-      });
-    };
-
-    this.pendingFiles().forEach((file, index) => {
-      uploadFile(file, index);
-    });
   }
 
   // ==================== Chat ====================
@@ -1291,8 +1114,8 @@ export class RagChatComponent implements OnInit {
       temperature: DEFAULT_TEMPERATURE,
     };
 
-    if (this.selectedDocIds().size > 0) {
-      requestBody.doc_ids = Array.from(this.selectedDocIds());
+    if (this.ragService.selectedDocIds().size > 0) {
+      requestBody.doc_ids = Array.from(this.ragService.selectedDocIds());
     }
 
     let displayedContent = '';
@@ -1333,7 +1156,6 @@ export class RagChatComponent implements OnInit {
         this.isLoading.set(false);
       },
       (_err: Error) => {
-        // Log error for debugging, but show generic message to user
         console.error('[RAG] Stream error:', _err);
         this.messages.update((msgs) =>
           msgs.map((msg) =>
