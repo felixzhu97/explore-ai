@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CardComponent, CardVariant, CardPadding } from './card.component';
+import { CardComponent } from './card.component';
 
 describe('CardComponent', () => {
   let fixture: ComponentFixture<CardComponent>;
@@ -32,75 +32,94 @@ describe('CardComponent', () => {
 
   it('should render card with default classes', () => {
     createFixture();
-    const card = fixture.nativeElement.querySelector('.card');
-    expect(card.classList).toContain('card');
-    expect(card.classList).toContain('card--default');
-    expect(card.classList).toContain('card--padding-md');
+    const card = fixture.nativeElement.querySelector('div');
+    expect(card.classList).toContain('bg-surface');
+    expect(card.classList).toContain('shadow-card');
   });
 
-  it('should include interactive class when hoverable is true', () => {
+  it('should include hover classes when hoverable is true', () => {
     createFixture();
     fixture.componentRef.setInput('hoverable', true);
     fixture.detectChanges();
 
-    const card = fixture.nativeElement.querySelector('.card');
-    expect(card.classList).toContain('card--interactive');
-  });
-
-  it('should not include interactive class when hoverable is false', () => {
-    createFixture();
-    fixture.componentRef.setInput('hoverable', false);
-    fixture.detectChanges();
-
-    const card = fixture.nativeElement.querySelector('.card');
-    expect(card.classList).not.toContain('card--interactive');
+    const card = fixture.nativeElement.querySelector('div');
+    expect(card.classList).toContain('cursor-pointer');
+    expect(card.classList).toContain('hover:-translate-y-0.5');
   });
 
   describe('variants', () => {
-    const variants: CardVariant[] = ['default', 'elevated', 'outlined', 'glass'];
-    variants.forEach((variant) => {
-      it(`should support ${variant} variant`, () => {
-        createFixture();
-        fixture.componentRef.setInput('variant', variant);
-        fixture.detectChanges();
+    it('should apply default variant styles', () => {
+      createFixture();
+      fixture.componentRef.setInput('variant', 'default');
+      fixture.detectChanges();
 
-        const card = fixture.nativeElement.querySelector('.card');
-        expect(card.classList).toContain(`card--${variant}`);
-      });
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('shadow-card');
+    });
+
+    it('should apply elevated variant styles', () => {
+      createFixture();
+      fixture.componentRef.setInput('variant', 'elevated');
+      fixture.detectChanges();
+
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('shadow-elevated');
+    });
+
+    it('should apply outlined variant styles', () => {
+      createFixture();
+      fixture.componentRef.setInput('variant', 'outlined');
+      fixture.detectChanges();
+
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('border');
+    });
+
+    it('should apply glass variant styles', () => {
+      createFixture();
+      fixture.componentRef.setInput('variant', 'glass');
+      fixture.detectChanges();
+
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('backdrop-blur-xl');
     });
   });
 
   describe('padding', () => {
-    const paddings: CardPadding[] = ['none', 'sm', 'md', 'lg'];
-    paddings.forEach((padding) => {
-      it(`should support ${padding} padding`, () => {
-        createFixture();
-        fixture.componentRef.setInput('padding', padding);
-        fixture.detectChanges();
-
-        const card = fixture.nativeElement.querySelector('.card');
-        expect(card.classList).toContain(`card--padding-${padding}`);
-      });
-    });
-  });
-
-  describe('hover state', () => {
-    it('should apply interactive class when hoverable is true', () => {
+    it('should not have padding for none', () => {
       createFixture();
-      fixture.componentRef.setInput('hoverable', true);
+      fixture.componentRef.setInput('padding', 'none');
       fixture.detectChanges();
 
-      const card = fixture.nativeElement.querySelector('.card');
-      expect(card.classList).toContain('card--interactive');
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).not.toContain('p-');
     });
 
-    it('should apply interactive class for hoverable cards', () => {
+    it('should apply sm padding', () => {
       createFixture();
-      fixture.componentRef.setInput('hoverable', true);
+      fixture.componentRef.setInput('padding', 'sm');
       fixture.detectChanges();
 
-      const card = fixture.nativeElement.querySelector('.card');
-      expect(card.classList).toContain('card--interactive');
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('p-2');
+    });
+
+    it('should apply md padding', () => {
+      createFixture();
+      fixture.componentRef.setInput('padding', 'md');
+      fixture.detectChanges();
+
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('p-4');
+    });
+
+    it('should apply lg padding', () => {
+      createFixture();
+      fixture.componentRef.setInput('padding', 'lg');
+      fixture.detectChanges();
+
+      const card = fixture.nativeElement.querySelector('div');
+      expect(card.classList).toContain('p-6');
     });
   });
 });

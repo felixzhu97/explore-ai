@@ -4,6 +4,7 @@ import { AIInfraPanelComponent } from './ai-infra-panel.component';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
 import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
+import { AgentPageComponent } from '@features/agents/agent.page';
 import { I18nService } from '@core/i18n';
 
 describe('AIInfraPanelComponent', () => {
@@ -53,6 +54,7 @@ describe('AIInfraPanelComponent', () => {
         SegmentedControlComponent,
         AgentPanelComponent,
         StatusBadgeComponent,
+        AgentPageComponent,
       ],
       providers: [{ provide: I18nService, useValue: mockI18nService }],
     }).compileComponents();
@@ -163,12 +165,6 @@ describe('AIInfraPanelComponent', () => {
   });
 
   describe('template rendering', () => {
-    it('should render tab header', () => {
-      fixture.detectChanges();
-      const header = fixture.nativeElement.querySelector('.tab-header');
-      expect(header).toBeTruthy();
-    });
-
     it('should render segmented control', () => {
       fixture.detectChanges();
       const control = fixture.nativeElement.querySelector('app-segmented-control');
@@ -187,10 +183,10 @@ describe('AIInfraPanelComponent', () => {
       expect(badge).toBeTruthy();
     });
 
-    it('should render agent chat', () => {
+    it('should render agent page', () => {
       fixture.detectChanges();
-      const chat = fixture.nativeElement.querySelector('app-agent-chat');
-      expect(chat).toBeTruthy();
+      const agentPage = fixture.nativeElement.querySelector('app-agent-page');
+      expect(agentPage).toBeTruthy();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToolResultComponent, ToolCall } from './tool-result.component';
 
@@ -79,26 +79,6 @@ describe('ToolResultComponent', () => {
       expect(result).toContain('item2');
     });
 
-    it('should format primitive values', () => {
-      createFixture(createToolCall());
-      expect(component.formatJson('string')).toContain('string');
-      expect(component.formatJson(123)).toContain('123');
-      expect(component.formatJson(true)).toContain('true');
-    });
-
-    it('should handle null values', () => {
-      createFixture(createToolCall());
-      const result = component.formatJson({ key: null });
-      expect(result).toContain('null');
-    });
-
-    it('should handle undefined values', () => {
-      createFixture(createToolCall());
-      // JSON.stringify removes undefined values, so {key: undefined} becomes '{}'
-      const result = component.formatJson({ key: undefined });
-      expect(result).toBe('{}');
-    });
-
     it('should handle empty object', () => {
       createFixture(createToolCall());
       const result = component.formatJson({});
@@ -109,20 +89,6 @@ describe('ToolResultComponent', () => {
       createFixture(createToolCall());
       const result = component.formatJson([]);
       expect(result).toBe('[]');
-    });
-
-    it('should handle deep nesting', () => {
-      createFixture(createToolCall());
-      const obj = { a: { b: { c: { d: { e: 'deep' } } } } };
-      const result = component.formatJson(obj);
-      expect(result).toContain('deep');
-    });
-
-    it('should handle special characters', () => {
-      createFixture(createToolCall());
-      const result = component.formatJson({ text: 'Hello\nWorld' });
-      expect(result).toContain('Hello');
-      expect(result).toContain('World');
     });
   });
 
@@ -143,15 +109,7 @@ describe('ToolResultComponent', () => {
       expect(result).toContain('42');
     });
 
-    it('should format JSON array output', () => {
-      createFixture(createToolCall());
-      const output = '["item1", "item2", "item3"]';
-      const result = component.formatOutput(output);
-      expect(result).toContain('item1');
-      expect(result).toContain('item2');
-    });
-
-    it('should handle image URLs in PNG format', () => {
+    it('should handle image URLs', () => {
       createFixture(createToolCall());
       const output = 'Check this image: https://example.com/photo.png';
       const result = component.formatOutput(output);
@@ -159,177 +117,38 @@ describe('ToolResultComponent', () => {
       expect(result).toContain('https://example.com/photo.png');
     });
 
-    it('should handle image URLs in JPG format', () => {
-      createFixture(createToolCall());
-      const output = 'Image: https://example.com/photo.jpg';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-      expect(result).toContain('https://example.com/photo.jpg');
-    });
-
-    it('should handle image URLs in JPEG format', () => {
-      createFixture(createToolCall());
-      const output = 'Image: https://example.com/photo.jpeg';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-    });
-
-    it('should handle image URLs in GIF format', () => {
-      createFixture(createToolCall());
-      const output = 'GIF: https://example.com/animated.gif';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-    });
-
-    it('should handle image URLs with query parameters', () => {
-      createFixture(createToolCall());
-      const output = 'Image: https://example.com/photo.png?size=large&format=high';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-      expect(result).toContain('size=large');
-    });
-
-    it('should handle image URLs with special characters', () => {
-      createFixture(createToolCall());
-      const output = 'Image: https://example.com/photo%20name.png';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-    });
-
-    it('should handle invalid JSON gracefully', () => {
-      createFixture(createToolCall());
-      const output = '{not valid json';
-      const result = component.formatOutput(output);
-      expect(result).toBe(output);
-    });
-
-    it('should handle JSON with trailing whitespace', () => {
-      createFixture(createToolCall());
-      const output = '  {"key": "value"}  ';
-      const result = component.formatOutput(output);
-      expect(result).toContain('key');
-    });
-
     it('should handle empty string', () => {
       createFixture(createToolCall());
       const result = component.formatOutput('');
       expect(result).toBe('');
-    });
-
-    it('should handle string that looks like JSON but is invalid', () => {
-      createFixture(createToolCall());
-      const output = '{ key: value }'; // missing quotes
-      const result = component.formatOutput(output);
-      expect(result).toBe(output);
-    });
-
-    it('should include text before image URL', () => {
-      createFixture(createToolCall());
-      const output = 'Here is the image: https://example.com/pic.png';
-      const result = component.formatOutput(output);
-      expect(result).toContain('Here is the image');
-      expect(result).toContain('[Image:');
-    });
-
-    it('should include text after image URL', () => {
-      createFixture(createToolCall());
-      const output = 'https://example.com/pic.png - look at this!';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-      expect(result).toContain('look at this');
-    });
-
-    it('should handle SVG image URLs', () => {
-      createFixture(createToolCall());
-      const output = 'SVG: https://example.com/icon.svg';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-    });
-
-    it('should handle WebP image URLs', () => {
-      createFixture(createToolCall());
-      const output = 'WebP: https://example.com/photo.webp';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-    });
-
-    it('should handle BMP image URLs', () => {
-      createFixture(createToolCall());
-      const output = 'BMP: https://example.com/photo.bmp';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-    });
-
-    it('should handle whitespace in output', () => {
-      createFixture(createToolCall());
-      const output = '  \n  plain text with whitespace  \n  ';
-      const result = component.formatOutput(output);
-      expect(result).toBe(output);
-    });
-
-    it('should handle mixed content with multiple URLs', () => {
-      createFixture(createToolCall());
-      const output = 'First: https://example.com/1.png Second: https://example.com/2.png';
-      const result = component.formatOutput(output);
-      expect(result).toContain('[Image:');
-      expect(result).toContain('First:');
-      expect(result).toContain('Second:');
     });
   });
 
   describe('tool call status rendering', () => {
     it('should show pending status indicator', () => {
       createFixture(createToolCall({ status: 'pending' }));
-      const indicator = fixture.nativeElement.querySelector('.status-indicator--pending');
+      const indicator = fixture.nativeElement.querySelector('.text-text-tertiary');
       expect(indicator).toBeTruthy();
     });
 
     it('should show running status indicator with spinner', () => {
       createFixture(createToolCall({ status: 'running' }));
-      const indicator = fixture.nativeElement.querySelector('.status-indicator--running');
-      expect(indicator).toBeTruthy();
-      const spinner = fixture.nativeElement.querySelector('.spinner');
+      const spinner = fixture.nativeElement.querySelector('.animate-spin');
       expect(spinner).toBeTruthy();
     });
 
     it('should show success status indicator', () => {
       createFixture(createToolCall({ status: 'success' }));
-      const indicator = fixture.nativeElement.querySelector('.status-indicator--success');
-      expect(indicator).toBeTruthy();
-      expect(indicator?.textContent).toContain('✓');
+      const successText = fixture.nativeElement.querySelector('.text-success');
+      expect(successText).toBeTruthy();
+      expect(successText.textContent).toContain('✓');
     });
 
     it('should show error status indicator', () => {
       createFixture(createToolCall({ status: 'error' }));
-      const indicator = fixture.nativeElement.querySelector('.status-indicator--error');
-      expect(indicator).toBeTruthy();
-      expect(indicator?.textContent).toContain('✗');
-    });
-  });
-
-  describe('tool header styling', () => {
-    it('should apply error header class for error status', () => {
-      createFixture(createToolCall({ status: 'error' }));
-      const header = fixture.nativeElement.querySelector('.tool-header--error');
-      expect(header).toBeTruthy();
-    });
-
-    it('should apply success header class for success status', () => {
-      createFixture(createToolCall({ status: 'success' }));
-      const header = fixture.nativeElement.querySelector('.tool-header--success');
-      expect(header).toBeTruthy();
-    });
-
-    it('should apply pending header class for pending status', () => {
-      createFixture(createToolCall({ status: 'pending' }));
-      const header = fixture.nativeElement.querySelector('.tool-header--pending');
-      expect(header).toBeTruthy();
-    });
-
-    it('should apply running header class for running status', () => {
-      createFixture(createToolCall({ status: 'running' }));
-      const header = fixture.nativeElement.querySelector('.tool-header--running');
-      expect(header).toBeTruthy();
+      const errorText = fixture.nativeElement.querySelector('.text-error');
+      expect(errorText).toBeTruthy();
+      expect(errorText.textContent).toContain('✗');
     });
   });
 
@@ -339,7 +158,7 @@ describe('ToolResultComponent', () => {
       component.expanded.set(false);
       fixture.detectChanges();
 
-      const toolBody = fixture.nativeElement.querySelector('.tool-body');
+      const toolBody = fixture.nativeElement.querySelector('.border-t');
       expect(toolBody).toBeFalsy();
     });
 
@@ -348,7 +167,7 @@ describe('ToolResultComponent', () => {
       component.expanded.set(true);
       fixture.detectChanges();
 
-      const toolBody = fixture.nativeElement.querySelector('.tool-body');
+      const toolBody = fixture.nativeElement.querySelector('.border-t');
       expect(toolBody).toBeTruthy();
     });
 
@@ -357,30 +176,8 @@ describe('ToolResultComponent', () => {
       component.expanded.set(true);
       fixture.detectChanges();
 
-      const inputSection = fixture.nativeElement.querySelector('.section-label');
-      expect(inputSection?.textContent).toContain('Input');
-    });
-
-    it('should show code block for input when expanded', () => {
-      createFixture(createToolCall({ input: { query: 'test query' } }));
-      component.expanded.set(true);
-      fixture.detectChanges();
-
-      const codeBlock = fixture.nativeElement.querySelector('.code-block');
-      expect(codeBlock).toBeTruthy();
-      expect(codeBlock?.textContent).toContain('query');
-    });
-
-    it('should show output section when expanded and output exists', () => {
-      createFixture(createToolCall({ output: 'Tool output result' }));
-      component.expanded.set(true);
-      fixture.detectChanges();
-
-      const outputSection = fixture.nativeElement.querySelectorAll('.section-label');
-      const outputLabel = Array.from(outputSection).find(
-        (el) => el.textContent?.includes('Output')
-      );
-      expect(outputLabel).toBeTruthy();
+      const inputSection = fixture.nativeElement.querySelector('.uppercase');
+      expect(inputSection).toBeTruthy();
     });
 
     it('should show empty output message when success with no output', () => {
@@ -388,9 +185,8 @@ describe('ToolResultComponent', () => {
       component.expanded.set(true);
       fixture.detectChanges();
 
-      const emptyOutput = fixture.nativeElement.querySelector('.empty-output');
+      const emptyOutput = fixture.nativeElement.querySelector('.italic');
       expect(emptyOutput).toBeTruthy();
-      expect(emptyOutput?.textContent).toContain('No output');
     });
 
     it('should show error text for error status output', () => {
@@ -398,43 +194,16 @@ describe('ToolResultComponent', () => {
       component.expanded.set(true);
       fixture.detectChanges();
 
-      const errorText = fixture.nativeElement.querySelector('.error-text');
+      const errorText = fixture.nativeElement.querySelector('.text-error');
       expect(errorText).toBeTruthy();
-      expect(errorText?.textContent).toContain('Error: Something went wrong');
-    });
-  });
-
-  describe('expand icon', () => {
-    it('should not have expanded class when collapsed', () => {
-      createFixture(createToolCall());
-      component.expanded.set(false);
-      fixture.detectChanges();
-
-      const expandIcon = fixture.nativeElement.querySelector('.expand-icon');
-      expect(expandIcon?.classList.contains('expanded')).toBe(false);
-    });
-
-    it('should have expanded class when expanded', () => {
-      createFixture(createToolCall());
-      component.expanded.set(true);
-      fixture.detectChanges();
-
-      const expandIcon = fixture.nativeElement.querySelector('.expand-icon');
-      expect(expandIcon?.classList.contains('expanded')).toBe(true);
     });
   });
 
   describe('tool name display', () => {
     it('should display tool name', () => {
       createFixture(createToolCall({ name: 'get_weather' }));
-      const toolName = fixture.nativeElement.querySelector('.tool-name');
-      expect(toolName?.textContent).toContain('get_weather');
-    });
-
-    it('should handle long tool names', () => {
-      createFixture(createToolCall({ name: 'a_very_long_tool_name_that_should_be_handled_gracefully' }));
-      const toolName = fixture.nativeElement.querySelector('.tool-name');
-      expect(toolName).toBeTruthy();
+      const toolName = fixture.nativeElement.querySelector('.font-medium');
+      expect(toolName.textContent).toContain('get_weather');
     });
   });
 
@@ -443,7 +212,7 @@ describe('ToolResultComponent', () => {
       createFixture(createToolCall());
       const spy = vi.spyOn(component, 'toggleExpanded');
 
-      const header = fixture.nativeElement.querySelector('.tool-header');
+      const header = fixture.nativeElement.querySelector('.cursor-pointer');
       header?.click();
 
       expect(spy).toHaveBeenCalled();

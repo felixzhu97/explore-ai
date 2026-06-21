@@ -254,39 +254,72 @@ export const routes: Routes = [
 
 ## Style Standards
 
+### Tailwind CSS v4 (Primary)
+
+Use Tailwind CSS v4 utility classes with CSS variable references for theme colors.
+
+**CSS Variable Reference Syntax:**
+```html
+<!-- Reference theme colors -->
+<button class="bg-primary text-white hover:bg-primary-hover">Primary</button>
+<button class="bg-[--color-primary] text-[--color-text]">Custom</button>
+
+<!-- Spacing -->
+<div class="p-4 gap-2">Content</div>
+
+<!-- Border radius -->
+<div class="rounded-lg">Rounded</div>
+
+<!-- Shadows -->
+<div class="shadow-card">Card</div>
+```
+
+**Class Binding for Dynamic Variants:**
+```typescript
+getClasses(): string {
+  const classes: string[] = [];
+  if (this.variant() === 'primary') {
+    classes.push('bg-primary text-white');
+  }
+  return classes.join(' ');
+}
+```
+
+**Key Patterns:**
+- Use `bg-primary` for theme colors mapped in `@theme`
+- Use `bg-[--color-*]` for direct CSS variable references
+- Use `shadow-[--shadow-*]` for theme shadows
+- Use `rounded-*` for border radius
+
+### BEM Naming (Legacy - Phase Out)
+
+Migrate existing BEM-style SCSS to Tailwind classes:
+
 ```scss
-// Use BEM naming
-.user-card {
-  padding: var(--spacing-md);
-  background: var(--bg-card);
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-  }
-
-  &__name {
-    font-size: var(--font-size-headline);
-    font-weight: 600;
-  }
-
-  &--compact {
-    padding: var(--spacing-xs);
-  }
-
-  &--highlighted {
-    border: 2px solid var(--system-blue);
-  }
+// Before (legacy)
+.card {
+  &__header { }
+  &--elevated { }
 }
 
-// Variable definition
-:host {
-  --spacing-xs: 8px;
-  --spacing-md: 16px;
-  --radius-md: 12px;
-  --bg-card: rgb(255, 255, 255);
-}
+// After (Tailwind)
+class="bg-surface shadow-elevated rounded-xl"
+```
+
+### Inline Animations
+
+For complex animations, use inline `@keyframes`:
+
+```typescript
+styles: [`
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-in {
+    animation: slideIn 0.2s ease forwards;
+  }
+`]
 ```
 
 ## Type Standards
