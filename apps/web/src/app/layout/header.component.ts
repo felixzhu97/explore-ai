@@ -20,15 +20,16 @@ interface NavTab {
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="navbar">
-      <div class="nav-content">
-        <div class="logo">AI</div>
+    <nav class="sticky top-0 z-[100] h-[52px] bg-white/80 backdrop-blur-xl border-b border-black/8 flex items-center">
+      <div class="w-full max-w-[960px] mx-auto px-8 flex items-center justify-between max-sm:px-4">
+        <div class="text-[17px] font-semibold text-text flex items-center">AI</div>
 
-        <div class="nav-tabs">
+        <div class="flex gap-0.5 max-sm:gap-0">
           @for (tab of tabs; track tab.key) {
             <a
-              class="nav-tab"
-              [class.active]="isActiveTab(tab.path)"
+              class="px-4 py-2 text-sm font-medium font-inherit border-none cursor-pointer transition-colors duration-200 text-text-secondary bg-transparent no-underline max-sm:px-2.5 max-sm:text-xs"
+              [class.text-primary]="isActiveTab(tab.path)"
+              [class.text-text]="!isActiveTab(tab.path)"
               [routerLink]="tab.path"
               [title]="t().nav[tab.labelKey]"
             >
@@ -37,21 +38,22 @@ interface NavTab {
           }
         </div>
 
-        <div class="language-selector">
+        <div class="relative flex justify-end">
           <button
-            class="language-button"
+            class="flex items-center gap-1 px-3 py-1.5 text-xs font-inherit text-text-secondary bg-transparent border-none cursor-pointer transition-colors duration-200 rounded-md hover:text-text"
             (click)="toggleDropdown()"
             [attr.aria-expanded]="dropdownOpen()"
           >
             {{ i18n.languageName() }}
-            <span class="chevron" [class.open]="dropdownOpen()"></span>
+            <span class="inline-block w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent transition-transform duration-200" [class]="dropdownOpen() ? 'rotate-180' : ''" [style.border-top-color]="'currentColor'"></span>
           </button>
           @if (dropdownOpen()) {
-            <div class="dropdown">
+            <div class="absolute top-full right-0 mt-1 min-w-[140px] bg-surface border border-[--color-border] rounded-xl shadow-elevated overflow-hidden animate-[dropdownFadeIn_0.15s_ease]">
               @for (lang of supportedLanguages; track lang) {
                 <button
-                  class="dropdown-item"
-                  [class.active]="lang === i18n.language()"
+                  class="w-full px-4 py-2.5 text-xs font-inherit text-left text-text bg-transparent border-none cursor-pointer transition-colors duration-150 hover:bg-white/50"
+                  [class.text-primary]="lang === i18n.language()"
+                  [class.bg-primary-light]="lang === i18n.language()"
                   (click)="selectLanguage(lang)"
                 >
                   {{ languageNames[lang] }}
@@ -63,171 +65,18 @@ interface NavTab {
       </div>
     </nav>
   `,
-  styles: [
-    `
-      .navbar {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        height: 52px;
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        display: flex;
-        align-items: center;
+  styles: [`
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
       }
-
-      .nav-content {
-        width: 100%;
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 0 32px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-
-      .logo {
-        font-size: 17px;
-        font-weight: 600;
-        color: #1d1d1f;
-        display: flex;
-        align-items: center;
-      }
-
-      .nav-tabs {
-        display: flex;
-        gap: 2px;
-      }
-
-      .nav-tab {
-        padding: 8px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        font-family: inherit;
-        border: none;
-        cursor: pointer;
-        transition: color 0.2s ease;
-        color: #86868b;
-        background: transparent;
-        text-decoration: none;
-      }
-
-      .nav-tab:hover {
-        color: #1d1d1f;
-      }
-
-      .nav-tab.active {
-        color: #007aff;
-      }
-
-      .language-selector {
-        position: relative;
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .language-button {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 6px 12px;
-        font-size: 12px;
-        font-family: inherit;
-        color: #86868b;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: color 0.2s ease;
-        border-radius: 6px;
-      }
-
-      .language-button:hover {
-        color: #1d1d1f;
-      }
-
-      .chevron {
-        display: inline-block;
-        width: 0;
-        height: 0;
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
-        border-top: 4px solid currentColor;
-        transition: transform 0.2s ease;
-      }
-
-      .chevron.open {
-        transform: rotate(180deg);
-      }
-
-      .dropdown {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 4px;
-        min-width: 140px;
-        background: #ffffff;
-        border: 1px solid var(--color-border);
-        border-radius: 10px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        overflow: hidden;
-        animation: dropdownFadeIn 0.15s ease;
-      }
-
-      @keyframes dropdownFadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .dropdown-item {
-        width: 100%;
-        padding: 10px 16px;
-        font-size: 12px;
-        font-family: inherit;
-        text-align: left;
-        color: #1d1d1f;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: background 0.15s ease;
-      }
-
-      .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.54);
-      }
-
-      .dropdown-item.active {
-        color: #007aff;
-        background: rgba(0, 122, 255, 0.12);
-      }
-
-      .dropdown-item.active:hover {
-        background: rgba(0, 122, 255, 0.12);
-      }
-
-      @media (max-width: 640px) {
-        .nav-content {
-          padding: 0 16px;
-        }
-
-        .nav-tabs {
-          gap: 0;
-        }
-
-        .nav-tab {
-          padding: 8px 10px;
-          font-size: 12px;
-        }
-      }
-    `,
-  ],
+    }
+  `],
 })
 export class HeaderComponent {
   protected readonly i18n = inject(I18nService);
@@ -265,7 +114,7 @@ export class HeaderComponent {
   @HostListener('document:mousedown', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.language-selector')) {
+    if (!target.closest('.relative')) {
       this.dropdownOpen.set(false);
     }
   }
