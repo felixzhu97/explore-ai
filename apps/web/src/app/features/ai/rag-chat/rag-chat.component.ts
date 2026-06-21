@@ -1,19 +1,17 @@
 import {
   Component,
   signal,
-  computed,
   inject,
   OnInit,
-  OnDestroy,
   ElementRef,
   viewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
 import { ApiService } from '@core/services/api.service';
+import { MarkdownService } from '@core/services/markdown.service';
+import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@i18n';
 import { SourceDocument } from '@shared/models';
 
@@ -1095,9 +1093,11 @@ interface Toast {
     `,
   ],
 })
-export class RagChatComponent implements OnInit, OnDestroy {
+export class RagChatComponent implements OnInit {
   private api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
+  private markdown = inject(MarkdownService);
+  private notifications = inject(NotificationService);
   private sessionId = `session_${Date.now()}`;
 
   // State
@@ -1378,7 +1378,7 @@ export class RagChatComponent implements OnInit, OnDestroy {
     let displayedContent = '';
     this.charCountSinceLastRender = 0;
 
-    const streamResult = this.api.ragChat(
+    this.api.ragChat(
       requestBody,
       (chunk: string) => {
         displayedContent += chunk;
@@ -1412,7 +1412,9 @@ export class RagChatComponent implements OnInit, OnDestroy {
         });
         this.isLoading.set(false);
       },
-      (err: Error) => {
+      (_err: Error) => {
+        // Log error for debugging, but show generic message to user
+        console.error('[RAG] Stream error:', _err);
         this.messages.update((msgs) =>
           msgs.map((msg) =>
             msg.id === assistantMessageId
@@ -1462,23 +1464,6 @@ export class RagChatComponent implements OnInit, OnDestroy {
   }
 
   renderMarkdown(content: string): string {
-    if (!content) return '';
-
-    // Configure marked for better output
-    marked.setOptions({
-      gfm: true,
-      breaks: true,
-    });
-
-    // Convert markdown to HTML
-    const html = marked.parse(content) as string;
-
-    // Sanitize HTML to prevent XSS
-    const cleanHtml = DOMPurify.sanitize(html, {
-      ADD_TAGS: ['pre', 'code'],
-      ADD_ATTR: ['class'],
-    });
-
-    return cleanHtml;
+    return this.markdown.renderToString(content);
   }
 }

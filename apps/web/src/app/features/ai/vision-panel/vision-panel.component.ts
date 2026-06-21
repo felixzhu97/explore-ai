@@ -4,11 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { I18nService } from '../../../i18n';
-import {
-  SegmentedControlComponent,
-  SegmentedControlOption,
-} from '../../../shared/components/ui/segmented-control/segmented-control.component';
-import { Detection, VisionResult } from '../../../shared/models';
+import { SegmentedControlComponent } from '../../../shared/components/ui/segmented-control/segmented-control.component';
+import { VisionResult } from '../../../shared/models';
 
 type TaskType = 'caption' | 'detect' | 'ocr';
 
@@ -93,7 +90,7 @@ interface TabState {
               }
               @if (activeTask() === 'detect') {
                 <div class="detection-list">
-                  @for (det of currentState().result!.detections; track $index) {
+                  @for (det of currentState().result!.detections; track det.class_name) {
                     <div class="detection-item">
                       <span class="detection-name">{{ det.class_name }}</span>
                       <span class="confidence">{{ (det.confidence * 100).toFixed(0) }}%</span>
@@ -515,9 +512,7 @@ export class VisionPanelComponent {
     ];
   });
 
-  currentState(): TabState {
-    return this.tabStates()[this.activeTask()];
-  }
+  currentState = computed<TabState>(() => this.tabStates()[this.activeTask()]);
 
   setActiveTask(task: TaskType) {
     this.activeTask.set(task);

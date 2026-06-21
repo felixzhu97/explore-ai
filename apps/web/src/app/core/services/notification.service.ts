@@ -9,12 +9,11 @@ export interface Toast {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private toastsSignal = signal<Toast[]>([]);
+  private readonly toastsSignal = signal<Toast[]>([]);
   private counter = 0;
 
-  toasts = this.toastsSignal.asReadonly();
-
-  hasToasts = computed(() => this.toastsSignal().length > 0);
+  readonly toasts = this.toastsSignal.asReadonly();
+  readonly hasToasts = computed(() => this.toastsSignal().length > 0);
 
   showSuccess(message: string, duration = 3000): void {
     this.addToast(message, 'success', duration);
