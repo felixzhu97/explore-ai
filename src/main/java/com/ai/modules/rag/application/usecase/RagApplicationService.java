@@ -134,16 +134,19 @@ public class RagApplicationService {
     }
 
     /**
-     * Deletes a document.
+     * Deletes a document and its associated chunks.
      */
     @Transactional
     public void deleteDocument(UUID documentId) {
         log.info("Deleting document: {}", documentId);
 
-        IDocumentRepository.findById(documentId)
+        Document document = IDocumentRepository.findById(documentId)
             .orElseThrow(() -> new RuntimeException("Document not found: " + documentId));
 
-        vectorAdapter.search(new float[embeddingAdapter.getDimensions()], 1000, List.of(documentId));
+        int chunkCount = IDocumentRepository.findChunksByDocumentId(documentId).size();
+        log.info("Deleting document {} with {} chunks", documentId, chunkCount);
+
+        IDocumentRepository.deleteChunksByDocumentId(documentId);
         IDocumentRepository.delete(documentId);
 
         log.info("Document deleted successfully: {}", documentId);
