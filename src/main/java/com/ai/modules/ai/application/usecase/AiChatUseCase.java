@@ -2,6 +2,7 @@ package com.ai.modules.ai.application.usecase;
 
 import com.ai.domain.model.ChatMessage;
 import com.ai.domain.model.ChatSession;
+import com.ai.modules.ai.domain.exception.AiServiceException;
 import com.ai.modules.ai.domain.exception.ChatSessionNotFoundException;
 import com.ai.modules.ai.domain.repository.ChatSessionRepository;
 import org.slf4j.Logger;
@@ -51,7 +52,10 @@ public class AiChatUseCase {
                     .call()
                     .content();
             log.info("Chat response: {}", truncateForLog(response));
-            return response != null ? response : "";
+            if (response == null || response.isBlank()) {
+                throw new AiServiceException("AI returned empty response");
+            }
+            return response;
         });
     }
 
@@ -72,8 +76,11 @@ public class AiChatUseCase {
                 }
             }
 
-            String response = promptBuilder.call().content();
-            return response != null ? response : "";
+            var response = promptBuilder.call().content();
+            if (response == null || response.isBlank()) {
+                throw new AiServiceException("AI returned empty response");
+            }
+            return response;
         });
     }
 
