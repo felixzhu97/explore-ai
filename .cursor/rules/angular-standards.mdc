@@ -105,6 +105,108 @@ export class UserCardComponent {
 <p>{{ user()?.email ?? 'No email' }}</p>
 ```
 
+## Architecture Rules
+
+### 1. Top-Level Structure
+
+```
+src/app/
+├── app/         Application entry and composition (bootstrap + layout)
+├── core/        Global singleton capabilities (API / interceptors / auth / config)
+├── shared/      Reusable non-business capabilities (UI / utils / models)
+├── features/    Business modules (domain-scoped)
+├── layout/      Page layout components
+└── environments/ Environment config
+```
+
+### 2. Feature Module Rules (Critical)
+
+Each feature must be an independent, self-contained module:
+
+```
+features/<feature-name>/
+├── components/   UI components
+├── services/     Business state and logic
+├── models/       Data structures (DTOs / VOs)
+└── pages/        Page-level components (optional)
+```
+
+**Forbidden:**
+- Feature-to-feature direct imports
+- Feature accessing core internals
+- Feature depending on shared business models
+
+### 3. Core Rules
+
+Core contains only:
+- API Client
+- HTTP interceptors
+- Auth / session
+- i18n / config
+- Global singleton services
+
+**Forbidden:** Business logic, feature-related code
+
+### 4. Shared Rules
+
+Shared contains only:
+- UI components (button, card, modal)
+- Pipes / directives
+- Utils
+- Generic models (no business semantics)
+
+**Forbidden:** API calls, feature logic, domain-specific models
+
+### 5. DTO / Model Organization
+
+DTOs must be co-located with their feature:
+
+```
+features/ai/models/
+features/rag/models/
+```
+
+**Forbidden:** Separate dto/ or web/dto directories
+
+### 6. Dependency Direction (Strict)
+
+**Allowed:**
+```
+features → shared
+features → core
+layout → shared
+layout → core
+app → all
+```
+
+**Forbidden:**
+```
+core → features
+shared → features
+features → features (cross-module)
+```
+
+### 7. Layout Rules
+
+Layout components handle only:
+- Page structure (header/sidebar/main)
+- Router-outlet organization
+
+**Forbidden:** API calls, state management, feature logic
+
+### 8. Refactoring Principles
+
+Every structural improvement must satisfy:
+- Directory depth ≤ 4
+- Feature internal depth ≤ 3
+- DTOs not standalone
+- Features fully autonomous
+- Shared without business logic
+
+### 9. Ultimate Principle
+
+> Keep it simple. Keep features isolated. Avoid over-layering.
+
 ## Service Standards
 
 ```typescript

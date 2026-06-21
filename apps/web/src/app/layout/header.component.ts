@@ -10,7 +10,7 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
 
 interface NavTab {
   key: string;
-  labelKey: keyof import('@i18n').Translations['nav'];
+  labelKey: keyof import('@core/i18n').Translations['nav'];
   path: string;
 }
 
