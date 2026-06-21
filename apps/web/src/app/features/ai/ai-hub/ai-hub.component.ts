@@ -8,7 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { ChatTabComponent } from '../chat/chat.page';
-import { ImageGenTabComponent } from './image-gen-tab/image-gen-tab.component';
+import { ImagePageComponent } from '../image/image.page';
 import { TtsPageComponent } from '../tts/tts.page';
 import { I18nService } from '@core/i18n';
 
@@ -21,7 +21,7 @@ type Tab = 'chat' | 'image' | 'tts';
     CommonModule,
     SegmentedControlComponent,
     ChatTabComponent,
-    ImageGenTabComponent,
+    ImagePageComponent,
     TtsPageComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

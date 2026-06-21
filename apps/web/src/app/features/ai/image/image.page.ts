@@ -2,13 +2,8 @@ import { Component, signal, inject, ChangeDetectionStrategy, output } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
-import { I18nService } from '@core/i18n';
-
-interface ImageSize {
-  label: string;
-  width: number;
-  height: number;
-}
+import { I18nService } from '@i18n';
+import type { ImageSize } from './image.model';
 
 @Component({
   selector: 'app-image-gen-tab',
@@ -441,7 +436,7 @@ interface ImageSize {
     `,
   ],
 })
-export class ImageGenTabComponent {
+export class ImagePageComponent {
   private readonly api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
 
