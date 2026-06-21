@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { VisionPanelComponent } from './vision-panel.component';
 import { ApiService } from '@core/services/api.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { of } from 'rxjs';
 

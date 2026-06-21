@@ -4,7 +4,7 @@ import { RagChatComponent } from './rag-chat.component';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
 import { NotificationService } from '@core/services/notification.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import { of, throwError } from 'rxjs';
 
 describe('RagChatComponent', () => {
