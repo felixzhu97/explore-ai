@@ -119,3 +119,15 @@ main
 | Subject with period | Remove trailing punctuation |
 | Past tense | Use imperative: `add` not `added` |
 | PR base on main | Always base on previous branch |
+| Co-authored-by or Made with | Do not add boilerplate signatures or tool references |
+
+---
+
+## Prohibited Elements
+
+The following elements should **never** appear in commit messages or PR descriptions:
+
+- `Co-authored-by:` - Not needed, all work is attributed to the branch author
+- `Made with xxx` or `Built with xxx` - Unnecessary boilerplate
+- Sign-off lines (`Signed-off-by:`) unless required by CI
+- Emoji prefixes or suffixes in subject lines
