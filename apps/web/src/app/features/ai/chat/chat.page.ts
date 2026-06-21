@@ -13,7 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
-import { MarkdownService } from '@core/services/markdown.service';
+import { MarkdownService } from '@shared/utils/markdown.service';
 import { I18nService } from '@i18n';
 import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.model';
 
