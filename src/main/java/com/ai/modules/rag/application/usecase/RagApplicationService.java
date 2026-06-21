@@ -37,19 +37,19 @@ public class RagApplicationService {
     private final ChunkingService chunkingService;
     private final EmbeddingAdapter embeddingAdapter;
     private final PgVectorAdapter vectorAdapter;
-    private final IDocumentRepository IDocumentRepository;
+    private final IDocumentRepository documentRepository;
     private final PdfTextExtractor pdfTextExtractor;
 
     public RagApplicationService(
             ChunkingService chunkingService,
             EmbeddingAdapter embeddingAdapter,
             PgVectorAdapter vectorAdapter,
-            IDocumentRepository IDocumentRepository,
+            IDocumentRepository documentRepository,
             PdfTextExtractor pdfTextExtractor) {
         this.chunkingService = chunkingService;
         this.embeddingAdapter = embeddingAdapter;
         this.vectorAdapter = vectorAdapter;
-        this.IDocumentRepository = IDocumentRepository;
+        this.documentRepository = documentRepository;
         this.pdfTextExtractor = pdfTextExtractor;
     }
 
@@ -72,7 +72,7 @@ public class RagApplicationService {
 
         Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
         document.markProcessing();
-        document = IDocumentRepository.save(document);
+        document = documentRepository.save(document);
 
         try {
             List<String> chunks = chunkingService.chunk(content);
@@ -81,7 +81,7 @@ public class RagApplicationService {
             int chunkCount = saveChunks(title, fileName, document.getId().value(), chunks);
 
             document.markReady();
-            document = IDocumentRepository.save(document);
+            document = documentRepository.save(document);
             log.info("Document uploaded successfully: {}", document.getId());
 
             return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunkCount);
@@ -89,7 +89,7 @@ public class RagApplicationService {
         } catch (Exception e) {
             log.error("Failed to process document", e);
             document.markFailed();
-            IDocumentRepository.save(document);
+            documentRepository.save(document);
             throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
         }
     }
@@ -103,7 +103,7 @@ public class RagApplicationService {
 
         Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
         document.markProcessing();
-        document = IDocumentRepository.save(document);
+        document = documentRepository.save(document);
 
         try {
             String content = extractContent(fileContent, fileName);
@@ -113,7 +113,7 @@ public class RagApplicationService {
             int chunkCount = saveChunks(title, fileName, document.getId().value(), chunks);
 
             document.markReady();
-            document = IDocumentRepository.save(document);
+            document = documentRepository.save(document);
             log.info("Document uploaded successfully: {}", document.getId());
 
             return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunkCount);
@@ -121,7 +121,7 @@ public class RagApplicationService {
         } catch (Exception e) {
             log.error("Failed to process document", e);
             document.markFailed();
-            IDocumentRepository.save(document);
+            documentRepository.save(document);
             throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
         }
     }
@@ -130,7 +130,7 @@ public class RagApplicationService {
      * Lists all documents.
      */
     public List<Document> listDocuments() {
-        return IDocumentRepository.findAll();
+        return documentRepository.findAll();
     }
 
     /**
@@ -140,14 +140,14 @@ public class RagApplicationService {
     public void deleteDocument(UUID documentId) {
         log.info("Deleting document: {}", documentId);
 
-        Document document = IDocumentRepository.findById(documentId)
+        Document document = documentRepository.findById(documentId)
             .orElseThrow(() -> new RuntimeException("Document not found: " + documentId));
 
-        int chunkCount = IDocumentRepository.findChunksByDocumentId(documentId).size();
+        int chunkCount = documentRepository.findChunksByDocumentId(documentId).size();
         log.info("Deleting document {} with {} chunks", documentId, chunkCount);
 
-        IDocumentRepository.deleteChunksByDocumentId(documentId);
-        IDocumentRepository.delete(documentId);
+        documentRepository.deleteChunksByDocumentId(documentId);
+        documentRepository.delete(documentId);
 
         log.info("Document deleted successfully: {}", documentId);
     }
