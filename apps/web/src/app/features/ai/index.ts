@@ -1,4 +1,2 @@
-export * from './ai-hub/ai-hub.component';
-export * from './rag-chat/rag-chat.component';
-export * from './vision-panel/vision-panel.component';
+// AI Hub - Re-export services
 export * from '@core/services/api.service';

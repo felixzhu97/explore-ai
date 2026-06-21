@@ -11,7 +11,7 @@ export type { SegmentedControlOption } from '@shared/components/ui/segmented-con
 export { ImageZoomModalComponent } from '@shared/components/image-zoom-modal';
 
 // Agents
-export { AgentChatComponent, type AgentInfo } from '@features/agents';
+export { AgentPageComponent, type AgentInfo } from '@features/agents';
 export { ChatMessageComponent, type ChatMessageData } from '@features/agents';
 export { StatusBadgeComponent, type BadgeStatus } from '@features/agents';
 export { ToolResultComponent, type ToolCall, type ToolCallStatus } from '@features/agents';
