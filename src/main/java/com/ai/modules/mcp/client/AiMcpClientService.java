@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * MCP Client service for managing connections to external MCP servers.
@@ -20,7 +21,7 @@ public class AiMcpClientService {
 
     private static final Logger log = LoggerFactory.getLogger(AiMcpClientService.class);
 
-    private final List<ToolCallback> registeredTools = new ArrayList<>();
+    private final CopyOnWriteArrayList<ToolCallback> registeredTools = new CopyOnWriteArrayList<>();
     private final Map<String, ServerInfo> connectedServers = new ConcurrentHashMap<>();
 
     public AiMcpClientService() {
