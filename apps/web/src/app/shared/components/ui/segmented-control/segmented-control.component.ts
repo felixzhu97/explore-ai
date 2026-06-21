@@ -10,14 +10,12 @@ export interface SegmentedControlOption<T extends string = string> {
   selector: 'app-segmented-control',
   standalone: true,
   template: `
-    <div class="container" role="tablist">
+    <div class="inline-flex bg-surface rounded-xl shadow-card p-1 gap-1" role="tablist">
       @for (option of options(); track option.value) {
         <button
           type="button"
-          class="option"
-          [class.option--active]="value() === option.value"
-          [class.option--disabled]="option.disabled"
-          [attr.data-active]="value() === option.value ? 'true' : 'false'"
+          class="relative px-5 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          [class]="getOptionClasses(option)"
           [attr.role]="'tab'"
           [attr.aria-selected]="value() === option.value"
           [attr.aria-disabled]="option.disabled ? 'true' : 'false'"
@@ -29,61 +27,6 @@ export interface SegmentedControlOption<T extends string = string> {
       }
     </div>
   `,
-  styles: [
-    `
-      :host {
-        display: inline-block;
-      }
-
-      .container {
-        display: inline-flex;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow:
-          0 2px 8px rgba(0, 0, 0, 0.08),
-          inset 0 1px 1px rgba(0, 0, 0, 0.08);
-        padding: 4px;
-        gap: 4px;
-      }
-
-      .option {
-        position: relative;
-        padding: 8px 20px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        color: #6e6e73;
-        background: transparent;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover:not([data-active='true']):not(:disabled) {
-          color: #1d1d1f;
-        }
-
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
-        }
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        &--active {
-          color: #1d1d1f;
-        }
-
-        &--disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SegmentedControlComponent<T extends string = string> {
@@ -91,6 +34,15 @@ export class SegmentedControlComponent<T extends string = string> {
   value = input.required<T>();
 
   changed = output<T>();
+
+  getOptionClasses(option: SegmentedControlOption<T>): string {
+    const isActive = this.value() === option.value;
+    const baseClasses = isActive
+      ? 'text-text bg-surface-secondary shadow-sm'
+      : 'text-text-tertiary hover:text-text';
+
+    return `${baseClasses}`;
+  }
 
   selectOption(option: SegmentedControlOption<T>): void {
     if (!option.disabled && option.value !== this.value()) {

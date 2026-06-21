@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -8,21 +8,16 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   standalone: true,
   template: `
     <button
-      [class]="
-        'button button--' +
-        variant() +
-        ' button--' +
-        size() +
-        (fullWidth() ? ' button--full-width' : '')
-      "
+      class="inline-flex items-center justify-center font-medium leading-none whitespace-nowrap select-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+      [class]="getClasses()"
       [disabled]="disabled() || loading()"
       [attr.aria-busy]="loading() ? true : null"
       (click)="handleClick($event)"
     >
       @if (loading()) {
-        <span class="spinner" aria-hidden="true"></span>
+        <span class="inline-block w-3.5 h-3.5 border-2 border-current border-r-transparent rounded-full animate-spin" aria-hidden="true"></span>
       } @else if (icon()) {
-        <span class="icon-wrapper">
+        <span class="inline-flex items-center">
           <ng-content select="[icon]"></ng-content>
         </span>
         <ng-content></ng-content>
@@ -31,152 +26,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       }
     </button>
   `,
-  styles: [
-    `
-      :host {
-        display: inline-block;
-      }
-
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-weight: 500;
-        line-height: 1;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        user-select: none;
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
-        }
-
-        // Size variants
-        &--sm {
-          padding: 6px 12px;
-          font-size: 12px;
-          border-radius: 6px;
-          gap: 4px;
-        }
-
-        &--md {
-          padding: 10px 18px;
-          font-size: 14px;
-          border-radius: 8px;
-          gap: 6px;
-        }
-
-        &--lg {
-          padding: 14px 24px;
-          font-size: 15px;
-          border-radius: 10px;
-          gap: 8px;
-        }
-
-        // Full width
-        &--full-width {
-          width: 100%;
-        }
-
-        // Color variants
-        &--primary {
-          background: #007aff;
-          color: white;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-          &:hover:not(:disabled) {
-            background: #0066d6;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          }
-
-          &:active:not(:disabled) {
-            background: #0055b3;
-            transform: scale(0.98);
-          }
-        }
-
-        &--secondary {
-          background: #ffffff;
-          color: #007aff;
-          border: 1px solid #d1d1d6;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-          &:hover:not(:disabled) {
-            background: rgba(0, 122, 255, 0.08);
-            border-color: #007aff;
-          }
-
-          &:active:not(:disabled) {
-            background: rgba(0, 122, 255, 0.12);
-            transform: scale(0.98);
-          }
-        }
-
-        &--ghost {
-          background: transparent;
-          color: #007aff;
-
-          &:hover:not(:disabled) {
-            background: rgba(0, 122, 255, 0.08);
-          }
-
-          &:active:not(:disabled) {
-            background: rgba(0, 122, 255, 0.12);
-            transform: scale(0.98);
-          }
-        }
-
-        &--danger {
-          background: #ff3b30;
-          color: white;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-          &:hover:not(:disabled) {
-            background: #e6352b;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          }
-
-          &:active:not(:disabled) {
-            background: #cc3126;
-            transform: scale(0.98);
-          }
-        }
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .spinner {
-        display: inline-block;
-        width: 14px;
-        height: 14px;
-        border: 2px solid currentColor;
-        border-right-color: transparent;
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-      }
-
-      .icon-wrapper {
-        display: inline-flex;
-        align-items: center;
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonComponent {
@@ -188,6 +37,44 @@ export class ButtonComponent {
   icon = input<boolean>(false);
 
   clicked = output<MouseEvent>();
+
+  getClasses(): string {
+    const classes: string[] = [];
+
+    // Size classes
+    switch (this.size()) {
+      case 'sm':
+        classes.push('px-3 py-1.5 text-xs rounded-sm gap-1');
+        break;
+      case 'lg':
+        classes.push('px-6 py-3.5 text-base rounded-[10px] gap-2');
+        break;
+      default: // md
+        classes.push('px-[18px] py-2.5 text-sm rounded-md gap-1.5');
+    }
+
+    // Variant classes
+    switch (this.variant()) {
+      case 'secondary':
+        classes.push('bg-surface text-primary border border-[#d1d1d6] shadow-sm hover:bg-primary-light hover:border-primary active:bg-primary-light active:scale-[0.98]');
+        break;
+      case 'ghost':
+        classes.push('bg-transparent text-primary hover:bg-primary-light active:bg-primary-light/12 active:scale-[0.98]');
+        break;
+      case 'danger':
+        classes.push('bg-error text-white shadow-sm hover:bg-[#e6352b] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:bg-[#cc3126] active:scale-[0.98]');
+        break;
+      default: // primary
+        classes.push('bg-primary text-white shadow-sm hover:bg-primary-hover hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:bg-primary-active active:scale-[0.98]');
+    }
+
+    // Full width
+    if (this.fullWidth()) {
+      classes.push('w-full');
+    }
+
+    return classes.join(' ');
+  }
 
   handleClick(event: MouseEvent): void {
     if (!this.disabled() && !this.loading()) {
