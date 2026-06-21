@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatMessageComponent } from '../chat-message/chat-message.component';
 import type { ChatMessageData } from '../chat-message/chat-message.component';
 import { ToolCall } from '../tool-result/tool-result.component';
-import type { AgentInfo } from '../../../shared/models';
+import type { AgentInfo } from '../models/agent.model';
 export type { AgentInfo };
 
 @Component({
