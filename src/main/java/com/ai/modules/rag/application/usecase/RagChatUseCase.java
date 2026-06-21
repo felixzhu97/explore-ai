@@ -3,7 +3,6 @@ package com.ai.modules.rag.application.usecase;
 import com.ai.modules.rag.domain.model.SourceDocument;
 import com.ai.modules.ai.application.usecase.ChatUseCase;
 import com.ai.modules.ai.domain.service.LanguageDetectionService;
-import com.ai.modules.ai.infrastructure.service.PromptTemplates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,17 +23,14 @@ public class RagChatUseCase {
     private final RagApplicationService ragApplicationService;
     private final ChatUseCase aiChatUseCase;
     private final LanguageDetectionService languageDetectionService;
-    private final PromptTemplates promptTemplates;
 
     public RagChatUseCase(
             RagApplicationService ragApplicationService,
             ChatUseCase aiChatUseCase,
-            LanguageDetectionService languageDetectionService,
-            PromptTemplates promptTemplates) {
+            LanguageDetectionService languageDetectionService) {
         this.ragApplicationService = ragApplicationService;
         this.aiChatUseCase = aiChatUseCase;
         this.languageDetectionService = languageDetectionService;
-        this.promptTemplates = promptTemplates;
     }
 
     /**
@@ -73,7 +69,6 @@ public class RagChatUseCase {
 
     private String buildPrompt(String question, String context) {
         String languageCode = languageDetectionService.detect(question);
-        languageDetectionService.buildPrompt(question, context, languageCode);
-        return promptTemplates.buildQuestionAnswerPrompt(context, question);
+        return languageDetectionService.buildPrompt(question, context, languageCode);
     }
 }

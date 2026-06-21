@@ -1,6 +1,5 @@
-package com.ai.modules.rag.domain.repository;
+package com.ai.modules.rag.infrastructure.storage;
 
-import com.ai.modules.rag.infrastructure.storage.DocumentChunkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,9 +11,10 @@ import java.util.UUID;
 
 /**
  * Spring Data JPA repository for DocumentChunkEntity.
+ * Located in infrastructure layer to avoid domain-dependency violation.
  */
 @Repository
-public interface ISpringDataChunkRepository extends JpaRepository<DocumentChunkEntity, UUID> {
+public interface SpringDataChunkRepository extends JpaRepository<DocumentChunkEntity, UUID> {
 
     List<DocumentChunkEntity> findByDocumentId(UUID documentId);
 

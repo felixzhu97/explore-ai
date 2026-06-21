@@ -73,11 +73,11 @@ public class PgVectorAdapter {
     @Transactional
     public void saveChunk(DocumentChunk chunk) {
         String embeddingString = arrayToPostgresString(chunk.getEmbedding());
-        String metadataJson = metadataToJson(chunk.getMetadata());
+        String metadataJson = serializeMetadata(chunk.getMetadata());
 
         String sql = "INSERT INTO " + TABLE_NAME +
                 " (id, document_id, content, chunk_index, embedding, metadata, created_at) " +
-                "VALUES (?, ?, ?, ?, ?::vector, " + metadataJson + ", ?) " +
+                "VALUES (?, ?, ?, ?, ?::vector, ?::jsonb, ?) " +
                 "ON CONFLICT (id) DO UPDATE SET " +
                 "content = EXCLUDED.content, " +
                 "embedding = EXCLUDED.embedding, " +
@@ -89,6 +89,7 @@ public class PgVectorAdapter {
                 chunk.getContent(),
                 chunk.getChunkIndex(),
                 embeddingString,
+                metadataJson,
                 chunk.getCreatedAt().toString());
     }
 
@@ -104,15 +105,15 @@ public class PgVectorAdapter {
         return sb.toString();
     }
 
-    private String metadataToJson(Map<String, Object> metadata) {
+    private String serializeMetadata(Map<String, Object> metadata) {
         if (metadata == null || metadata.isEmpty()) {
-            return "NULL";
+            return null;
         }
         try {
-            return "'" + objectMapper.writeValueAsString(metadata).replace("'", "''") + "'";
+            return objectMapper.writeValueAsString(metadata);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize metadata to JSON", e);
-            return "NULL";
+            return null;
         }
     }
 
@@ -130,8 +131,7 @@ public class PgVectorAdapter {
 
             Instant createdAt = parseTimestamp(rs.getString("created_at"));
 
-            return new DocumentChunk(id, documentId, content, chunkIndex, metadata)
-                    .withEmbedding(embedding);
+            return DocumentChunk.reconstitute(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
         }
 
         private float[] parsePostgresVector(String vectorString) {

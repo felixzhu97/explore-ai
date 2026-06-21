@@ -1,6 +1,5 @@
 package com.ai.modules.rag.domain.model;
 
-import com.ai.modules.rag.domain.model.DocumentChunk;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * DocumentChunk Entity Tests
@@ -40,7 +40,7 @@ class DocumentChunkTest {
             metadata.put("author", "test-author");
 
             // Act
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                 TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, metadata
             );
 
@@ -57,7 +57,7 @@ class DocumentChunkTest {
         @DisplayName("should handle null embedding initially")
         void shouldHandleNullEmbeddingInitially() {
             // Act
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                 TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
             );
 
@@ -69,8 +69,8 @@ class DocumentChunkTest {
         @DisplayName("should create chunk with empty metadata")
         void shouldCreateChunkWithEmptyMetadata() {
             // Act
-            DocumentChunk chunk = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk chunk = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
 
             // Assert
@@ -84,8 +84,8 @@ class DocumentChunkTest {
             Instant before = Instant.now();
 
             // Act
-            DocumentChunk chunk = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk chunk = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
 
             // Assert
@@ -98,8 +98,8 @@ class DocumentChunkTest {
         @DisplayName("should correctly store and retrieve chunkIndex")
         void shouldCorrectlyStoreAndRetrieveChunkIndex() {
             // Act
-            DocumentChunk chunk = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, 5, new HashMap<>()
+            DocumentChunk chunk = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, 5, Map.of()
             );
 
             // Assert
@@ -110,8 +110,8 @@ class DocumentChunkTest {
         @DisplayName("should handle empty content")
         void shouldHandleEmptyContent() {
             // Act
-            DocumentChunk chunk = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, "", TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk chunk = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, "", TEST_CHUNK_INDEX, Map.of()
             );
 
             // Assert
@@ -125,12 +125,36 @@ class DocumentChunkTest {
             String specialContent = "Hello! ¿Cómo estás? 你好世界! 🎉 \"quotes\" and 'more'";
 
             // Act
-            DocumentChunk chunk = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, specialContent, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk chunk = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, specialContent, TEST_CHUNK_INDEX, Map.of()
             );
 
             // Assert
             assertThat(chunk.getContent()).isEqualTo(specialContent);
+        }
+
+        @Test
+        @DisplayName("should throw exception for null id")
+        void shouldThrowExceptionForNullId() {
+            assertThatThrownBy(() -> DocumentChunk.create(
+                null, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
+            )).isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("should throw exception for null documentId")
+        void shouldThrowExceptionForNullDocumentId() {
+            assertThatThrownBy(() -> DocumentChunk.create(
+                TEST_ID, null, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
+            )).isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("should throw exception for null content")
+        void shouldThrowExceptionForNullContent() {
+            assertThatThrownBy(() -> DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, null, TEST_CHUNK_INDEX, Map.of()
+            )).isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -142,8 +166,8 @@ class DocumentChunkTest {
         @DisplayName("should return new instance with embedding set")
         void shouldReturnNewInstanceWithEmbeddingSet() {
             // Arrange
-            DocumentChunk original = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk original = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
             float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
 
@@ -158,8 +182,8 @@ class DocumentChunkTest {
         @DisplayName("should not modify original chunk")
         void shouldNotModifyOriginalChunk() {
             // Arrange
-            DocumentChunk original = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk original = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
             float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
 
@@ -176,7 +200,7 @@ class DocumentChunkTest {
             // Arrange
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("key", "value");
-            DocumentChunk original = new DocumentChunk(
+            DocumentChunk original = DocumentChunk.create(
                 TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, metadata
             );
             float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
@@ -197,13 +221,13 @@ class DocumentChunkTest {
         @DisplayName("should support embedding with different sizes")
         void shouldSupportEmbeddingWithDifferentSizes() {
             // Arrange
-            DocumentChunk original = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk original = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
 
             // Act
             DocumentChunk withSmallEmbedding = original.withEmbedding(new float[]{0.1f, 0.2f});
-            float[] largeEmbedding = new float[768]; // Common embedding dimension (nomic-embed-text)
+            float[] largeEmbedding = new float[768];
             DocumentChunk withLargeEmbedding = original.withEmbedding(largeEmbedding);
 
             // Assert
@@ -215,8 +239,8 @@ class DocumentChunkTest {
         @DisplayName("should return instance with zero embedding")
         void shouldReturnInstanceWithZeroEmbedding() {
             // Arrange
-            DocumentChunk original = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk original = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
             float[] zeroEmbedding = new float[]{0.0f, 0.0f, 0.0f};
 
@@ -233,30 +257,28 @@ class DocumentChunkTest {
     class Immutability {
 
         @Test
-        @DisplayName("should not allow modification of metadata after creation")
-        void shouldNotAllowModificationOfMetadataAfterCreation() {
+        @DisplayName("should create independent copies of metadata")
+        void shouldCreateIndependentCopiesOfMetadata() {
             // Arrange
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("key", "original");
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                 TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, metadata
             );
 
-            // Act & Assert - metadata reference is returned, but original should be preserved
-            Map<String, Object> retrievedMetadata = chunk.getMetadata();
-            retrievedMetadata.put("newKey", "newValue");
+            // Act - modify the original map
+            metadata.put("newKey", "newValue");
 
-            // Note: Due to Java's reference semantics, the internal map can be modified
-            // The immutability is at the instance level - creating new instances with withEmbedding
-            assertThat(chunk.getId()).isNotNull();
+            // Assert - chunk should have independent copy
+            assertThat(chunk.getMetadata()).doesNotContainKey("newKey");
         }
 
         @Test
         @DisplayName("should have independent instances when using withEmbedding")
         void shouldHaveIndependentInstancesWhenUsingWithEmbedding() {
             // Arrange
-            DocumentChunk original = new DocumentChunk(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, new HashMap<>()
+            DocumentChunk original = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
             );
             float[] embedding1 = new float[]{0.1f};
             float[] embedding2 = new float[]{0.2f};
@@ -269,6 +291,27 @@ class DocumentChunkTest {
             assertThat(instance1.getEmbedding()).isEqualTo(embedding1);
             assertThat(instance2.getEmbedding()).isEqualTo(embedding2);
             assertThat(original.getEmbedding()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("createWithEmbedding")
+    class CreateWithEmbedding {
+
+        @Test
+        @DisplayName("should create chunk with embedding directly")
+        void shouldCreateChunkWithEmbeddingDirectly() {
+            // Arrange
+            float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
+
+            // Act
+            DocumentChunk chunk = DocumentChunk.createWithEmbedding(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of(), embedding
+            );
+
+            // Assert
+            assertThat(chunk.getEmbedding()).isEqualTo(embedding);
+            assertThat(chunk.getId()).isEqualTo(TEST_ID);
         }
     }
 }

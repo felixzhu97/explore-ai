@@ -5,6 +5,7 @@ import com.ai.modules.rag.domain.exception.DocumentProcessingException;
 import com.ai.modules.rag.domain.model.Document;
 import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.ai.modules.rag.domain.model.SourceDocument;
+import com.ai.modules.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.modules.rag.domain.repository.IDocumentRepository;
 import com.ai.modules.rag.domain.util.VectorSimilarity;
 import com.ai.modules.rag.infrastructure.parser.PdfTextExtractor;
@@ -40,6 +41,7 @@ public class RagApplicationService {
     private final EmbeddingAdapter embeddingAdapter;
     private final PgVectorAdapter vectorAdapter;
     private final IDocumentRepository documentRepository;
+    private final IDocumentChunkRepository chunkRepository;
     private final PdfTextExtractor pdfTextExtractor;
 
     public RagApplicationService(
@@ -47,11 +49,13 @@ public class RagApplicationService {
             EmbeddingAdapter embeddingAdapter,
             PgVectorAdapter vectorAdapter,
             IDocumentRepository documentRepository,
+            IDocumentChunkRepository chunkRepository,
             PdfTextExtractor pdfTextExtractor) {
         this.chunkingService = chunkingService;
         this.embeddingAdapter = embeddingAdapter;
         this.vectorAdapter = vectorAdapter;
         this.documentRepository = documentRepository;
+        this.chunkRepository = chunkRepository;
         this.pdfTextExtractor = pdfTextExtractor;
     }
 
@@ -145,10 +149,10 @@ public class RagApplicationService {
         Document document = documentRepository.findById(documentId)
             .orElseThrow(() -> new DocumentNotFoundException(documentId));
 
-        int chunkCount = documentRepository.findChunksByDocumentId(documentId).size();
+        int chunkCount = chunkRepository.findChunksByDocumentId(documentId).size();
         log.info("Deleting document {} with {} chunks", documentId, chunkCount);
 
-        documentRepository.deleteChunksByDocumentId(documentId);
+        chunkRepository.deleteChunksByDocumentId(documentId);
         documentRepository.delete(documentId);
 
         log.info("Document deleted successfully: {}", documentId);
@@ -207,7 +211,7 @@ public class RagApplicationService {
             metadata.put("title", title);
             metadata.put("fileName", fileName);
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                 UUID.randomUUID(),
                 documentId,
                 chunkText,

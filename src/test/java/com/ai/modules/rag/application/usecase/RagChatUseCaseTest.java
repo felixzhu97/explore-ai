@@ -5,7 +5,6 @@ import com.ai.modules.rag.application.usecase.RagChatUseCase;
 import com.ai.modules.rag.domain.model.SourceDocument;
 import com.ai.modules.ai.application.usecase.ChatUseCase;
 import com.ai.modules.ai.domain.service.LanguageDetectionService;
-import com.ai.modules.ai.infrastructure.service.PromptTemplates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,9 +35,6 @@ class RagChatUseCaseTest {
     @Mock
     private LanguageDetectionService languageDetectionService;
 
-    @Mock
-    private PromptTemplates promptTemplates;
-
     private RagChatUseCase ragChatUseCase;
 
     @BeforeEach
@@ -46,8 +42,7 @@ class RagChatUseCaseTest {
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
                 aiChatUseCase,
-                languageDetectionService,
-                promptTemplates
+                languageDetectionService
         );
     }
 
@@ -70,9 +65,8 @@ class RagChatUseCaseTest {
 
             when(languageDetectionService.detect(question)).thenReturn("en");
             when(languageDetectionService.buildPrompt(question, context, "en")).thenReturn("built prompt");
-            when(promptTemplates.buildQuestionAnswerPrompt(context, question)).thenReturn("final prompt");
             when(ragApplicationService.retrieveContext(eq(question), isNull(), eq(5))).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat(anyString())).thenReturn(aiResponse);
+            when(aiChatUseCase.chat("built prompt")).thenReturn(aiResponse);
 
             // Act
             RagChatUseCase.ChatResult result = ragChatUseCase.chat(question, null, null);
@@ -84,7 +78,7 @@ class RagChatUseCaseTest {
             assertThat(result.sources().get(0).text()).isEqualTo("AI definition");
 
             verify(ragApplicationService).retrieveContext(question, null, 5);
-            verify(aiChatUseCase).chat(anyString());
+            verify(aiChatUseCase).chat("built prompt");
         }
 
         @Test
@@ -100,10 +94,9 @@ class RagChatUseCaseTest {
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
             when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString())).thenReturn("prompt");
-            when(promptTemplates.buildQuestionAnswerPrompt(anyString(), anyString())).thenReturn("final prompt");
+            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, expectedDocUuids, 5)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat(anyString())).thenReturn("response");
+            when(aiChatUseCase.chat("prompt")).thenReturn("response");
 
             // Act
             ragChatUseCase.chat(question, docIds, null);
@@ -123,10 +116,9 @@ class RagChatUseCaseTest {
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
             when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString())).thenReturn("prompt");
-            when(promptTemplates.buildQuestionAnswerPrompt(anyString(), anyString())).thenReturn("final prompt");
+            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, null, customTopK)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat(anyString())).thenReturn("response");
+            when(aiChatUseCase.chat("prompt")).thenReturn("response");
 
             // Act
             ragChatUseCase.chat(question, null, customTopK);
@@ -146,10 +138,9 @@ class RagChatUseCaseTest {
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
             when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString())).thenReturn("prompt");
-            when(promptTemplates.buildQuestionAnswerPrompt(anyString(), anyString())).thenReturn("final prompt");
+            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, null, expectedDefaultTopK)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat(anyString())).thenReturn("response");
+            when(aiChatUseCase.chat("prompt")).thenReturn("response");
 
             // Act
             ragChatUseCase.chat(question, null, null);
@@ -169,10 +160,9 @@ class RagChatUseCaseTest {
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
             when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString())).thenReturn("prompt");
-            when(promptTemplates.buildQuestionAnswerPrompt(anyString(), anyString())).thenReturn("final prompt");
+            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, null, 5)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat(anyString())).thenReturn("response");
+            when(aiChatUseCase.chat("prompt")).thenReturn("response");
 
             // Act
             ragChatUseCase.chat(question, emptyDocIds, null);
@@ -187,20 +177,19 @@ class RagChatUseCaseTest {
     class BuildPrompt {
 
         @Test
-        @DisplayName("should detect language and build prompt")
-        void shouldDetectLanguageAndBuildPrompt() {
+        @DisplayName("should detect language and build prompt using language detection service")
+        void shouldDetectLanguageAndBuildPromptUsingLanguageDetectionService() {
             // Arrange
             String question = "什么是AI？";
             String context = "AI是人工智能";
             String languageCode = "zh";
-            String expectedPrompt = "Prompt with context and question";
+            String expectedPrompt = "built prompt with language support";
 
             RagApplicationService.RetrievalResult retrievalResult =
                     new RagApplicationService.RetrievalResult(context, Collections.emptyList(), question);
 
             when(languageDetectionService.detect(question)).thenReturn(languageCode);
-            when(languageDetectionService.buildPrompt(question, context, languageCode)).thenReturn("built prompt");
-            when(promptTemplates.buildQuestionAnswerPrompt(context, question)).thenReturn(expectedPrompt);
+            when(languageDetectionService.buildPrompt(question, context, languageCode)).thenReturn(expectedPrompt);
             when(ragApplicationService.retrieveContext(eq(question), isNull(), eq(5))).thenReturn(retrievalResult);
             when(aiChatUseCase.chat(expectedPrompt)).thenReturn("response");
 
@@ -211,7 +200,6 @@ class RagChatUseCaseTest {
             assertThat(result).isNotNull();
             verify(languageDetectionService).detect(question);
             verify(languageDetectionService).buildPrompt(question, context, languageCode);
-            verify(promptTemplates).buildQuestionAnswerPrompt(context, question);
         }
     }
 }

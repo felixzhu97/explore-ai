@@ -1,7 +1,6 @@
 package com.ai.modules.rag.domain.repository;
 
 import com.ai.modules.rag.domain.model.Document;
-import com.ai.modules.rag.domain.model.DocumentChunk;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,19 +31,4 @@ public interface IDocumentRepository {
      * Deletes a document by its ID.
      */
     void delete(UUID id);
-
-    /**
-     * Saves a document chunk.
-     */
-    void saveChunk(DocumentChunk chunk);
-
-    /**
-     * Finds all chunks belonging to a document.
-     */
-    List<DocumentChunk> findChunksByDocumentId(UUID documentId);
-
-    /**
-     * Deletes all chunks belonging to a document.
-     */
-    void deleteChunksByDocumentId(UUID documentId);
 }

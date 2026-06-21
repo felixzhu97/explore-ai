@@ -1,6 +1,7 @@
 package com.ai.modules.rag.infrastructure.storage;
 
 import com.ai.modules.rag.domain.model.Document;
+import com.ai.modules.rag.domain.model.DocumentStatus;
 import com.ai.modules.rag.domain.vo.DocumentId;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -72,17 +73,13 @@ public class DocumentEntity {
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
-    public enum DocumentStatus {
-        UPLOADING, PROCESSING, READY, FAILED
-    }
-
     public static DocumentEntity fromDomain(Document document) {
         return new DocumentEntity(
             document.getId().value(),
             document.getTitle(),
             document.getFileName(),
             document.getFileSize(),
-            DocumentStatus.valueOf(document.getStatus().name()),
+            document.getStatus(),
             document.getCreatedAt(),
             document.getUpdatedAt()
         );
@@ -93,7 +90,10 @@ public class DocumentEntity {
             DocumentId.of(id),
             title,
             fileName,
-            fileSize
+            fileSize,
+            status,
+            createdAt,
+            updatedAt
         );
     }
 }

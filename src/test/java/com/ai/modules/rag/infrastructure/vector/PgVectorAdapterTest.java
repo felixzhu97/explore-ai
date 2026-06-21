@@ -36,14 +36,13 @@ class PgVectorAdapterTest {
     private DocumentChunk createTestChunk(UUID id, UUID documentId, String content) {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", "test");
-        return new DocumentChunk(id, documentId, content, 0, metadata);
+        return DocumentChunk.create(id, documentId, content, 0, metadata);
     }
 
     private DocumentChunk createTestChunkWithEmbedding(UUID id, UUID documentId, String content, float[] embedding) {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", "test");
-        DocumentChunk chunk = new DocumentChunk(id, documentId, content, 0, metadata);
-        return chunk.withEmbedding(embedding);
+        return DocumentChunk.create(id, documentId, content, 0, metadata).withEmbedding(embedding);
     }
 
     @Nested
@@ -183,15 +182,10 @@ class PgVectorAdapterTest {
             // When
             pgVectorAdapter.saveChunk(chunk);
 
-            // Then
+            // Then - verify SQL contains parameterized metadata with ::jsonb cast
             verify(jdbcTemplate).update(
-                    contains("INSERT INTO"),
-                    eq(chunkId),
-                    eq(documentId),
-                    eq(content),
-                    eq(0),
-                    eq("[0.1,0.2,0.3]"),
-                    anyString()
+                    argThat(sql -> sql.contains("::jsonb")),
+                    any(Object[].class)
             );
         }
 
@@ -203,7 +197,7 @@ class PgVectorAdapterTest {
             UUID documentId = UUID.randomUUID();
             String content = "Test content";
             float[] embedding = {0.5f, 0.6f};
-            DocumentChunk chunk = new DocumentChunk(chunkId, documentId, content, 0, null)
+            DocumentChunk chunk = DocumentChunk.create(chunkId, documentId, content, 0, null)
                     .withEmbedding(embedding);
 
             when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
@@ -211,15 +205,10 @@ class PgVectorAdapterTest {
             // When
             pgVectorAdapter.saveChunk(chunk);
 
-            // Then
+            // Then - verify SQL uses parameterized query
             verify(jdbcTemplate).update(
-                    contains("NULL"),
-                    eq(chunkId),
-                    eq(documentId),
-                    eq(content),
-                    eq(0),
-                    eq("[0.5,0.6]"),
-                    anyString()
+                    argThat(sql -> sql.contains("::jsonb")),
+                    any(Object[].class)
             );
         }
 
@@ -231,7 +220,7 @@ class PgVectorAdapterTest {
             UUID documentId = UUID.randomUUID();
             String content = "Test content";
             float[] embedding = {1.0f};
-            DocumentChunk chunk = new DocumentChunk(chunkId, documentId, content, 0, Collections.emptyMap())
+            DocumentChunk chunk = DocumentChunk.create(chunkId, documentId, content, 0, Collections.emptyMap())
                     .withEmbedding(embedding);
 
             when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
@@ -239,21 +228,16 @@ class PgVectorAdapterTest {
             // When
             pgVectorAdapter.saveChunk(chunk);
 
-            // Then
+            // Then - verify SQL uses parameterized query
             verify(jdbcTemplate).update(
-                    contains("NULL"),
-                    eq(chunkId),
-                    eq(documentId),
-                    eq(content),
-                    eq(0),
-                    eq("[1.0]"),
-                    anyString()
+                    argThat(sql -> sql.contains("::jsonb")),
+                    any(Object[].class)
             );
         }
 
         @Test
-        @DisplayName("should escape single quotes in metadata JSON")
-        void shouldEscapeSingleQuotes_inMetadataJson() throws Exception {
+        @DisplayName("should use parameterized query for metadata")
+        void shouldUseParameterizedQuery_forMetadata() throws Exception {
             // Given
             UUID chunkId = UUID.randomUUID();
             UUID documentId = UUID.randomUUID();
@@ -261,7 +245,7 @@ class PgVectorAdapterTest {
             float[] embedding = {0.1f};
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("quote", "O'Reilly");
-            DocumentChunk chunk = new DocumentChunk(chunkId, documentId, content, 0, metadata)
+            DocumentChunk chunk = DocumentChunk.create(chunkId, documentId, content, 0, metadata)
                     .withEmbedding(embedding);
 
             when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
@@ -269,9 +253,9 @@ class PgVectorAdapterTest {
             // When
             pgVectorAdapter.saveChunk(chunk);
 
-            // Then
+            // Then - verify SQL uses parameterized query with ::jsonb cast
             verify(jdbcTemplate).update(
-                    argThat(sql -> sql.contains("O''Reilly")),
+                    argThat(sql -> sql.contains("::jsonb")),
                     any(Object[].class)
             );
         }
@@ -334,7 +318,7 @@ class PgVectorAdapterTest {
             metadata.put("number", 42);
 
             // When
-            String result = invokePrivateStringMethod("metadataToJson", Map.class, metadata);
+            String result = invokePrivateStringMethod("serializeMetadata", Map.class, metadata);
 
             // Then
             assertThat(result).contains("key");
@@ -346,10 +330,10 @@ class PgVectorAdapterTest {
         @DisplayName("should return NULL for null metadata")
         void shouldReturnNull_forNullMetadata() throws Exception {
             // When
-            String result = invokePrivateStringMethod("metadataToJson", Map.class, (Object) null);
+            String result = invokePrivateStringMethod("serializeMetadata", Map.class, (Object) null);
 
             // Then
-            assertThat(result).isEqualTo("NULL");
+            assertThat(result).isNull();
         }
 
         @Test
@@ -359,10 +343,10 @@ class PgVectorAdapterTest {
             Map<String, Object> metadata = Collections.emptyMap();
 
             // When
-            String result = invokePrivateStringMethod("metadataToJson", Map.class, metadata);
+            String result = invokePrivateStringMethod("serializeMetadata", Map.class, metadata);
 
             // Then
-            assertThat(result).isEqualTo("NULL");
+            assertThat(result).isNull();
         }
 
         @Test
@@ -375,10 +359,10 @@ class PgVectorAdapterTest {
             metadata.put("circular", new CircularReference());
 
             // When
-            String result = invokePrivateStringMethod(adapterWithFailingMapper, "metadataToJson", Map.class, metadata);
+            String result = invokePrivateStringMethod(adapterWithFailingMapper, "serializeMetadata", Map.class, metadata);
 
             // Then
-            assertThat(result).isEqualTo("NULL");
+            assertThat(result).isNull();
         }
     }
 

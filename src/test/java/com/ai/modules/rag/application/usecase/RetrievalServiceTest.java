@@ -61,7 +61,7 @@ class RetrievalServiceTest {
             float[] chunkEmbedding = createMockEmbedding();
             chunkEmbedding[0] = 0.9f;
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "AI is Artificial Intelligence.",
@@ -231,7 +231,7 @@ class RetrievalServiceTest {
             float[] nullQueryEmbedding = null;
             float[] validChunkEmbedding = createMockEmbedding();
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -257,7 +257,7 @@ class RetrievalServiceTest {
             String query = "Test query";
             float[] validQueryEmbedding = createMockEmbedding();
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -283,7 +283,7 @@ class RetrievalServiceTest {
             String query = "Test query";
             float[] nullEmbedding = null;
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -312,7 +312,7 @@ class RetrievalServiceTest {
 
             float[] chunkEmbedding = new float[256]; // Different size
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -339,7 +339,7 @@ class RetrievalServiceTest {
             float[] zeroQueryEmbedding = new float[384]; // All zeros
             float[] zeroChunkEmbedding = new float[384]; // All zeros
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -365,7 +365,7 @@ class RetrievalServiceTest {
             String query = "Test query";
             float[] identicalEmbedding = createMockEmbedding();
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -395,7 +395,7 @@ class RetrievalServiceTest {
                 oppositeChunkEmbedding[i] = -queryEmbedding[i]; // Opposite direction
             }
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "content",
@@ -429,7 +429,7 @@ class RetrievalServiceTest {
             float[] mockEmbedding = createMockEmbedding();
             String longContent = "A".repeat(600); // > MAX_SOURCE_LENGTH (500)
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     longContent,
@@ -456,7 +456,7 @@ class RetrievalServiceTest {
             float[] mockEmbedding = createMockEmbedding();
             String shortContent = "Short content";
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     shortContent,
@@ -483,7 +483,7 @@ class RetrievalServiceTest {
             float[] mockEmbedding = createMockEmbedding();
             String boundaryContent = "A".repeat(500); // Exactly at MAX_SOURCE_LENGTH
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     boundaryContent,
@@ -516,7 +516,7 @@ class RetrievalServiceTest {
             float[] lowScoreEmbedding = createMockEmbedding();
             lowScoreEmbedding[0] = 0.3f;
 
-            DocumentChunk chunk1 = new DocumentChunk(
+            DocumentChunk chunk1 = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "Low score chunk",
@@ -524,7 +524,7 @@ class RetrievalServiceTest {
                     Map.of()
             ).withEmbedding(lowScoreEmbedding);
 
-            DocumentChunk chunk2 = new DocumentChunk(
+            DocumentChunk chunk2 = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "High score chunk",
@@ -550,7 +550,7 @@ class RetrievalServiceTest {
             String query = "Test query";
             float[] mockEmbedding = createMockEmbedding();
 
-            DocumentChunk chunk1 = new DocumentChunk(
+            DocumentChunk chunk1 = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "First chunk",
@@ -558,7 +558,7 @@ class RetrievalServiceTest {
                     Map.of()
             ).withEmbedding(createMockEmbedding());
 
-            DocumentChunk chunk2 = new DocumentChunk(
+            DocumentChunk chunk2 = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "Second chunk",
@@ -586,7 +586,7 @@ class RetrievalServiceTest {
             float[] mockEmbedding = createMockEmbedding();
             String content = "Single chunk content";
 
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     content,

@@ -36,14 +36,14 @@ class DocumentEntityTest {
 
             DocumentEntity entity = new DocumentEntity(
                     TEST_ID, "title", "file.pdf", 1024L,
-                    DocumentEntity.DocumentStatus.READY, now, now
+                    DocumentStatus.READY, now, now
             );
 
             assertThat(entity.getId()).isEqualTo(TEST_ID);
             assertThat(entity.getTitle()).isEqualTo("title");
             assertThat(entity.getFileName()).isEqualTo("file.pdf");
             assertThat(entity.getFileSize()).isEqualTo(1024L);
-            assertThat(entity.getStatus()).isEqualTo(DocumentEntity.DocumentStatus.READY);
+            assertThat(entity.getStatus()).isEqualTo(DocumentStatus.READY);
             assertThat(entity.getCreatedAt()).isEqualTo(now);
             assertThat(entity.getUpdatedAt()).isEqualTo(now);
         }
@@ -89,8 +89,8 @@ class DocumentEntityTest {
         @DisplayName("should get and set status")
         void shouldGetAndSetStatus() {
             DocumentEntity entity = new DocumentEntity();
-            entity.setStatus(DocumentEntity.DocumentStatus.PROCESSING);
-            assertThat(entity.getStatus()).isEqualTo(DocumentEntity.DocumentStatus.PROCESSING);
+            entity.setStatus(DocumentStatus.PROCESSING);
+            assertThat(entity.getStatus()).isEqualTo(DocumentStatus.PROCESSING);
         }
 
         @Test
@@ -132,7 +132,7 @@ class DocumentEntityTest {
             assertThat(entity.getTitle()).isEqualTo("Test Title");
             assertThat(entity.getFileName()).isEqualTo("test.pdf");
             assertThat(entity.getFileSize()).isEqualTo(1024L);
-            assertThat(entity.getStatus()).isEqualTo(DocumentEntity.DocumentStatus.UPLOADING);
+            assertThat(entity.getStatus()).isEqualTo(DocumentStatus.UPLOADING);
         }
 
         @Test
@@ -150,7 +150,7 @@ class DocumentEntityTest {
 
             DocumentEntity entity = DocumentEntity.fromDomain(document);
 
-            assertThat(entity.getStatus()).isEqualTo(DocumentEntity.DocumentStatus.PROCESSING);
+            assertThat(entity.getStatus()).isEqualTo(DocumentStatus.PROCESSING);
         }
 
         @Test
@@ -168,7 +168,7 @@ class DocumentEntityTest {
 
             DocumentEntity entity = DocumentEntity.fromDomain(document);
 
-            assertThat(entity.getStatus()).isEqualTo(DocumentEntity.DocumentStatus.READY);
+            assertThat(entity.getStatus()).isEqualTo(DocumentStatus.READY);
         }
 
         @Test
@@ -186,7 +186,7 @@ class DocumentEntityTest {
 
             DocumentEntity entity = DocumentEntity.fromDomain(document);
 
-            assertThat(entity.getStatus()).isEqualTo(DocumentEntity.DocumentStatus.FAILED);
+            assertThat(entity.getStatus()).isEqualTo(DocumentStatus.FAILED);
         }
 
         @Test
@@ -216,7 +216,7 @@ class DocumentEntityTest {
             Instant now = Instant.now();
             DocumentEntity entity = new DocumentEntity(
                     TEST_ID, "Domain Doc", "domain.pdf", 8192L,
-                    DocumentEntity.DocumentStatus.READY, now, now
+                    DocumentStatus.READY, now, now
             );
 
             Document document = entity.toDomain();
@@ -235,7 +235,7 @@ class DocumentEntityTest {
             entity.setTitle("No File Entity");
             entity.setFileName(null);
             entity.setFileSize(null);
-            entity.setStatus(DocumentEntity.DocumentStatus.UPLOADING);
+            entity.setStatus(DocumentStatus.UPLOADING);
             entity.setCreatedAt(Instant.now());
             entity.setUpdatedAt(Instant.now());
 
@@ -253,27 +253,27 @@ class DocumentEntityTest {
         @Test
         @DisplayName("should have all expected status values")
         void shouldHaveAllExpectedStatusValues() {
-            DocumentEntity.DocumentStatus[] statuses = DocumentEntity.DocumentStatus.values();
+            DocumentStatus[] statuses = DocumentStatus.values();
             
             assertThat(statuses).containsExactlyInAnyOrder(
-                DocumentEntity.DocumentStatus.UPLOADING,
-                DocumentEntity.DocumentStatus.PROCESSING,
-                DocumentEntity.DocumentStatus.READY,
-                DocumentEntity.DocumentStatus.FAILED
+                DocumentStatus.UPLOADING,
+                DocumentStatus.PROCESSING,
+                DocumentStatus.READY,
+                DocumentStatus.FAILED
             );
         }
 
         @Test
         @DisplayName("should find status by name")
         void shouldFindStatusByName() {
-            assertThat(DocumentEntity.DocumentStatus.valueOf("UPLOADING"))
-                    .isEqualTo(DocumentEntity.DocumentStatus.UPLOADING);
-            assertThat(DocumentEntity.DocumentStatus.valueOf("PROCESSING"))
-                    .isEqualTo(DocumentEntity.DocumentStatus.PROCESSING);
-            assertThat(DocumentEntity.DocumentStatus.valueOf("READY"))
-                    .isEqualTo(DocumentEntity.DocumentStatus.READY);
-            assertThat(DocumentEntity.DocumentStatus.valueOf("FAILED"))
-                    .isEqualTo(DocumentEntity.DocumentStatus.FAILED);
+            assertThat(DocumentStatus.valueOf("UPLOADING"))
+                    .isEqualTo(DocumentStatus.UPLOADING);
+            assertThat(DocumentStatus.valueOf("PROCESSING"))
+                    .isEqualTo(DocumentStatus.PROCESSING);
+            assertThat(DocumentStatus.valueOf("READY"))
+                    .isEqualTo(DocumentStatus.READY);
+            assertThat(DocumentStatus.valueOf("FAILED"))
+                    .isEqualTo(DocumentStatus.FAILED);
         }
     }
 }
