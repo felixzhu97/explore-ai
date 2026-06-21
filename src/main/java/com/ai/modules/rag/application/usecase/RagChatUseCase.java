@@ -49,7 +49,7 @@ public class RagChatUseCase {
      * Executes RAG chat: retrieves context, builds prompt, and gets AI response.
      */
     public ChatResult chat(String question, List<String> docIds, Integer topK) {
-        log.info("RAG chat request: {}", truncate(question));
+        log.info("RAG chat request: {}", question != null && question.length() > 50 ? question.substring(0, 50) + "..." : question);
 
         List<UUID> docUuids = null;
         if (docIds != null && !docIds.isEmpty()) {
@@ -75,10 +75,5 @@ public class RagChatUseCase {
         String languageCode = languageDetectionService.detect(question);
         languageDetectionService.buildPrompt(question, context, languageCode);
         return promptTemplates.buildQuestionAnswerPrompt(context, question);
-    }
-
-    private String truncate(String text) {
-        if (text == null || text.length() <= 50) return text;
-        return text.substring(0, 50) + "...";
     }
 }

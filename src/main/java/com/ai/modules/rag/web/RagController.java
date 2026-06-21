@@ -116,9 +116,4 @@ public class RagController {
     private SourceDocumentDto toSourceDocumentDto(SourceDocument source) {
         return new SourceDocumentDto(null, source.text(), (float) source.score(), source.metadata());
     }
-
-    private String truncate(String text) {
-        if (text == null || text.length() <= 50) return text;
-        return text.substring(0, 50) + "...";
-    }
 }
