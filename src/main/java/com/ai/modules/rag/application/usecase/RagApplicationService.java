@@ -1,5 +1,7 @@
 package com.ai.modules.rag.application.usecase;
 
+import com.ai.modules.rag.domain.exception.DocumentNotFoundException;
+import com.ai.modules.rag.domain.exception.DocumentProcessingException;
 import com.ai.modules.rag.domain.model.Document;
 import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.ai.modules.rag.domain.model.SourceDocument;
@@ -90,7 +92,7 @@ public class RagApplicationService {
             log.error("Failed to process document", e);
             document.markFailed();
             documentRepository.save(document);
-            throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
+            throw new DocumentProcessingException("Failed to process document: " + e.getMessage(), e);
         }
     }
 
@@ -122,7 +124,7 @@ public class RagApplicationService {
             log.error("Failed to process document", e);
             document.markFailed();
             documentRepository.save(document);
-            throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
+            throw new DocumentProcessingException("Failed to process document: " + e.getMessage(), e);
         }
     }
 
@@ -141,7 +143,7 @@ public class RagApplicationService {
         log.info("Deleting document: {}", documentId);
 
         Document document = documentRepository.findById(documentId)
-            .orElseThrow(() -> new RuntimeException("Document not found: " + documentId));
+            .orElseThrow(() -> new DocumentNotFoundException(documentId));
 
         int chunkCount = documentRepository.findChunksByDocumentId(documentId).size();
         log.info("Deleting document {} with {} chunks", documentId, chunkCount);
