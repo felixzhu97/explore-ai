@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@shared/utils/markdown.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.model';
 
 @Component({
@@ -484,7 +484,7 @@ import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.
     `,
   ],
 })
-export class ChatTabComponent implements OnInit, OnDestroy {
+export class ChatPageComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
   protected readonly markdown = inject(MarkdownService);
   protected readonly i18n = inject(I18nService);

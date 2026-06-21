@@ -6,7 +6,7 @@ import {
   SegmentedControlOption,
 } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
-import { AgentChatComponent } from '@features/agents/agent-chat/agent-chat.component';
+import { AgentPageComponent } from '@features/agents/agent.page';
 import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
 
 type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aiops' | 'vectordb';
@@ -17,7 +17,7 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
   imports: [
     SegmentedControlComponent,
     AgentPanelComponent,
-    AgentChatComponent,
+    AgentPageComponent,
     StatusBadgeComponent,
   ],
   template: `
@@ -33,7 +33,7 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
       <div class="tab-section">
         <app-agent-panel [title]="activeConfig().title" [description]="activeConfig().description">
           <app-status-badge slot="headerRight" status="online" />
-          <app-agent-chat
+          <app-agent-page
             [agentInfo]="agentInfo()"
             [apiEndpoint]="activeConfig().apiEndpoint"
             [quickPrompts]="activeConfig().quickPrompts"
