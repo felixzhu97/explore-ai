@@ -5,7 +5,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Weather tools for AI function calling.
@@ -13,8 +13,6 @@ import java.util.Random;
  */
 @Component
 public class WeatherTools {
-
-    private final Random random = new Random();
 
     private static final Map<String, WeatherInfo> WEATHER_DATA = Map.of(
             "beijing", new WeatherInfo("北京", 25, "晴", 65),
@@ -46,10 +44,10 @@ public class WeatherTools {
         }
 
         // 模拟其他城市的随机天气
-        int temp = 20 + random.nextInt(15);
+        int temp = 20 + ThreadLocalRandom.current().nextInt(15);
         String[] conditions = {"晴", "多云", "阴", "小雨", "晴转多云"};
-        String condition = conditions[random.nextInt(conditions.length)];
-        int humidity = 50 + random.nextInt(40);
+        String condition = conditions[ThreadLocalRandom.current().nextInt(conditions.length)];
+        int humidity = 50 + ThreadLocalRandom.current().nextInt(40);
 
         return String.format(
                 "%s今天的天气：温度 %d°C，天气 %s，湿度 %d%%",
@@ -75,9 +73,9 @@ public class WeatherTools {
         int[] temps = {18, 20, 22, 25, 28, 30, 32};
 
         for (int i = 1; i <= forecastDays; i++) {
-            String condition = conditions[random.nextInt(conditions.length)];
-            int tempLow = temps[random.nextInt(temps.length)];
-            int tempHigh = tempLow + 3 + random.nextInt(5);
+            String condition = conditions[ThreadLocalRandom.current().nextInt(conditions.length)];
+            int tempLow = temps[ThreadLocalRandom.current().nextInt(temps.length)];
+            int tempHigh = tempLow + 3 + ThreadLocalRandom.current().nextInt(5);
             forecast.append(String.format("第%d天：%s，最高%d°C，最低%d°C\n",
                     i, condition, tempHigh, tempLow));
         }
