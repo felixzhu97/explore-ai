@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
-import { ChatTabComponent } from './chat-tab/chat-tab.component';
+import { ChatTabComponent } from '../chat/chat.page';
 import { ImageGenTabComponent } from './image-gen-tab/image-gen-tab.component';
 import { TtsTabComponent } from './tts-tab/tts-tab.component';
 import { I18nService } from '@core/i18n';

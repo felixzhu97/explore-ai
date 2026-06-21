@@ -14,13 +14,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
-import { I18nService } from '@core/i18n';
-import { ChatMessage, ProviderInfo, ModelInfo } from '@shared/models';
-
-export interface ChatTabState {
-  provider: string;
-  model: string;
-}
+import { I18nService } from '@i18n';
+import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.model';
 
 @Component({
   selector: 'app-chat-tab',
