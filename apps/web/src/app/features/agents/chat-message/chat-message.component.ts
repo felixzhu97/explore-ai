@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ToolResultComponent } from '@features/agents/tool-result/tool-result.component';
-import { MarkdownService } from '@core/services/markdown.service';
+import { MarkdownService } from '@shared/utils/markdown.service';
 import type { ChatMessageData } from '@shared/models';
 export type { ChatMessageData };
 
