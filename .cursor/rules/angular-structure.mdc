@@ -1,0 +1,212 @@
+---
+description: Angular 项目结构与架构规范
+globs: **/*.ts
+alwaysApply: true
+---
+
+# Angular 项目结构规范
+
+## 目录结构
+
+```
+src/
+└── app/
+    ├── core/                  # 全局基础能力（单例服务、配置）
+    │   ├── api.service.ts
+    │   ├── auth.service.ts
+    │   ├── http.interceptor.ts
+    │   └── core.providers.ts
+    │
+    ├── shared/               # UI + utils（保持干净）
+    │   ├── ui/
+    │   │   ├── button.component.ts
+    │   │   ├── card.component.ts
+    │   │   └── input.component.ts
+    │   ├── utils/
+    │   │   └── format.util.ts
+    │   └── types.ts
+    │
+    ├── features/             # 唯一业务层（核心）
+    │   ├── chat/
+    │   │   ├── chat.page.ts
+    │   │   ├── chat.service.ts
+    │   │   ├── chat.model.ts
+    │   │   └── chat.routes.ts
+    │   │
+    │   ├── image/
+    │   │   ├── image.page.ts
+    │   │   ├── image.service.ts
+    │   │   └── image.routes.ts
+    │   │
+    │   ├── rag/
+    │   │   ├── rag.page.ts
+    │   │   ├── rag.service.ts
+    │   │   └── rag.routes.ts
+    │   │
+    │   ├── agents/
+    │   │   └── agent.page.ts
+    │   │
+    │   └── dashboard/
+    │       └── dashboard.page.ts
+    │
+    ├── layout/               # 替代 shell（更扁平）
+    │   ├── main-layout.component.ts
+    │   ├── sidebar.component.ts
+    │   └── header.component.ts
+    │
+    ├── app.routes.ts
+    ├── app.config.ts
+    └── app.component.ts
+```
+
+## 各层职责
+
+### core/ - 全局基础能力
+
+放置**应用级单例服务**和**全局配置**：
+
+- `api.service.ts` - 通用 API 调用服务
+- `auth.service.ts` - 认证服务
+- `http.interceptor.ts` - HTTP 拦截器
+- `core.providers.ts` - 全局依赖注入配置
+
+**原则**：无业务逻辑，仅提供技术基础设施。
+
+### shared/ - UI + Utils
+
+放置**可复用组件**和**工具函数**：
+
+| 目录 | 内容 |
+|-----|------|
+| `ui/` | 基础 UI 组件（Button、Card、Input 等） |
+| `utils/` | 纯函数工具（格式化、验证等） |
+| `types.ts` | 共享类型定义 |
+
+**原则**：无状态、无副作用、不依赖 Feature。
+
+### features/ - 唯一业务层
+
+每个 Feature 是一个**自包含模块**，包含：
+
+```
+feature/
+├── feature.page.ts        # 页面组件（入口）
+├── feature.service.ts    # 业务服务
+├── feature.model.ts       # 领域模型/类型
+└── feature.routes.ts      # 路由配置
+```
+
+**原则**：
+- Feature 之间禁止直接互相依赖
+- 跨 Feature 通信通过路由或 Core 服务
+- 每个 Feature 独立管理自己的状态
+
+### layout/ - 布局组件
+
+替代传统的 `shell/`，更扁平：
+
+- `main-layout.component.ts` - 主布局容器
+- `sidebar.component.ts` - 侧边栏
+- `header.component.ts` - 顶栏
+
+## 组件命名规范
+
+| 类型 | 规则 | 示例 |
+|-----|------|------|
+| 文件名 | kebab-case + 后缀 | `chat.page.ts`, `button.component.ts` |
+| 类名 | PascalCase + 后缀 | `ChatPage`, `ButtonComponent` |
+| 选择器 | kebab-case + 前缀 | `app-chat-page`, `app-button` |
+
+## 信号（Signal）使用
+
+```typescript
+// ✅ 推荐：使用 input/output signal
+export class ChatPage {
+  chatId = input.required<string>();
+  messages = signal<Message[]>([]);
+  
+  sendMessage = output<string>();
+  
+  // 计算属性
+  messageCount = computed(() => this.messages().length);
+}
+
+// ❌ 避免：使用 @Input/@Output 装饰器
+// ❌ 避免：在服务外使用 BehaviorSubject
+```
+
+## 服务注入
+
+```typescript
+// ✅ 推荐：在服务中使用 inject()
+@Injectable({ providedIn: 'root' })
+export class ChatService {
+  private http = inject(HttpClient);
+  messages = signal<Message[]>([]);
+}
+
+// ❌ 避免：在组件构造函数中直接注入私有字段
+```
+
+## 路由配置
+
+```typescript
+// features/chat/chat.routes.ts
+export const chatRoutes: Routes = [
+  {
+    path: '',
+    component: ChatPage,
+  },
+];
+
+// app.routes.ts - 懒加载
+export const routes: Routes = [
+  {
+    path: 'chat',
+    loadChildren: () => import('./features/chat/routes'),
+  },
+];
+```
+
+## 样式规范
+
+```scss
+// 使用 BEM 命名
+.chat-page {
+  &__header {
+    padding: var(--spacing-md);
+  }
+  
+  &__message-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+```
+
+## 导入顺序
+
+```typescript
+// 1. Angular核心
+import { Component, inject, signal } from '@angular/core';
+
+// 2. 第三方库
+import { NgIf } from '@angular/common';
+
+// 3. Core
+import { ApiService } from '@core/api.service';
+
+// 4. Shared
+import { ButtonComponent } from '@shared/ui/button.component';
+
+// 5. 本Feature
+import { ChatService } from './chat.service';
+import { Message } from './chat.model';
+```
+
+## 架构原则
+
+1. **Core 纯净**：无业务逻辑，仅技术基础设施
+2. **Shared 可复用**：无状态、无副作用
+3. **Feature 自包含**：独立管理状态和路由
+4. **Layout 轻量**：仅负责布局，不含业务逻辑

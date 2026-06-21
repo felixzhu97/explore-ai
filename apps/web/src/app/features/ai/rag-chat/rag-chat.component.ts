@@ -1097,8 +1097,8 @@ interface Toast {
 export class RagChatComponent implements OnInit {
   private api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
-  private markdown = inject(MarkdownService);
-  private notifications = inject(NotificationService);
+  protected markdown = inject(MarkdownService);
+  protected notifications = inject(NotificationService);
   private sessionId = `session_${Date.now()}`;
 
   // State

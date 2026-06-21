@@ -491,7 +491,7 @@ export interface ChatTabState {
 })
 export class ChatTabComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
-  private readonly markdown = inject(MarkdownService);
+  protected readonly markdown = inject(MarkdownService);
   protected readonly i18n = inject(I18nService);
 
   state = input<ChatTabState>({ provider: 'openai', model: 'gpt-4o-mini' });
