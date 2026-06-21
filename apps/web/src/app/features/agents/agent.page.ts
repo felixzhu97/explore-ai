@@ -12,14 +12,14 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { ChatMessageComponent } from '../chat-message/chat-message.component';
-import type { ChatMessageData } from '../chat-message/chat-message.component';
-import { ToolCall } from '../tool-result/tool-result.component';
+import { ChatMessageComponent } from './chat-message/chat-message.component';
+import type { ChatMessageData } from './chat-message/chat-message.component';
+import { ToolCall } from './tool-result/tool-result.component';
 import type { AgentInfo } from '../models/agent.model';
 export type { AgentInfo };
 
 @Component({
-  selector: 'app-agent-chat',
+  selector: 'app-agent-page',
   standalone: true,
   imports: [ChatMessageComponent, FormsModule],
   template: `
@@ -280,7 +280,7 @@ export type { AgentInfo };
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AgentChatComponent {
+export class AgentPageComponent {
   private http = inject(HttpClient);
 
   agentInfo = input.required<AgentInfo>();

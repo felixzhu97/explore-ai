@@ -6,4 +6,4 @@ export {
   type ToolCallStatus,
 } from './tool-result/tool-result.component';
 export { ChatMessageComponent, type ChatMessageData } from './chat-message/chat-message.component';
-export { AgentChatComponent, type AgentInfo } from './agent-chat/agent-chat.component';
+export { AgentPageComponent, type AgentInfo } from './agent.page';
