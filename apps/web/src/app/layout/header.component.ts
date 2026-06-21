@@ -6,11 +6,11 @@ import {
   HostListener,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core/i18n';
+import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language, Translations } from '@core/i18n';
 
 interface NavTab {
   key: string;
-  labelKey: keyof import('@i18n').Translations['nav'];
+  labelKey: keyof Translations['nav'];
   path: string;
 }
 
