@@ -1,7 +1,6 @@
 import {
   Component,
   signal,
-  computed,
   inject,
   OnInit,
   OnDestroy,
@@ -13,8 +12,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
 import { ApiService } from '@core/services/api.service';
+import { MarkdownService } from '@core/services/markdown.service';
 import { I18nService } from '@i18n';
 import { ChatMessage, ProviderInfo, ModelInfo } from '@shared/models';
 
@@ -120,7 +119,7 @@ export interface ChatTabState {
                   @if (msg.role === 'user') {
                     {{ msg.content }}
                   } @else {
-                    <div class="markdown-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+                    <div class="markdown-content" [innerHTML]="markdown.render(msg.content)"></div>
                   }
                 </div>
                 <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
@@ -492,7 +491,7 @@ export interface ChatTabState {
 })
 export class ChatTabComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
-  private readonly sanitizer = inject(DomSanitizer);
+  private readonly markdown = inject(MarkdownService);
   protected readonly i18n = inject(I18nService);
 
   state = input<ChatTabState>({ provider: 'openai', model: 'gpt-4o-mini' });
@@ -677,20 +676,5 @@ export class ChatTabComponent implements OnInit, OnDestroy {
 
   formatTime(timestamp: number): string {
     return new Date(timestamp).toLocaleTimeString();
-  }
-
-  renderMarkdown(content: string): string {
-    let html = content
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>')
-      .replace(/^- (.*$)/gm, '<li>$1</li>')
-      .replace(/\n/g, '<br>');
-    return this.sanitizer.sanitize(1, html) || content;
   }
 }

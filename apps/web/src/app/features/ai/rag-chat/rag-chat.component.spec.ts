@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RagChatComponent } from './rag-chat.component';
 import { ApiService } from '@core/services/api.service';
+import { MarkdownService } from '@core/services/markdown.service';
+import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@i18n';
 import { of, throwError } from 'rxjs';
 
@@ -73,11 +75,25 @@ describe('RagChatComponent', () => {
 
   beforeEach(async () => {
     createMockApiService();
+    const mockMarkdownService = {
+      render: vi.fn().mockReturnValue('<p>test</p>'),
+      renderToString: vi.fn().mockReturnValue('<p>test</p>'),
+    };
+    const mockNotificationService = {
+      showSuccess: vi.fn(),
+      showError: vi.fn(),
+      showWarning: vi.fn(),
+      showInfo: vi.fn(),
+      dismiss: vi.fn(),
+      dismissAll: vi.fn(),
+    };
     await TestBed.configureTestingModule({
       imports: [RagChatComponent],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: MarkdownService, useValue: mockMarkdownService },
+        { provide: NotificationService, useValue: mockNotificationService },
       ],
     }).compileComponents();
   });
@@ -317,7 +333,7 @@ describe('RagChatComponent', () => {
       component.input.set('Test');
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
-      let capturedChunk: ((chunk: string) => void) | null = null;
+      let capturedChunk: ((chunk: string) => void) | undefined;
 
       (mockApiService.ragChat as any).mockImplementation(
         (_: any, onChunk: (chunk: string) => void, __: any, ___: any, ____: any) => {
@@ -327,8 +343,8 @@ describe('RagChatComponent', () => {
       );
 
       component.sendMessage();
-      capturedChunk?.('Hello ');
-      capturedChunk?.('world!');
+      capturedChunk!('Hello ');
+      capturedChunk!('world!');
 
       const messages = component.messages();
       const assistantMsg = messages.find((m) => m.role === 'assistant');
@@ -341,7 +357,7 @@ describe('RagChatComponent', () => {
       component.input.set('Test');
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
-      let capturedSources: ((sources: any[]) => void) | null = null;
+      let capturedSources: ((sources: any[]) => void) | undefined;
 
       (mockApiService.ragChat as any).mockImplementation(
         (_: any, __: any, onSources: (sources: any[]) => void, ___: any, ____: any) => {
@@ -351,7 +367,7 @@ describe('RagChatComponent', () => {
       );
 
       component.sendMessage();
-      capturedSources?.([{ text: 'source text', score: 0.95 }]);
+      capturedSources!([{ text: 'source text', score: 0.95 }]);
 
       const messages = component.messages();
       const assistantMsg = messages.find((m) => m.role === 'assistant');
@@ -363,7 +379,7 @@ describe('RagChatComponent', () => {
       component.input.set('Test');
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
-      let capturedDone: (() => void) | null = null;
+      let capturedDone: (() => void) | undefined;
 
       (mockApiService.ragChat as any).mockImplementation(
         (_: any, _1: any, _2: any, onDone: () => void, _3: any) => {
@@ -373,7 +389,7 @@ describe('RagChatComponent', () => {
       );
 
       component.sendMessage();
-      capturedDone?.();
+      capturedDone!();
 
       expect(component.isLoading()).toBe(false);
     });
@@ -383,7 +399,7 @@ describe('RagChatComponent', () => {
       component.input.set('Test');
       component.availableDocs.set([]);
       component.selectedDocIds.set(new Set());
-      let capturedError: ((err: Error) => void) | null = null;
+      let capturedError: ((err: Error) => void) | undefined;
 
       (mockApiService.ragChat as any).mockImplementation(
         (_: any, _1: any, _2: any, _3: any, onError: (err: Error) => void) => {
@@ -393,7 +409,7 @@ describe('RagChatComponent', () => {
       );
 
       component.sendMessage();
-      capturedError?.(new Error('Processing failed'));
+      capturedError!(new Error('Processing failed'));
 
       const messages = component.messages();
       const assistantMsg = messages.find((m) => m.role === 'assistant');
