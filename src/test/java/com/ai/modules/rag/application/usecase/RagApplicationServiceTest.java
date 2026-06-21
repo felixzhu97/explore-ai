@@ -6,6 +6,7 @@ import com.ai.modules.rag.infrastructure.llm.EmbeddingAdapter;
 import com.ai.modules.rag.infrastructure.vector.PgVectorAdapter;
 import com.ai.modules.rag.domain.model.Document;
 import com.ai.modules.rag.domain.model.DocumentChunk;
+import com.ai.modules.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.modules.rag.domain.repository.IDocumentRepository;
 import com.ai.modules.rag.application.usecase.ChunkingService;
 import com.ai.modules.rag.domain.vo.DocumentId;
@@ -39,7 +40,10 @@ class RagApplicationServiceTest {
     private PgVectorAdapter vectorAdapter;
 
     @Mock
-    private IDocumentRepository IDocumentRepository;
+    private IDocumentRepository documentRepository;
+
+    @Mock
+    private IDocumentChunkRepository chunkRepository;
 
     @Mock
     private PdfTextExtractor pdfTextExtractor;
@@ -52,7 +56,8 @@ class RagApplicationServiceTest {
                 chunkingService,
                 embeddingAdapter,
                 vectorAdapter,
-                IDocumentRepository,
+                documentRepository,
+                chunkRepository,
                 pdfTextExtractor
         );
     }
@@ -73,7 +78,7 @@ class RagApplicationServiceTest {
 
             when(chunkingService.chunk(content)).thenReturn(chunks);
             when(embeddingAdapter.embed(anyString())).thenReturn(new float[]{0.1f, 0.2f});
-            when(IDocumentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             RagApplicationService.UploadResult result = ragApplicationService.uploadDocument(title, fileName, fileSize, content);
@@ -85,7 +90,7 @@ class RagApplicationServiceTest {
             assertThat(result.chunkCount()).isEqualTo(2);
             assertThat(result.documentId()).isNotNull();
 
-            verify(IDocumentRepository, times(2)).save(any(Document.class));
+            verify(documentRepository, times(2)).save(any(Document.class));
             verify(vectorAdapter, times(2)).saveChunk(any(DocumentChunk.class));
         }
 
@@ -99,7 +104,7 @@ class RagApplicationServiceTest {
             String content = "Content";
 
             when(chunkingService.chunk(content)).thenThrow(new RuntimeException("Chunking failed"));
-            when(IDocumentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act & Assert
             assertThatThrownBy(() -> ragApplicationService.uploadDocument(title, fileName, fileSize, content))
@@ -107,7 +112,7 @@ class RagApplicationServiceTest {
                     .hasMessageContaining("Failed to process document");
 
             ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
-            verify(IDocumentRepository, times(2)).save(documentCaptor.capture());
+            verify(documentRepository, times(2)).save(documentCaptor.capture());
 
             Document savedDocument = documentCaptor.getAllValues().get(1);
             assertThat(savedDocument.getStatus().name()).isEqualTo("FAILED");
@@ -133,7 +138,7 @@ class RagApplicationServiceTest {
             when(pdfTextExtractor.extractText(fileContent)).thenReturn(Optional.of(extractedContent));
             when(chunkingService.chunk(extractedContent)).thenReturn(chunks);
             when(embeddingAdapter.embed(anyString())).thenReturn(new float[]{0.1f});
-            when(IDocumentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             RagApplicationService.UploadResult result = ragApplicationService.uploadDocumentFromBytes(title, fileName, fileSize, fileContent);
@@ -157,7 +162,7 @@ class RagApplicationServiceTest {
 
             when(pdfTextExtractor.getExtension(fileName)).thenReturn("pdf");
             when(pdfTextExtractor.extractText(fileContent)).thenReturn(Optional.empty());
-            when(IDocumentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act & Assert
             assertThatThrownBy(() -> ragApplicationService.uploadDocumentFromBytes(title, fileName, fileSize, fileContent))
@@ -179,7 +184,7 @@ class RagApplicationServiceTest {
             when(pdfTextExtractor.getExtension(fileName)).thenReturn("txt");
             when(chunkingService.chunk(anyString())).thenReturn(chunks);
             when(embeddingAdapter.embed(anyString())).thenReturn(new float[]{0.1f});
-            when(IDocumentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             RagApplicationService.UploadResult result = ragApplicationService.uploadDocumentFromBytes(title, fileName, fileSize, fileContent);
@@ -202,7 +207,7 @@ class RagApplicationServiceTest {
             // Arrange
             Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L);
             Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L);
-            when(IDocumentRepository.findAll()).thenReturn(List.of(doc1, doc2));
+            when(documentRepository.findAll()).thenReturn(List.of(doc1, doc2));
 
             // Act
             List<Document> result = ragApplicationService.listDocuments();
@@ -216,7 +221,7 @@ class RagApplicationServiceTest {
         @DisplayName("should return empty list when no documents exist")
         void shouldReturnEmptyListWhenNoDocumentsExist() {
             // Arrange
-            when(IDocumentRepository.findAll()).thenReturn(Collections.emptyList());
+            when(documentRepository.findAll()).thenReturn(Collections.emptyList());
 
             // Act
             List<Document> result = ragApplicationService.listDocuments();
@@ -236,14 +241,14 @@ class RagApplicationServiceTest {
             // Arrange
             UUID documentId = UUID.randomUUID();
             Document document = new Document(DocumentId.of(documentId), "Test", "test.txt", 100L);
-            when(IDocumentRepository.findById(documentId)).thenReturn(Optional.of(document));
+            when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
 
             // Act
             ragApplicationService.deleteDocument(documentId);
 
             // Assert
-            verify(IDocumentRepository).findById(documentId);
-            verify(IDocumentRepository).delete(documentId);
+            verify(documentRepository).findById(documentId);
+            verify(documentRepository).delete(documentId);
         }
 
         @Test
@@ -251,7 +256,7 @@ class RagApplicationServiceTest {
         void shouldThrowExceptionWhenDocumentNotFound() {
             // Arrange
             UUID documentId = UUID.randomUUID();
-            when(IDocumentRepository.findById(documentId)).thenReturn(Optional.empty());
+            when(documentRepository.findById(documentId)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThatThrownBy(() -> ragApplicationService.deleteDocument(documentId))
@@ -271,8 +276,8 @@ class RagApplicationServiceTest {
             String query = "test query";
             float[] queryEmbedding = {0.1f, 0.2f};
             List<DocumentChunk> chunks = List.of(
-                    new DocumentChunk(UUID.randomUUID(), UUID.randomUUID(), "content1", 0, Map.of()).withEmbedding(new float[]{0.5f, 0.5f}),
-                    new DocumentChunk(UUID.randomUUID(), UUID.randomUUID(), "content2", 1, Map.of()).withEmbedding(new float[]{0.3f, 0.7f})
+                    DocumentChunk.create(UUID.randomUUID(), UUID.randomUUID(), "content1", 0, Map.of()).withEmbedding(new float[]{0.5f, 0.5f}),
+                    DocumentChunk.create(UUID.randomUUID(), UUID.randomUUID(), "content2", 1, Map.of()).withEmbedding(new float[]{0.3f, 0.7f})
             );
 
             when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
@@ -300,7 +305,7 @@ class RagApplicationServiceTest {
             List<UUID> docIds = List.of(docId1);
             float[] queryEmbedding = {0.1f, 0.2f};
             List<DocumentChunk> chunks = List.of(
-                    new DocumentChunk(UUID.randomUUID(), docId1, "filtered content", 0, Map.of()).withEmbedding(new float[]{0.5f})
+                    DocumentChunk.create(UUID.randomUUID(), docId1, "filtered content", 0, Map.of()).withEmbedding(new float[]{0.5f})
             );
 
             when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
@@ -357,7 +362,7 @@ class RagApplicationServiceTest {
         void shouldReturnZeroWhenEmbeddingIsNull() {
             // Arrange
             float[] queryEmbedding = {0.1f, 0.2f};
-            DocumentChunk chunkWithNullEmbedding = new DocumentChunk(
+            DocumentChunk chunkWithNullEmbedding = DocumentChunk.create(
                     UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of());
 
             when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);
@@ -375,7 +380,7 @@ class RagApplicationServiceTest {
         void shouldReturnZeroWhenVectorsHaveDifferentLengths() {
             // Arrange - This tests calculateSimilarity null check and length mismatch
             float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
-            DocumentChunk chunk = new DocumentChunk(
+            DocumentChunk chunk = DocumentChunk.create(
                     UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of())
                     .withEmbedding(new float[]{0.5f, 0.5f}); // Different length
 
@@ -394,7 +399,7 @@ class RagApplicationServiceTest {
         void shouldReturnZeroWhenEitherVectorIsNull() {
             // Arrange
             float[] queryEmbedding = {0.1f, 0.2f};
-            DocumentChunk chunkWithNullEmbedding = new DocumentChunk(
+            DocumentChunk chunkWithNullEmbedding = DocumentChunk.create(
                     UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of());
 
             when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);

@@ -165,7 +165,7 @@ class ChunkRowMapperTest {
             // Arrange
             float[] queryEmbedding = {1.0f, 2.0f, 3.0f};
             Map<String, Object> metadata = Map.of("source", "test.pdf", "page", 1);
-            DocumentChunk chunkWithMetadata = new DocumentChunk(
+            DocumentChunk chunkWithMetadata = DocumentChunk.create(
                     TEST_CHUNK_ID,
                     TEST_DOCUMENT_ID,
                     "Test content",
@@ -195,7 +195,7 @@ class ChunkRowMapperTest {
             // Arrange
             float[] queryEmbedding = {1.0f, 2.0f, 3.0f};
             // When parseMetadata returns empty map for null input, the chunk gets empty metadata
-            DocumentChunk chunkWithEmptyMetadata = new DocumentChunk(
+            DocumentChunk chunkWithEmptyMetadata = DocumentChunk.create(
                     TEST_CHUNK_ID,
                     TEST_DOCUMENT_ID,
                     "Test content",
@@ -249,7 +249,7 @@ class ChunkRowMapperTest {
         void shouldHandleChunksWithoutTimestamps() {
             // Arrange
             float[] queryEmbedding = {1.0f, 2.0f, 3.0f};
-            DocumentChunk chunkWithoutTimestamp = new DocumentChunk(
+            DocumentChunk chunkWithoutTimestamp = DocumentChunk.create(
                     TEST_CHUNK_ID,
                     TEST_DOCUMENT_ID,
                     "Test content",
@@ -318,7 +318,7 @@ class ChunkRowMapperTest {
 
     private DocumentChunk createMockChunk(UUID id, UUID documentId) {
         Map<String, Object> metadata = Map.of("source", "test", "page", 1);
-        return new DocumentChunk(
+        return DocumentChunk.create(
                 id,
                 documentId,
                 "Test content " + id,
