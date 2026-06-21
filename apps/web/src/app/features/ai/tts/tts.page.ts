@@ -9,8 +9,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
-import { I18nService } from '@core/i18n';
-import { Voice } from '@shared/models';
+import { I18nService } from '@i18n';
+import type { Voice } from './tts.model';
 
 @Component({
   selector: 'app-tts-tab',
@@ -424,7 +424,7 @@ import { Voice } from '@shared/models';
     `,
   ],
 })
-export class TtsTabComponent implements OnInit, OnDestroy {
+export class TtsPageComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
 

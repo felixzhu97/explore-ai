@@ -1,9 +1,15 @@
-import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { ChatTabComponent } from '../chat/chat.page';
 import { ImageGenTabComponent } from './image-gen-tab/image-gen-tab.component';
-import { TtsTabComponent } from './tts-tab/tts-tab.component';
+import { TtsPageComponent } from '../tts/tts.page';
 import { I18nService } from '@core/i18n';
 
 type Tab = 'chat' | 'image' | 'tts';
@@ -16,7 +22,7 @@ type Tab = 'chat' | 'image' | 'tts';
     SegmentedControlComponent,
     ChatTabComponent,
     ImageGenTabComponent,
-    TtsTabComponent,
+    TtsPageComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
