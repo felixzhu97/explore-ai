@@ -14,6 +14,7 @@ import { MarkdownService } from '@core/services/markdown.service';
 import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@i18n';
 import { SourceDocument } from '@shared/models';
+import { DEFAULT_TEMPERATURE, DEFAULT_TOP_K } from '@core/constants';
 
 interface Message {
   id: string;
@@ -1367,8 +1368,8 @@ export class RagChatComponent implements OnInit {
     } = {
       query: userMessage.content,
       session_id: this.sessionId,
-      top_k: 5,
-      temperature: 0.7,
+      top_k: DEFAULT_TOP_K,
+      temperature: DEFAULT_TEMPERATURE,
     };
 
     if (this.selectedDocIds().size > 0) {

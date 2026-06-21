@@ -1,4 +1,9 @@
 import { Injectable, signal, computed } from '@angular/core';
+import {
+  DEFAULT_TOAST_DURATION_MS,
+  ERROR_TOAST_DURATION_MS,
+  WARNING_TOAST_DURATION_MS,
+} from '../constants';
 
 export interface Toast {
   id: number;
@@ -15,19 +20,19 @@ export class NotificationService {
   readonly toasts = this.toastsSignal.asReadonly();
   readonly hasToasts = computed(() => this.toastsSignal().length > 0);
 
-  showSuccess(message: string, duration = 3000): void {
+  showSuccess(message: string, duration = DEFAULT_TOAST_DURATION_MS): void {
     this.addToast(message, 'success', duration);
   }
 
-  showError(message: string, duration = 5000): void {
+  showError(message: string, duration = ERROR_TOAST_DURATION_MS): void {
     this.addToast(message, 'error', duration);
   }
 
-  showWarning(message: string, duration = 4000): void {
+  showWarning(message: string, duration = WARNING_TOAST_DURATION_MS): void {
     this.addToast(message, 'warning', duration);
   }
 
-  showInfo(message: string, duration = 3000): void {
+  showInfo(message: string, duration = DEFAULT_TOAST_DURATION_MS): void {
     this.addToast(message, 'info', duration);
   }
 
