@@ -8,6 +8,7 @@ import {
   ElementRef,
   viewChild,
   inject,
+  model,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -72,7 +73,8 @@ export type { AgentInfo };
       <div class="input-area">
         <textarea
           class="input-textarea"
-          [(ngModel)]="inputValue"
+          [ngModel]="inputValue()"
+          (ngModelChange)="inputValue.set($event)"
           [placeholder]="inputPlaceholderText()"
           [disabled]="isLoading()"
           (keydown)="onKeyDown($event)"
@@ -80,7 +82,7 @@ export type { AgentInfo };
         ></textarea>
         <button
           class="send-button"
-          [disabled]="isLoading() || !inputValue.trim()"
+          [disabled]="isLoading() || !inputValue().trim()"
           (click)="sendMessage()"
         >
           @if (isLoading()) {
@@ -287,7 +289,7 @@ export class AgentChatComponent {
 
   messages = signal<ChatMessageData[]>([]);
   isLoading = signal(false);
-  inputValue = '';
+  inputValue = model<string>('');
 
   chatContainer = viewChild<ElementRef>('chatContainer');
   messagesEnd = viewChild<ElementRef>('messagesEnd');
@@ -297,7 +299,7 @@ export class AgentChatComponent {
   constructor() {
     // Scroll to bottom when messages change
     effect(() => {
-      const msgs = this.messages();
+      this.messages(); // Trigger on messages change
       const endEl = this.messagesEnd();
       if (endEl) {
         endEl.nativeElement.scrollIntoView({ behavior: 'smooth' });
@@ -311,7 +313,7 @@ export class AgentChatComponent {
   inputPlaceholderText = computed(() => 'Type your message...');
 
   setInput(value: string) {
-    this.inputValue = value;
+    this.inputValue.set(value);
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -322,7 +324,7 @@ export class AgentChatComponent {
   }
 
   async sendMessage() {
-    const input = this.inputValue.trim();
+    const input = this.inputValue().trim();
     if (!input || this.isLoading()) return;
 
     // Cancel any existing request
@@ -339,7 +341,7 @@ export class AgentChatComponent {
     };
 
     this.messages.update((msgs) => [...msgs, userMessage]);
-    this.inputValue = '';
+    this.inputValue.set('');
     this.isLoading.set(true);
 
     const assistantMessageId = `assistant_${Date.now()}`;

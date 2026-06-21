@@ -49,7 +49,7 @@ describe('AgentChatComponent', () => {
     });
 
     it('should initialize with empty inputValue', () => {
-      expect(component.inputValue).toBe('');
+      expect(component.inputValue()).toBe('');
     });
 
     it('should have null abort controller initially', () => {
@@ -74,18 +74,18 @@ describe('AgentChatComponent', () => {
   describe('setInput', () => {
     it('should set input value', () => {
       component.setInput('Hello world');
-      expect(component.inputValue).toBe('Hello world');
+      expect(component.inputValue()).toBe('Hello world');
     });
 
     it('should handle empty string', () => {
       component.setInput('');
-      expect(component.inputValue).toBe('');
+      expect(component.inputValue()).toBe('');
     });
 
     it('should overwrite previous value', () => {
       component.setInput('First');
       component.setInput('Second');
-      expect(component.inputValue).toBe('Second');
+      expect(component.inputValue()).toBe('Second');
     });
   });
 
@@ -130,21 +130,21 @@ describe('AgentChatComponent', () => {
 
   describe('sendMessage', () => {
     it('should not send if input is empty', async () => {
-      component.inputValue = '';
+      component.inputValue.set('');
       const fetchSpy = vi.spyOn(global, 'fetch');
       await component.sendMessage();
       expect(fetchSpy).not.toHaveBeenCalled();
     });
 
     it('should not send if input is whitespace only', async () => {
-      component.inputValue = '   ';
+      component.inputValue.set('   ');
       const fetchSpy = vi.spyOn(global, 'fetch');
       await component.sendMessage();
       expect(fetchSpy).not.toHaveBeenCalled();
     });
 
     it('should not send if already loading', async () => {
-      component.inputValue = 'Hello';
+      component.inputValue.set('Hello');
       component.isLoading.set(true);
       const fetchSpy = vi.spyOn(global, 'fetch');
       await component.sendMessage();
@@ -152,7 +152,7 @@ describe('AgentChatComponent', () => {
     });
 
     it('should clear input after sending', async () => {
-      component.inputValue = 'Hello';
+      component.inputValue.set('Hello');
 
       const mockReader = {
         read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
@@ -164,11 +164,11 @@ describe('AgentChatComponent', () => {
       } as any);
 
       await component.sendMessage();
-      expect(component.inputValue).toBe('');
+      expect(component.inputValue()).toBe('');
     });
 
     it('should add user message to messages array', async () => {
-      component.inputValue = 'Test message';
+      component.inputValue.set('Test message');
 
       const mockReader = {
         read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
@@ -190,7 +190,7 @@ describe('AgentChatComponent', () => {
     });
 
     it('should add assistant placeholder message', async () => {
-      component.inputValue = 'Test';
+      component.inputValue.set('Test');
 
       const mockReader = {
         read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
@@ -209,7 +209,7 @@ describe('AgentChatComponent', () => {
     });
 
     it('should handle abort error gracefully', async () => {
-      component.inputValue = 'Test';
+      component.inputValue.set('Test');
 
       const abortError = new DOMException('Aborted', 'AbortError');
       vi.spyOn(global, 'fetch').mockRejectedValue(abortError);
@@ -220,7 +220,7 @@ describe('AgentChatComponent', () => {
     });
 
     it('should reset abortController after completion', async () => {
-      component.inputValue = 'Test';
+      component.inputValue.set('Test');
 
       const mockReader = {
         read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
