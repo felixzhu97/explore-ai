@@ -3,8 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ChatTabComponent } from './chat-tab.component';
 import { ApiService } from '@core/services/api.service';
+import { MarkdownService } from '@core/services/markdown.service';
 import { I18nService } from '@i18n';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 describe('ChatTabComponent', () => {
   let fixture: ComponentFixture<ChatTabComponent>;
@@ -61,11 +62,16 @@ describe('ChatTabComponent', () => {
 
   beforeEach(async () => {
     createMockApiService();
+    const mockMarkdownService = {
+      render: vi.fn().mockReturnValue('<p>test</p>'),
+      renderToString: vi.fn().mockReturnValue('<p>test</p>'),
+    };
     await TestBed.configureTestingModule({
       imports: [ChatTabComponent, HttpClientTestingModule],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: MarkdownService, useValue: mockMarkdownService },
       ],
     }).compileComponents();
   });
@@ -418,7 +424,7 @@ describe('ChatTabComponent', () => {
     it('should update assistant message content with chunks', () => {
       createFixture();
       component.input.set('Hello');
-      let capturedChunk: ((chunk: string) => void) | null = null;
+      let capturedChunk: ((chunk: string) => void) | undefined;
 
       (mockApiService.chatStream as any).mockImplementation(
         (_: any, onChunk: (chunk: string) => void, _onDone: any, _onError: any) => {
@@ -428,8 +434,8 @@ describe('ChatTabComponent', () => {
       );
 
       component.send();
-      capturedChunk?.('Hello ');
-      capturedChunk?.('world!');
+      capturedChunk!('Hello ');
+      capturedChunk!('world!');
 
       const messages = component.messages();
       const assistantMsg = messages.find((m) => m.role === 'assistant');
@@ -444,76 +450,6 @@ describe('ChatTabComponent', () => {
       const formatted = component.formatTime(timestamp);
       expect(formatted).toBeTruthy();
       expect(typeof formatted).toBe('string');
-    });
-  });
-
-  describe('renderMarkdown', () => {
-    it('should convert bold text', () => {
-      createFixture();
-      const html = component.renderMarkdown('**bold** text');
-      expect(html).toContain('<strong>bold</strong>');
-    });
-
-    it('should convert italic text', () => {
-      createFixture();
-      const html = component.renderMarkdown('*italic* text');
-      expect(html).toContain('<em>italic</em>');
-    });
-
-    it('should convert h1 headers', () => {
-      createFixture();
-      const html = component.renderMarkdown('# Header');
-      expect(html).toContain('<h1>Header</h1>');
-    });
-
-    it('should convert h2 headers', () => {
-      createFixture();
-      const html = component.renderMarkdown('## Header');
-      expect(html).toContain('<h2>Header</h2>');
-    });
-
-    it('should convert h3 headers', () => {
-      createFixture();
-      const html = component.renderMarkdown('### Header');
-      expect(html).toContain('<h3>Header</h3>');
-    });
-
-    it('should convert inline code', () => {
-      createFixture();
-      const html = component.renderMarkdown('`code`');
-      expect(html).toContain('<code>code</code>');
-    });
-
-    it('should convert code blocks', () => {
-      createFixture();
-      const html = component.renderMarkdown('```\nconst x = 1;\n```');
-      expect(html).toContain('<pre>');
-      expect(html).toContain('<code>');
-    });
-
-    it('should convert blockquotes', () => {
-      createFixture();
-      const html = component.renderMarkdown('> Quote');
-      expect(html).toContain('<blockquote>Quote</blockquote>');
-    });
-
-    it('should convert list items', () => {
-      createFixture();
-      const html = component.renderMarkdown('- Item 1\n- Item 2');
-      expect(html).toContain('<li>Item 1</li>');
-      expect(html).toContain('<li>Item 2</li>');
-    });
-
-    it('should convert newlines', () => {
-      createFixture();
-      const html = component.renderMarkdown('Line 1\nLine 2');
-      expect(html).toContain('<br>');
-    });
-
-    it('should handle empty string', () => {
-      createFixture();
-      const html = component.renderMarkdown('');
-      expect(html).toBe('');
     });
   });
 
