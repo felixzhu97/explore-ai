@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 export type CardVariant = 'default' | 'elevated' | 'outlined' | 'glass';
 export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
@@ -8,80 +8,12 @@ export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
   standalone: true,
   template: `
     <div
-      [class]="
-        'card card--' +
-        variant() +
-        ' card--padding-' +
-        padding() +
-        (hoverable() ? ' card--interactive' : '')
-      "
-      (click)="handleClick()"
-      (mouseenter)="isHovered.set(true)"
-      (mouseleave)="isHovered.set(false)"
+      class="block rounded-xl overflow-hidden transition-all duration-200"
+      [class]="getClasses()"
     >
       <ng-content></ng-content>
     </div>
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-
-      .card {
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.2s ease;
-        padding: 16px;
-        background: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-        &--elevated {
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        &--outlined {
-          background: #ffffff;
-          border: 1px solid #d1d1d6;
-          box-shadow: none;
-        }
-
-        &--glass {
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          border: 1px solid rgba(0, 0, 0, 0.06);
-        }
-
-        &--padding-none {
-          padding: 0;
-        }
-        &--padding-sm {
-          padding: 8px;
-        }
-        &--padding-md {
-          padding: 16px;
-        }
-        &--padding-lg {
-          padding: 24px;
-        }
-
-        &--interactive {
-          cursor: pointer;
-
-          &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-          }
-
-          &:active {
-            transform: translateY(0);
-          }
-        }
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardComponent {
@@ -89,9 +21,46 @@ export class CardComponent {
   padding = input<CardPadding>('md');
   hoverable = input<boolean>(false);
 
-  protected isHovered = signal(false);
+  getClasses(): string {
+    const classes: string[] = [];
 
-  handleClick(): void {
-    // Card click handling if needed
+    // Base classes
+    classes.push('bg-surface');
+
+    // Padding
+    switch (this.padding()) {
+      case 'none':
+        break;
+      case 'sm':
+        classes.push('p-2');
+        break;
+      case 'lg':
+        classes.push('p-6');
+        break;
+      default: // md
+        classes.push('p-4');
+    }
+
+    // Variant
+    switch (this.variant()) {
+      case 'elevated':
+        classes.push('shadow-elevated');
+        break;
+      case 'outlined':
+        classes.push('border border-[#d1d1d6] shadow-none');
+        break;
+      case 'glass':
+        classes.push('bg-glass backdrop-blur-xl border border-[--color-border-light] shadow-card');
+        break;
+      default: // default
+        classes.push('shadow-card');
+    }
+
+    // Hoverable
+    if (this.hoverable()) {
+      classes.push('cursor-pointer hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0');
+    }
+
+    return classes.join(' ');
   }
 }
