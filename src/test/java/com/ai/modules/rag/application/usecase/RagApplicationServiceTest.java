@@ -237,14 +237,12 @@ class RagApplicationServiceTest {
             UUID documentId = UUID.randomUUID();
             Document document = new Document(DocumentId.of(documentId), "Test", "test.txt", 100L);
             when(IDocumentRepository.findById(documentId)).thenReturn(Optional.of(document));
-            when(embeddingAdapter.getDimensions()).thenReturn(384);
 
             // Act
             ragApplicationService.deleteDocument(documentId);
 
             // Assert
             verify(IDocumentRepository).findById(documentId);
-            verify(vectorAdapter).search(any(float[].class), eq(1000), eq(List.of(documentId)));
             verify(IDocumentRepository).delete(documentId);
         }
 

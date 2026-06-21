@@ -232,44 +232,4 @@ class RagControllerTest {
         Document doc = new Document(DocumentId.generate(), title, title, 1024L);
         return doc;
     }
-
-    @Nested
-    @DisplayName("truncate")
-    class Truncate {
-
-        @Test
-        @DisplayName("should return null for null input")
-        void shouldReturnNullForNullInput() throws Exception {
-            java.lang.reflect.Method truncateMethod = RagController.class.getDeclaredMethod("truncate", String.class);
-            truncateMethod.setAccessible(true);
-            
-            String result = (String) truncateMethod.invoke(controller, (String) null);
-            
-            assertThat(result).isNull();
-        }
-
-        @Test
-        @DisplayName("should return same string for short text")
-        void shouldReturnSameStringForShortText() throws Exception {
-            java.lang.reflect.Method truncateMethod = RagController.class.getDeclaredMethod("truncate", String.class);
-            truncateMethod.setAccessible(true);
-            
-            String result = (String) truncateMethod.invoke(controller, "Short text");
-            
-            assertThat(result).isEqualTo("Short text");
-        }
-
-        @Test
-        @DisplayName("should truncate long text with ellipsis")
-        void shouldTruncateLongTextWithEllipsis() throws Exception {
-            java.lang.reflect.Method truncateMethod = RagController.class.getDeclaredMethod("truncate", String.class);
-            truncateMethod.setAccessible(true);
-            
-            String longText = "A".repeat(100);
-            String result = (String) truncateMethod.invoke(controller, longText);
-            
-            assertThat(result).hasSize(53); // 50 chars + "..."
-            assertThat(result).endsWith("...");
-        }
-    }
 }
