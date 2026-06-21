@@ -11,35 +11,18 @@ import { HeaderComponent } from './header.component';
   template: `
     <app-toast />
     <app-header />
-    <main class="main-content">
-      <div class="content-wrapper">
+    <main class="p-8 max-sm:p-4">
+      <div class="max-w-[680px] mx-auto">
         <router-outlet />
       </div>
     </main>
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-        min-height: 100vh;
-        background: #f5f5f7;
-      }
-
-      .main-content {
-        padding: 32px;
-      }
-
-      .content-wrapper {
-        max-width: 680px;
-        margin: 0 auto;
-      }
-
-      @media (max-width: 640px) {
-        .main-content {
-          padding: 16px;
-        }
-      }
-    `,
-  ],
+  styles: [`
+    :host {
+      display: block;
+      min-height: 100vh;
+      background: #f5f5f7;
+    }
+  `],
 })
 export class MainLayoutComponent {}
