@@ -12,8 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
 import { NotificationService } from '@core/services/notification.service';
-import { I18nService } from '@core/i18n';
-import { SourceDocument } from '@shared/models';
+import { I18nService } from '@i18n';
+import type { SourceDocument } from './rag.model';
 import { DEFAULT_TEMPERATURE, DEFAULT_TOP_K } from '@core/constants';
 
 interface Message {
@@ -39,7 +39,7 @@ interface Toast {
 }
 
 @Component({
-  selector: 'app-rag-chat',
+  selector: 'app-rag-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -1094,7 +1094,7 @@ interface Toast {
     `,
   ],
 })
-export class RagChatComponent implements OnInit {
+export class RagPageComponent implements OnInit {
   private api = inject(ApiService);
   protected readonly i18n = inject(I18nService);
   protected markdown = inject(MarkdownService);

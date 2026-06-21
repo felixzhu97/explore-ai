@@ -17,7 +17,7 @@ export const routes: Routes = [
       {
         path: 'rag',
         loadComponent: () =>
-          import('./features/ai/rag-chat/rag-chat.component').then((m) => m.RagChatComponent),
+          import('./features/ai/rag/rag.page').then((m) => m.RagPageComponent),
       },
       {
         path: 'vision',

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
-import { I18nService } from '@core/i18n';
+import { I18nService } from '@i18n';
 
 export interface DocumentItem {
   id: string;
@@ -17,7 +17,7 @@ export interface UploadStatus {
 }
 
 @Injectable({ providedIn: 'root' })
-export class RagChatService {
+export class RagService {
   private readonly api = inject(ApiService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18nService);
