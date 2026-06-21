@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@core/services/markdown.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import { ChatMessage, ProviderInfo, ModelInfo } from '@shared/models';
 
 export interface ChatTabState {

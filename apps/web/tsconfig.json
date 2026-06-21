@@ -24,7 +24,7 @@
       "@core/*": ["src/app/core/*"],
       "@features/*": ["src/app/features/*"],
       "@shared/*": ["src/app/shared/*"],
-      "@i18n": ["src/app/i18n"],
+      "@core/i18n": ["src/app/core/i18n"],
       "@env/*": ["src/environments/*"]
     }
   },

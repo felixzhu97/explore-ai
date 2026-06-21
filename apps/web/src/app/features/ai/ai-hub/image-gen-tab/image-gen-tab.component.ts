@@ -2,7 +2,7 @@ import { Component, signal, inject, ChangeDetectionStrategy, output } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 
 interface ImageSize {
   label: string;

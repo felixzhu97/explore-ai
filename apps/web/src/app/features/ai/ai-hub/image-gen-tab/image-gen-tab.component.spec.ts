@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ImageGenTabComponent } from './image-gen-tab.component';
 import { ApiService } from '@core/services/api.service';
-import { I18nService } from '@i18n';
+import { I18nService } from '@core/i18n';
 import { of, throwError } from 'rxjs';
 
 describe('ImageGenTabComponent', () => {
