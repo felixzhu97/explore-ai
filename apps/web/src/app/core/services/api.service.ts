@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, catchError } from 'rxjs';
-import {
+import type {
   ChatRequest,
   RagQuery,
   ImageGenerateParams,
@@ -11,7 +11,6 @@ import {
   ModelInfo,
   Voice,
   Detection,
-  VisionResult,
   DocumentListResponse,
 } from '@shared/models';
 

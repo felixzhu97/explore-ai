@@ -1,3 +1,4 @@
+export * from './models/agent.model';
 export { StatusBadgeComponent, type BadgeStatus } from './status-badge/status-badge.component';
 export {
   ToolResultComponent,
