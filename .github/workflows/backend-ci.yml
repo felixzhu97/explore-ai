@@ -30,11 +30,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build (skip tests)
-        working-directory: apps/server
         run: ./gradlew build -x test --no-daemon
 
       - name: Run tests with coverage
-        working-directory: apps/server
         run: ./gradlew test jacocoTestReport --no-daemon
 
       - name: Upload JaCoCo coverage report
