@@ -8,6 +8,8 @@ import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Domain service for image generation using DALL-E via Spring AI 2.0 ImageModel API.
  */
@@ -80,22 +82,22 @@ public class ImageGenerationUseCase {
     /**
      * Get available image models.
      */
-    public String[] getAvailableModels() {
-        return new String[]{"dall-e-3", "dall-e-2"};
+    public List<String> getAvailableModels() {
+        return List.of("dall-e-3", "dall-e-2");
     }
 
     /**
      * Get available image sizes.
      */
-    public String[] getAvailableSizes() {
-        return new String[]{"1024x1024", "1024x1792", "1792x1024"};
+    public List<String> getAvailableSizes() {
+        return List.of("1024x1024", "1024x1792", "1792x1024");
     }
 
     /**
      * Get available quality options.
      */
-    public String[] getAvailableQualities() {
-        return new String[]{"standard", "hd"};
+    public List<String> getAvailableQualities() {
+        return List.of("standard", "hd");
     }
 
     private String truncate(String text, int maxLength) {

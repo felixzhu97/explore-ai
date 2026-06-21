@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,7 +58,7 @@ public class ImageController {
 
     @GetMapping("/models")
     @Operation(summary = "Get available image generation models")
-    public ResponseEntity<Map<String, String[]>> getModels() {
+    public ResponseEntity<Map<String, List<String>>> getModels() {
         return ResponseEntity.ok(Map.of(
                 "models", imageGenerationUseCase.getAvailableModels()
         ));
@@ -65,7 +66,7 @@ public class ImageController {
 
     @GetMapping("/sizes")
     @Operation(summary = "Get available image sizes")
-    public ResponseEntity<Map<String, String[]>> getSizes() {
+    public ResponseEntity<Map<String, List<String>>> getSizes() {
         return ResponseEntity.ok(Map.of(
                 "sizes", imageGenerationUseCase.getAvailableSizes()
         ));
@@ -73,7 +74,7 @@ public class ImageController {
 
     @GetMapping("/qualities")
     @Operation(summary = "Get available quality options")
-    public ResponseEntity<Map<String, String[]>> getQualities() {
+    public ResponseEntity<Map<String, List<String>>> getQualities() {
         return ResponseEntity.ok(Map.of(
                 "qualities", imageGenerationUseCase.getAvailableQualities()
         ));
