@@ -32,12 +32,6 @@ interface UploadedDocument {
   error?: string;
 }
 
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
-
 @Component({
   selector: 'app-rag-chat',
   standalone: true,
@@ -45,24 +39,6 @@ interface Toast {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="rag-chat">
-      <!-- Toast Container -->
-      <div class="toast-container">
-        @for (toast of toasts(); track toast.id) {
-          <div class="toast-item" [class]="toast.type">
-            <span class="toast-icon">
-              @if (toast.type === 'success') {
-                ✓
-              } @else if (toast.type === 'error') {
-                ✕
-              } @else {
-                ℹ
-              }
-            </span>
-            {{ toast.message }}
-          </div>
-        }
-      </div>
-
       <!-- Header -->
       <div class="header">
         <h2 class="title">{{ i18n.t().ragChat.title }}</h2>
@@ -307,62 +283,6 @@ interface Toast {
           opacity: 1;
           transform: translateY(0);
         }
-      }
-
-      .toast-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .toast-item {
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-size: 14px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        animation: slideIn 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 280px;
-        max-width: 400px;
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateX(100%);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      .toast-item.success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-      }
-
-      .toast-item.error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-      }
-
-      .toast-item.info {
-        background: #ffffff;
-        color: #1d1d1f;
-        border: 1px solid #e5e5e5;
-      }
-
-      .toast-icon {
-        font-size: 18px;
       }
 
       .header {
@@ -1109,7 +1029,6 @@ export class RagChatComponent implements OnInit {
   uploadStatuses = signal<Map<string, UploadedDocument>>(new Map());
   availableDocs = signal<{ id: string; title: string }[]>([]);
   selectedDocIds = signal<Set<string>>(new Set());
-  toasts = signal<Toast[]>([]);
   expandedSources = signal<Set<string>>(new Set());
   isLoadingDocs = signal(true);
   deletingDocIds = signal<Set<string>>(new Set());
@@ -1190,7 +1109,7 @@ export class RagChatComponent implements OnInit {
     // Defensive check - ensure docId is valid
     if (!docId || docId === 'undefined' || docId === 'null') {
       console.error('[RAG] Invalid document ID:', docId);
-      this.addToast('Cannot delete: document ID is invalid', 'error');
+      this.notifications.showError('Cannot delete: document ID is invalid');
       return;
     }
 
@@ -1211,7 +1130,7 @@ export class RagChatComponent implements OnInit {
             next.delete(docId);
             return next;
           });
-          this.addToast(this.i18n.t().ragChat.documentDeleted, 'success');
+          this.notifications.showSuccess(this.i18n.t().ragChat.documentDeleted);
         }, 200);
       },
       error: () => {
@@ -1220,7 +1139,7 @@ export class RagChatComponent implements OnInit {
           next.delete(docId);
           return next;
         });
-        this.addToast(this.i18n.t().ragChat.deleteFailed, 'error');
+        this.notifications.showError(this.i18n.t().ragChat.deleteFailed);
       },
     });
   }
@@ -1235,9 +1154,8 @@ export class RagChatComponent implements OnInit {
         (f) => !this.pendingFiles().some((pf) => pf.name === f.name)
       );
       this.pendingFiles.update((prev) => [...prev, ...newFiles]);
-      this.addToast(
-        this.i18n.t().ragChat.fileSelected.replace('{count}', newFiles.length.toString()),
-        'info'
+      this.notifications.showInfo(
+        this.i18n.t().ragChat.fileSelected.replace('{count}', newFiles.length.toString())
       );
     }
     input.value = '';
@@ -1281,9 +1199,8 @@ export class RagChatComponent implements OnInit {
             });
             return next;
           });
-          this.addToast(
-            this.i18n.t().ragChat.uploadSuccess.replace('{name}', file.name),
-            'success'
+          this.notifications.showSuccess(
+            this.i18n.t().ragChat.uploadSuccess.replace('{name}', file.name)
           );
 
           if (index === this.pendingFiles().length - 1) {
@@ -1305,7 +1222,9 @@ export class RagChatComponent implements OnInit {
             });
             return next;
           });
-          this.addToast(this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name), 'error');
+          this.notifications.showError(
+            this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name)
+          );
         },
         complete: () => {
           if (index === this.pendingFiles().length - 1) {
@@ -1446,16 +1365,6 @@ export class RagChatComponent implements OnInit {
       }
       return next;
     });
-  }
-
-  // ==================== Toast ====================
-
-  addToast(message: string, type: Toast['type']) {
-    const id = `toast_${Date.now()}`;
-    this.toasts.update((toasts) => [...toasts, { id, message, type }]);
-    setTimeout(() => {
-      this.toasts.update((toasts) => toasts.filter((t) => t.id !== id));
-    }, 4000);
   }
 
   // ==================== Utilities ====================
