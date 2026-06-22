@@ -63,8 +63,8 @@ References:
 
 PR body mirrors the commit message. References must be identical.
 
-```markdown
-## References
+```
+References
 - [Title](URL)
 ```
 
@@ -131,3 +131,80 @@ The following elements should **never** appear in commit messages or PR descript
 - `Made with xxx` or `Built with xxx` - Unnecessary boilerplate
 - Sign-off lines (`Signed-off-by:`) unless required by CI
 - Emoji prefixes or suffixes in subject lines
+
+---
+
+## Project Dependency Reference
+
+When referencing dependencies in commits or PRs, use the official documentation URLs below. Keep this list updated when adding new dependencies.
+
+### Frontend
+
+| Library | Version | Official Docs |
+|---------|---------|---------------|
+| Angular | ^22.0.0 | [Angular](https://angular.dev) |
+| AnalogJS | ^2.6.0 | [AnalogJS](https://analogjs.org/) |
+| PrimeNG | — | [PrimeNG](https://primeng.org) |
+| ngx-echarts | — | [ngx-echarts](https://github.com/ngx-gallery/ngx-echarts) |
+| ngx-markdown | — | [ngx-markdown](https://github.com/jfcere/ngx-markdown) |
+| Tailwind CSS | ^4.3.1 | [Tailwind CSS](https://tailwindcss.com) |
+| PostCSS | ^8.5.15 | [PostCSS](https://postcss.org) |
+| RxJS | ~7.8.0 | [RxJS](https://rxjs.dev) |
+| DOMPurify | ^3.4.9 | [DOMPurify](https://github.com/cure53/DOMPurify) |
+| Marked | ^18.0.5 | [Marked](https://marked.js.org) |
+| Zone.js | ~0.15.0 | [Zone.js](https://github.com/angular/angular.js/tree/main/packages/zone.js) |
+| Sass | ^1.100.0 | [Dart Sass](https://sass-lang.com) |
+| TypeScript | ~6.0.0 | [TypeScript](https://www.typescriptlang.org) |
+| ESLint | — | [ESLint](https://eslint.org) |
+| Vitest | ^4.0.8 | [Vitest](https://vitest.dev) |
+| pnpm | (managed) | [pnpm](https://pnpm.io) |
+
+### Backend
+
+| Library | Version | Official Docs |
+|---------|---------|---------------|
+| Java | 25 | [Java](https://docs.oracle.com/en/java/) |
+| Spring Boot | (managed) | [Spring Boot](https://spring.io/projects/spring-boot) |
+| Spring AI | (managed) | [Spring AI](https://spring.io/projects/spring-ai) |
+| Spring Data JPA | (managed) | [Spring Data JPA](https://spring.io/projects/spring-data-jpa) |
+| Spring Retry | 2.0.10 | [Spring Retry](https://docs.spring.io/spring-retry/docs/current/reference/html/) |
+| Hibernate ORM | (managed) | [Hibernate ORM](https://hibernate.org/orm) |
+| Liquibase | — | [Liquibase](https://www.liquibase.org) |
+| Micrometer | (managed) | [Micrometer](https://micrometer.io) |
+| Jackson | (managed) | [Jackson](https://github.com/FasterXML/jackson) |
+| MapStruct | — | [MapStruct](https://mapstruct.org) |
+| Lombok | (managed) | [Lombok](https://projectlombok.org) |
+| Logbook | — | [Logbook](https://github.com/zalando/logbook) |
+| H2 Database | (managed) | [H2 Database](https://www.h2database.com) |
+| MySQL Connector/J | — | [MySQL Connector/J](https://dev.mysql.com/doc/connector-j) |
+| PostgreSQL JDBC | (managed) | [PostgreSQL JDBC Driver](https://jdbc.postgresql.org) |
+| Apache PDFBox | 3.0.3 | [Apache PDFBox](https://pdfbox.apache.org) |
+| Hypersistence Utils | 3.10.0 | [Hypersistence Utils](https://docs.hypersistence.io/hypersistence-utils/) |
+| JUnit | 1.20.4 | [JUnit](https://junit.org) |
+| Testcontainers | 1.20.4 | [Testcontainers](https://www.testcontainers.org) |
+| LangChain4j | — | [LangChain4j](https://langchain4j.dev) |
+| DJL (Deep Java Library) | — | [DJL](https://djl.ai) |
+| Apache OpenNLP | — | [Apache OpenNLP](https://opennlp.apache.org) |
+| Apache Tika | — | [Apache Tika](https://tika.apache.org) |
+
+### Build & Tooling
+
+| Tool | Version | Official Docs |
+|------|---------|---------------|
+| Gradle | (wrapper) | [Gradle](https://gradle.org) |
+| JaCoCo | 0.8.13 | [JaCoCo](https://www.jacoco.org/jacoco/trunk/doc/) |
+| Error Prone | — | [Error Prone](https://errorprone.info) |
+| Checkstyle | — | [Checkstyle](https://checkstyle.org) |
+| Husky | — | [Husky](https://typicode.github.io/husky) |
+| lint-staged | — | [lint-staged](https://github.com/okonet/lint-staged) |
+
+### Learning References
+
+| Resource | Official Docs |
+|----------|---------------|
+| Martin Fowler | [martinfowler.com](https://martinfowler.com/) |
+| Clean Code / Robert C. Martin | [cleancoder.com](http://cleancoder.com/products) |
+| Medium | [medium.com](https://medium.com) |
+| dev.to | [dev.to](https://dev.to) |
+| arXiv | [arxiv.org](https://arxiv.org) |
+| Hugging Face | [huggingface.co](https://huggingface.co) |
