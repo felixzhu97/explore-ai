@@ -15,12 +15,13 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@shared/utils/markdown.service';
 import { I18nService } from '@core/i18n';
+import { NxSenderModule } from 'ng-zorro-x/sender';
 import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.model';
 
 @Component({
   selector: 'app-chat-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NxSenderModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="panel">
@@ -137,20 +138,14 @@ import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.
         }
 
         <!-- Input Area -->
-        <div class="input-area">
-          <textarea
-            class="chat-input"
-            [ngModel]="input()"
-            (ngModelChange)="setInput($event)"
-            (keydown)="onKeyDown($event)"
-            placeholder="{{ i18n.t().aiHub.chat.inputPlaceholder }}"
-            rows="1"
-            [disabled]="isLoading()"
-          ></textarea>
-          <button class="send-button" (click)="send()" [disabled]="isLoading() || !input().trim()">
-            →
-          </button>
-        </div>
+        <nx-sender
+          [value]="input()"
+          [loading]="isLoading()"
+          [disabled]="isLoading()"
+          [placeholder]="i18n.t().aiHub.chat.inputPlaceholder"
+          (valueChange)="setInput($event)"
+          (submitSend)="send()"
+        />
       </div>
     </div>
   `,
@@ -377,69 +372,6 @@ import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.
         color: #86868b;
         margin-top: 4px;
         padding: 0 4px;
-      }
-
-      .input-area {
-        display: flex;
-        gap: 8px;
-        align-items: flex-end;
-        margin-top: 16px;
-      }
-
-      .chat-input {
-        flex: 1;
-        padding: 16px;
-        font-size: 15px;
-        font-family: inherit;
-        border: 1px solid var(--color-border);
-        border-radius: 14px;
-        background: #ffffff;
-        color: #1d1d1f;
-        resize: none;
-        min-height: 48px;
-        max-height: 120px;
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s;
-      }
-
-      .chat-input:focus {
-        outline: none;
-        border-color: #007aff;
-        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
-      }
-
-      .chat-input::placeholder {
-        color: #86868b;
-      }
-
-      .send-button {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #007aff;
-        color: white;
-        border: none;
-        border-radius: 14px;
-        cursor: pointer;
-        font-size: 18px;
-        transition: all 0.2s ease;
-      }
-
-      .send-button:hover:not(:disabled) {
-        background: #0071e3;
-      }
-
-      .send-button:active:not(:disabled) {
-        background: #0056b3;
-        transform: scale(0.95);
-      }
-
-      .send-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
       }
 
       .error-message {
