@@ -75,26 +75,12 @@ jobs:
         # Pin a CodeQL bundle that supports Java 25 (class file major 69).
         # CodeQL CLI v2.23.1+ supports Java 25; v2.25.6 is the latest stable.
         tools: https://github.com/github/codeql-bundle/releases/download/codeql-bundle-v2.25.6/codeql-bundle-linux64.tar.gz
-        # If you wish to specify custom queries, you can do so here or in a config file.
-        # By default, queries listed here will override any specified in a config file.
-        # Prefix the list here with "+" to use these queries and those in the config file.
 
-        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-        # queries: security-extended,security-and-quality
-
-    - name: Download prebuilt Java/Kotlin outputs
+    - name: Build Java/Kotlin (required for CodeQL analysis)
       if: matrix.language == 'java-kotlin'
-      uses: actions/download-artifact@v4
-      with:
-        name: java-build-outputs
-        path: build
-      continue-on-error: true
-
-    - name: Build Java/Kotlin (fallback if artifact missing)
-      if: matrix.language == 'java-kotlin' && hashFiles('build/classes/java/main') == ''
       shell: bash
       run: |
-                chmod +x ./gradlew
+        chmod +x ./gradlew
         ./gradlew build -x test --no-daemon
 
     - name: Perform CodeQL Analysis
