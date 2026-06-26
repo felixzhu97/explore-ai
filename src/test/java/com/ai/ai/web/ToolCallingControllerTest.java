@@ -1,7 +1,7 @@
 package com.ai.ai.web;
 
 import com.ai.ai.web.ToolCallingController;
-import com.ai.ai.infrastructure.streaming.StreamingService;
+import com.ai.common.streaming.StreamingService;
 import com.ai.rag.infrastructure.tools.RagSearchTool;
 import com.ai.ai.infrastructure.tools.WeatherTools;
 import org.junit.jupiter.api.DisplayName;

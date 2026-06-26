@@ -2,13 +2,11 @@ package com.ai.rag.domain.model;
 
 import com.ai.rag.domain.vo.DocumentId;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Document entity - represents a document in the RAG system.
- * Rich domain model with business methods for state management.
+ * Document entity - rich domain model with state management.
  */
 public class Document {
 
@@ -19,7 +17,6 @@ public class Document {
     private DocumentStatus status;
     private final Instant createdAt;
     private Instant updatedAt;
-    private int retryCount;
 
     public Document(DocumentId id, String title, String fileName, Long fileSize) {
         this.id = Objects.requireNonNull(id, "DocumentId cannot be null");
@@ -29,10 +26,8 @@ public class Document {
         this.status = DocumentStatus.UPLOADING;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
-        this.retryCount = 0;
     }
 
-    // Full constructor for repository mapper to restore all fields
     public Document(DocumentId id, String title, String fileName, Long fileSize,
                    DocumentStatus status, Instant createdAt, Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "DocumentId cannot be null");
@@ -42,132 +37,58 @@ public class Document {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.retryCount = 0;
     }
 
     private static String validateTitle(String title) {
-        if (title == null || title.isBlank()) {
-            return null; // Allow null title
-        }
-        if (title.length() > 255) {
-            return title.substring(0, 255);
-        }
-        return title.trim();
+        if (title == null || title.isBlank()) return null;
+        return title.length() > 255 ? title.substring(0, 255) : title.trim();
     }
 
-    /**
-     * Marks document as processing (after upload, before chunks are saved).
-     * Can be called from UPLOADING or FAILED states (for retry).
-     */
     public void markProcessing() {
         validateTransitionTo(DocumentStatus.PROCESSING);
         this.status = DocumentStatus.PROCESSING;
         this.updatedAt = Instant.now();
     }
 
-    /**
-     * Marks document as ready (all processing completed successfully).
-     */
     public void markReady() {
         validateTransitionTo(DocumentStatus.READY);
         this.status = DocumentStatus.READY;
         this.updatedAt = Instant.now();
     }
 
-    /**
-     * Marks document as failed.
-     */
     public void markFailed() {
+        validateTransitionTo(DocumentStatus.FAILED);
         this.status = DocumentStatus.FAILED;
         this.updatedAt = Instant.now();
     }
 
-    /**
-     * Prepares document for retry after a failure.
-     * Only allowed when document is in FAILED status.
-     */
-    public void prepareForRetry() {
-        if (this.status != DocumentStatus.FAILED) {
-            throw new IllegalStateException(
-                    "Cannot retry document in status: " + this.status);
-        }
-        this.status = DocumentStatus.UPLOADING;
-        this.retryCount++;
-        this.updatedAt = Instant.now();
-    }
-
-    public boolean isReady() {
-        return this.status == DocumentStatus.READY;
-    }
-
-    public boolean isFailed() {
-        return this.status == DocumentStatus.FAILED;
-    }
-
-    public boolean isProcessing() {
-        return isStatus(DocumentStatus.PROCESSING);
-    }
-
-    public boolean isUploading() {
-        return isStatus(DocumentStatus.UPLOADING);
-    }
-
-    public boolean isStatus(DocumentStatus status) {
-        return this.status == status;
-    }
-
-    /**
-     * Checks if document can transition to the target status.
-     */
-    public boolean canTransitionTo(DocumentStatus targetStatus) {
-        return isValidTransition(this.status, targetStatus);
-    }
-
-    /**
-     * Returns the number of retry attempts made on this document.
-     */
-    public int getRetryCount() {
-        return retryCount;
-    }
-
-    /**
-     * Returns the time elapsed since document creation.
-     */
-    public Duration getProcessingDuration() {
-        return Duration.between(createdAt, Instant.now());
-    }
-
-    /**
-     * Returns the time since last update.
-     */
-    public Duration getTimeSinceLastUpdate() {
-        return Duration.between(updatedAt, Instant.now());
-    }
-
-    private void validateTransitionTo(DocumentStatus targetStatus) {
-        if (!canTransitionTo(targetStatus)) {
-            throw new IllegalStateException(
-                    "Invalid status transition from " + this.status + " to " + targetStatus);
-        }
-    }
-
-    private boolean isValidTransition(DocumentStatus from, DocumentStatus to) {
-        // Allow flexible transitions for retry and re-processing scenarios
-        if (from == to) return false; // No self-transition
-        return switch (to) {
-            case PROCESSING -> from != DocumentStatus.PROCESSING; // Allow any non-PROCESSING state
-            case READY -> from == DocumentStatus.PROCESSING; // Only from PROCESSING
-            case FAILED -> from != DocumentStatus.READY; // Allow except from READY (it's terminal)
-            case UPLOADING -> false; // Cannot go back to UPLOADING
-        };
-    }
-
     public void updateTitle(String newTitle) {
-        if (isReady()) {
+        if (status == DocumentStatus.READY) {
             throw new IllegalStateException("Cannot update title of ready document");
         }
         this.title = validateTitle(newTitle);
         this.updatedAt = Instant.now();
+    }
+
+    private void validateTransitionTo(DocumentStatus target) {
+        if (!isValidTransition(this.status, target)) {
+            throw new IllegalStateException(
+                    "Invalid status transition from " + this.status + " to " + target);
+        }
+    }
+
+    private boolean isValidTransition(DocumentStatus from, DocumentStatus to) {
+        if (from == to) return false;
+        return switch (to) {
+            case PROCESSING -> from == DocumentStatus.UPLOADING
+                    || from == DocumentStatus.FAILED
+                    || from == DocumentStatus.READY;
+            case READY -> from == DocumentStatus.PROCESSING;
+            case FAILED -> from == DocumentStatus.UPLOADING
+                    || from == DocumentStatus.PROCESSING
+                    || from == DocumentStatus.FAILED;
+            case UPLOADING -> false;
+        };
     }
 
     public DocumentId getId() { return id; }

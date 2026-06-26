@@ -1,6 +1,7 @@
 package com.ai.rag.web;
 
-import com.ai.ai.infrastructure.streaming.StreamingService;
+import com.ai.common.streaming.StreamingService;
+import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.web.RagController;
@@ -93,8 +94,8 @@ class RagControllerTest {
                     "file", "test.txt", "text/plain", "Hello World".getBytes());
             Document doc = createTestDocument("test.txt", DocumentStatus.READY);
 
-            RagApplicationService.UploadResult uploadResult =
-                    new RagApplicationService.UploadResult(doc.getId(), "test.txt", "READY", 0);
+            DocumentUploadService.UploadResult uploadResult =
+                    new DocumentUploadService.UploadResult(doc.getId(), "test.txt", "READY", 0);
             when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull()))
                     .thenReturn(uploadResult);
 
@@ -111,8 +112,8 @@ class RagControllerTest {
                     "file", "original.txt", "text/plain", "Content".getBytes());
             Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
 
-            RagApplicationService.UploadResult uploadResult =
-                    new RagApplicationService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
+            DocumentUploadService.UploadResult uploadResult =
+                    new DocumentUploadService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
             when(ragApplicationService.uploadDocument(any(MultipartFile.class), eq("Custom Title")))
                     .thenReturn(uploadResult);
 

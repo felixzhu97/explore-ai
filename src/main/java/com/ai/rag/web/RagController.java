@@ -1,10 +1,10 @@
 package com.ai.rag.web;
 
-import com.ai.ai.infrastructure.streaming.StreamingService;
-import com.ai.rag.domain.model.Document;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.common.streaming.StreamingService;
+import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
+import com.ai.rag.domain.model.Document;
 import com.ai.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,23 +16,17 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * REST Controller for RAG operations.
- * Thin controller - handles HTTP concerns only, delegates business logic to application services.
+ * Thin controller - delegates to application services.
  */
 @RestController
 @RequestMapping("/api/rag")
 @Tag(name = "RAG", description = "RAG document management and chat")
 public class RagController {
-
-    private static final Logger log = LoggerFactory.getLogger(RagController.class);
 
     private final RagApplicationService ragApplicationService;
     private final RagChatUseCase ragChatUseCase;
@@ -50,11 +44,10 @@ public class RagController {
     @GetMapping("/documents/")
     @Operation(summary = "List all documents")
     public ResponseEntity<DocumentListResponse> listDocuments() {
-        List<Document> documents = ragApplicationService.listDocuments();
-        List<DocumentSummaryDto> summaries = documents.stream()
-            .map(this::toDocumentSummaryDto)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(new DocumentListResponse(summaries));
+        return ResponseEntity.ok(new DocumentListResponse(
+                ragApplicationService.listDocuments().stream()
+                        .map(this::toSummary)
+                        .toList()));
     }
 
     @PostMapping("/documents/upload")
@@ -62,16 +55,11 @@ public class RagController {
     public ResponseEntity<UploadDocumentResponse> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "title", required = false) String title) {
-        var result = ragApplicationService.uploadDocument(file, title);
-
-        UploadDocumentResponse response = new UploadDocumentResponse(
-            result.documentId().value(),
-            result.title(),
-            result.status(),
-            result.chunkCount(),
-            null
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        DocumentUploadService.UploadResult result = ragApplicationService.uploadDocument(file, title);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new UploadDocumentResponse(
+                        result.documentId().value(), result.title(),
+                        result.status(), result.chunkCount(), null));
     }
 
     @DeleteMapping("/documents/{id}")
@@ -85,25 +73,15 @@ public class RagController {
     @Operation(summary = "RAG streaming chat")
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
         var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
-
-        List<SourceDocumentDto> sourceDtos = chatResult.sources().stream()
-                .map(this::toSourceDocumentDto)
-                .collect(Collectors.toList());
-
-        return streamingService.streamWithSources(chatResult.response(), sourceDtos);
+        return streamingService.streamWithSources(chatResult.response(),
+                chatResult.sources().stream()
+                        .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
+                        .toList());
     }
 
-    private DocumentSummaryDto toDocumentSummaryDto(Document document) {
+    private DocumentSummaryDto toSummary(Document doc) {
         return new DocumentSummaryDto(
-            document.getId().value(),
-            document.getTitle(),
-            document.getStatus().name(),
-            document.getCreatedAt(),
-            0
-        );
-    }
-
-    private SourceDocumentDto toSourceDocumentDto(SourceDocument source) {
-        return new SourceDocumentDto(null, source.text(), (float) source.score(), source.metadata());
+                doc.getId().value(), doc.getTitle(),
+                doc.getStatus().name(), doc.getCreatedAt(), 0);
     }
 }

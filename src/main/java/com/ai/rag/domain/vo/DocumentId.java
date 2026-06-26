@@ -4,10 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * DocumentId Value Object
- * 
- * Represents a unique identifier for documents using UUID.
- * Value objects are immutable and compared by value equality.
+ * DocumentId Value Object - immutable identifier backed by UUID.
  */
 public final class DocumentId {
     private final UUID value;
@@ -17,16 +14,13 @@ public final class DocumentId {
     }
 
     public static DocumentId of(UUID uuid) {
-        if (uuid == null) {
-            throw new IllegalArgumentException("UUID cannot be null");
-        }
+        if (uuid == null) throw new IllegalArgumentException("UUID cannot be null");
         return new DocumentId(uuid);
     }
 
     public static DocumentId of(String uuidString) {
-        if (uuidString == null || uuidString.isBlank()) {
+        if (uuidString == null || uuidString.isBlank())
             throw new IllegalArgumentException("UUID string cannot be null or blank");
-        }
         return new DocumentId(UUID.fromString(uuidString));
     }
 
@@ -36,10 +30,6 @@ public final class DocumentId {
 
     public UUID value() {
         return value;
-    }
-
-    public String toString() {
-        return value.toString();
     }
 
     @Override
@@ -53,5 +43,10 @@ public final class DocumentId {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
     }
 }
