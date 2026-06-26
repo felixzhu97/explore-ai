@@ -11,10 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * RAG Search tool for AI function calling.
- * Allows AI to search documents in the knowledge base.
- */
 @Component
 public class RagSearchTool {
 
@@ -38,12 +34,9 @@ public class RagSearchTool {
         }
 
         try {
-            List<DocumentId> docIdList = null;
-            if (docIds != null && !docIds.isEmpty()) {
-                docIdList = docIds.stream()
-                        .map(DocumentId::of)
-                        .collect(Collectors.toList());
-            }
+            List<DocumentId> docIdList = docIds != null && !docIds.isEmpty()
+                    ? docIds.stream().map(DocumentId::of).collect(Collectors.toList())
+                    : null;
 
             var result = ragApplicationService.retrieveContext(query, docIdList, DEFAULT_TOP_K);
 
@@ -51,29 +44,8 @@ public class RagSearchTool {
                 return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
             }
 
-            StringBuilder response = new StringBuilder();
-            response.append("找到以下相关文档片段：\n\n");
-
-            for (int i = 0; i < result.sources().size(); i++) {
-                var source = result.sources().get(i);
-                String content = source.text();
-                if (content.length() > MAX_CONTENT_LENGTH) {
-                    content = content.substring(0, MAX_CONTENT_LENGTH) + "...";
-                }
-
-                response.append(String.format("【来源 %d】相似度: %.2f\n", i + 1, source.score()));
-                response.append(content);
-                response.append("\n\n");
-
-                Object title = source.metadata().get("title");
-                if (title != null) {
-                    response.append(String.format("文档: %s\n", title));
-                }
-                response.append("---\n\n");
-            }
-
-            return response.toString();
-
+            return "找到以下相关文档片段：\n\n" +
+                    formatSources(result.sources());
         } catch (IllegalArgumentException e) {
             log.warn("Invalid document ID format in searchDocuments", e);
             return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
@@ -81,6 +53,26 @@ public class RagSearchTool {
             log.error("Error searching documents", e);
             return "搜索文档时发生未知错误，请稍后重试。";
         }
+    }
+
+    private String formatSources(List<com.ai.rag.domain.model.SourceDocument> sources) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sources.size(); i++) {
+            var source = sources.get(i);
+            String content = truncate(source.text());
+            sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
+            if (source.metadata().get("title") instanceof String title) {
+                sb.append(String.format("文档: %s\n", title));
+            }
+            sb.append("---\n\n");
+        }
+        return sb.toString();
+    }
+
+    private String truncate(String content) {
+        return content.length() > MAX_CONTENT_LENGTH
+                ? content.substring(0, MAX_CONTENT_LENGTH) + "..."
+                : content;
     }
 
     @Tool(description = "列出知识库中的所有可用文档，返回文档ID和标题")

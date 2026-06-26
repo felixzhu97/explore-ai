@@ -35,12 +35,6 @@ public class DocumentChunk {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, null, Instant.now());
     }
 
-    public static DocumentChunk createWithEmbedding(DocumentId id, DocumentId documentId, String content,
-                                                   int chunkIndex, Map<String, Object> metadata,
-                                                   float[] embedding) {
-        return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, Instant.now());
-    }
-
     public static DocumentChunk reconstitute(DocumentId id, DocumentId documentId, String content,
                                     int chunkIndex, Map<String, Object> metadata,
                                     float[] embedding, Instant createdAt) {

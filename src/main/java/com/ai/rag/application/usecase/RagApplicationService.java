@@ -8,33 +8,36 @@ import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.repository.IDocumentRepository;
 import com.ai.rag.domain.util.VectorSimilarity;
-import com.ai.rag.infrastructure.parser.PdfTextExtractor;
-import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.rag.infrastructure.vector.PgVectorAdapter;
 import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
+import com.ai.rag.infrastructure.parser.PdfTextExtractor;
+import com.ai.rag.infrastructure.vector.PgVectorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
-/**
- * Application layer service for RAG operations orchestration.
- * Coordinates between domain services, adapters, and handles transactions.
- */
 @Service
 public class RagApplicationService {
 
     private static final Logger log = LoggerFactory.getLogger(RagApplicationService.class);
+    private static final int DEFAULT_TOP_K = 5;
 
-    /**
-     * Result of retrieval operation.
-     */
     public record RetrievalResult(
-        String context,
-        List<SourceDocument> sources,
-        String enrichedQuery
+            String context,
+            List<SourceDocument> sources,
+            String enrichedQuery
+    ) {}
+
+    public record UploadResult(
+            DocumentId documentId,
+            String title,
+            String status,
+            int chunkCount
     ) {}
 
     private final ChunkingService chunkingService;
@@ -43,8 +46,6 @@ public class RagApplicationService {
     private final IDocumentRepository documentRepository;
     private final IDocumentChunkRepository chunkRepository;
     private final PdfTextExtractor pdfTextExtractor;
-
-    private static final int DEFAULT_TOP_K = 5;
 
     public RagApplicationService(
             ChunkingService chunkingService,
@@ -61,76 +62,26 @@ public class RagApplicationService {
         this.pdfTextExtractor = pdfTextExtractor;
     }
 
-    /**
-     * Result of document upload operation.
-     */
-    public record UploadResult(
-            DocumentId documentId,
-            String title,
-            String status,
-            int chunkCount
-    ) {}
-
-    /**
-     * Uploads and processes a document from text content.
-     */
     @Transactional
     public UploadResult uploadDocument(String title, String fileName, Long fileSize, String content) {
-        log.info("Uploading document: {}", title);
-
-        Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
-        document.markProcessing();
-        document = documentRepository.save(document);
-
-        try {
-            List<String> chunks = chunkingService.chunk(content);
-            log.info("Split into {} chunks", chunks.size());
-
-            int chunkCount = saveChunks(title, fileName, document.getId(), chunks);
-
-            document.markReady();
-            document = documentRepository.save(document);
-            log.info("Document uploaded successfully: {}", document.getId());
-
-            return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunkCount);
-
-        } catch (Exception e) {
-            log.error("Failed to process document", e);
-            document.markFailed();
-            documentRepository.save(document);
-            throw new DocumentProcessingException("Failed to process document: " + e.getMessage(), e);
-        }
+        return processUpload(title, fileName, fileSize, () -> content);
     }
 
-    /**
-     * Uploads a document from byte array content.
-     */
     @Transactional
     public UploadResult uploadDocumentFromBytes(String title, String fileName, Long fileSize, byte[] fileContent) {
-        log.info("Uploading document: {}", title);
+        return processUpload(title, fileName, fileSize, () -> extractContent(fileContent, fileName));
+    }
 
-        Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
-        document.markProcessing();
-        document = documentRepository.save(document);
+    @Transactional
+    public UploadResult uploadDocument(MultipartFile file, String title) {
+        String fileName = file.getOriginalFilename();
+        String docTitle = title != null && !title.isBlank() ? title : fileName;
 
         try {
-            String content = extractContent(fileContent, fileName);
-            List<String> chunks = chunkingService.chunk(content);
-            log.info("Split into {} chunks", chunks.size());
-
-            int chunkCount = saveChunks(title, fileName, document.getId(), chunks);
-
-            document.markReady();
-            document = documentRepository.save(document);
-            log.info("Document uploaded successfully: {}", document.getId());
-
-            return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunkCount);
-
-        } catch (Exception e) {
-            log.error("Failed to process document", e);
-            document.markFailed();
-            documentRepository.save(document);
-            throw new DocumentProcessingException("Failed to process document: " + e.getMessage(), e);
+            byte[] fileBytes = file.getBytes();
+            return uploadDocumentFromBytes(docTitle, fileName, file.getSize(), fileBytes);
+        } catch (IOException e) {
+            throw new DocumentProcessingException("Failed to read file content: " + e.getMessage(), e);
         }
     }
 
@@ -139,9 +90,6 @@ public class RagApplicationService {
         return documentRepository.findAll();
     }
 
-    /**
-     * Deletes a document and its associated chunks.
-     */
     @Transactional
     public void deleteDocument(UUID documentId) {
         log.info("Deleting document: {}", documentId);
@@ -192,6 +140,32 @@ public class RagApplicationService {
         return new RetrievalResult(context, sources, query);
     }
 
+    private UploadResult processUpload(String title, String fileName, Long fileSize, java.util.function.Supplier<String> contentSupplier) {
+        Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
+        document.markProcessing();
+        document = documentRepository.save(document);
+
+        try {
+            String content = contentSupplier.get();
+            List<String> chunks = chunkingService.chunk(content);
+            log.info("Split into {} chunks", chunks.size());
+
+            int chunkCount = saveChunks(title, fileName, document.getId(), chunks);
+
+            document.markReady();
+            document = documentRepository.save(document);
+            log.info("Document uploaded successfully: {}", document.getId());
+
+            return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunkCount);
+
+        } catch (Exception e) {
+            log.error("Failed to process document", e);
+            document.markFailed();
+            documentRepository.save(document);
+            throw new DocumentProcessingException("Failed to process document: " + e.getMessage(), e);
+        }
+    }
+
     private String truncateContent(String content) {
         if (content == null || content.length() <= 500) {
             return content;
@@ -218,13 +192,15 @@ public class RagApplicationService {
             metadata.put("title", title);
             metadata.put("fileName", fileName);
 
-            DocumentChunk chunk = DocumentChunk.create(
+            DocumentChunk chunk = DocumentChunk.reconstitute(
                 DocumentId.generate(),
                 documentId,
                 chunkText,
                 i,
-                metadata
-            ).withEmbedding(embedding);
+                metadata,
+                embedding,
+                java.time.Instant.now()
+            );
 
             try {
                 vectorAdapter.saveChunk(chunk);

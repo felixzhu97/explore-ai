@@ -52,14 +52,24 @@ public class JpaIDocumentChunkRepository implements IDocumentChunkRepository {
         chunkRepository.deleteByDocumentId(documentId.value());
     }
 
-    private DocumentChunkEntity toChunkEntity(DocumentChunk chunk) {
-        Float[] embeddingArray = null;
-        if (chunk.getEmbedding() != null) {
-            embeddingArray = new Float[chunk.getEmbedding().length];
-            for (int i = 0; i < chunk.getEmbedding().length; i++) {
-                embeddingArray[i] = chunk.getEmbedding()[i];
-            }
+    private static float[] toPrimitive(Float[] array) {
+        float[] result = new float[array.length];
+        for (int i = 0; i < array.length; i++) {
+            result[i] = array[i];
         }
+        return result;
+    }
+
+    private static Float[] toObject(float[] array) {
+        Float[] result = new Float[array.length];
+        for (int i = 0; i < array.length; i++) {
+            result[i] = array[i];
+        }
+        return result;
+    }
+
+    private DocumentChunkEntity toChunkEntity(DocumentChunk chunk) {
+        Float[] embeddingArray = chunk.getEmbedding() != null ? toObject(chunk.getEmbedding()) : null;
 
         String metadataJson = null;
         if (chunk.getMetadata() != null && !chunk.getMetadata().isEmpty()) {
@@ -82,13 +92,7 @@ public class JpaIDocumentChunkRepository implements IDocumentChunkRepository {
     }
 
     private DocumentChunk toChunkDomain(DocumentChunkEntity entity) {
-        float[] embedding = null;
-        if (entity.getEmbedding() != null) {
-            embedding = new float[entity.getEmbedding().length];
-            for (int i = 0; i < entity.getEmbedding().length; i++) {
-                embedding[i] = entity.getEmbedding()[i];
-            }
-        }
+        float[] embedding = entity.getEmbedding() != null ? toPrimitive(entity.getEmbedding()) : null;
 
         Map<String, Object> metadata = new HashMap<>();
         if (entity.getMetadata() != null && !entity.getMetadata().isEmpty()) {
@@ -108,6 +112,6 @@ public class JpaIDocumentChunkRepository implements IDocumentChunkRepository {
                 metadata,
                 embedding,
                 entity.getCreatedAt()
-        ).withEmbedding(embedding);
+        );
     }
 }

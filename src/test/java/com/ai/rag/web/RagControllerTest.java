@@ -2,7 +2,6 @@ package com.ai.rag.web;
 
 import com.ai.ai.infrastructure.streaming.StreamingService;
 import com.ai.rag.application.usecase.RagApplicationService;
-import com.ai.rag.application.usecase.DocumentUploadUseCase;
 import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.web.RagController;
 import com.ai.rag.web.dto.RagChatRequest;
@@ -41,9 +40,6 @@ class RagControllerTest {
     private RagApplicationService ragApplicationService;
 
     @Mock
-    private DocumentUploadUseCase documentUploadUseCase;
-
-    @Mock
     private RagChatUseCase ragChatUseCase;
 
     @Mock
@@ -56,7 +52,7 @@ class RagControllerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         controller = new RagController(
-                ragApplicationService, documentUploadUseCase, ragChatUseCase, streamingService);
+                ragApplicationService, ragChatUseCase, streamingService);
     }
 
     @Nested
@@ -97,15 +93,15 @@ class RagControllerTest {
                     "file", "test.txt", "text/plain", "Hello World".getBytes());
             Document doc = createTestDocument("test.txt", DocumentStatus.READY);
 
-            DocumentUploadUseCase.UploadResult uploadResult =
-                    new DocumentUploadUseCase.UploadResult(doc.getId(), "test.txt", "READY", 0);
-            when(documentUploadUseCase.upload(any(MultipartFile.class), isNull()))
+            RagApplicationService.UploadResult uploadResult =
+                    new RagApplicationService.UploadResult(doc.getId(), "test.txt", "READY", 0);
+            when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull()))
                     .thenReturn(uploadResult);
 
             ResponseEntity<?> response = controller.uploadDocument(file, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            verify(documentUploadUseCase).upload(any(MultipartFile.class), isNull());
+            verify(ragApplicationService).uploadDocument(any(MultipartFile.class), isNull());
         }
 
         @Test
@@ -115,15 +111,15 @@ class RagControllerTest {
                     "file", "original.txt", "text/plain", "Content".getBytes());
             Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
 
-            DocumentUploadUseCase.UploadResult uploadResult =
-                    new DocumentUploadUseCase.UploadResult(doc.getId(), "Custom Title", "READY", 0);
-            when(documentUploadUseCase.upload(any(MultipartFile.class), eq("Custom Title")))
+            RagApplicationService.UploadResult uploadResult =
+                    new RagApplicationService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
+            when(ragApplicationService.uploadDocument(any(MultipartFile.class), eq("Custom Title")))
                     .thenReturn(uploadResult);
 
             ResponseEntity<?> response = controller.uploadDocument(file, "Custom Title");
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            verify(documentUploadUseCase).upload(any(MultipartFile.class), eq("Custom Title"));
+            verify(ragApplicationService).uploadDocument(any(MultipartFile.class), eq("Custom Title"));
         }
 
         @Test
@@ -132,7 +128,7 @@ class RagControllerTest {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "document.pdf", "application/pdf", "PDF content".getBytes());
 
-            when(documentUploadUseCase.upload(any(MultipartFile.class), isNull()))
+            when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull()))
                     .thenThrow(new RuntimeException("Upload failed"));
 
             org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {

@@ -297,19 +297,19 @@ class DocumentChunkTest {
     }
 
     @Nested
-    @DisplayName("createWithEmbedding")
+    @DisplayName("create with embedding")
     class CreateWithEmbedding {
 
         @Test
-        @DisplayName("should create chunk with embedding directly")
-        void shouldCreateChunkWithEmbeddingDirectly() {
+        @DisplayName("should create chunk with embedding")
+        void shouldCreateChunkWithEmbedding() {
             // Arrange
             float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
 
             // Act
-            DocumentChunk chunk = DocumentChunk.createWithEmbedding(
-                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of(), embedding
-            );
+            DocumentChunk chunk = DocumentChunk.create(
+                TEST_ID, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()
+            ).withEmbedding(embedding);
 
             // Assert
             assertThat(chunk.getEmbedding()).isEqualTo(embedding);

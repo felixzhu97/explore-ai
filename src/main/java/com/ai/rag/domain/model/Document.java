@@ -105,11 +105,15 @@ public class Document {
     }
 
     public boolean isProcessing() {
-        return this.status == DocumentStatus.PROCESSING;
+        return isStatus(DocumentStatus.PROCESSING);
     }
 
     public boolean isUploading() {
-        return this.status == DocumentStatus.UPLOADING;
+        return isStatus(DocumentStatus.UPLOADING);
+    }
+
+    public boolean isStatus(DocumentStatus status) {
+        return this.status == status;
     }
 
     /**

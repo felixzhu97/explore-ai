@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -172,20 +171,28 @@ public class PgVectorAdapter {
             if (timestamp == null || timestamp.isEmpty()) {
                 return Instant.now();
             }
-            try {
-                return Instant.parse(timestamp);
-            } catch (DateTimeParseException e) {
+
+            List<DateTimeFormatter> formatters = List.of(
+                    DateTimeFormatter.ISO_INSTANT,
+                    DateTimeFormatter.ISO_OFFSET_DATE_TIME,
+                    DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            );
+
+            for (DateTimeFormatter formatter : formatters) {
                 try {
-                    return OffsetDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant();
-                } catch (DateTimeParseException e2) {
-                    try {
-                        return java.time.LocalDateTime.parse(timestamp.replace(" ", "T"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                                .atZone(java.time.ZoneId.systemDefault()).toInstant();
-                    } catch (DateTimeParseException e3) {
-                        log.warn("Failed to parse timestamp '{}', using current time", timestamp);
-                        return Instant.now();
-                    }
+                    return Instant.from(formatter.parse(timestamp));
+                } catch (DateTimeParseException e) {
+                    // try next formatter
                 }
+            }
+
+            // last resort: replace space with T for local datetime
+            try {
+                return java.time.LocalDateTime.parse(timestamp.replace(" ", "T"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        .atZone(java.time.ZoneId.systemDefault()).toInstant();
+            } catch (DateTimeParseException e) {
+                log.warn("Failed to parse timestamp '{}', using current time", timestamp);
+                return Instant.now();
             }
         }
     }

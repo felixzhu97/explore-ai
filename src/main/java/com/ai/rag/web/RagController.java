@@ -4,7 +4,6 @@ import com.ai.ai.infrastructure.streaming.StreamingService;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.application.usecase.RagApplicationService;
-import com.ai.rag.application.usecase.DocumentUploadUseCase;
 import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,17 +35,14 @@ public class RagController {
     private static final Logger log = LoggerFactory.getLogger(RagController.class);
 
     private final RagApplicationService ragApplicationService;
-    private final DocumentUploadUseCase documentUploadUseCase;
     private final RagChatUseCase ragChatUseCase;
     private final StreamingService streamingService;
 
     public RagController(
             RagApplicationService ragApplicationService,
-            DocumentUploadUseCase documentUploadUseCase,
             RagChatUseCase ragChatUseCase,
             StreamingService streamingService) {
         this.ragApplicationService = ragApplicationService;
-        this.documentUploadUseCase = documentUploadUseCase;
         this.ragChatUseCase = ragChatUseCase;
         this.streamingService = streamingService;
     }
@@ -66,7 +62,7 @@ public class RagController {
     public ResponseEntity<UploadDocumentResponse> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "title", required = false) String title) {
-        var result = documentUploadUseCase.upload(file, title);
+        var result = ragApplicationService.uploadDocument(file, title);
 
         UploadDocumentResponse response = new UploadDocumentResponse(
             result.documentId().value(),
