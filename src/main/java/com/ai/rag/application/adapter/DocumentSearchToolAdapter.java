@@ -6,6 +6,8 @@ import com.ai.rag.domain.vo.DocumentId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +30,10 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
     }
 
     @Override
-    public String searchDocuments(String query, List<String> docIds) {
+    @Tool(name = "search_documents", description = "Search documents in the knowledge base for relevant information")
+    public String searchDocuments(
+            @ToolParam(description = "The search query text") String query,
+            @ToolParam(description = "Optional list of document IDs to filter", required = false) List<String> docIds) {
         if (query == null || query.isBlank()) {
             return "请提供有效的搜索查询";
         }
@@ -55,6 +60,7 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
     }
 
     @Override
+    @Tool(name = "list_documents", description = "List all documents in the knowledge base")
     public String listDocuments() {
         try {
             var documents = ragApplicationService.listDocuments();
@@ -87,7 +93,7 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
             var source = sources.get(i);
             String content = truncate(source.text());
             sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
-            if (source.metadata().get("title") instanceof String title) {
+            if (source.metadata() != null && source.metadata().get("title") instanceof String title) {
                 sb.append(String.format("文档: %s\n", title));
             }
             sb.append("---\n\n");

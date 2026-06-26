@@ -27,53 +27,85 @@ public class ToolsController {
      * Get weather for a city.
      */
     @GetMapping("/tools/weather")
-    public String getWeather(@RequestParam String city) {
-        return toolsFacade.getWeather(city);
+    public ResponseEntity<String> getWeather(@RequestParam(required = false) String city) {
+        if (city == null || city.isBlank()) {
+            return ResponseEntity.badRequest().body("城市参数不能为空");
+        }
+        try {
+            return ResponseEntity.ok(toolsFacade.getWeather(city));
+        } catch (Exception e) {
+            log.error("Error fetching weather for {}", city, e);
+            return ResponseEntity.internalServerError().body("获取天气信息失败");
+        }
     }
 
     /**
      * Get weather forecast.
      */
     @GetMapping("/tools/weather/forecast")
-    public String getForecast(
-            @RequestParam String city,
+    public ResponseEntity<String> getForecast(
+            @RequestParam(required = false) String city,
             @RequestParam(required = false) Integer days) {
-        return toolsFacade.getForecast(city, days);
+        if (city == null || city.isBlank()) {
+            return ResponseEntity.badRequest().body("城市参数不能为空");
+        }
+        try {
+            return ResponseEntity.ok(toolsFacade.getForecast(city, days));
+        } catch (Exception e) {
+            log.error("Error fetching forecast for {}", city, e);
+            return ResponseEntity.internalServerError().body("获取天气预报失败");
+        }
     }
 
     /**
      * Search documents in knowledge base.
      */
     @GetMapping("/tools/documents/search")
-    public String searchDocuments(
-            @RequestParam String query,
+    public ResponseEntity<String> searchDocuments(
+            @RequestParam(required = false) String query,
             @RequestParam(required = false) String docIds) {
-        List<String> docIdList = null;
-        if (docIds != null && !docIds.isBlank()) {
-            docIdList = List.of(docIds.split(","));
+        if (query == null || query.isBlank()) {
+            return ResponseEntity.badRequest().body("搜索关键词不能为空");
         }
-        return toolsFacade.searchDocuments(query, docIdList);
+        try {
+            List<String> docIdList = null;
+            if (docIds != null && !docIds.isBlank()) {
+                docIdList = List.of(docIds.split(","));
+            }
+            return ResponseEntity.ok(toolsFacade.searchDocuments(query, docIdList));
+        } catch (Exception e) {
+            log.error("Error searching documents", e);
+            return ResponseEntity.internalServerError().body("搜索文档失败");
+        }
     }
 
     /**
      * List all documents in knowledge base.
      */
     @GetMapping("/tools/documents/list")
-    public String listDocuments() {
-        return toolsFacade.listDocuments();
+    public ResponseEntity<String> listDocuments() {
+        try {
+            return ResponseEntity.ok(toolsFacade.listDocuments());
+        } catch (Exception e) {
+            log.error("Error listing documents", e);
+            return ResponseEntity.internalServerError().body("获取文档列表失败");
+        }
     }
 
     /**
      * Chat with function calling.
      */
     @PostMapping("/tools/chat")
-    public ToolChatResponse chatWithTools(@RequestBody ToolChatRequest request) {
+    public ResponseEntity<ToolChatResponse> chatWithTools(@RequestBody ToolChatRequest request) {
+        if (request == null || request.question() == null || request.question().isBlank()) {
+            return ResponseEntity.badRequest().body(new ToolChatResponse("问题不能为空", null));
+        }
         try {
             String response = toolsFacade.chatWithTools(request.question());
-            return new ToolChatResponse(response, null);
+            return ResponseEntity.ok(new ToolChatResponse(response, null));
         } catch (Exception e) {
             log.error("Error in chat with tools", e);
-            return new ToolChatResponse("抱歉，处理您的请求时发生错误，请稍后重试。", null);
+            return ResponseEntity.internalServerError().body(new ToolChatResponse("抱歉，处理您的请求时发生错误，请稍后重试。", null));
         }
     }
 

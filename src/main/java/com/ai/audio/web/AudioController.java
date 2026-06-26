@@ -30,6 +30,9 @@ public class AudioController {
      */
     @PostMapping(value = "/audio/speak", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> speak(@RequestBody TtsRequest request) {
+        if (request == null || request.text() == null || request.text().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
         try {
             byte[] audio = audioFacade.synthesize(request.text());
 
