@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AIInfraPanelComponent } from './ai-infra-panel.component';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
-import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
-import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
-import { AgentPageComponent } from '@features/agents/agent.page';
+import { AgentPanelComponent } from '../agent-panel/agent-panel.component';
+import { StatusBadgeComponent } from '../../agents/status-badge/status-badge.component';
+import { AgentPageComponent } from '../../agents/agent.page';
 import { I18nService } from '@core/i18n';
 
 describe('AIInfraPanelComponent', () => {

@@ -5,9 +5,9 @@ import {
   SegmentedControlComponent,
   SegmentedControlOption,
 } from '@shared/components/ui/segmented-control/segmented-control.component';
-import { AgentPanelComponent } from '@features/panels/agent-panel/agent-panel.component';
-import { AgentPageComponent } from '@features/agents/agent.page';
-import { StatusBadgeComponent } from '@features/agents/status-badge/status-badge.component';
+import { AgentPanelComponent } from '../agent-panel/agent-panel.component';
+import { AgentPageComponent } from '../../agents/agent.page';
+import { StatusBadgeComponent } from '../../agents/status-badge/status-badge.component';
 
 type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aiops' | 'vectordb';
 
