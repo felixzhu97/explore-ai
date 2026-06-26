@@ -10,26 +10,26 @@ export const routes: Routes = [
       {
         path: 'ai-infra',
         loadComponent: () =>
-          import('./features/panels/ai-infra-panel/ai-infra-panel.component').then(
+          import('./panels/ai-infra-panel/ai-infra-panel.component').then(
             (m) => m.AIInfraPanelComponent
           ),
       },
       {
         path: 'rag',
         loadComponent: () =>
-          import('./features/ai/rag/rag.page').then((m) => m.RagPageComponent),
+          import('./ai/rag/rag.page').then((m) => m.RagPageComponent),
       },
       {
         path: 'vision',
         loadComponent: () =>
-          import('./features/ai/vision/vision.page').then(
+          import('./ai/vision/vision.page').then(
             (m) => m.VisionPageComponent
           ),
       },
       {
         path: 'aihubs',
         loadComponent: () =>
-          import('./features/ai/ai-hub/ai-hub.component').then((m) => m.AiHubComponent),
+          import('./ai/ai-hub/ai-hub.component').then((m) => m.AiHubComponent),
       },
     ],
   },

@@ -11,19 +11,10 @@ alwaysApply: true
 ```
 src/
 ├── app/
-│   ├── core/                 # Singleton services, global config
-│   │   ├── services/
-│   │   ├── guards/
-│   │   └── interceptors/
-│   ├── shared/               # Reusable components, directives, pipes
-│   │   ├── components/
-│   │   ├── directives/
-│   │   └── pipes/
-│   ├── features/             # Feature modules
-│   │   └── {feature}/
-│   │       ├── components/
-│   │       ├── services/
-│   │       └── {feature}.routes.ts
+│   ├── {feature}/
+│   │     ├── components/
+│   │     ├── services/
+│   │     └── {feature}.routes.ts
 │   ├── app.component.ts
 │   ├── app.config.ts
 │   └── app.routes.ts

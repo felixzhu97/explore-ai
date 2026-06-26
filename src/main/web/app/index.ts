@@ -11,11 +11,11 @@ export type { SegmentedControlOption } from '@shared/components/ui/segmented-con
 export { ImageZoomModalComponent } from '@shared/components/image-zoom-modal';
 
 // Agents
-export { AgentPageComponent, type AgentInfo } from '@features/agents';
-export { ChatMessageComponent, type ChatMessageData } from '@features/agents';
-export { StatusBadgeComponent, type BadgeStatus } from '@features/agents';
-export { ToolResultComponent, type ToolCall, type ToolCallStatus } from '@features/agents';
+export { AgentPageComponent, type AgentInfo } from './agents';
+export { ChatMessageComponent, type ChatMessageData } from './agents';
+export { StatusBadgeComponent, type BadgeStatus } from './agents';
+export { ToolResultComponent, type ToolCall, type ToolCallStatus } from './agents';
 
 // Panels
-export { AgentPanelComponent } from '@features/panels';
-export { AIInfraPanelComponent } from '@features/panels';
+export { AgentPanelComponent } from './panels';
+export { AIInfraPanelComponent } from './panels';

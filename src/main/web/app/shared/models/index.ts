@@ -2,22 +2,22 @@
 // Types used by core services or multiple features
 
 // Chat types
-export type { ChatMessage, ChatMessageData, ChatRequest, ChatResponse, ModelInfo, ProviderInfo } from '@features/ai/chat/chat.model';
+export type { ChatMessage, ChatMessageData, ChatRequest, ChatResponse, ModelInfo, ProviderInfo } from '../../ai/chat/chat.model';
 
 // Agent types
-export type { Agent, AgentInfo, ToolCall, ToolCallStatus, ChatMessageData as AgentChatMessageData } from '@features/agents/models/agent.model';
+export type { Agent, AgentInfo, ToolCall, ToolCallStatus, ChatMessageData as AgentChatMessageData } from '../../agents/models/agent.model';
 
 // RAG types
-export type { RagQuery, SourceDocument, Document, DocumentListResponse, DocumentListItem, RAGSource } from '@features/ai/rag/rag.model';
+export type { RagQuery, SourceDocument, Document, DocumentListResponse, DocumentListItem, RAGSource } from '../../ai/rag/rag.model';
 
 // Image types
-export type { ImageGenerateParams, ImageGenerationRequest, ImageGenerationResult, ImageGenerationResponse } from '@features/ai/image/image.model';
+export type { ImageGenerateParams, ImageGenerationRequest, ImageGenerationResult, ImageGenerationResponse } from '../../ai/image/image.model';
 
 // Vision types
-export type { VisionResult, Detection, ImageAnalysisResult, DetectedObject } from '@features/ai/vision/vision.model';
+export type { VisionResult, Detection, ImageAnalysisResult, DetectedObject } from '../../ai/vision/vision.model';
 
 // TTS types
-export type { Voice, TTSRequest, TTSResult, SynthesizeRequest } from '@features/ai/tts/tts.model';
+export type { Voice, TTSRequest, TTSResult, SynthesizeRequest } from '../../ai/tts/tts.model';
 
 // Service types (generic, kept here)
 export interface ServiceStatus {
