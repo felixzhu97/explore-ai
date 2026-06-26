@@ -27,9 +27,6 @@ public class AiMcpClientService {
     public AiMcpClientService() {
     }
 
-    /**
-     * Register tools from an MCP server.
-     */
     public void registerTools(ToolCallback[] tools, String serverName) {
         log.info("Registering {} tools from MCP server: {}", tools.length, serverName);
         for (ToolCallback tool : tools) {
@@ -38,16 +35,10 @@ public class AiMcpClientService {
         connectedServers.put(serverName, new ServerInfo(serverName, tools.length, "CONNECTED"));
     }
 
-    /**
-     * Get all registered tools from MCP servers.
-     */
     public List<ToolCallback> getRegisteredTools() {
         return new ArrayList<>(registeredTools);
     }
 
-    /**
-     * Get tool definitions.
-     */
     public List<ToolDefinition> getToolDefinitions() {
         List<ToolDefinition> definitions = new ArrayList<>();
         for (ToolCallback tool : registeredTools) {
@@ -56,23 +47,14 @@ public class AiMcpClientService {
         return definitions;
     }
 
-    /**
-     * Get connected server information.
-     */
     public Map<String, ServerInfo> getConnectedServers() {
         return new ConcurrentHashMap<>(connectedServers);
     }
 
-    /**
-     * Get total count of registered tools.
-     */
     public int getTotalToolCount() {
         return registeredTools.size();
     }
 
-    /**
-     * Clear all registered tools.
-     */
     public void clearTools() {
         registeredTools.clear();
         connectedServers.clear();

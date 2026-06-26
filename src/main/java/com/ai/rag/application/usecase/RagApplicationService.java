@@ -132,9 +132,6 @@ public class RagApplicationService {
         }
     }
 
-    /**
-     * Lists all documents.
-     */
     public List<Document> listDocuments() {
         return documentRepository.findAll();
     }
@@ -158,9 +155,6 @@ public class RagApplicationService {
         log.info("Document deleted successfully: {}", documentId);
     }
 
-    /**
-     * Retrieves context from vector store for a query.
-     */
     public RetrievalResult retrieveContext(String query, List<UUID> docIds, int topK) {
         log.info("RAG retrieval for query: {}", query);
 

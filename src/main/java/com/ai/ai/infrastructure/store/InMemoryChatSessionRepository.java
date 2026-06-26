@@ -50,9 +50,6 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
         storage.clear();
     }
 
-    /**
-     * Returns the number of sessions.
-     */
     public int size() {
         return storage.size();
     }

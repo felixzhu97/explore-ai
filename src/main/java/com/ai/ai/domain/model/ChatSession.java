@@ -43,12 +43,8 @@ public class ChatSession {
         return new ChatSession(id, title, createdAt);
     }
 
-    /**
-     * Reconstitutes a ChatSession from persisted data.
-     * Used for reconstructing sessions from storage.
-     */
     public static ChatSession reconstitute(ChatSessionId id, String title, Instant createdAt,
-                                          Instant lastActivityAt, List<ChatMessage> messages) {
+                                         Instant lastActivityAt, List<ChatMessage> messages) {
         ChatSession session = new ChatSession(id, title, createdAt);
         session.lastActivityAt = lastActivityAt != null ? lastActivityAt : createdAt;
         session.messages.addAll(messages);
@@ -71,9 +67,6 @@ public class ChatSession {
         return lastActivityAt;
     }
 
-    /**
-     * Adds a user message to the session and updates last activity timestamp.
-     */
     public ChatMessage addUserMessage(String text) {
         ChatMessage message = ChatMessage.createUserMessage(text);
         messages.add(message);
@@ -81,9 +74,6 @@ public class ChatSession {
         return message;
     }
 
-    /**
-     * Adds an assistant message to the session and updates last activity timestamp.
-     */
     public ChatMessage addAssistantMessage(String text) {
         ChatMessage message = ChatMessage.createAssistantMessage(text);
         messages.add(message);
@@ -91,48 +81,30 @@ public class ChatSession {
         return message;
     }
 
-    /**
-     * Returns an unmodifiable view of all messages.
-     */
     public List<ChatMessage> getMessages() {
         return Collections.unmodifiableList(messages);
     }
 
-    /**
-     * Returns the number of messages.
-     */
     public int getMessageCount() {
         return messages.size();
     }
 
-    /**
-     * Returns the number of user messages.
-     */
     public int getUserMessageCount() {
         return (int) messages.stream()
             .filter(ChatMessage::isFromUser)
             .count();
     }
 
-    /**
-     * Returns the number of assistant messages.
-     */
     public int getAssistantMessageCount() {
         return (int) messages.stream()
             .filter(ChatMessage::isFromAssistant)
             .count();
     }
 
-    /**
-     * Returns the most recent user message.
-     */
     public ChatMessage getLastUserMessage() {
         return getLastMessageByRole(ChatMessage::isFromUser);
     }
 
-    /**
-     * Returns the most recent assistant message.
-     */
     public ChatMessage getLastAssistantMessage() {
         return getLastMessageByRole(ChatMessage::isFromAssistant);
     }
@@ -144,9 +116,6 @@ public class ChatSession {
             .orElse(null);
     }
 
-    /**
-     * Returns the most recent N messages.
-     */
     public List<ChatMessage> getRecentMessages(int count) {
         if (count <= 0) {
             return Collections.emptyList();
@@ -156,16 +125,10 @@ public class ChatSession {
         return Collections.unmodifiableList(messages.subList(start, size));
     }
 
-    /**
-     * Checks if the session has no messages.
-     */
     public boolean isEmpty() {
         return messages.isEmpty();
     }
 
-    /**
-     * Clears all messages from the session.
-     */
     public void clearMessages() {
         messages.clear();
         updateLastActivity();

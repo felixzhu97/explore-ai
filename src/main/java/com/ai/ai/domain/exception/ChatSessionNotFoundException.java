@@ -1,7 +1,7 @@
 package com.ai.ai.domain.exception;
 
 /**
- * Domain exception indicating chat session was not found.
+ * Thrown when a chat session is not found.
  */
 public class ChatSessionNotFoundException extends RuntimeException {
 

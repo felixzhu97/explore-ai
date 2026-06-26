@@ -2,6 +2,8 @@ package com.ai.ai.web;
 
 import com.ai.ai.web.dto.ChatRequest;
 import com.ai.ai.web.dto.TextAnalysisRequest;
+import com.ai.ai.web.dto.SimpleChatRequest;
+import com.ai.ai.web.dto.CreateSessionRequest;
 import com.ai.ai.web.AiController;
 import com.ai.ai.application.usecase.ChatUseCase;
 import com.ai.ai.application.usecase.StructuredOutputUseCasePort;
@@ -21,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -52,13 +53,13 @@ class AiControllerTest {
         @Test
         @DisplayName("should return response for valid message")
         void shouldReturnResponseForValidMessage() {
-            when(chatService.processChatMessage("Hello")).thenReturn("Hi there!");
+            when(chatService.chatWithSession("Hello")).thenReturn("Hi there!");
 
             var response = controller.chat(new ChatRequest("Hello", null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().response()).isEqualTo("Hi there!");
-            verify(chatService).processChatMessage("Hello");
+            verify(chatService).chatWithSession("Hello");
         }
 
         @Test
@@ -81,21 +82,21 @@ class AiControllerTest {
         @Test
         @DisplayName("should use session when sessionId provided")
         void shouldUseSessionWhenSessionIdProvided() {
-            when(chatService.processChatMessage("session-123", "Hello"))
+            when(chatService.chatWithSession("session-123", "Hello"))
                     .thenReturn("Response with context");
 
             var response = controller.chat(new ChatRequest("Hello", "session-123"));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().response()).isEqualTo("Response with context");
-            verify(chatService).processChatMessage("session-123", "Hello");
+            verify(chatService).chatWithSession("session-123", "Hello");
         }
 
         @Test
         @DisplayName("should handle long message without error")
         void shouldHandleLongMessageWithoutError() {
             String longMessage = "A".repeat(100);
-            when(chatService.processChatMessage(longMessage)).thenReturn("Response to long message");
+            when(chatService.chatWithSession(longMessage)).thenReturn("Response to long message");
 
             var response = controller.chat(new ChatRequest(longMessage, null));
 
@@ -110,18 +111,18 @@ class AiControllerTest {
         @Test
         @DisplayName("should return response for valid request")
         void shouldReturnResponseForValidRequest() {
-            when(chatService.processChatMessage("Simple message")).thenReturn("Simple response");
+            when(chatService.chatWithSession("Simple message")).thenReturn("Simple response");
 
-            var response = controller.chatSimple(Map.of("message", "Simple message"));
+            var response = controller.chatSimple(new SimpleChatRequest("Simple message", "user-123"));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
-            assertThat(response.getBody().get("response")).isEqualTo("Simple response");
+            assertThat(response.getBody().message()).isEqualTo("Simple response");
         }
 
         @Test
         @DisplayName("should return 400 for missing message")
         void shouldReturn400ForMissingMessage() {
-            var response = controller.chatSimple(Map.of());
+            var response = controller.chatSimple(new SimpleChatRequest(null, "user-123"));
 
             assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
@@ -164,7 +165,7 @@ class AiControllerTest {
             ChatSession session = createTestSession("new-session", "Custom Title");
             when(chatService.createSession("Custom Title")).thenReturn(session);
 
-            var response = controller.createSession(Map.of("title", "Custom Title"));
+            var response = controller.createSession(new CreateSessionRequest("Custom Title"));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().title()).isEqualTo("Custom Title");
@@ -176,7 +177,7 @@ class AiControllerTest {
             ChatSession session = createTestSession("new-session", "New Chat");
             when(chatService.createSession("New Chat")).thenReturn(session);
 
-            var response = controller.createSession(Map.of());
+            var response = controller.createSession(new CreateSessionRequest(null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().title()).isEqualTo("New Chat");
@@ -251,7 +252,7 @@ class AiControllerTest {
             var response = controller.health();
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
-            assertThat(response.getBody().get("status")).isEqualTo("UP");
+            assertThat(response.getBody().status()).isEqualTo("UP");
         }
     }
 

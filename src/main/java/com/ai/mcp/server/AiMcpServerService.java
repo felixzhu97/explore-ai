@@ -39,9 +39,6 @@ public class AiMcpServerService {
         this.aiChatUseCase = aiChatUseCase;
     }
 
-    /**
-     * Get weather for a city.
-     */
     @McpTool(name = "get_weather", description = "Get current weather information for a specified city")
     public String getWeather(
             @McpToolParam(description = "The city name to get weather for", required = true) String city) {
@@ -49,9 +46,6 @@ public class AiMcpServerService {
         return weatherTools.getWeather(city);
     }
 
-    /**
-     * Get weather forecast for a city.
-     */
     @McpTool(name = "get_forecast", description = "Get weather forecast for a specified city")
     public String getForecast(
             @McpToolParam(description = "The city name", required = true) String city,
@@ -60,9 +54,6 @@ public class AiMcpServerService {
         return weatherTools.getForecast(city, days);
     }
 
-    /**
-     * Search documents in the knowledge base.
-     */
     @McpTool(name = "search_knowledge_base", description = "Search documents in the knowledge base using semantic search")
     public String searchKnowledgeBase(
             @McpToolParam(description = "The search query", required = true) String query,
@@ -77,18 +68,12 @@ public class AiMcpServerService {
         return ragSearchTool.searchDocuments(query, docIdList);
     }
 
-    /**
-     * List all documents in the knowledge base.
-     */
     @McpTool(name = "list_documents", description = "List all documents available in the knowledge base")
     public String listDocuments() {
         log.info("MCP tool: listDocuments called");
         return ragSearchTool.listDocuments();
     }
 
-    /**
-     * Chat with AI assistant.
-     */
     @McpTool(name = "ai_chat", description = "Chat with AI assistant")
     public String aiChat(
             @McpToolParam(description = "The message to send to the AI", required = true) String message) {

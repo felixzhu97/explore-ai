@@ -3,8 +3,7 @@ package com.ai.ai.domain.vo;
 import java.util.UUID;
 
 /**
- * Strongly-typed ID to avoid using raw String or Long for ID passing.
- * Provides type safety and self-documenting code.
+ * Strongly-typed ID for ChatSession.
  */
 public record ChatSessionId(String value) {
 

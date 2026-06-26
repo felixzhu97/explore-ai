@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Chat REST Controller.
@@ -37,9 +36,9 @@ public class AiController {
 
         String response;
         if (request.sessionId() != null && !request.sessionId().isBlank()) {
-            response = chatUseCase.processChatMessage(request.sessionId(), request.message());
+            response = chatUseCase.chatWithSession(request.sessionId(), request.message());
         } else {
-            response = chatUseCase.processChatMessage(request.message());
+            response = chatUseCase.chatWithSession(request.message());
         }
 
         return ResponseEntity.ok(ChatResponse.of(response));
@@ -47,17 +46,18 @@ public class AiController {
 
     /**
      * Sends a simple chat message (legacy API compatibility).
+     * @deprecated Use {@link #chat(ChatRequest)} instead.
      */
+    @Deprecated
     @PostMapping("/chat/simple")
-    public ResponseEntity<Map<String, String>> chatSimple(@RequestBody Map<String, String> request) {
-        String message = request.get("message");
-        if (message == null || message.isBlank()) {
+    public ResponseEntity<SimpleChatResponse> chatSimple(@Valid @RequestBody SimpleChatRequest request) {
+        if (request.message() == null || request.message().isBlank()) {
             return ResponseEntity.badRequest()
-                .body(Map.of("response", "Please provide a message."));
+                .body(SimpleChatResponse.of("Please provide a message."));
         }
 
-        String response = chatUseCase.processChatMessage(message);
-        return ResponseEntity.ok(Map.of("response", response));
+        String response = chatUseCase.chatWithSession(request.message());
+        return ResponseEntity.ok(SimpleChatResponse.of(response));
     }
 
     /**
@@ -74,9 +74,9 @@ public class AiController {
      * Creates a new session.
      */
     @PostMapping("/sessions")
-    public ResponseEntity<SessionInfo> createSession(@RequestBody(required = false) Map<String, String> body) {
-        String title = body != null ? body.get("title") : null;
-        var session = chatUseCase.createSession(title != null ? title : "New Chat");
+    public ResponseEntity<SessionInfo> createSession(@Valid @RequestBody(required = false) CreateSessionRequest body) {
+        String title = body != null && body.title() != null ? body.title() : "New Chat";
+        var session = chatUseCase.createSession(title);
         return ResponseEntity.ok(SessionInfo.from(session));
     }
 
@@ -105,13 +105,12 @@ public class AiController {
      * Health check endpoint.
      */
     @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of("status", "UP"));
+    public ResponseEntity<HealthResponse> health() {
+        return ResponseEntity.ok(HealthResponse.up());
     }
 
     /**
      * Analyzes text and returns structured result.
-     * Demonstrates Spring AI 2.0 structured output with .entity() method.
      */
     @PostMapping("/chat/analyze")
     public ResponseEntity<TextAnalysisResult> analyzeText(@Valid @RequestBody TextAnalysisRequest request) {

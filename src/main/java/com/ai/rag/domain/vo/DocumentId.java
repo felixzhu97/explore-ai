@@ -16,9 +16,6 @@ public final class DocumentId {
         this.value = value;
     }
 
-    /**
-     * Creates a DocumentId from a UUID.
-     */
     public static DocumentId of(UUID uuid) {
         if (uuid == null) {
             throw new IllegalArgumentException("UUID cannot be null");
@@ -26,9 +23,6 @@ public final class DocumentId {
         return new DocumentId(uuid);
     }
 
-    /**
-     * Creates a DocumentId from a string representation of a UUID.
-     */
     public static DocumentId of(String uuidString) {
         if (uuidString == null || uuidString.isBlank()) {
             throw new IllegalArgumentException("UUID string cannot be null or blank");
@@ -36,23 +30,14 @@ public final class DocumentId {
         return new DocumentId(UUID.fromString(uuidString));
     }
 
-    /**
-     * Generates a new random DocumentId.
-     */
     public static DocumentId generate() {
         return new DocumentId(UUID.randomUUID());
     }
 
-    /**
-     * Returns the underlying UUID value.
-     */
     public UUID value() {
         return value;
     }
 
-    /**
-     * Returns the string representation of the UUID.
-     */
     public String toString() {
         return value.toString();
     }

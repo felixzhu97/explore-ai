@@ -288,8 +288,8 @@ class AiChatUseCaseTest {
     }
 
     @Nested
-    @DisplayName("processChatMessage()")
-    class ProcessChatMessage {
+    @DisplayName("chatWithSession()")
+    class ChatWithSession {
 
         @Test
         @DisplayName("should update session when session exists")
@@ -303,7 +303,7 @@ class AiChatUseCaseTest {
             when(retryTemplate.execute(any())).thenReturn("AI Response");
 
             // Act
-            String result = aiChatService.processChatMessage(sessionId, userMessage);
+            String result = aiChatService.chatWithSession(sessionId, userMessage);
 
             // Assert
             assertThat(result).isEqualTo("AI Response");
@@ -324,7 +324,7 @@ class AiChatUseCaseTest {
             when(retryTemplate.execute(any())).thenReturn("Default Response");
 
             // Act
-            String result = aiChatService.processChatMessage(sessionId, userMessage);
+            String result = aiChatService.chatWithSession(sessionId, userMessage);
 
             // Assert
             assertThat(result).isNotNull();
@@ -342,7 +342,7 @@ class AiChatUseCaseTest {
             when(retryTemplate.execute(any())).thenReturn("Response");
 
             // Act
-            aiChatService.processChatMessage(userMessage);
+            aiChatService.chatWithSession(userMessage);
 
             // Assert
             verify(repository).getOrCreateDefaultSession();

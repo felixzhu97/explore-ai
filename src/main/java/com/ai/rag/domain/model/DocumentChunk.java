@@ -29,38 +29,23 @@ public class DocumentChunk {
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
     }
 
-    /**
-     * Creates a new DocumentChunk with the given parameters.
-     * Embedding will be set later via withEmbedding().
-     */
     public static DocumentChunk create(UUID id, UUID documentId, String content,
-                                       int chunkIndex, Map<String, Object> metadata) {
+                                      int chunkIndex, Map<String, Object> metadata) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, null, Instant.now());
     }
 
-    /**
-     * Creates a new DocumentChunk with the given parameters and embedding.
-     */
     public static DocumentChunk createWithEmbedding(UUID id, UUID documentId, String content,
-                                                    int chunkIndex, Map<String, Object> metadata,
-                                                    float[] embedding) {
+                                                   int chunkIndex, Map<String, Object> metadata,
+                                                   float[] embedding) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, Instant.now());
     }
 
-    /**
-     * Factory method to create a DocumentChunk from persistence storage.
-     * Used by repository mappers in the infrastructure layer.
-     */
     public static DocumentChunk reconstitute(UUID id, UUID documentId, String content,
-                                     int chunkIndex, Map<String, Object> metadata,
-                                     float[] embedding, Instant createdAt) {
+                                    int chunkIndex, Map<String, Object> metadata,
+                                    float[] embedding, Instant createdAt) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
     }
 
-    /**
-     * Creates a copy of this chunk with the given embedding.
-     * Since DocumentChunk is immutable, this returns a new instance.
-     */
     public DocumentChunk withEmbedding(float[] embedding) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
     }

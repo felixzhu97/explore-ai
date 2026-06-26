@@ -60,9 +60,6 @@ public class SpringAiChatUseCase implements ChatUseCase {
         });
     }
 
-    /**
-     * Sends message history to AI with retry support.
-     */
     public String chatWithHistory(List<ChatMessage> messages) {
         log.info("Chat request with {} messages", messages.size());
 
@@ -85,38 +82,31 @@ public class SpringAiChatUseCase implements ChatUseCase {
         });
     }
 
-    /**
-     * Processes a chat message in a session.
-     */
     @Override
-    public String processChatMessage(String sessionId, String userMessage) {
+    public String chatWithSession(String sessionId, String userMessage) {
         try {
-            ChatSession session = repository.findById(
-                    ChatSessionId.of(sessionId))
-                    .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
-
-            session.addUserMessage(userMessage);
-            repository.save(session);
-
-            String aiResponse = chat(userMessage);
-
-            session.addAssistantMessage(aiResponse);
-            repository.save(session);
-
-            return aiResponse;
+            ChatSession session = loadOrCreateSession(sessionId);
+            return exchangeMessages(session, userMessage);
         } catch (ChatSessionNotFoundException e) {
             log.warn("Session not found, using default: {}", sessionId);
-            return processChatMessage(userMessage);
+            return chatWithSession(userMessage);
         }
     }
 
-    /**
-     * Processes a chat message in the default session.
-     */
     @Override
-    public String processChatMessage(String userMessage) {
+    public String chatWithSession(String userMessage) {
         ChatSession session = repository.getOrCreateDefaultSession();
+        return exchangeMessages(session, userMessage);
+    }
+
+    private ChatSession loadOrCreateSession(String sessionId) {
+        return repository.findById(ChatSessionId.of(sessionId))
+                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+    }
+
+    private String exchangeMessages(ChatSession session, String userMessage) {
         session.addUserMessage(userMessage);
+        repository.save(session);
 
         String aiResponse = chat(userMessage);
 
@@ -126,9 +116,6 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return aiResponse;
     }
 
-    /**
-     * Creates a new session.
-     */
     @Override
     public ChatSession createSession(String title) {
         ChatSession session = ChatSession.create(title);
@@ -137,24 +124,15 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return session;
     }
 
-    /**
-     * Creates a new session with default title.
-     */
     public ChatSession createSession() {
         return createSession("New Chat");
     }
 
-    /**
-     * Retrieves a session by ID.
-     */
     @Override
     public Optional<ChatSession> getSession(String sessionId) {
         return repository.findById(ChatSessionId.of(sessionId));
     }
 
-    /**
-     * Retrieves message history for a session.
-     */
     @Override
     public List<ChatMessage> getSessionHistory(String sessionId) {
         return repository.findById(ChatSessionId.of(sessionId))
@@ -162,27 +140,18 @@ public class SpringAiChatUseCase implements ChatUseCase {
                 .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
     }
 
-    /**
-     * Retrieves the most recent messages.
-     */
     public List<ChatMessage> getRecentMessages(String sessionId, int count) {
         return repository.findById(ChatSessionId.of(sessionId))
                 .map(session -> session.getRecentMessages(count))
                 .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
     }
 
-    /**
-     * Deletes a session.
-     */
     @Override
     public void deleteSession(String sessionId) {
         repository.delete(ChatSessionId.of(sessionId));
         log.info("Deleted session: {}", sessionId);
     }
 
-    /**
-     * Retrieves all sessions.
-     */
     @Override
     public List<ChatSession> getAllSessions() {
         return repository.findAll();
