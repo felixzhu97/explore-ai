@@ -2,6 +2,7 @@ package com.ai.rag.infrastructure.vector;
 
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.infrastructure.vector.PgVectorAdapter;
+import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,13 +35,13 @@ class PgVectorAdapterTest {
         pgVectorAdapter = new PgVectorAdapter(jdbcTemplate, objectMapper);
     }
 
-    private DocumentChunk createTestChunk(UUID id, UUID documentId, String content) {
+    private DocumentChunk createTestChunk(DocumentId id, DocumentId documentId, String content) {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", "test");
         return DocumentChunk.create(id, documentId, content, 0, metadata);
     }
 
-    private DocumentChunk createTestChunkWithEmbedding(UUID id, UUID documentId, String content, float[] embedding) {
+    private DocumentChunk createTestChunkWithEmbedding(DocumentId id, DocumentId documentId, String content, float[] embedding) {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", "test");
         return DocumentChunk.create(id, documentId, content, 0, metadata).withEmbedding(embedding);
@@ -77,8 +78,8 @@ class PgVectorAdapterTest {
             // Given
             float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
             int topK = 5;
-            UUID chunkId = UUID.randomUUID();
-            UUID docId = UUID.randomUUID();
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId docId = DocumentId.generate();
             String content = "Test content";
             float[] embedding = {0.1f, 0.2f, 0.3f};
 
@@ -101,7 +102,7 @@ class PgVectorAdapterTest {
             // Given
             float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
             int topK = 5;
-            List<UUID> docIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+            List<UUID> docIds = List.of(DocumentId.generate().value(), DocumentId.generate().value());
 
             when(jdbcTemplate.query(anyString(), any(Object[].class), any(RowMapper.class)))
                     .thenReturn(Collections.emptyList());
@@ -172,8 +173,8 @@ class PgVectorAdapterTest {
         @DisplayName("should save chunk successfully")
         void shouldSaveChunk_successfully() {
             // Given
-            UUID chunkId = UUID.randomUUID();
-            UUID documentId = UUID.randomUUID();
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             String content = "Test content";
             float[] embedding = {0.1f, 0.2f, 0.3f};
             DocumentChunk chunk = createTestChunkWithEmbedding(chunkId, documentId, content, embedding);
@@ -194,8 +195,8 @@ class PgVectorAdapterTest {
         @DisplayName("should save chunk with null metadata")
         void shouldSaveChunk_withNullMetadata() {
             // Given
-            UUID chunkId = UUID.randomUUID();
-            UUID documentId = UUID.randomUUID();
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             String content = "Test content";
             float[] embedding = {0.5f, 0.6f};
             DocumentChunk chunk = DocumentChunk.create(chunkId, documentId, content, 0, null)
@@ -217,8 +218,8 @@ class PgVectorAdapterTest {
         @DisplayName("should save chunk with empty metadata")
         void shouldSaveChunk_withEmptyMetadata() {
             // Given
-            UUID chunkId = UUID.randomUUID();
-            UUID documentId = UUID.randomUUID();
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             String content = "Test content";
             float[] embedding = {1.0f};
             DocumentChunk chunk = DocumentChunk.create(chunkId, documentId, content, 0, Collections.emptyMap())
@@ -240,8 +241,8 @@ class PgVectorAdapterTest {
         @DisplayName("should use parameterized query for metadata")
         void shouldUseParameterizedQuery_forMetadata() throws Exception {
             // Given
-            UUID chunkId = UUID.randomUUID();
-            UUID documentId = UUID.randomUUID();
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             String content = "Test";
             float[] embedding = {0.1f};
             Map<String, Object> metadata = new HashMap<>();
@@ -375,8 +376,8 @@ class PgVectorAdapterTest {
         @DisplayName("should map result set to document chunk")
         void shouldMapResultSet_toDocumentChunk() throws SQLException {
             // Given
-            UUID chunkId = UUID.randomUUID();
-            UUID documentId = UUID.randomUUID();
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             String content = "Test content";
             int chunkIndex = 1;
             String embedding = "[0.1,0.2,0.3]";
@@ -384,8 +385,8 @@ class PgVectorAdapterTest {
             String createdAt = "2024-01-01T00:00:00Z";
 
             ResultSet rs = mock(ResultSet.class);
-            when(rs.getString("id")).thenReturn(chunkId.toString());
-            when(rs.getString("document_id")).thenReturn(documentId.toString());
+            when(rs.getString("id")).thenReturn(chunkId.value().toString());
+            when(rs.getString("document_id")).thenReturn(documentId.value().toString());
             when(rs.getString("content")).thenReturn(content);
             when(rs.getInt("chunk_index")).thenReturn(chunkIndex);
             when(rs.getString("embedding")).thenReturn(embedding);
@@ -410,9 +411,11 @@ class PgVectorAdapterTest {
         @DisplayName("should handle null embedding")
         void shouldHandleNullEmbedding() throws SQLException {
             // Given
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             ResultSet rs = mock(ResultSet.class);
-            when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
-            when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("id")).thenReturn(chunkId.value().toString());
+            when(rs.getString("document_id")).thenReturn(documentId.value().toString());
             when(rs.getString("content")).thenReturn("Test");
             when(rs.getInt("chunk_index")).thenReturn(0);
             when(rs.getString("embedding")).thenReturn(null);
@@ -432,9 +435,11 @@ class PgVectorAdapterTest {
         @DisplayName("should handle empty embedding string")
         void shouldHandleEmptyEmbeddingString() throws SQLException {
             // Given
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             ResultSet rs = mock(ResultSet.class);
-            when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
-            when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("id")).thenReturn(chunkId.value().toString());
+            when(rs.getString("document_id")).thenReturn(documentId.value().toString());
             when(rs.getString("content")).thenReturn("Test");
             when(rs.getInt("chunk_index")).thenReturn(0);
             when(rs.getString("embedding")).thenReturn("");
@@ -454,9 +459,11 @@ class PgVectorAdapterTest {
         @DisplayName("should use current time when created_at is null")
         void shouldUseCurrentTime_whenCreatedAtIsNull() throws SQLException {
             // Given
+            DocumentId chunkId = DocumentId.generate();
+            DocumentId documentId = DocumentId.generate();
             ResultSet rs = mock(ResultSet.class);
-            when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
-            when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
+            when(rs.getString("id")).thenReturn(chunkId.value().toString());
+            when(rs.getString("document_id")).thenReturn(documentId.value().toString());
             when(rs.getString("content")).thenReturn("Test");
             when(rs.getInt("chunk_index")).thenReturn(0);
             when(rs.getString("embedding")).thenReturn("[0.1]");

@@ -1,5 +1,6 @@
 package com.ai.adapter.out.embedding;
 
+import com.ai.rag.domain.exception.RagServiceException;
 import com.ai.rag.infrastructure.llm.OllamaEmbeddingAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -269,18 +270,20 @@ class OllamaEmbeddingAdapterTest {
         }
 
         @Test
-        @DisplayName("should preserve original exception message")
-        void shouldPreserveOriginalExceptionMessage() {
+        @DisplayName("should preserve original exception cause")
+        void shouldPreserveOriginalExceptionCause() {
             // Arrange
             String testText = "Test text";
-            String originalMessage = "Ollama service unavailable";
+            String causeMessage = "Ollama service unavailable";
             when(embeddingModel.call(any(EmbeddingRequest.class)))
-                    .thenThrow(new RuntimeException(originalMessage));
+                    .thenThrow(new RuntimeException(causeMessage));
 
             // Act & Assert
             assertThatThrownBy(() -> adapter.embed(testText))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining(originalMessage);
+                    .isInstanceOf(RagServiceException.class)
+                    .hasMessageContaining("Embedding generation failed")
+                    .hasCauseInstanceOf(RuntimeException.class)
+                    .hasRootCauseMessage(causeMessage);
         }
     }
 

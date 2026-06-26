@@ -1,12 +1,14 @@
 package com.ai.rag.infrastructure.tools;
 
 import com.ai.rag.application.usecase.RagApplicationService;
+import com.ai.rag.domain.vo.DocumentId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Component
 public class RagSearchTool {
 
+    private static final Logger log = LoggerFactory.getLogger(RagSearchTool.class);
     private static final int DEFAULT_TOP_K = 5;
     private static final int MAX_CONTENT_LENGTH = 500;
 
@@ -35,14 +38,14 @@ public class RagSearchTool {
         }
 
         try {
-            List<UUID> docUuids = null;
+            List<DocumentId> docIdList = null;
             if (docIds != null && !docIds.isEmpty()) {
-                docUuids = docIds.stream()
-                        .map(UUID::fromString)
+                docIdList = docIds.stream()
+                        .map(DocumentId::of)
                         .collect(Collectors.toList());
             }
 
-            var result = ragApplicationService.retrieveContext(query, docUuids, DEFAULT_TOP_K);
+            var result = ragApplicationService.retrieveContext(query, docIdList, DEFAULT_TOP_K);
 
             if (result.sources().isEmpty()) {
                 return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
@@ -72,9 +75,11 @@ public class RagSearchTool {
             return response.toString();
 
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid document ID format in searchDocuments", e);
             return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
         } catch (Exception e) {
-            return "搜索文档时发生错误：" + e.getMessage();
+            log.error("Error searching documents", e);
+            return "搜索文档时发生未知错误，请稍后重试。";
         }
     }
 
@@ -100,7 +105,8 @@ public class RagSearchTool {
             return response.toString();
 
         } catch (Exception e) {
-            return "获取文档列表时发生错误：" + e.getMessage();
+            log.error("Error listing documents", e);
+            return "获取文档列表时发生未知错误，请稍后重试。";
         }
     }
 }

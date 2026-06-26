@@ -3,6 +3,7 @@ package com.ai.rag.application.usecase;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.vo.DocumentId;
 import com.ai.ai.application.usecase.ChatUseCase;
 import com.ai.ai.domain.service.LanguageDetectionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,21 +89,21 @@ class RagChatUseCaseTest {
             String question = "What is AI?";
             String docId1 = UUID.randomUUID().toString();
             List<String> docIds = List.of(docId1);
-            List<UUID> expectedDocUuids = List.of(UUID.fromString(docId1));
+            List<DocumentId> expectedDocIds = List.of(DocumentId.of(docId1));
 
             RagApplicationService.RetrievalResult retrievalResult =
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
             when(languageDetectionService.detect(question)).thenReturn("en");
             when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
-            when(ragApplicationService.retrieveContext(question, expectedDocUuids, 5)).thenReturn(retrievalResult);
+            when(ragApplicationService.retrieveContext(question, expectedDocIds, 5)).thenReturn(retrievalResult);
             when(aiChatUseCase.chat("prompt")).thenReturn("response");
 
             // Act
             ragChatUseCase.chat(question, docIds, null);
 
             // Assert
-            verify(ragApplicationService).retrieveContext(question, expectedDocUuids, 5);
+            verify(ragApplicationService).retrieveContext(question, expectedDocIds, 5);
         }
 
         @Test

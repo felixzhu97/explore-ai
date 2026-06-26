@@ -6,6 +6,8 @@ import com.ai.ai.application.usecase.ImageGenerationUseCasePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,8 @@ import java.util.Map;
 @RequestMapping("/api/images")
 @Tag(name = "Image Generation", description = "Generate images using DALL-E")
 public class ImageController {
+
+    private static final Logger log = LoggerFactory.getLogger(ImageController.class);
 
     private final ImageGenerationUseCasePort imageGenerationUseCase;
 
@@ -51,8 +55,9 @@ public class ImageController {
                     request.prompt()
             ));
         } catch (Exception e) {
+            log.error("Error generating image", e);
             return ResponseEntity.internalServerError()
-                    .body(ImageGenerationResponse.error(e.getMessage()));
+                    .body(ImageGenerationResponse.error("生成图片时发生错误，请稍后重试。"));
         }
     }
 

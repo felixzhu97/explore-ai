@@ -3,6 +3,8 @@ package com.ai.mcp.web;
 import com.ai.mcp.client.AiMcpClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.Map;
 @RequestMapping("/api/mcp/client")
 @Tag(name = "MCP Client", description = "Connect to external MCP servers and use their tools")
 public class McpClientController {
+
+    private static final Logger log = LoggerFactory.getLogger(McpClientController.class);
 
     private final AiMcpClientService mcpClientService;
     private final ChatClient chatClient;
@@ -76,7 +80,8 @@ public class McpClientController {
 
             return ResponseEntity.ok(Map.of("response", response));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            log.error("Error in MCP chat", e);
+            return ResponseEntity.internalServerError().body(Map.of("error", "处理请求时发生错误，请稍后重试。"));
         }
     }
 

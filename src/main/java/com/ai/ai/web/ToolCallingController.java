@@ -5,6 +5,8 @@ import com.ai.rag.infrastructure.tools.RagSearchTool;
 import com.ai.ai.infrastructure.tools.WeatherTools;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -20,6 +22,8 @@ import java.util.List;
 @RequestMapping("/api/tools")
 @Tag(name = "Tool Calling", description = "AI function calling with tools")
 public class ToolCallingController {
+
+    private static final Logger log = LoggerFactory.getLogger(ToolCallingController.class);
 
     private final ChatClient chatClient;
     private final WeatherTools weatherTools;
@@ -85,6 +89,7 @@ public class ToolCallingController {
             return streamingService.streamWords(response);
 
         } catch (Exception e) {
+            log.error("Error in streaming chat with tools", e);
             return Flux.error(e);
         }
     }
@@ -102,7 +107,8 @@ public class ToolCallingController {
             return new ToolChatResponse(response, null);
 
         } catch (Exception e) {
-            return new ToolChatResponse("抱歉，处理您的请求时发生错误：" + e.getMessage(), null);
+            log.error("Error in chat with tools", e);
+            return new ToolChatResponse("抱歉，处理您的请求时发生错误，请稍后重试。", null);
         }
     }
 

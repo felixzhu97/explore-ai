@@ -20,14 +20,4 @@ public interface ChatSessionRepository {
     List<ChatSession> findAll();
 
     boolean exists(ChatSessionId id);
-
-    default ChatSession getOrCreateDefaultSession() {
-        List<ChatSession> sessions = findAll();
-        if (sessions.isEmpty()) {
-            ChatSession newSession = ChatSession.create("Default Chat");
-            save(newSession);
-            return newSession;
-        }
-        return sessions.get(0);
-    }
 }

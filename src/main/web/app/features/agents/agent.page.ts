@@ -16,6 +16,7 @@ import { ChatMessageComponent } from './chat-message/chat-message.component';
 import type { ChatMessageData } from './chat-message/chat-message.component';
 import { ToolCall } from './tool-result/tool-result.component';
 import type { AgentInfo } from './models/agent.model';
+import { NotificationService } from '@core/services/notification.service';
 export type { AgentInfo };
 
 @Component({
@@ -282,6 +283,7 @@ export type { AgentInfo };
 })
 export class AgentPageComponent {
   private http = inject(HttpClient);
+  private notifications = inject(NotificationService);
 
   agentInfo = input.required<AgentInfo>();
   apiEndpoint = input.required<string>();
@@ -454,7 +456,7 @@ export class AgentPageComponent {
       if (error instanceof Error && error.name === 'AbortError') {
         return;
       }
-      console.error('Error sending message:', error);
+      this.notifications.showError('An error occurred while sending your message.');
       this.updateMessageContent(assistantMessageId, 'An error occurred.');
     } finally {
       this.isLoading.set(false);

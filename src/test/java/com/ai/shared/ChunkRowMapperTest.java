@@ -2,6 +2,7 @@ package com.ai.adapter.out;
 
 import com.ai.rag.infrastructure.vector.PgVectorAdapter;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,8 +41,8 @@ class ChunkRowMapperTest {
 
     private PgVectorAdapter adapter;
 
-    private static final UUID TEST_DOCUMENT_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private static final UUID TEST_CHUNK_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174001");
+    private static final DocumentId TEST_DOCUMENT_ID = DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+    private static final DocumentId TEST_CHUNK_ID = DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
 
     @BeforeEach
     void setUp() {
@@ -316,7 +317,7 @@ class ChunkRowMapperTest {
         }
     }
 
-    private DocumentChunk createMockChunk(UUID id, UUID documentId) {
+    private DocumentChunk createMockChunk(DocumentId id, DocumentId documentId) {
         Map<String, Object> metadata = Map.of("source", "test", "page", 1);
         return DocumentChunk.create(
                 id,

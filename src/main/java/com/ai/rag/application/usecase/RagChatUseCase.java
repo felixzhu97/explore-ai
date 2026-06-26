@@ -1,6 +1,7 @@
 package com.ai.rag.application.usecase;
 
 import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.vo.DocumentId;
 import com.ai.ai.application.usecase.ChatUseCase;
 import com.ai.ai.domain.service.LanguageDetectionService;
 import org.slf4j.Logger;
@@ -47,15 +48,15 @@ public class RagChatUseCase {
     public ChatResult chat(String question, List<String> docIds, Integer topK) {
         log.info("RAG chat request: {}", question != null && question.length() > 50 ? question.substring(0, 50) + "..." : question);
 
-        List<UUID> docUuids = null;
+        List<DocumentId> docIdList = null;
         if (docIds != null && !docIds.isEmpty()) {
-            docUuids = docIds.stream()
-                    .map(UUID::fromString)
+            docIdList = docIds.stream()
+                    .map(DocumentId::of)
                     .toList();
         }
 
         int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-        var retrievalResult = ragApplicationService.retrieveContext(question, docUuids, topKValue);
+        var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
 
         String context = retrievalResult.context();
         List<SourceDocument> sources = retrievalResult.sources();

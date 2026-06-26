@@ -276,8 +276,8 @@ class RagApplicationServiceTest {
             String query = "test query";
             float[] queryEmbedding = {0.1f, 0.2f};
             List<DocumentChunk> chunks = List.of(
-                    DocumentChunk.create(UUID.randomUUID(), UUID.randomUUID(), "content1", 0, Map.of()).withEmbedding(new float[]{0.5f, 0.5f}),
-                    DocumentChunk.create(UUID.randomUUID(), UUID.randomUUID(), "content2", 1, Map.of()).withEmbedding(new float[]{0.3f, 0.7f})
+                    DocumentChunk.create(DocumentId.generate(), DocumentId.generate(), "content1", 0, Map.of()).withEmbedding(new float[]{0.5f, 0.5f}),
+                    DocumentChunk.create(DocumentId.generate(), DocumentId.generate(), "content2", 1, Map.of()).withEmbedding(new float[]{0.3f, 0.7f})
             );
 
             when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
@@ -301,22 +301,23 @@ class RagApplicationServiceTest {
         void shouldFilterDocumentsByDocIdsWhenProvided() {
             // Arrange
             String query = "test query";
-            UUID docId1 = UUID.randomUUID();
-            List<UUID> docIds = List.of(docId1);
+            DocumentId docId1 = DocumentId.generate();
+            List<DocumentId> docIds = List.of(docId1);
+            List<UUID> docUuidList = List.of(docId1.value());
             float[] queryEmbedding = {0.1f, 0.2f};
             List<DocumentChunk> chunks = List.of(
-                    DocumentChunk.create(UUID.randomUUID(), docId1, "filtered content", 0, Map.of()).withEmbedding(new float[]{0.5f})
+                    DocumentChunk.create(DocumentId.generate(), docId1, "filtered content", 0, Map.of()).withEmbedding(new float[]{0.5f})
             );
 
             when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 3, docIds)).thenReturn(chunks);
+            when(vectorAdapter.search(queryEmbedding, 3, docUuidList)).thenReturn(chunks);
 
             // Act
             RagApplicationService.RetrievalResult result = ragApplicationService.retrieveContext(query, docIds, 3);
 
             // Assert
             assertThat(result.context()).contains("filtered content");
-            verify(vectorAdapter).search(queryEmbedding, 3, docIds);
+            verify(vectorAdapter).search(queryEmbedding, 3, docUuidList);
         }
 
         @Test
@@ -363,7 +364,7 @@ class RagApplicationServiceTest {
             // Arrange
             float[] queryEmbedding = {0.1f, 0.2f};
             DocumentChunk chunkWithNullEmbedding = DocumentChunk.create(
-                    UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of());
+                    DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of());
 
             when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);
             when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunkWithNullEmbedding));
@@ -381,7 +382,7 @@ class RagApplicationServiceTest {
             // Arrange - This tests calculateSimilarity null check and length mismatch
             float[] queryEmbedding = {0.1f, 0.2f, 0.3f};
             DocumentChunk chunk = DocumentChunk.create(
-                    UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of())
+                    DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of())
                     .withEmbedding(new float[]{0.5f, 0.5f}); // Different length
 
             when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);
@@ -400,7 +401,7 @@ class RagApplicationServiceTest {
             // Arrange
             float[] queryEmbedding = {0.1f, 0.2f};
             DocumentChunk chunkWithNullEmbedding = DocumentChunk.create(
-                    UUID.randomUUID(), UUID.randomUUID(), "content", 0, Map.of());
+                    DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of());
 
             when(embeddingAdapter.embed("test")).thenReturn(queryEmbedding);
             when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunkWithNullEmbedding));

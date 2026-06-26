@@ -1,5 +1,6 @@
 package com.ai.rag.infrastructure.llm;
 
+import com.ai.rag.domain.exception.RagServiceException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingRequest;
@@ -30,13 +31,15 @@ public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
             EmbeddingResponse response = embeddingModel.call(request);
             
             if (response.getResults() == null || response.getResults().isEmpty()) {
-                throw new RuntimeException("Empty embedding response from Ollama API");
+                throw new RagServiceException("Empty embedding response from Ollama API");
             }
             
             return response.getResults().get(0).getOutput();
             
+        } catch (RagServiceException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Embedding generation failed: " + e.getMessage(), e);
+            throw new RagServiceException("Embedding generation failed", e);
         }
     }
 
@@ -50,7 +53,7 @@ public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
                     .collect(Collectors.toList());
             
         } catch (Exception e) {
-            throw new RuntimeException("Batch embedding generation failed: " + e.getMessage(), e);
+            throw new RagServiceException("Batch embedding generation failed", e);
         }
     }
 

@@ -2,6 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@core/i18n';
+import { SourceDocument } from './rag.model';
+import { DEFAULT_TEMPERATURE, DEFAULT_TOP_K } from '@core/constants';
 
 export interface DocumentItem {
   id: string;
@@ -16,11 +18,20 @@ export interface UploadStatus {
   error?: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  sources?: SourceDocument[];
+  timestamp: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RagService {
   private readonly api = inject(ApiService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18nService);
+  private readonly sessionId = `session_${Date.now()}`;
 
   // Document state
   availableDocs = signal<DocumentItem[]>([]);
@@ -33,6 +44,15 @@ export class RagService {
   uploadStatuses = signal<Map<string, UploadStatus>>(new Map());
   isUploading = signal(false);
 
+  // Chat state
+  messages = signal<ChatMessage[]>([]);
+  input = signal('');
+  isLoading = signal(false);
+  expandedSources = signal<Set<string>>(new Set());
+
+  // Streaming state
+  readonly streamingMessageIds = signal<Set<string>>(new Set());
+
   fetchAvailableDocs(): void {
     this.isLoadingDocs.set(true);
     this.api.getDocuments().subscribe({
@@ -44,8 +64,8 @@ export class RagService {
         this.availableDocs.set(docs);
         this.selectedDocIds.set(new Set(docs.map((d) => d.id)));
       },
-      error: (err) => {
-        console.error('[RAG] Failed to load docs:', err);
+      error: () => {
+        this.notifications.showError(this.i18n.t().common.loadFailed);
         this.availableDocs.set([]);
       },
       complete: () => {
@@ -76,7 +96,6 @@ export class RagService {
 
   deleteDocument(docId: string): void {
     if (!docId || docId === 'undefined' || docId === 'null') {
-      console.error('[RAG] Invalid document ID:', docId);
       this.notifications.showError('Cannot delete: document ID is invalid');
       return;
     }
@@ -193,6 +212,112 @@ export class RagService {
           }
         },
       });
+    });
+  }
+
+  // ==================== Chat ====================
+
+  setInput(text: string): void {
+    this.input.set(text);
+  }
+
+  sendMessage(): void {
+    if (!this.input().trim() || this.isLoading()) return;
+
+    const userMessage: ChatMessage = {
+      id: `user_${Date.now()}`,
+      role: 'user',
+      content: this.input().trim(),
+      timestamp: Date.now(),
+    };
+
+    this.messages.update((msgs) => [...msgs, userMessage]);
+    this.input.set('');
+    this.isLoading.set(true);
+
+    const assistantMessageId = `assistant_${Date.now()}`;
+    this.messages.update((msgs) => [
+      ...msgs,
+      {
+        id: assistantMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+      },
+    ]);
+    this.streamingMessageIds.update((ids) => new Set(ids).add(assistantMessageId));
+
+    const requestBody: {
+      query: string;
+      session_id: string;
+      top_k: number;
+      temperature: number;
+      doc_ids?: string[];
+    } = {
+      query: userMessage.content,
+      session_id: this.sessionId,
+      top_k: DEFAULT_TOP_K,
+      temperature: DEFAULT_TEMPERATURE,
+    };
+
+    if (this.selectedDocIds().size > 0) {
+      requestBody.doc_ids = Array.from(this.selectedDocIds());
+    }
+
+    this.api.ragChat(
+      requestBody,
+      (chunk: string) => {
+        this.messages.update((msgs) =>
+          msgs.map((msg) =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          )
+        );
+      },
+      (sources: SourceDocument[]) => {
+        this.messages.update((msgs) =>
+          msgs.map((msg) => (msg.id === assistantMessageId ? { ...msg, sources } : msg))
+        );
+      },
+      () => {
+        this.streamingMessageIds.update((ids) => {
+          const next = new Set(ids);
+          next.delete(assistantMessageId);
+          return next;
+        });
+        this.isLoading.set(false);
+      },
+      (_err: Error) => {
+        this.messages.update((msgs) =>
+          msgs.map((msg) =>
+            msg.id === assistantMessageId
+              ? {
+                  ...msg,
+                  content: 'An error occurred while processing your request.',
+                }
+              : msg
+          )
+        );
+        this.streamingMessageIds.update((ids) => {
+          const next = new Set(ids);
+          next.delete(assistantMessageId);
+          return next;
+        });
+        this.isLoading.set(false);
+      }
+    );
+  }
+
+  toggleSources(messageId: string): void {
+    this.expandedSources.update((ids) => {
+      const next = new Set(ids);
+      if (next.has(messageId)) {
+        next.delete(messageId);
+      } else {
+        next.add(messageId);
+      }
+      return next;
     });
   }
 }

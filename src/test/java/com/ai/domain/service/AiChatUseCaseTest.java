@@ -320,7 +320,7 @@ class AiChatUseCaseTest {
 
             when(repository.findById(ChatSessionId.of(sessionId)))
                     .thenThrow(new ChatSessionNotFoundException(sessionId));
-            when(repository.getOrCreateDefaultSession()).thenReturn(defaultSession);
+            when(repository.findAll()).thenReturn(List.of(defaultSession));
             when(retryTemplate.execute(any())).thenReturn("Default Response");
 
             // Act
@@ -328,24 +328,24 @@ class AiChatUseCaseTest {
 
             // Assert
             assertThat(result).isNotNull();
-            verify(repository).getOrCreateDefaultSession();
+            verify(repository).findAll();
         }
 
         @Test
-        @DisplayName("should call getOrCreateDefaultSession when using default session")
-        void shouldCallGetOrCreateDefaultSessionWhenUsingDefaultSession() {
+        @DisplayName("should call findAll and create session when using default session")
+        void shouldCallFindAllAndCreateSessionWhenUsingDefaultSession() {
             // Arrange
             String userMessage = "Hello";
             ChatSession defaultSession = ChatSession.create("Default");
 
-            when(repository.getOrCreateDefaultSession()).thenReturn(defaultSession);
+            when(repository.findAll()).thenReturn(List.of(defaultSession));
             when(retryTemplate.execute(any())).thenReturn("Response");
 
             // Act
             aiChatService.chatWithSession(userMessage);
 
             // Assert
-            verify(repository).getOrCreateDefaultSession();
+            verify(repository).findAll();
         }
     }
 }

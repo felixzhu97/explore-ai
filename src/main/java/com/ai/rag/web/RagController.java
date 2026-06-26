@@ -88,19 +88,13 @@ public class RagController {
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "RAG streaming chat")
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
-        try {
-            var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
+        var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
 
-            List<SourceDocumentDto> sourceDtos = chatResult.sources().stream()
-                    .map(this::toSourceDocumentDto)
-                    .collect(Collectors.toList());
+        List<SourceDocumentDto> sourceDtos = chatResult.sources().stream()
+                .map(this::toSourceDocumentDto)
+                .collect(Collectors.toList());
 
-            return streamingService.streamWithSources(chatResult.response(), sourceDtos);
-
-        } catch (Exception e) {
-            log.error("Error in RAG chat", e);
-            return Flux.error(e);
-        }
+        return streamingService.streamWithSources(chatResult.response(), sourceDtos);
     }
 
     private DocumentSummaryDto toDocumentSummaryDto(Document document) {

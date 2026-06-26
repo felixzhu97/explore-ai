@@ -3,6 +3,8 @@ package com.ai.ai.web;
 import com.ai.ai.application.usecase.TextToSpeechUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import java.util.Map;
 @RequestMapping("/api/audio")
 @Tag(name = "Audio/TTS", description = "Text-to-Speech synthesis")
 public class AudioController {
+
+    private static final Logger log = LoggerFactory.getLogger(AudioController.class);
 
     private final TextToSpeechUseCase textToSpeechUseCase;
 
@@ -40,6 +44,7 @@ public class AudioController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"speech.mp3\"")
                     .body(audio);
         } catch (Exception e) {
+            log.error("Error synthesizing speech", e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -55,6 +60,7 @@ public class AudioController {
                     .header(HttpHeaders.TRANSFER_ENCODING, "chunked")
                     .body(audioStream);
         } catch (Exception e) {
+            log.error("Error streaming speech", e);
             return ResponseEntity.internalServerError().build();
         }
     }

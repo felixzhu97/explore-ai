@@ -4,6 +4,7 @@ import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.infrastructure.storage.DocumentChunkEntity;
 import com.ai.rag.infrastructure.storage.JpaIDocumentChunkRepository;
 import com.ai.rag.infrastructure.storage.SpringDataChunkRepository;
+import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,8 +39,8 @@ class JpaIDocumentChunkRepositoryTest {
 
     private JpaIDocumentChunkRepository repository;
 
-    private static final UUID TEST_DOCUMENT_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private static final UUID TEST_CHUNK_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174001");
+    private static final DocumentId TEST_DOCUMENT_ID = DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+    private static final DocumentId TEST_CHUNK_ID = DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
 
     @BeforeEach
     void setUp() {
@@ -64,8 +65,8 @@ class JpaIDocumentChunkRepositoryTest {
             // Assert
             verify(chunkRepository).save(entityCaptor.capture());
             DocumentChunkEntity saved = entityCaptor.getValue();
-            assertThat(saved.getId()).isEqualTo(TEST_CHUNK_ID);
-            assertThat(saved.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
+            assertThat(saved.getId()).isEqualTo(TEST_CHUNK_ID.value());
+            assertThat(saved.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID.value());
             assertThat(saved.getContent()).isEqualTo("Test chunk content");
         }
 
@@ -143,7 +144,7 @@ class JpaIDocumentChunkRepositoryTest {
         void shouldReturnChunksForDocument() {
             // Arrange
             DocumentChunkEntity entity = createTestChunkEntity();
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID.value())).thenReturn(List.of(entity));
 
             // Act
             List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
@@ -157,7 +158,7 @@ class JpaIDocumentChunkRepositoryTest {
         @DisplayName("should return empty list when no chunks")
         void shouldReturnEmptyListWhenNoChunks() {
             // Arrange
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of());
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID.value())).thenReturn(List.of());
 
             // Act
             List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
@@ -178,7 +179,7 @@ class JpaIDocumentChunkRepositoryTest {
             repository.deleteChunksByDocumentId(TEST_DOCUMENT_ID);
 
             // Assert
-            verify(chunkRepository).deleteByDocumentId(TEST_DOCUMENT_ID);
+            verify(chunkRepository).deleteByDocumentId(TEST_DOCUMENT_ID.value());
         }
     }
 
@@ -190,15 +191,15 @@ class JpaIDocumentChunkRepositoryTest {
         @DisplayName("should handle null metadata when deserializing chunk")
         void shouldHandleNullMetadataWhenDeserializingChunk() {
             DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
+                    TEST_CHUNK_ID.value(),
+                    TEST_DOCUMENT_ID.value(),
                     "Content without metadata",
                     0,
                     new Float[]{0.1f, 0.2f},
                     null,
                     Instant.now()
             );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID.value())).thenReturn(List.of(entity));
 
             List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
 
@@ -210,15 +211,15 @@ class JpaIDocumentChunkRepositoryTest {
         @DisplayName("should handle empty metadata when deserializing chunk")
         void shouldHandleEmptyMetadataWhenDeserializingChunk() {
             DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
+                    TEST_CHUNK_ID.value(),
+                    TEST_DOCUMENT_ID.value(),
                     "Content with empty metadata",
                     0,
                     null,
                     "",
                     Instant.now()
             );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID.value())).thenReturn(List.of(entity));
 
             List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
 
@@ -230,15 +231,15 @@ class JpaIDocumentChunkRepositoryTest {
         @DisplayName("should handle null embedding when finding chunks")
         void shouldHandleNullEmbeddingWhenFindingChunks() {
             DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
+                    TEST_CHUNK_ID.value(),
+                    TEST_DOCUMENT_ID.value(),
                     "Content",
                     0,
                     null,
                     "{}",
                     Instant.now()
             );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID.value())).thenReturn(List.of(entity));
 
             List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
 
@@ -250,15 +251,15 @@ class JpaIDocumentChunkRepositoryTest {
         @DisplayName("should handle invalid metadata JSON gracefully")
         void shouldHandleInvalidMetadataJsonGracefully() {
             DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
+                    TEST_CHUNK_ID.value(),
+                    TEST_DOCUMENT_ID.value(),
                     "Content",
                     0,
                     null,
                     "invalid json {",
                     Instant.now()
             );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID.value())).thenReturn(List.of(entity));
 
             List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
 
@@ -300,8 +301,8 @@ class JpaIDocumentChunkRepositoryTest {
 
     private DocumentChunkEntity createTestChunkEntity() {
         return new DocumentChunkEntity(
-                TEST_CHUNK_ID,
-                TEST_DOCUMENT_ID,
+                TEST_CHUNK_ID.value(),
+                TEST_DOCUMENT_ID.value(),
                 "Test chunk content",
                 0,
                 new Float[]{0.1f, 0.2f, 0.3f},

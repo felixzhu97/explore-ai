@@ -4,6 +4,14 @@ export type Language = 'en' | 'zh' | 'ja' | 'fr' | 'es';
 export const SUPPORTED_LANGUAGES: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];
 
 export interface Translations {
+  common: {
+    loadFailed: string;
+    saveFailed: string;
+    deleteFailed: string;
+    operationFailed: string;
+    success: string;
+    error: string;
+  };
   nav: {
     visionAI: string;
     documentQA: string;
@@ -144,6 +152,14 @@ export interface Translations {
 
 export const translations: Record<Language, Translations> = {
   en: {
+    common: {
+      loadFailed: 'Failed to load data',
+      saveFailed: 'Failed to save',
+      deleteFailed: 'Failed to delete',
+      operationFailed: 'Operation failed',
+      success: 'Success',
+      error: 'An error occurred',
+    },
     nav: {
       visionAI: 'Vision AI',
       documentQA: 'Document QA',
@@ -310,6 +326,14 @@ export const translations: Record<Language, Translations> = {
     },
   },
   zh: {
+    common: {
+      loadFailed: '加载数据失败',
+      saveFailed: '保存失败',
+      deleteFailed: '删除失败',
+      operationFailed: '操作失败',
+      success: '成功',
+      error: '发生错误',
+    },
     nav: {
       visionAI: 'Vision AI',
       documentQA: '文档问答',
@@ -448,6 +472,14 @@ export const translations: Record<Language, Translations> = {
     },
   },
   ja: {
+    common: {
+      loadFailed: 'データの読み込みに失敗しました',
+      saveFailed: '保存に失敗しました',
+      deleteFailed: '削除に失敗しました',
+      operationFailed: '操作に失敗しました',
+      success: '成功',
+      error: 'エラーが発生しました',
+    },
     nav: {
       visionAI: 'Vision AI',
       documentQA: 'ドキュメント',
@@ -611,6 +643,14 @@ export const translations: Record<Language, Translations> = {
     },
   },
   fr: {
+    common: {
+      loadFailed: 'Échec du chargement',
+      saveFailed: 'Échec de la sauvegarde',
+      deleteFailed: 'Échec de la suppression',
+      operationFailed: "L'opération a échoué",
+      success: 'Succès',
+      error: "Une erreur s'est produite",
+    },
     nav: {
       visionAI: 'Vision AI',
       documentQA: 'Documents',
@@ -779,6 +819,14 @@ export const translations: Record<Language, Translations> = {
     },
   },
   es: {
+    common: {
+      loadFailed: 'Error al cargar datos',
+      saveFailed: 'Error al guardar',
+      deleteFailed: 'Error al eliminar',
+      operationFailed: 'La operación falló',
+      success: 'Éxito',
+      error: 'Se produjo un error',
+    },
     nav: {
       visionAI: 'Vision AI',
       documentQA: 'Documentos',

@@ -2,6 +2,7 @@ package com.ai.rag.infrastructure.storage;
 
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
+import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,15 +41,15 @@ public class JpaIDocumentChunkRepository implements IDocumentChunkRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<DocumentChunk> findChunksByDocumentId(UUID documentId) {
-        return chunkRepository.findByDocumentId(documentId).stream()
+    public List<DocumentChunk> findChunksByDocumentId(DocumentId documentId) {
+        return chunkRepository.findByDocumentId(documentId.value()).stream()
                 .map(this::toChunkDomain)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteChunksByDocumentId(UUID documentId) {
-        chunkRepository.deleteByDocumentId(documentId);
+    public void deleteChunksByDocumentId(DocumentId documentId) {
+        chunkRepository.deleteByDocumentId(documentId.value());
     }
 
     private DocumentChunkEntity toChunkEntity(DocumentChunk chunk) {
@@ -70,8 +71,8 @@ public class JpaIDocumentChunkRepository implements IDocumentChunkRepository {
         }
 
         return new DocumentChunkEntity(
-                chunk.getId(),
-                chunk.getDocumentId(),
+                chunk.getId().value(),
+                chunk.getDocumentId().value(),
                 chunk.getContent(),
                 chunk.getChunkIndex(),
                 embeddingArray,
@@ -100,8 +101,8 @@ public class JpaIDocumentChunkRepository implements IDocumentChunkRepository {
         }
 
         return DocumentChunk.reconstitute(
-                entity.getId(),
-                entity.getDocumentId(),
+                DocumentId.of(entity.getId()),
+                DocumentId.of(entity.getDocumentId()),
                 entity.getContent(),
                 entity.getChunkIndex(),
                 metadata,

@@ -177,8 +177,7 @@ class RagSearchToolTest {
 
             String result = ragSearchTool.listDocuments();
 
-            assertThat(result).contains("获取文档列表时发生错误");
-            assertThat(result).contains("Service error");
+            assertThat(result).contains("获取文档列表时发生未知错误");
         }
     }
 }

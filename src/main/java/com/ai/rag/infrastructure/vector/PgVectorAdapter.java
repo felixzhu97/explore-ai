@@ -1,6 +1,7 @@
 package com.ai.rag.infrastructure.vector;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -126,8 +127,8 @@ public class PgVectorAdapter {
 
         @Override
         public DocumentChunk mapRow(ResultSet rs, int rowNum) throws SQLException {
-            UUID id = UUID.fromString(rs.getString("id"));
-            UUID documentId = UUID.fromString(rs.getString("document_id"));
+            DocumentId id = DocumentId.of(UUID.fromString(rs.getString("id")));
+            DocumentId documentId = DocumentId.of(UUID.fromString(rs.getString("document_id")));
             String content = rs.getString("content");
             int chunkIndex = rs.getInt("chunk_index");
 

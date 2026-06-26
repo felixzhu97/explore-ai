@@ -95,8 +95,18 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public String chatWithSession(String userMessage) {
-        ChatSession session = repository.getOrCreateDefaultSession();
+        ChatSession session = getOrCreateDefaultSession();
         return exchangeMessages(session, userMessage);
+    }
+
+    private ChatSession getOrCreateDefaultSession() {
+        List<ChatSession> sessions = repository.findAll();
+        if (sessions.isEmpty()) {
+            ChatSession newSession = ChatSession.create("Default Chat");
+            repository.save(newSession);
+            return newSession;
+        }
+        return sessions.get(0);
     }
 
     private ChatSession loadOrCreateSession(String sessionId) {

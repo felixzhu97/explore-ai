@@ -1,6 +1,7 @@
 package com.ai.rag.domain.model;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.vo.DocumentId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,8 +25,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("DocumentChunk")
 class DocumentChunkTest {
 
-    private static final UUID TEST_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private static final UUID TEST_DOCUMENT_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174001");
+    private static final DocumentId TEST_ID = DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+    private static final DocumentId TEST_DOCUMENT_ID = DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
     private static final String TEST_CONTENT = "This is a test chunk content.";
     private static final int TEST_CHUNK_INDEX = 0;
 

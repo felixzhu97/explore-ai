@@ -92,7 +92,7 @@ class ImageControllerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().status()).contains("API error");
+            assertThat(response.getBody().status()).contains("发生错误");
         }
     }
 

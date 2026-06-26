@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -216,15 +217,15 @@ class RagControllerTest {
 
         @SuppressWarnings("unchecked")
         @Test
-        @DisplayName("should return error flux when exception occurs")
-        void shouldReturnErrorFluxWhenExceptionOccurs() {
+        @DisplayName("should propagate exception when service fails")
+        void shouldPropagateExceptionWhenServiceFails() {
             RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, null);
             when(ragChatUseCase.chat(anyString(), any(), anyInt()))
                     .thenThrow(new RuntimeException("Service error"));
 
-            Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
-
-            assertThat(response).isNotNull();
+            assertThatThrownBy(() -> controller.ragChatStream(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Service error");
         }
     }
 

@@ -1,24 +1,25 @@
 package com.ai.rag.domain.model;
 
+import com.ai.rag.domain.vo.DocumentId;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * DocumentChunk entity - represents a chunk of a document in the RAG system.
  * Immutable value object with factory method for creation.
  */
 public class DocumentChunk {
-    private final UUID id;
-    private final UUID documentId;
+    private final DocumentId id;
+    private final DocumentId documentId;
     private final String content;
     private final int chunkIndex;
     private final Map<String, Object> metadata;
     private final float[] embedding;
     private final Instant createdAt;
 
-    private DocumentChunk(UUID id, UUID documentId, String content, int chunkIndex,
+    private DocumentChunk(DocumentId id, DocumentId documentId, String content, int chunkIndex,
                          Map<String, Object> metadata, float[] embedding, Instant createdAt) {
         this.id = Objects.requireNonNull(id, "id cannot be null");
         this.documentId = Objects.requireNonNull(documentId, "documentId cannot be null");
@@ -29,18 +30,18 @@ public class DocumentChunk {
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
     }
 
-    public static DocumentChunk create(UUID id, UUID documentId, String content,
+    public static DocumentChunk create(DocumentId id, DocumentId documentId, String content,
                                       int chunkIndex, Map<String, Object> metadata) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, null, Instant.now());
     }
 
-    public static DocumentChunk createWithEmbedding(UUID id, UUID documentId, String content,
+    public static DocumentChunk createWithEmbedding(DocumentId id, DocumentId documentId, String content,
                                                    int chunkIndex, Map<String, Object> metadata,
                                                    float[] embedding) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, Instant.now());
     }
 
-    public static DocumentChunk reconstitute(UUID id, UUID documentId, String content,
+    public static DocumentChunk reconstitute(DocumentId id, DocumentId documentId, String content,
                                     int chunkIndex, Map<String, Object> metadata,
                                     float[] embedding, Instant createdAt) {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
@@ -50,8 +51,8 @@ public class DocumentChunk {
         return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
     }
 
-    public UUID getId() { return id; }
-    public UUID getDocumentId() { return documentId; }
+    public DocumentId getId() { return id; }
+    public DocumentId getDocumentId() { return documentId; }
     public String getContent() { return content; }
     public int getChunkIndex() { return chunkIndex; }
     public Map<String, Object> getMetadata() { return metadata; }

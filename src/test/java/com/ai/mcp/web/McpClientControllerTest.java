@@ -160,16 +160,16 @@ class McpClientControllerTest {
     class Chat {
 
         @Test
-        @DisplayName("should return bad request on service exception")
-        void shouldReturnBadRequestOnServiceException() {
+        @DisplayName("should return internal server error on service exception")
+        void shouldReturnInternalServerErrorOnServiceException() {
             when(mcpClientService.getRegisteredTools()).thenThrow(new RuntimeException("Service error"));
 
             var request = new McpClientController.McpChatRequest("Hello", null);
             var response = controller.chat(request);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().get("error")).isEqualTo("Service error");
+            assertThat(response.getBody().get("error")).contains("发生错误");
         }
     }
 }
