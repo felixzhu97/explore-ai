@@ -1,11 +1,11 @@
 package com.ai.domain.service;
 
-import com.ai.modules.ai.domain.model.ChatMessage;
-import com.ai.modules.ai.domain.model.ChatSession;
-import com.ai.modules.ai.application.usecase.SpringAiChatUseCase;
-import com.ai.modules.ai.domain.exception.ChatSessionNotFoundException;
-import com.ai.modules.ai.domain.repository.ChatSessionRepository;
-import com.ai.modules.ai.domain.vo.ChatSessionId;
+import com.ai.ai.domain.model.ChatMessage;
+import com.ai.ai.domain.model.ChatSession;
+import com.ai.ai.application.usecase.SpringAiChatUseCase;
+import com.ai.ai.domain.exception.ChatSessionNotFoundException;
+import com.ai.ai.domain.repository.ChatSessionRepository;
+import com.ai.ai.domain.vo.ChatSessionId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -1,6 +1,6 @@
 package com.ai.domain.service;
 
-import com.ai.modules.ai.application.usecase.SpringAiImageGenerationUseCase;
+import com.ai.ai.application.usecase.SpringAiImageGenerationUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

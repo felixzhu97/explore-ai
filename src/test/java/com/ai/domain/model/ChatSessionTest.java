@@ -1,10 +1,10 @@
 package com.ai.domain.model;
 
-import com.ai.modules.ai.domain.vo.ChatSessionId;
-import com.ai.modules.ai.domain.model.ChatMessage;
-import com.ai.modules.ai.domain.model.ChatSession;
-import com.ai.modules.ai.domain.vo.MessageId;
-import com.ai.modules.ai.domain.vo.MessageRole;
+import com.ai.ai.domain.vo.ChatSessionId;
+import com.ai.ai.domain.model.ChatMessage;
+import com.ai.ai.domain.model.ChatSession;
+import com.ai.ai.domain.vo.MessageId;
+import com.ai.ai.domain.vo.MessageRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,0 +1,121 @@
+package com.ai.mcp.server;
+
+import com.ai.rag.infrastructure.tools.RagSearchTool;
+import com.ai.ai.infrastructure.tools.WeatherTools;
+import com.ai.ai.application.usecase.ChatUseCase;
+import org.springframework.ai.mcp.annotation.*;
+import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+/**
+ * MCP Server implementation exposing tools and resources via Spring AI 2.0 annotations.
+ * This service integrates with existing WeatherTools and RagSearchTool.
+ * 
+ * Exposed MCP tools:
+ * - get_weather: Get current weather for a city
+ * - get_forecast: Get weather forecast for a city
+ * - search_knowledge_base: Search documents in knowledge base
+ * - list_documents: List all documents in knowledge base
+ * - ai_chat: Chat with AI assistant
+ * 
+ * Exposed MCP resources:
+ * - config:///{key}: Access application configuration
+ */
+@Component
+public class AiMcpServerService {
+
+    private static final Logger log = LoggerFactory.getLogger(AiMcpServerService.class);
+
+    private final WeatherTools weatherTools;
+    private final RagSearchTool ragSearchTool;
+    private final ChatUseCase aiChatUseCase;
+
+    public AiMcpServerService(WeatherTools weatherTools, RagSearchTool ragSearchTool, ChatUseCase aiChatUseCase) {
+        this.weatherTools = weatherTools;
+        this.ragSearchTool = ragSearchTool;
+        this.aiChatUseCase = aiChatUseCase;
+    }
+
+    /**
+     * Get weather for a city.
+     */
+    @McpTool(name = "get_weather", description = "Get current weather information for a specified city")
+    public String getWeather(
+            @McpToolParam(description = "The city name to get weather for", required = true) String city) {
+        log.info("MCP tool: getWeather called for city: {}", city);
+        return weatherTools.getWeather(city);
+    }
+
+    /**
+     * Get weather forecast for a city.
+     */
+    @McpTool(name = "get_forecast", description = "Get weather forecast for a specified city")
+    public String getForecast(
+            @McpToolParam(description = "The city name", required = true) String city,
+            @McpToolParam(description = "Number of days for forecast (default: 3)", required = false) Integer days) {
+        log.info("MCP tool: getForecast called for city: {} with {} days", city, days);
+        return weatherTools.getForecast(city, days);
+    }
+
+    /**
+     * Search documents in the knowledge base.
+     */
+    @McpTool(name = "search_knowledge_base", description = "Search documents in the knowledge base using semantic search")
+    public String searchKnowledgeBase(
+            @McpToolParam(description = "The search query", required = true) String query,
+            @McpToolParam(description = "Optional document IDs to filter (comma-separated)", required = false) String docIds) {
+        log.info("MCP tool: searchKnowledgeBase called with query: {}", query);
+
+        List<String> docIdList = null;
+        if (docIds != null && !docIds.isBlank()) {
+            docIdList = List.of(docIds.split(","));
+        }
+
+        return ragSearchTool.searchDocuments(query, docIdList);
+    }
+
+    /**
+     * List all documents in the knowledge base.
+     */
+    @McpTool(name = "list_documents", description = "List all documents available in the knowledge base")
+    public String listDocuments() {
+        log.info("MCP tool: listDocuments called");
+        return ragSearchTool.listDocuments();
+    }
+
+    /**
+     * Chat with AI assistant.
+     */
+    @McpTool(name = "ai_chat", description = "Chat with AI assistant")
+    public String aiChat(
+            @McpToolParam(description = "The message to send to the AI", required = true) String message) {
+        log.info("MCP tool: aiChat called with message: {}", truncate(message, 50));
+        return aiChatUseCase.chat(message);
+    }
+
+    /**
+     * Provide configuration resource.
+     * URI template: config:///{key}
+     */
+    @McpResource(uri = "config:///{key}", name = "Configuration Resource", description = "Access application configuration")
+    public String getConfig(String key) {
+        log.info("MCP resource: getConfig called for key: {}", key);
+
+        return switch (key) {
+            case "rag.chunk.size" -> "500";
+            case "rag.chunk.overlap" -> "50";
+            case "rag.retrieval.top-k" -> "5";
+            case "rag.retrieval.score-threshold" -> "0.5";
+            default -> "Configuration key not found: " + key;
+        };
+    }
+
+    private String truncate(String text, int maxLength) {
+        if (text == null) return "null";
+        if (text.length() <= maxLength) return text;
+        return text.substring(0, maxLength) + "...";
+    }
+}

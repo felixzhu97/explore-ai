@@ -1,0 +1,210 @@
+package com.ai.ai.application.usecase;
+
+import com.ai.ai.domain.model.ChatMessage;
+import com.ai.ai.domain.model.ChatSession;
+import com.ai.ai.domain.exception.AiServiceException;
+import com.ai.ai.domain.exception.ChatSessionNotFoundException;
+import com.ai.ai.domain.repository.ChatSessionRepository;
+import com.ai.ai.domain.vo.ChatSessionId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Spring AI implementation of ChatUseCase using ChatClient API.
+ */
+@Service
+public class SpringAiChatUseCase implements ChatUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(SpringAiChatUseCase.class);
+
+    private final ChatClient chatClient;
+    private final ChatSessionRepository repository;
+    private final RetryTemplate retryTemplate;
+    private final ChatMemory chatMemory;
+
+    public SpringAiChatUseCase(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository,
+                         RetryTemplate retryTemplate, ChatMemory chatMemory) {
+        this.chatClient = chatClientBuilder.build();
+        this.repository = repository;
+        this.retryTemplate = retryTemplate;
+        this.chatMemory = chatMemory;
+    }
+
+    /**
+     * Sends a message to AI with retry support and returns the response.
+     */
+    @Override
+    public String chat(String userMessage) {
+        log.info("Chat request with retry: {}", truncateForLog(userMessage));
+
+        return retryTemplate.execute(context -> {
+            if (context.getRetryCount() > 0) {
+                log.info("Retry attempt {} for chat request", context.getRetryCount());
+            }
+            String response = chatClient.prompt()
+                    .user(userMessage)
+                    .call()
+                    .content();
+            log.info("Chat response: {}", truncateForLog(response));
+            if (response == null || response.isBlank()) {
+                throw new AiServiceException("AI returned empty response");
+            }
+            return response;
+        });
+    }
+
+    /**
+     * Sends message history to AI with retry support.
+     */
+    public String chatWithHistory(List<ChatMessage> messages) {
+        log.info("Chat request with {} messages", messages.size());
+
+        return retryTemplate.execute(context -> {
+            var promptBuilder = chatClient.prompt();
+
+            for (ChatMessage msg : messages) {
+                if (msg.isFromUser()) {
+                    promptBuilder.user(msg.getText());
+                } else {
+                    promptBuilder.system(sp -> sp.text(msg.getText()));
+                }
+            }
+
+            var response = promptBuilder.call().content();
+            if (response == null || response.isBlank()) {
+                throw new AiServiceException("AI returned empty response");
+            }
+            return response;
+        });
+    }
+
+    /**
+     * Processes a chat message in a session.
+     */
+    @Override
+    public String processChatMessage(String sessionId, String userMessage) {
+        try {
+            ChatSession session = repository.findById(
+                    ChatSessionId.of(sessionId))
+                    .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+
+            session.addUserMessage(userMessage);
+            repository.save(session);
+
+            String aiResponse = chat(userMessage);
+
+            session.addAssistantMessage(aiResponse);
+            repository.save(session);
+
+            return aiResponse;
+        } catch (ChatSessionNotFoundException e) {
+            log.warn("Session not found, using default: {}", sessionId);
+            return processChatMessage(userMessage);
+        }
+    }
+
+    /**
+     * Processes a chat message in the default session.
+     */
+    @Override
+    public String processChatMessage(String userMessage) {
+        ChatSession session = repository.getOrCreateDefaultSession();
+        session.addUserMessage(userMessage);
+
+        String aiResponse = chat(userMessage);
+
+        session.addAssistantMessage(aiResponse);
+        repository.save(session);
+
+        return aiResponse;
+    }
+
+    /**
+     * Creates a new session.
+     */
+    @Override
+    public ChatSession createSession(String title) {
+        ChatSession session = ChatSession.create(title);
+        repository.save(session);
+        log.info("Created new session: {} with id: {}", title, session.getId());
+        return session;
+    }
+
+    /**
+     * Creates a new session with default title.
+     */
+    public ChatSession createSession() {
+        return createSession("New Chat");
+    }
+
+    /**
+     * Retrieves a session by ID.
+     */
+    @Override
+    public Optional<ChatSession> getSession(String sessionId) {
+        return repository.findById(ChatSessionId.of(sessionId));
+    }
+
+    /**
+     * Retrieves message history for a session.
+     */
+    @Override
+    public List<ChatMessage> getSessionHistory(String sessionId) {
+        return repository.findById(ChatSessionId.of(sessionId))
+                .map(ChatSession::getMessages)
+                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+    }
+
+    /**
+     * Retrieves the most recent messages.
+     */
+    public List<ChatMessage> getRecentMessages(String sessionId, int count) {
+        return repository.findById(ChatSessionId.of(sessionId))
+                .map(session -> session.getRecentMessages(count))
+                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+    }
+
+    /**
+     * Deletes a session.
+     */
+    @Override
+    public void deleteSession(String sessionId) {
+        repository.delete(ChatSessionId.of(sessionId));
+        log.info("Deleted session: {}", sessionId);
+    }
+
+    /**
+     * Retrieves all sessions.
+     */
+    @Override
+    public List<ChatSession> getAllSessions() {
+        return repository.findAll();
+    }
+
+    /**
+     * Get the underlying ChatClient for advanced operations like tool calling.
+     */
+    public ChatClient getChatClient() {
+        return chatClient;
+    }
+
+    /**
+     * Clear conversation memory for a specific conversation ID.
+     */
+    public void clearConversationMemory(String conversationId) {
+        chatMemory.clear(conversationId);
+    }
+
+    private String truncateForLog(String text) {
+        if (text == null) return "null";
+        if (text.length() <= 100) return text;
+        return text.substring(0, 100) + "...";
+    }
+}

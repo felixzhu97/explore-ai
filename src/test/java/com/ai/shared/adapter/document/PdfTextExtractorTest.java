@@ -1,6 +1,6 @@
 package com.ai.adapter.out.parser;
 
-import com.ai.modules.rag.infrastructure.parser.PdfTextExtractor;
+import com.ai.rag.infrastructure.parser.PdfTextExtractor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;

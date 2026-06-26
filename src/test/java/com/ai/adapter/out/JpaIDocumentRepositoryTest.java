@@ -1,11 +1,11 @@
 package com.ai.adapter.out;
 
-import com.ai.modules.rag.infrastructure.storage.JpaIDocumentRepository;
-import com.ai.modules.rag.domain.model.Document;
-import com.ai.modules.rag.domain.model.DocumentStatus;
-import com.ai.modules.rag.infrastructure.storage.SpringDataDocumentRepository;
-import com.ai.modules.rag.domain.vo.DocumentId;
-import com.ai.modules.rag.infrastructure.storage.DocumentEntity;
+import com.ai.rag.infrastructure.storage.JpaIDocumentRepository;
+import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.infrastructure.storage.SpringDataDocumentRepository;
+import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.infrastructure.storage.DocumentEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

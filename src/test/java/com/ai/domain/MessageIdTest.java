@@ -1,6 +1,6 @@
 package com.ai.domain;
 
-import com.ai.modules.ai.domain.vo.MessageId;
+import com.ai.ai.domain.vo.MessageId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

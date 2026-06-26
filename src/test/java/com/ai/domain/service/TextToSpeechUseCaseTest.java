@@ -1,6 +1,6 @@
 package com.ai.domain.service;
 
-import com.ai.modules.ai.application.usecase.TextToSpeechUseCase;
+import com.ai.ai.application.usecase.TextToSpeechUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

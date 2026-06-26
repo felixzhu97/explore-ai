@@ -1,9 +1,0 @@
-package com.ai.modules.rag.infrastructure.llm;
-
-import java.util.List;
-
-public interface EmbeddingAdapter {
-    float[] embed(String text);
-    List<float[]> embedBatch(List<String> texts);
-    int getDimensions();
-}
