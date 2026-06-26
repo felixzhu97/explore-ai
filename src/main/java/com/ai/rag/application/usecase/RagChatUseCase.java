@@ -2,14 +2,13 @@ package com.ai.rag.application.usecase;
 
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.ai.application.usecase.ChatUseCase;
-import com.ai.ai.domain.service.LanguageDetectionService;
+import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.chat.domain.service.LanguageDetectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Application layer use case for RAG chat operations.

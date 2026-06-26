@@ -1,11 +1,9 @@
 package com.ai.rag.application.usecase;
 
-import com.ai.rag.application.usecase.RagApplicationService;
-import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.ai.application.usecase.ChatUseCase;
-import com.ai.ai.domain.service.LanguageDetectionService;
+import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.chat.domain.service.LanguageDetectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -1,9 +1,8 @@
 package com.ai.mcp.server;
 
 import com.ai.rag.infrastructure.tools.RagSearchTool;
-import com.ai.ai.infrastructure.tools.WeatherTools;
-import com.ai.ai.application.usecase.ChatUseCase;
-import com.ai.mcp.server.AiMcpServerService;
+import com.ai.tools.infrastructure.tools.WeatherTools;
+import com.ai.chat.application.usecase.ChatUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
