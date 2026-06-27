@@ -1,5 +1,10 @@
 import { inject } from '@angular/core';
-import { HttpRequest, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpRequest,
+  HttpErrorResponse,
+  HttpEvent,
+  HttpInterceptorFn,
+} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { NotificationService } from '@core/services/notification.service';
@@ -12,33 +17,17 @@ export interface AppError {
   details?: unknown;
 }
 
-export type HttpInterceptorFn = (
-  req: HttpRequest<unknown>,
-  next: HttpHandlerFn,
-) => Observable<unknown>;
-
-type HttpHandlerFn = (req: HttpRequest<unknown>) => Observable<unknown>;
-
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
   return next(req).pipe(
-    catchError((error: HttpErrorResponse) => {
-      return handleError(req, error, notificationService);
+    catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
+      const appError = normalizeError(error);
+      logError(req, appError);
+      notifyUser(appError, notificationService);
+      return throwError(() => appError);
     }),
-  );
+  ) as Observable<HttpEvent<unknown>>;
 };
-
-function handleError(
-  req: HttpRequest<unknown>,
-  error: HttpErrorResponse,
-  notificationService: NotificationService,
-): Observable<never> {
-  const appError = normalizeError(error);
-  logError(req, appError);
-  notifyUser(appError, notificationService);
-
-  return throwError(() => appError);
-}
 
 function normalizeError(error: HttpErrorResponse): AppError {
   if (error.error instanceof ErrorEvent) {

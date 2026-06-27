@@ -42,14 +42,20 @@
   --radius-full: var(--radius-full);
 
   /* Shadows */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-card: var(--shadow-card);
-  --shadow-card-hover: var(--shadow-card-hover);
-  --shadow-elevated: var(--shadow-elevated);
-  --shadow-input: var(--shadow-input);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-input: 0 0 0 3px rgba(0, 122, 255, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
   /* Custom Animations */
   --animate-dropdown-fade-in: dropdownFadeIn 0.15s ease;
+  --animate-fade-in: fadeIn 0.3s ease;
+  --animate-fadeIn: fadeIn 0.25s ease;
+  --animate-slide-in: slideIn 0.25s ease;
+  --animate-toast-slide-in: toastSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes dropdownFadeIn {
@@ -61,6 +67,21 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 :root {
@@ -104,6 +125,12 @@
   --font-size-lg: 17px;
   --font-size-xl: 22px;
 
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -113,6 +140,8 @@
   --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
   --shadow-input: 0 0 0 3px rgba(0, 122, 255, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
   --line-height-relaxed: 1.6;
 }

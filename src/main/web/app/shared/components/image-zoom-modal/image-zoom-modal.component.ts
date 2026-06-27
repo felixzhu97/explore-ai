@@ -17,7 +17,10 @@ import {
   template: `
     @if (isOpen()) {
       <div
-        class="overlay"
+        class="
+          fixed inset-0 z-1000 flex animate-fade-in cursor-zoom-out items-center
+          justify-center bg-black/85 p-8 backdrop-blur-md
+        "
         (click)="close()"
         (keydown.escape)="close()"
         tabindex="-1"
@@ -26,17 +29,38 @@ import {
         aria-label="Image zoom viewer"
       >
         <div
-          class="image-container"
+          class="
+            relative max-h-[90vh] max-w-[90vw] animate-slide-in cursor-default
+          "
           (click)="$event.stopPropagation()"
           (keydown.escape)="close()"
           tabindex="0"
           role="button"
         >
-          <img class="image" [src]="src()" [alt]="alt() || 'Zoomed image'" />
+          <img
+            class="
+              max-h-[90vh] max-w-full rounded-lg object-contain
+              shadow-2xl
+            "
+            [src]="src()"
+            [alt]="alt() || 'Zoomed image'"
+          />
           @if (alt()) {
-            <div class="caption">{{ alt() }}</div>
+            <div class="mt-4 text-center text-sm text-text-secondary">{{ alt() }}</div>
           }
-          <button class="close-button" (click)="close()" aria-label="Close" type="button">
+          <button
+            class="
+              absolute -top-4 -right-4 flex size-9 items-center justify-center
+              rounded-full border border-border bg-surface text-text
+              shadow-sm transition-all duration-150
+              hover:scale-110 hover:bg-surface-secondary
+              focus:outline-none
+              focus-visible:ring-2 focus-visible:ring-blue-500/30
+            "
+            (click)="close()"
+            aria-label="Close"
+            type="button"
+          >
             <svg
               width="18"
               height="18"
@@ -55,99 +79,6 @@ import {
       </div>
     }
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        padding: 32px;
-        animation: fadeIn 0.2s ease;
-        cursor: zoom-out;
-      }
-
-      .image-container {
-        position: relative;
-        max-width: 90vw;
-        max-height: 90vh;
-        animation: slideIn 0.25s ease;
-        cursor: default;
-      }
-
-      .image {
-        max-width: 100%;
-        max-height: 90vh;
-        object-fit: contain;
-        border-radius: 8px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      }
-
-      .caption {
-        text-align: center;
-        color: #86868b;
-        font-size: 14px;
-        margin-top: 16px;
-      }
-
-      .close-button {
-        position: absolute;
-        top: -16px;
-        right: -16px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid #d1d1d6;
-        color: #1d1d1f;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.15s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-
-        &:hover {
-          background: #f5f5f7;
-          transform: scale(1.1);
-        }
-
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
-        }
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImageZoomModalComponent implements OnDestroy {

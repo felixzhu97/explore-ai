@@ -8,7 +8,7 @@ export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
   standalone: true,
   template: `
     <div
-      class="block rounded-xl overflow-hidden transition-all duration-200"
+      class="block overflow-hidden rounded-xl transition-all duration-200"
       [class]="getClasses()"
     >
       <ng-content />

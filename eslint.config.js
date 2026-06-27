@@ -4,6 +4,7 @@ import stylistic from '@stylistic/eslint-plugin';
 import angular from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
+import eslintPluginTailwindcss from 'eslint-plugin-tailwindcss';
 
 export default defineConfig([
   {
@@ -20,6 +21,7 @@ export default defineConfig([
       tseslint.configs.recommended,
       tseslint.configs.stylistic,
       angular.configs.tsRecommended,
+      eslintPluginTailwindcss.configs.recommended,
       // https://eslint.style/guide/config-presets
       stylistic.configs.customize({
         braceStyle: '1tbs',
@@ -89,6 +91,7 @@ export default defineConfig([
   },
   {
     files: ['**/*.html'],
+    ignores: ['**/index.html'],
     extends: [
       angular.configs.templateRecommended,
       angular.configs.templateAccessibility,
@@ -124,6 +127,39 @@ export default defineConfig([
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
       '@angular-eslint/template/prefer-static-string-properties': 'error',
       '@angular-eslint/template/prefer-template-literal': 'error',
+    },
+  },
+  // https://www.npmjs.com/package/eslint-plugin-tailwindcss
+  {
+    files: ['**/*.ts', '**/*.html'],
+    ignores: ['**/index.html'],
+    plugins: {
+      tailwindcss: eslintPluginTailwindcss,
+    },
+    settings: {
+      tailwindcss: {
+        cssConfigPath: './src/main/web/styles.css',
+      },
+    },
+    // https://github.com/francoismassart/eslint-plugin-tailwindcss/tree/4edd2dc560e52f99f9268d6380f00942a601cc4d/docs/rules
+    rules: {
+      // https://github.com/francoismassart/eslint-plugin-tailwindcss/blob/HEAD/docs/rules/classnames-order.md
+      'tailwindcss/classnames-order': 'warn',
+      'tailwindcss/enforces-shorthand': "warn",
+      'tailwindcss/enforces-negative-arbitrary-values': "warn",
+      'tailwindcss/no-arbitrary-value': "off",
+      'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
+      'tailwindcss/no-contradicting-classname': 'warn',
+      'tailwindcss/no-custom-classname': [
+        'warn',
+        {
+          whitelist: [
+            'custom-*',
+            'font-inherit',
+            'transition-width',
+          ],
+        },
+      ],
     },
   },
 ]);

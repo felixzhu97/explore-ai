@@ -12,14 +12,25 @@ const toastIconClasses: Record<string, string> = {
   selector: 'app-toast',
   standalone: true,
   template: `
-    <div class="fixed top-[72px] right-4 z-[9999] flex flex-col gap-2 max-w-[400px] pointer-events-none">
+    <div class="
+      pointer-events-none fixed top-16 right-4 z-9999 flex max-w-md
+      flex-col gap-2
+    ">
       @for (toast of notificationService.toasts(); track toast.id) {
         <div
-          class="flex items-center gap-2.5 px-4 py-3 bg-surface rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] animate-[toastSlideIn_0.25s_cubic-bezier(0.4,0,0.2,1)] pointer-events-auto"
+          class="
+            pointer-events-auto flex
+            animate-toast-slide-in items-center
+            gap-2.5 rounded-xl bg-surface px-4 py-3
+            shadow-lg
+          "
           role="alert"
           [attr.aria-live]="toast.type === 'error' ? 'assertive' : 'polite'"
         >
-          <span class="w-5 h-5 text-sm flex items-center justify-center rounded-full shrink-0" [class]="toastIconClasses[toast.type]">
+          <span class="
+            flex size-5 shrink-0 items-center justify-center rounded-full
+            text-sm
+          " [class]="toastIconClasses[toast.type]">
             @switch (toast.type) {
               @case ('success') {
                 ✓
@@ -38,7 +49,12 @@ const toastIconClasses: Record<string, string> = {
           <span class="flex-1 text-sm leading-relaxed text-text">{{ toast.message }}</span>
           <button
             type="button"
-            class="w-5 h-5 text-lg leading-none text-text-secondary bg-transparent border-none cursor-pointer rounded-full flex items-center justify-center transition-colors duration-150 shrink-0 hover:bg-black/6 hover:text-text"
+            class="
+              flex size-5 shrink-0 cursor-pointer items-center justify-center
+              rounded-full border-none bg-transparent text-lg leading-none
+              text-text-secondary transition-colors duration-150
+              hover:bg-black/6 hover:text-text
+            "
             (click)="notificationService.dismiss(toast.id)"
             aria-label="Dismiss"
           >
@@ -48,18 +64,6 @@ const toastIconClasses: Record<string, string> = {
       }
     </div>
   `,
-  styles: [`
-    @keyframes toastSlideIn {
-      from {
-        opacity: 0;
-        transform: translateX(100%);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastComponent {

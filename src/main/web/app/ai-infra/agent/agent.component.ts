@@ -10,7 +10,6 @@ import {
   inject,
   model,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import type { ChatMessageData } from './chat-message/chat-message.component';
@@ -23,271 +22,31 @@ export type { AgentInfo };
   selector: 'app-agent-component',
   imports: [ChatMessageComponent, FormsModule],
   standalone: true,
-  template: `
-    <div class="container">
-      <div class="chat-container" #chatContainer>
-        @if (messages().length === 0) {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path
-                  d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"
-                />
-                <circle cx="8.5" cy="14.5" r="1.5" />
-                <circle cx="15.5" cy="14.5" r="1.5" />
-              </svg>
-            </div>
-            <p>{{ startConversationText() }}</p>
-            @if (quickPrompts().length > 0) {
-              <div class="quick-prompts">
-                @for (prompt of quickPrompts().slice(0, 3); track $index) {
-                  <button
-                    type="button"
-                    class="quick-prompt-btn"
-                    (click)="setInput(prompt)"
-                  >
-                    {{ prompt }}
-                  </button>
-                }
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="messages">
-            @for (msg of messages(); track msg.id) {
-              <app-chat-message [message]="msg" />
-            }
-            @if (isLoading()) {
-              <div class="loading-indicator">
-                <span class="spinner"></span>
-                <span>{{ thinkingText() }}</span>
-              </div>
-            }
-            <div #messagesEnd></div>
-          </div>
-        }
-      </div>
-
-      <div class="input-area">
-        <textarea
-          class="input-textarea"
-          [ngModel]="inputValue()"
-          (ngModelChange)="inputValue.set($event)"
-          [placeholder]="inputPlaceholderText()"
-          [disabled]="isLoading()"
-          (keydown)="onKeyDown($event)"
-          rows="1"
-        ></textarea>
-        <button
-          type="button"
-          class="send-button"
-          [disabled]="isLoading() || !inputValue().trim()"
-          (click)="sendMessage()"
-        >
-          @if (isLoading()) {
-            <span class="spinner"></span>
-          } @else {
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-          }
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .container {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-lg);
-        animation: fadeIn 0.3s ease;
+  templateUrl: './agent.component.html',
+  styles: [`
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
       }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
+    }
 
-      .chat-container {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-md);
-        max-height: 400px;
-        min-height: 200px;
-        overflow-y: auto;
-        padding: var(--spacing-md);
-        background: var(--color-surface);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--color-border);
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
       }
-
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-xxl);
-        color: var(--color-text-secondary);
-        text-align: center;
-        gap: var(--spacing-sm);
+      to {
+        transform: rotate(360deg);
       }
-
-      .empty-icon {
-        font-size: 48px;
-        opacity: 0.5;
-      }
-
-      .quick-prompts {
-        display: flex;
-        gap: var(--spacing-sm);
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-top: var(--spacing-sm);
-      }
-
-      .quick-prompt-btn {
-        padding: 6px 12px;
-        font-size: var(--font-size-sm);
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-full);
-        color: var(--color-primary);
-        cursor: pointer;
-        transition: all var(--transition-fast);
-
-        &:hover {
-          background: var(--color-primary-light);
-        }
-      }
-
-      .messages {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-md);
-      }
-
-      .loading-indicator {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        color: var(--color-text-secondary);
-        font-size: var(--font-size-sm);
-        padding: var(--spacing-sm);
-      }
-
-      .spinner {
-        display: inline-block;
-        width: 18px;
-        height: 18px;
-        border: 2px solid currentColor;
-        border-right-color: transparent;
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .input-area {
-        display: flex;
-        gap: var(--spacing-sm);
-        align-items: flex-end;
-      }
-
-      .input-textarea {
-        flex: 1;
-        padding: var(--spacing-md);
-        font-size: var(--font-size-base);
-        font-family: var(--font-family-body);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-lg);
-        background: var(--color-surface);
-        color: var(--color-text);
-        resize: none;
-        min-height: 48px;
-        max-height: 120px;
-        transition:
-          border-color var(--transition-fast),
-          box-shadow var(--transition-fast);
-
-        &:focus {
-          outline: none;
-          border-color: var(--color-primary);
-          box-shadow: var(--shadow-input);
-        }
-
-        &::placeholder {
-          color: var(--color-text-tertiary);
-        }
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      }
-
-      .send-button {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--color-primary);
-        color: white;
-        border: none;
-        border-radius: var(--radius-lg);
-        cursor: pointer;
-        transition: all var(--transition-default);
-        font-size: 18px;
-
-        &:hover:not(:disabled) {
-          background: var(--color-primary-hover);
-        }
-
-        &:active:not(:disabled) {
-          background: var(--color-primary-active);
-          transform: scale(0.95);
-        }
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      }
-    `,
-  ],
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentComponent {
-  private http = inject(HttpClient);
   private notifications = inject(NotificationService);
 
   readonly agentInfo = input.required<AgentInfo>();

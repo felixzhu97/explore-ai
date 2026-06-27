@@ -9,14 +9,23 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   template: `
     <button
       type="button"
-      class="inline-flex items-center justify-center font-medium leading-none whitespace-nowrap select-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="
+        inline-flex items-center justify-center leading-none font-medium
+        whitespace-nowrap transition-all duration-200 select-none
+        focus-visible:ring-2 focus-visible:ring-primary/50
+        focus-visible:outline-none
+        disabled:cursor-not-allowed disabled:opacity-50
+      "
       [class]="getClasses()"
       [disabled]="disabled() || loading()"
       [attr.aria-busy]="loading() ? true : null"
       (click)="handleClick($event)"
     >
       @if (loading()) {
-        <span class="inline-block w-3.5 h-3.5 border-2 border-current border-r-transparent rounded-full animate-spin" aria-hidden="true"></span>
+        <span class="
+          inline-block size-3.5 animate-spin rounded-full border-2
+          border-current border-r-transparent
+        " aria-hidden="true"></span>
       } @else if (icon()) {
         <span class="inline-flex items-center">
           <ng-content select="[icon]" />

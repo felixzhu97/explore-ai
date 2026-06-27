@@ -1,0 +1,150 @@
+<aside
+  class="
+    fixed top-0 left-0 z-90 h-screen overflow-hidden border-r border-border
+    bg-surface transition-all duration-250 ease-out
+  "
+  [ngClass]="sidebarClasses()"
+>
+  <div class="
+    flex h-13 items-center justify-between border-b border-border-light px-4
+  ">
+    <span class="
+      overflow-hidden text-lg font-semibold whitespace-nowrap text-text
+    ">
+      {{ collapsed() ? 'AI' : 'AI Explore' }}
+    </span>
+    <button
+      type="button"
+      class="
+        hidden size-6 shrink-0 cursor-pointer items-center justify-center
+        rounded-md border-none bg-transparent text-text-secondary transition-all
+        duration-150
+        hover:bg-surface-secondary hover:text-text
+        md:flex
+      "
+      (click)="toggleCollapse()"
+      [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+    >
+      <svg
+        class="size-4 transition-transform duration-250"
+        [class.rotate-180]="collapsed()"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="
+        flex size-6 shrink-0 cursor-pointer items-center justify-center
+        rounded-md border-none bg-transparent text-text-secondary transition-all
+        duration-150
+        hover:bg-surface-secondary hover:text-text
+        md:hidden
+      "
+      (click)="sidebar.close()"
+      aria-label="Close menu"
+    >
+      ✕
+    </button>
+  </div>
+
+  <nav class="flex-1 overflow-x-hidden overflow-y-auto p-2">
+    @for (tab of tabs; track tab.key) {
+      <a
+        class="
+          mb-0.5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm
+          font-medium whitespace-nowrap text-text-secondary no-underline
+          transition-all duration-150
+          hover:bg-surface-secondary hover:text-text
+        "
+        [class.bg-primary-light]="isActiveTab(tab.path)"
+        [class.text-primary]="isActiveTab(tab.path)"
+        [routerLink]="tab.path"
+        [title]="t().nav[tab.labelKey]"
+        (click)="onNavClick()"
+      >
+        <span class="w-6 shrink-0 text-center text-base">{{ getIcon(tab.key) }}</span>
+        @if (!collapsed()) {
+          <span class="overflow-hidden text-ellipsis">
+            {{ t().nav[tab.labelKey] }}
+          </span>
+        }
+      </a>
+    }
+  </nav>
+
+  <div class="border-t border-border-light p-2">
+    <div class="relative" [class.collapsed]="collapsed()">
+      <button
+        type="button"
+        class="
+          flex w-full cursor-pointer items-center gap-2 rounded-lg border-none
+          bg-transparent px-3 py-2 text-xs font-medium text-text-secondary
+          transition-all duration-150
+          hover:bg-surface-secondary hover:text-text
+        "
+        (click)="toggleDropdown()"
+        [attr.aria-expanded]="dropdownOpen()"
+        aria-haspopup="listbox"
+      >
+        <span class="w-6 shrink-0 text-center font-semibold">{{ i18n.language().toUpperCase() }}</span>
+        @if (!collapsed()) {
+          <span class="flex-1 overflow-hidden text-left text-ellipsis">
+            {{ i18n.languageName() }}
+          </span>
+          <span
+            class="
+              size-0 border-x-4 border-t-4 border-x-transparent border-t-current
+              transition-transform duration-200
+            "
+            [class.rotate-180]="dropdownOpen()"
+          ></span>
+        }
+      </button>
+      @if (dropdownOpen() && !collapsed()) {
+        <div class="
+          absolute inset-x-0 bottom-full mb-1 animate-dropdown-fade-in
+          overflow-hidden rounded-lg border border-border bg-surface
+          shadow-elevated
+        ">
+          @for (lang of supportedLanguages; track lang) {
+            <button
+              type="button"
+              class="
+                block w-full cursor-pointer border-none bg-transparent px-3 py-2
+                text-left text-xs text-text-secondary transition-all
+                duration-150
+                hover:bg-surface-secondary hover:text-text
+              "
+              [class.text-primary]="lang === i18n.language()"
+              [class.bg-primary-light]="lang === i18n.language()"
+              (click)="selectLanguage(lang)"
+            >
+              {{ languageNames[lang] }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</aside>
+
+<div
+  class="
+    pointer-events-none fixed inset-0 z-85 bg-black/40 opacity-0
+    transition-opacity duration-250
+  "
+  [class.md:opacity-100]="sidebar.mobileOpen()"
+  [class.md:pointer-events-auto]="sidebar.mobileOpen()"
+  [class.opacity-100]="sidebar.mobileOpen()"
+  [class.pointer-events-auto]="sidebar.mobileOpen()"
+  (click)="sidebar.close()"
+  (keydown.escape)="sidebar.close()"
+  tabindex="-1"
+  role="button"
+  aria-label="Close overlay"
+></div>
