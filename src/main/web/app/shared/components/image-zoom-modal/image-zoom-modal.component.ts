@@ -17,8 +17,10 @@ import {
   template: `
     @if (isOpen()) {
       <div
-        class="fixed inset-0 z-[1000] flex items-center justify-center p-8 bg-black/85 backdrop-blur-md cursor-zoom-out animate-fade-in"
-        style="-webkit-backdrop-filter: blur(8px)"
+        class="
+          fixed inset-0 z-1000 flex animate-fade-in cursor-zoom-out items-center
+          justify-center bg-black/85 p-8 backdrop-blur-md
+        "
         (click)="close()"
         (keydown.escape)="close()"
         tabindex="-1"
@@ -27,22 +29,34 @@ import {
         aria-label="Image zoom viewer"
       >
         <div
-          class="relative max-w-[90vw] max-h-[90vh] cursor-default animate-slide-in"
+          class="
+            relative max-h-[90vh] max-w-[90vw] animate-slide-in cursor-default
+          "
           (click)="$event.stopPropagation()"
           (keydown.escape)="close()"
           tabindex="0"
           role="button"
         >
           <img
-            class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            class="
+              max-h-[90vh] max-w-full rounded-lg object-contain
+              shadow-2xl
+            "
             [src]="src()"
             [alt]="alt() || 'Zoomed image'"
           />
           @if (alt()) {
-            <div class="mt-4 text-sm text-center text-text-secondary">{{ alt() }}</div>
+            <div class="mt-4 text-center text-sm text-text-secondary">{{ alt() }}</div>
           }
           <button
-            class="absolute w-9 h-9 -top-4 -right-4 flex items-center justify-center text-text bg-surface border border-border rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-all duration-150 hover:bg-[#f5f5f7] hover:scale-110 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-500/30"
+            class="
+              absolute -top-4 -right-4 flex size-9 items-center justify-center
+              rounded-full border border-border bg-surface text-text
+              shadow-sm transition-all duration-150
+              hover:scale-110 hover:bg-surface-secondary
+              focus:outline-none
+              focus-visible:ring-2 focus-visible:ring-blue-500/30
+            "
             (click)="close()"
             aria-label="Close"
             type="button"
@@ -65,41 +79,6 @@ import {
       </div>
     }
   `,
-  styles: [
-    `
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      :host {
-        display: block;
-      }
-
-      .animate-fade-in {
-        animation: fadeIn 0.2s ease;
-      }
-
-      .animate-slide-in {
-        animation: slideIn 0.25s ease;
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImageZoomModalComponent implements OnDestroy {

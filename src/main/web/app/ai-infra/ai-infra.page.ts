@@ -22,7 +22,10 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
   standalone: true,
   template: `
     <div class="flex flex-col gap-4">
-      <div class="flex justify-center py-4 overflow-x-auto max-sm:justify-start">
+      <div class="
+        flex justify-center overflow-x-auto py-4
+        max-sm:justify-start
+      ">
         <app-segmented-control
           [options]="subTabOptions()"
           [value]="activeSubTab()"
@@ -30,7 +33,7 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
         />
       </div>
 
-      <div class="tab-section">
+      <div class="animate-fade-in">
         <app-agent-panel [title]="activeConfig().title" [description]="activeConfig().description">
           <app-status-badge slot="headerRight" status="online" />
           <app-agent-component
@@ -42,22 +45,6 @@ type SubTabKey = 'supervisor' | 'k8s' | 'monitoring' | 'model' | 'llmops' | 'aio
       </div>
     </div>
   `,
-  styles: [`
-    .tab-section {
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AiInfraPage {

@@ -12,11 +12,17 @@ export interface SegmentedControlOption<T extends string = string> {
   imports: [],
   standalone: true,
   template: `
-    <div class="inline-flex bg-surface rounded-xl shadow-card p-1 gap-1" role="tablist">
+    <div class="inline-flex gap-1 rounded-xl bg-surface p-1 shadow-card" role="tablist">
       @for (option of options(); track option.value) {
         <button
           type="button"
-          class="relative px-5 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="
+            relative rounded-lg px-5 py-2 text-sm font-medium transition-all
+            duration-200
+            focus-visible:ring-2 focus-visible:ring-primary/50
+            focus-visible:outline-none
+            disabled:cursor-not-allowed disabled:opacity-50
+          "
           [class]="getOptionClasses(option)"
           [attr.role]="'tab'"
           [attr.aria-selected]="value() === option.value"

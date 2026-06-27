@@ -10,8 +10,14 @@ export type { ChatMessageData };
   imports: [ToolResultComponent],
   standalone: true,
   template: `
-    <div class="flex flex-col max-w-[80%] self-start items-start animate-[fadeIn_0.2s_ease]" [class]="isUser() ? 'self-end items-end' : 'self-start items-start'">
-      <div class="px-4 py-3 text-sm leading-relaxed break-words rounded-xl" [class]="isUser() ? 'bg-primary text-white rounded-br-sm' : 'bg-surface border border-[--color-border] text-text rounded-bl-sm'">
+    <div class="
+      flex max-w-[80%] animate-fade-in flex-col items-start
+      self-start
+    " [class]="isUser() ? 'items-end self-end' : 'items-start self-start'">
+      <div class="rounded-xl px-4 py-3 text-sm leading-relaxed wrap-break-word"
+           [class]="isUser()
+           ? 'rounded-br-sm bg-primary text-white'
+           : 'rounded-bl-sm border border-border bg-surface text-text'">
         @if (isUser()) {
           <p class="m-0">{{ message().content }}</p>
         } @else {
@@ -20,15 +26,15 @@ export type { ChatMessageData };
       </div>
 
       @if (message().toolCalls && message().toolCalls!.length > 0) {
-        <div class="mt-2 w-full max-w-[500px]">
+        <div class="mt-2 w-full max-w-2xl">
           @for (toolCall of message().toolCalls; track toolCall.id) {
             <app-tool-result [toolCall]="toolCall" />
           }
         </div>
       }
 
-      <div class="flex items-center gap-2 mt-1 px-1">
-        <span class="text-[11px] text-text-tertiary">{{ formattedTime() }}</span>
+      <div class="mt-1 flex items-center gap-2 px-1">
+        <span class="text-xs text-text-tertiary">{{ formattedTime() }}</span>
       </div>
     </div>
   `,

@@ -1,21 +1,21 @@
-<div class="rag-chat">
+<div class="flex flex-col gap-4">
   <!-- Header -->
-  <div class="header">
-    <h2 class="title">{{ i18n.t().ragChat.title }}</h2>
-    <span class="model-badge">{{ i18n.t().ragChat.modelBadge }}</span>
+  <div class="flex items-center gap-3">
+    <h2 class="text-xl font-semibold text-text">{{ i18n.t().ragChat.title }}</h2>
+    <span class="rounded-full bg-surface-secondary px-2 text-xs font-medium text-text-secondary">{{ i18n.t().ragChat.modelBadge }}</span>
   </div>
 
   <!-- Documents Section -->
-  <div class="documents-section">
-    <div class="section-header">
-      <h3 class="section-title">
+  <div class="rounded-xl border border-border bg-surface p-4">
+    <div class="mb-3 flex items-center justify-between">
+      <h3 class="flex items-center gap-2 text-base font-semibold text-text">
         📄 {{ i18n.t().ragChat.documents }}
         @if (!ragService.isLoadingDocs()) {
-          <span class="document-count">{{ ragService.availableDocs().length }}</span>
+          <span class="text-sm font-normal text-text-secondary">{{ ragService.availableDocs().length }}</span>
         }
       </h3>
       @if (ragService.availableDocs().length > 0 && ragService.selectedDocIds().size > 0) {
-        <span class="selected-badge">
+        <span class="text-xs text-primary">
           {{
             i18n
               .t()
@@ -26,32 +26,33 @@
     </div>
 
     @if (ragService.isLoadingDocs()) {
-      <div class="skeleton-row">
-        <div class="skeleton skeleton-doc"></div>
-        <div class="skeleton skeleton-doc" style="width: 100px"></div>
-        <div class="skeleton skeleton-doc" style="width: 140px"></div>
+      <div class="flex gap-2">
+        <div class="h-5 animate-pulse rounded bg-surface-secondary"></div>
+        <div class="h-5 animate-pulse rounded bg-surface-secondary" style="width: 100px"></div>
+        <div class="h-5 animate-pulse rounded bg-surface-secondary" style="width: 140px"></div>
       </div>
     } @else if (ragService.availableDocs().length > 0) {
-      <div class="documents-list">
+      <div class="mb-3 flex flex-col gap-2">
         @for (doc of ragService.availableDocs(); track $index) {
           <div
-            class="document-card"
-            [class.selected]="ragService.selectedDocIds().has(doc.id)"
-            [class.deleting]="ragService.deletingDocIds().has(doc.id)"
+            class="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 transition-colors"
+            [class.border-primary]="ragService.selectedDocIds().has(doc.id)"
+            [class.bg-primary-light]="ragService.selectedDocIds().has(doc.id)"
+            [class.opacity-50]="ragService.deletingDocIds().has(doc.id)"
             (click)="ragService.toggleDocSelection(doc.id)"
             (keydown)="onDocKeyDown($event, doc.id)"
             tabindex="0"
             role="checkbox"
             [attr.aria-checked]="ragService.selectedDocIds().has(doc.id)"
           >
-            <span class="doc-icon">
+            <span class="text-base">
               {{ ragService.selectedDocIds().has(doc.id) ? '✓' : '📄' }}
             </span>
-            <span class="doc-title">{{ doc.title }}</span>
+            <span class="flex-1 truncate text-sm text-text">{{ doc.title }}</span>
             <button
               type="button"
-              class="delete-button"
-              [class.selected]="ragService.selectedDocIds().has(doc.id)"
+              class="flex size-5 cursor-pointer items-center justify-center rounded text-text-tertiary"
+              [class.text-primary]="ragService.selectedDocIds().has(doc.id)"
               (click)="deleteDocument(doc.id, $event)"
               aria-label="Delete {{ doc.title }}"
             >
@@ -60,23 +61,23 @@
           </div>
         }
       </div>
-      <div class="selection-controls">
-        <button type="button" class="select-button" (click)="ragService.selectAllDocs()">
+      <div class="flex gap-2">
+        <button type="button" class="cursor-pointer rounded border border-primary bg-transparent px-3 py-1 text-xs font-medium text-primary" (click)="ragService.selectAllDocs()">
           {{ i18n.t().ragChat.selectAll }}
         </button>
         @if (ragService.selectedDocIds().size > 0) {
-          <button type="button" class="select-button" (click)="ragService.clearDocSelection()">
+          <button type="button" class="cursor-pointer rounded border border-primary bg-transparent px-3 py-1 text-xs font-medium text-primary" (click)="ragService.clearDocSelection()">
             {{ i18n.t().ragChat.clearSelection }}
           </button>
         }
       </div>
     } @else {
-      <p class="empty-docs">{{ i18n.t().ragChat.noDocuments }}</p>
+      <p class="text-sm text-text-secondary">{{ i18n.t().ragChat.noDocuments }}</p>
     }
   </div>
 
   <!-- File Upload Area -->
-  <div class="file-upload-area">
+  <div class="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4">
     <input
       #fileInput
       type="file"
@@ -84,25 +85,28 @@
       accept=".pdf,.md,.txt,.markdown"
       multiple
       (change)="onFileSelect($event)"
-      class="visually-hidden"
+      class="sr-only"
     />
-    <label for="file-upload" class="file-upload-label">
+    <label for="file-upload" class="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-2 text-sm font-medium text-primary">
       📎 {{ i18n.t().ragChat.uploadDocs }}
     </label>
 
     @if (ragService.pendingFiles().length > 0) {
-      <div class="uploaded-files">
+      <div class="flex flex-wrap gap-2">
         @for (file of ragService.pendingFiles(); track file.name) {
-          <div class="file-tag" [class]="getUploadStatus(file.name)?.status || 'pending'">
+          <div
+            class="relative flex items-center gap-1.5 overflow-hidden rounded bg-surface-secondary px-2 py-1 text-xs"
+            [class.text-primary]="getUploadStatus(file.name)?.status === 'uploading'"
+            [class.text-success]="getUploadStatus(file.name)?.status === 'success'"
+            [class.text-error]="getUploadStatus(file.name)?.status === 'error'"
+          >
             @if (getUploadStatus(file.name)?.status === 'uploading') {
-              <div class="upload-progress">
-                <div class="upload-progress-bar" [style.width.%]="50"></div>
-              </div>
+              <div class="absolute bottom-0 left-0 h-0.5 bg-primary" style="width: 50%"></div>
             }
             {{ file.name }}
             <button
               type="button"
-              class="remove-button"
+              class="flex size-4 cursor-pointer items-center justify-center rounded-full text-text-tertiary"
               (click)="ragService.removePendingFile($index)"
               aria-label="Remove file"
             >×</button>
@@ -112,9 +116,9 @@
     }
 
     @if (ragService.pendingFiles().length > 0) {
-      <button type="button" class="upload-button" (click)="uploadFiles()" [disabled]="ragService.isUploading()">
+      <button type="button" class="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50" (click)="uploadFiles()" [disabled]="ragService.isUploading()">
         @if (ragService.isUploading()) {
-          <span class="spinner"></span> {{ i18n.t().ragChat.uploading }}
+          <span class="inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent"></span> {{ i18n.t().ragChat.uploading }}
         } @else {
           ↑ {{ i18n.t().ragChat.upload }} ({{ ragService.pendingFiles().length }})
         }
@@ -123,38 +127,47 @@
   </div>
 
   <!-- Chat Container -->
-  <div class="chat-container" #chatContainer>
+  <div class="flex min-h-72 flex-1 flex-col gap-3 rounded-xl border border-border bg-surface p-4" #chatContainer>
     @if (ragService.messages().length === 0) {
-      <div class="empty-state">
-        <div class="empty-icon">💬</div>
+      <div class="flex flex-col items-center justify-center gap-3 p-6 text-center text-text-tertiary">
+        <div class="text-3xl opacity-50">💬</div>
         <p>{{ i18n.t().ragChat.askQuestion }}</p>
-        <div class="quick-actions">
-          <button type="button" class="quick-action" (click)="setInput(i18n.t().ragChat.whatIsThis)">
+        <div class="mt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.whatIsThis)">
             {{ i18n.t().ragChat.whatIsThis }}
           </button>
-          <button type="button" class="quick-action" (click)="setInput(i18n.t().ragChat.summarize)">
+          <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.summarize)">
             {{ i18n.t().ragChat.summarize }}
           </button>
-          <button type="button" class="quick-action" (click)="setInput(i18n.t().ragChat.keyInfo)">
+          <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.keyInfo)">
             {{ i18n.t().ragChat.keyInfo }}
           </button>
         </div>
       </div>
     } @else {
       @for (msg of ragService.messages(); track msg.id) {
-        <div class="message-bubble" [class.user]="msg.role === 'user'">
-          <div class="message-content" [class.user]="msg.role === 'user'">
+        <div class="max-w-[75%] animate-fade-in" [class.self-end]="msg.role === 'user'" [class.items-end]="msg.role === 'user'">
+          <div
+            class="rounded-2xl px-4 py-3"
+            [class.bg-primary]="msg.role === 'user'"
+            [class.text-white]="msg.role === 'user'"
+            [class.rounded-br-sm]="msg.role === 'user'"
+            [class.bg-surface-secondary]="msg.role !== 'user'"
+            [class.border]="msg.role !== 'user'"
+            [class.border-border]="msg.role !== 'user'"
+            [class.rounded-bl-sm]="msg.role !== 'user'"
+          >
             @if (msg.role === 'user') {
               {{ msg.content }}
             } @else {
-              <div class="markdown-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+              <div [innerHTML]="renderMarkdown(msg.content)"></div>
             }
           </div>
-          <div class="message-meta">
-            <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+          <div class="mt-1 flex items-center gap-2 px-1">
+            <span class="text-xs text-text-tertiary">{{ formatTime(msg.timestamp) }}</span>
             @if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
               <span
-                class="source-badge"
+                class="flex cursor-pointer items-center gap-1 text-xs text-text-secondary"
                 (click)="ragService.toggleSources(msg.id)"
                 (keydown.enter)="ragService.toggleSources(msg.id)"
                 tabindex="0"
@@ -167,20 +180,17 @@
             }
           </div>
           @if (msg.role === 'assistant' && msg.sources && ragService.expandedSources().has(msg.id)) {
-            <div class="sources-panel">
-              <div class="sources-title">📖 {{ i18n.t().ragChat.sources }}</div>
+            <div class="mt-2 rounded-lg bg-surface-secondary p-3">
+              <div class="mb-2 text-sm font-semibold text-text">📖 {{ i18n.t().ragChat.sources }}</div>
               @for (source of msg.sources.slice(0, 3); track $index) {
-                <div class="source-item">
-                  <div class="source-text">
+                <div class="border-b border-border-light py-2 last:border-0">
+                  <div class="mb-1 text-sm text-text">
                     {{
                       source.text.length > 200 ? `${source.text.slice(0, 200)}...` : source.text
                     }}
                   </div>
-                  <div class="source-meta">
-                    <span
-                      >{{ i18n.t().ragChat.similarity }}:
-                      {{ (source.score * 100).toFixed(1) }}%</span
-                    >
+                  <div class="text-xs text-text-tertiary">
+                    <span>{{ i18n.t().ragChat.similarity }}: {{ (source.score * 100).toFixed(1) }}%</span>
                   </div>
                 </div>
               }
@@ -193,9 +203,9 @@
         ragService.messages()[ragService.messages().length - 1]?.role === 'assistant' &&
         !ragService.messages()[ragService.messages().length - 1]?.content
       ) {
-        <div class="message-bubble">
-          <div class="message-content">
-            <span class="spinner"></span> {{ i18n.t().ragChat.thinking }}
+        <div class="max-w-[75%] animate-fade-in">
+          <div class="rounded-2xl rounded-bl-sm border border-border bg-surface-secondary px-4 py-3">
+            <span class="inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent"></span> {{ i18n.t().ragChat.thinking }}
           </div>
         </div>
       }
@@ -204,9 +214,9 @@
   </div>
 
   <!-- Input Area -->
-  <div class="input-area">
+  <div class="flex items-end gap-2">
     <textarea
-      class="chat-input"
+      class="flex-1 resize-none rounded-xl border border-border bg-surface px-4 py-3 text-base text-text"
       [value]="ragService.input()"
       (input)="ragService.input.set($any($event.target).value)"
       (keydown)="onInputKeyDown($event)"
@@ -216,12 +226,12 @@
     ></textarea>
     <button
       type="button"
-      class="send-button"
+      class="flex cursor-pointer items-center justify-center rounded-xl bg-primary px-4 py-3 text-base text-white disabled:cursor-not-allowed disabled:opacity-50"
       (click)="ragService.sendMessage()"
       [disabled]="ragService.isLoading() || !ragService.input().trim()"
     >
       @if (ragService.isLoading()) {
-        <span class="spinner"></span>
+        <span class="inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent"></span>
       } @else {
         →
       }

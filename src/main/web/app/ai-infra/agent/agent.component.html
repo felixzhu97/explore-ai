@@ -1,7 +1,13 @@
 <div class="flex flex-col gap-6" [style.animation]="'fadeIn 0.3s ease'">
-  <div #chatContainer class="relative flex flex-col gap-4 max-h-[400px] min-h-[200px] overflow-y-auto p-4 bg-surface rounded-xl border border-[--color-border]">
+  <div #chatContainer class="
+    relative flex max-h-96 min-h-48 flex-col gap-4 overflow-y-auto
+    rounded-xl border border-border bg-surface p-4
+  ">
     @if (messages().length === 0) {
-      <div class="flex flex-col items-center justify-center py-12 px-6 text-text-secondary text-center gap-2">
+      <div class="
+        flex flex-col items-center justify-center gap-2 px-6 py-12 text-center
+        text-text-secondary
+      ">
         <div class="opacity-50">
           <svg
             width="48"
@@ -20,11 +26,16 @@
         </div>
         <p>{{ startConversationText() }}</p>
         @if (quickPrompts().length > 0) {
-          <div class="flex flex-wrap gap-2 justify-center mt-2">
+          <div class="mt-2 flex flex-wrap justify-center gap-2">
             @for (prompt of quickPrompts().slice(0, 3); track $index) {
               <button
                 type="button"
-                class="px-3 py-1 text-xs bg-surface border border-[--color-border] rounded-full text-primary cursor-pointer transition-all duration-150 hover:bg-primary-light"
+                class="
+                  cursor-pointer rounded-full border border-border
+                  bg-surface px-3 py-1 text-xs text-primary transition-all
+                  duration-150
+                  hover:bg-primary-light
+                "
                 (click)="setInput(prompt)"
               >
                 {{ prompt }}
@@ -39,9 +50,12 @@
           <app-chat-message [message]="msg" />
         }
         @if (isLoading()) {
-          <div class="text-text-secondary text-xs p-2 flex items-center gap-2">
+          <div class="flex items-center gap-2 p-2 text-xs text-text-secondary">
             <span
-              class="inline-block w-4 h-4 border-2 border-current border-r-transparent rounded-full"
+              class="
+                inline-block size-4 rounded-full border-2 border-current
+                border-r-transparent
+              "
               [style.animation]="'spin 0.6s linear infinite'"
             ></span>
             <span>{{ thinkingText() }}</span>
@@ -52,9 +66,16 @@
     }
   </div>
 
-  <div class="flex gap-2 items-end">
+  <div class="flex items-end gap-2">
     <textarea
-      class="flex-1 p-4 text-sm font-sans border border-[--color-border] rounded-xl bg-surface text-text resize-none min-h-12 max-h-[120px] transition-all duration-150 focus:outline-none focus:border-primary focus:shadow-[--shadow-input] placeholder:text-text-tertiary disabled:opacity-50 disabled:cursor-not-allowed"
+      class="
+        max-h-72 min-h-12 flex-1 resize-none rounded-xl border
+        border-border bg-surface p-4 font-sans text-sm text-text
+        transition-all duration-150
+        placeholder:text-text-tertiary
+        focus:border-primary focus:shadow-input focus:outline-none
+        disabled:cursor-not-allowed disabled:opacity-50
+      "
       [ngModel]="inputValue()"
       (ngModelChange)="inputValue.set($event)"
       [placeholder]="inputPlaceholderText()"
@@ -64,13 +85,22 @@
     ></textarea>
     <button
       type="button"
-      class="w-12 h-12 flex items-center justify-center bg-primary text-white border-none rounded-xl cursor-pointer transition-all duration-200 text-lg hover:bg-primary-hover active:bg-primary-active active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="
+        flex size-12 cursor-pointer items-center justify-center rounded-xl
+        border-none bg-primary text-lg text-white transition-all duration-200
+        hover:bg-primary-hover
+        active:scale-95 active:bg-primary-active
+        disabled:cursor-not-allowed disabled:opacity-50
+      "
       [disabled]="isLoading() || !inputValue().trim()"
       (click)="sendMessage()"
     >
       @if (isLoading()) {
         <span
-          class="inline-block w-4 h-4 border-2 border-current border-r-transparent rounded-full"
+          class="
+            inline-block size-4 rounded-full border-2 border-current
+            border-r-transparent
+          "
           [style.animation]="'spin 0.6s linear infinite'"
         ></span>
       } @else {
@@ -81,7 +111,10 @@
           fill="none"
           stroke="currentColor"
           stroke-width="2"
-          class="[&_line]:no-underline [&_polygon]:no-underline"
+          class="
+            [&_line]:no-underline
+            [&_polygon]:no-underline
+          "
         >
           <line x1="22" y1="2" x2="11" y2="13" />
           <polygon points="22 2 15 22 11 13 2 9 22 2" />

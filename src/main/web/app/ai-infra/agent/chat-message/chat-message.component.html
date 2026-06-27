@@ -1,21 +1,35 @@
-<div class="message-bubble" [class.message-bubble--user]="isUser()">
-  <div class="message-content" [class.message-content--user]="isUser()">
+<div
+  class="flex max-w-[80%] animate-fade-in flex-col items-start self-start"
+  [class.items-end]="isUser()"
+  [class.self-end]="isUser()"
+>
+  <div
+    class="rounded-xl px-4 py-3 leading-relaxed wrap-break-word"
+    [class.bg-primary]="isUser()"
+    [class.text-white]="isUser()"
+    [class.rounded-br-sm]="isUser()"
+    [class.rounded-bl-sm]="!isUser()"
+    [class.border]="!isUser()"
+    [class.border-border]="!isUser()"
+    [class.bg-surface]="!isUser()"
+    [class.text-text]="!isUser()"
+  >
     @if (isUser()) {
-      <p>{{ message().content }}</p>
+      <p class="m-0">{{ message().content }}</p>
     } @else {
       <div [innerHTML]="renderedContent()"></div>
     }
   </div>
 
   @if (message().toolCalls && message().toolCalls!.length > 0) {
-    <div class="tool-calls">
+    <div class="mt-2 w-full max-w-[500px]">
       @for (toolCall of message().toolCalls; track toolCall.id) {
         <app-tool-result [toolCall]="toolCall" />
       }
     </div>
   }
 
-  <div class="message-meta">
-    <span class="message-time">{{ formattedTime() }}</span>
+  <div class="mt-1 flex items-center gap-2 px-1">
+    <span class="text-xs text-text-tertiary">{{ formattedTime() }}</span>
   </div>
 </div>

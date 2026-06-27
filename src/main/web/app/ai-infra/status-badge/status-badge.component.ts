@@ -22,10 +22,13 @@ const statusClasses: Record<BadgeStatus, string> = {
   selector: 'app-status-badge',
   standalone: true,
   template: `
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-full whitespace-nowrap"
+    <span class="
+      inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs
+      font-medium whitespace-nowrap
+    "
       [class]="statusClasses[status()]">
       @if (showDot()) {
-        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+        <span class="size-1.5 rounded-full bg-current"></span>
       }
       {{ label() || statusLabels[status()] }}
     </span>

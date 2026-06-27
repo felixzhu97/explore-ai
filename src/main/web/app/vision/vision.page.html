@@ -1,6 +1,6 @@
-<div class="vision-panel">
+<div class="flex flex-col gap-6">
   <!-- Tab Navigation -->
-  <div class="tab-header">
+  <div class="flex justify-center py-4">
     <app-segmented-control
       [options]="taskOptions()"
       [value]="activeTask()"
@@ -9,12 +9,12 @@
   </div>
 
   <!-- Main Content -->
-  <div class="main-area">
+  <div class="grid min-h-96 grid-cols-1 gap-6 md:grid-cols-2">
     <!-- Image Upload Panel -->
-    <div class="panel">
-      <h3 class="panel-label">{{ i18n.t().imageUploader.imageLabel }}</h3>
+    <div class="flex flex-col gap-4 rounded-xl border border-border bg-surface p-6">
+      <h3 class="mb-0 text-sm font-medium tracking-wide text-text-secondary uppercase">{{ i18n.t().imageUploader.imageLabel }}</h3>
       <div
-        class="image-area"
+        class="group relative flex min-h-64 cursor-pointer flex-col items-center justify-center gap-3 overflow-hidden rounded-xl border-2 border-dashed border-border bg-surface-secondary"
         (click)="onImageAreaClick()"
         (keydown.enter)="onImageAreaClick()"
         (drop)="onDrop($event)"
@@ -25,7 +25,7 @@
       >
         @if (currentState().image) {
           <img
-            class="preview-image"
+            class="max-h-96 max-w-full cursor-zoom-in rounded-xl object-contain"
             [src]="currentState().image"
             alt="Preview"
             (click)="zoomImage(currentState().image!); $event.stopPropagation()"
@@ -34,21 +34,21 @@
             role="button"
             aria-label="Zoom image"
           />
-          <div class="zoom-hint">Click to enlarge</div>
+          <div class="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded bg-black/60 px-3 py-1 text-xs text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">Click to enlarge</div>
           <button
             type="button"
-            class="clear-button"
+            class="absolute top-2 right-2 z-10 flex size-6 cursor-pointer items-center justify-center rounded-full bg-white/90 text-sm text-text opacity-0 transition-opacity group-hover:opacity-100"
             (click)="clearImage($event)"
             aria-label="Clear image"
           >×</button>
           @if (isLoading()) {
-            <div class="loading-overlay">
-              <div class="spinner"></div>
+            <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 rounded-xl bg-white/90 backdrop-blur-sm">
+              <div class="inline-block size-8 animate-spin rounded-full border-[3px] border-border border-t-primary"></div>
             </div>
           }
         } @else {
-          <div class="drop-zone">
-            <div class="drop-icon">
+          <div class="flex flex-col items-center justify-center gap-2 p-12">
+            <div class="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <svg
                 width="32"
                 height="32"
@@ -62,54 +62,54 @@
                 <polyline points="21 15 16 10 5 21" />
               </svg>
             </div>
-            <p class="drop-text">{{ i18n.t().imageUploader.dropText }}</p>
-            <p class="drop-hint">{{ i18n.t().imageUploader.dropHint }}</p>
+            <p class="m-0 text-base font-medium text-text">{{ i18n.t().imageUploader.dropText }}</p>
+            <p class="m-0 text-sm text-text-tertiary">{{ i18n.t().imageUploader.dropHint }}</p>
           </div>
         }
       </div>
     </div>
 
     <!-- Result Panel -->
-    <div class="panel">
-      <h3 class="panel-label">{{ i18n.t().imageUploader.resultLabel }}</h3>
-      <div class="result-content">
+    <div class="flex flex-col gap-4 rounded-xl border border-border bg-surface p-6">
+      <h3 class="mb-0 text-sm font-medium tracking-wide text-text-secondary uppercase">{{ i18n.t().imageUploader.resultLabel }}</h3>
+      <div class="flex flex-1 flex-col">
         @if (currentState().result) {
           @if (activeTask() === 'caption') {
-            <p class="result-text">"{{ currentState().result!.caption }}"</p>
+            <p class="text-lg text-text italic">"{{ currentState().result!.caption }}"</p>
           }
           @if (activeTask() === 'detect') {
-            <div class="detection-list">
+            <div class="flex flex-col gap-2">
               @for (det of currentState().result!.detections; track det.class_name) {
-                <div class="detection-item">
-                  <span class="detection-name">{{ det.class_name }}</span>
-                  <span class="confidence">{{ (det.confidence * 100).toFixed(0) }}%</span>
+                <div class="flex items-center justify-between rounded-lg bg-surface-secondary p-3">
+                  <span class="font-medium text-text">{{ det.class_name }}</span>
+                  <span class="text-sm text-text-secondary">{{ (det.confidence * 100).toFixed(0) }}%</span>
                 </div>
               }
             </div>
           }
           @if (activeTask() === 'ocr') {
-            <pre class="ocr-text">{{ currentState().result!.full_text }}</pre>
+            <pre class="m-0 flex-1 overflow-x-auto rounded-lg bg-surface-secondary p-3 font-mono text-sm break-all whitespace-pre-wrap text-text">{{ currentState().result!.full_text }}</pre>
           }
         } @else {
-          <div class="empty-state">
+          <div class="flex flex-1 items-center justify-center text-sm text-text-tertiary">
             {{ i18n.t().imageUploader.noImageYet }}
           </div>
         }
       </div>
 
       @if (currentState().error) {
-        <div class="error-message">{{ currentState().error }}</div>
+        <div class="rounded-lg bg-error/10 p-3 text-sm text-error">{{ currentState().error }}</div>
       }
 
-      <div class="action-area">
+      <div class="mt-4 border-t border-border pt-4">
         <button
           type="button"
-          class="action-button primary"
+          class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-none bg-primary px-6 py-3 text-base font-medium text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
           (click)="submit()"
           [disabled]="!currentState().file || isLoading()"
         >
           @if (isLoading()) {
-            <span class="btn-spinner"></span>
+            <span class="inline-block size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
             {{ i18n.t().imageUploader.analyzing }}
           } @else {
             {{ i18n.t().imageUploader.startAnalyze }}
@@ -122,21 +122,21 @@
   <!-- Zoom Modal -->
   @if (zoomedImage()) {
     <div
-      class="zoom-modal"
+      class="fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-black/90"
       (click)="closeZoom()"
       (keydown.escape)="closeZoom()"
       tabindex="-1"
       role="dialog"
       aria-modal="true"
     >
-      <div class="zoom-content">
+      <div class="relative max-h-[90vh] max-w-[90vw]">
         <button
           type="button"
-          class="zoom-close"
+          class="absolute -top-10 right-0 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/20 text-2xl text-white hover:bg-white/30"
           (click)="closeZoom()"
           aria-label="Close"
         >×</button>
-        <img [src]="zoomedImage()" alt="Zoomed" />
+        <img [src]="zoomedImage()" alt="Zoomed" class="max-h-[90vh] max-w-full object-contain" />
       </div>
     </div>
   }

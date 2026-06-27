@@ -6,11 +6,13 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   template: `
     <div class="flex flex-col gap-4">
       @if (!hideHeader()) {
-        <div class="flex items-center justify-between p-4 bg-surface border rounded-xl">
+        <div class="
+          flex items-center justify-between rounded-xl border bg-surface p-4
+        ">
           <div class="flex flex-col">
-            <h3 class="text-lg font-semibold text-text m-0">{{ title() }}</h3>
+            <h3 class="m-0 text-lg font-semibold text-text">{{ title() }}</h3>
             @if (description()) {
-              <p class="text-xs text-[--color-text-secondary] m-0 mt-1">{{ description() }}</p>
+              <p class="m-0 mt-1 text-xs text-text-secondary">{{ description() }}</p>
             }
           </div>
           <div class="flex items-center">
@@ -18,7 +20,7 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
           </div>
         </div>
       }
-      <div class="bg-surface border rounded-xl p-6">
+      <div class="rounded-xl border bg-surface p-6">
         <ng-content />
       </div>
     </div>
