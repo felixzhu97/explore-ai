@@ -39,7 +39,7 @@ export class MarkdownService {
   processContent(content: string): SafeHtml {
     const processed = this.escapeHtml(content);
 
-    let html = processed
+    const html = processed
       .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
         return `<pre class="code-block"><code>${code.trim()}</code></pre>`;
       })
@@ -71,17 +71,17 @@ export class MarkdownService {
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
-      "'": '&#039;',
+      '\'': '&#039;',
     };
-    return text.replace(/[&<>"']/g, (m) => map[m]);
+    return text.replace(/[&<>"']/g, m => map[m]);
   }
 
   isRawJson(content: string): boolean {
     const trimmed = content.trim();
     return (
-      (trimmed.startsWith('[') || trimmed.startsWith('{')) &&
-      !trimmed.startsWith('```') &&
-      !trimmed.startsWith('#')
+      (trimmed.startsWith('[') || trimmed.startsWith('{'))
+      && !trimmed.startsWith('```')
+      && !trimmed.startsWith('#')
     );
   }
 }

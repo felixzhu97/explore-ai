@@ -11,15 +11,15 @@ export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
       class="block rounded-xl overflow-hidden transition-all duration-200"
       [class]="getClasses()"
     >
-      <ng-content></ng-content>
+      <ng-content />
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardComponent {
-  variant = input<CardVariant>('default');
-  padding = input<CardPadding>('md');
-  hoverable = input<boolean>(false);
+  readonly variant = input<CardVariant>('default');
+  readonly padding = input<CardPadding>('md');
+  readonly hoverable = input<boolean>(false);
 
   getClasses(): string {
     const classes: string[] = [];

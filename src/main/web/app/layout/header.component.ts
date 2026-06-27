@@ -4,7 +4,6 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
 @Component({
   selector: 'app-header',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="flex md:hidden items-center justify-between h-[52px] px-4 bg-white border-b border-black/8 sticky top-0 z-80">
       <button class="flex flex-col gap-[5px] p-2 bg-transparent border-none cursor-pointer" (click)="openSidebar.emit()" aria-label="Open menu">
@@ -47,6 +46,7 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
       }
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
   @Output() openSidebar = new EventEmitter<void>();

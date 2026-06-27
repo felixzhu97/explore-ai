@@ -345,17 +345,17 @@ flowchart TB
         subgraph PAGES["📄 Page Components"]
             direction LR
             
-            AI_INFRA["AIInfraPanelComponent\n路由 /ai-infra"]
+            AI_INFRA["AiInfraPage\n路由 /ai-infra"]
             RAG_CHAT["RagChatComponent\n路由 /rag"]
             VISION["VisionPanelComponent\n路由 /vision"]
-            AI_HUB["AiHubComponent\n路由 /aihubs"]
+            AI_HUB["AiHubPage\n路由 /ai-hubs"]
             
             subgraph AI_INFRA_TABS["AIInfraPanel Sub-Tabs"]
                 MCP_TAB["mcp-tools-tab"]
                 FC_TAB["fc-playground-tab"]
             end
             
-            subgraph AI_HUB_TABS["AiHubComponent Sub-Tabs"]
+            subgraph AI_HUB_TABS["AiHubPage Sub-Tabs"]
                 CHAT_TAB["chat-tab"]
                 TTS_TAB["tts-tab"]
                 IMG_TAB["image-gen-tab"]
@@ -396,7 +396,7 @@ flowchart TB
     APP_ROUTES -->|"路由 /ai-infra"| AI_INFRA
     APP_ROUTES -->|"路由 /rag"| RAG_CHAT
     APP_ROUTES -->|"路由 /vision"| VISION
-    APP_ROUTES -->|"路由 /aihubs"| AI_HUB
+    APP_ROUTES -->|"路由 /ai-hubs"| AI_HUB
     APP_ROOT --> APP_ROUTES
 
     %% Page -> Sub Tabs

@@ -11,7 +11,6 @@ const toastIconClasses: Record<string, string> = {
 @Component({
   selector: 'app-toast',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="fixed top-[72px] right-4 z-[9999] flex flex-col gap-2 max-w-[400px] pointer-events-none">
       @for (toast of notificationService.toasts(); track toast.id) {
@@ -60,6 +59,7 @@ const toastIconClasses: Record<string, string> = {
       }
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastComponent {
   protected notificationService = inject(NotificationService);

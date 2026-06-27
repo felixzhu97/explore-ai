@@ -18,23 +18,23 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
         <span class="inline-block w-3.5 h-3.5 border-2 border-current border-r-transparent rounded-full animate-spin" aria-hidden="true"></span>
       } @else if (icon()) {
         <span class="inline-flex items-center">
-          <ng-content select="[icon]"></ng-content>
+          <ng-content select="[icon]" />
         </span>
-        <ng-content></ng-content>
+        <ng-content />
       } @else {
-        <ng-content></ng-content>
+        <ng-content />
       }
     </button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonComponent {
-  variant = input<ButtonVariant>('primary');
-  size = input<ButtonSize>('md');
-  loading = input<boolean>(false);
-  fullWidth = input<boolean>(false);
-  disabled = input<boolean>(false);
-  icon = input<boolean>(false);
+  readonly variant = input<ButtonVariant>('primary');
+  readonly size = input<ButtonSize>('md');
+  readonly loading = input<boolean>(false);
+  readonly fullWidth = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  readonly icon = input<boolean>(false);
 
   clicked = output<MouseEvent>();
 

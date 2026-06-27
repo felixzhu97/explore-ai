@@ -6,9 +6,8 @@ import { HeaderComponent } from './header.component';
 
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
   imports: [RouterOutlet, ToastComponent, SidebarComponent, HeaderComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   template: `
     <div class="min-h-screen bg-[#f5f5f7]">
       <app-toast />
@@ -19,6 +18,7 @@ import { HeaderComponent } from './header.component';
       </main>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {
   openSidebar() {}

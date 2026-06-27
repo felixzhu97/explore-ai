@@ -30,8 +30,8 @@ export interface SegmentedControlOption<T extends string = string> {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SegmentedControlComponent<T extends string = string> {
-  options = input.required<SegmentedControlOption<T>[]>();
-  value = input.required<T>();
+  readonly options = input.required<SegmentedControlOption<T>[]>();
+  readonly value = input.required<T>();
 
   changed = output<T>();
 

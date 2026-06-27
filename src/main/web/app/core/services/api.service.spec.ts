@@ -72,7 +72,7 @@ describe('ApiService', () => {
         expect(models[0].name).toBe('gpt-4o');
       });
 
-      const req = httpMock.expectOne((req) => req.url.includes('/api/text/models'));
+      const req = httpMock.expectOne(req => req.url.includes('/api/text/models'));
       req.flush(mockResponse);
     });
 
@@ -82,25 +82,25 @@ describe('ApiService', () => {
         expect(models[0].provider).toBe('openai');
       });
 
-      const req = httpMock.expectOne((req) => req.url.includes('/api/text/models'));
+      const req = httpMock.expectOne(req => req.url.includes('/api/text/models'));
       req.error(new ProgressEvent('error'));
     });
 
     it('should use anthropic defaults for anthropic provider', () => {
       service.getModels('anthropic').subscribe((models) => {
-        expect(models.some((m) => m.name.includes('claude'))).toBe(true);
+        expect(models.some(m => m.name.includes('claude'))).toBe(true);
       });
 
-      const req = httpMock.expectOne((req) => req.url.includes('/api/text/models'));
+      const req = httpMock.expectOne(req => req.url.includes('/api/text/models'));
       req.error(new ProgressEvent('error'));
     });
 
     it('should use openai defaults for unknown provider', () => {
       service.getModels('unknown').subscribe((models) => {
-        expect(models.some((m) => m.name.includes('gpt'))).toBe(true);
+        expect(models.some(m => m.name.includes('gpt'))).toBe(true);
       });
 
-      const req = httpMock.expectOne((req) => req.url.includes('/api/text/models'));
+      const req = httpMock.expectOne(req => req.url.includes('/api/text/models'));
       req.error(new ProgressEvent('error'));
     });
   });
@@ -111,7 +111,7 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
       expect(result).toHaveProperty('abort');
@@ -132,17 +132,17 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalledWith(
         '/api/text/chat/stream',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-        })
+        }),
       );
     });
 
@@ -158,10 +158,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -181,10 +181,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         onDone,
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('should call onError on stream error event', async () => {
@@ -203,10 +203,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('should call onChunk with parsed token from meta event', async () => {
@@ -225,10 +225,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         onChunk,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('should handle abort on the returned controller', async () => {
@@ -255,7 +255,7 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
       // result.abort() should be callable
@@ -272,10 +272,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).not.toHaveBeenCalled();
     });
   });
@@ -306,15 +306,15 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         onChunk,
         onDone,
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('event: meta\ndata: {"token":"Hello"}\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Hello');
     });
@@ -342,12 +342,12 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         onDone,
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onDone).toHaveBeenCalled();
     });
@@ -375,15 +375,15 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         onDone,
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('event: done\ndata: \n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onDone).toHaveBeenCalled();
     });
@@ -411,15 +411,15 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('event: error\ndata: {"error":"Something went wrong"}\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
       expect(onError.mock.calls[0][0].message).toBe('Something went wrong');
@@ -448,15 +448,15 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('event: error\ndata: Invalid error format\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
       expect(onError.mock.calls[0][0].message).toBe('Stream error');
@@ -485,15 +485,15 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         onChunk,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('data: {"token":"chunk1"}\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('chunk1');
     });
@@ -519,19 +519,19 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Send non-JSON data
       readResolve({
         done: false,
         value: encoder.encode('data: plain text data\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Continue reading
       readResolve({ done: true, value: new Uint8Array() });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
     });
 
     it('should reset currentEvent on empty line', async () => {
@@ -557,16 +557,16 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         onChunk,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Send event followed by empty line, then data without event
       readResolve({
         done: false,
         value: encoder.encode('event: meta\n\ndata: {"token":"after reset"}\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('after reset');
     });
@@ -594,17 +594,17 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         onChunk,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('data: {"no_token_field":true}\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: true, value: new Uint8Array() });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).not.toHaveBeenCalled();
     });
@@ -621,10 +621,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -651,14 +651,14 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         onDone,
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: true, value: new Uint8Array() });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(mockReader.read).toHaveBeenCalled();
     });
@@ -686,20 +686,20 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         onChunk,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Send partial line, then complete it
       readResolve({
         done: false,
         value: encoder.encode('data: {"token":"par'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('tial"}\n') });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: true, value: new Uint8Array() });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('partial');
     });
@@ -733,15 +733,15 @@ describe('ApiService', () => {
         onChunk,
         onSources,
         onDone,
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('data: Some chunk text\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Some chunk text');
     });
@@ -767,9 +767,9 @@ describe('ApiService', () => {
 
       service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onDone).toHaveBeenCalled();
     });
@@ -798,17 +798,17 @@ describe('ApiService', () => {
         vi.fn(),
         onSources,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode(
-          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n'
+          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n',
         ),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onSources).toHaveBeenCalledWith([{ text: 'source 1', score: 0.9, metadata: {} }]);
     });
@@ -837,15 +837,15 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('data: Error:Database connection failed\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
       expect(onError.mock.calls[0][0].message).toBe('Database connection failed');
@@ -875,15 +875,15 @@ describe('ApiService', () => {
         onChunk,
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Line 1\nLine 2\nLine 3');
     });
@@ -912,16 +912,16 @@ describe('ApiService', () => {
         onChunk,
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Send sources event followed by empty line, then chunk without event
       readResolve({
         done: false,
         value: encoder.encode('event: sources\n\ndata: chunk after reset\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('chunk after reset');
     });
@@ -950,15 +950,15 @@ describe('ApiService', () => {
         onChunk,
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
         value: encoder.encode('event: sources\ndata: []\ndata: chunk after sources\n'),
       });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('chunk after sources');
     });
@@ -976,10 +976,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -996,10 +996,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -1013,10 +1013,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
   });
@@ -1230,7 +1230,7 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
       expect(result).toHaveProperty('abort');
@@ -1252,16 +1252,16 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalledWith(
         '/api/rag/chat/stream',
         expect.objectContaining({
           method: 'POST',
-        })
+        }),
       );
     });
 
@@ -1278,10 +1278,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -1299,7 +1299,7 @@ describe('ApiService', () => {
 
       service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('should call onSources on sources event', async () => {
@@ -1319,10 +1319,10 @@ describe('ApiService', () => {
         vi.fn(),
         onSources,
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('should call onChunk with chunk data', async () => {
@@ -1342,10 +1342,10 @@ describe('ApiService', () => {
         onChunk,
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('should call onError on non-ok response', async () => {
@@ -1361,10 +1361,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -1378,10 +1378,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
   });
@@ -1525,14 +1525,14 @@ describe('ApiService', () => {
         },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalledWith(
         '/api/text/chat/stream',
-        expect.objectContaining({ method: 'POST' })
+        expect.objectContaining({ method: 'POST' }),
       );
 
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -1558,10 +1558,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -1578,10 +1578,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'test' }] },
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -1597,7 +1597,7 @@ describe('ApiService', () => {
 
       service.chatStream({ messages: [] }, vi.fn(), vi.fn(), vi.fn());
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalled();
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -1619,10 +1619,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: 'Hello! 你好! 🎉 <script>' }] },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalled();
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -1645,10 +1645,10 @@ describe('ApiService', () => {
         { messages: [{ role: 'user', content: longContent }] },
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalled();
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -1679,14 +1679,14 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalledWith(
         '/api/rag/chat/stream',
-        expect.objectContaining({ method: 'POST' })
+        expect.objectContaining({ method: 'POST' }),
       );
 
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -1710,7 +1710,7 @@ describe('ApiService', () => {
 
       service.ragChat({ query: '', session_id: 'session123' }, vi.fn(), vi.fn(), vi.fn(), vi.fn());
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalled();
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
@@ -1732,10 +1732,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        onError
+        onError,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(onError).toHaveBeenCalled();
     });
 
@@ -1754,10 +1754,10 @@ describe('ApiService', () => {
         vi.fn(),
         vi.fn(),
         vi.fn(),
-        vi.fn()
+        vi.fn(),
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(fetchSpy).toHaveBeenCalled();
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;

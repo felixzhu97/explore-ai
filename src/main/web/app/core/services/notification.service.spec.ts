@@ -119,7 +119,7 @@ describe('NotificationService', () => {
       service.showWarning('Toast 3');
 
       const toasts = service.toasts();
-      const ids = toasts.map((t) => t.id);
+      const ids = toasts.map(t => t.id);
 
       expect(new Set(ids).size).toBe(ids.length);
     });

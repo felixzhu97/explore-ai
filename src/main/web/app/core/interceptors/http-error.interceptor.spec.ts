@@ -464,7 +464,7 @@ describe('httpErrorInterceptor', () => {
           error: () => {
             try {
               expect(notificationService.toasts().length).toBeGreaterThan(0);
-              const errorToast = notificationService.toasts().find((t) => t.type === 'error');
+              const errorToast = notificationService.toasts().find(t => t.type === 'error');
               expect(errorToast).toBeDefined();
               expect(errorToast?.message).toBe('A server error occurred. Please try again later.');
               resolve();

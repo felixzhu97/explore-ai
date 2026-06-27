@@ -85,7 +85,7 @@ describe('theme', () => {
     });
 
     it('should have consistent px increments', () => {
-      const values = Object.values(spacing).map((s) => parseInt(s.replace('px', '')));
+      const values = Object.values(spacing).map(s => parseInt(s.replace('px', '')));
       expect(values).toEqual([4, 8, 16, 24, 32, 48]);
     });
   });

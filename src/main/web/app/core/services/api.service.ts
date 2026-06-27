@@ -99,8 +99,8 @@ export class ApiService {
         params: { provider },
       })
       .pipe(
-        map((res) => res.models ?? []),
-        catchError(() => of(defaultModels[provider] ?? defaultModels['openai'] ?? []))
+        map(res => res.models ?? []),
+        catchError(() => of(defaultModels[provider] ?? defaultModels['openai'] ?? [])),
       );
   }
 
@@ -108,7 +108,7 @@ export class ApiService {
     request: ChatRequest,
     onChunk: (token: string) => void,
     onDone: () => void,
-    onError: (err: Error) => void
+    onError: (err: Error) => void,
   ): { abort: () => void } {
     const controller = new AbortController();
     let currentEvent = '';
@@ -237,7 +237,7 @@ export class ApiService {
     onChunk: (text: string) => void,
     onSources: (sources: SourceDocument[]) => void,
     onDone: () => void,
-    onError: (err: Error) => void
+    onError: (err: Error) => void,
   ): { abort: () => void } {
     const controller = new AbortController();
     let currentEvent = '';
@@ -345,7 +345,7 @@ export class ApiService {
   generateImage(params: ImageGenerateParams): Observable<{ images: string[]; seed?: number }> {
     return this.http.post<{ images: string[]; seed?: number }>(
       `${BASE_URL}/image/generate`,
-      params
+      params,
     );
   }
 
@@ -356,7 +356,7 @@ export class ApiService {
     formData.append('file', file);
     return this.http.post<{ caption: string; processing_time_ms?: number }>(
       `${BASE_URL}/vision/caption`,
-      formData
+      formData,
     );
   }
 
@@ -371,7 +371,7 @@ export class ApiService {
     formData.append('file', file);
     return this.http.post<{ full_text: string; processing_time_ms?: number }>(
       `${BASE_URL}/vision/ocr`,
-      formData
+      formData,
     );
   }
 
@@ -402,13 +402,13 @@ export class ApiService {
     URL.revokeObjectURL(url);
   }
 
-  downloadBase64Image(base64: string, filename: string = 'image.png'): void {
+  downloadBase64Image(base64: string, filename = 'image.png'): void {
     const mimeType = base64.startsWith('/9j/') ? 'image/jpeg' : 'image/png';
     const blob = this.base64ToBlob(base64, mimeType);
     this.downloadBlob(blob, filename);
   }
 
-  base64ToBlob(base64: string, mimeType: string = 'image/png'): Blob {
+  base64ToBlob(base64: string, mimeType = 'image/png'): Blob {
     const byteCharacters = atob(base64);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {

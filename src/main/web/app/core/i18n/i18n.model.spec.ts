@@ -306,7 +306,7 @@ describe('i18n.model', () => {
     it('should have consistent template variables across languages', () => {
       const extractVariables = (str: string) => {
         const matches = str.match(/\{(\w+)\}/g);
-        return matches ? matches.map((m) => m.slice(1, -1)) : [];
+        return matches ? matches.map(m => m.slice(1, -1)) : [];
       };
 
       SUPPORTED_LANGUAGES.forEach((lang) => {

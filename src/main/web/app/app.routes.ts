@@ -9,27 +9,23 @@ export const routes: Routes = [
       { path: '', redirectTo: 'ai-infra', pathMatch: 'full' },
       {
         path: 'ai-infra',
-        loadComponent: () =>
-          import('./panels/ai-infra-panel/ai-infra-panel.component').then(
-            (m) => m.AIInfraPanelComponent
-          ),
+        loadComponent: () => import('./ai-infra/ai-infra.page').then(
+          m => m.AiInfraPage,
+        ),
       },
       {
         path: 'rag',
-        loadComponent: () =>
-          import('./ai/rag/rag.page').then((m) => m.RagPageComponent),
+        loadComponent: () => import('./rag/rag.page').then(m => m.RagPageComponent),
       },
       {
         path: 'vision',
-        loadComponent: () =>
-          import('./ai/vision/vision.page').then(
-            (m) => m.VisionPageComponent
-          ),
+        loadComponent: () => import('./vision/vision.page').then(
+          m => m.VisionPageComponent,
+        ),
       },
       {
-        path: 'aihubs',
-        loadComponent: () =>
-          import('./ai/ai-hub/ai-hub.component').then((m) => m.AiHubComponent),
+        path: 'ai-hubs',
+        loadComponent: () => import('./ai-hub/ai-hub.page').then(m => m.AiHubPage),
       },
     ],
   },

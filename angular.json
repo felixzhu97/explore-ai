@@ -22,7 +22,9 @@
             "outputPath": "dist/web",
             "index": "src/main/web/index.html",
             "browser": "src/main/web/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -82,12 +84,24 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "tsconfig.spec.json",
-            "setupFiles": ["src/main/web/test-setup.ts"]
+            "setupFiles": [
+              "src/main/web/test-setup.ts"
+            ]
           },
           "configurations": {
             "ci": {
               "watch": false
             }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/main/web/**/*.ts",
+              "src/main/web/**/*.html"
+            ],
+            "eslintConfig": "eslint.config.js"
           }
         }
       }
@@ -97,6 +111,9 @@
     "analytics": "e216be7d-45af-4da7-8070-aad915e6ee66",
     "cache": {
       "enabled": true
-    }
+    },
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }

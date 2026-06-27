@@ -8,9 +8,10 @@ import { getTestBed } from '@angular/core/testing';
 
 // Initialize test environment
 try {
-  getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting(), {
-    teardown: { destroyAfterEach: true },
-  });
+  getTestBed()
+    .initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting(), {
+      teardown: { destroyAfterEach: true },
+    });
 } catch {
   // Already initialized
 }
@@ -35,9 +36,9 @@ if (typeof globalThis.URL.revokeObjectURL === 'undefined') {
 const originalError = console.error;
 console.error = (...args: unknown[]) => {
   if (
-    args[0] &&
-    typeof args[0] === 'string' &&
-    args[0].includes('Could not parse CSS stylesheet')
+    args[0]
+    && typeof args[0] === 'string'
+    && args[0].includes('Could not parse CSS stylesheet')
   ) {
     return;
   }

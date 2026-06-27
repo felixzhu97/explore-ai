@@ -21,14 +21,14 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
 
   return next(req).pipe(
-    catchError((error: HttpErrorResponse) => handleError(req, error, notificationService))
+    catchError((error: HttpErrorResponse) => handleError(req, error, notificationService)),
   );
 };
 
 function handleError(
   req: HttpRequest<unknown>,
   error: HttpErrorResponse,
-  notificationService: NotificationService
+  notificationService: NotificationService,
 ): Observable<never> {
   const appError = normalizeError(error);
   logError(req, appError);
@@ -156,10 +156,10 @@ function extractMessage(error: HttpErrorResponse): string | null {
   }
 
   return (
-    errorBody.message ||
-    errorBody.error ||
-    errorBody.detail ||
-    (typeof errorBody === 'string' ? errorBody : null)
+    errorBody.message
+    || errorBody.error
+    || errorBody.detail
+    || (typeof errorBody === 'string' ? errorBody : null)
   );
 }
 

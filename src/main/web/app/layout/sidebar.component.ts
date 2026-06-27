@@ -19,9 +19,8 @@ interface NavTab {
 
 @Component({
   selector: 'app-sidebar',
-  standalone: true,
   imports: [RouterLink, CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   template: `
     <aside
       class="fixed left-0 top-0 h-screen bg-surface border-r border-border z-90 overflow-hidden transition-all duration-250 ease-out"
@@ -124,6 +123,7 @@ interface NavTab {
       (click)="sidebar.close()"
     ></div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
   private readonly router = inject(Router);
@@ -166,7 +166,7 @@ export class SidebarComponent {
     { key: 'ai-infra', labelKey: 'aiinfra', path: '/ai-infra' },
     { key: 'rag', labelKey: 'documentQA', path: '/rag' },
     { key: 'vision', labelKey: 'visionAI', path: '/vision' },
-    { key: 'aihubs', labelKey: 'aiHub', path: '/aihubs' },
+    { key: 'ai-hubs', labelKey: 'aiHub', path: '/ai-hubs' },
   ];
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
@@ -195,7 +195,7 @@ export class SidebarComponent {
 
   toggleCollapse(): void {
     if (!this.isMobile()) {
-      this.collapsed.update((v) => !v);
+      this.collapsed.update(v => !v);
     }
   }
 
@@ -204,7 +204,7 @@ export class SidebarComponent {
   }
 
   toggleDropdown(): void {
-    this.dropdownOpen.update((v) => !v);
+    this.dropdownOpen.update(v => !v);
   }
 
   selectLanguage(lang: Language): void {
@@ -217,7 +217,7 @@ export class SidebarComponent {
       'ai-infra': '⚙️',
       rag: '📄',
       vision: '👁️',
-      aihubs: '🧠',
+      'ai-hubs': '🧠',
     };
     return icons[key] || '📋';
   }

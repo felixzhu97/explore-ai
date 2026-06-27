@@ -13,6 +13,6 @@ export class SidebarService {
   }
 
   toggle() {
-    this.mobileOpen.update((v) => !v);
+    this.mobileOpen.update(v => !v);
   }
 }
