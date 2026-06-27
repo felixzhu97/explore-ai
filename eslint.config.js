@@ -89,6 +89,7 @@ export default defineConfig([
   },
   {
     files: ['**/*.html'],
+    ignores: ['**/index.html'],
     extends: [
       angular.configs.templateRecommended,
       angular.configs.templateAccessibility,

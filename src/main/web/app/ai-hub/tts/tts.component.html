@@ -1,0 +1,112 @@
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between p-4 bg-surface border rounded-xl">
+    <div>
+      <h3 class="text-[17px] font-semibold text-text m-0">{{ i18n.t().aiHub.tts.title }}</h3>
+      <p class="text-[14px] text-text-secondary m-0 mt-1">{{ i18n.t().aiHub.tts.description }}</p>
+    </div>
+  </div>
+  <div class="bg-surface border rounded-xl p-6">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[14px] font-medium text-text-secondary" for="tts-text-input">
+          {{ i18n.t().aiHub.tts.textLabel }}
+        </label>
+        <textarea
+          id="tts-text-input"
+          class="p-3 px-4 text-[15px] border rounded-xl bg-surface text-text resize-y min-h-20 focus:border-primary focus:ring-[3px] focus:ring-primary/20 outline-none placeholder:text-text-secondary"
+          [ngModel]="text()"
+          (ngModelChange)="setText($event)"
+          [placeholder]="i18n.t().aiHub.tts.textPlaceholder"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="flex gap-6 items-end flex-wrap max-md:flex-col">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[14px] font-medium text-text-secondary" for="voice-select">
+            {{ i18n.t().aiHub.tts.voiceLabel }}
+          </label>
+          <select
+            id="voice-select"
+            class="p-3 px-4 text-[15px] border rounded-xl bg-surface text-text cursor-pointer min-w-[200px] focus:border-primary outline-none"
+            [ngModel]="voice()"
+            (ngModelChange)="setVoice($event)"
+          >
+
+              @for (v of availableVoices(); track v.id) {
+                <option [value]="v.id">{{ v.name }} ({{ v.language }})</option>
+              }
+            @empty {
+              <option value="en-US">English (US)</option>
+              <option value="en-GB">English (UK)</option>
+              <option value="zh-CN">中文</option>
+              <option value="ja-JP">日本語</option>
+            }
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-2 flex-1 min-w-[150px]">
+          <label class="text-[14px] font-medium text-text-secondary" for="speed-slider">
+            {{ i18n.t().aiHub.tts.speedLabel }}: {{ speed().toFixed(1) }}x
+          </label>
+          <input
+            id="speed-slider"
+            type="range"
+            class="w-full h-1 bg-[#e5e5e5] rounded outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-[18px] [&::-webkit-slider-thumb]:h-[18px] [&::-webkit-slider-thumb]:bg-[#0071e3] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-115"
+            min="0.5"
+            max="2.0"
+            step="0.1"
+            [ngModel]="speed()"
+            (ngModelChange)="setSpeed($event)"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="px-6 py-3 text-[15px] font-medium bg-primary text-white border border-transparent rounded-xl cursor-pointer flex items-center justify-center gap-2 hover:bg-primary-hover disabled:opacity-60 disabled:cursor-not-allowed"
+        (click)="synthesize()"
+        [disabled]="!text().trim() || isSynthesizing()"
+      >
+        @if (isSynthesizing()) {
+          <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          {{ i18n.t().aiHub.tts.synthesizing }}
+        } @else {
+          {{ i18n.t().aiHub.tts.synthesizeButton }}
+        }
+      </button>
+
+      @if (error()) {
+        <div class="p-3 bg-[#ffebee] text-[#c62828] rounded-lg text-[14px] border border-[#ffcdd2] animate-fadeIn">{{ error() }}</div>
+      }
+
+      @if (audioUrl()) {
+        <div class="flex flex-col gap-3 p-6 bg-[#f5f5f7] border border-primary/20 rounded-xl animate-fadeIn">
+          <div class="flex items-center gap-4">
+            <button
+              type="button"
+              class="w-13 h-13 flex items-center justify-center bg-[#0071e3] text-white border-none rounded-xl cursor-pointer text-lg transition-all hover:opacity-90 hover:scale-102 active:scale-95"
+              [class.bg-success]="isPlaying()"
+              (click)="togglePlayPause()"
+            >
+              {{ isPlaying() ? '⏸' : '▶' }}
+            </button>
+            <div class="flex-1 flex flex-col gap-2">
+              <span class="text-[15px] font-medium text-text">{{ i18n.t().aiHub.tts.audioReady }}</span>
+              <div class="h-1.5 bg-[#e5e5e5] rounded overflow-hidden">
+                <div class="h-full bg-[#0071e3] transition-width duration-100 rounded" [style.width.%]="progress()"></div>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="px-4 py-2 text-[14px] font-medium bg-white text-primary border border-[#e5e5e5] rounded-lg cursor-pointer flex items-center gap-1 w-fit hover:bg-[#f5f5f7] hover:border-primary"
+            (click)="download()"
+          >
+            ⬇️ {{ i18n.t().aiHub.tts.downloadAudio }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

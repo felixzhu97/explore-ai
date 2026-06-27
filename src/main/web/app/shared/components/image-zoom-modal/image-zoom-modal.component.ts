@@ -17,7 +17,8 @@ import {
   template: `
     @if (isOpen()) {
       <div
-        class="overlay"
+        class="fixed inset-0 z-[1000] flex items-center justify-center p-8 bg-black/85 backdrop-blur-md cursor-zoom-out animate-fade-in"
+        style="-webkit-backdrop-filter: blur(8px)"
         (click)="close()"
         (keydown.escape)="close()"
         tabindex="-1"
@@ -26,17 +27,26 @@ import {
         aria-label="Image zoom viewer"
       >
         <div
-          class="image-container"
+          class="relative max-w-[90vw] max-h-[90vh] cursor-default animate-slide-in"
           (click)="$event.stopPropagation()"
           (keydown.escape)="close()"
           tabindex="0"
           role="button"
         >
-          <img class="image" [src]="src()" [alt]="alt() || 'Zoomed image'" />
+          <img
+            class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            [src]="src()"
+            [alt]="alt() || 'Zoomed image'"
+          />
           @if (alt()) {
-            <div class="caption">{{ alt() }}</div>
+            <div class="mt-4 text-sm text-center text-text-secondary">{{ alt() }}</div>
           }
-          <button class="close-button" (click)="close()" aria-label="Close" type="button">
+          <button
+            class="absolute w-9 h-9 -top-4 -right-4 flex items-center justify-center text-text bg-surface border border-border rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-all duration-150 hover:bg-[#f5f5f7] hover:scale-110 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-500/30"
+            (click)="close()"
+            aria-label="Close"
+            type="button"
+          >
             <svg
               width="18"
               height="18"
@@ -57,10 +67,6 @@ import {
   `,
   styles: [
     `
-      :host {
-        display: block;
-      }
-
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -81,70 +87,16 @@ import {
         }
       }
 
-      .overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        padding: 32px;
+      :host {
+        display: block;
+      }
+
+      .animate-fade-in {
         animation: fadeIn 0.2s ease;
-        cursor: zoom-out;
       }
 
-      .image-container {
-        position: relative;
-        max-width: 90vw;
-        max-height: 90vh;
+      .animate-slide-in {
         animation: slideIn 0.25s ease;
-        cursor: default;
-      }
-
-      .image {
-        max-width: 100%;
-        max-height: 90vh;
-        object-fit: contain;
-        border-radius: 8px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      }
-
-      .caption {
-        text-align: center;
-        color: #86868b;
-        font-size: 14px;
-        margin-top: 16px;
-      }
-
-      .close-button {
-        position: absolute;
-        top: -16px;
-        right: -16px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid #d1d1d6;
-        color: #1d1d1f;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.15s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-
-        &:hover {
-          background: #f5f5f7;
-          transform: scale(1.1);
-        }
-
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
-        }
       }
     `,
   ],

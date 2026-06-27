@@ -1,0 +1,139 @@
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between p-4 bg-surface border border-[--color-border] rounded-2xl">
+    <div>
+      <h3 class="text-[--font-size-lg] font-[--font-weight-semibold] text-text m-0">
+        {{ i18n.t().aiHub.image.title }}
+      </h3>
+      <p class="text-[--font-size-base] text-text-secondary m-0 mt-1">
+        {{ i18n.t().aiHub.image.description }}
+      </p>
+    </div>
+  </div>
+  <div class="bg-surface border border-[--color-border] rounded-2xl p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Prompt Area -->
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[--font-size-base] font-[--font-weight-medium] text-text-secondary" for="prompt-input">
+            {{ i18n.t().aiHub.image.promptLabel }}
+          </label>
+          <textarea
+            id="prompt-input"
+            class="p-3 px-4 text-[--font-size-md] font-inherit border border-[--color-border] rounded-xl bg-surface text-text resize-y min-h-20 transition-all duration-150 focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,122,255,0.2)] placeholder:text-text-secondary"
+            [ngModel]="prompt()"
+            (ngModelChange)="setPrompt($event)"
+            [placeholder]="i18n.t().aiHub.image.promptPlaceholder"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[--font-size-base] font-[--font-weight-medium] text-text-secondary" for="negative-prompt-input">
+            {{ i18n.t().aiHub.image.negativePromptLabel }}
+          </label>
+          <textarea
+            id="negative-prompt-input"
+            class="p-3 px-4 text-[--font-size-md] font-inherit border border-[--color-border] rounded-xl bg-surface text-text resize-y min-h-16 transition-all duration-150 focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,122,255,0.2)] placeholder:text-text-secondary"
+            [ngModel]="negativePrompt()"
+            (ngModelChange)="setNegativePrompt($event)"
+            [placeholder]="i18n.t().aiHub.image.negativePromptPlaceholder"
+            rows="2"
+          ></textarea>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <span class="text-[--font-size-base] font-[--font-weight-medium] text-text-secondary" aria-hidden="true">
+            {{ i18n.t().aiHub.image.sizeLabel }}
+          </span>
+          <div class="flex flex-wrap gap-2" role="group" aria-label="Size selection">
+            @for (size of sizes; track size.label) {
+              <button
+                type="button"
+                class="px-4 py-2 text-[--font-size-base] font-[--font-weight-medium] bg-surface text-text border border-[--color-border] rounded-xl cursor-pointer transition-all duration-150 hover:border-primary"
+                [class.bg-primary]="selectedSize().label === size.label"
+                [class.text-white]="selectedSize().label === size.label"
+                [class.border-transparent]="selectedSize().label === size.label"
+                [class.hover:border-primary]="selectedSize().label !== size.label"
+                (click)="setSize(size)"
+              >
+                {{ size.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="px-6 py-3 text-[--font-size-md] font-[--font-weight-medium] bg-primary text-white border-transparent rounded-xl cursor-pointer transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#0071e3]"
+          (click)="generate()"
+          [disabled]="!prompt().trim() || isGenerating()"
+        >
+          @if (isGenerating()) {
+            <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            {{ i18n.t().aiHub.image.generating }}
+          } @else {
+            {{ i18n.t().aiHub.image.generateButton }}
+          }
+        </button>
+      </div>
+
+      <!-- Preview Area -->
+      <div class="flex flex-col gap-3 min-h-[300px]">
+        <div class="flex-1 relative rounded-xl bg-[#f5f5f7] flex items-center justify-center overflow-hidden min-h-64 border-2 border-dashed border-[--color-border]">
+          @if (isGenerating()) {
+            <div class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center gap-3 rounded-xl z-10">
+              <div class="w-11 h-11 border-[3px] border-[#f5f5f7] border-t-[#0071e3] rounded-full animate-spin"></div>
+              <span class="text-sm font-medium text-[#6e6e73]">Generating...</span>
+            </div>
+          }
+          @if (generatedImage()) {
+            <img
+              class="max-w-full max-h-[400px] object-contain rounded-xl cursor-zoom-in animate-fade-in hover:scale-[1.02]"
+              [src]="generatedImage()"
+              alt="Generated"
+              (click)="zoom.emit(generatedImage()!)"
+              (keydown.enter)="zoom.emit(generatedImage()!)"
+              tabindex="0"
+              role="button"
+              aria-label="Zoom image"
+            />
+          } @else {
+            <div class="flex flex-col items-center justify-center p-12 text-[#6e6e73] gap-2">
+              <div class="text-5xl opacity-50">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </div>
+              <p class="text-base font-medium text-text m-0">
+                {{ i18n.t().aiHub.image.emptyState }}
+              </p>
+            </div>
+          }
+        </div>
+
+        @if (error()) {
+          <div class="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 animate-fade-in">
+            {{ error() }}
+          </div>
+        }
+
+        @if (generatedImage()) {
+          <div class="flex gap-2 justify-center">
+            <button type="button" class="px-4 py-2 text-sm font-medium bg-surface text-[#0071e3] border border-[#e5e5e5] rounded-lg cursor-pointer transition-all duration-150 flex items-center gap-1 hover:bg-[#f5f5f7] hover:border-[#0071e3]" (click)="download()">
+              ⬇️ {{ i18n.t().aiHub.image.download }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

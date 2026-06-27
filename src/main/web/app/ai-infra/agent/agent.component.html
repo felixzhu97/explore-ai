@@ -1,0 +1,92 @@
+<div class="flex flex-col gap-6" [style.animation]="'fadeIn 0.3s ease'">
+  <div #chatContainer class="relative flex flex-col gap-4 max-h-[400px] min-h-[200px] overflow-y-auto p-4 bg-surface rounded-xl border border-[--color-border]">
+    @if (messages().length === 0) {
+      <div class="flex flex-col items-center justify-center py-12 px-6 text-text-secondary text-center gap-2">
+        <div class="opacity-50">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"
+            />
+            <circle cx="8.5" cy="14.5" r="1.5" />
+            <circle cx="15.5" cy="14.5" r="1.5" />
+          </svg>
+        </div>
+        <p>{{ startConversationText() }}</p>
+        @if (quickPrompts().length > 0) {
+          <div class="flex flex-wrap gap-2 justify-center mt-2">
+            @for (prompt of quickPrompts().slice(0, 3); track $index) {
+              <button
+                type="button"
+                class="px-3 py-1 text-xs bg-surface border border-[--color-border] rounded-full text-primary cursor-pointer transition-all duration-150 hover:bg-primary-light"
+                (click)="setInput(prompt)"
+              >
+                {{ prompt }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="flex flex-col gap-4">
+        @for (msg of messages(); track msg.id) {
+          <app-chat-message [message]="msg" />
+        }
+        @if (isLoading()) {
+          <div class="text-text-secondary text-xs p-2 flex items-center gap-2">
+            <span
+              class="inline-block w-4 h-4 border-2 border-current border-r-transparent rounded-full"
+              [style.animation]="'spin 0.6s linear infinite'"
+            ></span>
+            <span>{{ thinkingText() }}</span>
+          </div>
+        }
+        <div #messagesEnd></div>
+      </div>
+    }
+  </div>
+
+  <div class="flex gap-2 items-end">
+    <textarea
+      class="flex-1 p-4 text-sm font-sans border border-[--color-border] rounded-xl bg-surface text-text resize-none min-h-12 max-h-[120px] transition-all duration-150 focus:outline-none focus:border-primary focus:shadow-[--shadow-input] placeholder:text-text-tertiary disabled:opacity-50 disabled:cursor-not-allowed"
+      [ngModel]="inputValue()"
+      (ngModelChange)="inputValue.set($event)"
+      [placeholder]="inputPlaceholderText()"
+      [disabled]="isLoading()"
+      (keydown)="onKeyDown($event)"
+      rows="1"
+    ></textarea>
+    <button
+      type="button"
+      class="w-12 h-12 flex items-center justify-center bg-primary text-white border-none rounded-xl cursor-pointer transition-all duration-200 text-lg hover:bg-primary-hover active:bg-primary-active active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="isLoading() || !inputValue().trim()"
+      (click)="sendMessage()"
+    >
+      @if (isLoading()) {
+        <span
+          class="inline-block w-4 h-4 border-2 border-current border-r-transparent rounded-full"
+          [style.animation]="'spin 0.6s linear infinite'"
+        ></span>
+      } @else {
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          class="[&_line]:no-underline [&_polygon]:no-underline"
+        >
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+      }
+    </button>
+  </div>
+</div>
