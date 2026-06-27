@@ -39,8 +39,12 @@ interface TabState {
           <div
             class="image-area"
             (click)="onImageAreaClick()"
+            (keydown.enter)="onImageAreaClick()"
             (drop)="onDrop($event)"
             (dragover)="onDragOver($event)"
+            tabindex="0"
+            role="button"
+            aria-label="Upload image"
           >
             @if (currentState().image) {
               <img
@@ -48,9 +52,18 @@ interface TabState {
                 [src]="currentState().image"
                 alt="Preview"
                 (click)="zoomImage(currentState().image!); $event.stopPropagation()"
+                (keydown.enter)="zoomImage(currentState().image!); $event.stopPropagation()"
+                tabindex="0"
+                role="button"
+                aria-label="Zoom image"
               />
               <div class="zoom-hint">Click to enlarge</div>
-              <button class="clear-button" (click)="clearImage($event)">×</button>
+              <button
+                type="button"
+                class="clear-button"
+                (click)="clearImage($event)"
+                aria-label="Clear image"
+              >×</button>
               @if (isLoading()) {
                 <div class="loading-overlay">
                   <div class="spinner"></div>
@@ -113,6 +126,7 @@ interface TabState {
 
           <div class="action-area">
             <button
+              type="button"
               class="action-button primary"
               (click)="submit()"
               [disabled]="!currentState().file || isLoading()"
@@ -130,9 +144,21 @@ interface TabState {
 
       <!-- Zoom Modal -->
       @if (zoomedImage()) {
-        <div class="zoom-modal" (click)="closeZoom()">
+        <div
+          class="zoom-modal"
+          (click)="closeZoom()"
+          (keydown.escape)="closeZoom()"
+          tabindex="-1"
+          role="dialog"
+          aria-modal="true"
+        >
           <div class="zoom-content">
-            <button class="zoom-close" (click)="closeZoom()">×</button>
+            <button
+              type="button"
+              class="zoom-close"
+              (click)="closeZoom()"
+              aria-label="Close"
+            >×</button>
             <img [src]="zoomedImage()" alt="Zoomed" />
           </div>
         </div>
@@ -602,8 +628,9 @@ export class VisionPageComponent {
         this.updateState({ result: data as VisionResult });
       },
       error: (err: unknown) => {
-        const msg =
-          err instanceof Error ? err.message : this.i18n.t().imageUploader.processingFailed;
+        const msg = err instanceof Error
+          ? err.message
+          : this.i18n.t().imageUploader.processingFailed;
         this.updateState({ error: msg });
       },
       complete: () => {

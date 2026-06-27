@@ -20,35 +20,39 @@ export class StreamParserService {
     };
   }
 
-  parseChunk(chunk: string, state: StreamParserState): { state: StreamParserState; events: StreamChunk[] } {
-    state.buffer += chunk;
+  parseChunk(
+    chunk: string,
+    state: StreamParserState,
+  ): { state: StreamParserState; events: StreamChunk[] } {
+    const newState = { ...state, buffer: state.buffer + chunk };
     const events: StreamChunk[] = [];
-    const lines = state.buffer.split('\n');
-    state.buffer = lines.pop() ?? '';
+    const lines = newState.buffer.split('\n');
+    newState.buffer = lines.pop() ?? '';
 
+    let currentEvent = newState.currentEvent;
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) {
-        state.currentEvent = '';
+        currentEvent = '';
         continue;
       }
 
       if (trimmed.startsWith('event:')) {
-        state.currentEvent = trimmed.slice(6).trim();
+        currentEvent = trimmed.slice(6).trim();
         continue;
       }
 
       if (trimmed.startsWith('data:')) {
         const data = trimmed.slice(5).trim();
         events.push({
-          event: state.currentEvent,
+          event: currentEvent,
           data,
           raw: trimmed,
         });
       }
     }
 
-    return { state, events };
+    return { state: { ...newState, currentEvent }, events };
   }
 
   parseJSON<T>(data: string): T | null {

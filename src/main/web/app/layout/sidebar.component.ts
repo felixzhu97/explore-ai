@@ -31,6 +31,7 @@ interface NavTab {
           {{ collapsed() ? 'AI' : 'AI Explore' }}
         </span>
         <button
+          type="button"
           class="hidden md:flex items-center justify-center w-6 h-6 rounded-md text-text-secondary bg-transparent border-none cursor-pointer transition-all duration-150 hover:bg-surface-secondary hover:text-text flex-shrink-0"
           (click)="toggleCollapse()"
           [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
@@ -47,6 +48,7 @@ interface NavTab {
           </svg>
         </button>
         <button
+          type="button"
           class="flex md:hidden items-center justify-center w-6 h-6 rounded-md text-text-secondary bg-transparent border-none cursor-pointer transition-all duration-150 hover:bg-surface-secondary hover:text-text flex-shrink-0"
           (click)="sidebar.close()"
           aria-label="Close menu"
@@ -79,10 +81,12 @@ interface NavTab {
       <div class="px-2 py-2 border-t border-border-light">
         <div class="relative" [class.collapsed]="collapsed()">
           <button
+            type="button"
             class="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-text-secondary bg-transparent border-none cursor-pointer text-[13px] font-medium transition-all duration-150
                    hover:bg-surface-secondary hover:text-text"
             (click)="toggleDropdown()"
             [attr.aria-expanded]="dropdownOpen()"
+            aria-haspopup="listbox"
           >
             <span class="w-6 text-center font-semibold flex-shrink-0">{{ i18n.language().toUpperCase() }}</span>
             @if (!collapsed()) {
@@ -99,6 +103,7 @@ interface NavTab {
             <div class="absolute bottom-full left-0 right-0 mb-1 bg-surface border border-border rounded-lg shadow-elevated overflow-hidden animate-dropdown-fade-in">
               @for (lang of supportedLanguages; track lang) {
                 <button
+                  type="button"
                   class="block w-full px-3 py-2 text-left text-[13px] text-text-secondary bg-transparent border-none cursor-pointer transition-all duration-150
                          hover:bg-surface-secondary hover:text-text"
                   [class.text-primary]="lang === i18n.language()"
@@ -121,6 +126,10 @@ interface NavTab {
       [class.opacity-100]="sidebar.mobileOpen()"
       [class.pointer-events-auto]="sidebar.mobileOpen()"
       (click)="sidebar.close()"
+      (keydown.escape)="sidebar.close()"
+      tabindex="-1"
+      role="button"
+      aria-label="Close overlay"
     ></div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

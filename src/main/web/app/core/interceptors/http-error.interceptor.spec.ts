@@ -1,10 +1,5 @@
-import {
-  HttpInterceptorFn,
-  HttpRequest,
-  HttpHandlerFn,
-  HttpErrorResponse,
-} from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { HttpRequest, HttpErrorResponse, HttpHandlerFn } from '@angular/common/http';
+import { throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -38,6 +33,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('UNAUTHORIZED');
@@ -69,6 +65,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('NOT_FOUND');
@@ -99,6 +96,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('INTERNAL_SERVER_ERROR');
@@ -134,6 +132,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('CLIENT_ERROR');
@@ -165,6 +164,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('VALIDATION_ERROR');
@@ -195,6 +195,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('RATE_LIMITED');
@@ -225,6 +226,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('BAD_GATEWAY');
@@ -254,6 +256,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('SERVICE_UNAVAILABLE');
@@ -283,6 +286,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('FORBIDDEN');
@@ -313,6 +317,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.code).toBe('REQUEST_TIMEOUT');
@@ -345,6 +350,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.message).toBe('Custom error message');
@@ -374,6 +380,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.message).toBe('Error field message');
@@ -403,6 +410,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.message).toBe('Detail message');
@@ -431,6 +439,7 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
           error: (error: AppError) => {
             try {
               expect(error.message).toBe('Invalid request');
@@ -461,6 +470,8 @@ describe('httpErrorInterceptor', () => {
 
       await new Promise<void>((resolve, reject) => {
         interceptor.subscribe({
+          next: vi.fn(),
+
           error: () => {
             try {
               expect(notificationService.toasts().length).toBeGreaterThan(0);

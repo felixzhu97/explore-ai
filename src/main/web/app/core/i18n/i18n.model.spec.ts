@@ -166,8 +166,12 @@ describe('i18n.model', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           agentTypes.forEach((type) => {
             expect(translations[lang].agents.quickPrompts[type]).toBeDefined();
-            expect(Array.isArray(translations[lang].agents.quickPrompts[type])).toBe(true);
-            expect(translations[lang].agents.quickPrompts[type].length).toBeGreaterThan(0);
+            expect(
+              Array.isArray(translations[lang].agents.quickPrompts[type]),
+            ).toBe(true);
+            expect(
+              translations[lang].agents.quickPrompts[type].length,
+            ).toBeGreaterThan(0);
           });
         });
       });
@@ -186,7 +190,9 @@ describe('i18n.model', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           agentTypes.forEach((type) => {
             expect(translations[lang].agents.descriptions[type]).toBeDefined();
-            expect(typeof translations[lang].agents.descriptions[type]).toBe('string');
+            expect(
+              typeof translations[lang].agents.descriptions[type],
+            ).toBe('string');
           });
         });
       });

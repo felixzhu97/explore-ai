@@ -36,18 +36,21 @@ describe('I18nService', () => {
     it('should have readonly language signal', () => {
       service = new I18nService();
       expect(service.language).toBeDefined();
+      // eslint-disable-next-line @angular-eslint/no-uncalled-signals
       expect(typeof service.language).toBe('function');
     });
 
     it('should have readonly t computed for translations', () => {
       service = new I18nService();
       expect(service.t).toBeDefined();
+      // eslint-disable-next-line @angular-eslint/no-uncalled-signals
       expect(typeof service.t).toBe('function');
     });
 
     it('should have readonly languageName computed', () => {
       service = new I18nService();
       expect(service.languageName).toBeDefined();
+      // eslint-disable-next-line @angular-eslint/no-uncalled-signals
       expect(typeof service.languageName).toBe('function');
     });
   });

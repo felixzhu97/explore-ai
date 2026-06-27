@@ -49,9 +49,23 @@ type Tab = 'chat' | 'image' | 'tts';
       </div>
 
       @if (zoomedImage()) {
-        <div class="zoom-modal" (click)="closeZoom()">
+        <div
+          class="zoom-modal"
+          (click)="closeZoom()"
+          (keydown.escape)="closeZoom()"
+          tabindex="-1"
+          role="dialog"
+          aria-modal="true"
+        >
           <div class="zoom-content">
-            <button class="zoom-close" (click)="closeZoom()">×</button>
+            <button
+              type="button"
+              class="zoom-close"
+              (click)="closeZoom()"
+              aria-label="Close"
+            >
+              ×
+            </button>
             <img [src]="zoomedImage()" alt="Zoomed" />
           </div>
         </div>

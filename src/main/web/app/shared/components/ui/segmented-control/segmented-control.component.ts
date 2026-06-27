@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import type { AbstractControl } from '@angular/forms';
 
 export interface SegmentedControlOption<T extends string = string> {
   value: T;
@@ -8,6 +9,7 @@ export interface SegmentedControlOption<T extends string = string> {
 
 @Component({
   selector: 'app-segmented-control',
+  imports: [],
   standalone: true,
   template: `
     <div class="inline-flex bg-surface rounded-xl shadow-card p-1 gap-1" role="tablist">
@@ -32,6 +34,7 @@ export interface SegmentedControlOption<T extends string = string> {
 export class SegmentedControlComponent<T extends string = string> {
   readonly options = input.required<SegmentedControlOption<T>[]>();
   readonly value = input.required<T>();
+  readonly formControl = input<AbstractControl | null>(null);
 
   changed = output<T>();
 

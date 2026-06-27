@@ -76,6 +76,7 @@ interface UploadedDocument {
                 </span>
                 <span class="doc-title">{{ doc.title }}</span>
                 <button
+                  type="button"
                   class="delete-button"
                   [class.selected]="ragService.selectedDocIds().has(doc.id)"
                   (click)="deleteDocument(doc.id, $event)"
@@ -87,11 +88,11 @@ interface UploadedDocument {
             }
           </div>
           <div class="selection-controls">
-            <button class="select-button" (click)="ragService.selectAllDocs()">
+            <button type="button" class="select-button" (click)="ragService.selectAllDocs()">
               {{ i18n.t().ragChat.selectAll }}
             </button>
             @if (ragService.selectedDocIds().size > 0) {
-              <button class="select-button" (click)="ragService.clearDocSelection()">
+              <button type="button" class="select-button" (click)="ragService.clearDocSelection()">
                 {{ i18n.t().ragChat.clearSelection }}
               </button>
             }
@@ -126,14 +127,19 @@ interface UploadedDocument {
                   </div>
                 }
                 {{ file.name }}
-                <button class="remove-button" (click)="ragService.removePendingFile($index)">×</button>
+                <button
+                  type="button"
+                  class="remove-button"
+                  (click)="ragService.removePendingFile($index)"
+                  aria-label="Remove file"
+                >×</button>
               </div>
             }
           </div>
         }
 
         @if (ragService.pendingFiles().length > 0) {
-          <button class="upload-button" (click)="uploadFiles()" [disabled]="ragService.isUploading()">
+          <button type="button" class="upload-button" (click)="uploadFiles()" [disabled]="ragService.isUploading()">
             @if (ragService.isUploading()) {
               <span class="spinner"></span> {{ i18n.t().ragChat.uploading }}
             } @else {
@@ -150,13 +156,13 @@ interface UploadedDocument {
             <div class="empty-icon">💬</div>
             <p>{{ i18n.t().ragChat.askQuestion }}</p>
             <div class="quick-actions">
-              <button class="quick-action" (click)="setInput(i18n.t().ragChat.whatIsThis)">
+              <button type="button" class="quick-action" (click)="setInput(i18n.t().ragChat.whatIsThis)">
                 {{ i18n.t().ragChat.whatIsThis }}
               </button>
-              <button class="quick-action" (click)="setInput(i18n.t().ragChat.summarize)">
+              <button type="button" class="quick-action" (click)="setInput(i18n.t().ragChat.summarize)">
                 {{ i18n.t().ragChat.summarize }}
               </button>
-              <button class="quick-action" (click)="setInput(i18n.t().ragChat.keyInfo)">
+              <button type="button" class="quick-action" (click)="setInput(i18n.t().ragChat.keyInfo)">
                 {{ i18n.t().ragChat.keyInfo }}
               </button>
             </div>
@@ -174,7 +180,13 @@ interface UploadedDocument {
               <div class="message-meta">
                 <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
                 @if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
-                  <span class="source-badge" (click)="ragService.toggleSources(msg.id)">
+                  <span
+                    class="source-badge"
+                    (click)="ragService.toggleSources(msg.id)"
+                    (keydown.enter)="ragService.toggleSources(msg.id)"
+                    tabindex="0"
+                    role="button"
+                  >
                     📚
                     {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
                     {{ ragService.expandedSources().has(msg.id) ? '▲' : '▼' }}
@@ -230,6 +242,7 @@ interface UploadedDocument {
           [disabled]="ragService.isLoading()"
         ></textarea>
         <button
+          type="button"
           class="send-button"
           (click)="ragService.sendMessage()"
           [disabled]="ragService.isLoading() || !ragService.input().trim()"

@@ -174,14 +174,14 @@ export class ApiService {
             }
 
             // Default: treat as token
-            let token: string | null = null;
             try {
               const parsed = JSON.parse(data);
-              token = parsed.token ?? (typeof parsed === 'string' ? parsed : null);
+              const token = parsed.token ?? (typeof parsed === 'string' ? parsed : null);
+              if (token !== null) onChunk(token);
             } catch {
-              token = data;
+              const token = data || null;
+              if (token !== null) onChunk(token);
             }
-            if (token) onChunk(token);
           }
         }
         return false;
@@ -342,7 +342,9 @@ export class ApiService {
 
   // ==================== Image Generation ====================
 
-  generateImage(params: ImageGenerateParams): Observable<{ images: string[]; seed?: number }> {
+  generateImage(
+    params: ImageGenerateParams,
+  ): Observable<{ images: string[]; seed?: number }> {
     return this.http.post<{ images: string[]; seed?: number }>(
       `${BASE_URL}/image/generate`,
       params,

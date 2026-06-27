@@ -48,7 +48,11 @@ export type { AgentInfo };
             @if (quickPrompts().length > 0) {
               <div class="quick-prompts">
                 @for (prompt of quickPrompts().slice(0, 3); track $index) {
-                  <button class="quick-prompt-btn" (click)="setInput(prompt)">
+                  <button
+                    type="button"
+                    class="quick-prompt-btn"
+                    (click)="setInput(prompt)"
+                  >
                     {{ prompt }}
                   </button>
                 }
@@ -82,6 +86,7 @@ export type { AgentInfo };
           rows="1"
         ></textarea>
         <button
+          type="button"
           class="send-button"
           [disabled]="isLoading() || !inputValue().trim()"
           (click)="sendMessage()"
@@ -465,8 +470,11 @@ export class AgentComponent {
   }
 
   private updateMessageContent(messageId: string, content: string) {
-    this.messages.update(msgs => msgs.map(msg => (msg.id === messageId ? { ...msg, content } : msg)),
-    );
+    this.messages.update((msgs) => {
+      return msgs.map((msg) => {
+        return msg.id === messageId ? { ...msg, content } : msg;
+      });
+    });
   }
 
   private updateToolCall(
@@ -493,7 +501,10 @@ export class AgentComponent {
       } else {
         return {
           ...msg,
-          toolCalls: [...existingToolCalls, { id: toolCallId, name, input, status, output }],
+          toolCalls: [
+            ...existingToolCalls,
+            { id: toolCallId, name, input, status, output },
+          ],
         };
       }
     }),

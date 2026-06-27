@@ -24,8 +24,11 @@ import type { ImageSize } from './image.model';
           <!-- Prompt Area -->
           <div class="prompt-area">
             <div class="input-group">
-              <label class="input-label">{{ i18n.t().aiHub.image.promptLabel }}</label>
+              <label class="input-label" for="prompt-input">
+                {{ i18n.t().aiHub.image.promptLabel }}
+              </label>
               <textarea
+                id="prompt-input"
                 class="text-input"
                 [ngModel]="prompt()"
                 (ngModelChange)="setPrompt($event)"
@@ -35,8 +38,11 @@ import type { ImageSize } from './image.model';
             </div>
 
             <div class="input-group">
-              <label class="input-label">{{ i18n.t().aiHub.image.negativePromptLabel }}</label>
+              <label class="input-label" for="negative-prompt-input">
+                {{ i18n.t().aiHub.image.negativePromptLabel }}
+              </label>
               <textarea
+                id="negative-prompt-input"
                 class="text-input"
                 [ngModel]="negativePrompt()"
                 (ngModelChange)="setNegativePrompt($event)"
@@ -46,10 +52,13 @@ import type { ImageSize } from './image.model';
             </div>
 
             <div class="input-group">
-              <label class="input-label">{{ i18n.t().aiHub.image.sizeLabel }}</label>
-              <div class="size-selector">
+              <span class="input-label" aria-hidden="true">
+                {{ i18n.t().aiHub.image.sizeLabel }}
+              </span>
+              <div class="size-selector" role="group" aria-label="Size selection">
                 @for (size of sizes; track size.label) {
                   <button
+                    type="button"
                     class="size-option"
                     [class.selected]="selectedSize().label === size.label"
                     (click)="setSize(size)"
@@ -61,6 +70,7 @@ import type { ImageSize } from './image.model';
             </div>
 
             <button
+              type="button"
               class="action-button primary"
               (click)="generate()"
               [disabled]="!prompt().trim() || isGenerating()"
@@ -89,6 +99,10 @@ import type { ImageSize } from './image.model';
                   [src]="generatedImage()"
                   alt="Generated"
                   (click)="zoom.emit(generatedImage()!)"
+                  (keydown.enter)="zoom.emit(generatedImage()!)"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Zoom image"
                 />
               } @else {
                 <div class="empty-state">
@@ -119,7 +133,7 @@ import type { ImageSize } from './image.model';
 
             @if (generatedImage()) {
               <div class="image-actions">
-                <button class="icon-button" (click)="download()">
+                <button type="button" class="icon-button" (click)="download()">
                   ⬇️ {{ i18n.t().aiHub.image.download }}
                 </button>
               </div>

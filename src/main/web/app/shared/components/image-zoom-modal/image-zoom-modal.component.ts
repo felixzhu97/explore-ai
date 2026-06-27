@@ -25,7 +25,13 @@ import {
         aria-modal="true"
         aria-label="Image zoom viewer"
       >
-        <div class="image-container" (click)="$event.stopPropagation()">
+        <div
+          class="image-container"
+          (click)="$event.stopPropagation()"
+          (keydown.escape)="close()"
+          tabindex="0"
+          role="button"
+        >
           <img class="image" [src]="src()" [alt]="alt() || 'Zoomed image'" />
           @if (alt()) {
             <div class="caption">{{ alt() }}</div>

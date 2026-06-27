@@ -1,10 +1,5 @@
 import { inject } from '@angular/core';
-import {
-  HttpInterceptorFn,
-  HttpRequest,
-  HttpHandlerFn,
-  HttpErrorResponse,
-} from '@angular/common/http';
+import { HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { NotificationService } from '@core/services/notification.service';
@@ -17,11 +12,19 @@ export interface AppError {
   details?: unknown;
 }
 
+export type HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+) => Observable<unknown>;
+
+type HttpHandlerFn = (req: HttpRequest<unknown>) => Observable<unknown>;
+
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
-
   return next(req).pipe(
-    catchError((error: HttpErrorResponse) => handleError(req, error, notificationService)),
+    catchError((error: HttpErrorResponse) => {
+      return handleError(req, error, notificationService);
+    }),
   );
 };
 
@@ -84,7 +87,8 @@ function handleServerError(error: HttpErrorResponse): AppError {
     case 404:
       return {
         code: 'NOT_FOUND',
-        message: extractMessage(error) || 'The requested resource was not found.',
+        message:
+          extractMessage(error) || 'The requested resource was not found.',
         status: 404,
         timestamp: new Date(),
         details: error.url,
@@ -182,6 +186,9 @@ function logError(req: HttpRequest<unknown>, error: AppError): void {
   }
 }
 
-function notifyUser(error: AppError, notificationService: NotificationService): void {
+function notifyUser(
+  error: AppError,
+  notificationService: NotificationService,
+): void {
   notificationService.showError(error.message);
 }

@@ -126,7 +126,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.chatStream(
         { messages: [{ role: 'user', content: 'test' }] },
@@ -150,7 +150,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: false,
         status: 500,
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -173,7 +173,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const onDone = vi.fn();
 
@@ -195,7 +195,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -217,7 +217,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -232,8 +232,6 @@ describe('ApiService', () => {
     });
 
     it('should handle abort on the returned controller', async () => {
-      const encoder = new TextEncoder();
-      let abortFn: any;
       const mockReader = {
         read: vi.fn().mockImplementation(() => {
           return new Promise((resolve) => {
@@ -249,7 +247,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: mockStream,
-      } as any);
+      } as never);
 
       const result = service.chatStream(
         { messages: [{ role: 'user', content: 'test' }] },
@@ -283,6 +281,7 @@ describe('ApiService', () => {
   describe('chatStream streaming callback coverage', () => {
     it('should call onChunk when token is received from meta event', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -296,7 +295,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
       const onDone = vi.fn();
@@ -321,6 +320,7 @@ describe('ApiService', () => {
 
     it('should call onDone when [DONE] is received', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -334,7 +334,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onDone = vi.fn();
 
@@ -354,6 +354,7 @@ describe('ApiService', () => {
 
     it('should call onDone when done event is received', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -367,7 +368,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onDone = vi.fn();
 
@@ -390,6 +391,7 @@ describe('ApiService', () => {
 
     it('should call onError when error event is received with JSON error data', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -403,7 +405,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -427,6 +429,7 @@ describe('ApiService', () => {
 
     it('should call onError when error event is received without JSON error data', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -440,7 +443,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -464,6 +467,7 @@ describe('ApiService', () => {
 
     it('should handle data line without currentEvent (empty event type)', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -477,7 +481,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -500,6 +504,7 @@ describe('ApiService', () => {
 
     it('should handle non-JSON data gracefully (skip)', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -513,7 +518,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       service.chatStream(
         { messages: [{ role: 'user', content: 'test' }] },
@@ -536,6 +541,7 @@ describe('ApiService', () => {
 
     it('should reset currentEvent on empty line', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -549,7 +555,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -573,6 +579,7 @@ describe('ApiService', () => {
 
     it('should not call onChunk when token is missing in parsed data', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -586,7 +593,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -613,7 +620,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: null,
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -630,6 +637,7 @@ describe('ApiService', () => {
 
     it('should continue reading when not done', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -643,7 +651,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onDone = vi.fn();
 
@@ -665,6 +673,7 @@ describe('ApiService', () => {
 
     it('should handle partial line in buffer', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -678,7 +687,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -708,6 +717,7 @@ describe('ApiService', () => {
   describe('ragChat streaming callback coverage', () => {
     it('should call onChunk when chunk data is received', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -721,7 +731,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
       const onDone = vi.fn();
@@ -748,6 +758,7 @@ describe('ApiService', () => {
 
     it('should call onDone when [DONE] is received', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -761,7 +772,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onDone = vi.fn();
 
@@ -776,6 +787,7 @@ describe('ApiService', () => {
 
     it('should call onSources when sources event is received', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -789,7 +801,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onSources = vi.fn();
 
@@ -815,6 +827,7 @@ describe('ApiService', () => {
 
     it('should call onError when Error: prefix is received', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -828,7 +841,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -853,6 +866,7 @@ describe('ApiService', () => {
 
     it('should replace <br> with newlines in chunk data', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -866,7 +880,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -890,6 +904,7 @@ describe('ApiService', () => {
 
     it('should reset currentEvent on empty line', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -903,7 +918,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -928,6 +943,7 @@ describe('ApiService', () => {
 
     it('should reset currentEvent after sources event', async () => {
       const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let readResolve!: (value: any) => void;
 
       const mockReader = {
@@ -941,7 +957,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: { getReader: () => mockReader },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -967,7 +983,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: false,
         status: 500,
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -987,7 +1003,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: null,
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -1094,7 +1110,7 @@ describe('ApiService', () => {
     it('should include voice parameter when provided', () => {
       const mockBlob = new Blob(['audio'], { type: 'audio/mp3' });
 
-      service.synthesizeSpeech({ text: 'Hello', voice: 'en-US' }).subscribe(() => {});
+      service.synthesizeSpeech({ text: 'Hello', voice: 'en-US' }).subscribe(vi.fn());
 
       const req = httpMock.expectOne('/api/tts/synthesize');
       expect(req.request.body.voice).toBe('en-US');
@@ -1104,7 +1120,7 @@ describe('ApiService', () => {
     it('should include speed parameter when provided', () => {
       const mockBlob = new Blob(['audio'], { type: 'audio/mp3' });
 
-      service.synthesizeSpeech({ text: 'Hello', speed: 1.5 }).subscribe(() => {});
+      service.synthesizeSpeech({ text: 'Hello', speed: 1.5 }).subscribe(vi.fn());
 
       const req = httpMock.expectOne('/api/tts/synthesize');
       expect(req.request.body.speed).toBe(1.5);
@@ -1215,7 +1231,7 @@ describe('ApiService', () => {
 
   describe('deleteDocument', () => {
     it('should delete document by id', () => {
-      service.deleteDocument('doc123').subscribe(() => {});
+      service.deleteDocument('doc123').subscribe(vi.fn());
 
       const req = httpMock.expectOne('/api/rag/documents/doc123');
       expect(req.request.method).toBe('DELETE');
@@ -1245,7 +1261,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.ragChat(
         { query: 'test', session_id: 'session1' },
@@ -1269,7 +1285,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: false,
         status: 500,
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -1293,7 +1309,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const onDone = vi.fn();
 
@@ -1310,7 +1326,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const onSources = vi.fn();
 
@@ -1333,7 +1349,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const onChunk = vi.fn();
 
@@ -1352,7 +1368,7 @@ describe('ApiService', () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: false,
         status: 500,
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -1401,7 +1417,7 @@ describe('ApiService', () => {
         value: removeChildSpy,
       });
 
-      (createElementSpy as any).mockReturnValue({
+      (createElementSpy as never).mockReturnValue({
         href: '',
         download: '',
         click: clickSpy,
@@ -1511,7 +1527,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.chatStream(
         {
@@ -1550,7 +1566,7 @@ describe('ApiService', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -1570,7 +1586,7 @@ describe('ApiService', () => {
         ok: false,
         status: 503,
         statusText: 'Service Unavailable',
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -1593,7 +1609,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.chatStream({ messages: [] }, vi.fn(), vi.fn(), vi.fn());
 
@@ -1613,7 +1629,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.chatStream(
         { messages: [{ role: 'user', content: 'Hello! 你好! 🎉 <script>' }] },
@@ -1638,7 +1654,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       const longContent = 'A'.repeat(100000);
       service.chatStream(
@@ -1666,7 +1682,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.ragChat(
         {
@@ -1706,7 +1722,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.ragChat({ query: '', session_id: 'session123' }, vi.fn(), vi.fn(), vi.fn(), vi.fn());
 
@@ -1723,7 +1739,7 @@ describe('ApiService', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-      } as any);
+      } as never);
 
       const onError = vi.fn();
 
@@ -1747,7 +1763,7 @@ describe('ApiService', () => {
             read: vi.fn().mockResolvedValue({ done: true, value: new Uint8Array() }),
           }),
         },
-      } as any);
+      } as never);
 
       service.ragChat(
         { query: 'test', session_id: 'session123', doc_ids: [] },
@@ -1918,7 +1934,7 @@ describe('ApiService', () => {
 
   describe('deleteDocument edge cases', () => {
     it('should handle document ID with special characters', () => {
-      service.deleteDocument('doc-123_abc').subscribe(() => {});
+      service.deleteDocument('doc-123_abc').subscribe(vi.fn());
 
       const req = httpMock.expectOne('/api/rag/documents/doc-123_abc');
       expect(req.request.method).toBe('DELETE');
@@ -1927,7 +1943,7 @@ describe('ApiService', () => {
 
     it('should handle UUID format document ID', () => {
       const uuid = '550e8400-e29b-41d4-a716-446655440000';
-      service.deleteDocument(uuid).subscribe(() => {});
+      service.deleteDocument(uuid).subscribe(vi.fn());
 
       const req = httpMock.expectOne(`/api/rag/documents/${uuid}`);
       expect(req.request.method).toBe('DELETE');
@@ -1943,7 +1959,7 @@ describe('ApiService', () => {
         download: '',
         click: vi.fn(),
       };
-      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as never);
 
       service.downloadBlob(blob, 'custom-filename.txt');
 
@@ -1959,8 +1975,8 @@ describe('ApiService', () => {
         click: vi.fn(),
       };
       vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:http://localhost:4200/test');
-      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
-      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(vi.fn());
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as never);
 
       service.downloadBlob(blob, 'test.txt');
 

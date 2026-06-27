@@ -21,5 +21,7 @@ import { HeaderComponent } from './header.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {
-  openSidebar() {}
+  openSidebar(): void {
+    // Sidebar is managed by SidebarService
+  }
 }

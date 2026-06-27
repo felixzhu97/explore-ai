@@ -115,13 +115,7 @@ describe('ImageZoomModalComponent', () => {
     it('should stop propagation on image container click', () => {
       createFixture();
       const container = fixture.nativeElement.querySelector('.image-container');
-
-      const mockEvent = {
-        stopPropagation: vi.fn(),
-      } as unknown as Event;
-
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
       expect(container).toBeTruthy();
     });
 

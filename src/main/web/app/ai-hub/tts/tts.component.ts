@@ -27,8 +27,11 @@ import type { Voice } from './tts.model';
       <div class="panel-content">
         <div class="tts-section">
           <div class="input-group">
-            <label class="input-label">{{ i18n.t().aiHub.tts.textLabel }}</label>
+            <label class="input-label" for="tts-text-input">
+              {{ i18n.t().aiHub.tts.textLabel }}
+            </label>
             <textarea
+              id="tts-text-input"
               class="text-input"
               [ngModel]="text()"
               (ngModelChange)="setText($event)"
@@ -39,8 +42,15 @@ import type { Voice } from './tts.model';
 
           <div class="control-row">
             <div class="input-group">
-              <label class="input-label">{{ i18n.t().aiHub.tts.voiceLabel }}</label>
-              <select class="text-select" [ngModel]="voice()" (ngModelChange)="setVoice($event)">
+              <label class="input-label" for="voice-select">
+                {{ i18n.t().aiHub.tts.voiceLabel }}
+              </label>
+              <select
+                id="voice-select"
+                class="text-select"
+                [ngModel]="voice()"
+                (ngModelChange)="setVoice($event)"
+              >
 
                   @for (v of availableVoices(); track v.id) {
                     <option [value]="v.id">{{ v.name }} ({{ v.language }})</option>
@@ -55,10 +65,11 @@ import type { Voice } from './tts.model';
             </div>
 
             <div class="slider-container">
-              <label class="input-label"
-                >{{ i18n.t().aiHub.tts.speedLabel }}: {{ speed().toFixed(1) }}x</label
-              >
+              <label class="input-label" for="speed-slider">
+                {{ i18n.t().aiHub.tts.speedLabel }}: {{ speed().toFixed(1) }}x
+              </label>
               <input
+                id="speed-slider"
                 type="range"
                 class="slider"
                 min="0.5"
@@ -71,6 +82,7 @@ import type { Voice } from './tts.model';
           </div>
 
           <button
+            type="button"
             class="action-button primary"
             (click)="synthesize()"
             [disabled]="!text().trim() || isSynthesizing()"
@@ -91,6 +103,7 @@ import type { Voice } from './tts.model';
             <div class="audio-player">
               <div class="audio-controls">
                 <button
+                  type="button"
                   class="play-button"
                   [class.playing]="isPlaying()"
                   (click)="togglePlayPause()"
@@ -104,7 +117,11 @@ import type { Voice } from './tts.model';
                   </div>
                 </div>
               </div>
-              <button class="download-link" (click)="download()">
+              <button
+                type="button"
+                class="download-link"
+                (click)="download()"
+              >
                 ⬇️ {{ i18n.t().aiHub.tts.downloadAudio }}
               </button>
             </div>
@@ -513,10 +530,16 @@ export class TtsPageComponent implements OnInit, OnDestroy {
           this.audioBlob.set(blob);
 
           this.audioElement = new Audio(url);
-          this.audioElement.addEventListener('ended', () => this.isPlaying.set(false));
+          this.audioElement.addEventListener('ended', () => {
+            return this.isPlaying.set(false);
+          });
           this.audioElement.addEventListener('timeupdate', () => {
             if (this.audioElement) {
-              this.progress.set((this.audioElement.currentTime / this.audioElement.duration) * 100);
+              const duration = this.audioElement.duration;
+              const progress = duration > 0
+                ? (this.audioElement.currentTime / duration) * 100
+                : 0;
+              return this.progress.set(progress);
             }
           });
         },

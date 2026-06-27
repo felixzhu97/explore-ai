@@ -37,6 +37,7 @@ const toastIconClasses: Record<string, string> = {
           </span>
           <span class="flex-1 text-sm leading-relaxed text-text">{{ toast.message }}</span>
           <button
+            type="button"
             class="w-5 h-5 text-lg leading-none text-text-secondary bg-transparent border-none cursor-pointer rounded-full flex items-center justify-center transition-colors duration-150 shrink-0 hover:bg-black/6 hover:text-text"
             (click)="notificationService.dismiss(toast.id)"
             aria-label="Dismiss"

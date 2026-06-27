@@ -7,8 +7,7 @@ import {
   ElementRef,
   viewChild,
   ChangeDetectionStrategy,
-  output,
-  input, model,
+  model,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -91,15 +90,21 @@ import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.
               </p>
               <div class="quick-actions">
                 <button
+                  type="button"
                   class="quick-action"
                   (click)="setInput(i18n.t().aiHub.quickPrompts.greeting)"
                 >
                   {{ i18n.t().aiHub.quickPrompts.greeting }}
                 </button>
-                <button class="quick-action" (click)="setInput(i18n.t().aiHub.quickPrompts.help)">
+                <button
+                  type="button"
+                  class="quick-action"
+                  (click)="setInput(i18n.t().aiHub.quickPrompts.help)"
+                >
                   {{ i18n.t().aiHub.quickPrompts.help }}
                 </button>
                 <button
+                  type="button"
                   class="quick-action"
                   (click)="setInput(i18n.t().aiHub.quickPrompts.creative)"
                 >
@@ -578,8 +583,13 @@ export class ChatTabComponent implements OnInit, OnDestroy {
       },
       (chunk) => {
         fullContent += chunk;
-        this.messages.update(msgs => msgs.map(msg => (msg.id === assistantId ? { ...msg, content: fullContent } : msg)),
-        );
+        this.messages.update((msgs) => {
+          return msgs.map((msg) => {
+            return msg.id === assistantId
+              ? { ...msg, content: fullContent }
+              : msg;
+          });
+        });
       },
       () => {
         this.isLoading.set(false);
@@ -588,11 +598,15 @@ export class ChatTabComponent implements OnInit, OnDestroy {
       (err) => {
         let msg = err.message;
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-          msg = 'Text Service unavailable. Please ensure the service is running.';
+          msg =
+            'Text Service unavailable. Please ensure the service is running.';
         }
         this.error.set(msg);
-        this.messages.update(msgs => msgs.map(m => (m.id === assistantId ? { ...m, content: msg } : m)),
-        );
+        this.messages.update((msgs) => {
+          return msgs.map((m) => {
+            return m.id === assistantId ? { ...m, content: msg } : m;
+          });
+        });
         this.isLoading.set(false);
         this.abortController = null;
       },

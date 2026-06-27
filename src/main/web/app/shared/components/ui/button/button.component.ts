@@ -8,6 +8,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   standalone: true,
   template: `
     <button
+      type="button"
       class="inline-flex items-center justify-center font-medium leading-none whitespace-nowrap select-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
       [class]="getClasses()"
       [disabled]="disabled() || loading()"

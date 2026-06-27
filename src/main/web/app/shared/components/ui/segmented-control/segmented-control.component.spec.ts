@@ -13,8 +13,8 @@ describe('SegmentedControlComponent', () => {
   ];
 
   const createFixture = () => {
-    fixture = TestBed.createComponent(SegmentedControlComponent);
-    component = fixture.componentInstance as any;
+    fixture = TestBed.createComponent(SegmentedControlComponent<string>);
+    component = fixture.componentInstance;
     fixture.componentRef.setInput('options', mockOptions);
     fixture.componentRef.setInput('value', 'test');
     fixture.detectChanges();

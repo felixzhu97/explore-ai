@@ -10,6 +10,16 @@ export interface DocumentItem {
   title: string;
 }
 
+interface DocumentResponse {
+  documents?: {
+    id?: string;
+    doc_id?: string;
+    title?: string;
+    filename?: string;
+    name?: string;
+  }[];
+}
+
 export interface UploadStatus {
   id: string;
   title: string;
@@ -56,13 +66,14 @@ export class RagService {
   fetchAvailableDocs(): void {
     this.isLoadingDocs.set(true);
     this.api.getDocuments().subscribe({
-      next: (data) => {
-        const docs = (data.documents || []).map((d: any) => ({
-          id: d.id || d.doc_id || '',
-          title: d.title || d.filename || d.name || 'Untitled',
-        }));
+      next: (data: DocumentResponse) => {
+        const docs = (data.documents || []).map((d) => {
+          return { id: d.id || d.doc_id || '', title: d.title || d.filename || d.name || 'Untitled' };
+        });
         this.availableDocs.set(docs);
-        this.selectedDocIds.set(new Set(docs.map(d => d.id)));
+        const ids = new Set<string>();
+        docs.forEach(d => ids.add(d.id));
+        this.selectedDocIds.set(ids);
       },
       error: () => {
         this.notifications.showError(this.i18n.t().common.loadFailed);
@@ -87,7 +98,10 @@ export class RagService {
   }
 
   selectAllDocs(): void {
-    this.selectedDocIds.set(new Set(this.availableDocs().map(d => d.id)));
+    const docs = this.availableDocs();
+    const ids = new Set<string>();
+    docs.forEach(d => ids.add(d.id));
+    this.selectedDocIds.set(ids);
   }
 
   clearDocSelection(): void {
@@ -100,7 +114,9 @@ export class RagService {
       return;
     }
 
-    this.deletingDocIds.update(ids => new Set(ids).add(docId));
+    this.deletingDocIds.update((ids) => {
+      return new Set(ids).add(docId);
+    });
 
     this.api.deleteDocument(docId).subscribe({
       next: () => {
@@ -274,8 +290,11 @@ export class RagService {
         );
       },
       (sources: SourceDocument[]) => {
-        this.messages.update(msgs => msgs.map(msg => (msg.id === assistantMessageId ? { ...msg, sources } : msg)),
-        );
+        this.messages.update((msgs) => {
+          return msgs.map((msg) => {
+            return msg.id === assistantMessageId ? { ...msg, sources } : msg;
+          });
+        });
       },
       () => {
         this.streamingMessageIds.update((ids) => {
@@ -285,15 +304,14 @@ export class RagService {
         });
         this.isLoading.set(false);
       },
-      (_err: Error) => {
-        this.messages.update(msgs => msgs.map(msg => msg.id === assistantMessageId
-          ? {
-              ...msg,
-              content: 'An error occurred while processing your request.',
-            }
-          : msg,
-        ),
-        );
+      () => {
+        this.messages.update((msgs) => {
+          return msgs.map((msg) => {
+            return msg.id === assistantMessageId
+              ? { ...msg, content: 'An error occurred while processing your request.' }
+              : msg;
+          });
+        });
         this.streamingMessageIds.update((ids) => {
           const next = new Set(ids);
           next.delete(assistantMessageId);

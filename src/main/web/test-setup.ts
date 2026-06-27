@@ -26,7 +26,7 @@ if (typeof globalThis.URL.createObjectURL === 'undefined') {
 }
 if (typeof globalThis.URL.revokeObjectURL === 'undefined') {
   Object.defineProperty(globalThis.URL, 'revokeObjectURL', {
-    value: () => {},
+    value: () => { /* empty */ },
     writable: true,
     configurable: true,
   });
