@@ -11,7 +11,7 @@
   <!-- Main Content -->
   <div class="grid min-h-96 grid-cols-1 gap-6 md:grid-cols-2">
     <!-- Image Upload Panel -->
-    <div class="flex flex-col gap-4 rounded-xl border border-border bg-surface p-6">
+    <div class="flex flex-col gap-4 rounded-xl bg-surface p-6">
       <h3 class="mb-0 text-sm font-medium tracking-wide text-text-secondary uppercase">{{ i18n.t().imageUploader.imageLabel }}</h3>
       <div
         class="group relative flex min-h-64 cursor-pointer flex-col items-center justify-center gap-3 overflow-hidden rounded-xl border-2 border-dashed border-border bg-surface-secondary"
@@ -70,7 +70,7 @@
     </div>
 
     <!-- Result Panel -->
-    <div class="flex flex-col gap-4 rounded-xl border border-border bg-surface p-6">
+    <div class="flex flex-col gap-4 rounded-xl bg-surface p-6">
       <h3 class="mb-0 text-sm font-medium tracking-wide text-text-secondary uppercase">{{ i18n.t().imageUploader.resultLabel }}</h3>
       <div class="flex flex-1 flex-col">
         @if (currentState().result) {

@@ -1,9 +1,8 @@
 import { Injectable, signal, computed } from '@angular/core';
-import {
-  DEFAULT_TOAST_DURATION_MS,
-  ERROR_TOAST_DURATION_MS,
-  WARNING_TOAST_DURATION_MS,
-} from '../constants';
+
+const DEFAULT_TOAST_DURATION_MS = 3 * 1000;
+const ERROR_TOAST_DURATION_MS = 5 * 1000;
+const WARNING_TOAST_DURATION_MS = 4 * 1000;
 
 export interface Toast {
   id: number;

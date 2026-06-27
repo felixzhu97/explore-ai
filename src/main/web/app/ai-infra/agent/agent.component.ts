@@ -16,11 +16,14 @@ import type { ChatMessageData } from './chat-message/chat-message.component';
 import { ToolCall } from './chat-message/tool-result/tool-result.component';
 import type { AgentInfo } from './agent.model';
 import { NotificationService } from '@core/services/notification.service';
+import { NxSenderComponent } from 'ng-zorro-x/sender';
+import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
+import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 export type { AgentInfo };
 
 @Component({
   selector: 'app-agent-component',
-  imports: [ChatMessageComponent, FormsModule],
+  imports: [ChatMessageComponent, FormsModule, NxSenderComponent, NzIconModule],
   standalone: true,
   templateUrl: './agent.component.html',
   styles: [`
@@ -44,6 +47,7 @@ export type { AgentInfo };
       }
     }
   `],
+  providers: [provideNzIconsPatch([ArrowUpOutline])],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentComponent {
@@ -80,13 +84,6 @@ export class AgentComponent {
 
   setInput(value: string) {
     this.inputValue.set(value);
-  }
-
-  onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.sendMessage();
-    }
   }
 
   async sendMessage() {

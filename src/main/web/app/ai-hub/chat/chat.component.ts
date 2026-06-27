@@ -13,12 +13,15 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@shared/utils/markdown.service';
 import { I18nService } from '@core/i18n';
-import { NxSenderModule } from 'ng-zorro-x/sender';
+import { NxSenderComponent } from 'ng-zorro-x/sender';
 import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.model';
+import { NxBubbleComponent } from 'ng-zorro-x/bubble';
+import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
+import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 
 @Component({
   selector: 'app-chat-tab',
-  imports: [FormsModule, NxSenderModule],
+  imports: [FormsModule, NxSenderComponent, NzIconModule, NxBubbleComponent],
   standalone: true,
   templateUrl: './chat.component.html',
   styles: [
@@ -35,6 +38,7 @@ import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.
       }
     `,
   ],
+  providers: [provideNzIconsPatch([ArrowUpOutline])],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatTabComponent implements OnInit, OnDestroy {

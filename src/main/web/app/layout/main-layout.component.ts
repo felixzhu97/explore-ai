@@ -9,19 +9,20 @@ import { HeaderComponent } from './header.component';
   imports: [RouterOutlet, ToastComponent, SidebarComponent, HeaderComponent],
   standalone: true,
   template: `
-    <div class="min-h-screen bg-background">
       <app-toast />
       <app-sidebar />
       <app-header (openSidebar)="openSidebar()" />
       <main class="
-        ml-60 min-h-screen transition-all duration-250
+        ml-60 flex min-h-screen justify-center p-6 transition-all duration-250
         md:ml-60
       ">
-        <router-outlet />
+          <router-outlet  class="max-w-220"/>
       </main>
-    </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: 'min-h-screen bg-gray-100',
+  },
 })
 export class MainLayoutComponent {
   openSidebar(): void {

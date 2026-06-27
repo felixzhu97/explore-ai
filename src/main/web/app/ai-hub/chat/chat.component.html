@@ -1,14 +1,13 @@
 <div class="flex flex-col gap-4">
   <div class="
-    flex items-center justify-between rounded-xl border border-border
-    bg-surface p-4
+    flex items-center justify-between rounded-xl bg-surface p-4
   ">
     <div>
       <h3 class="m-0 text-lg font-semibold text-text">{{ i18n.t().aiHub.chat.title }}</h3>
       <p class="m-0 mt-1 text-base text-text-secondary">{{ i18n.t().aiHub.chat.description }}</p>
     </div>
   </div>
-  <div class="rounded-xl border border-border bg-surface p-6">
+  <div class="rounded-xl bg-surface p-6">
     <!-- Model Selector -->
     @if (providers().length > 0) {
       <div class="
@@ -68,7 +67,7 @@
     <!-- Chat Messages -->
     <div class="
       mb-4 flex max-h-96 min-h-48 flex-col gap-3 overflow-y-auto
-      rounded-xl border border-border bg-surface p-4
+      rounded-xl bg-surface p-4
     " #chatContainer>
       @if (messages().length === 0) {
         <div class="
@@ -128,17 +127,22 @@
           </div>
         </div>
       } @else {
+
+          <nx-bubble
+                  placement="end"
+                  content="message.content"
+                  shape="round"
+          />
         @for (msg of messages(); track msg.id) {
           <div class="flex max-w-[75%] animate-fade-in flex-col items-start self-start"
                [class.self-end]="msg.role === 'user'" [class.items-end]="msg.role === 'user'">
             <div class="
-              rounded-xl border border-border
+              rounded-xl
               bg-surface-secondary px-4 py-3 text-base leading-relaxed
               wrap-break-word text-text
             "
              [class.bg-primary]="msg.role === 'user'"
-             [class.text-white]="msg.role === 'user'"
-             [class.border-0]="msg.role === 'user'">
+             [class.text-white]="msg.role === 'user'">
               @if (msg.role === 'user') {
                 {{ msg.content }}
               } @else {
@@ -167,7 +171,7 @@
             flex max-w-[75%] animate-fade-in flex-col items-start self-start
           ">
             <div class="
-              rounded-xl border border-border
+              rounded-xl
               bg-surface-secondary px-4 py-3 text-base leading-relaxed
               wrap-break-word text-text
             ">
@@ -194,11 +198,9 @@
 
     <!-- Input Area -->
     <nx-sender
-      [value]="input()"
-      [loading]="isLoading()"
-      [disabled]="isLoading()"
       [placeholder]="i18n.t().aiHub.chat.inputPlaceholder"
-      (valueChange)="setInput($event)"
+      [(value)]="input"
+      [loading]="isLoading()"
       (submitSend)="send()"
     />
   </div>

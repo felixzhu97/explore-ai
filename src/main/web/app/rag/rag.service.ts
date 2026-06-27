@@ -1,9 +1,8 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@core/i18n';
 import { SourceDocument } from './rag.model';
-import { DEFAULT_TEMPERATURE, DEFAULT_TOP_K } from '@core/constants';
 
 export interface DocumentItem {
   id: string;
@@ -35,6 +34,9 @@ export interface ChatMessage {
   sources?: SourceDocument[];
   timestamp: number;
 }
+
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_TOP_K = 5;
 
 @Injectable({ providedIn: 'root' })
 export class RagService {

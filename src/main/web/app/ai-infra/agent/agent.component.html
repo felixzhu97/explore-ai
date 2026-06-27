@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6" [style.animation]="'fadeIn 0.3s ease'">
-  <div #chatContainer class="
+  <div class="
     relative flex max-h-96 min-h-48 flex-col gap-4 overflow-y-auto
-    rounded-xl border border-border bg-surface p-4
+    rounded-xl bg-surface p-4
   ">
     @if (messages().length === 0) {
       <div class="
@@ -66,60 +66,10 @@
     }
   </div>
 
-  <div class="flex items-end gap-2">
-    <textarea
-      class="
-        max-h-72 min-h-12 flex-1 resize-none rounded-xl border
-        border-border bg-surface p-4 font-sans text-sm text-text
-        transition-all duration-150
-        placeholder:text-text-tertiary
-        focus:border-primary focus:shadow-input focus:outline-none
-        disabled:cursor-not-allowed disabled:opacity-50
-      "
-      [ngModel]="inputValue()"
-      (ngModelChange)="inputValue.set($event)"
-      [placeholder]="inputPlaceholderText()"
-      [disabled]="isLoading()"
-      (keydown)="onKeyDown($event)"
-      rows="1"
-    ></textarea>
-    <button
-      type="button"
-      class="
-        flex size-12 cursor-pointer items-center justify-center rounded-xl
-        border-none bg-primary text-lg text-white transition-all duration-200
-        hover:bg-primary-hover
-        active:scale-95 active:bg-primary-active
-        disabled:cursor-not-allowed disabled:opacity-50
-      "
-      [disabled]="isLoading() || !inputValue().trim()"
-      (click)="sendMessage()"
-    >
-      @if (isLoading()) {
-        <span
-          class="
-            inline-block size-4 rounded-full border-2 border-current
-            border-r-transparent
-          "
-          [style.animation]="'spin 0.6s linear infinite'"
-        ></span>
-      } @else {
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          class="
-            [&_line]:no-underline
-            [&_polygon]:no-underline
-          "
-        >
-          <line x1="22" y1="2" x2="11" y2="13" />
-          <polygon points="22 2 15 22 11 13 2 9 22 2" />
-        </svg>
-      }
-    </button>
-  </div>
+  <nx-sender
+    [placeholder]="inputPlaceholderText()"
+    [(value)]="inputValue"
+    [loading]="isLoading()"
+    (submitSend)="sendMessage()"
+  />
 </div>
