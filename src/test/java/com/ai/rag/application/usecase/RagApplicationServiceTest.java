@@ -52,6 +52,20 @@ class RagApplicationServiceTest {
             assertThat(result.chunkCount()).isEqualTo(3);
             verify(uploadService).upload("Test", "file.txt", 1024L, "content");
         }
+
+        @Test
+        @DisplayName("should delegate uploadDocumentFromBytes to uploadService")
+        void shouldDelegateUploadDocumentFromBytesToUploadService() {
+            DocumentId docId = DocumentId.generate();
+            byte[] content = "test content".getBytes();
+            var uploadResult = new DocumentUploadService.UploadResult(docId, "Test", "READY", 5);
+            when(uploadService.upload("Test", "file.bin", 12L, content)).thenReturn(uploadResult);
+
+            var result = service.uploadDocumentFromBytes("Test", "file.bin", 12L, content);
+
+            assertThat(result.documentId()).isEqualTo(docId);
+            assertThat(result.chunkCount()).isEqualTo(5);
+        }
     }
 
     @Nested
