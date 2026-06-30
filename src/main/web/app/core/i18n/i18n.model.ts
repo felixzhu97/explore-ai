@@ -101,10 +101,29 @@ export interface Translations {
     title: string;
     modelBadge: string;
     statusText: string;
+    cards: {
+      chat: {
+        title: string;
+        description: string;
+      };
+      image: {
+        title: string;
+        description: string;
+      };
+      tts: {
+        title: string;
+        description: string;
+      };
+    };
     tabs: {
       chat: string;
       image: string;
       tts: string;
+    };
+    emptyState: {
+      title: string;
+      message: string;
+      getStarted: string;
     };
     chat: {
       title: string;
@@ -147,6 +166,13 @@ export interface Translations {
       help: string;
       creative: string;
     };
+  };
+  sidebar: {
+    chatHistory: string;
+    newChat: string;
+    pinned: string;
+    recents: string;
+    searchConversations: string;
   };
 }
 
@@ -277,10 +303,29 @@ export const translations: Record<Language, Translations> = {
       title: 'AI Hub',
       modelBadge: 'GPT-4o + SDXL + TTS',
       statusText: 'Services Online',
+      cards: {
+        chat: {
+          title: 'Conversational AI',
+          description: 'Chat with AI powered by GPT-4o',
+        },
+        image: {
+          title: 'Image Generation',
+          description: 'Create stunning images with Stable Diffusion XL',
+        },
+        tts: {
+          title: 'Text to Speech',
+          description: 'Convert text to natural-sounding speech',
+        },
+      },
       tabs: {
         chat: 'Chat',
         image: 'Image Gen',
         tts: 'Text to Speech',
+      },
+      emptyState: {
+        title: 'Welcome to AI Hub',
+        message: 'Choose an AI capability to get started',
+        getStarted: 'Get Started',
       },
       chat: {
         title: 'Conversational AI',
@@ -323,6 +368,13 @@ export const translations: Record<Language, Translations> = {
         help: 'What can you do?',
         creative: 'Write a short poem about nature',
       },
+    },
+    sidebar: {
+      chatHistory: 'Chat History',
+      newChat: 'New Chat',
+      pinned: 'Pinned',
+      recents: 'Recents',
+      searchConversations: 'Search conversations...',
     },
   },
   zh: {
@@ -423,10 +475,29 @@ export const translations: Record<Language, Translations> = {
       title: 'AI Hub',
       modelBadge: 'GPT-4o + SDXL + TTS',
       statusText: '服务在线',
+      cards: {
+        chat: {
+          title: '对话式 AI',
+          description: '使用 GPT-4o 驱动的 AI 对话',
+        },
+        image: {
+          title: '图像生成',
+          description: '使用 Stable Diffusion XL 创建精美图像',
+        },
+        tts: {
+          title: '文本转语音',
+          description: '将文本转换为自然语音',
+        },
+      },
       tabs: {
         chat: '聊天',
         image: '图像生成',
         tts: '语音合成',
+      },
+      emptyState: {
+        title: '欢迎使用 AI Hub',
+        message: '选择一个 AI 功能开始使用',
+        getStarted: '开始使用',
       },
       chat: {
         title: '对话 AI',
@@ -469,6 +540,13 @@ export const translations: Record<Language, Translations> = {
         help: '你能做什么？',
         creative: '写一首关于自然的短诗',
       },
+    },
+    sidebar: {
+      chatHistory: '聊天历史',
+      newChat: '新对话',
+      pinned: '已固定',
+      recents: '最近',
+      searchConversations: '搜索对话...',
     },
   },
   ja: {
@@ -594,10 +672,29 @@ export const translations: Record<Language, Translations> = {
       title: 'AI Hub',
       modelBadge: 'GPT-4o + SDXL + TTS',
       statusText: 'サービスオンライン',
+      cards: {
+        chat: {
+          title: '会話 AI',
+          description: 'GPT-4o搭載のAI会話',
+        },
+        image: {
+          title: '画像生成',
+          description: 'Stable Diffusion XLで画像を生成',
+        },
+        tts: {
+          title: 'テキスト読み上げ',
+          description: 'テキストを自然な音声に変換',
+        },
+      },
       tabs: {
         chat: 'チャット',
         image: '画像生成',
         tts: '音声合成',
+      },
+      emptyState: {
+        title: 'AI Hub へようこそ',
+        message: 'AI機能を選択して開始',
+        getStarted: '始める',
       },
       chat: {
         title: '会話 AI',
@@ -640,6 +737,13 @@ export const translations: Record<Language, Translations> = {
         help: '何ができますか？',
         creative: '自然についての短い詩を書いてください',
       },
+    },
+    sidebar: {
+      chatHistory: 'チャット履歴',
+      newChat: '新しいチャット',
+      pinned: 'ピン留め',
+      recents: '最近',
+      searchConversations: '会話を検索...',
     },
   },
   fr: {
@@ -770,10 +874,29 @@ export const translations: Record<Language, Translations> = {
       title: 'AI Hub',
       modelBadge: 'GPT-4o + SDXL + TTS',
       statusText: 'Services en ligne',
+      cards: {
+        chat: {
+          title: 'IA Conversationnelle',
+          description: 'Discutez avec une IA alimentée par GPT-4o',
+        },
+        image: {
+          title: 'Génération d\'images',
+          description: 'Créez de superbes images avec Stable Diffusion XL',
+        },
+        tts: {
+          title: 'Synthèse vocale',
+          description: 'Convertissez le texte en parole naturelle',
+        },
+      },
       tabs: {
         chat: 'Chat',
         image: 'Génération d\'images',
         tts: 'Synthèse vocale',
+      },
+      emptyState: {
+        title: 'Bienvenue sur AI Hub',
+        message: 'Choisissez une capacité IA pour commencer',
+        getStarted: 'Commencer',
       },
       chat: {
         title: 'IA Conversationnelle',
@@ -816,6 +939,13 @@ export const translations: Record<Language, Translations> = {
         help: 'Que pouvez-vous faire?',
         creative: 'Écrivez un court poème sur la nature',
       },
+    },
+    sidebar: {
+      chatHistory: 'Historique des chats',
+      newChat: 'Nouveau chat',
+      pinned: 'Épinglé',
+      recents: 'Récents',
+      searchConversations: 'Rechercher des conversations...',
     },
   },
   es: {
@@ -946,10 +1076,29 @@ export const translations: Record<Language, Translations> = {
       title: 'AI Hub',
       modelBadge: 'GPT-4o + SDXL + TTS',
       statusText: 'Servicios en línea',
+      cards: {
+        chat: {
+          title: 'IA Conversacional',
+          description: 'Chatea con una IA impulsada por GPT-4o',
+        },
+        image: {
+          title: 'Generación de imágenes',
+          description: 'Crea imágenes impresionantes con Stable Diffusion XL',
+        },
+        tts: {
+          title: 'Texto a voz',
+          description: 'Convierte texto en voz natural',
+        },
+      },
       tabs: {
         chat: 'Chat',
         image: 'Generación de imágenes',
         tts: 'Texto a voz',
+      },
+      emptyState: {
+        title: 'Bienvenido a AI Hub',
+        message: 'Elige una capacidad IA para comenzar',
+        getStarted: 'Comenzar',
       },
       chat: {
         title: 'IA Conversacional',
@@ -992,6 +1141,13 @@ export const translations: Record<Language, Translations> = {
         help: '¿Qué puedes hacer?',
         creative: 'Escribe un poema corto sobre la naturaleza',
       },
+    },
+    sidebar: {
+      chatHistory: 'Historial de chats',
+      newChat: 'Nuevo chat',
+      pinned: 'Fijado',
+      recents: 'Recientes',
+      searchConversations: 'Buscar conversaciones...',
     },
   },
 };

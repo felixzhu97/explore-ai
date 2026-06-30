@@ -1,6 +1,6 @@
 <aside
   class="
-    fixed top-0 left-0 z-90 h-screen overflow-hidden border-r border-gray-200
+    fixed top-0 left-0 z-90 flex h-screen flex-col border-r border-gray-200
     bg-white transition-all duration-250 ease-out
   "
   [ngClass]="sidebarClasses()"
@@ -52,31 +52,169 @@
     </button>
   </div>
 
-  <nav class="flex-1 overflow-x-hidden overflow-y-auto p-2">
-    @for (tab of tabs; track tab.key) {
-      <a
+  @if (!collapsed()) {
+    <!-- Navigation Tabs -->
+    <nav class="flex flex-col gap-0.5 p-2">
+      <!-- New Chat Button -->
+      <button
+        type="button"
         class="
-          mb-0.5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm
+          flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px]
           font-medium whitespace-nowrap text-text-secondary no-underline
           transition-all duration-150
           hover:bg-surface-secondary hover:text-text
         "
-        [class.bg-primary-light]="isActiveTab(tab.path)"
-        [class.text-primary]="isActiveTab(tab.path)"
-        [routerLink]="tab.path"
-        [title]="t().nav[tab.labelKey]"
-        (click)="onNavClick()"
+        (click)="newChat()"
+        [title]="t().sidebar.newChat"
       >
-        <span class="w-6 shrink-0 text-center text-base">{{ getIcon(tab.key) }}</span>
-        @if (!collapsed()) {
-          <span class="overflow-hidden text-ellipsis">
+        <span class="size-4 shrink-0 text-center text-black opacity-60">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </span>
+        <span class="overflow-hidden text-ellipsis text-black/70">
+          {{ t().sidebar.newChat }}
+        </span>
+      </button>
+
+      @for (tab of tabs; track tab.key) {
+        <a
+          class="
+            flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px]
+            font-medium whitespace-nowrap text-text-secondary no-underline
+            transition-all duration-150
+            hover:bg-surface-secondary hover:text-text
+          "
+          [class.bg-primary-light]="isActiveTab(tab.path)"
+          [class.text-primary]="isActiveTab(tab.path)"
+          [routerLink]="tab.path"
+          [title]="t().nav[tab.labelKey]"
+          (click)="onNavClick()"
+        >
+          <span class="size-4 shrink-0 text-center text-black opacity-60" [innerHTML]="getIcon(tab.key)"></span>
+          <span class="overflow-hidden text-ellipsis text-black/70">
             {{ t().nav[tab.labelKey] }}
           </span>
-        }
-      </a>
-    }
-  </nav>
+        </a>
+      }
+    </nav>
 
+    <!-- Chat History Section -->
+    <div class="flex-1 overflow-y-auto border-t border-border-light">
+      <!-- Pinned Sessions -->
+      @if (sidebar.pinnedSessions().length > 0) {
+        <div class="px-2 pt-2 pb-1">
+          <button
+            type="button"
+            class="
+              group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-[13px]
+              font-semibold text-text-secondary no-underline transition-all duration-150
+              hover:text-text
+            "
+            (click)="pinnedExpanded.update(v => !v)"
+          >
+            {{ t().sidebar.pinned }}
+            <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <svg
+                class="size-3 transition-transform duration-200"
+                [class.rotate-90]="pinnedExpanded()"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </span>
+          </button>
+          @if (pinnedExpanded()) {
+            <div class="space-y-0.5">
+              @for (session of sidebar.pinnedSessions(); track session.id) {
+                <app-session-item
+                  [session]="session"
+                  [isActive]="sidebar.activeSessionId() === session.id"
+                  [collapsed]="collapsed()"
+                  (sessionSelect)="onSessionSelect(session.id)"
+                  (pin)="onSessionPin(session.id)"
+                  (delete)="onSessionDelete(session.id)"
+                />
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Recent Sessions -->
+      @if (sidebar.recentSessions().length > 0) {
+        <div class="px-2 pt-1 pb-2">
+          <button
+            type="button"
+            class="
+              group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-[13px]
+              font-semibold text-text-secondary no-underline transition-all duration-150
+              hover:text-text
+            "
+            (click)="recentsExpanded.update(v => !v)"
+          >
+            {{ t().sidebar.recents }}
+            <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <svg
+                class="size-3 transition-transform duration-200"
+                [class.rotate-90]="recentsExpanded()"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </span>
+          </button>
+          @if (recentsExpanded()) {
+            <div class="space-y-0.5">
+              @for (session of sidebar.recentSessions(); track session.id) {
+                <app-session-item
+                  [session]="session"
+                  [isActive]="sidebar.activeSessionId() === session.id"
+                  [collapsed]="collapsed()"
+                  (sessionSelect)="onSessionSelect(session.id)"
+                  (pin)="onSessionPin(session.id)"
+                  (delete)="onSessionDelete(session.id)"
+                />
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Collapsed: Show new chat button only -->
+    <div class="flex flex-col items-center gap-2 border-t border-border-light py-2">
+      <button
+        type="button"
+        class="
+          flex size-8 cursor-pointer items-center justify-center rounded
+          border-none bg-transparent text-text-secondary transition-all
+          duration-150
+          hover:bg-surface-secondary hover:text-text
+        "
+        (click)="newChat()"
+        [title]="t().sidebar.newChat"
+      >
+        <svg
+          class="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+    </div>
+  }
+
+  <!-- Language Selector - Fixed at Bottom -->
   <div class="border-t border-border-light p-2">
     <div class="relative" [class.collapsed]="collapsed()">
       <button

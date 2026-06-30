@@ -59,6 +59,8 @@
   --animate-fadeIn: fadeIn 0.25s ease;
   --animate-slide-in: slideIn 0.25s ease;
   --animate-toast-slide-in: toastSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-page-slide-in: pageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-page-slide-out: pageSlideOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes dropdownFadeIn {
@@ -85,6 +87,28 @@
 @keyframes toastSlideIn {
   from { opacity: 0; transform: translateX(100%); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pageSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
 }
 
 :root {
