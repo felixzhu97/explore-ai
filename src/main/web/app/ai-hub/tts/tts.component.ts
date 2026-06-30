@@ -9,7 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@core/i18n';
-import type { Voice } from './tts.model';
+import type { Voice } from '../tts.model';
 
 @Component({
   selector: 'app-tts-tab',

@@ -69,7 +69,7 @@ export class SidebarComponent {
   readonly tabs: NavTab[] = [
     { key: 'rag', labelKey: 'documentQA', path: '/rag' },
     { key: 'vision', labelKey: 'visionAI', path: '/vision' },
-    { key: 'ai-hubs', labelKey: 'aiHub', path: '/ai-hubs' },
+    { key: 'ai-hubs', labelKey: 'aiHub', path: '/ai-hubs/chat' },
   ];
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;

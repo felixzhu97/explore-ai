@@ -2,7 +2,7 @@ import { Component, signal, inject, ChangeDetectionStrategy, output } from '@ang
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@core/i18n';
-import type { ImageSize } from './image.model';
+import type { ImageSize } from '../image.model';
 
 @Component({
   selector: 'app-image-gen-tab',

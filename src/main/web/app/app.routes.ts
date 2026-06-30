@@ -29,14 +29,6 @@ export const routes: Routes = [
             path: 'chat',
             loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
           },
-          {
-            path: 'image',
-            loadComponent: () => import('./ai-hub/image/image.component').then(m => m.ImageComponent),
-          },
-          {
-            path: 'tts',
-            loadComponent: () => import('./ai-hub/tts/tts.component').then(m => m.TtsPageComponent),
-          },
         ],
       },
     ],

@@ -1,33 +1,21 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { I18nService } from '@core/i18n';
-import { FeatureCardComponent, FeatureCardData } from '../components/feature-card/feature-card.component';
 import { EmptyStateComponent } from '../components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-hub-dashboard',
-  imports: [FeatureCardComponent, EmptyStateComponent],
+  imports: [EmptyStateComponent],
   standalone: true,
   template: `
     <div class="animate-page-enter">
-      @if (features().length > 0) {
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          @for (feature of features(); track feature.id) {
-            <app-feature-card
-              [data]="feature"
-              (selected)="onFeatureSelect($event)"
-            />
-          }
-        </div>
-      } @else {
-        <app-empty-state
-          [title]="t().aiHub.emptyState.title"
-          [message]="t().aiHub.emptyState.message"
-          [showCta]="true"
-          [ctaLabel]="t().aiHub.emptyState.getStarted"
-          (ctaClick)="navigateToDefault()"
-        />
-      }
+      <app-empty-state
+        [title]="t().aiHub.emptyState.title"
+        [message]="t().aiHub.emptyState.message"
+        [showCta]="true"
+        [ctaLabel]="t().aiHub.emptyState.getStarted"
+        (ctaClick)="goToChat()"
+      />
     </div>
   `,
   styles: [
@@ -58,43 +46,7 @@ export class HubDashboardComponent {
     return this.i18n.t;
   }
 
-  readonly features = computed<FeatureCardData[]>(() => {
-    const cards = this.t().aiHub.cards;
-    return [
-      {
-        id: 'chat',
-        title: cards.chat.title,
-        description: cards.chat.description,
-        icon: 'chat',
-        route: '/ai-hubs/chat',
-      },
-      {
-        id: 'image',
-        title: cards.image.title,
-        description: cards.image.description,
-        icon: 'image',
-        route: '/ai-hubs/image',
-      },
-      {
-        id: 'tts',
-        title: cards.tts.title,
-        description: cards.tts.description,
-        icon: 'audio',
-        route: '/ai-hubs/tts',
-      },
-    ];
-  });
-
-  onFeatureSelect(id: FeatureCardData['id']): void {
-    const routes: Record<FeatureCardData['id'], string> = {
-      chat: '/ai-hubs/chat',
-      image: '/ai-hubs/image',
-      tts: '/ai-hubs/tts',
-    };
-    this.router.navigateByUrl(routes[id]);
-  }
-
-  navigateToDefault(): void {
+  goToChat(): void {
     this.router.navigateByUrl('/ai-hubs/chat');
   }
 }

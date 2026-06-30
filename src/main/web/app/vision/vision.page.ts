@@ -1,6 +1,4 @@
 import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@core/i18n';
@@ -18,10 +16,11 @@ interface TabState {
 
 @Component({
   selector: 'app-vision-page',
-  imports: [CommonModule, FormsModule, SegmentedControlComponent],
+  imports: [SegmentedControlComponent],
   standalone: true,
   templateUrl: './vision.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'h-full w-full flex h-screen flex-col' },
 })
 export class VisionPageComponent {
   private readonly api = inject(ApiService);
@@ -48,11 +47,11 @@ export class VisionPageComponent {
 
   readonly currentState = computed<TabState>(() => this.tabStates()[this.activeTask()]);
 
-  setActiveTask(task: TaskType) {
+  setActiveTask(task: TaskType): void {
     this.activeTask.set(task);
   }
 
-  onImageAreaClick() {
+  onImageAreaClick(): void {
     if (!this.currentState().image) {
       const input = document.createElement('input');
       input.type = 'file';
@@ -62,7 +61,7 @@ export class VisionPageComponent {
     }
   }
 
-  onFileChange(event: Event) {
+  onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
@@ -71,7 +70,7 @@ export class VisionPageComponent {
     input.value = '';
   }
 
-  processFile(file: File) {
+  processFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.updateState({ error: this.i18n.t().imageUploader.selectImageError });
       return;
@@ -84,7 +83,7 @@ export class VisionPageComponent {
     reader.readAsDataURL(file);
   }
 
-  onDrop(event: DragEvent) {
+  onDrop(event: DragEvent): void {
     event.preventDefault();
     const droppedFile = event.dataTransfer?.files[0];
     if (droppedFile) {
@@ -92,24 +91,24 @@ export class VisionPageComponent {
     }
   }
 
-  onDragOver(event: DragEvent) {
+  onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
 
-  clearImage(event: Event) {
+  clearImage(event: Event): void {
     event.stopPropagation();
     this.updateState({ image: null, file: null, error: null, result: null });
   }
 
-  zoomImage(image: string) {
+  zoomImage(image: string): void {
     this.zoomedImage.set(image);
   }
 
-  closeZoom() {
+  closeZoom(): void {
     this.zoomedImage.set(null);
   }
 
-  submit() {
+  submit(): void {
     const currentFile = this.currentState().file;
     if (!currentFile) return;
 
@@ -146,7 +145,7 @@ export class VisionPageComponent {
     });
   }
 
-  private updateState(partial: Partial<TabState>) {
+  private updateState(partial: Partial<TabState>): void {
     this.tabStates.update(states => ({
       ...states,
       [this.activeTask()]: { ...states[this.activeTask()], ...partial },

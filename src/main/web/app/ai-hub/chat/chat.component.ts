@@ -14,14 +14,14 @@ import { ApiService } from '@core/services/api.service';
 import { MarkdownService } from '@shared/utils/markdown.service';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
-import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from './chat.model';
-import { NxBubbleComponent } from 'ng-zorro-x/bubble';
+import type { ChatMessage, ProviderInfo, ModelInfo, ChatTabState } from '../chat.model';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
+import { SidebarService } from '../../layout/sidebar.service';
 
 @Component({
   selector: 'app-chat-tab',
-  imports: [FormsModule, NxSenderComponent, NzIconModule, NxBubbleComponent],
+  imports: [FormsModule, NxSenderComponent, NzIconModule],
   standalone: true,
   templateUrl: './chat.component.html',
   styles: [
@@ -40,6 +40,7 @@ import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
   ],
   providers: [provideNzIconsPatch([ArrowUpOutline])],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'flex h-screen flex-col' },
 })
 export class ChatTabComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
@@ -69,7 +70,16 @@ export class ChatTabComponent implements OnInit, OnDestroy {
   readonly selectedModel = signal('gpt-4o-mini');
   readonly isLoadingModels = signal(false);
 
+  private readonly sidebar = inject(SidebarService);
+
   readonly messagesEnd = viewChild<ElementRef>('messagesEnd');
+
+  newChat(): void {
+    this.messages.set([]);
+    this.error.set(null);
+    this.sidebar.addSession();
+  }
+
   private abortController: AbortController | null = null;
 
   ngOnInit() {
@@ -133,6 +143,13 @@ export class ChatTabComponent implements OnInit, OnDestroy {
       },
       complete: () => this.isLoadingModels.set(false),
     });
+  }
+
+  private scrollToBottom() {
+    const el = this.messagesEnd();
+    if (el) {
+      el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
   }
 
   onProviderChange(provider: string) {
@@ -208,10 +225,12 @@ export class ChatTabComponent implements OnInit, OnDestroy {
               : msg;
           });
         });
+        this.scrollToBottom();
       },
       () => {
         this.isLoading.set(false);
         this.abortController = null;
+        this.scrollToBottom();
       },
       (err) => {
         let msg = err.message;
@@ -227,6 +246,7 @@ export class ChatTabComponent implements OnInit, OnDestroy {
         });
         this.isLoading.set(false);
         this.abortController = null;
+        this.scrollToBottom();
       },
     );
   }

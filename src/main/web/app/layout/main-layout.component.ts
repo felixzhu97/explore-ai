@@ -13,10 +13,10 @@ import { HeaderComponent } from './header.component';
       <app-sidebar />
       <app-header (openSidebar)="openSidebar()" />
       <main class="
-        ml-60 flex min-h-screen justify-center p-6 transition-all duration-250
+        ml-60 flex min-h-screen justify-center transition-all duration-250
         md:ml-60
       ">
-          <router-outlet  class="max-w-220"/>
+          <router-outlet/>
       </main>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

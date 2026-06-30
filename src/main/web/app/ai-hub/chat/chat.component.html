@@ -1,207 +1,144 @@
-<div class="flex flex-col gap-4">
-  <div class="
-    flex items-center justify-between rounded-xl bg-surface p-4
-  ">
-    <div>
-      <h3 class="m-0 text-lg font-semibold text-text">{{ i18n.t().aiHub.chat.title }}</h3>
-      <p class="m-0 mt-1 text-base text-text-secondary">{{ i18n.t().aiHub.chat.description }}</p>
-    </div>
-  </div>
-  <div class="rounded-xl bg-surface p-6">
-    <!-- Model Selector -->
-    @if (providers().length > 0) {
-      <div class="
-        mb-4 flex flex-wrap items-center gap-4 rounded-lg
-        bg-surface-secondary p-4
-      ">
-        <span class="text-base font-medium text-text-tertiary">{{ i18n.t().aiHub.chat.provider }}:</span>
+<!-- Top Bar with Model Selector -->
+<div class="flex items-center justify-between border-b border-black/8 bg-white px-4 py-2.5">
+    <div class="flex items-center gap-2">
         <select
-          class="
-            min-w-28 cursor-pointer rounded-lg border
-            border-border-light bg-surface px-4 py-2 text-base
-            text-text
-            focus:border-primary focus:outline-none
-            disabled:cursor-not-allowed disabled:opacity-50
-          "
-          [ngModel]="selectedProvider()"
-          (ngModelChange)="onProviderChange($event)"
+                class="
+          cursor-pointer rounded-lg border border-border-light bg-surface px-3 py-1.5
+          text-sm font-medium text-text focus:border-primary focus:outline-none
+          disabled:cursor-not-allowed disabled:opacity-50
+        "
+                [ngModel]="selectedProvider()"
+                (ngModelChange)="onProviderChange($event)"
         >
-          @for (provider of providers(); track provider.name) {
-            <option [value]="provider.name">
-              {{ provider.display_name }}
-            </option>
-          }
-        </select>
-
-        <span class="text-base font-medium text-text-tertiary">{{ i18n.t().aiHub.chat.model }}:</span>
-        <select
-          class="
-            min-w-28 cursor-pointer rounded-lg border
-            border-border-light bg-surface px-4 py-2 text-base
-            text-text
-            focus:border-primary focus:outline-none
-            disabled:cursor-not-allowed disabled:opacity-50
-          "
-          [ngModel]="selectedModel()"
-          (ngModelChange)="setSelectedModel($event)"
-          [disabled]="isLoadingModels()"
-        >
-          @if (isLoadingModels()) {
-            <option>Loading...</option>
-          } @else {
-            @for (model of models(); track model.name) {
-              <option [value]="model.name">{{ model.name }}</option>
+            @for (provider of providers(); track provider.name) {
+                <option [value]="provider.name">
+                    {{ provider.display_name }}
+                </option>
             }
-          }
         </select>
 
-        @if (selectedModel()) {
-          <span class="
-            rounded-sm bg-surface-secondary px-2 py-0.5 text-xs
-            text-text-secondary
-          "> {{ selectedProvider() }}/{{ selectedModel() }} </span>
-        }
-      </div>
-    }
-
-    <!-- Chat Messages -->
-    <div class="
-      mb-4 flex max-h-96 min-h-48 flex-col gap-3 overflow-y-auto
-      rounded-xl bg-surface p-4
-    " #chatContainer>
-      @if (messages().length === 0) {
-        <div class="
-          flex flex-col items-center justify-center gap-2 p-12 text-center
-          text-text-tertiary
-        ">
-          <div class="text-5xl opacity-50">
-            <svg
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          </div>
-          <p class="m-0 text-base font-medium text-text">{{ i18n.t().agents.startConversation }}</p>
-          <p class="m-0 text-base text-text-secondary">
-            {{ i18n.t().aiHub.chat.description }}
-          </p>
-          <div class="mt-2 flex flex-wrap justify-center gap-2">
-            <button
-              type="button"
-              class="
-                cursor-pointer rounded-full border border-border-light
-                bg-surface px-3 py-1.5 text-base text-primary transition-all
-                hover:bg-surface-secondary
-              "
-              (click)="setInput(i18n.t().aiHub.quickPrompts.greeting)"
-            >
-              {{ i18n.t().aiHub.quickPrompts.greeting }}
-            </button>
-            <button
-              type="button"
-              class="
-                cursor-pointer rounded-full border border-border-light
-                bg-surface px-3 py-1.5 text-base text-primary transition-all
-                hover:bg-surface-secondary
-              "
-              (click)="setInput(i18n.t().aiHub.quickPrompts.help)"
-            >
-              {{ i18n.t().aiHub.quickPrompts.help }}
-            </button>
-            <button
-              type="button"
-              class="
-                cursor-pointer rounded-full border border-border-light
-                bg-surface px-3 py-1.5 text-base text-primary transition-all
-                hover:bg-surface-secondary
-              "
-              (click)="setInput(i18n.t().aiHub.quickPrompts.creative)"
-            >
-              {{ i18n.t().aiHub.quickPrompts.creative }}
-            </button>
-          </div>
-        </div>
-      } @else {
-
-          <nx-bubble
-                  placement="end"
-                  content="message.content"
-                  shape="round"
-          />
-        @for (msg of messages(); track msg.id) {
-          <div class="flex max-w-[75%] animate-fade-in flex-col items-start self-start"
-               [class.self-end]="msg.role === 'user'" [class.items-end]="msg.role === 'user'">
-            <div class="
-              rounded-xl
-              bg-surface-secondary px-4 py-3 text-base leading-relaxed
-              wrap-break-word text-text
-            "
-             [class.bg-primary]="msg.role === 'user'"
-             [class.text-white]="msg.role === 'user'">
-              @if (msg.role === 'user') {
-                {{ msg.content }}
-              } @else {
-                <div class="
-                  leading-relaxed
-                  [&_blockquote]:mt-2 [&_blockquote]:border-l-2
-                  [&_blockquote]:border-primary [&_blockquote]:pl-4
-                  [&_blockquote]:text-text-tertiary
-                  [&_code]:rounded-sm [&_code]:bg-surface-secondary
-                  [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono
-                  [&_code]:text-sm
-                  [&_h1]:mt-2 [&_h1]:mb-1 [&_h1]:font-semibold
-                  [&_h2]:mt-2 [&_h2]:mb-1 [&_h2]:font-semibold
-                  [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:font-semibold
-                  [&_p]:mt-2 [&_p]:mb-0
-                  [&_pre]:mt-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg
-                  [&_pre]:bg-surface-secondary [&_pre]:p-3
-                " [innerHTML]="markdown.render(msg.content)"></div>
-              }
-            </div>
-            <span class="mt-1 px-1 text-xs text-text-secondary">{{ formatTime(msg.timestamp) }}</span>
-          </div>
-        }
-        @if (isLoading() && messages()[messages().length - 1]?.content === '') {
-          <div class="
-            flex max-w-[75%] animate-fade-in flex-col items-start self-start
-          ">
-            <div class="
-              rounded-xl
-              bg-surface-secondary px-4 py-3 text-base leading-relaxed
-              wrap-break-word text-text
-            ">
-              <span class="
-                mr-2 inline-block size-4 animate-spin rounded-full border-2
-                border-white/30 border-t-white
-              "></span>
-              {{ i18n.t().aiHub.chat.thinking }}
-            </div>
-          </div>
-        }
-        <div #messagesEnd></div>
-      }
+        <select
+                class="
+          min-w-28 cursor-pointer rounded-lg border border-border-light bg-surface px-3 py-1.5
+          text-sm text-text focus:border-primary focus:outline-none
+          disabled:cursor-not-allowed disabled:opacity-50
+        "
+                [ngModel]="selectedModel()"
+                (ngModelChange)="setSelectedModel($event)"
+                [disabled]="isLoadingModels()"
+        >
+            @if (isLoadingModels()) {
+                <option>Loading...</option>
+            } @else {
+                @for (model of models(); track model.name) {
+                    <option [value]="model.name">{{ model.name }}</option>
+                }
+            }
+        </select>
     </div>
 
-    @if (error()) {
-      <div class="
-        animate-fade-in rounded-lg border border-red-200 bg-error-light p-3
-        text-base text-error
-      ">
-        {{ error() }}
-      </div>
-    }
+    <button
+            type="button"
+            class="
+        flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent
+        p-1.5 text-text-secondary transition-colors
+        hover:bg-surface-secondary hover:text-text
+      "
+            (click)="newChat()"
+            title="New Chat"
+    >
+        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+    </button>
+</div>
 
-    <!-- Input Area -->
-    <nx-sender
-      [placeholder]="i18n.t().aiHub.chat.inputPlaceholder"
-      [(value)]="input"
-      [loading]="isLoading()"
-      (submitSend)="send()"
-    />
-  </div>
+<!-- Messages -->
+<div class="flex-1 overflow-y-auto bg-surface px-4 py-6">
+    @if (messages().length === 0) {
+        <div class="flex h-full flex-col items-center justify-center gap-4 text-center">
+            <div class="text-4xl text-text-tertiary opacity-40">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+            </div>
+            <p class="text-lg font-medium text-text-secondary">{{ i18n.t().agents.startConversation }}</p>
+        </div>
+    } @else {
+        <div class="space-y-6">
+            @for (msg of messages(); track msg.id) {
+                @if (msg.role === 'user') {
+                    <div class="flex flex-row items-end justify-end gap-2">
+                        <div class="rounded-2xl bg-primary px-4 py-3 text-base leading-relaxed wrap-break-word text-white">
+                            {{ msg.content }}
+                        </div>
+                    </div>
+                } @else {
+                    <div class="flex flex-row items-start gap-3">
+                        <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-text-secondary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8V4H8" />
+                                <rect width="16" height="12" x="4" y="8" rx="2" />
+                                <path d="M2 14h2" />
+                                <path d="M20 14h2" />
+                                <path d="M15 13v2" />
+                                <path d="M9 13v2" />
+                            </svg>
+                        </div>
+                        <div class="flex max-w-[85%] flex-col items-start gap-1">
+                            <div class="rounded-2xl bg-white px-4 py-3 text-base leading-relaxed wrap-break-word text-text shadow-sm">
+                                @if (msg.content) {
+                                    <div class="[&_blockquote]:border-l-2 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:text-text-secondary [&_blockquote]:italic [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_p]:mb-2 [&_p]:last:mb-0 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-surface [&_pre]:p-3 [&_pre]:text-sm" [innerHTML]="markdown.render(msg.content)"></div>
+                                } @else {
+                                    <span class="text-text-tertiary">{{ i18n.t().aiHub.chat.thinking }}</span>
+                                }
+                            </div>
+                            <span class="text-xs text-text-tertiary">{{ formatTime(msg.timestamp) }}</span>
+                        </div>
+                    </div>
+                }
+            }
+            @if (isLoading() && messages()[messages().length - 1]?.content === '') {
+                <div class="flex flex-row items-start gap-3">
+                    <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-text-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 8V4H8" />
+                            <rect width="16" height="12" x="4" y="8" rx="2" />
+                            <path d="M2 14h2" />
+                            <path d="M20 14h2" />
+                            <path d="M15 13v2" />
+                            <path d="M9 13v2" />
+                        </svg>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3 text-base leading-relaxed text-text shadow-sm">
+              <span class="inline-flex gap-1">
+                <span class="size-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.3s]"></span>
+                <span class="size-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.15s]"></span>
+                <span class="size-1.5 animate-bounce rounded-full bg-text-tertiary"></span>
+              </span>
+                    </div>
+                </div>
+            }
+            <div #messagesEnd></div>
+        </div>
+    }
+</div>
+
+<!-- Error -->
+@if (error()) {
+    <div class="animate-fade-in border-t border-red-200 bg-error-light px-4 py-2 text-base text-error">
+        {{ error() }}
+    </div>
+}
+
+<!-- Input -->
+<div class="border-t border-black/8 bg-white px-4 py-3">
+    <div>
+        <nx-sender
+            [placeholder]="i18n.t().aiHub.chat.inputPlaceholder"
+            [(value)]="input"
+            [loading]="isLoading()"
+            (submitSend)="send()"
+        />
+    </div>
 </div>

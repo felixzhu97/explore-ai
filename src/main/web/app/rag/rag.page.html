@@ -1,221 +1,147 @@
-<div class="flex flex-col gap-4">
-  <!-- Header -->
-  <div class="flex items-center gap-3">
-    <h2 class="text-xl font-semibold text-text">{{ i18n.t().ragChat.title }}</h2>
-    <span class="rounded-full bg-surface-secondary px-2 text-xs font-medium text-text-secondary">{{ i18n.t().ragChat.modelBadge }}</span>
-  </div>
-
-  <!-- Documents Section -->
-  <div class="rounded-xl bg-surface p-4">
-    <div class="mb-3 flex items-center justify-between">
-      <h3 class="flex items-center gap-2 text-base font-semibold text-text">
-        📄 {{ i18n.t().ragChat.documents }}
-        @if (!ragService.isLoadingDocs()) {
-          <span class="text-sm font-normal text-text-secondary">{{ ragService.availableDocs().length }}</span>
-        }
-      </h3>
-      @if (ragService.availableDocs().length > 0 && ragService.selectedDocIds().size > 0) {
-        <span class="text-xs text-primary">
-          {{
-            i18n
-              .t()
-              .ragChat.selectedDocuments.replace('{count}', ragService.selectedDocIds().size.toString())
-          }}
-        </span>
-      }
+<!-- Top Bar with Document Selector -->
+<div class="flex items-center justify-between border-b border-black/8 bg-white px-4 py-2.5">
+    <div class="flex items-center gap-2">
+        <h2 class="text-base font-semibold text-text">{{ i18n.t().ragChat.title }}</h2>
+        <span class="rounded-full bg-surface-secondary px-2 text-xs font-medium text-text-secondary">
+        {{ ragService.availableDocs().length }} {{ i18n.t().ragChat.documents }}
+      </span>
     </div>
-
-    @if (ragService.isLoadingDocs()) {
-      <div class="flex gap-2">
-        <div class="h-5 animate-pulse rounded bg-surface-secondary"></div>
-        <div class="h-5 animate-pulse rounded bg-surface-secondary" style="width: 100px"></div>
-        <div class="h-5 animate-pulse rounded bg-surface-secondary" style="width: 140px"></div>
-      </div>
-    } @else if (ragService.availableDocs().length > 0) {
-      <div class="mb-3 flex flex-col gap-2">
-        @for (doc of ragService.availableDocs(); track $index) {
-          <div
-            class="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 transition-colors"
-            [class.border-primary]="ragService.selectedDocIds().has(doc.id)"
-            [class.bg-primary-light]="ragService.selectedDocIds().has(doc.id)"
-            [class.opacity-50]="ragService.deletingDocIds().has(doc.id)"
-            (click)="ragService.toggleDocSelection(doc.id)"
-            (keydown)="onDocKeyDown($event, doc.id)"
-            tabindex="0"
-            role="checkbox"
-            [attr.aria-checked]="ragService.selectedDocIds().has(doc.id)"
-          >
-            <span class="text-base">
-              {{ ragService.selectedDocIds().has(doc.id) ? '✓' : '📄' }}
-            </span>
-            <span class="flex-1 truncate text-sm text-text">{{ doc.title }}</span>
-            <button
-              type="button"
-              class="flex size-5 cursor-pointer items-center justify-center rounded text-text-tertiary"
-              [class.text-primary]="ragService.selectedDocIds().has(doc.id)"
-              (click)="deleteDocument(doc.id, $event)"
-              aria-label="Delete {{ doc.title }}"
-            >
-              ✕
-            </button>
-          </div>
-        }
-      </div>
-      <div class="flex gap-2">
-        <button type="button" class="cursor-pointer rounded border border-primary bg-transparent px-3 py-1 text-xs font-medium text-primary" (click)="ragService.selectAllDocs()">
-          {{ i18n.t().ragChat.selectAll }}
+    <div class="flex items-center gap-2">
+        <button
+                type="button"
+                class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text"
+                (click)="ragService.selectAllDocs()"
+                title="Select All"
+        >
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+            </svg>
         </button>
-        @if (ragService.selectedDocIds().size > 0) {
-          <button type="button" class="cursor-pointer rounded border border-primary bg-transparent px-3 py-1 text-xs font-medium text-primary" (click)="ragService.clearDocSelection()">
-            {{ i18n.t().ragChat.clearSelection }}
-          </button>
-        }
-      </div>
-    } @else {
-      <p class="text-sm text-text-secondary">{{ i18n.t().ragChat.noDocuments }}</p>
-    }
-  </div>
+        <button
+                type="button"
+                class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text"
+                (click)="ragService.clearDocSelection()"
+                title="Clear Selection"
+        >
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+    </div>
+</div>
 
-  <!-- File Upload Area -->
-  <div class="flex flex-col gap-3 rounded-xl bg-surface p-4">
-    <input
-      #fileInput
-      type="file"
-      id="file-upload"
-      accept=".pdf,.md,.txt,.markdown"
-      multiple
-      (change)="onFileSelect($event)"
-      class="sr-only"
-    />
-    <label for="file-upload" class="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-2 text-sm font-medium text-primary">
-      📎 {{ i18n.t().ragChat.uploadDocs }}
-    </label>
-
-    @if (ragService.pendingFiles().length > 0) {
-      <div class="flex flex-wrap gap-2">
-        @for (file of ragService.pendingFiles(); track file.name) {
-          <div
-            class="relative flex items-center gap-1.5 overflow-hidden rounded bg-surface-secondary px-2 py-1 text-xs"
-            [class.text-primary]="getUploadStatus(file.name)?.status === 'uploading'"
-            [class.text-success]="getUploadStatus(file.name)?.status === 'success'"
-            [class.text-error]="getUploadStatus(file.name)?.status === 'error'"
-          >
-            @if (getUploadStatus(file.name)?.status === 'uploading') {
-              <div class="absolute bottom-0 left-0 h-0.5 bg-primary" style="width: 50%"></div>
-            }
-            {{ file.name }}
-            <button
-              type="button"
-              class="flex size-4 cursor-pointer items-center justify-center rounded-full text-text-tertiary"
-              (click)="ragService.removePendingFile($index)"
-              aria-label="Remove file"
-            >×</button>
-          </div>
-        }
-      </div>
-    }
-
-    @if (ragService.pendingFiles().length > 0) {
-      <button type="button" class="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50" (click)="uploadFiles()" [disabled]="ragService.isUploading()">
-        @if (ragService.isUploading()) {
-          <span class="inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent"></span> {{ i18n.t().ragChat.uploading }}
-        } @else {
-          ↑ {{ i18n.t().ragChat.upload }} ({{ ragService.pendingFiles().length }})
-        }
-      </button>
-    }
-  </div>
-
-  <!-- Chat Container -->
-  <div class="flex min-h-72 flex-1 flex-col gap-3 rounded-xl bg-surface p-4" #chatContainer>
+<!-- Messages -->
+<div class="flex-1 overflow-y-auto bg-surface px-4 py-6">
     @if (ragService.messages().length === 0) {
-      <div class="flex flex-col items-center justify-center gap-3 p-6 text-center text-text-tertiary">
-        <div class="text-3xl opacity-50">💬</div>
-        <p>{{ i18n.t().ragChat.askQuestion }}</p>
-        <div class="mt-2 flex flex-wrap justify-center gap-2">
-          <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.whatIsThis)">
-            {{ i18n.t().ragChat.whatIsThis }}
-          </button>
-          <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.summarize)">
-            {{ i18n.t().ragChat.summarize }}
-          </button>
-          <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.keyInfo)">
-            {{ i18n.t().ragChat.keyInfo }}
-          </button>
-        </div>
-      </div>
-    } @else {
-      @for (msg of ragService.messages(); track msg.id) {
-        <div class="max-w-[880px] animate-fade-in" [class.self-end]="msg.role === 'user'" [class.items-end]="msg.role === 'user'">
-          <div
-            class="rounded-2xl px-4 py-3"
-            [class.bg-primary]="msg.role === 'user'"
-            [class.text-white]="msg.role === 'user'"
-            [class.rounded-br-sm]="msg.role === 'user'"
-            [class.bg-surface-secondary]="msg.role !== 'user'"
-            [class.rounded-bl-sm]="msg.role !== 'user'"
-          >
-            @if (msg.role === 'user') {
-              {{ msg.content }}
-            } @else {
-              <div [innerHTML]="renderMarkdown(msg.content)"></div>
-            }
-          </div>
-          <div class="mt-1 flex items-center gap-2 px-1">
-            <span class="text-xs text-text-tertiary">{{ formatTime(msg.timestamp) }}</span>
-            @if (msg.role === 'assistant' && msg.sources && msg.sources.length > 0) {
-              <span
-                class="flex cursor-pointer items-center gap-1 text-xs text-text-secondary"
-                (click)="ragService.toggleSources(msg.id)"
-                (keydown.enter)="ragService.toggleSources(msg.id)"
-                tabindex="0"
-                role="button"
-              >
-                📚
-                {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
-                {{ ragService.expandedSources().has(msg.id) ? '▲' : '▼' }}
-              </span>
-            }
-          </div>
-          @if (msg.role === 'assistant' && msg.sources && ragService.expandedSources().has(msg.id)) {
-            <div class="mt-2 rounded-lg bg-surface-secondary p-3">
-              <div class="mb-2 text-sm font-semibold text-text">📖 {{ i18n.t().ragChat.sources }}</div>
-              @for (source of msg.sources.slice(0, 3); track $index) {
-                <div class="border-b border-border-light py-2 last:border-0">
-                  <div class="mb-1 text-sm text-text">
-                    {{
-                      source.text.length > 200 ? `${source.text.slice(0, 200)}...` : source.text
-                    }}
-                  </div>
-                  <div class="text-xs text-text-tertiary">
-                    <span>{{ i18n.t().ragChat.similarity }}: {{ (source.score * 100).toFixed(1) }}%</span>
-                  </div>
-                </div>
-              }
+        <div class="flex h-full flex-col items-center justify-center gap-4 text-center">
+            <div class="text-4xl text-text-tertiary opacity-40">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
             </div>
-          }
+            <p class="text-lg font-medium text-text-secondary">{{ i18n.t().ragChat.askQuestion }}</p>
+            <div class="mt-2 flex flex-wrap justify-center gap-2">
+                <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.whatIsThis)">
+                    {{ i18n.t().ragChat.whatIsThis }}
+                </button>
+                <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.summarize)">
+                    {{ i18n.t().ragChat.summarize }}
+                </button>
+                <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.keyInfo)">
+                    {{ i18n.t().ragChat.keyInfo }}
+                </button>
+            </div>
         </div>
-      }
-      @if (
-        ragService.isLoading() &&
-        ragService.messages()[ragService.messages().length - 1]?.role === 'assistant' &&
-        !ragService.messages()[ragService.messages().length - 1]?.content
-      ) {
-        <div class="max-w-[880px] animate-fade-in">
-          <div class="rounded-2xl rounded-bl-sm bg-surface-secondary px-4 py-3">
-            <span class="inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent"></span> {{ i18n.t().ragChat.thinking }}
-          </div>
+    } @else {
+        <div class="mx-auto max-w-[880px] space-y-6">
+            @for (msg of ragService.messages(); track msg.id) {
+                @if (msg.role === 'user') {
+                    <div class="flex flex-row items-end justify-end gap-2">
+                        <div class="rounded-2xl bg-primary px-4 py-3 text-base leading-relaxed wrap-break-word text-white">
+                            {{ msg.content }}
+                        </div>
+                    </div>
+                } @else {
+                    <div class="flex flex-row items-start gap-3">
+                        <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-text-secondary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14,2 14,8 20,8" />
+                            </svg>
+                        </div>
+                        <div class="flex max-w-[85%] flex-col items-start gap-1">
+                            <div class="rounded-2xl bg-white px-4 py-3 text-base leading-relaxed wrap-break-word text-text shadow-sm">
+                                @if (msg.content) {
+                                    <div [innerHTML]="renderMarkdown(msg.content)"></div>
+                                } @else {
+                                    <span class="text-text-tertiary">{{ i18n.t().aiHub.chat.thinking }}</span>
+                                }
+                            </div>
+                            <span class="text-xs text-text-tertiary">{{ formatTime(msg.timestamp) }}</span>
+                            @if (msg.sources && msg.sources.length > 0 && ragService.expandedSources().has(msg.id)) {
+                                <div class="mt-2 rounded-lg bg-surface-secondary p-3">
+                                    <div class="mb-2 text-sm font-semibold text-text">📖 {{ i18n.t().ragChat.sources }}</div>
+                                    @for (source of msg.sources.slice(0, 3); track $index) {
+                                        <div class="border-b border-border-light py-2 last:border-0">
+                                            <div class="mb-1 text-sm text-text">
+                                                {{ source.text.length > 200 ? `${source.text.slice(0, 200)}...` : source.text }}
+                                            </div>
+                                            <div class="text-xs text-text-tertiary">
+                                                <span>{{ i18n.t().ragChat.similarity }}: {{ (source.score * 100).toFixed(1) }}%</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            @if (msg.sources && msg.sources.length > 0) {
+                                <span
+                                        class="mt-1 flex cursor-pointer items-center gap-1 text-xs text-text-secondary"
+                                        (click)="ragService.toggleSources(msg.id)"
+                                        (keydown.enter)="ragService.toggleSources(msg.id)"
+                                        tabindex="0"
+                                        role="button"
+                                >
+                    📚 {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
+                                    {{ ragService.expandedSources().has(msg.id) ? '▲' : '▼' }}
+                  </span>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            @if (
+                ragService.isLoading() &&
+                ragService.messages()[ragService.messages().length - 1]?.role === 'assistant' &&
+                !ragService.messages()[ragService.messages().length - 1]?.content
+                    ) {
+                <div class="flex flex-row items-start gap-3">
+                    <div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-text-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14,2 14,8 20,8" />
+                        </svg>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3 text-base leading-relaxed text-text shadow-sm">
+              <span class="inline-flex gap-1">
+                <span class="size-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.3s]"></span>
+                <span class="size-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.15s]"></span>
+                <span class="size-1.5 animate-bounce rounded-full bg-text-tertiary"></span>
+              </span>
+                    </div>
+                </div>
+            }
+            <div #messagesEnd></div>
         </div>
-      }
-      <div #messagesEnd></div>
+    }
+</div>
 
-      <!-- Input Area -->
-      <nx-sender
+<!-- Input -->
+<div class="border-t border-black/8 bg-white px-4 py-3">
+    <nx-sender
         [placeholder]="i18n.t().ragChat.inputPlaceholder"
         [(value)]="ragService.input"
         [loading]="ragService.isLoading()"
         (submitSend)="ragService.sendMessage()"
-      />
-    }
-  </div>
+    />
 </div>
