@@ -5,7 +5,7 @@ import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.rag.infrastructure.vector.PgVectorAdapter;
+import com.ai.rag.infrastructure.vector.H2VectorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,9 +28,9 @@ public class DocumentSearchService {
     ) {}
 
     private final EmbeddingAdapter embeddingAdapter;
-    private final PgVectorAdapter vectorAdapter;
+    private final H2VectorAdapter vectorAdapter;
 
-    public DocumentSearchService(EmbeddingAdapter embeddingAdapter, PgVectorAdapter vectorAdapter) {
+    public DocumentSearchService(EmbeddingAdapter embeddingAdapter, H2VectorAdapter vectorAdapter) {
         this.embeddingAdapter = embeddingAdapter;
         this.vectorAdapter = vectorAdapter;
     }

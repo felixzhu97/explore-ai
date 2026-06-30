@@ -19,6 +19,9 @@ dist/
 *.log
 logs/
 
+# H2 embedded database files
+data/
+
 # Docker volumes (runtime data)
 volumes/
 

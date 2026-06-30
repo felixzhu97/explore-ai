@@ -39,34 +39,30 @@ spring:
             model: gpt-4o-mini-tts
             voice: alloy
 
-  # Database configuration
+  # H2 embedded database (no Docker required)
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_rag}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+    url: ${H2_URL:jdbc:h2:file:./data/ai-explore;AUTO_SERVER=TRUE}
+    username: ${H2_USER:sa}
+    password: ${H2_PASSWORD:}
+    driver-class-name: org.h2.Driver
 
-  # JPA configuration
+  # JPA: validate schema against Liquibase migrations
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
     open-in-view: false
 
-  # Flyway configuration
-  flyway:
-    variables:
-      embedding_dimensions: ${rag.ollama.embedding.dimensions:768}
+  # Liquibase auto-runs on startup
+  liquibase:
+    change-log: db/changelog-master.xml
 
 # RAG configuration
 rag:

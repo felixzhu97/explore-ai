@@ -18,18 +18,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@DisplayName("PgVectorAdapter Tests")
-class PgVectorAdapterTest {
+@DisplayName("H2VectorAdapter Tests")
+class H2VectorAdapterTest {
 
     private JdbcTemplate jdbcTemplate;
     private ObjectMapper objectMapper;
-    private PgVectorAdapter pgVectorAdapter;
+    private H2VectorAdapter vectorAdapter;
 
     @BeforeEach
     void setUp() {
         jdbcTemplate = mock(JdbcTemplate.class);
         objectMapper = new ObjectMapper();
-        pgVectorAdapter = new PgVectorAdapter(jdbcTemplate, objectMapper);
+        vectorAdapter = new H2VectorAdapter(jdbcTemplate, objectMapper);
     }
 
     @Nested
@@ -39,30 +39,43 @@ class PgVectorAdapterTest {
         @Test
         @DisplayName("should return empty list when no results")
         void shouldReturnEmptyList() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(Collections.emptyList());
-            assertThat(pgVectorAdapter.search(new float[]{0.1f, 0.2f}, 5)).isEmpty();
+            assertThat(vectorAdapter.search(new float[]{0.1f, 0.2f}, 5)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should rank chunks by cosine similarity")
+        void shouldRankByCosineSimilarity() {
+            DocumentChunk lowScore = createChunk(new float[]{0.0f, 1.0f});
+            DocumentChunk highScore = createChunk(new float[]{1.0f, 0.0f});
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+                    .thenReturn(List.of(lowScore, highScore));
+
+            List<DocumentChunk> results = vectorAdapter.search(new float[]{1.0f, 0.0f}, 1);
+
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0)).isSameAs(highScore);
         }
 
         @Test
         @DisplayName("should filter by document IDs")
         void shouldFilterByDocumentIds() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+            when(jdbcTemplate.query(contains("WHERE document_id IN"), any(RowMapper.class), any(Object[].class)))
                     .thenReturn(Collections.emptyList());
             List<UUID> docIds = List.of(UUID.randomUUID());
-            pgVectorAdapter.search(new float[]{0.1f}, 5, docIds);
-            verify(jdbcTemplate).query(contains("WHERE document_id = ANY"),
+            vectorAdapter.search(new float[]{0.1f}, 5, docIds);
+            verify(jdbcTemplate).query(contains("WHERE document_id IN"),
                     any(RowMapper.class), any(Object[].class));
         }
 
         @Test
-        @DisplayName("should use simple search when docIds is empty")
-        void shouldUseSimpleSearchWhenDocIdsIsEmpty() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        @DisplayName("should load all chunks when docIds is empty")
+        void shouldLoadAllChunksWhenDocIdsIsEmpty() {
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(Collections.emptyList());
-            pgVectorAdapter.search(new float[]{0.1f}, 5, List.of());
-            verify(jdbcTemplate, atLeastOnce()).query(contains("SELECT"),
-                    any(RowMapper.class), any(Object[].class));
+            vectorAdapter.search(new float[]{0.1f}, 5, List.of());
+            verify(jdbcTemplate).query(contains("FROM document_chunks"), any(RowMapper.class));
         }
     }
 
@@ -71,14 +84,14 @@ class PgVectorAdapterTest {
     class SaveChunk {
 
         @Test
-        @DisplayName("should save chunk with embedding")
+        @DisplayName("should save chunk with embedding via MERGE")
         void shouldSaveChunk() {
             DocumentChunk chunk = DocumentChunk.create(
                     DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of())
                     .withEmbedding(new float[]{0.1f, 0.2f});
             when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
-            pgVectorAdapter.saveChunk(chunk);
-            verify(jdbcTemplate).update(contains("::jsonb"), any(Object[].class));
+            vectorAdapter.saveChunk(chunk);
+            verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
         }
 
         @Test
@@ -88,7 +101,7 @@ class PgVectorAdapterTest {
                     DocumentId.generate(), DocumentId.generate(), "content", 0, null)
                     .withEmbedding(new float[]{0.1f});
             when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
-            pgVectorAdapter.saveChunk(chunk);
+            vectorAdapter.saveChunk(chunk);
             verify(jdbcTemplate).update(anyString(), any(Object[].class));
         }
     }
@@ -192,7 +205,7 @@ class PgVectorAdapterTest {
             DocumentId docId = DocumentId.generate();
             when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(UUID.class)))
                     .thenReturn(List.of());
-            pgVectorAdapter.findChunksByDocumentId(docId);
+            vectorAdapter.findChunksByDocumentId(docId);
             verify(jdbcTemplate).query(contains("WHERE document_id = ?"),
                     any(RowMapper.class), eq(docId.value()));
         }
@@ -207,8 +220,14 @@ class PgVectorAdapterTest {
         void shouldDeleteChunksByDocumentId() {
             DocumentId docId = DocumentId.generate();
             when(jdbcTemplate.update(anyString(), any(UUID.class))).thenReturn(1);
-            pgVectorAdapter.deleteChunksByDocumentId(docId);
+            vectorAdapter.deleteChunksByDocumentId(docId);
             verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.value()));
         }
+    }
+
+    private DocumentChunk createChunk(float[] embedding) {
+        return DocumentChunk.create(
+                DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of())
+                .withEmbedding(embedding);
     }
 }

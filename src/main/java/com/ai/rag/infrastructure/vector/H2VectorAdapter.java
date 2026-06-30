@@ -2,6 +2,7 @@ package com.ai.rag.infrastructure.vector;
 
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
+import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,43 +12,41 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
- * PgVector adapter for vector search.
- * Implements IDocumentChunkRepository - single persistence path for chunks.
+ * H2 vector store adapter.
+ * Stores embeddings as JSON arrays and performs cosine-similarity ranking in-process.
  */
 @Component
-public class PgVectorAdapter implements IDocumentChunkRepository {
+public class H2VectorAdapter implements IDocumentChunkRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(PgVectorAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(H2VectorAdapter.class);
     private static final String TABLE_NAME = "document_chunks";
 
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
     private final ChunkRowMapper chunkRowMapper;
 
-    public PgVectorAdapter(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
+    public H2VectorAdapter(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
         this.chunkRowMapper = new ChunkRowMapper(objectMapper);
     }
 
-    // --- IDocumentChunkRepository implementation ---
-
     @Override
     @Transactional
     public void saveChunk(DocumentChunk chunk) {
-        String embeddingString = arrayToPostgresString(chunk.getEmbedding());
+        String embeddingString = arrayToJsonString(chunk.getEmbedding());
         String metadataJson = serializeMetadata(chunk.getMetadata());
 
-        String sql = "INSERT INTO " + TABLE_NAME +
+        String sql = "MERGE INTO " + TABLE_NAME +
                 " (id, document_id, content, chunk_index, embedding, metadata, created_at) " +
-                "VALUES (?, ?, ?, ?, ?::vector, ?::jsonb, ?) " +
-                "ON CONFLICT (id) DO UPDATE SET " +
-                "content = EXCLUDED.content, " +
-                "embedding = EXCLUDED.embedding, " +
-                "metadata = EXCLUDED.metadata";
+                "KEY (id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
                 chunk.getId(),
@@ -74,8 +73,6 @@ public class PgVectorAdapter implements IDocumentChunkRepository {
         jdbcTemplate.update(sql, documentId.value());
     }
 
-    // --- Vector search (PgVectorAdapter specific) ---
-
     @Transactional(readOnly = true)
     public List<DocumentChunk> search(float[] queryEmbedding, int topK) {
         return search(queryEmbedding, topK, null);
@@ -83,39 +80,52 @@ public class PgVectorAdapter implements IDocumentChunkRepository {
 
     @Transactional(readOnly = true)
     public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> docIds) {
-        String embeddingString = arrayToPostgresString(queryEmbedding);
-
-        if (docIds != null && !docIds.isEmpty()) {
-            String sql = "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at " +
-                    "FROM " + TABLE_NAME + " " +
-                    "WHERE document_id = ANY(?) " +
-                    "ORDER BY embedding <=> ?::vector " +
-                    "LIMIT ?";
-            return jdbcTemplate.query(sql, chunkRowMapper,
-                    docIds.toArray(new UUID[0]), embeddingString, topK);
-        } else {
-            String sql = "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at " +
-                    "FROM " + TABLE_NAME + " " +
-                    "ORDER BY embedding <=> ?::vector " +
-                    "LIMIT ?";
-            return jdbcTemplate.query(sql, chunkRowMapper, embeddingString, topK);
+        if (queryEmbedding == null || queryEmbedding.length == 0) {
+            return List.of();
         }
+        List<DocumentChunk> candidates = loadCandidates(docIds);
+
+        return candidates.stream()
+                .filter(chunk -> chunk.getEmbedding() != null && chunk.getEmbedding().length == queryEmbedding.length)
+                .sorted(Comparator.comparingDouble((DocumentChunk chunk) ->
+                        VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()))
+                        .reversed())
+                .limit(topK)
+                .toList();
     }
 
-    // --- Helpers ---
+    private List<DocumentChunk> loadCandidates(List<UUID> docIds) {
+        if (docIds != null && !docIds.isEmpty()) {
+            String placeholders = docIds.stream().map(id -> "?").collect(Collectors.joining(","));
+            String sql = "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at " +
+                    "FROM " + TABLE_NAME + " WHERE document_id IN (" + placeholders + ")";
+            return jdbcTemplate.query(sql, chunkRowMapper, docIds.toArray());
+        }
 
-    private String arrayToPostgresString(float[] array) {
+        String sql = "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at " +
+                "FROM " + TABLE_NAME;
+        return jdbcTemplate.query(sql, chunkRowMapper);
+    }
+
+    private String arrayToJsonString(float[] array) {
+        if (array == null) {
+            return "[]";
+        }
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < array.length; i++) {
             sb.append(array[i]);
-            if (i < array.length - 1) sb.append(",");
+            if (i < array.length - 1) {
+                sb.append(",");
+            }
         }
         sb.append("]");
         return sb.toString();
     }
 
     private String serializeMetadata(Map<String, Object> metadata) {
-        if (metadata == null || metadata.isEmpty()) return null;
+        if (metadata == null || metadata.isEmpty()) {
+            return null;
+        }
         try {
             return objectMapper.writeValueAsString(metadata);
         } catch (JsonProcessingException e) {

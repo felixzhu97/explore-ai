@@ -23,13 +23,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("ChunkRowMapper via PgVectorAdapter")
+@DisplayName("ChunkRowMapper via H2VectorAdapter")
 class ChunkRowMapperTest {
 
     @Mock
     private JdbcTemplate jdbcTemplate;
 
-    private PgVectorAdapter adapter;
+    private H2VectorAdapter adapter;
 
     private static final DocumentId TEST_DOCUMENT_ID = DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
     private static final DocumentId TEST_CHUNK_ID = DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
@@ -37,7 +37,7 @@ class ChunkRowMapperTest {
     @BeforeEach
     void setUp() {
         ObjectMapper objectMapper = new ObjectMapper();
-        adapter = new PgVectorAdapter(jdbcTemplate, objectMapper);
+        adapter = new H2VectorAdapter(jdbcTemplate, objectMapper);
     }
 
     @Nested
@@ -47,50 +47,45 @@ class ChunkRowMapperTest {
         @Test
         void shouldMapSearchResults() {
             DocumentChunk expectedChunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(List.of(expectedChunk));
-            List<DocumentChunk> results = adapter.search(new float[]{1.0f, 2.0f}, 5);
+            List<DocumentChunk> results = adapter.search(new float[]{1.0f, 0.0f}, 5);
             assertThat(results).hasSize(1);
             assertThat(results.get(0).getId()).isEqualTo(TEST_CHUNK_ID);
         }
 
         @Test
         void shouldReturnEmptyList() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(List.of());
             List<DocumentChunk> results = adapter.search(new float[]{1.0f, 2.0f}, 5);
             assertThat(results).isEmpty();
         }
 
         @Test
-        void shouldPassCorrectVectorString() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-                    .thenReturn(List.of());
-            adapter.search(new float[]{1.0f, 2.0f, 3.0f, 4.0f}, 5);
-            ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-            verify(jdbcTemplate).query(anyString(), any(RowMapper.class), captor.capture());
-            assertThat(captor.getValue()[0]).isEqualTo("[1.0,2.0,3.0,4.0]");
-        }
+        void shouldRankByCosineSimilarity() {
+            DocumentChunk lowScore = DocumentChunk.create(
+                    TEST_CHUNK_ID, TEST_DOCUMENT_ID, "low", 0, Map.of())
+                    .withEmbedding(new float[]{0.0f, 1.0f});
+            DocumentChunk highScore = DocumentChunk.create(
+                    DocumentId.generate(), TEST_DOCUMENT_ID, "high", 1, Map.of())
+                    .withEmbedding(new float[]{1.0f, 0.0f});
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+                    .thenReturn(List.of(lowScore, highScore));
 
-        @Test
-        void shouldUseCosineDistanceOperator() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-                    .thenReturn(List.of());
-            adapter.search(new float[]{1.0f, 2.0f}, 5);
-            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
-            String sql = sqlCaptor.getValue();
-            assertThat(sql).contains("<=>");
-            assertThat(sql).contains("::vector");
+            List<DocumentChunk> results = adapter.search(new float[]{1.0f, 0.0f}, 1);
+
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).getContent()).isEqualTo("high");
         }
 
         @Test
         void shouldSelectAllRequiredColumns() {
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(List.of());
             adapter.search(new float[]{1.0f, 2.0f}, 5);
             ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-            verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
+            verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class));
             String sql = sqlCaptor.getValue();
             assertThat(sql).contains("id");
             assertThat(sql).contains("document_id");
@@ -106,7 +101,7 @@ class ChunkRowMapperTest {
             DocumentChunk chunkWithMetadata = DocumentChunk.create(
                     TEST_CHUNK_ID, TEST_DOCUMENT_ID, "Test content", 0, metadata)
                     .withEmbedding(new float[]{1.0f, 2.0f});
-            when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+            when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(List.of(chunkWithMetadata));
             List<DocumentChunk> results = adapter.search(new float[]{1.0f, 2.0f}, 5);
             assertThat(results.get(0).getMetadata()).containsKey("source");

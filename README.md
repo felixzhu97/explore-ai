@@ -8,7 +8,7 @@
 | ------ | ----------------------------- |
 | 后端   | Java 25 + Spring Boot 4.0     |
 | AI     | Spring AI 2.0 (DeepSeek)     |
-| 数据库 | PostgreSQL 17 + pgvector      |
+| 数据库 | H2 嵌入式数据库 + Liquibase   |
 | 前端   | Angular 22 + TypeScript      |
 
 ## 快速启动
@@ -17,15 +17,13 @@
 # 配置
 echo "DEEPSEEK_API_KEY=your-key" > .env
 
-# Docker 启动
-docker-compose up -d
-
-# 本地开发
-docker-compose up postgres -d && ./gradlew bootRun
+# 本地开发（无需 Docker，H2 随 Spring Boot 进程启动，Liquibase 自动建表）
+./gradlew bootRun
 ```
 
 - 应用: http://localhost:9000
 - 健康检查: http://localhost:9000/actuator/health
+- 数据库文件: `./data/ai-explore.*`（首次启动自动创建）
 
 ## API
 

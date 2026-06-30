@@ -1,0 +1,16 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <property name="uuid.type" value="UUID" dbms="h2" />
+  <property name="string.type" value="VARCHAR" dbms="h2" />
+  <property name="clob.type" value="CLOB" dbms="h2" />
+  <property name="date.time.type" value="TIMESTAMP(6)" dbms="h2" />
+
+  <include file="changelogs/1.0.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

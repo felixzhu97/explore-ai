@@ -5,7 +5,7 @@ import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.rag.infrastructure.vector.PgVectorAdapter;
+import com.ai.rag.infrastructure.vector.H2VectorAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -33,7 +33,7 @@ class DocumentSearchServiceTest {
     private EmbeddingAdapter embeddingAdapter;
 
     @Mock
-    private PgVectorAdapter vectorAdapter;
+    private H2VectorAdapter vectorAdapter;
 
     private DocumentSearchService service;
 

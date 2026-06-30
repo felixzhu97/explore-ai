@@ -47,20 +47,16 @@ dependencies {
     // PDF Processing
     implementation("org.apache.pdfbox:pdfbox:3.0.3")
 
-    // Database
+    // Database: H2 embedded + Liquibase migrations
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("io.hypersistence:hypersistence-utils-hibernate-73:3.15.3")
+    implementation("org.springframework.boot:spring-boot-starter-liquibase")
+    runtimeOnly("com.h2database:h2")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.ai:spring-ai-test")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("io.projectreactor:reactor-test")
-    testRuntimeOnly("com.h2database:h2")
-    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
-    testImplementation("org.testcontainers:testcontainers")
-    testImplementation("org.testcontainers:testcontainers-postgresql")
 }
 
 tasks.withType<Test> {

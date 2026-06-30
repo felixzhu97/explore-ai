@@ -9,7 +9,7 @@ import java.util.UUID;
 
 /**
  * JPA entity for Document aggregate.
- * Maps to the documents table in PostgreSQL.
+ * Maps to the documents table managed by Liquibase.
  */
 @Entity
 @Table(name = "documents")

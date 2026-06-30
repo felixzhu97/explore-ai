@@ -17,12 +17,10 @@
     "e2e:ui": "ng e2e --ui",
     "clean": "pnpm -r run clean",
     "prepare": "husky",
-    "server:start": "export $(grep -v '^#' .env | xargs) && ./gradlew bootRun",
+    "server:start": "([ -f .env ] && export $(grep -v '^#' .env | xargs) || true) && ./gradlew bootRun",
     "server:test": "./gradlew test",
     "server:test:watch": "./gradlew test --continuous",
-    "server:test:coverage": "./gradlew test jacocoTestReport",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "server:test:coverage": "./gradlew test jacocoTestReport"
   },
   "dependencies": {
     "@analogjs/vite-plugin-angular": "^2.6.0",
