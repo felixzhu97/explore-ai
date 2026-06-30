@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-@import "ng-zorro-antd/ng-zorro-antd.css";
-@import "ng-zorro-x/ng-zorro-x.css";
+@import "ng-zorro-antd/ng-zorro-antd.variable.min.css";
+@import "ng-zorro-x/ng-zorro-x.variable.min.css";
 
 /* Tailwind CSS v4 */
 @import "tailwindcss";

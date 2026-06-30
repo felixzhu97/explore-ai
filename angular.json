@@ -32,8 +32,7 @@
               "src/main/web/assets"
             ],
             "styles": [
-              "src/main/web/styles.css",
-              "node_modules/ng-zorro-x/ng-zorro-x.min.css"
+              "src/main/web/styles.css"
             ],
             "scripts": []
           },
