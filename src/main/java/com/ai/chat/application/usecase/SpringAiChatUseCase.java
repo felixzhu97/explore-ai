@@ -195,6 +195,51 @@ public class SpringAiChatUseCase implements ChatUseCase {
                 .content();
     }
 
+    @Override
+    public Flux<String> chatStreamWithSession(String sessionId, List<ChatMessage> messages) {
+        try {
+            ChatSession session = loadOrCreateSession(sessionId);
+            return exchangeStreamMessages(session, messages);
+        } catch (ChatSessionNotFoundException e) {
+            log.warn("Session not found, using default: {}", sessionId);
+            return chatStreamWithSession(messages);
+        }
+    }
+
+    @Override
+    public Flux<String> chatStreamWithSession(List<ChatMessage> messages) {
+        ChatSession session = getOrCreateDefaultSession();
+        return exchangeStreamMessages(session, messages);
+    }
+
+    private Flux<String> exchangeStreamMessages(ChatSession session, List<ChatMessage> messages) {
+        ChatMessage userMessage = getLastUserMessage(messages);
+        session.addUserMessage(userMessage.getText());
+        repository.save(session);
+
+        StringBuilder aiResponse = new StringBuilder();
+        return chatStream(messages)
+                .doOnNext(aiResponse::append)
+                .doOnComplete(() -> saveStreamedAssistantMessage(session, aiResponse));
+    }
+
+    private ChatMessage getLastUserMessage(List<ChatMessage> messages) {
+        return messages.stream()
+                .filter(ChatMessage::isFromUser)
+                .reduce((first, second) -> second)
+                .orElseThrow(() -> new IllegalArgumentException("At least one user message is required"));
+    }
+
+    private void saveStreamedAssistantMessage(ChatSession session, StringBuilder aiResponse) {
+        String response = aiResponse.toString();
+        if (response.isBlank()) {
+            log.warn("AI returned empty streaming response");
+            return;
+        }
+        session.addAssistantMessage(response);
+        repository.save(session);
+    }
+
     private Message toSpringMessage(ChatMessage msg) {
         return msg.isFromUser()
                 ? new UserMessage(msg.getText())

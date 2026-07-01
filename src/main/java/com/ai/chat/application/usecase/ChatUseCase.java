@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface ChatUseCase {
     String chat(String userMessage);
     Flux<String> chatStream(List<ChatMessage> messages);
+    Flux<String> chatStreamWithSession(String sessionId, List<ChatMessage> messages);
+    Flux<String> chatStreamWithSession(List<ChatMessage> messages);
     String chatWithSession(String sessionId, String userMessage);
     String chatWithSession(String userMessage);
     ChatSession createSession(String title);

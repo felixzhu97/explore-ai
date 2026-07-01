@@ -1,5 +1,6 @@
 package com.ai.chat.web.dto;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ai.rag.web.dto.RagChatResponse;
 import com.ai.rag.web.dto.SourceDocumentDto;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +21,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @DisplayName("DTO Coverage Tests")
 class DtoCoverageTest {
+
+    @Nested
+    @DisplayName("ChatStreamRequest")
+    class ChatStreamRequestTests {
+
+        @Test
+        @DisplayName("should deserialize snake case session id")
+        void shouldDeserializeSnakeCaseSessionId() throws Exception {
+            String json = """
+                    {
+                      "messages": [{"role": "user", "content": "Hello"}],
+                      "session_id": "session-123",
+                      "provider": "deepseek",
+                      "model": "deepseek-v4-flash"
+                    }
+                    """;
+
+            ChatStreamRequest request = new ObjectMapper().readValue(json, ChatStreamRequest.class);
+
+            assertThat(request.sessionId()).isEqualTo("session-123");
+            assertThat(request.messages()).hasSize(1);
+            assertThat(request.messages().get(0).content()).isEqualTo("Hello");
+        }
+    }
 
     @Nested
     @DisplayName("SourceDocumentDto")

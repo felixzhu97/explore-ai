@@ -2,11 +2,14 @@ package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.chat.domain.model.ChatMessage;
+import com.ai.chat.domain.vo.MessageId;
 import com.ai.chat.web.dto.ChatStreamRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -20,14 +23,17 @@ public class TextController {
     }
 
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatStream(@RequestBody ChatStreamRequest request) {
+    public Flux<String> chatStream(@Valid @RequestBody ChatStreamRequest request) {
         List<ChatMessage> messages = request.messages().stream()
                 .map(dto -> ChatMessage.of(
-                        com.ai.chat.domain.vo.MessageId.generate(),
+                        MessageId.generate(),
                         dto.content(),
                         dto.role(),
-                        java.time.Instant.now()))
+                        Instant.now()))
                 .toList();
-        return chatUseCase.chatStream(messages);
+        if (request.sessionId() != null && !request.sessionId().isBlank()) {
+            return chatUseCase.chatStreamWithSession(request.sessionId(), messages);
+        }
+        return chatUseCase.chatStreamWithSession(messages);
     }
 }
