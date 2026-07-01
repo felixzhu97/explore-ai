@@ -10,8 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -179,6 +183,22 @@ public class SpringAiChatUseCase implements ChatUseCase {
      */
     public void clearConversationMemory(String conversationId) {
         chatMemory.clear(conversationId);
+    }
+
+    @Override
+    public Flux<String> chatStream(List<ChatMessage> messages) {
+        log.info("Streaming chat request with {} messages", messages.size());
+
+        return chatClient.prompt()
+                .messages(messages.stream().map(this::toSpringMessage).toList())
+                .stream()
+                .content();
+    }
+
+    private Message toSpringMessage(ChatMessage msg) {
+        return msg.isFromUser()
+                ? new UserMessage(msg.getText())
+                : new AssistantMessage(msg.getText());
     }
 
     private String truncateForLog(String text) {

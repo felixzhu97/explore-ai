@@ -23,6 +23,7 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.ai:spring-ai-bom:2.0.0")
+        mavenBom("me.paulschwarz:spring-dotenv-bom:5.1.0")
     }
 }
 
@@ -46,6 +47,9 @@ dependencies {
 
     // PDF Processing
     implementation("org.apache.pdfbox:pdfbox:3.0.3")
+
+    // dotenv support
+    developmentOnly("me.paulschwarz:springboot4-dotenv")
 
     // Database: H2 embedded + Liquibase migrations
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
