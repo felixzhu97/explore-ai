@@ -1,0 +1,1 @@
+../../.cursor/skills/angular-developer/SKILL.md
