@@ -17,9 +17,10 @@ BASE_URL="http://localhost:9000"
 5. [Tool Calling API](#tool-calling-api)
 6. [Image Generation API](#image-generation-api)
 7. [Audio/TTS API](#audio-tts-api)
-8. [MCP Server API](#mcp-server-api)
-9. [MCP Client API](#mcp-client-api)
-10. [Error Codes](#error-codes)
+8. [Audio/ASR API](#audio-asr-api)
+9. [MCP Server API](#mcp-server-api)
+10. [MCP Client API](#mcp-client-api)
+11. [Error Codes](#error-codes)
 
 ---
 
@@ -59,10 +60,12 @@ curl -X POST "${BASE_URL}/api/chat" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `message` | string | Yes | Chat message (max 10,000 characters) |
-| `sessionId` | string | No | Session ID for multi-turn conversations |
+
+| Field       | Type   | Required | Description                             |
+| ----------- | ------ | -------- | --------------------------------------- |
+| `message`   | string | Yes      | Chat message (max 10,000 characters)    |
+| `sessionId` | string | No       | Session ID for multi-turn conversations |
+
 
 **Response Example**
 
@@ -129,10 +132,12 @@ curl -X POST "${BASE_URL}/api/chat/analyze" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `text` | string | Yes | Text to analyze |
-| `language` | string | No | Analysis language (e.g., "en", "zh") |
+
+| Field      | Type   | Required | Description                          |
+| ---------- | ------ | -------- | ------------------------------------ |
+| `text`     | string | Yes      | Text to analyze                      |
+| `language` | string | No       | Analysis language (e.g., "en", "zh") |
+
 
 **Response Example**
 
@@ -154,11 +159,13 @@ curl -X POST "${BASE_URL}/api/chat/analyze" \
 
 **Sentiment Values**
 
-| Value | Description |
-|-------|-------------|
+
+| Value      | Description        |
+| ---------- | ------------------ |
 | `POSITIVE` | Positive sentiment |
-| `NEUTRAL` | Neutral sentiment |
+| `NEUTRAL`  | Neutral sentiment  |
 | `NEGATIVE` | Negative sentiment |
+
 
 ---
 
@@ -178,9 +185,11 @@ curl -X POST "${BASE_URL}/api/sessions" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `title` | string | No | Session title (default: "New Session") |
+
+| Field   | Type   | Required | Description                            |
+| ------- | ------ | -------- | -------------------------------------- |
+| `title` | string | No       | Session title (default: "New Session") |
+
 
 **Response Example**
 
@@ -230,9 +239,11 @@ curl -X GET "${BASE_URL}/api/sessions/{sessionId}/messages"
 
 **Path Parameters**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `sessionId` | string | Session ID |
+
+| Parameter   | Type   | Description |
+| ----------- | ------ | ----------- |
+| `sessionId` | string | Session ID  |
+
 
 **Response Example**
 
@@ -269,9 +280,11 @@ curl -X DELETE "${BASE_URL}/api/sessions/{sessionId}"
 
 **Path Parameters**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `sessionId` | string | Session ID |
+
+| Parameter   | Type   | Description |
+| ----------- | ------ | ----------- |
+| `sessionId` | string | Session ID  |
+
 
 **Response**
 
@@ -319,10 +332,12 @@ curl -X POST "${BASE_URL}/api/rag/documents/upload" \
 
 **Form Parameters**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `file` | file | Yes | File to upload (TXT or PDF) |
-| `title` | string | No | Document title (default: filename) |
+
+| Parameter | Type   | Required | Description                        |
+| --------- | ------ | -------- | ---------------------------------- |
+| `file`    | file   | Yes      | File to upload (TXT or PDF)        |
+| `title`   | string | No       | Document title (default: filename) |
+
 
 **Response Example**
 
@@ -358,9 +373,11 @@ curl -X DELETE "${BASE_URL}/api/rag/documents/{id}"
 
 **Path Parameters**
 
+
 | Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | UUID | Document ID |
+| --------- | ---- | ----------- |
+| `id`      | UUID | Document ID |
+
 
 **Response**
 
@@ -385,13 +402,15 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `question` | string | Yes | Question text |
-| `docIds` | array | No | Document IDs to search (empty = all) |
-| `topK` | integer | No | Number of document chunks to retrieve (default: 5) |
-| `temperature` | number | No | AI temperature parameter (default: 0.7) |
-| `sessionId` | string | No | Session ID |
+
+| Field         | Type    | Required | Description                                        |
+| ------------- | ------- | -------- | -------------------------------------------------- |
+| `question`    | string  | Yes      | Question text                                      |
+| `docIds`      | array   | No       | Document IDs to search (empty = all)               |
+| `topK`        | integer | No       | Number of document chunks to retrieve (default: 5) |
+| `temperature` | number  | No       | AI temperature parameter (default: 0.7)            |
+| `sessionId`   | string  | No       | Session ID                                         |
+
 
 **Response Example (SSE)**
 
@@ -437,9 +456,11 @@ curl -X GET "${BASE_URL}/api/tools/weather?city=Beijing"
 
 **Query Parameters**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `city` | string | Yes | City name |
+
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `city`    | string | Yes      | City name   |
+
 
 **Response Example**
 
@@ -464,10 +485,12 @@ curl -X GET "${BASE_URL}/api/tools/weather/forecast?city=Shanghai&days=7"
 
 **Query Parameters**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `city` | string | Yes | City name |
-| `days` | integer | No | Number of forecast days |
+
+| Parameter | Type    | Required | Description             |
+| --------- | ------- | -------- | ----------------------- |
+| `city`    | string  | Yes      | City name               |
+| `days`    | integer | No       | Number of forecast days |
+
 
 **Response Example**
 
@@ -494,10 +517,12 @@ curl -X GET "${BASE_URL}/api/tools/documents/search?query=product features"
 
 **Query Parameters**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `query` | string | Yes | Search keyword |
-| `docIds` | string | No | Comma-separated document IDs to limit scope |
+
+| Parameter | Type   | Required | Description                                 |
+| --------- | ------ | -------- | ------------------------------------------- |
+| `query`   | string | Yes      | Search keyword                              |
+| `docIds`  | string | No       | Comma-separated document IDs to limit scope |
+
 
 **Response Example**
 
@@ -563,10 +588,12 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `question` | string | Yes | Question text |
-| `docIds` | array | No | Document IDs for RAG retrieval |
+
+| Field      | Type   | Required | Description                    |
+| ---------- | ------ | -------- | ------------------------------ |
+| `question` | string | Yes      | Question text                  |
+| `docIds`   | array  | No       | Document IDs for RAG retrieval |
+
 
 **Response Example**
 
@@ -593,9 +620,11 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `question` | string | Yes | Question requiring web search |
+
+| Field      | Type   | Required | Description                   |
+| ---------- | ------ | -------- | ----------------------------- |
+| `question` | string | Yes      | Question requiring web search |
+
 
 **Response Example**
 
@@ -608,13 +637,15 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 
 **Available Tools**
 
-| Tool | Description | API Key Required |
-|------|-------------|------------------|
-| `getWeather` | Get current weather for a city | No |
-| `getForecast` | Get weather forecast | No |
-| `searchDocuments` | Search knowledge base documents | No |
-| `listDocuments` | List all knowledge base documents | No |
-| `searchWeb` | Search the web for real-time information | SERPER_API_KEY |
+
+| Tool              | Description                              | API Key Required |
+| ----------------- | ---------------------------------------- | ---------------- |
+| `getWeather`      | Get current weather for a city           | No               |
+| `getForecast`     | Get weather forecast                     | No               |
+| `searchDocuments` | Search knowledge base documents          | No               |
+| `listDocuments`   | List all knowledge base documents        | No               |
+| `searchWeb`       | Search the web for real-time information | SERPER_API_KEY   |
+
 
 ---
 
@@ -678,14 +709,16 @@ curl -X POST "${BASE_URL}/api/images/generate" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `prompt` | string | Yes | Image description (max 4,000 characters) |
-| `model` | string | No | Model to use (e.g., "dall-e-3", "dall-e-2") |
-| `quality` | string | No | Image quality: "standard" or "hd" |
-| `width` | integer | No | Image width in pixels (256, 512, 1024, or 1792) |
-| `height` | integer | No | Image height in pixels (256, 512, 1024, or 1792) |
-| `n` | integer | No | Number of images to generate (1-10, default: 1) |
+
+| Field     | Type    | Required | Description                                      |
+| --------- | ------- | -------- | ------------------------------------------------ |
+| `prompt`  | string  | Yes      | Image description (max 4,000 characters)         |
+| `model`   | string  | No       | Model to use (e.g., "dall-e-3", "dall-e-2")      |
+| `quality` | string  | No       | Image quality: "standard" or "hd"                |
+| `width`   | integer | No       | Image width in pixels (256, 512, 1024, or 1792)  |
+| `height`  | integer | No       | Image height in pixels (256, 512, 1024, or 1792) |
+| `n`       | integer | No       | Number of images to generate (1-10, default: 1)  |
+
 
 **Response Example**
 
@@ -798,11 +831,13 @@ curl -X POST "${BASE_URL}/api/audio/speak" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `text` | string | Yes | Text to convert to speech |
-| `model` | string | No | TTS model to use |
-| `voice` | string | No | Voice ID to use |
+
+| Field   | Type   | Required | Description               |
+| ------- | ------ | -------- | ------------------------- |
+| `text`  | string | Yes      | Text to convert to speech |
+| `model` | string | No       | TTS model to use          |
+| `voice` | string | No       | Voice ID to use           |
+
 
 **Response**
 
@@ -820,11 +855,13 @@ curl -X GET "${BASE_URL}/api/audio/stream?text=Hello%20World"
 
 **Query Parameters**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `text` | string | Yes | Text to convert |
-| `model` | string | No | TTS model |
-| `voice` | string | No | Voice ID |
+
+| Parameter | Type   | Required | Description     |
+| --------- | ------ | -------- | --------------- |
+| `text`    | string | Yes      | Text to convert |
+| `model`   | string | No       | TTS model       |
+| `voice`   | string | No       | Voice ID        |
+
 
 **Response**
 
@@ -913,6 +950,34 @@ curl -X GET "${BASE_URL}/api/audio/models"
   ]
 }
 ```
+
+---
+
+## Audio/ASR API
+
+### WebSocket Streaming Transcription
+
+Real-time speech-to-text using Ollama Whisper via WebSocket.
+
+**Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
+
+**Protocol:**
+
+```json
+// Client -> Server (audio chunk)
+{"type": "audio", "data": "base64_wav_data"}
+
+// Server -> Client (partial result)
+{"type": "partial", "text": "正在识别..."}
+
+// Server -> Client (final result)
+{"type": "final", "text": "识别完成的文字"}
+```
+
+**Requirements:**
+
+- Ollama running with Whisper model: `ollama pull whisper-base`
+- Audio format: WAV, 16kHz, mono, base64-encoded
 
 ---
 
@@ -1088,10 +1153,12 @@ curl -X POST "${BASE_URL}/api/mcp/client/chat" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-|------|------|----------|-------------|
-| `question` | string | Yes | Question text |
-| `docIds` | array | No | Document IDs for RAG context |
+
+| Field      | Type   | Required | Description                  |
+| ---------- | ------ | -------- | ---------------------------- |
+| `question` | string | Yes      | Question text                |
+| `docIds`   | array  | No       | Document IDs for RAG context |
+
 
 **Response Example**
 
@@ -1123,16 +1190,18 @@ All errors return the following standard format:
 
 ### Common Error Codes
 
-| HTTP Status | Error Code | Description |
-|-------------|------------|-------------|
-| `400` | `VALIDATION_ERROR` | Request validation failed |
-| `400` | `BAD_REQUEST` | Invalid request parameters |
-| `404` | `SESSION_NOT_FOUND` | Chat session does not exist |
-| `404` | `DOCUMENT_NOT_FOUND` | Document does not exist |
-| `413` | `FILE_TOO_LARGE` | Uploaded file exceeds 50MB limit |
-| `503` | `AI_SERVICE_ERROR` | AI service unavailable or error |
-| `500` | `RAG_SERVICE_ERROR` | RAG service error |
-| `500` | `INTERNAL_ERROR` | Internal server error |
+
+| HTTP Status | Error Code           | Description                      |
+| ----------- | -------------------- | -------------------------------- |
+| `400`       | `VALIDATION_ERROR`   | Request validation failed        |
+| `400`       | `BAD_REQUEST`        | Invalid request parameters       |
+| `404`       | `SESSION_NOT_FOUND`  | Chat session does not exist      |
+| `404`       | `DOCUMENT_NOT_FOUND` | Document does not exist          |
+| `413`       | `FILE_TOO_LARGE`     | Uploaded file exceeds 50MB limit |
+| `503`       | `AI_SERVICE_ERROR`   | AI service unavailable or error  |
+| `500`       | `RAG_SERVICE_ERROR`  | RAG service error                |
+| `500`       | `INTERNAL_ERROR`     | Internal server error            |
+
 
 ### Error Response Examples
 
@@ -1177,3 +1246,4 @@ All errors return the following standard format:
 - Streaming responses use Server-Sent Events (SSE) protocol
 - Maximum upload file size: 50MB
 - Maximum chat message length: 10,000 characters
+
