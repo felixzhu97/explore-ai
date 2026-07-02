@@ -34,7 +34,7 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
         float[] embedding = parsePostgresVector(rs.getString("embedding"));
         Map<String, Object> metadata = parseMetadata(rs.getString("metadata"));
         java.sql.Timestamp timestamp = rs.getTimestamp("created_at");
-        Instant createdAt = timestamp != null ? timestamp.toInstant() : null;
+        Instant createdAt = timestamp != null ? timestamp.toInstant() : Instant.now();
 
         return DocumentChunk.reconstitute(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
     }

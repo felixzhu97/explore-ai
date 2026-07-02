@@ -49,9 +49,12 @@ class ChunkRowMapperTest {
             DocumentChunk expectedChunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
             when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
                     .thenReturn(List.of(expectedChunk));
-            List<DocumentChunk> results = adapter.search(new float[]{1.0f, 0.0f}, 5);
+            List<DocumentChunk> results = adapter.search(new float[]{1.0f, 0.0f, 0.0f, 0.0f}, 5);
             assertThat(results).hasSize(1);
             assertThat(results.get(0).getId()).isEqualTo(TEST_CHUNK_ID);
+            assertThat(results.get(0).getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
+            assertThat(results.get(0).getContent()).isEqualTo("Test content " + TEST_CHUNK_ID);
+            assertThat(results.get(0).getEmbedding()).containsExactly(1.0f, 2.0f, 3.0f, 4.0f);
         }
 
         @Test
