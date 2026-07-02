@@ -20,10 +20,14 @@ public record RagChatRequest(
     Double temperature,
 
     @JsonProperty("doc_ids")
-    List<String> docIds
+    List<String> docIds,
+
+    @JsonProperty("images")
+    List<String> images
 ) {
     public RagChatRequest {
         if (topK == null) topK = 5;
         if (temperature == null) temperature = 0.7;
+        if (images == null) images = List.of();
     }
 }

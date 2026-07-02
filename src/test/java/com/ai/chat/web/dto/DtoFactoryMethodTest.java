@@ -99,7 +99,7 @@ class DtoFactoryMethodTest {
         @DisplayName("should normalize null topK to default value of 5")
         void shouldNormalizeNullTopKToDefaultValueOf5() {
             // Act
-            RagChatRequest request = new RagChatRequest(null, null, null, null, null);
+            RagChatRequest request = new RagChatRequest(null, null, null, null, null, null);
 
             // Assert
             assertThat(request.topK()).isEqualTo(5);
@@ -109,7 +109,7 @@ class DtoFactoryMethodTest {
         @DisplayName("should normalize null temperature to default value of 0.7")
         void shouldNormalizeNullTemperatureToDefaultValueOf07() {
             // Act
-            RagChatRequest request = new RagChatRequest(null, null, null, null, null);
+            RagChatRequest request = new RagChatRequest(null, null, null, null, null, null);
 
             // Assert
             assertThat(request.temperature()).isEqualTo(0.7);
@@ -119,7 +119,7 @@ class DtoFactoryMethodTest {
         @DisplayName("should keep valid topK unchanged")
         void shouldKeepValidTopKUnchanged() {
             // Act
-            RagChatRequest request = new RagChatRequest("Question", "session", 10, 0.5, null);
+            RagChatRequest request = new RagChatRequest("Question", "session", 10, 0.5, null, null);
 
             // Assert
             assertThat(request.topK()).isEqualTo(10);
@@ -130,7 +130,7 @@ class DtoFactoryMethodTest {
         @DisplayName("should keep valid temperature unchanged")
         void shouldKeepValidTemperatureUnchanged() {
             // Act
-            RagChatRequest request = new RagChatRequest("Question", null, 3, 0.9, null);
+            RagChatRequest request = new RagChatRequest("Question", null, 3, 0.9, null, null);
 
             // Assert
             assertThat(request.temperature()).isEqualTo(0.9);
@@ -140,8 +140,8 @@ class DtoFactoryMethodTest {
         @DisplayName("should handle boundary topK values")
         void shouldHandleBoundaryTopKValues() {
             // Act
-            RagChatRequest request1 = new RagChatRequest("Q", null, 1, null, null);
-            RagChatRequest request2 = new RagChatRequest("Q", null, 100, null, null);
+            RagChatRequest request1 = new RagChatRequest("Q", null, 1, null, null, null);
+            RagChatRequest request2 = new RagChatRequest("Q", null, 100, null, null, null);
 
             // Assert
             assertThat(request1.topK()).isEqualTo(1);
@@ -152,7 +152,7 @@ class DtoFactoryMethodTest {
         @DisplayName("should handle zero topK")
         void shouldHandleZeroTopK() {
             // Act
-            RagChatRequest request = new RagChatRequest("Question", null, 0, null, null);
+            RagChatRequest request = new RagChatRequest("Question", null, 0, null, null, null);
 
             // Assert - note: current implementation does NOT normalize 0 to 1
             // This test documents the current behavior
@@ -163,7 +163,7 @@ class DtoFactoryMethodTest {
         @DisplayName("should handle negative topK")
         void shouldHandleNegativeTopK() {
             // Act
-            RagChatRequest request = new RagChatRequest("Question", null, -5, null, null);
+            RagChatRequest request = new RagChatRequest("Question", null, -5, null, null, null);
 
             // Assert - note: current implementation does NOT normalize negative values
             assertThat(request.topK()).isEqualTo(-5);

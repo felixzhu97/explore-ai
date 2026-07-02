@@ -4,7 +4,9 @@ import com.ai.common.streaming.StreamingService;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
+import com.ai.rag.application.usecase.VisionChatUseCase;
 import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,14 +33,17 @@ public class RagController {
 
     private final RagApplicationService ragApplicationService;
     private final RagChatUseCase ragChatUseCase;
+    private final VisionChatUseCase visionChatUseCase;
     private final StreamingService streamingService;
 
     public RagController(
             RagApplicationService ragApplicationService,
             RagChatUseCase ragChatUseCase,
+            VisionChatUseCase visionChatUseCase,
             StreamingService streamingService) {
         this.ragApplicationService = ragApplicationService;
         this.ragChatUseCase = ragChatUseCase;
+        this.visionChatUseCase = visionChatUseCase;
         this.streamingService = streamingService;
     }
 
@@ -72,12 +78,26 @@ public class RagController {
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "RAG streaming chat")
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
-        var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
-        return streamingService.streamWithSources(chatResult.response(),
-                chatResult.sources().stream()
+        RagChatResult result;
+        if (hasImages(request.images())) {
+            var visionResult = visionChatUseCase.chatWithImages(request.question(), request.docIds(), request.images(), request.topK());
+            result = new RagChatResult(visionResult.response(), visionResult.sources());
+        } else {
+            var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
+            result = new RagChatResult(chatResult.response(), chatResult.sources());
+        }
+
+        return streamingService.streamWithSources(result.response(),
+                result.sources().stream()
                         .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
                         .toList());
     }
+
+    private boolean hasImages(List<String> images) {
+        return images != null && !images.isEmpty();
+    }
+
+    private record RagChatResult(String response, List<SourceDocument> sources) {}
 
     private DocumentSummaryDto toSummary(Document doc) {
         return new DocumentSummaryDto(
