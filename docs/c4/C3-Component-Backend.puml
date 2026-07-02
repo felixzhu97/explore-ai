@@ -26,6 +26,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
 
         ' RAG Controllers
         Component(rag_ctrl, "RagController", "@RestController", "RAG HTTP/SSE 请求，/api/rag/*")
+        Component(vision_usecase, "VisionChatUseCase", "@Service", "多模态 RAG 聊天用例 (Ollama qwen3.5)")
         Component(tool_ctrl, "ToolCallingController", "@RestController", "工具调用请求，/api/function-call/*")
 
         ' RAG DTOs
@@ -131,7 +132,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
             Component(pg_cfg, "PostgresConfig", "@Configuration", "PostgreSQL 配置")
             Component(ollama_cfg, "OllamaConfig", "@Configuration", "Ollama 配置")
             Component(rag_props, "RagProperties", "@ConfigurationProperties", "RAG 配置属性")
-            Component(chat_cfg, "ChatConfig", "@Configuration", "聊天配置")
+            Component(chat_cfg, "ChatConfig", "@Configuration", "聊天配置 (Ollama/OpenAI ChatModel)")
             Component(cors_cfg, "WebCorsConfig", "@Configuration", "跨域配置")
             Component(jackson_cfg, "JacksonConfig", "@Configuration", "Jackson 配置")
         }
@@ -186,7 +187,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
 System_Boundary(ext_systems, "External Systems") {
     Component(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding，HTTPS")
     Component(postgresql_pgvector, "PostgreSQL + pgvector", "PostgreSQL 17", "文档存储 + 向量检索，端口 5432")
-    Component(ollama_ext, "Ollama", "REST API", "本地 Embedding 模型，端口 11434")
+    Component(ollama_ext, "Ollama", "REST API", "本地 Embedding + Vision (nomic-embed-text + qwen3.5), 端口 11434")
     Component(dalle_ext, "DALL-E API", "REST API", "图像生成服务，HTTPS")
     Component(tts_ext, "TTS Service", "REST API", "语音合成服务，HTTPS")
     Component(serper_api, "Serper.dev API", "REST API", "Web 搜索服务，HTTPS")
@@ -201,6 +202,7 @@ Rel(ai_ctrl, chat_req_dto, "接收")
 Rel(ai_ctrl, ai_chat_svc, "调用")
 Rel(ai_ctrl, ex_handler, "异常处理")
 Rel(rag_ctrl, rag_app_svc, "调用")
+Rel(rag_ctrl, vision_usecase, "多模态聊天")
 Rel(rag_ctrl, ex_handler, "异常处理")
 Rel(tool_ctrl, rag_search_tool, "工具调用")
 Rel(tool_ctrl, weather_tools, "工具调用")

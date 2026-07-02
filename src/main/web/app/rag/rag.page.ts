@@ -44,6 +44,34 @@ export class RagPageComponent implements OnInit {
     input.value = '';
   }
 
+  onImageSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith('image/')) {
+          this.fileToBase64(file).then((base64) => {
+            this.ragService.addImage(base64);
+          });
+        }
+      });
+    }
+    input.value = '';
+  }
+
+  removeImage(index: number): void {
+    this.ragService.removeImage(index);
+  }
+
+  private async fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   setInput(text: string): void {
     this.ragService.setInput(text);
   }
