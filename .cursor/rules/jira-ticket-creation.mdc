@@ -1,9 +1,19 @@
 ---
-description: Jira ticket creation standards with BDD-style acceptance criteria
+description: Jira ticket creation standards with English title/description and BDD-style acceptance criteria
 alwaysApply: true
 ---
 
 # Jira Ticket Creation Standards
+
+## Ticket Language Requirements
+
+- The ticket **title** must be in English.
+- The ticket **description** must be in English.
+- The description must follow this structure:
+  - **Background**
+  - **User Story**
+  - **Acceptance Criteria**
+  - **Notes**
 
 ## User Story Format
 
@@ -74,6 +84,10 @@ When describing UI/UX acceptance criteria, reference these interaction patterns:
 ## Ticket Structure Template
 
 ```
+## Background
+
+[Explain why this work is needed.]
+
 ## User Story
 
 **As a** [role]
@@ -87,6 +101,10 @@ When describing UI/UX acceptance criteria, reference these interaction patterns:
 **THEN** [outcome]
 
 [Additional GIVEN-WHEN-THEN blocks...]
+
+## Notes
+
+- [Optional constraints, follow-ups, or implementation hints]
 ```
 
 ## Story Points
@@ -119,6 +137,9 @@ All **Story** and **Task** type tickets **must** have a Story Point estimate fil
 
 ### Quick Checklist
 
+- [ ] Title is in English
+- [ ] Description is in English
+- [ ] Description includes Background, User Story, Acceptance Criteria, and Notes
 - [ ] User story follows As a / I want / So that format
 - [ ] At least 3 acceptance criteria with GIVEN-WHEN-THEN structure
 - [ ] Acceptance criteria focus on behavior, not implementation
