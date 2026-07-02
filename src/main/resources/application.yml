@@ -19,6 +19,9 @@ spring:
         enabled: true
     ollama:
       base-url: http://localhost:11434
+      asr:
+        model: karanchopda333/whisper
+        language: auto
       chat:
         enabled: false
       embedding:
@@ -30,8 +33,6 @@ spring:
       base-url: ${DEEPSEEK_BASE_URL}
       chat:
         model: deepseek-v4-flash
-      embedding:
-        model: text-embedding-3-small
       image:
         model: dall-e-3
         quality: standard

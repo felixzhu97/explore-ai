@@ -42,10 +42,11 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Component(image_req_dto, "ImageGenerationRequest", "Java Record", "图像生成请求")
         Component(image_resp_dto, "ImageGenerationResponse", "Java Record", "图像生成响应")
 
-        ' Audio/TTS Controllers & DTOs
-        Component(audio_ctrl, "AudioController", "@RestController", "TTS HTTP 请求，/api/audio/*")
+        ' Audio/TTS/ASR Controllers & DTOs
+        Component(audio_ctrl, "AudioController", "@RestController", "TTS HTTP 请求 + ASR WebSocket，/api/audio/* + /ws/audio/transcribe")
         Component(tts_req_dto, "TtsRequest", "Java Record", "TTS 请求")
         Component(tts_resp_dto, "TtsResponse", "Java Record", "TTS 响应")
+        Component(asr_resp_dto, "TranscriptionResponse", "Java Record", "ASR 部分/最终结果")
 
         ' MCP Server Controllers & DTOs
         Component(mcp_ctrl, "McpController", "@RestController", "MCP Server HTTP 请求，/api/mcp/*")
@@ -87,6 +88,14 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         ' Audio/TTS Domain
         Container_Boundary(tts_domain, "Audio/TTS Domain") {
             Component(tts_svc, "TextToSpeechService", "Domain Service", "语音合成核心服务")
+        }
+
+        ' ASR Domain
+        Container_Boundary(asr_domain, "ASR Domain") {
+            Component(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式转录用例")
+            Component(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket 处理器")
+            Component(asr_adapter, "OllamaWhisperAdapter", "@Component", "Ollama Whisper 适配器")
+            Component(asr_config, "OllamaAsrConfig", "@Configuration", "ASR 配置")
         }
 
         ' MCP Server Domain
@@ -187,7 +196,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
 System_Boundary(ext_systems, "External Systems") {
     Component(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding，HTTPS")
     Component(postgresql_pgvector, "PostgreSQL + pgvector", "PostgreSQL 17", "文档存储 + 向量检索，端口 5432")
-    Component(ollama_ext, "Ollama", "REST API", "本地 Embedding + Vision (nomic-embed-text + qwen3.5), 端口 11434")
+    Component(ollama_ext, "Ollama", "REST API", "本地 Embedding + Vision + ASR (nomic-embed-text + qwen3.5 + whisper-base), 端口 11434")
     Component(dalle_ext, "DALL-E API", "REST API", "图像生成服务，HTTPS")
     Component(tts_ext, "TTS Service", "REST API", "语音合成服务，HTTPS")
     Component(serper_api, "Serper.dev API", "REST API", "Web 搜索服务，HTTPS")
@@ -233,6 +242,12 @@ Rel(image_gen_svc, openai_image_adapter, "依赖")
 
 ' Domain - Audio/TTS
 Rel(tts_svc, openai_tts_adapter, "依赖")
+
+' Domain - ASR
+Rel(audio_ctrl, asr_ws_handler, "WebSocket 会话")
+Rel(asr_ws_handler, asr_usecase, "流式转录")
+Rel(asr_usecase, asr_adapter, "调用")
+Rel(asr_adapter, ollama_ext, "Whisper 转录", "HTTP :11434")
 
 ' Domain Ports -> Infrastructure
 Rel(emb_adapter, ollama_emb_adapter, "实现")

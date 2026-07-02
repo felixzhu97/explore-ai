@@ -17,9 +17,10 @@ BASE_URL="http://localhost:9000"
 5. [Tool Calling API](#tool-calling-api)
 6. [Image Generation API](#image-generation-api)
 7. [Audio/TTS API](#audio-tts-api)
-8. [MCP Server API](#mcp-server-api)
-9. [MCP Client API](#mcp-client-api)
-10. [Error Codes](#error-codes)
+8. [Audio/ASR API](#audio-asr-api)
+9. [MCP Server API](#mcp-server-api)
+10. [MCP Client API](#mcp-client-api)
+11. [Error Codes](#error-codes)
 
 ---
 
@@ -949,6 +950,34 @@ curl -X GET "${BASE_URL}/api/audio/models"
   ]
 }
 ```
+
+---
+
+## Audio/ASR API
+
+### WebSocket Streaming Transcription
+
+Real-time speech-to-text using Ollama Whisper via WebSocket.
+
+**Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
+
+**Protocol:**
+
+```json
+// Client -> Server (audio chunk)
+{"type": "audio", "data": "base64_wav_data"}
+
+// Server -> Client (partial result)
+{"type": "partial", "text": "正在识别..."}
+
+// Server -> Client (final result)
+{"type": "final", "text": "识别完成的文字"}
+```
+
+**Requirements:**
+
+- Ollama running with Whisper model: `ollama pull whisper-base`
+- Audio format: WAV, 16kHz, mono, base64-encoded
 
 ---
 

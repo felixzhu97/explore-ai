@@ -3,7 +3,7 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tool Calling + Image + TTS + MCP)
+title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tool Calling + Image + TTS + ASR + MCP)
 
 ' ============================================================
 ' PEOPLE - 人员
@@ -81,10 +81,15 @@ Container_Boundary(image_domain, "Image Generation Domain") {
 ' DOMAIN 5: AUDIO/TTS DOMAIN
 ' ============================================================
 Container_Boundary(tts_domain, "Audio/TTS Domain") {
-    Container(audio_controller, "AudioController", "@RestController", "TTS HTTP 请求")
+    Container(audio_controller, "AudioController", "@RestController", "TTS HTTP 请求 + ASR WebSocket")
     Container(tts_dto, "TTS DTOs", "Java Records", "TTS 请求/响应 DTO")
+    Container(asr_dto, "ASR DTOs", "Java Records", "ASR WebSocket 响应 DTO")
     Container(tts_svc, "TextToSpeechService", "Domain Service", "语音合成核心服务")
     Container(tts_adapter, "OpenAiTtsAdapter", "@Component", "OpenAI TTS 适配器")
+    Container(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket 处理器")
+    Container(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式转录用例")
+    Container(asr_adapter, "OllamaWhisperAdapter", "@Component", "Ollama Whisper 适配器")
+    Container(asr_config, "OllamaAsrConfig", "@Configuration", "ASR 配置")
 }
 
 ' ============================================================
@@ -140,7 +145,7 @@ Rel(angular_app, chat_controller, "聊天请求", "HTTP/SSE :9000")
 Rel(angular_app, rag_controller, "RAG 请求", "HTTP/SSE :9000")
 Rel(angular_app, tool_controller, "工具调用", "HTTP :9000")
 Rel(angular_app, image_controller, "图像生成", "HTTP :9000")
-Rel(angular_app, audio_controller, "TTS 请求", "HTTP :9000")
+Rel(angular_app, audio_controller, "TTS 请求 + ASR 流式语音", "HTTP/WebSocket :9000")
 Rel(angular_app, mcp_controller, "MCP Server", "HTTP :9000")
 Rel(angular_app, mcp_client_controller, "MCP Client", "HTTP :9000")
 
@@ -188,9 +193,13 @@ Rel(image_svc, image_adapter, "依赖")
 Rel(image_adapter, dalle_api, "图像生成", "HTTPS")
 
 ' Audio/TTS Domain
-Rel(audio_controller, tts_svc, "调用")
+Rel(audio_controller, tts_svc, "TTS 调用")
+Rel(audio_controller, asr_ws_handler, "WebSocket 会话管理")
+Rel(asr_ws_handler, asr_usecase, "流式转录编排")
+Rel(asr_usecase, asr_adapter, "调用 Ollama Whisper")
 Rel(tts_svc, tts_adapter, "依赖")
 Rel(tts_adapter, tts_ext_api, "语音合成", "HTTPS")
+Rel(asr_adapter, ollama_svc, "Whisper 转录", "HTTP :11434")
 
 ' MCP Server Domain
 Rel(mcp_controller, mcp_server_svc, "调用")
