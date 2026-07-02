@@ -1,6 +1,7 @@
 package com.ai.tools.application.usecase;
 
 import com.ai.common.domain.port.out.DocumentSearchTool;
+import com.ai.common.domain.port.out.WebSearchTool;
 import com.ai.tools.infrastructure.tools.WeatherTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Facade for tool calling operations including weather and document search.
+ * Facade for tool calling operations including weather, document search, and web search.
  */
 @Service
 public class ToolsFacade {
@@ -20,14 +21,17 @@ public class ToolsFacade {
     private final ChatClient chatClient;
     private final WeatherTools weatherTools;
     private final DocumentSearchTool documentSearchTool;
+    private final WebSearchTool webSearchTool;
 
     public ToolsFacade(
             ChatClient.Builder chatClientBuilder,
             WeatherTools weatherTools,
-            DocumentSearchTool documentSearchTool) {
+            DocumentSearchTool documentSearchTool,
+            WebSearchTool webSearchTool) {
         this.chatClient = chatClientBuilder.build();
         this.weatherTools = weatherTools;
         this.documentSearchTool = documentSearchTool;
+        this.webSearchTool = webSearchTool;
     }
 
     /**
@@ -37,7 +41,7 @@ public class ToolsFacade {
         log.info("ToolsFacade.chatWithTools: {}", truncate(question));
         return chatClient.prompt()
                 .user(question)
-                .tools(weatherTools, documentSearchTool)
+                .tools(weatherTools, documentSearchTool, webSearchTool)
                 .call()
                 .content();
     }
@@ -72,6 +76,14 @@ public class ToolsFacade {
     public String listDocuments() {
         log.info("ToolsFacade.listDocuments");
         return documentSearchTool.listDocuments();
+    }
+
+    /**
+     * Search the web for real-time information.
+     */
+    public String searchWeb(String query) {
+        log.info("ToolsFacade.searchWeb: {}", truncate(query));
+        return webSearchTool.searchWeb(query);
     }
 
     private String truncate(String text) {

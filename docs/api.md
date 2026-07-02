@@ -579,7 +579,46 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 
 ---
 
-### Tool Calling Chat (Streaming)
+### Web Search Chat
+
+Chat that triggers web search for real-time information (news, current events, etc.).
+
+```bash
+curl -X POST "${BASE_URL}/api/tools/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What is the latest AI news today?"
+  }'
+```
+
+**Request Body**
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `question` | string | Yes | Question requiring web search |
+
+**Response Example**
+
+```json
+{
+  "answer": "Here's the latest AI news: [AI news summary with sources]",
+  "toolCalls": ["searchWeb"]
+}
+```
+
+**Available Tools**
+
+| Tool | Description | API Key Required |
+|------|-------------|------------------|
+| `getWeather` | Get current weather for a city | No |
+| `getForecast` | Get weather forecast | No |
+| `searchDocuments` | Search knowledge base documents | No |
+| `listDocuments` | List all knowledge base documents | No |
+| `searchWeb` | Search the web for real-time information | SERPER_API_KEY |
+
+---
+
+### Document Search Chat
 
 AI chat with function calling (streaming response).
 

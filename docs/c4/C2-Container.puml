@@ -57,10 +57,12 @@ Container_Boundary(rag_domain, "RAG Domain") {
 ' DOMAIN 3: TOOL CALLING DOMAIN
 ' ============================================================
 Container_Boundary(tool_domain, "Tool Calling Domain") {
-    Container(tool_controller, "ToolCallingController", "@RestController", "工具调用 HTTP 请求")
+    Container(tool_controller, "ToolsController", "@RestController", "工具调用 HTTP 请求")
+    Container(tool_facade, "ToolsFacade", "Facade", "工具调用门面，协调各工具")
     Container(tool_dto, "Tool DTOs", "Java Records", "工具列表/调用请求 DTO")
     Container(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索工具")
     Container(weather_tool, "WeatherTools", "*Tool", "天气查询工具")
+    Container(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索工具 (Serper.dev)")
 }
 
 ' ============================================================
@@ -122,6 +124,7 @@ Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embed
 Container_Ext(ollama_svc, "Ollama", "REST API", "本地 Embedding 模型", "11434")
 Container_Ext(dalle_api, "DALL-E API", "REST API", "图像生成服务", "HTTPS")
 Container_Ext(tts_ext_api, "TTS Service", "REST API", "语音合成服务", "HTTPS")
+Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索服务", "HTTPS")
 
 ' ============================================================
 ' RELATIONSHIPS - 关系
@@ -164,10 +167,13 @@ Rel(ollama_emb_adapter, ollama_svc, "Embedding 生成", "HTTP :11434")
 Rel(document, doc_chunk, "包含多个")
 
 ' Tool Calling Domain
-Rel(tool_controller, rag_search_tool, "RAG 搜索")
-Rel(tool_controller, weather_tool, "天气查询")
+Rel(tool_controller, tool_facade, "调用")
+Rel(tool_facade, rag_search_tool, "RAG 搜索")
+Rel(tool_facade, weather_tool, "天气查询")
+Rel(tool_facade, web_search_tool, "Web 搜索")
 Rel(rag_search_tool, rag_app_svc, "RAG 服务")
 Rel(weather_tool, deepseek_api, "天气 API", "HTTPS")
+Rel(web_search_tool, serper_api, "Web 搜索", "HTTPS")
 
 ' Image Generation Domain
 Rel(image_controller, image_svc, "调用")

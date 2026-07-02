@@ -175,6 +175,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Container_Boundary(tool_impls, "Tool Implementations") {
             Component(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索工具")
             Component(weather_tools, "WeatherTools", "*Tool", "天气查询工具")
+            Component(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索工具 (Serper.dev)")
         }
     }
 }
@@ -188,6 +189,7 @@ System_Boundary(ext_systems, "External Systems") {
     Component(ollama_ext, "Ollama", "REST API", "本地 Embedding 模型，端口 11434")
     Component(dalle_ext, "DALL-E API", "REST API", "图像生成服务，HTTPS")
     Component(tts_ext, "TTS Service", "REST API", "语音合成服务，HTTPS")
+    Component(serper_api, "Serper.dev API", "REST API", "Web 搜索服务，HTTPS")
 }
 
 ' ============================================================
@@ -202,6 +204,7 @@ Rel(rag_ctrl, rag_app_svc, "调用")
 Rel(rag_ctrl, ex_handler, "异常处理")
 Rel(tool_ctrl, rag_search_tool, "工具调用")
 Rel(tool_ctrl, weather_tools, "工具调用")
+Rel(tool_ctrl, web_search_tool, "工具调用")
 Rel(image_ctrl, image_gen_svc, "调用")
 Rel(image_ctrl, ex_handler, "异常处理")
 Rel(audio_ctrl, tts_svc, "调用")
@@ -240,6 +243,7 @@ Rel(pgvector_adapter, postgresql_pgvector, "向量存储/检索", "JDBC :5432")
 Rel(doc_repo, postgresql_pgvector, "文档持久化", "JDBC :5432")
 Rel(doc_repo, spring_data_doc_repo, "组合")
 Rel(weather_tools, deepseek_api, "天气查询", "HTTPS")
+Rel(web_search_tool, serper_api, "Web 搜索", "HTTPS")
 Rel(openai_image_adapter, dalle_ext, "图像生成", "HTTPS")
 Rel(openai_tts_adapter, tts_ext, "语音合成", "HTTPS")
 
