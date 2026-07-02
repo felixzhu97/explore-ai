@@ -90,6 +90,10 @@ server:
     max-http-form-post-size: 50MB
     max-swallow-size: 50MB
 
+# Serper web search configuration
+serper:
+  api-key: ${SERPER_API_KEY:}
+
 # Actuator for health checks
 management:
   endpoints:

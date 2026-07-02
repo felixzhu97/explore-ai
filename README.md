@@ -1,55 +1,124 @@
 # AI-Explore
 
-基于 Spring AI + Angular 的 AI 聊天应用，支持 RAG 文档问答和 Tool Calling。
+基于 Spring AI + Angular 的 AI 应用平台，支持 RAG 文档问答、Tool Calling、图像生成、语音合成和视觉分析。
+
+## 核心功能
+
+| 功能 | 描述 | 技术亮点 |
+|------|------|---------|
+| **AI 对话** | 多 Provider (OpenAI/Anthropic/Ollama) 切换，SSE 流式输出 | Markdown 渲染，会话管理 |
+| **RAG 文档问答** | PDF/TXT 文档上传，向量检索增强生成 | 流式响应，来源引用 |
+| **Tool Calling** | 天气查询、文档搜索、Web 搜索 | 自动工具选择 |
+| **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
+| **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
+| **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放 |
 
 ## 技术栈
 
-| 组件   | 技术                          |
-| ------ | ----------------------------- |
-| 后端   | Java 25 + Spring Boot 4.0     |
-| AI     | Spring AI 2.0 (DeepSeek)     |
-| 数据库 | H2 嵌入式数据库 + Liquibase   |
-| 前端   | Angular 22 + TypeScript      |
+| 组件 | 技术 |
+|------|------|
+| 后端 | Java 25 + Spring Boot 4.1 |
+| AI | Spring AI 2.0 (DeepSeek / OpenAI / Anthropic) |
+| 前端 | Angular 22 + TypeScript |
+| 数据库 | H2 嵌入式 + Liquibase |
+| 部署 | Docker Compose (可选) |
 
 ## 快速启动
 
 ```bash
-# 配置
-echo "DEEPSEEK_API_KEY=your-key" > .env
+# 1. 配置 API Keys
+cat > .env << EOF
+DEEPSEEK_API_KEY=your-deepseek-key
+OPENAI_API_KEY=your-openai-key
+SERPER_API_KEY=your-serper-key   # 可选，Web 搜索用
+EOF
 
-# 本地开发（无需 Docker，H2 随 Spring Boot 进程启动，Liquibase 自动建表）
+# 2. 启动后端 (H2 自动建表)
 ./gradlew bootRun
+
+# 3. 新终端启动前端
+cd src/main/web && pnpm install && pnpm start
 ```
 
-- 应用: http://localhost:9000
-- 健康检查: http://localhost:9000/actuator/health
-- 数据库文件: `./data/ai-explore.*`（首次启动自动创建）
+访问 http://localhost:4200
 
-## API
+## API 示例
 
-### Chat
+### AI 对话
 
 ```bash
-curl -X POST http://localhost:9000/api/ai/chat \
+curl -X POST http://localhost:9000/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "你好"}'
 ```
 
-### RAG
+### RAG 文档问答
 
 ```bash
 # 上传文档
 curl -X POST http://localhost:9000/api/rag/documents/upload \
-  -H "Content-Type: application/json" \
-  -d '{"title": "手册", "content": "文档内容..."}'
+  -F "file=@manual.pdf" -F "title=用户手册"
 
 # 流式问答
 curl -X POST http://localhost:9000/api/rag/chat/stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
-  -d '{"question": "产品功能是什么？"}'
+  -d '{"question": "产品的保修期是多久？"}'
 ```
 
-## 架构
+### Tool Calling (天气 + Web 搜索)
 
-Clean Architecture + DDD，详见 `docs/c4/`
+```bash
+curl -X POST http://localhost:9000/api/tools/chat \
+  -H "Content-Type: application/json" \
+  -d '{"question": "今天北京的天气怎么样？"}'
+
+# 需要实时信息时自动调用 Web 搜索
+curl -X POST http://localhost:9000/api/tools/chat \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is the latest AI news today?"}'
+```
+
+### 图像生成
+
+```bash
+curl -X POST http://localhost:9000/api/images/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "A beautiful sunset over the ocean", "width": 1024, "height": 1024}'
+```
+
+### 语音合成
+
+```bash
+curl -X POST http://localhost:9000/api/audio/speak \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello, welcome to AI Explore!", "voice": "en-US"}' \
+  --output speech.mp3
+```
+
+## 项目结构
+
+```
+ai-explore/
+├── src/main/java/com/ai/
+│   ├── chat/           # AI 对话
+│   ├── rag/            # RAG 文档问答
+│   ├── tools/          # Tool Calling (天气/搜索)
+│   ├── image/          # 图像生成
+│   ├── audio/          # 语音合成
+│   └── mcp/            # MCP Server/Client
+│
+├── src/main/web/       # Angular 前端
+│   └── app/
+│       ├── rag/        # RAG 页面
+│       ├── vision/     # 视觉分析
+│       └── ai-hub/     # AI Hub (对话/TTS/图像)
+│
+└── docs/c4/           # C4 架构图
+```
+
+## 文档
+
+- [API 文档](./docs/api.md)
+- [C4 架构图](./docs/c4/)
+- [快速入门](./docs/QUICKSTART.md)
