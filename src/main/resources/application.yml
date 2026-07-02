@@ -72,6 +72,9 @@ rag:
     embedding:
       model: nomic-embed-text
       dimensions: 768
+    chat:
+      enabled: true
+      model: qwen3.5:35b
   chunk:
     size: ${RAG_CHUNK_SIZE:500}
     overlap: ${RAG_CHUNK_OVERLAP:50}

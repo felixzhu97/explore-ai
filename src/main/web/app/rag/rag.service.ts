@@ -33,6 +33,7 @@ export interface ChatMessage {
   content: string;
   sources?: SourceDocument[];
   timestamp: number;
+  images?: string[];
 }
 
 const DEFAULT_TEMPERATURE = 0.7;
@@ -64,6 +65,10 @@ export class RagService {
 
   // Streaming state
   readonly streamingMessageIds = signal<Set<string>>(new Set());
+
+  // Image state
+  readonly pendingImages = signal<string[]>([]);
+  readonly maxImages = 5;
 
   fetchAvailableDocs(): void {
     this.isLoadingDocs.set(true);
@@ -162,6 +167,35 @@ export class RagService {
     this.pendingFiles.update(files => files.filter((_, i) => i !== index));
   }
 
+  // ==================== Image Handling ====================
+
+  addImage(base64Data: string): boolean {
+    const images = this.pendingImages();
+    if (images.length >= this.maxImages) {
+      this.notifications.showInfo(`Maximum ${this.maxImages} images allowed`);
+      return false;
+    }
+    this.pendingImages.update(imgs => [...imgs, base64Data]);
+    return true;
+  }
+
+  removeImage(index: number): void {
+    this.pendingImages.update(imgs => imgs.filter((_, i) => i !== index));
+  }
+
+  clearImages(): void {
+    this.pendingImages.set([]);
+  }
+
+  private async fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   getUploadStatus(filename: string): UploadStatus | undefined {
     return this.uploadStatuses().get(filename);
   }
@@ -239,18 +273,22 @@ export class RagService {
     this.input.set(text);
   }
 
-  sendMessage(): void {
-    if (!this.input().trim() || this.isLoading()) return;
+  async sendMessage(): Promise<void> {
+    if (!this.input().trim() && this.pendingImages().length === 0) return;
+    if (this.isLoading()) return;
 
+    const images = this.pendingImages();
     const userMessage: ChatMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
-      content: this.input().trim(),
+      content: this.input().trim() || (images.length > 0 ? '(Image)' : ''),
       timestamp: Date.now(),
+      images: images.length > 0 ? images : undefined,
     };
 
     this.messages.update(msgs => [...msgs, userMessage]);
     this.input.set('');
+    this.clearImages();
     this.isLoading.set(true);
 
     const assistantMessageId = `assistant_${Date.now()}`;
@@ -271,6 +309,7 @@ export class RagService {
       top_k: number;
       temperature: number;
       doc_ids?: string[];
+      images?: string[];
     } = {
       query: userMessage.content,
       session_id: this.sessionId,
@@ -280,6 +319,10 @@ export class RagService {
 
     if (this.selectedDocIds().size > 0) {
       requestBody.doc_ids = Array.from(this.selectedDocIds());
+    }
+
+    if (images.length > 0) {
+      requestBody.images = images;
     }
 
     this.api.ragChat(

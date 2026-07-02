@@ -7,18 +7,20 @@
 | 功能 | 描述 | 技术亮点 |
 |------|------|---------|
 | **AI 对话** | 多 Provider (OpenAI/Anthropic/Ollama) 切换，SSE 流式输出 | Markdown 渲染，会话管理 |
-| **RAG 文档问答** | PDF/TXT 文档上传，向量检索增强生成 | 流式响应，来源引用 |
+| **RAG 文档问答** | PDF/TXT 文档上传，向量检索增强生成 | 流式响应，来源引用，**本地 Ollama 视觉理解** |
 | **Tool Calling** | 天气查询、文档搜索、Web 搜索 | 自动工具选择 |
 | **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
 | **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
-| **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放 |
+| **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放，**本地 Ollama qwen3.5 驱动** |
 
 ## 技术栈
 
 | 组件 | 技术 |
 |------|------|
 | 后端 | Java 25 + Spring Boot 4.1 |
-| AI | Spring AI 2.0 (DeepSeek / OpenAI / Anthropic) |
+| AI | Spring AI 2.0 (DeepSeek / OpenAI / Ollama) |
+| 本地视觉 | Ollama qwen3.5:35b (开源多模态模型) |
+| 本地 Embedding | Ollama nomic-embed-text (768 维) |
 | 前端 | Angular 22 + TypeScript |
 | 数据库 | H2 嵌入式 + Liquibase |
 | 部署 | Docker Compose (可选) |
@@ -64,6 +66,12 @@ curl -X POST http://localhost:9000/api/rag/chat/stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
   -d '{"question": "产品的保修期是多久？"}'
+
+# 多模态问答（带图片）
+curl -X POST http://localhost:9000/api/rag/chat/stream \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{"question": "这张图表说明了什么？", "images": ["data:image/png;base64,iVBORw0KG..."]}'
 ```
 
 ### Tool Calling (天气 + Web 搜索)
