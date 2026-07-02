@@ -1,6 +1,5 @@
 package com.ai.chat.web.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -11,7 +10,6 @@ public record ChatRequest(
     @Size(max = 10000, message = "Message cannot exceed 10000 characters")
     String message,
 
-    @NotBlank(message = "Session ID cannot be blank")
     String sessionId
 ) {
     public ChatRequest {
