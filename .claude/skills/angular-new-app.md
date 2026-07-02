@@ -1,0 +1,1 @@
+../../.cursor/skills/angular-new-app/SKILL.md
