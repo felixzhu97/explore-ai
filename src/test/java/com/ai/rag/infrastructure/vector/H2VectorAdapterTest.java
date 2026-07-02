@@ -104,6 +104,17 @@ class H2VectorAdapterTest {
             vectorAdapter.saveChunk(chunk);
             verify(jdbcTemplate).update(anyString(), any(Object[].class));
         }
+
+        @Test
+        @DisplayName("should serialize metadata when present")
+        void shouldSerializeMetadataWhenPresent() {
+            DocumentChunk chunk = DocumentChunk.create(
+                    DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of("key", "value"))
+                    .withEmbedding(new float[]{0.1f});
+            when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+            vectorAdapter.saveChunk(chunk);
+            verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
+        }
     }
 
     @Nested
