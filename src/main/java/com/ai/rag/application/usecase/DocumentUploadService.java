@@ -2,11 +2,14 @@ package com.ai.rag.application.usecase;
 
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.RawDocument;
+import com.ai.rag.domain.port.DocumentReader;
+import com.ai.rag.domain.port.DocumentTransformer;
+import com.ai.rag.domain.port.DocumentWriter;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.repository.IDocumentRepository;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.rag.infrastructure.parser.PdfTextExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import java.util.*;
 
 /**
  * Document lifecycle service - handles upload, list, and delete.
+ * Uses ETL ports to keep infrastructure details out of the application layer.
  */
 @Service
 public class DocumentUploadService {
@@ -32,33 +36,33 @@ public class DocumentUploadService {
             int chunkCount
     ) {}
 
-    private final ChunkingService chunkingService;
-    private final EmbeddingAdapter embeddingAdapter;
+    private final DocumentReader reader;
+    private final DocumentTransformer transformer;
+    private final DocumentWriter writer;
     private final IDocumentRepository documentRepository;
     private final IDocumentChunkRepository chunkRepository;
-    private final PdfTextExtractor pdfTextExtractor;
 
     public DocumentUploadService(
-            ChunkingService chunkingService,
-            EmbeddingAdapter embeddingAdapter,
+            DocumentReader reader,
+            DocumentTransformer transformer,
+            DocumentWriter writer,
             IDocumentRepository documentRepository,
-            IDocumentChunkRepository chunkRepository,
-            PdfTextExtractor pdfTextExtractor) {
-        this.chunkingService = chunkingService;
-        this.embeddingAdapter = embeddingAdapter;
+            IDocumentChunkRepository chunkRepository) {
+        this.reader = reader;
+        this.transformer = transformer;
+        this.writer = writer;
         this.documentRepository = documentRepository;
         this.chunkRepository = chunkRepository;
-        this.pdfTextExtractor = pdfTextExtractor;
     }
 
     @Transactional
     public UploadResult upload(String title, String fileName, Long fileSize, String content) {
-        return processUpload(title, fileName, fileSize, () -> content);
+        return processUpload(title, fileName, fileSize, content.getBytes());
     }
 
     @Transactional
     public UploadResult upload(String title, String fileName, Long fileSize, byte[] fileContent) {
-        return processUpload(title, fileName, fileSize, () -> extractContent(fileContent, fileName));
+        return processUpload(title, fileName, fileSize, fileContent);
     }
 
     @Transactional
@@ -88,46 +92,40 @@ public class DocumentUploadService {
         documentRepository.delete(documentId);
     }
 
-    private UploadResult processUpload(String title, String fileName, Long fileSize,
-                                       java.util.function.Supplier<String> contentSupplier) {
+    private UploadResult processUpload(String title, String fileName, Long fileSize, byte[] fileContent) {
         Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
         document.markProcessing();
         document = documentRepository.save(document);
 
         try {
-            String content = contentSupplier.get();
-            List<String> chunks = chunkingService.chunk(content);
-            int chunkCount = saveChunks(title, fileName, document.getId(), chunks);
+            RawDocument raw = reader.read(fileContent, fileName);
+            List<RawDocument> chunkDocs = transformer.transform(raw);
+
+            List<DocumentChunk> chunks = new ArrayList<>();
+            for (int i = 0; i < chunkDocs.size(); i++) {
+                RawDocument chunkDoc = chunkDocs.get(i);
+                Map<String, Object> metadata = new HashMap<>(chunkDoc.metadata());
+                metadata.put("title", document.getTitle());
+                metadata.put("fileName", document.getFileName());
+
+                chunks.add(DocumentChunk.create(
+                        DocumentId.generate(),
+                        document.getId(),
+                        chunkDoc.content(),
+                        i,
+                        metadata
+                ));
+            }
+
+            writer.write(chunks);
             document.markReady();
             document = documentRepository.save(document);
-            return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunkCount);
+            return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunks.size());
         } catch (Exception e) {
             log.error("Failed to process document", e);
             document.markFailed();
             documentRepository.save(document);
             throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
         }
-    }
-
-    private int saveChunks(String title, String fileName, DocumentId documentId, List<String> chunks) {
-        int count = 0;
-        for (int i = 0; i < chunks.size(); i++) {
-            float[] embedding = embeddingAdapter.embed(chunks.get(i));
-            Map<String, Object> metadata = Map.of("title", title, "fileName", fileName);
-            var chunk = com.ai.rag.domain.model.DocumentChunk.reconstitute(
-                    DocumentId.generate(), documentId, chunks.get(i), i,
-                    metadata, embedding, Instant.now());
-            chunkRepository.saveChunk(chunk);
-            count++;
-        }
-        return count;
-    }
-
-    private String extractContent(byte[] bytes, String fileName) {
-        if ("pdf".equalsIgnoreCase(pdfTextExtractor.getExtension(fileName))) {
-            return pdfTextExtractor.extractText(bytes)
-                    .orElseThrow(() -> new IllegalStateException("PDF text extraction returned empty"));
-        }
-        return new String(bytes);
     }
 }

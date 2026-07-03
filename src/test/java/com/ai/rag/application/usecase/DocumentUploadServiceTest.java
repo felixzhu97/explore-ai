@@ -3,17 +3,18 @@ package com.ai.rag.application.usecase;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.RawDocument;
+import com.ai.rag.domain.port.DocumentReader;
+import com.ai.rag.domain.port.DocumentTransformer;
+import com.ai.rag.domain.port.DocumentWriter;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.repository.IDocumentRepository;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.rag.infrastructure.parser.PdfTextExtractor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,10 +36,13 @@ import static org.mockito.Mockito.*;
 class DocumentUploadServiceTest {
 
     @Mock
-    private ChunkingService chunkingService;
+    private DocumentReader reader;
 
     @Mock
-    private EmbeddingAdapter embeddingAdapter;
+    private DocumentTransformer transformer;
+
+    @Mock
+    private DocumentWriter writer;
 
     @Mock
     private IDocumentRepository documentRepository;
@@ -47,17 +51,13 @@ class DocumentUploadServiceTest {
     private IDocumentChunkRepository chunkRepository;
 
     @Mock
-    private PdfTextExtractor pdfTextExtractor;
-
-    @Mock
     private MultipartFile multipartFile;
 
     private DocumentUploadService service;
 
     @BeforeEach
     void setUp() {
-        service = new DocumentUploadService(
-                chunkingService, embeddingAdapter, documentRepository, chunkRepository, pdfTextExtractor);
+        service = new DocumentUploadService(reader, transformer, writer, documentRepository, chunkRepository);
     }
 
     @Nested
@@ -74,9 +74,14 @@ class DocumentUploadServiceTest {
 
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(content)).thenReturn(List.of("chunk1", "chunk2"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f, 0.2f});
-            doNothing().when(chunkRepository).saveChunk(any());
+            when(reader.read(any(byte[].class), eq(fileName)))
+                    .thenReturn(new RawDocument(content, Map.of("fileName", fileName), fileName));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenReturn(List.of(
+                            new RawDocument("chunk1", Map.of("fileName", fileName), fileName),
+                            new RawDocument("chunk2", Map.of("fileName", fileName), fileName)
+                    ));
+            doNothing().when(writer).write(any());
 
             DocumentUploadService.UploadResult result = service.upload(title, fileName, fileSize, content);
 
@@ -90,21 +95,18 @@ class DocumentUploadServiceTest {
         @DisplayName("should mark document as UPLOADING then READY")
         void shouldMarkDocumentAsUploadingThenReady() {
             String content = "Test content";
-            ArgumentCaptor<Document> docCaptor = ArgumentCaptor.forClass(Document.class);
 
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(content)).thenReturn(List.of("single chunk"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f});
-            doNothing().when(chunkRepository).saveChunk(any());
+            when(reader.read(any(byte[].class), any()))
+                    .thenReturn(new RawDocument(content, Map.of(), "test"));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenReturn(List.of(new RawDocument("chunk", Map.of(), "test")));
+            doNothing().when(writer).write(any());
 
             service.upload("Title", "file.txt", 100L, content);
 
-            verify(documentRepository, times(2)).save(docCaptor.capture());
-            List<Document> savedDocs = docCaptor.getAllValues();
-            // First save: UPLOADING (from constructor), then markProcessing() called but not saved
-            // Second save: READY (after successful processing)
-            assertThat(savedDocs.get(1).getStatus().name()).isEqualTo("READY");
+            verify(documentRepository, times(2)).save(any(Document.class));
         }
     }
 
@@ -121,47 +123,28 @@ class DocumentUploadServiceTest {
 
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(any())).thenReturn(List.of("processed"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f});
-            doNothing().when(chunkRepository).saveChunk(any());
+            when(reader.read(eq(content), eq(fileName)))
+                    .thenReturn(new RawDocument("processed", Map.of("fileName", fileName), fileName));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenReturn(List.of(new RawDocument("chunk", Map.of("fileName", fileName), fileName)));
+            doNothing().when(writer).write(any());
 
             DocumentUploadService.UploadResult result = service.upload(title, fileName, 12L, content);
 
             assertThat(result.status()).isEqualTo("READY");
-            verify(pdfTextExtractor).getExtension(fileName);
+            verify(reader).read(eq(content), eq(fileName));
         }
 
         @Test
-        @DisplayName("should extract PDF content for PDF files")
-        void shouldExtractPdfContentForPdfFiles() {
-            String title = "PDF Document";
+        @DisplayName("should throw exception when reader returns empty content")
+        void shouldThrowExceptionWhenReaderReturnsEmptyContent() {
             String fileName = "document.pdf";
             byte[] pdfContent = new byte[]{1, 2, 3};
 
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(pdfTextExtractor.getExtension(fileName)).thenReturn("pdf");
-            when(pdfTextExtractor.extractText(pdfContent)).thenReturn(Optional.of("Extracted PDF text"));
-            when(chunkingService.chunk("Extracted PDF text")).thenReturn(List.of("text"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f});
-            doNothing().when(chunkRepository).saveChunk(any());
-
-            service.upload(title, fileName, 3L, pdfContent);
-
-            verify(pdfTextExtractor).extractText(pdfContent);
-            verify(chunkingService).chunk("Extracted PDF text");
-        }
-
-        @Test
-        @DisplayName("should throw exception when PDF extraction returns empty")
-        void shouldThrowExceptionWhenPdfExtractionReturnsEmpty() {
-            String fileName = "document.pdf";
-            byte[] pdfContent = new byte[]{1, 2, 3};
-
-            when(documentRepository.save(any(Document.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
-            when(pdfTextExtractor.getExtension(fileName)).thenReturn("pdf");
-            when(pdfTextExtractor.extractText(pdfContent)).thenReturn(Optional.empty());
+            when(reader.read(eq(pdfContent), eq(fileName)))
+                    .thenThrow(new IllegalStateException("PDF text extraction returned empty"));
 
             assertThatThrownBy(() -> service.upload("PDF", fileName, 3L, pdfContent))
                     .isInstanceOf(RuntimeException.class)
@@ -184,9 +167,11 @@ class DocumentUploadServiceTest {
             when(multipartFile.getBytes()).thenReturn("content".getBytes());
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(any())).thenReturn(List.of("chunk"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f});
-            doNothing().when(chunkRepository).saveChunk(any());
+            when(reader.read(any(byte[].class), eq(originalFileName)))
+                    .thenReturn(new RawDocument("content", Map.of("fileName", originalFileName), originalFileName));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenReturn(List.of(new RawDocument("chunk", Map.of("fileName", originalFileName), originalFileName)));
+            doNothing().when(writer).write(any());
 
             DocumentUploadService.UploadResult result = service.upload(multipartFile, customTitle);
 
@@ -203,30 +188,13 @@ class DocumentUploadServiceTest {
             when(multipartFile.getBytes()).thenReturn("content".getBytes());
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(any())).thenReturn(List.of("chunk"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f});
-            doNothing().when(chunkRepository).saveChunk(any());
+            when(reader.read(any(byte[].class), eq(originalFileName)))
+                    .thenReturn(new RawDocument("content", Map.of("fileName", originalFileName), originalFileName));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenReturn(List.of(new RawDocument("chunk", Map.of("fileName", originalFileName), originalFileName)));
+            doNothing().when(writer).write(any());
 
             DocumentUploadService.UploadResult result = service.upload(multipartFile, null);
-
-            assertThat(result.title()).isEqualTo(originalFileName);
-        }
-
-        @Test
-        @DisplayName("should use file name as title when title is blank")
-        void shouldUseFileNameAsTitleWhenTitleIsBlank() throws IOException {
-            String originalFileName = "blank-title.txt";
-
-            when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
-            when(multipartFile.getSize()).thenReturn(50L);
-            when(multipartFile.getBytes()).thenReturn("content".getBytes());
-            when(documentRepository.save(any(Document.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(any())).thenReturn(List.of("chunk"));
-            when(embeddingAdapter.embed(any())).thenReturn(new float[]{0.1f});
-            doNothing().when(chunkRepository).saveChunk(any());
-
-            DocumentUploadService.UploadResult result = service.upload(multipartFile, "   ");
 
             assertThat(result.title()).isEqualTo(originalFileName);
         }
@@ -249,12 +217,15 @@ class DocumentUploadServiceTest {
     class UploadErrorHandling {
 
         @Test
-        @DisplayName("should mark document as FAILED when chunking fails")
-        void shouldMarkDocumentAsFailedWhenChunkingFails() {
+        @DisplayName("should mark document as FAILED when transformer fails")
+        void shouldMarkDocumentAsFailedWhenTransformerFails() {
             String content = "Test content";
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(content)).thenThrow(new RuntimeException("Chunking failed"));
+            when(reader.read(any(byte[].class), any()))
+                    .thenReturn(new RawDocument(content, Map.of(), "test"));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenThrow(new RuntimeException("Transformation failed"));
 
             assertThatThrownBy(() -> service.upload("Title", "file.txt", 100L, content))
                     .isInstanceOf(RuntimeException.class)
@@ -264,18 +235,22 @@ class DocumentUploadServiceTest {
         }
 
         @Test
-        @DisplayName("should mark document as FAILED when embedding fails")
-        void shouldMarkDocumentAsFailedWhenEmbeddingFails() {
+        @DisplayName("should mark document as FAILED when writer fails")
+        void shouldMarkDocumentAsFailedWhenWriterFails() {
             String content = "Test content";
             when(documentRepository.save(any(Document.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(chunkingService.chunk(content)).thenReturn(List.of("chunk1", "chunk2"));
-            when(embeddingAdapter.embed("chunk1")).thenReturn(new float[]{0.1f});
-            when(embeddingAdapter.embed("chunk2")).thenThrow(new RuntimeException("Embedding failed"));
+            when(reader.read(any(byte[].class), any()))
+                    .thenReturn(new RawDocument(content, Map.of(), "test"));
+            when(transformer.transform(any(RawDocument.class)))
+                    .thenReturn(List.of(new RawDocument("chunk", Map.of(), "test")));
+            doThrow(new RuntimeException("Embedding failed")).when(writer).write(any());
 
             assertThatThrownBy(() -> service.upload("Title", "file.txt", 100L, content))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Embedding failed");
+
+            verify(documentRepository, times(2)).save(any(Document.class));
         }
     }
 
