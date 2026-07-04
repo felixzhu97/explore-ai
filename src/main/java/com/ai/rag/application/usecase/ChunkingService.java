@@ -30,8 +30,8 @@ public class ChunkingService {
     private final int chunkOverlap;
 
     public ChunkingService(
-            @Value("${rag.chunk.size:500}") int chunkSize,
-            @Value("${rag.chunk.overlap:50}") int chunkOverlap) {
+            @Value("${spring.ai.rag.chunk.size:500}") int chunkSize,
+            @Value("${spring.ai.rag.chunk.overlap:50}") int chunkOverlap) {
         this.chunkSize = chunkSize;
         this.chunkOverlap = chunkOverlap;
     }

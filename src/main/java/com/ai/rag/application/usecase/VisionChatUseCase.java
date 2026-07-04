@@ -26,7 +26,7 @@ public class VisionChatUseCase {
     private static final Logger log = LoggerFactory.getLogger(VisionChatUseCase.class);
     private static final int DEFAULT_TOP_K = 5;
 
-    @Value("${rag.ollama.chat.model:qwen3.5:35b}")
+    @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
     private String visionModel;
 
     @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
