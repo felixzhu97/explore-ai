@@ -217,7 +217,7 @@ export class ApiService {
 
   getDocuments(): Observable<DocumentListResponse> {
     return this.http
-      .get<DocumentListResponse>(`${BASE_URL}/rag/documents/`)
+      .get<DocumentListResponse>(`${BASE_URL}/rag/documents`)
       .pipe(catchError(() => of({ documents: [] })));
   }
 

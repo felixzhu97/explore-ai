@@ -47,7 +47,7 @@ public class RagController {
         this.streamingService = streamingService;
     }
 
-    @GetMapping("/documents/")
+    @GetMapping("/documents")
     @Operation(summary = "List all documents")
     public ResponseEntity<DocumentListResponse> listDocuments() {
         return ResponseEntity.ok(new DocumentListResponse(

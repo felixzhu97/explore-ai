@@ -1198,7 +1198,7 @@ describe('ApiService', () => {
         expect(response.documents.length).toBe(1);
       });
 
-      const req = httpMock.expectOne('/api/rag/documents/');
+      const req = httpMock.expectOne('/api/rag/documents');
       req.flush(mockResponse);
     });
 
@@ -1207,7 +1207,7 @@ describe('ApiService', () => {
         expect(response.documents).toEqual([]);
       });
 
-      const req = httpMock.expectOne('/api/rag/documents/');
+      const req = httpMock.expectOne('/api/rag/documents');
       req.error(new ProgressEvent('error'));
     });
   });
