@@ -90,10 +90,10 @@ public class AiMcpServerService {
         log.info("MCP resource: getConfig called for key: {}", key);
 
         return switch (key) {
-            case "rag.chunk.size" -> "500";
-            case "rag.chunk.overlap" -> "50";
-            case "rag.retrieval.top-k" -> "5";
-            case "rag.retrieval.score-threshold" -> "0.5";
+            case "spring.ai.rag.chunk.size" -> "500";
+            case "spring.ai.rag.chunk.overlap" -> "50";
+            case "spring.ai.rag.retrieval.top-k" -> "5";
+            case "spring.ai.rag.retrieval.score-threshold" -> "0.5";
             default -> "Configuration key not found: " + key;
         };
     }

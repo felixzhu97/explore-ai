@@ -14,9 +14,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -87,10 +87,12 @@ public class RagController {
             result = new RagChatResult(chatResult.response(), chatResult.sources());
         }
 
-        return streamingService.streamWithSources(result.response(),
-                result.sources().stream()
-                        .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
-                        .toList());
+        var sourceDtos = result.sources().stream()
+                .filter(s -> s.text() != null && !s.text().isBlank())
+                .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
+                .toList();
+
+        return streamingService.streamWithSources(result.response(), sourceDtos);
     }
 
     private boolean hasImages(List<String> images) {

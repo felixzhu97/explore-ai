@@ -16,7 +16,7 @@ import java.util.List;
  * Generates embeddings using local Ollama models (e.g., nomic-embed-text).
  */
 @Component
-@ConditionalOnProperty(name = "rag.mock.embeddings", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.ai.ollama.embedding.enabled", havingValue = "true", matchIfMissing = true)
 public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaEmbeddingAdapter.class);
@@ -26,7 +26,7 @@ public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
 
     public OllamaEmbeddingAdapter(
             EmbeddingModel embeddingModel,
-            @Value("${rag.ollama.embedding.dimensions:768}") int dimensions) {
+            @Value("${spring.ai.ollama.embedding.dimensions:768}") int dimensions) {
         this.embeddingModel = embeddingModel;
         this.dimensions = dimensions;
     }

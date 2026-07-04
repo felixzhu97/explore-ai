@@ -19,25 +19,34 @@ spring:
         enabled: true
     ollama:
       base-url: http://localhost:11434
+      chat:
+        enabled: false
+      embedding:
+        enabled: true
+        model: mxbai-embed-large
+        dimensions: 1024
     openai:
       api-key: ${DEEPSEEK_API_KEY}
       base-url: ${DEEPSEEK_BASE_URL}
       chat:
-        options:
-          model: deepseek-v4-flash
+        model: deepseek-v4-flash
       embedding:
-        options:
-          model: text-embedding-3-small
+        model: text-embedding-3-small
       image:
-        options:
-          model: dall-e-3
-          quality: standard
-          size: 1024x1024
+        model: dall-e-3
+        quality: standard
+        size: 1024x1024
       audio:
         speech:
-          options:
-            model: gpt-4o-mini-tts
-            voice: alloy
+          model: gpt-4o-mini-tts
+          voice: alloy
+    rag:
+      chunk:
+        size: ${RAG_CHUNK_SIZE:500}
+        overlap: ${RAG_CHUNK_OVERLAP:50}
+      retrieval:
+        top-k: ${RAG_TOP_K:5}
+        score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
 
   # H2 embedded database (no Docker required)
   datasource:
@@ -64,23 +73,10 @@ spring:
   liquibase:
     change-log: db/changelog-master.xml
 
-# RAG configuration
-rag:
-  mock:
-    embeddings: false
-  ollama:
-    embedding:
-      model: nomic-embed-text
-      dimensions: 768
-    chat:
-      enabled: true
-      model: qwen3.5:35b
-  chunk:
-    size: ${RAG_CHUNK_SIZE:500}
-    overlap: ${RAG_CHUNK_OVERLAP:50}
-  retrieval:
-    top-k: ${RAG_TOP_K:5}
-    score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
+  # Disable Ollama chat auto-configuration (embedding is still used via conditional config)
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
 
 server:
   port: 9000

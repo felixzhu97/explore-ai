@@ -49,8 +49,8 @@ public class H2VectorAdapter implements IDocumentChunkRepository {
                 "KEY (id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
-                chunk.getId(),
-                chunk.getDocumentId(),
+                chunk.getId().value(),
+                chunk.getDocumentId().value(),
                 chunk.getContent(),
                 chunk.getChunkIndex(),
                 embeddingString,

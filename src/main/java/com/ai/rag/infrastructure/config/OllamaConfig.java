@@ -20,11 +20,11 @@ public class OllamaConfig {
     @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
     private String baseUrl;
 
-    @Value("${rag.ollama.embedding.model:nomic-embed-text}")
+    @Value("${spring.ai.ollama.embedding.model:nomic-embed-text}")
     private String modelName;
 
     @Bean
-    @ConditionalOnProperty(name = "rag.mock.embeddings", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnProperty(name = "spring.ai.ollama.embedding.enabled", havingValue = "true", matchIfMissing = true)
     @NonNull
     public EmbeddingModel embeddingModel() {
         OllamaApi api = OllamaApi.builder()

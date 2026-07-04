@@ -185,28 +185,28 @@ class AiMcpServerServiceTest {
         @Test
         @DisplayName("should return chunk size config")
         void shouldReturnChunkSizeConfig() {
-            String result = service.getConfig("rag.chunk.size");
+            String result = service.getConfig("spring.ai.rag.chunk.size");
             assertThat(result).isEqualTo("500");
         }
 
         @Test
         @DisplayName("should return chunk overlap config")
         void shouldReturnChunkOverlapConfig() {
-            String result = service.getConfig("rag.chunk.overlap");
+            String result = service.getConfig("spring.ai.rag.chunk.overlap");
             assertThat(result).isEqualTo("50");
         }
 
         @Test
         @DisplayName("should return top-k config")
         void shouldReturnTopKConfig() {
-            String result = service.getConfig("rag.retrieval.top-k");
+            String result = service.getConfig("spring.ai.rag.retrieval.top-k");
             assertThat(result).isEqualTo("5");
         }
 
         @Test
         @DisplayName("should return score threshold config")
         void shouldReturnScoreThresholdConfig() {
-            String result = service.getConfig("rag.retrieval.score-threshold");
+            String result = service.getConfig("spring.ai.rag.retrieval.score-threshold");
             assertThat(result).isEqualTo("0.5");
         }
 

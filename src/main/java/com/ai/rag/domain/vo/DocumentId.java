@@ -1,12 +1,15 @@
 package com.ai.rag.domain.vo;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * DocumentId Value Object - immutable identifier backed by UUID.
  */
-public final class DocumentId {
+public final class DocumentId implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final UUID value;
 
     private DocumentId(UUID value) {
