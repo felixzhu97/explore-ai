@@ -1,220 +1,77 @@
 ---
-description: Angular 20+ coding standards and best practices following Apple design principles and Angular official style guide
-globs: **/*.ts **/*.html **/*.scss
+description: Angular coding standards - project structure, component, service, routing
+globs: **/*.ts **/*.html
 alwaysApply: true
 ---
 
-# Angular Coding Standards
+# Angular Standards
 
 ## Project Structure
 
 ```
-src/
+src/main/web/
 ├── app/
 │   ├── {feature}/
-│   │     ├── components/
-│   │     ├── services/
-│   │     └── {feature}.routes.ts
-│   ├── app.component.ts
-│   ├── app.config.ts
+│   │   ├── components/
+│   │   │   └── {feature}.component.ts
+│   │   ├── {feature}.service.ts
+│   │   └── {feature}.model.ts
 │   └── app.routes.ts
-└── styles/
-    ├── _variables.scss
-    ├── _mixins.scss
-    └── _typography.scss
+├── styles.css
+└── environments/
 ```
 
-## Component Standards
-
-### Naming
-
-| Type            | Rule                   | Example                    |
-| --------------- | ---------------------- | -------------------------- |
-| Component file  | kebab-case             | `user-card.component.ts`   |
-| Component class | PascalCase + Component | `UserCardComponent`        |
-| Selector        | kebab-case + prefix    | `app-user-card`            |
-| Template file   | Same as component      | `user-card.component.html` |
-| Style file      | Same as component      | `user-card.component.scss` |
-
-### Component Template
+## Component
 
 ```typescript
 @Component({
   selector: 'app-user-card',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, ListItemComponent],
   templateUrl: './user-card.component.html',
-  styleUrl: './user-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCardComponent {
-  // Input properties use input()
   user = input.required<User>();
-  editable = input(false);
-
-  // Output events use output()
   edit = output<User>();
-  delete = output<string>();
 
-  // Internal state uses signal
-  isExpanded = signal(false);
-
-  // Computed properties use computed
   fullName = computed(() => `${this.user().firstName} ${this.user().lastName}`);
 
-  // Dependency injection uses inject()
-  private userService = inject(UserService);
-
-  // Methods use arrow functions to preserve this
   handleEdit = () => this.edit.emit(this.user());
-
-  handleDelete = () => this.delete.emit(this.user().id);
 }
 ```
 
-### Template Syntax
+## Template
 
 ```html
-<!-- Use @ control flow (Angular 17+) -->
 @if (user(); as user) {
-<div class="user-card">
-  <h3>{{ fullName() }}</h3>
-  @if (editable()) {
-  <button (click)="handleEdit()">Edit</button>
-  }
-</div>
+  <div>{{ fullName() }}</div>
 } @else {
-<app-skeleton />
+  <app-skeleton />
 }
 
-<!-- Loop -->
 @for (item of items(); track item.id) {
-<app-list-item [item]="item" />
+  <app-list-item [item]="item" />
 }
-
-<!-- Safe navigation -->
-<p>{{ user()?.email ?? 'No email' }}</p>
 ```
 
-## Architecture Rules
-
-### 1. Top-Level Structure
-
-```
-src/app/
-├── app/         Application entry and composition (bootstrap + layout)
-├── core/        Global singleton capabilities (API / interceptors / auth / config)
-├── shared/      Reusable non-business capabilities (UI / utils / models)
-├── features/    Business modules (domain-scoped)
-├── layout/      Page layout components
-└── environments/ Environment config
-```
-
-### 2. Feature Module Rules (Critical)
-
-Each feature must be an independent, self-contained module:
-
-```
-features/<feature-name>/
-├── components/   UI components
-├── services/     Business state and logic
-├── models/       Data structures (DTOs / VOs)
-└── pages/        Page-level components (optional)
-```
-
-**Forbidden:**
-- Feature-to-feature direct imports
-- Feature accessing core internals
-- Feature depending on shared business models
-
-### 3. Core Rules
-
-Core contains only:
-- API Client
-- HTTP interceptors
-- Auth / session
-- i18n / config
-- Global singleton services
-
-**Forbidden:** Business logic, feature-related code
-
-### 4. Shared Rules
-
-Shared contains only:
-- UI components (button, card, modal)
-- Pipes / directives
-- Utils
-- Generic models (no business semantics)
-
-**Forbidden:** API calls, feature logic, domain-specific models
-
-### 5. DTO / Model Organization
-
-DTOs must be co-located with their feature:
-
-```
-features/ai/models/
-features/rag/models/
-```
-
-**Forbidden:** Separate dto/ or web/dto directories
-
-### 6. Dependency Direction (Strict)
-
-**Allowed:**
-```
-features → shared
-features → core
-layout → shared
-layout → core
-app → all
-```
-
-**Forbidden:**
-```
-core → features
-shared → features
-features → features (cross-module)
-```
-
-### 7. Layout Rules
-
-Layout components handle only:
-- Page structure (header/sidebar/main)
-- Router-outlet organization
-
-**Forbidden:** API calls, state management, feature logic
-
-### 8. Refactoring Principles
-
-Every structural improvement must satisfy:
-- Directory depth ≤ 4
-- Feature internal depth ≤ 3
-- DTOs not standalone
-- Features fully autonomous
-- Shared without business logic
-
-### 9. Ultimate Principle
-
-> Keep it simple. Keep features isolated. Avoid over-layering.
-
-## Service Standards
+## Service
 
 ```typescript
 @Injectable({ providedIn: 'root' })
-export class UserService {
-  private http = inject(HttpClient);
-
-  // Public readonly signals
-  users = signal<User[]>([]);
+export class ChatService {
+  messages = signal<ChatMessage[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
 
-  // Return Observable for components to subscribe
-  fetchUsers(): Observable<User[]> {
-    return this.http.get<User[]>('/api/users').pipe(
-      tap((users) => this.users.set(users)),
-      catchError(this.handleError)
+  private http = inject(HttpClient);
+
+  sendMessage(content: string): Observable<ChatResponse> {
+    this.loading.set(true);
+    return this.http.post<ChatResponse>('/api/chat', { content }).pipe(
+      tap(response => this.messages.update(msgs => [...msgs, response])),
+      catchError(this.handleError),
+      finalize(() => this.loading.set(false))
     );
   }
 
@@ -225,182 +82,104 @@ export class UserService {
 }
 ```
 
-## Routing Standards
+## Routing
 
 ```typescript
-// Use lazy loading
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  {
-    path: 'users',
-    loadChildren: () => import('./features/users/routes'),
-  },
-  {
-    path: 'admin',
-    loadChildren: () => import('./features/admin/routes'),
-    canMatch: [authGuard, adminGuard],
-  },
+  { path: '', redirectTo: 'chat', pathMatch: 'full' },
+  { path: 'chat', loadComponent: () => import('./chat/chat.component').then(m => m.ChatComponent) },
+  { path: 'rag', loadComponent: () => import('./rag/rag.component').then(m => m.RagComponent) },
 ];
 ```
 
-## Style Standards
+## Style
 
-### Tailwind CSS v4 (Primary)
-
-Use Tailwind CSS v4 utility classes with CSS variable references for theme colors.
-
-**CSS Variable Reference Syntax:**
 ```html
-<!-- Reference theme colors -->
-<button class="bg-primary text-white hover:bg-primary-hover">Primary</button>
-<button class="bg-[--color-primary] text-[--color-text]">Custom</button>
-
-<!-- Spacing -->
-<div class="p-4 gap-2">Content</div>
-
-<!-- Border radius -->
-<div class="rounded-lg">Rounded</div>
-
-<!-- Shadows -->
-<div class="shadow-card">Card</div>
+<button class="bg-primary text-white rounded-lg shadow-card">Submit</button>
 ```
 
-**Class Binding for Dynamic Variants:**
-```typescript
-getClasses(): string {
-  const classes: string[] = [];
-  if (this.variant() === 'primary') {
-    classes.push('bg-primary text-white');
-  }
-  return classes.join(' ');
-}
-```
-
-**Key Patterns:**
-- Use `bg-primary` for theme colors mapped in `@theme`
-- Use `bg-[--color-*]` for direct CSS variable references
-- Use `shadow-[--shadow-*]` for theme shadows
-- Use `rounded-*` for border radius
-
-### BEM Naming (Legacy - Phase Out)
-
-Migrate existing BEM-style SCSS to Tailwind classes:
-
-```scss
-// Before (legacy)
-.card {
-  &__header { }
-  &--elevated { }
-}
-
-// After (Tailwind)
-class="bg-surface shadow-elevated rounded-xl"
-```
-
-### Inline Animations
-
-For complex animations, use inline `@keyframes`:
+## Type
 
 ```typescript
-styles: [`
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-slide-in {
-    animation: slideIn 0.2s ease forwards;
-  }
-`]
-```
-
-## Type Standards
-
-```typescript
-// Prefer interface for data structures
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: Email;
-  role: UserRole;
-  createdAt: Date;
-}
-
-// Use enum for enumerations
-enum UserRole {
-  Admin = 'admin',
-  User = 'user',
-  Guest = 'guest',
-}
-
-// API response
-interface ApiResponse<T> {
-  data: T;
-  meta: PaginationMeta;
-}
-
-// Form DTO
-interface CreateUserDto {
-  firstName: string;
-  lastName: string;
-  email: Email;
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
 }
 ```
 
-## Error Handling
+## Checklist
 
-```typescript
-// Component error handling
-@Component({...})
-export class UserListComponent {
-  private userService = inject(UserService);
+- [ ] Standalone components with OnPush
+- [ ] Signals for state, Observables for async
+- [ ] Lazy loading routes
+- [ ] Tailwind for styling
 
-  error = this.userService.error;
+## References
 
-  @if (error()) {
-    <app-error-state [message]="error()" (retry)="loadUsers()" />
-  }
-}
+- [Angular](https://angular.dev)
+- [Angular In-depth Guides Overview](https://angular.dev/essentials)
+- [Signals](https://angular.dev/guide/signals)
+- [Components](https://angular.dev/guide/components)
+- [Templates](https://angular.dev/guide/templates)
+- [Directives](https://angular.dev/guide/directives)
+- [Dependency Injection](https://angular.dev/guide/di)
+- [Routing](https://angular.dev/guide/routing)
+- [Forms](https://angular.dev/guide/forms)
+- [HTTP Client](https://angular.dev/guide/http)
+- [Server-side & hybrid-rendering](https://angular.dev/guide/ssr)
+- [Testing](https://angular.dev/guide/testing)
+- [Angular Aria](https://angular.dev/guide/a11y)
+- [Internationalization](https://angular.dev/guide/i18n)
+- [Animations](https://angular.dev/guide/animations)
+- [Drag and drop](https://angular.dev/guide/drag-drop)
 
-// Service error handling
-private handleError(error: HttpErrorResponse): Observable<never> {
-  const message = error.error?.message || 'An error occurred';
-  this.notificationService.showError(message);
-  return throwError(() => error);
-}
-```
+## Developer Tools
 
-## Testing Standards
+- [Angular CLI](https://angular.dev/tools/cli)
+- [Libraries](https://angular.dev/tools/libraries)
+- [DevTools](https://angular.dev/tools/devtools)
+- [Language Service](https://angular.dev/tools/language-service)
 
-```typescript
-describe('UserCardComponent', () => {
-  let component: UserCardComponent;
-  let fixture: ComponentFixture<UserCardComponent>;
+## Build with AI
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [UserCardComponent],
-    }).compileComponents();
+- [Get Started](https://angular.dev/ai)
+- [LLM prompts and AI IDE setup](https://angular.dev/ai/develop-with-ai)
+- [Agent Skills](https://angular.dev/ai/agent-skills)
+- [Angular CLI MCP Server setup](https://angular.dev/ai/mcp)
+- [Angular AI Tutor](https://angular.dev/ai/ai-tutor)
+- [Design Patterns](https://angular.dev/ai/design-patterns)
+- [WebMCP](https://angular.dev/ai/webmcp)
 
-    fixture = TestBed.createComponent(UserCardComponent);
-    component = fixture.componentInstance;
-    component.user = TestFixtures.user;
-    fixture.detectChanges();
-  });
+## Best Practices
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+- [Style Guide](https://angular.dev/style-guide)
+- [Security](https://angular.dev/best-practices/security)
+- [Accessibility](https://angular.dev/best-practices/a11y)
+- [Unhandled errors in Angular](https://angular.dev/best-practices/error-handling)
+- [Performance](https://angular.dev/best-practices/performance)
+- [Keeping up-to-date](https://angular.dev/update)
 
-  it('should display user name', () => {
-    const name = fixture.nativeElement.querySelector('.user-card__name');
-    expect(name.textContent).toContain('John Doe');
-  });
+## Developer Events
 
-  it('should emit edit event', () => {
-    const editSpy = spyOn(component.edit, 'emit');
-    component.handleEdit();
-    expect(editSpy).toHaveBeenCalledWith(TestFixtures.user);
-  });
-});
-```
+- [Angular v22](https://angular.dev/events/v22)
+- [Angular v21](https://angular.dev/events/v21)
+
+## Extended Ecosystem
+
+- [NgModules](https://angular.dev/guide/ngmodules/overview)
+- [Legacy Animations](https://angular.dev/guide/legacy-animations)
+- [Animations](https://angular.dev/guide/animations)
+- [Using RxJS with Angular](https://angular.dev/ecosystem/rxjs-interop)
+- [Service Workers & PWAs](https://angular.dev/ecosystem/service-workers)
+- [Web Workers](https://angular.dev/ecosystem/web-workers)
+- [Custom Build Pipeline](https://angular.dev/ecosystem/custom-build-pipeline)
+- [Tailwind](https://angular.dev/guide/tailwind)
+- [AngularFire](https://github.com/angular/angularfire)
+- [Google Maps](https://angular-components.mintlify.app/introduction)
+- [Google Pay](https://developers.google.com/pay/api/web)
+- [YouTube Player](https://angular-components.mintlify.app/youtube-player/installation)
+- [Angular CDK](https://material.angular.dev/cdk/categories)
+- [Angular Material](https://material.angular.dev/)
+- [Angular Community](https://angular.love)
+- [Angular Blog](https://blog.angular.dev)

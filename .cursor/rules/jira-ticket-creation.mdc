@@ -1,23 +1,22 @@
 ---
-description: Jira ticket creation standards with English title/description and BDD-style acceptance criteria
+description: Jira ticket creation standards with BDD-style acceptance criteria
 alwaysApply: true
 ---
 
 # Jira Ticket Creation Standards
 
-## Ticket Language Requirements
+## Ticket Structure
 
-- The ticket **title** must be in English.
-- The ticket **description** must be in English.
-- The description must follow this structure:
-  - **Background**
-  - **User Story**
-  - **Acceptance Criteria**
-  - **Notes**
+Every ticket must include:
+
+- **Background**
+- **User Story**
+- **Acceptance Criteria**
+- **Notes**
 
 ## User Story Format
 
-Every ticket must include a user story in the following format:
+Every ticket must include a user story:
 
 ```
 **As a** [role]
@@ -27,7 +26,7 @@ Every ticket must include a user story in the following format:
 
 ## Acceptance Criteria Format
 
-Use **GIVEN-WHEN-THEN** (BDD) format for all acceptance criteria:
+Use **GIVEN-WHEN-THEN** (BDD) format:
 
 ```
 **GIVEN** [precondition/state]
@@ -86,7 +85,7 @@ When describing UI/UX acceptance criteria, reference these interaction patterns:
 ```
 ## Background
 
-[Explain why this work is needed.]
+[Explain why this work is needed]
 
 ## User Story
 
@@ -109,7 +108,7 @@ When describing UI/UX acceptance criteria, reference these interaction patterns:
 
 ## Story Points
 
-All **Story** and **Task** type tickets **must** have a Story Point estimate filled in before being added to a Sprint.
+All **Story** and **Task** type tickets **must** have a Story Point estimate before entering Sprint planning.
 
 ### Story Point Field
 
@@ -135,11 +134,9 @@ All **Story** and **Task** type tickets **must** have a Story Point estimate fil
 - If a task exceeds 13 SP, consider splitting it
 - Completed tickets should be used to calibrate future estimates
 
-### Quick Checklist
+## Checklist
 
-- [ ] Title is in English
-- [ ] Description is in English
-- [ ] Description includes Background, User Story, Acceptance Criteria, and Notes
+- [ ] Contains Background, User Story, Acceptance Criteria, and Notes
 - [ ] User story follows As a / I want / So that format
 - [ ] At least 3 acceptance criteria with GIVEN-WHEN-THEN structure
 - [ ] Acceptance criteria focus on behavior, not implementation

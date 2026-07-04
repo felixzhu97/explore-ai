@@ -1,379 +1,68 @@
 ---
-description: Java 24+ / Spring Boot 3.4+ Hexagonal Architecture standards. Covers Ports & Adapters pattern, Domain-Driven Design, and Clean Architecture principles.
+description: Java 25+ / Spring Boot conventions. Core architecture in architecture.mdc. AI development uses spring-ai skill.
 globs: **/*.java **/*.kt **/*.gradle.kts
 alwaysApply: true
 ---
 
-# Java/Spring Boot Hexagonal Architecture Standards
+# Java/Spring Boot Conventions
 
-## Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ adapter/in (Driving)                                            │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ REST Controllers / DTOs (Request/Response)                   │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ domain (Core - No External Dependencies)                        │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Entities / Value Objects / Aggregates / Ports / Domain Svcs │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ adapter/out (Driven)                                            │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Persistence / External Services / Third-party Integrations   │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ config                                                          │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Spring Configuration / Infrastructure Wiring                 │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-## Dependency Rule
-
-```
-adapter/in → domain ← adapter/out
-config → domain, adapter/in, adapter/out
-```
-
-**Domain NEVER depends on any external framework or infrastructure.**
-
-## Project Structure (Hexagonal)
-
-```
-src/main/java/com/example/
-├── domain/                                    # Core (Framework-free)
-│   ├── model/                                 # Aggregates, Entities
-│   │   ├── Order.java                        # Aggregate Root
-│   │   ├── OrderId.java                      # Identity Value Object
-│   │   └── OrderLine.java                    # Entity
-│   ├── vo/                                    # Value Objects
-│   │   ├── Money.java
-│   │   ├── Email.java
-│   │   └── Address.java
-│   ├── service/                               # Domain Services
-│   │   └── PricingService.java
-│   ├── repository/                            # Port Interfaces
-│   │   └── OrderRepository.java
-│   ├── port/                                  # Input/Output Ports
-│   │   ├── in/
-│   │   │   └── PlaceOrderUseCase.java
-│   │   └── out/
-│   │       └── PaymentGateway.java
-│   └── exception/                             # Domain Exceptions
-│       └── OrderException.java
-│
-├── adapter/
-│   ├── in/
-│   │   └── web/                              # Driving Adapter
-│   │       ├── controller/
-│   │       │   └── OrderController.java
-│   │       └── dto/
-│   │           ├── request/
-│   │           │   └── PlaceOrderRequest.java
-│   │           └── response/
-│   │               └── OrderResponse.java
-│   │
-│   └── out/
-│       ├── persistence/                       # Driven Adapter
-│       │   ├── jpa/
-│       │   │   └── OrderJpaRepository.java
-│       │   └── repository/
-│       │       └── JpaOrderRepository.java
-│       └── payment/                           # External Service Adapter
-│           └── StripePaymentAdapter.java
-│
-└── config/                                   # Infrastructure
-    ├── OrderConfig.java
-    └── SecurityConfig.java
-```
-
-## Domain Layer Examples
-
-### Entity (Rich Model)
-
-```java
-package com.example.domain.model;
-
-import com.example.domain.exception.OrderException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class Order extends AggregateRoot {
-
-    private final UUID id;
-    private OrderStatus status;
-    private final List<OrderLine> lines;
-    private final Instant createdAt;
-
-    // Factory method - ensures valid construction
-    private Order(UUID id, Instant createdAt) {
-        this.id = Objects.requireNonNull(id);
-        this.createdAt = Objects.requireNonNull(createdAt);
-        this.status = OrderStatus.DRAFT;
-        this.lines = new ArrayList<>();
-    }
-
-    public static Order create() {
-        return new Order(UUID.randomUUID(), Instant.now());
-    }
-
-    // Business logic encapsulated in domain
-    public void place() {
-        validateCanPlace();
-        this.status = OrderStatus.PLACED;
-        registerEvent(new OrderPlacedEvent(this.id));
-    }
-
-    public void addLine(Product product, int quantity) {
-        validateCanModify();
-        if (quantity <= 0) {
-            throw OrderException.invalidQuantity(quantity);
-        }
-        lines.add(new OrderLine(product.getId(), product.getPrice(), quantity));
-    }
-
-    public Money calculateTotal() {
-        return lines.stream()
-            .map(OrderLine::subtotal)
-            .reduce(Money.ZERO, Money::add);
-    }
-
-    private void validateCanPlace() {
-        if (lines.isEmpty()) {
-            throw OrderException.emptyOrder();
-        }
-    }
-
-    private void validateCanModify() {
-        if (status != OrderStatus.DRAFT) {
-            throw OrderException.cannotModifyAfterPlacement();
-        }
-    }
-
-    // Getters only - no setters
-    public UUID getId() { return id; }
-    public OrderStatus getStatus() { return status; }
-    public List<OrderLine> getLines() { return List.copyOf(lines); }
-}
-```
-
-### Value Object (Immutable)
-
-```java
-package com.example.domain.vo;
-
-public record Money(BigDecimal amount, Currency currency) {
-
-    public static final Money ZERO = new Money(BigDecimal.ZERO, Currency.USD);
-
-    public Money {
-        Objects.requireNonNull(amount);
-        Objects.requireNonNull(currency);
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Amount cannot be negative");
-        }
-    }
-
-    public Money add(Money other) {
-        return new Money(this.amount.add(other.amount), this.currency);
-    }
-
-    public Money multiply(int factor) {
-        return new Money(this.amount.multiply(BigDecimal.valueOf(factor)), this.currency);
-    }
-}
-```
-
-### Port Interface (Domain defines contract)
-
-```java
-package com.example.domain.repository;
-
-public interface OrderRepository {
-
-    Optional<Order> findById(OrderId id);
-
-    void save(Order order);
-
-    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
-}
-```
-
-## Adapter Layer Examples
-
-### Input Port Implementation (Use Case)
-
-```java
-package com.example.adapter.in.web.controller;
-
-@Component
-@RequiredArgsConstructor
-public class OrderController {
-
-    private final PlaceOrderUseCase placeOrderUseCase;
-
-    @PostMapping("/api/orders")
-    @ResponseStatus(HttpStatus.CREATED)
-    public OrderResponse create(@Valid @RequestBody PlaceOrderRequest request) {
-        var command = PlaceOrderCommand.from(request);
-        var result = placeOrderUseCase.execute(command);
-        return OrderResponse.from(result);
-    }
-}
-
-@ApplicationService
-@RequiredArgsConstructor
-class PlaceOrderUseCaseImpl implements PlaceOrderUseCase {
-
-    private final OrderRepository orderRepository;
-    private final ProductService productService;
-
-    @Override
-    @Transactional
-    public OrderResult execute(PlaceOrderCommand command) {
-        // Transform input to domain objects
-        Order order = Order.create();
-
-        for (var line : command.lines()) {
-            Product product = productService.findById(line.productId())
-                .orElseThrow(() -> ProductNotFoundException.of(line.productId()));
-            order.addLine(product, line.quantity());
-        }
-
-        // Execute business logic
-        order.place();
-
-        // Persist
-        orderRepository.save(order);
-
-        // Return result
-        return OrderResult.from(order);
-    }
-}
-```
-
-### Output Port Implementation (Driven Adapter)
-
-```java
-package com.example.adapter.out.persistence.repository;
-
-@Repository
-@RequiredArgsConstructor
-class JpaOrderRepository implements OrderRepository {
-
-    private final SpringDataOrderRepository springRepository;
-
-    @Override
-    public Optional<Order> findById(OrderId id) {
-        return springRepository.findById(id.value())
-            .map(this::toDomain);
-    }
-
-    @Override
-    public void save(Order order) {
-        springRepository.save(toEntity(order));
-    }
-
-    @Override
-    public Page<Order> findByStatus(OrderStatus status, Pageable pageable) {
-        return springRepository.findByStatus(status, pageable)
-            .map(this::toDomain);
-    }
-
-    private Order toDomain(OrderEntity entity) {
-        // Map entity to domain
-        return Order.reconstitute(
-            OrderId.of(entity.getId()),
-            entity.getStatus(),
-            entity.getLines().stream()
-                .map(this::toDomainLine)
-                .toList()
-        );
-    }
-
-    private OrderEntity toEntity(Order order) {
-        return OrderEntity.builder()
-            .id(order.getId().value())
-            .status(order.getStatus())
-            .lines(order.getLines().stream()
-                .map(this::toEntityLine)
-                .toList())
-            .build();
-    }
-}
-```
+> Core architecture principles and project structure are defined in `architecture.mdc`.
+> AI/ML development uses the [Spring AI Skill](.cursor/skills/spring-ai/SKILL.md).
 
 ## Naming Conventions
 
 | Type | Rule | Example |
 |------|------|---------|
-| Domain Model | PascalCase | `Order`, `Money`, `Email` |
-| Value Objects | PascalCase | `OrderId`, `UserId` |
-| Port Interfaces | PascalCase + UseCase/Repository | `PlaceOrderUseCase`, `OrderRepository` |
-| Adapter Implementation | PascalCase + Suffix | `PlaceOrderUseCaseImpl`, `JpaOrderRepository` |
-| Methods | camelCase | `findById`, `calculateTotal` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Package names | lowercase | `com.example.domain.model` |
+| Domain Model | PascalCase | `ChatSession`, `Message` |
+| Value Objects | PascalCase | `SessionId`, `Status` |
+| Repository | PascalCase + Repository | `ChatRepository` |
+| Use Case | PascalCase + UseCase | `ChatUseCase` |
+| Controller | PascalCase + Controller | `ChatController` |
+| DTO | PascalCase + Request/Response | `ChatRequest` |
+| Methods | camelCase | `findById` |
+| Constants | UPPER_SNAKE_CASE | `MAX_RETRY` |
+| Package | lowercase | `com.ai.domain.model` |
 
-## DTO Design (Record)
+## Dependency Injection
 
 ```java
-// Command (Input)
-public record PlaceOrderCommand(
-    @NotEmpty List<OrderLineDto> lines,
-    @NotNull ShippingAddressDto shipping
-) {
-    public record OrderLineDto(UUID productId, int quantity) {}
-    public record ShippingAddressDto(String street, String city, String zip) {}
-}
-
-// Result (Output)
-public record OrderResult(
-    UUID orderId,
-    String status,
-    Money total,
-    Instant createdAt
-) {
-    public static OrderResult from(Order order) {
-        return new OrderResult(
-            order.getId().value(),
-            order.getStatus().name(),
-            order.calculateTotal(),
-            order.getCreatedAt()
-        );
-    }
+@Service
+@RequiredArgsConstructor
+class ChatUseCaseImpl implements ChatUseCase {
+    private final ChatRepository repository;
+    private final ChatModel chatModel;
 }
 ```
 
-## Checklist
+## REST
 
-### Architecture Compliance
+| Operation | Status |
+|-----------|--------|
+| Create | 201 |
+| Success | 200 |
+| No Content | 204 (void) |
+| Error | 4xx/5xx |
 
-- [ ] Domain layer has no framework annotations (@Entity, @Service, @Repository)
-- [ ] Repository interfaces defined in domain, implementations in adapter/out
-- [ ] No circular dependencies
-- [ ] Dependency arrows point inward toward domain
+## Validation
 
-### Code Quality
+```java
+public record ChatRequest(
+    @NotBlank String message,
+    String sessionId
+) {}
+```
 
-- [ ] Entities use factory methods (private constructor)
-- [ ] Value Objects are immutable (record)
-- [ ] Business logic in domain, not in adapters
-- [ ] Use cases orchestrate, don't contain business logic
+## Test Naming
 
-### Testing
-
-- [ ] Domain logic has unit tests (no mocks needed)
-- [ ] Adapter tests use integration tests or mocks
-- [ ] Test naming follows convention
+```
+should_expectedResult_when_condition
+```
 
 ## References
 
-- [Ports and Adapters Pattern - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Getting Started with Hexagonal Architecture](https://reflectoring.io/spring-boot-hexagonal/)
+- [Spring Boot](https://spring.io/projects/spring-boot)
+- [Spring Framework](https://spring.io/projects/spring-framework)
+- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
+- [Spring AI](https://spring.io/projects/spring-ai)
+- [Spring AI Skill](.cursor/skills/spring-ai/SKILL.md)
+- [Java](https://docs.oracle.com/en/java/)

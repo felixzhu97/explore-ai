@@ -1,0 +1,145 @@
+---
+description: Core architecture principles - layered architecture, dependency rule, domain model
+globs: **/*.java **/*.kt
+alwaysApply: true
+---
+
+# Architecture Standards
+
+## Dependency Rule
+
+```
+web → application → domain ← infrastructure
+```
+
+**Domain has NO dependencies on other layers.**
+
+## Layers
+
+| Layer | Contains |
+|-------|----------|
+| `domain/` | Entities, Value Objects, Repository interfaces |
+| `application/` | Use Cases, Facades |
+| `infrastructure/` | Repository implementations, External adapters |
+| `web/` | Controllers, DTOs |
+
+## Project Structure
+
+```
+src/main/java/com/ai/
+├── {module}/                # Feature module
+│   ├── domain/
+│   │   ├── model/           # Entities, Aggregates
+│   │   ├── vo/              # Value Objects
+│   │   └── repository/      # Repository interfaces
+│   ├── application/
+│   │   └── usecase/         # Use cases
+│   ├── infrastructure/
+│   │   └── persistence/    # Repository implementations
+│   └── web/
+│       ├── controller/      # REST controllers
+│       └── dto/             # Request/Response DTOs
+└── common/                  # Shared code
+    └── exception/           # Shared exceptions
+```
+
+## Domain Rules
+
+- No framework annotations in domain
+- Entities: private constructor + factory method
+- Value Objects: immutable `record`
+- Repository: interface in domain, implementation in infrastructure
+
+## Examples
+
+### Domain
+
+```java
+public class ChatSession {
+    private final ChatSessionId id;
+    private SessionStatus status;
+
+    private ChatSession(ChatSessionId id) {
+        this.id = id;
+        this.status = SessionStatus.ACTIVE;
+    }
+
+    public static ChatSession create() {
+        return new ChatSession(new ChatSessionId(UUID.randomUUID()));
+    }
+
+    public ChatSessionId id() {
+        return id;
+    }
+}
+
+public record ChatSessionId(UUID value) {}
+
+public interface ChatSessionRepository {
+    Optional<ChatSession> findById(ChatSessionId id);
+    void save(ChatSession session);
+}
+```
+
+### Application
+
+```java
+public record ChatRequest(String message) {}
+public record ChatResponse(String reply) {}
+
+public interface ChatUseCase {
+    ChatResponse chat(ChatRequest request);
+}
+
+@Service
+@RequiredArgsConstructor
+class ChatUseCaseImpl implements ChatUseCase {
+    private final ChatSessionRepository repository;
+
+    @Override
+    public ChatResponse chat(ChatRequest request) {
+        return new ChatResponse("reply");
+    }
+}
+```
+
+### Infrastructure
+
+```java
+@Repository
+@RequiredArgsConstructor
+class InMemoryChatSessionRepository implements ChatSessionRepository {
+    private final Map<ChatSessionId, ChatSession> store = new ConcurrentHashMap<>();
+
+    @Override
+    public Optional<ChatSession> findById(ChatSessionId id) {
+        return Optional.ofNullable(store.get(id));
+    }
+
+    @Override
+    public void save(ChatSession session) {
+        store.put(session.id(), session);
+    }
+}
+```
+
+### Web
+
+```java
+@RestController
+@RequiredArgsConstructor
+class ChatController {
+    private final ChatUseCase chatUseCase;
+
+    @PostMapping("/api/chat")
+    public ChatResponse chat(@RequestBody ChatRequest request) {
+        return chatUseCase.chat(request);
+    }
+}
+```
+
+## Checklist
+
+- [ ] Domain has no outward dependencies
+- [ ] No circular dependencies
+- [ ] Entities encapsulate behavior
