@@ -2001,7 +2001,7 @@
               ],
               "variable": []
             },
-            "description": "List all documents.\nGET /api/rag/documents/"
+            "description": "List all documents.\nGET /api/rag/documents"
           },
           "response": []
         },

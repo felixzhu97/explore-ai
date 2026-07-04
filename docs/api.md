@@ -286,7 +286,7 @@ curl -X DELETE "${BASE_URL}/api/sessions/{sessionId}"
 Get all documents in the knowledge base.
 
 ```bash
-curl -X GET "${BASE_URL}/api/rag/documents/"
+curl -X GET "${BASE_URL}/api/rag/documents"
 ```
 
 **Response Example**

@@ -61,7 +61,7 @@ class RagControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /api/rag/documents/")
+    @DisplayName("GET /api/rag/documents")
     class ListDocuments {
 
         @Test
