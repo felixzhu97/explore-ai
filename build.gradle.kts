@@ -112,3 +112,8 @@ tasks.jacocoTestCoverageVerification {
 tasks.bootJar {
     archiveFileName.set("app.jar")
 }
+
+// Disable plain jar to prevent conflicts
+tasks.named<Jar>("jar") {
+    enabled = false
+}

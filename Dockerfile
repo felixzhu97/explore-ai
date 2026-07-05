@@ -11,9 +11,18 @@ RUN ./gradlew bootJar --no-daemon
 
 # Runtime stage
 FROM eclipse-temurin:25-jre-alpine
-WORKDIR /app
-COPY --from=build /app/build/libs/app.jar app.jar
 
+# Create non-root user for security
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+WORKDIR /app
+COPY --from=build --chown=appuser:appgroup /app/build/libs/app.jar app.jar
+
+# Pre-create H2 database directory
+RUN mkdir -p /app/data && chown -R appuser:appgroup /app
+
+USER appuser
 ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
