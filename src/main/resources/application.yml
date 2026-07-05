@@ -50,7 +50,7 @@ spring:
 
   # H2 embedded database (no Docker required)
   datasource:
-    url: ${H2_URL:jdbc:h2:file:/app/data/ai-explore;AUTO_SERVER=TRUE}
+    url: ${H2_URL:jdbc:h2:file:./data/ai-explore;AUTO_SERVER=TRUE}
     username: ${H2_USER:sa}
     password: ${H2_PASSWORD:}
     driver-class-name: org.h2.Driver
