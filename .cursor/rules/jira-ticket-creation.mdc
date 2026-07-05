@@ -195,10 +195,10 @@ This project uses `plugin-atlassian-atlassian` MCP Server for Jira operations.
   "arguments": {
     "cloudId": "75684fb5-daf5-4962-9581-c4948b9c12cf",
     "projectKey": "AI",
-    "issueType": "Task",
-    "summary": "Task title",
-    "description": "Task description (supports wiki markup)",
-    "assigneeAccountId": "62ee247ff15eecaf500efa39"
+    "issueTypeName": "任务",
+    "summary": "任务标题",
+    "description": "任务描述内容（支持 wiki markup）",
+    "assignee_account_id": "62ee247ff15eecaf500efa39"
   }
 }
 ```
