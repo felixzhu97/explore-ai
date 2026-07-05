@@ -112,6 +112,15 @@ management:
     sampling:
       probability: 1.0
 
+app:
+  cors:
+    allowed-origins: >-
+      http://localhost:4200,
+      http://localhost:3000,
+      https://explore-ai-git-feat-ai-92-railway-b-*.vercel.app,
+      https://explore-ai-*.vercel.app,
+      https://explore-ai-three.vercel.app
+
 logging:
   level:
     com.ai: DEBUG
