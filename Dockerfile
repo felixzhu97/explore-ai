@@ -15,4 +15,4 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
-ENTRYPOINT java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -jar app.jar
+ENTRYPOINT exec java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -jar app.jar
