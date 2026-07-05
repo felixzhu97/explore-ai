@@ -2,7 +2,12 @@
 export const environment = {
   production: true,
   apiBaseUrl: '/api',
-  wsUrl: 'ws://localhost:9000',
+  get wsUrl() {
+    const isBrowser = typeof window !== 'undefined';
+    const protocol = isBrowser && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = isBrowser ? window.location.host : 'localhost:8080';
+    return `${protocol}//${host}`;
+  },
   agents: {
     supervisor: '/api/agents/supervisor/invoke/sse',
     kubernetes: '/api/agents/kubernetes/invoke/sse',

@@ -1,0 +1,17 @@
+server:
+  port: ${PORT:8080}
+
+# WARNING: H2 is an embedded in-memory database. Data is NOT persisted across restarts.
+# For production, use an external database (PostgreSQL, MySQL) with persistent storage.
+spring:
+  ai:
+    mcp:
+      server:
+        enabled: false
+
+logging:
+  level:
+    com.ai: INFO
+    org.springframework.ai: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
