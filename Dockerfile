@@ -12,7 +12,8 @@ RUN ./gradlew bootJar --no-daemon
 # Runtime stage
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/app.jar app.jar
 
+ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 8080
-ENTRYPOINT exec java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
