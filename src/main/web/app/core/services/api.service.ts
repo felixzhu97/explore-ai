@@ -13,10 +13,11 @@ import type {
   Detection,
   DocumentListResponse,
 } from '@shared/models';
+import { environment } from '@env/environment';
 
 // ==================== Service URL ====================
 
-const BASE_URL = '/api';
+const BASE_URL = environment.apiBaseUrl;
 
 // ==================== Default Providers ====================
 
