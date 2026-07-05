@@ -107,3 +107,8 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
+
+// Railway deployment: ensure bootJar produces app.jar
+tasks.bootJar {
+    archiveFileName.set("app.jar")
+}
