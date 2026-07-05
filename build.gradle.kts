@@ -107,3 +107,13 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
+
+// Railway deployment: ensure bootJar produces app.jar
+tasks.bootJar {
+    archiveFileName.set("app.jar")
+}
+
+// Disable plain jar to prevent conflicts
+tasks.named<Jar>("jar") {
+    enabled = false
+}
