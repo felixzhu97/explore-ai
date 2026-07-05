@@ -19,8 +19,8 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 COPY --from=build --chown=appuser:appgroup /app/build/libs/app.jar app.jar
 
-# Pre-create H2 database directory
-RUN mkdir -p /app/data && chown -R appuser:appgroup /app
+# Pre-create H2 database directory with correct permissions
+RUN mkdir -p /app/data && chown appuser:appgroup /app/data
 
 USER appuser
 ENV SPRING_PROFILES_ACTIVE=prod
