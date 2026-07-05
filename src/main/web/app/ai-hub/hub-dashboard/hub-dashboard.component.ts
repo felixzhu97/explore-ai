@@ -47,6 +47,6 @@ export class HubDashboardComponent {
   }
 
   goToChat(): void {
-    this.router.navigateByUrl('/ai-hubs/chat');
+    this.router.navigateByUrl('/chat');
   }
 }

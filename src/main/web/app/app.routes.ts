@@ -6,7 +6,7 @@ export const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
-      { path: '', redirectTo: 'rag', pathMatch: 'full' },
+      { path: '', redirectTo: 'chat', pathMatch: 'full' },
       {
         path: 'rag',
         loadComponent: () => import('./rag/rag.page').then(m => m.RagPageComponent),
@@ -18,16 +18,20 @@ export const routes: Routes = [
         ),
       },
       {
-        path: 'ai-hubs',
+        path: 'chat',
         loadComponent: () => import('./ai-hub/ai-hub.page').then(m => m.AiHubPage),
         children: [
           {
             path: '',
-            loadComponent: () => import('./ai-hub/hub-dashboard/hub-dashboard.component').then(m => m.HubDashboardComponent),
+            loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
           },
           {
-            path: 'chat',
-            loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
+            path: 'image',
+            loadComponent: () => import('./ai-hub/image/image.component').then(m => m.ImageComponent),
+          },
+          {
+            path: 'tts',
+            loadComponent: () => import('./ai-hub/tts/tts.component').then(m => m.TtsPageComponent),
           },
         ],
       },
