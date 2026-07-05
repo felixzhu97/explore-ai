@@ -1,6 +1,5 @@
-package com.ai.shared.config;
+package com.ai.common.config;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -19,9 +18,13 @@ public class WebCorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        String[] trimmedPatterns = java.util.Arrays.stream(allowedOriginPatterns)
+        String[] patterns = java.util.Arrays.stream(allowedOriginPatterns)
                 .map(String::trim)
                 .toArray(String[]::new);
-        registry.addMapping("/api/**").allowedOriginPatterns(trimmedPatterns);
+        registry.addMapping("/api/**")
+                .allowedOriginPatterns(patterns)
+                .allowCredentials(true)
+                .allowedHeaders("*")
+                .maxAge(3600);
     }
 }

@@ -114,7 +114,7 @@ management:
 
 app:
   cors:
-    allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app
+    allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat
 
 logging:
   level:
