@@ -114,11 +114,10 @@ management:
 
 app:
   cors:
-    allowed-origins: >-
+    allowed-origin-patterns: >
       http://localhost:4200,
       http://localhost:3000,
-      https://explore-ai-git-feat-ai-92-railway-b-*.vercel.app,
-      https://explore-ai-*.vercel.app,
+      https://explore-ai-git-*.felixzhu97s-projects.vercel.app,
       https://explore-ai-three.vercel.app
 
 logging:

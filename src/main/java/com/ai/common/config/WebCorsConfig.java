@@ -8,15 +8,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Web CORS configuration.
  * CORS origins are externalized via application properties.
+ * Uses allowedOriginPatterns to support wildcards.
  */
 @Configuration
 public class WebCorsConfig implements WebMvcConfigurer {
 
-    @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost:3000}")
-    private String[] allowedOrigins;
+    @Value("${app.cors.allowed-origin-patterns:http://localhost:4200,http://localhost:3000}")
+    private String[] allowedOriginPatterns;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**").allowedOrigins(allowedOrigins);
+        registry.addMapping("/api/**").allowedOriginPatterns(allowedOriginPatterns);
     }
 }
