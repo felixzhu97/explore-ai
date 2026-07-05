@@ -1,0 +1,25 @@
+---
+description: Minimal UX design standards for Apple/OpenAI-style interfaces
+alwaysApply: true
+---
+
+# UX Design Standards
+
+## Core Philosophy
+
+Design for clarity, elegance, and human-centeredness. Prefer simplicity over complexity.
+
+## Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Clarity** | Remove unnecessary elements, emphasize essential content |
+| **Consistency** | Uniform patterns across the interface |
+| **Feedback** | Immediate response to user actions |
+| **Accessibility** | Usable by everyone, regardless of ability |
+
+## Design References
+
+- [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)
+- [shadcn/ui - Apple](https://www.shadcn.io/design/apple)
+- [shadcn/ui - OpenAI](https://www.shadcn.io/design/openai)

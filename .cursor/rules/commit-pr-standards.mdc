@@ -65,8 +65,14 @@ References:
 PR body mirrors the commit message. References must be identical.
 
 ```
-References
+## Summary
+[Brief description of the change]
+
+## References
 - [Title](URL)
+
+## Jira Links (if applicable)
+- [Jira Issue Key](https://felixzhu.atlassian.net/browse/AI-XXX)
 ```
 
 ---
@@ -93,8 +99,14 @@ References:
 # 6. Push and create PR (base: previous branch)
 git push -u origin HEAD
 gh pr create --title "feat: description" --base feat/previous-feature --body "$(cat <<'EOF'
+## Summary
+[Brief description of the change]
+
 ## References
 - [Title](URL)
+
+## Jira Links
+- [AI-XXX](https://felixzhu.atlassian.net/browse/AI-XXX)
 EOF
 )"
 ```
@@ -220,3 +232,24 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Angular Material Design | [material.angular.io](https://material.angular.io) |
 | Tailwind CSS | [tailwindcss.com/docs](https://tailwindcss.com/docs) |
 | Figma Design Systems | [figma.com/community](https://www.figma.com/community/design-systems) |
+
+### UX References
+
+| Resource | Official Docs |
+|----------|---------------|
+| Apple HIG - Visual Design | [developer.apple.com/design/human-interface-guidelines/foundations/layout](https://developer.apple.com/design/human-interface-guidelines/foundations/layout) |
+| Apple HIG - Typography | [developer.apple.com/design/human-interface-guidelines/foundations/typography](https://developer.apple.com/design/human-interface-guidelines/foundations/typography) |
+| Apple HIG - Color | [developer.apple.com/design/human-interface-guidelines/foundations/color](https://developer.apple.com/design/human-interface-guidelines/foundations/color) |
+| Apple HIG - Motion | [developer.apple.com/design/human-interface-guidelines/foundations/motion](https://developer.apple.com/design/human-interface-guidelines/foundations/motion) |
+| Apple HIG - Accessibility | [developer.apple.com/design/human-interface-guidelines/foundations/accessibility](https://developer.apple.com/design/human-interface-guidelines/foundations/accessibility) |
+| shadcn/ui - Apple Design | [shadcn/ui - Apple](https://www.shadcn.io/design/apple) |
+| shadcn/ui - OpenAI | [shadcn/ui - OpenAI](https://www.shadcn.io/design/openai) |
+| Material Design - Motion | [m3.material.io/styles/motion](https://m3.material.io/styles/motion) |
+| Tailwind - Animating with Tailwind | [tailwindcss.com/docs/animation](https://tailwindcss.com/docs/animation) |
+
+### Jira
+
+| Resource | URL |
+|----------|-----|
+| Jira Site | https://felixzhu.atlassian.net |
+| Project AI (ExploreAI) | https://felixzhu.atlassian.net/projects/AI
