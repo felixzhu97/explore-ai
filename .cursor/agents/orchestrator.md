@@ -33,6 +33,7 @@ is_background: true
 | AI/大模型 | ai-engineer |
 | CI/CD | devops-engineer |
 | 架构审查 | architect |
+| 用户体验设计 | ux-designer |
 
 ## 执行示例
 
