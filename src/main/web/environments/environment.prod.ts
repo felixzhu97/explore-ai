@@ -1,7 +1,7 @@
 // Environment configuration for production
 export const environment = {
   production: true,
-  apiBaseUrl: '/api',
+  apiBaseUrl: 'https://explore-ai-production.up.railway.app',
   get wsUrl() {
     const isBrowser = typeof window !== 'undefined';
     const protocol = isBrowser && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
