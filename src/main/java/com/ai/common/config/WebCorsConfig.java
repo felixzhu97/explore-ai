@@ -13,8 +13,11 @@ public class WebCorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        String[] patterns = java.util.Arrays.stream(allowedOriginPatterns)
+                .map(String::trim)
+                .toArray(String[]::new);
         registry.addMapping("/api/**")
-                .allowedOriginPatterns(allowedOriginPatterns)
+                .allowedOriginPatterns(patterns)
                 .allowCredentials(true)
                 .allowedHeaders("*")
                 .maxAge(3600);

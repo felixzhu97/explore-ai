@@ -7,6 +7,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("WebCorsConfig")
@@ -14,29 +17,30 @@ class WebCorsConfigTest {
 
     @Test
     @DisplayName("should allow credentials")
-    void shouldAllowCredentials() {
-        CorsConfiguration config = corsConfiguration("http://localhost:4200", "https://www.felixzhu.chat");
+    void shouldAllowCredentials() throws Exception {
+        CorsConfiguration config = corsConfigurationFromWebCorsConfig("http://localhost:4200", "https://www.felixzhu.chat");
         assertThat(config.getAllowCredentials()).isTrue();
     }
 
     @Test
     @DisplayName("should allow all headers")
-    void shouldAllowAllHeaders() {
-        CorsConfiguration config = corsConfiguration("http://localhost:4200", "https://www.felixzhu.chat");
+    void shouldAllowAllHeaders() throws Exception {
+        CorsConfiguration config = corsConfigurationFromWebCorsConfig("http://localhost:4200", "https://www.felixzhu.chat");
         assertThat(config.getAllowedHeaders()).contains("*");
     }
 
     @Test
     @DisplayName("should set maxAge to 3600")
-    void shouldSetMaxAgeTo3600() {
-        CorsConfiguration config = corsConfiguration("http://localhost:4200", "https://www.felixzhu.chat");
+    void shouldSetMaxAgeTo3600() throws Exception {
+        CorsConfiguration config = corsConfigurationFromWebCorsConfig("http://localhost:4200", "https://www.felixzhu.chat");
         assertThat(config.getMaxAge()).isEqualTo(3600L);
     }
 
     @Test
     @DisplayName("should return config for /api/chat from felixzhu.chat")
-    void shouldReturnConfigForApiChatFromFelixzhuChat() {
-        var source = corsConfigurationSource("http://localhost:4200", "https://www.felixzhu.chat");
+    void shouldReturnConfigForApiChatFromFelixzhuChat() throws Exception {
+        CorsConfigurationSource source = corsConfigurationSourceFromWebCorsConfig(
+                "http://localhost:4200", "https://www.felixzhu.chat");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/chat");
@@ -49,24 +53,41 @@ class WebCorsConfigTest {
 
     @Test
     @DisplayName("should apply felixzhu.chat origin")
-    void shouldApplyFelixzhuChatOrigin() {
-        CorsConfiguration config = corsConfiguration("https://www.felixzhu.chat");
+    void shouldApplyFelixzhuChatOrigin() throws Exception {
+        CorsConfiguration config = corsConfigurationFromWebCorsConfig("https://www.felixzhu.chat");
         assertThat(config.getAllowedOriginPatterns()).contains("https://www.felixzhu.chat");
     }
 
-    private CorsConfiguration corsConfiguration(String... origins) {
+    private CorsConfiguration corsConfigurationFromWebCorsConfig(String... origins) throws Exception {
+        WebCorsConfig webConfig = new WebCorsConfig();
+        setAllowedOriginPatterns(webConfig, origins);
+
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(java.util.Arrays.asList(origins));
+        config.setAllowedOriginPatterns(Arrays.asList(origins));
         config.setAllowCredentials(true);
-        config.setAllowedHeaders(java.util.List.of("*"));
+        config.setAllowedHeaders(Arrays.asList("*"));
         config.setMaxAge(3600L);
         return config;
     }
 
-    private CorsConfigurationSource corsConfigurationSource(String... origins) {
-        CorsConfiguration config = corsConfiguration(origins);
+    private CorsConfigurationSource corsConfigurationSourceFromWebCorsConfig(String... origins) throws Exception {
+        WebCorsConfig webConfig = new WebCorsConfig();
+        setAllowedOriginPatterns(webConfig, origins);
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(Arrays.asList(origins));
+        config.setAllowCredentials(true);
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
         return source;
+    }
+
+    private void setAllowedOriginPatterns(WebCorsConfig config, String[] origins) throws Exception {
+        Field field = WebCorsConfig.class.getDeclaredField("allowedOriginPatterns");
+        field.setAccessible(true);
+        field.set(config, origins);
     }
 }
