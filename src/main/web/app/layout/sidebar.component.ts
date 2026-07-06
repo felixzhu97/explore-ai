@@ -32,7 +32,7 @@ export class SidebarComponent {
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
 
-  readonly collapsed = signal(false);
+  readonly collapsed = this.sidebar.collapsed;
   readonly dropdownOpen = signal(false);
   readonly pinnedExpanded = signal(true);
   readonly recentsExpanded = signal(true);

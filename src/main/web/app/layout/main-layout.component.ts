@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from '@shared/components/toast/toast.component';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
+import { SidebarService } from './sidebar.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -12,10 +13,10 @@ import { HeaderComponent } from './header.component';
       <app-toast />
       <app-sidebar />
       <app-header (openSidebar)="openSidebar()" />
-      <main class="
-        ml-60 flex min-h-screen justify-center transition-all duration-250
-        md:ml-60
-      ">
+      <main class="flex min-h-screen justify-center transition-all duration-250"
+            [class.md:ml-60]="!sidebar.collapsed()"
+            [class.md:ml-16]="sidebar.collapsed()"
+      >
           <router-outlet/>
       </main>
   `,
@@ -25,7 +26,9 @@ import { HeaderComponent } from './header.component';
   },
 })
 export class MainLayoutComponent {
+  readonly sidebar = inject(SidebarService);
+
   openSidebar(): void {
-    // Sidebar is managed by SidebarService
+    this.sidebar.open();
   }
 }
