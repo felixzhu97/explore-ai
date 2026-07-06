@@ -25,6 +25,7 @@ interface StorageData {
 @Injectable({ providedIn: 'root' })
 export class SidebarService {
   readonly mobileOpen = signal(false);
+  readonly collapsed = signal(false);
 
   private readonly _pinnedSessions = signal<Session[]>([]);
   private readonly _recentSessions = signal<Session[]>([]);
