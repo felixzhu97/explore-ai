@@ -17,9 +17,10 @@ BASE_URL="http://localhost:9000"
 5. [Tool Calling API](#tool-calling-api)
 6. [Image Generation API](#image-generation-api)
 7. [Audio/TTS API](#audio-tts-api)
-8. [MCP Server API](#mcp-server-api)
-9. [MCP Client API](#mcp-client-api)
-10. [Error Codes](#error-codes)
+8. [Audio/ASR API](#audio-asr-api)
+9. [MCP Server API](#mcp-server-api)
+10. [MCP Client API](#mcp-client-api)
+11. [Error Codes](#error-codes)
 
 ---
 
@@ -948,6 +949,71 @@ curl -X GET "${BASE_URL}/api/audio/models"
     }
   ]
 }
+```
+
+---
+
+## Audio/ASR API
+
+### WebSocket Streaming Transcription
+
+Real-time speech-to-text using whisper.cpp via WebSocket.
+
+**Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
+
+**Protocol:**
+
+```json
+// Client -> Server (audio chunk)
+{"type": "audio", "data": "base64_wav_data"}
+
+// Client -> Server (end stream)
+{"type": "stop"}
+
+// Server -> Client (partial result)
+{"type": "partial", "text": "正在识别..."}
+
+// Server -> Client (final result, sent before connection close)
+{"type": "final", "text": "识别完成的文字"}
+
+// Server -> Client (error)
+{"type": "error", "text": "Transcription failed: ..."}
+```
+
+**Flow:**
+
+1. Client sends one or more `audio` chunks and receives `partial` responses.
+2. Client sends `stop` when finished recording.
+3. Server sends `final` with the accumulated transcript, then closes the connection.
+
+**Requirements:**
+
+- whisper.cpp server running locally (OpenAI-compatible API on port 8178)
+- Audio format: WAV, 16kHz, mono, base64-encoded
+
+**Local setup:**
+
+```bash
+# Install whisper.cpp (macOS)
+brew install whisper-cpp
+
+# Download tiny.en model (~75MB, free)
+curl -L -o ggml-tiny.en.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin
+
+# Start whisper.cpp server (OpenAI-compatible endpoint)
+whisper-server -m ggml-tiny.en.bin --host 127.0.0.1 --port 8178 \
+  --request-path /v1/audio/transcriptions --inference-path ""
+```
+
+Configure the backend URL in `application.yml`:
+
+```yaml
+app:
+  asr:
+    whisper-cpp:
+      base-url: http://localhost:8178
+      model: whisper-base
 ```
 
 ---

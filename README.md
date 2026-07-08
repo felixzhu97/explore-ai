@@ -1,6 +1,6 @@
 # AI-Explore
 
-基于 Spring AI + Angular 的 AI 应用平台，支持 RAG 文档问答、Tool Calling、图像生成、语音合成和视觉分析。
+基于 Spring AI + Angular 的 AI 应用平台，支持 RAG 文档问答、Tool Calling、图像生成、语音合成、视觉分析和实时流式语音识别。
 
 ## 核心功能
 
@@ -11,6 +11,7 @@
 | **Tool Calling** | 天气查询、文档搜索、Web 搜索 | 自动工具选择 |
 | **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
 | **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
+| **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | whisper.cpp 本地免费 ASR |
 | **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放，**本地 Ollama qwen3.5 驱动** |
 
 ## 技术栈
@@ -104,6 +105,22 @@ curl -X POST http://localhost:9000/api/audio/speak \
   --output speech.mp3
 ```
 
+### 实时语音识别 (WebSocket)
+
+```bash
+# WebSocket 连接
+wss://localhost:9000/ws/audio/transcribe
+
+# 客户端发送音频 base64
+{"type": "audio", "data": "base64_wav_data"}
+
+# 服务端返回部分结果
+{"type": "partial", "text": "正在识别..."}
+
+# 服务端返回最终结果
+{"type": "final", "text": "识别完成的文字"}
+```
+
 ## 项目结构
 
 ```
@@ -113,7 +130,7 @@ ai-explore/
 │   ├── rag/            # RAG 文档问答
 │   ├── tools/          # Tool Calling (天气/搜索)
 │   ├── image/          # 图像生成
-│   ├── audio/          # 语音合成
+│   ├── audio/          # 语音合成 + ASR
 │   └── mcp/            # MCP Server/Client
 │
 ├── src/main/web/       # Angular 前端
@@ -124,6 +141,32 @@ ai-explore/
 │
 └── docs/c4/           # C4 架构图
 ```
+
+---
+
+## C4 架构图
+
+### C1 - 系统上下文
+
+![C1-Context](./docs/c4/png/C1-Context.png)
+
+### C2 - 容器图
+
+![C2-Container](./docs/c4/png/C2-Container.png)
+
+### C3 - 后端组件
+
+![C3-Backend](./docs/c4/png/C3-Component-Backend.png)
+
+### C3 - 前端组件
+
+![C3-Frontend](./docs/c4/png/C3-Component-Frontend.png)
+
+### C4 - 部署图
+
+![C4-Deployment](./docs/c4/png/C4-Deployment.png)
+
+---
 
 ## 文档
 

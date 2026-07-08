@@ -30,8 +30,6 @@ spring:
       base-url: ${DEEPSEEK_BASE_URL}
       chat:
         model: deepseek-v4-flash
-      embedding:
-        model: text-embedding-3-small
       image:
         model: dall-e-3
         quality: standard
@@ -113,6 +111,12 @@ management:
       probability: 1.0
 
 app:
+  asr:
+    whisper-cpp:
+      base-url: http://localhost:8178
+      model: whisper-base
+      connect-timeout: 5s
+      read-timeout: 60s
   cors:
     allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat
 
