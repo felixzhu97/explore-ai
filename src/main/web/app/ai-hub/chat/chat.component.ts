@@ -10,7 +10,7 @@ import {
   effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MarkdownService } from '@shared/utils/markdown.service';
+import { MarkdownContentComponent } from '@shared/components/markdown-content.component';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
 import type { ChatTabState } from '../chat.model';
@@ -20,7 +20,7 @@ import { ChatService } from '../chat.service';
 
 @Component({
   selector: 'app-chat-tab',
-  imports: [FormsModule, NxSenderComponent, NzIconModule],
+  imports: [FormsModule, NxSenderComponent, NzIconModule, MarkdownContentComponent],
   standalone: true,
   templateUrl: './chat.component.html',
   styles: [
@@ -39,11 +39,10 @@ import { ChatService } from '../chat.service';
   ],
   providers: [provideNzIconsPatch([ArrowUpOutline])],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex h-screen flex-col' },
+  host: { class: 'flex h-full w-full h-screen flex-col' },
 })
 export class ChatTabComponent implements OnInit, OnDestroy {
   protected readonly chat = inject(ChatService);
-  protected readonly markdown = inject(MarkdownService);
   protected readonly i18n = inject(I18nService);
 
   readonly state = model<ChatTabState>({ provider: 'openai', model: 'gpt-4o-mini' });

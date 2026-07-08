@@ -23,6 +23,87 @@ import { environment } from '@env/environment';
 
 const BASE_URL = environment.apiBaseUrl;
 
+/** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
+function parseSseToken(data: string): string | null {
+  if (data === '') {
+    return '\n';
+  }
+
+  const first = data.trimStart()[0];
+  if (first === '{' || first === '[') {
+    try {
+      const parsed = JSON.parse(data) as { token?: string | number };
+      if (parsed && typeof parsed === 'object' && 'token' in parsed) {
+        const token = parsed.token;
+        if (token !== null && token !== undefined) {
+          return String(token);
+        }
+      }
+    } catch {
+      return data;
+    }
+    return null;
+  }
+
+  if (first === '"') {
+    try {
+      const parsed = JSON.parse(data);
+      return typeof parsed === 'string' ? parsed : data;
+    } catch {
+      return data;
+    }
+  }
+
+  return data;
+}
+
+interface SseEventPayload {
+  eventType: string;
+  data: string;
+}
+
+/** Accumulates SSE data lines until a blank line, joining with `\n` per SSE spec. */
+class SseEventAssembler {
+  private eventType = '';
+  private dataLines: string[] = [];
+
+  pushLine(line: string): SseEventPayload | null {
+    if (!line) {
+      return this.flush();
+    }
+
+    if (line.startsWith('event:')) {
+      this.eventType = line.slice(6).trim();
+      return null;
+    }
+
+    if (line.startsWith('data:')) {
+      let data = line.slice(5);
+      if (data.startsWith(' ')) {
+        data = data.slice(1);
+      }
+      this.dataLines.push(data);
+    }
+
+    return null;
+  }
+
+  flush(): SseEventPayload | null {
+    if (this.dataLines.length === 0) {
+      this.eventType = '';
+      return null;
+    }
+
+    const payload: SseEventPayload = {
+      eventType: this.eventType,
+      data: this.dataLines.join('\n'),
+    };
+    this.dataLines = [];
+    this.eventType = '';
+    return payload;
+  }
+}
+
 // ==================== Default Providers ====================
 
 export const DEFAULT_PROVIDERS: ProviderInfo[] = [
@@ -138,7 +219,7 @@ export class ApiService {
     onError: (err: Error) => void,
   ): { abort: () => void } {
     const controller = new AbortController();
-    let currentEvent = '';
+    const sseAssembler = new SseEventAssembler();
 
     const readerPromise = fetch(`${BASE_URL}/text/chat/stream`, {
       method: 'POST',
@@ -160,68 +241,87 @@ export class ApiService {
       const decoder = new TextDecoder();
       let buffer = '';
 
-      const processBuffer = () => {
+      const processBuffer = (flushPending = false) => {
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
 
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed) {
-            currentEvent = '';
-            continue;
-          }
-
-          if (trimmed.startsWith('event:')) {
-            currentEvent = trimmed.slice(6).trim();
-            continue;
-          }
-
-          if (trimmed.startsWith('data:')) {
-            const data = trimmed.slice(5).trim();
-            if (data === '[DONE]') {
-              onDone();
-              return true;
-            }
-
-            if (currentEvent === 'done') {
-              onDone();
-              return true;
-            }
-
-            if (currentEvent === 'error') {
-              let msg = 'Stream error';
-              try {
-                const parsed = JSON.parse(data);
-                msg = parsed.error ?? parsed.message ?? msg;
-              } catch {
-                /* ignore */
-              }
-              onError(new Error(msg));
-              return true;
-            }
-
-            // Default: treat as token
-            try {
-              const parsed = JSON.parse(data);
-              const token = parsed.token ?? (typeof parsed === 'string' ? parsed : null);
-              if (token !== null) onChunk(token);
-            } catch {
-              const token = data || null;
-              if (token !== null) onChunk(token);
-            }
+        for (const rawLine of lines) {
+          const line = rawLine.replace(/\r$/, '');
+          const event = sseAssembler.pushLine(line);
+          if (event !== null && handleSseEvent(event)) {
+            return true;
           }
         }
+
+        if (flushPending) {
+          const event = sseAssembler.flush();
+          if (event !== null && handleSseEvent(event)) {
+            return true;
+          }
+        }
+
         return false;
+      };
+
+      const handleSseEvent = (event: SseEventPayload): boolean => {
+        const { eventType, data } = event;
+
+        if (data === '[DONE]') {
+          finish();
+          return true;
+        }
+
+        if (eventType === 'done') {
+          finish();
+          return true;
+        }
+
+        if (eventType === 'error') {
+          let msg = 'Stream error';
+          try {
+            const parsed = JSON.parse(data);
+            msg = parsed.error ?? parsed.message ?? msg;
+          } catch {
+            if (data) {
+              msg = data;
+            }
+          }
+          onError(new Error(msg));
+          return true;
+        }
+
+        const token = parseSseToken(data);
+        if (token !== null) {
+          onChunk(token);
+        }
+        return false;
+      };
+
+      let finished = false;
+      const finish = () => {
+        if (!finished) {
+          finished = true;
+          onDone();
+        }
       };
 
       try {
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          if (processBuffer()) break;
+          if (value) {
+            buffer += decoder.decode(value, { stream: !done });
+          }
+          if (processBuffer()) {
+            finished = true;
+            break;
+          }
+          if (done) {
+            buffer += decoder.decode(undefined, { stream: false });
+            processBuffer(true);
+            break;
+          }
         }
-        onDone();
+        finish();
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
           onError(err as Error);
