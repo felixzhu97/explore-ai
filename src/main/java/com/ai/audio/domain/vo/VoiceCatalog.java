@@ -4,6 +4,17 @@ import java.util.List;
 
 public record VoiceCatalog(List<String> voices, List<String> models) {
 
+    public VoiceCatalog {
+        if (voices == null || voices.isEmpty()) {
+            throw new IllegalArgumentException("Voices list must not be null or empty");
+        }
+        if (models == null || models.isEmpty()) {
+            throw new IllegalArgumentException("Models list must not be null or empty");
+        }
+        voices = List.copyOf(voices);
+        models = List.copyOf(models);
+    }
+
     public static VoiceCatalog defaults() {
         return new VoiceCatalog(
                 List.of("alloy", "echo", "fable", "onyx", "nova", "shimmer"),

@@ -11,8 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.audio.tts.TextToSpeechResponse;
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,26 +62,6 @@ class SpringAiTextToSpeechRepositoryTest {
             var audio = repository.synthesize(SpeechText.of("Hello"));
 
             assertThat(audio.isEmpty()).isTrue();
-        }
-    }
-
-    @Nested
-    @DisplayName("stream()")
-    class Stream {
-
-        @Test
-        @DisplayName("should return Flux of audio bytes")
-        void should_return_flux_of_audio_bytes() {
-            byte[] chunk1 = "chunk1".getBytes();
-            byte[] chunk2 = "chunk2".getBytes();
-            when(textToSpeechModel.stream("Hello, streaming!")).thenReturn(Flux.just(chunk1, chunk2));
-
-            Flux<byte[]> result = repository.stream(SpeechText.of("Hello, streaming!"));
-
-            StepVerifier.create(result)
-                    .expectNext(chunk1)
-                    .expectNext(chunk2)
-                    .verifyComplete();
         }
     }
 }

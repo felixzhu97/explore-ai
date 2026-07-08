@@ -7,7 +7,6 @@ import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.audio.tts.TextToSpeechResponse;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
 
 @Repository
 public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
@@ -28,10 +27,5 @@ public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
             return SynthesizedAudio.create(audio);
         }
         return SynthesizedAudio.empty();
-    }
-
-    @Override
-    public Flux<byte[]> stream(SpeechText text) {
-        return textToSpeechModel.stream(text.value());
     }
 }

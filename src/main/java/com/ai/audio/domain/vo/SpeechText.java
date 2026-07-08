@@ -6,16 +6,19 @@ public record SpeechText(String value) {
 
     private static final int MAX_LENGTH = 10_000;
 
-    public static SpeechText of(String text) {
-        if (text == null || text.isBlank()) {
+    public SpeechText {
+        if (value == null || value.isBlank()) {
             throw new InvalidSpeechTextException("Speech text must not be blank");
         }
-        String trimmed = text.trim();
-        if (trimmed.length() > MAX_LENGTH) {
+        value = value.trim();
+        if (value.length() > MAX_LENGTH) {
             throw new InvalidSpeechTextException(
                     "Speech text exceeds maximum length of " + MAX_LENGTH);
         }
-        return new SpeechText(trimmed);
+    }
+
+    public static SpeechText of(String text) {
+        return new SpeechText(text);
     }
 
     public int wordCount() {
