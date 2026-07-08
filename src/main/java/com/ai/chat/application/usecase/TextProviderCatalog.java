@@ -30,12 +30,27 @@ public class TextProviderCatalog {
 
     private final String configuredChatModel;
     private final boolean ollamaChatEnabled;
+    private final boolean anthropicEnabled;
 
     public TextProviderCatalog(
             @Value("${spring.ai.openai.chat.model:deepseek-v4-flash}") String configuredChatModel,
-            @Value("${spring.ai.ollama.chat.enabled:false}") boolean ollamaChatEnabled) {
+            @Value("${spring.ai.ollama.chat.enabled:false}") boolean ollamaChatEnabled,
+            @Value("${spring.ai.anthropic.api-key:}") String anthropicApiKey) {
         this.configuredChatModel = configuredChatModel;
         this.ollamaChatEnabled = ollamaChatEnabled;
+        this.anthropicEnabled = anthropicApiKey != null && !anthropicApiKey.isBlank();
+    }
+
+    public boolean isProviderAvailable(String provider) {
+        if (provider == null || provider.isBlank()) {
+            return true;
+        }
+        return switch (provider.toLowerCase()) {
+            case "openai" -> true;
+            case "ollama" -> ollamaChatEnabled;
+            case "anthropic" -> anthropicEnabled;
+            default -> false;
+        };
     }
 
     public List<ProviderInfoResponse> listProviders() {
@@ -50,7 +65,7 @@ public class TextProviderCatalog {
                         "anthropic",
                         "Anthropic Claude",
                         modelNames("anthropic"),
-                        "unavailable"
+                        anthropicEnabled ? "available" : "unavailable"
                 ),
                 new ProviderInfoResponse(
                         "ollama",

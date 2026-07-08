@@ -4,6 +4,7 @@ import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.LlmEvaluationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
@@ -189,9 +190,10 @@ public class ChatQualityEvaluator {
         ));
 
         return evaluationChatClient.prompt()
+            .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
             .messages(new UserMessage(promptText))
             .call()
-            .entity(LlmEvaluationResponse.class);
+            .entity(LlmEvaluationResponse.class, spec -> spec.validateSchema());
     }
 
     private List<Document> toDocuments(List<String> referenceDocuments) {

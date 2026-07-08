@@ -1,6 +1,7 @@
 package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.chat.application.usecase.TextChatOptions;
 import com.ai.chat.application.usecase.TextProviderCatalog;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.web.dto.ChatStreamRequest;
@@ -38,12 +39,14 @@ public class TextController {
 
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatStream(@RequestBody ChatStreamRequest request) {
+        TextChatOptions options = TextChatOptions.of(request.provider(), request.model(), request.tools_enabled());
+
         if (request.session_id() != null && !request.session_id().isBlank()) {
             String userMessage = extractLastUserMessage(request.messages());
             if (userMessage == null || userMessage.isBlank()) {
                 return Flux.error(new IllegalArgumentException("User message is required when session_id is provided"));
             }
-            return chatUseCase.chatStreamWithSession(request.session_id(), userMessage);
+            return chatUseCase.chatStreamWithSession(request.session_id(), userMessage, options);
         }
 
         List<ChatMessage> messages = request.messages().stream()
@@ -53,7 +56,7 @@ public class TextController {
                         dto.role(),
                         java.time.Instant.now()))
                 .toList();
-        return chatUseCase.chatStream(messages);
+        return chatUseCase.chatStream(messages, options);
     }
 
     private String extractLastUserMessage(List<ChatStreamRequest.ChatMessageDto> messages) {

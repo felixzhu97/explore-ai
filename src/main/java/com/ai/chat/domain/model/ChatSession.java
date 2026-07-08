@@ -152,6 +152,14 @@ public class ChatSession {
         updateLastActivity();
     }
 
+    public void replaceMessages(List<ChatMessage> newMessages) {
+        messages.clear();
+        if (newMessages != null) {
+            messages.addAll(newMessages);
+        }
+        updateLastActivity();
+    }
+
     private void updateLastActivity() {
         this.lastActivityAt = Instant.now();
     }

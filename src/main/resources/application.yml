@@ -20,7 +20,7 @@ spring:
     ollama:
       base-url: http://localhost:11434
       chat:
-        enabled: false
+        enabled: ${OLLAMA_CHAT_ENABLED:false}
       embedding:
         enabled: true
         model: mxbai-embed-large
@@ -38,6 +38,11 @@ spring:
         speech:
           model: gpt-4o-mini-tts
           voice: alloy
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      chat:
+        options:
+          model: claude-3-5-sonnet-20241022
     rag:
       chunk:
         size: ${RAG_CHUNK_SIZE:500}
@@ -46,14 +51,12 @@ spring:
         top-k: ${RAG_TOP_K:5}
         score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
 
-  # H2 embedded database (no Docker required)
   datasource:
     url: ${H2_URL:jdbc:h2:file:./data/explore-ai;AUTO_SERVER=TRUE}
     username: ${H2_USER:sa}
     password: ${H2_PASSWORD:}
     driver-class-name: org.h2.Driver
 
-  # JPA: validate schema against Liquibase migrations
   jpa:
     hibernate:
       ddl-auto: validate
@@ -67,14 +70,8 @@ spring:
         order_updates: true
     open-in-view: false
 
-  # Liquibase auto-runs on startup
   liquibase:
     change-log: db/changelog-master.xml
-
-  # Disable Ollama chat auto-configuration (embedding is still used via conditional config)
-  autoconfigure:
-    exclude:
-      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
 
 server:
   port: 9000
@@ -87,11 +84,9 @@ server:
     max-http-form-post-size: 50MB
     max-swallow-size: 50MB
 
-# Serper web search configuration
 serper:
   api-key: ${SERPER_API_KEY:}
 
-# Actuator for health checks
 management:
   endpoints:
     web:
@@ -111,6 +106,9 @@ management:
       probability: 1.0
 
 app:
+  ai:
+    logging-advisor:
+      enabled: ${AI_LOGGING_ADVISOR_ENABLED:true}
   asr:
     whisper-cpp:
       base-url: http://localhost:8178

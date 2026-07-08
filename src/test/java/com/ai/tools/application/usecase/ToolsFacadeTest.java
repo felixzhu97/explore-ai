@@ -1,5 +1,6 @@
 package com.ai.tools.application.usecase;
 
+import com.ai.chat.infrastructure.llm.ChatClientFactory;
 import com.ai.common.domain.port.out.DocumentSearchTool;
 import com.ai.common.domain.port.out.WebSearchTool;
 import com.ai.tools.domain.model.ToolResult;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.ai.chat.client.ChatClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,10 +23,7 @@ import static org.mockito.Mockito.when;
 class ToolsFacadeTest {
 
     @Mock
-    private ChatClient.Builder chatClientBuilder;
-
-    @Mock
-    private ChatClient chatClient;
+    private ChatClientFactory chatClientFactory;
 
     @Mock
     private WeatherTools weatherTools;
@@ -44,9 +41,8 @@ class ToolsFacadeTest {
 
     @BeforeEach
     void setUp() {
-        when(chatClientBuilder.build()).thenReturn(chatClient);
         toolsFacade = new ToolsFacade(
-                chatClientBuilder, weatherTools, weatherReport, documentSearchTool, webSearchTool);
+                chatClientFactory, weatherTools, weatherReport, documentSearchTool, webSearchTool);
     }
 
     @Test

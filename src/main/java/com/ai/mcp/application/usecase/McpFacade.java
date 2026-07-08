@@ -21,10 +21,10 @@ public class McpFacade {
     public McpFacade(
             McpClientRepository mcpClientRepository,
             McpToolCallbackRegistry toolCallbackRegistry,
-            ChatClient.Builder chatClientBuilder) {
+            ChatClient chatClient) {
         this.mcpClientRepository = mcpClientRepository;
         this.toolCallbackRegistry = toolCallbackRegistry;
-        this.chatClient = chatClientBuilder.build();
+        this.chatClient = chatClient;
     }
 
     public int getTotalToolCount() {
