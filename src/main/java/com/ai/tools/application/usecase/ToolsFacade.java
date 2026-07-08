@@ -41,7 +41,7 @@ public class ToolsFacade {
 
     public String chatWithTools(String question) {
         log.info("ToolsFacade.chatWithTools: {}", truncate(question));
-        ChatClient chatClient = chatClientFactory.create(TextChatOptions.of("openai", null, true));
+        ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.of("openai", null, true));
         return chatClient.prompt()
                 .user(question)
                 .call()

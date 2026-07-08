@@ -52,7 +52,7 @@ public class RagChatUseCase {
         var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
         List<SourceDocument> sources = retrievalResult.sources();
 
-        ChatClient chatClient = chatClientFactory.create(TextChatOptions.defaults());
+        ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.defaults());
         String aiResponse = chatClient.prompt()
                 .advisors(retrievalAugmentationAdvisor)
                 .user(question)

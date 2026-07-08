@@ -41,9 +41,19 @@ public class ChatClientFactory {
     }
 
     public ChatClient create(TextChatOptions options) {
+        return buildClient(options, true);
+    }
+
+    public ChatClient createStateless(TextChatOptions options) {
+        return buildClient(options, false);
+    }
+
+    private ChatClient buildClient(TextChatOptions options, boolean withMemory) {
         ResolvedChatModel resolved = chatModelResolver.resolve(options);
         List<Advisor> advisors = new ArrayList<>();
-        advisors.add(MessageChatMemoryAdvisor.builder(chatMemory).build());
+        if (withMemory) {
+            advisors.add(MessageChatMemoryAdvisor.builder(chatMemory).build());
+        }
         if (loggingAdvisorEnabled) {
             advisors.add(SimpleLoggerAdvisor.builder().build());
         }

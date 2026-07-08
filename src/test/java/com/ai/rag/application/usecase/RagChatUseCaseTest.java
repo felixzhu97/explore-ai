@@ -61,7 +61,7 @@ class RagChatUseCaseTest {
                 retrievalAugmentationAdvisor,
                 languageDetectionService
         );
-        when(chatClientFactory.create(any(TextChatOptions.class))).thenReturn(chatClient);
+        when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.advisors(retrievalAugmentationAdvisor)).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);

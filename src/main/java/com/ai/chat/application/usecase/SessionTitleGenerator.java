@@ -28,7 +28,7 @@ public class SessionTitleGenerator {
 
     public String generate(String userMessage, String assistantReply) {
         try {
-            ChatClient chatClient = chatClientFactory.create(TextChatOptions.defaults());
+            ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.defaults());
             SessionTitleResponse response = chatClient.prompt()
                     .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                     .system(SYSTEM_PROMPT)

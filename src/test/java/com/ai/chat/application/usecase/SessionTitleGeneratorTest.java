@@ -38,7 +38,7 @@ class SessionTitleGeneratorTest {
 
     @BeforeEach
     void setUp() {
-        when(chatClientFactory.create(any(TextChatOptions.class))).thenReturn(chatClient);
+        when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         generator = new SessionTitleGenerator(chatClientFactory);
     }
 
