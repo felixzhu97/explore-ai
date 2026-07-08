@@ -19,8 +19,10 @@ public class TextAnalysis {
             String language) {
         this.summary = summary;
         this.sentiment = Objects.requireNonNull(sentiment, "sentiment cannot be null");
-        this.keyPoints = List.copyOf(keyPoints != null ? keyPoints : List.of());
-        this.entities = List.copyOf(entities != null ? entities : List.of());
+        this.keyPoints = keyPoints == null ? List.of()
+                : keyPoints.stream().filter(Objects::nonNull).toList();
+        this.entities = entities == null ? List.of()
+                : entities.stream().filter(Objects::nonNull).toList();
         this.language = language;
     }
 

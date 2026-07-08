@@ -5,6 +5,7 @@ import com.ai.analysis.domain.model.TextAnalysis;
 import com.ai.analysis.domain.repository.StructuredAnalysisRepository;
 import com.ai.analysis.domain.vo.AnalysisText;
 import com.ai.analysis.domain.vo.LanguageHint;
+import com.ai.common.domain.exception.AiServiceException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
@@ -37,7 +38,7 @@ public class SpringAiStructuredAnalysisRepository implements StructuredAnalysisR
 
     private static TextAnalysis toDomain(StructuredAnalysisEntity entity) {
         if (entity == null) {
-            return TextAnalysis.create(null, Sentiment.NEUTRAL, List.of(), List.of(), null);
+            throw new AiServiceException("AI returned empty structured analysis response");
         }
         return TextAnalysis.create(
                 entity.summary(),

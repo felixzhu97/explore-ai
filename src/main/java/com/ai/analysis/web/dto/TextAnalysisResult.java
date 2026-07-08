@@ -19,6 +19,9 @@ public record TextAnalysisResult(
         NEGATIVE;
 
         static SentimentDto fromDomain(Sentiment sentiment) {
+            if (sentiment == null) {
+                return SentimentDto.NEUTRAL;
+            }
             return SentimentDto.valueOf(sentiment.name());
         }
     }

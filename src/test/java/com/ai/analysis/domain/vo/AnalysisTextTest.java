@@ -35,6 +35,25 @@ class AnalysisTextTest {
     }
 
     @Test
+    @DisplayName("should reject null via compact constructor")
+    void should_reject_null_via_compact_constructor() {
+        assertThatThrownBy(() -> new AnalysisText(null))
+                .isInstanceOf(InvalidAnalysisTextException.class)
+                .hasMessageContaining("blank");
+    }
+
+    @Test
+    @DisplayName("should build prompt when text contains percent sign")
+    void should_build_prompt_when_text_contains_percent_sign() {
+        AnalysisText text = AnalysisText.of("90% complete");
+
+        String prompt = text.buildAnalysisPrompt(LanguageHint.none());
+
+        assertThat(prompt).contains("90% complete");
+        assertThat(prompt).contains("Text: 90% complete");
+    }
+
+    @Test
     @DisplayName("should build analysis prompt without language hint")
     void should_build_analysis_prompt_without_language_hint() {
         AnalysisText text = AnalysisText.of("Sample");

@@ -3,6 +3,7 @@ package com.ai.analysis.domain.model;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +39,20 @@ class TextAnalysisTest {
         TextAnalysis truncated = analysis.truncateSummary(3);
 
         assertThat(truncated.summary()).isEqualTo("one two three");
+    }
+
+    @Test
+    @DisplayName("should filter null elements from key points and entities")
+    void should_filter_null_elements_from_key_points_and_entities() {
+        TextAnalysis analysis = TextAnalysis.create(
+                "s",
+                Sentiment.NEUTRAL,
+                Arrays.asList("a", null, "b"),
+                Arrays.asList(null, "e"),
+                "en");
+
+        assertThat(analysis.keyPoints()).containsExactly("a", "b");
+        assertThat(analysis.entities()).containsExactly("e");
     }
 
     @Test
