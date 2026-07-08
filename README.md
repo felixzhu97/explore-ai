@@ -13,6 +13,8 @@
 | **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
 | **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | whisper.cpp 本地免费 ASR |
 | **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放，**本地 Ollama qwen3.5 驱动** |
+| **Chat 评估** | LLM-as-a-Judge 质量评分 | 相关性/安全性/事实性，可选参考文档 |
+| **文本分析** | 结构化情感分析 | Spring AI Structured Output |
 
 ## 技术栈
 
@@ -20,11 +22,12 @@
 |------|------|
 | 后端 | Java 25 + Spring Boot 4.1 |
 | AI | Spring AI 2.0 (DeepSeek / OpenAI / Ollama) |
-| 本地视觉 | Ollama qwen3.5:35b (开源多模态模型) |
-| 本地 Embedding | Ollama nomic-embed-text (768 维) |
+| 本地视觉 | Ollama qwen3.5 (开源多模态模型) |
+| 本地 Embedding | Ollama mxbai-embed-large (1024 维) |
+| 本地 ASR | whisper.cpp (端口 8178) |
 | 前端 | Angular 22 + TypeScript |
 | 数据库 | H2 嵌入式 + Liquibase |
-| 部署 | Docker Compose (可选) |
+| 部署 | Docker Compose (可选 PostgreSQL + pgvector) |
 
 ## 快速启动
 
@@ -66,13 +69,13 @@ curl -X POST http://localhost:9000/api/rag/documents/upload \
 curl -X POST http://localhost:9000/api/rag/chat/stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
-  -d '{"question": "产品的保修期是多久？"}'
+  -d '{"query": "产品的保修期是多久？"}'
 
 # 多模态问答（带图片）
 curl -X POST http://localhost:9000/api/rag/chat/stream \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
-  -d '{"question": "这张图表说明了什么？", "images": ["data:image/png;base64,iVBORw0KG..."]}'
+  -d '{"query": "这张图表说明了什么？", "images": ["data:image/png;base64,iVBORw0KG..."]}'
 ```
 
 ### Tool Calling (天气 + Web 搜索)
@@ -124,7 +127,7 @@ wss://localhost:9000/ws/audio/transcribe
 ## 项目结构
 
 ```
-ai-explore/
+explore-ai/
 ├── src/main/java/com/ai/
 │   ├── chat/           # AI 对话
 │   ├── rag/            # RAG 文档问答
@@ -137,6 +140,8 @@ ai-explore/
 │   ├── tools/          # Tool Calling (天气/搜索)
 │   ├── image/          # 图像生成
 │   ├── audio/          # 语音合成 + ASR
+│   ├── analysis/     # 文本结构化分析
+│   ├── eval/           # Chat 质量评估
 │   └── mcp/            # MCP Server/Client
 │
 ├── src/main/web/       # Angular 前端
@@ -178,4 +183,6 @@ ai-explore/
 
 - [API 文档](./docs/api.md)
 - [C4 架构图](./docs/c4/)
+- [沃德利地图](./docs/Wardley-Map.md)
+- [用户故事地图](./docs/User-Story-Map.md)
 - [快速入门](./docs/QUICKSTART.md)

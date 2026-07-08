@@ -3,238 +3,210 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI Platform Backend (Chat + RAG + Tool Calling + Image + TTS + ASR + MCP)
+title 容器图 (C2) - AI Platform Backend (10 子域)
 
 ' ============================================================
-' PEOPLE - 人员
+' PEOPLE
 ' ============================================================
-Person(user, "用户", "与 AI 助手对话，上传和管理文档，调用工具")
+Person(user, "用户", "对话、文档、工具、视觉、语音")
+Person(admin, "管理员/开发者", "评估、文本分析、API 集成")
 
 ' ============================================================
-' FRONTEND - 前端容器
+' FRONTEND
 ' ============================================================
-Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界面，支持 SSE 实时对话")
+Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "路由 /chat /rag /vision，SSE 流式对话")
 
 ' ============================================================
-' AI PLATFORM BACKEND - 后端容器 (Clean Architecture)
+' BACKEND
 ' ============================================================
-Container(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling·图像生成·TTS·MCP，端口 9000")
+Container(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "10 子域，端口 9000")
 
 ' ============================================================
-' DOMAIN 1: CHAT DOMAIN
+' DOMAIN 1: CHAT
 ' ============================================================
 Container_Boundary(chat_domain, "Chat Domain") {
-    Container(chat_controller, "AiController", "@RestController", "聊天 HTTP/SSE 请求")
-    Container(chat_dto, "Chat DTOs", "Java Records", "请求/响应/会话信息 DTO")
-    Container(ai_chat_svc, "AiChatService", "Domain Service", "AI 对话核心服务")
+    Container(chat_controller, "ChatController", "@RestController", "/api/chat, /api/sessions")
+    Container(chat_facade, "ChatFacade", "Application Service", "聊天门面")
+    Container(chat_usecase, "SpringAiChatUseCase", "Use Case", "Spring AI 对话实现")
     Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
-    Container(chat_message, "ChatMessage", "Entity", "聊天消息实体")
     Container(in_mem_sess_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话存储")
 }
 
 ' ============================================================
-' DOMAIN 2: RAG DOMAIN
+' DOMAIN 2: RAG (+ ETL)
 ' ============================================================
 Container_Boundary(rag_domain, "RAG Domain") {
-    Container(rag_controller, "RagController", "@RestController", "RAG HTTP/SSE 请求")
-    Container(rag_dto, "RAG DTOs", "Java Records", "RAG 聊天 / 文档上传请求 DTO")
-    Container(rag_app_svc, "RagService", "Domain Service", "RAG 服务")
-    Container(rag_chat_svc, "RagChatUseCase", "Use Case", "RAG 聊天用例")
-    Container(vision_chat_svc, "VisionChatUseCase", "Use Case", "多模态 RAG 聊天用例 (Ollama qwen3.5)")
-    Container(embedding_port, "EmbeddingAdapter", "Interface (Port)", "文本嵌入能力抽象")
-    Container(vector_search_port, "VectorSearchPort", "Interface (Port)", "向量检索抽象")
-    Container(doc_repo_port, "DocumentRepository", "Interface (Port)", "文档仓储抽象")
-    Container(reader_port, "DocumentReader", "Interface (Port)", "ETL 读取端口")
-    Container(transformer_port, "DocumentTransformer", "Interface (Port)", "ETL 转换端口")
-    Container(writer_port, "DocumentWriter", "Interface (Port)", "ETL 写入端口")
-    Container(raw_document, "RawDocument", "Record", "ETL 归一化文档契约")
-    Container(document, "Document", "Entity", "文档实体")
-    Container(doc_chunk, "DocumentChunk", "Entity", "文档分块实体")
-    Container(ollama_emb_adapter, "OllamaEmbeddingAdapter", "@Component", "Ollama Embedding 适配器 (nomic-embed-text)")
-    Container(mock_emb_adapter, "MockEmbeddingAdapter", "@Component", "Mock Embedding 适配器")
-    Container(pgvector_adapter, "PgVectorAdapter", "@Component", "PostgreSQL/pgvector 向量检索")
-    Container(jpa_doc_repo, "JpaDocumentRepository", "@Repository", "JPA 文档仓储实现")
-    Container(spring_data_doc_repo, "SpringDataDocumentRepository", "Spring Data JPA", "文档数据访问")
-    Container(spring_data_chunk_repo, "SpringDataChunkRepository", "Spring Data JPA", "分块数据访问")
-    Container(pdf_extractor, "PdfTextExtractor", "@Component", "PDF 文本提取")
-    Container(etl_reader, "PdfAndTextDocumentReader", "@Component", "PDF/文本 ETL 读取器")
-    Container(etl_transformer, "ChunkingDocumentTransformer", "@Component", "分块 ETL 转换器")
-    Container(etl_writer, "EmbeddingDocumentWriter", "@Component", "Embedding ETL 写入器")
+    Container(rag_controller, "RagController", "@RestController", "/api/rag/*")
+    Container(rag_app_svc, "RagApplicationService", "Application Service", "RAG 门面")
+    Container(doc_upload_svc, "DocumentUploadService", "Use Case", "文档上传/列表/删除 (ETL 编排)")
+    Container(doc_search_svc, "DocumentSearchService", "Use Case", "向量检索")
+    Container(rag_chat_svc, "RagChatUseCase", "Use Case", "RAG 聊天")
+    Container(vision_chat_svc, "VisionChatUseCase", "Use Case", "多模态 RAG (Ollama qwen3.5)")
+    Container(reader_port, "DocumentReader", "Port", "ETL 读取")
+    Container(transformer_port, "DocumentTransformer", "Port", "ETL 转换")
+    Container(writer_port, "DocumentWriter", "Port", "ETL 写入")
+    Container(etl_reader, "PdfAndTextDocumentReader", "@Component", "PDF/TXT 读取")
+    Container(etl_transformer, "ChunkingDocumentTransformer", "@Component", "分块转换")
+    Container(etl_writer, "EmbeddingDocumentWriter", "@Component", "Embedding 写入")
+    Container(h2_vector, "H2VectorAdapter", "@Component", "H2 向量检索 (默认)")
+    Container(ollama_emb, "OllamaEmbeddingAdapter", "@Component", "mxbai-embed-large (1024)")
 }
 
 ' ============================================================
-' DOMAIN 3: TOOL CALLING DOMAIN
+' DOMAIN 3: TOOLS (DDD)
 ' ============================================================
-Container_Boundary(tool_domain, "Tool Calling Domain") {
-    Container(tool_controller, "ToolsController", "@RestController", "工具调用 HTTP 请求")
-    Container(tool_facade, "ToolsFacade", "Facade", "工具调用门面，协调各工具")
-    Container(tool_dto, "Tool DTOs", "Java Records", "工具列表/调用请求 DTO")
+Container_Boundary(tool_domain, "Tools Domain") {
+    Container(tool_controller, "ToolsController", "@RestController", "/api/tools/*")
+    Container(tool_facade, "ToolsFacade", "Application Service", "工具门面")
+    Container(weather_report, "WeatherReport", "Domain Model", "天气报告充血模型")
+    Container(weather_query, "WeatherQuery", "Value Object", "天气查询 VO")
     Container(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索工具")
     Container(weather_tool, "WeatherTools", "*Tool", "天气查询工具")
-    Container(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索工具 (Serper.dev)")
+    Container(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索 (Serper.dev)")
 }
 
 ' ============================================================
-' DOMAIN 4: IMAGE GENERATION DOMAIN
+' DOMAIN 4: ANALYSIS
 ' ============================================================
-Container_Boundary(image_domain, "Image Generation Domain") {
-    Container(image_controller, "ImageController", "@RestController", "图像生成 HTTP 请求")
-    Container(image_dto, "Image DTOs", "Java Records", "图像生成请求/响应 DTO")
-    Container(image_svc, "ImageGenerationService", "Domain Service", "图像生成核心服务")
-    Container(image_adapter, "OpenAiImageAdapter", "@Component", "DALL-E 图像生成适配器")
+Container_Boundary(analysis_domain, "Analysis Domain") {
+    Container(analysis_controller, "AnalysisController", "@RestController", "/api/chat/analyze")
+    Container(analysis_facade, "AnalysisFacade", "Application Service", "结构化文本分析")
+    Container(text_analysis, "TextAnalysis", "Domain Model", "情感/结构化分析结果")
 }
 
 ' ============================================================
-' DOMAIN 5: AUDIO/TTS DOMAIN
-' ============================================================
-Container_Boundary(tts_domain, "Audio/TTS Domain") {
-    Container(audio_controller, "AudioController", "@RestController", "TTS HTTP 请求 + ASR WebSocket")
-    Container(tts_dto, "TTS DTOs", "Java Records", "TTS 请求/响应 DTO")
-    Container(asr_dto, "ASR DTOs", "Java Records", "ASR WebSocket 响应 DTO")
-    Container(tts_svc, "TextToSpeechService", "Domain Service", "语音合成核心服务")
-    Container(tts_adapter, "OpenAiTtsAdapter", "@Component", "OpenAI TTS 适配器")
-    Container(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket 处理器")
-    Container(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式转录用例")
-    Container(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp ASR 适配器")
-    Container(asr_config, "AsrConfig", "@Configuration", "ASR 线程池配置")
-}
-
-' ============================================================
-' DOMAIN 6: MCP SERVER DOMAIN
-' ============================================================
-Container_Boundary(mcp_server_domain, "MCP Server Domain") {
-    Container(mcp_controller, "McpController", "@RestController", "MCP Server HTTP 请求")
-    Container(mcp_server_dto, "MCP DTOs", "Java Records", "MCP 工具调用请求/响应 DTO")
-    Container(mcp_server_svc, "McpServerService", "Domain Service", "MCP Server 核心服务")
-}
-
-' ============================================================
-' DOMAIN 7: MCP CLIENT DOMAIN
-' ============================================================
-Container_Boundary(mcp_client_domain, "MCP Client Domain") {
-    Container(mcp_client_controller, "McpClientController", "@RestController", "MCP Client HTTP 请求")
-    Container(mcp_client_dto, "MCP Client DTOs", "Java Records", "MCP Client 请求/响应 DTO")
-    Container(mcp_client_svc, "AiMcpClientService", "Domain Service", "MCP Client 核心服务")
-}
-
-' ============================================================
-' DOMAIN 8: EVAL DOMAIN
+' DOMAIN 5: EVAL
 ' ============================================================
 Container_Boundary(eval_domain, "Evaluation Domain") {
-    Container(eval_controller, "EvalController", "@RestController", "评估 HTTP 请求")
-    Container(eval_dto, "Eval DTOs", "Java Records", "评估请求/响应 DTO")
+    Container(eval_controller, "EvalController", "@RestController", "/api/eval/chat")
     Container(eval_svc, "ChatQualityEvaluator", "Domain Service", "LLM-as-a-Judge 质量评估")
     Container(eval_result, "ChatEvaluationResult", "Value Object", "评估结果")
 }
 
 ' ============================================================
-' CROSS-CUTTING - 跨领域
+' DOMAIN 6: IMAGE
 ' ============================================================
-Container_Boundary(crosscut_domain, "Cross-Cutting") {
-    Container(app_config, "ApplicationConfig", "@Configuration", "应用总配置")
-    Container(postgres_config, "PostgresConfig", "@Configuration", "PostgreSQL 配置")
-    Container(ollama_config, "OllamaConfig", "@Configuration", "Ollama 配置")
-    Container(rag_props, "RagProperties", "@ConfigurationProperties", "RAG 配置属性")
-    Container(chat_config, "ChatConfig", "@Configuration", "聊天配置")
-    Container(cors_config, "WebCorsConfig", "@Configuration", "跨域配置")
-    Container(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
+Container_Boundary(image_domain, "Image Domain") {
+    Container(image_controller, "ImageController", "@RestController", "/api/image/*")
+    Container(image_facade, "ImageFacade", "Application Service", "图像生成门面")
+    Container(image_repo, "SpringAiImageGenerationRepository", "@Component", "DALL-E 适配器")
 }
 
 ' ============================================================
-' EXTERNAL SYSTEMS - 外部系统
+' DOMAIN 7: AUDIO (TTS + ASR)
 ' ============================================================
-ContainerDb(postgresql, "PostgreSQL + pgvector", "PostgreSQL 17", "文档元数据 + 向量嵌入", "5432")
-Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding", "HTTPS")
-Container_Ext(ollama_svc, "Ollama", "REST API", "本地 Embedding + Vision 模型 (qwen3.5)", "11434")
-Container_Ext(whisper_cpp_svc, "whisper.cpp", "REST API", "本地 ASR (OpenAI 兼容 API)", "8178")
-Container_Ext(dalle_api, "DALL-E API", "REST API", "图像生成服务", "HTTPS")
-Container_Ext(tts_ext_api, "TTS Service", "REST API", "语音合成服务", "HTTPS")
-Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索服务", "HTTPS")
+Container_Boundary(audio_domain, "Audio Domain") {
+    Container(audio_controller, "AudioController", "@RestController", "TTS HTTP + ASR WebSocket")
+    Container(audio_facade, "AudioFacade", "Application Service", "TTS 门面")
+    Container(asr_usecase, "StreamingTranscriptionUseCase", "Use Case", "流式转录")
+    Container(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
+    Container(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp 适配器")
+    Container(tts_repo, "SpringAiTextToSpeechRepository", "@Component", "OpenAI TTS 适配器")
+}
 
 ' ============================================================
-' RELATIONSHIPS - 关系
+' DOMAIN 8: MCP SERVER
 ' ============================================================
+Container_Boundary(mcp_server_domain, "MCP Server Domain") {
+    Container(mcp_controller, "McpController", "@RestController", "/api/mcp/*")
+    Container(mcp_server_svc, "AiMcpServerService", "Infrastructure", "MCP Server 实现")
+}
 
-' User <-> Frontend
-Rel(user, angular_app, "对话 / 文档 / 工具调用", "HTTP/SSE")
+' ============================================================
+' DOMAIN 9: MCP CLIENT
+' ============================================================
+Container_Boundary(mcp_client_domain, "MCP Client Domain") {
+    Container(mcp_client_controller, "McpClientController", "@RestController", "/api/mcp-client/*")
+    Container(mcp_facade, "McpFacade", "Application Service", "MCP Client 门面")
+    Container(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client 适配器")
+}
 
-' Frontend -> Backend
-Rel(angular_app, chat_controller, "聊天请求", "HTTP/SSE :9000")
-Rel(angular_app, rag_controller, "RAG 请求", "HTTP/SSE :9000")
-Rel(angular_app, tool_controller, "工具调用", "HTTP :9000")
-Rel(angular_app, image_controller, "图像生成", "HTTP :9000")
-Rel(angular_app, audio_controller, "TTS 请求 + ASR 流式语音", "HTTP/WebSocket :9000")
-Rel(angular_app, mcp_controller, "MCP Server", "HTTP :9000")
-Rel(angular_app, mcp_client_controller, "MCP Client", "HTTP :9000")
+' ============================================================
+' CROSS-CUTTING
+' ============================================================
+Container_Boundary(crosscut, "Cross-Cutting") {
+    Container(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
+    Container(h2_datasource, "H2 DataSource", "Embedded DB", "默认 jdbc:h2:file:./data/explore-ai")
+}
 
-' Chat Domain
-Rel(chat_controller, ai_chat_svc, "调用")
-Rel(ai_chat_svc, chat_session, "操作领域对象")
-Rel(chat_session, chat_message, "包含")
-Rel(ai_chat_svc, in_mem_sess_repo, "依赖")
-Rel(in_mem_sess_repo, deepseek_api, "LLM 调用", "HTTPS")
+' ============================================================
+' EXTERNAL SYSTEMS
+' ============================================================
+ContainerDb(h2_db, "H2 Embedded", "H2 + Liquibase", "文档元数据 + 向量 (默认)", "内嵌")
+ContainerDb(postgresql, "PostgreSQL + pgvector", "PostgreSQL 17", "可选生产向量库", "5432")
+Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话", "HTTPS")
+Container_Ext(ollama_svc, "Ollama", "REST API", "mxbai-embed-large + qwen3.5 Vision", "11434")
+Container_Ext(whisper_cpp_svc, "whisper.cpp", "REST/WebSocket", "流式 ASR", "8178")
+Container_Ext(dalle_api, "DALL-E API", "REST API", "图像生成", "HTTPS")
+Container_Ext(tts_ext_api, "TTS Service", "REST API", "语音合成", "HTTPS")
+Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 
-' RAG Domain
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+Rel(user, angular_app, "使用 Web UI", "HTTP/SSE/WebSocket")
+Rel(admin, eval_controller, "质量评估", "HTTP")
+Rel(admin, analysis_controller, "文本分析", "HTTP")
+
+Rel(angular_app, chat_controller, "聊天", "HTTP/SSE")
+Rel(angular_app, rag_controller, "RAG", "HTTP/SSE")
+Rel(angular_app, tool_controller, "工具", "HTTP")
+Rel(angular_app, image_controller, "图像", "HTTP")
+Rel(angular_app, audio_controller, "TTS + ASR", "HTTP/WebSocket")
+Rel(angular_app, mcp_controller, "MCP Server", "HTTP")
+Rel(angular_app, mcp_client_controller, "MCP Client", "HTTP")
+
+Rel(chat_controller, chat_facade, "调用")
+Rel(chat_facade, chat_usecase, "委托")
+Rel(chat_usecase, in_mem_sess_repo, "会话存储")
+Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
+
 Rel(rag_controller, rag_app_svc, "调用")
-Rel(rag_controller, vision_chat_svc, "多模态聊天")
+Rel(rag_app_svc, doc_upload_svc, "上传/删除")
+Rel(rag_app_svc, doc_search_svc, "检索")
 Rel(rag_app_svc, rag_chat_svc, "RAG 聊天")
-Rel(rag_app_svc, vision_chat_svc, "视觉聊天")
-Rel(rag_app_svc, embedding_port, "依赖")
-Rel(rag_app_svc, vector_search_port, "依赖")
-Rel(rag_app_svc, doc_repo_port, "依赖")
-Rel(rag_app_svc, reader_port, "依赖")
-Rel(rag_app_svc, transformer_port, "依赖")
-Rel(rag_app_svc, writer_port, "依赖")
-Rel(rag_app_svc, pdf_extractor, "PDF 处理")
-Rel(vision_chat_svc, rag_chat_svc, "复用上下文")
-Rel(vision_chat_svc, ollama_svc, "视觉理解 (qwen3.5)", "HTTP :11434")
-Rel(embedding_port, ollama_emb_adapter, "实现")
-Rel(embedding_port, mock_emb_adapter, "实现")
-Rel(vector_search_port, pgvector_adapter, "实现")
-Rel(doc_repo_port, jpa_doc_repo, "实现")
+Rel(rag_controller, vision_chat_svc, "视觉聊天")
+Rel(doc_upload_svc, reader_port, "ETL 读取")
+Rel(doc_upload_svc, transformer_port, "ETL 转换")
+Rel(doc_upload_svc, writer_port, "ETL 写入")
 Rel(reader_port, etl_reader, "实现")
 Rel(transformer_port, etl_transformer, "实现")
 Rel(writer_port, etl_writer, "实现")
-Rel(jpa_doc_repo, spring_data_doc_repo, "组合")
-Rel(jpa_doc_repo, spring_data_chunk_repo, "组合")
-Rel(pgvector_adapter, postgresql, "向量存储/检索", "JDBC :5432")
-Rel(jpa_doc_repo, postgresql, "文档持久化", "JDBC :5432")
-Rel(ollama_emb_adapter, ollama_svc, "Embedding 生成", "HTTP :11434")
-Rel(document, doc_chunk, "包含多个")
+Rel(doc_search_svc, h2_vector, "向量检索")
+Rel(etl_writer, ollama_emb, "Embedding")
+Rel(h2_vector, h2_db, "向量存储", "JDBC")
+Rel(ollama_emb, ollama_svc, "Embedding", "HTTP")
+Rel(vision_chat_svc, ollama_svc, "Vision", "HTTP")
 
-' Tool Calling Domain
 Rel(tool_controller, tool_facade, "调用")
+Rel(tool_facade, weather_tool, "天气")
 Rel(tool_facade, rag_search_tool, "RAG 搜索")
-Rel(tool_facade, weather_tool, "天气查询")
 Rel(tool_facade, web_search_tool, "Web 搜索")
-Rel(rag_search_tool, rag_app_svc, "RAG 服务")
-Rel(weather_tool, deepseek_api, "天气 API", "HTTPS")
-Rel(web_search_tool, serper_api, "Web 搜索", "HTTPS")
+Rel(weather_tool, weather_report, "领域模型")
+Rel(rag_search_tool, rag_app_svc, "RAG 检索")
+Rel(web_search_tool, serper_api, "搜索", "HTTPS")
 
-' Image Generation Domain
-Rel(image_controller, image_svc, "调用")
-Rel(image_svc, image_adapter, "依赖")
-Rel(image_adapter, dalle_api, "图像生成", "HTTPS")
+Rel(analysis_controller, analysis_facade, "调用")
+Rel(analysis_facade, deepseek_api, "结构化输出", "HTTPS")
 
-' Audio/TTS Domain
-Rel(audio_controller, tts_svc, "TTS 调用")
-Rel(audio_controller, asr_ws_handler, "WebSocket 会话管理")
-Rel(asr_ws_handler, asr_usecase, "流式转录编排")
-Rel(asr_usecase, asr_adapter, "调用 whisper.cpp")
-Rel(asr_adapter, whisper_cpp_svc, "语音转录", "HTTP :8178")
-Rel(tts_svc, tts_adapter, "依赖")
-Rel(tts_adapter, tts_ext_api, "语音合成", "HTTPS")
-
-' MCP Server Domain
-Rel(mcp_controller, mcp_server_svc, "调用")
-
-' MCP Client Domain
-Rel(mcp_client_controller, mcp_client_svc, "调用")
-
-' Evaluation Domain
-Rel(angular_app, eval_controller, "质量评估", "HTTP :9000")
 Rel(eval_controller, eval_svc, "调用")
 Rel(eval_svc, deepseek_api, "LLM 评估", "HTTPS")
+
+Rel(image_controller, image_facade, "调用")
+Rel(image_facade, image_repo, "生成")
+Rel(image_repo, dalle_api, "DALL-E", "HTTPS")
+
+Rel(audio_controller, audio_facade, "TTS")
+Rel(audio_controller, asr_ws_handler, "ASR WebSocket")
+Rel(audio_facade, tts_repo, "合成")
+Rel(asr_ws_handler, asr_usecase, "流式转录")
+Rel(asr_usecase, asr_adapter, "调用")
+Rel(asr_adapter, whisper_cpp_svc, "转录", "HTTP :8178")
+Rel(tts_repo, tts_ext_api, "TTS", "HTTPS")
+
+Rel(mcp_controller, mcp_server_svc, "调用")
+Rel(mcp_client_controller, mcp_facade, "调用")
+Rel(mcp_facade, mcp_client_repo, "MCP 连接")
 
 SHOW_LEGEND()
 @enduml
