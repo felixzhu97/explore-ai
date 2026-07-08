@@ -1,57 +1,55 @@
 package com.ai.image.application.usecase;
 
+import com.ai.image.domain.model.GeneratedImage;
+import com.ai.image.domain.repository.ImageGenerationRepository;
+import com.ai.image.domain.vo.ImageCatalog;
+import com.ai.image.domain.vo.ImageOptions;
+import com.ai.image.domain.vo.ImagePrompt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Facade for image generation operations.
- */
 @Service
 public class ImageFacade {
 
     private static final Logger log = LoggerFactory.getLogger(ImageFacade.class);
 
-    private final SpringAiImageGenerationUseCase imageGenerationUseCase;
+    private final ImageGenerationRepository imageGenerationRepository;
 
-    public ImageFacade(SpringAiImageGenerationUseCase imageGenerationUseCase) {
-        this.imageGenerationUseCase = imageGenerationUseCase;
+    public ImageFacade(ImageGenerationRepository imageGenerationRepository) {
+        this.imageGenerationRepository = imageGenerationRepository;
     }
 
-    /**
-     * Generate an image from text prompt.
-     */
-    public String generateImage(String prompt, String model, String quality, int width, int height, int n) {
+    public String generateImage(
+            String prompt, String model, String quality, int width, int height, int n) {
         log.info("ImageFacade.generateImage: {}", truncate(prompt));
-        return imageGenerationUseCase.generateImage(prompt, model, quality, width, height, n);
+        GeneratedImage image = imageGenerationRepository.generate(
+                ImagePrompt.of(prompt),
+                ImageOptions.of(model, quality, width, height, n));
+        return image.hasUrl() ? image.url() : null;
     }
 
-    /**
-     * Get available image generation models.
-     */
     public List<String> getAvailableImageModels() {
-        return imageGenerationUseCase.getAvailableModels();
+        return ImageCatalog.defaults().models();
     }
 
-    /**
-     * Get available image sizes.
-     */
     public List<String> getAvailableImageSizes() {
-        return imageGenerationUseCase.getAvailableSizes();
+        return ImageCatalog.defaults().sizes();
     }
 
-    /**
-     * Get available image qualities.
-     */
     public List<String> getAvailableImageQualities() {
-        return imageGenerationUseCase.getAvailableQualities();
+        return ImageCatalog.defaults().qualities();
     }
 
     private String truncate(String text) {
-        if (text == null) return "null";
-        if (text.length() <= 50) return text;
+        if (text == null) {
+            return "null";
+        }
+        if (text.length() <= 50) {
+            return text;
+        }
         return text.substring(0, 50) + "...";
     }
 }
