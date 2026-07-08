@@ -21,12 +21,12 @@ public class EvalConfig {
     }
 
     @Bean
-    public RelevancyEvaluator relevancyEvaluator(ChatClient.Builder chatClientBuilder) {
-        return new RelevancyEvaluator(chatClientBuilder);
+    public RelevancyEvaluator relevancyEvaluator(ChatModel chatModel) {
+        return new RelevancyEvaluator(ChatClient.builder(chatModel));
     }
 
     @Bean
-    public FactCheckingEvaluator factCheckingEvaluator(ChatClient.Builder chatClientBuilder) {
-        return FactCheckingEvaluator.builder(chatClientBuilder).build();
+    public FactCheckingEvaluator factCheckingEvaluator(ChatModel chatModel) {
+        return FactCheckingEvaluator.builder(ChatClient.builder(chatModel)).build();
     }
 }

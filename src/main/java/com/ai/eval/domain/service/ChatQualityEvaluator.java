@@ -11,6 +11,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class ChatQualityEvaluator {
     public ChatQualityEvaluator(
             RelevancyEvaluator relevancyEvaluator,
             FactCheckingEvaluator factCheckingEvaluator,
-            ChatClient evaluationChatClient) {
+            @Qualifier("evaluationChatClient") ChatClient evaluationChatClient) {
         this.relevancyEvaluator = relevancyEvaluator;
         this.factCheckingEvaluator = factCheckingEvaluator;
         this.evaluationChatClient = evaluationChatClient;
