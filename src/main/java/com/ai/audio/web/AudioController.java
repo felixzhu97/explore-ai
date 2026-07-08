@@ -1,6 +1,7 @@
 package com.ai.audio.web;
 
 import com.ai.audio.application.usecase.AudioFacade;
+import com.ai.audio.domain.exception.InvalidSpeechTextException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +45,8 @@ public class AudioController {
                     .contentType(MediaType.parseMediaType("audio/mpeg"))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"speech.mp3\"")
                     .body(audio);
+        } catch (InvalidSpeechTextException e) {
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             log.error("Error synthesizing speech", e);
             return ResponseEntity.internalServerError().build();
