@@ -2,6 +2,7 @@ package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.chat.application.usecase.TextProviderCatalog;
+import com.ai.chat.web.dto.ChatStreamRequest;
 import com.ai.chat.web.dto.ModelInfoResponse;
 import com.ai.chat.web.dto.ProviderInfoResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,5 +59,40 @@ class TextControllerTest {
         assertThat(response.provider()).isEqualTo("openai");
         assertThat(response.count()).isEqualTo(1);
         assertThat(response.models().getFirst().name()).isEqualTo("deepseek-v4-flash");
+    }
+
+    @Test
+    void should_use_session_stream_when_session_id_provided() {
+        when(chatUseCase.chatStreamWithSession("session-1", "Hello"))
+                .thenReturn(Flux.just("Hi", " there"));
+
+        Flux<String> result = controller.chatStream(new ChatStreamRequest(
+                List.of(new ChatStreamRequest.ChatMessageDto("user", "Hello")),
+                "session-1",
+                "openai",
+                "deepseek-v4-flash"
+        ));
+
+        StepVerifier.create(result)
+                .expectNext("Hi", " there")
+                .verifyComplete();
+        verify(chatUseCase).chatStreamWithSession("session-1", "Hello");
+    }
+
+    @Test
+    void should_use_stateless_stream_when_session_id_missing() {
+        when(chatUseCase.chatStream(org.mockito.ArgumentMatchers.anyList()))
+                .thenReturn(Flux.just("token"));
+
+        Flux<String> result = controller.chatStream(new ChatStreamRequest(
+                List.of(new ChatStreamRequest.ChatMessageDto("user", "Hello")),
+                null,
+                null,
+                null
+        ));
+
+        StepVerifier.create(result)
+                .expectNext("token")
+                .verifyComplete();
     }
 }

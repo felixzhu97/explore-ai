@@ -40,6 +40,9 @@ class SpringAiChatUseCaseTest {
     @Mock
     private ChatMemory chatMemory;
 
+    @Mock
+    private SessionTitleGenerator sessionTitleGenerator;
+
     private SpringAiChatUseCase useCase;
     private RetryTemplate retryTemplate;
 
@@ -55,7 +58,8 @@ class SpringAiChatUseCaseTest {
                 chatClientBuilder,
                 repository,
                 retryTemplate,
-                chatMemory
+                chatMemory,
+                sessionTitleGenerator
         );
     }
 

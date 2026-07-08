@@ -381,6 +381,63 @@ class ChatSessionTest {
     }
 
     @Nested
+    @DisplayName("rename()")
+    class Rename {
+
+        @Test
+        @DisplayName("should rename session with valid title")
+        void shouldRenameSessionWithValidTitle() {
+            ChatSession session = ChatSession.create("New Chat");
+
+            session.rename("Kubernetes Guide");
+
+            assertThat(session.getTitle()).isEqualTo("Kubernetes Guide");
+        }
+
+        @Test
+        @DisplayName("should ignore blank rename")
+        void shouldIgnoreBlankRename() {
+            ChatSession session = ChatSession.create("New Chat");
+
+            session.rename("   ");
+
+            assertThat(session.getTitle()).isEqualTo("New Chat");
+        }
+
+        @Test
+        @DisplayName("should truncate long rename")
+        void shouldTruncateLongRename() {
+            ChatSession session = ChatSession.create("New Chat");
+            String longTitle = "A".repeat(150);
+
+            session.rename(longTitle);
+
+            assertThat(session.getTitle()).hasSize(100);
+        }
+    }
+
+    @Nested
+    @DisplayName("hasDefaultTitle()")
+    class HasDefaultTitle {
+
+        @Test
+        @DisplayName("should return true for default title")
+        void shouldReturnTrueForDefaultTitle() {
+            ChatSession session = ChatSession.create(null);
+
+            assertThat(session.hasDefaultTitle()).isTrue();
+        }
+
+        @Test
+        @DisplayName("should return false for custom title")
+        void shouldReturnFalseForCustomTitle() {
+            ChatSession session = ChatSession.create("Custom");
+
+            assertThat(session.hasDefaultTitle()).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("toString()")
     class ToString {
 

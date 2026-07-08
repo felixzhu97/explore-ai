@@ -12,6 +12,8 @@ import type {
   Voice,
   Detection,
   DocumentListResponse,
+  SessionInfo,
+  ChatMessageData,
 } from '@shared/models';
 import { environment } from '@env/environment';
 
@@ -103,6 +105,28 @@ export class ApiService {
         map(res => res.models ?? []),
         catchError(() => of(defaultModels[provider] ?? defaultModels['openai'] ?? [])),
       );
+  }
+
+  createSession(title?: string): Observable<SessionInfo> {
+    return this.http.post<SessionInfo>(`${BASE_URL}/sessions`, title ? { title } : {});
+  }
+
+  getSessions(): Observable<SessionInfo[]> {
+    return this.http.get<SessionInfo[]>(`${BASE_URL}/sessions`);
+  }
+
+  getSessionMessages(sessionId: string): Observable<ChatMessageData[]> {
+    return this.http.get<ChatMessageData[]>(`${BASE_URL}/sessions/${sessionId}/messages`).pipe(
+      map(messages => messages.map(msg => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp as unknown as string).getTime(),
+      })),
+      ),
+    );
+  }
+
+  deleteSession(sessionId: string): Observable<void> {
+    return this.http.delete<void>(`${BASE_URL}/sessions/${sessionId}`);
   }
 
   chatStream(

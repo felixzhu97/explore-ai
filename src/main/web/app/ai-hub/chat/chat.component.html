@@ -7,10 +7,10 @@
           text-sm font-medium text-text focus:border-primary focus:outline-none
           disabled:cursor-not-allowed disabled:opacity-50
         "
-                [ngModel]="selectedProvider()"
+                [ngModel]="chat.selectedProvider()"
                 (ngModelChange)="onProviderChange($event)"
         >
-            @for (provider of providers(); track provider.name) {
+            @for (provider of chat.providers(); track provider.name) {
                 <option [value]="provider.name">
                     {{ provider.display_name }}
                 </option>
@@ -23,14 +23,14 @@
           text-sm text-text focus:border-primary focus:outline-none
           disabled:cursor-not-allowed disabled:opacity-50
         "
-                [ngModel]="selectedModel()"
+                [ngModel]="chat.selectedModel()"
                 (ngModelChange)="setSelectedModel($event)"
-                [disabled]="isLoadingModels()"
+                [disabled]="chat.isLoadingModels()"
         >
-            @if (isLoadingModels()) {
+            @if (chat.isLoadingModels()) {
                 <option>Loading...</option>
             } @else {
-                @for (model of models(); track model.name) {
+                @for (model of chat.models(); track model.name) {
                     <option [value]="model.name">{{ model.name }}</option>
                 }
             }
@@ -55,7 +55,7 @@
 
 <!-- Messages -->
 <div class="flex-1 overflow-y-auto bg-surface px-4 py-6">
-    @if (messages().length === 0) {
+    @if (chat.messages().length === 0) {
         <div class="flex h-full flex-col items-center justify-center gap-4 text-center">
             <div class="text-4xl text-text-tertiary opacity-40">
                 <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -66,7 +66,7 @@
         </div>
     } @else {
         <div class="space-y-6">
-            @for (msg of messages(); track msg.id) {
+            @for (msg of chat.messages(); track msg.id) {
                 @if (msg.role === 'user') {
                     <div class="flex flex-row items-end justify-end gap-2">
                         <div class="rounded-2xl bg-primary px-4 py-3 text-base leading-relaxed wrap-break-word text-white">
@@ -104,9 +104,9 @@
 </div>
 
 <!-- Error -->
-@if (error()) {
+@if (chat.error()) {
     <div class="animate-fade-in border-t border-red-200 bg-error-light px-4 py-2 text-base text-error">
-        {{ error() }}
+        {{ chat.error() }}
     </div>
 }
 
@@ -116,7 +116,7 @@
         <nx-sender
             [placeholder]="i18n.t().aiHub.chat.inputPlaceholder"
             [(value)]="input"
-            [loading]="isLoading()"
+            [loading]="chat.isLoading()"
             (submitSend)="send()"
         />
     </div>

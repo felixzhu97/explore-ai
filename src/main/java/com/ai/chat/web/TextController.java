@@ -38,6 +38,14 @@ public class TextController {
 
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatStream(@RequestBody ChatStreamRequest request) {
+        if (request.session_id() != null && !request.session_id().isBlank()) {
+            String userMessage = extractLastUserMessage(request.messages());
+            if (userMessage == null || userMessage.isBlank()) {
+                return Flux.error(new IllegalArgumentException("User message is required when session_id is provided"));
+            }
+            return chatUseCase.chatStreamWithSession(request.session_id(), userMessage);
+        }
+
         List<ChatMessage> messages = request.messages().stream()
                 .map(dto -> ChatMessage.of(
                         com.ai.chat.domain.vo.MessageId.generate(),
@@ -46,5 +54,18 @@ public class TextController {
                         java.time.Instant.now()))
                 .toList();
         return chatUseCase.chatStream(messages);
+    }
+
+    private String extractLastUserMessage(List<ChatStreamRequest.ChatMessageDto> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return null;
+        }
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            ChatStreamRequest.ChatMessageDto message = messages.get(i);
+            if ("user".equalsIgnoreCase(message.role())) {
+                return message.content();
+            }
+        }
+        return null;
     }
 }

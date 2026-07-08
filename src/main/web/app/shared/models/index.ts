@@ -2,7 +2,7 @@
 // Types used by core services or multiple features
 
 // Chat types
-export type { ChatMessage, ChatMessageData, ChatRequest, ChatResponse, ModelInfo, ProviderInfo } from '../../ai-hub/chat.model';
+export type { ChatMessage, ChatMessageData, ChatRequest, ChatResponse, ModelInfo, ProviderInfo, SessionInfo } from '../../ai-hub/chat.model';
 
 // RAG types
 export type { RagQuery, SourceDocument, Document, DocumentListResponse, DocumentListItem, RAGSource } from '../../rag/rag.model';

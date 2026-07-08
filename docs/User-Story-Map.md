@@ -100,6 +100,42 @@ journey
 
 ---
 
+### 1.2 多轮对话与自动标题（已交付）
+
+**用户故事**
+
+**As a** 最终用户  
+**I want** 在同一会话中连续对话并由系统自动生成会话标题  
+**So that** 我可以记住上下文并在侧边栏快速找到历史会话
+
+```mermaid
+journey
+    title Delivered - 多轮对话与自动标题
+    section 多轮上下文
+        发送首条消息: 5: 用户
+        继续追问: 5: 用户
+        AI 记住上下文: 5: 用户
+    section 会话标题
+        首轮回话后自动生成标题: 5: 用户
+        侧边栏显示新标题: 4: 用户
+    section 会话持久化
+        刷新页面后恢复历史: 4: 用户
+        切换会话加载消息: 5: 用户
+```
+
+**Acceptance Criteria**
+
+- **GIVEN** 用户在同一会话发送 "My name is Felix" **WHEN** 继续问 "What is my name?" **THEN** AI 回答包含 Felix
+- **GIVEN** 用户完成首轮回话 **WHEN** 后端异步生成标题 **THEN** 会话标题不再是默认 "New Chat"
+- **GIVEN** 用户打开 Chat 页 **WHEN** 页面初始化 **THEN** 不会重复创建空会话
+- **GIVEN** 用户发送消息 **WHEN** 消息保存到后端 **THEN** 内容不含 `undefined` 前缀
+
+**API**: `POST /api/text/chat/stream` (含 `session_id`), `GET /api/sessions`, `GET /api/sessions/{id}/messages`, `GET /api/health`  
+**实现**: `SpringAiChatUseCase`, `SessionTitleGenerator`, `ChatService`, `TextController`, `ChatController`  
+**Jira**: [AI-101](https://felixzhu.atlassian.net/browse/AI-101)
+
+---
+
 ### 2. RAG 知识问答（已交付）
 
 **用户故事**

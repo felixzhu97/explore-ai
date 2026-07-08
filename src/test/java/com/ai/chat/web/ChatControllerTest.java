@@ -2,7 +2,9 @@ package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.*;
 import com.ai.chat.web.dto.*;
+import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,6 +30,20 @@ class ChatControllerTest {
     @BeforeEach
     void setUp() {
         controller = new ChatController(chatFacade);
+    }
+
+    @Nested
+    @DisplayName("GET /api/health")
+    class HealthEndpoint {
+
+        @Test
+        @DisplayName("should return UP status")
+        void shouldReturnUpStatus() {
+            var response = controller.health();
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().status()).isEqualTo("UP");
+        }
     }
 
     @Nested
@@ -156,6 +172,64 @@ class ChatControllerTest {
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/sessions/{sessionId}")
+    class GetSession {
+
+        @Test
+        @DisplayName("should return session when found")
+        void shouldReturnSessionWhenFound() {
+            ChatSession session = createTestSession("session-1", "My Chat");
+            when(chatFacade.getSession("session-1")).thenReturn(java.util.Optional.of(session));
+
+            var response = controller.getSession("session-1");
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().title()).isEqualTo("My Chat");
+        }
+
+        @Test
+        @DisplayName("should return 404 when session not found")
+        void shouldReturn404WhenSessionNotFound() {
+            when(chatFacade.getSession("missing")).thenReturn(java.util.Optional.empty());
+
+            var response = controller.getSession("missing");
+
+            assertThat(response.getStatusCode().value()).isEqualTo(404);
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/sessions/{sessionId}/messages")
+    class GetSessionMessages {
+
+        @Test
+        @DisplayName("should return messages for session")
+        void shouldReturnMessagesForSession() {
+            when(chatFacade.getSessionHistory("session-1")).thenReturn(List.of(
+                    ChatMessage.createUserMessage("Hello"),
+                    ChatMessage.createAssistantMessage("Hi")
+            ));
+
+            var response = controller.getSessionMessages("session-1");
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody()).hasSize(2);
+            assertThat(response.getBody().getFirst().role()).isEqualTo("user");
+        }
+
+        @Test
+        @DisplayName("should return 404 when session not found")
+        void shouldReturn404WhenSessionNotFound() {
+            when(chatFacade.getSessionHistory("missing"))
+                    .thenThrow(new ChatSessionNotFoundException("missing"));
+
+            var response = controller.getSessionMessages("missing");
+
+            assertThat(response.getStatusCode().value()).isEqualTo(404);
         }
     }
 
