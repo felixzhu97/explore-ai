@@ -1,29 +1,17 @@
-package com.ai.mcp.server;
+package com.ai.mcp.infrastructure.server;
 
+import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.rag.infrastructure.tools.RagSearchTool;
 import com.ai.tools.infrastructure.tools.WeatherTools;
-import com.ai.chat.application.usecase.ChatUseCase;
-import org.springframework.ai.mcp.annotation.*;
-import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.mcp.annotation.McpResource;
+import org.springframework.ai.mcp.annotation.McpTool;
+import org.springframework.ai.mcp.annotation.McpToolParam;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * MCP Server implementation exposing tools and resources via Spring AI 2.0 annotations.
- * This service integrates with existing WeatherTools and RagSearchTool.
- * 
- * Exposed MCP tools:
- * - get_weather: Get current weather for a city
- * - get_forecast: Get weather forecast for a city
- * - search_knowledge_base: Search documents in knowledge base
- * - list_documents: List all documents in knowledge base
- * - ai_chat: Chat with AI assistant
- * 
- * Exposed MCP resources:
- * - config:///{key}: Access application configuration
- */
 @Component
 public class AiMcpServerService {
 
@@ -81,10 +69,6 @@ public class AiMcpServerService {
         return aiChatUseCase.chat(message);
     }
 
-    /**
-     * Provide configuration resource.
-     * URI template: config:///{key}
-     */
     @McpResource(uri = "config:///{key}", name = "Configuration Resource", description = "Access application configuration")
     public String getConfig(String key) {
         log.info("MCP resource: getConfig called for key: {}", key);
@@ -99,8 +83,12 @@ public class AiMcpServerService {
     }
 
     private String truncate(String text, int maxLength) {
-        if (text == null) return "null";
-        if (text.length() <= maxLength) return text;
+        if (text == null) {
+            return "null";
+        }
+        if (text.length() <= maxLength) {
+            return text;
+        }
         return text.substring(0, maxLength) + "...";
     }
 }
