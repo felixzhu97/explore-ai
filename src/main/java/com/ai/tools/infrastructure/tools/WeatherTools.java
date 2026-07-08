@@ -22,7 +22,7 @@ public class WeatherTools {
         try {
             return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
         } catch (InvalidWeatherQueryException e) {
-            return "请提供有效的城市名称";
+            return e.getMessage();
         }
     }
 
@@ -32,10 +32,10 @@ public class WeatherTools {
             @ToolParam(description = "预报天数（1-7天）", required = false) Integer days) {
         try {
             WeatherQuery query = WeatherQuery.of(city);
-            int forecastDays = (days != null && days >= 1 && days <= 7) ? days : 3;
+            int forecastDays = days != null ? Math.max(1, Math.min(7, days)) : 3;
             return weatherReport.generateForecast(WeatherForecast.of(query, forecastDays)).content();
         } catch (InvalidWeatherQueryException e) {
-            return "请提供有效的城市名称";
+            return e.getMessage();
         }
     }
 }

@@ -73,7 +73,7 @@ class WeatherToolsTest {
         void shouldReturnMessageForNullOrEmptyCity(String city) {
             String result = weatherTools.getWeather(city);
 
-            assertThat(result).isEqualTo("请提供有效的城市名称");
+            assertThat(result).isEqualTo("City must not be blank");
         }
 
         @Test
@@ -81,7 +81,7 @@ class WeatherToolsTest {
         void shouldReturnMessageForBlankCity() {
             String result = weatherTools.getWeather("   ");
 
-            assertThat(result).isEqualTo("请提供有效的城市名称");
+            assertThat(result).isEqualTo("City must not be blank");
         }
     }
 
@@ -119,16 +119,15 @@ class WeatherToolsTest {
         void shouldCapForecastAt7DaysWhenInputIsOver7() {
             String result = weatherTools.getForecast("beijing", 10);
 
-            // days > 7 is treated as invalid, so default 3 days is used
-            assertThat(result).contains("3");
+            assertThat(result).contains("7");
         }
 
         @Test
-        @DisplayName("should use 3 days for invalid day values")
-        void shouldUse3DaysForInvalidDayValues() {
+        @DisplayName("should clamp to minimum one day when input is zero")
+        void should_clamp_to_minimum_one_day_when_input_is_zero() {
             String result = weatherTools.getForecast("beijing", 0);
 
-            assertThat(result).contains("3");
+            assertThat(result).contains("1");
         }
 
         @ParameterizedTest
@@ -137,7 +136,7 @@ class WeatherToolsTest {
         void shouldReturnMessageForNullOrEmptyCity(String city) {
             String result = weatherTools.getForecast(city, 3);
 
-            assertThat(result).isEqualTo("请提供有效的城市名称");
+            assertThat(result).isEqualTo("City must not be blank");
         }
     }
 }

@@ -24,4 +24,11 @@ class WeatherQueryTest {
         assertThatThrownBy(() -> WeatherQuery.of(" "))
                 .isInstanceOf(InvalidWeatherQueryException.class);
     }
+
+    @Test
+    @DisplayName("should reject blank via compact constructor")
+    void should_reject_blank_via_compact_constructor() {
+        assertThatThrownBy(() -> new WeatherQuery(" ", " "))
+                .isInstanceOf(InvalidWeatherQueryException.class);
+    }
 }

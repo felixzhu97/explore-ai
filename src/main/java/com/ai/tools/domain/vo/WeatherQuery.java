@@ -4,10 +4,15 @@ import com.ai.tools.domain.exception.InvalidWeatherQueryException;
 
 public record WeatherQuery(String city, String normalizedCity) {
 
-    public static WeatherQuery of(String city) {
+    public WeatherQuery {
         if (city == null || city.isBlank()) {
             throw new InvalidWeatherQueryException("City must not be blank");
         }
-        return new WeatherQuery(city.trim(), city.trim().toLowerCase());
+        city = city.trim();
+        normalizedCity = city.toLowerCase();
+    }
+
+    public static WeatherQuery of(String city) {
+        return new WeatherQuery(city, city);
     }
 }
