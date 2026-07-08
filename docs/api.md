@@ -957,7 +957,7 @@ curl -X GET "${BASE_URL}/api/audio/models"
 
 ### WebSocket Streaming Transcription
 
-Real-time speech-to-text using Ollama Whisper via WebSocket.
+Real-time speech-to-text using whisper.cpp via WebSocket.
 
 **Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
 
@@ -972,12 +972,40 @@ Real-time speech-to-text using Ollama Whisper via WebSocket.
 
 // Server -> Client (final result)
 {"type": "final", "text": "识别完成的文字"}
+
+// Server -> Client (error)
+{"type": "error", "text": "Transcription failed: ..."}
 ```
 
 **Requirements:**
 
-- Ollama running with Whisper model: `ollama pull whisper-base`
+- whisper.cpp server running locally (OpenAI-compatible API on port 8178)
 - Audio format: WAV, 16kHz, mono, base64-encoded
+
+**Local setup:**
+
+```bash
+# Install whisper.cpp (macOS)
+brew install whisper-cpp
+
+# Download tiny.en model (~75MB, free)
+curl -L -o ggml-tiny.en.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin
+
+# Start whisper.cpp server (OpenAI-compatible endpoint)
+whisper-server -m ggml-tiny.en.bin --host 127.0.0.1 --port 8178 \
+  --request-path /v1/audio/transcriptions --inference-path ""
+```
+
+Configure the backend URL in `application.yml`:
+
+```yaml
+app:
+  asr:
+    whisper-cpp:
+      base-url: http://localhost:8178
+      model: whisper-base
+```
 
 ---
 

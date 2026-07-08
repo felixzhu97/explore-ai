@@ -1,6 +1,6 @@
 package com.ai.audio.application.usecase;
 
-import com.ai.audio.infrastructure.adapter.OllamaWhisperAdapter;
+import com.ai.audio.infrastructure.adapter.WhisperCppTranscriptionAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,12 +18,12 @@ public class StreamingTranscriptionUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(StreamingTranscriptionUseCase.class);
 
-    private final OllamaWhisperAdapter ollamaWhisperAdapter;
+    private final WhisperCppTranscriptionAdapter whisperCppTranscriptionAdapter;
 
     private final Map<WebSocketSession, SessionState> sessions = new ConcurrentHashMap<>();
 
-    public StreamingTranscriptionUseCase(OllamaWhisperAdapter ollamaWhisperAdapter) {
-        this.ollamaWhisperAdapter = ollamaWhisperAdapter;
+    public StreamingTranscriptionUseCase(WhisperCppTranscriptionAdapter whisperCppTranscriptionAdapter) {
+        this.whisperCppTranscriptionAdapter = whisperCppTranscriptionAdapter;
     }
 
     /**
@@ -44,7 +44,7 @@ public class StreamingTranscriptionUseCase {
             return;
         }
 
-        ollamaWhisperAdapter.streamAudioChunk(session, state.transcript, payload);
+        whisperCppTranscriptionAdapter.streamAudioChunk(session, state.transcript, payload);
     }
 
     /**
@@ -53,7 +53,7 @@ public class StreamingTranscriptionUseCase {
     public void endSession(WebSocketSession session) {
         SessionState state = sessions.remove(session);
         if (state != null) {
-            ollamaWhisperAdapter.finalizeSession(session, state.transcript);
+            whisperCppTranscriptionAdapter.finalizeSession(session, state.transcript);
             log.info("Ended transcription session: {}", session.getId());
         }
     }

@@ -19,9 +19,6 @@ spring:
         enabled: true
     ollama:
       base-url: http://localhost:11434
-      asr:
-        model: karanchopda333/whisper
-        language: auto
       chat:
         enabled: false
       embedding:
@@ -114,6 +111,10 @@ management:
       probability: 1.0
 
 app:
+  asr:
+    whisper-cpp:
+      base-url: http://localhost:8178
+      model: whisper-base
   cors:
     allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat
 
