@@ -483,6 +483,34 @@ journey
 
 ---
 
+## Spring AI 能力补齐（In Progress）
+
+Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-102)
+
+| Jira | 故事 | SP | 状态 |
+|------|------|----|------|
+| [AI-103](https://felixzhu.atlassian.net/browse/AI-103) | 运行时 Provider/Model 切换 | 5 | 已交付 |
+| [AI-104](https://felixzhu.atlassian.net/browse/AI-104) | 统一 ChatClient 与 Memory Advisor | 5 | 已交付 |
+| [AI-105](https://felixzhu.atlassian.net/browse/AI-105) | JdbcChatMemory 消息持久化 | 8 | 已交付 |
+| [AI-106](https://felixzhu.atlassian.net/browse/AI-106) | 主 Chat Tool Calling | 5 | 已交付 |
+| [AI-107](https://felixzhu.atlassian.net/browse/AI-107) | Structured Output 增强 | 3 | 已交付 |
+| [AI-108](https://felixzhu.atlassian.net/browse/AI-108) | VectorStore + RAG Advisor | 8 | 已交付 |
+| [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
+| [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
+
+**实现要点**
+
+- `ChatModelResolver` + `TextChatOptions`：前端 provider/model/tools 请求参数生效
+- `ChatClientFactory`：`MessageChatMemoryAdvisor` + 可选 `SimpleLoggerAdvisor` + 条件 Tool 注册
+- `JdbcChatMemoryRepository` + `JdbcChatSessionMetadataRepository`：会话元数据与消息持久化
+- `ChatMemorySessionBridge`：ChatMemory 与领域 `ChatSession` 同步
+- 主 Chat 流式接口支持 `tools_enabled`（前端 Tools 开关）
+- `SessionTitleGenerator` / `ChatQualityEvaluator`：Native Structured Output + schema 校验
+- `H2DocumentVectorStore` + `RetrievalAugmentationAdvisor`：RAG 走 Spring AI Advisor 路径
+- 可选 Anthropic Provider（`spring.ai.anthropic.api-key`）
+
+---
+
 ## 参考
 
 - [Mermaid User Journey Syntax](https://mermaid.ai/open-source/syntax/userJourney.html)
