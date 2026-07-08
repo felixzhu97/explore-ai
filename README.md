@@ -128,6 +128,12 @@ ai-explore/
 ├── src/main/java/com/ai/
 │   ├── chat/           # AI 对话
 │   ├── rag/            # RAG 文档问答
+│   │   ├── domain/
+│   │   │   ├── model/      # Document, DocumentChunk, RawDocument
+│   │   │   ├── port/       # ETL 端口 (DocumentReader/Transformer/Writer)
+│   │   │   └── repository/ # 端口接口
+│   │   └── infrastructure/
+│   │       └── etl/        # ETL 适配器实现
 │   ├── tools/          # Tool Calling (天气/搜索)
 │   ├── image/          # 图像生成
 │   ├── audio/          # 语音合成 + ASR

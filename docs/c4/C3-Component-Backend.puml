@@ -80,9 +80,13 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Container_Boundary(rag_domain, "RAG Domain") {
             Component(document, "Document", "Entity", "文档实体，含 DocumentStatus")
             Component(doc_chunk, "DocumentChunk", "Entity", "文档分块实体")
+            Component(raw_document, "RawDocument", "Record", "ETL 归一化文档契约")
             Component(source_doc, "SourceDocument", "Value Object", "检索来源文档")
             Component(rag_svc, "RagService", "Domain Service", "RAG 服务")
             Component(lang_detect_svc, "LanguageDetectionService", "Domain Service", "语言检测服务")
+            Component(reader_port, "DocumentReader", "Interface", "ETL 读取端口")
+            Component(transformer_port, "DocumentTransformer", "Interface", "ETL 转换端口")
+            Component(writer_port, "DocumentWriter", "Interface", "ETL 写入端口")
         }
 
         ' Image Generation Domain
@@ -181,6 +185,9 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         ' Document Adapters
         Container_Boundary(doc_adapters, "Document Adapters") {
             Component(pdf_extractor, "PdfTextExtractor", "@Component", "PDF 文本提取")
+            Component(etl_reader, "PdfAndTextDocumentReader", "@Component", "ETL 读取适配器")
+            Component(etl_transformer, "ChunkingDocumentTransformer", "@Component", "ETL 分块适配器")
+            Component(etl_writer, "EmbeddingDocumentWriter", "@Component", "ETL 写入适配器")
         }
 
         ' Image Generation Adapters
@@ -253,6 +260,12 @@ Rel(rag_svc, document, "操作文档")
 Rel(document, doc_chunk, "包含多个")
 Rel(doc_chunk, source_doc, "转换为")
 Rel(rag_svc, lang_detect_svc, "语言检测")
+Rel(rag_svc, reader_port, "读取")
+Rel(rag_svc, transformer_port, "转换")
+Rel(rag_svc, writer_port, "写入")
+Rel(reader_port, etl_reader, "实现")
+Rel(transformer_port, etl_transformer, "实现")
+Rel(writer_port, etl_writer, "实现")
 
 ' Domain - Image Generation
 Rel(image_gen_svc, openai_image_adapter, "依赖")
