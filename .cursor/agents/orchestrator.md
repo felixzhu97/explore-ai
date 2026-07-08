@@ -32,6 +32,7 @@ is_background: true
 | 写测试 | test-engineer |
 | AI/大模型 | ai-engineer |
 | CI/CD | devops-engineer |
+| 领域设计 | domain-expert |
 | 架构审查 | architect |
 | 用户体验设计 | ux-designer |
 
