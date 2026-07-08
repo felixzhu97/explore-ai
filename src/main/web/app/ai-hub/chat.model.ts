@@ -6,8 +6,8 @@ export interface ChatMessage {
 }
 
 export interface ChatMessageData extends ChatMessage {
-  id: string;
-  timestamp: number | Date;
+  id?: string;
+  timestamp: number | Date | string;
   toolCalls?: ToolCall[];
   isLoading?: boolean;
 }
@@ -66,4 +66,12 @@ export interface ToolCall {
 export interface ChatTabState {
   provider: string;
   model: string;
+}
+
+export interface SessionInfo {
+  sessionId: string;
+  title: string;
+  messageCount: number;
+  createdAt: string;
+  lastActivityAt: string;
 }

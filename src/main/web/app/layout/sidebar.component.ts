@@ -5,6 +5,7 @@ import {
   signal,
   HostListener,
   computed,
+  OnInit,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -12,6 +13,8 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
 import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ChatService } from '../ai-hub/chat.service';
+import type { Session } from './sidebar.service';
 
 interface NavTab {
   key: string;
@@ -26,18 +29,29 @@ interface NavTab {
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
+  readonly chatService = inject(ChatService);
 
   readonly collapsed = this.sidebar.collapsed;
   readonly dropdownOpen = signal(false);
-  readonly pinnedExpanded = signal(true);
   readonly recentsExpanded = signal(true);
 
   private readonly isMobile = signal(false);
+
+  readonly displaySessions = computed<Session[]>(() => this.toDisplaySessions());
+
+  private toDisplaySessions(): Session[] {
+    return this.chatService.sessions().map(session => ({
+      id: session.sessionId,
+      title: session.title,
+      timestamp: new Date(session.lastActivityAt),
+      pinned: false,
+    }));
+  }
 
   readonly sidebarClasses = computed(() => {
     const mobile = this.isMobile();
@@ -46,7 +60,6 @@ export class SidebarComponent {
 
     const classes: string[] = [];
 
-    // Width
     if (mobile || !collapsed) {
       classes.push('w-[240px]');
     }
@@ -54,7 +67,6 @@ export class SidebarComponent {
       classes.push('w-[64px]');
     }
 
-    // Mobile translate (always visible on desktop)
     if (!mobile) {
       classes.push('translate-x-0');
     } else if (mobileOpen) {
@@ -77,6 +89,10 @@ export class SidebarComponent {
 
   constructor() {
     this.updateMobileState();
+  }
+
+  ngOnInit(): void {
+    this.chatService.loadSessions();
   }
 
   private updateMobileState(): void {
@@ -116,19 +132,27 @@ export class SidebarComponent {
   }
 
   newChat(): void {
-    this.sidebar.addSession();
+    this.chatService.createSession();
+    if (this.router.url !== '/chat') {
+      void this.router.navigate(['/chat']);
+    }
+    this.sidebar.close();
   }
 
   onSessionSelect(sessionId: string): void {
-    this.sidebar.setActiveSession(sessionId);
+    this.chatService.selectSession(sessionId);
+    if (this.router.url !== '/chat') {
+      void this.router.navigate(['/chat']);
+    }
+    this.sidebar.close();
   }
 
-  onSessionPin(sessionId: string): void {
-    this.sidebar.togglePin(sessionId);
+  onSessionPin(): void {
+    // Pin is client-only; server sessions use recents list for now
   }
 
   onSessionDelete(sessionId: string): void {
-    this.sidebar.removeSession(sessionId);
+    this.chatService.deleteSession(sessionId);
   }
 
   getIcon(key: string): SafeHtml {

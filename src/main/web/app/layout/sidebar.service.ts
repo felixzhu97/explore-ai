@@ -38,7 +38,6 @@ export class SidebarService {
   constructor() {
     this.loadFromStorage();
     this.setupStorageSync();
-    this.initializeDemoSessions();
   }
 
   open() {
@@ -197,56 +196,5 @@ export class SidebarService {
     effect(() => {
       this.saveToStorage();
     });
-  }
-
-  private initializeDemoSessions(): void {
-    if (this._pinnedSessions().length === 0 && this._recentSessions().length === 0) {
-      const now = new Date();
-      const demoSessions: Session[] = [
-        {
-          id: 'demo-1',
-          title: 'Kubernetes Deployment Guide',
-          timestamp: new Date(now.getTime() - 1000 * 60 * 5),
-          pinned: true,
-        },
-        {
-          id: 'demo-2',
-          title: 'Model Performance Analysis',
-          timestamp: new Date(now.getTime() - 1000 * 60 * 30),
-          pinned: true,
-        },
-        {
-          id: 'demo-3',
-          title: 'System Architecture Review',
-          timestamp: new Date(now.getTime() - 1000 * 60 * 60 * 2),
-          pinned: false,
-        },
-        {
-          id: 'demo-4',
-          title: 'Database Optimization Tips',
-          timestamp: new Date(now.getTime() - 1000 * 60 * 60 * 24),
-          pinned: false,
-        },
-        {
-          id: 'demo-5',
-          title: 'API Integration Questions',
-          timestamp: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 2),
-          pinned: false,
-        },
-        {
-          id: 'demo-6',
-          title: 'Security Best Practices',
-          timestamp: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 3),
-          pinned: false,
-        },
-      ];
-
-      this._pinnedSessions.set(
-        demoSessions.filter((s: Session) => s.pinned),
-      );
-      this._recentSessions.set(
-        demoSessions.filter((s: Session) => !s.pinned),
-      );
-    }
   }
 }

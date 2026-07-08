@@ -16,6 +16,8 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,18 +34,21 @@ public class SpringAiChatUseCase implements ChatUseCase {
     private final ChatSessionRepository repository;
     private final RetryTemplate retryTemplate;
     private final ChatMemory chatMemory;
+    private final SessionTitleGenerator sessionTitleGenerator;
 
-    public SpringAiChatUseCase(ChatClient.Builder chatClientBuilder, ChatSessionRepository repository,
-                         RetryTemplate retryTemplate, ChatMemory chatMemory) {
+    public SpringAiChatUseCase(
+            ChatClient.Builder chatClientBuilder,
+            ChatSessionRepository repository,
+            RetryTemplate retryTemplate,
+            ChatMemory chatMemory,
+            SessionTitleGenerator sessionTitleGenerator) {
         this.chatClient = chatClientBuilder.build();
         this.repository = repository;
         this.retryTemplate = retryTemplate;
         this.chatMemory = chatMemory;
+        this.sessionTitleGenerator = sessionTitleGenerator;
     }
 
-    /**
-     * Sends a message to AI with retry support and returns the response.
-     */
     @Override
     public String chat(String userMessage) {
         log.info("Chat request with retry: {}", truncateForLog(userMessage));
@@ -68,17 +73,10 @@ public class SpringAiChatUseCase implements ChatUseCase {
         log.info("Chat request with {} messages", messages.size());
 
         return retryTemplate.execute(context -> {
-            var promptBuilder = chatClient.prompt();
-
-            for (ChatMessage msg : messages) {
-                if (msg.isFromUser()) {
-                    promptBuilder.user(msg.getText());
-                } else {
-                    promptBuilder.system(sp -> sp.text(msg.getText()));
-                }
-            }
-
-            var response = promptBuilder.call().content();
+            String response = chatClient.prompt()
+                    .messages(messages.stream().map(this::toSpringMessage).toList())
+                    .call()
+                    .content();
             if (response == null || response.isBlank()) {
                 throw new AiServiceException("AI returned empty response");
             }
@@ -103,6 +101,54 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return exchangeMessages(session, userMessage);
     }
 
+    @Override
+    public Flux<String> chatStreamWithSession(String sessionId, String userMessage) {
+        ChatSession session = loadOrCreateSession(sessionId);
+        boolean isFirstTurn = session.isEmpty();
+        session.addUserMessage(userMessage);
+        repository.save(session);
+
+        ChatSessionId chatSessionId = session.getId();
+        StringBuilder buffer = new StringBuilder();
+
+        return chatStream(session.getMessages())
+                .doOnNext(buffer::append)
+                .doOnComplete(() -> persistAssistantReply(chatSessionId, buffer.toString(), isFirstTurn, userMessage))
+                .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+    }
+
+    private void persistAssistantReply(
+            ChatSessionId sessionId,
+            String assistantReply,
+            boolean isFirstTurn,
+            String userMessage) {
+        if (assistantReply.isBlank()) {
+            return;
+        }
+        repository.findById(sessionId).ifPresent(session -> {
+            session.addAssistantMessage(assistantReply);
+            repository.save(session);
+            if (isFirstTurn && session.hasDefaultTitle()) {
+                generateTitleAsync(sessionId, userMessage, assistantReply);
+            }
+        });
+    }
+
+    private void generateTitleAsync(ChatSessionId sessionId, String userMessage, String assistantReply) {
+        Mono.fromCallable(() -> sessionTitleGenerator.generate(userMessage, assistantReply))
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe(
+                        title -> repository.findById(sessionId).ifPresent(session -> {
+                            if (session.hasDefaultTitle()) {
+                                session.rename(title);
+                                repository.save(session);
+                                log.info("Renamed session {} to '{}'", sessionId, title);
+                            }
+                        }),
+                        error -> log.warn("Async title generation failed for session {}", sessionId, error)
+                );
+    }
+
     private ChatSession getOrCreateDefaultSession() {
         List<ChatSession> sessions = repository.findAll();
         if (sessions.isEmpty()) {
@@ -114,18 +160,26 @@ public class SpringAiChatUseCase implements ChatUseCase {
     }
 
     private ChatSession loadOrCreateSession(String sessionId) {
-        return repository.findById(ChatSessionId.of(sessionId))
-                .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+        ChatSessionId id = ChatSessionId.of(sessionId);
+        return repository.findById(id).orElseGet(() -> {
+            ChatSession session = ChatSession.createWithId(id, ChatSession.DEFAULT_TITLE);
+            repository.save(session);
+            return session;
+        });
     }
 
     private String exchangeMessages(ChatSession session, String userMessage) {
         session.addUserMessage(userMessage);
         repository.save(session);
 
-        String aiResponse = chat(userMessage);
+        String aiResponse = chatWithHistory(session.getMessages());
 
         session.addAssistantMessage(aiResponse);
         repository.save(session);
+
+        if (session.getUserMessageCount() == 1 && session.hasDefaultTitle()) {
+            generateTitleAsync(session.getId(), userMessage, aiResponse);
+        }
 
         return aiResponse;
     }
@@ -171,16 +225,10 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return repository.findAll();
     }
 
-    /**
-     * Get the underlying ChatClient for advanced operations like tool calling.
-     */
     public ChatClient getChatClient() {
         return chatClient;
     }
 
-    /**
-     * Clear conversation memory for a specific conversation ID.
-     */
     public void clearConversationMemory(String conversationId) {
         chatMemory.clear(conversationId);
     }
@@ -202,8 +250,12 @@ public class SpringAiChatUseCase implements ChatUseCase {
     }
 
     private String truncateForLog(String text) {
-        if (text == null) return "null";
-        if (text.length() <= 100) return text;
+        if (text == null) {
+            return "null";
+        }
+        if (text.length() <= 100) {
+            return text;
+        }
         return text.substring(0, 100) + "...";
     }
 }

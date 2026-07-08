@@ -117,51 +117,7 @@
 
     <!-- Chat History Section -->
     <div class="flex-1 overflow-y-auto border-t border-border-light">
-      <!-- Pinned Sessions -->
-      @if (sidebar.pinnedSessions().length > 0) {
-        <div class="px-2 pt-2 pb-1">
-          <button
-            type="button"
-            class="
-              group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-[13px]
-              font-semibold text-text-secondary no-underline transition-all duration-150
-              hover:text-text
-            "
-            (click)="pinnedExpanded.update(v => !v)"
-          >
-            {{ t().sidebar.pinned }}
-            <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              <svg
-                class="size-3 transition-transform duration-200"
-                [class.rotate-90]="pinnedExpanded()"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </span>
-          </button>
-          @if (pinnedExpanded()) {
-            <div class="space-y-0.5">
-              @for (session of sidebar.pinnedSessions(); track session.id) {
-                <app-session-item
-                  [session]="session"
-                  [isActive]="sidebar.activeSessionId() === session.id"
-                  [collapsed]="collapsed()"
-                  (sessionSelect)="onSessionSelect(session.id)"
-                  (pin)="onSessionPin(session.id)"
-                  (delete)="onSessionDelete(session.id)"
-                />
-              }
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Recent Sessions -->
-      @if (sidebar.recentSessions().length > 0) {
+      @if (displaySessions().length > 0) {
         <div class="px-2 pt-1 pb-2">
           <button
             type="button"
@@ -188,13 +144,13 @@
           </button>
           @if (recentsExpanded()) {
             <div class="space-y-0.5">
-              @for (session of sidebar.recentSessions(); track session.id) {
+              @for (session of displaySessions(); track session.id) {
                 <app-session-item
                   [session]="session"
-                  [isActive]="sidebar.activeSessionId() === session.id"
+                  [isActive]="chatService.activeSessionId() === session.id"
                   [collapsed]="collapsed()"
                   (sessionSelect)="onSessionSelect(session.id)"
-                  (pin)="onSessionPin(session.id)"
+                  (pin)="onSessionPin()"
                   (delete)="onSessionDelete(session.id)"
                 />
               }

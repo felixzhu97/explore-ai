@@ -4,7 +4,16 @@ import type {
   ChatMessage,
   ProviderInfo,
   ModelInfo,
+  SessionInfo,
+  ChatMessageData,
 } from './chat.model';
+
+export interface UiMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -15,6 +24,14 @@ export class ChatService {
   readonly selectedProvider = signal('openai');
   readonly selectedModel = signal('gpt-4o-mini');
   readonly isLoadingModels = signal(false);
+
+  readonly sessions = signal<SessionInfo[]>([]);
+  readonly activeSessionId = signal<string | null>(null);
+  readonly messages = signal<UiMessage[]>([]);
+  readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
+
+  private streamAbort: (() => void) | null = null;
 
   loadProviders(): void {
     this.api.getProviders().subscribe({
@@ -33,12 +50,6 @@ export class ChatService {
             models: ['gpt-4o', 'gpt-4o-mini'],
             status: 'available',
           },
-          {
-            name: 'anthropic',
-            display_name: 'Anthropic Claude',
-            models: ['claude-sonnet-4-20250514'],
-            status: 'available',
-          },
         ]);
       },
     });
@@ -51,19 +62,13 @@ export class ChatService {
         this.models.set(data);
         if (data.length > 0) {
           const defaultModel =
-            data.find(m => m.name.includes('mini') || m.name.includes('3.5')) || data[0];
+            data.find(m => m.name.includes('mini') || m.name.includes('flash')) || data[0];
           this.selectedModel.set(defaultModel.name);
         }
       },
       error: () => {
-        const fallback: Record<string, string[]> = {
-          openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'],
-          anthropic: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514'],
-          ollama: ['qwen2.5:7b', 'llama3.2:3b'],
-        };
-        const list = fallback[provider] || fallback['openai'];
-        this.models.set(list.map(name => ({ name, provider })));
-        this.selectedModel.set(list[0]);
+        this.models.set([{ name: 'deepseek-v4-flash', provider }]);
+        this.selectedModel.set('deepseek-v4-flash');
       },
       complete: () => this.isLoadingModels.set(false),
     });
@@ -78,23 +83,160 @@ export class ChatService {
     this.selectedModel.set(model);
   }
 
-  chatStream(
-    messages: ChatMessage[],
-    sessionId: string,
-    onChunk: (chunk: string) => void,
-    onComplete: () => void,
-    onError: (error: Error) => void,
-  ): void {
-    this.api.chatStream(
+  loadSessions(): void {
+    this.api.getSessions().subscribe({
+      next: (sessions) => {
+        const sorted = [...sessions].sort((a, b) => {
+          const bTime = new Date(b.lastActivityAt).getTime();
+          const aTime = new Date(a.lastActivityAt).getTime();
+          return bTime - aTime;
+        });
+        this.sessions.set(sorted);
+        const activeId = this.activeSessionId();
+        if (activeId && sorted.some(s => s.sessionId === activeId)) {
+          return;
+        }
+        if (sorted.length > 0) {
+          this.selectSession(sorted[0].sessionId);
+        } else {
+          this.createSession();
+        }
+      },
+      error: () => this.sessions.set([]),
+    });
+  }
+
+  createSession(): void {
+    this.api.createSession().subscribe({
+      next: (session) => {
+        this.sessions.update((list) => {
+          const withoutCurrent = list.filter(s => s.sessionId !== session.sessionId);
+          return [session, ...withoutCurrent];
+        });
+        this.selectSession(session.sessionId);
+      },
+    });
+  }
+
+  selectSession(sessionId: string): void {
+    if (this.streamAbort) {
+      this.streamAbort();
+      this.streamAbort = null;
+    }
+    this.activeSessionId.set(sessionId);
+    this.messages.set([]);
+    this.error.set(null);
+    this.api.getSessionMessages(sessionId).subscribe({
+      next: (history) => {
+        this.messages.set(history.map(msg => this.toUiMessage(msg)));
+      },
+      error: () => this.messages.set([]),
+    });
+  }
+
+  deleteSession(sessionId: string): void {
+    this.api.deleteSession(sessionId).subscribe({
+      next: () => {
+        this.sessions.update(list => list.filter(s => s.sessionId !== sessionId));
+        if (this.activeSessionId() === sessionId) {
+          const remaining = this.sessions();
+          if (remaining.length > 0) {
+            this.selectSession(remaining[0].sessionId);
+          } else {
+            this.activeSessionId.set(null);
+            this.messages.set([]);
+          }
+        }
+      },
+    });
+  }
+
+  sendMessage(content: string): void {
+    const sessionId = this.activeSessionId();
+    if (!sessionId || !content.trim() || this.isLoading()) {
+      return;
+    }
+
+    if (this.streamAbort) {
+      this.streamAbort();
+    }
+
+    const userMsg: UiMessage = {
+      id: `user_${Date.now()}`,
+      role: 'user',
+      content: content.trim(),
+      timestamp: Date.now(),
+    };
+    const assistantId = `assistant_${Date.now()}`;
+
+    this.messages.update(msgs => [
+      ...msgs,
+      userMsg,
+      { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
+    ]);
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    let fullContent = '';
+    const streamRequest: ChatMessage[] = [{ role: 'user', content: userMsg.content }];
+
+    const { abort } = this.api.chatStream(
       {
-        messages,
+        messages: streamRequest,
         session_id: sessionId,
         provider: this.selectedProvider(),
         model: this.selectedModel(),
       },
-      onChunk,
-      onComplete,
-      onError,
+      (chunk) => {
+        fullContent += chunk;
+        this.messages.update(msgs => msgs.map((msg) => {
+          if (msg.id !== assistantId) {
+            return msg;
+          }
+          return { ...msg, content: fullContent };
+        }),
+        );
+      },
+      () => {
+        this.isLoading.set(false);
+        this.streamAbort = null;
+        this.loadSessions();
+        setTimeout(() => this.loadSessions(), 2500);
+      },
+      (err) => {
+        this.error.set(err.message);
+        this.messages.update(msgs => msgs.map((msg) => {
+          if (msg.id !== assistantId) {
+            return msg;
+          }
+          return { ...msg, content: err.message };
+        }),
+        );
+        this.isLoading.set(false);
+        this.streamAbort = null;
+      },
     );
+    this.streamAbort = abort;
+  }
+
+  abortStream(): void {
+    if (this.streamAbort) {
+      this.streamAbort();
+      this.streamAbort = null;
+      this.isLoading.set(false);
+    }
+  }
+
+  private toUiMessage(msg: ChatMessageData): UiMessage {
+    const timestamp =
+      typeof msg.timestamp === 'number'
+        ? msg.timestamp
+        : new Date(msg.timestamp).getTime();
+    return {
+      id: msg.id ?? `${msg.role}_${timestamp}`,
+      role: msg.role === 'assistant' ? 'assistant' : 'user',
+      content: msg.content,
+      timestamp,
+    };
   }
 }

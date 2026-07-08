@@ -11,8 +11,10 @@ import java.util.function.Predicate;
 
 public class ChatSession {
 
+    public static final String DEFAULT_TITLE = "New Chat";
+
     private final ChatSessionId id;
-    private final String title;
+    private String title;
     private final List<ChatMessage> messages;
     private final Instant createdAt;
     private Instant lastActivityAt;
@@ -27,7 +29,7 @@ public class ChatSession {
 
     private static String validateTitle(String title) {
         if (title == null || title.isBlank()) {
-            return "New Chat";
+            return DEFAULT_TITLE;
         }
         if (title.length() > 100) {
             return title.substring(0, 100);
@@ -37,6 +39,10 @@ public class ChatSession {
 
     public static ChatSession create(String title) {
         return new ChatSession(ChatSessionId.generate(), title, Instant.now());
+    }
+
+    public static ChatSession createWithId(ChatSessionId id, String title) {
+        return new ChatSession(id, title, Instant.now());
     }
 
     public static ChatSession of(ChatSessionId id, String title, Instant createdAt) {
@@ -57,6 +63,18 @@ public class ChatSession {
 
     public String getTitle() {
         return title;
+    }
+
+    public boolean hasDefaultTitle() {
+        return DEFAULT_TITLE.equals(title);
+    }
+
+    public void rename(String newTitle) {
+        if (newTitle == null || newTitle.isBlank()) {
+            return;
+        }
+        this.title = validateTitle(newTitle);
+        updateLastActivity();
     }
 
     public Instant getCreatedAt() {

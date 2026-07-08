@@ -1,10 +1,8 @@
 package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatFacade;
-import com.ai.chat.web.dto.ChatRequest;
-import com.ai.chat.web.dto.ChatResponse;
-import com.ai.chat.web.dto.CreateSessionRequest;
-import com.ai.chat.web.dto.SessionInfo;
+import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.chat.web.dto.*;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +27,6 @@ public class ChatController {
         this.chatFacade = chatFacade;
     }
 
-    /**
-     * Sends a chat message and receives AI response.
-     */
     @PostMapping("/chat")
     public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
         if (request.message() == null || request.message().isBlank()) {
@@ -49,9 +44,6 @@ public class ChatController {
         return ResponseEntity.ok(ChatResponse.of(response));
     }
 
-    /**
-     * Creates a new session.
-     */
     @PostMapping("/sessions")
     public ResponseEntity<SessionInfo> createSession(@Valid @RequestBody(required = false) CreateSessionRequest body) {
         String title = body != null && body.title() != null ? body.title() : "New Chat";
@@ -59,9 +51,6 @@ public class ChatController {
         return ResponseEntity.ok(SessionInfo.from(session));
     }
 
-    /**
-     * Retrieves all sessions.
-     */
     @GetMapping("/sessions")
     public ResponseEntity<List<SessionInfo>> getAllSessions() {
         List<SessionInfo> sessions = chatFacade.getAllSessions()
@@ -71,9 +60,27 @@ public class ChatController {
         return ResponseEntity.ok(sessions);
     }
 
-    /**
-     * Deletes a session.
-     */
+    @GetMapping("/sessions/{sessionId}")
+    public ResponseEntity<SessionInfo> getSession(@PathVariable String sessionId) {
+        return chatFacade.getSession(sessionId)
+                .map(session -> ResponseEntity.ok(SessionInfo.from(session)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/sessions/{sessionId}/messages")
+    public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(@PathVariable String sessionId) {
+        try {
+            List<MessageInfoResponse> messages = chatFacade.getSessionHistory(sessionId)
+                    .stream()
+                    .map(MessageInfoResponse::from)
+                    .toList();
+            return ResponseEntity.ok(messages);
+        } catch (ChatSessionNotFoundException e) {
+            log.debug("Session not found: {}", sessionId);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @DeleteMapping("/sessions/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable String sessionId) {
         chatFacade.deleteSession(sessionId);
