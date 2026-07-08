@@ -20,7 +20,8 @@ BASE_URL="http://localhost:9000"
 8. [Audio/ASR API](#audio-asr-api)
 9. [MCP Server API](#mcp-server-api)
 10. [MCP Client API](#mcp-client-api)
-11. [Error Codes](#error-codes)
+11. [Chat Evaluation API](#chat-evaluation-api)
+12. [Error Codes](#error-codes)
 
 ---
 
@@ -1206,6 +1207,57 @@ curl -X POST "${BASE_URL}/api/mcp/client/chat" \
   "sessionId": "session-123"
 }
 ```
+
+---
+
+## Chat Evaluation API
+
+Evaluate AI chat response quality using LLM-as-a-Judge and Spring AI Evaluators.
+
+### Evaluate Chat Response
+
+```bash
+curl -X POST "${BASE_URL}/api/eval/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userMessage": "What is the capital of France?",
+    "assistantResponse": "Paris is the capital of France.",
+    "referenceDocuments": ["France is a country in Europe. Its capital is Paris."]
+  }'
+```
+
+**Request Body**
+
+| Field | Type | Required | Description |
+| ----- | ---- | -------- | ----------- |
+| `userMessage` | string | Yes | Original user question |
+| `assistantResponse` | string | Yes | AI assistant reply to evaluate |
+| `referenceDocuments` | array | No | RAG context chunks for relevancy and factuality checks |
+
+**Behavior**
+
+- Without `referenceDocuments`: evaluates coherence, relevancy, helpfulness, and safety. `factualityAvailable` is `false` and `factualityScore` is `null`.
+- With `referenceDocuments`: also runs grounded fact-checking against the provided context. `factualityAvailable` is `true`.
+
+**Response Example**
+
+```json
+{
+  "coherenceScore": 0.9,
+  "relevanceScore": 1.0,
+  "helpfulnessScore": 0.88,
+  "factualityScore": 1.0,
+  "factualityAvailable": true,
+  "overallScore": 0.94,
+  "hasSafetyIssues": false,
+  "safetyFlags": [],
+  "suggestions": []
+}
+```
+
+**Stop / Control Messages**
+
+Not applicable — this is a synchronous REST endpoint (not WebSocket).
 
 ---
 

@@ -34,7 +34,8 @@ public class EvalController {
 
         ChatEvaluationResult result = evaluator.evaluate(
             request.userMessage(),
-            request.assistantResponse()
+            request.assistantResponse(),
+            request.referenceDocuments()
         );
 
         return ResponseEntity.ok(EvaluationResponse.from(result));

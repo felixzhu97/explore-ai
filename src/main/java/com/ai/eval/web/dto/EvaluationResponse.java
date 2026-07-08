@@ -11,7 +11,8 @@ public record EvaluationResponse(
     double coherenceScore,
     double relevanceScore,
     double helpfulnessScore,
-    double factualityScore,
+    Double factualityScore,
+    boolean factualityAvailable,
     double overallScore,
     boolean hasSafetyIssues,
     List<String> safetyFlags,
@@ -20,14 +21,19 @@ public record EvaluationResponse(
 
     public static EvaluationResponse from(ChatEvaluationResult result) {
         return new EvaluationResponse(
-            Math.round(result.coherenceScore() * 100.0) / 100.0,
-            Math.round(result.relevanceScore() * 100.0) / 100.0,
-            Math.round(result.helpfulnessScore() * 100.0) / 100.0,
-            Math.round(result.factualityScore() * 100.0) / 100.0,
-            Math.round(result.overallScore() * 100.0) / 100.0,
+            round(result.coherenceScore()),
+            round(result.relevanceScore()),
+            round(result.helpfulnessScore()),
+            result.factualityAvailable() ? round(result.factualityScore()) : null,
+            result.factualityAvailable(),
+            round(result.overallScore()),
             result.hasSafetyIssues(),
             result.safetyFlags(),
             result.suggestions()
         );
+    }
+
+    private static double round(double score) {
+        return Math.round(score * 100.0) / 100.0;
     }
 }

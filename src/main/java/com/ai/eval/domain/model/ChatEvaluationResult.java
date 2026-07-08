@@ -9,7 +9,8 @@ public record ChatEvaluationResult(
     double coherenceScore,
     double relevanceScore,
     double helpfulnessScore,
-    double factualityScore,
+    Double factualityScore,
+    boolean factualityAvailable,
     double overallScore,
     boolean hasSafetyIssues,
     List<String> safetyFlags,
@@ -24,7 +25,8 @@ public record ChatEvaluationResult(
         private double coherenceScore;
         private double relevanceScore;
         private double helpfulnessScore;
-        private double factualityScore;
+        private Double factualityScore;
+        private boolean factualityAvailable;
         private double overallScore;
         private boolean hasSafetyIssues;
         private List<String> safetyFlags = List.of();
@@ -45,8 +47,13 @@ public record ChatEvaluationResult(
             return this;
         }
 
-        public Builder factualityScore(double score) {
-            this.factualityScore = Math.max(0, Math.min(1, score));
+        public Builder factualityScore(Double score) {
+            this.factualityScore = score == null ? null : Math.max(0, Math.min(1, score));
+            return this;
+        }
+
+        public Builder factualityAvailable(boolean available) {
+            this.factualityAvailable = available;
             return this;
         }
 
@@ -76,6 +83,7 @@ public record ChatEvaluationResult(
                 relevanceScore,
                 helpfulnessScore,
                 factualityScore,
+                factualityAvailable,
                 overallScore,
                 hasSafetyIssues,
                 safetyFlags,
