@@ -1,1 +1,1 @@
-rootProject.name = "ai-explore"
+rootProject.name = "explore-ai"

@@ -27,7 +27,7 @@ class McpControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().get("status")).isEqualTo("UP");
-            assertThat(response.getBody().get("server")).isEqualTo("ai-explore-mcp-server");
+            assertThat(response.getBody().get("server")).isEqualTo("explore-ai-mcp-server");
             assertThat(response.getBody().get("version")).isEqualTo("1.0.0");
             assertThat(response.getBody().get("protocol")).isEqualTo("MCP 1.0");
         }
@@ -46,7 +46,7 @@ class McpControllerTest {
             assertThat(response.getBody()).isNotNull();
 
             // Verify root level fields
-            assertThat(response.getBody().get("name")).isEqualTo("ai-explore-mcp-server");
+            assertThat(response.getBody().get("name")).isEqualTo("explore-ai-mcp-server");
             assertThat(response.getBody().get("version")).isEqualTo("1.0.0");
             assertThat(response.getBody().get("description")).isEqualTo("AI Explore MCP Server with RAG, Weather, and Chat tools");
 

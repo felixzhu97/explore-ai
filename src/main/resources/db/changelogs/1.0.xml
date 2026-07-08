@@ -7,7 +7,7 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
   "
 >
-  <changeSet author="ai-explore" id="20260630-001" dbms="h2">
+  <changeSet author="explore-ai" id="20260630-001" dbms="h2">
     <createTable tableName="documents">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -33,7 +33,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="ai-explore" id="20260630-002" dbms="h2">
+  <changeSet author="explore-ai" id="20260630-002" dbms="h2">
     <createTable tableName="document_chunks">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
