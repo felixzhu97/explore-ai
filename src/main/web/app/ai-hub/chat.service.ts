@@ -84,6 +84,25 @@ export class ChatService {
   }
 
   loadSessions(): void {
+    this.refreshSessions({ createIfEmpty: false });
+  }
+
+  initializeSessions(): void {
+    if (this.sessionsInitialized || this.initializationInProgress) {
+      return;
+    }
+    this.initializationInProgress = true;
+    this.refreshSessions({ createIfEmpty: true, finalizeBootstrap: true });
+  }
+
+  private sessionsInitialized = false;
+  private initializationInProgress = false;
+  private sessionCreationInProgress = false;
+
+  private refreshSessions(options: {
+    createIfEmpty: boolean;
+    finalizeBootstrap?: boolean;
+  }): void {
     this.api.getSessions().subscribe({
       next: (sessions) => {
         const sorted = [...sessions].sort((a, b) => {
@@ -98,15 +117,25 @@ export class ChatService {
         }
         if (sorted.length > 0) {
           this.selectSession(sorted[0].sessionId);
-        } else {
+        } else if (options.createIfEmpty) {
           this.createSession();
         }
       },
       error: () => this.sessions.set([]),
+      complete: () => {
+        if (options.finalizeBootstrap) {
+          this.sessionsInitialized = true;
+          this.initializationInProgress = false;
+        }
+      },
     });
   }
 
   createSession(): void {
+    if (this.sessionCreationInProgress) {
+      return;
+    }
+    this.sessionCreationInProgress = true;
     this.api.createSession().subscribe({
       next: (session) => {
         this.sessions.update((list) => {
@@ -114,6 +143,12 @@ export class ChatService {
           return [session, ...withoutCurrent];
         });
         this.selectSession(session.sessionId);
+      },
+      complete: () => {
+        this.sessionCreationInProgress = false;
+      },
+      error: () => {
+        this.sessionCreationInProgress = false;
       },
     });
   }

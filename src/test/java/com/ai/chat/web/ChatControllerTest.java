@@ -33,6 +33,20 @@ class ChatControllerTest {
     }
 
     @Nested
+    @DisplayName("GET /api/health")
+    class HealthEndpoint {
+
+        @Test
+        @DisplayName("should return UP status")
+        void shouldReturnUpStatus() {
+            var response = controller.health();
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().status()).isEqualTo("UP");
+        }
+    }
+
+    @Nested
     @DisplayName("POST /api/chat")
     class ChatEndpoint {
 

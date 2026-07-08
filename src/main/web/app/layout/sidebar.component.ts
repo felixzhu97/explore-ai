@@ -92,7 +92,7 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.chatService.loadSessions();
+    this.chatService.initializeSessions();
   }
 
   private updateMobileState(): void {

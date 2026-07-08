@@ -2,6 +2,7 @@ package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatFacade;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.chat.web.dto.HealthResponse;
 import com.ai.chat.web.dto.*;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -25,6 +26,11 @@ public class ChatController {
 
     public ChatController(ChatFacade chatFacade) {
         this.chatFacade = chatFacade;
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<HealthResponse> health() {
+        return ResponseEntity.ok(HealthResponse.up());
     }
 
     @PostMapping("/chat")

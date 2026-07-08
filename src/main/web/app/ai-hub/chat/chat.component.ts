@@ -1,6 +1,5 @@
 import {
   Component,
-  signal,
   inject,
   OnInit,
   OnDestroy,
@@ -49,7 +48,7 @@ export class ChatTabComponent implements OnInit, OnDestroy {
 
   readonly state = model<ChatTabState>({ provider: 'openai', model: 'gpt-4o-mini' });
 
-  readonly input = signal('');
+  readonly input = model('');
   readonly messagesEnd = viewChild<ElementRef>('messagesEnd');
 
   constructor() {
@@ -61,7 +60,6 @@ export class ChatTabComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.chat.loadProviders();
-    this.chat.loadSessions();
   }
 
   ngOnDestroy() {
@@ -78,17 +76,6 @@ export class ChatTabComponent implements OnInit, OnDestroy {
 
   setSelectedModel(model: string) {
     this.chat.setModel(model);
-  }
-
-  setInput(text: string) {
-    this.input.set(text);
-  }
-
-  onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.send();
-    }
   }
 
   send() {
