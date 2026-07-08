@@ -42,11 +42,14 @@ public class WeatherReport {
             String condition = CONDITIONS[ThreadLocalRandom.current().nextInt(CONDITIONS.length)];
             int tempLow = TEMPS[ThreadLocalRandom.current().nextInt(TEMPS.length)];
             int tempHigh = tempLow + 3 + ThreadLocalRandom.current().nextInt(5);
-            WeatherInfo template = WeatherInfo.create(forecast.query().city(), tempLow, condition, 60);
-            builder.append(template.formatForecastDay(day, tempHigh, tempLow, condition)).append('\n');
+            builder.append(formatForecastDay(day, condition, tempHigh, tempLow)).append('\n');
         }
 
         return ToolResult.success(builder.toString().trim());
+    }
+
+    private static String formatForecastDay(int day, String condition, int tempHigh, int tempLow) {
+        return String.format("第%d天：%s，最高%d°C，最低%d°C", day, condition, tempHigh, tempLow);
     }
 
     private String buildRandomCurrent(String city) {

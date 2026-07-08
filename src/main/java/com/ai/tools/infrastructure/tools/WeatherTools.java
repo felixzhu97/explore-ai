@@ -11,7 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class WeatherTools {
 
-    private final WeatherReport weatherReport = new WeatherReport();
+    private final WeatherReport weatherReport;
+
+    public WeatherTools(WeatherReport weatherReport) {
+        this.weatherReport = weatherReport;
+    }
 
     @Tool(description = "获取指定城市的当前天气信息，包括温度、天气状况和湿度")
     public String getWeather(@ToolParam(description = "城市名称（中文或英文，如：北京、beijing）") String city) {

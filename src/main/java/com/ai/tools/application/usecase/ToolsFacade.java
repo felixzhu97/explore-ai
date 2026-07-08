@@ -27,11 +27,12 @@ public class ToolsFacade {
     public ToolsFacade(
             ChatClient.Builder chatClientBuilder,
             WeatherTools weatherTools,
+            WeatherReport weatherReport,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool) {
         this.chatClient = chatClientBuilder.build();
         this.weatherTools = weatherTools;
-        this.weatherReport = new WeatherReport();
+        this.weatherReport = weatherReport;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
     }
