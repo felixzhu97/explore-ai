@@ -111,6 +111,16 @@ Container_Boundary(mcp_client_domain, "MCP Client Domain") {
 }
 
 ' ============================================================
+' DOMAIN 8: EVAL DOMAIN
+' ============================================================
+Container_Boundary(eval_domain, "Evaluation Domain") {
+    Container(eval_controller, "EvalController", "@RestController", "评估 HTTP 请求")
+    Container(eval_dto, "Eval DTOs", "Java Records", "评估请求/响应 DTO")
+    Container(eval_svc, "ChatQualityEvaluator", "Domain Service", "LLM-as-a-Judge 质量评估")
+    Container(eval_result, "ChatEvaluationResult", "Value Object", "评估结果")
+}
+
+' ============================================================
 ' CROSS-CUTTING - 跨领域
 ' ============================================================
 Container_Boundary(crosscut_domain, "Cross-Cutting") {
@@ -207,6 +217,11 @@ Rel(mcp_controller, mcp_server_svc, "调用")
 
 ' MCP Client Domain
 Rel(mcp_client_controller, mcp_client_svc, "调用")
+
+' Evaluation Domain
+Rel(angular_app, eval_controller, "质量评估", "HTTP :9000")
+Rel(eval_controller, eval_svc, "调用")
+Rel(eval_svc, deepseek_api, "LLM 评估", "HTTPS")
 
 SHOW_LEGEND()
 @enduml

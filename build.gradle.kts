@@ -59,6 +59,7 @@ dependencies {
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-test")
     testImplementation("org.springframework.ai:spring-ai-test")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("io.projectreactor:reactor-test")
