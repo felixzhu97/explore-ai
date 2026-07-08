@@ -65,6 +65,41 @@ journey
 
 ---
 
+### 1.1 Provider/Model 选择（已交付）
+
+**用户故事**
+
+**As a** 最终用户  
+**I want** 进入 Chat 页时看到可用的 Provider 与 Model 列表  
+**So that** 我可以选择模型且无错误提示
+
+```mermaid
+journey
+    title Delivered - Provider/Model 选择
+    section 页面加载
+        获取 Provider 列表: 5: 用户
+        无错误 Toast: 5: 用户
+    section Provider 切换
+        选择 Provider: 4: 用户
+        加载对应 Models: 5: 用户
+        选择 Model: 4: 用户
+    section 错误处理
+        API 失败时使用默认列表: 3: 用户
+        不再弹出 500 错误 Toast: 5: 用户
+```
+
+**Acceptance Criteria**
+
+- **GIVEN** 用户打开 `/chat` 页面 **WHEN** 前端请求 `GET /api/text/providers` **THEN** 返回 200 及 Provider 列表
+- **GIVEN** 用户选择 openai Provider **WHEN** 请求 `GET /api/text/models?provider=openai` **THEN** 返回含 `deepseek-v4-flash` 的 models 数组
+- **GIVEN** 后端已部署修复版本 **WHEN** 访问生产 Chat 页 **THEN** 不出现 "A server error occurred" Toast
+
+**API**: `GET /api/text/providers`, `GET /api/text/models?provider=`  
+**实现**: `TextController`, `TextProviderCatalog`  
+**Jira**: [AI-97](https://felixzhu.atlassian.net/browse/AI-97)
+
+---
+
 ### 2. RAG 知识问答（已交付）
 
 **用户故事**
@@ -394,7 +429,7 @@ journey
 
 | 角色 | 覆盖能力 | 优先级 |
 |------|----------|--------|
-| **最终用户** | 对话、RAG、图像、TTS、Vision、ASR | P0 |
+| **最终用户** | 对话、Provider/Model 选择、RAG、图像、TTS、Vision、ASR | P0 |
 | **开发者** | MCP、Tools API、RAG ETL ports | P1 |
 | **QA 工程师** | Chat Evaluation API | P1 |
 | **管理员** | 文本分析、未来 AIOps | P2 |
@@ -405,7 +440,7 @@ journey
 
 | 阶段 | 状态 | 交付内容 | 故事数 |
 |------|------|----------|--------|
-| **MVP** | Delivered | AI 对话 + RAG 知识问答 | ~20 |
+| **MVP** | Delivered | AI 对话 + Provider/Model 选择 + RAG 知识问答 | ~21 |
 | **V2** | Delivered | 图像 + TTS + MCP + Vision + ASR | ~25 |
 | **In Progress** | 进行中 | ETL 管道 + Eval + 文本分析 + Tools DDD | ~15 |
 | **V3** | Planned | Multi-Agent + 完整 AIOps | ~15 |
