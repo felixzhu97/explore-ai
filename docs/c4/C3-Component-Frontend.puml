@@ -3,142 +3,105 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 组件图 (C3) - Angular 22 Web 前端 (AnalogJS Vite)
+title 组件图 (C3) - Angular 22 Web 前端
 
-' ============================================================
-' SYSTEM BOUNDARY - 前端系统边界
-' ============================================================
 System_Boundary(frontend, "Angular 22 Web Application") {
 
     ' ============================================================
-    ' APP LAYER - 应用配置层
+    ' APP LAYER
     ' ============================================================
     Container_Boundary(app_layer, "App Layer") {
-        Component(app_root, "AppComponent", "@Component", "根组件，路由出口与导航")
-        Component(app_cfg_ts, "app.config.ts", "ApplicationConfig", "应用配置 providers (inject())")
-        Component(app_routes, "app.routes.ts", "Routes", "路由映射，4 个一级页面")
+        Component(app_root, "AppComponent", "@Component", "根组件")
+        Component(main_layout, "MainLayoutComponent", "@Component", "主布局 (header + sidebar + outlet)")
+        Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, interceptors")
+        Component(app_routes, "app.routes.ts", "Routes", "路由: /chat /rag /vision")
     }
 
     ' ============================================================
-    ' PAGE COMPONENTS - 页面组件
+    ' PAGE COMPONENTS
     ' ============================================================
     Container_Boundary(pages, "Page Components") {
-        Component(ai_infra_page, "AIInfraPanelComponent", "@Component", "AI 基础设施面板 (路由 /ai-infra)")
-        Container_Boundary(ai_infra_tabs, "AIInfraPanel Sub-Tabs") {
-            Component(mcp_tools_tab, "mcp-tools-tab", "@Component", "MCP 工具列表 Tab")
-            Component(fc_playground_tab, "fc-playground-tab", "@Component", "Function Call Playground Tab")
+        Component(ai_hub_page, "AiHubPage", "@Component", "AI Hub (/chat)")
+        Container_Boundary(ai_hub_tabs, "AiHub Sub-Routes") {
+            Component(chat_tab, "ChatTabComponent", "@Component", "对话 Tab (默认)")
+            Component(tts_tab, "TtsPageComponent", "@Component", "TTS Tab (/chat/tts)")
+            Component(img_tab, "ImageComponent", "@Component", "图像 Tab (/chat/image)")
         }
-        Component(rag_chat_page, "RagChatComponent", "@Component", "RAG 对话页面 (路由 /rag)")
-        Component(vision_page, "VisionPanelComponent", "@Component", "视觉分析面板 (路由 /vision)")
-        Component(ai_hub_page, "AiHubComponent", "@Component", "AI Hub 中心 (路由 /ai-hubs)")
-        Container_Boundary(ai_hub_tabs, "AiHubComponent Sub-Tabs") {
-            Component(chat_tab, "chat-tab", "@Component", "对话 Tab")
-            Component(tts_tab, "tts-tab", "@Component", "TTS 语音合成 Tab")
-            Component(img_gen_tab, "image-gen-tab", "@Component", "图像生成 Tab")
-        }
+        Component(rag_page, "RagPageComponent", "@Component", "RAG 页面 (/rag)")
+        Component(vision_page, "VisionPageComponent", "@Component", "视觉分析 (/vision)")
     }
 
     ' ============================================================
-    ' AGENT COMPONENTS - 智能体组件树
+    ' FEATURE SERVICES
     ' ============================================================
-    Container_Boundary(agent_components, "Agent Components") {
-        Component(agent_panel, "AgentPanelComponent", "@Component", "代理面板容器组件")
-        Component(agent_chat, "AgentChatComponent", "@Component", "AI 代理对话组件 (SSE 流式)")
-        Component(chat_msg, "ChatMessageComponent", "@Component", "聊天消息展示 (Markdown 渲染)")
-        Component(tool_result, "ToolResultComponent", "@Component", "工具调用结果展示")
-        Component(status_badge, "StatusBadgeComponent", "@Component", "状态徽章展示")
-        Component(seg_ctrl, "SegmentedControlComponent", "@Component", "分段控制器")
+    Container_Boundary(feature_services, "Feature Services") {
+        Component(chat_svc, "ChatService", "@Injectable", "聊天 SSE 流式")
+        Component(rag_svc, "RagService", "@Injectable", "RAG 文档与问答")
+        Component(stream_parser, "StreamParserService", "@Injectable", "SSE 事件解析")
     }
 
     ' ============================================================
-    ' CORE SERVICES - 核心服务层
+    ' CORE SERVICES
     ' ============================================================
     Container_Boundary(core_services, "Core Services") {
-        Component(api_svc, "ApiService", "@Injectable", "通用 API 服务：健康检查/聊天/语音/视觉/图像/RAG/Provider/Model/Voice/Detection")
-        Component(funcall_svc, "FunctionCallService", "@Injectable", "SSE 解析，/api/mcp/function-call/stream")
-        Component(mcp_svc, "McpService", "@Injectable", "MCP JSON-RPC：/api/mcp/.well-known/tools + /api/mcp/messages")
-        Component(notif_svc, "NotificationService", "@Injectable", "Toast 通知服务")
-        Component(http_err_interceptor, "HttpErrorInterceptor", "HTTP Interceptor", "HTTP 错误拦截，统一异常处理")
+        Component(api_svc, "ApiService", "@Injectable", "通用 REST: chat/rag/image/tts/vision")
+        Component(notif_svc, "NotificationService", "@Injectable", "Toast 通知")
+        Component(http_err_interceptor, "HttpErrorInterceptor", "Interceptor", "HTTP 错误拦截")
+        Component(sidebar_svc, "SidebarService", "@Injectable", "侧边栏状态")
+        Component(i18n_svc, "I18nService", "@Injectable", "国际化 (5 语言)")
+        Component(theme_svc, "ThemeService", "@Injectable", "主题切换")
     }
 
     ' ============================================================
-    ' SHARED LAYER - 共享层
+    ' SHARED UI
     ' ============================================================
-    Container_Boundary(shared_layer, "Shared Layer") {
-        Component(ui_card, "Card", "@Component", "卡片 UI 组件")
-        Component(ui_button, "Button", "@Component", "按钮 UI 组件")
-        Component(ui_seg_ctrl, "SegmentedControl (shared)", "@Component", "共享分段控制器")
-        Component(toast_comp, "Toast", "@Component", "Toast 通知组件")
-        Component(img_zoom_modal, "ImageZoomModal", "@Component", "图片缩放模态框")
-        Component(theme_svc, "ThemeService", "@Injectable", "主题服务")
-        Component(i18n_svc, "I18nService", "@Injectable", "国际化服务 (5 种语言)")
+    Container_Boundary(shared_layer, "Shared UI") {
+        Component(ui_card, "CardComponent", "@Component", "卡片")
+        Component(ui_button, "ButtonComponent", "@Component", "按钮")
+        Component(ui_seg_ctrl, "SegmentedControlComponent", "@Component", "分段控制器")
+        Component(citation_comp, "CitationComponent", "@Component", "RAG 来源引用")
+        Component(toast_comp, "ToastComponent", "@Component", "Toast 通知")
+        Component(img_zoom, "ImageZoomModalComponent", "@Component", "图片缩放")
+        Component(markdown_svc, "MarkdownService", "@Injectable", "Markdown 渲染")
     }
 }
 
 ' ============================================================
-' EXTERNAL SYSTEMS - 外部系统 (via proxy to :9000)
+' EXTERNAL
 ' ============================================================
-System_Boundary(external_systems, "Backend & Browser") {
-    Component(backend_api, "AI Platform Backend", "REST/SSE API", "Spring Boot 4.1 后端，端口 9000")
-    Component(browser_apis, "Browser APIs", "Web APIs", "HttpClient, Fetch, SSE EventSource")
+System_Boundary(external, "Backend & Browser") {
+    Component(backend_api, "AI Platform Backend", "REST/SSE/WebSocket", "Spring Boot :9000")
+    Component(browser_apis, "Browser APIs", "Web APIs", "HttpClient, WebSocket, SSE")
 }
 
 ' ============================================================
-' ROUTES - 路由定义
+' ROUTES
 ' ============================================================
-Rel(app_routes, ai_infra_page, "路由 /ai-infra (默认)")
-Rel(app_routes, rag_chat_page, "路由 /rag")
-Rel(app_routes, vision_page, "路由 /vision")
-Rel(app_routes, ai_hub_page, "路由 /ai-hubs")
-Rel(app_root, app_routes, "使用路由配置")
+Rel(app_routes, main_layout, "根布局")
+Rel(main_layout, ai_hub_page, "/chat")
+Rel(main_layout, rag_page, "/rag")
+Rel(main_layout, vision_page, "/vision")
+Rel(ai_hub_page, chat_tab, "默认 Tab")
+Rel(ai_hub_page, tts_tab, "/chat/tts")
+Rel(ai_hub_page, img_tab, "/chat/image")
 
 ' ============================================================
-' PAGE -> SUB-TABS - 页面内子 Tab
+' SERVICE RELATIONSHIPS
 ' ============================================================
-Rel(ai_infra_page, mcp_tools_tab, "MCP 工具列表")
-Rel(ai_infra_page, fc_playground_tab, "FC Playground")
-Rel(ai_hub_page, chat_tab, "对话 Tab")
-Rel(ai_hub_page, tts_tab, "TTS Tab")
-Rel(ai_hub_page, img_gen_tab, "图像生成 Tab")
-
-' ============================================================
-' PAGE -> AGENT COMPONENTS - 页面使用智能体组件
-' ============================================================
-Rel(ai_infra_page, agent_panel, "使用")
-Rel(ai_infra_page, agent_chat, "使用")
-Rel(ai_infra_page, status_badge, "使用")
-
-' ============================================================
-' AGENT COMPONENT TREE - 智能体组件层级
-' ============================================================
-Rel(agent_panel, agent_chat, "容器")
-Rel(agent_chat, chat_msg, "渲染消息")
-Rel(agent_chat, tool_result, "展示工具结果")
-Rel(agent_chat, status_badge, "状态徽章")
-
-' ============================================================
-' SERVICES - 服务使用关系
-' ============================================================
-Rel(agent_chat, funcall_svc, "SSE 流式调用 /api/mcp/function-call/stream")
-Rel(agent_chat, api_svc, "HTTP 请求")
-Rel(agent_chat, mcp_svc, "MCP JSON-RPC")
-Rel(agent_chat, notif_svc, "通知")
-
-Rel(funcall_svc, backend_api, "SSE 流 /api/mcp/function-call/stream", "SSE")
-Rel(mcp_svc, backend_api, "JSON-RPC /api/mcp/.well-known/tools + /api/mcp/messages", "HTTP")
-Rel(api_svc, backend_api, "REST API (proxy /api/* -> :9000)", "HTTP")
-
-Rel(rag_chat_page, api_svc, "RAG API")
+Rel(chat_tab, chat_svc, "聊天")
+Rel(chat_tab, stream_parser, "SSE 解析")
+Rel(rag_page, rag_svc, "RAG")
+Rel(tts_tab, api_svc, "TTS API")
+Rel(img_tab, api_svc, "图像 API")
 Rel(vision_page, api_svc, "视觉 API")
-Rel(ai_hub_page, api_svc, "AI Hub API")
 
-Rel(ai_infra_page, api_svc, "API 服务")
-
+Rel(chat_svc, api_svc, "HTTP/SSE")
+Rel(rag_svc, api_svc, "HTTP/SSE")
+Rel(api_svc, backend_api, "proxy /api/* → :9000", "HTTP")
 Rel(notif_svc, toast_comp, "触发 Toast")
-
-Rel(app_root, theme_svc, "注入主题服务")
-Rel(app_root, i18n_svc, "注入国际化服务")
-Rel(app_root, http_err_interceptor, "注册错误拦截")
+Rel(app_root, theme_svc, "主题")
+Rel(app_root, i18n_svc, "国际化")
+Rel(app_root, http_err_interceptor, "错误拦截")
 
 SHOW_LEGEND()
 @enduml

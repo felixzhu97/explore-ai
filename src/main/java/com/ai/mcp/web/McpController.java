@@ -20,7 +20,7 @@ public class McpController {
     public ResponseEntity<Map<String, Object>> health() {
         return ResponseEntity.ok(Map.of(
                 "status", "UP",
-                "server", "ai-explore-mcp-server",
+                "server", "explore-ai-mcp-server",
                 "version", "1.0.0",
                 "protocol", "MCP 1.0"
         ));
@@ -30,7 +30,7 @@ public class McpController {
     @Operation(summary = "Get MCP Server information")
     public ResponseEntity<Map<String, Object>> info() {
         return ResponseEntity.ok(Map.of(
-                "name", "ai-explore-mcp-server",
+                "name", "explore-ai-mcp-server",
                 "version", "1.0.0",
                 "description", "AI Explore MCP Server with RAG, Weather, and Chat tools",
                 "capabilities", Map.of(

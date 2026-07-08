@@ -7,7 +7,7 @@ spring:
         type: SYNC
         stdio: false
         protocol: STREAMABLE
-        name: ai-explore-mcp-server
+        name: explore-ai-mcp-server
         version: "1.0.0"
         description: AI Explore MCP Server with RAG, Weather, and Chat tools
         annotation-scanner:
@@ -48,7 +48,7 @@ spring:
 
   # H2 embedded database (no Docker required)
   datasource:
-    url: ${H2_URL:jdbc:h2:file:./data/ai-explore;AUTO_SERVER=TRUE}
+    url: ${H2_URL:jdbc:h2:file:./data/explore-ai;AUTO_SERVER=TRUE}
     username: ${H2_USER:sa}
     password: ${H2_PASSWORD:}
     driver-class-name: org.h2.Driver

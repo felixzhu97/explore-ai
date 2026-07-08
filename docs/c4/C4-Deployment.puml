@@ -5,78 +5,75 @@ LAYOUT_WITH_LEGEND()
 
 title Deployment Diagram - Local Development Environment
 
-' ============================================================
-' DEVELOPER WORKSTATION - 本地开发机器
-' ============================================================
-Person_Ext(user, "Developer / End User", "Browses the Angular web application from a browser")
+Person_Ext(user, "Developer / End User", "浏览器访问 Angular Web 应用")
 
 Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
 
     ' ============================================================
-    ' Docker Engine - PostgreSQL + pgvector
+    ' Java Runtime - Spring Boot Backend (含 H2 内嵌)
     ' ============================================================
-    Deployment_Node(docker_engine, "Docker Engine", "Docker") {
-        ContainerDb(postgresql_pgvector, "PostgreSQL + pgvector", "pgvector/pgvector:pg17", "Documents, vectors, metadata", "5432")
-    }
-
-    ' ============================================================
-    ' Java Runtime - Spring Boot Backend
-    ' ============================================================
-    Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine / jre-alpine") {
-        Container(backend, "Spring Boot Backend", "eclipse-temurin:25-jre-alpine", "AI Chat + RAG + Tool Calling + Image + TTS + MCP\nSpring Boot 4.0 / Java 25 / Spring AI 2.0", "9000")
+    Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine") {
+        Container(backend, "Spring Boot Backend", "Spring Boot 4.0 / Java 25", "10 子域 AI 平台\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
+        ContainerDb(h2_embedded, "H2 Embedded DB", "H2 File DB", "文档元数据 + 向量\n./data/explore-ai", "内嵌")
     }
 
     ' ============================================================
     ' Node.js - Angular Dev Server
     ' ============================================================
     Deployment_Node(node_runtime, "Node 22 + pnpm", "Node 22") {
-        Container(angular_dev, "Angular 22 Dev Server", "Angular CLI", "Web UI\nproxy.conf.json: /api/* → localhost:9000", "4200")
+        Container(angular_dev, "Angular 22 Dev Server", "Angular CLI", "Web UI\nproxy.conf.json: /api/* → :9000", "4200")
+    }
+
+    ' ============================================================
+    ' Optional Docker - PostgreSQL + pgvector
+    ' ============================================================
+    Deployment_Node(docker_engine, "Docker Engine (Optional)", "Docker") {
+        ContainerDb(postgresql_pgvector, "PostgreSQL + pgvector", "pgvector/pgvector:pg17", "可选生产向量库", "5432")
+    }
+
+    ' ============================================================
+    ' Local AI Services
+    ' ============================================================
+    Deployment_Node(local_ai, "Local AI Services", "localhost") {
+        Container_Ext(ollama_svc, "Ollama", "REST API", "mxbai-embed-large (1024)\n+ qwen3.5 Vision", "11434")
+        Container_Ext(whisper_cpp, "whisper.cpp", "REST/WebSocket", "whisper-base 流式 ASR", "8178")
     }
 }
 
 ' ============================================================
-' EXTERNAL SERVICES - 外部服务
+' EXTERNAL CLOUD SERVICES
 ' ============================================================
 Deployment_Node(deepseek_node, "DeepSeek API", "HTTPS") {
-    Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM Chat + Text Embedding", "HTTPS")
-}
-
-Deployment_Node(ollama_node, "Ollama (Local or Docker)", "localhost:11434") {
-    Container_Ext(ollama_svc, "Ollama", "REST API", "Local Embedding Model (nomic-embed-text)", "11434")
+    Container_Ext(deepseek_api, "DeepSeek API", "REST API", "deepseek-v4-flash LLM", "HTTPS")
 }
 
 Deployment_Node(dalle_node, "DALL-E API (OpenAI)", "HTTPS") {
-    Container_Ext(dalle_api, "DALL-E API", "REST API", "Image Generation Service", "HTTPS")
+    Container_Ext(dalle_api, "DALL-E API", "REST API", "dall-e-3 图像生成", "HTTPS")
 }
 
 Deployment_Node(tts_node, "TTS Service (OpenAI)", "HTTPS") {
-    Container_Ext(tts_api, "TTS Service", "REST API", "Text-to-Speech Service", "HTTPS")
+    Container_Ext(tts_api, "TTS Service", "REST API", "gpt-4o-mini-tts", "HTTPS")
+}
+
+Deployment_Node(serper_node, "Serper.dev API", "HTTPS") {
+    Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 }
 
 ' ============================================================
-' RELATIONSHIPS - 关系
+' RELATIONSHIPS
 ' ============================================================
+Rel(user, angular_dev, "浏览 Web UI", "HTTP :4200")
+Rel(angular_dev, backend, "/api/* → localhost:9000", "HTTP/SSE/WebSocket")
 
-' User interacts with Angular
-Rel(user, angular_dev, "Browses (HTTP)", "TCP")
+Rel(backend, h2_embedded, "JDBC (默认)", "内嵌")
+Rel_Back(backend, postgresql_pgvector, "可选 JDBC", "TCP :5432")
 
-' Angular proxy to Backend
-Rel(angular_dev, backend, "/api/* → localhost:9000", "HTTP/SSE")
-
-' Backend to PostgreSQL
-Rel(backend, postgresql_pgvector, "JDBC", "TCP :5432")
-
-' Backend to DeepSeek API
-Rel_D(backend, deepseek_api, "LLM Chat + Embedding", "HTTPS")
-
-' Backend to Ollama
-Rel(backend, ollama_svc, "Embedding Generation", "HTTP :11434")
-
-' Backend to DALL-E API
-Rel_D(backend, dalle_api, "Image Generation", "HTTPS")
-
-' Backend to TTS Service
-Rel_D(backend, tts_api, "Text-to-Speech", "HTTPS")
+Rel(backend, deepseek_api, "LLM Chat + Eval", "HTTPS")
+Rel(backend, ollama_svc, "Embedding + Vision", "HTTP :11434")
+Rel(backend, whisper_cpp, "Streaming ASR", "HTTP/WS :8178")
+Rel(backend, dalle_api, "Image Generation", "HTTPS")
+Rel(backend, tts_api, "Text-to-Speech", "HTTPS")
+Rel(backend, serper_api, "Web Search", "HTTPS")
 
 SHOW_LEGEND()
 @enduml
