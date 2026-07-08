@@ -1,6 +1,5 @@
 package com.ai.mcp.domain.model;
 
-import com.ai.mcp.domain.exception.McpToolNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +12,13 @@ class McpToolDefinitionTest {
     @DisplayName("should reject blank tool name")
     void should_reject_blank_tool_name() {
         assertThatThrownBy(() -> McpToolDefinition.create(" ", "desc"))
-                .isInstanceOf(McpToolNotFoundException.class);
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("should reject null via compact constructor")
+    void should_reject_null_via_compact_constructor() {
+        assertThatThrownBy(() -> new McpToolDefinition(null, "desc"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

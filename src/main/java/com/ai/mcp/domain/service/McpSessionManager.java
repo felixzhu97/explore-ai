@@ -1,8 +1,6 @@
 package com.ai.mcp.domain.service;
 
 import com.ai.mcp.domain.model.McpSession;
-import com.ai.mcp.domain.model.McpSessionStatus;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +23,12 @@ public class McpSessionManager {
                 .findFirst();
     }
 
+    public Optional<McpSession> findActiveByServerName(String serverName) {
+        return sessions.values().stream()
+                .filter(session -> session.serverName().equals(serverName) && session.isActive())
+                .findFirst();
+    }
+
     public void closeSession(UUID sessionId) {
         McpSession session = sessions.get(sessionId);
         if (session != null) {
@@ -38,7 +42,7 @@ public class McpSessionManager {
 
     public int activeSessionCount() {
         return (int) sessions.values().stream()
-                .filter(session -> session.status() == McpSessionStatus.ACTIVE)
+                .filter(McpSession::isActive)
                 .count();
     }
 

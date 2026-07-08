@@ -1,5 +1,6 @@
 package com.ai.mcp.infrastructure.client;
 
+import com.ai.mcp.application.port.McpToolCallbackRegistry;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;
 import com.ai.mcp.domain.service.McpSessionManager;
@@ -13,38 +14,42 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class SpringAiMcpClientRepository implements McpClientRepository {
+public class SpringAiMcpClientRepository implements McpClientRepository, McpToolCallbackRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(SpringAiMcpClientRepository.class);
 
     private final McpSessionManager sessionManager = new McpSessionManager();
-    private final CopyOnWriteArrayList<ToolCallback> registeredCallbacks = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<McpToolDefinition> registeredTools = new CopyOnWriteArrayList<>();
+    private final Map<String, List<ToolCallback>> serverCallbacks = new ConcurrentHashMap<>();
+    private final Map<String, List<McpToolDefinition>> serverTools = new ConcurrentHashMap<>();
 
+    @Override
     public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
         log.info("Registering {} tools from MCP server: {}", tools.length, serverName);
+        List<ToolCallback> callbacks = List.of(tools);
         List<McpToolDefinition> definitions = new ArrayList<>();
         for (ToolCallback tool : tools) {
-            registeredCallbacks.add(tool);
             var def = tool.getToolDefinition();
             definitions.add(McpToolDefinition.create(def.name(), def.description()));
         }
+        serverCallbacks.put(serverName, callbacks);
         registerTools(definitions, serverName);
     }
 
     @Override
     public void registerTools(List<McpToolDefinition> tools, String serverName) {
-        tools.forEach(McpToolDefinition::validate);
-        registeredTools.addAll(tools);
+        sessionManager.findActiveByServerName(serverName).ifPresent(session -> {
+            sessionManager.closeSession(session.id());
+        });
+        serverTools.put(serverName, List.copyOf(tools));
         sessionManager.registerSession(serverName, tools.size());
     }
 
     @Override
     public List<McpToolDefinition> listTools() {
-        return List.copyOf(registeredTools);
+        return serverTools.values().stream().flatMap(List::stream).toList();
     }
 
     @Override
@@ -58,18 +63,21 @@ public class SpringAiMcpClientRepository implements McpClientRepository {
 
     @Override
     public int toolCount() {
-        return registeredTools.size();
+        return serverTools.values().stream().mapToInt(List::size).sum();
     }
 
     @Override
     public void clearTools() {
-        registeredCallbacks.clear();
-        registeredTools.clear();
+        serverCallbacks.clear();
+        serverTools.clear();
         sessionManager.clear();
         log.info("Cleared all registered MCP tools");
     }
 
+    @Override
     public ToolCallback[] getRegisteredToolCallbacks() {
-        return registeredCallbacks.toArray(new ToolCallback[0]);
+        return serverCallbacks.values().stream()
+                .flatMap(List::stream)
+                .toArray(ToolCallback[]::new);
     }
 }

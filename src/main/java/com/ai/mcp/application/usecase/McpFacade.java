@@ -1,9 +1,9 @@
 package com.ai.mcp.application.usecase;
 
+import com.ai.mcp.application.port.McpToolCallbackRegistry;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;
 import com.ai.mcp.domain.vo.McpServerConnection;
-import com.ai.mcp.infrastructure.client.SpringAiMcpClientRepository;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Service;
@@ -15,15 +15,15 @@ import java.util.Map;
 public class McpFacade {
 
     private final McpClientRepository mcpClientRepository;
-    private final SpringAiMcpClientRepository mcpClientGateway;
+    private final McpToolCallbackRegistry toolCallbackRegistry;
     private final ChatClient chatClient;
 
     public McpFacade(
             McpClientRepository mcpClientRepository,
-            SpringAiMcpClientRepository mcpClientGateway,
+            McpToolCallbackRegistry toolCallbackRegistry,
             ChatClient.Builder chatClientBuilder) {
         this.mcpClientRepository = mcpClientRepository;
-        this.mcpClientGateway = mcpClientGateway;
+        this.toolCallbackRegistry = toolCallbackRegistry;
         this.chatClient = chatClientBuilder.build();
     }
 
@@ -40,7 +40,7 @@ public class McpFacade {
     }
 
     public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
-        mcpClientGateway.registerToolCallbacks(tools, serverName);
+        toolCallbackRegistry.registerToolCallbacks(tools, serverName);
     }
 
     public void clearTools() {
@@ -48,7 +48,7 @@ public class McpFacade {
     }
 
     public String chatWithTools(String question) {
-        ToolCallback[] tools = mcpClientGateway.getRegisteredToolCallbacks();
+        ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
         return chatClient.prompt().user(question).tools(tools).call().content();
     }
 }

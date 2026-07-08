@@ -87,6 +87,23 @@ class McpClientControllerTest {
     class Chat {
 
         @Test
+        @DisplayName("should return bad request when question is blank")
+        void should_return_bad_request_when_question_is_blank() {
+            var response = controller.chat(new McpClientController.McpChatRequest("  ", null));
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).containsEntry("error", "提问内容不能为空");
+        }
+
+        @Test
+        @DisplayName("should return bad request when question is null")
+        void should_return_bad_request_when_question_is_null() {
+            var response = controller.chat(new McpClientController.McpChatRequest(null, null));
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+
+        @Test
         @DisplayName("should return internal server error on service exception")
         void should_return_internal_server_error_on_service_exception() {
             when(mcpFacade.chatWithTools("Hello")).thenThrow(new RuntimeException("Service error"));

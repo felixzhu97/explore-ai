@@ -10,7 +10,7 @@ public class McpSession {
     private final UUID id;
     private final String serverName;
     private final int toolCount;
-    private McpSessionStatus status;
+    private volatile McpSessionStatus status;
 
     private McpSession(UUID id, String serverName, int toolCount) {
         this.id = Objects.requireNonNull(id);

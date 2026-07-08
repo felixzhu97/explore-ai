@@ -43,6 +43,17 @@ class SpringAiMcpClientRepositoryTest {
             assertThat(repository.toolCount()).isEqualTo(4);
             assertThat(repository.listServers().keySet()).hasSize(2);
         }
+
+        @Test
+        @DisplayName("should replace tools when same server reregisters")
+        void should_replace_tools_when_same_server_reregisters() {
+            repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
+            repository.registerToolCallbacks(createMockTools("tool3"), "test-server");
+
+            assertThat(repository.toolCount()).isEqualTo(1);
+            assertThat(repository.listTools()).extracting("name").containsExactly("tool3");
+            assertThat(repository.listServers().keySet()).contains("test-server");
+        }
     }
 
     @Nested
