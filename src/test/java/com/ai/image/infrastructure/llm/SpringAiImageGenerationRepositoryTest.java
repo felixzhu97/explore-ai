@@ -69,4 +69,33 @@ class SpringAiImageGenerationRepositoryTest {
 
         assertThat(result.isAvailable()).isFalse();
     }
+
+    @Test
+    @DisplayName("should return empty image when response is null")
+    void should_return_empty_image_when_response_is_null() {
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(null);
+
+        var result = repository.generate(
+                com.ai.image.domain.vo.ImagePrompt.of("empty"),
+                ImageOptions.of(null, null, 1024, 1024, 1));
+
+        assertThat(result.isAvailable()).isFalse();
+    }
+
+    @Test
+    @DisplayName("should return empty image when first result output is null")
+    void should_return_empty_image_when_first_result_output_is_null() {
+        ImageGeneration mockGeneration = mock(ImageGeneration.class);
+        ImageResponse mockResponse = mock(ImageResponse.class);
+
+        when(mockGeneration.getOutput()).thenReturn(null);
+        when(mockResponse.getResults()).thenReturn(List.of(mockGeneration));
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(mockResponse);
+
+        var result = repository.generate(
+                com.ai.image.domain.vo.ImagePrompt.of("empty"),
+                ImageOptions.of(null, null, 1024, 1024, 1));
+
+        assertThat(result.isAvailable()).isFalse();
+    }
 }

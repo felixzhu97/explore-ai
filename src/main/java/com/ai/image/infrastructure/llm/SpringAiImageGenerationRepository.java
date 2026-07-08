@@ -42,11 +42,16 @@ public class SpringAiImageGenerationRepository implements ImageGenerationReposit
         var imagePrompt = new org.springframework.ai.image.ImagePrompt(prompt.value(), springOptions);
         ImageResponse response = imageModel.call(imagePrompt);
 
-        if (response.getResults().isEmpty()) {
+        if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
             return GeneratedImage.empty();
         }
 
-        String imageUrl = response.getResults().getFirst().getOutput().getUrl();
+        var firstResult = response.getResults().getFirst();
+        if (firstResult == null || firstResult.getOutput() == null) {
+            return GeneratedImage.empty();
+        }
+
+        String imageUrl = firstResult.getOutput().getUrl();
         log.info("Generated image URL: {}", imageUrl);
         return GeneratedImage.create(imageUrl, options.model(), prompt.value());
     }
