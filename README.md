@@ -11,7 +11,7 @@
 | **Tool Calling** | 天气查询、文档搜索、Web 搜索 | 自动工具选择 |
 | **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
 | **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
-| **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | Ollama Whisper，中文支持 |
+| **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | whisper.cpp 本地免费 ASR |
 | **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放，**本地 Ollama qwen3.5 驱动** |
 
 ## 技术栈

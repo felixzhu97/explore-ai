@@ -115,6 +115,8 @@ app:
     whisper-cpp:
       base-url: http://localhost:8178
       model: whisper-base
+      connect-timeout: 5s
+      read-timeout: 60s
   cors:
     allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat
 

@@ -88,8 +88,8 @@ Container_Boundary(tts_domain, "Audio/TTS Domain") {
     Container(tts_adapter, "OpenAiTtsAdapter", "@Component", "OpenAI TTS 适配器")
     Container(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket 处理器")
     Container(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式转录用例")
-    Container(asr_adapter, "OllamaWhisperAdapter", "@Component", "Ollama Whisper 适配器")
-    Container(asr_config, "OllamaAsrConfig", "@Configuration", "ASR 配置")
+    Container(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp ASR 适配器")
+    Container(asr_config, "AsrConfig", "@Configuration", "ASR 线程池配置")
 }
 
 ' ============================================================
@@ -129,6 +129,7 @@ Container_Boundary(crosscut_domain, "Cross-Cutting") {
 ContainerDb(postgresql, "PostgreSQL + pgvector", "PostgreSQL 17", "文档元数据 + 向量嵌入", "5432")
 Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话 + Text Embedding", "HTTPS")
 Container_Ext(ollama_svc, "Ollama", "REST API", "本地 Embedding + Vision 模型 (qwen3.5)", "11434")
+Container_Ext(whisper_cpp_svc, "whisper.cpp", "REST API", "本地 ASR (OpenAI 兼容 API)", "8178")
 Container_Ext(dalle_api, "DALL-E API", "REST API", "图像生成服务", "HTTPS")
 Container_Ext(tts_ext_api, "TTS Service", "REST API", "语音合成服务", "HTTPS")
 Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索服务", "HTTPS")
@@ -196,10 +197,10 @@ Rel(image_adapter, dalle_api, "图像生成", "HTTPS")
 Rel(audio_controller, tts_svc, "TTS 调用")
 Rel(audio_controller, asr_ws_handler, "WebSocket 会话管理")
 Rel(asr_ws_handler, asr_usecase, "流式转录编排")
-Rel(asr_usecase, asr_adapter, "调用 Ollama Whisper")
+Rel(asr_usecase, asr_adapter, "调用 whisper.cpp")
+Rel(asr_adapter, whisper_cpp_svc, "语音转录", "HTTP :8178")
 Rel(tts_svc, tts_adapter, "依赖")
 Rel(tts_adapter, tts_ext_api, "语音合成", "HTTPS")
-Rel(asr_adapter, ollama_svc, "Whisper 转录", "HTTP :11434")
 
 ' MCP Server Domain
 Rel(mcp_controller, mcp_server_svc, "调用")

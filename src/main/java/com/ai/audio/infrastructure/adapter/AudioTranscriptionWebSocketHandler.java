@@ -2,7 +2,9 @@ package com.ai.audio.infrastructure.adapter;
 
 import com.ai.audio.application.usecase.StreamingTranscriptionUseCase;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 /**
@@ -24,7 +26,7 @@ public class AudioTranscriptionWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        streamingTranscriptionUseCase.handleAudioChunk(session, message.getPayload());
+        streamingTranscriptionUseCase.handleMessage(session, message.getPayload());
     }
 
     @Override

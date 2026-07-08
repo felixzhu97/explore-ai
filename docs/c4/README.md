@@ -52,7 +52,7 @@
 - **端口**: **9000** (统一)
 - **子域**: Chat Domain / RAG Domain / Tool Calling Domain / Image Generation Domain / Audio/TTS Domain / ASR Domain / MCP Server Domain / MCP Client Domain
 - **向量库**: H2 嵌入式向量 (内置) / PostgreSQL + pgvector (可选)
-- **外部服务**: DeepSeek API (LLM) / Ollama (本地 Embedding + Vision + Whisper ASR, 端口 11434) / DALL-E API (图像生成) / TTS Service (语音合成)
+- **外部服务**: DeepSeek API (LLM) / Ollama (本地 Embedding + Vision, 端口 11434) / whisper.cpp (本地 ASR, 端口 8178) / DALL-E API (图像生成) / TTS Service (语音合成)
 
 ### 前端 (Web Frontend)
 

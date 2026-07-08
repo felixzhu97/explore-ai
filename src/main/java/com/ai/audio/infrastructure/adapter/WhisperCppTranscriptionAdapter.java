@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
 
@@ -35,11 +37,14 @@ public class WhisperCppTranscriptionAdapter {
     public WhisperCppTranscriptionAdapter(
             @Value("${app.asr.whisper-cpp.base-url:http://localhost:8178}") String baseUrl,
             @Value("${app.asr.whisper-cpp.model:whisper-base}") String model,
+            @Value("${app.asr.whisper-cpp.connect-timeout:5s}") Duration connectTimeout,
+            @Value("${app.asr.whisper-cpp.read-timeout:60s}") Duration readTimeout,
             ObjectMapper objectMapper) {
         this.model = model;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
+                .requestFactory(createRequestFactory(connectTimeout, readTimeout))
                 .build();
     }
 
@@ -55,8 +60,12 @@ public class WhisperCppTranscriptionAdapter {
     public void streamAudioChunk(WebSocketSession session, StringBuilder transcript, String payload) {
         try {
             Map<String, String> message = objectMapper.readValue(payload, new TypeReference<>() {});
-            String audioData = message.get("data");
+            if (!"audio".equals(message.get("type"))) {
+                sendMessage(session, "error", "Unsupported message type");
+                return;
+            }
 
+            String audioData = message.get("data");
             if (audioData == null || audioData.isBlank()) {
                 return;
             }
@@ -93,8 +102,12 @@ public class WhisperCppTranscriptionAdapter {
         }
     }
 
+    public void sendError(WebSocketSession session, String text) {
+        sendMessage(session, "error", text);
+    }
+
     private String transcribeChunk(String base64Audio) {
-        byte[] wavBytes = Base64.getDecoder().decode(base64Audio);
+        byte[] wavBytes = decodeAudio(base64Audio);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new ByteArrayResource(wavBytes) {
             @Override
@@ -114,15 +127,33 @@ public class WhisperCppTranscriptionAdapter {
         return response == null ? null : response.text();
     }
 
-    private void sendMessage(WebSocketSession session, String type, String text) {
-        synchronized (session) {
-            try {
-                String json = objectMapper.writeValueAsString(Map.of("type", type, "text", text));
-                session.sendMessage(new TextMessage(json));
-            } catch (Exception e) {
-                log.error("Error sending WebSocket message", e);
-            }
+    byte[] decodeAudio(String base64Audio) {
+        String payload = base64Audio.strip();
+        int commaIndex = payload.indexOf(',');
+        if (payload.startsWith("data:") && commaIndex > 0) {
+            payload = payload.substring(commaIndex + 1);
         }
+        return Base64.getMimeDecoder().decode(payload);
+    }
+
+    private void sendMessage(WebSocketSession session, String type, String text) {
+        if (!session.isOpen()) {
+            return;
+        }
+        try {
+            String json = objectMapper.writeValueAsString(Map.of("type", type, "text", text));
+            session.sendMessage(new TextMessage(json));
+        } catch (Exception e) {
+            log.error("Error sending WebSocket message", e);
+        }
+    }
+
+    private static SimpleClientHttpRequestFactory createRequestFactory(
+            Duration connectTimeout, Duration readTimeout) {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(connectTimeout);
+        factory.setReadTimeout(readTimeout);
+        return factory;
     }
 
     record WhisperApiResponse(String text) {}

@@ -967,15 +967,24 @@ Real-time speech-to-text using whisper.cpp via WebSocket.
 // Client -> Server (audio chunk)
 {"type": "audio", "data": "base64_wav_data"}
 
+// Client -> Server (end stream)
+{"type": "stop"}
+
 // Server -> Client (partial result)
 {"type": "partial", "text": "正在识别..."}
 
-// Server -> Client (final result)
+// Server -> Client (final result, sent before connection close)
 {"type": "final", "text": "识别完成的文字"}
 
 // Server -> Client (error)
 {"type": "error", "text": "Transcription failed: ..."}
 ```
+
+**Flow:**
+
+1. Client sends one or more `audio` chunks and receives `partial` responses.
+2. Client sends `stop` when finished recording.
+3. Server sends `final` with the accumulated transcript, then closes the connection.
 
 **Requirements:**
 
