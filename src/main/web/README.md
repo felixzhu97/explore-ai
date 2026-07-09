@@ -4,7 +4,7 @@ A modern Angular 20+ frontend application featuring:
 
 - **AI Infrastructure Panel** - Model management, LLMOps, AIOps, VectorDB
 - **RAG Chat** - Document Q&A with retrieval-augmented generation
-- **Vision AI** - Image analysis with captioning, object detection, and OCR
+- **Image Analysis** - Image analysis with captioning, object detection, and OCR
 - **AI Hub** - Chat, image generation, and text-to-speech
 
 ## Tech Stack

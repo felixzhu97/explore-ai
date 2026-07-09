@@ -185,7 +185,7 @@ journey
 ```
 
 **API**: `POST /api/images/generate`  
-**路由**: `/chat/image`  
+**路由**: `/generate/image`  
 **实现**: `ImageController`, `ImageFacade`
 
 ---
@@ -206,7 +206,7 @@ journey
 ```
 
 **API**: `POST /api/audio/tts`  
-**路由**: `/chat/tts`  
+**路由**: `/generate/tts`  
 **实现**: `AudioController`, `AudioFacade`
 
 ---
