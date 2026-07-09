@@ -184,7 +184,7 @@ journey
         图片缩放预览: 4: 用户
 ```
 
-**API**: `POST /api/image/generate`  
+**API**: `POST /api/images/generate`  
 **路由**: `/chat/image`  
 **实现**: `ImageController`, `ImageFacade`
 

@@ -726,10 +726,14 @@ curl -X POST "${BASE_URL}/api/images/generate" \
 ```json
 {
   "imageUrl": "https://example.com/images/abc123.png",
+  "imageBase64": null,
   "model": "dall-e-3",
-  "prompt": "A beautiful sunset over the ocean"
+  "prompt": "A beautiful sunset over the ocean",
+  "status": "SUCCESS"
 }
 ```
+
+Ollama returns `imageBase64` instead of `imageUrl` when using local models.
 
 ---
 

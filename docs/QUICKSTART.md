@@ -310,6 +310,28 @@ java --version  # Must be 25+
 | ------------------- | ---------------------------------------------------- | -------------------------------- |
 | `DEEPSEEK_API_KEY`  | -                                                    | Your DeepSeek API key (required) |
 | `DEEPSEEK_BASE_URL` | [https://api.deepseek.com](https://api.deepseek.com) | DeepSeek API endpoint            |
+| `IMAGE_PROVIDER`    | `ollama`                                             | Image provider: `ollama` or `openai` |
+| `IMAGE_MODEL`       | `x/flux2-klein`                                      | Ollama/OpenAI image model name   |
+| `IMAGE_BASE_URL`    | `http://localhost:11434/v1`                          | Image API base URL               |
+| `OPENAI_API_KEY`    | -                                                    | Required when `IMAGE_PROVIDER=openai` |
+
+
+### Image Generation (Free Ollama) | 图像生成（免费 Ollama）
+
+Chat uses DeepSeek; image generation uses a **separate provider** (default: local Ollama, zero API cost).
+
+```bash
+# 1. Pull an image model (requires GPU on Apple Silicon or NVIDIA)
+ollama pull x/flux2-klein
+
+# 2. Ensure Ollama is running
+ollama serve
+
+# 3. Start the app and open /chat/image
+pnpm dev
+```
+
+Optional paid path: set `IMAGE_PROVIDER=openai`, `IMAGE_API_KEY`, and `IMAGE_BASE_URL=https://api.openai.com/v1` in `.env`.
 
 
 ### Need More Help? | 需要更多帮助？

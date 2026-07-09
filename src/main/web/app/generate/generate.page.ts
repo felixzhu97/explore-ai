@@ -18,12 +18,12 @@ type GenerateTab = 'image' | 'tts';
         (changed)="onTabChange($event)"
       />
     </div>
-    <div class="flex-1 overflow-y-auto bg-surface px-4 py-6">
+    <div class="flex-1 overflow-x-hidden overflow-y-auto bg-surface px-4 py-6">
       <router-outlet />
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex h-screen flex-col h-full w-full' },
+  host: { class: 'flex h-full min-h-0 w-full min-w-0 flex-col' },
 })
 export class GeneratePage {
   private readonly router = inject(Router);

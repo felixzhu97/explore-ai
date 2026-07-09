@@ -108,6 +108,12 @@ management:
 
 app:
   ai:
+    image:
+      enabled: ${IMAGE_ENABLED:true}
+      provider: ${IMAGE_PROVIDER:ollama}
+      model: ${IMAGE_MODEL:x/flux2-klein}
+      api-key: ${IMAGE_API_KEY:ollama}
+      base-url: ${IMAGE_BASE_URL:http://localhost:11434/v1}
     logging-advisor:
       enabled: ${AI_LOGGING_ADVISOR_ENABLED:true}
     tts:

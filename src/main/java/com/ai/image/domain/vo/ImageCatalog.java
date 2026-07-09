@@ -5,8 +5,8 @@ import java.util.List;
 public record ImageCatalog(List<String> models, List<String> sizes, List<String> qualities) {
 
     private static final ImageCatalog DEFAULT = new ImageCatalog(
-            List.of("dall-e-3", "dall-e-2"),
-            List.of("1024x1024", "1024x1792", "1792x1024"),
+            List.of("x/flux2-klein", "x/z-image-turbo", "dall-e-3", "dall-e-2"),
+            List.of("512x512", "768x768", "1024x1024", "1024x1792", "1792x1024"),
             List.of("standard", "hd"));
 
     public ImageCatalog {
