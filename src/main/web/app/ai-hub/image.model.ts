@@ -8,10 +8,27 @@ export interface ImageSize {
 
 export interface ImageGenerateParams {
   prompt: string;
-  negative_prompt?: string;
+  model?: string;
+  quality?: string;
   width?: number;
   height?: number;
-  num_images?: number;
+  n?: number;
+}
+
+export interface ImageGenerationApiResponse {
+  imageUrl?: string | null;
+  imageBase64?: string | null;
+  model?: string;
+  prompt?: string;
+  revisedPrompt?: string | null;
+  status: string;
+}
+
+export interface ImageGenerationResult {
+  imageUrl?: string;
+  imageBase64?: string;
+  model?: string;
+  prompt?: string;
 }
 
 export interface ImageGenerationRequest {
@@ -24,12 +41,6 @@ export interface ImageGenerationRequest {
   seed?: number;
   num_images?: number;
   style_preset?: string;
-}
-
-export interface ImageGenerationResult {
-  images: string[];
-  imageUrl?: string;
-  seed?: number;
 }
 
 export interface ImageGenerationResponse {

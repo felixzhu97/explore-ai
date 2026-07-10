@@ -10,6 +10,7 @@ import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Repository
 public class SpringAiImageGenerationRepository implements ImageGenerationRepository {
@@ -31,15 +32,17 @@ public class SpringAiImageGenerationRepository implements ImageGenerationReposit
                 options.size().width(),
                 options.size().height());
 
-        OpenAiImageOptions springOptions = OpenAiImageOptions.builder()
+        OpenAiImageOptions.Builder optionsBuilder = OpenAiImageOptions.builder()
                 .model(options.model())
-                .quality(options.quality())
                 .width(options.size().width())
                 .height(options.size().height())
-                .n(options.count())
-                .build();
+                .n(options.count());
 
-        var imagePrompt = new org.springframework.ai.image.ImagePrompt(prompt.value(), springOptions);
+        if (StringUtils.hasText(options.quality())) {
+            optionsBuilder.quality(options.quality());
+        }
+
+        var imagePrompt = new org.springframework.ai.image.ImagePrompt(prompt.value(), optionsBuilder.build());
         ImageResponse response = imageModel.call(imagePrompt);
 
         if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
@@ -51,8 +54,19 @@ public class SpringAiImageGenerationRepository implements ImageGenerationReposit
             return GeneratedImage.empty();
         }
 
-        String imageUrl = firstResult.getOutput().getUrl();
-        log.info("Generated image URL: {}", imageUrl);
-        return GeneratedImage.create(imageUrl, options.model(), prompt.value());
+        var output = firstResult.getOutput();
+        String imageBase64 = output.getB64Json();
+        if (StringUtils.hasText(imageBase64)) {
+            log.info("Generated image as base64 payload");
+            return GeneratedImage.fromBase64(imageBase64, options.model(), prompt.value());
+        }
+
+        String imageUrl = output.getUrl();
+        if (StringUtils.hasText(imageUrl)) {
+            log.info("Generated image URL: {}", imageUrl);
+            return GeneratedImage.fromUrl(imageUrl, options.model(), prompt.value());
+        }
+
+        return GeneratedImage.empty();
     }
 }

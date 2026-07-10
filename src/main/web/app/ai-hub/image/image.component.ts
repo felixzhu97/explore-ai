@@ -48,6 +48,7 @@ export class ImageComponent {
   readonly isGenerating = signal(false);
   readonly error = signal<string | null>(null);
   readonly generatedImage = signal<string | null>(null);
+  private readonly imageSource = signal<'url' | 'base64' | null>(null);
 
   sizes: ImageSize[] = [
     { label: '512x512', width: 512, height: 512 },
@@ -75,23 +76,31 @@ export class ImageComponent {
     this.isGenerating.set(true);
     this.error.set(null);
     this.generatedImage.set(null);
+    this.imageSource.set(null);
 
     this.api
       .generateImage({
         prompt: this.prompt(),
-        negative_prompt: this.negativePrompt() || undefined,
         width: this.selectedSize().width,
         height: this.selectedSize().height,
-        num_images: 1,
+        n: 1,
       })
       .subscribe({
         next: (result) => {
-          if (result.images && result.images.length > 0) {
-            this.generatedImage.set(`data:image/png;base64,${result.images[0]}`);
+          if (result.imageUrl) {
+            this.generatedImage.set(result.imageUrl);
+            this.imageSource.set('url');
+            return;
+          }
+
+          if (result.imageBase64) {
+            this.generatedImage.set(`data:image/png;base64,${result.imageBase64}`);
+            this.imageSource.set('base64');
           }
         },
         error: (err: unknown) => {
-          this.error.set(err instanceof Error ? err.message : 'Image generation failed');
+          const message = this.extractErrorMessage(err);
+          this.error.set(message);
           this.isGenerating.set(false);
         },
         complete: () => {
@@ -101,9 +110,34 @@ export class ImageComponent {
   }
 
   download() {
-    if (this.generatedImage()) {
-      const base64 = this.generatedImage()!.replace('data:image/png;base64,', '');
-      this.api.downloadBase64Image(base64, `ai_generated_${Date.now()}.png`);
+    const image = this.generatedImage();
+    if (!image) {
+      return;
     }
+
+    const filename = `ai_generated_${Date.now()}.png`;
+    if (this.imageSource() === 'base64') {
+      const base64 = image.replace(/^data:image\/\w+;base64,/, '');
+      this.api.downloadBase64Image(base64, filename);
+      return;
+    }
+
+    fetch(image)
+      .then(response => response.blob())
+      .then(blob => this.api.downloadBlob(blob, filename))
+      .catch(() => this.error.set('Failed to download image'));
+  }
+
+  private extractErrorMessage(err: unknown): string {
+    if (err instanceof Error) {
+      return err.message;
+    }
+    if (typeof err === 'object' && err !== null && 'error' in err) {
+      const errorBody = (err as { error?: { status?: string } }).error;
+      if (errorBody?.status?.startsWith('ERROR:')) {
+        return errorBody.status.replace(/^ERROR:\s*/, '');
+      }
+    }
+    return 'Image generation failed';
   }
 }
