@@ -1,5 +1,6 @@
 package com.ai.image.application.usecase;
 
+import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.repository.ImageGenerationRepository;
 import com.ai.image.domain.vo.ImageCatalog;
@@ -29,11 +30,35 @@ public class ImageFacade {
 
     public GeneratedImage generateImage(
             String prompt, String model, String quality, int width, int height, int n) {
+        ensureProviderConfigured();
         log.info("ImageFacade.generateImage: {}", truncate(prompt));
         GeneratedImage image = imageGenerationRepository.generate(
                 ImagePrompt.of(prompt),
                 ImageOptions.of(resolveModel(model), quality, width, height, n));
         return image.isAvailable() ? image : GeneratedImage.empty();
+    }
+
+    private void ensureProviderConfigured() {
+        if (!imageProperties.isEnabled()) {
+            throw ImageProviderNotConfiguredException.disabled();
+        }
+        if (!imageProperties.isConfigured()) {
+            if (imageProperties.isOpenAiProvider()) {
+                throw ImageProviderNotConfiguredException.openAiKeyMissing();
+            }
+            throw ImageProviderNotConfiguredException.ollamaModelMissing();
+        }
+        if (imageProperties.isOllamaProvider() && isLocalOllamaEndpoint(imageProperties.getBaseUrl())) {
+            throw ImageProviderNotConfiguredException.ollamaModelMissing();
+        }
+    }
+
+    private boolean isLocalOllamaEndpoint(String baseUrl) {
+        if (!StringUtils.hasText(baseUrl)) {
+            return true;
+        }
+        String normalized = baseUrl.toLowerCase();
+        return normalized.contains("localhost") || normalized.contains("127.0.0.1");
     }
 
     private String resolveModel(String model) {

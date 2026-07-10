@@ -3,10 +3,13 @@ package com.ai.chat.web;
 import com.ai.chat.web.dto.ErrorResponse;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.domain.exception.AiServiceException;
+import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
+import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.RagServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +56,22 @@ public class GlobalExceptionHandler {
             .body(ErrorResponse.of("RAG service error: " + e.getMessage(), "RAG_SERVICE_ERROR"));
     }
 
+    @ExceptionHandler(ImageProviderNotConfiguredException.class)
+    public ResponseEntity<ErrorResponse> handleImageProviderNotConfigured(
+            ImageProviderNotConfiguredException e) {
+        log.warn("Image provider not configured: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of(e.getMessage(), "IMAGE_PROVIDER_NOT_CONFIGURED"));
+    }
+
+    @ExceptionHandler(TtsProviderNotConfiguredException.class)
+    public ResponseEntity<ErrorResponse> handleTtsProviderNotConfigured(
+            TtsProviderNotConfiguredException e) {
+        log.warn("TTS provider not configured: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of(e.getMessage(), "TTS_PROVIDER_NOT_CONFIGURED"));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
@@ -75,6 +94,13 @@ public class GlobalExceptionHandler {
         log.warn("Upload size exceeded: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
             .body(ErrorResponse.of("Uploaded file exceeds the maximum allowed size of 50MB", "FILE_TOO_LARGE"));
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessError(DataAccessException e) {
+        log.error("Database error during chat operation", e);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of("Chat memory storage is temporarily unavailable", "CHAT_MEMORY_ERROR"));
     }
 
     @ExceptionHandler(Exception.class)

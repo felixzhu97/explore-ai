@@ -33,7 +33,9 @@ public class AudioController {
     /**
      * Convert text to speech.
      */
-    @PostMapping(value = {"/audio/speak", "/tts/synthesize"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PostMapping(
+            value = {"/audio/speak", "/audio/synthesize", "/tts/synthesize"},
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> speak(@RequestBody TtsRequest request) {
         if (request == null || request.text() == null || request.text().isBlank()) {
             return ResponseEntity.badRequest().build();

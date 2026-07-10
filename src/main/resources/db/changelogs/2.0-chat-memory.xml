@@ -32,7 +32,7 @@
       CREATE TABLE IF NOT EXISTS SPRING_AI_CHAT_MEMORY (
           conversation_id VARCHAR(36) NOT NULL,
           content LONGVARCHAR NOT NULL,
-          type VARCHAR(10) NOT NULL CHECK (type IN ('USER', 'ASSISTANT', 'SYSTEM', 'TOOL')),
+          type VARCHAR(10) NOT NULL,
           timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
           sequence_id BIGINT NOT NULL
       );
