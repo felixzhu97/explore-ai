@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Output, EventEmitter, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Output, EventEmitter, inject, signal, HostListener } from '@angular/core';
 import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core/i18n';
 
 @Component({
@@ -29,7 +29,7 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
         "></span>
       </button>
       <div class="text-lg font-semibold text-text">AI</div>
-      <div class="relative">
+      <div class="relative" data-language-menu>
         <button
           type="button"
           class="
@@ -92,5 +92,14 @@ export class HeaderComponent {
   selectLanguage(lang: Language): void {
     this.i18n.setLanguage(lang);
     this.dropdownOpen.set(false);
+  }
+
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent): void {
+    if (!this.dropdownOpen()) return;
+    const target = event.target as Element;
+    if (!target || typeof target.closest !== 'function' || !target.closest('[data-language-menu]')) {
+      this.dropdownOpen.set(false);
+    }
   }
 }

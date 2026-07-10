@@ -1,4 +1,5 @@
 <aside
+  data-sidebar-panel
   class="
     fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col border-r border-gray-200
     bg-white shadow-elevated transition-all duration-250 ease-out
@@ -208,7 +209,7 @@
 
   <!-- Language Selector - desktop only (mobile uses header language picker) -->
   <div class="mt-auto hidden shrink-0 border-t border-border-light p-2 md:block">
-    <div class="relative" [class.collapsed]="collapsed()">
+    <div class="relative" data-language-menu [class.collapsed]="collapsed()">
       <button
         type="button"
         class="

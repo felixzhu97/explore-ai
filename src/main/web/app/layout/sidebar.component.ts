@@ -174,11 +174,20 @@ export class SidebarComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
-  @HostListener('document:mousedown', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.relative')) {
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent): void {
+    const target = event.target as Element;
+    const isOutsideMenu =
+      !target || typeof target.closest !== 'function' || !target.closest('[data-language-menu]');
+    const isOutsideSidebar =
+      !target || typeof target.closest !== 'function' || !target.closest('[data-sidebar-panel]');
+
+    if (this.dropdownOpen() && isOutsideMenu) {
       this.dropdownOpen.set(false);
+    }
+
+    if (this.sidebar.mobileOpen() && isOutsideSidebar) {
+      this.sidebar.close();
     }
   }
 }
