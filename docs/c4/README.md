@@ -94,6 +94,7 @@
 
 ## 相关文档
 
+- [领域术语表](../Domain-Glossary.md) — Ubiquitous Language 与代码映射
 - [沃德利地图](../Wardley-Map.md)
 - [用户故事地图](../User-Story-Map.md)
 - [API 文档](../api.md)
