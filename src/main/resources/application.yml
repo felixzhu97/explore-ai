@@ -20,7 +20,8 @@ spring:
     ollama:
       base-url: http://localhost:11434
       chat:
-        enabled: ${OLLAMA_CHAT_ENABLED:false}
+        enabled: ${OLLAMA_VISION_ENABLED:true}
+        model: ${OLLAMA_VISION_MODEL:qwen3.5:35b}
       embedding:
         enabled: true
         model: mxbai-embed-large
@@ -34,10 +35,6 @@ spring:
         model: dall-e-3
         quality: standard
         size: 1024x1024
-      audio:
-        speech:
-          model: gpt-4o-mini-tts
-          voice: alloy
     anthropic:
       api-key: ${ANTHROPIC_API_KEY:}
       chat:
@@ -72,6 +69,10 @@ spring:
 
   liquibase:
     change-log: db/changelog-master.xml
+
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
 
 server:
   port: 9000
@@ -109,6 +110,12 @@ app:
   ai:
     logging-advisor:
       enabled: ${AI_LOGGING_ADVISOR_ENABLED:true}
+    tts:
+      enabled: ${TTS_ENABLED:true}
+      model: ${TTS_MODEL:gpt-4o-mini-tts}
+      voice: ${TTS_VOICE:alloy}
+      api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
+      base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
   asr:
     whisper-cpp:
       base-url: http://localhost:8178

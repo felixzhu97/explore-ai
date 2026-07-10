@@ -64,6 +64,31 @@ class ChatModelResolverTest {
 
         assertThat(resolved.provider()).isEqualTo("openai");
         assertThat(resolved.chatModel()).isSameAs(openAiChatModel);
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
+    }
+
+    @Test
+    @DisplayName("should fall back to default openai model when ollama bean unavailable")
+    void should_fallbackToDefaultOpenAiModelWhenOllamaUnavailable() {
+        when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
+        when(ollamaChatModel.getIfAvailable()).thenReturn(null);
+
+        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("ollama", "qwen3.5"));
+
+        assertThat(resolved.provider()).isEqualTo("openai");
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
+    }
+
+    @Test
+    @DisplayName("should fall back to default openai model when anthropic bean unavailable")
+    void should_fallbackToDefaultOpenAiModelWhenAnthropicUnavailable() {
+        when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
+        when(anthropicChatModel.getIfAvailable()).thenReturn(null);
+
+        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("anthropic", "claude-3-5-sonnet"));
+
+        assertThat(resolved.provider()).isEqualTo("openai");
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
     }
 
     @Test

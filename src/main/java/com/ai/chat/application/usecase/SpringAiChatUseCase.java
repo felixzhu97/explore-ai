@@ -60,7 +60,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     public String chat(String userMessage, TextChatOptions options) {
         log.info("Chat request with retry: {}", truncateForLog(userMessage));
         return retryTemplate.execute(context -> {
-            ChatClient chatClient = chatClientFactory.create(options);
+            ChatClient chatClient = chatClientFactory.createStateless(options);
             String response = chatClient.prompt()
                     .user(userMessage)
                     .call()
@@ -79,18 +79,23 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public Flux<String> chatStreamWithSession(String sessionId, String userMessage, TextChatOptions options) {
-        ChatSession session = loadOrCreateSession(sessionId);
-        boolean isFirstTurn = session.isEmpty();
-        memoryBridge.seedIfEmpty(sessionId, session.getMessages());
+        return Flux.defer(() -> {
+            ChatSession session = loadOrCreateSession(sessionId);
+            boolean isFirstTurn = session.isEmpty();
+            memoryBridge.seedIfEmpty(sessionId, session.getMessages());
 
-        ChatClient chatClient = chatClientFactory.create(options);
-        return chatClient.prompt()
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
-                .user(userMessage)
-                .stream()
-                .content()
-                .doOnComplete(() -> afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
-                .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+            ChatClient chatClient = chatClientFactory.create(options, sessionId);
+            return chatClient.prompt()
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
+                    .user(userMessage)
+                    .stream()
+                    .content()
+                    .doOnComplete(() -> Mono.fromRunnable(() ->
+                                    afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .subscribe())
+                    .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private void afterSessionStream(ChatSessionId sessionId, String conversationId, boolean isFirstTurn, String userMessage) {
@@ -133,7 +138,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
         memoryBridge.seedIfEmpty(conversationId, session.getMessages());
         boolean isFirstTurn = session.isEmpty();
 
-        ChatClient chatClient = chatClientFactory.create(options);
+        ChatClient chatClient = chatClientFactory.create(options, conversationId);
         String aiResponse = chatClient.prompt()
                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .user(userMessage)
@@ -161,7 +166,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options) {
-        ChatClient chatClient = chatClientFactory.create(options);
+        ChatClient chatClient = chatClientFactory.createStateless(options);
         return chatClient.prompt()
                 .messages(messages.stream().map(this::toSpringMessage).toList())
                 .stream()

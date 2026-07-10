@@ -2,6 +2,7 @@ package com.ai.chat.web.dto;
 
 import com.ai.rag.web.dto.RagChatResponse;
 import com.ai.rag.web.dto.SourceDocumentDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,17 @@ class DtoCoverageTest {
             assertThat(dto.content()).isEqualTo(content);
             assertThat(dto.score()).isEqualTo(score);
             assertThat(dto.metadata()).isEqualTo(metadata);
+        }
+
+        @Test
+        @DisplayName("should serialize content field as text for frontend compatibility")
+        void shouldSerializeContentFieldAsTextForFrontendCompatibility() throws Exception {
+            SourceDocumentDto dto = new SourceDocumentDto("doc-1", "chunk text", 0.88f, Map.of());
+
+            String json = new ObjectMapper().writeValueAsString(dto);
+
+            assertThat(json).contains("\"text\":\"chunk text\"");
+            assertThat(json).doesNotContain("\"content\"");
         }
 
         @Test

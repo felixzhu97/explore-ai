@@ -16,6 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +40,7 @@ class SessionTitleGeneratorTest {
 
     @BeforeEach
     void setUp() {
-        when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
+        lenient().when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         generator = new SessionTitleGenerator(chatClientFactory);
     }
 
@@ -82,5 +84,23 @@ class SessionTitleGeneratorTest {
         String title = generator.generate("Hello world", "Hi there");
 
         assertThat(title).isEqualTo("Hello world");
+    }
+
+    @Test
+    @DisplayName("should fallback immediately when user message is blank")
+    void shouldFallbackImmediatelyWhenUserMessageIsBlank() {
+        String title = generator.generate("   ", "reply");
+
+        assertThat(title).isEqualTo("New Chat");
+        verifyNoInteractions(chatClient);
+    }
+
+    @Test
+    @DisplayName("should fallback immediately when assistant reply is blank")
+    void shouldFallbackImmediatelyWhenAssistantReplyIsBlank() {
+        String title = generator.generate("Hello world", "   ");
+
+        assertThat(title).isEqualTo("Hello world");
+        verifyNoInteractions(chatClient);
     }
 }

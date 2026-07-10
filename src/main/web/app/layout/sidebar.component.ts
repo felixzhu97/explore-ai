@@ -80,8 +80,9 @@ export class SidebarComponent implements OnInit {
 
   readonly tabs: NavTab[] = [
     { key: 'rag', labelKey: 'documentQA', path: '/rag' },
-    { key: 'vision', labelKey: 'visionAI', path: '/vision' },
-    { key: 'chat', labelKey: 'aiHub', path: '/chat' },
+    { key: 'vision', labelKey: 'imageAnalysis', path: '/vision' },
+    { key: 'chat', labelKey: 'chat', path: '/chat' },
+    { key: 'generate', labelKey: 'generation', path: '/generate' },
   ];
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
@@ -109,7 +110,8 @@ export class SidebarComponent implements OnInit {
   }
 
   isActiveTab(path: string): boolean {
-    return this.router.url === path;
+    const url = this.router.url.split('?')[0];
+    return url === path || url.startsWith(`${path}/`);
   }
 
   toggleCollapse(): void {
@@ -159,7 +161,8 @@ export class SidebarComponent implements OnInit {
     const icons: Record<string, string> = {
       rag: `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>`,
       vision: `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
-      chat: `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>`,
+      chat: `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+      generate: `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`,
     };
     const iconSvg = icons[key] || `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
     return this.sanitizer.bypassSecurityTrustHtml(iconSvg);

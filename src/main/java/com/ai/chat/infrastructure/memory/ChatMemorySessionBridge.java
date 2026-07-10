@@ -62,7 +62,7 @@ public class ChatMemorySessionBridge {
     }
 
     private ChatMessage toDomainMessage(Message message) {
-        String role = message instanceof UserMessage ? "user" : "assistant";
+        String role = message.getMessageType().getValue();
         return ChatMessage.of(MessageId.generate(), message.getText(), role, Instant.now());
     }
 }

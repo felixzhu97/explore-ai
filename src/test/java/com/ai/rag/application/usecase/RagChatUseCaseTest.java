@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,9 +46,6 @@ class RagChatUseCaseTest {
     private ChatClient.CallResponseSpec callResponseSpec;
 
     @Mock
-    private RetrievalAugmentationAdvisor retrievalAugmentationAdvisor;
-
-    @Mock
     private LanguageDetectionService languageDetectionService;
 
     private RagChatUseCase ragChatUseCase;
@@ -58,14 +55,15 @@ class RagChatUseCaseTest {
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
                 chatClientFactory,
-                retrievalAugmentationAdvisor,
                 languageDetectionService
         );
         when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
-        when(requestSpec.advisors(retrievalAugmentationAdvisor)).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
+        when(languageDetectionService.detect(anyString())).thenReturn("en");
+        when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
+                .thenAnswer(invocation -> "prompt:" + invocation.getArgument(0));
     }
 
     @Nested
@@ -94,7 +92,8 @@ class RagChatUseCaseTest {
             assertThat(result.sources().getFirst().text()).isEqualTo("AI definition");
 
             verify(ragApplicationService).retrieveContext(question, null, 5);
-            verify(requestSpec).user(question);
+            verify(languageDetectionService).buildPrompt(question, "context", "en");
+            verify(requestSpec).user("prompt:" + question);
         }
 
         @Test

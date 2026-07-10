@@ -157,8 +157,8 @@ describe('I18nService', () => {
       const zhTranslations = service.t();
 
       expect(enTranslations).not.toEqual(zhTranslations);
-      expect(enTranslations.nav.visionAI).toBe('Vision AI');
-      expect(zhTranslations.nav.visionAI).toBe('Vision AI');
+      expect(enTranslations.nav.imageAnalysis).toBe('Image Analysis');
+      expect(zhTranslations.nav.imageAnalysis).toBe('图像分析');
     });
 
     it('should update languageName computed', () => {
@@ -226,7 +226,7 @@ describe('I18nService', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.t().nav).toBeDefined();
-      expect(service.t().nav.visionAI).toBe('Vision AI');
+      expect(service.t().nav.imageAnalysis).toBe('Image Analysis');
     });
 
     it('should provide imageUploader translations', () => {
@@ -250,11 +250,11 @@ describe('I18nService', () => {
       expect(service.t().agents.quickPrompts.supervisor).toHaveLength(3);
     });
 
-    it('should provide aiHub translations', () => {
+    it('should provide generate translations', () => {
       service = new I18nService();
       service.setLanguage('en');
-      expect(service.t().aiHub).toBeDefined();
-      expect(service.t().aiHub.tabs.chat).toBe('Chat');
+      expect(service.t().generate).toBeDefined();
+      expect(service.t().generate.tabs.image).toBe('Image Gen');
     });
   });
 });

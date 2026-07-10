@@ -6,10 +6,10 @@
       <h3 class="
         m-0 text-lg font-semibold text-text
       ">
-        {{ i18n.t().aiHub.image.title }}
+        {{ i18n.t().generate.image.title }}
       </h3>
       <p class="m-0 mt-1 text-sm text-text-secondary">
-        {{ i18n.t().aiHub.image.description }}
+        {{ i18n.t().generate.image.description }}
       </p>
     </div>
   </div>
@@ -25,7 +25,7 @@
             text-base font-medium
             text-text-secondary
           " for="prompt-input">
-            {{ i18n.t().aiHub.image.promptLabel }}
+            {{ i18n.t().generate.image.promptLabel }}
           </label>
           <textarea
             id="prompt-input"
@@ -39,7 +39,7 @@
             "
             [ngModel]="prompt()"
             (ngModelChange)="setPrompt($event)"
-            [placeholder]="i18n.t().aiHub.image.promptPlaceholder"
+            [placeholder]="i18n.t().generate.image.promptPlaceholder"
             rows="4"
           ></textarea>
         </div>
@@ -49,7 +49,7 @@
             text-base font-medium
             text-text-secondary
           " for="negative-prompt-input">
-            {{ i18n.t().aiHub.image.negativePromptLabel }}
+            {{ i18n.t().generate.image.negativePromptLabel }}
           </label>
           <textarea
             id="negative-prompt-input"
@@ -63,7 +63,7 @@
             "
             [ngModel]="negativePrompt()"
             (ngModelChange)="setNegativePrompt($event)"
-            [placeholder]="i18n.t().aiHub.image.negativePromptPlaceholder"
+            [placeholder]="i18n.t().generate.image.negativePromptPlaceholder"
             rows="2"
           ></textarea>
         </div>
@@ -73,7 +73,7 @@
             text-base font-medium
             text-text-secondary
           " aria-hidden="true">
-            {{ i18n.t().aiHub.image.sizeLabel }}
+            {{ i18n.t().generate.image.sizeLabel }}
           </span>
           <div class="flex flex-wrap gap-2" role="group" aria-label="Size selection">
             @for (size of sizes; track size.label) {
@@ -114,9 +114,9 @@
               inline-block size-4 animate-spin rounded-full border-2
               border-white/30 border-t-white
             "></span>
-            {{ i18n.t().aiHub.image.generating }}
+            {{ i18n.t().generate.image.generating }}
           } @else {
-            {{ i18n.t().aiHub.image.generateButton }}
+            {{ i18n.t().generate.image.generateButton }}
           }
         </button>
       </div>
@@ -175,7 +175,7 @@
                 </svg>
               </div>
               <p class="m-0 text-base font-medium text-text">
-                {{ i18n.t().aiHub.image.emptyState }}
+                {{ i18n.t().generate.image.emptyState }}
               </p>
             </div>
           }
@@ -198,7 +198,7 @@
               text-primary transition-all duration-150
               hover:border-primary hover:bg-surface-secondary
             " (click)="download()">
-              ⬇️ {{ i18n.t().aiHub.image.download }}
+              ⬇️ {{ i18n.t().generate.image.download }}
             </button>
           </div>
         }

@@ -3,9 +3,11 @@ package com.ai.audio.infrastructure.tts;
 import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.repository.TextToSpeechRepository;
 import com.ai.audio.domain.vo.SpeechText;
+import com.ai.audio.domain.vo.VoiceSelection;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.audio.tts.TextToSpeechResponse;
+import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -18,8 +20,15 @@ public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
     }
 
     @Override
-    public SynthesizedAudio synthesize(SpeechText text) {
-        TextToSpeechPrompt prompt = new TextToSpeechPrompt(text.value());
+    public SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed) {
+        OpenAiAudioSpeechOptions.Builder optionsBuilder = OpenAiAudioSpeechOptions.builder()
+                .voice(voiceSelection.voice())
+                .model(voiceSelection.model());
+        if (speed != null) {
+            optionsBuilder.speed(speed);
+        }
+
+        TextToSpeechPrompt prompt = new TextToSpeechPrompt(text.value(), optionsBuilder.build());
         TextToSpeechResponse response = textToSpeechModel.call(prompt);
 
         if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {

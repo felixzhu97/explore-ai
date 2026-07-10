@@ -2,13 +2,17 @@ package com.ai.audio.web;
 
 import com.ai.audio.application.usecase.AudioFacade;
 import com.ai.audio.domain.exception.InvalidSpeechTextException;
+import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
+import com.ai.audio.web.dto.VoiceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,13 +33,13 @@ public class AudioController {
     /**
      * Convert text to speech.
      */
-    @PostMapping(value = "/audio/speak", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PostMapping(value = {"/audio/speak", "/tts/synthesize"}, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> speak(@RequestBody TtsRequest request) {
         if (request == null || request.text() == null || request.text().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
         try {
-            byte[] audio = audioFacade.synthesize(request.text());
+            byte[] audio = audioFacade.synthesize(request.text(), request.voice(), request.speed());
 
             if (audio == null || audio.length == 0) {
                 return ResponseEntity.internalServerError().build();
@@ -47,6 +51,8 @@ public class AudioController {
                     .body(audio);
         } catch (InvalidSpeechTextException e) {
             return ResponseEntity.badRequest().build();
+        } catch (TtsProviderNotConfiguredException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         } catch (Exception e) {
             log.error("Error synthesizing speech", e);
             return ResponseEntity.internalServerError().build();
@@ -56,9 +62,11 @@ public class AudioController {
     /**
      * Get available TTS voices.
      */
-    @GetMapping("/audio/voices")
+    @GetMapping({"/audio/voices", "/tts/voices"})
     public ResponseEntity<Map<String, Object>> getVoices() {
-        return ResponseEntity.ok(Map.of("voices", audioFacade.getAvailableVoices()));
+        List<VoiceResponse> voices =
+                audioFacade.getAvailableVoices().stream().map(VoiceResponse::from).toList();
+        return ResponseEntity.ok(Map.of("voices", voices));
     }
 
     /**
@@ -69,5 +77,5 @@ public class AudioController {
         return ResponseEntity.ok(Map.of("models", audioFacade.getAvailableTtsModels()));
     }
 
-    public record TtsRequest(String text) {}
+    public record TtsRequest(String text, String voice, Double speed, String output_format) {}
 }

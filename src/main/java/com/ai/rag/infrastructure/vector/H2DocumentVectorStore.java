@@ -56,7 +56,13 @@ public class H2DocumentVectorStore implements VectorStore {
     }
 
     private DocumentChunk toChunk(Document document) {
-        Map<String, Object> metadata = document.getMetadata();
+        if (document.getText() == null || document.getText().isBlank()) {
+            throw new IllegalArgumentException("Document text cannot be null or blank");
+        }
+        if (document.getId() == null || document.getId().isBlank()) {
+            throw new IllegalArgumentException("Document id cannot be null or blank");
+        }
+        Map<String, Object> metadata = document.getMetadata() != null ? document.getMetadata() : Map.of();
         UUID documentId = UUID.fromString(String.valueOf(metadata.getOrDefault("document_id", document.getId())));
         int chunkIndex = ((Number) metadata.getOrDefault("chunk_index", 0)).intValue();
         float[] embedding = embeddingAdapter.embed(document.getText());

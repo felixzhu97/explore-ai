@@ -1040,8 +1040,11 @@ describe('ApiService', () => {
   describe('generateImage', () => {
     it('should send image generation request', () => {
       const mockResponse = {
-        images: ['base64data'],
-        seed: 12345,
+        imageUrl: null,
+        imageBase64: 'base64data',
+        model: 'dall-e-3',
+        prompt: 'A sunset',
+        status: 'SUCCESS',
       };
 
       service
@@ -1051,13 +1054,14 @@ describe('ApiService', () => {
           height: 512,
         })
         .subscribe((response) => {
-          expect(response.images).toEqual(mockResponse.images);
-          expect(response.seed).toBe(mockResponse.seed);
+          expect(response.imageBase64).toBe('base64data');
+          expect(response.model).toBe('dall-e-3');
         });
 
-      const req = httpMock.expectOne('/api/image/generate');
+      const req = httpMock.expectOne('/api/images/generate');
       expect(req.request.method).toBe('POST');
       expect(req.request.body.prompt).toBe('A sunset');
+      expect(req.request.body.n).toBe(1);
       req.flush(mockResponse);
     });
   });
@@ -1066,29 +1070,37 @@ describe('ApiService', () => {
     it('should return voices from API', () => {
       const mockVoices = [
         {
-          id: 'en-US',
-          name: 'English (US)',
-          language: 'en-US',
-          provider: 'default',
-          is_default: true,
+          id: 'alloy',
+          name: 'Alloy',
+          language: 'en',
+          gender: 'neutral',
         },
       ];
 
       service.getVoices().subscribe((voices) => {
-        expect(voices).toEqual(mockVoices);
+        expect(voices).toEqual([
+          {
+            id: 'alloy',
+            name: 'Alloy',
+            language: 'en',
+            gender: 'neutral',
+            provider: 'openai',
+            is_default: true,
+          },
+        ]);
       });
 
-      const req = httpMock.expectOne('/api/tts/voices');
-      req.flush(mockVoices);
+      const req = httpMock.expectOne('/api/audio/voices');
+      req.flush({ voices: mockVoices });
     });
 
     it('should return default voices on error', () => {
       service.getVoices().subscribe((voices) => {
         expect(voices.length).toBeGreaterThan(0);
-        expect(voices[0].id).toBe('en-US');
+        expect(voices[0].id).toBe('alloy');
       });
 
-      const req = httpMock.expectOne('/api/tts/voices');
+      const req = httpMock.expectOne('/api/audio/voices');
       req.error(new ProgressEvent('error'));
     });
   });
@@ -1101,7 +1113,7 @@ describe('ApiService', () => {
         expect(blob).toBeInstanceOf(Blob);
       });
 
-      const req = httpMock.expectOne('/api/tts/synthesize');
+      const req = httpMock.expectOne('/api/audio/speak');
       expect(req.request.method).toBe('POST');
       expect(req.request.body.text).toBe('Hello world');
       req.flush(mockBlob);
@@ -1110,10 +1122,10 @@ describe('ApiService', () => {
     it('should include voice parameter when provided', () => {
       const mockBlob = new Blob(['audio'], { type: 'audio/mp3' });
 
-      service.synthesizeSpeech({ text: 'Hello', voice: 'en-US' }).subscribe(vi.fn());
+      service.synthesizeSpeech({ text: 'Hello', voice: 'nova' }).subscribe(vi.fn());
 
-      const req = httpMock.expectOne('/api/tts/synthesize');
-      expect(req.request.body.voice).toBe('en-US');
+      const req = httpMock.expectOne('/api/audio/speak');
+      expect(req.request.body.voice).toBe('nova');
       req.flush(mockBlob);
     });
 
@@ -1122,7 +1134,7 @@ describe('ApiService', () => {
 
       service.synthesizeSpeech({ text: 'Hello', speed: 1.5 }).subscribe(vi.fn());
 
-      const req = httpMock.expectOne('/api/tts/synthesize');
+      const req = httpMock.expectOne('/api/audio/speak');
       expect(req.request.body.speed).toBe(1.5);
       req.flush(mockBlob);
     });
@@ -1784,39 +1796,50 @@ describe('ApiService', () => {
 
   describe('generateImage edge cases', () => {
     it('should send request with all optional parameters', () => {
-      const mockResponse = { images: ['base64data'], seed: 12345 };
+      const mockResponse = {
+        imageUrl: 'https://example.com/image.png',
+        imageBase64: null,
+        model: 'dall-e-3',
+        prompt: 'A sunset',
+        status: 'SUCCESS',
+      };
 
       service
         .generateImage({
           prompt: 'A sunset',
-          negative_prompt: 'blurry, low quality',
+          model: 'dall-e-3',
+          quality: 'hd',
           width: 1024,
           height: 1024,
-          num_images: 2,
+          n: 2,
         })
         .subscribe((response) => {
-          expect(response.images).toEqual(mockResponse.images);
+          expect(response.imageUrl).toBe('https://example.com/image.png');
         });
 
-      const req = httpMock.expectOne('/api/image/generate');
+      const req = httpMock.expectOne('/api/images/generate');
       expect(req.request.body.prompt).toBe('A sunset');
-      expect(req.request.body.negative_prompt).toBe('blurry, low quality');
+      expect(req.request.body.model).toBe('dall-e-3');
+      expect(req.request.body.quality).toBe('hd');
       expect(req.request.body.width).toBe(1024);
       expect(req.request.body.height).toBe(1024);
-      expect(req.request.body.num_images).toBe(2);
+      expect(req.request.body.n).toBe(2);
       req.flush(mockResponse);
     });
 
     it('should handle minimal image generation request', () => {
-      const mockResponse = { images: ['base64data'], seed: 0 };
+      const mockResponse = {
+        imageBase64: 'base64data',
+        status: 'SUCCESS',
+      };
 
       service.generateImage({ prompt: 'test' }).subscribe((response) => {
-        expect(response).toBeDefined();
+        expect(response.imageBase64).toBe('base64data');
       });
 
-      const req = httpMock.expectOne('/api/image/generate');
+      const req = httpMock.expectOne('/api/images/generate');
       expect(req.request.body.prompt).toBe('test');
-      expect(req.request.body.width).toBeUndefined();
+      expect(req.request.body.n).toBe(1);
       req.flush(mockResponse);
     });
   });

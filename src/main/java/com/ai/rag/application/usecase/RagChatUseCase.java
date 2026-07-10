@@ -8,7 +8,6 @@ import com.ai.chat.domain.service.LanguageDetectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,17 +20,14 @@ public class RagChatUseCase {
 
     private final RagApplicationService ragApplicationService;
     private final ChatClientFactory chatClientFactory;
-    private final RetrievalAugmentationAdvisor retrievalAugmentationAdvisor;
     private final LanguageDetectionService languageDetectionService;
 
     public RagChatUseCase(
             RagApplicationService ragApplicationService,
             ChatClientFactory chatClientFactory,
-            RetrievalAugmentationAdvisor retrievalAugmentationAdvisor,
             LanguageDetectionService languageDetectionService) {
         this.ragApplicationService = ragApplicationService;
         this.chatClientFactory = chatClientFactory;
-        this.retrievalAugmentationAdvisor = retrievalAugmentationAdvisor;
         this.languageDetectionService = languageDetectionService;
     }
 
@@ -51,16 +47,21 @@ public class RagChatUseCase {
         int topKValue = topK != null ? topK : DEFAULT_TOP_K;
         var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
         List<SourceDocument> sources = retrievalResult.sources();
+        String prompt = buildPrompt(question, retrievalResult.context());
 
         ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.defaults());
         String aiResponse = chatClient.prompt()
-                .advisors(retrievalAugmentationAdvisor)
-                .user(question)
+                .user(prompt)
                 .call()
                 .content();
 
         log.info("RAG chat completed successfully");
         return new ChatResult(aiResponse, sources);
+    }
+
+    private String buildPrompt(String question, String context) {
+        String languageCode = languageDetectionService.detect(question);
+        return languageDetectionService.buildPrompt(question, context, languageCode);
     }
 
     private String truncate(String question) {

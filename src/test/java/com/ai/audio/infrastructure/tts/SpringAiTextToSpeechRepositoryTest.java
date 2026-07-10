@@ -1,6 +1,7 @@
 package com.ai.audio.infrastructure.tts;
 
 import com.ai.audio.domain.vo.SpeechText;
+import com.ai.audio.domain.vo.VoiceSelection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -48,7 +49,8 @@ class SpringAiTextToSpeechRepositoryTest {
             when(mockResponse.getResults()).thenReturn(java.util.List.of(mockSpeech));
             when(textToSpeechModel.call(any(TextToSpeechPrompt.class))).thenReturn(mockResponse);
 
-            var audio = repository.synthesize(SpeechText.of("Hello, world!"));
+            var audio = repository.synthesize(
+                    SpeechText.of("Hello, world!"), VoiceSelection.of("alloy", null), 1.0);
 
             assertThat(audio.data()).isEqualTo(expectedAudio);
             verify(textToSpeechModel).call(any(TextToSpeechPrompt.class));
@@ -59,7 +61,7 @@ class SpringAiTextToSpeechRepositoryTest {
         void should_return_empty_audio_when_response_is_null() {
             when(textToSpeechModel.call(any(TextToSpeechPrompt.class))).thenReturn(null);
 
-            var audio = repository.synthesize(SpeechText.of("Hello"));
+            var audio = repository.synthesize(SpeechText.of("Hello"), VoiceSelection.of("alloy", null), null);
 
             assertThat(audio.isEmpty()).isTrue();
         }

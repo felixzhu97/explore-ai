@@ -1,6 +1,8 @@
 package com.ai.audio.web;
 
 import com.ai.audio.application.usecase.AudioFacade;
+import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
+import com.ai.audio.domain.vo.VoiceInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,9 +42,10 @@ class AudioControllerTest {
         void shouldSynthesizeSpeechWithValidRequest() {
             String text = "Hello, world!";
             byte[] audioData = new byte[]{1, 2, 3, 4};
-            when(audioFacade.synthesize(text)).thenReturn(audioData);
+            when(audioFacade.synthesize(text, "alloy", 1.0)).thenReturn(audioData);
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest(text));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest(text, "alloy", 1.0, "mp3"));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).isEqualTo(audioData);
@@ -63,7 +66,7 @@ class AudioControllerTest {
         @Test
         @DisplayName("should return 400 for null text")
         void shouldReturn400ForNullText() {
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest(null));
+            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest(null, null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
@@ -71,7 +74,8 @@ class AudioControllerTest {
         @Test
         @DisplayName("should return 400 for blank text")
         void shouldReturn400ForBlankText() {
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest("   "));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("   ", null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
@@ -79,7 +83,8 @@ class AudioControllerTest {
         @Test
         @DisplayName("should return 400 for empty text")
         void shouldReturn400ForEmptyText() {
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest(""));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("", null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
@@ -87,9 +92,10 @@ class AudioControllerTest {
         @Test
         @DisplayName("should return 500 when audio data is null")
         void shouldReturn500WhenAudioDataIsNull() {
-            when(audioFacade.synthesize(any())).thenReturn(null);
+            when(audioFacade.synthesize(any(), any(), any())).thenReturn(null);
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest("Test"));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("Test", null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(500);
         }
@@ -97,19 +103,33 @@ class AudioControllerTest {
         @Test
         @DisplayName("should return 500 when audio data is empty")
         void shouldReturn500WhenAudioDataIsEmpty() {
-            when(audioFacade.synthesize(any())).thenReturn(new byte[]{});
+            when(audioFacade.synthesize(any(), any(), any())).thenReturn(new byte[]{});
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest("Test"));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("Test", null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(500);
         }
 
         @Test
+        @DisplayName("should return 503 when provider is not configured")
+        void shouldReturn503WhenProviderIsNotConfigured() {
+            when(audioFacade.synthesize(any(), any(), any()))
+                    .thenThrow(TtsProviderNotConfiguredException.apiKeyMissing());
+
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("Test", null, null, null));
+
+            assertThat(response.getStatusCode().value()).isEqualTo(503);
+        }
+
+        @Test
         @DisplayName("should return 500 when facade throws exception")
         void shouldReturn500WhenFacadeThrowsException() {
-            when(audioFacade.synthesize(any())).thenThrow(new RuntimeException("TTS error"));
+            when(audioFacade.synthesize(any(), any(), any())).thenThrow(new RuntimeException("TTS error"));
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest("Test"));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("Test", null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(500);
         }
@@ -119,9 +139,10 @@ class AudioControllerTest {
         void shouldHandleLongTextWithoutError() {
             String longText = "A".repeat(10000);
             byte[] audioData = new byte[100];
-            when(audioFacade.synthesize(longText)).thenReturn(audioData);
+            when(audioFacade.synthesize(longText, null, null)).thenReturn(audioData);
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest(longText));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest(longText, null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
         }
@@ -131,9 +152,10 @@ class AudioControllerTest {
         void shouldHandleChineseText() {
             String chineseText = "你好，世界！";
             byte[] audioData = new byte[]{1, 2, 3};
-            when(audioFacade.synthesize(chineseText)).thenReturn(audioData);
+            when(audioFacade.synthesize(chineseText, null, null)).thenReturn(audioData);
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest(chineseText));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest(chineseText, null, null, null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
         }
@@ -142,9 +164,10 @@ class AudioControllerTest {
         @DisplayName("should set correct content type header")
         void shouldSetCorrectContentTypeHeader() {
             byte[] audioData = new byte[]{1, 2, 3};
-            when(audioFacade.synthesize(any())).thenReturn(audioData);
+            when(audioFacade.synthesize(any(), any(), any())).thenReturn(audioData);
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest("Test"));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("Test", null, null, null));
 
             assertThat(response.getHeaders().getContentType().toString())
                     .isEqualTo("audio/mpeg");
@@ -154,9 +177,10 @@ class AudioControllerTest {
         @DisplayName("should set correct content disposition header")
         void shouldSetCorrectContentDispositionHeader() {
             byte[] audioData = new byte[]{1, 2, 3};
-            when(audioFacade.synthesize(any())).thenReturn(audioData);
+            when(audioFacade.synthesize(any(), any(), any())).thenReturn(audioData);
 
-            ResponseEntity<byte[]> response = controller.speak(new AudioController.TtsRequest("Test"));
+            ResponseEntity<byte[]> response =
+                    controller.speak(new AudioController.TtsRequest("Test", null, null, null));
 
             assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))
                     .contains("attachment");
@@ -172,13 +196,13 @@ class AudioControllerTest {
         @Test
         @DisplayName("should return available voices")
         void shouldReturnAvailableVoices() {
-            List<String> voices = List.of("alloy", "echo", "fable", "onyx", "nova", "shimmer");
+            List<VoiceInfo> voices = List.of(new VoiceInfo("alloy", "Alloy", "en", "neutral"));
             when(audioFacade.getAvailableVoices()).thenReturn(voices);
 
             ResponseEntity<Map<String, Object>> response = controller.getVoices();
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
-            assertThat(response.getBody()).containsEntry("voices", voices);
+            assertThat(response.getBody()).containsKey("voices");
         }
 
         @Test

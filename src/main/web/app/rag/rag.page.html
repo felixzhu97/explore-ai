@@ -82,7 +82,7 @@
                                 @if (msg.content) {
                                     <div [innerHTML]="renderMarkdown(msg.content)"></div>
                                 } @else {
-                                    <span class="text-text-tertiary">{{ i18n.t().aiHub.chat.thinking }}</span>
+                                    <span class="text-text-tertiary">{{ i18n.t().chat.thinking }}</span>
                                 }
                             </div>
                             <span class="text-xs text-text-tertiary">{{ formatTime(msg.timestamp) }}</span>

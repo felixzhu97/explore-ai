@@ -44,7 +44,7 @@ public class ChatModelResolver {
         String provider = options.provider();
         if (!providerCatalog.isProviderAvailable(provider)) {
             log.warn("Provider '{}' unavailable, falling back to openai", provider);
-            provider = "openai";
+            return resolveOpenAi(null);
         }
 
         return switch (provider) {
@@ -68,7 +68,7 @@ public class ChatModelResolver {
         OllamaChatModel ollama = ollamaChatModel.getIfAvailable();
         if (ollama == null) {
             log.warn("Ollama chat model not configured, falling back to openai");
-            return resolveOpenAi(model);
+            return resolveOpenAi(null);
         }
         String effectiveModel = model == null || model.isBlank() ? "qwen3.5" : model;
         ChatOptions.Builder<?> chatOptions = OllamaChatOptions.builder()
@@ -80,7 +80,7 @@ public class ChatModelResolver {
         AnthropicChatModel anthropic = anthropicChatModel.getIfAvailable();
         if (anthropic == null) {
             log.warn("Anthropic chat model not configured, falling back to openai");
-            return resolveOpenAi(model);
+            return resolveOpenAi(null);
         }
         String effectiveModel = model == null || model.isBlank() ? "claude-3-5-sonnet-20241022" : model;
         ChatOptions.Builder<?> chatOptions = AnthropicChatOptions.builder()

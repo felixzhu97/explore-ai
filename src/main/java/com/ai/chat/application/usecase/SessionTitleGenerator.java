@@ -27,6 +27,9 @@ public class SessionTitleGenerator {
     }
 
     public String generate(String userMessage, String assistantReply) {
+        if (userMessage == null || userMessage.isBlank() || assistantReply == null || assistantReply.isBlank()) {
+            return fallback(userMessage);
+        }
         try {
             ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.defaults());
             SessionTitleResponse response = chatClient.prompt()

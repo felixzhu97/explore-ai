@@ -3,6 +3,20 @@ export type Language = 'en' | 'zh' | 'ja' | 'fr' | 'es';
 
 export const SUPPORTED_LANGUAGES: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];
 
+/** Sidebar nav keys reserved for future modules (no route wired yet). */
+export const PLANNED_NAV_KEYS = [
+  'supervisor',
+  'kubernetes',
+  'monitoring',
+  'aiinfra',
+  'modelDev',
+  'modelOps',
+  'model',
+  'llmops',
+  'aiops',
+  'vectordb',
+] as const satisfies readonly (keyof Translations['nav'])[];
+
 export interface Translations {
   common: {
     loadFailed: string;
@@ -13,13 +27,14 @@ export interface Translations {
     error: string;
   };
   nav: {
-    visionAI: string;
+    imageAnalysis: string;
     documentQA: string;
     supervisor: string;
     kubernetes: string;
     monitoring: string;
     aiinfra: string;
-    aiHub: string;
+    chat: string;
+    generation: string;
     modelDev: string;
     modelOps: string;
     model: string;
@@ -97,43 +112,14 @@ export interface Translations {
       vectordb: string;
     };
   };
-  aiHub: {
-    title: string;
-    modelBadge: string;
-    statusText: string;
-    cards: {
-      chat: {
-        title: string;
-        description: string;
-      };
-      image: {
-        title: string;
-        description: string;
-      };
-      tts: {
-        title: string;
-        description: string;
-      };
-    };
+  chat: {
+    thinking: string;
+    inputPlaceholder: string;
+  };
+  generate: {
     tabs: {
-      chat: string;
       image: string;
       tts: string;
-    };
-    emptyState: {
-      title: string;
-      message: string;
-      getStarted: string;
-    };
-    chat: {
-      title: string;
-      description: string;
-      placeholder: string;
-      inputPlaceholder: string;
-      thinking: string;
-      error: string;
-      provider: string;
-      model: string;
     };
     image: {
       title: string;
@@ -161,11 +147,6 @@ export interface Translations {
       audioReady: string;
       downloadAudio: string;
     };
-    quickPrompts: {
-      greeting: string;
-      help: string;
-      creative: string;
-    };
   };
   sidebar: {
     chatHistory: string;
@@ -187,13 +168,14 @@ export const translations: Record<Language, Translations> = {
       error: 'An error occurred',
     },
     nav: {
-      visionAI: 'Vision AI',
+      imageAnalysis: 'Image Analysis',
       documentQA: 'Document QA',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: 'Monitoring',
       aiinfra: 'AI Infra',
-      aiHub: 'AI Hub',
+      chat: 'Chat',
+      generation: 'Generation',
       modelDev: 'Dev',
       modelOps: 'Ops',
       model: 'Models',
@@ -299,47 +281,18 @@ export const translations: Record<Language, Translations> = {
         vectordb: 'Manage vector embeddings, similarity search, and document indexing',
       },
     },
-    aiHub: {
-      title: 'AI Hub',
-      modelBadge: 'GPT-4o + SDXL + TTS',
-      statusText: 'Services Online',
-      cards: {
-        chat: {
-          title: 'Conversational AI',
-          description: 'Chat with AI powered by GPT-4o',
-        },
-        image: {
-          title: 'Image Generation',
-          description: 'Create stunning images with Stable Diffusion XL',
-        },
-        tts: {
-          title: 'Text to Speech',
-          description: 'Convert text to natural-sounding speech',
-        },
-      },
+    chat: {
+      thinking: 'Thinking...',
+      inputPlaceholder: 'Type your message...',
+    },
+    generate: {
       tabs: {
-        chat: 'Chat',
         image: 'Image Gen',
         tts: 'Text to Speech',
       },
-      emptyState: {
-        title: 'Welcome to AI Hub',
-        message: 'Choose an AI capability to get started',
-        getStarted: 'Get Started',
-      },
-      chat: {
-        title: 'Conversational AI',
-        description: 'Chat with AI powered by GPT-4o',
-        placeholder: 'Start a conversation with the AI...',
-        inputPlaceholder: 'Type your message...',
-        thinking: 'Thinking...',
-        error: 'An error occurred. Please try again.',
-        provider: 'Provider',
-        model: 'Model',
-      },
       image: {
         title: 'Image Generation',
-        description: 'Create images using Stable Diffusion XL',
+        description: 'Generate images with your configured provider (Ollama by default)',
         promptLabel: 'Prompt',
         promptPlaceholder: 'Describe the image you want to generate...',
         negativePromptLabel: 'Negative Prompt',
@@ -363,11 +316,6 @@ export const translations: Record<Language, Translations> = {
         audioReady: 'Audio ready',
         downloadAudio: 'Download Audio',
       },
-      quickPrompts: {
-        greeting: 'Hello! How can you help me?',
-        help: 'What can you do?',
-        creative: 'Write a short poem about nature',
-      },
     },
     sidebar: {
       chatHistory: 'Chat History',
@@ -387,13 +335,14 @@ export const translations: Record<Language, Translations> = {
       error: '发生错误',
     },
     nav: {
-      visionAI: 'Vision AI',
+      imageAnalysis: '图像分析',
       documentQA: '文档问答',
       supervisor: '协调器',
       kubernetes: 'K8s',
       monitoring: '监控',
       aiinfra: 'AI 基础设施',
-      aiHub: 'AI Hub',
+      chat: '对话',
+      generation: '生成',
       modelDev: '开发',
       modelOps: '运维',
       model: '模型',
@@ -471,47 +420,18 @@ export const translations: Record<Language, Translations> = {
         vectordb: '管理向量嵌入、相似度搜索和文档索引',
       },
     },
-    aiHub: {
-      title: 'AI Hub',
-      modelBadge: 'GPT-4o + SDXL + TTS',
-      statusText: '服务在线',
-      cards: {
-        chat: {
-          title: '对话式 AI',
-          description: '使用 GPT-4o 驱动的 AI 对话',
-        },
-        image: {
-          title: '图像生成',
-          description: '使用 Stable Diffusion XL 创建精美图像',
-        },
-        tts: {
-          title: '文本转语音',
-          description: '将文本转换为自然语音',
-        },
-      },
+    chat: {
+      thinking: '思考中...',
+      inputPlaceholder: '输入消息...',
+    },
+    generate: {
       tabs: {
-        chat: '聊天',
         image: '图像生成',
         tts: '语音合成',
       },
-      emptyState: {
-        title: '欢迎使用 AI Hub',
-        message: '选择一个 AI 功能开始使用',
-        getStarted: '开始使用',
-      },
-      chat: {
-        title: '对话 AI',
-        description: '使用 GPT-4o 驱动的 AI 对话',
-        placeholder: '开始与 AI 对话...',
-        inputPlaceholder: '输入消息...',
-        thinking: '思考中...',
-        error: '发生错误，请重试。',
-        provider: '供应商',
-        model: '模型',
-      },
       image: {
         title: '图像生成',
-        description: '使用 Stable Diffusion XL 创建图像',
+        description: '使用已配置的模型生成图像（默认 Ollama）',
         promptLabel: '提示词',
         promptPlaceholder: '描述你想要的图像...',
         negativePromptLabel: '负面提示词',
@@ -535,11 +455,6 @@ export const translations: Record<Language, Translations> = {
         audioReady: '音频就绪',
         downloadAudio: '下载音频',
       },
-      quickPrompts: {
-        greeting: '你好！你能帮我做什么？',
-        help: '你能做什么？',
-        creative: '写一首关于自然的短诗',
-      },
     },
     sidebar: {
       chatHistory: '聊天历史',
@@ -559,13 +474,14 @@ export const translations: Record<Language, Translations> = {
       error: 'エラーが発生しました',
     },
     nav: {
-      visionAI: 'Vision AI',
+      imageAnalysis: '画像分析',
       documentQA: 'ドキュメント',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: '監視',
       aiinfra: 'AI インフラ',
-      aiHub: 'AI Hub',
+      chat: 'チャット',
+      generation: '生成',
       modelDev: '開発',
       modelOps: '運用',
       model: 'モデル',
@@ -668,47 +584,18 @@ export const translations: Record<Language, Translations> = {
         vectordb: 'ベクトル埋め込み、類似性検索、ドキュメントインデックス管理',
       },
     },
-    aiHub: {
-      title: 'AI Hub',
-      modelBadge: 'GPT-4o + SDXL + TTS',
-      statusText: 'サービスオンライン',
-      cards: {
-        chat: {
-          title: '会話 AI',
-          description: 'GPT-4o搭載のAI会話',
-        },
-        image: {
-          title: '画像生成',
-          description: 'Stable Diffusion XLで画像を生成',
-        },
-        tts: {
-          title: 'テキスト読み上げ',
-          description: 'テキストを自然な音声に変換',
-        },
-      },
+    chat: {
+      thinking: '考え中...',
+      inputPlaceholder: 'メッセージを入力...',
+    },
+    generate: {
       tabs: {
-        chat: 'チャット',
         image: '画像生成',
         tts: '音声合成',
       },
-      emptyState: {
-        title: 'AI Hub へようこそ',
-        message: 'AI機能を選択して開始',
-        getStarted: '始める',
-      },
-      chat: {
-        title: '会話 AI',
-        description: 'GPT-4o搭載のAI会話',
-        placeholder: 'AIとの会話を始めましょう...',
-        inputPlaceholder: 'メッセージを入力...',
-        thinking: '考え中...',
-        error: 'エラーが発生しました。もう一度お試しください。',
-        provider: 'プロバイダー',
-        model: 'モデル',
-      },
       image: {
         title: '画像生成',
-        description: 'Stable Diffusion XLで画像を生成',
+        description: '設定済みプロバイダーで画像を生成（デフォルトは Ollama）',
         promptLabel: 'プロンプト',
         promptPlaceholder: '生成したい画像を説明してください...',
         negativePromptLabel: 'ネガティブプロンプト',
@@ -732,11 +619,6 @@ export const translations: Record<Language, Translations> = {
         audioReady: '音声準備完了',
         downloadAudio: '音声をダウンロード',
       },
-      quickPrompts: {
-        greeting: 'こんにちは！お手伝いできますことは？',
-        help: '何ができますか？',
-        creative: '自然についての短い詩を書いてください',
-      },
     },
     sidebar: {
       chatHistory: 'チャット履歴',
@@ -756,13 +638,14 @@ export const translations: Record<Language, Translations> = {
       error: 'Une erreur s\'est produite',
     },
     nav: {
-      visionAI: 'Vision AI',
+      imageAnalysis: 'Analyse d\'images',
       documentQA: 'Documents',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: 'Surveillance',
       aiinfra: 'AI Infra',
-      aiHub: 'AI Hub',
+      chat: 'Chat',
+      generation: 'Génération',
       modelDev: 'Dev',
       modelOps: 'Ops',
       model: 'Modèles',
@@ -870,47 +753,18 @@ export const translations: Record<Language, Translations> = {
         vectordb: 'Gérer les embeddings vectoriels, recherche de similarité et indexation',
       },
     },
-    aiHub: {
-      title: 'AI Hub',
-      modelBadge: 'GPT-4o + SDXL + TTS',
-      statusText: 'Services en ligne',
-      cards: {
-        chat: {
-          title: 'IA Conversationnelle',
-          description: 'Discutez avec une IA alimentée par GPT-4o',
-        },
-        image: {
-          title: 'Génération d\'images',
-          description: 'Créez de superbes images avec Stable Diffusion XL',
-        },
-        tts: {
-          title: 'Synthèse vocale',
-          description: 'Convertissez le texte en parole naturelle',
-        },
-      },
+    chat: {
+      thinking: 'Réflexion...',
+      inputPlaceholder: 'Tapez votre message...',
+    },
+    generate: {
       tabs: {
-        chat: 'Chat',
         image: 'Génération d\'images',
         tts: 'Synthèse vocale',
       },
-      emptyState: {
-        title: 'Bienvenue sur AI Hub',
-        message: 'Choisissez une capacité IA pour commencer',
-        getStarted: 'Commencer',
-      },
-      chat: {
-        title: 'IA Conversationnelle',
-        description: 'Discutez avec une IA alimentée par GPT-4o',
-        placeholder: 'Commencez une conversation avec l\'IA...',
-        inputPlaceholder: 'Tapez votre message...',
-        thinking: 'Réflexion...',
-        error: 'Une erreur s\'est produite. Veuillez réessayer.',
-        provider: 'Fournisseur',
-        model: 'Modèle',
-      },
       image: {
         title: 'Génération d\'images',
-        description: 'Créez des images avec Stable Diffusion XL',
+        description: 'Générez des images avec votre fournisseur configuré (Ollama par défaut)',
         promptLabel: 'Prompt',
         promptPlaceholder: 'Décrivez l\'image que vous voulez générer...',
         negativePromptLabel: 'Prompt négatif',
@@ -934,11 +788,6 @@ export const translations: Record<Language, Translations> = {
         audioReady: 'Audio prêt',
         downloadAudio: 'Télécharger l\'audio',
       },
-      quickPrompts: {
-        greeting: 'Bonjour! Comment puis-je vous aider?',
-        help: 'Que pouvez-vous faire?',
-        creative: 'Écrivez un court poème sur la nature',
-      },
     },
     sidebar: {
       chatHistory: 'Historique des chats',
@@ -958,13 +807,14 @@ export const translations: Record<Language, Translations> = {
       error: 'Se produjo un error',
     },
     nav: {
-      visionAI: 'Vision AI',
+      imageAnalysis: 'Análisis de imágenes',
       documentQA: 'Documentos',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: 'Monitoreo',
       aiinfra: 'AI Infra',
-      aiHub: 'AI Hub',
+      chat: 'Chat',
+      generation: 'Generación',
       modelDev: 'Desarrollo',
       modelOps: 'Operaciones',
       model: 'Modelos',
@@ -1072,47 +922,18 @@ export const translations: Record<Language, Translations> = {
         vectordb: 'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
       },
     },
-    aiHub: {
-      title: 'AI Hub',
-      modelBadge: 'GPT-4o + SDXL + TTS',
-      statusText: 'Servicios en línea',
-      cards: {
-        chat: {
-          title: 'IA Conversacional',
-          description: 'Chatea con una IA impulsada por GPT-4o',
-        },
-        image: {
-          title: 'Generación de imágenes',
-          description: 'Crea imágenes impresionantes con Stable Diffusion XL',
-        },
-        tts: {
-          title: 'Texto a voz',
-          description: 'Convierte texto en voz natural',
-        },
-      },
+    chat: {
+      thinking: 'Pensando...',
+      inputPlaceholder: 'Escribe tu mensaje...',
+    },
+    generate: {
       tabs: {
-        chat: 'Chat',
         image: 'Generación de imágenes',
         tts: 'Texto a voz',
       },
-      emptyState: {
-        title: 'Bienvenido a AI Hub',
-        message: 'Elige una capacidad IA para comenzar',
-        getStarted: 'Comenzar',
-      },
-      chat: {
-        title: 'IA Conversacional',
-        description: 'Chatea con una IA impulsada por GPT-4o',
-        placeholder: 'Inicia una conversación con la IA...',
-        inputPlaceholder: 'Escribe tu mensaje...',
-        thinking: 'Pensando...',
-        error: 'Se produjo un error. Por favor, inténtalo de nuevo.',
-        provider: 'Proveedor',
-        model: 'Modelo',
-      },
       image: {
         title: 'Generación de imágenes',
-        description: 'Crea imágenes usando Stable Diffusion XL',
+        description: 'Genera imágenes con tu proveedor configurado (Ollama por defecto)',
         promptLabel: 'Prompt',
         promptPlaceholder: 'Describe la imagen que quieres generar...',
         negativePromptLabel: 'Prompt negativo',
@@ -1135,11 +956,6 @@ export const translations: Record<Language, Translations> = {
         synthesizing: 'Sintetizando...',
         audioReady: 'Audio listo',
         downloadAudio: 'Descargar audio',
-      },
-      quickPrompts: {
-        greeting: '¡Hola! ¿Cómo puedo ayudarte?',
-        help: '¿Qué puedes hacer?',
-        creative: 'Escribe un poema corto sobre la naturaleza',
       },
     },
     sidebar: {

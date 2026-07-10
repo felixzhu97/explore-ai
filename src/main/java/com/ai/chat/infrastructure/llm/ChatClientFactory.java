@@ -41,7 +41,11 @@ public class ChatClientFactory {
     }
 
     public ChatClient create(TextChatOptions options) {
-        return buildClient(options, true);
+        return create(options, null);
+    }
+
+    public ChatClient create(TextChatOptions options, String conversationId) {
+        return buildClient(options, conversationId != null);
     }
 
     public ChatClient createStateless(TextChatOptions options) {

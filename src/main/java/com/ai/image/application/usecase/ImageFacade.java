@@ -22,13 +22,13 @@ public class ImageFacade {
         this.imageGenerationRepository = imageGenerationRepository;
     }
 
-    public String generateImage(
+    public GeneratedImage generateImage(
             String prompt, String model, String quality, int width, int height, int n) {
         log.info("ImageFacade.generateImage: {}", truncate(prompt));
         GeneratedImage image = imageGenerationRepository.generate(
                 ImagePrompt.of(prompt),
                 ImageOptions.of(model, quality, width, height, n));
-        return image.hasUrl() ? image.url() : null;
+        return image.isAvailable() ? image : GeneratedImage.empty();
     }
 
     public List<String> getAvailableImageModels() {

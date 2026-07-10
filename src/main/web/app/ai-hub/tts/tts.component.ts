@@ -52,7 +52,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   protected readonly i18n = inject(I18nService);
 
   readonly text = signal('');
-  readonly voice = signal('en-US');
+  readonly voice = signal('alloy');
   readonly speed = signal(1.0);
   readonly availableVoices = signal<Voice[]>([]);
   readonly isSynthesizing = signal(false);
@@ -89,10 +89,10 @@ export class TtsPageComponent implements OnInit, OnDestroy {
       error: () => {
         this.availableVoices.set([
           {
-            id: 'en-US',
-            name: 'English (US)',
-            language: 'en-US',
-            provider: 'default',
+            id: 'alloy',
+            name: 'Alloy',
+            language: 'en',
+            provider: 'openai',
             is_default: true,
           },
         ]);
