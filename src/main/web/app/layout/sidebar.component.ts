@@ -176,13 +176,17 @@ export class SidebarComponent implements OnInit {
 
   @HostListener('document:pointerdown', ['$event'])
   onDocumentPointerDown(event: PointerEvent): void {
-    const target = event.target as HTMLElement;
+    const target = event.target as Element;
+    const isOutsideMenu =
+      !target || typeof target.closest !== 'function' || !target.closest('[data-language-menu]');
+    const isOutsideSidebar =
+      !target || typeof target.closest !== 'function' || !target.closest('[data-sidebar-panel]');
 
-    if (this.dropdownOpen() && !target.closest('[data-language-menu]')) {
+    if (this.dropdownOpen() && isOutsideMenu) {
       this.dropdownOpen.set(false);
     }
 
-    if (this.sidebar.mobileOpen() && !target.closest('[data-sidebar-panel]')) {
+    if (this.sidebar.mobileOpen() && isOutsideSidebar) {
       this.sidebar.close();
     }
   }

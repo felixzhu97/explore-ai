@@ -97,8 +97,8 @@ export class HeaderComponent {
   @HostListener('document:pointerdown', ['$event'])
   onDocumentPointerDown(event: PointerEvent): void {
     if (!this.dropdownOpen()) return;
-    const target = event.target as HTMLElement;
-    if (!target.closest('[data-language-menu]')) {
+    const target = event.target as Element;
+    if (!target || typeof target.closest !== 'function' || !target.closest('[data-language-menu]')) {
       this.dropdownOpen.set(false);
     }
   }
