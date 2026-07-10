@@ -3,6 +3,20 @@ export type Language = 'en' | 'zh' | 'ja' | 'fr' | 'es';
 
 export const SUPPORTED_LANGUAGES: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];
 
+/** Sidebar nav keys reserved for future modules (no route wired yet). */
+export const PLANNED_NAV_KEYS = [
+  'supervisor',
+  'kubernetes',
+  'monitoring',
+  'aiinfra',
+  'modelDev',
+  'modelOps',
+  'model',
+  'llmops',
+  'aiops',
+  'vectordb',
+] as const satisfies readonly (keyof Translations['nav'])[];
+
 export interface Translations {
   common: {
     loadFailed: string;
