@@ -32,15 +32,29 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Bounded Context | 中文名 | Code Package | Frontend Route |
 |----------------|--------|--------------|----------------|
 | Chat Domain | 对话 | `com.ai.chat` | `/chat` |
+| Generation Domain | 生成 | — (UI shell) | `/generate` |
 | RAG Domain | 知识问答 | `com.ai.rag` | `/rag` |
+| Image Analysis Domain | 图像分析 | `com.ai.vision` | `/vision` |
 | RAG ETL Domain | RAG 数据管道 | `com.ai.rag.domain.port` | — |
 | Tool Calling Domain | 工具调用 | `com.ai.tools` | — |
-| Image Generation Domain | 图像生成 | `com.ai.image` | `/chat/image` |
-| Audio Domain (TTS + ASR) | 语音（合成 + 转写） | `com.ai.audio` | `/chat/tts` |
+| Image Generation Domain | 图像生成 | `com.ai.image` | `/generate/image` |
+| Audio Domain (TTS + ASR) | 语音（合成 + 转写） | `com.ai.audio` | `/generate/tts` |
 | MCP Server Domain | MCP 服务端 | `com.ai.mcp.server` | — |
 | MCP Client Domain | MCP 客户端 | `com.ai.mcp.client` | — |
 | Analysis Domain | 结构化分析 | `com.ai.analysis` | — |
 | Eval Domain | 对话质量评估 | `com.ai.eval` | — |
+
+**Frontend route map (canonical)**
+
+| Route | Preferred Term (English) | API prefix |
+|-------|--------------------------|------------|
+| `/chat` | Chat | `/api/text`, `/api/sessions` |
+| `/generate/image` | Image Generation | `/api/images` |
+| `/generate/tts` | Text-to-Speech | `/api/audio` (alias `/api/tts`) |
+| `/rag` | Document QA (RAG) | `/api/rag` |
+| `/vision` | Image Analysis | `/api/vision` |
+
+**Planned sidebar labels (no route yet):** `supervisor`, `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb` — i18n keys retained for future modules.
 
 ```mermaid
 flowchart TB
@@ -50,6 +64,7 @@ flowchart TB
     RagEtl[RagEtlDomain]
     Tools[ToolCallingDomain]
     Image[ImageGenerationDomain]
+    Vision[ImageAnalysisDomain]
     Audio[AudioDomain]
     McpServer[McpServerDomain]
     McpClient[McpClientDomain]
@@ -154,10 +169,10 @@ flowchart TB
 | Chunking | 分块 | Process of splitting document text into chunks | Application Behavior | `ChunkingService` | Configurable size/overlap |
 | Embedding | 嵌入向量 | Vector representation of text for similarity search | Technical | `EmbeddingAdapter` | Ollama mxbai-embed-large |
 | Retrieval | 检索 | Find relevant chunks via vector similarity | Application Behavior | `DocumentSearchService` | topK + scoreThreshold |
-| Source Document | 来源文档 | Retrieved chunk with similarity score | Value Object | `SourceDocument` | text + score + metadata |
+| Source Document | 来源文档 | Retrieved chunk with similarity score | Value Object | `SourceDocument` | Domain field `text`; SSE JSON uses `"text"` via `SourceDocumentDto` |
 | Context | 上下文 | Retrieved text and sources passed to the LLM | Application Concept | `RagApplicationService.retrieveContext()` | Augments the Prompt |
 | RAG Chat | RAG 对话 | Generate AI answers from retrieved context | Use Case | `RagChatUseCase` | Supports streaming |
-| Vision Chat | 视觉问答 | Multimodal RAG Q&A over images | Use Case | `VisionChatUseCase` | Ollama qwen3.5 |
+| Vision Chat | 视觉问答 | Multimodal RAG Q&A over images in chat stream | Use Case | `VisionChatUseCase` | Ollama multimodal; not `/api/vision/*` |
 | Document Upload | 文档上传 | Upload file and trigger processing pipeline | Use Case | `DocumentUploadService` | TXT / PDF |
 | Vector Similarity | 向量相似度 | Cosine similarity between two vectors | Domain Utility | `VectorSimilarity` | — |
 | Chunk Size | 分块大小 | Maximum characters per chunk | Config | `RagProperties.Chunk.size` | Default: 500 |
@@ -205,11 +220,25 @@ UPLOADING → PROCESSING → READY
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 |--------------------------|------|------------|------|--------------|-------|
-| Image Generation | 图像生成 | Generate images from text prompts | Use Case | `SpringAiImageGenerationUseCase` | DALL-E API |
-| Image Generation Request | 生成请求 | Request with prompt, size, quality, etc. | DTO | `ImageGenerationRequest` | — |
-| Image Generation Response | 生成响应 | Response with image URL or Base64 | DTO | `ImageGenerationResponse` | — |
+| Image Generation | 图像生成 | Generate images from text prompts | Use Case | `ImageFacade` | Spring AI `ImageModel` |
+| Image Generation Request | 生成请求 | Request with prompt, size, quality, etc. | DTO | `ImageGenerationRequest` | POST `/api/images/generate` |
+| Image Generation Response | 生成响应 | Response with `imageUrl` and/or `imageBase64` | DTO | `ImageGenerationResponse` | Fields: `imageUrl`, `imageBase64`, `model`, `status` |
 | Prompt | 提示词 | Text describing the desired image | Business Concept | `ImageGenerationRequest.prompt()` | — |
-| Generated Image | 生成图像 | Domain result of image generation | Entity | `GeneratedImage` | — |
+| Generated Image | 生成图像 | Domain result of image generation | Value Object | `GeneratedImage` | URL or base64 payload |
+
+---
+
+### 4.4a Image Analysis Domain | 图像分析
+
+| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
+|--------------------------|------|------------|------|--------------|-------|
+| Image Analysis | 图像分析 | Standalone caption, detect, and OCR over uploaded images | Capability | `VisionAnalysisUseCase` | Frontend route `/vision` |
+| Caption | 图像描述 | Natural-language description of image content | Use Case Behavior | `POST /api/vision/caption` | Multipart `file` |
+| Object Detection | 目标检测 | List detected objects with confidence and bbox | Use Case Behavior | `POST /api/vision/detect` | LLM-parsed JSON, not YOLO |
+| OCR | 文字识别 | Extract visible text from image | Use Case Behavior | `POST /api/vision/ocr` | Returns `full_text` |
+| Vision Chat | 视觉问答 | RAG chat with image attachments | Use Case | `VisionChatUseCase` | SSE `/api/rag/chat/stream` with `images[]` |
+
+**Do not conflate:** **Image Analysis** (`/vision`, `/api/vision/*`) vs **Vision Chat** (multimodal RAG stream).
 
 ---
 
@@ -217,11 +246,11 @@ UPLOADING → PROCESSING → READY
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 |--------------------------|------|------------|------|--------------|-------|
-| Text-to-Speech (TTS) | 语音合成 | Convert text into spoken audio | Use Case | `TextToSpeechUseCase` | OpenAI TTS API |
-| Voice | 音色 | Voice type used for synthesis | Business Concept | `VoiceSelection`, `VoiceCatalog` | User-selectable |
+| Text-to-Speech (TTS) | 语音合成 | Convert text into spoken audio | Use Case | `AudioFacade` | Dedicated `app.ai.tts.*` config |
+| Voice | 音色 | Voice type used for synthesis | Business Concept | `VoiceInfo`, `VoiceCatalog` | GET `/api/audio/voices` |
 | Speech Text | 语音文本 | Validated text input for TTS | Value Object | `SpeechText` | — |
-| Synthesized Audio | 合成音频 | Domain result of TTS conversion | Entity | `SynthesizedAudio` | Audio bytes |
-| Synthesize | 合成 | Execute text-to-speech conversion | Use Case Behavior | `TextToSpeechUseCase.synthesize()` | Returns audio stream |
+| Synthesized Audio | 合成音频 | Domain result of TTS conversion | Value Object | `SynthesizedAudio` | Audio bytes |
+| Synthesize | 合成 | Execute text-to-speech conversion | Use Case Behavior | `AudioFacade.synthesize()` | POST `/api/audio/speak` (alias `/api/tts/synthesize`) |
 | Automatic Speech Recognition (ASR) | 自动语音识别 | Convert spoken audio to text | Capability | `StreamingTranscriptionUseCase` | whisper.cpp |
 | Streaming Transcription | 流式转写 | Real-time ASR over WebSocket | Use Case Behavior | `AudioTranscriptionWebSocketHandler` | Port 8178 |
 | Transcription | 转写 | Single ASR result converting audio to text | Application Concept | `WhisperCppTranscriptionAdapter` | Returns text |
@@ -292,6 +321,8 @@ UPLOADING → PROCESSING → READY
 | GPT / ChatGPT | **LLM** + **Provider** | Use Provider, not brand names |
 | fine-tuning | **Prompt Engineering** | No fine-tuning in this project |
 | hallucination | low **Factuality Score** | Use Eval domain terminology |
+| Vision AI | **Image Analysis** | Renamed in UI; route `/vision` |
+| AI Hub | **Chat** + **Generation** | Split into `/chat` and `/generate/*` |
 | plugin | **Tool** / **MCP Tool** | Distinguish Tool Calling from MCP |
 | bot | **Agent** / **ChatClient** | Prefer Agent for autonomous entities |
 
