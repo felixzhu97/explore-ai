@@ -174,11 +174,16 @@ export class SidebarComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
-  @HostListener('document:mousedown', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.relative')) {
+
+    if (this.dropdownOpen() && !target.closest('[data-language-menu]')) {
       this.dropdownOpen.set(false);
+    }
+
+    if (this.sidebar.mobileOpen() && !target.closest('[data-sidebar-panel]')) {
+      this.sidebar.close();
     }
   }
 }
