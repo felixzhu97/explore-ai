@@ -6,7 +6,7 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
   standalone: true,
   template: `
     <header class="
-      sticky top-0 z-80 flex h-13 items-center justify-between border-b
+      sticky top-0 z-80 flex h-13 shrink-0 items-center justify-between border-b
       border-black/8 bg-white px-4
       md:hidden
     ">
