@@ -1,4 +1,4 @@
-// Chat Feature Models
+// Chat Feature Models — aligned with backend DTOs (camelCase JSON)
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -12,48 +12,27 @@ export interface ChatMessageData extends ChatMessage {
   isLoading?: boolean;
 }
 
-export interface ChatRequest {
+/** POST /api/text/chat/stream */
+export interface ChatStreamRequest {
   messages: ChatMessage[];
-  session_id?: string;
-  system_prompt?: string;
-  temperature?: number;
-  max_tokens?: number;
+  sessionId?: string;
   provider?: string;
   model?: string;
-  tools_enabled?: boolean;
-}
-
-export interface ChatResponse {
-  text: string;
-  response?: string;
-  provider: string;
-  model: string;
-  session_id: string;
-  usage?: Record<string, number>;
-  finish_reason?: string;
+  toolsEnabled?: boolean;
 }
 
 export interface ModelInfo {
   name: string;
   provider: string;
   description?: string;
-  max_tokens?: number;
+  maxTokens?: number;
 }
 
 export interface ProviderInfo {
   name: string;
-  display_name: string;
+  displayName: string;
   models: string[];
-  status: 'available' | 'configured' | 'unavailable';
-  supported_languages?: string[];
-  features?: string[];
-}
-
-export interface ToolCallStatus {
-  pending: 'pending';
-  running: 'running';
-  success: 'success';
-  error: 'error';
+  status: 'available' | 'unavailable';
 }
 
 export interface ToolCall {
@@ -62,11 +41,6 @@ export interface ToolCall {
   input: Record<string, unknown>;
   output?: string;
   status: 'pending' | 'running' | 'success' | 'error';
-}
-
-export interface ChatTabState {
-  provider: string;
-  model: string;
 }
 
 export interface SessionInfo {

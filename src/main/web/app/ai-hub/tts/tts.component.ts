@@ -81,7 +81,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.api.getVoices().subscribe({
       next: (voices) => {
         this.availableVoices.set(voices);
-        const defaultVoice = voices.find((v: Voice) => v.is_default) || voices[0];
+        const defaultVoice = voices.find((v: Voice) => v.isDefault) || voices[0];
         if (defaultVoice) {
           this.voice.set(defaultVoice.id);
         }
@@ -93,7 +93,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
             name: 'Alloy',
             language: 'en',
             provider: 'openai',
-            is_default: true,
+            isDefault: true,
           },
         ]);
       },
@@ -123,7 +123,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
         text: this.text(),
         voice: this.voice() || undefined,
         speed: this.speed(),
-        output_format: 'mp3',
+        outputFormat: 'mp3',
       })
       .subscribe({
         next: (blob: Blob) => {

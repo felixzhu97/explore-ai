@@ -79,5 +79,9 @@ public class AudioController {
         return ResponseEntity.ok(Map.of("models", audioFacade.getAvailableTtsModels()));
     }
 
-    public record TtsRequest(String text, String voice, Double speed, String output_format) {}
+    public record TtsRequest(
+            String text,
+            String voice,
+            Double speed,
+            @com.fasterxml.jackson.annotation.JsonAlias("output_format") String outputFormat) {}
 }

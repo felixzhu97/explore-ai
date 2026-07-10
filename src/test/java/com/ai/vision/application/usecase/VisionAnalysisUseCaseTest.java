@@ -47,7 +47,7 @@ class VisionAnalysisUseCaseTest {
                 "file", "photo.jpg", "image/jpeg", "bytes".getBytes()));
 
         assertThat(response.detections()).hasSize(1);
-        assertThat(response.detections().getFirst().class_name()).isEqualTo("cat");
+        assertThat(response.detections().getFirst().className()).isEqualTo("cat");
     }
 
     @Test

@@ -2,20 +2,20 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, catchError } from 'rxjs';
 import type {
-  ChatRequest,
+  ChatStreamRequest,
   RagQuery,
   ImageGenerateParams,
   ImageGenerationApiResponse,
   ImageGenerationResult,
-  TTSRequest,
+  TtsRequest,
   SourceDocument,
   ProviderInfo,
   ModelInfo,
   Voice,
-  Detection,
   DocumentListResponse,
   SessionInfo,
   ChatMessageData,
+  VisionResult,
 } from '@shared/models';
 import { environment } from '@env/environment';
 
@@ -109,19 +109,19 @@ class SseEventAssembler {
 export const DEFAULT_PROVIDERS: ProviderInfo[] = [
   {
     name: 'openai',
-    display_name: 'OpenAI',
+    displayName: 'OpenAI',
     models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'],
     status: 'available',
   },
   {
     name: 'anthropic',
-    display_name: 'Anthropic Claude',
+    displayName: 'Anthropic Claude',
     models: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku'],
     status: 'available',
   },
   {
     name: 'ollama',
-    display_name: 'Ollama (Local)',
+    displayName: 'Ollama (Local)',
     models: ['llama3', 'mistral', 'codellama'],
     status: 'unavailable',
   },
@@ -146,14 +146,14 @@ const defaultVoices: Voice[] = [
     name: 'Alloy',
     language: 'en',
     provider: 'openai',
-    is_default: true,
+    isDefault: true,
   },
   {
     id: 'nova',
     name: 'Nova',
     language: 'en',
     provider: 'openai',
-    is_default: false,
+    isDefault: false,
   },
 ];
 
@@ -213,7 +213,7 @@ export class ApiService {
   }
 
   chatStream(
-    request: ChatRequest,
+    request: ChatStreamRequest,
     onChunk: (token: string) => void,
     onDone: () => void,
     onError: (err: Error) => void,
@@ -494,25 +494,25 @@ export class ApiService {
 
   // ==================== Vision ====================
 
-  captionImage(file: File): Observable<{ caption: string; processing_time_ms?: number }> {
+  captionImage(file: File): Observable<Pick<VisionResult, 'caption' | 'processingTimeMs'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ caption: string; processing_time_ms?: number }>(
+    return this.http.post<Pick<VisionResult, 'caption' | 'processingTimeMs'>>(
       `${BASE_URL}/vision/caption`,
       formData,
     );
   }
 
-  detectObjects(file: File): Observable<{ detections: Detection[] }> {
+  detectObjects(file: File): Observable<Pick<VisionResult, 'detections'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ detections: Detection[] }>(`${BASE_URL}/vision/detect`, formData);
+    return this.http.post<Pick<VisionResult, 'detections'>>(`${BASE_URL}/vision/detect`, formData);
   }
 
-  ocrImage(file: File): Observable<{ full_text: string; processing_time_ms?: number }> {
+  ocrImage(file: File): Observable<Pick<VisionResult, 'fullText' | 'processingTimeMs'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ full_text: string; processing_time_ms?: number }>(
+    return this.http.post<Pick<VisionResult, 'fullText' | 'processingTimeMs'>>(
       `${BASE_URL}/vision/ocr`,
       formData,
     );
@@ -529,14 +529,14 @@ export class ApiService {
       );
   }
 
-  synthesizeSpeech(params: TTSRequest): Observable<Blob> {
+  synthesizeSpeech(params: TtsRequest): Observable<Blob> {
     return this.http.post<Blob>(
       `${BASE_URL}/audio/speak`,
       {
         text: params.text,
         voice: params.voice,
         speed: params.speed,
-        output_format: params.output_format,
+        outputFormat: params.outputFormat,
       },
       {
         responseType: 'blob' as 'json',
@@ -556,13 +556,13 @@ export class ApiService {
           name: voice.charAt(0).toUpperCase() + voice.slice(1),
           language: 'en',
           provider: 'openai',
-          is_default: index === 0,
+          isDefault: index === 0,
         };
       }
       return {
         ...voice,
         provider: voice.provider ?? 'openai',
-        is_default: voice.is_default ?? index === 0,
+        isDefault: voice.isDefault ?? index === 0,
       };
     });
   }

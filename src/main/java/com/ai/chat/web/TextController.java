@@ -39,14 +39,15 @@ public class TextController {
 
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatStream(@RequestBody ChatStreamRequest request) {
-        TextChatOptions options = TextChatOptions.of(request.provider(), request.model(), request.tools_enabled());
+        TextChatOptions options = TextChatOptions.of(
+                request.provider(), request.model(), Boolean.TRUE.equals(request.toolsEnabled()));
 
-        if (request.session_id() != null && !request.session_id().isBlank()) {
+        if (request.sessionId() != null && !request.sessionId().isBlank()) {
             String userMessage = extractLastUserMessage(request.messages());
             if (userMessage == null || userMessage.isBlank()) {
-                return Flux.error(new IllegalArgumentException("User message is required when session_id is provided"));
+                return Flux.error(new IllegalArgumentException("User message is required when sessionId is provided"));
             }
-            return chatUseCase.chatStreamWithSession(request.session_id(), userMessage, options);
+            return chatUseCase.chatStreamWithSession(request.sessionId(), userMessage, options);
         }
 
         List<ChatMessage> messages = request.messages().stream()

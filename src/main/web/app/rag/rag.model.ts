@@ -1,44 +1,37 @@
-// RAG Feature Models
+// RAG Feature Models — aligned with backend DTOs (camelCase JSON)
 
+/** POST /api/rag/chat/stream */
 export interface RagQuery {
   query: string;
-  session_id?: string;
-  top_k?: number;
+  sessionId?: string;
+  topK?: number;
   temperature?: number;
-  doc_ids?: string[];
+  docIds?: string[];
+  images?: string[];
 }
 
+/** Matches SourceDocumentDto / SSE sources event */
 export interface SourceDocument {
   text: string;
   score: number;
   metadata: Record<string, unknown>;
 }
 
-export interface RAGSource {
-  documentId: string;
-  documentName: string;
-  content: string;
-  similarity: number;
-  pageNumber?: number;
-}
-
-export interface Document {
+/** GET /api/rag/documents — DocumentSummaryDto */
+export interface DocumentListItem {
   id: string;
-  name: string;
-  size: number;
-  uploadedAt: Date;
-  title?: string;
-  filename?: string;
+  title: string;
+  status?: string;
+  createdAt?: string;
+  chunkCount?: number;
 }
 
 export interface DocumentListResponse {
   documents: DocumentListItem[];
 }
 
-export interface DocumentListItem {
-  id?: string;
-  doc_id?: string;
-  title?: string;
-  filename?: string;
-  name?: string;
+/** UI-facing document in RAG feature */
+export interface RagDocument {
+  id: string;
+  title: string;
 }

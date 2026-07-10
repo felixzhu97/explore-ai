@@ -34,7 +34,7 @@ describe('ApiService', () => {
       const mockProviders = [
         {
           name: 'openai',
-          display_name: 'OpenAI',
+          displayName: 'OpenAI',
           models: ['gpt-4o'],
           status: 'available',
         },
@@ -861,7 +861,7 @@ describe('ApiService', () => {
       const onSources = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         onChunk,
         onSources,
         onDone,
@@ -898,7 +898,7 @@ describe('ApiService', () => {
 
       const onDone = vi.fn();
 
-      service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
+      service.ragChat({ query: 'test', sessionId: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: false, value: encoder.encode('data: [DONE]\n\n') });
@@ -928,7 +928,7 @@ describe('ApiService', () => {
       const onSources = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         onSources,
         vi.fn(),
@@ -968,7 +968,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1007,7 +1007,7 @@ describe('ApiService', () => {
       const onChunk = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         onChunk,
         vi.fn(),
         vi.fn(),
@@ -1045,7 +1045,7 @@ describe('ApiService', () => {
       const onChunk = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         onChunk,
         vi.fn(),
         vi.fn(),
@@ -1084,7 +1084,7 @@ describe('ApiService', () => {
       const onChunk = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         onChunk,
         vi.fn(),
         vi.fn(),
@@ -1110,7 +1110,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1130,7 +1130,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1147,7 +1147,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1207,7 +1207,7 @@ describe('ApiService', () => {
             language: 'en',
             gender: 'neutral',
             provider: 'openai',
-            is_default: true,
+            isDefault: true,
           },
         ]);
       });
@@ -1224,7 +1224,7 @@ describe('ApiService', () => {
             name: 'Alloy',
             language: 'en',
             provider: 'openai',
-            is_default: true,
+            isDefault: true,
           },
           {
             id: 'echo',
@@ -1232,7 +1232,7 @@ describe('ApiService', () => {
             language: 'en',
             gender: 'male',
             provider: 'openai',
-            is_default: false,
+            isDefault: false,
           },
         ]);
       });
@@ -1297,7 +1297,7 @@ describe('ApiService', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
       const mockResponse = {
         caption: 'A beautiful sunset',
-        processing_time_ms: 500,
+        processingTimeMs: 500,
       };
 
       service.captionImage(mockFile).subscribe((response) => {
@@ -1316,7 +1316,7 @@ describe('ApiService', () => {
       const mockResponse = {
         detections: [
           {
-            class_name: 'person',
+            className: 'person',
             confidence: 0.95,
             bbox: [0, 0, 100, 200] as [number, number, number, number],
           },
@@ -1325,7 +1325,7 @@ describe('ApiService', () => {
 
       service.detectObjects(mockFile).subscribe((response) => {
         expect(response.detections.length).toBe(1);
-        expect(response.detections[0].class_name).toBe('person');
+        expect(response.detections[0].className).toBe('person');
       });
 
       const req = httpMock.expectOne('/api/vision/detect');
@@ -1338,12 +1338,12 @@ describe('ApiService', () => {
     it('should send OCR request with file', () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
       const mockResponse = {
-        full_text: 'Hello World',
-        processing_time_ms: 300,
+        fullText: 'Hello World',
+        processingTimeMs: 300,
       };
 
       service.ocrImage(mockFile).subscribe((response) => {
-        expect(response.full_text).toBe('Hello World');
+        expect(response.fullText).toBe('Hello World');
       });
 
       const req = httpMock.expectOne('/api/vision/ocr');
@@ -1406,7 +1406,7 @@ describe('ApiService', () => {
   describe('ragChat', () => {
     it('should return abort controller', () => {
       const result = service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1428,7 +1428,7 @@ describe('ApiService', () => {
       } as never);
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1454,7 +1454,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1477,7 +1477,7 @@ describe('ApiService', () => {
 
       const onDone = vi.fn();
 
-      service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
+      service.ragChat({ query: 'test', sessionId: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
       await new Promise(resolve => setTimeout(resolve, 50));
     });
@@ -1495,7 +1495,7 @@ describe('ApiService', () => {
       const onSources = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         onSources,
         vi.fn(),
@@ -1518,7 +1518,7 @@ describe('ApiService', () => {
       const onChunk = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         onChunk,
         vi.fn(),
         vi.fn(),
@@ -1537,7 +1537,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1554,7 +1554,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session1' },
+        { query: 'test', sessionId: 'session1' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1651,7 +1651,7 @@ describe('ApiService', () => {
       service.getProviders().subscribe((providers) => {
         const openai = providers.find((p: ProviderInfo) => p.name === 'openai');
         expect(openai).toBeDefined();
-        expect(openai?.display_name).toBe('OpenAI');
+        expect(openai?.displayName).toBe('OpenAI');
         expect(openai?.models).toContain('gpt-4o');
       });
 
@@ -1663,7 +1663,7 @@ describe('ApiService', () => {
       service.getProviders().subscribe((providers) => {
         const anthropic = providers.find((p: ProviderInfo) => p.name === 'anthropic');
         expect(anthropic).toBeDefined();
-        expect(anthropic?.display_name).toBe('Anthropic Claude');
+        expect(anthropic?.displayName).toBe('Anthropic Claude');
       });
 
       const req = httpMock.expectOne('/api/text/providers');
@@ -1674,7 +1674,7 @@ describe('ApiService', () => {
       service.getProviders().subscribe((providers) => {
         const ollama = providers.find((p: ProviderInfo) => p.name === 'ollama');
         expect(ollama).toBeDefined();
-        expect(ollama?.display_name).toBe('Ollama (Local)');
+        expect(ollama?.displayName).toBe('Ollama (Local)');
       });
 
       const req = httpMock.expectOne('/api/text/providers');
@@ -1696,7 +1696,7 @@ describe('ApiService', () => {
       service.chatStream(
         {
           messages: [{ role: 'user', content: 'Hi' }],
-          session_id: 'session123',
+          sessionId: 'session123',
           system_prompt: 'You are helpful',
           temperature: 0.7,
           max_tokens: 1000,
@@ -1717,7 +1717,7 @@ describe('ApiService', () => {
 
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
       const body = JSON.parse(callArgs.body as string);
-      expect(body.session_id).toBe('session123');
+      expect(body.sessionId).toBe('session123');
       expect(body.system_prompt).toBe('You are helpful');
       expect(body.temperature).toBe(0.7);
       expect(body.max_tokens).toBe(1000);
@@ -1838,7 +1838,7 @@ describe('ApiService', () => {
   });
 
   describe('ragChat edge cases', () => {
-    it('should send request with doc_ids parameter', async () => {
+    it('should send request with docIds parameter', async () => {
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: {
@@ -1851,10 +1851,10 @@ describe('ApiService', () => {
       service.ragChat(
         {
           query: 'What is the revenue?',
-          session_id: 'session123',
-          top_k: 5,
+          sessionId: 'session123',
+          topK: 5,
           temperature: 0.5,
-          doc_ids: ['doc1', 'doc2', 'doc3'],
+          docIds: ['doc1', 'doc2', 'doc3'],
         },
         vi.fn(),
         vi.fn(),
@@ -1872,10 +1872,10 @@ describe('ApiService', () => {
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
       const body = JSON.parse(callArgs.body as string);
       expect(body.query).toBe('What is the revenue?');
-      expect(body.session_id).toBe('session123');
-      expect(body.top_k).toBe(5);
+      expect(body.sessionId).toBe('session123');
+      expect(body.topK).toBe(5);
       expect(body.temperature).toBe(0.5);
-      expect(body.doc_ids).toEqual(['doc1', 'doc2', 'doc3']);
+      expect(body.docIds).toEqual(['doc1', 'doc2', 'doc3']);
     });
 
     it('should handle empty query string', async () => {
@@ -1888,7 +1888,7 @@ describe('ApiService', () => {
         },
       } as never);
 
-      service.ragChat({ query: '', session_id: 'session123' }, vi.fn(), vi.fn(), vi.fn(), vi.fn());
+      service.ragChat({ query: '', sessionId: 'session123' }, vi.fn(), vi.fn(), vi.fn(), vi.fn());
 
       await new Promise(resolve => setTimeout(resolve, 50));
 
@@ -1908,7 +1908,7 @@ describe('ApiService', () => {
       const onError = vi.fn();
 
       service.ragChat(
-        { query: 'test', session_id: 'session123' },
+        { query: 'test', sessionId: 'session123' },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1919,7 +1919,7 @@ describe('ApiService', () => {
       expect(onError).toHaveBeenCalled();
     });
 
-    it('should handle empty doc_ids array', async () => {
+    it('should handle empty docIds array', async () => {
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         body: {
@@ -1930,7 +1930,7 @@ describe('ApiService', () => {
       } as never);
 
       service.ragChat(
-        { query: 'test', session_id: 'session123', doc_ids: [] },
+        { query: 'test', sessionId: 'session123', docIds: [] },
         vi.fn(),
         vi.fn(),
         vi.fn(),
@@ -1942,7 +1942,7 @@ describe('ApiService', () => {
       expect(fetchSpy).toHaveBeenCalled();
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
       const body = JSON.parse(callArgs.body as string);
-      expect(body.doc_ids).toEqual([]);
+      expect(body.docIds).toEqual([]);
     });
   });
 
@@ -2001,7 +2001,7 @@ describe('ApiService', () => {
       const mockFile = new File(['png-data'], 'test.png', {
         type: 'image/png',
       });
-      const mockResponse = { caption: 'A PNG image', processing_time_ms: 500 };
+      const mockResponse = { caption: 'A PNG image', processingTimeMs: 500 };
 
       service.captionImage(mockFile).subscribe((response) => {
         expect(response.caption).toBe('A PNG image');
@@ -2034,17 +2034,17 @@ describe('ApiService', () => {
       const mockResponse = {
         detections: [
           {
-            class_name: 'person',
+            className: 'person',
             confidence: 0.95,
             bbox: [0, 0, 100, 200] as [number, number, number, number],
           },
           {
-            class_name: 'car',
+            className: 'car',
             confidence: 0.87,
             bbox: [150, 100, 300, 250] as [number, number, number, number],
           },
           {
-            class_name: 'dog',
+            className: 'dog',
             confidence: 0.72,
             bbox: [50, 150, 120, 220] as [number, number, number, number],
           },
@@ -2053,9 +2053,9 @@ describe('ApiService', () => {
 
       service.detectObjects(mockFile).subscribe((response) => {
         expect(response.detections.length).toBe(3);
-        expect(response.detections[0].class_name).toBe('person');
-        expect(response.detections[1].class_name).toBe('car');
-        expect(response.detections[2].class_name).toBe('dog');
+        expect(response.detections[0].className).toBe('person');
+        expect(response.detections[1].className).toBe('car');
+        expect(response.detections[2].className).toBe('dog');
       });
 
       const req = httpMock.expectOne('/api/vision/detect');

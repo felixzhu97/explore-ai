@@ -96,7 +96,7 @@ class VisionControllerTest {
             ResponseEntity<OcrResponse> response = controller.ocr(file);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
-            assertThat(response.getBody().full_text()).isEqualTo("Hello World");
+            assertThat(response.getBody().fullText()).isEqualTo("Hello World");
         }
     }
 }

@@ -2,21 +2,11 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@core/i18n';
-import { SourceDocument } from './rag.model';
+import { SourceDocument, RagQuery } from './rag.model';
 
-export interface DocumentItem {
+export interface RagDocumentItem {
   id: string;
   title: string;
-}
-
-interface DocumentResponse {
-  documents?: {
-    id?: string;
-    doc_id?: string;
-    title?: string;
-    filename?: string;
-    name?: string;
-  }[];
 }
 
 export interface UploadStatus {
@@ -27,7 +17,7 @@ export interface UploadStatus {
   error?: string;
 }
 
-export interface ChatMessage {
+export interface RagChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
@@ -47,7 +37,7 @@ export class RagService {
   private readonly sessionId = `session_${Date.now()}`;
 
   // Document state
-  readonly availableDocs = signal<DocumentItem[]>([]);
+  readonly availableDocs = signal<RagDocumentItem[]>([]);
   readonly selectedDocIds = signal<Set<string>>(new Set());
   readonly deletingDocIds = signal<Set<string>>(new Set());
   readonly isLoadingDocs = signal(true);
@@ -58,7 +48,7 @@ export class RagService {
   readonly isUploading = signal(false);
 
   // Chat state
-  readonly messages = signal<ChatMessage[]>([]);
+  readonly messages = signal<RagChatMessage[]>([]);
   readonly input = signal('');
   readonly isLoading = signal(false);
   readonly expandedSources = signal<Set<string>>(new Set());
@@ -73,10 +63,11 @@ export class RagService {
   fetchAvailableDocs(): void {
     this.isLoadingDocs.set(true);
     this.api.getDocuments().subscribe({
-      next: (data: DocumentResponse) => {
-        const docs = (data.documents || []).map((d) => {
-          return { id: d.id || d.doc_id || '', title: d.title || d.filename || d.name || 'Untitled' };
-        });
+      next: (data) => {
+        const docs = (data.documents || []).map(d => ({
+          id: d.id,
+          title: d.title || 'Untitled',
+        }));
         this.availableDocs.set(docs);
         const ids = new Set<string>();
         docs.forEach(d => ids.add(d.id));
@@ -303,22 +294,15 @@ export class RagService {
     ]);
     this.streamingMessageIds.update(ids => new Set(ids).add(assistantMessageId));
 
-    const requestBody: {
-      query: string;
-      session_id: string;
-      top_k: number;
-      temperature: number;
-      doc_ids?: string[];
-      images?: string[];
-    } = {
+    const requestBody: RagQuery = {
       query: userMessage.content,
-      session_id: this.sessionId,
-      top_k: DEFAULT_TOP_K,
+      sessionId: this.sessionId,
+      topK: DEFAULT_TOP_K,
       temperature: DEFAULT_TEMPERATURE,
     };
 
     if (this.selectedDocIds().size > 0) {
-      requestBody.doc_ids = Array.from(this.selectedDocIds());
+      requestBody.docIds = Array.from(this.selectedDocIds());
     }
 
     if (images.length > 0) {

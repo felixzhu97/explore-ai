@@ -13,7 +13,6 @@ import { FormsModule } from '@angular/forms';
 import { MarkdownContentComponent } from '@shared/components/markdown-content.component';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
-import type { ChatTabState } from '../chat.model';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ChatService } from '../chat.service';
@@ -44,8 +43,6 @@ import { ChatService } from '../chat.service';
 export class ChatTabComponent implements OnInit, OnDestroy {
   protected readonly chat = inject(ChatService);
   protected readonly i18n = inject(I18nService);
-
-  readonly state = model<ChatTabState>({ provider: 'openai', model: 'gpt-4o-mini' });
 
   readonly input = model('');
   readonly messagesEnd = viewChild<ElementRef>('messagesEnd');

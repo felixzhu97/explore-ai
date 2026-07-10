@@ -80,16 +80,16 @@
                     }
                     @if (activeTask() === 'detect') {
                         <div class="flex flex-col gap-2">
-                            @for (det of currentState().result!.detections; track det.class_name) {
+                            @for (det of currentState().result!.detections; track det.className) {
                                 <div class="flex items-center justify-between rounded-lg bg-surface-secondary p-3">
-                                    <span class="font-medium text-text">{{ det.class_name }}</span>
+                                    <span class="font-medium text-text">{{ det.className }}</span>
                                     <span class="text-sm text-text-secondary">{{ (det.confidence * 100).toFixed(0) }}%</span>
                                 </div>
                             }
                         </div>
                     }
                     @if (activeTask() === 'ocr') {
-                        <pre class="m-0 flex-1 overflow-x-auto rounded-lg bg-surface-secondary p-3 font-mono text-sm break-all whitespace-pre-wrap text-text">{{ currentState().result!.full_text }}</pre>
+                        <pre class="m-0 flex-1 overflow-x-auto rounded-lg bg-surface-secondary p-3 font-mono text-sm break-all whitespace-pre-wrap text-text">{{ currentState().result!.fullText }}</pre>
                     }
                 } @else {
                     <div class="flex flex-1 items-center justify-center text-sm text-text-tertiary">
