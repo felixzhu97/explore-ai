@@ -1,0 +1,49 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <!--
+    Spring AI 2.0 requires sequence_id on SPRING_AI_CHAT_MEMORY.
+    Older deployments may have a legacy table created before this column existed.
+    Chat memory is ephemeral, so dropping and recreating is safe.
+  -->
+  <changeSet author="explore-ai" id="20260710-drop-legacy-chat-memory" dbms="h2">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="SPRING_AI_CHAT_MEMORY"/>
+        <not>
+          <columnExists tableName="SPRING_AI_CHAT_MEMORY" columnName="sequence_id"/>
+        </not>
+      </and>
+    </preConditions>
+    <dropTable tableName="SPRING_AI_CHAT_MEMORY"/>
+  </changeSet>
+
+  <changeSet author="explore-ai" id="20260710-recreate-chat-memory" dbms="h2">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="SPRING_AI_CHAT_MEMORY"/>
+      </not>
+    </preConditions>
+    <sql>
+      CREATE TABLE SPRING_AI_CHAT_MEMORY (
+          conversation_id VARCHAR(36) NOT NULL,
+          content LONGVARCHAR NOT NULL,
+          type VARCHAR(10) NOT NULL,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+          sequence_id BIGINT NOT NULL
+      );
+
+      CREATE INDEX SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX
+          ON SPRING_AI_CHAT_MEMORY(conversation_id, timestamp DESC);
+
+      CREATE INDEX SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_SEQUENCE_ID_IDX
+          ON SPRING_AI_CHAT_MEMORY(conversation_id, sequence_id);
+    </sql>
+  </changeSet>
+</databaseChangeLog>

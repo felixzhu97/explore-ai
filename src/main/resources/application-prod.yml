@@ -8,6 +8,11 @@ spring:
     mcp:
       server:
         enabled: false
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: never
 
 # Railway / cloud: Ollama is not available on localhost. Use OpenAI-compatible APIs.
 app:

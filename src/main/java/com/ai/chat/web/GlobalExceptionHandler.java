@@ -9,6 +9,7 @@ import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.RagServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -93,6 +94,13 @@ public class GlobalExceptionHandler {
         log.warn("Upload size exceeded: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
             .body(ErrorResponse.of("Uploaded file exceeds the maximum allowed size of 50MB", "FILE_TOO_LARGE"));
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessError(DataAccessException e) {
+        log.error("Database error during chat operation", e);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of("Chat memory storage is temporarily unavailable", "CHAT_MEMORY_ERROR"));
     }
 
     @ExceptionHandler(Exception.class)
