@@ -180,6 +180,7 @@ html {
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
   scroll-padding-top: 52px; /* Account for sticky navbar height */
+  touch-action: manipulation;
 }
 
 body {
@@ -217,6 +218,20 @@ body {
 input, button, textarea, select {
   font-family: inherit;
   font-size: inherit;
+}
+
+/* Mobile: prevent iOS Safari auto-zoom on input focus (requires >= 16px) */
+@media screen and (max-width: 768px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  nx-sender textarea,
+  nx-sender input {
+    font-size: 16px;
+  }
 }
 
 button {
