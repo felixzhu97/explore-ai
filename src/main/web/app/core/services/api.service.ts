@@ -5,6 +5,8 @@ import type {
   ChatRequest,
   RagQuery,
   ImageGenerateParams,
+  ImageGenerationApiResponse,
+  ImageGenerationResult,
   TTSRequest,
   SourceDocument,
   ProviderInfo,
@@ -369,10 +371,24 @@ export class ApiService {
 
   generateImage(
     params: ImageGenerateParams,
-  ): Observable<{ images: string[]; seed?: number }> {
-    return this.http.post<{ images: string[]; seed?: number }>(
-      `${BASE_URL}/image/generate`,
-      params,
+  ): Observable<ImageGenerationResult> {
+    return this.http.post<ImageGenerationApiResponse>(
+      `${BASE_URL}/images/generate`,
+      {
+        prompt: params.prompt,
+        model: params.model,
+        quality: params.quality,
+        width: params.width,
+        height: params.height,
+        n: params.n ?? 1,
+      },
+    ).pipe(
+      map(response => ({
+        imageUrl: response.imageUrl ?? undefined,
+        imageBase64: response.imageBase64 ?? undefined,
+        model: response.model,
+        prompt: response.prompt,
+      })),
     );
   }
 

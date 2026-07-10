@@ -57,6 +57,27 @@ class SpringAiImageGenerationRepositoryTest {
     }
 
     @Test
+    @DisplayName("should return base64 image when model returns b64 payload")
+    void should_return_base64_image_when_model_returns_b64_payload() {
+        String expectedBase64 = "abc123";
+        Image mockImage = mock(Image.class);
+        ImageGeneration mockGeneration = mock(ImageGeneration.class);
+        ImageResponse mockResponse = mock(ImageResponse.class);
+
+        when(mockImage.getB64Json()).thenReturn(expectedBase64);
+        when(mockGeneration.getOutput()).thenReturn(mockImage);
+        when(mockResponse.getResults()).thenReturn(List.of(mockGeneration));
+        when(imageModel.call(any(ImagePrompt.class))).thenReturn(mockResponse);
+
+        var result = repository.generate(
+                com.ai.image.domain.vo.ImagePrompt.of("sunset"),
+                ImageOptions.of("dall-e-3", "standard", 1024, 1024, 1));
+
+        assertThat(result.base64()).isEqualTo(expectedBase64);
+        assertThat(result.hasBase64()).isTrue();
+    }
+
+    @Test
     @DisplayName("should return empty image when response has no results")
     void should_return_empty_image_when_response_has_no_results() {
         ImageResponse emptyResponse = mock(ImageResponse.class);

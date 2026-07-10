@@ -2,6 +2,7 @@ package com.ai.image.web;
 
 import com.ai.image.application.usecase.ImageFacade;
 import com.ai.image.domain.exception.InvalidImagePromptException;
+import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.web.dto.ImageGenerationRequest;
 import com.ai.image.web.dto.ImageGenerationResponse;
 import jakarta.validation.Valid;
@@ -35,25 +36,22 @@ public class ImageController {
     public ResponseEntity<ImageGenerationResponse> generateImage(
             @Valid @RequestBody ImageGenerationRequest request) {
         try {
-            String imageUrl = imageFacade.generateImage(
+            GeneratedImage image = imageFacade.generateImage(
                     request.prompt(),
                     request.model(),
                     request.quality(),
                     request.width() != null ? request.width() : 1024,
                     request.height() != null ? request.height() : 1024,
-                    request.n() != null ? request.n() : 1
-            );
+                    request.n() != null ? request.n() : 1);
 
-            if (imageUrl == null) {
+            if (!image.isAvailable()) {
                 return ResponseEntity.internalServerError()
                         .body(ImageGenerationResponse.error("Failed to generate image"));
             }
 
+            String model = request.model() != null ? request.model() : image.model();
             return ResponseEntity.ok(ImageGenerationResponse.success(
-                    imageUrl,
-                    request.model() != null ? request.model() : "dall-e-3",
-                    request.prompt()
-            ));
+                    image.url(), image.base64(), model, request.prompt()));
         } catch (InvalidImagePromptException e) {
             return ResponseEntity.badRequest()
                     .body(ImageGenerationResponse.error(e.getMessage()));

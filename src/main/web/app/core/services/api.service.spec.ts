@@ -1040,8 +1040,11 @@ describe('ApiService', () => {
   describe('generateImage', () => {
     it('should send image generation request', () => {
       const mockResponse = {
-        images: ['base64data'],
-        seed: 12345,
+        imageUrl: null,
+        imageBase64: 'base64data',
+        model: 'dall-e-3',
+        prompt: 'A sunset',
+        status: 'SUCCESS',
       };
 
       service
@@ -1051,13 +1054,14 @@ describe('ApiService', () => {
           height: 512,
         })
         .subscribe((response) => {
-          expect(response.images).toEqual(mockResponse.images);
-          expect(response.seed).toBe(mockResponse.seed);
+          expect(response.imageBase64).toBe('base64data');
+          expect(response.model).toBe('dall-e-3');
         });
 
-      const req = httpMock.expectOne('/api/image/generate');
+      const req = httpMock.expectOne('/api/images/generate');
       expect(req.request.method).toBe('POST');
       expect(req.request.body.prompt).toBe('A sunset');
+      expect(req.request.body.n).toBe(1);
       req.flush(mockResponse);
     });
   });
@@ -1792,39 +1796,50 @@ describe('ApiService', () => {
 
   describe('generateImage edge cases', () => {
     it('should send request with all optional parameters', () => {
-      const mockResponse = { images: ['base64data'], seed: 12345 };
+      const mockResponse = {
+        imageUrl: 'https://example.com/image.png',
+        imageBase64: null,
+        model: 'dall-e-3',
+        prompt: 'A sunset',
+        status: 'SUCCESS',
+      };
 
       service
         .generateImage({
           prompt: 'A sunset',
-          negative_prompt: 'blurry, low quality',
+          model: 'dall-e-3',
+          quality: 'hd',
           width: 1024,
           height: 1024,
-          num_images: 2,
+          n: 2,
         })
         .subscribe((response) => {
-          expect(response.images).toEqual(mockResponse.images);
+          expect(response.imageUrl).toBe('https://example.com/image.png');
         });
 
-      const req = httpMock.expectOne('/api/image/generate');
+      const req = httpMock.expectOne('/api/images/generate');
       expect(req.request.body.prompt).toBe('A sunset');
-      expect(req.request.body.negative_prompt).toBe('blurry, low quality');
+      expect(req.request.body.model).toBe('dall-e-3');
+      expect(req.request.body.quality).toBe('hd');
       expect(req.request.body.width).toBe(1024);
       expect(req.request.body.height).toBe(1024);
-      expect(req.request.body.num_images).toBe(2);
+      expect(req.request.body.n).toBe(2);
       req.flush(mockResponse);
     });
 
     it('should handle minimal image generation request', () => {
-      const mockResponse = { images: ['base64data'], seed: 0 };
+      const mockResponse = {
+        imageBase64: 'base64data',
+        status: 'SUCCESS',
+      };
 
       service.generateImage({ prompt: 'test' }).subscribe((response) => {
-        expect(response).toBeDefined();
+        expect(response.imageBase64).toBe('base64data');
       });
 
-      const req = httpMock.expectOne('/api/image/generate');
+      const req = httpMock.expectOne('/api/images/generate');
       expect(req.request.body.prompt).toBe('test');
-      expect(req.request.body.width).toBeUndefined();
+      expect(req.request.body.n).toBe(1);
       req.flush(mockResponse);
     });
   });

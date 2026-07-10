@@ -8,7 +8,7 @@ export type { ChatMessage, ChatMessageData, ChatRequest, ChatResponse, ModelInfo
 export type { RagQuery, SourceDocument, Document, DocumentListResponse, DocumentListItem, RAGSource } from '../../rag/rag.model';
 
 // Image types
-export type { ImageGenerateParams, ImageGenerationRequest, ImageGenerationResult, ImageGenerationResponse } from '../../ai-hub/image.model';
+export type { ImageGenerateParams, ImageGenerationApiResponse, ImageGenerationRequest, ImageGenerationResult, ImageGenerationResponse } from '../../ai-hub/image.model';
 
 // Vision types
 export type { VisionResult, Detection, ImageAnalysisResult, DetectedObject } from '../../vision/vision.model';

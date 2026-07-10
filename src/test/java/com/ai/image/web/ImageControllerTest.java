@@ -1,6 +1,7 @@
 package com.ai.image.web;
 
 import com.ai.image.application.usecase.ImageFacade;
+import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.web.dto.ImageGenerationRequest;
 import com.ai.image.web.dto.ImageGenerationResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,61 +40,74 @@ class ImageControllerTest {
         @Test
         @DisplayName("should generate image with all parameters")
         void shouldGenerateImageWithAllParameters() {
-            String imageUrl = "https://example.com/image.png";
+            GeneratedImage image = GeneratedImage.fromUrl(
+                    "https://example.com/image.png", "dall-e-3", "A cat");
             when(imageFacade.generateImage("A cat", "dall-e-3", "standard", 1024, 1024, 1))
-                    .thenReturn(imageUrl);
+                    .thenReturn(image);
 
             ImageGenerationRequest request = new ImageGenerationRequest(
                     "A cat", "dall-e-3", "standard", 1024, 1024, 1);
-            ResponseEntity<com.ai.image.web.dto.ImageGenerationResponse> response = 
-                    controller.generateImage(request);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().imageUrl()).isEqualTo(imageUrl);
+            assertThat(response.getBody().imageUrl()).isEqualTo("https://example.com/image.png");
             assertThat(response.getBody().model()).isEqualTo("dall-e-3");
         }
 
         @Test
         @DisplayName("should use default values when optional parameters are null")
         void shouldUseDefaultValuesWhenOptionalParametersAreNull() {
-            String imageUrl = "https://example.com/default.png";
+            GeneratedImage image = GeneratedImage.fromUrl(
+                    "https://example.com/default.png", "dall-e-3", "Sunset");
             when(imageFacade.generateImage("Sunset", null, null, 1024, 1024, 1))
-                    .thenReturn(imageUrl);
+                    .thenReturn(image);
 
             ImageGenerationRequest request = new ImageGenerationRequest("Sunset", null, null, null, null, null);
-            ResponseEntity<com.ai.image.web.dto.ImageGenerationResponse> response = 
-                    controller.generateImage(request);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
-            assertThat(response.getBody().imageUrl()).isEqualTo(imageUrl);
+            assertThat(response.getBody().imageUrl()).isEqualTo("https://example.com/default.png");
             verify(imageFacade).generateImage("Sunset", null, null, 1024, 1024, 1);
         }
 
         @Test
-        @DisplayName("should use default model when model is null")
-        void shouldUseDefaultModelWhenModelIsNull() {
-            String imageUrl = "https://example.com/image.png";
+        @DisplayName("should use image model when request model is null")
+        void shouldUseImageModelWhenRequestModelIsNull() {
+            GeneratedImage image = GeneratedImage.fromUrl(
+                    "https://example.com/image.png", "dall-e-3", "Mountain");
             when(imageFacade.generateImage("Mountain", null, "hd", 512, 512, 2))
-                    .thenReturn(imageUrl);
+                    .thenReturn(image);
 
             ImageGenerationRequest request = new ImageGenerationRequest("Mountain", null, "hd", 512, 512, 2);
-            ResponseEntity<com.ai.image.web.dto.ImageGenerationResponse> response = 
-                    controller.generateImage(request);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().model()).isEqualTo("dall-e-3");
         }
 
         @Test
-        @DisplayName("should return 500 when facade returns null")
-        void shouldReturn500WhenFacadeReturnsNull() {
-            when(imageFacade.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
-                    .thenReturn(null);
+        @DisplayName("should return base64 payload when facade returns base64 image")
+        void shouldReturnBase64PayloadWhenFacadeReturnsBase64Image() {
+            GeneratedImage image = GeneratedImage.fromBase64("abc123", "dall-e-3", "Test");
+            when(imageFacade.generateImage("Test", null, null, 1024, 1024, 1))
+                    .thenReturn(image);
 
             ImageGenerationRequest request = new ImageGenerationRequest("Test", null, null, null, null, null);
-            ResponseEntity<ImageGenerationResponse> response = 
-                    controller.generateImage(request);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().imageBase64()).isEqualTo("abc123");
+        }
+
+        @Test
+        @DisplayName("should return 500 when facade returns empty image")
+        void shouldReturn500WhenFacadeReturnsEmptyImage() {
+            when(imageFacade.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
+                    .thenReturn(GeneratedImage.empty());
+
+            ImageGenerationRequest request = new ImageGenerationRequest("Test", null, null, null, null, null);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
 
             assertThat(response.getStatusCode().value()).isEqualTo(500);
             assertThat(response.getBody().status()).contains("Failed to generate image");
@@ -106,8 +120,7 @@ class ImageControllerTest {
                     .thenThrow(new RuntimeException("API error"));
 
             ImageGenerationRequest request = new ImageGenerationRequest("Test", null, null, null, null, null);
-            ResponseEntity<ImageGenerationResponse> response = 
-                    controller.generateImage(request);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
 
             assertThat(response.getStatusCode().value()).isEqualTo(500);
             assertThat(response.getBody().status()).contains("ERROR");
@@ -116,13 +129,13 @@ class ImageControllerTest {
         @Test
         @DisplayName("should pass custom dimensions to facade")
         void shouldPassCustomDimensionsToFacade() {
-            String imageUrl = "https://example.com/wide.png";
+            GeneratedImage image = GeneratedImage.fromUrl(
+                    "https://example.com/wide.png", "dall-e-2", "Landscape");
             when(imageFacade.generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1))
-                    .thenReturn(imageUrl);
+                    .thenReturn(image);
 
             ImageGenerationRequest request = new ImageGenerationRequest("Landscape", "dall-e-2", null, 1920, 1080, 1);
-            ResponseEntity<com.ai.image.web.dto.ImageGenerationResponse> response = 
-                    controller.generateImage(request);
+            ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             verify(imageFacade).generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1);
