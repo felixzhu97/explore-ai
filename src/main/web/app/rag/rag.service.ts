@@ -269,7 +269,7 @@ export class RagService {
     if (this.isLoading()) return;
 
     const images = this.pendingImages();
-    const userMessage: ChatMessage = {
+    const userMessage: RagChatMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
       content: this.input().trim() || (images.length > 0 ? '(Image)' : ''),
