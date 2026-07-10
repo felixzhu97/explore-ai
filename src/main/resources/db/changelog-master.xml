@@ -13,4 +13,5 @@
   <property name="date.time.type" value="TIMESTAMP(6)" dbms="h2" />
 
   <include file="changelogs/1.0.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/2.0-chat-memory.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

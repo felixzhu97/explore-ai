@@ -6,7 +6,8 @@ public record ChatStreamRequest(
     List<ChatMessageDto> messages,
     String session_id,
     String provider,
-    String model
+    String model,
+    Boolean tools_enabled
 ) {
     public record ChatMessageDto(String role, String content) {}
 }

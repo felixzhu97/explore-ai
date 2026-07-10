@@ -5,6 +5,8 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.infrastructure.llm.ChatClientFactory;
+import com.ai.chat.infrastructure.memory.ChatMemorySessionBridge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.retry.support.RetryTemplate;
 
@@ -22,6 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,16 +31,16 @@ import static org.mockito.Mockito.*;
 class SpringAiChatUseCaseTest {
 
     @Mock
-    private ChatClient.Builder chatClientBuilder;
-
-    @Mock
-    private ChatClient chatClient;
+    private ChatClientFactory chatClientFactory;
 
     @Mock
     private ChatSessionRepository repository;
 
     @Mock
     private ChatMemory chatMemory;
+
+    @Mock
+    private ChatMemorySessionBridge memoryBridge;
 
     @Mock
     private SessionTitleGenerator sessionTitleGenerator;
@@ -52,13 +54,12 @@ class SpringAiChatUseCaseTest {
                 .maxAttempts(1)
                 .build();
 
-        lenient().when(chatClientBuilder.build()).thenReturn(chatClient);
-
         useCase = new SpringAiChatUseCase(
-                chatClientBuilder,
+                chatClientFactory,
                 repository,
                 retryTemplate,
                 chatMemory,
+                memoryBridge,
                 sessionTitleGenerator
         );
     }
@@ -77,17 +78,6 @@ class SpringAiChatUseCaseTest {
             assertThat(result.getTitle()).isEqualTo("My Chat");
             verify(repository).save(any(ChatSession.class));
         }
-
-        @Test
-        @DisplayName("should create session with default title")
-        void shouldCreateSessionWithDefaultTitle() {
-            doNothing().when(repository).save(any(ChatSession.class));
-
-            ChatSession result = useCase.createSession();
-
-            assertThat(result.getTitle()).isEqualTo("New Chat");
-            verify(repository).save(any(ChatSession.class));
-        }
     }
 
     @Nested
@@ -104,6 +94,7 @@ class SpringAiChatUseCaseTest {
             Optional<ChatSession> result = useCase.getSession("session-123");
 
             assertThat(result).isPresent().contains(session);
+            verify(memoryBridge).syncToSession(eq("session-123"), eq(session));
         }
 
         @Test
@@ -134,6 +125,7 @@ class SpringAiChatUseCaseTest {
             List<ChatMessage> history = useCase.getSessionHistory("session-123");
 
             assertThat(history).hasSize(2);
+            verify(memoryBridge).syncToSession(eq("session-123"), eq(session));
         }
 
         @Test
@@ -148,46 +140,17 @@ class SpringAiChatUseCaseTest {
     }
 
     @Nested
-    @DisplayName("getRecentMessages()")
-    class GetRecentMessages {
-
-        @Test
-        @DisplayName("should return recent messages")
-        void shouldReturnRecentMessages() {
-            ChatSession session = ChatSession.create("Test");
-            session.addUserMessage("First");
-            session.addUserMessage("Second");
-            session.addUserMessage("Third");
-            when(repository.findById(ChatSessionId.of("session-123")))
-                    .thenReturn(Optional.of(session));
-
-            List<ChatMessage> recent = useCase.getRecentMessages("session-123", 2);
-
-            assertThat(recent).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("should throw exception when session not found")
-        void shouldThrowExceptionWhenSessionNotFound() {
-            when(repository.findById(ChatSessionId.of("non-existent")))
-                    .thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> useCase.getRecentMessages("non-existent", 5))
-                    .isInstanceOf(ChatSessionNotFoundException.class);
-        }
-    }
-
-    @Nested
     @DisplayName("deleteSession()")
     class DeleteSession {
 
         @Test
-        @DisplayName("should delete session from repository")
-        void shouldDeleteSessionFromRepository() {
+        @DisplayName("should delete session from repository and clear memory")
+        void shouldDeleteSessionFromRepositoryAndClearMemory() {
             doNothing().when(repository).delete(ChatSessionId.of("session-123"));
 
             useCase.deleteSession("session-123");
 
+            verify(memoryBridge).clear("session-123");
             verify(repository).delete(ChatSessionId.of("session-123"));
         }
     }
@@ -233,19 +196,6 @@ class SpringAiChatUseCaseTest {
             useCase.clearConversationMemory("conversation-123");
 
             verify(chatMemory).clear("conversation-123");
-        }
-    }
-
-    @Nested
-    @DisplayName("getChatClient()")
-    class GetChatClient {
-
-        @Test
-        @DisplayName("should return underlying ChatClient")
-        void shouldReturnUnderlyingChatClient() {
-            ChatClient result = useCase.getChatClient();
-
-            assertThat(result).isSameAs(chatClient);
         }
     }
 }

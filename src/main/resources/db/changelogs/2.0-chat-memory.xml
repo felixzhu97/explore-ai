@@ -1,0 +1,45 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260709-001-chat-sessions" dbms="h2">
+    <createTable tableName="chat_sessions">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="title" type="${string.type}(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_activity_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_chat_sessions_last_activity" tableName="chat_sessions">
+      <column name="last_activity_at"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="explore-ai" id="20260709-002-spring-ai-chat-memory" dbms="h2">
+    <sql>
+      CREATE TABLE IF NOT EXISTS SPRING_AI_CHAT_MEMORY (
+          conversation_id VARCHAR(36) NOT NULL,
+          content LONGVARCHAR NOT NULL,
+          type VARCHAR(10) NOT NULL CHECK (type IN ('USER', 'ASSISTANT', 'SYSTEM', 'TOOL')),
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+          sequence_id BIGINT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX
+          ON SPRING_AI_CHAT_MEMORY(conversation_id, timestamp DESC);
+      CREATE INDEX IF NOT EXISTS SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_SEQUENCE_ID_IDX
+          ON SPRING_AI_CHAT_MEMORY(conversation_id, sequence_id);
+    </sql>
+  </changeSet>
+</databaseChangeLog>

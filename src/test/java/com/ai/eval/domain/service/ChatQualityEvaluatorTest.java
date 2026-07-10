@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -150,9 +152,10 @@ class ChatQualityEvaluatorTest {
     void should_useFallback_when_llmJudgeReturnsNull() {
         stubRelevancyPass();
         lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
+        lenient().when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)).thenReturn(requestSpec);
         lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
         lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(LlmEvaluationResponse.class)).thenReturn(null);
+        when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(null);
 
         ChatEvaluationResult result = evaluator.evaluate(
             "Hello",
@@ -205,8 +208,9 @@ class ChatQualityEvaluatorTest {
 
     private void stubLlmJudge(LlmEvaluationResponse response) {
         lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
+        lenient().when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)).thenReturn(requestSpec);
         lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
         lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(LlmEvaluationResponse.class)).thenReturn(response);
+        when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(response);
     }
 }

@@ -30,6 +30,7 @@ export class ChatService {
   readonly messages = signal<UiMessage[]>([]);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly toolsEnabled = signal(false);
 
   private streamAbort: (() => void) | null = null;
 
@@ -81,6 +82,10 @@ export class ChatService {
 
   setModel(model: string): void {
     this.selectedModel.set(model);
+  }
+
+  setToolsEnabled(enabled: boolean): void {
+    this.toolsEnabled.set(enabled);
   }
 
   loadSessions(): void {
@@ -221,6 +226,7 @@ export class ChatService {
         session_id: sessionId,
         provider: this.selectedProvider(),
         model: this.selectedModel(),
+        tools_enabled: this.toolsEnabled(),
       },
       (chunk) => {
         fullContent += chunk;

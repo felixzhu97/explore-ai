@@ -20,6 +20,7 @@ export interface ChatRequest {
   max_tokens?: number;
   provider?: string;
   model?: string;
+  tools_enabled?: boolean;
 }
 
 export interface ChatResponse {

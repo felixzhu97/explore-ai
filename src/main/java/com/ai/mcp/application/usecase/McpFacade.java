@@ -1,10 +1,11 @@
 package com.ai.mcp.application.usecase;
 
+import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.chat.infrastructure.llm.ChatClientFactory;
 import com.ai.mcp.application.port.McpToolCallbackRegistry;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;
 import com.ai.mcp.domain.vo.McpServerConnection;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,15 @@ public class McpFacade {
 
     private final McpClientRepository mcpClientRepository;
     private final McpToolCallbackRegistry toolCallbackRegistry;
-    private final ChatClient chatClient;
+    private final ChatClientFactory chatClientFactory;
 
     public McpFacade(
             McpClientRepository mcpClientRepository,
             McpToolCallbackRegistry toolCallbackRegistry,
-            ChatClient.Builder chatClientBuilder) {
+            ChatClientFactory chatClientFactory) {
         this.mcpClientRepository = mcpClientRepository;
         this.toolCallbackRegistry = toolCallbackRegistry;
-        this.chatClient = chatClientBuilder.build();
+        this.chatClientFactory = chatClientFactory;
     }
 
     public int getTotalToolCount() {
@@ -49,6 +50,11 @@ public class McpFacade {
 
     public String chatWithTools(String question) {
         ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
-        return chatClient.prompt().user(question).tools(tools).call().content();
+        return chatClientFactory.createStateless(TextChatOptions.defaults())
+                .prompt()
+                .user(question)
+                .tools(tools)
+                .call()
+                .content();
     }
 }

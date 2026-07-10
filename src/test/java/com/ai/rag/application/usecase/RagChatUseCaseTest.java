@@ -1,9 +1,10 @@
 package com.ai.rag.application.usecase;
 
+import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.infrastructure.llm.ChatClientFactory;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.chat.domain.service.LanguageDetectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ai.chat.client.ChatClient;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +20,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +34,16 @@ class RagChatUseCaseTest {
     private RagApplicationService ragApplicationService;
 
     @Mock
-    private ChatUseCase aiChatUseCase;
+    private ChatClientFactory chatClientFactory;
+
+    @Mock
+    private ChatClient chatClient;
+
+    @Mock
+    private ChatClient.ChatClientRequestSpec requestSpec;
+
+    @Mock
+    private ChatClient.CallResponseSpec callResponseSpec;
 
     @Mock
     private LanguageDetectionService languageDetectionService;
@@ -40,9 +54,16 @@ class RagChatUseCaseTest {
     void setUp() {
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
-                aiChatUseCase,
+                chatClientFactory,
                 languageDetectionService
         );
+        when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
+        when(chatClient.prompt()).thenReturn(requestSpec);
+        when(requestSpec.user(anyString())).thenReturn(requestSpec);
+        when(requestSpec.call()).thenReturn(callResponseSpec);
+        when(languageDetectionService.detect(anyString())).thenReturn("en");
+        when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
+                .thenAnswer(invocation -> "prompt:" + invocation.getArgument(0));
     }
 
     @Nested
@@ -52,38 +73,32 @@ class RagChatUseCaseTest {
         @Test
         @DisplayName("should return ChatResult with response and sources")
         void shouldReturnChatResultWithResponseAndSources() {
-            // Arrange
             String question = "What is AI?";
-            String context = "AI stands for Artificial Intelligence";
             String aiResponse = "AI is Artificial Intelligence";
             List<SourceDocument> sources = List.of(
                     new SourceDocument("AI definition", 0.95, Map.of())
             );
             RagApplicationService.RetrievalResult retrievalResult =
-                    new RagApplicationService.RetrievalResult(context, sources, question);
+                    new RagApplicationService.RetrievalResult("context", sources, question);
 
-            when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(question, context, "en")).thenReturn("built prompt");
             when(ragApplicationService.retrieveContext(eq(question), isNull(), eq(5))).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat("built prompt")).thenReturn(aiResponse);
+            when(callResponseSpec.content()).thenReturn(aiResponse);
 
-            // Act
             RagChatUseCase.ChatResult result = ragChatUseCase.chat(question, null, null);
 
-            // Assert
             assertThat(result).isNotNull();
             assertThat(result.response()).isEqualTo(aiResponse);
             assertThat(result.sources()).hasSize(1);
-            assertThat(result.sources().get(0).text()).isEqualTo("AI definition");
+            assertThat(result.sources().getFirst().text()).isEqualTo("AI definition");
 
             verify(ragApplicationService).retrieveContext(question, null, 5);
-            verify(aiChatUseCase).chat("built prompt");
+            verify(languageDetectionService).buildPrompt(question, "context", "en");
+            verify(requestSpec).user("prompt:" + question);
         }
 
         @Test
         @DisplayName("should pass docIds to service when provided")
         void shouldPassDocIdsToServiceWhenProvided() {
-            // Arrange
             String question = "What is AI?";
             String docId1 = UUID.randomUUID().toString();
             List<String> docIds = List.of(docId1);
@@ -92,113 +107,63 @@ class RagChatUseCaseTest {
             RagApplicationService.RetrievalResult retrievalResult =
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
-            when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, expectedDocIds, 5)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat("prompt")).thenReturn("response");
+            when(callResponseSpec.content()).thenReturn("response");
 
-            // Act
             ragChatUseCase.chat(question, docIds, null);
 
-            // Assert
             verify(ragApplicationService).retrieveContext(question, expectedDocIds, 5);
         }
 
         @Test
         @DisplayName("should use custom topK when provided")
         void shouldUseCustomTopKWhenProvided() {
-            // Arrange
             String question = "What is AI?";
             int customTopK = 10;
 
             RagApplicationService.RetrievalResult retrievalResult =
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
-            when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, null, customTopK)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat("prompt")).thenReturn("response");
+            when(callResponseSpec.content()).thenReturn("response");
 
-            // Act
             ragChatUseCase.chat(question, null, customTopK);
 
-            // Assert
             verify(ragApplicationService).retrieveContext(question, null, customTopK);
         }
 
         @Test
         @DisplayName("should use default topK value of 5 when topK is null")
         void shouldUseDefaultTopKWhenTopKIsNull() {
-            // Arrange
             String question = "What is AI?";
             int expectedDefaultTopK = 5;
 
             RagApplicationService.RetrievalResult retrievalResult =
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
-            when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, null, expectedDefaultTopK)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat("prompt")).thenReturn("response");
+            when(callResponseSpec.content()).thenReturn("response");
 
-            // Act
             ragChatUseCase.chat(question, null, null);
 
-            // Assert
             verify(ragApplicationService).retrieveContext(question, null, expectedDefaultTopK);
         }
 
         @Test
         @DisplayName("should handle empty docIds list")
         void shouldHandleEmptyDocIdsList() {
-            // Arrange
             String question = "What is AI?";
             List<String> emptyDocIds = Collections.emptyList();
 
             RagApplicationService.RetrievalResult retrievalResult =
                     new RagApplicationService.RetrievalResult("context", Collections.emptyList(), question);
 
-            when(languageDetectionService.detect(question)).thenReturn("en");
-            when(languageDetectionService.buildPrompt(eq(question), eq("context"), eq("en"))).thenReturn("prompt");
             when(ragApplicationService.retrieveContext(question, null, 5)).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat("prompt")).thenReturn("response");
+            when(callResponseSpec.content()).thenReturn("response");
 
-            // Act
             ragChatUseCase.chat(question, emptyDocIds, null);
 
-            // Assert
             verify(ragApplicationService).retrieveContext(question, null, 5);
-        }
-    }
-
-    @Nested
-    @DisplayName("buildPrompt")
-    class BuildPrompt {
-
-        @Test
-        @DisplayName("should detect language and build prompt using language detection service")
-        void shouldDetectLanguageAndBuildPromptUsingLanguageDetectionService() {
-            // Arrange
-            String question = "什么是AI？";
-            String context = "AI是人工智能";
-            String languageCode = "zh";
-            String expectedPrompt = "built prompt with language support";
-
-            RagApplicationService.RetrievalResult retrievalResult =
-                    new RagApplicationService.RetrievalResult(context, Collections.emptyList(), question);
-
-            when(languageDetectionService.detect(question)).thenReturn(languageCode);
-            when(languageDetectionService.buildPrompt(question, context, languageCode)).thenReturn(expectedPrompt);
-            when(ragApplicationService.retrieveContext(eq(question), isNull(), eq(5))).thenReturn(retrievalResult);
-            when(aiChatUseCase.chat(expectedPrompt)).thenReturn("response");
-
-            // Act
-            RagChatUseCase.ChatResult result = ragChatUseCase.chat(question, null, null);
-
-            // Assert
-            assertThat(result).isNotNull();
-            verify(languageDetectionService).detect(question);
-            verify(languageDetectionService).buildPrompt(question, context, languageCode);
         }
     }
 }
