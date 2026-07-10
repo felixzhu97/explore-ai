@@ -54,7 +54,19 @@ export class SidebarService {
   }
 
   toggle() {
-    this.mobileOpen.update(v => !v);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    this.mobileOpen.update((open) => {
+      const next = !open;
+      if (isMobile) {
+        if (next) {
+          this.collapsed.set(false);
+          document.body.classList.add('overflow-hidden');
+        } else {
+          document.body.classList.remove('overflow-hidden');
+        }
+      }
+      return next;
+    });
   }
 
   addSession(title?: string): Session {
