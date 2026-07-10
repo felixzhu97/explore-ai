@@ -11,22 +11,17 @@ public record RagChatRequest(
     @JsonProperty("query")
     String question,
 
-    @JsonProperty("session_id")
-    @JsonAlias("sessionId")
+    @JsonAlias("session_id")
     String sessionId,
 
-    @JsonProperty("top_k")
-    @JsonAlias("topK")
+    @JsonAlias("top_k")
     Integer topK,
 
-    @JsonProperty("temperature")
     Double temperature,
 
-    @JsonProperty("doc_ids")
-    @JsonAlias("docIds")
+    @JsonAlias("doc_ids")
     List<String> docIds,
 
-    @JsonProperty("images")
     List<String> images
 ) {
     public RagChatRequest {

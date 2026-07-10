@@ -39,7 +39,8 @@ public class TextController {
 
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatStream(@RequestBody ChatStreamRequest request) {
-        TextChatOptions options = TextChatOptions.of(request.provider(), request.model(), request.toolsEnabled());
+        TextChatOptions options = TextChatOptions.of(
+                request.provider(), request.model(), Boolean.TRUE.equals(request.toolsEnabled()));
 
         if (request.sessionId() != null && !request.sessionId().isBlank()) {
             String userMessage = extractLastUserMessage(request.messages());
