@@ -1,5 +1,6 @@
 package com.ai.rag.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Map;
  */
 public record SourceDocumentDto(
     String id,
-    String content,
+    @JsonProperty("text") String content,
     float score,
     Map<String, Object> metadata
 ) {}
