@@ -99,7 +99,11 @@ export class SidebarComponent implements OnInit {
   }
 
   private updateMobileState(): void {
-    this.isMobile.set(window.innerWidth < 768);
+    const mobile = window.innerWidth < 768;
+    this.isMobile.set(mobile);
+    if (mobile) {
+      this.sidebar.collapsed.set(false);
+    }
   }
 
   @HostListener('window:resize')

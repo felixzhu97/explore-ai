@@ -31,6 +31,8 @@ export class SidebarService {
   private readonly _recentSessions = signal<Session[]>([]);
   private readonly _activeSessionId = signal<string | null>(null);
 
+  private mobileResizeHandler: (() => void) | null = null;
+
   readonly pinnedSessions = this._pinnedSessions.asReadonly();
   readonly recentSessions = this._recentSessions.asReadonly();
   readonly activeSessionId = this._activeSessionId.asReadonly();
@@ -43,14 +45,14 @@ export class SidebarService {
   open() {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       this.collapsed.set(false);
-      document.body.classList.add('overflow-hidden');
+      this.lockBodyScroll();
     }
     this.mobileOpen.set(true);
   }
 
   close() {
     this.mobileOpen.set(false);
-    document.body.classList.remove('overflow-hidden');
+    this.unlockBodyScroll();
   }
 
   toggle() {
@@ -60,13 +62,38 @@ export class SidebarService {
       if (isMobile) {
         if (next) {
           this.collapsed.set(false);
-          document.body.classList.add('overflow-hidden');
+          this.lockBodyScroll();
         } else {
-          document.body.classList.remove('overflow-hidden');
+          this.unlockBodyScroll();
         }
       }
       return next;
     });
+  }
+
+  private lockBodyScroll(): void {
+    if (typeof document === 'undefined') return;
+    document.body.classList.add('overflow-hidden');
+    this.removeMobileResizeListener();
+    this.mobileResizeHandler = () => {
+      if (window.innerWidth >= 768) {
+        this.close();
+      }
+    };
+    window.addEventListener('resize', this.mobileResizeHandler);
+  }
+
+  private unlockBodyScroll(): void {
+    if (typeof document === 'undefined') return;
+    document.body.classList.remove('overflow-hidden');
+    this.removeMobileResizeListener();
+  }
+
+  private removeMobileResizeListener(): void {
+    if (this.mobileResizeHandler) {
+      window.removeEventListener('resize', this.mobileResizeHandler);
+      this.mobileResizeHandler = null;
+    }
   }
 
   addSession(title?: string): Session {
