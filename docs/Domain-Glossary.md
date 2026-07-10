@@ -33,30 +33,38 @@ This document defines the project **Ubiquitous Language**. English terms are the
 |----------------|--------|--------------|----------------|
 | Chat Domain | 对话 | `com.ai.chat` | `/chat` |
 | RAG Domain | 知识问答 | `com.ai.rag` | `/rag` |
+| RAG ETL Domain | RAG 数据管道 | `com.ai.rag.domain.port` | — |
 | Tool Calling Domain | 工具调用 | `com.ai.tools` | — |
 | Image Generation Domain | 图像生成 | `com.ai.image` | `/chat/image` |
-| Audio/TTS Domain | 语音合成 | `com.ai.audio` | `/chat/tts` |
+| Audio Domain (TTS + ASR) | 语音（合成 + 转写） | `com.ai.audio` | `/chat/tts` |
 | MCP Server Domain | MCP 服务端 | `com.ai.mcp.server` | — |
 | MCP Client Domain | MCP 客户端 | `com.ai.mcp.client` | — |
 | Analysis Domain | 结构化分析 | `com.ai.analysis` | — |
+| Eval Domain | 对话质量评估 | `com.ai.eval` | — |
 
 ```mermaid
 flowchart TB
   subgraph contexts [BoundedContexts]
     Chat[ChatDomain]
     RAG[RAGDomain]
+    RagEtl[RagEtlDomain]
     Tools[ToolCallingDomain]
     Image[ImageGenerationDomain]
-    Audio[AudioTTSDomain]
+    Audio[AudioDomain]
     McpServer[McpServerDomain]
     McpClient[McpClientDomain]
     Analysis[AnalysisDomain]
+    Eval[EvalDomain]
   end
   User[User] --> Chat
   User --> RAG
   User --> Tools
+  User --> Audio
   Chat --> Tools
+  RAG --> RagEtl
   RAG --> Tools
+  RAG --> Eval
+  Chat --> Eval
 ```
 
 ---
@@ -77,6 +85,34 @@ flowchart TB
 | Streaming (SSE) | 流式响应 | Real-time AI output via Server-Sent Events | Technical | `StreamingService` | Supported in Chat and RAG |
 | Provider | 提供商 | LLM or AI service vendor (e.g. OpenAI, Ollama) | Business | Frontend `selectedProvider` | User-selectable model source |
 | Domain Exception | 领域异常 | Exception representing a business rule violation | Architecture | `ChatSessionNotFoundException`, `DocumentNotFoundException` | Mapped to HTTP 4xx |
+
+---
+
+## 3.5 AI Engineering Terms | AI 工程通用术语
+
+| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
+|--------------------------|------|------------|------|--------------|-------|
+| Large Language Model (LLM) | 大语言模型 | Neural model for text generation and reasoning | Technical | `ChatModel`, DeepSeek API | Core text generation engine |
+| ChatClient | 对话客户端 | Spring AI fluent API for LLM interactions | Technical | `ChatClient`, `ChatClient.Builder` | Spring AI 2.0 core API |
+| ChatModel | 对话模型 | Abstraction over an LLM provider | Technical | `org.springframework.ai.chat.model.ChatModel` | Implemented by OpenAI, Ollama, etc. |
+| Prompt | 提示词 | Input text sent to an LLM | Technical | `Prompt`, `PromptTemplate` | User + system messages |
+| System Prompt | 系统提示词 | Instruction defining AI role and behavior | Technical | `PromptTemplates` | Prepended to every request |
+| Prompt Template | 提示词模板 | Reusable prompt with placeholders | Technical | `PromptTemplate` | Used in RAG and Eval |
+| Context Window | 上下文窗口 | Maximum conversation history included in a request | Technical | `ChatSession.getRecentMessages()` | Limits token usage |
+| Token | 令牌 | Atomic unit of text for LLM input/output and billing | Technical | — | Industry standard unit |
+| Temperature | 温度 | Sampling parameter controlling output randomness (0–1) | Technical | — | Lower = more deterministic |
+| Retrieval-Augmented Generation (RAG) | 检索增强生成 | Pattern combining retrieval with LLM generation | Pattern | `RagChatUseCase` | Retrieve → augment → generate |
+| Augmented Generation | 增强生成 | LLM generation conditioned on retrieved context | Pattern | `RagChatUseCase.chat()` | Core RAG generation step |
+| Vector Store | 向量存储 | Database storing Embedding vectors for similarity search | Technical | `H2VectorAdapter`, pgvector | Default: H2 embedded |
+| Tool Callback | 工具回调 | Spring AI mechanism for LLM-initiated tool invocation | Technical | `ToolCallback`, `McpToolCallbackRegistry` | Bridges LLM and Tools |
+| Advisor | 顾问 | Interceptor/enhancer in the ChatClient call chain | Technical | Spring AI Advisors | e.g. structured output |
+| Multimodal | 多模态 | Input combining text and other modalities (e.g. image) | Technical | `VisionChatUseCase` | Ollama qwen3.5 |
+| Model Context Protocol (MCP) | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol | `AiMcpServerService` | Anthropic-initiated standard |
+| Agent | 智能体 | Autonomous AI entity with goals and tool access | Pattern | `.cursor/agents/` | Project subagent definitions |
+| Orchestrator | 编排器 | Agent that delegates tasks to specialized Subagents | Pattern | `.cursor/agents/orchestrator.md` | Minimal task routing |
+| Subagent | 子智能体 | Specialized Agent focused on a single responsibility | Pattern | `.cursor/agents/*.md` | e.g. domain-expert, developer |
+| Grounding | 事实锚定 | Constraining LLM answers to retrieved Source Documents | Pattern | `RagChatUseCase.buildPrompt()` | Reduces unsupported claims |
+| Prompt Engineering | 提示工程 | Crafting prompts to improve LLM output quality | Practice | — | No fine-tuning in this project |
 
 ---
 
@@ -114,10 +150,12 @@ flowchart TB
 | Document ID | 文档标识 | Unique identifier of a document | Value Object | `DocumentId` | — |
 | Document Status | 文档状态 | Processing state from upload to ready | Enum | `DocumentStatus` | See state machine |
 | Document Chunk | 文档分块 | Smallest retrieval unit after document splitting | Entity | `DocumentChunk` | Includes embedding vector |
+| Raw Document | 原始文档 | Normalized document view before ETL processing | Value Object | `RawDocument` | content + metadata + source |
 | Chunking | 分块 | Process of splitting document text into chunks | Application Behavior | `ChunkingService` | Configurable size/overlap |
-| Embedding | 嵌入向量 | Vector representation of text for similarity search | Technical | `EmbeddingAdapter` | Ollama nomic-embed-text |
+| Embedding | 嵌入向量 | Vector representation of text for similarity search | Technical | `EmbeddingAdapter` | Ollama mxbai-embed-large |
 | Retrieval | 检索 | Find relevant chunks via vector similarity | Application Behavior | `DocumentSearchService` | topK + scoreThreshold |
 | Source Document | 来源文档 | Retrieved chunk with similarity score | Value Object | `SourceDocument` | text + score + metadata |
+| Context | 上下文 | Retrieved text and sources passed to the LLM | Application Concept | `RagApplicationService.retrieveContext()` | Augments the Prompt |
 | RAG Chat | RAG 对话 | Generate AI answers from retrieved context | Use Case | `RagChatUseCase` | Supports streaming |
 | Vision Chat | 视觉问答 | Multimodal RAG Q&A over images | Use Case | `VisionChatUseCase` | Ollama qwen3.5 |
 | Document Upload | 文档上传 | Upload file and trigger processing pipeline | Use Case | `DocumentUploadService` | TXT / PDF |
@@ -126,6 +164,10 @@ flowchart TB
 | Chunk Overlap | 分块重叠 | Overlapping characters between adjacent chunks | Config | `RagProperties.Chunk.overlap` | Default: 50 |
 | Top K | 检索数量 | Maximum number of chunks returned | Config | `RagProperties.Retrieval.topK` | Default: 5 |
 | Score Threshold | 分数阈值 | Minimum similarity score for retrieval results | Config | `RagProperties.Retrieval.scoreThreshold` | Default: 0.5 |
+| Document Reader | 文档读取器 | ETL port: reads raw bytes into RawDocument | Port | `DocumentReader` | e.g. PDF text extraction |
+| Document Transformer | 文档转换器 | ETL port: transforms RawDocument into chunks | Port | `DocumentTransformer` | Chunking + embedding |
+| Document Writer | 文档写入器 | ETL port: persists processed chunks to Vector Store | Port | `DocumentWriter` | Writes to H2 / pgvector |
+| RAG ETL Pipeline | RAG 数据管道 | End-to-end ingest: Reader → Transformer → Writer | Pipeline | `DocumentUploadService` | Triggered on upload |
 
 **Document Status State Machine**
 
@@ -150,6 +192,8 @@ UPLOADING → PROCESSING → READY
 |--------------------------|------|------------|------|--------------|-------|
 | Tool Calling | 工具调用 | LLM invokes external tools based on user intent | Capability | `ToolsFacade` | Spring AI Tool |
 | Tool Chat | 工具对话 | AI conversation with tool capabilities | Use Case Behavior | `ToolsController.chatWithTools()` | — |
+| Tool Result | 工具结果 | Outcome of a tool invocation (success or failure) | Value Object | `ToolResult` | `success()` / `failure()` |
+| Tool Callback Registry | 工具回调注册表 | Registry mapping tool names to ToolCallback instances | Port | `McpToolCallbackRegistry` | Used by MCP Client |
 | Document Search Tool | 文档搜索工具 | Search documents in the RAG knowledge base | Port | `DocumentSearchTool` | Domain port |
 | RAG Search Tool | RAG 搜索工具 | Infrastructure implementation of document search | Adapter | `RagSearchTool` | Invoked by LLM |
 | Weather Tool | 天气工具 | Query weather and forecast | Tool | `WeatherTools` | Mock data |
@@ -165,16 +209,22 @@ UPLOADING → PROCESSING → READY
 | Image Generation Request | 生成请求 | Request with prompt, size, quality, etc. | DTO | `ImageGenerationRequest` | — |
 | Image Generation Response | 生成响应 | Response with image URL or Base64 | DTO | `ImageGenerationResponse` | — |
 | Prompt | 提示词 | Text describing the desired image | Business Concept | `ImageGenerationRequest.prompt()` | — |
+| Generated Image | 生成图像 | Domain result of image generation | Entity | `GeneratedImage` | — |
 
 ---
 
-### 4.5 Audio/TTS Domain | 语音合成
+### 4.5 Audio Domain (TTS + ASR) | 语音
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 |--------------------------|------|------------|------|--------------|-------|
-| Text-to-Speech (TTS) | 语音合成 | Convert text into spoken audio | Use Case | `TextToSpeechUseCase` | — |
-| Voice | 音色 | Voice type used for synthesis | Business Concept | `TextToSpeechUseCase.getAvailableVoices()` | — |
+| Text-to-Speech (TTS) | 语音合成 | Convert text into spoken audio | Use Case | `TextToSpeechUseCase` | OpenAI TTS API |
+| Voice | 音色 | Voice type used for synthesis | Business Concept | `VoiceSelection`, `VoiceCatalog` | User-selectable |
+| Speech Text | 语音文本 | Validated text input for TTS | Value Object | `SpeechText` | — |
+| Synthesized Audio | 合成音频 | Domain result of TTS conversion | Entity | `SynthesizedAudio` | Audio bytes |
 | Synthesize | 合成 | Execute text-to-speech conversion | Use Case Behavior | `TextToSpeechUseCase.synthesize()` | Returns audio stream |
+| Automatic Speech Recognition (ASR) | 自动语音识别 | Convert spoken audio to text | Capability | `StreamingTranscriptionUseCase` | whisper.cpp |
+| Streaming Transcription | 流式转写 | Real-time ASR over WebSocket | Use Case Behavior | `AudioTranscriptionWebSocketHandler` | Port 8178 |
+| Transcription | 转写 | Single ASR result converting audio to text | Application Concept | `WhisperCppTranscriptionAdapter` | Returns text |
 
 ---
 
@@ -185,6 +235,9 @@ UPLOADING → PROCESSING → READY
 | MCP Server | MCP 服务端 | Expose AI platform capabilities externally | Service | `AiMcpServerService` | Model Context Protocol |
 | MCP Client | MCP 客户端 | Connect to and invoke external MCP services | Service | `AiMcpClientService` | Registers external tools |
 | MCP Tool | MCP 工具 | Callable tool under MCP protocol | Technical | `AiMcpClientService.registerTools()` | — |
+| MCP Tool Definition | MCP 工具定义 | Name and description of an MCP tool | Value Object | `McpToolDefinition` | Registered by Client |
+| MCP Session | MCP 会话 | Active connection session to an MCP server | Entity | `McpSession` | Managed by `McpSessionManager` |
+| MCP Server Connection | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object | `McpServerConnection` | — |
 | MCP Chat | MCP 对话 | AI conversation initiated via MCP Client | Use Case Behavior | `McpClientController.chat()` | — |
 
 ---
@@ -198,7 +251,25 @@ UPLOADING → PROCESSING → READY
 | Text Analysis Result | 分析结果 | Result with summary, sentiment, key points | DTO | `TextAnalysisResult` | — |
 | Sentiment | 情感 | Sentiment classification of text | Enum | `TextAnalysisResult.Sentiment` | POSITIVE, NEUTRAL, NEGATIVE |
 | Key Points | 关键点 | Extracted core points from text | Business Concept | `TextAnalysisResult.keyPoints()` | — |
-| Entities | 实体 | Named entities extracted from text | Business Concept | `TextAnalysisResult.entities()` | Not a DDD Entity |
+| Named Entities | 命名实体 | Named entities extracted from text (NLP) | Business Concept | `TextAnalysisResult.entities()` | Not a DDD Entity |
+
+---
+
+### 4.8 Eval Domain | 对话质量评估
+
+| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
+|--------------------------|------|------------|------|--------------|-------|
+| Chat Evaluation | 对话评估 | Assess quality and safety of an AI response | Use Case | `ChatQualityEvaluator` | Spring AI Evaluators |
+| Chat Evaluation Result | 评估结果 | Scores and flags from a chat evaluation | Value Object | `ChatEvaluationResult` | Multiple score dimensions |
+| Relevancy Evaluator | 相关性评估器 | Measures answer relevance to the user question | Evaluator | `RelevancyEvaluator` | Spring AI built-in |
+| Fact-Checking Evaluator | 事实性评估器 | Checks answer factuality against context | Evaluator | `FactCheckingEvaluator` | Requires context documents |
+| Coherence Score | 连贯性分数 | Score for logical flow of the response (0–1) | Metric | `ChatEvaluationResult.coherenceScore()` | — |
+| Relevance Score | 相关性分数 | Score for answer relevance to the question (0–1) | Metric | `ChatEvaluationResult.relevanceScore()` | — |
+| Helpfulness Score | 有用性分数 | Score for practical usefulness (0–1) | Metric | `ChatEvaluationResult.helpfulnessScore()` | — |
+| Factuality Score | 事实性分数 | Score for factual accuracy against context (0–1) | Metric | `ChatEvaluationResult.factualityScore()` | Nullable if unavailable |
+| Overall Score | 综合分数 | Weighted aggregate evaluation score (0–1) | Metric | `ChatEvaluationResult.overallScore()` | — |
+| Safety Flag | 安全标记 | Indicator of potential safety issues in response | Metric | `ChatEvaluationResult.safetyFlags()` | List of flag strings |
+| Evaluation ChatClient | 评估对话客户端 | Separate ChatClient instance for evaluation | Technical | `evaluationChatClient` bean | Mitigates model bias |
 
 ---
 
@@ -209,6 +280,7 @@ UPLOADING → PROCESSING → READY
 | chat history | **Chat Session** | Aggregate root containing multiple messages |
 | chat content | **Chat Message** | Single user/assistant message |
 | knowledge base file | **Document** | Uploaded file in RAG context |
+| knowledge base | **Document** collection | RAG context; not a separate domain object |
 | snippet / paragraph | **Document Chunk** | Smallest RAG retrieval unit |
 | search result | **Source Document** | RAG retrieval hit |
 | vector / vector data | **Embedding** | Text vectorization result |
@@ -216,6 +288,12 @@ UPLOADING → PROCESSING → READY
 | API class | **Port** / **Adapter** | Architecture layering context |
 | DB operation class | **Repository** | Aggregate persistence abstraction |
 | table row | **Entity** | Domain model context |
+| AI model (generic) | **LLM** / **ChatModel** | Specify model type |
+| GPT / ChatGPT | **LLM** + **Provider** | Use Provider, not brand names |
+| fine-tuning | **Prompt Engineering** | No fine-tuning in this project |
+| hallucination | low **Factuality Score** | Use Eval domain terminology |
+| plugin | **Tool** / **MCP Tool** | Distinguish Tool Calling from MCP |
+| bot | **Agent** / **ChatClient** | Prefer Agent for autonomous entities |
 
 Chinese equivalents to avoid in technical docs:
 
@@ -225,6 +303,9 @@ Chinese equivalents to avoid in technical docs:
 | 知识库文件 | **Document** |
 | 片段 | **Document Chunk** |
 | 搜索结果 | **Source Document** |
+| 大模型 | **LLM** |
+| 幻觉 | **Factuality Score** 偏低 |
+| 插件 | **Tool** / **MCP Tool** |
 
 ---
 
