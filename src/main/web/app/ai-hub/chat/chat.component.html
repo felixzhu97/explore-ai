@@ -98,7 +98,10 @@
                         <div class="flex max-w-[85%] flex-col items-start gap-1">
                             <div class="rounded-2xl bg-white px-4 py-3 text-base leading-relaxed wrap-break-word text-text shadow-sm">
                                 @if (msg.content) {
-                                    <div class="[&_blockquote]:border-l-2 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:text-text-secondary [&_blockquote]:italic [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_p]:mb-2 [&_p]:last:mb-0 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-surface [&_pre]:p-3 [&_pre]:text-sm" [innerHTML]="markdown.render(msg.content)"></div>
+                                    <app-markdown-content
+                                        [content]="msg.content"
+                                        [streaming]="chat.streamingMessageId() === msg.id"
+                                    />
                                 } @else {
                                     <span class="text-text-tertiary">{{ i18n.t().chat.thinking }}</span>
                                 }

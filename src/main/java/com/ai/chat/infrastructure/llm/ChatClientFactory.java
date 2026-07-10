@@ -1,6 +1,7 @@
 package com.ai.chat.infrastructure.llm;
 
 import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.chat.infrastructure.service.PromptTemplates;
 import com.ai.common.domain.port.out.DocumentSearchTool;
 import com.ai.common.domain.port.out.WebSearchTool;
 import com.ai.tools.infrastructure.tools.WeatherTools;
@@ -20,6 +21,7 @@ public class ChatClientFactory {
 
     private final ChatModelResolver chatModelResolver;
     private final ChatMemory chatMemory;
+    private final PromptTemplates promptTemplates;
     private final WeatherTools weatherTools;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
@@ -28,12 +30,14 @@ public class ChatClientFactory {
     public ChatClientFactory(
             ChatModelResolver chatModelResolver,
             ChatMemory chatMemory,
+            PromptTemplates promptTemplates,
             WeatherTools weatherTools,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool,
             @Value("${app.ai.logging-advisor.enabled:true}") boolean loggingAdvisorEnabled) {
         this.chatModelResolver = chatModelResolver;
         this.chatMemory = chatMemory;
+        this.promptTemplates = promptTemplates;
         this.weatherTools = weatherTools;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
@@ -64,6 +68,7 @@ public class ChatClientFactory {
 
         ChatClient.Builder builder = ChatClient.builder(resolved.chatModel())
                 .defaultOptions(resolved.optionsBuilder())
+                .defaultSystem(promptTemplates.getDefaultSystemPrompt())
                 .defaultAdvisors(advisors);
 
         if (options.toolsEnabled()) {

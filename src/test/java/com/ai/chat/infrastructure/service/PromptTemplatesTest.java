@@ -44,6 +44,16 @@ class PromptTemplatesTest {
             assertThat(prompt.toLowerCase()).contains("helpful");
             assertThat(prompt.toLowerCase()).contains("assistant");
         }
+
+        @Test
+        @DisplayName("should include GFM markdown formatting instructions")
+        void shouldIncludeGfmMarkdownFormattingInstructions() {
+            String prompt = templates.getDefaultSystemPrompt();
+
+            assertThat(prompt.toLowerCase()).contains("github flavored markdown");
+            assertThat(prompt).contains("# through ###");
+            assertThat(prompt).contains("- ");
+        }
     }
 
     @Nested

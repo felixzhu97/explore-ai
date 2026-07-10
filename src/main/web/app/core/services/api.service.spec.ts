@@ -311,11 +311,133 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: meta\ndata: {"token":"Hello"}\n'),
+        value: encoder.encode('event: meta\ndata: {"token":"Hello"}\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onChunk).toHaveBeenCalledWith('Hello');
+    });
+
+    it('should call onChunk for numeric-only SSE data lines', async () => {
+      const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let readResolve!: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as never);
+
+      const onChunk = vi.fn();
+      const onDone = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        onDone,
+        vi.fn(),
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+      readResolve({
+        done: false,
+        value: encoder.encode('data:约为\n\ndata:1387\n\ndata:万人\n'),
+      });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      readResolve({ done: true, value: undefined });
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('约为');
+      expect(onChunk).toHaveBeenCalledWith('1387');
+      expect(onChunk).toHaveBeenCalledWith('万人');
+      expect(onDone).toHaveBeenCalled();
+    });
+
+    it('should preserve newline-only SSE data lines', async () => {
+      const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let readResolve!: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as never);
+
+      const onChunk = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        vi.fn(),
+        vi.fn(),
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+      readResolve({
+        done: false,
+        value: encoder.encode('data:# Title\n\ndata:\n\ndata:- item\n'),
+      });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      readResolve({ done: true, value: undefined });
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('\n');
+    });
+
+    it('should join multiline data fields within one SSE event', async () => {
+      const encoder = new TextEncoder();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let readResolve!: (value: any) => void;
+
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          return new Promise((resolve) => {
+            readResolve = resolve;
+          });
+        }),
+      };
+
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        body: { getReader: () => mockReader },
+      } as never);
+
+      const onChunk = vi.fn();
+
+      service.chatStream(
+        { messages: [{ role: 'user', content: 'test' }] },
+        onChunk,
+        vi.fn(),
+        vi.fn(),
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+      readResolve({
+        done: false,
+        value: encoder.encode('data:# Title\ndata:- item\n\n'),
+      });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      readResolve({ done: true, value: undefined });
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(onChunk).toHaveBeenCalledWith('# Title\n- item');
     });
 
     it('should call onDone when [DONE] is received', async () => {
@@ -346,7 +468,7 @@ describe('ApiService', () => {
       );
 
       await new Promise(resolve => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
+      readResolve({ done: false, value: encoder.encode('data: [DONE]\n\n') });
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onDone).toHaveBeenCalled();
@@ -382,7 +504,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: done\ndata: \n'),
+        value: encoder.encode('event: done\ndata: \n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -419,7 +541,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: error\ndata: {"error":"Something went wrong"}\n'),
+        value: encoder.encode('event: error\ndata: {"error":"Something went wrong"}\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -457,12 +579,12 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: error\ndata: Invalid error format\n'),
+        value: encoder.encode('event: error\ndata: Invalid error format\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onError).toHaveBeenCalled();
-      expect(onError.mock.calls[0][0].message).toBe('Stream error');
+      expect(onError.mock.calls[0][0].message).toBe('Invalid error format');
     });
 
     it('should handle data line without currentEvent (empty event type)', async () => {
@@ -495,7 +617,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: {"token":"chunk1"}\n'),
+        value: encoder.encode('data: {"token":"chunk1"}\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -570,7 +692,7 @@ describe('ApiService', () => {
       // Send event followed by empty line, then data without event
       readResolve({
         done: false,
-        value: encoder.encode('event: meta\n\ndata: {"token":"after reset"}\n'),
+        value: encoder.encode('event: meta\n\ndata: {"token":"after reset"}\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -663,7 +785,7 @@ describe('ApiService', () => {
       );
 
       await new Promise(resolve => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
+      readResolve({ done: false, value: encoder.encode('data: [DONE]\n\n') });
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({ done: true, value: new Uint8Array() });
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -779,7 +901,7 @@ describe('ApiService', () => {
       service.ragChat({ query: 'test', session_id: 'session1' }, vi.fn(), vi.fn(), onDone, vi.fn());
 
       await new Promise(resolve => setTimeout(resolve, 10));
-      readResolve({ done: false, value: encoder.encode('data: [DONE]\n') });
+      readResolve({ done: false, value: encoder.encode('data: [DONE]\n\n') });
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(onDone).toHaveBeenCalled();

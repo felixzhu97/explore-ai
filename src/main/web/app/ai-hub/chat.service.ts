@@ -29,6 +29,7 @@ export class ChatService {
   readonly activeSessionId = signal<string | null>(null);
   readonly messages = signal<UiMessage[]>([]);
   readonly isLoading = signal(false);
+  readonly streamingMessageId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly toolsEnabled = signal(false);
 
@@ -191,6 +192,19 @@ export class ChatService {
     });
   }
 
+  private syncSessionMessages(sessionId: string): void {
+    if (this.activeSessionId() !== sessionId || this.isLoading()) {
+      return;
+    }
+    this.api.getSessionMessages(sessionId).subscribe({
+      next: (history) => {
+        if (this.activeSessionId() === sessionId && !this.isLoading()) {
+          this.messages.set(history.map(msg => this.toUiMessage(msg)));
+        }
+      },
+    });
+  }
+
   sendMessage(content: string): void {
     const sessionId = this.activeSessionId();
     if (!sessionId || !content.trim() || this.isLoading()) {
@@ -215,6 +229,7 @@ export class ChatService {
       { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
     ]);
     this.isLoading.set(true);
+    this.streamingMessageId.set(assistantId);
     this.error.set(null);
 
     let fullContent = '';
@@ -240,9 +255,14 @@ export class ChatService {
       },
       () => {
         this.isLoading.set(false);
+        this.streamingMessageId.set(null);
         this.streamAbort = null;
+        this.syncSessionMessages(sessionId);
         this.loadSessions();
-        setTimeout(() => this.loadSessions(), 2500);
+        setTimeout(() => {
+          this.syncSessionMessages(sessionId);
+          this.loadSessions();
+        }, 2500);
       },
       (err) => {
         this.error.set(err.message);
@@ -254,6 +274,7 @@ export class ChatService {
         }),
         );
         this.isLoading.set(false);
+        this.streamingMessageId.set(null);
         this.streamAbort = null;
       },
     );
@@ -265,6 +286,7 @@ export class ChatService {
       this.streamAbort();
       this.streamAbort = null;
       this.isLoading.set(false);
+      this.streamingMessageId.set(null);
     }
   }
 

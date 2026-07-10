@@ -11,16 +11,34 @@ public class PromptTemplates {
 
     private static final Logger log = LoggerFactory.getLogger(PromptTemplates.class);
 
+    private static final String MARKDOWN_FORMATTING_INSTRUCTIONS = """
+            Format responses using GitHub Flavored Markdown (GFM):
+            - Use ATX headings (# through ###) with one space after the hash marks
+            - Put each heading and list on its own line; separate blocks with a blank line
+            - Use unordered lists with "- " (hyphen followed by a space)
+            - Use **bold** for emphasis within list items and paragraphs
+            - Do not wrap the entire response in a code block unless asked
+
+            Example:
+            # Document Title
+
+            ## 一、Section Heading (1511—1957)
+
+            - **Label:** description text
+            """;
+
     private static final String DEFAULT_SYSTEM_PROMPT = """
             You are a helpful AI assistant. Provide accurate and concise responses.
-            """;
+
+            """ + MARKDOWN_FORMATTING_INSTRUCTIONS;
 
     private static final String RAG_SYSTEM_PROMPT = """
             You are a helpful AI assistant with access to a knowledge base.
             Use the provided context to answer questions accurately.
             If the context doesn't contain enough information, say so.
             Always cite relevant sources from the context when available.
-            """;
+
+            """ + MARKDOWN_FORMATTING_INSTRUCTIONS;
 
     private static final String SUMMARIZATION_PROMPT = """
             Analyze the following text and provide a structured response.

@@ -13,7 +13,7 @@ import { SidebarService } from './sidebar.service';
       <app-toast />
       <app-sidebar />
       <app-header (openSidebar)="openSidebar()" />
-      <main class="flex min-h-screen justify-center transition-all duration-250"
+      <main class="flex min-h-screen w-full flex-1 transition-all duration-250"
             [class.md:ml-60]="!sidebar.collapsed()"
             [class.md:ml-16]="sidebar.collapsed()"
       >
