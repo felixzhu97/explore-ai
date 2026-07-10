@@ -23,7 +23,7 @@ import { SidebarService } from './sidebar.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'flex min-h-dvh flex-col overflow-x-hidden bg-gray-100 max-md:h-dvh max-md:max-h-dvh md:min-h-screen',
+      'flex min-h-dvh flex-col overflow-x-hidden bg-gray-100 max-md:h-dvh max-md:max-h-dvh max-md:overflow-hidden md:min-h-screen',
   },
 })
 export class MainLayoutComponent {
