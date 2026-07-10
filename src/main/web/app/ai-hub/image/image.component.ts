@@ -36,6 +36,7 @@ import type { ImageSize } from '../image.model';
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block min-w-0 w-full max-w-full' },
 })
 export class ImageComponent {
   private readonly api = inject(ApiService);
