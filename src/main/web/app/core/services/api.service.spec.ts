@@ -1066,29 +1066,37 @@ describe('ApiService', () => {
     it('should return voices from API', () => {
       const mockVoices = [
         {
-          id: 'en-US',
-          name: 'English (US)',
-          language: 'en-US',
-          provider: 'default',
-          is_default: true,
+          id: 'alloy',
+          name: 'Alloy',
+          language: 'en',
+          gender: 'neutral',
         },
       ];
 
       service.getVoices().subscribe((voices) => {
-        expect(voices).toEqual(mockVoices);
+        expect(voices).toEqual([
+          {
+            id: 'alloy',
+            name: 'Alloy',
+            language: 'en',
+            gender: 'neutral',
+            provider: 'openai',
+            is_default: true,
+          },
+        ]);
       });
 
-      const req = httpMock.expectOne('/api/tts/voices');
-      req.flush(mockVoices);
+      const req = httpMock.expectOne('/api/audio/voices');
+      req.flush({ voices: mockVoices });
     });
 
     it('should return default voices on error', () => {
       service.getVoices().subscribe((voices) => {
         expect(voices.length).toBeGreaterThan(0);
-        expect(voices[0].id).toBe('en-US');
+        expect(voices[0].id).toBe('alloy');
       });
 
-      const req = httpMock.expectOne('/api/tts/voices');
+      const req = httpMock.expectOne('/api/audio/voices');
       req.error(new ProgressEvent('error'));
     });
   });
@@ -1101,7 +1109,7 @@ describe('ApiService', () => {
         expect(blob).toBeInstanceOf(Blob);
       });
 
-      const req = httpMock.expectOne('/api/tts/synthesize');
+      const req = httpMock.expectOne('/api/audio/speak');
       expect(req.request.method).toBe('POST');
       expect(req.request.body.text).toBe('Hello world');
       req.flush(mockBlob);
@@ -1110,10 +1118,10 @@ describe('ApiService', () => {
     it('should include voice parameter when provided', () => {
       const mockBlob = new Blob(['audio'], { type: 'audio/mp3' });
 
-      service.synthesizeSpeech({ text: 'Hello', voice: 'en-US' }).subscribe(vi.fn());
+      service.synthesizeSpeech({ text: 'Hello', voice: 'nova' }).subscribe(vi.fn());
 
-      const req = httpMock.expectOne('/api/tts/synthesize');
-      expect(req.request.body.voice).toBe('en-US');
+      const req = httpMock.expectOne('/api/audio/speak');
+      expect(req.request.body.voice).toBe('nova');
       req.flush(mockBlob);
     });
 
@@ -1122,7 +1130,7 @@ describe('ApiService', () => {
 
       service.synthesizeSpeech({ text: 'Hello', speed: 1.5 }).subscribe(vi.fn());
 
-      const req = httpMock.expectOne('/api/tts/synthesize');
+      const req = httpMock.expectOne('/api/audio/speak');
       expect(req.request.body.speed).toBe(1.5);
       req.flush(mockBlob);
     });

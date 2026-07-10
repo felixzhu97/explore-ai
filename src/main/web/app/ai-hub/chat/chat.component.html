@@ -90,7 +90,7 @@
                                 @if (msg.content) {
                                     <div class="[&_blockquote]:border-l-2 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:text-text-secondary [&_blockquote]:italic [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_p]:mb-2 [&_p]:last:mb-0 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-surface [&_pre]:p-3 [&_pre]:text-sm" [innerHTML]="markdown.render(msg.content)"></div>
                                 } @else {
-                                    <span class="text-text-tertiary">{{ i18n.t().aiHub.chat.thinking }}</span>
+                                    <span class="text-text-tertiary">{{ i18n.t().chat.thinking }}</span>
                                 }
                             </div>
                             <span class="text-xs text-text-tertiary">{{ formatTime(msg.timestamp) }}</span>
@@ -114,7 +114,7 @@
 <div class="border-t border-black/8 bg-white px-4 py-3">
     <div>
         <nx-sender
-            [placeholder]="i18n.t().aiHub.chat.inputPlaceholder"
+            [placeholder]="i18n.t().chat.inputPlaceholder"
             [(value)]="input"
             [loading]="chat.isLoading()"
             (submitSend)="send()"

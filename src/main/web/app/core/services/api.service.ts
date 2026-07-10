@@ -59,17 +59,17 @@ const defaultModels: Record<string, ModelInfo[]> = {
 
 const defaultVoices: Voice[] = [
   {
-    id: 'en-US',
-    name: 'English (US)',
-    language: 'en-US',
-    provider: 'default',
+    id: 'alloy',
+    name: 'Alloy',
+    language: 'en',
+    provider: 'openai',
     is_default: true,
   },
   {
-    id: 'zh-CN',
-    name: 'Chinese (Mandarin)',
-    language: 'zh-CN',
-    provider: 'default',
+    id: 'nova',
+    name: 'Nova',
+    language: 'en',
+    provider: 'openai',
     is_default: false,
   },
 ];
@@ -406,14 +406,51 @@ export class ApiService {
 
   getVoices(): Observable<Voice[]> {
     return this.http
-      .get<Voice[]>(`${BASE_URL}/tts/voices`)
-      .pipe(catchError(() => of(defaultVoices)));
+      .get<{ voices: (Voice | string)[] }>(`${BASE_URL}/audio/voices`)
+      .pipe(
+        map(response => this.normalizeVoices(response.voices)),
+        catchError(() => of(defaultVoices)),
+      );
   }
 
   synthesizeSpeech(params: TTSRequest): Observable<Blob> {
-    return this.http.post<Blob>(`${BASE_URL}/tts/synthesize`, params, {
-      responseType: 'blob' as 'json',
-    });
+    return this.http.post<Blob>(
+      `${BASE_URL}/audio/speak`,
+      {
+        text: params.text,
+        voice: params.voice,
+        speed: params.speed,
+        output_format: params.output_format,
+      },
+      {
+        responseType: 'blob' as 'json',
+      },
+    );
+  }
+
+  private normalizeVoices(voices: (Voice | string)[]): Voice[] {
+    if (!voices?.length) {
+      return defaultVoices;
+    }
+
+    if (typeof voices[0] === 'string') {
+      return voices.map((voice, index) => {
+        const id = voice as string;
+        return {
+          id,
+          name: id.charAt(0).toUpperCase() + id.slice(1),
+          language: 'en',
+          provider: 'openai',
+          is_default: index === 0,
+        };
+      });
+    }
+
+    return voices.map((voice, index) => ({
+      ...(voice as Voice),
+      provider: (voice as Voice).provider ?? 'openai',
+      is_default: (voice as Voice).is_default ?? index === 0,
+    }));
   }
 
   // ==================== Utility ====================

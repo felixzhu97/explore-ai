@@ -3,15 +3,15 @@
     flex items-center justify-between rounded-xl bg-surface p-4
   ">
     <div>
-      <h3 class="m-0 text-lg font-semibold text-text">{{ i18n.t().aiHub.tts.title }}</h3>
-      <p class="m-0 mt-1 text-sm text-text-secondary">{{ i18n.t().aiHub.tts.description }}</p>
+      <h3 class="m-0 text-lg font-semibold text-text">{{ i18n.t().generate.tts.title }}</h3>
+      <p class="m-0 mt-1 text-sm text-text-secondary">{{ i18n.t().generate.tts.description }}</p>
     </div>
   </div>
   <div class="rounded-xl bg-surface p-6">
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1.5">
         <label class="text-sm font-medium text-text-secondary" for="tts-text-input">
-          {{ i18n.t().aiHub.tts.textLabel }}
+          {{ i18n.t().generate.tts.textLabel }}
         </label>
         <textarea
           id="tts-text-input"
@@ -23,7 +23,7 @@
           "
           [ngModel]="text()"
           (ngModelChange)="setText($event)"
-          [placeholder]="i18n.t().aiHub.tts.textPlaceholder"
+          [placeholder]="i18n.t().generate.tts.textPlaceholder"
           rows="4"
         ></textarea>
       </div>
@@ -34,7 +34,7 @@
       ">
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-text-secondary" for="voice-select">
-            {{ i18n.t().aiHub.tts.voiceLabel }}
+            {{ i18n.t().generate.tts.voiceLabel }}
           </label>
           <select
             id="voice-select"
@@ -61,7 +61,7 @@
 
         <div class="flex min-w-36 flex-1 flex-col gap-2">
           <label class="text-sm font-medium text-text-secondary" for="speed-slider">
-            {{ i18n.t().aiHub.tts.speedLabel }}: {{ speed().toFixed(1) }}x
+            {{ i18n.t().generate.tts.speedLabel }}: {{ speed().toFixed(1) }}x
           </label>
           <input
             id="speed-slider"
@@ -102,9 +102,9 @@
             inline-block size-4 animate-spin rounded-full border-2
             border-white/30 border-t-white
           "></span>
-          {{ i18n.t().aiHub.tts.synthesizing }}
+          {{ i18n.t().generate.tts.synthesizing }}
         } @else {
-          {{ i18n.t().aiHub.tts.synthesizeButton }}
+          {{ i18n.t().generate.tts.synthesizeButton }}
         }
       </button>
 
@@ -136,7 +136,7 @@
               {{ isPlaying() ? '⏸' : '▶' }}
             </button>
             <div class="flex flex-1 flex-col gap-2">
-              <span class="text-base font-medium text-text">{{ i18n.t().aiHub.tts.audioReady }}</span>
+              <span class="text-base font-medium text-text">{{ i18n.t().generate.tts.audioReady }}</span>
               <div class="h-1.5 overflow-hidden rounded-sm bg-surface-secondary">
                 <div class="
                   transition-width h-full rounded-sm bg-primary duration-100
@@ -154,7 +154,7 @@
             "
             (click)="download()"
           >
-            ⬇️ {{ i18n.t().aiHub.tts.downloadAudio }}
+            ⬇️ {{ i18n.t().generate.tts.downloadAudio }}
           </button>
         </div>
       }

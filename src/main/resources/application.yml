@@ -34,10 +34,6 @@ spring:
         model: dall-e-3
         quality: standard
         size: 1024x1024
-      audio:
-        speech:
-          model: gpt-4o-mini-tts
-          voice: alloy
     rag:
       chunk:
         size: ${RAG_CHUNK_SIZE:500}
@@ -111,6 +107,13 @@ management:
       probability: 1.0
 
 app:
+  ai:
+    tts:
+      enabled: ${TTS_ENABLED:true}
+      model: ${TTS_MODEL:gpt-4o-mini-tts}
+      voice: ${TTS_VOICE:alloy}
+      api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
+      base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
   asr:
     whisper-cpp:
       base-url: http://localhost:8178
