@@ -60,7 +60,9 @@ export class SidebarComponent implements OnInit {
 
     const classes: string[] = [];
 
-    if (mobile || !collapsed) {
+    if (mobile) {
+      classes.push('w-[min(88vw,20rem)]');
+    } else if (!collapsed) {
       classes.push('w-[240px]');
     }
     if (!mobile && collapsed) {
@@ -97,7 +99,11 @@ export class SidebarComponent implements OnInit {
   }
 
   private updateMobileState(): void {
-    this.isMobile.set(window.innerWidth < 768);
+    const mobile = window.innerWidth < 768;
+    this.isMobile.set(mobile);
+    if (mobile) {
+      this.sidebar.collapsed.set(false);
+    }
   }
 
   @HostListener('window:resize')

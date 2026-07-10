@@ -39,7 +39,7 @@ import { ChatService } from '../chat.service';
   ],
   providers: [provideNzIconsPatch([ArrowUpOutline])],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex h-full w-full h-screen flex-col' },
+  host: { class: 'flex h-full min-h-0 w-full flex-col' },
 })
 export class ChatTabComponent implements OnInit, OnDestroy {
   protected readonly chat = inject(ChatService);
