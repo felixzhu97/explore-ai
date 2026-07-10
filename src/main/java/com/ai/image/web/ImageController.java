@@ -1,6 +1,7 @@
 package com.ai.image.web;
 
 import com.ai.image.application.usecase.ImageFacade;
+import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.exception.InvalidImagePromptException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.web.dto.ImageGenerationRequest;
@@ -8,6 +9,7 @@ import com.ai.image.web.dto.ImageGenerationResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +56,9 @@ public class ImageController {
                     image.url(), image.base64(), model, request.prompt()));
         } catch (InvalidImagePromptException e) {
             return ResponseEntity.badRequest()
+                    .body(ImageGenerationResponse.error(e.getMessage()));
+        } catch (ImageProviderNotConfiguredException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(ImageGenerationResponse.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Error generating image", e);

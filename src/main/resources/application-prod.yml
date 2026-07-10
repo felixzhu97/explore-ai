@@ -9,6 +9,17 @@ spring:
       server:
         enabled: false
 
+# Railway / cloud: Ollama is not available on localhost. Use OpenAI-compatible APIs.
+app:
+  ai:
+    image:
+      provider: ${IMAGE_PROVIDER:openai}
+      model: ${IMAGE_MODEL:dall-e-3}
+      api-key: ${IMAGE_API_KEY:${OPENAI_API_KEY:}}
+      base-url: ${IMAGE_BASE_URL:https://api.openai.com/v1}
+    tts:
+      api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
+
 logging:
   level:
     com.ai: INFO
