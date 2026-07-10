@@ -41,11 +41,16 @@ export class SidebarService {
   }
 
   open() {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      this.collapsed.set(false);
+      document.body.classList.add('overflow-hidden');
+    }
     this.mobileOpen.set(true);
   }
 
   close() {
     this.mobileOpen.set(false);
+    document.body.classList.remove('overflow-hidden');
   }
 
   toggle() {

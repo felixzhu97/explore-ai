@@ -1,19 +1,21 @@
 <aside
   class="
-    fixed top-0 left-0 z-90 flex h-screen flex-col border-r border-gray-200
-    bg-white transition-all duration-250 ease-out
+    fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col border-r border-gray-200
+    bg-white shadow-elevated transition-all duration-250 ease-out
+    max-md:pb-[env(safe-area-inset-bottom)]
   "
   [ngClass]="sidebarClasses()"
 >
-  <div class="flex h-13 items-center justify-between border-b border-border-light px-4">
-    <!-- 展开时右侧显示收起箭头 -->
+  <div class="flex h-13 shrink-0 items-center justify-between border-b border-border-light px-4">
     @if (!collapsed()) {
+        <span class="text-base font-semibold text-text md:hidden">AI</span>
         <button
                 type="button"
                 class="
-        relative flex size-8 cursor-pointer items-center justify-center rounded-md
+        relative hidden size-8 cursor-pointer items-center justify-center rounded-md
         border-none bg-transparent transition-all duration-150
         hover:bg-surface-secondary
+        md:flex
       "
                 (click)="toggleCollapse()"
                 [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
@@ -72,7 +74,7 @@
 
   @if (!collapsed()) {
     <!-- Navigation Tabs -->
-    <nav class="flex flex-col gap-0.5 p-2">
+    <nav class="flex shrink-0 flex-col gap-0.5 p-2">
       <!-- New Chat Button -->
       <button
         type="button"
@@ -204,8 +206,8 @@
     </div>
   }
 
-  <!-- Language Selector - Fixed at Bottom -->
-  <div class="border-t border-border-light p-2">
+  <!-- Language Selector - desktop only (mobile uses header language picker) -->
+  <div class="mt-auto hidden shrink-0 border-t border-border-light p-2 md:block">
     <div class="relative" [class.collapsed]="collapsed()">
       <button
         type="button"
@@ -263,11 +265,9 @@
 
 <div
   class="
-    pointer-events-none fixed inset-0 z-85 bg-black/40 opacity-0
-    transition-opacity duration-250
+    pointer-events-none fixed inset-0 z-85 hidden bg-black/40 opacity-0
+    transition-opacity duration-250 max-md:block
   "
-  [class.md:opacity-100]="sidebar.mobileOpen()"
-  [class.md:pointer-events-auto]="sidebar.mobileOpen()"
   [class.opacity-100]="sidebar.mobileOpen()"
   [class.pointer-events-auto]="sidebar.mobileOpen()"
   (click)="sidebar.close()"

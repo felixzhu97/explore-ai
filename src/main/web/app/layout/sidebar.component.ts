@@ -60,7 +60,9 @@ export class SidebarComponent implements OnInit {
 
     const classes: string[] = [];
 
-    if (mobile || !collapsed) {
+    if (mobile) {
+      classes.push('w-[min(88vw,20rem)]');
+    } else if (!collapsed) {
       classes.push('w-[240px]');
     }
     if (!mobile && collapsed) {
