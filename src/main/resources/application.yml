@@ -20,7 +20,8 @@ spring:
     ollama:
       base-url: http://localhost:11434
       chat:
-        enabled: false
+        enabled: ${OLLAMA_VISION_ENABLED:true}
+        model: ${OLLAMA_VISION_MODEL:qwen3.5:35b}
       embedding:
         enabled: true
         model: mxbai-embed-large

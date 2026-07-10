@@ -9,6 +9,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.content.Media;
 import org.springframework.ai.ollama.api.OllamaChatOptions;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class VisionChatUseCase {
     public VisionChatUseCase(
             RagApplicationService ragApplicationService,
             LanguageDetectionService languageDetectionService,
-            ChatModel chatModel) {
+            @Qualifier("ollamaVisionChatModel") ChatModel chatModel) {
         this.ragApplicationService = ragApplicationService;
         this.languageDetectionService = languageDetectionService;
         this.chatModel = chatModel;
