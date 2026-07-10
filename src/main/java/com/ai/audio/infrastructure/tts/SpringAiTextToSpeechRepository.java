@@ -9,6 +9,7 @@ import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.audio.tts.TextToSpeechResponse;
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Repository
 public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
@@ -22,8 +23,10 @@ public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
     @Override
     public SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed) {
         OpenAiAudioSpeechOptions.Builder optionsBuilder = OpenAiAudioSpeechOptions.builder()
-                .voice(voiceSelection.voice())
-                .model(voiceSelection.model());
+                .voice(voiceSelection.voice());
+        if (StringUtils.hasText(voiceSelection.model())) {
+            optionsBuilder.model(voiceSelection.model());
+        }
         if (speed != null) {
             optionsBuilder.speed(speed);
         }

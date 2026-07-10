@@ -42,4 +42,15 @@ class VoiceCatalogTest {
         assertThatThrownBy(() -> catalog.voices().add("nova"))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
+
+    @Test
+    @DisplayName("should return unknown voice info for blank voice id")
+    void should_return_unknown_voice_info_for_blank_voice_id() {
+        VoiceCatalog catalog = new VoiceCatalog(List.of("alloy", ""), List.of("tts-1"));
+
+        List<VoiceInfo> infos = catalog.voiceInfos();
+
+        assertThat(infos.get(1).id()).isEqualTo("unknown");
+        assertThat(infos.get(1).name()).isEqualTo("Unknown");
+    }
 }
