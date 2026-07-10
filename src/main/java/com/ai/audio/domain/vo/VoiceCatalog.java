@@ -52,6 +52,9 @@ public record VoiceCatalog(List<String> voices, List<String> models) {
     }
 
     private VoiceInfo toVoiceInfo(String voiceId) {
+        if (voiceId == null || voiceId.isBlank()) {
+            return new VoiceInfo("unknown", "Unknown", "en", "neutral");
+        }
         VoiceInfo known = VOICE_DETAILS.get(voiceId);
         if (known != null) {
             return known;

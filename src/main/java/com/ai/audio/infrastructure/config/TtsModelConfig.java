@@ -22,8 +22,12 @@ public class TtsModelConfig {
     @Primary
     @ConditionalOnProperty(name = "app.ai.tts.enabled", havingValue = "true", matchIfMissing = true)
     public TextToSpeechModel textToSpeechModel(TtsProperties properties) {
+        String apiKey = properties.getApiKey();
+        if (!StringUtils.hasText(apiKey)) {
+            apiKey = "not-configured";
+        }
         ClientOptions clientOptions = ClientOptions.builder()
-                .apiKey(properties.getApiKey())
+                .apiKey(apiKey)
                 .baseUrl(normalizeBaseUrl(properties.getBaseUrl()))
                 .httpClient(SpringAiOpenAiHttpClient.builder().build())
                 .build();

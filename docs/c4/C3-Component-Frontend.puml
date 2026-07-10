@@ -14,18 +14,18 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(app_root, "AppComponent", "@Component", "根组件")
         Component(main_layout, "MainLayoutComponent", "@Component", "主布局 (header + sidebar + outlet)")
         Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, interceptors")
-        Component(app_routes, "app.routes.ts", "Routes", "路由: /chat /rag /vision")
+        Component(app_routes, "app.routes.ts", "Routes", "路由: /chat /generate /rag /vision")
     }
 
     ' ============================================================
     ' PAGE COMPONENTS
     ' ============================================================
     Container_Boundary(pages, "Page Components") {
-        Component(ai_hub_page, "AiHubPage", "@Component", "AI Hub (/chat)")
-        Container_Boundary(ai_hub_tabs, "AiHub Sub-Routes") {
-            Component(chat_tab, "ChatTabComponent", "@Component", "对话 Tab (默认)")
-            Component(tts_tab, "TtsPageComponent", "@Component", "TTS Tab (/chat/tts)")
-            Component(img_tab, "ImageComponent", "@Component", "图像 Tab (/chat/image)")
+        Component(chat_tab, "ChatTabComponent", "@Component", "对话 (/chat)")
+        Component(generate_page, "GeneratePage", "@Component", "生成 (/generate)")
+        Container_Boundary(generate_tabs, "Generate Sub-Routes") {
+            Component(tts_tab, "TtsPageComponent", "@Component", "TTS Tab (/generate/tts)")
+            Component(img_tab, "ImageComponent", "@Component", "图像 Tab (/generate/image)")
         }
         Component(rag_page, "RagPageComponent", "@Component", "RAG 页面 (/rag)")
         Component(vision_page, "VisionPageComponent", "@Component", "视觉分析 (/vision)")
@@ -78,12 +78,12 @@ System_Boundary(external, "Backend & Browser") {
 ' ROUTES
 ' ============================================================
 Rel(app_routes, main_layout, "根布局")
-Rel(main_layout, ai_hub_page, "/chat")
+Rel(main_layout, chat_tab, "/chat")
+Rel(main_layout, generate_page, "/generate")
 Rel(main_layout, rag_page, "/rag")
 Rel(main_layout, vision_page, "/vision")
-Rel(ai_hub_page, chat_tab, "默认 Tab")
-Rel(ai_hub_page, tts_tab, "/chat/tts")
-Rel(ai_hub_page, img_tab, "/chat/image")
+Rel(generate_page, tts_tab, "/generate/tts")
+Rel(generate_page, img_tab, "/generate/image")
 
 ' ============================================================
 ' SERVICE RELATIONSHIPS

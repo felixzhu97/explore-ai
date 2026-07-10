@@ -1216,6 +1216,36 @@ describe('ApiService', () => {
       req.flush({ voices: mockVoices });
     });
 
+    it('should normalize mixed string and object voices', () => {
+      service.getVoices().subscribe((voices) => {
+        expect(voices).toEqual([
+          {
+            id: 'alloy',
+            name: 'Alloy',
+            language: 'en',
+            provider: 'openai',
+            is_default: true,
+          },
+          {
+            id: 'echo',
+            name: 'Echo',
+            language: 'en',
+            gender: 'male',
+            provider: 'openai',
+            is_default: false,
+          },
+        ]);
+      });
+
+      const req = httpMock.expectOne('/api/audio/voices');
+      req.flush({
+        voices: [
+          'alloy',
+          { id: 'echo', name: 'Echo', language: 'en', gender: 'male' },
+        ],
+      });
+    });
+
     it('should return default voices on error', () => {
       service.getVoices().subscribe((voices) => {
         expect(voices.length).toBeGreaterThan(0);

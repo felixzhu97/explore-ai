@@ -327,7 +327,7 @@ ollama pull x/flux2-klein
 # 2. Ensure Ollama is running
 ollama serve
 
-# 3. Start the app and open /chat/image
+# 3. Start the app and open /generate/image
 pnpm dev
 ```
 

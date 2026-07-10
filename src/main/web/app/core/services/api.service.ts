@@ -549,24 +549,22 @@ export class ApiService {
       return defaultVoices;
     }
 
-    if (typeof voices[0] === 'string') {
-      return voices.map((voice, index) => {
-        const id = voice as string;
+    return voices.map((voice, index) => {
+      if (typeof voice === 'string') {
         return {
-          id,
-          name: id.charAt(0).toUpperCase() + id.slice(1),
+          id: voice,
+          name: voice.charAt(0).toUpperCase() + voice.slice(1),
           language: 'en',
           provider: 'openai',
           is_default: index === 0,
         };
-      });
-    }
-
-    return voices.map((voice, index) => ({
-      ...(voice as Voice),
-      provider: (voice as Voice).provider ?? 'openai',
-      is_default: (voice as Voice).is_default ?? index === 0,
-    }));
+      }
+      return {
+        ...voice,
+        provider: voice.provider ?? 'openai',
+        is_default: voice.is_default ?? index === 0,
+      };
+    });
   }
 
   // ==================== Utility ====================
