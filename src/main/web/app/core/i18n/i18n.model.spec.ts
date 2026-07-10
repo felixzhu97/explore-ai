@@ -35,7 +35,7 @@ describe('i18n.model', () => {
     });
 
     it('should have required top-level keys for all languages', () => {
-      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'agents', 'aiHub'] as const;
+      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'agents', 'chat', 'generate'] as const;
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
         const langTranslations = translations[lang];
@@ -47,13 +47,14 @@ describe('i18n.model', () => {
 
     describe('nav translations', () => {
       const requiredNavKeys = [
-        'visionAI',
+        'imageAnalysis',
         'documentQA',
         'supervisor',
         'kubernetes',
         'monitoring',
         'aiinfra',
-        'aiHub',
+        'chat',
+        'generation',
         'modelDev',
         'modelOps',
         'model',
@@ -198,89 +199,71 @@ describe('i18n.model', () => {
       });
     });
 
-    describe('aiHub translations', () => {
-      it('should have aiHub base translations', () => {
+    describe('chat translations', () => {
+      it('should have chat translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].aiHub.title).toBeDefined();
-          expect(translations[lang].aiHub.modelBadge).toBeDefined();
-          expect(translations[lang].aiHub.statusText).toBeDefined();
+          expect(translations[lang].chat.thinking).toBeDefined();
+          expect(translations[lang].chat.inputPlaceholder).toBeDefined();
         });
       });
+    });
 
-      it('should have tabs translations', () => {
+    describe('generate translations', () => {
+      it('should have generate tabs translations', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].aiHub.tabs.chat).toBeDefined();
-          expect(translations[lang].aiHub.tabs.image).toBeDefined();
-          expect(translations[lang].aiHub.tabs.tts).toBeDefined();
-        });
-      });
-
-      it('should have chat translations', () => {
-        SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].aiHub.chat.title).toBeDefined();
-          expect(translations[lang].aiHub.chat.description).toBeDefined();
-          expect(translations[lang].aiHub.chat.placeholder).toBeDefined();
-          expect(translations[lang].aiHub.chat.inputPlaceholder).toBeDefined();
-          expect(translations[lang].aiHub.chat.thinking).toBeDefined();
-          expect(translations[lang].aiHub.chat.error).toBeDefined();
-          expect(translations[lang].aiHub.chat.provider).toBeDefined();
-          expect(translations[lang].aiHub.chat.model).toBeDefined();
+          expect(translations[lang].generate.tabs.image).toBeDefined();
+          expect(translations[lang].generate.tabs.tts).toBeDefined();
         });
       });
 
       it('should have image translations', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].aiHub.image.title).toBeDefined();
-          expect(translations[lang].aiHub.image.description).toBeDefined();
-          expect(translations[lang].aiHub.image.promptLabel).toBeDefined();
-          expect(translations[lang].aiHub.image.promptPlaceholder).toBeDefined();
-          expect(translations[lang].aiHub.image.negativePromptLabel).toBeDefined();
-          expect(translations[lang].aiHub.image.negativePromptPlaceholder).toBeDefined();
-          expect(translations[lang].aiHub.image.sizeLabel).toBeDefined();
-          expect(translations[lang].aiHub.image.generateButton).toBeDefined();
-          expect(translations[lang].aiHub.image.generating).toBeDefined();
-          expect(translations[lang].aiHub.image.preview).toBeDefined();
-          expect(translations[lang].aiHub.image.download).toBeDefined();
-          expect(translations[lang].aiHub.image.emptyState).toBeDefined();
+          expect(translations[lang].generate.image.title).toBeDefined();
+          expect(translations[lang].generate.image.description).toBeDefined();
+          expect(translations[lang].generate.image.promptLabel).toBeDefined();
+          expect(translations[lang].generate.image.promptPlaceholder).toBeDefined();
+          expect(translations[lang].generate.image.negativePromptLabel)
+            .toBeDefined();
+          expect(translations[lang].generate.image.negativePromptPlaceholder)
+            .toBeDefined();
+          expect(translations[lang].generate.image.sizeLabel).toBeDefined();
+          expect(translations[lang].generate.image.generateButton).toBeDefined();
+          expect(translations[lang].generate.image.generating).toBeDefined();
+          expect(translations[lang].generate.image.preview).toBeDefined();
+          expect(translations[lang].generate.image.download).toBeDefined();
+          expect(translations[lang].generate.image.emptyState).toBeDefined();
         });
       });
 
       it('should have tts translations', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].aiHub.tts.title).toBeDefined();
-          expect(translations[lang].aiHub.tts.description).toBeDefined();
-          expect(translations[lang].aiHub.tts.textLabel).toBeDefined();
-          expect(translations[lang].aiHub.tts.textPlaceholder).toBeDefined();
-          expect(translations[lang].aiHub.tts.voiceLabel).toBeDefined();
-          expect(translations[lang].aiHub.tts.speedLabel).toBeDefined();
-          expect(translations[lang].aiHub.tts.synthesizeButton).toBeDefined();
-          expect(translations[lang].aiHub.tts.synthesizing).toBeDefined();
-          expect(translations[lang].aiHub.tts.audioReady).toBeDefined();
-          expect(translations[lang].aiHub.tts.downloadAudio).toBeDefined();
-        });
-      });
-
-      it('should have quickPrompts translations', () => {
-        SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].aiHub.quickPrompts.greeting).toBeDefined();
-          expect(translations[lang].aiHub.quickPrompts.help).toBeDefined();
-          expect(translations[lang].aiHub.quickPrompts.creative).toBeDefined();
+          expect(translations[lang].generate.tts.title).toBeDefined();
+          expect(translations[lang].generate.tts.description).toBeDefined();
+          expect(translations[lang].generate.tts.textLabel).toBeDefined();
+          expect(translations[lang].generate.tts.textPlaceholder).toBeDefined();
+          expect(translations[lang].generate.tts.voiceLabel).toBeDefined();
+          expect(translations[lang].generate.tts.speedLabel).toBeDefined();
+          expect(translations[lang].generate.tts.synthesizeButton).toBeDefined();
+          expect(translations[lang].generate.tts.synthesizing).toBeDefined();
+          expect(translations[lang].generate.tts.audioReady).toBeDefined();
+          expect(translations[lang].generate.tts.downloadAudio).toBeDefined();
         });
       });
     });
   });
 
   describe('translations content consistency', () => {
-    it('should have visionAI as "Vision AI" in all languages', () => {
-      SUPPORTED_LANGUAGES.forEach((lang) => {
-        expect(translations[lang].nav.visionAI).toBe('Vision AI');
-      });
+    it('should have localized imageAnalysis nav labels', () => {
+      expect(translations.en.nav.imageAnalysis).toBe('Image Analysis');
+      expect(translations.zh.nav.imageAnalysis).toBe('图像分析');
+      expect(translations.ja.nav.imageAnalysis).toBe('画像分析');
+      expect(translations.fr.nav.imageAnalysis).toBe('Analyse d\'images');
+      expect(translations.es.nav.imageAnalysis).toBe('Análisis de imágenes');
     });
 
-    it('should have aiHub as "AI Hub" in all languages', () => {
-      SUPPORTED_LANGUAGES.forEach((lang) => {
-        expect(translations[lang].nav.aiHub).toBe('AI Hub');
-      });
+    it('should have chat nav label in all languages', () => {
+      expect(translations.en.nav.chat).toBe('Chat');
+      expect(translations.zh.nav.chat).toBe('对话');
     });
 
     it('should have kubernetes as "K8s" in all languages', () => {

@@ -19,12 +19,13 @@ export const routes: Routes = [
       },
       {
         path: 'chat',
-        loadComponent: () => import('./ai-hub/ai-hub.page').then(m => m.AiHubPage),
+        loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
+      },
+      {
+        path: 'generate',
+        loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePage),
         children: [
-          {
-            path: '',
-            loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
-          },
+          { path: '', redirectTo: 'image', pathMatch: 'full' },
           {
             path: 'image',
             loadComponent: () => import('./ai-hub/image/image.component').then(m => m.ImageComponent),
