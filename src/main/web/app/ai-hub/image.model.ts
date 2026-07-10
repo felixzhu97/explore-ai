@@ -1,4 +1,4 @@
-// Image Generation Feature Models
+// Image Generation Feature Models — aligned with /api/images/generate
 
 export interface ImageSize {
   label: string;
@@ -6,6 +6,7 @@ export interface ImageSize {
   height: number;
 }
 
+/** POST /api/images/generate */
 export interface ImageGenerateParams {
   prompt: string;
   model?: string;
@@ -29,29 +30,4 @@ export interface ImageGenerationResult {
   imageBase64?: string;
   model?: string;
   prompt?: string;
-}
-
-export interface ImageGenerationRequest {
-  prompt: string;
-  negative_prompt?: string;
-  width?: number;
-  height?: number;
-  num_inference_steps?: number;
-  guidance_scale?: number;
-  seed?: number;
-  num_images?: number;
-  style_preset?: string;
-}
-
-export interface ImageGenerationResponse {
-  images: string[];
-  seed: number;
-  model: string;
-  prompt: string;
-  inference_steps: number;
-  guidance_scale: number;
-  width: number;
-  height: number;
-  processing_time_ms: number;
-  metadata?: Record<string, unknown>;
 }

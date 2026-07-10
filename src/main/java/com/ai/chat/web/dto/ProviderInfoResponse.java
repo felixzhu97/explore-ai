@@ -1,12 +1,11 @@
 package com.ai.chat.web.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.List;
 
 public record ProviderInfoResponse(
         String name,
-        @JsonProperty("display_name") String displayName,
+        @JsonAlias("display_name") String displayName,
         List<String> models,
         String status
 ) {}

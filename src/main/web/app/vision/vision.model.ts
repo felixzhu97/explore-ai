@@ -1,27 +1,14 @@
-// Vision Feature Models
-
-export interface ImageAnalysisResult {
-  caption?: string;
-  objects?: DetectedObject[];
-  text?: string;
-}
-
-export interface DetectedObject {
-  class: string;
-  class_name?: string;
-  confidence: number;
-  bbox: [number, number, number, number]; // [x, y, width, height]
-}
+// Vision Feature Models — aligned with backend vision DTOs (camelCase JSON)
 
 export interface VisionResult {
   caption?: string;
   detections?: Detection[];
-  full_text?: string;
-  processing_time_ms?: number;
+  fullText?: string;
+  processingTimeMs?: number;
 }
 
 export interface Detection {
-  class_name: string;
+  className: string;
   confidence: number;
   bbox: [number, number, number, number];
 }

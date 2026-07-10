@@ -1,3 +1,5 @@
 package com.ai.vision.web.dto;
 
-public record OcrResponse(String full_text, long processing_time_ms) {}
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+public record OcrResponse(@JsonAlias("full_text") String fullText, @JsonAlias("processing_time_ms") long processingTimeMs) {}

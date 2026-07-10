@@ -48,7 +48,7 @@ export class ChatService {
         this.providers.set([
           {
             name: 'openai',
-            display_name: 'OpenAI',
+            displayName: 'OpenAI',
             models: ['gpt-4o', 'gpt-4o-mini'],
             status: 'available',
           },
@@ -238,10 +238,10 @@ export class ChatService {
     const { abort } = this.api.chatStream(
       {
         messages: streamRequest,
-        session_id: sessionId,
+        sessionId,
         provider: this.selectedProvider(),
         model: this.selectedModel(),
-        tools_enabled: this.toolsEnabled(),
+        toolsEnabled: this.toolsEnabled(),
       },
       (chunk) => {
         fullContent += chunk;

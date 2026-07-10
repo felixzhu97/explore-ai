@@ -1,20 +1,37 @@
 // Shared Type Definitions - Re-exports from feature-specific models
-// Types used by core services or multiple features
 
 // Chat types
-export type { ChatMessage, ChatMessageData, ChatRequest, ChatResponse, ModelInfo, ProviderInfo, SessionInfo } from '../../ai-hub/chat.model';
+export type {
+  ChatMessage,
+  ChatMessageData,
+  ChatStreamRequest,
+  ModelInfo,
+  ProviderInfo,
+  SessionInfo,
+  ToolCall,
+} from '../../ai-hub/chat.model';
 
 // RAG types
-export type { RagQuery, SourceDocument, Document, DocumentListResponse, DocumentListItem, RAGSource } from '../../rag/rag.model';
+export type {
+  RagQuery,
+  SourceDocument,
+  RagDocument,
+  DocumentListResponse,
+  DocumentListItem,
+} from '../../rag/rag.model';
 
 // Image types
-export type { ImageGenerateParams, ImageGenerationApiResponse, ImageGenerationRequest, ImageGenerationResult, ImageGenerationResponse } from '../../ai-hub/image.model';
+export type {
+  ImageGenerateParams,
+  ImageGenerationApiResponse,
+  ImageGenerationResult,
+} from '../../ai-hub/image.model';
 
 // Vision types
-export type { VisionResult, Detection, ImageAnalysisResult, DetectedObject } from '../../vision/vision.model';
+export type { VisionResult, Detection } from '../../vision/vision.model';
 
 // TTS types
-export type { Voice, TTSRequest, TTSResult, SynthesizeRequest } from '../../ai-hub/tts.model';
+export type { Voice, TtsRequest } from '../../ai-hub/tts.model';
 
 // Service types (generic, kept here)
 export interface ServiceStatus {

@@ -1,13 +1,14 @@
 package com.ai.chat.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.List;
 
 public record ChatStreamRequest(
     List<ChatMessageDto> messages,
-    String session_id,
+    @JsonAlias("session_id") String sessionId,
     String provider,
     String model,
-    Boolean tools_enabled
+    @JsonAlias("tools_enabled") Boolean toolsEnabled
 ) {
     public record ChatMessageDto(String role, String content) {}
 }

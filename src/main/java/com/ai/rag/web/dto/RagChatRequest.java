@@ -1,5 +1,6 @@
 package com.ai.rag.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
@@ -11,15 +12,18 @@ public record RagChatRequest(
     String question,
 
     @JsonProperty("session_id")
+    @JsonAlias("sessionId")
     String sessionId,
 
     @JsonProperty("top_k")
+    @JsonAlias("topK")
     Integer topK,
 
     @JsonProperty("temperature")
     Double temperature,
 
     @JsonProperty("doc_ids")
+    @JsonAlias("docIds")
     List<String> docIds,
 
     @JsonProperty("images")
