@@ -7,5 +7,6 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   template: `<router-outlet />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block h-dvh' },
 })
 export class AppComponent {}

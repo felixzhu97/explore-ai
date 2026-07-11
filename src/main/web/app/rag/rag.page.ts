@@ -19,7 +19,7 @@ import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
   templateUrl: './rag.page.html',
   providers: [provideNzIconsPatch([ArrowUpOutline])],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex h-full min-h-0 w-full flex-col' },
+  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
 export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);

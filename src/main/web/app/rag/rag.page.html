@@ -1,5 +1,5 @@
 <!-- Top Bar with Document Selector -->
-<div class="flex items-center justify-between border-b border-black/8 bg-white px-4 py-2.5">
+<div class="flex shrink-0 items-center justify-between border-b border-black/8 bg-white px-4 py-2.5">
     <div class="flex items-center gap-2">
         <h2 class="text-base font-semibold text-text">{{ i18n.t().ragChat.title }}</h2>
         <span class="rounded-full bg-surface-secondary px-2 text-xs font-medium text-text-secondary">
@@ -123,7 +123,7 @@
 </div>
 
 <!-- Input -->
-<div class="border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+<div class="shrink-0 border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
     @if (ragService.pendingImages().length > 0) {
         <div class="mb-2 flex flex-wrap gap-2">
             @for (img of ragService.pendingImages(); track $index) {

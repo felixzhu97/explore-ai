@@ -175,6 +175,7 @@
 
 html {
   font-size: 16px;
+  height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -189,6 +190,7 @@ body {
   color: #1d1d1f;
   background: #f5f5f7;
   line-height: 1.4;
+  height: 100dvh;
   min-height: 100vh;
 }
 
