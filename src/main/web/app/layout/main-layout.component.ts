@@ -13,7 +13,7 @@ import { SidebarService } from './sidebar.service';
       <app-toast />
       <app-sidebar />
       <app-header (openSidebar)="openSidebar()" />
-      <main class="flex min-h-0 w-full min-w-0 flex-1 flex-col transition-all duration-250"
+      <main class="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden transition-all duration-250"
             [class.md:pl-60]="!sidebar.collapsed()"
             [class.md:pl-16]="sidebar.collapsed()"
       >
@@ -23,7 +23,7 @@ import { SidebarService } from './sidebar.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'flex min-h-dvh flex-col overflow-x-hidden bg-gray-100 max-md:h-dvh max-md:max-h-dvh max-md:overflow-hidden md:min-h-screen',
+      'flex h-dvh min-h-0 flex-col overflow-x-hidden bg-gray-100 max-md:max-h-dvh max-md:overflow-hidden',
   },
 })
 export class MainLayoutComponent {
