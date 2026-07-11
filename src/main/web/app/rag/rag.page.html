@@ -63,7 +63,7 @@
                             @if (msg.images && msg.images.length > 0) {
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     @for (img of msg.images; track $index) {
-                                        <img [src]="img" alt="Uploaded image" class="max-h-48 max-w-48 rounded-lg object-contain" />
+                                        <img [src]="img" [attr.alt]="i18n.t().ragChat.uploadedImageAlt" class="max-h-48 max-w-48 rounded-lg object-contain" />
                                     }
                                 </div>
                             }

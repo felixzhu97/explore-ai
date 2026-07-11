@@ -42,7 +42,7 @@ public class AiMcpServerService {
         return weatherTools.getForecast(city, days);
     }
 
-    @McpTool(name = "search_knowledge_base", description = "Search documents in the knowledge base using semantic search")
+    @McpTool(name = "search_knowledge_base", description = "Search uploaded Documents and return Source Documents using semantic search")
     public String searchKnowledgeBase(
             @McpToolParam(description = "The search query", required = true) String query,
             @McpToolParam(description = "Optional document IDs to filter (comma-separated)", required = false) String docIds) {
@@ -56,7 +56,7 @@ public class AiMcpServerService {
         return ragSearchTool.searchDocuments(query, docIdList);
     }
 
-    @McpTool(name = "list_documents", description = "List all documents available in the knowledge base")
+    @McpTool(name = "list_documents", description = "List all uploaded Documents")
     public String listDocuments() {
         log.info("MCP tool: listDocuments called");
         return ragSearchTool.listDocuments();

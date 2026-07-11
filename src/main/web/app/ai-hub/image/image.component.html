@@ -75,7 +75,7 @@
           " aria-hidden="true">
             {{ i18n.t().generate.image.sizeLabel }}
           </span>
-          <div class="flex flex-wrap gap-2" role="group" aria-label="Size selection">
+          <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="i18n.t().generate.image.sizeSelectionAria">
             @for (size of sizes; track size.label) {
               <button
                 type="button"
@@ -137,7 +137,7 @@
                 size-11 animate-spin rounded-full border-[3px] border-surface-secondary
                 border-t-primary
               "></div>
-              <span class="text-sm font-medium text-text-tertiary">Generating...</span>
+              <span class="text-sm font-medium text-text-tertiary">{{ i18n.t().generate.image.generating }}</span>
             </div>
           }
           @if (generatedImage()) {
@@ -148,12 +148,12 @@
                 hover:scale-105
               "
               [src]="generatedImage()"
-              alt="Generated"
+              [attr.alt]="i18n.t().generate.image.generatedAlt"
               (click)="zoom.emit(generatedImage()!)"
               (keydown.enter)="zoom.emit(generatedImage()!)"
               tabindex="0"
               role="button"
-              aria-label="Zoom image"
+              [attr.aria-label]="i18n.t().generate.image.zoomImageAria"
             />
           } @else {
             <div class="

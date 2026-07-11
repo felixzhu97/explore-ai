@@ -41,7 +41,7 @@ public class McpController {
                 "availableTools", Map.of(
                         "get_weather", "Get current weather for a city",
                         "get_forecast", "Get weather forecast",
-                        "search_knowledge_base", "Search documents in knowledge base",
+                        "search_knowledge_base", "Search uploaded Documents and return Source Documents",
                         "list_documents", "List all documents",
                         "ai_chat", "Chat with AI assistant"
                 ),

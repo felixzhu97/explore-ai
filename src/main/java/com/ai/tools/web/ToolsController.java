@@ -58,7 +58,7 @@ public class ToolsController {
     }
 
     /**
-     * Search documents in knowledge base.
+     * Search uploaded Documents and return Source Documents.
      */
     @GetMapping("/tools/documents/search")
     public ResponseEntity<String> searchDocuments(
@@ -80,7 +80,7 @@ public class ToolsController {
     }
 
     /**
-     * List all documents in knowledge base.
+     * List all uploaded Documents.
      */
     @GetMapping("/tools/documents/list")
     public ResponseEntity<String> listDocuments() {

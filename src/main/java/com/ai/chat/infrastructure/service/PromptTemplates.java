@@ -81,7 +81,7 @@ public class PromptTemplates {
     }
 
     /**
-     * Gets the RAG system prompt for knowledge base queries.
+     * Gets the RAG system prompt for Document QA queries.
      */
     public String getRagSystemPrompt() {
         return RAG_SYSTEM_PROMPT;

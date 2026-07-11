@@ -126,7 +126,7 @@ export class ImageComponent {
     fetch(image)
       .then(response => response.blob())
       .then(blob => this.api.downloadBlob(blob, filename))
-      .catch(() => this.error.set('Failed to download image'));
+      .catch(() => this.error.set(this.i18n.t().generate.image.downloadFailed));
   }
 
   private extractErrorMessage(err: unknown): string {
@@ -139,6 +139,6 @@ export class ImageComponent {
         return errorBody.status.replace(/^ERROR:\s*/, '');
       }
     }
-    return 'Image generation failed';
+    return this.i18n.t().generate.image.generationFailed;
   }
 }

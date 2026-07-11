@@ -22,25 +22,25 @@
                     (dragover)="onDragOver($event)"
                     tabindex="0"
                     role="button"
-                    aria-label="Upload image"
+                    aria-label="{{ i18n.t().imageUploader.uploadImageAria }}"
             >
                 @if (currentState().image) {
                     <img
                             class="max-h-96 max-w-full cursor-zoom-in rounded-xl object-contain"
                             [src]="currentState().image"
-                            alt="Preview"
+                            alt="{{ i18n.t().imageUploader.previewAlt }}"
                             (click)="zoomImage(currentState().image!); $event.stopPropagation()"
                             (keydown.enter)="zoomImage(currentState().image!); $event.stopPropagation()"
                             tabindex="0"
                             role="button"
-                            aria-label="Zoom image"
+                            aria-label="{{ i18n.t().imageUploader.zoomImageAria }}"
                     />
-                    <div class="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded bg-black/60 px-3 py-1 text-xs text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">Click to enlarge</div>
+                    <div class="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded bg-black/60 px-3 py-1 text-xs text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">{{ i18n.t().imageUploader.clickToEnlarge }}</div>
                     <button
                             type="button"
                             class="absolute top-2 right-2 z-10 flex size-6 cursor-pointer items-center justify-center rounded-full bg-white/90 text-sm text-text opacity-0 transition-opacity group-hover:opacity-100"
                             (click)="clearImage($event)"
-                            aria-label="Clear image"
+                            [attr.aria-label]="i18n.t().imageUploader.clearImage"
                     >×</button>
                     @if (isLoading()) {
                         <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 rounded-xl bg-white/90 backdrop-blur-sm">
@@ -136,9 +136,9 @@
                 type="button"
                 class="absolute -top-10 right-0 flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/20 text-2xl text-white hover:bg-white/30"
                 (click)="closeZoom()"
-                aria-label="Close"
+                [attr.aria-label]="i18n.t().imageUploader.closeAria"
             >×</button>
-            <img [src]="zoomedImage()" alt="Zoomed" class="max-h-[90vh] max-w-full object-contain" />
+            <img [src]="zoomedImage()" [attr.alt]="i18n.t().imageUploader.zoomedAlt" class="max-h-[90vh] max-w-full object-contain" />
         </div>
     </div>
 }

@@ -76,7 +76,9 @@ Endpoints: `GET /api/audio/voices`, `POST /api/audio/speak`
 | Similarity Score | `ragChat.similarity` | Similarity Score |
 | Tools Enabled | `chat.toolsEnabled` | Tools Enabled |
 | Image Generation | `generate.tabs.image` | Image Generation |
-| Image Analysis | `nav.imageAnalysis` | Image Analysis |
+| Image Analysis | `nav.imageAnalysis`, `imageUploader.*` | Image Analysis |
+| Generated Image | `generate.image.generatedAlt` | Generated Image |
+| Text to Speech | `generate.tabs.tts`, `generate.tts.title` | Text to Speech |
 
 ## Error codes (REST)
 

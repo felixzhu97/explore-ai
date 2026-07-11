@@ -9,7 +9,7 @@ import java.util.List;
 public interface DocumentSearchTool {
 
     /**
-     * Search documents in knowledge base.
+     * Search uploaded Documents and return Source Documents.
      *
      * @param query the search query
      * @param docIds optional list of document IDs to filter
@@ -18,7 +18,7 @@ public interface DocumentSearchTool {
     String searchDocuments(String query, List<String> docIds);
 
     /**
-     * List all documents in knowledge base.
+     * List all uploaded Documents.
      *
      * @return formatted list of documents
      */

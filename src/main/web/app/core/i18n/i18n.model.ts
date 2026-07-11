@@ -55,6 +55,12 @@ export interface Translations {
     requestFailed: string;
     processingFailed: string;
     clearImage: string;
+    uploadImageAria: string;
+    zoomImageAria: string;
+    closeAria: string;
+    clickToEnlarge: string;
+    previewAlt: string;
+    zoomedAlt: string;
     caption: string;
     detect: string;
     ocr: string;
@@ -88,6 +94,7 @@ export interface Translations {
     documentDeleted: string;
     deleteFailed: string;
     fileSelected: string;
+    uploadedImageAlt: string;
   };
   agents: {
     startConversation: string;
@@ -138,6 +145,11 @@ export interface Translations {
       preview: string;
       download: string;
       emptyState: string;
+      generatedAlt: string;
+      zoomImageAria: string;
+      sizeSelectionAria: string;
+      generationFailed: string;
+      downloadFailed: string;
     };
     tts: {
       title: string;
@@ -150,6 +162,7 @@ export interface Translations {
       synthesizing: string;
       audioReady: string;
       downloadAudio: string;
+      synthesisFailed: string;
     };
   };
   sidebar: {
@@ -203,6 +216,12 @@ export const translations: Record<Language, Translations> = {
       requestFailed: 'Request failed',
       processingFailed: 'Processing failed',
       clearImage: 'Clear image',
+      uploadImageAria: 'Upload image',
+      zoomImageAria: 'Zoom image',
+      closeAria: 'Close',
+      clickToEnlarge: 'Click to enlarge',
+      previewAlt: 'Preview',
+      zoomedAlt: 'Zoomed',
       caption: 'Caption',
       detect: 'Detect',
       ocr: 'OCR',
@@ -236,6 +255,7 @@ export const translations: Record<Language, Translations> = {
       documentDeleted: 'Document deleted',
       deleteFailed: 'Delete failed, please retry',
       fileSelected: '{count} file(s) selected',
+      uploadedImageAlt: 'Attached image',
     },
     agents: {
       startConversation: 'Start a conversation with the agent',
@@ -314,6 +334,11 @@ export const translations: Record<Language, Translations> = {
         preview: 'Preview',
         download: 'Download',
         emptyState: 'Generate an image to see preview',
+        generatedAlt: 'Generated Image',
+        zoomImageAria: 'Zoom image',
+        sizeSelectionAria: 'Image Size selection',
+        generationFailed: 'Image generation failed',
+        downloadFailed: 'Failed to download image',
       },
       tts: {
         title: 'Text to Speech',
@@ -326,6 +351,7 @@ export const translations: Record<Language, Translations> = {
         synthesizing: 'Synthesizing...',
         audioReady: 'Audio ready',
         downloadAudio: 'Download Audio',
+        synthesisFailed: 'Speech synthesis failed',
       },
     },
     sidebar: {
@@ -377,6 +403,12 @@ export const translations: Record<Language, Translations> = {
       requestFailed: '请求失败',
       processingFailed: '处理失败',
       clearImage: '清除图片',
+      uploadImageAria: '上传图片',
+      zoomImageAria: '放大图片',
+      closeAria: '关闭',
+      clickToEnlarge: '点击放大',
+      previewAlt: '预览',
+      zoomedAlt: '放大视图',
       caption: '图像描述',
       detect: '目标检测',
       ocr: '文字识别',
@@ -410,6 +442,7 @@ export const translations: Record<Language, Translations> = {
       documentDeleted: '文档已删除',
       deleteFailed: '删除失败，请重试',
       fileSelected: '已选择 {count} 个文件',
+      uploadedImageAlt: '附加图片',
     },
     agents: {
       startConversation: '开始与 Agent 对话',
@@ -460,6 +493,11 @@ export const translations: Record<Language, Translations> = {
         preview: '预览',
         download: '下载',
         emptyState: '生成图像以查看预览',
+        generatedAlt: '生成的图像',
+        zoomImageAria: '放大图片',
+        sizeSelectionAria: '图像尺寸选择',
+        generationFailed: '图像生成失败',
+        downloadFailed: '图像下载失败',
       },
       tts: {
         title: '文本转语音',
@@ -472,6 +510,7 @@ export const translations: Record<Language, Translations> = {
         synthesizing: '合成中...',
         audioReady: '音频就绪',
         downloadAudio: '下载音频',
+        synthesisFailed: '语音合成失败',
       },
     },
     sidebar: {
@@ -523,6 +562,12 @@ export const translations: Record<Language, Translations> = {
       requestFailed: 'リクエスト失敗',
       processingFailed: '処理失敗',
       clearImage: '画像をクリア',
+      uploadImageAria: '画像をアップロード',
+      zoomImageAria: '画像を拡大',
+      closeAria: '閉じる',
+      clickToEnlarge: 'クリックして拡大',
+      previewAlt: 'プレビュー',
+      zoomedAlt: '拡大表示',
       caption: '画像説明',
       detect: '検出',
       ocr: '文字認識',
@@ -556,6 +601,7 @@ export const translations: Record<Language, Translations> = {
       documentDeleted: 'ドキュメントが削除されました',
       deleteFailed: '削除に失敗しました。もう一度お試しください',
       fileSelected: '{count} ファイル選択済み',
+      uploadedImageAlt: '添付画像',
     },
     agents: {
       startConversation: 'エージェントと会話を始める',
@@ -631,6 +677,11 @@ export const translations: Record<Language, Translations> = {
         preview: 'プレビュー',
         download: 'ダウンロード',
         emptyState: '画像を生成してプレビューを表示',
+        generatedAlt: '生成された画像',
+        zoomImageAria: '画像を拡大',
+        sizeSelectionAria: '画像サイズ選択',
+        generationFailed: '画像生成に失敗しました',
+        downloadFailed: '画像のダウンロードに失敗しました',
       },
       tts: {
         title: 'テキスト読み上げ',
@@ -643,6 +694,7 @@ export const translations: Record<Language, Translations> = {
         synthesizing: '合成中...',
         audioReady: '音声準備完了',
         downloadAudio: '音声をダウンロード',
+        synthesisFailed: '音声合成に失敗しました',
       },
     },
     sidebar: {
@@ -694,6 +746,12 @@ export const translations: Record<Language, Translations> = {
       requestFailed: 'Échec de la requête',
       processingFailed: 'Échec du traitement',
       clearImage: 'Effacer l\'image',
+      uploadImageAria: 'Télécharger une image',
+      zoomImageAria: 'Agrandir l\'image',
+      closeAria: 'Fermer',
+      clickToEnlarge: 'Cliquer pour agrandir',
+      previewAlt: 'Aperçu',
+      zoomedAlt: 'Vue agrandie',
       caption: 'Description',
       detect: 'Détection',
       ocr: 'OCR',
@@ -728,6 +786,7 @@ export const translations: Record<Language, Translations> = {
       documentDeleted: 'Document supprimé',
       deleteFailed: 'Échec de la suppression, veuillez réessayer',
       fileSelected: '{count} fichier(s) sélectionné(s)',
+      uploadedImageAlt: 'Image jointe',
     },
     agents: {
       startConversation: 'Démarrer une conversation avec l\'agent',
@@ -807,6 +866,11 @@ export const translations: Record<Language, Translations> = {
         preview: 'Aperçu',
         download: 'Télécharger',
         emptyState: 'Générez une image pour voir apercu',
+        generatedAlt: 'Image générée',
+        zoomImageAria: 'Agrandir l\'image',
+        sizeSelectionAria: 'Sélection de la taille',
+        generationFailed: 'Échec de la génération d\'image',
+        downloadFailed: 'Échec du téléchargement de l\'image',
       },
       tts: {
         title: 'Synthèse vocale',
@@ -819,6 +883,7 @@ export const translations: Record<Language, Translations> = {
         synthesizing: 'Synthèse...',
         audioReady: 'Audio prêt',
         downloadAudio: 'Télécharger l\'audio',
+        synthesisFailed: 'Échec de la synthèse vocale',
       },
     },
     sidebar: {
@@ -870,6 +935,12 @@ export const translations: Record<Language, Translations> = {
       requestFailed: 'Solicitud fallida',
       processingFailed: 'Procesamiento fallido',
       clearImage: 'Borrar imagen',
+      uploadImageAria: 'Subir imagen',
+      zoomImageAria: 'Ampliar imagen',
+      closeAria: 'Cerrar',
+      clickToEnlarge: 'Clic para ampliar',
+      previewAlt: 'Vista previa',
+      zoomedAlt: 'Vista ampliada',
       caption: 'Descripción',
       detect: 'Detección',
       ocr: 'OCR',
@@ -904,6 +975,7 @@ export const translations: Record<Language, Translations> = {
       documentDeleted: 'Documento eliminado',
       deleteFailed: 'Error al eliminar, por favor inténtelo de nuevo',
       fileSelected: '{count} archivo(s) seleccionado(s)',
+      uploadedImageAlt: 'Imagen adjunta',
     },
     agents: {
       startConversation: 'Iniciar una conversación con el agente',
@@ -983,6 +1055,11 @@ export const translations: Record<Language, Translations> = {
         preview: 'Vista previa',
         download: 'Descargar',
         emptyState: 'Genera una imagen para ver la vista previa',
+        generatedAlt: 'Imagen generada',
+        zoomImageAria: 'Ampliar imagen',
+        sizeSelectionAria: 'Selección de tamaño',
+        generationFailed: 'Error en la generación de imagen',
+        downloadFailed: 'Error al descargar la imagen',
       },
       tts: {
         title: 'Texto a voz',
@@ -995,6 +1072,7 @@ export const translations: Record<Language, Translations> = {
         synthesizing: 'Sintetizando...',
         audioReady: 'Audio listo',
         downloadAudio: 'Descargar audio',
+        synthesisFailed: 'Error en la síntesis de voz',
       },
     },
     sidebar: {
