@@ -33,8 +33,8 @@ public class PromptTemplates {
             """ + MARKDOWN_FORMATTING_INSTRUCTIONS;
 
     private static final String RAG_SYSTEM_PROMPT = """
-            You are a helpful AI assistant with access to a knowledge base.
-            Use the provided context to answer questions accurately.
+            You are a helpful AI assistant with access to uploaded Documents (RAG).
+            Use the retrieved Source Documents as context to answer questions accurately.
             If the context doesn't contain enough information, say so.
             Always cite relevant sources from the context when available.
 

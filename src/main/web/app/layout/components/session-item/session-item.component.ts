@@ -3,7 +3,9 @@ import {
   ChangeDetectionStrategy,
   input,
   output,
+  inject,
 } from '@angular/core';
+import { I18nService } from '@core/i18n';
 import { Session } from '../../sidebar.service';
 
 @Component({
@@ -51,7 +53,7 @@ import { Session } from '../../sidebar.service';
             type="button"
             class="size-5 rounded p-0.5 transition-colors duration-150
                    hover:bg-black/10"
-            [title]="session().pinned ? 'Unpin' : 'Pin'"
+            [title]="session().pinned ? i18n.t().sidebar.unpinSession : i18n.t().sidebar.pinSession"
             (click)="onPin($event)"
           >
             <svg
@@ -75,7 +77,7 @@ import { Session } from '../../sidebar.service';
             type="button"
             class="size-5 rounded p-0.5 text-red-500 opacity-0
                    transition-all duration-150 group-hover:opacity-100 hover:bg-red-50"
-            title="Delete"
+            [title]="i18n.t().sidebar.deleteSession"
             (click)="onDelete($event)"
           >
             <svg
@@ -102,6 +104,8 @@ import { Session } from '../../sidebar.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionItemComponent {
+  protected readonly i18n = inject(I18nService);
+
   readonly session = input.required<Session>();
   readonly isActive = input(false);
   readonly collapsed = input(false);

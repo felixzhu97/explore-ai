@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleSessionNotFound(ChatSessionNotFoundException e) {
         log.warn("Session not found: {}", e.getSessionId());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse.of("Session not found: " + e.getSessionId(), "SESSION_NOT_FOUND"));
+            .body(ErrorResponse.of("Chat session not found: " + e.getSessionId(), "SESSION_NOT_FOUND"));
     }
 
     @ExceptionHandler(AiServiceException.class)

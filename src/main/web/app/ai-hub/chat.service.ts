@@ -22,7 +22,7 @@ export class ChatService {
   readonly providers = signal<ProviderInfo[]>([]);
   readonly models = signal<ModelInfo[]>([]);
   readonly selectedProvider = signal('openai');
-  readonly selectedModel = signal('gpt-4o-mini');
+  readonly selectedModel = signal('');
   readonly isLoadingModels = signal(false);
 
   readonly sessions = signal<SessionInfo[]>([]);

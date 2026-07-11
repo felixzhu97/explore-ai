@@ -30,7 +30,7 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
     }
 
     @Override
-    @Tool(name = "search_documents", description = "Search documents in the knowledge base for relevant information")
+    @Tool(name = "search_documents", description = "Search uploaded Documents for relevant Source Documents")
     public String searchDocuments(
             @ToolParam(description = "The search query text") String query,
             @ToolParam(description = "Optional list of document IDs to filter", required = false) List<String> docIds) {
@@ -49,7 +49,7 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
                 return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
             }
 
-            return "找到以下相关文档片段：\n\n" + formatSources(result.sources());
+            return "找到以下相关 Source Document：\n\n" + formatSources(result.sources());
         } catch (IllegalArgumentException e) {
             log.warn("Invalid document ID format in searchDocuments", e);
             return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
@@ -60,17 +60,17 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
     }
 
     @Override
-    @Tool(name = "list_documents", description = "List all documents in the knowledge base")
+    @Tool(name = "list_documents", description = "List all uploaded Documents")
     public String listDocuments() {
         try {
             var documents = ragApplicationService.listDocuments();
 
             if (documents.isEmpty()) {
-                return "知识库中暂无文档，请先上传文档。";
+                return "暂无 Document，请先上传 Document。";
             }
 
             StringBuilder response = new StringBuilder();
-            response.append("知识库中的文档列表：\n\n");
+            response.append("Document 列表：\n\n");
 
             for (var doc : documents) {
                 response.append(String.format("- ID: %s\n", doc.getId().value()));
@@ -92,9 +92,9 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
         for (int i = 0; i < sources.size(); i++) {
             var source = sources.get(i);
             String content = truncate(source.text());
-            sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
+            sb.append(String.format("【Source Document %d】Similarity Score: %.2f\n%s\n", i + 1, source.score(), content));
             if (source.metadata() != null && source.metadata().get("title") instanceof String title) {
-                sb.append(String.format("文档: %s\n", title));
+                sb.append(String.format("Document: %s\n", title));
             }
             sb.append("---\n\n");
         }

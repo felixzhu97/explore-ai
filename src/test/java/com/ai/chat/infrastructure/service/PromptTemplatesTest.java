@@ -72,13 +72,13 @@ class PromptTemplatesTest {
         }
 
         @Test
-        @DisplayName("should mention knowledge base")
-        void shouldMentionKnowledgeBase() {
+        @DisplayName("should mention uploaded Documents for RAG")
+        void shouldMentionUploadedDocumentsForRag() {
             // Act
             String prompt = templates.getRagSystemPrompt();
 
             // Assert
-            assertThat(prompt.toLowerCase()).contains("knowledge base");
+            assertThat(prompt.toLowerCase()).contains("uploaded documents");
         }
 
         @Test

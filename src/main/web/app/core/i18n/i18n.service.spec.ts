@@ -254,7 +254,7 @@ describe('I18nService', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.t().generate).toBeDefined();
-      expect(service.t().generate.tabs.image).toBe('Image Gen');
+      expect(service.t().generate.tabs.image).toBe('Image Generation');
     });
   });
 });

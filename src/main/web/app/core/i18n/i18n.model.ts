@@ -25,6 +25,7 @@ export interface Translations {
     operationFailed: string;
     success: string;
     error: string;
+    loading: string;
   };
   nav: {
     imageAnalysis: string;
@@ -115,6 +116,9 @@ export interface Translations {
   chat: {
     thinking: string;
     inputPlaceholder: string;
+    startConversation: string;
+    toolsEnabled: string;
+    loadingModels: string;
   };
   generate: {
     tabs: {
@@ -154,6 +158,9 @@ export interface Translations {
     pinned: string;
     recents: string;
     searchConversations: string;
+    pinSession: string;
+    unpinSession: string;
+    deleteSession: string;
   };
 }
 
@@ -166,6 +173,7 @@ export const translations: Record<Language, Translations> = {
       operationFailed: 'Operation failed',
       success: 'Success',
       error: 'An error occurred',
+      loading: 'Loading...',
     },
     nav: {
       imageAnalysis: 'Image Analysis',
@@ -201,16 +209,16 @@ export const translations: Record<Language, Translations> = {
       noImageYet: 'Upload an image to get started',
     },
     ragChat: {
-      title: 'Document Q&A',
+      title: 'Document QA',
       modelBadge: 'RAG',
-      uploadDocs: 'Upload Docs',
+      uploadDocs: 'Upload Documents',
       upload: 'Upload',
-      askQuestion: 'Ask me anything about your documents',
+      askQuestion: 'Ask me anything about your Documents',
       inputPlaceholder: 'Type your question...',
       thinking: 'Thinking...',
       errorMessage: 'Sorry, an error occurred. Please ensure the RAG service is running.',
-      sources: 'Sources',
-      similarity: 'Similarity',
+      sources: 'Source Documents',
+      similarity: 'Similarity Score',
       whatIsThis: 'What is this about?',
       summarize: 'Summarize the key points',
       keyInfo: 'What are the key details?',
@@ -224,7 +232,7 @@ export const translations: Record<Language, Translations> = {
       uploadSuccess: '{name} uploaded successfully',
       uploadFailed: 'Failed to upload {name}',
       uploading: 'Uploading...',
-      basedOn: 'Based on {count} source(s)',
+      basedOn: 'Based on {count} source document(s)',
       documentDeleted: 'Document deleted',
       deleteFailed: 'Delete failed, please retry',
       fileSelected: '{count} file(s) selected',
@@ -284,10 +292,13 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: 'Thinking...',
       inputPlaceholder: 'Type your message...',
+      startConversation: 'Start a new Chat Session',
+      toolsEnabled: 'Tools Enabled',
+      loadingModels: 'Loading models...',
     },
     generate: {
       tabs: {
-        image: 'Image Gen',
+        image: 'Image Generation',
         tts: 'Text to Speech',
       },
       image: {
@@ -318,11 +329,14 @@ export const translations: Record<Language, Translations> = {
       },
     },
     sidebar: {
-      chatHistory: 'Chat History',
-      newChat: 'New Chat',
-      pinned: 'Pinned',
-      recents: 'Recents',
-      searchConversations: 'Search conversations...',
+      chatHistory: 'Chat Sessions',
+      newChat: 'New Chat Session',
+      pinned: 'Pinned Sessions',
+      recents: 'Recent Sessions',
+      searchConversations: 'Search Chat Sessions...',
+      pinSession: 'Pin Session',
+      unpinSession: 'Unpin Session',
+      deleteSession: 'Delete Session',
     },
   },
   zh: {
@@ -333,6 +347,7 @@ export const translations: Record<Language, Translations> = {
       operationFailed: '操作失败',
       success: '成功',
       error: '发生错误',
+      loading: '加载中...',
     },
     nav: {
       imageAnalysis: '图像分析',
@@ -376,8 +391,8 @@ export const translations: Record<Language, Translations> = {
       inputPlaceholder: '输入问题...',
       thinking: '思考中...',
       errorMessage: '抱歉，发生了错误。请确保RAG服务正在运行。',
-      sources: '参考来源',
-      similarity: '相似度',
+      sources: '来源文档',
+      similarity: '相似度分数',
       whatIsThis: '这是什么内容？',
       summarize: '总结一下要点',
       keyInfo: '有哪些关键信息？',
@@ -391,7 +406,7 @@ export const translations: Record<Language, Translations> = {
       uploadSuccess: '{name} 上传成功',
       uploadFailed: '{name} 上传失败',
       uploading: '上传中...',
-      basedOn: '基于 {count} 个来源',
+      basedOn: '基于 {count} 个来源文档',
       documentDeleted: '文档已删除',
       deleteFailed: '删除失败，请重试',
       fileSelected: '已选择 {count} 个文件',
@@ -423,6 +438,9 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: '思考中...',
       inputPlaceholder: '输入消息...',
+      startConversation: '开始新会话',
+      toolsEnabled: '启用工具',
+      loadingModels: '加载模型中...',
     },
     generate: {
       tabs: {
@@ -457,11 +475,14 @@ export const translations: Record<Language, Translations> = {
       },
     },
     sidebar: {
-      chatHistory: '聊天历史',
-      newChat: '新对话',
-      pinned: '已固定',
-      recents: '最近',
-      searchConversations: '搜索对话...',
+      chatHistory: '会话',
+      newChat: '新会话',
+      pinned: '固定会话',
+      recents: '最近会话',
+      searchConversations: '搜索会话...',
+      pinSession: '固定会话',
+      unpinSession: '取消固定',
+      deleteSession: '删除会话',
     },
   },
   ja: {
@@ -472,10 +493,11 @@ export const translations: Record<Language, Translations> = {
       operationFailed: '操作に失敗しました',
       success: '成功',
       error: 'エラーが発生しました',
+      loading: '読み込み中...',
     },
     nav: {
       imageAnalysis: '画像分析',
-      documentQA: 'ドキュメント',
+      documentQA: 'Document QA',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: '監視',
@@ -507,7 +529,7 @@ export const translations: Record<Language, Translations> = {
       noImageYet: '画像をアップロードして分析',
     },
     ragChat: {
-      title: 'ドキュメント Q&A',
+      title: 'Document QA',
       modelBadge: 'RAG',
       uploadDocs: 'ドキュメント',
       upload: 'アップロード',
@@ -515,8 +537,8 @@ export const translations: Record<Language, Translations> = {
       inputPlaceholder: '質問を入力...',
       thinking: '考え中...',
       errorMessage: 'エラーが発生しました。RAGサービスが実行されていることを確認してください。',
-      sources: '参照元',
-      similarity: '類似度',
+      sources: 'ソースドキュメント',
+      similarity: '類似度スコア',
       whatIsThis: 'これは何ですか？',
       summarize: '要点をまとめて',
       keyInfo: '重要な情報は？',
@@ -530,7 +552,7 @@ export const translations: Record<Language, Translations> = {
       uploadSuccess: '{name} アップロード成功',
       uploadFailed: '{name} アップロード失敗',
       uploading: 'アップロード中...',
-      basedOn: '{count} ソースに基づく',
+      basedOn: '{count} 件のソースドキュメントに基づく',
       documentDeleted: 'ドキュメントが削除されました',
       deleteFailed: '削除に失敗しました。もう一度お試しください',
       fileSelected: '{count} ファイル選択済み',
@@ -587,6 +609,9 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: '考え中...',
       inputPlaceholder: 'メッセージを入力...',
+      startConversation: '新しいチャットセッションを開始',
+      toolsEnabled: 'ツールを有効化',
+      loadingModels: 'モデルを読み込み中...',
     },
     generate: {
       tabs: {
@@ -621,11 +646,14 @@ export const translations: Record<Language, Translations> = {
       },
     },
     sidebar: {
-      chatHistory: 'チャット履歴',
-      newChat: '新しいチャット',
-      pinned: 'ピン留め',
-      recents: '最近',
-      searchConversations: '会話を検索...',
+      chatHistory: 'チャットセッション',
+      newChat: '新しいセッション',
+      pinned: '固定セッション',
+      recents: '最近のセッション',
+      searchConversations: 'セッションを検索...',
+      pinSession: 'セッションを固定',
+      unpinSession: '固定を解除',
+      deleteSession: 'セッションを削除',
     },
   },
   fr: {
@@ -636,10 +664,11 @@ export const translations: Record<Language, Translations> = {
       operationFailed: 'L\'opération a échoué',
       success: 'Succès',
       error: 'Une erreur s\'est produite',
+      loading: 'Chargement...',
     },
     nav: {
       imageAnalysis: 'Analyse d\'images',
-      documentQA: 'Documents',
+      documentQA: 'Document QA',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: 'Surveillance',
@@ -671,17 +700,17 @@ export const translations: Record<Language, Translations> = {
       noImageYet: 'Téléchargez une image pour commencer',
     },
     ragChat: {
-      title: 'Q&R Documents',
+      title: 'Document QA',
       modelBadge: 'RAG',
       uploadDocs: 'Documents',
       upload: 'Téléverser',
-      askQuestion: 'Posez-moi des questions sur vos documents',
+      askQuestion: 'Posez-moi des questions sur vos Documents',
       inputPlaceholder: 'Tapez votre question...',
       thinking: 'Réflexion...',
       errorMessage:
         'Désolé, une erreur s\'est produite. Assurez-vous que le service RAG fonctionne.',
-      sources: 'Sources',
-      similarity: 'Similarité',
+      sources: 'Documents sources',
+      similarity: 'Score de similarité',
       whatIsThis: 'De quoi s agit-il ?',
       summarize: 'Résumez les points clés',
       keyInfo: 'Quelles sont les informations clés ?',
@@ -695,7 +724,7 @@ export const translations: Record<Language, Translations> = {
       uploadSuccess: '{name} téléchargé avec succès',
       uploadFailed: 'Échec du téléchargement de {name}',
       uploading: 'Téléversement...',
-      basedOn: 'Basé sur {count} source(s)',
+      basedOn: 'Basé sur {count} document(s) source(s)',
       documentDeleted: 'Document supprimé',
       deleteFailed: 'Échec de la suppression, veuillez réessayer',
       fileSelected: '{count} fichier(s) sélectionné(s)',
@@ -756,6 +785,9 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: 'Réflexion...',
       inputPlaceholder: 'Tapez votre message...',
+      startConversation: 'Démarrer une nouvelle session de chat',
+      toolsEnabled: 'Outils activés',
+      loadingModels: 'Chargement des modèles...',
     },
     generate: {
       tabs: {
@@ -790,11 +822,14 @@ export const translations: Record<Language, Translations> = {
       },
     },
     sidebar: {
-      chatHistory: 'Historique des chats',
-      newChat: 'Nouveau chat',
-      pinned: 'Épinglé',
-      recents: 'Récents',
-      searchConversations: 'Rechercher des conversations...',
+      chatHistory: 'Sessions de chat',
+      newChat: 'Nouvelle session',
+      pinned: 'Sessions épinglées',
+      recents: 'Sessions récentes',
+      searchConversations: 'Rechercher des sessions...',
+      pinSession: 'Épingler la session',
+      unpinSession: 'Désépingler',
+      deleteSession: 'Supprimer la session',
     },
   },
   es: {
@@ -805,10 +840,11 @@ export const translations: Record<Language, Translations> = {
       operationFailed: 'La operación falló',
       success: 'Éxito',
       error: 'Se produjo un error',
+      loading: 'Cargando...',
     },
     nav: {
       imageAnalysis: 'Análisis de imágenes',
-      documentQA: 'Documentos',
+      documentQA: 'Document QA',
       supervisor: 'Supervisor',
       kubernetes: 'K8s',
       monitoring: 'Monitoreo',
@@ -840,17 +876,17 @@ export const translations: Record<Language, Translations> = {
       noImageYet: 'Suba una imagen para comenzar',
     },
     ragChat: {
-      title: 'Q&A Documentos',
+      title: 'Document QA',
       modelBadge: 'RAG',
       uploadDocs: 'Documentos',
       upload: 'Subir',
-      askQuestion: 'Pregúntame sobre tus documentos',
+      askQuestion: 'Pregúntame sobre tus Documents',
       inputPlaceholder: 'Escribe tu pregunta...',
       thinking: 'Pensando...',
       errorMessage:
-        'Lo sentimos, occurred un error. Asegúrese de que el servicio RAG está funcionando.',
-      sources: 'Fuentes',
-      similarity: 'Similitud',
+        'Lo sentimos, ocurrió un error. Asegúrese de que el servicio RAG está funcionando.',
+      sources: 'Documentos fuente',
+      similarity: 'Puntuación de similitud',
       whatIsThis: '¿De qué trata esto?',
       summarize: 'Resume los puntos clave',
       keyInfo: '¿Cuáles son los detalles clave?',
@@ -864,7 +900,7 @@ export const translations: Record<Language, Translations> = {
       uploadSuccess: '{name} subido correctamente',
       uploadFailed: 'Error al subir {name}',
       uploading: 'Subiendo...',
-      basedOn: 'Basado en {count} fuente(s)',
+      basedOn: 'Basado en {count} documento(s) fuente(s)',
       documentDeleted: 'Documento eliminado',
       deleteFailed: 'Error al eliminar, por favor inténtelo de nuevo',
       fileSelected: '{count} archivo(s) seleccionado(s)',
@@ -925,6 +961,9 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: 'Pensando...',
       inputPlaceholder: 'Escribe tu mensaje...',
+      startConversation: 'Iniciar una nueva sesión de chat',
+      toolsEnabled: 'Herramientas activadas',
+      loadingModels: 'Cargando modelos...',
     },
     generate: {
       tabs: {
@@ -959,11 +998,14 @@ export const translations: Record<Language, Translations> = {
       },
     },
     sidebar: {
-      chatHistory: 'Historial de chats',
-      newChat: 'Nuevo chat',
-      pinned: 'Fijado',
-      recents: 'Recientes',
-      searchConversations: 'Buscar conversaciones...',
+      chatHistory: 'Sesiones de chat',
+      newChat: 'Nueva sesión',
+      pinned: 'Sesiones fijadas',
+      recents: 'Sesiones recientes',
+      searchConversations: 'Buscar sesiones...',
+      pinSession: 'Fijar sesión',
+      unpinSession: 'Desfijar',
+      deleteSession: 'Eliminar sesión',
     },
   },
 };

@@ -66,6 +66,18 @@ Endpoint: `POST /api/images/generate`
 
 Endpoints: `GET /api/audio/voices`, `POST /api/audio/speak`
 
+## UI labels (i18n)
+
+| Glossary Term | i18n Key | EN Label |
+|---------------|----------|----------|
+| Document QA | `nav.documentQA`, `ragChat.title` | Document QA |
+| Chat Session | `sidebar.newChat`, `sidebar.recents` | New Chat Session / Recent Sessions |
+| Source Document | `ragChat.sources`, `ragChat.basedOn` | Source Documents |
+| Similarity Score | `ragChat.similarity` | Similarity Score |
+| Tools Enabled | `chat.toolsEnabled` | Tools Enabled |
+| Image Generation | `generate.tabs.image` | Image Generation |
+| Image Analysis | `nav.imageAnalysis` | Image Analysis |
+
 ## Error codes (REST)
 
 | Code | HTTP | Meaning |

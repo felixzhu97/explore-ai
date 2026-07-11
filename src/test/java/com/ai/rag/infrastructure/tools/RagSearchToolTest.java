@@ -58,9 +58,9 @@ class RagSearchToolTest {
 
             String result = ragSearchTool.searchDocuments("test query", null);
 
-            assertThat(result).contains("找到以下相关文档片段");
-            assertThat(result).contains("【来源 1】");
-            assertThat(result).contains("【来源 2】");
+            assertThat(result).contains("找到以下相关 Source Document");
+            assertThat(result).contains("【Source Document 1】");
+            assertThat(result).contains("【Source Document 2】");
             assertThat(result).contains(TEST_DOC_TITLE);
         }
 
@@ -78,7 +78,7 @@ class RagSearchToolTest {
 
             String result = ragSearchTool.searchDocuments("test query", List.of(TEST_DOC_ID));
 
-            assertThat(result).contains("找到以下相关文档片段");
+            assertThat(result).contains("找到以下相关 Source Document");
             verify(ragApplicationService).retrieveContext(eq("test query"), anyList(), eq(5));
         }
 
@@ -155,7 +155,7 @@ class RagSearchToolTest {
 
             String result = ragSearchTool.listDocuments();
 
-            assertThat(result).contains("知识库中的文档列表");
+            assertThat(result).contains("Document 列表");
             assertThat(result).contains(TEST_DOC_ID);
             assertThat(result).contains(TEST_DOC_TITLE);
         }
@@ -167,7 +167,7 @@ class RagSearchToolTest {
 
             String result = ragSearchTool.listDocuments();
 
-            assertThat(result).isEqualTo("知识库中暂无文档，请先上传文档。");
+            assertThat(result).isEqualTo("暂无 Document，请先上传 Document。");
         }
 
         @Test

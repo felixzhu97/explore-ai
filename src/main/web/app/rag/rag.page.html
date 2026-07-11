@@ -11,7 +11,7 @@
                 type="button"
                 class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text"
                 (click)="ragService.selectAllDocs()"
-                title="Select All"
+                title="{{ i18n.t().ragChat.selectAll }}"
         >
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
@@ -21,7 +21,7 @@
                 type="button"
                 class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text"
                 (click)="ragService.clearDocSelection()"
-                title="Clear Selection"
+                title="{{ i18n.t().ragChat.clearSelection }}"
         >
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18" />

@@ -28,10 +28,10 @@
                 [disabled]="chat.isLoadingModels()"
         >
             @if (chat.isLoadingModels()) {
-                <option>Loading...</option>
+                <option>{{ i18n.t().chat.loadingModels }}</option>
             } @else {
                 @for (model of chat.models(); track model.name) {
-                    <option [value]="model.name">{{ model.name }}</option>
+                    <option [value]="model.name">{{ model.description || model.name }}</option>
                 }
             }
         </select>
@@ -43,7 +43,7 @@
                     [checked]="chat.toolsEnabled()"
                     (change)="chat.setToolsEnabled($any($event.target).checked)"
             />
-            Tools
+            {{ i18n.t().chat.toolsEnabled }}
         </label>
     </div>
 
@@ -55,7 +55,7 @@
         hover:bg-surface-secondary hover:text-text
       "
             (click)="newChat()"
-            title="New Chat"
+            [title]="i18n.t().sidebar.newChat"
     >
         <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -72,7 +72,7 @@
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
             </div>
-            <p class="text-lg font-medium text-text-secondary">{{ i18n.t().agents.startConversation }}</p>
+            <p class="text-lg font-medium text-text-secondary">{{ i18n.t().chat.startConversation }}</p>
         </div>
     } @else {
         <div class="space-y-6">

@@ -24,7 +24,7 @@ public class RagSearchTool {
         this.ragApplicationService = ragApplicationService;
     }
 
-    @Tool(description = "搜索知识库中的文档内容。根据用户问题搜索相关文档片段并返回匹配的内容和来源信息")
+    @Tool(description = "搜索已上传 Document 中的内容。根据用户问题检索相关 Document Chunk 并返回 Source Document 信息")
     public String searchDocuments(
             @ToolParam(description = "搜索查询，用于在文档中查找相关内容") String query,
             @ToolParam(description = "要搜索的文档ID列表（可选，不提供则搜索所有文档）", required = false) List<String> docIds
@@ -44,7 +44,7 @@ public class RagSearchTool {
                 return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
             }
 
-            return "找到以下相关文档片段：\n\n" +
+            return "找到以下相关 Source Document：\n\n" +
                     formatSources(result.sources());
         } catch (IllegalArgumentException e) {
             log.warn("Invalid document ID format in searchDocuments", e);
@@ -60,9 +60,9 @@ public class RagSearchTool {
         for (int i = 0; i < sources.size(); i++) {
             var source = sources.get(i);
             String content = truncate(source.text());
-            sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
+            sb.append(String.format("【Source Document %d】Similarity Score: %.2f\n%s\n", i + 1, source.score(), content));
             if (source.metadata().get("title") instanceof String title) {
-                sb.append(String.format("文档: %s\n", title));
+                sb.append(String.format("Document: %s\n", title));
             }
             sb.append("---\n\n");
         }
@@ -75,17 +75,17 @@ public class RagSearchTool {
                 : content;
     }
 
-    @Tool(description = "列出知识库中的所有可用文档，返回文档ID和标题")
+    @Tool(description = "列出所有可用 Document，返回 Document ID 和标题")
     public String listDocuments() {
         try {
             var documents = ragApplicationService.listDocuments();
 
             if (documents.isEmpty()) {
-                return "知识库中暂无文档，请先上传文档。";
+                return "暂无 Document，请先上传 Document。";
             }
 
             StringBuilder response = new StringBuilder();
-            response.append("知识库中的文档列表：\n\n");
+            response.append("Document 列表：\n\n");
 
             for (var doc : documents) {
                 response.append(String.format("- ID: %s\n", doc.getId().value()));
