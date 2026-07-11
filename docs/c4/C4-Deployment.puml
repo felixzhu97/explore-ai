@@ -13,8 +13,9 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Java Runtime - Spring Boot Backend (含 H2 内嵌)
     ' ============================================================
     Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine") {
-        Container(backend, "Spring Boot Backend", "Spring Boot 4.0 / Java 25", "10 子域 AI 平台\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
+        Container(backend, "Spring Boot Backend", "Spring Boot 4.0 / Java 25", "11 子域 AI 平台\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
         ContainerDb(h2_embedded, "H2 Embedded DB", "H2 File DB", "文档元数据 + 向量\n./data/explore-ai", "内嵌")
+        ContainerDb(vision_models, "Vision Models", "ONNX + tessdata", "models/yolov8n.onnx\nblip_*.onnx\ntessdata/", "本地文件")
     }
 
     ' ============================================================
@@ -35,8 +36,9 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Local AI Services
     ' ============================================================
     Deployment_Node(local_ai, "Local AI Services", "localhost") {
-        Container_Ext(ollama_svc, "Ollama", "REST API", "mxbai-embed-large (1024)\n+ qwen3.5 Vision", "11434")
+        Container_Ext(ollama_svc, "Ollama", "REST API", "mxbai-embed-large (1024)\n+ qwen3.5 多模态 RAG", "11434")
         Container_Ext(whisper_cpp, "whisper.cpp", "REST/WebSocket", "whisper-base 流式 ASR", "8178")
+        Container_Ext(tesseract, "Tesseract OCR", "Native Library", "eng + chi_sim", "系统安装")
     }
 }
 
@@ -66,10 +68,12 @@ Rel(user, angular_dev, "浏览 Web UI", "HTTP :4200")
 Rel(angular_dev, backend, "/api/* → localhost:9000", "HTTP/SSE/WebSocket")
 
 Rel(backend, h2_embedded, "JDBC (默认)", "内嵌")
+Rel(backend, vision_models, "加载 ONNX/tessdata", "文件 I/O")
 Rel_Back(backend, postgresql_pgvector, "可选 JDBC", "TCP :5432")
 
 Rel(backend, deepseek_api, "LLM Chat + Eval", "HTTPS")
-Rel(backend, ollama_svc, "Embedding + Vision", "HTTP :11434")
+Rel(backend, ollama_svc, "Embedding + 多模态 RAG", "HTTP :11434")
+Rel(backend, tesseract, "OCR (/api/vision/ocr)", "JNA")
 Rel(backend, whisper_cpp, "Streaming ASR", "HTTP/WS :8178")
 Rel(backend, dalle_api, "Image Generation", "HTTPS")
 Rel(backend, tts_api, "Text-to-Speech", "HTTPS")

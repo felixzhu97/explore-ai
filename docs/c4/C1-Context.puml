@@ -16,7 +16,7 @@ Person(admin, "管理员/开发者", "质量评估、文本分析、API 集成")
 ' ============================================================
 System_Boundary(ai_platform, "AI Chat & Agent Platform") {
     System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界面 (/chat, /rag, /vision)")
-    System(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling·图像·TTS·ASR·Eval·MCP")
+    System(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling·图像分析·TTS·ASR·Eval·MCP")
 }
 
 ' ============================================================
@@ -25,7 +25,8 @@ System_Boundary(ai_platform, "AI Chat & Agent Platform") {
 System_Ext(deepseek_api, "DeepSeek API", "LLM 对话 (deepseek-v4-flash)")
 System_Ext(h2_db, "H2 Embedded", "嵌入式数据库 + 向量存储 (默认)")
 System_Ext(postgresql, "PostgreSQL + pgvector", "可选生产向量数据库，端口 5432")
-System_Ext(ollama, "Ollama", "本地 Embedding (mxbai-embed-large) + Vision (qwen3.5)，端口 11434")
+System_Ext(ollama, "Ollama", "本地 Embedding (mxbai-embed-large) + 多模态 RAG Vision (qwen3.5)，端口 11434")
+System_Ext(tesseract, "Tesseract OCR", "本地 OCR 引擎 (eng/chi_sim)，Tess4J JNA 调用")
 System_Ext(whisper_cpp, "whisper.cpp", "本地流式 ASR (OpenAI 兼容 API)，端口 8178")
 System_Ext(dalle_api, "DALL-E API", "OpenAI 图像生成服务")
 System_Ext(tts_api, "TTS Service", "OpenAI Text-to-Speech 语音合成")
@@ -41,7 +42,8 @@ Rel(frontend, backend, "HTTP/SSE/WebSocket 请求", "HTTP :9000")
 Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 Rel(backend, h2_db, "文档元数据 + 向量存储 (默认)", "JDBC 内嵌")
 Rel_Back(backend, postgresql, "可选向量存储", "JDBC :5432")
-Rel(backend, ollama, "Embedding + Vision", "HTTP :11434")
+Rel(backend, ollama, "Embedding + 多模态 RAG", "HTTP :11434")
+Rel(backend, tesseract, "OCR (/api/vision/ocr)", "JNA")
 Rel(backend, whisper_cpp, "流式语音转录", "HTTP/WebSocket :8178")
 Rel(backend, dalle_api, "图像生成", "HTTPS")
 Rel(backend, tts_api, "语音合成", "HTTPS")

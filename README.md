@@ -12,7 +12,7 @@
 | **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
 | **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
 | **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | whisper.cpp 本地免费 ASR |
-| **视觉分析** | 图像描述、物体检测、OCR 文字识别 | 拖拽上传，图片缩放，**本地 Ollama qwen3.5 驱动** |
+| **视觉分析** | 图像描述、物体检测、OCR 文字识别 | `/vision` 独立页面，ONNX Runtime + BLIP/YOLO + Tess4J |
 | **Chat 评估** | LLM-as-a-Judge 质量评分 | 相关性/安全性/事实性，可选参考文档 |
 | **文本分析** | 结构化情感分析 | Spring AI Structured Output |
 
@@ -22,7 +22,8 @@
 |------|------|
 | 后端 | Java 25 + Spring Boot 4.1 |
 | AI | Spring AI 2.0 (DeepSeek / OpenAI / Ollama) |
-| 本地视觉 | Ollama qwen3.5 (开源多模态模型) |
+| 本地视觉 (RAG) | Ollama qwen3.5（多模态 RAG 对话，非 `/vision`） |
+| 图像分析 (CV) | ONNX Runtime + BLIP/YOLOv8 ONNX + Tess4J/Tesseract |
 | 本地 Embedding | Ollama mxbai-embed-large (1024 维) |
 | 本地 ASR | whisper.cpp (端口 8178) |
 | 前端 | Angular 22 + TypeScript |
@@ -140,6 +141,10 @@ explore-ai/
 │   ├── tools/          # Tool Calling (天气/搜索)
 │   ├── image/          # 图像生成
 │   ├── vision/         # 图像分析 (Caption/Detect/OCR)
+│   │   ├── domain/         # 端口、模型、异常
+│   │   ├── application/    # VisionAnalysisUseCase
+│   │   ├── infrastructure/ # ONNX/Tess4J 适配器
+│   │   └── web/            # VisionController
 │   ├── audio/          # 语音合成 + ASR
 │   ├── analysis/     # 文本结构化分析
 │   ├── eval/           # Chat 质量评估
@@ -182,21 +187,44 @@ explore-ai/
 
 ## 图像分析（Vision）
 
-`/vision` 使用 Java 生态 CV 引擎（非 Ollama Prompt）：
+`/vision` 使用本地 CV 引擎（**非** Ollama Prompt），与 RAG 多模态对话（Ollama qwen3.5）相互独立：
 
-| 能力 | 技术 |
-|------|------|
-| Caption | ONNX Runtime + BLIP ONNX |
-| Detect | ONNX Runtime + YOLOv8 ONNX |
-| OCR | Tess4J + Tesseract |
+| 能力 | API | 技术 |
+|------|-----|------|
+| Caption | `POST /api/vision/caption` | ONNX Runtime + BLIP ONNX |
+| Detect | `POST /api/vision/detect` | ONNX Runtime + YOLOv8 ONNX (COCO 80 类) |
+| OCR | `POST /api/vision/ocr` | Tess4J + Tesseract |
+| Health | `GET /api/vision/health` | 各 Provider 就绪状态 |
 
-**依赖**：系统安装 [Tesseract](https://github.com/tesseract-ocr/tesseract)（macOS: `brew install tesseract`）
+**依赖**：
+
+- 系统安装 [Tesseract](https://github.com/tesseract-ocr/tesseract)（macOS: `brew install tesseract`）
+- 本地 ONNX 模型与 tessdata（`pnpm vision:models` 下载至 `models/`）
 
 ```bash
 pnpm vision:models      # 下载 ONNX 模型与 tessdata 到 models/
 pnpm vision:fixtures    # 生成测试样例图
 pnpm server:start       # 启动后端 (port 9000)
 pnpm vision:verify      # API 功能验证 smoke test
+```
+
+### API 示例
+
+```bash
+# 图像描述
+curl -X POST http://localhost:9000/api/vision/caption \
+  -F "file=@photo.jpg"
+
+# 目标检测
+curl -X POST http://localhost:9000/api/vision/detect \
+  -F "file=@photo.jpg"
+
+# OCR 文字识别
+curl -X POST http://localhost:9000/api/vision/ocr \
+  -F "file=@scan.png"
+
+# 健康检查
+curl http://localhost:9000/api/vision/health
 ```
 
 集成测试（需模型已下载）：
