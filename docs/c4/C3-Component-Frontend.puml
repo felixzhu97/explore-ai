@@ -51,6 +51,10 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(sidebar_svc, "SidebarService", "@Injectable", "侧边栏状态")
         Component(i18n_svc, "I18nService", "@Injectable", "国际化 (5 语言)")
         Component(theme_svc, "ThemeService", "@Injectable", "主题切换")
+        Component(voice_interaction_svc, "VoiceInteractionService", "@Injectable", "录音→ASR 编排")
+        Component(voice_transcription_svc, "VoiceTranscriptionService", "@Injectable", "WebSocket ASR 客户端")
+        Component(voice_playback_svc, "VoicePlaybackService", "@Injectable", "TTS 朗读与静音")
+        Component(wav_encoder, "wav-encoder.util", "Util", "Float32 → WAV 16kHz mono")
     }
 
     ' ============================================================
@@ -90,6 +94,12 @@ Rel(generate_page, img_tab, "/generate/image")
 ' SERVICE RELATIONSHIPS
 ' ============================================================
 Rel(chat_tab, chat_svc, "聊天")
+Rel(chat_tab, voice_interaction_svc, "麦克风录音/转写")
+Rel(chat_tab, voice_playback_svc, "TTS 朗读/静音")
+Rel(voice_interaction_svc, voice_transcription_svc, "WebSocket ASR")
+Rel(voice_interaction_svc, wav_encoder, "WAV 编码")
+Rel(voice_transcription_svc, backend_api, "ws /ws/audio/transcribe", "WebSocket")
+Rel(voice_playback_svc, api_svc, "TTS")
 Rel(chat_tab, stream_parser, "SSE 解析")
 Rel(rag_page, rag_svc, "RAG")
 Rel(tts_tab, api_svc, "TTS API")

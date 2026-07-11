@@ -205,6 +205,14 @@ describe('i18n.model', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           expect(translations[lang].chat.thinking).toBeDefined();
           expect(translations[lang].chat.inputPlaceholder).toBeDefined();
+          expect(translations[lang].chat.startRecording).toBeDefined();
+          expect(translations[lang].chat.stopRecording).toBeDefined();
+          expect(translations[lang].chat.transcribing).toBeDefined();
+          expect(translations[lang].chat.micPermissionDenied).toBeDefined();
+          expect(translations[lang].chat.asrUnavailable).toBeDefined();
+          expect(translations[lang].chat.speakReply).toBeDefined();
+          expect(translations[lang].chat.muteVoice).toBeDefined();
+          expect(translations[lang].chat.unmuteVoice).toBeDefined();
         });
       });
     });

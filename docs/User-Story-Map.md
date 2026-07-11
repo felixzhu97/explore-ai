@@ -289,7 +289,36 @@ pnpm vision:verify      # API smoke（需先启动后端）
 
 ---
 
-### 7. 流式 ASR 语音识别（已交付）
+### 7. Chat 语音交互（已交付）
+
+**用户故事**
+
+**As a** 最终用户  
+**I want** 在 Chat 页面通过麦克风说话并听到 AI 朗读回复  
+**So that** 我可以免打字完成一轮语音对话
+
+```mermaid
+journey
+    title Delivered - Chat 语音交互
+    section 语音输入
+        点击麦克风开始录音: 5: 用户
+        查看实时转写预览: 5: 用户
+        停止录音自动发送: 5: 用户
+    section AI 回复
+        查看流式文字回复: 5: 用户
+        自动 TTS 朗读: 5: 用户
+        静音语音开关: 4: 用户
+    section 错误处理
+        麦克风权限拒绝提示: 3: 用户
+        ASR 不可用提示: 3: 用户
+```
+
+**API**: WebSocket `/ws/audio/transcribe` + `POST /api/audio/speak`  
+**实现**: `VoiceInteractionService`, `VoiceTranscriptionService`, `VoicePlaybackService`, `ChatTabComponent` + nx-sender `allowSpeech` 受控模式
+
+---
+
+### 8. 流式 ASR 语音识别（已交付 · 后端）
 
 **用户故事**
 
@@ -320,7 +349,7 @@ journey
 
 ## In Progress - 进行中
 
-### 8. RAG ETL 管道
+### 9. RAG ETL 管道
 
 **用户故事**
 

@@ -119,6 +119,14 @@ export interface Translations {
   chat: {
     thinking: string;
     inputPlaceholder: string;
+    startRecording: string;
+    stopRecording: string;
+    transcribing: string;
+    micPermissionDenied: string;
+    asrUnavailable: string;
+    speakReply: string;
+    muteVoice: string;
+    unmuteVoice: string;
   };
   generate: {
     tabs: {
@@ -292,6 +300,14 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: 'Thinking...',
       inputPlaceholder: 'Type your message...',
+      startRecording: 'Start recording',
+      stopRecording: 'Stop recording',
+      transcribing: 'Transcribing...',
+      micPermissionDenied: 'Microphone permission denied',
+      asrUnavailable: 'Speech recognition is unavailable',
+      speakReply: 'Speak reply',
+      muteVoice: 'Mute voice replies',
+      unmuteVoice: 'Unmute voice replies',
     },
     generate: {
       tabs: {
@@ -435,6 +451,14 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: '思考中...',
       inputPlaceholder: '输入消息...',
+      startRecording: '开始录音',
+      stopRecording: '停止录音',
+      transcribing: '转写中...',
+      micPermissionDenied: '麦克风权限被拒绝',
+      asrUnavailable: '语音识别不可用',
+      speakReply: '朗读回复',
+      muteVoice: '静音语音',
+      unmuteVoice: '开启语音',
     },
     generate: {
       tabs: {
@@ -603,6 +627,14 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: '考え中...',
       inputPlaceholder: 'メッセージを入力...',
+      startRecording: '録音開始',
+      stopRecording: '録音停止',
+      transcribing: '文字起こし中...',
+      micPermissionDenied: 'マイクの権限が拒否されました',
+      asrUnavailable: '音声認識が利用できません',
+      speakReply: '返信を読み上げ',
+      muteVoice: '音声をミュート',
+      unmuteVoice: '音声を有効化',
     },
     generate: {
       tabs: {
@@ -776,6 +808,14 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: 'Réflexion...',
       inputPlaceholder: 'Tapez votre message...',
+      startRecording: 'Commencer l\'enregistrement',
+      stopRecording: 'Arrêter l\'enregistrement',
+      transcribing: 'Transcription...',
+      micPermissionDenied: 'Permission du microphone refusée',
+      asrUnavailable: 'Reconnaissance vocale indisponible',
+      speakReply: 'Lire la réponse',
+      muteVoice: 'Couper la voix',
+      unmuteVoice: 'Activer la voix',
     },
     generate: {
       tabs: {
@@ -949,6 +989,14 @@ export const translations: Record<Language, Translations> = {
     chat: {
       thinking: 'Pensando...',
       inputPlaceholder: 'Escribe tu mensaje...',
+      startRecording: 'Iniciar grabación',
+      stopRecording: 'Detener grabación',
+      transcribing: 'Transcribiendo...',
+      micPermissionDenied: 'Permiso de micrófono denegado',
+      asrUnavailable: 'Reconocimiento de voz no disponible',
+      speakReply: 'Leer respuesta',
+      muteVoice: 'Silenciar voz',
+      unmuteVoice: 'Activar voz',
     },
     generate: {
       tabs: {

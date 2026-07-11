@@ -34,6 +34,11 @@ export class ChatService {
   readonly toolsEnabled = signal(false);
 
   private streamAbort: (() => void) | null = null;
+  private onStreamComplete: ((content: string) => void) | null = null;
+
+  setOnStreamComplete(callback: (content: string) => void): void {
+    this.onStreamComplete = callback;
+  }
 
   loadProviders(): void {
     this.api.getProviders().subscribe({
@@ -257,6 +262,9 @@ export class ChatService {
         this.isLoading.set(false);
         this.streamingMessageId.set(null);
         this.streamAbort = null;
+        if (fullContent.trim()) {
+          this.onStreamComplete?.(fullContent);
+        }
         this.syncSessionMessages(sessionId);
         this.loadSessions();
         setTimeout(() => {

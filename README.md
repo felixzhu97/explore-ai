@@ -125,6 +125,34 @@ wss://localhost:9000/ws/audio/transcribe
 {"type": "final", "text": "识别完成的文字"}
 ```
 
+### Chat 语音交互
+
+Chat 页面（`/chat`）支持完整语音闭环：点击输入框麦克风录音 → whisper.cpp ASR 转写 → 自动发送 → AI 流式回复 → TTS 自动朗读。
+
+**前置条件**
+
+1. whisper.cpp 服务运行在 `127.0.0.1:8178`（见下方本地 ASR 启动命令）
+2. 后端 `./gradlew bootRun`（端口 9000）
+3. 前端 `pnpm start`（`proxy.conf.json` 已代理 `/api` 与 `/ws`）
+
+**使用步骤**
+
+1. 打开 `/chat`，点击 Sender 输入框右侧麦克风开始录音
+2. 再次点击停止；底部显示实时转写，识别完成后自动发送消息
+3. AI 回复结束后自动 TTS 朗读；顶部工具栏可切换「静音语音」
+
+**开发代理**（`proxy.conf.json`）：
+
+```json
+"/ws": {
+  "target": "http://localhost:9000",
+  "ws": true,
+  "changeOrigin": true
+}
+```
+
+**音频格式**：WAV 16kHz mono base64，由前端 `VoiceRecorderService` 重采样编码。
+
 ## 项目结构
 
 ```

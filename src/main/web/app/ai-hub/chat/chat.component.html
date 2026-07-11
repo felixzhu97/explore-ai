@@ -45,6 +45,33 @@
             />
             Tools
         </label>
+
+        <button
+                type="button"
+                class="
+          hidden shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-border-light px-3 py-1.5
+          text-sm text-text transition-colors sm:flex
+          hover:bg-surface-secondary
+        "
+                [class.bg-surface-secondary]="voicePlayback.isMuted()"
+                (click)="toggleVoiceMute()"
+                [title]="voicePlayback.isMuted() ? i18n.t().chat.unmuteVoice : i18n.t().chat.muteVoice"
+        >
+            @if (voicePlayback.isMuted()) {
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 5 6 9H2v6h4l5 4V5z" />
+                    <line x1="23" y1="9" x2="17" y2="15" />
+                    <line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+            } @else {
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 5 6 9H2v6h4l5 4V5z" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                </svg>
+            }
+            <span>{{ voicePlayback.isMuted() ? i18n.t().chat.unmuteVoice : i18n.t().chat.muteVoice }}</span>
+        </button>
     </div>
 
     <button
@@ -130,7 +157,17 @@
             [placeholder]="i18n.t().chat.inputPlaceholder"
             [(value)]="input"
             [loading]="chat.isLoading()"
+            [disabled]="chat.isLoading() || voice.isTranscribing()"
+            [allowSpeech]="speechConfig()"
+            [footer]="transcriptFooter"
             (submitSend)="send()"
         />
+        <ng-template #transcriptFooter>
+            @if (voice.partialText()) {
+                <p class="text-sm text-text-secondary">{{ voice.partialText() }}</p>
+            } @else if (voice.isTranscribing()) {
+                <p class="text-sm text-text-secondary">{{ i18n.t().chat.transcribing }}</p>
+            }
+        </ng-template>
     </div>
 </div>
