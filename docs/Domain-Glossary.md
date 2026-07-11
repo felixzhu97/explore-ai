@@ -466,6 +466,7 @@ Chinese equivalents to avoid in technical docs:
 
 | Document | Description |
 |----------|-------------|
+| [Domain Terms Table (single table)](Domain-Terms-Table.md) | All business terms in one consolidated table |
 | [Domain Terminology (API fields)](DOMAIN-TERMINOLOGY.md) | Frontend ↔ Backend JSON field mapping |
 | [C4 Architecture](c4/README.md) | Bounded contexts and component structure |
 | [User Story Map](User-Story-Map.md) | User activities and business value |
