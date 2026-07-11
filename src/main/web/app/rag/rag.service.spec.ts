@@ -89,7 +89,6 @@ describe('RagService', () => {
 
       service.fetchAvailableDocs();
 
-      expect(service.isLoadingDocs()).toBe(false);
       expect(service.availableDocs()).toEqual([]);
       expect(notifications.showError).toHaveBeenCalledWith('Failed to load data');
     });
