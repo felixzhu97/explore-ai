@@ -233,9 +233,12 @@ UPLOADING → PROCESSING → READY
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 |--------------------------|------|------------|------|--------------|-------|
 | Image Analysis | 图像分析 | Standalone caption, detect, and OCR over uploaded images | Capability | `VisionAnalysisUseCase` | Frontend route `/vision` |
-| Caption | 图像描述 | Natural-language description of image content | Use Case Behavior | `POST /api/vision/caption` | Multipart `file` |
-| Object Detection | 目标检测 | List detected objects with confidence and bbox | Use Case Behavior | `POST /api/vision/detect` | LLM-parsed JSON, not YOLO |
-| OCR | 文字识别 | Extract visible text from image | Use Case Behavior | `POST /api/vision/ocr` | Returns `full_text` |
+| Caption | 图像描述 | Natural-language description of image content | Use Case Behavior | `POST /api/vision/caption` | ONNX Runtime + BLIP ONNX; multipart `file` |
+| Object Detection | 目标检测 | List detected objects with confidence and bbox | Use Case Behavior | `POST /api/vision/detect` | ONNX Runtime + YOLOv8 ONNX (COCO 80 classes) |
+| OCR | 文字识别 | Extract visible text from image | Use Case Behavior | `POST /api/vision/ocr` | Tess4J + Tesseract; returns `fullText` |
+| Caption Engine | 描述引擎 | Natural-language image captioning | Infrastructure | `OnnxBlipCaptioner` | ONNX Runtime + BLIP ONNX (vision encoder + text decoder) |
+| Detect Engine | 检测引擎 | Real-time object detection | Infrastructure | `OnnxYoloDetector` | ONNX Runtime + YOLOv8 ONNX |
+| OCR Engine | 识别引擎 | Optical character recognition | Infrastructure | `Tess4jOcrEngine` | Tess4J wrapper over Tesseract 5.x |
 | Vision Chat | 视觉问答 | RAG chat with image attachments | Use Case | `VisionChatUseCase` | SSE `/api/rag/chat/stream` with `images[]` |
 
 **Do not conflate:** **Image Analysis** (`/vision`, `/api/vision/*`) vs **Vision Chat** (multimodal RAG stream).

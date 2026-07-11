@@ -1,124 +1,90 @@
 package com.ai.vision.application.usecase;
 
+import com.ai.vision.domain.exception.VisionInvalidFileException;
+import com.ai.vision.domain.model.Detection;
+import com.ai.vision.domain.port.ImageCaptioner;
+import com.ai.vision.domain.port.ObjectDetector;
+import com.ai.vision.domain.port.OcrEngine;
 import com.ai.vision.web.dto.CaptionResponse;
 import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.DetectionDto;
 import com.ai.vision.web.dto.OcrResponse;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.content.Media;
-import org.springframework.ai.ollama.api.OllamaChatOptions;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class VisionAnalysisUseCase {
 
-    private static final Logger log = LoggerFactory.getLogger(VisionAnalysisUseCase.class);
-    private static final Pattern JSON_ARRAY_PATTERN = Pattern.compile("\\[.*]", Pattern.DOTALL);
-
-    private final ChatModel visionChatModel;
-    private final ObjectMapper objectMapper;
-
-    @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
-    private String visionModel;
+    private final ImageCaptioner captioner;
+    private final ObjectDetector detector;
+    private final OcrEngine ocrEngine;
+    private final Timer captionTimer;
+    private final Timer detectTimer;
+    private final Timer ocrTimer;
 
     public VisionAnalysisUseCase(
-            @Qualifier("ollamaVisionChatModel") ChatModel visionChatModel,
-            ObjectMapper objectMapper) {
-        this.visionChatModel = visionChatModel;
-        this.objectMapper = objectMapper;
+            ImageCaptioner captioner,
+            ObjectDetector detector,
+            OcrEngine ocrEngine,
+            MeterRegistry meterRegistry) {
+        this.captioner = captioner;
+        this.detector = detector;
+        this.ocrEngine = ocrEngine;
+        this.captionTimer = meterRegistry.timer("vision.caption.duration");
+        this.detectTimer = meterRegistry.timer("vision.detect.duration");
+        this.ocrTimer = meterRegistry.timer("vision.ocr.duration");
     }
 
     public CaptionResponse caption(MultipartFile file) throws IOException {
+        BufferedImage image = toImage(file);
         long startedAt = System.nanoTime();
-        String caption = analyzeImage(
-                file,
-                "Describe this image in one concise sentence.");
-        return new CaptionResponse(caption, elapsedMillis(startedAt));
+        var result = captioner.caption(image);
+        long processingTimeMs = elapsedMillis(startedAt);
+        captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+        return new CaptionResponse(result.text(), processingTimeMs);
     }
 
     public OcrResponse ocr(MultipartFile file) throws IOException {
+        BufferedImage image = toImage(file);
         long startedAt = System.nanoTime();
-        String fullText = analyzeImage(
-                file,
-                "Extract all visible text from this image. Return plain text only.");
-        return new OcrResponse(fullText, elapsedMillis(startedAt));
+        var result = ocrEngine.extract(image);
+        long processingTimeMs = elapsedMillis(startedAt);
+        ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+        return new OcrResponse(result.text(), processingTimeMs);
     }
 
     public DetectResponse detect(MultipartFile file) throws IOException {
+        BufferedImage image = toImage(file);
         long startedAt = System.nanoTime();
-        String response = analyzeImage(
-                file,
-                """
-                Detect objects in this image.
-                Return ONLY a JSON array with objects shaped like:
-                [{"class_name":"label","confidence":0.95,"bbox":[x,y,width,height]}]
-                """);
-        List<DetectionDto> detections = parseDetections(response);
-        return new DetectResponse(detections, elapsedMillis(startedAt));
+        List<DetectionDto> detections = detector.detect(image).stream()
+                .map(this::toDto)
+                .toList();
+        long processingTimeMs = elapsedMillis(startedAt);
+        detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+        return new DetectResponse(detections, processingTimeMs);
     }
 
-    private String analyzeImage(MultipartFile file, String prompt) throws IOException {
-        Media media = toMedia(file);
-        UserMessage userMessage = UserMessage.builder()
-                .text(prompt)
-                .media(List.of(media))
-                .build();
-
-        var response = visionChatModel.call(
-                new Prompt(
-                        List.of(userMessage),
-                        OllamaChatOptions.builder().model(visionModel).build()));
-
-        return response.getResult().getOutput().getText();
+    private DetectionDto toDto(Detection detection) {
+        return new DetectionDto(
+                detection.className(),
+                detection.confidence(),
+                List.of(detection.x(), detection.y(), detection.width(), detection.height()));
     }
 
-    private Media toMedia(MultipartFile file) throws IOException {
-        String mimeType = StringUtils.hasText(file.getContentType())
-                ? file.getContentType()
-                : MediaType.IMAGE_JPEG_VALUE;
-        String base64 = Base64.getEncoder().encodeToString(file.getBytes());
-        return Media.builder()
-                .mimeType(MediaType.parseMediaType(mimeType))
-                .data(base64)
-                .build();
-    }
-
-    private List<DetectionDto> parseDetections(String response) {
-        if (!StringUtils.hasText(response)) {
-            return List.of();
+    private BufferedImage toImage(MultipartFile file) throws IOException {
+        BufferedImage image = ImageIO.read(file.getInputStream());
+        if (image == null) {
+            throw new VisionInvalidFileException("Unsupported or corrupt image file");
         }
-
-        try {
-            return objectMapper.readValue(extractJsonArray(response), new TypeReference<>() {});
-        } catch (Exception ex) {
-            log.warn("Failed to parse detection JSON: {}", ex.getMessage());
-            return List.of();
-        }
-    }
-
-    private String extractJsonArray(String response) {
-        Matcher matcher = JSON_ARRAY_PATTERN.matcher(response.trim());
-        if (matcher.find()) {
-            return matcher.group();
-        }
-        return response.trim();
+        return image;
     }
 
     private long elapsedMillis(long startedAtNanos) {

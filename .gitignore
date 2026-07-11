@@ -26,10 +26,12 @@ data/
 volumes/
 
 # ML model weights (at any level)
+models/
 *.pt
 *.onnx
 *.pth
 *.h5
+*.traineddata
 
 # Cache
 .cache/

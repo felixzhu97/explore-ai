@@ -1321,11 +1321,13 @@ describe('ApiService', () => {
             bbox: [0, 0, 100, 200] as [number, number, number, number],
           },
         ],
+        processingTimeMs: 120,
       };
 
       service.detectObjects(mockFile).subscribe((response) => {
-        expect(response.detections.length).toBe(1);
-        expect(response.detections[0].className).toBe('person');
+        expect(response.detections?.length).toBe(1);
+        expect(response.detections?.[0].className).toBe('person');
+        expect(response.processingTimeMs).toBe(120);
       });
 
       const req = httpMock.expectOne('/api/vision/detect');
@@ -2052,10 +2054,10 @@ describe('ApiService', () => {
       };
 
       service.detectObjects(mockFile).subscribe((response) => {
-        expect(response.detections.length).toBe(3);
-        expect(response.detections[0].className).toBe('person');
-        expect(response.detections[1].className).toBe('car');
-        expect(response.detections[2].className).toBe('dog');
+        expect(response.detections?.length).toBe(3);
+        expect(response.detections?.[0].className).toBe('person');
+        expect(response.detections?.[1].className).toBe('car');
+        expect(response.detections?.[2].className).toBe('dog');
       });
 
       const req = httpMock.expectOne('/api/vision/detect');
@@ -2067,7 +2069,7 @@ describe('ApiService', () => {
       const mockResponse = { detections: [] };
 
       service.detectObjects(mockFile).subscribe((response) => {
-        expect(response.detections.length).toBe(0);
+        expect(response.detections?.length).toBe(0);
       });
 
       const req = httpMock.expectOne('/api/vision/detect');

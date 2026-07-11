@@ -83,6 +83,7 @@ describe('i18n.model', () => {
         'startAnalyze',
         'uploadToAnalyze',
         'selectImageError',
+        'fileTooLarge',
         'requestFailed',
         'processingFailed',
         'clearImage',

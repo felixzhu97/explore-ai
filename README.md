@@ -139,6 +139,7 @@ explore-ai/
 │   │       └── etl/        # ETL 适配器实现
 │   ├── tools/          # Tool Calling (天气/搜索)
 │   ├── image/          # 图像生成
+│   ├── vision/         # 图像分析 (Caption/Detect/OCR)
 │   ├── audio/          # 语音合成 + ASR
 │   ├── analysis/     # 文本结构化分析
 │   ├── eval/           # Chat 质量评估
@@ -176,6 +177,33 @@ explore-ai/
 ### C4 - 部署图
 
 ![C4-Deployment](./docs/c4/png/C4-Deployment.png)
+
+---
+
+## 图像分析（Vision）
+
+`/vision` 使用 Java 生态 CV 引擎（非 Ollama Prompt）：
+
+| 能力 | 技术 |
+|------|------|
+| Caption | ONNX Runtime + BLIP ONNX |
+| Detect | ONNX Runtime + YOLOv8 ONNX |
+| OCR | Tess4J + Tesseract |
+
+**依赖**：系统安装 [Tesseract](https://github.com/tesseract-ocr/tesseract)（macOS: `brew install tesseract`）
+
+```bash
+pnpm vision:models      # 下载 ONNX 模型与 tessdata 到 models/
+pnpm vision:fixtures    # 生成测试样例图
+pnpm server:start       # 启动后端 (port 9000)
+pnpm vision:verify      # API 功能验证 smoke test
+```
+
+集成测试（需模型已下载）：
+
+```bash
+VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVerificationIT
+```
 
 ---
 

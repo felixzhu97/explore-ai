@@ -51,6 +51,7 @@ export interface Translations {
     startAnalyze: string;
     uploadToAnalyze: string;
     selectImageError: string;
+    fileTooLarge: string;
     requestFailed: string;
     processingFailed: string;
     clearImage: string;
@@ -58,6 +59,9 @@ export interface Translations {
     detect: string;
     ocr: string;
     noImageYet: string;
+    noDetections: string;
+    processingTime: string;
+    providerUnavailable: string;
   };
   ragChat: {
     title: string;
@@ -192,6 +196,7 @@ export const translations: Record<Language, Translations> = {
       startAnalyze: 'Analyze',
       uploadToAnalyze: 'Upload an image to analyze',
       selectImageError: 'Please select an image file',
+      fileTooLarge: 'Image must be 50MB or smaller',
       requestFailed: 'Request failed',
       processingFailed: 'Processing failed',
       clearImage: 'Clear image',
@@ -199,6 +204,9 @@ export const translations: Record<Language, Translations> = {
       detect: 'Detect',
       ocr: 'OCR',
       noImageYet: 'Upload an image to get started',
+      noDetections: 'No objects detected in this image',
+      processingTime: 'Processed in {ms} ms',
+      providerUnavailable: 'Vision service is temporarily unavailable',
     },
     ragChat: {
       title: 'Document Q&A',
@@ -359,6 +367,7 @@ export const translations: Record<Language, Translations> = {
       startAnalyze: '开始分析',
       uploadToAnalyze: '上传图片开始分析',
       selectImageError: '请选择图片文件',
+      fileTooLarge: '图片大小不能超过 50MB',
       requestFailed: '请求失败',
       processingFailed: '处理失败',
       clearImage: '清除图片',
@@ -366,6 +375,9 @@ export const translations: Record<Language, Translations> = {
       detect: '目标检测',
       ocr: '文字识别',
       noImageYet: '上传图片开始分析',
+      noDetections: '未在该图片中检测到目标',
+      processingTime: '处理耗时 {ms} 毫秒',
+      providerUnavailable: '图像分析服务暂时不可用',
     },
     ragChat: {
       title: '文档问答',
@@ -498,6 +510,7 @@ export const translations: Record<Language, Translations> = {
       startAnalyze: '分析開始',
       uploadToAnalyze: '画像をアップロードして分析',
       selectImageError: '画像ファイルを選択してください',
+      fileTooLarge: '画像は50MB以下にしてください',
       requestFailed: 'リクエスト失敗',
       processingFailed: '処理失敗',
       clearImage: '画像をクリア',
@@ -505,6 +518,9 @@ export const translations: Record<Language, Translations> = {
       detect: '検出',
       ocr: '文字認識',
       noImageYet: '画像をアップロードして分析',
+      noDetections: 'この画像から物体は検出されませんでした',
+      processingTime: '処理時間 {ms} ms',
+      providerUnavailable: '画像分析サービスは一時的に利用できません',
     },
     ragChat: {
       title: 'ドキュメント Q&A',
@@ -662,6 +678,7 @@ export const translations: Record<Language, Translations> = {
       startAnalyze: 'Lancer l\'analyse',
       uploadToAnalyze: 'Télécharger une image à analyser',
       selectImageError: 'Veuillez sélectionner un fichier image',
+      fileTooLarge: 'L\'image doit faire 50 Mo ou moins',
       requestFailed: 'Échec de la requête',
       processingFailed: 'Échec du traitement',
       clearImage: 'Effacer l\'image',
@@ -669,6 +686,9 @@ export const translations: Record<Language, Translations> = {
       detect: 'Détection',
       ocr: 'OCR',
       noImageYet: 'Téléchargez une image pour commencer',
+      noDetections: 'Aucun objet détecté dans cette image',
+      processingTime: 'Traité en {ms} ms',
+      providerUnavailable: 'Le service d\'analyse d\'image est temporairement indisponible',
     },
     ragChat: {
       title: 'Q&R Documents',
@@ -831,6 +851,7 @@ export const translations: Record<Language, Translations> = {
       startAnalyze: 'Analizar',
       uploadToAnalyze: 'Subir imagen para analizar',
       selectImageError: 'Seleccione un archivo de imagen',
+      fileTooLarge: 'La imagen debe ser de 50 MB o menos',
       requestFailed: 'Solicitud fallida',
       processingFailed: 'Procesamiento fallido',
       clearImage: 'Borrar imagen',
@@ -838,6 +859,9 @@ export const translations: Record<Language, Translations> = {
       detect: 'Detección',
       ocr: 'OCR',
       noImageYet: 'Suba una imagen para comenzar',
+      noDetections: 'No se detectaron objetos en esta imagen',
+      processingTime: 'Procesado en {ms} ms',
+      providerUnavailable: 'El servicio de análisis de imágenes no está disponible temporalmente',
     },
     ragChat: {
       title: 'Q&A Documentos',
