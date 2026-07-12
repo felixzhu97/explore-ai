@@ -1,11 +1,11 @@
 package com.ai.common.infrastructure.llm;
 
-import com.ai.chat.application.usecase.ChatClientProvider;
-import com.ai.chat.application.usecase.TextChatOptions;
-import com.ai.common.infrastructure.prompt.PromptTemplates;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.repository.DocumentSearchTool;
+import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
-import com.ai.tools.infrastructure.tools.WeatherTools;
+import com.ai.common.infrastructure.prompt.PromptTemplates;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -23,7 +23,7 @@ public class ChatClientFactory implements ChatClientProvider {
     private final ChatModelResolver chatModelResolver;
     private final ChatMemory chatMemory;
     private final PromptTemplates promptTemplates;
-    private final WeatherTools weatherTools;
+    private final WeatherTool weatherTools;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
     private final boolean loggingAdvisorEnabled;
@@ -32,7 +32,7 @@ public class ChatClientFactory implements ChatClientProvider {
             ChatModelResolver chatModelResolver,
             ChatMemory chatMemory,
             PromptTemplates promptTemplates,
-            WeatherTools weatherTools,
+            WeatherTool weatherTools,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool,
             @Value("${app.ai.logging-advisor.enabled:true}") boolean loggingAdvisorEnabled) {
@@ -52,15 +52,20 @@ public class ChatClientFactory implements ChatClientProvider {
 
     @Override
     public ChatClient create(TextChatOptions options, String conversationId) {
-        return buildClient(options, conversationId != null);
+        return buildClient(options, conversationId != null, true);
     }
 
     @Override
     public ChatClient createStateless(TextChatOptions options) {
-        return buildClient(options, false);
+        return buildClient(options, false, true);
     }
 
-    private ChatClient buildClient(TextChatOptions options, boolean withMemory) {
+    @Override
+    public ChatClient createBareStateless(TextChatOptions options) {
+        return buildClient(options, false, false);
+    }
+
+    private ChatClient buildClient(TextChatOptions options, boolean withMemory, boolean withDefaults) {
         ResolvedChatModel resolved = chatModelResolver.resolve(options);
         List<Advisor> advisors = new ArrayList<>();
         if (withMemory) {
@@ -72,11 +77,13 @@ public class ChatClientFactory implements ChatClientProvider {
 
         ChatClient.Builder builder = ChatClient.builder(resolved.chatModel())
                 .defaultOptions(resolved.optionsBuilder())
-                .defaultSystem(promptTemplates.getDefaultSystemPrompt())
                 .defaultAdvisors(advisors);
 
-        if (options.toolsEnabled()) {
-            builder.defaultTools(weatherTools, documentSearchTool, webSearchTool);
+        if (withDefaults) {
+            builder.defaultSystem(promptTemplates.getDefaultSystemPrompt());
+            if (options.toolsEnabled()) {
+                builder.defaultTools(weatherTools, documentSearchTool, webSearchTool);
+            }
         }
 
         return builder.build();

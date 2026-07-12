@@ -1,5 +1,15 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout';
+import { environment } from '@env/environment';
+
+const optionalRoutes: Routes = [];
+
+if (environment.modules.vision) {
+  optionalRoutes.push({
+    path: 'vision',
+    loadComponent: () => import('./vision/vision.page').then(m => m.VisionPageComponent),
+  });
+}
 
 export const routes: Routes = [
   {
@@ -11,12 +21,7 @@ export const routes: Routes = [
         path: 'rag',
         loadComponent: () => import('./rag/rag.page').then(m => m.RagPageComponent),
       },
-      {
-        path: 'vision',
-        loadComponent: () => import('./vision/vision.page').then(
-          m => m.VisionPageComponent,
-        ),
-      },
+      ...optionalRoutes,
       {
         path: 'chat',
         loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),

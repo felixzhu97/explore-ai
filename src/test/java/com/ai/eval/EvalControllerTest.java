@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("EvalController")
-class EvalControllerIntegrationTest {
+class EvalControllerTest {
 
     @Mock
     private ChatQualityEvaluator evaluator;

@@ -1,8 +1,7 @@
 server:
   port: ${PORT:8080}
 
-# WARNING: H2 is an embedded in-memory database. Data is NOT persisted across restarts.
-# For production, use an external database (PostgreSQL, MySQL) with persistent storage.
+# Railway / cloud-minimal profile: optional local-only modules are disabled.
 spring:
   ai:
     mcp:
@@ -17,8 +16,12 @@ spring:
       chat:
         enabled: false
 
-# Railway / cloud: Ollama chat/vision is not available on localhost. Use OpenAI-compatible APIs.
 app:
+  modules:
+    vision: false
+    audio-asr: false
+    mcp: false
+    eval: false
   vision:
     enabled: false
   ai:

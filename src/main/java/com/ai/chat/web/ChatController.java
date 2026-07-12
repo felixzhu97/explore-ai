@@ -1,6 +1,6 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.ChatFacade;
+import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.web.dto.HealthResponse;
 import com.ai.chat.web.dto.*;
@@ -12,20 +12,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Chat REST Controller.
- * Handles chat, session management, and health endpoints.
- */
 @RestController
 @RequestMapping("/api")
 public class ChatController {
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
-    private final ChatFacade chatFacade;
+    private final ChatUseCase chatUseCase;
 
-    public ChatController(ChatFacade chatFacade) {
-        this.chatFacade = chatFacade;
+    public ChatController(ChatUseCase chatUseCase) {
+        this.chatUseCase = chatUseCase;
     }
 
     @GetMapping("/health")
@@ -42,9 +38,9 @@ public class ChatController {
 
         String response;
         if (request.sessionId() != null && !request.sessionId().isBlank()) {
-            response = chatFacade.chatWithSession(request.sessionId(), request.message());
+            response = chatUseCase.chatWithSession(request.sessionId(), request.message());
         } else {
-            response = chatFacade.chatWithSession(request.message());
+            response = chatUseCase.chatWithSession(request.message());
         }
 
         return ResponseEntity.ok(ChatResponse.of(response));
@@ -53,13 +49,13 @@ public class ChatController {
     @PostMapping("/sessions")
     public ResponseEntity<SessionInfo> createSession(@Valid @RequestBody(required = false) CreateSessionRequest body) {
         String title = body != null && body.title() != null ? body.title() : "New Chat";
-        var session = chatFacade.createSession(title);
+        var session = chatUseCase.createSession(title);
         return ResponseEntity.ok(SessionInfo.from(session));
     }
 
     @GetMapping("/sessions")
     public ResponseEntity<List<SessionInfo>> getAllSessions() {
-        List<SessionInfo> sessions = chatFacade.getAllSessions()
+        List<SessionInfo> sessions = chatUseCase.getAllSessions()
             .stream()
             .map(SessionInfo::from)
             .toList();
@@ -68,7 +64,7 @@ public class ChatController {
 
     @GetMapping("/sessions/{sessionId}")
     public ResponseEntity<SessionInfo> getSession(@PathVariable String sessionId) {
-        return chatFacade.getSession(sessionId)
+        return chatUseCase.getSession(sessionId)
                 .map(session -> ResponseEntity.ok(SessionInfo.from(session)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -76,7 +72,7 @@ public class ChatController {
     @GetMapping("/sessions/{sessionId}/messages")
     public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(@PathVariable String sessionId) {
         try {
-            List<MessageInfoResponse> messages = chatFacade.getSessionHistory(sessionId)
+            List<MessageInfoResponse> messages = chatUseCase.getSessionHistory(sessionId)
                     .stream()
                     .map(MessageInfoResponse::from)
                     .toList();
@@ -89,7 +85,7 @@ public class ChatController {
 
     @DeleteMapping("/sessions/{sessionId}")
     public ResponseEntity<Void> deleteSession(@PathVariable String sessionId) {
-        chatFacade.deleteSession(sessionId);
+        chatUseCase.deleteSession(sessionId);
         return ResponseEntity.noContent().build();
     }
 }

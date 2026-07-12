@@ -1,4 +1,4 @@
-package com.ai.shared.config;
+package com.ai.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

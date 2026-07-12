@@ -33,7 +33,7 @@ jobs:
         run: ./gradlew build -x test --no-daemon
 
       - name: Run tests with coverage
-        run: ./gradlew test jacocoTestReport --no-daemon
+        run: ./gradlew test jacocoTestCoverageVerification --no-daemon
 
       - name: Upload JaCoCo coverage report
         if: always()

@@ -1,6 +1,7 @@
 package com.ai.chat.application.usecase;
 
-import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

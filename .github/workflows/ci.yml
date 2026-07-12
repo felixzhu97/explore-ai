@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, java-angular, "feature/**"]
+  pull_request:
+    branches: [main, java-angular, "feature/**"]
+
+jobs:
+  backend:
+    name: Backend Test & Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - run: chmod +x gradlew
+      - run: ./gradlew test jacocoTestCoverageVerification --no-daemon
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: jacoco-report
+          path: build/reports/jacocoTestReport
+          retention-days: 14
+          if-no-files-found: warn
+
+  frontend:
+    name: Frontend Test & Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: ./.github/actions/setup-web-env
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: ./.github/actions/setup-web-env
+      - run: pnpm lint

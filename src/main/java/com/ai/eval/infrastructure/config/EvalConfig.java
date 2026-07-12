@@ -1,5 +1,7 @@
 package com.ai.eval.infrastructure.config;
 
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
@@ -7,17 +9,12 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Configuration for chat evaluation module.
- * Uses Spring AI Evaluators (RelevancyEvaluator, FactCheckingEvaluator) for RAG-style evaluation.
- * A separate ChatClient instance is used to mitigate model biases.
- */
 @Configuration
 public class EvalConfig {
 
     @Bean
-    public ChatClient evaluationChatClient(ChatModel chatModel) {
-        return ChatClient.builder(chatModel).build();
+    public ChatClient evaluationChatClient(ChatClientProvider chatClientProvider) {
+        return chatClientProvider.createBareStateless(TextChatOptions.defaults());
     }
 
     @Bean

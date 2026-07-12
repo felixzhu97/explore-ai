@@ -7,6 +7,7 @@ import com.ai.image.domain.vo.ImageCatalog;
 import com.ai.image.domain.vo.ImageOptions;
 import com.ai.image.domain.vo.ImagePrompt;
 import com.ai.image.infrastructure.config.ImageProperties;
+import com.ai.common.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class ImageFacade {
     public GeneratedImage generateImage(
             String prompt, String model, String quality, int width, int height, int n) {
         ensureProviderConfigured();
-        log.info("ImageFacade.generateImage: {}", truncate(prompt));
+        log.info("ImageFacade.generateImage: {}", LogSanitizer.truncate(prompt));
         GeneratedImage image = imageGenerationRepository.generate(
                 ImagePrompt.of(prompt),
                 ImageOptions.of(resolveModel(model), quality, width, height, n));
@@ -80,13 +81,4 @@ public class ImageFacade {
         return ImageCatalog.defaults().qualities();
     }
 
-    private String truncate(String text) {
-        if (text == null) {
-            return "null";
-        }
-        if (text.length() <= 50) {
-            return text;
-        }
-        return text.substring(0, 50) + "...";
-    }
 }

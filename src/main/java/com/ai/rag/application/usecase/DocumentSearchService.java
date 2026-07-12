@@ -7,6 +7,7 @@ import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.common.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -70,7 +71,7 @@ public class DocumentSearchService {
 
         List<SourceDocument> sources = filteredChunks.stream()
                 .map(chunk -> new SourceDocument(
-                        truncate(chunk.getContent()),
+                        LogSanitizer.truncate(chunk.getContent(), MAX_CONTENT_LENGTH),
                         VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()),
                         chunk.getMetadata()))
                 .toList();
@@ -79,9 +80,4 @@ public class DocumentSearchService {
         return new RetrievalResult(context, sources);
     }
 
-    private String truncate(String content) {
-        return content != null && content.length() > MAX_CONTENT_LENGTH
-                ? content.substring(0, MAX_CONTENT_LENGTH) + "..."
-                : content;
-    }
 }

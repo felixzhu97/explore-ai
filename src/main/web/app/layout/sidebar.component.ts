@@ -20,6 +20,8 @@ import { LanguagePickerComponent } from './components/language-picker/language-p
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST } from './services/session-list.token';
 import type { SidebarSession } from './sidebar-session.model';
+import { environment } from '@env/environment';
+import type { AppModules } from '@core/config/app-modules';
 
 interface NavTab {
   key: string;
@@ -83,12 +85,22 @@ export class SidebarComponent implements OnInit {
     return classes.join(' ');
   });
 
-  readonly tabs: NavTab[] = [
-    { key: 'rag', labelKey: 'documentQA', path: '/rag' },
-    { key: 'vision', labelKey: 'imageAnalysis', path: '/vision' },
-    { key: 'chat', labelKey: 'chat', path: '/chat' },
-    { key: 'generate', labelKey: 'generation', path: '/generate' },
-  ];
+  readonly tabs: NavTab[] = (
+    [
+      { key: 'rag', labelKey: 'documentQA', path: '/rag' },
+      { key: 'vision', labelKey: 'imageAnalysis', path: '/vision' },
+      { key: 'chat', labelKey: 'chat', path: '/chat' },
+      { key: 'generate', labelKey: 'generation', path: '/generate' },
+    ] satisfies NavTab[]
+  ).filter(tab => this.isTabEnabled(tab.key));
+
+  private isTabEnabled(key: string): boolean {
+    const modules = environment.modules as AppModules;
+    if (key === 'vision') {
+      return modules.vision;
+    }
+    return true;
+  }
 
   constructor() {
     this.updateMobileState();

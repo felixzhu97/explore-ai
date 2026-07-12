@@ -1,15 +1,15 @@
 package com.ai.rag.application.usecase;
 
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
+import com.ai.common.util.LogSanitizer;
+import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.chat.domain.service.LanguageDetectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.content.Media;
-import org.springframework.ai.ollama.api.OllamaChatOptions;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -18,10 +18,6 @@ import org.springframework.stereotype.Service;
 import java.net.URI;
 import java.util.List;
 
-/**
- * Vision-enabled RAG chat use case.
- * Uses Ollama qwen3.5:35b for multimodal understanding (open-source).
- */
 @Service
 @ConditionalOnProperty(name = "spring.ai.ollama.chat.enabled", havingValue = "true", matchIfMissing = true)
 public class VisionChatUseCase {
@@ -32,36 +28,22 @@ public class VisionChatUseCase {
     @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
     private String visionModel;
 
-    @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
-    private String ollamaBaseUrl;
-
     private final RagApplicationService ragApplicationService;
-    private final ChatModel chatModel;
+    private final ChatClientProvider chatClientProvider;
     private final LanguageDetectionService languageDetectionService;
 
     public VisionChatUseCase(
             RagApplicationService ragApplicationService,
-            LanguageDetectionService languageDetectionService,
-            @Qualifier("ollamaVisionChatModel") ChatModel chatModel) {
+            ChatClientProvider chatClientProvider,
+            LanguageDetectionService languageDetectionService) {
         this.ragApplicationService = ragApplicationService;
+        this.chatClientProvider = chatClientProvider;
         this.languageDetectionService = languageDetectionService;
-        this.chatModel = chatModel;
     }
 
-    /**
-     * Result of vision-enabled RAG chat operation.
-     */
-    public record ChatResult(
-            String response,
-            List<SourceDocument> sources
-    ) {}
-
-    /**
-     * Executes vision-enabled RAG chat: retrieves context, builds prompt with images, and gets AI response.
-     */
-    public ChatResult chatWithImages(String question, List<String> docIds, List<String> images, Integer topK) {
+    public RagChatResult chatWithImages(String question, List<String> docIds, List<String> images, Integer topK) {
         log.info("Vision RAG chat request: {} with {} images",
-                question != null && question.length() > 50 ? question.substring(0, 50) + "..." : question,
+                LogSanitizer.truncate(question),
                 images != null ? images.size() : 0);
 
         List<Media> mediaList = parseImages(images);
@@ -77,13 +59,13 @@ public class VisionChatUseCase {
         var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
 
         String context = retrievalResult.context();
-        List<SourceDocument> sources = retrievalResult.sources();
+        var sources = retrievalResult.sources();
 
         String prompt = buildPrompt(question, context);
         String aiResponse = chatWithVision(prompt, mediaList);
 
         log.info("Vision RAG chat completed successfully");
-        return new ChatResult(aiResponse, sources);
+        return new RagChatResult(aiResponse, sources);
     }
 
     private List<Media> parseImages(List<String> images) {
@@ -101,7 +83,6 @@ public class VisionChatUseCase {
     private Media parseImage(String imageData) {
         String trimmed = imageData.trim();
 
-        // Ollama vision supports URL and base64
         if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
             try {
                 byte[] imageBytes = java.net.http.HttpClient.newHttpClient()
@@ -115,7 +96,7 @@ public class VisionChatUseCase {
                 String base64 = java.util.Base64.getEncoder().encodeToString(imageBytes);
                 return Media.builder()
                         .mimeType(MediaType.IMAGE_PNG)
-                        .data(base64)  // Ollama expects raw base64 without prefix
+                        .data(base64)
                         .build();
             } catch (Exception e) {
                 log.warn("Failed to fetch image from URL {}: {}", trimmed, e.getMessage());
@@ -123,19 +104,17 @@ public class VisionChatUseCase {
             }
         }
 
-        // Data URL format: data:image/png;base64,xxxxx
         if (trimmed.startsWith("data:image/")) {
             int commaIndex = trimmed.indexOf(',');
             if (commaIndex > 0) {
                 String base64 = trimmed.substring(commaIndex + 1);
                 return Media.builder()
                         .mimeType(MediaType.IMAGE_PNG)
-                        .data(base64)  // Ollama expects raw base64
+                        .data(base64)
                         .build();
             }
         }
 
-        // Raw base64
         if (isBase64(trimmed)) {
             return Media.builder()
                     .mimeType(MediaType.IMAGE_PNG)
@@ -147,30 +126,22 @@ public class VisionChatUseCase {
     }
 
     private boolean isBase64(String str) {
-        if (str == null || str.isEmpty()) return false;
-        // Check if it's valid base64
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
         return str.matches("^[A-Za-z0-9+/=]+$") && str.length() % 4 == 0;
     }
 
     private String chatWithVision(String prompt, List<Media> images) {
         log.info("Processing {} images with Ollama vision model: {}", images.size(), visionModel);
         try {
-            UserMessage userMessage = UserMessage.builder()
-                    .text(prompt)
-                    .media(images)
-                    .build();
+            ChatClient chatClient = chatClientProvider.createStateless(
+                    TextChatOptions.ollamaVision(visionModel));
 
-            // Use OllamaChatModel directly with qwen3.5:35b
-            var response = chatModel.call(
-                    new org.springframework.ai.chat.prompt.Prompt(
-                            List.of(userMessage),
-                            OllamaChatOptions.builder()
-                                    .model(visionModel)
-                                    .build()
-                    )
-            );
-
-            return response.getResult().getOutput().getText();
+            return chatClient.prompt()
+                    .user(user -> user.text(prompt).media(images.toArray(Media[]::new)))
+                    .call()
+                    .content();
         } catch (Exception e) {
             log.error("Error in vision chat: {}", e.getMessage(), e);
             return "Error processing images: " + e.getMessage();

@@ -2,6 +2,7 @@ package com.ai.audio.infrastructure.config;
 
 import com.ai.audio.infrastructure.adapter.AudioTranscriptionWebSocketHandler;
 import com.ai.common.config.CorsProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSocket
+@ConditionalOnProperty(prefix = "app.modules", name = "audio-asr", havingValue = "true", matchIfMissing = true)
 public class AudioWebSocketConfig implements WebSocketConfigurer {
 
     private final AudioTranscriptionWebSocketHandler transcriptionHandler;

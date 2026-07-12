@@ -1,6 +1,6 @@
 package com.ai.common.infrastructure.llm;
 
-import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.chat.application.usecase.TextProviderCatalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

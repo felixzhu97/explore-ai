@@ -23,13 +23,13 @@ import static org.mockito.Mockito.*;
 class ChatControllerTest {
 
     @Mock
-    private ChatFacade chatFacade;
+    private ChatUseCase chatUseCase;
 
     private ChatController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ChatController(chatFacade);
+        controller = new ChatController(chatUseCase);
     }
 
     @Nested
@@ -53,13 +53,13 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return response for valid message")
         void shouldReturnResponseForValidMessage() {
-            when(chatFacade.chatWithSession("Hello")).thenReturn("Hi there!");
+            when(chatUseCase.chatWithSession("Hello")).thenReturn("Hi there!");
 
             var response = controller.chat(new ChatRequest("Hello", null));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().response()).isEqualTo("Hi there!");
-            verify(chatFacade).chatWithSession("Hello");
+            verify(chatUseCase).chatWithSession("Hello");
         }
 
         @Test
@@ -82,21 +82,21 @@ class ChatControllerTest {
         @Test
         @DisplayName("should use session when sessionId provided")
         void shouldUseSessionWhenSessionIdProvided() {
-            when(chatFacade.chatWithSession("session-123", "Hello"))
+            when(chatUseCase.chatWithSession("session-123", "Hello"))
                     .thenReturn("Response with context");
 
             var response = controller.chat(new ChatRequest("Hello", "session-123"));
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().response()).isEqualTo("Response with context");
-            verify(chatFacade).chatWithSession("session-123", "Hello");
+            verify(chatUseCase).chatWithSession("session-123", "Hello");
         }
 
         @Test
         @DisplayName("should handle long message without error")
         void shouldHandleLongMessageWithoutError() {
             String longMessage = "A".repeat(100);
-            when(chatFacade.chatWithSession(longMessage)).thenReturn("Response to long message");
+            when(chatUseCase.chatWithSession(longMessage)).thenReturn("Response to long message");
 
             var response = controller.chat(new ChatRequest(longMessage, null));
 
@@ -112,7 +112,7 @@ class ChatControllerTest {
         @DisplayName("should create session with custom title")
         void shouldCreateSessionWithCustomTitle() {
             ChatSession session = createTestSession("new-session", "Custom Title");
-            when(chatFacade.createSession("Custom Title")).thenReturn(session);
+            when(chatUseCase.createSession("Custom Title")).thenReturn(session);
 
             var response = controller.createSession(new CreateSessionRequest("Custom Title"));
 
@@ -124,7 +124,7 @@ class ChatControllerTest {
         @DisplayName("should create session with default title when not provided")
         void shouldCreateSessionWithDefaultTitleWhenNotProvided() {
             ChatSession session = createTestSession("new-session", "New Chat");
-            when(chatFacade.createSession("New Chat")).thenReturn(session);
+            when(chatUseCase.createSession("New Chat")).thenReturn(session);
 
             var response = controller.createSession(new CreateSessionRequest(null));
 
@@ -136,7 +136,7 @@ class ChatControllerTest {
         @DisplayName("should create session with default title when body is null")
         void shouldCreateSessionWithDefaultTitleWhenBodyIsNull() {
             ChatSession session = createTestSession("new-session", "New Chat");
-            when(chatFacade.createSession("New Chat")).thenReturn(session);
+            when(chatUseCase.createSession("New Chat")).thenReturn(session);
 
             var response = controller.createSession(null);
 
@@ -155,7 +155,7 @@ class ChatControllerTest {
                     createTestSession("session-1", "Chat 1"),
                     createTestSession("session-2", "Chat 2")
             );
-            when(chatFacade.getAllSessions()).thenReturn(sessions);
+            when(chatUseCase.getAllSessions()).thenReturn(sessions);
 
             var response = controller.getAllSessions();
 
@@ -166,7 +166,7 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return empty list when no sessions")
         void shouldReturnEmptyListWhenNoSessions() {
-            when(chatFacade.getAllSessions()).thenReturn(List.of());
+            when(chatUseCase.getAllSessions()).thenReturn(List.of());
 
             var response = controller.getAllSessions();
 
@@ -183,7 +183,7 @@ class ChatControllerTest {
         @DisplayName("should return session when found")
         void shouldReturnSessionWhenFound() {
             ChatSession session = createTestSession("session-1", "My Chat");
-            when(chatFacade.getSession("session-1")).thenReturn(java.util.Optional.of(session));
+            when(chatUseCase.getSession("session-1")).thenReturn(java.util.Optional.of(session));
 
             var response = controller.getSession("session-1");
 
@@ -194,7 +194,7 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return 404 when session not found")
         void shouldReturn404WhenSessionNotFound() {
-            when(chatFacade.getSession("missing")).thenReturn(java.util.Optional.empty());
+            when(chatUseCase.getSession("missing")).thenReturn(java.util.Optional.empty());
 
             var response = controller.getSession("missing");
 
@@ -209,7 +209,7 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return messages for session")
         void shouldReturnMessagesForSession() {
-            when(chatFacade.getSessionHistory("session-1")).thenReturn(List.of(
+            when(chatUseCase.getSessionHistory("session-1")).thenReturn(List.of(
                     ChatMessage.createUserMessage("Hello"),
                     ChatMessage.createAssistantMessage("Hi")
             ));
@@ -224,7 +224,7 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return 404 when session not found")
         void shouldReturn404WhenSessionNotFound() {
-            when(chatFacade.getSessionHistory("missing"))
+            when(chatUseCase.getSessionHistory("missing"))
                     .thenThrow(new ChatSessionNotFoundException("missing"));
 
             var response = controller.getSessionMessages("missing");
@@ -240,12 +240,12 @@ class ChatControllerTest {
         @Test
         @DisplayName("should delete session and return 204")
         void shouldDeleteSessionAndReturn204() {
-            doNothing().when(chatFacade).deleteSession("session-to-delete");
+            doNothing().when(chatUseCase).deleteSession("session-to-delete");
 
             var response = controller.deleteSession("session-to-delete");
 
             assertThat(response.getStatusCode().value()).isEqualTo(204);
-            verify(chatFacade).deleteSession("session-to-delete");
+            verify(chatUseCase).deleteSession("session-to-delete");
         }
     }
 

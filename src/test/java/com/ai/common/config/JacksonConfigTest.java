@@ -1,6 +1,6 @@
 package com.ai.common.config;
 
-import com.ai.shared.config.JacksonConfig;
+import com.ai.common.config.JacksonConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

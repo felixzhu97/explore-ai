@@ -5,7 +5,7 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

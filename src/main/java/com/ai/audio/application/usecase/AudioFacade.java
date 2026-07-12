@@ -8,6 +8,7 @@ import com.ai.audio.domain.vo.VoiceCatalog;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.domain.vo.VoiceSelection;
 import com.ai.audio.domain.repository.TtsConfiguration;
+import com.ai.common.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class AudioFacade {
 
     public byte[] synthesize(String text, String voice, Double speed) {
         ensureProviderConfigured();
-        log.info("AudioFacade.synthesize: {}", truncate(text));
+        log.info("AudioFacade.synthesize: {}", LogSanitizer.truncate(text));
         VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
         SynthesizedAudio audio =
                 textToSpeechRepository.synthesize(SpeechText.of(text), selection, speed);
@@ -66,13 +67,4 @@ public class AudioFacade {
         return LEGACY_VOICE_ALIASES.getOrDefault(normalized, normalized);
     }
 
-    private String truncate(String text) {
-        if (text == null) {
-            return "null";
-        }
-        if (text.length() <= 50) {
-            return text;
-        }
-        return text.substring(0, 50) + "...";
-    }
 }

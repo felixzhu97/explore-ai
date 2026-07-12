@@ -1,6 +1,6 @@
 # Angular Web Application
 
-A modern Angular 20+ frontend application featuring:
+A modern Angular 22 frontend application featuring:
 
 - **AI Infrastructure Panel** - Model management, LLMOps, AIOps, VectorDB
 - **RAG Chat** - Document Q&A with retrieval-augmented generation
@@ -9,7 +9,7 @@ A modern Angular 20+ frontend application featuring:
 
 ## Tech Stack
 
-- Angular 20+
+- Angular 22
 - TypeScript
 - SCSS
 - Angular Signals for state management

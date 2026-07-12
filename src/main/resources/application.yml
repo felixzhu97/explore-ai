@@ -108,6 +108,11 @@ management:
       probability: 1.0
 
 app:
+  modules:
+    vision: ${APP_MODULE_VISION:true}
+    audio-asr: ${APP_MODULE_AUDIO_ASR:true}
+    mcp: ${APP_MODULE_MCP:true}
+    eval: ${APP_MODULE_EVAL:true}
   ai:
     image:
       enabled: ${IMAGE_ENABLED:true}
@@ -140,7 +145,7 @@ app:
       - https://www.felixzhu.chat
       - https://felixzhu.chat
   vision:
-    enabled: ${VISION_ENABLED:true}
+    enabled: ${APP_MODULE_VISION:true}
     models-dir: ${VISION_MODELS_DIR:models}
     detect:
       onnx-path: ${VISION_DETECT_MODEL:models/yolov8n.onnx}

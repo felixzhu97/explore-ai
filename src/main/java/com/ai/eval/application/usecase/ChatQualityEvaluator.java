@@ -14,6 +14,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.ai.common.util.LogSanitizer;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class ChatQualityEvaluator {
             String userMessage,
             String assistantResponse,
             List<String> referenceDocuments) {
-        log.debug("Evaluating response for user message: {}", truncate(userMessage));
+        log.debug("Evaluating response for user message: {}", LogSanitizer.truncate(userMessage));
 
         List<Document> documents = toDocuments(referenceDocuments);
         boolean factualityAvailable = !documents.isEmpty();
@@ -206,9 +207,4 @@ public class ChatQualityEvaluator {
             .toList();
     }
 
-    private String truncate(String text) {
-        if (text == null) return "null";
-        if (text.length() <= 50) return text;
-        return text.substring(0, 50) + "...";
-    }
 }

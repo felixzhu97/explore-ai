@@ -1,6 +1,6 @@
 package com.ai.tools.application.usecase;
 
-import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.tools.domain.model.ToolResult;

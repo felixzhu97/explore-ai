@@ -2,6 +2,8 @@ package com.ai.analysis.infrastructure.llm;
 
 import com.ai.analysis.domain.vo.AnalysisText;
 import com.ai.analysis.domain.vo.LanguageHint;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +24,7 @@ import static org.mockito.Mockito.when;
 class SpringAiStructuredAnalysisRepositoryTest {
 
     @Mock
-    private ChatClient.Builder chatClientBuilder;
+    private ChatClientProvider chatClientProvider;
 
     @Mock
     private ChatClient chatClient;
@@ -37,13 +39,13 @@ class SpringAiStructuredAnalysisRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        when(chatClientBuilder.build()).thenReturn(chatClient);
+        when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
 
-        repository = new SpringAiStructuredAnalysisRepository(chatClientBuilder);
+        repository = new SpringAiStructuredAnalysisRepository(chatClientProvider);
     }
 
     @Test

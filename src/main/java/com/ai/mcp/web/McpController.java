@@ -2,6 +2,7 @@ package com.ai.mcp.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/mcp")
+@ConditionalOnProperty(prefix = "app.modules", name = "mcp", havingValue = "true", matchIfMissing = true)
 @Tag(name = "MCP Server", description = "MCP Server management")
 public class McpController {
 

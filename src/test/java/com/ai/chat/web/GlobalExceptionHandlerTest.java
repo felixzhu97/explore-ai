@@ -1,6 +1,6 @@
-package com.ai.chat.web;
+package com.ai.common.web;
 
-import com.ai.chat.web.dto.ErrorResponse;
+import com.ai.common.web.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.RagServiceException;
