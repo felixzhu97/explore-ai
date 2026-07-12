@@ -27,6 +27,8 @@ volumes/
 
 # ML model weights (at any level)
 models/
+!src/main/web/app/layout/models/
+!src/main/web/app/layout/models/**
 *.pt
 *.onnx
 *.pth
