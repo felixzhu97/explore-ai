@@ -1,7 +1,7 @@
 package com.ai.audio.infrastructure.config;
 
 import com.ai.audio.infrastructure.adapter.AudioTranscriptionWebSocketHandler;
-import org.springframework.beans.factory.annotation.Value;
+import com.ai.common.config.CorsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * WebSocket configuration for audio transcription.
@@ -19,19 +19,22 @@ import java.util.Arrays;
 public class AudioWebSocketConfig implements WebSocketConfigurer {
 
     private final AudioTranscriptionWebSocketHandler transcriptionHandler;
-    private final String[] allowedOriginPatterns;
+    private final CorsProperties corsProperties;
 
     public AudioWebSocketConfig(
             AudioTranscriptionWebSocketHandler transcriptionHandler,
-            @Value("${app.cors.allowed-origin-patterns:http://localhost:4200,http://localhost:3000}") String[] allowedOriginPatterns) {
+            CorsProperties corsProperties) {
         this.transcriptionHandler = transcriptionHandler;
-        this.allowedOriginPatterns = Arrays.stream(allowedOriginPatterns)
-                .map(String::trim)
-                .toArray(String[]::new);
+        this.corsProperties = corsProperties;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        List<String> allowedOrigins = corsProperties.getAllowedOriginPatterns();
+        String[] allowedOriginPatterns = allowedOrigins != null
+                ? allowedOrigins.stream().map(String::trim).toArray(String[]::new)
+                : new String[0];
+
         registry.addHandler(transcriptionHandler, "/ws/audio/transcribe")
                 .setAllowedOriginPatterns(allowedOriginPatterns);
     }
