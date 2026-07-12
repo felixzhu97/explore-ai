@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSocket
-@ConditionalOnProperty(prefix = "app.modules", name = "audio-asr", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-audio-asr", havingValue = "true", matchIfMissing = true)
 public class AudioWebSocketConfig implements WebSocketConfigurer {
 
     private final AudioTranscriptionWebSocketHandler transcriptionHandler;

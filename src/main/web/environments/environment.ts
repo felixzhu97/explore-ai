@@ -3,10 +3,11 @@ export const environment = {
   production: false,
   apiBaseUrl: '/api',
   wsUrl: 'ws://localhost:9000',
-  modules: {
-    vision: true,
-    audioAsr: true,
-    mcp: true,
-    eval: true,
+  launchDarklyClientSideId: '',
+  featureFlagFallback: {
+    'module-vision': true,
+    'module-audio-asr': true,
+    'module-mcp': true,
+    'module-eval': true,
   },
 };

@@ -30,7 +30,7 @@ import java.util.Map;
 
 @Service
 @DependsOn("onnxYoloDetector")
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 public class OnnxBlipCaptioner implements ImageCaptioner {
 
     private static final Logger log = LoggerFactory.getLogger(OnnxBlipCaptioner.class);

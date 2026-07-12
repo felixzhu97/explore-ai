@@ -16,14 +16,18 @@ spring:
       chat:
         enabled: false
 
+launchdarkly:
+  enabled: ${LAUNCHDARKLY_ENABLED:true}
+  sdk-key: ${LAUNCHDARKLY_SDK_KEY:}
+  fallback:
+    module-vision: false
+    module-audio-asr: false
+    module-mcp: false
+    module-eval: false
+
 app:
-  modules:
-    vision: false
-    audio-asr: false
-    mcp: false
-    eval: false
   vision:
-    enabled: false
+    models-dir: ${VISION_MODELS_DIR:models}
   ai:
     image:
       provider: ${IMAGE_PROVIDER:openai}

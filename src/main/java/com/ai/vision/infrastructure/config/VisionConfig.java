@@ -14,7 +14,7 @@ import java.nio.file.Path;
 
 @Configuration
 @EnableConfigurationProperties(VisionModelProperties.class)
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 public class VisionConfig {
 
     static {
@@ -45,7 +45,7 @@ public class VisionConfig {
 }
 
 @Configuration
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 class TesseractConfig {
 
     @Bean

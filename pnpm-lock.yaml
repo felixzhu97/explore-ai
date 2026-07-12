@@ -44,6 +44,9 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.7.6
         version: 1.7.6
+      '@launchdarkly/js-client-sdk':
+        specifier: ^4.9.1
+        version: 4.9.1
       '@ng-icons/core':
         specifier: ^34.0.0
         version: 34.0.0(@angular-devkit/schematics@22.0.3(chokidar@5.0.0))(@angular/common@22.0.2(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1))(@schematics/angular@22.0.3(chokidar@5.0.0))(rxjs@7.8.2)
@@ -1205,6 +1208,15 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@launchdarkly/js-client-sdk-common@1.29.1':
+    resolution: {integrity: sha512-o0j6ZwF31zKHm7nlyqGo2GOrF0U3T/cSwicyGnI1A1LEXl2sR9N4wx+Q3tkv+MmAgBtj7klwKOT23JB0+p2m7A==}
+
+  '@launchdarkly/js-client-sdk@4.9.1':
+    resolution: {integrity: sha512-dUzjIleIEBsES1dKCFCJUdLoMPa0iEkd06/pVeoPdQM+B8a+lYKJOq9K1nFVGRfyIPky8P7iEHHy4a3j5v0FtA==}
+
+  '@launchdarkly/js-sdk-common@2.25.1':
+    resolution: {integrity: sha512-erG2RbA8QQMKW+D9Y7Uahez1dU+TzmyTzv9qlB7b0Pr/DS2SmUg5H8pJbkLcRrSxoshczZdB1UqsuE3RAk7UYQ==}
 
   '@listr2/prompt-adapter-inquirer@4.2.3':
     resolution: {integrity: sha512-Co9U3AJ3LW0J8XBHjVoNKA79dMAyFt8EZH3OaKTMcDTj8r+6kG3vSUPq/eGLHT7P0iK3uLaFfhdFYd3033P24g==}
@@ -5414,6 +5426,16 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@launchdarkly/js-client-sdk-common@1.29.1':
+    dependencies:
+      '@launchdarkly/js-sdk-common': 2.25.1
+
+  '@launchdarkly/js-client-sdk@4.9.1':
+    dependencies:
+      '@launchdarkly/js-client-sdk-common': 1.29.1
+
+  '@launchdarkly/js-sdk-common@2.25.1': {}
 
   '@listr2/prompt-adapter-inquirer@4.2.3(@inquirer/prompts@8.4.2(@types/node@22.20.0))(@types/node@22.20.0)(listr2@10.2.1)':
     dependencies:

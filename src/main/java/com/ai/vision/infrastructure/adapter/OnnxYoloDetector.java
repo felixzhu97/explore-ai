@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 public class OnnxYoloDetector implements ObjectDetector {
 
     private static final Logger log = LoggerFactory.getLogger(OnnxYoloDetector.class);

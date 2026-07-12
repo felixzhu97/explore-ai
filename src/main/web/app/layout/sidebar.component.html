@@ -100,7 +100,7 @@
             </span>
           </button>
 
-          @for (tab of tabs; track tab.key) {
+          @for (tab of tabs(); track tab.key) {
             <a
               z-sidebar-menu-button
               [routerLink]="tab.path"
@@ -174,7 +174,7 @@
           </svg>
         </button>
 
-        @for (tab of tabs; track tab.key) {
+        @for (tab of tabs(); track tab.key) {
           <a
             z-sidebar-menu-button
             zIconOnly

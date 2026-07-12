@@ -20,8 +20,8 @@ import { LanguagePickerComponent } from './components/language-picker/language-p
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST } from './services/session-list.token';
 import type { SidebarSession } from './sidebar-session.model';
-import { environment } from '@env/environment';
-import type { AppModules } from '@core/config/app-modules';
+import { FEATURE_FLAG_KEYS } from '@core/config/feature-flag-keys';
+import { FeatureFlagService } from '@core/services/feature-flag.service';
 
 interface NavTab {
   key: string;
@@ -48,6 +48,7 @@ export class SidebarComponent implements OnInit {
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
   protected readonly sessionList = inject(SESSION_LIST);
+  private readonly featureFlags = inject(FeatureFlagService);
 
   readonly collapsed = this.sidebar.collapsed;
   readonly recentsExpanded = signal(true);
@@ -85,19 +86,18 @@ export class SidebarComponent implements OnInit {
     return classes.join(' ');
   });
 
-  readonly tabs: NavTab[] = (
+  readonly tabs = computed<NavTab[]>(() => (
     [
       { key: 'rag', labelKey: 'documentQA', path: '/rag' },
       { key: 'vision', labelKey: 'imageAnalysis', path: '/vision' },
       { key: 'chat', labelKey: 'chat', path: '/chat' },
       { key: 'generate', labelKey: 'generation', path: '/generate' },
     ] satisfies NavTab[]
-  ).filter(tab => this.isTabEnabled(tab.key));
+  ).filter(tab => this.isTabEnabled(tab.key)));
 
   private isTabEnabled(key: string): boolean {
-    const modules = environment.modules as AppModules;
     if (key === 'vision') {
-      return modules.vision;
+      return this.featureFlags.isEnabled(FEATURE_FLAG_KEYS.MODULE_VISION);
     }
     return true;
   }

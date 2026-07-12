@@ -15,11 +15,14 @@ spring:
       api-key: test-key
       base-url: https://api.deepseek.com
 
+launchdarkly:
+  enabled: false
+  fallback:
+    module-vision: false
+    module-audio-asr: false
+    module-mcp: false
+    module-eval: true
+
 app:
-  modules:
-    vision: false
-    audio-asr: false
-    mcp: false
-    eval: true
   vision:
-    enabled: false
+    models-dir: models
