@@ -26,7 +26,12 @@ public class WebCorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        List<String> patterns = corsProperties.getAllowedOriginPatterns().stream()
+        List<String> allowedOrigins = corsProperties.getAllowedOriginPatterns();
+        if (allowedOrigins == null || allowedOrigins.isEmpty()) {
+            return;
+        }
+
+        List<String> patterns = allowedOrigins.stream()
                 .map(String::trim)
                 .toList();
 

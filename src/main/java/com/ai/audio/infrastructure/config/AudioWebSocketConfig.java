@@ -9,6 +9,8 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
+import java.util.List;
+
 /**
  * WebSocket configuration for audio transcription.
  */
@@ -28,9 +30,10 @@ public class AudioWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        String[] allowedOriginPatterns = corsProperties.getAllowedOriginPatterns().stream()
-                .map(String::trim)
-                .toArray(String[]::new);
+        List<String> allowedOrigins = corsProperties.getAllowedOriginPatterns();
+        String[] allowedOriginPatterns = allowedOrigins != null
+                ? allowedOrigins.stream().map(String::trim).toArray(String[]::new)
+                : new String[0];
 
         registry.addHandler(transcriptionHandler, "/ws/audio/transcribe")
                 .setAllowedOriginPatterns(allowedOriginPatterns);
