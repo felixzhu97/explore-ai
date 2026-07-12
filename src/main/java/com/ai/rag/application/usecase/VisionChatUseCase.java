@@ -16,6 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -31,6 +35,9 @@ public class VisionChatUseCase {
     private final RagApplicationService ragApplicationService;
     private final ChatClientProvider chatClientProvider;
     private final LanguageDetectionService languageDetectionService;
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
 
     public VisionChatUseCase(
             RagApplicationService ragApplicationService,
@@ -85,12 +92,12 @@ public class VisionChatUseCase {
 
         if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
             try {
-                byte[] imageBytes = java.net.http.HttpClient.newHttpClient()
-                        .send(java.net.http.HttpRequest.newBuilder()
+                byte[] imageBytes = httpClient
+                        .send(HttpRequest.newBuilder()
                                         .uri(URI.create(trimmed))
                                         .GET()
                                         .build(),
-                                java.net.http.HttpResponse.BodyHandlers.ofByteArray())
+                                HttpResponse.BodyHandlers.ofByteArray())
                         .body();
 
                 String base64 = java.util.Base64.getEncoder().encodeToString(imageBytes);
@@ -106,10 +113,12 @@ public class VisionChatUseCase {
 
         if (trimmed.startsWith("data:image/")) {
             int commaIndex = trimmed.indexOf(',');
-            if (commaIndex > 0) {
+            int semiColonIndex = trimmed.indexOf(';');
+            if (commaIndex > 0 && semiColonIndex > 0 && semiColonIndex < commaIndex) {
+                String mimeType = trimmed.substring(5, semiColonIndex);
                 String base64 = trimmed.substring(commaIndex + 1);
                 return Media.builder()
-                        .mimeType(MediaType.IMAGE_PNG)
+                        .mimeType(MediaType.parseMediaType(mimeType))
                         .data(base64)
                         .build();
             }
