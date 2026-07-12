@@ -3,7 +3,11 @@ export function clamp(value: number, range: [number, number]): number {
   return Math.min(Math.max(value, min), max);
 }
 
-export function convertValueToPercentage(value: number, min: number, max: number): number {
+export function convertValueToPercentage(
+  value: number,
+  min: number,
+  max: number,
+): number {
   if (max === min) {
     return 0;
   }

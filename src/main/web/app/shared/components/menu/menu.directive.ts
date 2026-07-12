@@ -54,12 +54,17 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
   private readonly cleanupFunctions: (() => void)[] = [];
 
   readonly zMenuTriggerFor = input.required<TemplateRef<void>>();
-  readonly zDisabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+  readonly zDisabled = input<boolean, BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+
   readonly zTrigger = input<ZardMenuTrigger>('click');
   readonly zHoverDelay = input<number>(100);
   readonly zPlacement = input<ZardMenuPlacement>('bottomLeft');
 
-  private readonly menuPositions = computed(() => this.getPositionsByPlacement(this.zPlacement()));
+  private readonly menuPositions = computed(() => {
+    return this.getPositionsByPlacement(this.zPlacement());
+  });
 
   constructor() {
     effect(() => {
@@ -134,7 +139,9 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
   }
 
   private setupMenuContentListeners(): void {
-    const menuContent = this.document.querySelector(ZardMenuDirective.MENU_CONTENT_SELECTOR);
+    const menuContent = this.document.querySelector(
+      ZardMenuDirective.MENU_CONTENT_SELECTOR,
+    );
     if (!menuContent) {
       return;
     }
@@ -190,7 +197,9 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
   ): void {
     if (isPlatformBrowser(this.platformId)) {
       element.addEventListener(eventType, handler, options);
-      this.cleanupFunctions.push(() => element.removeEventListener(eventType, handler, options));
+      this.cleanupFunctions.push(() => {
+        element.removeEventListener(eventType, handler, options);
+      });
     }
   }
 

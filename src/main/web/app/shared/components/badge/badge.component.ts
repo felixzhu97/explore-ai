@@ -24,6 +24,9 @@ export class ZardBadgeComponent {
 
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(badgeVariants({ zType: this.zType(), zShape: this.zShape() }), this.class()),
+  protected readonly classes = computed(() => mergeClasses(
+    badgeVariants({ zType: this.zType(), zShape: this.zShape() }),
+    this.class(),
+  ),
   );
 }

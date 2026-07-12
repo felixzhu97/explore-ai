@@ -41,7 +41,9 @@ export class ZardContextMenuDirective {
         overlayY: 'top',
       },
     ];
-    this.cdkTrigger.opened.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.attachCloseListeners());
+    this.cdkTrigger.opened
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.attachCloseListeners());
   }
 
   protected handleKeyDown(event: KeyboardEvent): void {

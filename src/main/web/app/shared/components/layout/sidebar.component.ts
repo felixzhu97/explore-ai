@@ -3,12 +3,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   input,
-  output,
-  signal,
+  model,
   ViewEncapsulation,
-  type TemplateRef, model,
+  type TemplateRef,
 } from '@angular/core';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -61,18 +59,10 @@ export class SidebarComponent {
   readonly zWidth = input<string | number>(200);
   readonly zCollapsedWidth = input<number>(64);
   readonly zCollapsible = input(false, { transform: booleanAttribute });
-  readonly zCollapsed = model(false, { transform: booleanAttribute });
+  readonly zCollapsed = model(false);
   readonly zReverseArrow = input(false, { transform: booleanAttribute });
   readonly zTrigger = input<TemplateRef<void> | null>(null);
   readonly class = input<ClassValue>('');
-
-  private readonly internalCollapsed = signal(false);
-
-  constructor() {
-    effect(() => {
-      this.internalCollapsed.set(this.zCollapsed());
-    });
-  }
 
   protected readonly currentWidth = computed(() => {
     const collapsed = this.zCollapsed();
@@ -95,14 +85,16 @@ export class SidebarComponent {
     return collapsed ? icons[1] : icons[0];
   });
 
-  protected readonly classes = computed(() => mergeClasses(sidebarVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(sidebarVariants(), this.class());
+  });
 
-  protected readonly triggerClasses = computed(() => mergeClasses(sidebarTriggerVariants()));
+  protected readonly triggerClasses = computed(() => {
+    return mergeClasses(sidebarTriggerVariants());
+  });
 
   toggleCollapsed(): void {
-    const newState = !this.zCollapsed();
-    this.internalCollapsed.set(newState);
-    this.zCollapsedChange.emit(newState);
+    this.zCollapsed.set(!this.zCollapsed());
   }
 }
 
@@ -120,7 +112,9 @@ export class SidebarComponent {
 export class SidebarGroupComponent {
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(sidebarGroupVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(sidebarGroupVariants(), this.class());
+  });
 }
 
 @Component({
@@ -137,5 +131,7 @@ export class SidebarGroupComponent {
 export class SidebarGroupLabelComponent {
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(sidebarGroupLabelVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(sidebarGroupLabelVariants(), this.class());
+  });
 }

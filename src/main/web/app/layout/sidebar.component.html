@@ -95,7 +95,7 @@
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </span>
-            <span class="min-w-0 flex-1 overflow-hidden text-ellipsis text-left">
+            <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
               {{ t().sidebar.newChat }}
             </span>
           </button>
@@ -108,7 +108,7 @@
               (click)="onNavClick()"
             >
               <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
-              <span class="min-w-0 flex-1 overflow-hidden text-ellipsis text-left">
+              <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
                 {{ t().nav[tab.labelKey] }}
               </span>
             </a>

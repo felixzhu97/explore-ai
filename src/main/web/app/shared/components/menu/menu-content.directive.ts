@@ -20,7 +20,9 @@ export class ZardMenuContentDirective implements OnInit {
   private cdkTrapFocus = inject(CdkTrapFocus);
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(menuContentVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(menuContentVariants(), this.class());
+  });
 
   ngOnInit(): void {
     this.cdkTrapFocus.enabled = true;

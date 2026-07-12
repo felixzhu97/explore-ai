@@ -172,7 +172,7 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     return this.provideLabelForSingleSelectMode(selectedValue as string);
   });
 
-  private onChange: OnChangeType = (_value: string) => {
+  private onChange: OnChangeType = () => {
     // ControlValueAccessor onChange callback
   };
 
@@ -180,8 +180,14 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     // ControlValueAccessor onTouched callback
   };
 
-  protected readonly classes = computed(() => mergeClasses(selectVariants(), this.class()));
-  protected readonly contentClasses = computed(() => mergeClasses(selectContentVariants()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(selectVariants(), this.class());
+  });
+
+  protected readonly contentClasses = computed(() => {
+    return mergeClasses(selectContentVariants());
+  });
+
   protected readonly triggerClasses = computed(() => mergeClasses(
     selectTriggerVariants({
       zSize: this.zSize(),
@@ -268,7 +274,9 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
 
     this.zValue.update((selectedValues) => {
       if (Array.isArray(selectedValues)) {
-        return selectedValues.includes(value) ? selectedValues.filter(v => v !== value) : [...selectedValues, value];
+        return selectedValues.includes(value)
+          ? selectedValues.filter(v => v !== value)
+          : [...selectedValues, value];
       }
 
       return value;
@@ -277,8 +285,8 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     this.zSelectionChange.emit(this.zValue());
 
     if (this.zMultiple()) {
-      // in multiple mode it can happen that button changes size because of selection badges,
-      // which requires overlay position to update
+      // in multiple mode it can happen that button changes size because of
+      // selection badges, which requires overlay position to update
       this.updateOverlayPosition();
     } else {
       this.close();
@@ -297,7 +305,11 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     // Setup select host reference for each item
     for (const [index, item] of items.entries()) {
       item.setSelectHost({
-        selectedValue: () => (this.zMultiple() ? (this.zValue() as string[]) : [this.zValue() as string]),
+        selectedValue: () => (
+          this.zMultiple()
+            ? (this.zValue() as string[])
+            : [this.zValue() as string]
+        ),
         selectItem: (value: string, label: string) => this.selectItem(value, label),
         navigateTo: () => this.navigateTo(item, index),
       });
@@ -435,7 +447,10 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
         const selectItems = this.selectItems();
         let itemMaxWidth = 0;
         for (const item of selectItems) {
-          itemMaxWidth = Math.max(itemMaxWidth, item.elementRef.nativeElement.scrollWidth);
+          itemMaxWidth = Math.max(
+            itemMaxWidth,
+            item.elementRef.nativeElement.scrollWidth,
+          );
         }
 
         const [selectItem] = selectItems;

@@ -22,5 +22,7 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
 export class ContentComponent {
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(contentVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(contentVariants(), this.class());
+  });
 }

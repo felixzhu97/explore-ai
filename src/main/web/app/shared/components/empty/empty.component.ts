@@ -85,7 +85,10 @@ export class ZardEmptyComponent {
   readonly zDescription = input<string | TemplateRef<void>>();
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(emptyVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(emptyVariants(), this.class());
+  });
+
   protected readonly headerClasses = computed(() => emptyHeaderVariants());
   protected readonly imageClasses = computed(() => emptyImageVariants());
   protected readonly iconClasses = computed(() => emptyIconVariants());

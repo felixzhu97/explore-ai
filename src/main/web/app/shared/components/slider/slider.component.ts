@@ -58,7 +58,10 @@ export class ZSliderTrackComponent {
   readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(sliderTrackVariants({ zOrientation: this.orientation() }), this.class()),
+  protected readonly classes = computed(() => mergeClasses(
+    sliderTrackVariants({ zOrientation: this.orientation() }),
+    this.class(),
+  ),
   );
 
   private readonly trackEl = viewChild.required<ElementRef<HTMLElement>>('track');
@@ -92,7 +95,10 @@ export class ZSliderRangeComponent {
   readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(sliderRangeVariants({ zOrientation: this.orientation() }), this.class()),
+  protected readonly classes = computed(() => mergeClasses(
+    sliderRangeVariants({ zOrientation: this.orientation() }),
+    this.class(),
+  ),
   );
 }
 
@@ -132,11 +138,18 @@ export class ZSliderThumbComponent {
   readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(sliderThumbVariants({ disabled: this.disabled() }), this.class()),
-  );
+  protected readonly classes = computed(() => {
+    return mergeClasses(
+      sliderThumbVariants({ disabled: this.disabled() }),
+      this.class(),
+    );
+  });
 
-  protected readonly orientationClasses = computed(() => mergeClasses(sliderOrientationVariants({ zOrientation: this.orientation() })),
-  );
+  protected readonly orientationClasses = computed(() => {
+    return mergeClasses(
+      sliderOrientationVariants({ zOrientation: this.orientation() }),
+    );
+  });
 
   private readonly thumbEl = viewChild.required<ElementRef<HTMLElement>>('thumb');
 
@@ -189,7 +202,8 @@ export class ZSliderThumbComponent {
   },
   exportAs: 'zSlider',
 })
-export class ZardSliderComponent implements ControlValueAccessor, AfterViewInit, OnChanges, OnDestroy {
+export class ZardSliderComponent
+implements ControlValueAccessor, AfterViewInit, OnChanges, OnDestroy {
   readonly zMin = input(0, { transform: numberAttribute });
   readonly zMax = input(100, { transform: numberAttribute });
   readonly zDefault = input(0, { transform: numberAttribute });
@@ -208,7 +222,10 @@ export class ZardSliderComponent implements ControlValueAccessor, AfterViewInit,
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private document = inject(DOCUMENT);
 
-  protected readonly classes = computed(() => mergeClasses(sliderVariants({ orientation: this.zOrientation() }), this.class()),
+  protected readonly classes = computed(() => mergeClasses(
+    sliderVariants({ orientation: this.zOrientation() }),
+    this.class(),
+  ),
   );
 
   protected readonly disabled = linkedSignal(() => this.zDisabled());
@@ -232,11 +249,6 @@ export class ZardSliderComponent implements ControlValueAccessor, AfterViewInit,
         this.setInitialValue();
       }
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   ngAfterViewInit() {
@@ -285,6 +297,11 @@ export class ZardSliderComponent implements ControlValueAccessor, AfterViewInit,
     this.setInitialValue();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   writeValue(value: number): void {
     if (value == null) {
       this.setInitialValue();
@@ -327,7 +344,7 @@ export class ZardSliderComponent implements ControlValueAccessor, AfterViewInit,
     const rawValue = this.zMin() + ((this.zMax() - this.zMin()) * percent) / 100;
     const currentValue = roundToStep(rawValue, this.zMin(), this.zStep());
 
-    let newValue = currentValue;
+    let newValue: number;
 
     const { key } = event as KeyboardEvent;
 

@@ -34,7 +34,10 @@ import { menuItemVariants, type ZardMenuItemTypeVariants } from './menu.variants
 export class ZardMenuItemDirective {
   private readonly cdkMenuItem = inject(CdkMenuItem, { host: true });
 
-  readonly zDisabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+  readonly zDisabled = input<boolean, BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+
   readonly zInset = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
   readonly zType = input<ZardMenuItemTypeVariants>('default');
   readonly class = input<ClassValue>('');

@@ -20,5 +20,7 @@ export class FooterComponent {
   readonly class = input<ClassValue>('');
   readonly zHeight = input<number>(64);
 
-  protected readonly classes = computed(() => mergeClasses(footerVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(footerVariants(), this.class());
+  });
 }

@@ -86,7 +86,9 @@ export class ZardDropdownMenuComponent implements OnDestroy {
   readonly isOpen = signal(false);
   readonly focusedIndex = signal<number>(-1);
 
-  protected readonly contentClasses = computed(() => mergeClasses(dropdownContentVariants(), this.class()));
+  protected readonly contentClasses = computed(() => {
+    return mergeClasses(dropdownContentVariants(), this.class());
+  });
 
   ngOnDestroy() {
     this.destroyOverlay();

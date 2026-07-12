@@ -74,15 +74,24 @@ export class ZardSelectItemComponent {
   readonly zMode = signal<ZardSelectItemModeVariants>('normal');
   readonly zSize = signal<ZardSelectSizeVariants>('default');
 
-  protected readonly classes = computed(() => mergeClasses(selectItemVariants({ zMode: this.zMode(), zSize: this.zSize() }), this.class()),
-  );
+  protected readonly classes = computed(() => {
+    return mergeClasses(
+      selectItemVariants({ zMode: this.zMode(), zSize: this.zSize() }),
+      this.class(),
+    );
+  });
 
-  protected readonly iconClasses = computed(() => mergeClasses(selectItemIconVariants({ zMode: this.zMode(), zSize: this.zSize() })),
-  );
+  protected readonly iconClasses = computed(() => {
+    return mergeClasses(
+      selectItemIconVariants({ zMode: this.zMode(), zSize: this.zSize() }),
+    );
+  });
 
   protected readonly strokeWidth = computed(() => (this.zMode() === 'compact' ? 3 : 2));
 
-  protected readonly isSelected = computed(() => this.select()?.selectedValue().includes(this.zValue()) ?? false);
+  protected readonly isSelected = computed(() => {
+    return this.select()?.selectedValue().includes(this.zValue()) ?? false;
+  });
 
   setSelectHost(selectHost: SelectHost) {
     this.select.set(selectHost);

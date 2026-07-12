@@ -20,5 +20,7 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
 export class ZardMenuShortcutComponent {
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(menuShortcutVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(menuShortcutVariants(), this.class());
+  });
 }

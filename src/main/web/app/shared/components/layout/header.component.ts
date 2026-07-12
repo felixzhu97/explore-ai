@@ -20,5 +20,7 @@ export class HeaderComponent {
   readonly class = input<ClassValue>('');
   readonly zHeight = input<number>(64);
 
-  protected readonly classes = computed(() => mergeClasses(headerVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(headerVariants(), this.class());
+  });
 }

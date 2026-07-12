@@ -58,13 +58,20 @@ export class ZardAlertComponent {
   readonly zIcon = input<TemplateRef<void> | string>();
   readonly zType = input<ZardAlertTypeVariants>('default');
 
-  protected readonly classes = computed(() => mergeClasses(alertVariants({ zType: this.zType() }), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(
+      alertVariants({ zType: this.zType() }),
+      this.class(),
+    );
+  });
 
   protected readonly iconClasses = computed(() => alertIconVariants());
 
   protected readonly titleClasses = computed(() => alertTitleVariants());
 
-  protected readonly descriptionClasses = computed(() => alertDescriptionVariants({ zType: this.zType() }));
+  protected readonly descriptionClasses = computed(() => {
+    return alertDescriptionVariants({ zType: this.zType() });
+  });
 
   protected readonly shouldShowIcon = computed(() => this.zIcon() !== undefined || this.zType() === 'destructive');
 

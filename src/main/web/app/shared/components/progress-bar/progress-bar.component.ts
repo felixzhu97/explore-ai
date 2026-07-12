@@ -68,7 +68,11 @@ export class ZardProgressBarComponent {
   );
 
   protected readonly barClasses = computed(() => mergeClasses(
-    progressBarVariants({ zIndeterminate: this.zIndeterminate(), zType: this.zType(), zShape: this.zShape() }),
+    progressBarVariants({
+      zIndeterminate: this.zIndeterminate(),
+      zType: this.zType(),
+      zShape: this.zShape(),
+    }),
     this.barClass(),
   ),
   );

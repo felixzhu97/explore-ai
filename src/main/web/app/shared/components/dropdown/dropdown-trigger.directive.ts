@@ -24,9 +24,10 @@ export class ZardDropdownDirective implements OnInit {
   private readonly viewContainerRef = inject(ViewContainerRef);
   protected readonly dropdownService = inject(ZardDropdownService);
 
-  protected readonly isThisDropdownOpen = computed(
-    () => this.dropdownService.isOpen() && this.dropdownService.getTriggerElement() === this.elementRef,
-  );
+  protected readonly isThisDropdownOpen = computed(() => {
+    const service = this.dropdownService;
+    return service.isOpen() && service.getTriggerElement() === this.elementRef;
+  });
 
   readonly zDropdownMenu = input<ZardDropdownMenuContentComponent>();
   readonly zTrigger = input<'click' | 'hover'>('click');
@@ -68,7 +69,11 @@ export class ZardDropdownDirective implements OnInit {
 
     const menuContent = this.zDropdownMenu();
     if (menuContent) {
-      this.dropdownService.toggle(this.elementRef, menuContent.contentTemplate(), this.viewContainerRef);
+      this.dropdownService.toggle(
+        this.elementRef,
+        menuContent.contentTemplate(),
+        this.viewContainerRef,
+      );
     }
   }
 
@@ -79,7 +84,11 @@ export class ZardDropdownDirective implements OnInit {
 
     const menuContent = this.zDropdownMenu();
     if (menuContent && !this.dropdownService.isOpen()) {
-      this.dropdownService.toggle(this.elementRef, menuContent.contentTemplate(), this.viewContainerRef);
+      this.dropdownService.toggle(
+        this.elementRef,
+        menuContent.contentTemplate(),
+        this.viewContainerRef,
+      );
     }
   }
 

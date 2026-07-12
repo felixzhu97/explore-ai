@@ -124,7 +124,12 @@ export class ZardSegmentedComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  protected readonly classes = computed(() => mergeClasses(segmentedVariants({ zSize: this.zSize() }), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(
+      segmentedVariants({ zSize: this.zSize() }),
+      this.class(),
+    );
+  });
 
   protected readonly wrapperClasses = computed(() => 'inline-block');
 

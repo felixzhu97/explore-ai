@@ -21,5 +21,7 @@ import { skeletonVariants } from './skeleton.variants';
 export class ZardSkeletonComponent {
   readonly class = input<ClassValue>('');
 
-  protected readonly classes = computed(() => mergeClasses(skeletonVariants(), this.class()));
+  protected readonly classes = computed(() => {
+    return mergeClasses(skeletonVariants(), this.class());
+  });
 }

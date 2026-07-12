@@ -40,7 +40,11 @@ export class ZardDropdownService {
     this.renderer = this.rendererFactory.createRenderer(null, null);
   }
 
-  toggle(triggerElement: ElementRef, template: TemplateRef<unknown>, viewContainerRef: ViewContainerRef) {
+  toggle(
+    triggerElement: ElementRef,
+    template: TemplateRef<unknown>,
+    viewContainerRef: ViewContainerRef,
+  ) {
     if (this.isOpen()) {
       this.close();
     } else {
@@ -48,7 +52,11 @@ export class ZardDropdownService {
     }
   }
 
-  private open(triggerElement: ElementRef, template: TemplateRef<unknown>, viewContainerRef: ViewContainerRef) {
+  private open(
+    triggerElement: ElementRef,
+    template: TemplateRef<unknown>,
+    viewContainerRef: ViewContainerRef,
+  ) {
     if (this.isOpen()) {
       this.close();
     }

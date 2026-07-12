@@ -11,7 +11,7 @@ const enum eTriggerAction {
   OK = 'ok',
 }
 
-export class ZardDialogRef<T = any, R = any, U = any> {
+export class ZardDialogRef<T = unknown, R = unknown, U = unknown> {
   private destroy$ = new Subject<void>();
   private isClosing = false;
   protected result?: R;
@@ -23,7 +23,9 @@ export class ZardDialogRef<T = any, R = any, U = any> {
     private containerInstance: ZardDialogComponent<T, U>,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {
-    this.containerInstance.cancelTriggered.subscribe(() => this.trigger(eTriggerAction.CANCEL));
+    this.containerInstance.cancelTriggered.subscribe(
+      () => this.trigger(eTriggerAction.CANCEL),
+    );
     this.containerInstance.okTriggered.subscribe(() => this.trigger(eTriggerAction.OK));
 
     if ((this.config.zMaskClosable ?? true) && isPlatformBrowser(this.platformId)) {
