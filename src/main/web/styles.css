@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-@import "ng-zorro-antd/ng-zorro-antd.variable.min.css";
-@import "ng-zorro-x/ng-zorro-x.variable.min.css";
+@import "ng-zorro-antd/ng-zorro-antd.variable.min.css" layer(base);
+@import "ng-zorro-x/ng-zorro-x.variable.min.css" layer(base);
+@import "tw-animate-css";
 
 /* Tailwind CSS v4 */
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 /* Map CSS variables to Tailwind theme for utility classes */
 @theme inline {
@@ -29,7 +31,33 @@
   --color-error-light: var(--color-error-light);
   --color-glass: var(--color-glass);
 
-  /* Spacing */
+  /* Zard UI semantic colors (app --color-background kept above) */
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--color-border-light);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Spacing (padding/gap); do not use max-w-xs/sm — they resolve to these values in v4 */
   --spacing-xs: var(--spacing-xs);
   --spacing-sm: var(--spacing-sm);
   --spacing-md: var(--spacing-md);
@@ -37,11 +65,19 @@
   --spacing-xl: var(--spacing-xl);
   --spacing-xxl: var(--spacing-xxl);
 
+  /* Container max-widths; use max-w-(--container-*) when spacing tokens collide */
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+
   /* Border Radius */
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --radius-full: var(--radius-full);
 
   /* Shadows */
@@ -49,7 +85,7 @@
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --shadow-input: 0 0 0 3px rgba(0, 122, 255, 0.3);
+  --shadow-input: 0 0 0 3px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
@@ -112,10 +148,10 @@
 }
 
 :root {
-  --color-primary: #007aff;
-  --color-primary-hover: #0066d6;
-  --color-primary-active: #0055b3;
-  --color-primary-light: rgba(0, 122, 255, 0.12);
+  --color-primary: #000000;
+  --color-primary-hover: #333333;
+  --color-primary-active: #1d1d1f;
+  --color-primary-light: rgba(0, 0, 0, 0.06);
   --color-surface: #ffffff;
   --color-surface-secondary: #f5f5f7;
   --color-background: #f5f5f7;
@@ -131,6 +167,37 @@
   --color-error: #ff3b30;
   --color-error-light: rgba(255, 59, 48, 0.15);
   --color-glass: rgba(255, 255, 255, 0.8);
+
+  /* Zard UI semantic tokens (mapped to app theme) */
+  --background: var(--color-background);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-secondary);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-surface-secondary);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border-light);
+  --input: var(--color-border-light);
+  --ring: rgba(0, 0, 0, 0.2);
+  --radius: 0.625rem;
+
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-text);
+  --sidebar-primary-foreground: var(--color-surface);
+  --sidebar-accent: var(--color-surface-secondary);
+  --sidebar-accent-foreground: var(--color-text);
+  --sidebar-border: var(--color-border-light);
+  --sidebar-ring: rgba(0, 0, 0, 0.2);
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -166,7 +233,7 @@
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --shadow-input: 0 0 0 3px rgba(0, 122, 255, 0.3);
+  --shadow-input: 0 0 0 3px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
@@ -195,8 +262,8 @@ body {
 }
 
 ::selection {
-  background: rgba(0, 122, 255, 0.12);
-  color: #007aff;
+  background: rgba(0, 0, 0, 0.08);
+  color: #1d1d1f;
 }
 
 ::-webkit-scrollbar {
@@ -236,20 +303,26 @@ input, button, textarea, select {
   }
 }
 
-button {
+button:not([z-button]):not([role='switch']):not([role='combobox']):not([role='tab']):not([z-sidebar-menu-button]) {
   cursor: pointer;
   border: none;
   background: none;
 }
 
-a {
-  color: #007aff;
+[data-slot='card-footer']:empty {
+  display: none;
+}
+
+main a,
+.markdown-content a {
+  color: #1d1d1f;
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
-a:hover {
-  color: #0071e3;
+main a:hover,
+.markdown-content a:hover {
+  color: #000000;
 }
 
 img {
@@ -261,8 +334,8 @@ img {
 code {
   font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
   font-size: 0.9em;
-  background: rgba(0, 122, 255, 0.12);
-  color: #007aff;
+  background: rgba(0, 0, 0, 0.06);
+  color: #1d1d1f;
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -294,4 +367,43 @@ app-chat-welcome-panel .ant-welcome-icon {
 app-chat-welcome-panel .ant-welcome-content-wrapper {
   flex: 0 1 auto;
   min-width: 0;
+}
+
+/* Zard dialog animations (moved from inline component styles for Vitest compatibility) */
+z-dialog {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+@starting-style {
+  z-dialog {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+z-dialog.dialog-leave {
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity 150ms ease-in,
+    transform 150ms ease-in;
+}
+
+@keyframes z-progress-indeterminate {
+  0% {
+    left: -0%;
+    width: 30%;
+  }
+  50% {
+    left: 50%;
+    width: 30%;
+  }
+  100% {
+    left: 100%;
+    width: 0;
+  }
 }

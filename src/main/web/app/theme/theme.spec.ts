@@ -10,7 +10,7 @@ describe('theme', () => {
     });
 
     it('should have primary colors', () => {
-      expect(colors.primary).toBe('#007aff');
+      expect(colors.primary).toBe('#000000');
       expect(colors.primaryHover).toBeDefined();
       expect(colors.primaryActive).toBeDefined();
       expect(colors.primaryLight).toBeDefined();

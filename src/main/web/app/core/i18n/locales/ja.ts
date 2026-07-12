@@ -45,6 +45,7 @@ export const ja: Translations = {
     noDetections: 'この画像から物体は検出されませんでした',
     processingTime: '処理時間 {ms} ms',
     providerUnavailable: '画像分析サービスは一時的に利用できません',
+    clickToEnlarge: 'クリックして拡大',
   },
   ragChat: {
     title: 'ドキュメント Q&A',
@@ -166,6 +167,7 @@ export const ja: Translations = {
       preview: 'プレビュー',
       download: 'ダウンロード',
       emptyState: '画像を生成してプレビューを表示',
+      zoomLabel: '画像を拡大',
     },
     tts: {
       title: 'テキスト読み上げ',

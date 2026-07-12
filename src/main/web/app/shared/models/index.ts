@@ -20,9 +20,10 @@ export type {
   ImageGenerateParams,
   ImageGenerationApiResponse,
   ImageGenerationResult,
+  ImageCatalogResponse,
   ImageSize,
 } from '../../ai-hub/image.model';
 
 export type { TtsRequest, Voice } from '../../ai-hub/tts.model';
 
-export type { Detection, VisionResult } from '../../vision/vision.model';
+export type { Detection, VisionHealthResponse, VisionResult } from '../../vision/vision.model';

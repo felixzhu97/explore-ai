@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ToastComponent } from '@shared/components/toast/toast.component';
+import { ZardToastComponent } from '@/shared/components/toast';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { SidebarService } from './sidebar.service';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, ToastComponent, SidebarComponent, HeaderComponent],
+  imports: [RouterOutlet, ZardToastComponent, SidebarComponent, HeaderComponent],
   template: `
-      <app-toast />
+      <z-toaster position="top-right" [richColors]="true" [closeButton]="true" />
       <app-sidebar />
       <app-header (openSidebar)="openSidebar()" />
-      <main class="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden transition-all duration-250"
-            [class.md:pl-60]="!sidebar.collapsed()"
-            [class.md:pl-16]="sidebar.collapsed()"
+      <main
+        class="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden transition-all duration-250"
+        [class.md:pl-[240px]]="!sidebar.collapsed()"
+        [class.md:pl-16]="sidebar.collapsed()"
       >
           <router-outlet/>
       </main>

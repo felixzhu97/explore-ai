@@ -1,208 +1,41 @@
-<div class="flex max-w-full min-w-0 flex-col gap-4">
-  <div class="
-    flex items-center justify-between rounded-2xl bg-surface p-4
-  ">
-    <div>
-      <h3 class="
-        m-0 text-lg font-semibold text-text
-      ">
-        {{ i18n.t().generate.image.title }}
-      </h3>
-      <p class="m-0 mt-1 text-sm text-text-secondary">
-        {{ i18n.t().generate.image.description }}
-      </p>
-    </div>
-  </div>
-  <div class="max-w-full min-w-0 rounded-2xl bg-surface p-6">
-    <div class="
-      grid min-w-0 grid-cols-1 gap-6
-      md:grid-cols-2
-    ">
-      <!-- Prompt Area -->
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1.5">
-          <label class="
-            text-base font-medium
-            text-text-secondary
-          " for="prompt-input">
-            {{ i18n.t().generate.image.promptLabel }}
-          </label>
-          <textarea
-            id="prompt-input"
-            class="
-              font-inherit min-h-20 resize-y rounded-xl border
-              border-border bg-surface p-3 px-4 text-base
-              text-text transition-all duration-150
-              placeholder:text-text-secondary
-              focus:border-primary focus:shadow-input
-              focus:outline-none
-            "
-            [ngModel]="prompt()"
-            (ngModelChange)="setPrompt($event)"
-            [placeholder]="i18n.t().generate.image.promptPlaceholder"
-            rows="4"
-          ></textarea>
-        </div>
+<div class="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2">
+  <app-image-gen-form
+    [title]="i18n.t().generate.image.title"
+    [description]="i18n.t().generate.image.description"
+    [promptLabel]="i18n.t().generate.image.promptLabel"
+    [promptPlaceholder]="i18n.t().generate.image.promptPlaceholder"
+    [sizeLabel]="i18n.t().generate.image.sizeLabel"
+    [generateLabel]="i18n.t().generate.image.generateButton"
+    [generatingLabel]="i18n.t().generate.image.generating"
+    [prompt]="imageGen.prompt()"
+    [sizes]="imageGen.sizes()"
+    [selectedSize]="imageGen.selectedSize()"
+    [generating]="imageGen.isGenerating()"
+    (promptChange)="imageGen.setPrompt($event)"
+    (sizeSelected)="imageGen.setSize($event)"
+    (generateRequested)="imageGen.generate()"
+  />
 
-        <div class="flex flex-col gap-1.5">
-          <label class="
-            text-base font-medium
-            text-text-secondary
-          " for="negative-prompt-input">
-            {{ i18n.t().generate.image.negativePromptLabel }}
-          </label>
-          <textarea
-            id="negative-prompt-input"
-            class="
-              font-inherit min-h-16 resize-y rounded-xl border
-              border-border bg-surface p-3 px-4 text-base
-              text-text transition-all duration-150
-              placeholder:text-text-secondary
-              focus:border-primary focus:shadow-input
-              focus:outline-none
-            "
-            [ngModel]="negativePrompt()"
-            (ngModelChange)="setNegativePrompt($event)"
-            [placeholder]="i18n.t().generate.image.negativePromptPlaceholder"
-            rows="2"
-          ></textarea>
-        </div>
+  <div class="flex min-h-[300px] flex-col gap-3">
+    <app-media-preview-panel
+      [imageSrc]="imageGen.generatedImage()"
+      [loading]="imageGen.isGenerating()"
+      [loadingLabel]="i18n.t().generate.image.generating"
+      [emptyState]="i18n.t().generate.image.emptyState"
+      [zoomLabel]="i18n.t().generate.image.zoomLabel"
+      (zoomRequested)="imageGen.openZoom()"
+    />
 
-        <div class="flex flex-col gap-1.5">
-          <span class="
-            text-base font-medium
-            text-text-secondary
-          " aria-hidden="true">
-            {{ i18n.t().generate.image.sizeLabel }}
-          </span>
-          <div class="flex flex-wrap gap-2" role="group" aria-label="Size selection">
-            @for (size of sizes; track size.label) {
-              <button
-                type="button"
-                class="
-                  cursor-pointer rounded-xl border border-border
-                  bg-surface px-4 py-2 text-base
-                  font-medium text-text transition-all duration-150
-                  hover:border-primary
-                "
-                [class.bg-primary]="selectedSize().label === size.label"
-                [class.text-white]="selectedSize().label === size.label"
-                [class.border-transparent]="selectedSize().label === size.label"
-                [class.hover:border-primary]="selectedSize().label !== size.label"
-                (click)="setSize(size)"
-              >
-                {{ size.label }}
-              </button>
-            }
-          </div>
-        </div>
+    @if (imageGen.error()) {
+      <z-alert zType="destructive" [zDescription]="imageGen.error()!" />
+    }
 
-        <button
-          type="button"
-          class="
-            flex cursor-pointer items-center justify-center gap-2 rounded-xl
-            border-transparent bg-primary px-6 py-3 text-base
-            font-medium text-white transition-all duration-150
-            hover:bg-primary-hover
-            disabled:cursor-not-allowed disabled:opacity-60
-          "
-          (click)="generate()"
-          [disabled]="!prompt().trim() || isGenerating()"
-        >
-          @if (isGenerating()) {
-            <span class="
-              inline-block size-4 animate-spin rounded-full border-2
-              border-white/30 border-t-white
-            "></span>
-            {{ i18n.t().generate.image.generating }}
-          } @else {
-            {{ i18n.t().generate.image.generateButton }}
-          }
+    @if (imageGen.hasGeneratedImage()) {
+      <div class="flex justify-center">
+        <button type="button" z-button zType="outline" (click)="imageGen.download()">
+          {{ i18n.t().generate.image.download }}
         </button>
       </div>
-
-      <!-- Preview Area -->
-      <div class="flex min-h-[300px] flex-col gap-3">
-        <div class="
-          relative flex min-h-64 flex-1 items-center justify-center
-          overflow-hidden rounded-xl border-2 border-dashed
-          border-border bg-surface-secondary
-        ">
-          @if (isGenerating()) {
-            <div class="
-              absolute inset-0 z-10 flex flex-col items-center justify-center
-              gap-3 rounded-xl bg-white/90 backdrop-blur-sm
-            ">
-              <div class="
-                size-11 animate-spin rounded-full border-[3px] border-surface-secondary
-                border-t-primary
-              "></div>
-              <span class="text-sm font-medium text-text-tertiary">Generating...</span>
-            </div>
-          }
-          @if (generatedImage()) {
-            <img
-              class="
-                max-h-96 max-w-full animate-fade-in cursor-zoom-in
-                rounded-xl object-contain
-                hover:scale-105
-              "
-              [src]="generatedImage()"
-              alt="Generated"
-              (click)="zoom.emit(generatedImage()!)"
-              (keydown.enter)="zoom.emit(generatedImage()!)"
-              tabindex="0"
-              role="button"
-              aria-label="Zoom image"
-            />
-          } @else {
-            <div class="
-              flex flex-col items-center justify-center gap-2 p-12
-              text-text-tertiary
-            ">
-              <div class="text-5xl opacity-50">
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
-              </div>
-              <p class="m-0 text-base font-medium text-text">
-                {{ i18n.t().generate.image.emptyState }}
-              </p>
-            </div>
-          }
-        </div>
-
-        @if (error()) {
-          <div class="
-            animate-fade-in rounded-lg border border-red-200 bg-red-50 p-3
-            text-sm text-red-700
-          ">
-            {{ error() }}
-          </div>
-        }
-
-        @if (generatedImage()) {
-          <div class="flex justify-center gap-2">
-            <button type="button" class="
-              flex cursor-pointer items-center gap-1 rounded-lg border
-              border-border-light bg-surface px-4 py-2 text-sm font-medium
-              text-primary transition-all duration-150
-              hover:border-primary hover:bg-surface-secondary
-            " (click)="download()">
-              ⬇️ {{ i18n.t().generate.image.download }}
-            </button>
-          </div>
-        }
-      </div>
-    </div>
+    }
   </div>
 </div>

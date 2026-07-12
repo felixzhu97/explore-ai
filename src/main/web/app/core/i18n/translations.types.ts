@@ -62,6 +62,7 @@ export interface Translations {
     noDetections: string;
     processingTime: string;
     providerUnavailable: string;
+    clickToEnlarge: string;
   };
   ragChat: {
     title: string;
@@ -146,6 +147,7 @@ export interface Translations {
       preview: string;
       download: string;
       emptyState: string;
+      zoomLabel: string;
     };
     tts: {
       title: string;

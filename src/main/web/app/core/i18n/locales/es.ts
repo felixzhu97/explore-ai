@@ -45,6 +45,7 @@ export const es: Translations = {
     noDetections: 'No se detectaron objetos en esta imagen',
     processingTime: 'Procesado en {ms} ms',
     providerUnavailable: 'El servicio de análisis de imágenes no está disponible temporalmente',
+    clickToEnlarge: 'Clic para ampliar',
   },
   ragChat: {
     title: 'Q&A Documentos',
@@ -171,6 +172,7 @@ export const es: Translations = {
       preview: 'Vista previa',
       download: 'Descargar',
       emptyState: 'Genera una imagen para ver la vista previa',
+      zoomLabel: 'Ampliar imagen',
     },
     tts: {
       title: 'Texto a voz',

@@ -68,7 +68,9 @@ function handleServerError(error: HttpErrorResponse): AppError {
     case 403:
       return {
         code: 'FORBIDDEN',
-        message: 'You do not have permission to perform this action.',
+        message:
+          extractMessage(error)
+          || 'You do not have permission to perform this action.',
         status: 403,
         timestamp: new Date(),
       };

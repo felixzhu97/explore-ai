@@ -1,21 +1,22 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { I18nService } from '@core/i18n';
-import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
+import { ZardSegmentedComponent } from '@/shared/components/segmented';
 
 type GenerateTab = 'image' | 'tts';
 
 @Component({
   selector: 'app-generate',
-  imports: [RouterOutlet, SegmentedControlComponent],
+  imports: [RouterOutlet, FormsModule, ZardSegmentedComponent],
   template: `
     <div class="flex items-center justify-center border-b border-black/8 bg-white px-4 py-2.5">
-      <app-segmented-control
-        [options]="tabOptions()"
-        [value]="activeTab()"
-        (changed)="onTabChange($event)"
+      <z-segmented
+        [zOptions]="tabOptions()"
+        [ngModel]="activeTab()"
+        (ngModelChange)="onTabChange($event)"
       />
     </div>
     <div class="flex-1 overflow-x-hidden overflow-y-auto bg-surface px-4 py-6">

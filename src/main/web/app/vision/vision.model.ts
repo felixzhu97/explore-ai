@@ -12,3 +12,8 @@ export interface Detection {
   confidence: number;
   bbox: [number, number, number, number];
 }
+
+export interface VisionHealthResponse {
+  status: string;
+  providers: Record<string, string>;
+}

@@ -2,6 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
+import { provideZard } from '@/shared/core';
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 import { SESSION_LIST } from './layout/services/session-list.token';
@@ -10,6 +11,7 @@ import { ChatSessionListService } from './app/providers/chat-session-list.servic
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZard(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
     { provide: SESSION_LIST, useClass: ChatSessionListService },

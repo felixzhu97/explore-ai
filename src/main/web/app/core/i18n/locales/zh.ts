@@ -45,6 +45,7 @@ export const zh: Translations = {
     noDetections: '未在该图片中检测到目标',
     processingTime: '处理耗时 {ms} 毫秒',
     providerUnavailable: '图像分析服务暂时不可用',
+    clickToEnlarge: '点击放大',
   },
   ragChat: {
     title: '文档问答',
@@ -141,6 +142,7 @@ export const zh: Translations = {
       preview: '预览',
       download: '下载',
       emptyState: '生成图像以查看预览',
+      zoomLabel: '放大图片',
     },
     tts: {
       title: '文本转语音',

@@ -20,13 +20,12 @@
     "useDefineForClassFields": false,
     "ignoreDeprecations": "6.0",
     "baseUrl": "./src/main/web",
-    "paths": {
-      "@core/*": ["app/core/*"],
+    "paths": {"@core/*": ["app/core/*"],
       "@features/*": ["app/features/*"],
       "@shared/*": ["app/shared/*"],
       "@core/i18n": ["app/core/i18n"],
-      "@env/*": ["environments/*"]
-    }
+      "@env/*": ["environments/*"],
+      "@/*": ["app/*"]}
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

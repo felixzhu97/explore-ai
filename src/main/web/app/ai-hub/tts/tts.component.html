@@ -1,26 +1,18 @@
 <div class="flex flex-col gap-4">
-  <div class="
-    flex items-center justify-between rounded-xl bg-surface p-4
-  ">
-    <div>
-      <h3 class="m-0 text-lg font-semibold text-text">{{ i18n.t().generate.tts.title }}</h3>
-      <p class="m-0 mt-1 text-sm text-text-secondary">{{ i18n.t().generate.tts.description }}</p>
-    </div>
-  </div>
-  <div class="rounded-xl bg-surface p-6">
+  <z-card
+    class="gap-4 py-4 shadow-card"
+    [zTitle]="i18n.t().generate.tts.title"
+    [zDescription]="i18n.t().generate.tts.description"
+  >
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-text-secondary" for="tts-text-input">
+        <label class="text-sm font-medium text-muted-foreground" for="tts-text-input">
           {{ i18n.t().generate.tts.textLabel }}
         </label>
         <textarea
           id="tts-text-input"
-          class="
-            min-h-20 resize-y rounded-xl border bg-surface p-3 px-4 text-base
-            text-text outline-none
-            placeholder:text-text-secondary
-            focus:border-primary focus:shadow-input
-          "
+          z-input
+          class="min-h-20 resize-y"
           [ngModel]="text()"
           (ngModelChange)="setText($event)"
           [placeholder]="i18n.t().generate.tts.textPlaceholder"
@@ -28,57 +20,37 @@
         ></textarea>
       </div>
 
-      <div class="
-        flex flex-wrap items-end gap-6
-        max-md:flex-col
-      ">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-text-secondary" for="voice-select">
+      <div class="flex flex-wrap items-end gap-6 max-md:flex-col">
+        <div class="flex min-w-48 flex-col gap-1.5">
+          <label class="text-sm font-medium text-muted-foreground" for="voice-select">
             {{ i18n.t().generate.tts.voiceLabel }}
           </label>
-          <select
+          <z-select
             id="voice-select"
-            class="
-              min-w-48 cursor-pointer rounded-xl border bg-surface p-3 px-4
-              text-base text-text outline-none
-              focus:border-primary
-            "
             [ngModel]="voice()"
             (ngModelChange)="setVoice($event)"
+            [zPlaceholder]="i18n.t().generate.tts.voiceLabel"
           >
-
-              @for (v of availableVoices(); track v.id) {
-                <option [value]="v.id">{{ v.name }} ({{ v.language }})</option>
-              }
-            @empty {
-              <option value="en-US">English (US)</option>
-              <option value="en-GB">English (UK)</option>
-              <option value="zh-CN">中文</option>
-              <option value="ja-JP">日本語</option>
+            @for (v of availableVoices(); track v.id) {
+              <z-select-item [zValue]="v.id">{{ v.name }} ({{ v.language }})</z-select-item>
+            } @empty {
+              <z-select-item zValue="en-US">English (US)</z-select-item>
+              <z-select-item zValue="en-GB">English (UK)</z-select-item>
+              <z-select-item zValue="zh-CN">中文</z-select-item>
+              <z-select-item zValue="ja-JP">日本語</z-select-item>
             }
-          </select>
+          </z-select>
         </div>
 
         <div class="flex min-w-36 flex-1 flex-col gap-2">
-          <label class="text-sm font-medium text-text-secondary" for="speed-slider">
+          <label class="text-sm font-medium text-muted-foreground" for="speed-slider">
             {{ i18n.t().generate.tts.speedLabel }}: {{ speed().toFixed(1) }}x
           </label>
-          <input
+          <z-slider
             id="speed-slider"
-            type="range"
-            class="
-              h-1 w-full rounded-sm bg-surface-secondary outline-none
-              [&::-webkit-slider-thumb]:size-[18px]
-              [&::-webkit-slider-thumb]:cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:bg-primary
-              [&::-webkit-slider-thumb]:transition-transform
-              [&::-webkit-slider-thumb]:hover:scale-115
-            "
-            min="0.5"
-            max="2.0"
-            step="0.1"
+            [zMin]="0.5"
+            [zMax]="2"
+            [zStep]="0.1"
             [ngModel]="speed()"
             (ngModelChange)="setSpeed($event)"
           />
@@ -87,21 +59,14 @@
 
       <button
         type="button"
-        class="
-          flex cursor-pointer items-center justify-center gap-2 rounded-xl
-          border border-transparent bg-primary px-6 py-3 text-base font-medium
-          text-white
-          hover:bg-primary-hover
-          disabled:cursor-not-allowed disabled:opacity-60
-        "
+        z-button
+        zFull
+        zSize="lg"
+        [zLoading]="isSynthesizing()"
+        [zDisabled]="!text().trim() || isSynthesizing()"
         (click)="synthesize()"
-        [disabled]="!text().trim() || isSynthesizing()"
       >
         @if (isSynthesizing()) {
-          <span class="
-            inline-block size-4 animate-spin rounded-full border-2
-            border-white/30 border-t-white
-          "></span>
           {{ i18n.t().generate.tts.synthesizing }}
         } @else {
           {{ i18n.t().generate.tts.synthesizeButton }}
@@ -109,55 +74,32 @@
       </button>
 
       @if (error()) {
-        <div class="
-          animate-fadeIn rounded-lg border border-error-light bg-error-light p-3
-          text-sm text-error
-        ">{{ error() }}</div>
+        <z-alert zType="destructive" [zDescription]="error()!" />
       }
 
       @if (audioUrl()) {
-        <div class="
-          flex animate-fade-in flex-col gap-3 rounded-xl border border-primary/20
-          bg-surface-secondary p-6
-        ">
+        <div class="flex flex-col gap-3 rounded-xl border border-border bg-muted/40 p-4">
           <div class="flex items-center gap-4">
             <button
               type="button"
-              class="
-                flex size-13 cursor-pointer items-center justify-center
-                rounded-xl border-none bg-primary text-lg text-white
-                transition-all
-                hover:scale-105 hover:opacity-90
-                active:scale-95
-              "
-              [class.bg-success]="isPlaying()"
+              z-button
+              zSize="icon"
               (click)="togglePlayPause()"
+              [attr.aria-label]="isPlaying() ? 'Pause' : 'Play'"
             >
-              {{ isPlaying() ? '⏸' : '▶' }}
+              <ng-icon [name]="isPlaying() ? 'lucidePause' : 'lucidePlay'" class="size-5!" />
             </button>
             <div class="flex flex-1 flex-col gap-2">
-              <span class="text-base font-medium text-text">{{ i18n.t().generate.tts.audioReady }}</span>
-              <div class="h-1.5 overflow-hidden rounded-sm bg-surface-secondary">
-                <div class="
-                  transition-width h-full rounded-sm bg-primary duration-100
-                " [style.width.%]="progress()"></div>
-              </div>
+              <span class="text-base font-medium text-foreground">{{ i18n.t().generate.tts.audioReady }}</span>
+              <z-progress-bar [progress]="progress()" />
             </div>
           </div>
-          <button
-            type="button"
-            class="
-              flex w-fit cursor-pointer items-center gap-1 rounded-lg border
-              border-border-light bg-white px-4 py-2 text-sm font-medium
-              text-primary
-              hover:border-primary hover:bg-surface-secondary
-            "
-            (click)="download()"
-          >
-            ⬇️ {{ i18n.t().generate.tts.downloadAudio }}
+          <button type="button" z-button zType="outline" class="w-fit" (click)="download()">
+            <ng-icon name="lucideDownload" class="size-4!" />
+            {{ i18n.t().generate.tts.downloadAudio }}
           </button>
         </div>
       }
     </div>
-  </div>
+  </z-card>
 </div>

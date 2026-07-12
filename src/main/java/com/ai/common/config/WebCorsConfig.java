@@ -1,9 +1,13 @@
 package com.ai.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * Web CORS configuration.
@@ -11,21 +15,27 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Uses allowedOriginPatterns to support wildcards.
  */
 @Configuration
-public class WebCorsConfig implements WebMvcConfigurer {
+public class WebCorsConfig {
+
+    private static final String API_PATH_PATTERN = "/api/**";
 
     @Value("${app.cors.allowed-origin-patterns:http://localhost:4200,http://localhost:3000}")
     private String[] allowedOriginPatterns;
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        String[] patterns = java.util.Arrays.stream(allowedOriginPatterns)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns)
                 .map(String::trim)
-                .toArray(String[]::new);
-        registry.addMapping("/api/**")
-                .allowedOriginPatterns(patterns)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowCredentials(true)
-                .allowedHeaders("*")
-                .maxAge(3600);
+                .toList());
+        configuration.setAllowedMethods(
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration(API_PATH_PATTERN, configuration);
+        return source;
     }
 }

@@ -5,10 +5,10 @@ export const colors = {
   surfaceSecondary: 'rgba(255, 255, 255, 0.72)',
   surfaceTertiary: 'rgba(255, 255, 255, 0.54)',
 
-  primary: '#007aff',
-  primaryHover: '#0071e3',
-  primaryActive: '#0056b3',
-  primaryLight: 'rgba(0, 122, 255, 0.12)',
+  primary: '#000000',
+  primaryHover: '#333333',
+  primaryActive: '#1d1d1f',
+  primaryLight: 'rgba(0, 0, 0, 0.06)',
 
   text: '#1d1d1f',
   textSecondary: '#86868b',
@@ -33,7 +33,7 @@ export const shadows = {
   card: '0 2px 8px rgba(0, 0, 0, 0.08)',
   cardHover: '0 8px 24px rgba(0, 0, 0, 0.12)',
   elevated: '0 12px 40px rgba(0, 0, 0, 0.16)',
-  input: '0 0 0 3px rgba(0, 122, 255, 0.2)',
+  input: '0 0 0 3px rgba(0, 0, 0, 0.12)',
 };
 
 export const radius = {
