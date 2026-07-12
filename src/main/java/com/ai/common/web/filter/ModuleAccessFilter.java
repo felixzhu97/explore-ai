@@ -29,7 +29,11 @@ public class ModuleAccessFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        ModuleFlag module = ModuleFlag.fromPath(request.getRequestURI());
+        String path = request.getServletPath();
+        if (request.getPathInfo() != null) {
+            path += request.getPathInfo();
+        }
+        ModuleFlag module = ModuleFlag.fromPath(path);
         if (module != null && !featureFlagService.isModuleEnabled(module)) {
             response.sendError(HttpStatus.NOT_FOUND.value());
             return;

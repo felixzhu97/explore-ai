@@ -11,7 +11,6 @@ const FLAG_KEYS = Object.values(FEATURE_FLAG_KEYS);
 
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagService {
-  private client: LDClient | null = null;
   private readonly flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
 
   async initialize(): Promise<void> {
@@ -30,14 +29,20 @@ export class FeatureFlagService {
     client.on('change', () => this.syncFlags(client));
     client.start();
 
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('LaunchDarkly init timeout')), 5000);
+    });
+
     try {
-      await client.waitForInitialization({ timeout: 5 });
+      await Promise.race([client.waitForInitialization(), timeoutPromise]);
     } catch {
       this.flags.set(environment.featureFlagFallback);
       return;
+    } finally {
+      clearTimeout(timeoutId!);
     }
 
-    this.client = client;
     this.syncFlags(client);
   }
 
