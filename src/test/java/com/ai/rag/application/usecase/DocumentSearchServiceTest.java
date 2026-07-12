@@ -4,8 +4,9 @@ import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
-import com.ai.rag.infrastructure.vector.H2VectorAdapter;
+import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
+import com.ai.rag.domain.repository.RagRetrievalSettings;
+import com.ai.rag.domain.repository.TextEmbeddingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,23 +24,33 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DocumentSearchService")
 class DocumentSearchServiceTest {
 
     @Mock
-    private EmbeddingAdapter embeddingAdapter;
+    private TextEmbeddingRepository embeddingRepository;
 
     @Mock
-    private H2VectorAdapter vectorAdapter;
+    private DocumentChunkSearchRepository chunkSearchRepository;
+
+    @Mock
+    private RagRetrievalSettings retrievalSettings;
 
     private DocumentSearchService service;
 
     @BeforeEach
     void setUp() {
-        service = new DocumentSearchService(embeddingAdapter, vectorAdapter);
+        lenient().when(retrievalSettings.getTopK()).thenReturn(5);
+        lenient().when(retrievalSettings.getScoreThreshold()).thenReturn(0.0);
+
+        service = new DocumentSearchService(embeddingRepository, chunkSearchRepository, retrievalSettings);
     }
 
     @Nested
@@ -56,15 +67,15 @@ class DocumentSearchServiceTest {
                     createChunk("Machine learning is a subset of AI", 1)
             );
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(chunks);
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(chunks);
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
             assertThat(result.context()).contains("AI stands for Artificial Intelligence");
             assertThat(result.context()).contains("Machine learning is a subset of AI");
             assertThat(result.sources()).hasSize(2);
-            verify(vectorAdapter).search(queryEmbedding, 5);
+            verify(chunkSearchRepository).search(queryEmbedding, 5);
         }
 
         @Test
@@ -75,13 +86,13 @@ class DocumentSearchServiceTest {
             DocumentId docId = DocumentId.generate();
             List<DocumentChunk> chunks = List.of(createChunk("filtered content", 0));
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5, List.of(docId.value()))).thenReturn(chunks);
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5, List.of(docId.value()))).thenReturn(chunks);
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, List.of(docId), 5);
 
             assertThat(result.sources()).hasSize(1);
-            verify(vectorAdapter).search(queryEmbedding, 5, List.of(docId.value()));
+            verify(chunkSearchRepository).search(queryEmbedding, 5, List.of(docId.value()));
         }
 
         @Test
@@ -90,12 +101,12 @@ class DocumentSearchServiceTest {
             String query = "test";
             float[] queryEmbedding = new float[]{0.1f, 0.2f};
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of());
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of());
 
             service.retrieve(query, null, 0);
 
-            verify(vectorAdapter).search(queryEmbedding, 5);
+            verify(chunkSearchRepository).search(queryEmbedding, 5);
         }
 
         @Test
@@ -104,12 +115,12 @@ class DocumentSearchServiceTest {
             String query = "test";
             float[] queryEmbedding = new float[]{0.1f, 0.2f};
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 10)).thenReturn(List.of());
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 10)).thenReturn(List.of());
 
             service.retrieve(query, null, 10);
 
-            verify(vectorAdapter).search(queryEmbedding, 10);
+            verify(chunkSearchRepository).search(queryEmbedding, 10);
         }
 
         @Test
@@ -131,8 +142,8 @@ class DocumentSearchServiceTest {
                     DocumentId.generate(), DocumentId.generate(), "low similarity content", 2,
                     Map.of(), lowSimEmbedding, Instant.now());
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(any(), anyInt())).thenReturn(
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(any(), anyInt())).thenReturn(
                     List.of(lowSimChunk, highSimChunk, medSimChunk));
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
@@ -148,8 +159,8 @@ class DocumentSearchServiceTest {
             String query = "nonexistent topic";
             float[] queryEmbedding = new float[]{0.1f, 0.2f};
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of());
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of());
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
@@ -168,8 +179,8 @@ class DocumentSearchServiceTest {
                     createChunk("Third chunk", 2)
             );
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(chunks);
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(chunks);
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
@@ -184,8 +195,8 @@ class DocumentSearchServiceTest {
             String longContent = "A".repeat(600);
             DocumentChunk chunk = createChunk(longContent, 0);
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
@@ -201,8 +212,8 @@ class DocumentSearchServiceTest {
             String shortContent = "Short content";
             DocumentChunk chunk = createChunk(shortContent, 0);
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
@@ -219,8 +230,8 @@ class DocumentSearchServiceTest {
                     DocumentId.generate(), DocumentId.generate(), "Content", 0,
                     metadata, queryEmbedding, Instant.now());
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
@@ -234,12 +245,12 @@ class DocumentSearchServiceTest {
             String query = "test";
             float[] queryEmbedding = new float[]{0.1f, 0.2f};
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of());
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of());
 
             service.retrieve(query, List.of(), 5);
 
-            verify(vectorAdapter).search(queryEmbedding, 5);
+            verify(chunkSearchRepository).search(queryEmbedding, 5);
         }
 
         @Test
@@ -253,8 +264,8 @@ class DocumentSearchServiceTest {
                     DocumentId.generate(), DocumentId.generate(), "content", 0,
                     Map.of(), chunkEmbedding, Instant.now());
 
-            when(embeddingAdapter.embed(query)).thenReturn(queryEmbedding);
-            when(vectorAdapter.search(queryEmbedding, 5)).thenReturn(List.of(chunkWithEmbedding));
+            when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+            when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunkWithEmbedding));
 
             DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 

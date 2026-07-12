@@ -1,7 +1,7 @@
 package com.ai.chat.application.usecase;
 
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
+import com.ai.chat.application.usecase.ChatClientProvider;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +20,10 @@ public class SessionTitleGenerator {
             Use the same language as the user's message.
             """;
 
-    private final ChatClientFactory chatClientFactory;
+    private final ChatClientProvider chatClientProvider;
 
-    public SessionTitleGenerator(ChatClientFactory chatClientFactory) {
-        this.chatClientFactory = chatClientFactory;
+    public SessionTitleGenerator(ChatClientProvider chatClientProvider) {
+        this.chatClientProvider = chatClientProvider;
     }
 
     public String generate(String userMessage, String assistantReply) {
@@ -31,7 +31,7 @@ public class SessionTitleGenerator {
             return fallback(userMessage);
         }
         try {
-            ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.defaults());
+            ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
             SessionTitleResponse response = chatClient.prompt()
                     .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                     .system(SYSTEM_PROMPT)

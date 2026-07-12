@@ -871,7 +871,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Some chunk text\n'),
+        value: encoder.encode('data: Some chunk text\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -939,7 +939,7 @@ describe('ApiService', () => {
       readResolve({
         done: false,
         value: encoder.encode(
-          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n',
+          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n\n',
         ),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -978,7 +978,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Error:Database connection failed\n'),
+        value: encoder.encode('data: Error:Database connection failed\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1017,7 +1017,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n'),
+        value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1056,7 +1056,7 @@ describe('ApiService', () => {
       // Send sources event followed by empty line, then chunk without event
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\n\ndata: chunk after reset\n'),
+        value: encoder.encode('event: sources\ndata: []\n\ndata: chunk after reset\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1094,7 +1094,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\ndata: []\ndata: chunk after sources\n'),
+        value: encoder.encode('event: sources\ndata: []\n\ndata: chunk after sources\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1583,11 +1583,11 @@ describe('ApiService', () => {
         value: removeChildSpy,
       });
 
-      (createElementSpy as never).mockReturnValue({
+      vi.mocked(createElementSpy).mockReturnValue({
         href: '',
         download: '',
         click: clickSpy,
-      });
+      } as unknown as HTMLAnchorElement);
 
       service.downloadBlob(blob, 'test.txt');
 
@@ -1699,9 +1699,6 @@ describe('ApiService', () => {
         {
           messages: [{ role: 'user', content: 'Hi' }],
           sessionId: 'session123',
-          system_prompt: 'You are helpful',
-          temperature: 0.7,
-          max_tokens: 1000,
           provider: 'openai',
           model: 'gpt-4o',
         },
@@ -1720,9 +1717,6 @@ describe('ApiService', () => {
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
       const body = JSON.parse(callArgs.body as string);
       expect(body.sessionId).toBe('session123');
-      expect(body.system_prompt).toBe('You are helpful');
-      expect(body.temperature).toBe(0.7);
-      expect(body.max_tokens).toBe(1000);
       expect(body.provider).toBe('openai');
       expect(body.model).toBe('gpt-4o');
     });

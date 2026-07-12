@@ -60,7 +60,7 @@ Container_Boundary(tool_domain, "Tools Domain") {
     Container(tool_facade, "ToolsFacade", "Application Service", "工具门面")
     Container(weather_report, "WeatherReport", "Domain Model", "天气报告充血模型")
     Container(weather_query, "WeatherQuery", "Value Object", "天气查询 VO")
-    Container(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索工具")
+    Container(doc_search_svc, "DocumentSearchService", "Spring Service", "RAG 向量检索")
     Container(weather_tool, "WeatherTools", "*Tool", "天气查询工具")
     Container(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索 (Serper.dev)")
 }
@@ -205,10 +205,10 @@ Rel(tess4j_ocr, tesseract_svc, "OCR", "JNA")
 
 Rel(tool_controller, tool_facade, "调用")
 Rel(tool_facade, weather_tool, "天气")
-Rel(tool_facade, rag_search_tool, "RAG 搜索")
+Rel(tool_facade, doc_search_svc, "RAG 搜索")
 Rel(tool_facade, web_search_tool, "Web 搜索")
 Rel(weather_tool, weather_report, "领域模型")
-Rel(rag_search_tool, rag_app_svc, "RAG 检索")
+Rel(doc_search_svc, rag_app_svc, "RAG 检索")
 Rel(web_search_tool, serper_api, "搜索", "HTTPS")
 
 Rel(analysis_controller, analysis_facade, "调用")

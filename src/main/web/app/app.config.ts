@@ -4,12 +4,15 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { SESSION_LIST } from './layout/services/session-list.token';
+import { ChatSessionListService } from './app/providers/chat-session-list.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    { provide: SESSION_LIST, useClass: ChatSessionListService },
     provideNzConfig({
       theme: {
         primaryColor: '#000000',

@@ -14,6 +14,35 @@ web → application → domain ← infrastructure
 
 **Domain has NO dependencies on other layers.**
 
+> **Canonical source:** Layer structure, dependency rule, and Hexagonal terminology mapping live in this file (`architecture.mdc`). `java-standards.mdc` and `CLAUDE.md` link here — do not duplicate architecture diagrams elsewhere.
+
+## Terminology Index (Hexagonal ↔ This Project)
+
+External references (Spring docs, Alistair Cockburn, legacy modules) often use **Ports & Adapters (Hexagonal)** naming. **This repo standardizes on Clean Architecture layers and package names below.**
+
+| Hexagonal concept | Hexagonal layout | This project layer | This project package |
+|-------------------|------------------|--------------------|----------------------|
+| Driving adapter | `adapter/in` | Web + Application | `{module}/web/`, `{module}/application/` |
+| Driven adapter | `adapter/out` | Infrastructure | `{module}/infrastructure/` |
+| Outbound port | `domain/port` | Repository interface | `{module}/domain/repository/` |
+| Domain core | `domain` | Domain | `{module}/domain/model`, `domain/vo`, `domain/service` |
+| Composition / wiring | `config` | Spring configuration | `{module}/infrastructure/config/`, `common/config/` |
+
+### Forbidden in New Code
+
+- `domain/port/` packages — use `domain/repository/` (or `domain/service/` for domain services)
+- `*Port` interface suffix — prefer `*Repository`, `*Gateway`, or a domain-specific name (e.g. `ConversationMemoryRepository`)
+- `adapter/in` / `adapter/out` packages — use `web/`, `application/`, `infrastructure/`
+
+### Legacy (migrate when touched)
+
+Some modules still contain Hexagonal-style paths (e.g. `rag/domain/port/DocumentReader`). Treat them as **legacy drift**; new abstractions follow `domain/repository/` in this document.
+
+### Related Reading
+
+- [Ports and Adapters - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
+- Java coding conventions (naming, REST, tests): `java-standards.mdc`
+
 ## Layers
 
 | Layer | Contains |

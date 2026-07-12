@@ -1,5 +1,6 @@
 package com.ai.rag.infrastructure.tools;
 
+import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.domain.vo.DocumentId;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class RagSearchTool {
+public class RagSearchTool implements DocumentSearchTool {
 
     private static final Logger log = LoggerFactory.getLogger(RagSearchTool.class);
     private static final int DEFAULT_TOP_K = 5;
@@ -24,11 +25,11 @@ public class RagSearchTool {
         this.ragApplicationService = ragApplicationService;
     }
 
-    @Tool(description = "搜索知识库中的文档内容。根据用户问题搜索相关文档片段并返回匹配的内容和来源信息")
+    @Override
+    @Tool(name = "search_documents", description = "Search documents in the knowledge base for relevant information")
     public String searchDocuments(
-            @ToolParam(description = "搜索查询，用于在文档中查找相关内容") String query,
-            @ToolParam(description = "要搜索的文档ID列表（可选，不提供则搜索所有文档）", required = false) List<String> docIds
-    ) {
+            @ToolParam(description = "The search query text") String query,
+            @ToolParam(description = "Optional list of document IDs to filter", required = false) List<String> docIds) {
         if (query == null || query.isBlank()) {
             return "请提供有效的搜索查询";
         }
@@ -44,8 +45,7 @@ public class RagSearchTool {
                 return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
             }
 
-            return "找到以下相关文档片段：\n\n" +
-                    formatSources(result.sources());
+            return "找到以下相关文档片段：\n\n" + formatSources(result.sources());
         } catch (IllegalArgumentException e) {
             log.warn("Invalid document ID format in searchDocuments", e);
             return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
@@ -55,27 +55,8 @@ public class RagSearchTool {
         }
     }
 
-    private String formatSources(List<com.ai.rag.domain.model.SourceDocument> sources) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < sources.size(); i++) {
-            var source = sources.get(i);
-            String content = truncate(source.text());
-            sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
-            if (source.metadata().get("title") instanceof String title) {
-                sb.append(String.format("文档: %s\n", title));
-            }
-            sb.append("---\n\n");
-        }
-        return sb.toString();
-    }
-
-    private String truncate(String content) {
-        return content.length() > MAX_CONTENT_LENGTH
-                ? content.substring(0, MAX_CONTENT_LENGTH) + "..."
-                : content;
-    }
-
-    @Tool(description = "列出知识库中的所有可用文档，返回文档ID和标题")
+    @Override
+    @Tool(name = "list_documents", description = "List all documents in the knowledge base")
     public String listDocuments() {
         try {
             var documents = ragApplicationService.listDocuments();
@@ -100,5 +81,25 @@ public class RagSearchTool {
             log.error("Error listing documents", e);
             return "获取文档列表时发生未知错误，请稍后重试。";
         }
+    }
+
+    private String formatSources(List<com.ai.rag.domain.model.SourceDocument> sources) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sources.size(); i++) {
+            var source = sources.get(i);
+            String content = truncate(source.text());
+            sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
+            if (source.metadata() != null && source.metadata().get("title") instanceof String title) {
+                sb.append(String.format("文档: %s\n", title));
+            }
+            sb.append("---\n\n");
+        }
+        return sb.toString();
+    }
+
+    private String truncate(String content) {
+        return content.length() > MAX_CONTENT_LENGTH
+                ? content.substring(0, MAX_CONTENT_LENGTH) + "..."
+                : content;
     }
 }

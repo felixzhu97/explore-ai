@@ -3,7 +3,7 @@ package com.ai.rag.infrastructure.etl;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.infrastructure.llm.EmbeddingAdapter;
+import com.ai.rag.domain.repository.TextEmbeddingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class EmbeddingDocumentWriterTest {
     private static final DocumentId DOCUMENT_ID = DocumentId.of("123e4567-e89b-12d3-a456-426614174000");
 
     @Mock
-    private EmbeddingAdapter embeddingAdapter;
+    private TextEmbeddingRepository embeddingRepository;
 
     @Mock
     private IDocumentChunkRepository chunkRepository;
@@ -37,7 +37,7 @@ class EmbeddingDocumentWriterTest {
 
     @BeforeEach
     void setUp() {
-        writer = new EmbeddingDocumentWriter(embeddingAdapter, chunkRepository);
+        writer = new EmbeddingDocumentWriter(embeddingRepository, chunkRepository);
     }
 
     @Test
@@ -47,8 +47,8 @@ class EmbeddingDocumentWriterTest {
         DocumentChunk secondChunk = createChunk("second chunk", 1);
         float[] firstEmbedding = new float[]{0.1f, 0.2f};
         float[] secondEmbedding = new float[]{0.3f, 0.4f};
-        when(embeddingAdapter.embed("first chunk")).thenReturn(firstEmbedding);
-        when(embeddingAdapter.embed("second chunk")).thenReturn(secondEmbedding);
+        when(embeddingRepository.embed("first chunk")).thenReturn(firstEmbedding);
+        when(embeddingRepository.embed("second chunk")).thenReturn(secondEmbedding);
 
         writer.write(List.of(firstChunk, secondChunk));
 
@@ -61,8 +61,8 @@ class EmbeddingDocumentWriterTest {
         assertThat(chunkCaptor.getAllValues().get(1).getEmbedding()).isSameAs(secondEmbedding);
         assertThat(firstChunk.getEmbedding()).isNull();
         assertThat(secondChunk.getEmbedding()).isNull();
-        verify(embeddingAdapter).embed("first chunk");
-        verify(embeddingAdapter).embed("second chunk");
+        verify(embeddingRepository).embed("first chunk");
+        verify(embeddingRepository).embed("second chunk");
     }
 
     @Test
@@ -70,7 +70,7 @@ class EmbeddingDocumentWriterTest {
     void should_not_call_embedder_or_repository_when_no_chunks_are_provided() {
         writer.write(List.of());
 
-        verifyNoInteractions(embeddingAdapter, chunkRepository);
+        verifyNoInteractions(embeddingRepository, chunkRepository);
     }
 
     private DocumentChunk createChunk(String content, int chunkIndex) {

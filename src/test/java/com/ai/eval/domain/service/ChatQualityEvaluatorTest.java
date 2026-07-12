@@ -1,4 +1,4 @@
-package com.ai.eval.domain.service;
+package com.ai.eval.application.usecase;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.LlmEvaluationResponse;

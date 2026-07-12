@@ -8,7 +8,6 @@ import { SidebarService } from './sidebar.service';
 @Component({
   selector: 'app-main-layout',
   imports: [RouterOutlet, ToastComponent, SidebarComponent, HeaderComponent],
-  standalone: true,
   template: `
       <app-toast />
       <app-sidebar />

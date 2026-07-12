@@ -1,6 +1,7 @@
 package com.ai.rag.infrastructure.llm;
 
 import com.ai.rag.domain.exception.RagServiceException;
+import com.ai.rag.domain.repository.TextEmbeddingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Component
 @ConditionalOnProperty(name = "spring.ai.ollama.embedding.enabled", havingValue = "true", matchIfMissing = true)
-public class OllamaEmbeddingAdapter implements EmbeddingAdapter {
+public class OllamaEmbeddingAdapter implements TextEmbeddingRepository {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaEmbeddingAdapter.class);
 

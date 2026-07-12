@@ -6,7 +6,8 @@ alwaysApply: true
 
 # Java/Spring Boot Conventions
 
-> Core architecture principles and project structure are defined in `architecture.mdc`.
+> **Architecture (layers, dependency rule, Hexagonal ↔ Clean mapping):** see [`architecture.mdc`](./architecture.mdc).  
+> Do **not** add Hexagonal package layouts (`domain/port/`, `adapter/in`, `adapter/out`) in new code.  
 > AI/ML development uses the [Spring AI Skill](.cursor/skills/spring-ai/SKILL.md).
 
 ## Naming Conventions
@@ -60,6 +61,7 @@ should_expectedResult_when_condition
 
 ## References
 
+- [Architecture Standards](./architecture.mdc) — layers, dependency rule, Hexagonal terminology index
 - [Spring Boot](https://spring.io/projects/spring-boot)
 - [Spring Framework](https://spring.io/projects/spring-framework)
 - [Spring Data JPA](https://spring.io/projects/spring-data-jpa)

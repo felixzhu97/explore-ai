@@ -7,7 +7,7 @@ import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
 import com.ai.vision.domain.exception.VisionProviderUnavailableException;
 import com.ai.vision.domain.model.CaptionResult;
-import com.ai.vision.domain.port.ImageCaptioner;
+import com.ai.vision.domain.repository.ImageCaptioner;
 import com.ai.vision.infrastructure.config.VisionModelProperties;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;

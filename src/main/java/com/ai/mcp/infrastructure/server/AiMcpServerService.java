@@ -1,7 +1,8 @@
 package com.ai.mcp.infrastructure.server;
 
 import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.rag.infrastructure.tools.RagSearchTool;
+import com.ai.common.domain.repository.DocumentSearchTool;
+import com.ai.rag.infrastructure.config.RagProperties;
 import com.ai.tools.infrastructure.tools.WeatherTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +19,19 @@ public class AiMcpServerService {
     private static final Logger log = LoggerFactory.getLogger(AiMcpServerService.class);
 
     private final WeatherTools weatherTools;
-    private final RagSearchTool ragSearchTool;
+    private final DocumentSearchTool documentSearchTool;
     private final ChatUseCase aiChatUseCase;
+    private final RagProperties ragProperties;
 
-    public AiMcpServerService(WeatherTools weatherTools, RagSearchTool ragSearchTool, ChatUseCase aiChatUseCase) {
+    public AiMcpServerService(
+            WeatherTools weatherTools,
+            DocumentSearchTool documentSearchTool,
+            ChatUseCase aiChatUseCase,
+            RagProperties ragProperties) {
         this.weatherTools = weatherTools;
-        this.ragSearchTool = ragSearchTool;
+        this.documentSearchTool = documentSearchTool;
         this.aiChatUseCase = aiChatUseCase;
+        this.ragProperties = ragProperties;
     }
 
     @McpTool(name = "get_weather", description = "Get current weather information for a specified city")
@@ -53,13 +60,13 @@ public class AiMcpServerService {
             docIdList = List.of(docIds.split(","));
         }
 
-        return ragSearchTool.searchDocuments(query, docIdList);
+        return documentSearchTool.searchDocuments(query, docIdList);
     }
 
     @McpTool(name = "list_documents", description = "List all documents available in the knowledge base")
     public String listDocuments() {
         log.info("MCP tool: listDocuments called");
-        return ragSearchTool.listDocuments();
+        return documentSearchTool.listDocuments();
     }
 
     @McpTool(name = "ai_chat", description = "Chat with AI assistant")
@@ -74,10 +81,10 @@ public class AiMcpServerService {
         log.info("MCP resource: getConfig called for key: {}", key);
 
         return switch (key) {
-            case "spring.ai.rag.chunk.size" -> "500";
-            case "spring.ai.rag.chunk.overlap" -> "50";
-            case "spring.ai.rag.retrieval.top-k" -> "5";
-            case "spring.ai.rag.retrieval.score-threshold" -> "0.5";
+            case "spring.ai.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());
+            case "spring.ai.rag.chunk.overlap" -> String.valueOf(ragProperties.getChunk().getOverlap());
+            case "spring.ai.rag.retrieval.top-k" -> String.valueOf(ragProperties.getRetrieval().getTopK());
+            case "spring.ai.rag.retrieval.score-threshold" -> String.valueOf(ragProperties.getRetrieval().getScoreThreshold());
             default -> "Configuration key not found: " + key;
         };
     }

@@ -5,8 +5,8 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
-import com.ai.chat.infrastructure.memory.ChatMemorySessionBridge;
+import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 class SpringAiChatUseCaseTest {
 
     @Mock
-    private ChatClientFactory chatClientFactory;
+    private ChatClientProvider chatClientProvider;
 
     @Mock
     private ChatSessionRepository repository;
@@ -40,7 +40,7 @@ class SpringAiChatUseCaseTest {
     private ChatMemory chatMemory;
 
     @Mock
-    private ChatMemorySessionBridge memoryBridge;
+    private ConversationMemoryRepository conversationMemoryRepository;
 
     @Mock
     private SessionTitleGenerator sessionTitleGenerator;
@@ -55,11 +55,11 @@ class SpringAiChatUseCaseTest {
                 .build();
 
         useCase = new SpringAiChatUseCase(
-                chatClientFactory,
+                chatClientProvider,
                 repository,
                 retryTemplate,
                 chatMemory,
-                memoryBridge,
+                conversationMemoryRepository,
                 sessionTitleGenerator
         );
     }
@@ -94,7 +94,7 @@ class SpringAiChatUseCaseTest {
             Optional<ChatSession> result = useCase.getSession("session-123");
 
             assertThat(result).isPresent().contains(session);
-            verify(memoryBridge).syncToSession(eq("session-123"), eq(session));
+            verify(conversationMemoryRepository).syncToSession(eq("session-123"), eq(session));
         }
 
         @Test
@@ -125,7 +125,7 @@ class SpringAiChatUseCaseTest {
             List<ChatMessage> history = useCase.getSessionHistory("session-123");
 
             assertThat(history).hasSize(2);
-            verify(memoryBridge).syncToSession(eq("session-123"), eq(session));
+            verify(conversationMemoryRepository).syncToSession(eq("session-123"), eq(session));
         }
 
         @Test
@@ -150,7 +150,7 @@ class SpringAiChatUseCaseTest {
 
             useCase.deleteSession("session-123");
 
-            verify(memoryBridge).clear("session-123");
+            verify(conversationMemoryRepository).clear("session-123");
             verify(repository).delete(ChatSessionId.of("session-123"));
         }
     }

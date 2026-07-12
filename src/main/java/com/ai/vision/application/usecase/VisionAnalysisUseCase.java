@@ -2,13 +2,14 @@ package com.ai.vision.application.usecase;
 
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.domain.model.Detection;
-import com.ai.vision.domain.port.ImageCaptioner;
-import com.ai.vision.domain.port.ObjectDetector;
-import com.ai.vision.domain.port.OcrEngine;
+import com.ai.vision.domain.repository.ImageCaptioner;
+import com.ai.vision.domain.repository.ObjectDetector;
+import com.ai.vision.domain.repository.OcrEngine;
 import com.ai.vision.web.dto.CaptionResponse;
 import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.DetectionDto;
 import com.ai.vision.web.dto.OcrResponse;
+import com.ai.vision.web.dto.VisionHealthResponse;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -70,6 +73,15 @@ public class VisionAnalysisUseCase {
         long processingTimeMs = elapsedMillis(startedAt);
         detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
         return new DetectResponse(detections, processingTimeMs);
+    }
+
+    public VisionHealthResponse health() {
+        Map<String, String> providers = new LinkedHashMap<>();
+        providers.put("caption", captioner.isAvailable() ? "UP" : "DOWN");
+        providers.put("detect", detector.isAvailable() ? "UP" : "DOWN");
+        providers.put("ocr", ocrEngine.isAvailable() ? "UP" : "DOWN");
+        boolean allUp = captioner.isAvailable() && detector.isAvailable() && ocrEngine.isAvailable();
+        return new VisionHealthResponse(allUp ? "UP" : "DEGRADED", providers);
     }
 
     private DetectionDto toDto(Detection detection) {

@@ -1,6 +1,6 @@
 package com.ai.chat.application.usecase;
 
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
+import com.ai.chat.application.usecase.ChatClientProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 class SessionTitleGeneratorTest {
 
     @Mock
-    private ChatClientFactory chatClientFactory;
+    private ChatClientProvider chatClientProvider;
 
     @Mock
     private ChatClient chatClient;
@@ -40,8 +40,8 @@ class SessionTitleGeneratorTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
-        generator = new SessionTitleGenerator(chatClientFactory);
+        lenient().when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
+        generator = new SessionTitleGenerator(chatClientProvider);
     }
 
     @Test

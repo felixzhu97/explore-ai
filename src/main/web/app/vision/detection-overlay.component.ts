@@ -10,7 +10,6 @@ import type { Detection } from './vision.model';
 
 @Component({
   selector: 'app-detection-overlay',
-  standalone: true,
   template: `
     <div class="relative inline-block max-h-96 max-w-full">
       <img

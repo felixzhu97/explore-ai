@@ -10,7 +10,11 @@ import {
   effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MarkdownContentComponent } from '@shared/components/markdown-content.component';
+import {
+  ChatAssistantMessageComponent,
+  ChatEmptyStateComponent,
+  ChatUserMessageComponent,
+} from '@shared/components/chat-shell';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
@@ -19,8 +23,14 @@ import { ChatService } from '../chat.service';
 
 @Component({
   selector: 'app-chat-tab',
-  imports: [FormsModule, NxSenderComponent, NzIconModule, MarkdownContentComponent],
-  standalone: true,
+  imports: [
+    FormsModule,
+    NxSenderComponent,
+    NzIconModule,
+    ChatEmptyStateComponent,
+    ChatUserMessageComponent,
+    ChatAssistantMessageComponent,
+  ],
   templateUrl: './chat.component.html',
   styles: [
     `
@@ -81,10 +91,6 @@ export class ChatTabComponent implements OnInit, OnDestroy {
     }
     this.input.set('');
     this.chat.sendMessage(text);
-  }
-
-  formatTime(timestamp: number): string {
-    return new Date(timestamp).toLocaleTimeString();
   }
 
   private scrollToBottom() {

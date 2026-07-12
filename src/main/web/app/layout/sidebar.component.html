@@ -2,7 +2,7 @@
   data-sidebar-panel
   class="
     fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col border-r border-gray-200
-    bg-white shadow-elevated transition-all duration-250 ease-out
+    bg-white transition-all duration-250 ease-out
     max-md:pb-[env(safe-area-inset-bottom)]
   "
   [ngClass]="sidebarClasses()"
@@ -150,7 +150,7 @@
               @for (session of displaySessions(); track session.id) {
                 <app-session-item
                   [session]="session"
-                  [isActive]="chatService.activeSessionId() === session.id"
+                  [isActive]="sessionList.activeSessionId() === session.id"
                   [collapsed]="collapsed()"
                   (sessionSelect)="onSessionSelect(session.id)"
                   (pin)="onSessionPin()"

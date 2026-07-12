@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 @Component({
   selector: 'app-citation',
-  standalone: true,
   template: `
     @if (url()) {
       <a

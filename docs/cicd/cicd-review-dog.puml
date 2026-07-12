@@ -29,7 +29,7 @@ fork
   end note
   :Run ESLint with reviewdog;
   note right
-  `pnpm -C apps/web exec eslint "src/**/*.ts" --ext .ts`
+  `pnpm exec eslint "src/main/web/**/*.ts" --ext .ts`
   +
   `reviewdog -f=eslint -reporter=github-pr-review -level=error`
   end note
@@ -47,9 +47,9 @@ fork again
   end note
   :Run TypeScript check with reviewdog;
   note right
-  `pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json`
+  `pnpm exec tsc --noEmit -p tsconfig.app.json`
   +
-  `pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json`
+  `pnpm exec tsc --noEmit -p tsconfig.spec.json`
   +
   `reviewdog -f=tsc -reporter=github-pr-review -level=error`
   end note

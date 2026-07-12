@@ -11,17 +11,18 @@ BASE_URL="http://localhost:9000"
 ## Table of Contents
 
 1. [Health Check](#health-check)
-2. [Chat API](#chat-api)
+2. [Text Chat API (Streaming)](#text-chat-api-streaming)
 3. [Session API](#session-api)
 4. [RAG API](#rag-api)
-5. [Tool Calling API](#tool-calling-api)
-6. [Image Generation API](#image-generation-api)
-7. [Audio/TTS API](#audio-tts-api)
-8. [Audio/ASR API](#audio-asr-api)
+5. [Vision API](#vision-api)
+6. [Tool Calling API](#tool-calling-api)
+7. [Image Generation API](#image-generation-api)
+8. [Audio/TTS API](#audiotts-api)
 9. [MCP Server API](#mcp-server-api)
 10. [MCP Client API](#mcp-client-api)
 11. [Chat Evaluation API](#chat-evaluation-api)
-12. [Error Codes](#error-codes)
+12. [Legacy Chat API](#legacy-chat-api)
+13. [Error Codes](#error-codes)
 
 ---
 
@@ -45,128 +46,74 @@ curl -X GET "${BASE_URL}/api/health"
 
 ---
 
-## Chat API
+## Text Chat API (Streaming)
 
-### Chat with AI
+The Angular frontend uses these endpoints for provider selection and SSE streaming chat.
 
-Send a chat message and receive an AI response. Supports session context for multi-turn conversations.
+### List Providers
+
+```bash
+curl -X GET "${BASE_URL}/api/text/providers"
+```
+
+### List Models
+
+```bash
+curl -X GET "${BASE_URL}/api/text/models?provider=openai"
+```
+
+### Stream Chat (SSE)
+
+```bash
+curl -N -X POST "${BASE_URL}/api/text/chat/stream" \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{
+    "messages": [{"role": "user", "content": "Hello"}],
+    "provider": "openai",
+    "model": "deepseek-v4-flash",
+    "sessionId": "optional-session-id",
+    "toolsEnabled": false
+  }'
+```
+
+**SSE events**
+
+
+| Event   | Data              | Description           |
+| ------- | ----------------- | --------------------- |
+| `meta`  | `{"token":"..."}` | Streaming token chunk |
+| `done`  | `[DONE]`          | Stream complete       |
+| `error` | `{"error":"..."}` | Error payload         |
+
+
+---
+
+## Legacy Chat API
+
+Non-streaming endpoints retained for compatibility. Prefer `/api/text/chat/stream` for the web UI.
+
+### Non-streaming Chat
 
 ```bash
 curl -X POST "${BASE_URL}/api/chat" \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Hello, please introduce the history of Beijing"
+    "message": "Hello, please introduce the history of Beijing",
+    "sessionId": "optional-session-id"
   }'
 ```
-
-**Request Body**
-
-
-| Field       | Type   | Required | Description                             |
-| ----------- | ------ | -------- | --------------------------------------- |
-| `message`   | string | Yes      | Chat message (max 10,000 characters)    |
-| `sessionId` | string | No       | Session ID for multi-turn conversations |
-
-
-**Response Example**
-
-```json
-{
-  "response": "Beijing is the capital of China with over 3,000 years of history. It served as the capital for multiple dynasties and is home to world cultural heritage sites like the Forbidden City, Temple of Heaven, and Great Wall.",
-  "sessionId": "abc123",
-  "messageId": "msg-uuid",
-  "timestamp": "2026-06-19T03:30:00Z"
-}
-```
-
----
-
-### Continue Session Chat
-
-Continue a previous conversation using a session ID.
-
-```bash
-curl -X POST "${BASE_URL}/api/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Please tell me more about the history of the Forbidden City",
-    "sessionId": "abc123"
-  }'
-```
-
----
-
-### Simple Chat (Legacy Endpoint)
-
-Simple chat without session context (legacy API).
-
-```bash
-curl -X POST "${BASE_URL}/api/chat/simple" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Hello!"
-  }'
-```
-
-**Response Example**
-
-```json
-{
-  "response": "Hello! I'm happy to assist you. How can I help you today?"
-}
-```
-
----
 
 ### Text Analysis
-
-Analyze text and return structured results including summary, sentiment, key points, and entity recognition.
 
 ```bash
 curl -X POST "${BASE_URL}/api/chat/analyze" \
   -H "Content-Type: application/json" \
   -d '{
-    "text": "The food at this restaurant was delicious, the service was excellent, and the atmosphere was elegant. It was a very enjoyable dining experience.",
+    "text": "Sample text to analyze",
     "language": "en"
   }'
 ```
-
-**Request Body**
-
-
-| Field      | Type   | Required | Description                          |
-| ---------- | ------ | -------- | ------------------------------------ |
-| `text`     | string | Yes      | Text to analyze                      |
-| `language` | string | No       | Analysis language (e.g., "en", "zh") |
-
-
-**Response Example**
-
-```json
-{
-  "summary": "This is a positive review about a restaurant dining experience.",
-  "sentiment": "POSITIVE",
-  "keyPoints": [
-    "Delicious food",
-    "Excellent service",
-    "Elegant atmosphere"
-  ],
-  "entities": [
-    "restaurant"
-  ],
-  "language": "en"
-}
-```
-
-**Sentiment Values**
-
-
-| Value      | Description        |
-| ---------- | ------------------ |
-| `POSITIVE` | Positive sentiment |
-| `NEUTRAL`  | Neutral sentiment  |
-| `NEGATIVE` | Negative sentiment |
-
 
 ---
 
@@ -441,6 +388,52 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
     "docIds": ["550e8400-e29b-41d4-a716-446655440000", "660e8400-e29b-41d4-a716-446655440001"],
     "topK": 3
   }'
+```
+
+---
+
+## Vision API
+
+Local ONNX/Tesseract image analysis (distinct from multimodal chat).
+
+### Caption
+
+```bash
+curl -X POST "${BASE_URL}/api/vision/caption" \
+  -F "file=@/path/to/image.jpg"
+```
+
+### Object Detection
+
+```bash
+curl -X POST "${BASE_URL}/api/vision/detect" \
+  -F "file=@/path/to/image.jpg"
+```
+
+### OCR
+
+```bash
+curl -X POST "${BASE_URL}/api/vision/ocr" \
+  -F "file=@/path/to/image.jpg"
+```
+
+### Health
+
+```bash
+curl -X GET "${BASE_URL}/api/vision/health"
+```
+
+**Response Example**
+
+```json
+{
+  "status": "UP",
+  "providers": {
+    "caption": "UP",
+    "detect": "UP",
+    "ocr": "UP"
+  }
+}
 ```
 
 ---
@@ -1232,11 +1225,13 @@ curl -X POST "${BASE_URL}/api/eval/chat" \
 
 **Request Body**
 
-| Field | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| `userMessage` | string | Yes | Original user question |
-| `assistantResponse` | string | Yes | AI assistant reply to evaluate |
-| `referenceDocuments` | array | No | RAG context chunks for relevancy and factuality checks |
+
+| Field                | Type   | Required | Description                                            |
+| -------------------- | ------ | -------- | ------------------------------------------------------ |
+| `userMessage`        | string | Yes      | Original user question                                 |
+| `assistantResponse`  | string | Yes      | AI assistant reply to evaluate                         |
+| `referenceDocuments` | array  | No       | RAG context chunks for relevancy and factuality checks |
+
 
 **Behavior**
 

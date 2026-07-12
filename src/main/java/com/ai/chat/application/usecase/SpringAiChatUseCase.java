@@ -5,8 +5,7 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
-import com.ai.chat.infrastructure.memory.ChatMemorySessionBridge;
+import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.domain.exception.AiServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,25 +28,25 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(SpringAiChatUseCase.class);
 
-    private final ChatClientFactory chatClientFactory;
+    private final ChatClientProvider chatClientProvider;
     private final ChatSessionRepository repository;
     private final RetryTemplate retryTemplate;
     private final ChatMemory chatMemory;
-    private final ChatMemorySessionBridge memoryBridge;
+    private final ConversationMemoryRepository conversationMemoryRepository;
     private final SessionTitleGenerator sessionTitleGenerator;
 
     public SpringAiChatUseCase(
-            ChatClientFactory chatClientFactory,
+            ChatClientProvider chatClientProvider,
             ChatSessionRepository repository,
             RetryTemplate retryTemplate,
             ChatMemory chatMemory,
-            ChatMemorySessionBridge memoryBridge,
+            ConversationMemoryRepository conversationMemoryRepository,
             SessionTitleGenerator sessionTitleGenerator) {
-        this.chatClientFactory = chatClientFactory;
+        this.chatClientProvider = chatClientProvider;
         this.repository = repository;
         this.retryTemplate = retryTemplate;
         this.chatMemory = chatMemory;
-        this.memoryBridge = memoryBridge;
+        this.conversationMemoryRepository = conversationMemoryRepository;
         this.sessionTitleGenerator = sessionTitleGenerator;
     }
 
@@ -60,7 +59,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     public String chat(String userMessage, TextChatOptions options) {
         log.info("Chat request with retry: {}", truncateForLog(userMessage));
         return retryTemplate.execute(context -> {
-            ChatClient chatClient = chatClientFactory.createStateless(options);
+            ChatClient chatClient = chatClientProvider.createStateless(options);
             String response = chatClient.prompt()
                     .user(userMessage)
                     .call()
@@ -82,9 +81,9 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return Flux.defer(() -> {
             ChatSession session = loadOrCreateSession(sessionId);
             boolean isFirstTurn = session.isEmpty();
-            memoryBridge.seedIfEmpty(sessionId, session.getMessages());
+            conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
 
-            ChatClient chatClient = chatClientFactory.create(options, sessionId);
+            ChatClient chatClient = chatClientProvider.create(options, sessionId);
             return chatClient.prompt()
                     .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
                     .user(userMessage)
@@ -100,7 +99,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     private void afterSessionStream(ChatSessionId sessionId, String conversationId, boolean isFirstTurn, String userMessage) {
         repository.findById(sessionId).ifPresent(session -> {
-            memoryBridge.syncToSession(conversationId, session);
+            conversationMemoryRepository.syncToSession(conversationId, session);
             repository.save(session);
             if (isFirstTurn && session.hasDefaultTitle()) {
                 String assistantReply = session.getLastAssistantMessage() != null
@@ -135,10 +134,10 @@ public class SpringAiChatUseCase implements ChatUseCase {
             String conversationId,
             String userMessage,
             TextChatOptions options) {
-        memoryBridge.seedIfEmpty(conversationId, session.getMessages());
+        conversationMemoryRepository.seedIfEmpty(conversationId, session.getMessages());
         boolean isFirstTurn = session.isEmpty();
 
-        ChatClient chatClient = chatClientFactory.create(options, conversationId);
+        ChatClient chatClient = chatClientProvider.create(options, conversationId);
         String aiResponse = chatClient.prompt()
                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .user(userMessage)
@@ -149,7 +148,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
             throw new AiServiceException("AI returned empty response");
         }
 
-        memoryBridge.syncToSession(conversationId, session);
+        conversationMemoryRepository.syncToSession(conversationId, session);
         repository.save(session);
 
         if (isFirstTurn && session.hasDefaultTitle()) {
@@ -166,7 +165,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options) {
-        ChatClient chatClient = chatClientFactory.createStateless(options);
+        ChatClient chatClient = chatClientProvider.createStateless(options);
         return chatClient.prompt()
                 .messages(messages.stream().map(this::toSpringMessage).toList())
                 .stream()
@@ -219,7 +218,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     public Optional<ChatSession> getSession(String sessionId) {
         return repository.findById(ChatSessionId.of(sessionId))
                 .map(session -> {
-                    memoryBridge.syncToSession(sessionId, session);
+                    conversationMemoryRepository.syncToSession(sessionId, session);
                     return session;
                 });
     }
@@ -228,13 +227,13 @@ public class SpringAiChatUseCase implements ChatUseCase {
     public List<ChatMessage> getSessionHistory(String sessionId) {
         ChatSession session = repository.findById(ChatSessionId.of(sessionId))
                 .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
-        memoryBridge.syncToSession(sessionId, session);
+        conversationMemoryRepository.syncToSession(sessionId, session);
         return session.getMessages();
     }
 
     @Override
     public void deleteSession(String sessionId) {
-        memoryBridge.clear(sessionId);
+        conversationMemoryRepository.clear(sessionId);
         repository.delete(ChatSessionId.of(sessionId));
         log.info("Deleted session: {}", sessionId);
     }
@@ -243,7 +242,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     public List<ChatSession> getAllSessions() {
         return repository.findAll().stream()
                 .map(session -> {
-                    memoryBridge.syncToSession(session.getId().value(), session);
+                    conversationMemoryRepository.syncToSession(session.getId().value(), session);
                     return session;
                 })
                 .toList();

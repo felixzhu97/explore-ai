@@ -1,6 +1,6 @@
 package com.ai.chat.infrastructure.config;
 
-import com.ai.chat.infrastructure.service.PromptTemplates;
+import com.ai.common.infrastructure.prompt.PromptTemplates;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;

@@ -10,7 +10,6 @@ export interface SegmentedControlOption<T extends string = string> {
 @Component({
   selector: 'app-segmented-control',
   imports: [],
-  standalone: true,
   template: `
     <div class="inline-flex gap-1 rounded-xl bg-surface p-1 shadow-card" role="tablist">
       @for (option of options(); track option.value) {

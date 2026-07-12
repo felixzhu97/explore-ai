@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ApiService } from '@core/services/api.service';
+import { ApiRagService } from '@core/services/api-rag.service';
 import { NotificationService } from '@core/services/notification.service';
 import { I18nService } from '@core/i18n';
 import { SourceDocument, RagQuery } from './rag.model';
@@ -31,7 +31,7 @@ const DEFAULT_TOP_K = 5;
 
 @Injectable({ providedIn: 'root' })
 export class RagService {
-  private readonly api = inject(ApiService);
+  private readonly api = inject(ApiRagService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18nService);
   private readonly sessionId = `session_${Date.now()}`;

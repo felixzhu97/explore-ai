@@ -1,13 +1,12 @@
 import { Component, signal, inject, ChangeDetectionStrategy, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '@core/services/api.service';
+import { ApiMediaService } from '@core/services/api-media.service';
 import { I18nService } from '@core/i18n';
 import type { ImageSize } from '../image.model';
 
 @Component({
   selector: 'app-image-gen-tab',
   imports: [FormsModule],
-  standalone: true,
   templateUrl: './image.component.html',
 
   styles: [`
@@ -39,7 +38,7 @@ import type { ImageSize } from '../image.model';
   host: { class: 'block min-w-0 w-full max-w-full' },
 })
 export class ImageComponent {
-  private readonly api = inject(ApiService);
+  private readonly api = inject(ApiMediaService);
   protected readonly i18n = inject(I18nService);
 
   zoom = output<string>();

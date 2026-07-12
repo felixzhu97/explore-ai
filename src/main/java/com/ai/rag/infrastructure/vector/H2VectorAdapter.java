@@ -1,6 +1,7 @@
 package com.ai.rag.infrastructure.vector;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
  * Stores embeddings as JSON arrays and performs cosine-similarity ranking in-process.
  */
 @Component
-public class H2VectorAdapter implements IDocumentChunkRepository {
+public class H2VectorAdapter implements IDocumentChunkRepository, DocumentChunkSearchRepository {
 
     private static final Logger log = LoggerFactory.getLogger(H2VectorAdapter.class);
     private static final String TABLE_NAME = "document_chunks";
