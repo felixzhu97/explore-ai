@@ -871,7 +871,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Some chunk text\n'),
+        value: encoder.encode('data: Some chunk text\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -939,7 +939,7 @@ describe('ApiService', () => {
       readResolve({
         done: false,
         value: encoder.encode(
-          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n',
+          'event: sources\ndata: [{"text":"source 1","score":0.9,"metadata":{}}]\n\n',
         ),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -978,7 +978,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Error:Database connection failed\n'),
+        value: encoder.encode('data: Error:Database connection failed\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1017,7 +1017,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n'),
+        value: encoder.encode('data: Line 1<br>Line 2<br>Line 3\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1056,7 +1056,7 @@ describe('ApiService', () => {
       // Send sources event followed by empty line, then chunk without event
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\n\ndata: chunk after reset\n'),
+        value: encoder.encode('event: sources\ndata: []\n\ndata: chunk after reset\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -1094,7 +1094,7 @@ describe('ApiService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       readResolve({
         done: false,
-        value: encoder.encode('event: sources\ndata: []\ndata: chunk after sources\n'),
+        value: encoder.encode('event: sources\ndata: []\n\ndata: chunk after sources\n\n'),
       });
       await new Promise(resolve => setTimeout(resolve, 10));
 

@@ -1,10 +1,9 @@
-package com.ai.rag.infrastructure.tools;
+package com.ai.rag.application.adapter;
 
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.infrastructure.tools.RagSearchTool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,20 +22,20 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("RagSearchTool")
-class RagSearchToolTest {
+@DisplayName("DocumentSearchToolAdapter")
+class DocumentSearchToolAdapterTest {
 
     @Mock
     private RagApplicationService ragApplicationService;
 
-    private RagSearchTool ragSearchTool;
+    private DocumentSearchToolAdapter documentSearchToolAdapter;
 
     private static final String TEST_DOC_ID = "550e8400-e29b-41d4-a716-446655440000";
     private static final String TEST_DOC_TITLE = "Test Document";
 
     @BeforeEach
     void setUp() {
-        ragSearchTool = new RagSearchTool(ragApplicationService);
+        documentSearchToolAdapter = new DocumentSearchToolAdapter(ragApplicationService);
     }
 
     @Nested
@@ -56,7 +55,7 @@ class RagSearchToolTest {
             when(ragApplicationService.retrieveContext(eq("test query"), isNull(), eq(5)))
                     .thenReturn(retrievalResult);
 
-            String result = ragSearchTool.searchDocuments("test query", null);
+            String result = documentSearchToolAdapter.searchDocuments("test query", null);
 
             assertThat(result).contains("找到以下相关文档片段");
             assertThat(result).contains("【来源 1】");
@@ -76,7 +75,7 @@ class RagSearchToolTest {
             when(ragApplicationService.retrieveContext(eq("test query"), anyList(), eq(5)))
                     .thenReturn(retrievalResult);
 
-            String result = ragSearchTool.searchDocuments("test query", List.of(TEST_DOC_ID));
+            String result = documentSearchToolAdapter.searchDocuments("test query", List.of(TEST_DOC_ID));
 
             assertThat(result).contains("找到以下相关文档片段");
             verify(ragApplicationService).retrieveContext(eq("test query"), anyList(), eq(5));
@@ -91,7 +90,7 @@ class RagSearchToolTest {
             when(ragApplicationService.retrieveContext(anyString(), any(), anyInt()))
                     .thenReturn(retrievalResult);
 
-            String result = ragSearchTool.searchDocuments("nonexistent", null);
+            String result = documentSearchToolAdapter.searchDocuments("nonexistent", null);
 
             assertThat(result).contains("没有找到与您查询相关的文档内容");
         }
@@ -99,7 +98,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should return message for blank query")
         void shouldReturnMessageForBlankQuery() {
-            String result = ragSearchTool.searchDocuments("  ", null);
+            String result = documentSearchToolAdapter.searchDocuments("  ", null);
 
             assertThat(result).isEqualTo("请提供有效的搜索查询");
             verifyNoInteractions(ragApplicationService);
@@ -108,7 +107,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should return message for null query")
         void shouldReturnMessageForNullQuery() {
-            String result = ragSearchTool.searchDocuments(null, null);
+            String result = documentSearchToolAdapter.searchDocuments(null, null);
 
             assertThat(result).isEqualTo("请提供有效的搜索查询");
             verifyNoInteractions(ragApplicationService);
@@ -127,7 +126,7 @@ class RagSearchToolTest {
             when(ragApplicationService.retrieveContext(anyString(), any(), anyInt()))
                     .thenReturn(retrievalResult);
 
-            String result = ragSearchTool.searchDocuments("test", null);
+            String result = documentSearchToolAdapter.searchDocuments("test", null);
 
             assertThat(result).contains("...");
             assertThat(result.length()).isLessThan(1000);
@@ -136,7 +135,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should handle invalid UUID format")
         void shouldHandleInvalidUuidFormat() {
-            String result = ragSearchTool.searchDocuments("test", List.of("invalid-uuid"));
+            String result = documentSearchToolAdapter.searchDocuments("test", List.of("invalid-uuid"));
 
             assertThat(result).contains("文档ID格式无效");
         }
@@ -153,7 +152,7 @@ class RagSearchToolTest {
             Document doc = new Document(docId, TEST_DOC_TITLE, "test.pdf", 1024L);
             when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
 
-            String result = ragSearchTool.listDocuments();
+            String result = documentSearchToolAdapter.listDocuments();
 
             assertThat(result).contains("知识库中的文档列表");
             assertThat(result).contains(TEST_DOC_ID);
@@ -165,7 +164,7 @@ class RagSearchToolTest {
         void shouldReturnMessageWhenNoDocuments() {
             when(ragApplicationService.listDocuments()).thenReturn(Collections.emptyList());
 
-            String result = ragSearchTool.listDocuments();
+            String result = documentSearchToolAdapter.listDocuments();
 
             assertThat(result).isEqualTo("知识库中暂无文档，请先上传文档。");
         }
@@ -175,7 +174,7 @@ class RagSearchToolTest {
         void shouldHandleServiceException() {
             when(ragApplicationService.listDocuments()).thenThrow(new RuntimeException("Service error"));
 
-            String result = ragSearchTool.listDocuments();
+            String result = documentSearchToolAdapter.listDocuments();
 
             assertThat(result).contains("获取文档列表时发生未知错误");
         }

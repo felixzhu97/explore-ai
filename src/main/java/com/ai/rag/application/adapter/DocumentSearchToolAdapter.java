@@ -30,10 +30,10 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
     }
 
     @Override
-    @Tool(name = "search_documents", description = "Search documents in the knowledge base for relevant information")
+    @Tool(name = "search_documents", description = "搜索知识库中的文档内容。根据用户问题搜索相关文档片段并返回匹配的内容和来源信息")
     public String searchDocuments(
-            @ToolParam(description = "The search query text") String query,
-            @ToolParam(description = "Optional list of document IDs to filter", required = false) List<String> docIds) {
+            @ToolParam(description = "搜索查询，用于在文档中查找相关内容") String query,
+            @ToolParam(description = "要搜索的文档ID列表（可选，不提供则搜索所有文档）", required = false) List<String> docIds) {
         if (query == null || query.isBlank()) {
             return "请提供有效的搜索查询";
         }
@@ -60,7 +60,7 @@ public class DocumentSearchToolAdapter implements DocumentSearchTool {
     }
 
     @Override
-    @Tool(name = "list_documents", description = "List all documents in the knowledge base")
+    @Tool(name = "list_documents", description = "列出知识库中的所有可用文档，返回文档ID和标题")
     public String listDocuments() {
         try {
             var documents = ragApplicationService.listDocuments();

@@ -1,5 +1,5 @@
 name: 'Setup Web Env'
-description: 'Checkout (shallow) + pnpm + Node 24 + install deps for the apps/web workspace'
+description: 'Checkout (shallow) + pnpm + Node 24 + install deps for the root Angular workspace (src/main/web)'
 inputs:
   node-version:
     description: 'Node.js version'

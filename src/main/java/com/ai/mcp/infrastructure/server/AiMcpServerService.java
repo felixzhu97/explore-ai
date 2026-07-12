@@ -1,7 +1,7 @@
 package com.ai.mcp.infrastructure.server;
 
+import com.ai.common.domain.port.out.DocumentSearchTool;
 import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.rag.infrastructure.tools.RagSearchTool;
 import com.ai.tools.infrastructure.tools.WeatherTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +18,12 @@ public class AiMcpServerService {
     private static final Logger log = LoggerFactory.getLogger(AiMcpServerService.class);
 
     private final WeatherTools weatherTools;
-    private final RagSearchTool ragSearchTool;
+    private final DocumentSearchTool documentSearchTool;
     private final ChatUseCase aiChatUseCase;
 
-    public AiMcpServerService(WeatherTools weatherTools, RagSearchTool ragSearchTool, ChatUseCase aiChatUseCase) {
+    public AiMcpServerService(WeatherTools weatherTools, DocumentSearchTool documentSearchTool, ChatUseCase aiChatUseCase) {
         this.weatherTools = weatherTools;
-        this.ragSearchTool = ragSearchTool;
+        this.documentSearchTool = documentSearchTool;
         this.aiChatUseCase = aiChatUseCase;
     }
 
@@ -53,13 +53,13 @@ public class AiMcpServerService {
             docIdList = List.of(docIds.split(","));
         }
 
-        return ragSearchTool.searchDocuments(query, docIdList);
+        return documentSearchTool.searchDocuments(query, docIdList);
     }
 
     @McpTool(name = "list_documents", description = "List all documents available in the knowledge base")
     public String listDocuments() {
         log.info("MCP tool: listDocuments called");
-        return ragSearchTool.listDocuments();
+        return documentSearchTool.listDocuments();
     }
 
     @McpTool(name = "ai_chat", description = "Chat with AI assistant")

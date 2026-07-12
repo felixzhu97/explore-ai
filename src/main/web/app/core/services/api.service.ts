@@ -18,93 +18,11 @@ import type {
   VisionResult,
 } from '@shared/models';
 import { environment } from '@env/environment';
+import { parseSseToken, streamSsePost } from '@core/streaming/sse-client';
 
 // ==================== Service URL ====================
 
 const BASE_URL = environment.apiBaseUrl;
-
-/** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
-function parseSseToken(data: string): string | null {
-  if (data === '') {
-    return '\n';
-  }
-
-  const first = data.trimStart()[0];
-  if (first === '{' || first === '[') {
-    try {
-      const parsed = JSON.parse(data) as { token?: string | number };
-      if (parsed && typeof parsed === 'object' && 'token' in parsed) {
-        const token = parsed.token;
-        if (token !== null && token !== undefined) {
-          return String(token);
-        }
-      }
-    } catch {
-      return data;
-    }
-    return null;
-  }
-
-  if (first === '"') {
-    try {
-      const parsed = JSON.parse(data);
-      return typeof parsed === 'string' ? parsed : data;
-    } catch {
-      return data;
-    }
-  }
-
-  return data;
-}
-
-interface SseEventPayload {
-  eventType: string;
-  data: string;
-}
-
-/** Accumulates SSE data lines until a blank line, joining with `\n` per SSE spec. */
-class SseEventAssembler {
-  private eventType = '';
-  private dataLines: string[] = [];
-
-  pushLine(line: string): SseEventPayload | null {
-    if (!line) {
-      return this.flush();
-    }
-
-    if (line.startsWith('event:')) {
-      this.eventType = line.slice(6).trim();
-      return null;
-    }
-
-    if (line.startsWith('data:')) {
-      let data = line.slice(5);
-      if (data.startsWith(' ')) {
-        data = data.slice(1);
-      }
-      this.dataLines.push(data);
-    }
-
-    return null;
-  }
-
-  flush(): SseEventPayload | null {
-    if (this.dataLines.length === 0) {
-      this.eventType = '';
-      return null;
-    }
-
-    const payload: SseEventPayload = {
-      eventType: this.eventType,
-      data: this.dataLines.join('\n'),
-    };
-    this.dataLines = [];
-    this.eventType = '';
-    return payload;
-  }
-}
-
-// ==================== Default Providers ====================
 
 export const DEFAULT_PROVIDERS: ProviderInfo[] = [
   {
@@ -218,60 +136,17 @@ export class ApiService {
     onDone: () => void,
     onError: (err: Error) => void,
   ): { abort: () => void } {
-    const controller = new AbortController();
-    const sseAssembler = new SseEventAssembler();
-
-    const readerPromise = fetch(`${BASE_URL}/text/chat/stream`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    }).then(async (response) => {
-      if (!response.ok) {
-        onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-        return;
+    let finished = false;
+    const finish = () => {
+      if (!finished) {
+        finished = true;
+        onDone();
       }
+    };
 
-      if (!response.body) {
-        onError(new Error('No response body'));
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      const processBuffer = (flushPending = false) => {
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const rawLine of lines) {
-          const line = rawLine.replace(/\r$/, '');
-          const event = sseAssembler.pushLine(line);
-          if (event !== null && handleSseEvent(event)) {
-            return true;
-          }
-        }
-
-        if (flushPending) {
-          const event = sseAssembler.flush();
-          if (event !== null && handleSseEvent(event)) {
-            return true;
-          }
-        }
-
-        return false;
-      };
-
-      const handleSseEvent = (event: SseEventPayload): boolean => {
-        const { eventType, data } = event;
-
-        if (data === '[DONE]') {
-          finish();
-          return true;
-        }
-
-        if (eventType === 'done') {
+    return streamSsePost(`${BASE_URL}/text/chat/stream`, request, {
+      onEvent: ({ eventType, data }) => {
+        if (data === '[DONE]' || eventType === 'done') {
           finish();
           return true;
         }
@@ -295,49 +170,10 @@ export class ApiService {
           onChunk(token);
         }
         return false;
-      };
-
-      let finished = false;
-      const finish = () => {
-        if (!finished) {
-          finished = true;
-          onDone();
-        }
-      };
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (value) {
-            buffer += decoder.decode(value, { stream: !done });
-          }
-          if (processBuffer()) {
-            finished = true;
-            break;
-          }
-          if (done) {
-            buffer += decoder.decode(undefined, { stream: false });
-            processBuffer(true);
-            break;
-          }
-        }
-        finish();
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          onError(err as Error);
-        }
-      }
+      },
+      onDone: finish,
+      onError,
     });
-
-    readerPromise.catch((err) => {
-      if ((err as Error).name !== 'AbortError') {
-        onError(err as Error);
-      }
-    });
-
-    return {
-      abort: () => controller.abort(),
-    };
   }
 
   // ==================== RAG ====================
@@ -366,105 +202,35 @@ export class ApiService {
     onDone: () => void,
     onError: (err: Error) => void,
   ): { abort: () => void } {
-    const controller = new AbortController();
-    let currentEvent = '';
-
-    fetch(`${BASE_URL}/rag/chat/stream`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(query),
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-          return;
+    return streamSsePost(`${BASE_URL}/rag/chat/stream`, query, {
+      onEvent: ({ eventType, data }) => {
+        if (data === '[DONE]') {
+          onDone();
+          return true;
         }
 
-        if (!response.body) {
-          onError(new Error('No response body'));
-          return;
+        if (data.startsWith('Error:')) {
+          onError(new Error(data.slice(6)));
+          return true;
         }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        const processBuffer = () => {
-          const lines = buffer.split('\n');
-          buffer = lines.pop() ?? '';
-
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed) {
-              currentEvent = '';
-              continue;
-            }
-
-            if (trimmed.startsWith('event:')) {
-              currentEvent = trimmed.slice(6).trim();
-              continue;
-            }
-
-            if (trimmed.startsWith('data:')) {
-              const data = trimmed.slice(5).trim();
-
-              if (data === '[DONE]') {
-                onDone();
-                return true;
-              }
-
-              if (data.startsWith('Error:')) {
-                onError(new Error(data.slice(6)));
-                return true;
-              }
-
-              if (currentEvent === 'sources') {
-                try {
-                  const sources = JSON.parse(data);
-                  onSources(Array.isArray(sources) ? sources : []);
-                } catch {
-                  /* ignore */
-                }
-                currentEvent = ''; // Reset after processing sources
-                continue;
-              }
-
-              // Replace <br> with newlines for chunk data
-              const displayData = data.replace(/<br\s*\/?>/gi, '\n');
-              if (displayData !== data) {
-                onChunk(displayData);
-              } else {
-                onChunk(data);
-              }
-            }
+        if (eventType === 'sources') {
+          try {
+            const sources = JSON.parse(data);
+            onSources(Array.isArray(sources) ? sources : []);
+          } catch {
+            /* ignore */
           }
           return false;
-        };
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            if (processBuffer()) break;
-          }
-          onDone();
-        } catch (err) {
-          if ((err as Error).name !== 'AbortError') {
-            onError(err as Error);
-          }
         }
-      })
-      .catch((err) => {
-        if ((err as Error).name !== 'AbortError') {
-          onError(err as Error);
-        }
-      });
 
-    return {
-      abort: () => controller.abort(),
-    };
+        const displayData = data.replace(/<br\s*\/?>/gi, '\n');
+        onChunk(displayData);
+        return false;
+      },
+      onDone,
+      onError,
+    });
   }
 
   // ==================== Image Generation ====================
