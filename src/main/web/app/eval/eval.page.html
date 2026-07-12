@@ -5,16 +5,18 @@
   </header>
 
   <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-    <label class="block text-sm font-medium text-foreground">User Message</label>
+    <label class="block text-sm font-medium text-foreground" for="eval-user-message">User Message</label>
     <textarea
+      id="eval-user-message"
       class="mt-2 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
       rows="3"
       [ngModel]="userMessage()"
       (ngModelChange)="userMessage.set($event)"
     ></textarea>
 
-    <label class="mt-4 block text-sm font-medium text-foreground">Assistant Response</label>
+    <label class="mt-4 block text-sm font-medium text-foreground" for="eval-assistant-response">Assistant Response</label>
     <textarea
+      id="eval-assistant-response"
       class="mt-2 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
       rows="4"
       [ngModel]="assistantResponse()"
@@ -22,6 +24,7 @@
     ></textarea>
 
     <button
+      type="button"
       z-button
       zType="default"
       class="mt-4"
