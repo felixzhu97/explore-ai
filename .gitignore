@@ -58,8 +58,9 @@ nunit-result-*.xml
 playwright-report/
 playwright/.cache/
 blob-report/
+e2e/snapshots/
 
-# Default Playwright per-spec snapshot dirs (baselines live in e2e/snapshots/)
+# Default Playwright per-spec snapshot dirs
 **/*-snapshots/
 
 # Cursor MCP output
