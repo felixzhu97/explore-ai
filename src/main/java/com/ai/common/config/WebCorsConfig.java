@@ -1,13 +1,11 @@
 package com.ai.common.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * Web CORS configuration.
@@ -16,7 +14,7 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableConfigurationProperties(CorsProperties.class)
-public class WebCorsConfig {
+public class WebCorsConfig implements WebMvcConfigurer {
 
     private static final String API_PATH_PATTERN = "/api/**";
 
@@ -26,20 +24,17 @@ public class WebCorsConfig {
         this.corsProperties = corsProperties;
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(corsProperties.getAllowedOriginPatterns().stream()
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        List<String> patterns = corsProperties.getAllowedOriginPatterns().stream()
                 .map(String::trim)
-                .toList());
-        configuration.setAllowedMethods(
-                Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+                .toList();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration(API_PATH_PATTERN, configuration);
-        return source;
+        registry.addMapping(API_PATH_PATTERN)
+                .allowedOriginPatterns(patterns.toArray(String[]::new))
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
