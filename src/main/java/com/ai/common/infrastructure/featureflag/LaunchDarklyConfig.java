@@ -1,10 +1,12 @@
 package com.ai.common.infrastructure.featureflag;
 
 import com.ai.common.config.LaunchDarklyProperties;
+import com.ai.common.domain.repository.FeatureFlagRepository;
 import com.launchdarkly.sdk.server.LDClient;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +29,12 @@ public class LaunchDarklyConfig {
         ldClient = new LDClient(properties.getSdkKey());
         LaunchDarklyClientSupport.waitForInitialization(ldClient, Duration.ofSeconds(5));
         return ldClient;
+    }
+
+    @Bean
+    @ConditionalOnBean(LDClient.class)
+    public FeatureFlagRepository launchDarklyFeatureFlagRepository(LDClient client) {
+        return new LaunchDarklyFeatureFlagRepository(client);
     }
 
     @PreDestroy
