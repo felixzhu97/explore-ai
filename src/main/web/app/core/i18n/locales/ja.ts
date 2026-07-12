@@ -12,6 +12,9 @@ export const ja: Translations = {
   nav: {
     imageAnalysis: '画像分析',
     documentQA: 'ドキュメント',
+    mcp: 'MCP',
+    eval: '評価',
+    speechToText: '音声認識',
     supervisor: 'Supervisor',
     kubernetes: 'K8s',
     monitoring: '監視',

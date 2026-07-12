@@ -49,6 +49,9 @@ describe('i18n.model', () => {
       const requiredNavKeys = [
         'imageAnalysis',
         'documentQA',
+        'mcp',
+        'eval',
+        'speechToText',
         'supervisor',
         'kubernetes',
         'monitoring',

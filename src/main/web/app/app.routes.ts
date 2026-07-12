@@ -15,8 +15,23 @@ export const routes: Routes = [
       },
       {
         path: 'vision',
-        canMatch: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION)],
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION)],
         loadComponent: () => import('./vision/vision.page').then(m => m.VisionPageComponent),
+      },
+      {
+        path: 'mcp',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_MCP)],
+        loadComponent: () => import('./mcp/mcp.page').then(m => m.McpPageComponent),
+      },
+      {
+        path: 'eval',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_EVAL)],
+        loadComponent: () => import('./eval/eval.page').then(m => m.EvalPageComponent),
+      },
+      {
+        path: 'asr',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR)],
+        loadComponent: () => import('./asr/asr.page').then(m => m.AsrPageComponent),
       },
       {
         path: 'chat',
