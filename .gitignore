@@ -53,16 +53,19 @@ test-output/
 test-results/
 nunit-result-*.xml
 
-# Playwright
+# Playwright E2E artifacts
 .playwright-mcp/
+playwright-report/
+playwright/.cache/
+blob-report/
+e2e/snapshots/
+
+# Default Playwright per-spec snapshot dirs
+**/*-snapshots/
 
 # Cursor MCP output
 .cursor/mcp-output/
 
-# Playwright E2E
-playwright-report/
-playwright/.cache/
-*-snapshots/
 
 # Documentation images (keep these tracked)
 !docs/png/*.png

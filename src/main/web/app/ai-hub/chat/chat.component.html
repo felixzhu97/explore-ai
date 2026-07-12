@@ -66,23 +66,20 @@
 <!-- Messages -->
 <div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
     @if (chat.messages().length === 0) {
-        <app-chat-empty-state [message]="i18n.t().agents.startConversation" />
+        <app-chat-welcome-panel
+                class="h-full"
+                [title]="i18n.t().chat.welcomeTitle"
+                [description]="i18n.t().chat.welcomeDescription"
+                [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+                [prompts]="chatPrompts()"
+                (promptSelect)="onPromptSelect($event)"
+        />
     } @else {
-        <div class="space-y-6">
-            @for (msg of chat.messages(); track msg.id) {
-                @if (msg.role === 'user') {
-                    <app-chat-user-message [content]="msg.content" />
-                } @else {
-                    <app-chat-assistant-message
-                        [content]="msg.content"
-                        [timestamp]="msg.timestamp"
-                        [streaming]="chat.streamingMessageId() === msg.id"
-                        [thinkingLabel]="i18n.t().chat.thinking"
-                    />
-                }
-            }
-            <div #messagesEnd></div>
-        </div>
+        <app-chat-bubble-list
+                [messages]="bubbleMessages()"
+                [streamingMessageId]="chat.streamingMessageId()"
+                [thinkingLabel]="i18n.t().chat.thinking"
+        />
     }
 </div>
 

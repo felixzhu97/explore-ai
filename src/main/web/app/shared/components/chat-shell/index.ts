@@ -1,3 +1,3 @@
-export * from './chat-empty-state.component';
-export * from './chat-user-message.component';
-export * from './chat-assistant-message.component';
+export * from './chat-bubble.model';
+export * from './chat-welcome-panel.component';
+export * from './chat-bubble-list.component';

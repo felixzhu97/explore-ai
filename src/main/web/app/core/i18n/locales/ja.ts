@@ -127,6 +127,26 @@ export const ja: Translations = {
   chat: {
     thinking: '考え中...',
     inputPlaceholder: 'メッセージを入力...',
+    welcomeTitle: '今日は何をお手伝いできますか？',
+    welcomeDescription: 'エージェントとの会話を始めましょう',
+    suggestedPromptsTitle: 'おすすめプロンプト',
+    suggestedPrompts: [
+      {
+        key: 'explain',
+        label: '概念を説明',
+        description: 'トピックをわかりやすく解説',
+      },
+      {
+        key: 'summarize',
+        label: '要約する',
+        description: '要点を簡潔にまとめる',
+      },
+      {
+        key: 'brainstorm',
+        label: 'アイデアを出す',
+        description: '問題に対する創造的な案を生成',
+      },
+    ],
   },
   generate: {
     tabs: {

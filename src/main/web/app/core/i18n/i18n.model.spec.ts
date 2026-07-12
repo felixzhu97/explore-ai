@@ -205,6 +205,10 @@ describe('i18n.model', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           expect(translations[lang].chat.thinking).toBeDefined();
           expect(translations[lang].chat.inputPlaceholder).toBeDefined();
+          expect(translations[lang].chat.welcomeTitle).toBeDefined();
+          expect(translations[lang].chat.welcomeDescription).toBeDefined();
+          expect(translations[lang].chat.suggestedPromptsTitle).toBeDefined();
+          expect(translations[lang].chat.suggestedPrompts).toHaveLength(3);
         });
       });
     });

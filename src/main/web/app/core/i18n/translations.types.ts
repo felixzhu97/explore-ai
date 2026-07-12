@@ -119,6 +119,14 @@ export interface Translations {
   chat: {
     thinking: string;
     inputPlaceholder: string;
+    welcomeTitle: string;
+    welcomeDescription: string;
+    suggestedPromptsTitle: string;
+    suggestedPrompts: {
+      key: string;
+      label: string;
+      description: string;
+    }[];
   };
   generate: {
     tabs: {

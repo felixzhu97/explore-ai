@@ -34,64 +34,22 @@
 <!-- Messages -->
 <div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
     @if (ragService.messages().length === 0) {
-        <app-chat-empty-state [message]="i18n.t().ragChat.askQuestion">
-            <div class="mt-2 flex flex-wrap justify-center gap-2">
-                <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.whatIsThis)">
-                    {{ i18n.t().ragChat.whatIsThis }}
-                </button>
-                <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.summarize)">
-                    {{ i18n.t().ragChat.summarize }}
-                </button>
-                <button type="button" class="cursor-pointer rounded-full border border-primary bg-transparent px-3 py-1.5 text-sm text-primary" (click)="setInput(i18n.t().ragChat.keyInfo)">
-                    {{ i18n.t().ragChat.keyInfo }}
-                </button>
-            </div>
-        </app-chat-empty-state>
+        <app-chat-welcome-panel
+                class="h-full"
+                [title]="i18n.t().ragChat.title"
+                [description]="i18n.t().ragChat.askQuestion"
+                [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+                [prompts]="ragPrompts()"
+                (promptSelect)="onPromptSelect($event)"
+        />
     } @else {
-        <div class="mx-auto max-w-[880px] space-y-6">
-            @for (msg of ragService.messages(); track msg.id) {
-                @if (msg.role === 'user') {
-                    <app-chat-user-message [content]="msg.content" [images]="msg.images" />
-                } @else {
-                    <app-chat-assistant-message
-                        [content]="msg.content"
-                        [timestamp]="msg.timestamp"
-                        [streaming]="ragService.streamingMessageIds().has(msg.id)"
-                        [thinkingLabel]="i18n.t().chat.thinking"
-                        icon="document"
-                    >
-                        @if (msg.sources && msg.sources.length > 0 && ragService.expandedSources().has(msg.id)) {
-                            <div class="mt-2 rounded-lg bg-surface-secondary p-3">
-                                <div class="mb-2 text-sm font-semibold text-text">📖 {{ i18n.t().ragChat.sources }}</div>
-                                @for (source of msg.sources.slice(0, 3); track $index) {
-                                    <div class="border-b border-border-light py-2 last:border-0">
-                                        <div class="mb-1 text-sm text-text">
-                                            {{ source.text.length > 200 ? `${source.text.slice(0, 200)}...` : source.text }}
-                                        </div>
-                                        <div class="text-xs text-text-tertiary">
-                                            <span>{{ i18n.t().ragChat.similarity }}: {{ (source.score * 100).toFixed(1) }}%</span>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        @if (msg.sources && msg.sources.length > 0) {
-                            <span
-                                    class="mt-1 flex cursor-pointer items-center gap-1 text-xs text-text-secondary"
-                                    (click)="ragService.toggleSources(msg.id)"
-                                    (keydown.enter)="ragService.toggleSources(msg.id)"
-                                    tabindex="0"
-                                    role="button"
-                            >
-                                📚 {{ i18n.t().ragChat.basedOn.replace('{count}', msg.sources.length.toString()) }}
-                                {{ ragService.expandedSources().has(msg.id) ? '▲' : '▼' }}
-                            </span>
-                        }
-                    </app-chat-assistant-message>
-                }
-            }
-            <div #messagesEnd></div>
-        </div>
+        <app-chat-bubble-list
+                [messages]="bubbleMessages()"
+                [streamingMessageIds]="ragService.streamingMessageIds()"
+                [thinkingLabel]="i18n.t().chat.thinking"
+                [footerLabels]="footerLabels()"
+                (toggleSources)="onToggleSources($event)"
+        />
     }
 </div>
 

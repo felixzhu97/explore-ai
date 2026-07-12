@@ -102,6 +102,26 @@ export const zh: Translations = {
   chat: {
     thinking: '思考中...',
     inputPlaceholder: '输入消息...',
+    welcomeTitle: '今天我能帮你什么？',
+    welcomeDescription: '开始与 Agent 对话',
+    suggestedPromptsTitle: '推荐提示',
+    suggestedPrompts: [
+      {
+        key: 'explain',
+        label: '解释一个概念',
+        description: '用简单的方式拆解一个主题',
+      },
+      {
+        key: 'summarize',
+        label: '总结要点',
+        description: '获取关键信息的简洁摘要',
+      },
+      {
+        key: 'brainstorm',
+        label: '头脑风暴',
+        description: '为问题生成创意方案',
+      },
+    ],
   },
   generate: {
     tabs: {
