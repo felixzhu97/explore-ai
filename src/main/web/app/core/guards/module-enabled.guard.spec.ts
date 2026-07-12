@@ -1,14 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { Route, UrlSegment, type CanMatchFn } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { FEATURE_FLAG_KEYS } from '@core/config/feature-flag-keys';
 import { FeatureFlagService } from '@core/services/feature-flag.service';
 import { moduleEnabledGuard } from '@core/guards/module-enabled.guard';
 
 describe('moduleEnabledGuard', () => {
-  const route: Route = { path: 'vision' };
-  const segments = [new UrlSegment('vision', {})];
-  const snapshot = {} as Parameters<CanMatchFn>[2];
+  const route = {} as ActivatedRouteSnapshot;
+  const state = {} as RouterStateSnapshot;
 
   it('should_allowRoute_when_flagEnabled', () => {
     const featureFlags = {
@@ -20,27 +19,47 @@ describe('moduleEnabledGuard', () => {
     });
 
     const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION);
-    const canMatch = TestBed.runInInjectionContext(
-      () => guard(route, segments, snapshot),
-    );
+    const canActivate = TestBed.runInInjectionContext(() => guard(route, state));
 
-    expect(canMatch).toBe(true);
+    expect(canActivate).toBe(true);
   });
 
-  it('should_blockRoute_when_flagDisabled', () => {
+  it('should_redirectToChat_when_flagDisabled', () => {
     const featureFlags = {
       isEnabled: vi.fn().mockReturnValue(false),
+    };
+    const router = {
+      createUrlTree: vi.fn().mockReturnValue({} as UrlTree),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: FeatureFlagService, useValue: featureFlags },
+        { provide: Router, useValue: router },
+      ],
+    });
+
+    const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_MCP);
+    const canActivate = TestBed.runInInjectionContext(() => guard(route, state));
+
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/chat']);
+    expect(canActivate).toEqual({});
+  });
+
+  it('should_supportEvalFlag', () => {
+    const featureFlags = {
+      isEnabled: vi.fn().mockImplementation(
+        (key: string) => key === FEATURE_FLAG_KEYS.MODULE_EVAL,
+      ),
     };
 
     TestBed.configureTestingModule({
       providers: [{ provide: FeatureFlagService, useValue: featureFlags }],
     });
 
-    const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION);
-    const canMatch = TestBed.runInInjectionContext(
-      () => guard(route, segments, snapshot),
-    );
+    const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_EVAL);
+    const canActivate = TestBed.runInInjectionContext(() => guard(route, state));
 
-    expect(canMatch).toBe(false);
+    expect(canActivate).toBe(true);
   });
 });

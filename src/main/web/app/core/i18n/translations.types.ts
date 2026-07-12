@@ -29,6 +29,9 @@ export interface Translations {
   nav: {
     imageAnalysis: string;
     documentQA: string;
+    mcp: string;
+    eval: string;
+    speechToText: string;
     supervisor: string;
     kubernetes: string;
     monitoring: string;

@@ -12,6 +12,9 @@ export const zh: Translations = {
   nav: {
     imageAnalysis: '图像分析',
     documentQA: '文档问答',
+    mcp: 'MCP',
+    eval: '评估',
+    speechToText: '语音转写',
     supervisor: '协调器',
     kubernetes: 'K8s',
     monitoring: '监控',

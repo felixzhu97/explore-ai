@@ -12,6 +12,9 @@ export const fr: Translations = {
   nav: {
     imageAnalysis: 'Analyse d\'images',
     documentQA: 'Documents',
+    mcp: 'MCP',
+    eval: 'Évaluation',
+    speechToText: 'Transcription vocale',
     supervisor: 'Supervisor',
     kubernetes: 'K8s',
     monitoring: 'Surveillance',
