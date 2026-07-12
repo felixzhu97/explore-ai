@@ -1,4 +1,4 @@
-package com.ai.chat.web;
+package com.ai.common.web;
 
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.domain.exception.VisionProviderUnavailableException;

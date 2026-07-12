@@ -1,7 +1,7 @@
 package com.ai.mcp.application.usecase;
 
-import com.ai.chat.application.usecase.ChatClientProvider;
-import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.mcp.application.port.McpToolCallbackRegistry;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;

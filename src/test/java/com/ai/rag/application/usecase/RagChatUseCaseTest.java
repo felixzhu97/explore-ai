@@ -1,8 +1,9 @@
 package com.ai.rag.application.usecase;
 
-import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.chat.domain.service.LanguageDetectionService;
-import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +85,7 @@ class RagChatUseCaseTest {
             when(ragApplicationService.retrieveContext(eq(question), isNull(), eq(5))).thenReturn(retrievalResult);
             when(callResponseSpec.content()).thenReturn(aiResponse);
 
-            RagChatUseCase.ChatResult result = ragChatUseCase.chat(question, null, null);
+            RagChatResult result = ragChatUseCase.chat(question, null, null);
 
             assertThat(result).isNotNull();
             assertThat(result.response()).isEqualTo(aiResponse);

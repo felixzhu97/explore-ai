@@ -2,6 +2,7 @@ package com.ai.chat.application.usecase;
 
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
+import com.ai.common.application.llm.TextChatOptions;
 import reactor.core.publisher.Flux;
 
 import java.util.List;

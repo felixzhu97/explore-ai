@@ -1,20 +1,25 @@
 spring:
   datasource:
-    url: ${TESTCONTAINERS_JDBC_URL}
-    username: ${TESTCONTAINERS_USERNAME}
-    password: ${TESTCONTAINERS_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:explore-ai-test;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-  flyway:
+  liquibase:
     enabled: false
   ai:
     openai:
       api-key: test-key
       base-url: https://api.deepseek.com
+
+app:
+  modules:
+    vision: false
+    audio-asr: false
+    mcp: false
+    eval: true
+  vision:
+    enabled: false

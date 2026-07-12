@@ -50,7 +50,7 @@ C4-Deployment
 
 ### 后端 (AI Platform Backend)
 
-- **运行时**: Spring Boot 4.0 / Java 25 / Spring AI 2.0
+- **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0 / Angular 22
 - **端口**: **9000** (统一)
 - **子域**: Chat / RAG / RAG ETL / Tools / Analysis / Eval / Image / **Vision** / Audio (TTS+ASR) / MCP Server / MCP Client
 - **向量库**: H2 嵌入式向量 (默认) / PostgreSQL + pgvector (可选)

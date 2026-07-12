@@ -6,6 +6,8 @@ import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

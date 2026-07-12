@@ -4,6 +4,7 @@ import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.rag.infrastructure.config.RagProperties;
 import com.ai.tools.infrastructure.tools.WeatherTools;
+import com.ai.common.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpResource;
@@ -72,7 +73,7 @@ public class AiMcpServerService {
     @McpTool(name = "ai_chat", description = "Chat with AI assistant")
     public String aiChat(
             @McpToolParam(description = "The message to send to the AI", required = true) String message) {
-        log.info("MCP tool: aiChat called with message: {}", truncate(message, 50));
+        log.info("MCP tool: aiChat called with message: {}", LogSanitizer.truncate(message, 50));
         return aiChatUseCase.chat(message);
     }
 
@@ -89,13 +90,4 @@ public class AiMcpServerService {
         };
     }
 
-    private String truncate(String text, int maxLength) {
-        if (text == null) {
-            return "null";
-        }
-        if (text.length() <= maxLength) {
-            return text;
-        }
-        return text.substring(0, maxLength) + "...";
-    }
 }

@@ -1,7 +1,8 @@
 package com.ai.chat.application.usecase;
 
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

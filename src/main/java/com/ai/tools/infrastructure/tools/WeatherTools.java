@@ -1,5 +1,6 @@
 package com.ai.tools.infrastructure.tools;
 
+import com.ai.common.domain.repository.WeatherTool;
 import com.ai.tools.domain.exception.InvalidWeatherQueryException;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
@@ -9,7 +10,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WeatherTools {
+public class WeatherTools implements WeatherTool {
 
     private final WeatherReport weatherReport;
 

@@ -1,9 +1,10 @@
 package com.ai.tools.application.usecase;
 
-import com.ai.chat.application.usecase.TextChatOptions;
-import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.util.LogSanitizer;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
@@ -40,7 +41,7 @@ public class ToolsFacade {
     }
 
     public String chatWithTools(String question) {
-        log.info("ToolsFacade.chatWithTools: {}", truncate(question));
+        log.info("ToolsFacade.chatWithTools: {}", LogSanitizer.truncate(question));
         ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
         return chatClient.prompt()
                 .user(question)
@@ -59,7 +60,7 @@ public class ToolsFacade {
     }
 
     public String searchDocuments(String query, List<String> docIds) {
-        log.info("ToolsFacade.searchDocuments: {}", truncate(query));
+        log.info("ToolsFacade.searchDocuments: {}", LogSanitizer.truncate(query));
         return documentSearchTool.searchDocuments(query, docIds);
     }
 
@@ -69,17 +70,8 @@ public class ToolsFacade {
     }
 
     public String searchWeb(String query) {
-        log.info("ToolsFacade.searchWeb: {}", truncate(query));
+        log.info("ToolsFacade.searchWeb: {}", LogSanitizer.truncate(query));
         return webSearchTool.searchWeb(query);
     }
 
-    private String truncate(String text) {
-        if (text == null) {
-            return "null";
-        }
-        if (text.length() <= 50) {
-            return text;
-        }
-        return text.substring(0, 50) + "...";
-    }
 }

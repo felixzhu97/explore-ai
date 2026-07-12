@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^@angular/", "^angular-eslint", "^@angular-eslint/"],
+      "groupName": "Angular"
+    },
+    {
+      "matchPackagePatterns": ["^org.springframework", "^org.springframework.ai"],
+      "groupName": "Spring"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": false
+    }
+  ],
+  "schedule": ["before 6am on Monday"]
+}

@@ -1,8 +1,5 @@
-package com.ai.chat.application.usecase;
+package com.ai.common.application.llm;
 
-/**
- * Runtime options for text chat requests (provider, model, tools).
- */
 public record TextChatOptions(
         String provider,
         String model,
@@ -24,5 +21,9 @@ public record TextChatOptions(
 
     public static TextChatOptions of(String provider, String model, Boolean toolsEnabled) {
         return new TextChatOptions(provider, model, Boolean.TRUE.equals(toolsEnabled));
+    }
+
+    public static TextChatOptions ollamaVision(String model) {
+        return new TextChatOptions("ollama", model, false);
     }
 }

@@ -9,12 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['src/main/web/test-setup.ts'],
-    exclude: [
-      'src/main/web/app/app.config.spec.ts',
-      'src/main/web/app/ai/ai-hub/ai-hub.component.spec.ts',
-      'src/main/web/app/panels/agent-panel/agent-panel.component.spec.ts',
-      'src/main/web/app/panels/ai-infra-panel/ai-infra-panel.component.spec.ts',
-    ],
+    exclude: ['src/main/web/app/app.config.spec.ts'],
   },
   resolve: {
     alias: {

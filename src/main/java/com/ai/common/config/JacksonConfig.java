@@ -1,4 +1,4 @@
-package com.ai.shared.config;
+package com.ai.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

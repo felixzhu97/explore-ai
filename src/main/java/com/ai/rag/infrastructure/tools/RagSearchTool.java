@@ -3,6 +3,7 @@ package com.ai.rag.infrastructure.tools;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.domain.vo.DocumentId;
+import com.ai.common.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
@@ -87,7 +88,7 @@ public class RagSearchTool implements DocumentSearchTool {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < sources.size(); i++) {
             var source = sources.get(i);
-            String content = truncate(source.text());
+            String content = LogSanitizer.truncate(source.text(), MAX_CONTENT_LENGTH);
             sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
             if (source.metadata() != null && source.metadata().get("title") instanceof String title) {
                 sb.append(String.format("文档: %s\n", title));
@@ -97,9 +98,4 @@ public class RagSearchTool implements DocumentSearchTool {
         return sb.toString();
     }
 
-    private String truncate(String content) {
-        return content.length() > MAX_CONTENT_LENGTH
-                ? content.substring(0, MAX_CONTENT_LENGTH) + "..."
-                : content;
-    }
 }

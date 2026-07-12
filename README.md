@@ -132,32 +132,28 @@ explore-ai/
 ├── src/main/java/com/ai/
 │   ├── chat/           # AI 对话
 │   ├── rag/            # RAG 文档问答
-│   │   ├── domain/
-│   │   │   ├── model/      # Document, DocumentChunk, RawDocument
-│   │   │   ├── port/       # ETL 端口 (DocumentReader/Transformer/Writer)
-│   │   │   └── repository/ # 端口接口
-│   │   └── infrastructure/
-│   │       └── etl/        # ETL 适配器实现
+│   │   ├── domain/repository/  # DocumentReader, DocumentWriter 等
+│   │   └── infrastructure/     # 向量存储、ETL 适配器
 │   ├── tools/          # Tool Calling (天气/搜索)
 │   ├── image/          # 图像生成
-│   ├── vision/         # 图像分析 (Caption/Detect/OCR)
-│   │   ├── domain/         # 端口、模型、异常
-│   │   ├── application/    # VisionAnalysisUseCase
-│   │   ├── infrastructure/ # ONNX/Tess4J 适配器
-│   │   └── web/            # VisionController
+│   ├── vision/         # 图像分析 (Caption/Detect/OCR) — 本地模块
 │   ├── audio/          # 语音合成 + ASR
-│   ├── analysis/     # 文本结构化分析
-│   ├── eval/           # Chat 质量评估
-│   └── mcp/            # MCP Server/Client
+│   ├── analysis/       # 文本结构化分析
+│   ├── eval/           # Chat 质量评估 — 可选模块
+│   ├── mcp/            # MCP Server/Client — 可选模块
+│   └── common/         # 共享配置、LLM 工厂、全局异常处理
 │
-├── src/main/web/       # Angular 前端
+├── src/main/web/       # Angular 22 前端
 │   └── app/
 │       ├── rag/        # RAG 页面
-│       ├── vision/     # 视觉分析
+│       ├── vision/     # 视觉分析（可按环境关闭）
 │       └── ai-hub/     # AI Hub (对话/TTS/图像)
 │
+├── docs/local-features.md  # 本地全功能 vs 云端精简部署说明
 └── docs/c4/           # C4 架构图
 ```
+
+云端部署（Railway + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。详见 [docs/local-features.md](docs/local-features.md)。
 
 ---
 

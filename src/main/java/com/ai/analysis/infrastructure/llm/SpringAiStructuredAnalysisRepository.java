@@ -5,6 +5,8 @@ import com.ai.analysis.domain.model.TextAnalysis;
 import com.ai.analysis.domain.repository.StructuredAnalysisRepository;
 import com.ai.analysis.domain.vo.AnalysisText;
 import com.ai.analysis.domain.vo.LanguageHint;
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.ai.chat.client.AdvisorParams;
@@ -16,10 +18,10 @@ import java.util.List;
 @Repository
 public class SpringAiStructuredAnalysisRepository implements StructuredAnalysisRepository {
 
-    private final ChatClient chatClient;
+    private final ChatClientProvider chatClientProvider;
 
-    public SpringAiStructuredAnalysisRepository(ChatClient.Builder chatClientBuilder) {
-        this.chatClient = chatClientBuilder.build();
+    public SpringAiStructuredAnalysisRepository(ChatClientProvider chatClientProvider) {
+        this.chatClientProvider = chatClientProvider;
     }
 
     @Override
@@ -27,6 +29,7 @@ public class SpringAiStructuredAnalysisRepository implements StructuredAnalysisR
         LanguageHint effectiveHint = hint != null ? hint : LanguageHint.none();
         String prompt = text.buildAnalysisPrompt(effectiveHint);
 
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
         StructuredAnalysisEntity entity = chatClient.prompt()
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(prompt)

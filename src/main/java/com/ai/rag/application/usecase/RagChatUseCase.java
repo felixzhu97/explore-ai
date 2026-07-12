@@ -1,9 +1,11 @@
 package com.ai.rag.application.usecase;
 
+import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
+import com.ai.common.util.LogSanitizer;
+import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.chat.application.usecase.ChatClientProvider;
-import com.ai.chat.application.usecase.TextChatOptions;
 import com.ai.chat.domain.service.LanguageDetectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +33,8 @@ public class RagChatUseCase {
         this.languageDetectionService = languageDetectionService;
     }
 
-    public record ChatResult(
-            String response,
-            List<SourceDocument> sources
-    ) {}
-
-    public ChatResult chat(String question, List<String> docIds, Integer topK) {
-        log.info("RAG chat request: {}", truncate(question));
+    public RagChatResult chat(String question, List<String> docIds, Integer topK) {
+        log.info("RAG chat request: {}", LogSanitizer.truncate(question));
 
         List<DocumentId> docIdList = null;
         if (docIds != null && !docIds.isEmpty()) {
@@ -56,21 +53,11 @@ public class RagChatUseCase {
                 .content();
 
         log.info("RAG chat completed successfully");
-        return new ChatResult(aiResponse, sources);
+        return new RagChatResult(aiResponse, sources);
     }
 
     private String buildPrompt(String question, String context) {
         String languageCode = languageDetectionService.detect(question);
         return languageDetectionService.buildPrompt(question, context, languageCode);
-    }
-
-    private String truncate(String question) {
-        if (question == null) {
-            return "null";
-        }
-        if (question.length() <= 50) {
-            return question;
-        }
-        return question.substring(0, 50) + "...";
     }
 }

@@ -1,6 +1,7 @@
 package com.ai.rag.web;
 
 import com.ai.common.streaming.StreamingService;
+import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
@@ -83,16 +84,13 @@ public class RagController {
         if (hasImages(request.images())) {
             VisionChatUseCase visionChat = visionChatUseCase.getIfAvailable();
             if (visionChat == null) {
-                var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
-                result = new RagChatResult(chatResult.response(), chatResult.sources());
+                result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
             } else {
-                var visionResult = visionChat.chatWithImages(
+                result = visionChat.chatWithImages(
                         request.question(), request.docIds(), request.images(), request.topK());
-                result = new RagChatResult(visionResult.response(), visionResult.sources());
             }
         } else {
-            var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
-            result = new RagChatResult(chatResult.response(), chatResult.sources());
+            result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
         }
 
         var sourceDtos = result.sources().stream()
@@ -106,8 +104,6 @@ public class RagController {
     private boolean hasImages(List<String> images) {
         return images != null && !images.isEmpty();
     }
-
-    private record RagChatResult(String response, List<SourceDocument> sources) {}
 
     private DocumentSummaryDto toSummary(Document doc) {
         return new DocumentSummaryDto(

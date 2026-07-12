@@ -1,4 +1,4 @@
-package com.ai.chat.web.dto;
+package com.ai.common.web.dto;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

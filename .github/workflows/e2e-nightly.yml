@@ -1,0 +1,19 @@
+name: E2E Nightly
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  playwright:
+    name: Playwright Visual Regression
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-web-env
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e:visual

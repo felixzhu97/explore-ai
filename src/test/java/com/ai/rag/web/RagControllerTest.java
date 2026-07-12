@@ -1,6 +1,7 @@
 package com.ai.rag.web;
 
 import com.ai.common.streaming.StreamingService;
+import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
@@ -173,7 +174,7 @@ class RagControllerTest {
         @DisplayName("should handle RAG chat request")
         void shouldHandleRagChatRequest() {
             RagChatRequest request = new RagChatRequest("What is AI?", null, null, 0.7, null, null);
-            RagChatUseCase.ChatResult chatResult = new RagChatUseCase.ChatResult(
+            RagChatResult chatResult = new RagChatResult(
                     "AI response", List.of()
             );
             when(ragChatUseCase.chat(eq("What is AI?"), isNull(), eq(5))).thenReturn(chatResult);
@@ -192,7 +193,7 @@ class RagControllerTest {
         void shouldUseDocIdsWhenProvided() {
             List<String> docIds = List.of(UUID.randomUUID().toString());
             RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, docIds, null);
-            RagChatUseCase.ChatResult chatResult = new RagChatUseCase.ChatResult(
+            RagChatResult chatResult = new RagChatResult(
                     "Response", List.of(new SourceDocument("doc", 0.9, null))
             );
             when(ragChatUseCase.chat(anyString(), any(), anyInt())).thenReturn(chatResult);
@@ -209,7 +210,7 @@ class RagControllerTest {
         @DisplayName("should use custom topK when provided")
         void shouldUseCustomTopKWhenProvided() {
             RagChatRequest request = new RagChatRequest("Question", null, 10, 0.7, null, null);
-            RagChatUseCase.ChatResult chatResult = new RagChatUseCase.ChatResult(
+            RagChatResult chatResult = new RagChatResult(
                     "Response", List.of()
             );
             when(ragChatUseCase.chat(anyString(), isNull(), eq(10))).thenReturn(chatResult);

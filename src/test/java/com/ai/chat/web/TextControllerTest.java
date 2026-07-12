@@ -1,7 +1,7 @@
 package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.chat.application.usecase.TextChatOptions;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.chat.application.usecase.TextProviderCatalog;
 import com.ai.chat.web.dto.ChatStreamRequest;
 import com.ai.chat.web.dto.ModelInfoResponse;

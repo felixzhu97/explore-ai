@@ -5,4 +5,7 @@ set -e
 echo "🔍 Running lint-staged (pre-commit)..."
 pnpm exec lint-staged
 
-echo "✅ Lint-staged checks passed!"
+echo "🔍 Running TypeScript check..."
+pnpm typecheck
+
+echo "✅ Pre-commit checks passed!"

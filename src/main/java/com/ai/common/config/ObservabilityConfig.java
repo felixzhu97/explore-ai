@@ -1,4 +1,4 @@
-package com.ai.shared.config;
+package com.ai.common.config;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
