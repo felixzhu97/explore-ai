@@ -305,12 +305,6 @@ input, button, textarea, select {
   }
 }
 
-button:not([z-button]):not([role='switch']):not([role='combobox']):not([role='tab']):not([z-sidebar-menu-button]) {
-  cursor: pointer;
-  border: none;
-  background: none;
-}
-
 [data-slot='card-footer']:empty {
   display: none;
 }
