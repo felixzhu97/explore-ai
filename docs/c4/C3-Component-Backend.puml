@@ -119,7 +119,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Component(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
         Component(mcp_server_svc, "AiMcpServerService", "@Component", "MCP Server")
         Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client")
-        Component(rag_search_tool, "RagSearchTool", "*Tool", "RAG 搜索")
+        Component(doc_search_svc, "DocumentSearchService", "@Service", "RAG 向量检索")
         Component(weather_tools, "WeatherTools", "*Tool", "天气工具")
         Component(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索")
     }
@@ -193,10 +193,10 @@ Rel(analysis_repo_port, analysis_repo, "实现")
 Rel(image_repo_port, image_repo, "实现")
 Rel(tts_repo_port, tts_repo, "实现")
 Rel(mcp_client_port, mcp_client_repo, "实现")
-Rel(tool_facade, rag_search_tool, "RAG 工具")
+Rel(tool_facade, doc_search_svc, "RAG 工具")
 Rel(tool_facade, weather_tools, "天气工具")
 Rel(tool_facade, web_search_tool, "搜索工具")
-Rel(rag_search_tool, rag_app_svc, "RAG 检索")
+Rel(doc_search_svc, rag_app_svc, "RAG 检索")
 
 ' Infrastructure -> External
 Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")

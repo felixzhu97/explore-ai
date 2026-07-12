@@ -2,7 +2,7 @@ package com.ai.rag.application.usecase;
 
 import com.ai.chat.application.usecase.TextChatOptions;
 import com.ai.chat.domain.service.LanguageDetectionService;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
+import com.ai.chat.application.usecase.ChatClientProvider;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ class RagChatUseCaseTest {
     private RagApplicationService ragApplicationService;
 
     @Mock
-    private ChatClientFactory chatClientFactory;
+    private ChatClientProvider chatClientProvider;
 
     @Mock
     private ChatClient chatClient;
@@ -54,10 +54,10 @@ class RagChatUseCaseTest {
     void setUp() {
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
-                chatClientFactory,
+                chatClientProvider,
                 languageDetectionService
         );
-        when(chatClientFactory.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
+        when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);

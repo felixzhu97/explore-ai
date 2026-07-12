@@ -1,7 +1,7 @@
 package com.ai.rag.infrastructure.etl;
 
 import com.ai.rag.domain.model.RawDocument;
-import com.ai.rag.domain.port.DocumentTransformer;
+import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.application.usecase.ChunkingService;
 import org.springframework.stereotype.Component;
 

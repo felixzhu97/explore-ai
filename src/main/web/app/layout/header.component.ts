@@ -1,9 +1,8 @@
-import { Component, ChangeDetectionStrategy, Output, EventEmitter, inject, signal, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, output } from '@angular/core';
 import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core/i18n';
 
 @Component({
   selector: 'app-header',
-  standalone: true,
   template: `
     <header class="
       sticky top-0 z-80 flex h-13 shrink-0 items-center justify-between border-b
@@ -75,9 +74,12 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
     </header>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:pointerdown)': 'onDocumentPointerDown($event)',
+  },
 })
 export class HeaderComponent {
-  @Output() openSidebar = new EventEmitter<void>();
+  readonly openSidebar = output<void>();
 
   protected readonly i18n = inject(I18nService);
   readonly dropdownOpen = signal(false);
@@ -94,7 +96,6 @@ export class HeaderComponent {
     this.dropdownOpen.set(false);
   }
 
-  @HostListener('document:pointerdown', ['$event'])
   onDocumentPointerDown(event: PointerEvent): void {
     if (!this.dropdownOpen()) return;
     const target = event.target as Element;

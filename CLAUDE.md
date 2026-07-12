@@ -4,219 +4,209 @@
 > 修改规范请编辑 `.cursor/rules/*.mdc`，然后运行此脚本重新生成
 
 
+<!-- source: .cursor/rules/angular-20.mdc -->
+
+# Angular Best Practices
+
+This project adheres to modern Angular best practices, emphasizing maintainability, performance, accessibility, and scalability.
+
+## TypeScript Best Practices
+
+* **Strict Type Checking:** Always enable and adhere to strict type checking. This helps catch errors early and improves code quality.
+* **Prefer Type Inference:** Allow TypeScript to infer types when they are obvious from the context. This reduces verbosity while maintaining type safety.
+    * **Bad:**
+        ```typescript
+        let name: string = 'Angular';
+        ```
+    * **Good:**
+        ```typescript
+        let name = 'Angular';
+        ```
+* **Avoid `any`:** Do not use the `any` type unless absolutely necessary as it bypasses type checking. Prefer `unknown` when a type is uncertain and you need to handle it safely.
+
+## Core Guidelines
+
+* **Standalone Components:** Always use standalone components, directives, and pipes. Avoid using `NgModules` for new features or refactoring existing ones.
+* **Implicit Standalone:** When creating standalone components, you do not need to explicitly set `standalone: true` inside the `@Component`, `@Directive` and `@Pipe` decorators, as it is implied by default.
+    * **Bad:**
+        ```typescript
+        @Component({
+          standalone: true,
+          // ...
+        })
+        export class MyComponent {}
+        ```
+    * **Good:**
+        ```typescript
+        @Component({
+          // `standalone: true` is implied
+          // ...
+        })
+        export class MyComponent {}
+        ```
+* **Signals for State Management:** Utilize Angular Signals for reactive state management within components and services.
+* **Lazy Loading:** Implement lazy loading for feature routes to improve initial load times of your application.
+* **NgOptimizedImage:** Use `NgOptimizedImage` for all static images to automatically optimize image loading and performance.
+* **Host bindings:** Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead.
+
+## Components
+
+* **Single Responsibility:** Keep components small, focused, and responsible for a single piece of functionality.
+* **`input()` and `output()` Functions:** Prefer `input()` and `output()` functions over the `@Input()` and `@Output()` decorators for defining component inputs and outputs.
+    * **Old Decorator Syntax:**
+        ```typescript
+        @Input() userId!: string;
+        @Output() userSelected = new EventEmitter<string>();
+        ```
+    * **New Function Syntax:**
+        ```typescript
+        import { input, output } from '@angular/core';
+
+        // ...
+        userId = input<string>('');
+        userSelected = output<string>();
+        ```
+* **`computed()` for Derived State:** Use the `computed()` function from `@angular/core` for derived state based on signals.
+* **Inline Templates:** Prefer inline templates (template: `...`) for small components to keep related code together. For larger templates, use external HTML files.
+* **Reactive Forms:** Prefer Reactive forms over Template-driven forms for complex forms, validation, and dynamic controls due to their explicit, immutable, and synchronous nature.
+* **No `ngClass` / `NgClass`:** Do not use the `ngClass` directive. Instead, use native `class` bindings for conditional styling.
+    * **Bad:**
+        ```html
+        <section [ngClass]="{'active': isActive}"></section>
+        ```
+    * **Good:**
+        ```html
+        <section [class.active]="isActive"></section>
+        <section [class]="{'active': isActive}"></section>
+        <section [class]="myClasses"></section>
+        ```
+* **No `ngStyle` / `NgStyle`:** Do not use the `ngStyle` directive. Instead, use native `style` bindings for conditional inline styles.
+    * **Bad:**
+        ```html
+        <section [ngStyle]="{'font-size': fontSize + 'px'}"></section>
+        ```
+    * **Good:**
+        ```html
+        <section [style.font-size.px]="fontSize"></section>
+        <section [style]="myStyles"></section>
+        ```
+
+## State Management
+
+* **Signals for Local State:** Use signals for managing local component state.
+* **`computed()` for Derived State:** Leverage `computed()` for any state that can be derived from other signals.
+* **Pure and Predictable Transformations:** Ensure state transformations are pure functions (no side effects) and predictable.
+* **Signal value updates:** Do NOT use `mutate` on signals, use `update` or `set` instead.
+
+## Templates
+
+* **Simple Templates:** Keep templates as simple as possible, avoiding complex logic directly in the template. Delegate complex logic to the component's TypeScript code.
+* **Native Control Flow:** Use the new built-in control flow syntax (`@if`, `@for`, `@switch`) instead of the older structural directives (`*ngIf`, `*ngFor`, `*ngSwitch`).
+    * **Old Syntax:**
+        ```html
+        <section *ngIf="isVisible">Content</section>
+        <section *ngFor="let item of items">{{ item }}</section>
+        ```
+    * **New Syntax:**
+        ```html
+        @if (isVisible) {
+          <section>Content</section>
+        }
+        @for (item of items; track item.id) {
+          <section>{{ item.name }}</section>
+        }
+        ```
+* **Async Pipe:** Use the `async` pipe to handle observables in templates. This automatically subscribes and unsubscribes, preventing memory leaks.
+
+## Services
+
+* **Single Responsibility:** Design services around a single, well-defined responsibility.
+* **`providedIn: 'root'`:** Use the `providedIn: 'root'` option when declaring injectable services to ensure they are singletons and tree-shakable.
+* **`inject()` Function:** Prefer the `inject()` function over constructor injection when injecting dependencies, especially within `provide` functions, `computed` properties, or outside of constructor context.
+    * **Old Constructor Injection:**
+        ```typescript
+        constructor(private myService: MyService) {}
+        ```
+    * **New `inject()` Function:**
+        ```typescript
+        import { inject } from '@angular/core';
+
+        export class MyComponent {
+          private myService = inject(MyService);
+          // ...
+        }
+        ```
+
 <!-- source: .cursor/rules/angular-standards.mdc -->
 
-# Angular Coding Standards
+# Angular Standards
 
 ## Project Structure
 
 ```
-src/
+src/main/web/
 ├── app/
 │   ├── {feature}/
-│   │     ├── components/
-│   │     ├── services/
-│   │     └── {feature}.routes.ts
-│   ├── app.component.ts
-│   ├── app.config.ts
+│   │   ├── components/
+│   │   │   └── {feature}.component.ts
+│   │   ├── {feature}.service.ts
+│   │   └── {feature}.model.ts
 │   └── app.routes.ts
-└── styles/
-    ├── _variables.scss
-    ├── _mixins.scss
-    └── _typography.scss
+├── styles.css
+└── environments/
 ```
 
-## Component Standards
-
-### Naming
-
-| Type            | Rule                   | Example                    |
-| --------------- | ---------------------- | -------------------------- |
-| Component file  | kebab-case             | `user-card.component.ts`   |
-| Component class | PascalCase + Component | `UserCardComponent`        |
-| Selector        | kebab-case + prefix    | `app-user-card`            |
-| Template file   | Same as component      | `user-card.component.html` |
-| Style file      | Same as component      | `user-card.component.scss` |
-
-### Component Template
+## Component
 
 ```typescript
 @Component({
   selector: 'app-user-card',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, ListItemComponent],
   templateUrl: './user-card.component.html',
-  styleUrl: './user-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCardComponent {
-  // Input properties use input()
   user = input.required<User>();
-  editable = input(false);
-
-  // Output events use output()
   edit = output<User>();
-  delete = output<string>();
 
-  // Internal state uses signal
-  isExpanded = signal(false);
-
-  // Computed properties use computed
   fullName = computed(() => `${this.user().firstName} ${this.user().lastName}`);
 
-  // Dependency injection uses inject()
-  private userService = inject(UserService);
-
-  // Methods use arrow functions to preserve this
   handleEdit = () => this.edit.emit(this.user());
-
-  handleDelete = () => this.delete.emit(this.user().id);
 }
 ```
 
-### Template Syntax
+## Template
 
 ```html
-<!-- Use @ control flow (Angular 17+) -->
 @if (user(); as user) {
-<div class="user-card">
-  <h3>{{ fullName() }}</h3>
-  @if (editable()) {
-  <button (click)="handleEdit()">Edit</button>
-  }
-</div>
+  <div>{{ fullName() }}</div>
 } @else {
-<app-skeleton />
+  <app-skeleton />
 }
 
-<!-- Loop -->
 @for (item of items(); track item.id) {
-<app-list-item [item]="item" />
+  <app-list-item [item]="item" />
 }
-
-<!-- Safe navigation -->
-<p>{{ user()?.email ?? 'No email' }}</p>
 ```
 
-## Architecture Rules
-
-### 1. Top-Level Structure
-
-```
-src/app/
-├── app/         Application entry and composition (bootstrap + layout)
-├── core/        Global singleton capabilities (API / interceptors / auth / config)
-├── shared/      Reusable non-business capabilities (UI / utils / models)
-├── features/    Business modules (domain-scoped)
-├── layout/      Page layout components
-└── environments/ Environment config
-```
-
-### 2. Feature Module Rules (Critical)
-
-Each feature must be an independent, self-contained module:
-
-```
-features/<feature-name>/
-├── components/   UI components
-├── services/     Business state and logic
-├── models/       Data structures (DTOs / VOs)
-└── pages/        Page-level components (optional)
-```
-
-**Forbidden:**
-- Feature-to-feature direct imports
-- Feature accessing core internals
-- Feature depending on shared business models
-
-### 3. Core Rules
-
-Core contains only:
-- API Client
-- HTTP interceptors
-- Auth / session
-- i18n / config
-- Global singleton services
-
-**Forbidden:** Business logic, feature-related code
-
-### 4. Shared Rules
-
-Shared contains only:
-- UI components (button, card, modal)
-- Pipes / directives
-- Utils
-- Generic models (no business semantics)
-
-**Forbidden:** API calls, feature logic, domain-specific models
-
-### 5. DTO / Model Organization
-
-DTOs must be co-located with their feature:
-
-```
-features/ai/models/
-features/rag/models/
-```
-
-**Forbidden:** Separate dto/ or web/dto directories
-
-### 6. Dependency Direction (Strict)
-
-**Allowed:**
-```
-features → shared
-features → core
-layout → shared
-layout → core
-app → all
-```
-
-**Forbidden:**
-```
-core → features
-shared → features
-features → features (cross-module)
-```
-
-### 7. Layout Rules
-
-Layout components handle only:
-- Page structure (header/sidebar/main)
-- Router-outlet organization
-
-**Forbidden:** API calls, state management, feature logic
-
-### 8. Refactoring Principles
-
-Every structural improvement must satisfy:
-- Directory depth ≤ 4
-- Feature internal depth ≤ 3
-- DTOs not standalone
-- Features fully autonomous
-- Shared without business logic
-
-### 9. Ultimate Principle
-
-> Keep it simple. Keep features isolated. Avoid over-layering.
-
-## Service Standards
+## Service
 
 ```typescript
 @Injectable({ providedIn: 'root' })
-export class UserService {
-  private http = inject(HttpClient);
-
-  // Public readonly signals
-  users = signal<User[]>([]);
+export class ChatService {
+  messages = signal<ChatMessage[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
 
-  // Return Observable for components to subscribe
-  fetchUsers(): Observable<User[]> {
-    return this.http.get<User[]>('/api/users').pipe(
-      tap((users) => this.users.set(users)),
-      catchError(this.handleError)
+  private http = inject(HttpClient);
+
+  sendMessage(content: string): Observable<ChatResponse> {
+    this.loading.set(true);
+    return this.http.post<ChatResponse>('/api/chat', { content }).pipe(
+      tap(response => this.messages.update(msgs => [...msgs, response])),
+      catchError(this.handleError),
+      finalize(() => this.loading.set(false))
     );
   }
 
@@ -227,185 +217,278 @@ export class UserService {
 }
 ```
 
-## Routing Standards
+## Routing
 
 ```typescript
-// Use lazy loading
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  {
-    path: 'users',
-    loadChildren: () => import('./features/users/routes'),
-  },
-  {
-    path: 'admin',
-    loadChildren: () => import('./features/admin/routes'),
-    canMatch: [authGuard, adminGuard],
-  },
+  { path: '', redirectTo: 'chat', pathMatch: 'full' },
+  { path: 'chat', loadComponent: () => import('./chat/chat.component').then(m => m.ChatComponent) },
+  { path: 'rag', loadComponent: () => import('./rag/rag.component').then(m => m.RagComponent) },
 ];
 ```
 
-## Style Standards
+## Style
 
-### Tailwind CSS v4 (Primary)
-
-Use Tailwind CSS v4 utility classes with CSS variable references for theme colors.
-
-**CSS Variable Reference Syntax:**
 ```html
-<!-- Reference theme colors -->
-<button class="bg-primary text-white hover:bg-primary-hover">Primary</button>
-<button class="bg-[--color-primary] text-[--color-text]">Custom</button>
-
-<!-- Spacing -->
-<div class="p-4 gap-2">Content</div>
-
-<!-- Border radius -->
-<div class="rounded-lg">Rounded</div>
-
-<!-- Shadows -->
-<div class="shadow-card">Card</div>
+<button class="bg-primary text-white rounded-lg shadow-card">Submit</button>
 ```
 
-**Class Binding for Dynamic Variants:**
-```typescript
-getClasses(): string {
-  const classes: string[] = [];
-  if (this.variant() === 'primary') {
-    classes.push('bg-primary text-white');
-  }
-  return classes.join(' ');
-}
-```
-
-**Key Patterns:**
-- Use `bg-primary` for theme colors mapped in `@theme`
-- Use `bg-[--color-*]` for direct CSS variable references
-- Use `shadow-[--shadow-*]` for theme shadows
-- Use `rounded-*` for border radius
-
-### BEM Naming (Legacy - Phase Out)
-
-Migrate existing BEM-style SCSS to Tailwind classes:
-
-```scss
-// Before (legacy)
-.card {
-  &__header { }
-  &--elevated { }
-}
-
-// After (Tailwind)
-class="bg-surface shadow-elevated rounded-xl"
-```
-
-### Inline Animations
-
-For complex animations, use inline `@keyframes`:
+## Type
 
 ```typescript
-styles: [`
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-slide-in {
-    animation: slideIn 0.2s ease forwards;
-  }
-`]
-```
-
-## Type Standards
-
-```typescript
-// Prefer interface for data structures
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: Email;
-  role: UserRole;
-  createdAt: Date;
-}
-
-// Use enum for enumerations
-enum UserRole {
-  Admin = 'admin',
-  User = 'user',
-  Guest = 'guest',
-}
-
-// API response
-interface ApiResponse<T> {
-  data: T;
-  meta: PaginationMeta;
-}
-
-// Form DTO
-interface CreateUserDto {
-  firstName: string;
-  lastName: string;
-  email: Email;
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
 }
 ```
 
-## Error Handling
+## Checklist
 
-```typescript
-// Component error handling
-@Component({...})
-export class UserListComponent {
-  private userService = inject(UserService);
+- [ ] Standalone components with OnPush
+- [ ] Signals for state, Observables for async
+- [ ] Lazy loading routes
+- [ ] Tailwind for styling
 
-  error = this.userService.error;
+## References
 
-  @if (error()) {
-    <app-error-state [message]="error()" (retry)="loadUsers()" />
-  }
+- [Angular](https://angular.dev)
+- [Angular In-depth Guides Overview](https://angular.dev/essentials)
+- [Signals](https://angular.dev/guide/signals)
+- [Components](https://angular.dev/guide/components)
+- [Templates](https://angular.dev/guide/templates)
+- [Directives](https://angular.dev/guide/directives)
+- [Dependency Injection](https://angular.dev/guide/di)
+- [Routing](https://angular.dev/guide/routing)
+- [Forms](https://angular.dev/guide/forms)
+- [HTTP Client](https://angular.dev/guide/http)
+- [Server-side & hybrid-rendering](https://angular.dev/guide/ssr)
+- [Testing](https://angular.dev/guide/testing)
+- [Angular Aria](https://angular.dev/guide/a11y)
+- [Internationalization](https://angular.dev/guide/i18n)
+- [Animations](https://angular.dev/guide/animations)
+- [Drag and drop](https://angular.dev/guide/drag-drop)
+
+## Developer Tools
+
+- [Angular CLI](https://angular.dev/tools/cli)
+- [Libraries](https://angular.dev/tools/libraries)
+- [DevTools](https://angular.dev/tools/devtools)
+- [Language Service](https://angular.dev/tools/language-service)
+
+## Build with AI
+
+- [Get Started](https://angular.dev/ai)
+- [LLM prompts and AI IDE setup](https://angular.dev/ai/develop-with-ai)
+- [Agent Skills](https://angular.dev/ai/agent-skills)
+- [Angular CLI MCP Server setup](https://angular.dev/ai/mcp)
+- [Angular AI Tutor](https://angular.dev/ai/ai-tutor)
+- [Design Patterns](https://angular.dev/ai/design-patterns)
+- [WebMCP](https://angular.dev/ai/webmcp)
+
+## Best Practices
+
+- [Style Guide](https://angular.dev/style-guide)
+- [Security](https://angular.dev/best-practices/security)
+- [Accessibility](https://angular.dev/best-practices/a11y)
+- [Unhandled errors in Angular](https://angular.dev/best-practices/error-handling)
+- [Performance](https://angular.dev/best-practices/performance)
+- [Keeping up-to-date](https://angular.dev/update)
+
+## Developer Events
+
+- [Angular v22](https://angular.dev/events/v22)
+- [Angular v21](https://angular.dev/events/v21)
+
+## Extended Ecosystem
+
+- [NgModules](https://angular.dev/guide/ngmodules/overview)
+- [Legacy Animations](https://angular.dev/guide/legacy-animations)
+- [Animations](https://angular.dev/guide/animations)
+- [Using RxJS with Angular](https://angular.dev/ecosystem/rxjs-interop)
+- [Service Workers & PWAs](https://angular.dev/ecosystem/service-workers)
+- [Web Workers](https://angular.dev/ecosystem/web-workers)
+- [Custom Build Pipeline](https://angular.dev/ecosystem/custom-build-pipeline)
+- [Tailwind](https://angular.dev/guide/tailwind)
+- [AngularFire](https://github.com/angular/angularfire)
+- [Google Maps](https://angular-components.mintlify.app/introduction)
+- [Google Pay](https://developers.google.com/pay/api/web)
+- [YouTube Player](https://angular-components.mintlify.app/youtube-player/installation)
+- [Angular CDK](https://material.angular.dev/cdk/categories)
+- [Angular Material](https://material.angular.dev/)
+- [Angular Community](https://angular.love)
+- [Angular Blog](https://blog.angular.dev)
+
+<!-- source: .cursor/rules/architecture.mdc -->
+
+# Architecture Standards
+
+## Dependency Rule
+
+```
+web → application → domain ← infrastructure
+```
+
+**Domain has NO dependencies on other layers.**
+
+> **Canonical source:** Layer structure, dependency rule, and Hexagonal terminology mapping live in this file (`architecture.mdc`). `java-standards.mdc` and `CLAUDE.md` link here — do not duplicate architecture diagrams elsewhere.
+
+## Terminology Index (Hexagonal ↔ This Project)
+
+External references (Spring docs, Alistair Cockburn, legacy modules) often use **Ports & Adapters (Hexagonal)** naming. **This repo standardizes on Clean Architecture layers and package names below.**
+
+| Hexagonal concept | Hexagonal layout | This project layer | This project package |
+|-------------------|------------------|--------------------|----------------------|
+| Driving adapter | `adapter/in` | Web + Application | `{module}/web/`, `{module}/application/` |
+| Driven adapter | `adapter/out` | Infrastructure | `{module}/infrastructure/` |
+| Outbound port | `domain/port` | Repository interface | `{module}/domain/repository/` |
+| Domain core | `domain` | Domain | `{module}/domain/model`, `domain/vo`, `domain/service` |
+| Composition / wiring | `config` | Spring configuration | `{module}/infrastructure/config/`, `common/config/` |
+
+### Forbidden in New Code
+
+- `domain/port/` packages — use `domain/repository/` (or `domain/service/` for domain services)
+- `*Port` interface suffix — prefer `*Repository`, `*Gateway`, or a domain-specific name (e.g. `ConversationMemoryRepository`)
+- `adapter/in` / `adapter/out` packages — use `web/`, `application/`, `infrastructure/`
+
+### Legacy (migrate when touched)
+
+Some modules still contain Hexagonal-style paths (e.g. `rag/domain/port/DocumentReader`). Treat them as **legacy drift**; new abstractions follow `domain/repository/` in this document.
+
+### Related Reading
+
+- [Ports and Adapters - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
+- Java coding conventions (naming, REST, tests): `java-standards.mdc`
+
+## Layers
+
+| Layer | Contains |
+|-------|----------|
+| `domain/` | Entities, Value Objects, Repository interfaces |
+| `application/` | Use Cases, Facades |
+| `infrastructure/` | Repository implementations, External adapters |
+| `web/` | Controllers, DTOs |
+
+## Project Structure
+
+```
+src/main/java/com/ai/
+├── {module}/                # Feature module
+│   ├── domain/
+│   │   ├── model/           # Entities, Aggregates
+│   │   ├── vo/              # Value Objects
+│   │   └── repository/      # Repository interfaces
+│   ├── application/
+│   │   └── usecase/         # Use cases
+│   ├── infrastructure/
+│   │   └── persistence/    # Repository implementations
+│   └── web/
+│       ├── controller/      # REST controllers
+│       └── dto/             # Request/Response DTOs
+└── common/                  # Shared code
+    └── exception/           # Shared exceptions
+```
+
+## Domain Rules
+
+- No framework annotations in domain
+- Entities: private constructor + factory method
+- Value Objects: immutable `record`
+- Repository: interface in domain, implementation in infrastructure
+
+## Examples
+
+### Domain
+
+```java
+public class ChatSession {
+    private final ChatSessionId id;
+    private SessionStatus status;
+
+    private ChatSession(ChatSessionId id) {
+        this.id = id;
+        this.status = SessionStatus.ACTIVE;
+    }
+
+    public static ChatSession create() {
+        return new ChatSession(new ChatSessionId(UUID.randomUUID()));
+    }
+
+    public ChatSessionId id() {
+        return id;
+    }
 }
 
-// Service error handling
-private handleError(error: HttpErrorResponse): Observable<never> {
-  const message = error.error?.message || 'An error occurred';
-  this.notificationService.showError(message);
-  return throwError(() => error);
+public record ChatSessionId(UUID value) {}
+
+public interface ChatSessionRepository {
+    Optional<ChatSession> findById(ChatSessionId id);
+    void save(ChatSession session);
 }
 ```
 
-## Testing Standards
+### Application
 
-```typescript
-describe('UserCardComponent', () => {
-  let component: UserCardComponent;
-  let fixture: ComponentFixture<UserCardComponent>;
+```java
+public record ChatRequest(String message) {}
+public record ChatResponse(String reply) {}
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [UserCardComponent],
-    }).compileComponents();
+public interface ChatUseCase {
+    ChatResponse chat(ChatRequest request);
+}
 
-    fixture = TestBed.createComponent(UserCardComponent);
-    component = fixture.componentInstance;
-    component.user = TestFixtures.user;
-    fixture.detectChanges();
-  });
+@Service
+@RequiredArgsConstructor
+class ChatUseCaseImpl implements ChatUseCase {
+    private final ChatSessionRepository repository;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should display user name', () => {
-    const name = fixture.nativeElement.querySelector('.user-card__name');
-    expect(name.textContent).toContain('John Doe');
-  });
-
-  it('should emit edit event', () => {
-    const editSpy = spyOn(component.edit, 'emit');
-    component.handleEdit();
-    expect(editSpy).toHaveBeenCalledWith(TestFixtures.user);
-  });
-});
+    @Override
+    public ChatResponse chat(ChatRequest request) {
+        return new ChatResponse("reply");
+    }
+}
 ```
+
+### Infrastructure
+
+```java
+@Repository
+@RequiredArgsConstructor
+class InMemoryChatSessionRepository implements ChatSessionRepository {
+    private final Map<ChatSessionId, ChatSession> store = new ConcurrentHashMap<>();
+
+    @Override
+    public Optional<ChatSession> findById(ChatSessionId id) {
+        return Optional.ofNullable(store.get(id));
+    }
+
+    @Override
+    public void save(ChatSession session) {
+        store.put(session.id(), session);
+    }
+}
+```
+
+### Web
+
+```java
+@RestController
+@RequiredArgsConstructor
+class ChatController {
+    private final ChatUseCase chatUseCase;
+
+    @PostMapping("/api/chat")
+    public ChatResponse chat(@RequestBody ChatRequest request) {
+        return chatUseCase.chat(request);
+    }
+}
+```
+
+## Checklist
+
+- [ ] Domain has no outward dependencies
+- [ ] No circular dependencies
+- [ ] Entities encapsulate behavior
 
 <!-- source: .cursor/rules/bdd-standards.mdc -->
 
@@ -526,205 +609,6 @@ For detailed examples and Step Definitions, refer to:
 
 - [Behaviour-Driven Development - Cucumber Official](https://cucumber.io/docs/bdd/)
 - [Gherkin Reference - Cucumber Official](https://cucumber.io/docs/gherkin/)
-
-<!-- source: .cursor/rules/clean-architecture.mdc -->
-
-# Clean Architecture Standards
-
-> Based on Robert C. Martin's "Clean Architecture"
-
-## Core Principle: The Dependency Rule
-
-> Source code dependencies must point only inward. Outer circles can depend on inner circles. Inner circles know nothing about outer circles.
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Frameworks & Drivers                         │
-│                  (Database, Web Framework)                      │
-└─────────────────────────────────────────────────────────────────┘
-                              ▲
-                              │
-┌─────────────────────────────────────────────────────────────────┐
-│                      Interface Adapters                        │
-│              (Controllers, Gateways, Presenters)                 │
-└─────────────────────────────────────────────────────────────────┘
-                              ▲
-                              │
-┌─────────────────────────────────────────────────────────────────┐
-│                         Use Cases                               │
-│                   (Application Business Rules)                  │
-└─────────────────────────────────────────────────────────────────┘
-                              ▲
-                              │
-┌─────────────────────────────────────────────────────────────────┐
-│                          Entities                              │
-│                   (Enterprise Business Rules)                   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-
-## Project Structure
-
-### Java
-
-```
-src/main/java/com/example/
-├── entity/                    # Innermost circle
-│ ├── model/                   # Aggregates, Entities
-│ ├── vo/                      # Value Objects
-│ └── service/                 # Domain Services
-│
-├── usecase/                   # Application layer
-│ ├── {feature}/
-│ │   ├── {FeatureName}Input.java    # Input data structure
-│ │   ├── {FeatureName}Output.java   # Output data structure
-│ │   └── {FeatureName}UseCase.java # Interface + Implementation
-│ └── port/                          # External interfaces
-│
-├── interfaceadapter/          # Interface Adapters circle
-│ ├── controller/             # REST controllers
-│ ├── presenter/              # Output presenters
-│ └── gateway/               # Database/external gateways
-│
-└── framework/                # Outermost circle
-    ├── persistence/         # Database implementation
-    └── external/           # External services
-```
-
-### TypeScript
-
-```
-src/
-├── entity/                    # Innermost circle
-│ ├── models/
-│ ├── value-objects/
-│ └── services/
-│
-├── usecase/                   # Application layer
-│ ├── {feature}/
-│ │   ├── create-order.input.ts
-│ │   ├── create-order.output.ts
-│ │   └── create-order.use-case.ts
-│ └── port/                          # External interfaces
-│
-├── interfaceadapter/          # Interface Adapters
-│ ├── controller/
-│ ├── presenter/
-│ └── gateway/
-│
-└── framework/                # Outermost circle
-    ├── database/
-    └── external/
-```
-
-
-## Use Cases (Application Circle)
-
-### Input & Output Data Structures
-
-```java
-// Input - what the use case needs
-public record PlaceOrderInput(
-  List<OrderLineInput> lines,
-  ShippingAddressInput shipping
-) {
-  public record OrderLineInput(UUID productId, int quantity) {}
-  public record ShippingAddressInput(String street, String city, String zip) {}
-}
-
-// Output - what the use case returns
-public record PlaceOrderOutput(
-  UUID orderId,
-  OrderStatus status,
-  Money total
-) {}
-```
-
-```typescript
-// Input
-export interface PlaceOrderInput {
-  lines: ReadonlyArray<{ productId: ProductId; quantity: number }>;
-  shipping: { street: string; city: string; zip: string };
-}
-
-// Output
-export interface PlaceOrderOutput {
-  orderId: OrderId;
-  status: OrderStatus;
-  total: Money;
-}
-```
-
-### Use Case Implementation
-
-```java
-// Interface (in usecase/{feature}/)
-public interface PlaceOrderUseCase {
-  PlaceOrderOutput execute(PlaceOrderInput input);
-}
-
-// Implementation
-public class PlaceOrderUseCaseImpl implements PlaceOrderUseCase {
-  private final OrderGateway orderGateway;
-  private final ProductGateway productGateway;
-  
-  public PlaceOrderUseCaseImpl(OrderGateway orderGateway, ProductGateway productGateway) {
-    this.orderGateway = orderGateway;
-    this.productGateway = productGateway;
-  }
-  
-  @Override
-  public PlaceOrderOutput execute(PlaceOrderInput input) {
-    Order order = Order.create();
-    
-    for (var line : input.lines()) {
-      Product product = productGateway.findById(line.productId())
-        .orElseThrow(() -> ProductNotFoundException.forId(line.productId()));
-      order.addLine(product, line.quantity());
-    }
-    
-    order.place();
-    orderGateway.save(order);
-    
-    return new PlaceOrderOutput(order.getId(), order.getStatus(), order.getTotal());
-  }
-}
-```
-
-
-## Frameworks (Outermost Circle)
-
-Frameworks contain database implementations, web servers, external services.
-
-```java
-// This circle knows about database, ORM, etc.
-// All SQL stays here
-
-@Repository
-public class JpaOrderRepository implements OrderGateway {
-  // JPA/Hibernate code lives here
-  // SQL queries stay in this circle
-}
-```
-
-
-## Architecture Checklist
-
-- [ ] Entities circle has no framework annotations
-- [ ] Use case interfaces define application behavior
-- [ ] Source code dependencies point inward only
-- [ ] Entities use factory methods (private constructors)
-- [ ] Value Objects are immutable
-- [ ] Business logic in entities/use cases
-- [ ] Gateways implement interfaces defined in use case circle
-- [ ] Simple data structures cross boundaries
-- [ ] All database/SQL code in outermost circle
-- [ ] Composition root wires all dependencies
-
-## References
-
-- [The Clean Architecture - Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [The Dependency Rule - InformIT](https://www.informit.com/articles/article.aspx?p=2832399)
 
 <!-- source: .cursor/rules/clean-code.mdc -->
 
@@ -890,57 +774,61 @@ function divide(a: number, b: number): number {
 
 # Code Review Checklist
 
-## 架构合规
+> Architecture compliance is verified by `architecture.mdc`. This checklist focuses on code quality, naming, testing, security, and performance.
 
-- [ ] 遵循整洁架构 (entity → usecase → interfaceadapter → framework)
-- [ ] Entity/USecase 层无框架依赖 (@Entity, @Service, @Component 不在 entity/usecase)
-- [ ] Repository 接口定义在 use case 层，Gateway 实现在 interfaceadapter 层
-- [ ] 无循环依赖，依赖方向指向内层
-- [ ] 使用 Input/Output 数据结构跨边界
+## Code Quality
 
-## 代码质量
-
-- [ ] 无 God Class (> 300 行需拆分)
+- [ ] No God Class (拆分 > 300 行的类)
 - [ ] 遵循单一职责原则 (SRP)
 - [ ] 方法长度不超过 20 行
-- [ ] 无注释掉的代码
+- [ ] 无注释掉的代码 (使用版本控制)
+- [ ] 无 TODO/FIXME 遗留
 - [ ] 错误处理完善 (异常转换)
+- [ ] 无硬编码值 (使用常量/配置)
 
-## 命名规范
+## Naming Conventions
 
-| 类型 | Java | TypeScript |
+| Type | Java | TypeScript |
 |------|------|------------|
 | 类名 | PascalCase | PascalCase |
 | 方法名 | camelCase | camelCase |
 | 常量 | UPPER_SNAKE_CASE | UPPER_SNAKE_CASE |
 | 包名 | lowercase | - |
-| 文件名 | PascalCase.java | PascalCase.ts |
+| 文件名 | PascalCase.java | kebab-case.ts |
 
-## 测试覆盖
+## Testing
 
 - [ ] 领域逻辑有单元测试
 - [ ] 测试遵循命名约定 (`should_expected_when_condition`)
 - [ ] 无硬编码测试数据 (使用 Factory/Fixture)
 - [ ] 边界条件已覆盖 (null, empty, max)
+- [ ] 测试独立运行 (无依赖顺序)
 
-## 安全
+## Security
 
 - [ ] 代码中无敏感信息 (密码、Token 硬编码)
 - [ ] 输入验证存在 (@Valid, Zod schema)
 - [ ] SQL 注入防护 (参数化查询)
 - [ ] XSS 防护 (转义输出)
+- [ ] 敏感数据不记录日志
 
-## 性能
+## Performance
 
 - [ ] 无 N+1 查询问题
 - [ ] 集合操作使用 Stream API (Java) / 数组方法 (TS)
 - [ ] 大数据量场景考虑分页/流式处理
+- [ ] 避免不必要的内存分配
 
-## 文档
+## Documentation
 
 - [ ] Public API 有 JSDoc / Javadoc
 - [ ] 复杂业务逻辑有注释说明意图
-- [ ] 无 TODO/FIXME 遗留
+- [ ] README 或 ARCHITECTURE.md 存在
+
+## References
+
+- [Clean Code - Robert C. Martin](https://www.goodreads.com/book/show/3735293-clean-code)
+- [Code Review Best Practices](https://github.com/google/eng-practices/blob/master/review/index.md)
 
 <!-- source: .cursor/rules/commit-pr-standards.mdc -->
 
@@ -958,8 +846,14 @@ function divide(a: number, b: number): number {
 PR body mirrors the commit message. References must be identical.
 
 ```
-References
+## Summary
+[Brief description of the change]
+
+## References
 - [Title](URL)
+
+## Jira Links (if applicable)
+- [Jira Issue Key](https://felixzhu.atlassian.net/browse/AI-XXX)
 ```
 
 
@@ -1062,772 +956,130 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Tailwind CSS | [tailwindcss.com/docs](https://tailwindcss.com/docs) |
 | Figma Design Systems | [figma.com/community](https://www.figma.com/community/design-systems) |
 
-<!-- source: .cursor/rules/ddd-standards.mdc -->
+### UX References
 
-# Domain-Driven Design Standards
+| Resource | Official Docs |
+|----------|---------------|
+| Apple HIG - Visual Design | [developer.apple.com/design/human-interface-guidelines/foundations/layout](https://developer.apple.com/design/human-interface-guidelines/foundations/layout) |
+| Apple HIG - Typography | [developer.apple.com/design/human-interface-guidelines/foundations/typography](https://developer.apple.com/design/human-interface-guidelines/foundations/typography) |
+| Apple HIG - Color | [developer.apple.com/design/human-interface-guidelines/foundations/color](https://developer.apple.com/design/human-interface-guidelines/foundations/color) |
+| Apple HIG - Motion | [developer.apple.com/design/human-interface-guidelines/foundations/motion](https://developer.apple.com/design/human-interface-guidelines/foundations/motion) |
+| Apple HIG - Accessibility | [developer.apple.com/design/human-interface-guidelines/foundations/accessibility](https://developer.apple.com/design/human-interface-guidelines/foundations/accessibility) |
+| shadcn/ui - Apple Design | [shadcn/ui - Apple](https://www.shadcn.io/design/apple) |
+| shadcn/ui - OpenAI | [shadcn/ui - OpenAI](https://www.shadcn.io/design/openai) |
+| Material Design - Motion | [m3.material.io/styles/motion](https://m3.material.io/styles/motion) |
+| Tailwind - Animating with Tailwind | [tailwindcss.com/docs/animation](https://tailwindcss.com/docs/animation) |
 
-> Based on Vaughn Vernon's "Implementing Domain-Driven Design" and Eric Evans' "Domain-Driven Design"
+### Jira
 
-## Rich Domain Model (充血模型) vs Anemic Domain Model (贫血模型)
-
-| Aspect | Anemic (贫血) | Rich (充血) |
-|--------|---------------|-------------|
-| Behavior | In service classes | In entities |
-| State | Exposed via getters/setters | Private, controlled via methods |
-| Logic | Procedural | Encapsulated |
-| Coupling | High (services know entity internals) | Low (entities are self-contained) |
-
-> **Rule: Use Rich Domain Model. Entities encapsulate behavior and invariants.**
-
-
-## Building Blocks
-
-### Aggregates
-
-Aggregate = Cluster of associated objects treated as one unit for data changes.
-
-```
-Aggregate Root (聚合根)
-├── Entity 1
-├── Entity 2
-└── Value Objects
-```
-
-**Rules:**
-1. Each aggregate has one root (Aggregate Root)
-2. External objects reference only the root
-3. Transaction boundary = aggregate boundary
-
-```java
-// ✅ GOOD - Rich Aggregate Root
-public class Order extends AggregateRoot {
-    private final OrderId id;
-    private OrderStatus status;
-    private final List<OrderLine> lines;  // Internal entities
-    
-    // Factory method
-    private Order(OrderId id) {
-        this.id = Objects.requireNonNull(id);
-        this.status = OrderStatus.DRAFT;
-        this.lines = new ArrayList<>();
-    }
-    
-    public static Order create() {
-        return new Order(OrderId.generate());
-    }
-    
-    // Reconstitution
-    public static Order reconstitute(OrderId id, OrderStatus status, List<OrderLine> lines) {
-        Order order = new Order(id);
-        order.status = status;
-        order.lines.addAll(lines);
-        return order;
-    }
-    
-    // Business logic - behavior in domain
-    public void addLine(Product product, int quantity) {
-        validateNotPlaced();
-        if (quantity <= 0) throw new OrderException.InvalidQuantity(quantity);
-        lines.add(OrderLine.create(product, quantity));
-    }
-    
-    public void place() {
-        validateCanPlace();
-        this.status = OrderStatus.PLACED;
-        registerEvent(new OrderPlacedEvent(this.id));
-    }
-    
-    private void validateCanPlace() {
-        if (lines.isEmpty()) throw new OrderException.EmptyOrder();
-    }
-    
-    private void validateNotPlaced() {
-        if (status == OrderStatus.PLACED) throw new OrderException.AlreadyPlaced();
-    }
-    
-    // Getters only - no setters
-    public OrderId getId() { return id; }
-    public OrderStatus getStatus() { return status; }
-    public List<OrderLine> getLines() { return List.copyOf(lines); }
-}
-
-// ❌ BAD - Anemic Entity
-public class Order {
-    private UUID id;
-    private OrderStatus status;
-    private List<OrderLine> lines;
-    
-    // Getters and setters only - no behavior
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-    // ... all getters and setters
-}
-```
-
-### Entities
-
-Entity has identity that persists beyond its attributes.
-
-```java
-public class OrderLine extends Entity<OrderLineId> {
-    private final ProductId productId;
-    private final Money unitPrice;
-    private final int quantity;
-    
-    private OrderLine(OrderLineId id, ProductId productId, Money unitPrice, int quantity) {
-        super(id);
-        this.productId = Objects.requireNonNull(productId);
-        this.unitPrice = Objects.requireNonNull(unitPrice);
-        this.quantity = quantity;
-    }
-    
-    public static OrderLine create(Product product, int quantity) {
-        return new OrderLine(OrderLineId.generate(), product.getId(), product.getPrice(), quantity);
-    }
-    
-    public Money subtotal() {
-        return unitPrice.multiply(quantity);
-    }
-    
-    // Identity equality
-    @Override
-    public boolean sameAs(OrderLine other) {
-        return this.id.equals(other.id);
-    }
-}
-```
-
-### Value Objects
-
-Immutable, no identity, compared by value.
-
-```java
-// ✅ Record-based Value Object (Java 16+)
-public record Money(BigDecimal amount, Currency currency) {
-    public Money {
-        Objects.requireNonNull(amount);
-        Objects.requireNonNull(currency);
-        if (amount.compareTo(BigDecimal.ZERO) < 0)
-            throw new IllegalArgumentException("Amount cannot be negative");
-    }
-    
-    public Money add(Money other) {
-        if (!this.currency.equals(other.currency))
-            throw new CurrencyMismatchException();
-        return new Money(this.amount.add(other.amount), this.currency);
-    }
-    
-    public Money multiply(int factor) {
-        return new Money(this.amount.multiply(BigDecimal.valueOf(factor)), this.currency);
-    }
-    
-    public static Money ZERO(Currency currency) {
-        return new Money(BigDecimal.ZERO, currency);
-    }
-}
-
-// Value object for identity
-public record OrderId(UUID value) {
-    public static OrderId generate() {
-        return new OrderId(UUID.randomUUID());
-    }
-}
-```
-
-### Domain Services
-
-Operations that don't belong to any entity — stateless services.
-
-```java
-// When an operation conceptually belongs to a service
-// (doesn't fit in any single entity)
-public class PricingService {
-    
-    public Money calculateDiscount(Order order, Coupon coupon) {
-        if (coupon.isExpired()) return Money.ZERO(order.getCurrency());
-        if (!coupon.appliesTo(order)) return Money.ZERO(order.getCurrency());
-        
-        return coupon.calculateDiscount(order.getTotal());
-    }
-}
-```
-
-### Domain Events
-
-Capture significant occurrences in the domain.
-
-```java
-// Event class
-public record OrderPlacedEvent(
-    OrderId orderId,
-    Instant occurredAt
-) implements DomainEvent {
-    public OrderPlacedEvent(OrderId orderId) {
-        this(orderId, Instant.now());
-    }
-}
-
-// Publishing from aggregate root
-public class Order extends AggregateRoot {
-    public void place() {
-        // ...
-        registerEvent(new OrderPlacedEvent(this.id));
-    }
-}
-
-// Event subscriber
-@EventListener
-public class OrderEventHandler {
-    public void on(OrderPlacedEvent event) {
-        // React to event
-    }
-}
-```
-
-### Repositories
-
-Abstract persistence for aggregates.
-
-```java
-// Interface in domain layer
-public interface OrderRepository {
-    Optional<Order> findById(OrderId id);
-    void save(Order order);
-    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
-}
-
-// Implementation in infrastructure layer
-@Repository
-public class JpaOrderRepository implements OrderRepository {
-    private final SpringDataOrderRepository jpaRepository;
-    
-    @Override
-    public Optional<Order> findById(OrderId id) {
-        return jpaRepository.findById(id.value()).map(this::toDomain);
-    }
-    
-    @Override
-    public void save(Order order) {
-        jpaRepository.save(toEntity(order));
-    }
-}
-```
-
-### Factories
-
-Encapsulate complex object creation.
-
-```java
-// Factory method on aggregate
-public class OrderFactory {
-    
-    public Order createOrder(Customer customer, List<CartItem> items) {
-        Order order = Order.create();
-        
-        for (CartItem item : items) {
-            order.addLine(item.getProduct(), item.getQuantity());
-        }
-        
-        order.setCustomer(customer);
-        order.setShippingAddress(customer.getDefaultAddress());
-        
-        return order;
-    }
-}
-```
-
-
-## Key Principles
-
-### Encapsulation
-
-**Rule: Hide internals. Expose behavior. Protect invariants.**
-
-```java
-// ❌ BAD - Exposes internals
-public class Order {
-    public List<OrderLine> lines;  // Public field!
-}
-
-// ❌ BAD - Exposes internals for modification
-public List<OrderLine> getLines() {
-    return lines;  // Returns mutable list
-}
-
-// ✅ GOOD - Controlled access
-public List<OrderLine> getLines() {
-    return List.copyOf(lines);  // Immutable copy
-}
-```
-
-### Invariants
-
-**Rule: Never allow invalid state. Enforce invariants in constructors and methods.**
-
-```java
-public class Account {
-    private Money balance;
-    private boolean closed;
-    
-    // Invariant enforced: balance >= 0 always
-    public void withdraw(Money amount) {
-        if (closed) throw new AccountException.AccountClosed();
-        if (balance.compareTo(amount) < 0) 
-            throw new AccountException.InsufficientFunds();
-        balance = balance.subtract(amount);
-    }
-}
-```
-
-### Ubiquitous Language
-
-**Rule: Use domain terms everywhere. No technical jargon in domain.**
-
-```java
-// ❌ BAD - Technical terms
-public void updateOrderStatus(Long orderId, String newStatus);
-
-// ✅ GOOD - Domain language
-public void place(OrderId orderId);
-public void cancel(OrderId orderId);
-public void ship(OrderId orderId);
-```
-
-### One Object Per Transaction
-
-**Rule: One aggregate per transaction. Don't modify multiple aggregates in one transaction.**
-
-```java
-// ❌ BAD - Modifying multiple aggregates
-public void transfer(Order order, Customer customer) {
-    order.cancel();      // Aggregate 1
-    customer.credit(order.getAmount());  // Aggregate 2
-    // What if second operation fails?
-}
-
-// ✅ GOOD - One aggregate per transaction
-// Use Domain Events for cross-aggregate communication
-public void cancel(Order order) {
-    order.cancel();
-    registerEvent(new OrderCancelledEvent(order.getId(), order.getAmount()));
-}
-
-@EventListener
-public void OnOrderCancelled(OrderCancelledEvent event) {
-    customer.credit(event.getAmount());  // Separate transaction
-}
-```
-
-
-## Architecture Checklist
-
-### Domain Layer
-
-- [ ] Entities have private state, no public setters
-- [ ] Aggregates enforce invariants
-- [ ] Value Objects are immutable
-- [ ] Factory methods for complex construction
-- [ ] Domain Events for state changes
-- [ ] No framework annotations in domain
-
-### Use Cases
-
-- [ ] Single responsibility (one operation)
-- [ ] No business logic (delegates to entities)
-- [ ] Input/Output as data structures
-- [ ] Transactions scoped to one aggregate
-
-### Integration
-
-- [ ] Repository interfaces in domain
-- [ ] Repository implementations in infrastructure
-- [ ] Domain Events for cross-aggregate communication
-- [ ] Aggregates are transaction boundaries
-
+| Resource | URL |
+|----------|-----|
+| Jira Site | https://felixzhu.atlassian.net |
+| Project AI (ExploreAI) | https://felixzhu.atlassian.net/projects/AI
 
 <!-- source: .cursor/rules/java-standards.mdc -->
 
-# Java/Spring Boot Hexagonal Architecture Standards
+# Java/Spring Boot Conventions
 
-## Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ adapter/in (Driving)                                            │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ REST Controllers / DTOs (Request/Response)                   │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ domain (Core - No External Dependencies)                        │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Entities / Value Objects / Aggregates / Ports / Domain Svcs │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ adapter/out (Driven)                                            │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Persistence / External Services / Third-party Integrations   │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│ config                                                          │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Spring Configuration / Infrastructure Wiring                 │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-## Dependency Rule
-
-```
-adapter/in → domain ← adapter/out
-config → domain, adapter/in, adapter/out
-```
-
-**Domain NEVER depends on any external framework or infrastructure.**
-
-## Project Structure (Hexagonal)
-
-```
-src/main/java/com/example/
-├── domain/                                    # Core (Framework-free)
-│   ├── model/                                 # Aggregates, Entities
-│   │   ├── Order.java                        # Aggregate Root
-│   │   ├── OrderId.java                      # Identity Value Object
-│   │   └── OrderLine.java                    # Entity
-│   ├── vo/                                    # Value Objects
-│   │   ├── Money.java
-│   │   ├── Email.java
-│   │   └── Address.java
-│   ├── service/                               # Domain Services
-│   │   └── PricingService.java
-│   ├── repository/                            # Port Interfaces
-│   │   └── OrderRepository.java
-│   ├── port/                                  # Input/Output Ports
-│   │   ├── in/
-│   │   │   └── PlaceOrderUseCase.java
-│   │   └── out/
-│   │       └── PaymentGateway.java
-│   └── exception/                             # Domain Exceptions
-│       └── OrderException.java
-│
-├── adapter/
-│   ├── in/
-│   │   └── web/                              # Driving Adapter
-│   │       ├── controller/
-│   │       │   └── OrderController.java
-│   │       └── dto/
-│   │           ├── request/
-│   │           │   └── PlaceOrderRequest.java
-│   │           └── response/
-│   │               └── OrderResponse.java
-│   │
-│   └── out/
-│       ├── persistence/                       # Driven Adapter
-│       │   ├── jpa/
-│       │   │   └── OrderJpaRepository.java
-│       │   └── repository/
-│       │       └── JpaOrderRepository.java
-│       └── payment/                           # External Service Adapter
-│           └── StripePaymentAdapter.java
-│
-└── config/                                   # Infrastructure
-    ├── OrderConfig.java
-    └── SecurityConfig.java
-```
-
-## Domain Layer Examples
-
-### Entity (Rich Model)
-
-```java
-package com.example.domain.model;
-
-import com.example.domain.exception.OrderException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class Order extends AggregateRoot {
-
-    private final UUID id;
-    private OrderStatus status;
-    private final List<OrderLine> lines;
-    private final Instant createdAt;
-
-    // Factory method - ensures valid construction
-    private Order(UUID id, Instant createdAt) {
-        this.id = Objects.requireNonNull(id);
-        this.createdAt = Objects.requireNonNull(createdAt);
-        this.status = OrderStatus.DRAFT;
-        this.lines = new ArrayList<>();
-    }
-
-    public static Order create() {
-        return new Order(UUID.randomUUID(), Instant.now());
-    }
-
-    // Business logic encapsulated in domain
-    public void place() {
-        validateCanPlace();
-        this.status = OrderStatus.PLACED;
-        registerEvent(new OrderPlacedEvent(this.id));
-    }
-
-    public void addLine(Product product, int quantity) {
-        validateCanModify();
-        if (quantity <= 0) {
-            throw OrderException.invalidQuantity(quantity);
-        }
-        lines.add(new OrderLine(product.getId(), product.getPrice(), quantity));
-    }
-
-    public Money calculateTotal() {
-        return lines.stream()
-            .map(OrderLine::subtotal)
-            .reduce(Money.ZERO, Money::add);
-    }
-
-    private void validateCanPlace() {
-        if (lines.isEmpty()) {
-            throw OrderException.emptyOrder();
-        }
-    }
-
-    private void validateCanModify() {
-        if (status != OrderStatus.DRAFT) {
-            throw OrderException.cannotModifyAfterPlacement();
-        }
-    }
-
-    // Getters only - no setters
-    public UUID getId() { return id; }
-    public OrderStatus getStatus() { return status; }
-    public List<OrderLine> getLines() { return List.copyOf(lines); }
-}
-```
-
-### Value Object (Immutable)
-
-```java
-package com.example.domain.vo;
-
-public record Money(BigDecimal amount, Currency currency) {
-
-    public static final Money ZERO = new Money(BigDecimal.ZERO, Currency.USD);
-
-    public Money {
-        Objects.requireNonNull(amount);
-        Objects.requireNonNull(currency);
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Amount cannot be negative");
-        }
-    }
-
-    public Money add(Money other) {
-        return new Money(this.amount.add(other.amount), this.currency);
-    }
-
-    public Money multiply(int factor) {
-        return new Money(this.amount.multiply(BigDecimal.valueOf(factor)), this.currency);
-    }
-}
-```
-
-### Port Interface (Domain defines contract)
-
-```java
-package com.example.domain.repository;
-
-public interface OrderRepository {
-
-    Optional<Order> findById(OrderId id);
-
-    void save(Order order);
-
-    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
-}
-```
-
-## Adapter Layer Examples
-
-### Input Port Implementation (Use Case)
-
-```java
-package com.example.adapter.in.web.controller;
-
-@Component
-@RequiredArgsConstructor
-public class OrderController {
-
-    private final PlaceOrderUseCase placeOrderUseCase;
-
-    @PostMapping("/api/orders")
-    @ResponseStatus(HttpStatus.CREATED)
-    public OrderResponse create(@Valid @RequestBody PlaceOrderRequest request) {
-        var command = PlaceOrderCommand.from(request);
-        var result = placeOrderUseCase.execute(command);
-        return OrderResponse.from(result);
-    }
-}
-
-@ApplicationService
-@RequiredArgsConstructor
-class PlaceOrderUseCaseImpl implements PlaceOrderUseCase {
-
-    private final OrderRepository orderRepository;
-    private final ProductService productService;
-
-    @Override
-    @Transactional
-    public OrderResult execute(PlaceOrderCommand command) {
-        // Transform input to domain objects
-        Order order = Order.create();
-
-        for (var line : command.lines()) {
-            Product product = productService.findById(line.productId())
-                .orElseThrow(() -> ProductNotFoundException.of(line.productId()));
-            order.addLine(product, line.quantity());
-        }
-
-        // Execute business logic
-        order.place();
-
-        // Persist
-        orderRepository.save(order);
-
-        // Return result
-        return OrderResult.from(order);
-    }
-}
-```
-
-### Output Port Implementation (Driven Adapter)
-
-```java
-package com.example.adapter.out.persistence.repository;
-
-@Repository
-@RequiredArgsConstructor
-class JpaOrderRepository implements OrderRepository {
-
-    private final SpringDataOrderRepository springRepository;
-
-    @Override
-    public Optional<Order> findById(OrderId id) {
-        return springRepository.findById(id.value())
-            .map(this::toDomain);
-    }
-
-    @Override
-    public void save(Order order) {
-        springRepository.save(toEntity(order));
-    }
-
-    @Override
-    public Page<Order> findByStatus(OrderStatus status, Pageable pageable) {
-        return springRepository.findByStatus(status, pageable)
-            .map(this::toDomain);
-    }
-
-    private Order toDomain(OrderEntity entity) {
-        // Map entity to domain
-        return Order.reconstitute(
-            OrderId.of(entity.getId()),
-            entity.getStatus(),
-            entity.getLines().stream()
-                .map(this::toDomainLine)
-                .toList()
-        );
-    }
-
-    private OrderEntity toEntity(Order order) {
-        return OrderEntity.builder()
-            .id(order.getId().value())
-            .status(order.getStatus())
-            .lines(order.getLines().stream()
-                .map(this::toEntityLine)
-                .toList())
-            .build();
-    }
-}
-```
+> **Architecture (layers, dependency rule, Hexagonal ↔ Clean mapping):** see [`architecture.mdc`](./architecture.mdc).  
+> Do **not** add Hexagonal package layouts (`domain/port/`, `adapter/in`, `adapter/out`) in new code.  
+> AI/ML development uses the [Spring AI Skill](.cursor/skills/spring-ai/SKILL.md).
 
 ## Naming Conventions
 
 | Type | Rule | Example |
 |------|------|---------|
-| Domain Model | PascalCase | `Order`, `Money`, `Email` |
-| Value Objects | PascalCase | `OrderId`, `UserId` |
-| Port Interfaces | PascalCase + UseCase/Repository | `PlaceOrderUseCase`, `OrderRepository` |
-| Adapter Implementation | PascalCase + Suffix | `PlaceOrderUseCaseImpl`, `JpaOrderRepository` |
-| Methods | camelCase | `findById`, `calculateTotal` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Package names | lowercase | `com.example.domain.model` |
+| Domain Model | PascalCase | `ChatSession`, `Message` |
+| Value Objects | PascalCase | `SessionId`, `Status` |
+| Repository | PascalCase + Repository | `ChatRepository` |
+| Use Case | PascalCase + UseCase | `ChatUseCase` |
+| Controller | PascalCase + Controller | `ChatController` |
+| DTO | PascalCase + Request/Response | `ChatRequest` |
+| Methods | camelCase | `findById` |
+| Constants | UPPER_SNAKE_CASE | `MAX_RETRY` |
+| Package | lowercase | `com.ai.domain.model` |
 
-## DTO Design (Record)
+## Dependency Injection
 
 ```java
-// Command (Input)
-public record PlaceOrderCommand(
-    @NotEmpty List<OrderLineDto> lines,
-    @NotNull ShippingAddressDto shipping
-) {
-    public record OrderLineDto(UUID productId, int quantity) {}
-    public record ShippingAddressDto(String street, String city, String zip) {}
-}
-
-// Result (Output)
-public record OrderResult(
-    UUID orderId,
-    String status,
-    Money total,
-    Instant createdAt
-) {
-    public static OrderResult from(Order order) {
-        return new OrderResult(
-            order.getId().value(),
-            order.getStatus().name(),
-            order.calculateTotal(),
-            order.getCreatedAt()
-        );
-    }
+@Service
+@RequiredArgsConstructor
+class ChatUseCaseImpl implements ChatUseCase {
+    private final ChatRepository repository;
+    private final ChatModel chatModel;
 }
 ```
 
-## Checklist
+## REST
 
-### Architecture Compliance
+| Operation | Status |
+|-----------|--------|
+| Create | 201 |
+| Success | 200 |
+| No Content | 204 (void) |
+| Error | 4xx/5xx |
 
-- [ ] Domain layer has no framework annotations (@Entity, @Service, @Repository)
-- [ ] Repository interfaces defined in domain, implementations in adapter/out
-- [ ] No circular dependencies
-- [ ] Dependency arrows point inward toward domain
+## Validation
 
-### Code Quality
+```java
+public record ChatRequest(
+    @NotBlank String message,
+    String sessionId
+) {}
+```
 
-- [ ] Entities use factory methods (private constructor)
-- [ ] Value Objects are immutable (record)
-- [ ] Business logic in domain, not in adapters
-- [ ] Use cases orchestrate, don't contain business logic
+## Test Naming
 
-### Testing
-
-- [ ] Domain logic has unit tests (no mocks needed)
-- [ ] Adapter tests use integration tests or mocks
-- [ ] Test naming follows convention
+```
+should_expectedResult_when_condition
+```
 
 ## References
 
-- [Ports and Adapters Pattern - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Getting Started with Hexagonal Architecture](https://reflectoring.io/spring-boot-hexagonal/)
+- [Architecture Standards](./architecture.mdc) — layers, dependency rule, Hexagonal terminology index
+- [Spring Boot](https://spring.io/projects/spring-boot)
+- [Spring Framework](https://spring.io/projects/spring-framework)
+- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
+- [Spring AI](https://spring.io/projects/spring-ai)
+- [Spring AI Skill](.cursor/skills/spring-ai/SKILL.md)
+- [Java](https://docs.oracle.com/en/java/)
 
 <!-- source: .cursor/rules/jira-ticket-creation.mdc -->
 
 # Jira Ticket Creation Standards
 
+## Configuration
+
+This project uses Atlassian Cloud. Store these values for all Jira operations:
+
+| Property | Value |
+|----------|-------|
+| Site URL | https://felixzhu.atlassian.net |
+| Cloud ID | `75684fb5-daf5-4962-9581-c4948b9c12cf` |
+| User Account ID | `62ee247ff15eecaf500efa39` |
+| Primary Project | `AI` (ExploreAI) |
+
+### Available Projects
+
+| Project Key | Name | Issue Types |
+|-------------|------|-------------|
+| `AI` | ExploreAI | Epic, Story, Task, Subtask, Bug, Feature |
+| `FVXI` | 支持 | Service Request, Incident, Task, Subtask |
+
+> **Note**: Most tools require `cloudId` as a parameter. Always include `75684fb5-daf5-4962-9581-c4948b9c12cf` when calling Jira MCP tools.
+
+## Ticket Structure
+
+Every ticket must include:
+
+- **Background**
+- **User Story**
+- **Acceptance Criteria**
+- **Notes**
+
 ## User Story Format
 
-Every ticket must include a user story in the following format:
+Every ticket must include a user story:
 
 ```
 **As a** [role]
@@ -1837,7 +1089,7 @@ Every ticket must include a user story in the following format:
 
 ## Acceptance Criteria Format
 
-Use **GIVEN-WHEN-THEN** (BDD) format for all acceptance criteria:
+Use **GIVEN-WHEN-THEN** (BDD) format:
 
 ```
 **GIVEN** [precondition/state]
@@ -1894,6 +1146,10 @@ When describing UI/UX acceptance criteria, reference these interaction patterns:
 ## Ticket Structure Template
 
 ```
+## Background
+
+[Explain why this work is needed]
+
 ## User Story
 
 **As a** [role]
@@ -1907,11 +1163,15 @@ When describing UI/UX acceptance criteria, reference these interaction patterns:
 **THEN** [outcome]
 
 [Additional GIVEN-WHEN-THEN blocks...]
+
+## Notes
+
+- [Optional constraints, follow-ups, or implementation hints]
 ```
 
 ## Story Points
 
-All **Story** and **Task** type tickets **must** have a Story Point estimate filled in before being added to a Sprint.
+All **Story** and **Task** type tickets **must** have a Story Point estimate before entering Sprint planning.
 
 ### Story Point Field
 
@@ -1937,14 +1197,16 @@ All **Story** and **Task** type tickets **must** have a Story Point estimate fil
 - If a task exceeds 13 SP, consider splitting it
 - Completed tickets should be used to calibrate future estimates
 
-### Quick Checklist
+## Checklist
 
+- [ ] Contains Background, User Story, Acceptance Criteria, and Notes
 - [ ] User story follows As a / I want / So that format
 - [ ] At least 3 acceptance criteria with GIVEN-WHEN-THEN structure
 - [ ] Acceptance criteria focus on behavior, not implementation
 - [ ] Edge cases and error states are covered
 - [ ] OpenAI-style interaction patterns referenced where applicable
 - [ ] **Story Point is filled in** (`customfield_10016`)
+
 
 <!-- source: .cursor/rules/tdd-standards.mdc -->
 
@@ -2011,4 +1273,27 @@ should_expected_result_when_trigger_condition
 - [Test-Driven Development - Wikipedia](https://en.wikipedia.org/wiki/Test-driven_development)
 - [Test-Driven Development: By Example - Kent Beck (Book)](https://www.goodreads.com/book/show/97502.Test_Driven_Development)
 
-<!-- Generated at Thu Jul  2 07:30:57 CST 2026 -->
+<!-- source: .cursor/rules/ux-standards.mdc -->
+
+# UX Design Standards
+
+## Core Philosophy
+
+Design for clarity, elegance, and human-centeredness. Prefer simplicity over complexity.
+
+## Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Clarity** | Remove unnecessary elements, emphasize essential content |
+| **Consistency** | Uniform patterns across the interface |
+| **Feedback** | Immediate response to user actions |
+| **Accessibility** | Usable by everyone, regardless of ability |
+
+## Design References
+
+- [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)
+- [shadcn/ui - Apple](https://www.shadcn.io/design/apple)
+- [shadcn/ui - OpenAI](https://www.shadcn.io/design/openai)
+
+<!-- Generated at Sun Jul 12 10:16:12 CST 2026 -->

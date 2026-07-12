@@ -36,7 +36,7 @@ class VisionFunctionalVerificationIT {
     private WebApplicationContext webApplicationContext;
 
     @Autowired
-    private com.ai.vision.domain.port.ImageCaptioner captioner;
+    private com.ai.vision.domain.repository.ImageCaptioner captioner;
 
     private MockMvc mockMvc;
 

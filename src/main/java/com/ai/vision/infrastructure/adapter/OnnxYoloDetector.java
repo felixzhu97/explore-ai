@@ -7,7 +7,7 @@ import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
 import com.ai.vision.domain.exception.VisionProviderUnavailableException;
 import com.ai.vision.domain.model.Detection;
-import com.ai.vision.domain.port.ObjectDetector;
+import com.ai.vision.domain.repository.ObjectDetector;
 import com.ai.vision.infrastructure.config.VisionModelProperties;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;

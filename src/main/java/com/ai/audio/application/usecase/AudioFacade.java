@@ -7,7 +7,7 @@ import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceCatalog;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.domain.vo.VoiceSelection;
-import com.ai.audio.infrastructure.config.TtsProperties;
+import com.ai.audio.domain.repository.TtsConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,11 @@ public class AudioFacade {
             "zh-CN", "alloy");
 
     private final TextToSpeechRepository textToSpeechRepository;
-    private final TtsProperties ttsProperties;
+    private final TtsConfiguration ttsConfiguration;
 
-    public AudioFacade(TextToSpeechRepository textToSpeechRepository, TtsProperties ttsProperties) {
+    public AudioFacade(TextToSpeechRepository textToSpeechRepository, TtsConfiguration ttsConfiguration) {
         this.textToSpeechRepository = textToSpeechRepository;
-        this.ttsProperties = ttsProperties;
+        this.ttsConfiguration = ttsConfiguration;
     }
 
     public byte[] synthesize(String text, String voice, Double speed) {
@@ -50,17 +50,17 @@ public class AudioFacade {
     }
 
     private void ensureProviderConfigured() {
-        if (!ttsProperties.isEnabled()) {
+        if (!ttsConfiguration.isEnabled()) {
             throw TtsProviderNotConfiguredException.disabled();
         }
-        if (!ttsProperties.isConfigured()) {
+        if (!ttsConfiguration.isConfigured()) {
             throw TtsProviderNotConfiguredException.apiKeyMissing();
         }
     }
 
     private String resolveVoice(String voice) {
         if (voice == null || voice.isBlank()) {
-            return ttsProperties.getVoice();
+            return ttsConfiguration.getDefaultVoice();
         }
         String normalized = voice.trim();
         return LEGACY_VOICE_ALIASES.getOrDefault(normalized, normalized);

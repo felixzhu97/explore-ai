@@ -7,14 +7,13 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '@core/services/api.service';
+import { ApiMediaService } from '@core/services/api-media.service';
 import { I18nService } from '@core/i18n';
 import type { Voice } from '../tts.model';
 
 @Component({
   selector: 'app-tts-tab',
   imports: [FormsModule],
-  standalone: true,
   templateUrl: './tts.component.html',
   styles: `
     @keyframes fadeIn {
@@ -48,7 +47,7 @@ import type { Voice } from '../tts.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TtsPageComponent implements OnInit, OnDestroy {
-  private readonly api = inject(ApiService);
+  private readonly api = inject(ApiMediaService);
   protected readonly i18n = inject(I18nService);
 
   readonly text = signal('');

@@ -2,9 +2,6 @@ package com.ai.vision.web;
 
 import com.ai.vision.application.usecase.VisionAnalysisUseCase;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
-import com.ai.vision.domain.port.ImageCaptioner;
-import com.ai.vision.domain.port.ObjectDetector;
-import com.ai.vision.domain.port.OcrEngine;
 import com.ai.vision.web.dto.CaptionResponse;
 import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.OcrResponse;
@@ -17,27 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vision")
 public class VisionController {
 
     private final VisionAnalysisUseCase visionAnalysisUseCase;
-    private final ImageCaptioner captioner;
-    private final ObjectDetector detector;
-    private final OcrEngine ocrEngine;
 
-    public VisionController(
-            VisionAnalysisUseCase visionAnalysisUseCase,
-            ImageCaptioner captioner,
-            ObjectDetector detector,
-            OcrEngine ocrEngine) {
+    public VisionController(VisionAnalysisUseCase visionAnalysisUseCase) {
         this.visionAnalysisUseCase = visionAnalysisUseCase;
-        this.captioner = captioner;
-        this.detector = detector;
-        this.ocrEngine = ocrEngine;
     }
 
     @PostMapping("/caption")
@@ -60,12 +45,7 @@ public class VisionController {
 
     @GetMapping("/health")
     public VisionHealthResponse health() {
-        Map<String, String> providers = new LinkedHashMap<>();
-        providers.put("caption", captioner.isAvailable() ? "UP" : "DOWN");
-        providers.put("detect", detector.isAvailable() ? "UP" : "DOWN");
-        providers.put("ocr", ocrEngine.isAvailable() ? "UP" : "DOWN");
-        boolean allUp = captioner.isAvailable() && detector.isAvailable() && ocrEngine.isAvailable();
-        return new VisionHealthResponse(allUp ? "UP" : "DEGRADED", providers);
+        return visionAnalysisUseCase.health();
     }
 
     private void validateFile(MultipartFile file) {

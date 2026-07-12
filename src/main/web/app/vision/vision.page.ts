@@ -1,7 +1,7 @@
 import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService } from '@core/services/api.service';
+import { ApiMediaService } from '@core/services/api-media.service';
 import { I18nService } from '@core/i18n';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
 import { DetectionOverlayComponent } from './detection-overlay.component';
@@ -24,13 +24,12 @@ interface ApiErrorBody {
 @Component({
   selector: 'app-vision-page',
   imports: [SegmentedControlComponent, DetectionOverlayComponent],
-  standalone: true,
   templateUrl: './vision.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
 export class VisionPageComponent {
-  private readonly api = inject(ApiService);
+  private readonly api = inject(ApiMediaService);
   protected readonly i18n = inject(I18nService);
 
   readonly activeTask = signal<TaskType>('caption');

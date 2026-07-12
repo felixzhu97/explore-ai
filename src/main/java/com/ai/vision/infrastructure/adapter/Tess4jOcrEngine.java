@@ -3,7 +3,7 @@ package com.ai.vision.infrastructure.adapter;
 import com.ai.vision.domain.exception.VisionOcrException;
 import com.ai.vision.domain.exception.VisionProviderUnavailableException;
 import com.ai.vision.domain.model.OcrResult;
-import com.ai.vision.domain.port.OcrEngine;
+import com.ai.vision.domain.repository.OcrEngine;
 import com.ai.vision.infrastructure.config.VisionModelProperties;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;

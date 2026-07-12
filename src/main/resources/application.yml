@@ -24,7 +24,7 @@ spring:
         model: ${OLLAMA_VISION_MODEL:qwen3.5:35b}
       embedding:
         enabled: true
-        model: mxbai-embed-large
+        model: ${OLLAMA_EMBEDDING_MODEL:mxbai-embed-large}
         dimensions: 1024
     openai:
       api-key: ${DEEPSEEK_API_KEY}

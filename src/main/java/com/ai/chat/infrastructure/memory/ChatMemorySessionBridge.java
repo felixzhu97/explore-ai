@@ -3,6 +3,7 @@ package com.ai.chat.infrastructure.memory;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.MessageId;
+import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
@@ -17,7 +18,7 @@ import java.util.List;
  * Synchronizes Spring AI ChatMemory with domain ChatSession aggregates.
  */
 @Component
-public class ChatMemorySessionBridge {
+public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
     private final ChatMemory chatMemory;
 

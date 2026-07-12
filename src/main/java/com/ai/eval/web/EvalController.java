@@ -1,7 +1,7 @@
 package com.ai.eval.web;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.domain.service.ChatQualityEvaluator;
+import com.ai.eval.application.usecase.ChatQualityEvaluator;
 import com.ai.eval.web.dto.EvaluationRequest;
 import com.ai.eval.web.dto.EvaluationResponse;
 import jakarta.validation.Valid;

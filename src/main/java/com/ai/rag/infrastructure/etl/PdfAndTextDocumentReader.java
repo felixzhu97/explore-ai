@@ -1,7 +1,7 @@
 package com.ai.rag.infrastructure.etl;
 
 import com.ai.rag.domain.model.RawDocument;
-import com.ai.rag.domain.port.DocumentReader;
+import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.infrastructure.parser.PdfTextExtractor;
 import org.springframework.stereotype.Component;
 

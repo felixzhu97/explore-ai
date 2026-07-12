@@ -5,7 +5,6 @@ export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
 @Component({
   selector: 'app-card',
-  standalone: true,
   template: `
     <div
       class="block overflow-hidden rounded-xl transition-all duration-200"

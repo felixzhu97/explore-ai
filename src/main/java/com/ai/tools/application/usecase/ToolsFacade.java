@@ -1,9 +1,9 @@
 package com.ai.tools.application.usecase;
 
 import com.ai.chat.application.usecase.TextChatOptions;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
-import com.ai.common.domain.port.out.DocumentSearchTool;
-import com.ai.common.domain.port.out.WebSearchTool;
+import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.domain.repository.DocumentSearchTool;
+import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
@@ -20,19 +20,19 @@ public class ToolsFacade {
 
     private static final Logger log = LoggerFactory.getLogger(ToolsFacade.class);
 
-    private final ChatClientFactory chatClientFactory;
+    private final ChatClientProvider chatClientProvider;
     private final WeatherTools weatherTools;
     private final WeatherReport weatherReport;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
 
     public ToolsFacade(
-            ChatClientFactory chatClientFactory,
+            ChatClientProvider chatClientProvider,
             WeatherTools weatherTools,
             WeatherReport weatherReport,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool) {
-        this.chatClientFactory = chatClientFactory;
+        this.chatClientProvider = chatClientProvider;
         this.weatherTools = weatherTools;
         this.weatherReport = weatherReport;
         this.documentSearchTool = documentSearchTool;
@@ -41,7 +41,7 @@ public class ToolsFacade {
 
     public String chatWithTools(String question) {
         log.info("ToolsFacade.chatWithTools: {}", truncate(question));
-        ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.of("openai", null, true));
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
         return chatClient.prompt()
                 .user(question)
                 .call()

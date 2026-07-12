@@ -3,7 +3,6 @@ import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-toast',
-  standalone: true,
   template: `
     <div class="
       pointer-events-none fixed top-16 right-4 z-[9999] flex

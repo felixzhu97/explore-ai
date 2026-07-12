@@ -1,8 +1,8 @@
 package com.ai.vision.infrastructure.config;
 
-import com.ai.vision.domain.port.ImageCaptioner;
-import com.ai.vision.domain.port.ObjectDetector;
-import com.ai.vision.domain.port.OcrEngine;
+import com.ai.vision.domain.repository.ImageCaptioner;
+import com.ai.vision.domain.repository.ObjectDetector;
+import com.ai.vision.domain.repository.OcrEngine;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;

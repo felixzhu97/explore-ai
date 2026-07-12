@@ -1,7 +1,8 @@
 package com.ai.mcp.infrastructure.server;
 
-import com.ai.common.domain.port.out.DocumentSearchTool;
 import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.common.domain.repository.DocumentSearchTool;
+import com.ai.rag.infrastructure.config.RagProperties;
 import com.ai.tools.infrastructure.tools.WeatherTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +21,17 @@ public class AiMcpServerService {
     private final WeatherTools weatherTools;
     private final DocumentSearchTool documentSearchTool;
     private final ChatUseCase aiChatUseCase;
+    private final RagProperties ragProperties;
 
-    public AiMcpServerService(WeatherTools weatherTools, DocumentSearchTool documentSearchTool, ChatUseCase aiChatUseCase) {
+    public AiMcpServerService(
+            WeatherTools weatherTools,
+            DocumentSearchTool documentSearchTool,
+            ChatUseCase aiChatUseCase,
+            RagProperties ragProperties) {
         this.weatherTools = weatherTools;
         this.documentSearchTool = documentSearchTool;
         this.aiChatUseCase = aiChatUseCase;
+        this.ragProperties = ragProperties;
     }
 
     @McpTool(name = "get_weather", description = "Get current weather information for a specified city")
@@ -74,10 +81,10 @@ public class AiMcpServerService {
         log.info("MCP resource: getConfig called for key: {}", key);
 
         return switch (key) {
-            case "spring.ai.rag.chunk.size" -> "500";
-            case "spring.ai.rag.chunk.overlap" -> "50";
-            case "spring.ai.rag.retrieval.top-k" -> "5";
-            case "spring.ai.rag.retrieval.score-threshold" -> "0.5";
+            case "spring.ai.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());
+            case "spring.ai.rag.chunk.overlap" -> String.valueOf(ragProperties.getChunk().getOverlap());
+            case "spring.ai.rag.retrieval.top-k" -> String.valueOf(ragProperties.getRetrieval().getTopK());
+            case "spring.ai.rag.retrieval.score-threshold" -> String.valueOf(ragProperties.getRetrieval().getScoreThreshold());
             default -> "Configuration key not found: " + key;
         };
     }

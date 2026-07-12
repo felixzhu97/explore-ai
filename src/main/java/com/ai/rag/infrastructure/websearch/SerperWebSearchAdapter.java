@@ -1,6 +1,6 @@
 package com.ai.rag.infrastructure.websearch;
 
-import com.ai.common.domain.port.out.WebSearchTool;
+import com.ai.common.domain.repository.WebSearchTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;

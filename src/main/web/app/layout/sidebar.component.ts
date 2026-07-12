@@ -13,8 +13,8 @@ import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core
 import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ChatService } from '../ai-hub/chat.service';
-import type { Session } from './sidebar.service';
+import { SESSION_LIST } from './services/session-list.token';
+import type { SidebarSession } from './sidebar-session.model';
 
 interface NavTab {
   key: string;
@@ -25,7 +25,6 @@ interface NavTab {
 @Component({
   selector: 'app-sidebar',
   imports: [RouterLink, CommonModule, SessionItemComponent],
-  standalone: true,
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,7 +33,7 @@ export class SidebarComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
-  readonly chatService = inject(ChatService);
+  protected readonly sessionList = inject(SESSION_LIST);
 
   readonly collapsed = this.sidebar.collapsed;
   readonly dropdownOpen = signal(false);
@@ -42,16 +41,9 @@ export class SidebarComponent implements OnInit {
 
   private readonly isMobile = signal(false);
 
-  readonly displaySessions = computed<Session[]>(() => this.toDisplaySessions());
-
-  private toDisplaySessions(): Session[] {
-    return this.chatService.sessions().map(session => ({
-      id: session.sessionId,
-      title: session.title,
-      timestamp: new Date(session.lastActivityAt),
-      pinned: false,
-    }));
-  }
+  readonly displaySessions = computed<SidebarSession[]>(
+    () => this.sessionList.sessions(),
+  );
 
   readonly sidebarClasses = computed(() => {
     const mobile = this.isMobile();
@@ -95,7 +87,7 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.chatService.initializeSessions();
+    this.sessionList.initializeSessions();
   }
 
   private updateMobileState(): void {
@@ -140,7 +132,7 @@ export class SidebarComponent implements OnInit {
   }
 
   newChat(): void {
-    this.chatService.createSession();
+    this.sessionList.createSession();
     if (this.router.url !== '/chat') {
       void this.router.navigate(['/chat']);
     }
@@ -148,7 +140,7 @@ export class SidebarComponent implements OnInit {
   }
 
   onSessionSelect(sessionId: string): void {
-    this.chatService.selectSession(sessionId);
+    this.sessionList.selectSession(sessionId);
     if (this.router.url !== '/chat') {
       void this.router.navigate(['/chat']);
     }
@@ -160,7 +152,7 @@ export class SidebarComponent implements OnInit {
   }
 
   onSessionDelete(sessionId: string): void {
-    this.chatService.deleteSession(sessionId);
+    this.sessionList.deleteSession(sessionId);
   }
 
   getIcon(key: string): SafeHtml {

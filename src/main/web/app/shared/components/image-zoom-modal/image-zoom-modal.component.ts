@@ -13,7 +13,6 @@ import {
 
 @Component({
   selector: 'app-image-zoom-modal',
-  standalone: true,
   template: `
     @if (isOpen()) {
       <div

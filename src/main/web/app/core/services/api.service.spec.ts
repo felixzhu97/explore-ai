@@ -1583,11 +1583,11 @@ describe('ApiService', () => {
         value: removeChildSpy,
       });
 
-      (createElementSpy as never).mockReturnValue({
+      vi.mocked(createElementSpy).mockReturnValue({
         href: '',
         download: '',
         click: clickSpy,
-      });
+      } as unknown as HTMLAnchorElement);
 
       service.downloadBlob(blob, 'test.txt');
 
@@ -1699,9 +1699,6 @@ describe('ApiService', () => {
         {
           messages: [{ role: 'user', content: 'Hi' }],
           sessionId: 'session123',
-          system_prompt: 'You are helpful',
-          temperature: 0.7,
-          max_tokens: 1000,
           provider: 'openai',
           model: 'gpt-4o',
         },
@@ -1720,9 +1717,6 @@ describe('ApiService', () => {
       const callArgs = fetchSpy.mock.calls[0][1] as RequestInit;
       const body = JSON.parse(callArgs.body as string);
       expect(body.sessionId).toBe('session123');
-      expect(body.system_prompt).toBe('You are helpful');
-      expect(body.temperature).toBe(0.7);
-      expect(body.max_tokens).toBe(1000);
       expect(body.provider).toBe('openai');
       expect(body.model).toBe('gpt-4o');
     });

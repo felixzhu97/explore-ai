@@ -28,7 +28,7 @@
 | 本地 ASR | whisper.cpp (端口 8178) |
 | 前端 | Angular 22 + TypeScript |
 | 数据库 | H2 嵌入式 + Liquibase |
-| 部署 | Docker Compose (可选 PostgreSQL + pgvector) |
+| 部署 | `./gradlew bootRun` + 静态前端；生产可用 Docker 镜像（默认 H2，PostgreSQL + pgvector 需自行编排） |
 
 ## 快速启动
 
@@ -204,7 +204,7 @@ explore-ai/
 ```bash
 pnpm vision:models      # 下载 ONNX 模型与 tessdata 到 models/
 pnpm vision:fixtures    # 生成测试样例图
-pnpm server:start       # 启动后端 (port 9000)
+./gradlew bootRun       # 启动后端 (port 9000)
 pnpm vision:verify      # API 功能验证 smoke test
 ```
 

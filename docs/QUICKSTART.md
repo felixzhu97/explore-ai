@@ -42,7 +42,7 @@ pnpm install
 This command will install:
 
 - Root workspace dependencies
-- Frontend (Angular) dependencies in `apps/web`
+- Frontend (Angular) dependencies at project root (`src/main/web`)
 - Backend (Spring Boot) dependencies (downloaded via Gradle)
 
 ### Step 2: Verify Installation | 步骤 2: 验证安装
@@ -90,16 +90,7 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 
 ## 4. Starting Services | 启动服务
 
-### Option A: Start Both Services Together (Recommended) | 选项 A: 同时启动前后端（推荐）
-
-```bash
-# From root directory
-pnpm dev
-```
-
-This will start both backend and frontend in parallel mode.
-
-### Option B: Start Services Separately | 选项 B: 分别启动服务
+### Option A: Start Services Separately (Recommended) | 选项 A: 分别启动前后端（推荐）
 
 #### Start Backend | 启动后端
 
@@ -113,12 +104,15 @@ The backend runs on **[http://localhost:9000](http://localhost:9000)**
 #### Start Frontend | 启动前端
 
 ```bash
-# Terminal 2: Start Angular frontend
-cd apps/web
+# Terminal 2: Start Angular frontend (from project root)
 pnpm start
 ```
 
 The frontend runs on **[http://localhost:4200](http://localhost:4200)**
+
+### Option B: Backend Only or Frontend Only | 选项 B: 仅启动一端
+
+Use `./gradlew bootRun` or `pnpm start` when you only need the backend or frontend.
 
 ### Verify Services are Running | 验证服务运行状态
 
@@ -159,49 +153,48 @@ Open your browser and navigate to:
 ### Development Commands | 开发命令
 
 
-| Command           | Description         | 说明     |
-| ----------------- | ------------------- | ------ |
-| `pnpm dev`        | Start all services  | 启动所有服务 |
-| `pnpm web:dev`    | Start frontend only | 仅启动前端  |
-| `pnpm server:start` | Start backend only  | 仅启动后端  |
+| Command             | Description         | 说明    |
+| ------------------- | ------------------- | ----- |
+| `./gradlew bootRun` | Start backend only  | 仅启动后端 |
+| `pnpm start`        | Start frontend only | 仅启动前端 |
 
 
 ### Build Commands | 构建命令
 
 
-| Command                             | Description        | 说明    |
-| ----------------------------------- | ------------------ | ----- |
-| `pnpm build`                        | Build all packages | 构建所有包 |
-| `cd apps/web && pnpm build`         | Build frontend     | 构建前端  |
+| Command           | Description        | 说明    |
+| ----------------- | ------------------ | ----- |
+| `pnpm build`      | Build all packages | 构建所有包 |
+| `pnpm build`      | Build frontend     | 构建前端  |
 | `./gradlew build` | Build backend      | 构建后端  |
 
 
 ### Test Commands | 测试命令
 
 
-| Command                            | Description             | 说明       |
-| ---------------------------------- | ----------------------- | -------- |
-| `pnpm test`                        | Run all tests           | 运行所有测试   |
-| `pnpm test:watch`                  | Run tests in watch mode | 监听模式运行测试 |
-| `cd apps/web && pnpm test`         | Run frontend tests      | 运行前端测试   |
-| `./gradlew test` | Run backend tests       | 运行后端测试   |
+| Command           | Description             | 说明       |
+| ----------------- | ----------------------- | -------- |
+| `pnpm test`       | Run all tests           | 运行所有测试   |
+| `pnpm test:watch` | Run tests in watch mode | 监听模式运行测试 |
+| `pnpm test`       | Run frontend tests      | 运行前端测试   |
+| `./gradlew test`  | Run backend tests       | 运行后端测试   |
 
 
 ### Lint Commands | 代码检查命令
 
 
-| Command                    | Description       | 说明     |
-| -------------------------- | ----------------- | ------ |
-| `pnpm lint`                | Lint all packages | 检查所有包  |
-| `cd apps/web && pnpm lint` | Lint frontend     | 检查前端代码 |
+| Command     | Description       | 说明     |
+| ----------- | ----------------- | ------ |
+| `pnpm lint` | Lint all packages | 检查所有包  |
+| `pnpm lint` | Lint frontend     | 检查前端代码 |
 
 
 ### Clean Commands | 清理命令
 
 
-| Command                             | Description               | 说明       |
-| ----------------------------------- | ------------------------- | -------- |
-| `pnpm clean`                        | Clean all build artifacts | 清理所有构建产物 |
+| Command           | Description               | 说明       |
+| ----------------- | ------------------------- | -------- |
+| `pnpm clean`      | Clean all build artifacts | 清理所有构建产物 |
 | `./gradlew clean` | Clean backend             | 清理后端构建   |
 
 
@@ -268,11 +261,10 @@ curl -I -H "Origin: http://localhost:4200" http://localhost:9000/api/chat
 
 ```bash
 # 1. Clear node_modules and reinstall
-rm -rf node_modules apps/web/node_modules
+rm -rf node_modules
 pnpm install
 
-# 2. Clear Angular cache
-cd apps/web
+# 2. Clear Angular cache (from project root)
 rm -rf .angular node_modules dist
 pnpm install && pnpm build
 ```
@@ -306,13 +298,13 @@ java --version  # Must be 25+
 ### Environment Variables Reference | 环境变量参考
 
 
-| Variable            | Default                                              | Description                      |
-| ------------------- | ---------------------------------------------------- | -------------------------------- |
-| `DEEPSEEK_API_KEY`  | -                                                    | Your DeepSeek API key (required) |
-| `DEEPSEEK_BASE_URL` | [https://api.deepseek.com](https://api.deepseek.com) | DeepSeek API endpoint            |
-| `IMAGE_PROVIDER`    | `ollama`                                             | Image provider: `ollama` or `openai` |
-| `IMAGE_MODEL`       | `x/flux2-klein`                                      | Ollama/OpenAI image model name   |
-| `IMAGE_BASE_URL`    | `http://localhost:11434/v1`                          | Image API base URL               |
+| Variable            | Default                                              | Description                           |
+| ------------------- | ---------------------------------------------------- | ------------------------------------- |
+| `DEEPSEEK_API_KEY`  | -                                                    | Your DeepSeek API key (required)      |
+| `DEEPSEEK_BASE_URL` | [https://api.deepseek.com](https://api.deepseek.com) | DeepSeek API endpoint                 |
+| `IMAGE_PROVIDER`    | `ollama`                                             | Image provider: `ollama` or `openai`  |
+| `IMAGE_MODEL`       | `x/flux2-klein`                                      | Ollama/OpenAI image model name        |
+| `IMAGE_BASE_URL`    | `http://localhost:11434/v1`                          | Image API base URL                    |
 | `OPENAI_API_KEY`    | -                                                    | Required when `IMAGE_PROVIDER=openai` |
 
 
@@ -327,17 +319,17 @@ ollama pull x/flux2-klein
 # 2. Ensure Ollama is running
 ollama serve
 
-# 3. Start the app and open /generate/image
-pnpm dev
+# 3. Start backend and frontend (two terminals), then open /generate/image
+./gradlew bootRun   # terminal 1
+pnpm start          # terminal 2
 ```
 
 Optional paid path: set `IMAGE_PROVIDER=openai`, `IMAGE_API_KEY`, and `IMAGE_BASE_URL=https://api.openai.com/v1` in `.env`.
 
-
 ### Need More Help? | 需要更多帮助？
 
 - **Backend Issues**: Check logs in `build.gradle.kts`
-- **Frontend Issues**: Check `apps/web/package.json`
+- **Frontend Issues**: Check root `package.json`
 - **Architecture Docs**: See [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ---
@@ -354,7 +346,7 @@ Optional paid path: set `IMAGE_PROVIDER=openai`, `IMAGE_API_KEY`, and `IMAGE_BAS
 │  2. Configure:   .env                           │
 │                   └─ DEEPSEEK_API_KEY=sk-xxx               │
 │                                                              │
-│  3. Start:       pnpm dev                                   │
+│  3. Start:       ./gradlew bootRun  +  pnpm start           │
 │                   └─ Backend:  http://localhost:9000        │
 │                   └─ Frontend: http://localhost:4200       │
 │                                                              │

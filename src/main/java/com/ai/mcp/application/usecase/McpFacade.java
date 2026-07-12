@@ -1,7 +1,7 @@
 package com.ai.mcp.application.usecase;
 
+import com.ai.chat.application.usecase.ChatClientProvider;
 import com.ai.chat.application.usecase.TextChatOptions;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
 import com.ai.mcp.application.port.McpToolCallbackRegistry;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;
@@ -17,15 +17,15 @@ public class McpFacade {
 
     private final McpClientRepository mcpClientRepository;
     private final McpToolCallbackRegistry toolCallbackRegistry;
-    private final ChatClientFactory chatClientFactory;
+    private final ChatClientProvider chatClientProvider;
 
     public McpFacade(
             McpClientRepository mcpClientRepository,
             McpToolCallbackRegistry toolCallbackRegistry,
-            ChatClientFactory chatClientFactory) {
+            ChatClientProvider chatClientProvider) {
         this.mcpClientRepository = mcpClientRepository;
         this.toolCallbackRegistry = toolCallbackRegistry;
-        this.chatClientFactory = chatClientFactory;
+        this.chatClientProvider = chatClientProvider;
     }
 
     public int getTotalToolCount() {
@@ -50,7 +50,7 @@ public class McpFacade {
 
     public String chatWithTools(String question) {
         ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
-        return chatClientFactory.createStateless(TextChatOptions.defaults())
+        return chatClientProvider.createStateless(TextChatOptions.defaults())
                 .prompt()
                 .user(question)
                 .tools(tools)

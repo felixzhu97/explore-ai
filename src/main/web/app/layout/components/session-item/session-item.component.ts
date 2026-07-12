@@ -4,16 +4,15 @@ import {
   input,
   output,
 } from '@angular/core';
-import { Session } from '../../sidebar.service';
+import type { SidebarSession } from '../../sidebar-session.model';
 
 @Component({
   selector: 'app-session-item',
   imports: [],
-  standalone: true,
   template: `
     <button
       type="button"
-      class="session-item group relative flex w-full cursor-pointer items-center
+      class="group relative flex w-full cursor-pointer items-center
              gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-all
              duration-150 hover:bg-surface-secondary"
       [class.bg-primary-light]="isActive()"
@@ -102,7 +101,7 @@ import { Session } from '../../sidebar.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionItemComponent {
-  readonly session = input.required<Session>();
+  readonly session = input.required<SidebarSession>();
   readonly isActive = input(false);
   readonly collapsed = input(false);
 

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { ApiService } from '@core/services/api.service';
+import { ApiChatService } from '@core/services/api-chat.service';
 import type {
   ChatMessage,
   ProviderInfo,
@@ -17,7 +17,7 @@ export interface UiMessage {
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private readonly api = inject(ApiService);
+  private readonly api = inject(ApiChatService);
 
   readonly providers = signal<ProviderInfo[]>([]);
   readonly models = signal<ModelInfo[]>([]);

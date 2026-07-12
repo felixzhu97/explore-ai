@@ -1,7 +1,7 @@
 package com.ai.eval;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.domain.service.ChatQualityEvaluator;
+import com.ai.eval.application.usecase.ChatQualityEvaluator;
 import com.ai.eval.web.EvalController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

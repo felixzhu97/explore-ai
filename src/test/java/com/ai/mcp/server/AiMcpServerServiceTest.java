@@ -1,7 +1,8 @@
 package com.ai.mcp.infrastructure.server;
 
-import com.ai.common.domain.port.out.DocumentSearchTool;
 import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.rag.infrastructure.config.RagProperties;
+import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.tools.infrastructure.tools.WeatherTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,11 +30,12 @@ class AiMcpServerServiceTest {
     @Mock
     private ChatUseCase aiChatUseCase;
 
+    private final RagProperties ragProperties = new RagProperties();
     private AiMcpServerService service;
 
     @BeforeEach
     void setUp() {
-        service = new AiMcpServerService(weatherTools, documentSearchTool, aiChatUseCase);
+        service = new AiMcpServerService(weatherTools, documentSearchTool, aiChatUseCase, ragProperties);
     }
 
     @Nested

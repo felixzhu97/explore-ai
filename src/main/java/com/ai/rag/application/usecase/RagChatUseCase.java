@@ -2,7 +2,7 @@ package com.ai.rag.application.usecase;
 
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
+import com.ai.chat.application.usecase.ChatClientProvider;
 import com.ai.chat.application.usecase.TextChatOptions;
 import com.ai.chat.domain.service.LanguageDetectionService;
 import org.slf4j.Logger;
@@ -19,15 +19,15 @@ public class RagChatUseCase {
     private static final int DEFAULT_TOP_K = 5;
 
     private final RagApplicationService ragApplicationService;
-    private final ChatClientFactory chatClientFactory;
+    private final ChatClientProvider chatClientProvider;
     private final LanguageDetectionService languageDetectionService;
 
     public RagChatUseCase(
             RagApplicationService ragApplicationService,
-            ChatClientFactory chatClientFactory,
+            ChatClientProvider chatClientProvider,
             LanguageDetectionService languageDetectionService) {
         this.ragApplicationService = ragApplicationService;
-        this.chatClientFactory = chatClientFactory;
+        this.chatClientProvider = chatClientProvider;
         this.languageDetectionService = languageDetectionService;
     }
 
@@ -49,7 +49,7 @@ public class RagChatUseCase {
         List<SourceDocument> sources = retrievalResult.sources();
         String prompt = buildPrompt(question, retrievalResult.context());
 
-        ChatClient chatClient = chatClientFactory.createStateless(TextChatOptions.defaults());
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
         String aiResponse = chatClient.prompt()
                 .user(prompt)
                 .call()

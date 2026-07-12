@@ -1,8 +1,8 @@
 package com.ai.tools.application.usecase;
 
-import com.ai.chat.infrastructure.llm.ChatClientFactory;
-import com.ai.common.domain.port.out.DocumentSearchTool;
-import com.ai.common.domain.port.out.WebSearchTool;
+import com.ai.chat.application.usecase.ChatClientProvider;
+import com.ai.common.domain.repository.DocumentSearchTool;
+import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.tools.domain.model.ToolResult;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherQuery;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 class ToolsFacadeTest {
 
     @Mock
-    private ChatClientFactory chatClientFactory;
+    private ChatClientProvider chatClientProvider;
 
     @Mock
     private WeatherTools weatherTools;
@@ -42,7 +42,7 @@ class ToolsFacadeTest {
     @BeforeEach
     void setUp() {
         toolsFacade = new ToolsFacade(
-                chatClientFactory, weatherTools, weatherReport, documentSearchTool, webSearchTool);
+                chatClientProvider, weatherTools, weatherReport, documentSearchTool, webSearchTool);
     }
 
     @Test

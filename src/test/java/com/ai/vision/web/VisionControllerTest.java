@@ -2,13 +2,11 @@ package com.ai.vision.web;
 
 import com.ai.vision.application.usecase.VisionAnalysisUseCase;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
-import com.ai.vision.domain.port.ImageCaptioner;
-import com.ai.vision.domain.port.ObjectDetector;
-import com.ai.vision.domain.port.OcrEngine;
 import com.ai.vision.web.dto.CaptionResponse;
 import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.DetectionDto;
 import com.ai.vision.web.dto.OcrResponse;
+import com.ai.vision.web.dto.VisionHealthResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,21 +30,11 @@ class VisionControllerTest {
     @Mock
     private VisionAnalysisUseCase visionAnalysisUseCase;
 
-    @Mock
-    private ImageCaptioner captioner;
-
-    @Mock
-    private ObjectDetector detector;
-
-    @Mock
-    private OcrEngine ocrEngine;
-
     private VisionController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new VisionController(
-                visionAnalysisUseCase, captioner, detector, ocrEngine);
+        controller = new VisionController(visionAnalysisUseCase);
     }
 
     @Nested
@@ -120,9 +109,11 @@ class VisionControllerTest {
         @Test
         @DisplayName("should report provider availability")
         void should_report_provider_availability() {
-            when(captioner.isAvailable()).thenReturn(true);
-            when(detector.isAvailable()).thenReturn(false);
-            when(ocrEngine.isAvailable()).thenReturn(true);
+            when(visionAnalysisUseCase.health())
+                    .thenReturn(new VisionHealthResponse("DEGRADED", Map.of(
+                            "caption", "UP",
+                            "detect", "DOWN",
+                            "ocr", "UP")));
 
             var response = controller.health();
 
