@@ -4,7 +4,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import type { SidebarSession } from '../../models/sidebar-session.model';
+import type { SidebarSession } from '../../sidebar-session.model';
 
 @Component({
   selector: 'app-session-item',

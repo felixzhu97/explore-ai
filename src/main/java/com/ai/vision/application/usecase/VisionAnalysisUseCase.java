@@ -92,11 +92,13 @@ public class VisionAnalysisUseCase {
     }
 
     private BufferedImage toImage(MultipartFile file) throws IOException {
-        BufferedImage image = ImageIO.read(file.getInputStream());
-        if (image == null) {
-            throw new VisionInvalidFileException("Unsupported or corrupt image file");
+        try (var inputStream = file.getInputStream()) {
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) {
+                throw new VisionInvalidFileException("Unsupported or corrupt image file");
+            }
+            return image;
         }
-        return image;
     }
 
     private long elapsedMillis(long startedAtNanos) {

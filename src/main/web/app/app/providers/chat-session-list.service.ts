@@ -1,6 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 import type { SessionList } from '../../layout/services/session-list.token';
-import type { SidebarSession } from '../../layout/models/sidebar-session.model';
+import type { SidebarSession } from '../../layout/sidebar-session.model';
 import { ChatService } from '../../ai-hub/chat.service';
 
 @Injectable()

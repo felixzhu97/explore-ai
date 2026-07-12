@@ -56,19 +56,24 @@ public class DocumentSearchService {
             chunks = chunkSearchRepository.search(queryEmbedding, effectiveTopK);
         }
 
-        List<SourceDocument> sources = chunks.stream()
+        List<DocumentChunk> filteredChunks = chunks.stream()
+                .filter(chunk -> VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()) >= scoreThreshold)
+                .sorted(Comparator.comparingDouble(
+                        (DocumentChunk chunk) -> VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()))
+                        .reversed())
+                .toList();
+
+        String context = filteredChunks.stream()
+                .map(DocumentChunk::getContent)
+                .reduce((a, b) -> a + "\n\n" + b)
+                .orElse("");
+
+        List<SourceDocument> sources = filteredChunks.stream()
                 .map(chunk -> new SourceDocument(
                         truncate(chunk.getContent()),
                         VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()),
                         chunk.getMetadata()))
-                .filter(source -> source.score() >= scoreThreshold)
-                .sorted(Comparator.comparingDouble(SourceDocument::score).reversed())
                 .toList();
-
-        String context = sources.stream()
-                .map(SourceDocument::text)
-                .reduce((a, b) -> a + "\n\n" + b)
-                .orElse("");
 
         log.info("Retrieved {} chunks after score threshold {}", sources.size(), scoreThreshold);
         return new RetrievalResult(context, sources);

@@ -25,10 +25,8 @@ data/
 # Docker volumes (runtime data)
 volumes/
 
-# ML model weights (at any level)
-models/
-!src/main/web/app/layout/models/
-!src/main/web/app/layout/models/**
+# ML model weights (repository root only)
+/models/
 *.pt
 *.onnx
 *.pth

@@ -1,5 +1,5 @@
 import { InjectionToken, Signal } from '@angular/core';
-import type { SidebarSession } from '../models/sidebar-session.model';
+import type { SidebarSession } from '../sidebar-session.model';
 
 /** Layout-level contract: sidebar reads session list without importing chat feature. */
 export interface SessionList {

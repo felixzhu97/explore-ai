@@ -14,7 +14,7 @@ import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST } from './services/session-list.token';
-import type { SidebarSession } from './models/sidebar-session.model';
+import type { SidebarSession } from './sidebar-session.model';
 
 interface NavTab {
   key: string;
