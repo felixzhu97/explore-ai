@@ -91,6 +91,7 @@ describe('i18n.model', () => {
         'detect',
         'ocr',
         'noImageYet',
+        'clickToEnlarge',
       ] as const;
 
       it('should have imageUploader translations for all languages', () => {
@@ -237,6 +238,7 @@ describe('i18n.model', () => {
           expect(translations[lang].generate.image.preview).toBeDefined();
           expect(translations[lang].generate.image.download).toBeDefined();
           expect(translations[lang].generate.image.emptyState).toBeDefined();
+          expect(translations[lang].generate.image.zoomLabel).toBeDefined();
         });
       });
 

@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, catchError, of } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import type {
   ImageGenerateParams,
   ImageGenerationApiResponse,
   ImageGenerationResult,
+  ImageCatalogResponse,
   TtsRequest,
   VisionResult,
+  VisionHealthResponse,
   Voice,
 } from '@shared/models';
 import { API_BASE_URL, DEFAULT_VOICES } from './api.constants';
@@ -34,6 +36,36 @@ export class ApiMediaService {
         prompt: response.prompt,
       })),
     );
+  }
+
+  getImageModels(): Observable<string[]> {
+    return this.http
+      .get<{ models: string[] }>(`${API_BASE_URL}/images/models`)
+      .pipe(map(response => response.models ?? []));
+  }
+
+  getImageSizes(): Observable<string[]> {
+    return this.http
+      .get<{ sizes: string[] }>(`${API_BASE_URL}/images/sizes`)
+      .pipe(map(response => response.sizes ?? []));
+  }
+
+  getImageQualities(): Observable<string[]> {
+    return this.http
+      .get<{ qualities: string[] }>(`${API_BASE_URL}/images/qualities`)
+      .pipe(map(response => response.qualities ?? []));
+  }
+
+  getImageCatalog(): Observable<ImageCatalogResponse> {
+    return forkJoin({
+      models: this.getImageModels().pipe(catchError(() => of([] as string[]))),
+      sizes: this.getImageSizes().pipe(catchError(() => of([] as string[]))),
+      qualities: this.getImageQualities().pipe(catchError(() => of([] as string[]))),
+    });
+  }
+
+  getVisionHealth(): Observable<VisionHealthResponse> {
+    return this.http.get<VisionHealthResponse>(`${API_BASE_URL}/vision/health`);
   }
 
   captionImage(file: File): Observable<Pick<VisionResult, 'caption' | 'processingTimeMs'>> {

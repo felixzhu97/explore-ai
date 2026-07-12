@@ -14,6 +14,7 @@ describe('httpErrorInterceptor', () => {
       providers: [provideHttpClient(withInterceptors([httpErrorInterceptor]))],
     });
     notificationService = TestBed.inject(NotificationService);
+    vi.spyOn(notificationService, 'showError');
   });
 
   describe('error handling', () => {
@@ -474,10 +475,7 @@ describe('httpErrorInterceptor', () => {
 
           error: () => {
             try {
-              expect(notificationService.toasts().length).toBeGreaterThan(0);
-              const errorToast = notificationService.toasts().find(t => t.type === 'error');
-              expect(errorToast).toBeDefined();
-              expect(errorToast?.message).toBe('A server error occurred. Please try again later.');
+              expect(notificationService.showError).toHaveBeenCalledWith('A server error occurred. Please try again later.');
               resolve();
             } catch (e) {
               reject(e);

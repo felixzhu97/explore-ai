@@ -9,9 +9,14 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { I18nService, languageNames, SUPPORTED_LANGUAGES, Language } from '@core/i18n';
+import { I18nService } from '@core/i18n';
+import {
+  SidebarGroupComponent,
+} from '@/shared/components/layout/sidebar.component';
+import { ZardSidebarMenuButtonDirective } from '@/shared/components/layout/sidebar-menu-button.directive';
 import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
+import { LanguagePickerComponent } from './components/language-picker/language-picker.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST } from './services/session-list.token';
 import type { SidebarSession } from './sidebar-session.model';
@@ -24,7 +29,14 @@ interface NavTab {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, CommonModule, SessionItemComponent],
+  imports: [
+    RouterLink,
+    CommonModule,
+    SidebarGroupComponent,
+    ZardSidebarMenuButtonDirective,
+    SessionItemComponent,
+    LanguagePickerComponent,
+  ],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,7 +48,6 @@ export class SidebarComponent implements OnInit {
   protected readonly sessionList = inject(SESSION_LIST);
 
   readonly collapsed = this.sidebar.collapsed;
-  readonly dropdownOpen = signal(false);
   readonly recentsExpanded = signal(true);
 
   private readonly isMobile = signal(false);
@@ -79,9 +90,6 @@ export class SidebarComponent implements OnInit {
     { key: 'generate', labelKey: 'generation', path: '/generate' },
   ];
 
-  readonly supportedLanguages = SUPPORTED_LANGUAGES;
-  readonly languageNames = languageNames;
-
   constructor() {
     this.updateMobileState();
   }
@@ -107,11 +115,6 @@ export class SidebarComponent implements OnInit {
     return this.i18n.t;
   }
 
-  isActiveTab(path: string): boolean {
-    const url = this.router.url.split('?')[0];
-    return url === path || url.startsWith(`${path}/`);
-  }
-
   toggleCollapse(): void {
     if (!this.isMobile()) {
       this.collapsed.update(v => !v);
@@ -120,15 +123,6 @@ export class SidebarComponent implements OnInit {
 
   onNavClick(): void {
     this.sidebar.close();
-  }
-
-  toggleDropdown(): void {
-    this.dropdownOpen.update(v => !v);
-  }
-
-  selectLanguage(lang: Language): void {
-    this.i18n.setLanguage(lang);
-    this.dropdownOpen.set(false);
   }
 
   newChat(): void {
@@ -169,14 +163,8 @@ export class SidebarComponent implements OnInit {
   @HostListener('document:pointerdown', ['$event'])
   onDocumentPointerDown(event: PointerEvent): void {
     const target = event.target as Element;
-    const isOutsideMenu =
-      !target || typeof target.closest !== 'function' || !target.closest('[data-language-menu]');
     const isOutsideSidebar =
       !target || typeof target.closest !== 'function' || !target.closest('[data-sidebar-panel]');
-
-    if (this.dropdownOpen() && isOutsideMenu) {
-      this.dropdownOpen.set(false);
-    }
 
     if (this.sidebar.mobileOpen() && isOutsideSidebar) {
       this.sidebar.close();

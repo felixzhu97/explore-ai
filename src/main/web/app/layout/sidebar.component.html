@@ -1,266 +1,201 @@
 <aside
   data-sidebar-panel
   class="
-    fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col border-r border-gray-200
-    bg-white transition-all duration-250 ease-out
+    fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col border-r border-sidebar-border
+    bg-sidebar text-sidebar-foreground transition-all duration-250 ease-out
     max-md:pb-[env(safe-area-inset-bottom)]
   "
   [ngClass]="sidebarClasses()"
 >
-  <div class="flex h-13 shrink-0 items-center justify-between border-b border-border-light px-4">
+  <div class="flex h-13 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
     @if (!collapsed()) {
-        <span class="text-base font-semibold text-text md:hidden">AI</span>
-        <button
-                type="button"
-                class="
-        relative hidden size-8 cursor-pointer items-center justify-center rounded-md
-        border-none bg-transparent transition-all duration-150
-        hover:bg-surface-secondary
-        md:flex
-      "
-                (click)="toggleCollapse()"
-                [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
-        >
-            <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor"/>
-            </svg>
-        </button>
+      <span class="text-base font-semibold text-sidebar-foreground md:hidden">AI</span>
       <button
         type="button"
         class="
-          flex size-6 shrink-0 cursor-w-resize items-center
-          justify-center rounded-md border-none bg-transparent transition-all
-          duration-150 hover:bg-surface-secondary
+          relative hidden size-8 cursor-pointer items-center justify-center rounded-md
+          border-none bg-transparent transition-all duration-150
+          hover:bg-sidebar-accent
+          md:flex
+        "
+        (click)="toggleCollapse()"
+        aria-label="Collapse sidebar"
+      >
+        <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="
+          flex size-6 shrink-0 cursor-w-resize items-center justify-center rounded-md
+          border-none bg-transparent transition-all duration-150
+          hover:bg-sidebar-accent
           max-md:hidden
         "
         (click)="toggleCollapse()"
         aria-label="Collapse sidebar"
       >
-        <svg class="size-5 text-text" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM10 5V19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H10Z"/>
+        <svg class="size-5 text-sidebar-foreground" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM10 5V19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H10Z"
+          />
         </svg>
       </button>
-    <button
-        type="button"
-        class="
-            flex size-6 shrink-0 cursor-pointer items-center justify-center
-            rounded-md border-none bg-transparent text-text-secondary transition-all
-            duration-150 hover:bg-surface-secondary hover:text-text
-            md:hidden
-          "
-            (click)="sidebar.close()"
-            aria-label="Close menu"
-    >
-        ✕
-    </button>
-    } @else {
-      <!-- 收起时 hover logo 后显示展开箭头 -->
       <button
         type="button"
         class="
-          flex size-6 shrink-0 cursor-e-resize items-center
-          justify-center rounded-md border-none bg-transparent transition-all
-          duration-150 hover:bg-surface-secondary
+          flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md
+          border-none bg-transparent text-sidebar-foreground/70 transition-all duration-150
+          hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
+          md:hidden
+        "
+        (click)="sidebar.close()"
+        aria-label="Close menu"
+      >
+        ✕
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="
+          flex size-6 shrink-0 cursor-e-resize items-center justify-center rounded-md
+          border-none bg-transparent transition-all duration-150
+          hover:bg-sidebar-accent
         "
         (click)="toggleCollapse()"
         aria-label="Expand sidebar"
       >
-        <svg class="size-5 text-text-secondary" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM10 5V19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H10Z"/>
+        <svg class="size-5 text-sidebar-foreground/70" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM10 5V19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H10Z"
+          />
         </svg>
       </button>
     }
   </div>
 
-  @if (!collapsed()) {
-    <!-- Navigation Tabs -->
-    <nav class="flex shrink-0 flex-col gap-0.5 p-2">
-      <!-- New Chat Button -->
-      <button
-        type="button"
-        class="
-          flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px]
-          font-medium whitespace-nowrap text-text-secondary no-underline
-          transition-all duration-150
-          hover:bg-surface-secondary hover:text-text
-        "
-        (click)="newChat()"
-        [title]="t().sidebar.newChat"
-      >
-        <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        <span class="overflow-hidden text-ellipsis text-black/70">
-          {{ t().sidebar.newChat }}
-        </span>
-      </button>
-
-      @for (tab of tabs; track tab.key) {
-        <a
-          class="
-            flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px]
-            font-medium whitespace-nowrap text-text-secondary no-underline
-            transition-all duration-150
-            hover:bg-surface-secondary hover:text-text
-          "
-          [class.bg-primary-light]="isActiveTab(tab.path)"
-          [class.text-primary]="isActiveTab(tab.path)"
-          [routerLink]="tab.path"
-          [title]="t().nav[tab.labelKey]"
-          (click)="onNavClick()"
-        >
-          <span class="size-4 shrink-0 text-center text-black opacity-60" [innerHTML]="getIcon(tab.key)"></span>
-          <span class="overflow-hidden text-ellipsis text-black/70">
-            {{ t().nav[tab.labelKey] }}
-          </span>
-        </a>
-      }
-    </nav>
-
-    <!-- Chat History Section -->
-    <div class="flex-1 overflow-y-auto border-t border-border-light">
-      @if (displaySessions().length > 0) {
-        <div class="px-2 pt-1 pb-2">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+    @if (!collapsed()) {
+      <nav class="shrink-0 p-2">
+        <z-sidebar-group>
           <button
             type="button"
-            class="
-              group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-[13px]
-              font-semibold text-text-secondary no-underline transition-all duration-150
-              hover:text-text
-            "
-            (click)="recentsExpanded.update(v => !v)"
+            z-sidebar-menu-button
+            (click)="newChat()"
+            [title]="t().sidebar.newChat"
           >
-            {{ t().sidebar.recents }}
-            <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              <svg
-                class="size-3 transition-transform duration-200"
-                [class.rotate-90]="recentsExpanded()"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M9 18l6-6-6-6" />
+            <span class="size-4 shrink-0 opacity-60">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14" />
               </svg>
             </span>
+            <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+              {{ t().sidebar.newChat }}
+            </span>
           </button>
-          @if (recentsExpanded()) {
-            <div class="space-y-0.5">
-              @for (session of displaySessions(); track session.id) {
-                <app-session-item
-                  [session]="session"
-                  [isActive]="sessionList.activeSessionId() === session.id"
-                  [collapsed]="collapsed()"
-                  (sessionSelect)="onSessionSelect(session.id)"
-                  (pin)="onSessionPin()"
-                  (delete)="onSessionDelete(session.id)"
-                />
-              }
-            </div>
+
+          @for (tab of tabs; track tab.key) {
+            <a
+              z-sidebar-menu-button
+              [routerLink]="tab.path"
+              [title]="t().nav[tab.labelKey]"
+              (click)="onNavClick()"
+            >
+              <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
+              <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+                {{ t().nav[tab.labelKey] }}
+              </span>
+            </a>
           }
-        </div>
-      }
-    </div>
-  } @else {
-    <!-- Collapsed: Show new chat + nav icons -->
-    <div class="flex flex-col items-center gap-1 border-t border-border-light py-2">
-      <button
-        type="button"
-        class="
-          flex size-8 cursor-pointer items-center justify-center rounded
-          border-none bg-transparent text-text-secondary transition-all
-          duration-150
-          hover:bg-surface-secondary hover:text-text
-        "
-        (click)="newChat()"
-        [title]="t().sidebar.newChat"
-      >
-        <svg
-          class="size-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </button>
+        </z-sidebar-group>
+      </nav>
 
-      @for (tab of tabs; track tab.key) {
-        <a
-          class="
-            flex size-8 cursor-pointer items-center justify-center rounded-md
-            border-none bg-transparent text-text-secondary transition-all
-            duration-150
-            hover:bg-surface-secondary hover:text-text
-          "
-          [class.bg-primary-light]="isActiveTab(tab.path)"
-          [class.text-primary]="isActiveTab(tab.path)"
-          [routerLink]="tab.path"
-          [title]="t().nav[tab.labelKey]"
-          (click)="onNavClick()"
-        >
-          <span class="text-black opacity-60" [innerHTML]="getIcon(tab.key)"></span>
-        </a>
-      }
-    </div>
-  }
-
-  <!-- Language Selector - desktop only (mobile uses header language picker) -->
-  <div class="mt-auto hidden shrink-0 border-t border-border-light p-2 md:block">
-    <div class="relative" data-language-menu [class.collapsed]="collapsed()">
-      <button
-        type="button"
-        class="
-          flex w-full cursor-pointer items-center gap-2 rounded-lg border-none
-          bg-transparent px-3 py-2 text-xs font-medium text-text-secondary
-          transition-all duration-150
-          hover:bg-surface-secondary hover:text-text
-        "
-        (click)="toggleDropdown()"
-        [attr.aria-expanded]="dropdownOpen()"
-        aria-haspopup="listbox"
-      >
-        <span class="w-6 shrink-0 text-center font-semibold">{{ i18n.language().toUpperCase() }}</span>
-        @if (!collapsed()) {
-          <span class="flex-1 overflow-hidden text-left text-ellipsis">
-            {{ i18n.languageName() }}
-          </span>
-          <span
-            class="
-              size-0 border-x-4 border-t-4 border-x-transparent border-t-current
-              transition-transform duration-200
-            "
-            [class.rotate-180]="dropdownOpen()"
-          ></span>
-        }
-      </button>
-      @if (dropdownOpen() && !collapsed()) {
-        <div class="
-          absolute inset-x-0 bottom-full mb-1 animate-dropdown-fade-in
-          overflow-hidden rounded-lg border border-border bg-surface
-          shadow-elevated
-        ">
-          @for (lang of supportedLanguages; track lang) {
+      <div class="flex-1 overflow-y-auto border-t border-sidebar-border">
+        @if (displaySessions().length > 0) {
+          <div class="px-2 pt-1 pb-2">
             <button
               type="button"
               class="
-                block w-full cursor-pointer border-none bg-transparent px-3 py-2
-                text-left text-xs text-text-secondary transition-all
-                duration-150
-                hover:bg-surface-secondary hover:text-text
+                group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-[13px]
+                font-semibold text-sidebar-foreground/70 no-underline transition-all duration-150
+                hover:text-sidebar-accent-foreground
               "
-              [class.text-primary]="lang === i18n.language()"
-              [class.bg-primary-light]="lang === i18n.language()"
-              (click)="selectLanguage(lang)"
+              (click)="recentsExpanded.update(v => !v)"
             >
-              {{ languageNames[lang] }}
+              {{ t().sidebar.recents }}
+              <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                <svg
+                  class="size-3 transition-transform duration-200"
+                  [class.rotate-90]="recentsExpanded()"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </span>
             </button>
-          }
-        </div>
-      }
-    </div>
+            @if (recentsExpanded()) {
+              <z-sidebar-group class="space-y-0.5">
+                @for (session of displaySessions(); track session.id) {
+                  <app-session-item
+                    [session]="session"
+                    [isActive]="sessionList.activeSessionId() === session.id"
+                    [collapsed]="collapsed()"
+                    (sessionSelect)="onSessionSelect(session.id)"
+                    (pin)="onSessionPin()"
+                    (delete)="onSessionDelete(session.id)"
+                  />
+                }
+              </z-sidebar-group>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="flex flex-col items-center gap-1 border-t border-sidebar-border py-2">
+        <button
+          type="button"
+          z-sidebar-menu-button
+          zIconOnly
+          [zFull]="false"
+          (click)="newChat()"
+          [title]="t().sidebar.newChat"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+
+        @for (tab of tabs; track tab.key) {
+          <a
+            z-sidebar-menu-button
+            zIconOnly
+            [zFull]="false"
+            [routerLink]="tab.path"
+            [title]="t().nav[tab.labelKey]"
+            (click)="onNavClick()"
+          >
+            <span class="opacity-60" [innerHTML]="getIcon(tab.key)"></span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="mt-auto hidden shrink-0 border-t border-sidebar-border p-2 md:block">
+    @if (!collapsed()) {
+      <app-language-picker [fullWidth]="true" />
+    } @else {
+      <app-language-picker [showLabel]="false" [showChevron]="false" [fullWidth]="true" />
+    }
   </div>
 </aside>
 

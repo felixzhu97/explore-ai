@@ -2,31 +2,32 @@
 <div class="flex shrink-0 items-center justify-between border-b border-black/8 bg-white px-4 py-2.5">
     <div class="flex items-center gap-2">
         <h2 class="text-base font-semibold text-text">{{ i18n.t().ragChat.title }}</h2>
-        <span class="rounded-full bg-surface-secondary px-2 text-xs font-medium text-text-secondary">
-        {{ ragService.availableDocs().length }} {{ i18n.t().ragChat.documents }}
-      </span>
+        <z-badge zType="secondary">
+            {{ ragService.availableDocs().length }} {{ i18n.t().ragChat.documents }}
+        </z-badge>
     </div>
     <div class="flex items-center gap-2">
         <button
                 type="button"
-                class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text"
+                z-button
+                zType="ghost"
+                zSize="icon"
                 (click)="ragService.selectAllDocs()"
                 title="Select All"
+                aria-label="Select All"
         >
-            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
-            </svg>
+            <ng-icon name="lucideListChecks" class="size-4!" />
         </button>
         <button
                 type="button"
-                class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text"
+                z-button
+                zType="ghost"
+                zSize="icon"
                 (click)="ragService.clearDocSelection()"
                 title="Clear Selection"
+                aria-label="Clear Selection"
         >
-            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <ng-icon name="lucideX" class="size-4!" />
         </button>
     </div>
 </div>
@@ -62,36 +63,42 @@
                     <img [src]="img" alt="Pending image" class="size-16 rounded-lg object-cover" />
                     <button
                             type="button"
-                            class="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                            z-button
+                            zType="destructive"
+                            zSize="icon"
+                            zShape="circle"
+                            class="absolute -top-1.5 -right-1.5 size-5 opacity-0 transition-opacity group-hover:opacity-100"
                             (click)="removeImage($index)"
                             title="Remove image"
+                            aria-label="Remove image"
                     >
-                        <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
+                        <ng-icon name="lucideX" class="size-3!" />
                     </button>
                 </div>
             }
         </div>
     }
     <div class="flex items-center gap-2">
-        <label
-                class="flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 text-text-secondary transition-colors hover:bg-surface-secondary hover:text-primary"
-                title="Add image"
-        >
+        <label class="cursor-pointer">
             <input
+                    #imageInput
                     type="file"
                     accept="image/*"
                     multiple
                     class="hidden"
                     (change)="onImageSelect($event)"
             />
-            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21,15 16,10 5,21" />
-            </svg>
+            <button
+                    type="button"
+                    z-button
+                    zType="ghost"
+                    zSize="icon"
+                    title="Add image"
+                    aria-label="Add image"
+                    (click)="imageInput.click()"
+            >
+                <ng-icon name="lucideImage" class="size-5!" />
+            </button>
         </label>
         <nx-sender
                 [placeholder]="i18n.t().ragChat.inputPlaceholder"

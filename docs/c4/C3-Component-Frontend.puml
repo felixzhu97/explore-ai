@@ -57,12 +57,11 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     ' SHARED UI
     ' ============================================================
     Container_Boundary(shared_layer, "Shared UI") {
-        Component(ui_card, "CardComponent", "@Component", "卡片")
-        Component(ui_button, "ButtonComponent", "@Component", "按钮")
-        Component(ui_seg_ctrl, "SegmentedControlComponent", "@Component", "分段控制器")
+        Component(zardui, "Zard UI Components", "@/shared/components", "z-card, z-button, z-alert, z-segmented, z-toaster 等")
+        Component(media_shell, "MediaShell", "@Component", "上传/预览/结果/生成表单")
+        Component(language_picker, "LanguagePickerComponent", "@Component", "语言选择 z-dropdown")
+        Component(image_zoom_svc, "ImageZoomService", "@Injectable", "ZardDialog 图片放大")
         Component(citation_comp, "CitationComponent", "@Component", "RAG 来源引用")
-        Component(toast_comp, "ToastComponent", "@Component", "Toast 通知")
-        Component(img_zoom, "ImageZoomModalComponent", "@Component", "图片缩放")
         Component(markdown_svc, "MarkdownService", "@Injectable", "Markdown 渲染")
     }
 }
@@ -100,7 +99,7 @@ Rel(vision_page, detect_overlay, "检测叠加")
 Rel(chat_svc, api_svc, "HTTP/SSE")
 Rel(rag_svc, api_svc, "HTTP/SSE")
 Rel(api_svc, backend_api, "proxy /api/* → :9000", "HTTP")
-Rel(notif_svc, toast_comp, "触发 Toast")
+Rel(notif_svc, zardui, "z-toaster 通知")
 Rel(app_root, theme_svc, "主题")
 Rel(app_root, i18n_svc, "国际化")
 Rel(app_root, http_err_interceptor, "错误拦截")

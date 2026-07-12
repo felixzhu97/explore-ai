@@ -6,6 +6,8 @@ import {
   computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideImage, lucideListChecks, lucideX } from '@ng-icons/lucide';
 import { RagService } from './rag.service';
 import {
   ChatBubbleListComponent,
@@ -17,18 +19,26 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
 import { NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
+import { ZardBadgeComponent } from '@/shared/components/badge';
+import { ZardButtonComponent } from '@/shared/components/button';
 
 @Component({
   selector: 'app-rag-page',
   imports: [
     FormsModule,
+    NgIcon,
     NxSenderComponent,
     NzIconModule,
     ChatWelcomePanelComponent,
     ChatBubbleListComponent,
+    ZardBadgeComponent,
+    ZardButtonComponent,
   ],
   templateUrl: './rag.page.html',
-  providers: [provideNzIconsPatch([ArrowUpOutline])],
+  providers: [
+    provideNzIconsPatch([ArrowUpOutline]),
+    provideIcons({ lucideListChecks, lucideX, lucideImage }),
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })

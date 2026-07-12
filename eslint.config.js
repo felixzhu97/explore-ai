@@ -63,17 +63,16 @@ export default defineConfig([
         'error',
         {
           type: 'element',
-          prefix: 'app',
+          prefix: ['app', 'z'],
           style: 'kebab-case',
         },
       ],
       '@angular-eslint/directive-selector': [
         'error',
-        {
-          type: 'attribute',
-          prefix: 'app',
-          style: 'camelCase',
-        },
+        [
+          { type: 'element', prefix: ['app', 'z'], style: 'kebab-case' },
+          { type: 'attribute', prefix: ['app', 'z', 'zard'], style: 'camelCase' },
+        ],
       ],
       '@angular-eslint/no-uncalled-signals': 'error',
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
@@ -158,6 +157,26 @@ export default defineConfig([
             'font-inherit',
             'transition-width',
           ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      'src/main/web/app/shared/components/input/input.directive.ts',
+      'src/main/web/app/shared/components/layout/sidebar-menu-button.directive.ts',
+      'src/main/web/app/shared/components/menu/context-menu.directive.ts',
+      'src/main/web/app/shared/components/menu/menu-content.directive.ts',
+      'src/main/web/app/shared/components/menu/menu-item.directive.ts',
+      'src/main/web/app/shared/components/menu/menu.directive.ts',
+    ],
+    rules: {
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: ['app', 'z'],
+          style: 'kebab-case',
         },
       ],
     },

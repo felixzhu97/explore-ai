@@ -6,8 +6,14 @@ import {
   ChangeDetectionStrategy,
   model,
   computed,
+  effect,
+  ElementRef,
+  viewChild,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideRefreshCw } from '@ng-icons/lucide';
 import {
   ChatBubbleListComponent,
   ChatBubbleMessage,
@@ -18,16 +24,25 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
 import { NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
+import { ZardAlertComponent } from '@/shared/components/alert';
+import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardSelectImports } from '@/shared/components/select/select.imports';
+import { ZardSwitchComponent } from '@/shared/components/switch';
 import { ChatService } from '../chat.service';
 
 @Component({
   selector: 'app-chat-tab',
   imports: [
     FormsModule,
+    NgIcon,
     NxSenderComponent,
     NzIconModule,
     ChatWelcomePanelComponent,
     ChatBubbleListComponent,
+    ZardAlertComponent,
+    ZardButtonComponent,
+    ZardSwitchComponent,
+    ...ZardSelectImports,
   ],
   templateUrl: './chat.component.html',
   styles: [
@@ -44,7 +59,10 @@ import { ChatService } from '../chat.service';
       }
     `,
   ],
-  providers: [provideNzIconsPatch([ArrowUpOutline])],
+  providers: [
+    provideNzIconsPatch([ArrowUpOutline]),
+    provideIcons({ lucideRefreshCw }),
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
@@ -53,6 +71,21 @@ export class ChatTabComponent implements OnInit, OnDestroy {
   protected readonly i18n = inject(I18nService);
 
   readonly input = model('');
+  private readonly messageScrollEl = viewChild<ElementRef<HTMLElement>>('messageScroll');
+
+  constructor() {
+    effect(() => {
+      const sessionId = this.chat.activeSessionId();
+      const messageCount = this.chat.messages().length;
+
+      untracked(() => {
+        if (!sessionId && messageCount === 0) {
+          return;
+        }
+        requestAnimationFrame(() => this.scrollMessagesToBottom());
+      });
+    });
+  }
 
   readonly chatPrompts = computed((): NxPrompt[] => {
     return this.i18n.t().chat.suggestedPrompts.map(prompt => ({
@@ -88,8 +121,8 @@ export class ChatTabComponent implements OnInit, OnDestroy {
     this.chat.setProvider(provider);
   }
 
-  setSelectedModel(model: string) {
-    this.chat.setModel(model);
+  setSelectedModel(modelName: string) {
+    this.chat.setModel(modelName);
   }
 
   onPromptSelect(label: string): void {
@@ -103,5 +136,16 @@ export class ChatTabComponent implements OnInit, OnDestroy {
     }
     this.input.set('');
     this.chat.sendMessage(text);
+  }
+
+  private scrollMessagesToBottom(): void {
+    const element = this.messageScrollEl()?.nativeElement;
+    if (!element) {
+      return;
+    }
+    element.scrollTop = element.scrollHeight;
+    requestAnimationFrame(() => {
+      element.scrollTop = element.scrollHeight;
+    });
   }
 }

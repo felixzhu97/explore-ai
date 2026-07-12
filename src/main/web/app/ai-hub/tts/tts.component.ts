@@ -7,43 +7,34 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideDownload, lucidePause, lucidePlay } from '@ng-icons/lucide';
 import { ApiMediaService } from '@core/services/api-media.service';
 import { I18nService } from '@core/i18n';
+import { ZardAlertComponent } from '@/shared/components/alert';
+import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardCardComponent } from '@/shared/components/card';
+import { ZardInputDirective } from '@/shared/components/input';
+import { ZardProgressBarComponent } from '@/shared/components/progress-bar';
+import { ZardSelectImports } from '@/shared/components/select/select.imports';
+import { ZardSliderComponent } from '@/shared/components/slider';
 import type { Voice } from '../tts.model';
 
 @Component({
   selector: 'app-tts-tab',
-  imports: [FormsModule],
+  imports: [
+    FormsModule,
+    NgIcon,
+    ZardAlertComponent,
+    ZardButtonComponent,
+    ZardCardComponent,
+    ZardInputDirective,
+    ZardProgressBarComponent,
+    ZardSliderComponent,
+    ...ZardSelectImports,
+  ],
   templateUrl: './tts.component.html',
-  styles: `
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .animate-fadeIn {
-      animation: fadeIn 0.2s ease;
-    }
-
-    .animate-spin {
-      animation: spin 0.7s linear infinite;
-    }
-  `,
+  providers: [provideIcons({ lucidePlay, lucidePause, lucideDownload })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TtsPageComponent implements OnInit, OnDestroy {
@@ -141,10 +132,10 @@ export class TtsPageComponent implements OnInit, OnDestroy {
           this.audioElement.addEventListener('timeupdate', () => {
             if (this.audioElement) {
               const duration = this.audioElement.duration;
-              const progress = duration > 0
+              const progressValue = duration > 0
                 ? (this.audioElement.currentTime / duration) * 100
                 : 0;
-              return this.progress.set(progress);
+              return this.progress.set(progressValue);
             }
           });
         },

@@ -45,6 +45,7 @@ export const en: Translations = {
     noDetections: 'No objects detected in this image',
     processingTime: 'Processed in {ms} ms',
     providerUnavailable: 'Vision service is temporarily unavailable',
+    clickToEnlarge: 'Click to enlarge',
   },
   ragChat: {
     title: 'Document Q&A',
@@ -169,6 +170,7 @@ export const en: Translations = {
       preview: 'Preview',
       download: 'Download',
       emptyState: 'Generate an image to see preview',
+      zoomLabel: 'Zoom image',
     },
     tts: {
       title: 'Text to Speech',

@@ -1,70 +1,59 @@
 <!-- Top Bar with Model Selector -->
 <div class="flex shrink-0 items-center justify-between gap-2 overflow-x-auto border-b border-black/8 bg-white px-4 py-2.5">
     <div class="flex min-w-0 items-center gap-2">
-        <select
-                class="
-          cursor-pointer rounded-lg border border-border-light bg-surface px-3 py-1.5
-          text-sm font-medium text-text focus:border-primary focus:outline-none
-          disabled:cursor-not-allowed disabled:opacity-50
-        "
+        <z-select
+                class="min-w-32"
+                zSize="sm"
                 [ngModel]="chat.selectedProvider()"
                 (ngModelChange)="onProviderChange($event)"
         >
             @for (provider of chat.providers(); track provider.name) {
-                <option [value]="provider.name">
-                    {{ provider.displayName }}
-                </option>
+                <z-select-item [zValue]="provider.name">{{ provider.displayName }}</z-select-item>
             }
-        </select>
+        </z-select>
 
-        <select
-                class="
-          min-w-28 cursor-pointer rounded-lg border border-border-light bg-surface px-3 py-1.5
-          text-sm text-text focus:border-primary focus:outline-none
-          disabled:cursor-not-allowed disabled:opacity-50
-        "
+        <z-select
+                class="min-w-28"
+                zSize="sm"
                 [ngModel]="chat.selectedModel()"
                 (ngModelChange)="setSelectedModel($event)"
-                [disabled]="chat.isLoadingModels()"
+                [zDisabled]="chat.isLoadingModels()"
+                zPlaceholder="Model"
         >
             @if (chat.isLoadingModels()) {
-                <option>Loading...</option>
+                <z-select-item zValue="" [zDisabled]="true">Loading...</z-select-item>
             } @else {
                 @for (model of chat.models(); track model.name) {
-                    <option [value]="model.name">{{ model.name }}</option>
+                    <z-select-item [zValue]="model.name">{{ model.name }}</z-select-item>
                 }
             }
-        </select>
+        </z-select>
 
-        <label class="hidden shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-border-light px-3 py-1.5 text-sm text-text sm:flex">
-            <input
-                    type="checkbox"
-                    class="size-4 accent-primary"
-                    [checked]="chat.toolsEnabled()"
-                    (change)="chat.setToolsEnabled($any($event.target).checked)"
-            />
-            Tools
-        </label>
+        <div class="hidden shrink-0 items-center sm:flex">
+            <z-switch
+                    [ngModel]="chat.toolsEnabled()"
+                    (ngModelChange)="chat.setToolsEnabled($event)"
+            >
+                Tools
+            </z-switch>
+        </div>
     </div>
 
     <button
             type="button"
-            class="
-        flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent
-        p-1.5 text-text-secondary transition-colors
-        hover:bg-surface-secondary hover:text-text
-      "
+            z-button
+            zType="ghost"
+            zSize="icon"
             (click)="newChat()"
             title="New Chat"
+            aria-label="New Chat"
     >
-        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-        </svg>
+        <ng-icon name="lucideRefreshCw" class="size-4!" />
     </button>
 </div>
 
 <!-- Messages -->
-<div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
+<div #messageScroll class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
     @if (chat.messages().length === 0) {
         <app-chat-welcome-panel
                 class="h-full"
@@ -85,9 +74,11 @@
 
 <!-- Error -->
 @if (chat.error()) {
-    <div class="animate-fade-in border-t border-red-200 bg-error-light px-4 py-2 text-base text-error">
-        {{ chat.error() }}
-    </div>
+    <z-alert
+            class="rounded-none border-x-0 border-t"
+            zType="destructive"
+            [zDescription]="chat.error()!"
+    />
 }
 
 <!-- Input -->
