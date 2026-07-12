@@ -35,14 +35,22 @@ describe('ChatBubbleListComponent', () => {
     component = fixture.componentInstance;
     fixture.componentRef.setInput('messages', messages);
     fixture.componentRef.setInput('streamingMessageId', 'assistant-1');
-    fixture.detectChanges();
   });
 
   it('should create', () => {
+    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
+  it('should return empty bubble items when template refs are unavailable', () => {
+    vi.spyOn(component, 'userMessageTpl').mockReturnValue(undefined);
+
+    expect(component.bubbleItems()).toEqual([]);
+  });
+
   it('should map messages to bubble items with roles', () => {
+    fixture.detectChanges();
+
     const items = component.bubbleItems();
 
     expect(items).toHaveLength(2);
@@ -53,11 +61,27 @@ describe('ChatBubbleListComponent', () => {
   });
 
   it('should detect streaming state by message id', () => {
+    fixture.detectChanges();
+
+    expect(component.isStreaming('assistant-1')).toBe(true);
+    expect(component.isStreaming('user-1')).toBe(false);
+  });
+
+  it('should treat missing message key info as empty id', () => {
+    expect(component.messageKey(undefined)).toBe('');
+  });
+
+  it('should not throw when streaming message ids are unavailable', () => {
+    fixture.componentRef.setInput('streamingMessageIds', null as unknown as ReadonlySet<string>);
+    fixture.detectChanges();
+
     expect(component.isStreaming('assistant-1')).toBe(true);
     expect(component.isStreaming('user-1')).toBe(false);
   });
 
   it('should set loading when assistant is streaming with empty content', () => {
+    fixture.detectChanges();
+
     fixture.componentRef.setInput('messages', [
       {
         id: 'assistant-2',

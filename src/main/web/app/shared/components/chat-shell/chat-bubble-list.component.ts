@@ -121,13 +121,13 @@ export class ChatBubbleListComponent {
   readonly toggleSources = output<string>();
 
   readonly userMessageTpl =
-    viewChild.required<TemplateRef<NxBubbleSlotType>>('userMessageTpl');
+    viewChild<TemplateRef<NxBubbleSlotType>>('userMessageTpl');
 
   readonly assistantMessageTpl =
-    viewChild.required<TemplateRef<NxBubbleSlotType>>('assistantMessageTpl');
+    viewChild<TemplateRef<NxBubbleSlotType>>('assistantMessageTpl');
 
   readonly assistantFooterTpl =
-    viewChild.required<TemplateRef<NxBubbleSlotType>>('assistantFooterTpl');
+    viewChild<TemplateRef<NxBubbleSlotType>>('assistantFooterTpl');
 
   readonly messageByIdMap = computed(() => {
     const map = new Map<string, ChatBubbleMessage>();
@@ -141,6 +141,10 @@ export class ChatBubbleListComponent {
     const userTpl = this.userMessageTpl();
     const assistantTpl = this.assistantMessageTpl();
     const footerTpl = this.assistantFooterTpl();
+
+    if (!userTpl || !assistantTpl || !footerTpl) {
+      return [];
+    }
 
     return this.messages().map((message) => {
       const isAssistant = message.role === 'assistant';
@@ -182,8 +186,8 @@ export class ChatBubbleListComponent {
     return this.messageByIdMap().get(id);
   }
 
-  messageKey(info: { key?: string | number }): string {
-    return String(info.key ?? '');
+  messageKey(info?: { key?: string | number }): string {
+    return String(info?.key ?? '');
   }
 
   isStreaming(messageId: string): boolean {
@@ -191,7 +195,7 @@ export class ChatBubbleListComponent {
     if (singleId === messageId) {
       return true;
     }
-    return this.streamingMessageIds().has(messageId);
+    return this.streamingMessageIds()?.has(messageId) ?? false;
   }
 
   formatTime(timestamp: number): string {
