@@ -1,8 +1,10 @@
 import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
 import { I18nService } from '@core/i18n';
 import { SegmentedControlComponent } from '@shared/components/ui/segmented-control/segmented-control.component';
+import { DetectionOverlayComponent } from './detection-overlay.component';
 import type { VisionResult } from './vision.model';
 
 type TaskType = 'caption' | 'detect' | 'ocr';
@@ -14,13 +16,18 @@ interface TabState {
   error: string | null;
 }
 
+interface ApiErrorBody {
+  message?: string;
+  errorCode?: string;
+}
+
 @Component({
   selector: 'app-vision-page',
-  imports: [SegmentedControlComponent],
+  imports: [SegmentedControlComponent, DetectionOverlayComponent],
   standalone: true,
   templateUrl: './vision.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'h-full w-full flex h-screen flex-col' },
+  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
 export class VisionPageComponent {
   private readonly api = inject(ApiService);
@@ -47,6 +54,14 @@ export class VisionPageComponent {
 
   readonly currentState = computed<TabState>(() => this.tabStates()[this.activeTask()]);
 
+  readonly processingTimeLabel = computed(() => {
+    const ms = this.currentState().result?.processingTimeMs;
+    if (ms == null) {
+      return null;
+    }
+    return this.i18n.t().imageUploader.processingTime.replace('{ms}', String(ms));
+  });
+
   setActiveTask(task: TaskType): void {
     this.activeTask.set(task);
   }
@@ -70,9 +85,15 @@ export class VisionPageComponent {
     input.value = '';
   }
 
+  private static readonly MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
+
   processFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.updateState({ error: this.i18n.t().imageUploader.selectImageError });
+      return;
+    }
+    if (file.size > VisionPageComponent.MAX_IMAGE_SIZE_BYTES) {
+      this.updateState({ error: this.i18n.t().imageUploader.fileTooLarge });
       return;
     }
     const reader = new FileReader();
@@ -116,7 +137,7 @@ export class VisionPageComponent {
     this.updateState({ error: null, result: null });
 
     const task = this.activeTask();
-    let request: Observable<unknown>;
+    let request: Observable<VisionResult>;
     switch (task) {
       case 'caption':
         request = this.api.captionImage(currentFile);
@@ -130,19 +151,36 @@ export class VisionPageComponent {
     }
 
     request.subscribe({
-      next: (data: unknown) => {
-        this.updateState({ result: data as VisionResult });
+      next: (data) => {
+        this.updateState({ result: data });
       },
       error: (err: unknown) => {
-        const msg = err instanceof Error
-          ? err.message
-          : this.i18n.t().imageUploader.processingFailed;
-        this.updateState({ error: msg });
+        this.updateState({ error: this.resolveErrorMessage(err) });
+        this.isLoading.set(false);
       },
       complete: () => {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private resolveErrorMessage(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      const body = err.error as ApiErrorBody | null;
+      if (body?.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
+        return this.i18n.t().imageUploader.providerUnavailable;
+      }
+      if (body?.message) {
+        return body.message;
+      }
+      if (err.status === 0) {
+        return this.i18n.t().imageUploader.requestFailed;
+      }
+    }
+    if (err instanceof Error) {
+      return err.message;
+    }
+    return this.i18n.t().imageUploader.processingFailed;
   }
 
   private updateState(partial: Partial<TabState>): void {

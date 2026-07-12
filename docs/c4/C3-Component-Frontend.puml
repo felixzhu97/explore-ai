@@ -28,7 +28,8 @@ System_Boundary(frontend, "Angular 22 Web Application") {
             Component(img_tab, "ImageComponent", "@Component", "图像 Tab (/generate/image)")
         }
         Component(rag_page, "RagPageComponent", "@Component", "RAG 页面 (/rag)")
-        Component(vision_page, "VisionPageComponent", "@Component", "视觉分析 (/vision)")
+        Component(vision_page, "VisionPageComponent", "@Component", "图像分析 (/vision: Caption/Detect/OCR)")
+        Component(detect_overlay, "DetectionOverlayComponent", "@Component", "检测边界框叠加层")
     }
 
     ' ============================================================
@@ -94,6 +95,7 @@ Rel(rag_page, rag_svc, "RAG")
 Rel(tts_tab, api_svc, "TTS API")
 Rel(img_tab, api_svc, "图像 API")
 Rel(vision_page, api_svc, "视觉 API")
+Rel(vision_page, detect_overlay, "检测叠加")
 
 Rel(chat_svc, api_svc, "HTTP/SSE")
 Rel(rag_svc, api_svc, "HTTP/SSE")

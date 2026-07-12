@@ -1426,7 +1426,7 @@
               ],
               "variable": []
             },
-            "description": "Object detection endpoint using YOLO.\nSupports both multipart/form-data (legacy) and application/json.\nPython API: POST /vision/detect"
+            "description": "Object detection using ONNX Runtime + YOLOv8 ONNX. Multipart form field: file."
           },
           "response": []
         },
@@ -1458,7 +1458,7 @@
               "query": [],
               "variable": []
             },
-            "description": "Image captioning endpoint using BLIP.\nSupports both multipart/form-data (legacy) and application/json.\nPython API: POST /vision/caption"
+            "description": "Image captioning using ONNX Runtime + BLIP ONNX. Multipart form field: file."
           },
           "response": []
         },
@@ -1497,7 +1497,7 @@
               ],
               "variable": []
             },
-            "description": "OCR text recognition endpoint.\nSupports both multipart/form-data (legacy) and application/json.\nPython API: POST /vision/ocr"
+            "description": "OCR using Tess4J + Tesseract. Multipart form field: file."
           },
           "response": []
         },

@@ -7,6 +7,9 @@ import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.RagServiceException;
+import com.ai.vision.domain.exception.VisionInvalidFileException;
+import com.ai.vision.domain.exception.VisionOcrException;
+import com.ai.vision.domain.exception.VisionProviderUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.stream.Collectors;
@@ -47,6 +51,28 @@ public class GlobalExceptionHandler {
         log.warn("Document not found: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(VisionProviderUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleVisionProviderUnavailable(
+            VisionProviderUnavailableException e) {
+        log.warn("Vision provider unavailable [{}]: {}", e.getProvider(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of(e.getMessage(), "VISION_PROVIDER_UNAVAILABLE"));
+    }
+
+    @ExceptionHandler(VisionInvalidFileException.class)
+    public ResponseEntity<ErrorResponse> handleVisionInvalidFile(VisionInvalidFileException e) {
+        log.warn("Invalid vision input: {}", e.getMessage());
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.of(e.getMessage(), "INVALID_FILE"));
+    }
+
+    @ExceptionHandler(VisionOcrException.class)
+    public ResponseEntity<ErrorResponse> handleVisionOcrError(VisionOcrException e) {
+        log.error("OCR failed: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.of(e.getMessage(), "OCR_FAILED"));
     }
 
     @ExceptionHandler(RagServiceException.class)
@@ -92,8 +118,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
         log.warn("Upload size exceeded: {}", e.getMessage());
+        String limit = formatUploadLimit(e.getMaxUploadSize());
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-            .body(ErrorResponse.of("Uploaded file exceeds the maximum allowed size of 50MB", "FILE_TOO_LARGE"));
+            .body(ErrorResponse.of(
+                    "Uploaded file exceeds the maximum allowed size of " + limit,
+                    "FILE_TOO_LARGE"));
+    }
+
+    private String formatUploadLimit(long maxUploadSizeBytes) {
+        if (maxUploadSizeBytes < 0) {
+            return "the configured limit";
+        }
+        DataSize size = DataSize.ofBytes(maxUploadSizeBytes);
+        if (size.toMegabytes() > 0) {
+            return size.toMegabytes() + "MB";
+        }
+        if (size.toKilobytes() > 0) {
+            return size.toKilobytes() + "KB";
+        }
+        return size.toBytes() + "B";
     }
 
     @ExceptionHandler(DataAccessException.class)

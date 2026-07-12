@@ -54,6 +54,10 @@ dependencies {
     // PDF Processing
     implementation("org.apache.pdfbox:pdfbox:3.0.3")
 
+    // Vision: ONNX Runtime + Tess4J
+    implementation("com.microsoft.onnxruntime:onnxruntime:1.20.0")
+    implementation("net.sourceforge.tess4j:tess4j:5.13.0")
+
     // dotenv support
     developmentOnly("me.paulschwarz:springboot4-dotenv")
 

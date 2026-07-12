@@ -74,13 +74,14 @@ spring:
     exclude:
       - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
 
-server:
-  port: 9000
   servlet:
     multipart:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
+
+server:
+  port: 9000
   tomcat:
     max-http-form-post-size: 50MB
     max-swallow-size: 50MB
@@ -130,6 +131,22 @@ app:
       read-timeout: 60s
   cors:
     allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat
+  vision:
+    models-dir: ${VISION_MODELS_DIR:models}
+    detect:
+      onnx-path: ${VISION_DETECT_MODEL:models/yolov8n.onnx}
+      confidence-threshold: 0.5
+      nms-threshold: 0.45
+      input-size: 640
+    caption:
+      vision-onnx: ${VISION_CAPTION_VISION_MODEL:models/blip_vision_model.onnx}
+      decoder-onnx: ${VISION_CAPTION_DECODER_MODEL:models/blip_text_decoder.onnx}
+      tokenizer-path: ${VISION_CAPTION_TOKENIZER:models/blip_tokenizer}
+      max-length: 50
+    ocr:
+      tessdata-path: ${TESSDATA_PATH:models/tessdata}
+      languages: eng+chi_sim
+      page-seg-mode: 3
 
 logging:
   level:

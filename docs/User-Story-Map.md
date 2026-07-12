@@ -257,8 +257,35 @@ journey
 ```
 
 **API**: `POST /api/rag/chat/stream` (含 `images` 字段)  
-**路由**: `/vision`  
 **实现**: `VisionChatUseCase`, Ollama qwen3.5
+
+---
+
+### 6a. 图像分析（独立）（已交付）
+
+**用户故事**
+
+**As a** 最终用户  
+**I want** 在独立页面完成图像描述、目标检测与 OCR  
+**So that** 无需进入 RAG 对话即可获得结构化视觉分析结果
+
+| 能力 | API | 技术栈 |
+|------|-----|--------|
+| Caption | `POST /api/vision/caption` | ONNX Runtime + BLIP ONNX |
+| Detect | `POST /api/vision/detect` | ONNX Runtime + YOLOv8 ONNX |
+| OCR | `POST /api/vision/ocr` | Tess4J + Tesseract |
+
+**路由**: `/vision`  
+**健康检查**: `GET /api/vision/health`  
+**实现**: `VisionAnalysisUseCase`, `OnnxBlipCaptioner`, `OnnxYoloDetector`, `Tess4jOcrEngine`
+
+**本地模型准备**:
+
+```bash
+pnpm vision:models      # 下载 ONNX / tessdata
+pnpm vision:fixtures    # 生成测试样例图
+pnpm vision:verify      # API smoke（需先启动后端）
+```
 
 ---
 

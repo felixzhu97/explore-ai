@@ -17,7 +17,9 @@
     "e2e:ui": "ng e2e --ui",
     "clean": "pnpm -r run clean",
     "prepare": "husky",
-    "server:start": "([ -f .env ] && export $(grep -v '^#' .env | xargs) || true) && ./gradlew bootRun",
+    "vision:verify": "chmod +x scripts/verify-vision.sh && ./scripts/verify-vision.sh all",
+    "vision:fixtures": "chmod +x scripts/generate-vision-fixtures.sh && ./scripts/generate-vision-fixtures.sh",
+    "vision:models": "chmod +x scripts/download-vision-models.sh && ./scripts/download-vision-models.sh",
     "server:test": "./gradlew test",
     "server:test:watch": "./gradlew test --continuous",
     "server:test:coverage": "./gradlew test jacocoTestReport"

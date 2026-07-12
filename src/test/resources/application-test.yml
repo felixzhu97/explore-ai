@@ -14,3 +14,7 @@ spring:
         format_sql: true
   flyway:
     enabled: false
+  ai:
+    openai:
+      api-key: test-key
+      base-url: https://api.deepseek.com

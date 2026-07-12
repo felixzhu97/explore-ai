@@ -503,10 +503,13 @@ export class ApiService {
     );
   }
 
-  detectObjects(file: File): Observable<Pick<VisionResult, 'detections'>> {
+  detectObjects(file: File): Observable<Pick<VisionResult, 'detections' | 'processingTimeMs'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<Pick<VisionResult, 'detections'>>(`${BASE_URL}/vision/detect`, formData);
+    return this.http.post<Pick<VisionResult, 'detections' | 'processingTimeMs'>>(
+      `${BASE_URL}/vision/detect`,
+      formData,
+    );
   }
 
   ocrImage(file: File): Observable<Pick<VisionResult, 'fullText' | 'processingTimeMs'>> {
