@@ -11,6 +11,7 @@ import org.springframework.ai.content.Media;
 import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
  * Uses Ollama qwen3.5:35b for multimodal understanding (open-source).
  */
 @Service
+@ConditionalOnProperty(name = "spring.ai.ollama.chat.enabled", havingValue = "true", matchIfMissing = true)
 public class VisionChatUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(VisionChatUseCase.class);

@@ -11,6 +11,7 @@ import com.ai.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +34,13 @@ public class RagController {
 
     private final RagApplicationService ragApplicationService;
     private final RagChatUseCase ragChatUseCase;
-    private final VisionChatUseCase visionChatUseCase;
+    private final ObjectProvider<VisionChatUseCase> visionChatUseCase;
     private final StreamingService streamingService;
 
     public RagController(
             RagApplicationService ragApplicationService,
             RagChatUseCase ragChatUseCase,
-            VisionChatUseCase visionChatUseCase,
+            ObjectProvider<VisionChatUseCase> visionChatUseCase,
             StreamingService streamingService) {
         this.ragApplicationService = ragApplicationService;
         this.ragChatUseCase = ragChatUseCase;
@@ -80,8 +81,15 @@ public class RagController {
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
         RagChatResult result;
         if (hasImages(request.images())) {
-            var visionResult = visionChatUseCase.chatWithImages(request.question(), request.docIds(), request.images(), request.topK());
-            result = new RagChatResult(visionResult.response(), visionResult.sources());
+            VisionChatUseCase visionChat = visionChatUseCase.getIfAvailable();
+            if (visionChat == null) {
+                var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
+                result = new RagChatResult(chatResult.response(), chatResult.sources());
+            } else {
+                var visionResult = visionChat.chatWithImages(
+                        request.question(), request.docIds(), request.images(), request.topK());
+                result = new RagChatResult(visionResult.response(), visionResult.sources());
+            }
         } else {
             var chatResult = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
             result = new RagChatResult(chatResult.response(), chatResult.sources());

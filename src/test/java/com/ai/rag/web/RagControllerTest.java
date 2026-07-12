@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
@@ -48,6 +49,9 @@ class RagControllerTest {
     private VisionChatUseCase visionChatUseCase;
 
     @Mock
+    private ObjectProvider<VisionChatUseCase> visionChatUseCaseProvider;
+
+    @Mock
     private StreamingService streamingService;
 
     private ObjectMapper objectMapper;
@@ -56,8 +60,9 @@ class RagControllerTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
+        lenient().when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(visionChatUseCase);
         controller = new RagController(
-                ragApplicationService, ragChatUseCase, visionChatUseCase, streamingService);
+                ragApplicationService, ragChatUseCase, visionChatUseCaseProvider, streamingService);
     }
 
     @Nested
