@@ -12,6 +12,7 @@ import com.ai.vision.infrastructure.config.VisionModelProperties;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import java.util.Map;
 
 @Service
 @DependsOn("onnxYoloDetector")
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class OnnxBlipCaptioner implements ImageCaptioner {
 
     private static final Logger log = LoggerFactory.getLogger(OnnxBlipCaptioner.class);
@@ -73,6 +75,8 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
                 closeQuietly(loadedDecoder);
                 loadedVision = null;
                 loadedDecoder = null;
+            } catch (UnsatisfiedLinkError | NoClassDefFoundError ex) {
+                log.warn("ONNX Runtime native library unavailable: {}", ex.getMessage());
             }
         } else if (Files.exists(decoderPath) && !isCompleteDecoder(decoderPath)) {
             log.warn("BLIP decoder download appears incomplete at {} (need >= {} bytes)",

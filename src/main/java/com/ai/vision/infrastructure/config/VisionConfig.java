@@ -3,6 +3,7 @@ package com.ai.vision.infrastructure.config;
 import jakarta.annotation.PostConstruct;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 
 @Configuration
 @EnableConfigurationProperties(VisionModelProperties.class)
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class VisionConfig {
 
     static {
@@ -43,6 +45,7 @@ public class VisionConfig {
 }
 
 @Configuration
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 class TesseractConfig {
 
     @Bean

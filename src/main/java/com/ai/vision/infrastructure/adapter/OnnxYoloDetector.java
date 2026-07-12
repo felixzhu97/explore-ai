@@ -12,6 +12,7 @@ import com.ai.vision.infrastructure.config.VisionModelProperties;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.awt.image.BufferedImage;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class OnnxYoloDetector implements ObjectDetector {
 
     private static final Logger log = LoggerFactory.getLogger(OnnxYoloDetector.class);
@@ -34,23 +36,27 @@ public class OnnxYoloDetector implements ObjectDetector {
 
     public OnnxYoloDetector(VisionModelProperties properties) {
         this.properties = properties;
-        this.environment = OrtEnvironment.getEnvironment();
+        OrtEnvironment loadedEnvironment = null;
         OrtSession loadedSession = null;
         boolean modelAvailable = false;
         Path modelPath = Path.of(properties.getDetect().getOnnxPath());
 
-        if (Files.exists(modelPath)) {
-            try {
-                loadedSession = environment.createSession(modelPath.toString(), new OrtSession.SessionOptions());
+        try {
+            loadedEnvironment = OrtEnvironment.getEnvironment();
+            if (Files.exists(modelPath)) {
+                loadedSession = loadedEnvironment.createSession(modelPath.toString(), new OrtSession.SessionOptions());
                 modelAvailable = true;
                 log.info("YOLOv8 detector loaded from {}", modelPath.toAbsolutePath());
-            } catch (OrtException ex) {
-                log.warn("Failed to load YOLOv8 model at {}: {}", modelPath, ex.getMessage());
+            } else {
+                log.warn("YOLOv8 model not found at {}", modelPath.toAbsolutePath());
             }
-        } else {
-            log.warn("YOLOv8 model not found at {}", modelPath.toAbsolutePath());
+        } catch (OrtException ex) {
+            log.warn("Failed to load YOLOv8 model at {}: {}", modelPath, ex.getMessage());
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError ex) {
+            log.warn("ONNX Runtime native library unavailable: {}", ex.getMessage());
         }
 
+        this.environment = loadedEnvironment;
         this.session = loadedSession;
         this.available = modelAvailable;
     }

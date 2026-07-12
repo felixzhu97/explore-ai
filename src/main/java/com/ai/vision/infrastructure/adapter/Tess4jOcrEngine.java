@@ -7,6 +7,7 @@ import com.ai.vision.domain.repository.OcrEngine;
 import com.ai.vision.infrastructure.config.VisionModelProperties;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.awt.image.BufferedImage;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class Tess4jOcrEngine implements OcrEngine {
 
     private final ITesseract tesseract;
