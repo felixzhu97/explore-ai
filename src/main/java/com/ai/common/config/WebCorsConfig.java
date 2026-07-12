@@ -1,6 +1,6 @@
 package com.ai.common.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -15,17 +15,21 @@ import java.util.Arrays;
  * Uses allowedOriginPatterns to support wildcards.
  */
 @Configuration
+@EnableConfigurationProperties(CorsProperties.class)
 public class WebCorsConfig {
 
     private static final String API_PATH_PATTERN = "/api/**";
 
-    @Value("${app.cors.allowed-origin-patterns:http://localhost:4200,http://localhost:3000}")
-    private String[] allowedOriginPatterns;
+    private final CorsProperties corsProperties;
+
+    public WebCorsConfig(CorsProperties corsProperties) {
+        this.corsProperties = corsProperties;
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns)
+        configuration.setAllowedOriginPatterns(corsProperties.getAllowedOriginPatterns().stream()
                 .map(String::trim)
                 .toList());
         configuration.setAllowedMethods(

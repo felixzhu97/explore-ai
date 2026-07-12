@@ -43,13 +43,15 @@ export class ZardEventManagerPlugin extends EventManagerPlugin {
       event,
       (event: Event) => {
         const isKeyboardEvent = event instanceof KeyboardEvent;
-        const isElementDisabled = element.getAttribute('aria-disabled') === 'true';
-        const shouldApplyModifier =
-          (!keys.length
-            || (isKeyboardEvent && keys.includes(event.key.toLowerCase())))
-          && !isElementDisabled;
+        if (
+          keys.length
+          && (!isKeyboardEvent || !keys.includes(event.key.toLowerCase()))
+        ) {
+          return;
+        }
 
-        if (shouldApplyModifier) {
+        const isElementDisabled = element.getAttribute('aria-disabled') === 'true';
+        if (!isElementDisabled) {
           switch (keyword) {
             case 'stop':
               event.stopPropagation();

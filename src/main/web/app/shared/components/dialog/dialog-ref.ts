@@ -20,15 +20,21 @@ export class ZardDialogRef<T = unknown, R = unknown, U = unknown> {
   constructor(
     private overlayRef: OverlayRef,
     private config: ZardDialogOptions<T, U>,
-    private containerInstance: ZardDialogComponent<T, U>,
+    private containerInstance: ZardDialogComponent<T, U> | undefined,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {
-    this.containerInstance.cancelTriggered.subscribe(
-      () => this.trigger(eTriggerAction.CANCEL),
-    );
-    this.containerInstance.okTriggered.subscribe(() => this.trigger(eTriggerAction.OK));
+    if (isPlatformBrowser(this.platformId) && this.containerInstance) {
+      this.containerInstance.cancelTriggered.subscribe(
+        () => this.trigger(eTriggerAction.CANCEL),
+      );
+      this.containerInstance.okTriggered.subscribe(() => this.trigger(eTriggerAction.OK));
+    }
 
-    if ((this.config.zMaskClosable ?? true) && isPlatformBrowser(this.platformId)) {
+    if (
+      (this.config.zMaskClosable ?? true)
+      && isPlatformBrowser(this.platformId)
+      && this.overlayRef
+    ) {
       this.overlayRef
         .outsidePointerEvents()
         .pipe(takeUntil(this.destroy$))
@@ -53,7 +59,7 @@ export class ZardDialogRef<T = unknown, R = unknown, U = unknown> {
     this.isClosing = true;
     this.result = result;
 
-    if (isPlatformBrowser(this.platformId)) {
+    if (isPlatformBrowser(this.platformId) && this.containerInstance) {
       const hostElement = this.containerInstance.getNativeElement();
       hostElement.classList.add('dialog-leave');
     }
