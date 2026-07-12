@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 public class VisionAnalysisUseCase {
 
     private final ImageCaptioner captioner;

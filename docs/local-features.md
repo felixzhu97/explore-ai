@@ -1,23 +1,20 @@
 # Local-Only Features
 
-These modules require local infrastructure and are disabled in the cloud (`application-prod.yml` / Vercel production build).
+Optional modules are controlled by [LaunchDarkly feature flags](launchdarkly-setup.md). See [LaunchDarkly setup](launchdarkly-setup.md) for dashboard configuration.
 
-| Module | Flag | Local setup |
-|--------|------|-------------|
-| Vision (ONNX) | `APP_MODULE_VISION=true` | `pnpm vision:models` then `pnpm vision:verify` |
-| Audio ASR (whisper.cpp) | `APP_MODULE_AUDIO_ASR=true` | whisper.cpp on port 8178 |
-| MCP Server | `APP_MODULE_MCP=true` | Spring AI MCP (local) |
-| Chat Eval | `APP_MODULE_EVAL=true` | LLM-as-Judge endpoints |
+| Module | Flag Key | Local setup |
+|--------|----------|-------------|
+| Vision (ONNX) | `module-vision` | `pnpm vision:models` then `pnpm vision:verify` |
+| Audio ASR (whisper.cpp) | `module-audio-asr` | whisper.cpp on port 8178 |
+| MCP Server | `module-mcp` | Spring AI MCP (local) |
+| Chat Eval | `module-eval` | LLM-as-Judge endpoints |
 
 ## Cloud-minimal (Railway + Vercel)
 
-Enabled by default in production:
+Production LaunchDarkly environment defaults (or YAML fallback when SDK key is absent):
 
-- Chat, RAG, Tools, Image generation, TTS
-
-Disabled in production:
-
-- Vision ONNX, whisper ASR WebSocket, MCP, Eval
+- Disabled: Vision ONNX, whisper ASR WebSocket, MCP, Eval
+- Enabled: Chat, RAG, Tools, Image generation, TTS
 
 ## Verify vision locally
 
@@ -28,3 +25,5 @@ pnpm vision:verify
 ```
 
 Scripts live under [`scripts/`](../scripts/).
+
+**Note:** Toggling `module-vision` or `module-audio-asr` for heavy infrastructure (ONNX / whisper beans) requires an application restart to take effect.

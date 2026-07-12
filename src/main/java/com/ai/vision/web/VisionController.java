@@ -18,7 +18,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/vision")
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 public class VisionController {
 
     private final VisionAnalysisUseCase visionAnalysisUseCase;

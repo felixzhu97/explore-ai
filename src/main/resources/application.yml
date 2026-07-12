@@ -107,12 +107,16 @@ management:
     sampling:
       probability: 1.0
 
+launchdarkly:
+  enabled: ${LAUNCHDARKLY_ENABLED:true}
+  sdk-key: ${LAUNCHDARKLY_SDK_KEY:}
+  fallback:
+    module-vision: true
+    module-audio-asr: true
+    module-mcp: true
+    module-eval: true
+
 app:
-  modules:
-    vision: ${APP_MODULE_VISION:true}
-    audio-asr: ${APP_MODULE_AUDIO_ASR:true}
-    mcp: ${APP_MODULE_MCP:true}
-    eval: ${APP_MODULE_EVAL:true}
   ai:
     image:
       enabled: ${IMAGE_ENABLED:true}
@@ -145,7 +149,6 @@ app:
       - https://www.felixzhu.chat
       - https://felixzhu.chat
   vision:
-    enabled: ${APP_MODULE_VISION:true}
     models-dir: ${VISION_MODELS_DIR:models}
     detect:
       onnx-path: ${VISION_DETECT_MODEL:models/yolov8n.onnx}

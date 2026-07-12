@@ -9,7 +9,7 @@ import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
 public class VisionHealthIndicator implements HealthIndicator {
 
     private final ImageCaptioner captioner;

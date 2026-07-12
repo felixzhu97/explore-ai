@@ -46,6 +46,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
     implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
     implementation("org.springframework.ai:spring-ai-starter-mcp-client")
+    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.14.0")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compileOnly("org.projectlombok:lombok")

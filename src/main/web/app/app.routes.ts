@@ -1,15 +1,7 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout';
-import { environment } from '@env/environment';
-
-const optionalRoutes: Routes = [];
-
-if (environment.modules.vision) {
-  optionalRoutes.push({
-    path: 'vision',
-    loadComponent: () => import('./vision/vision.page').then(m => m.VisionPageComponent),
-  });
-}
+import { FEATURE_FLAG_KEYS } from '@core/config/feature-flag-keys';
+import { moduleEnabledGuard } from '@core/guards/module-enabled.guard';
 
 export const routes: Routes = [
   {
@@ -21,7 +13,11 @@ export const routes: Routes = [
         path: 'rag',
         loadComponent: () => import('./rag/rag.page').then(m => m.RagPageComponent),
       },
-      ...optionalRoutes,
+      {
+        path: 'vision',
+        canMatch: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION)],
+        loadComponent: () => import('./vision/vision.page').then(m => m.VisionPageComponent),
+      },
       {
         path: 'chat',
         loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
