@@ -1,7 +1,7 @@
 package com.ai.mcp.infrastructure.server;
 
+import com.ai.common.domain.port.out.DocumentSearchTool;
 import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.rag.infrastructure.tools.RagSearchTool;
 import com.ai.tools.infrastructure.tools.WeatherTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +24,7 @@ class AiMcpServerServiceTest {
     private WeatherTools weatherTools;
 
     @Mock
-    private RagSearchTool ragSearchTool;
+    private DocumentSearchTool documentSearchTool;
 
     @Mock
     private ChatUseCase aiChatUseCase;
@@ -33,7 +33,7 @@ class AiMcpServerServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AiMcpServerService(weatherTools, ragSearchTool, aiChatUseCase);
+        service = new AiMcpServerService(weatherTools, documentSearchTool, aiChatUseCase);
     }
 
     @Nested
@@ -95,12 +95,12 @@ class AiMcpServerServiceTest {
         void shouldSearchWithQueryOnly() {
             String query = "artificial intelligence";
             String expectedResults = "[{\"text\": \"AI is...\", \"score\": 0.95}]";
-            when(ragSearchTool.searchDocuments(query, null)).thenReturn(expectedResults);
+            when(documentSearchTool.searchDocuments(query, null)).thenReturn(expectedResults);
 
             String result = service.searchKnowledgeBase(query, null);
 
             assertThat(result).isEqualTo(expectedResults);
-            verify(ragSearchTool).searchDocuments(query, null);
+            verify(documentSearchTool).searchDocuments(query, null);
         }
 
         @Test
@@ -109,25 +109,25 @@ class AiMcpServerServiceTest {
             String query = "machine learning";
             String docIds = "doc1,doc2,doc3";
             String expectedResults = "[{\"text\": \"ML results...\", \"score\": 0.88}]";
-            when(ragSearchTool.searchDocuments(query, List.of("doc1", "doc2", "doc3")))
+            when(documentSearchTool.searchDocuments(query, List.of("doc1", "doc2", "doc3")))
                     .thenReturn(expectedResults);
 
             String result = service.searchKnowledgeBase(query, docIds);
 
             assertThat(result).isEqualTo(expectedResults);
-            verify(ragSearchTool).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
+            verify(documentSearchTool).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
         }
 
         @Test
         @DisplayName("should handle empty docIds string")
         void shouldHandleEmptyDocIdsString() {
             String query = "deep learning";
-            when(ragSearchTool.searchDocuments(query, null)).thenReturn("[]");
+            when(documentSearchTool.searchDocuments(query, null)).thenReturn("[]");
 
             String result = service.searchKnowledgeBase(query, "");
 
             assertThat(result).isEqualTo("[]");
-            verify(ragSearchTool).searchDocuments(query, null);
+            verify(documentSearchTool).searchDocuments(query, null);
         }
     }
 
@@ -139,12 +139,12 @@ class AiMcpServerServiceTest {
         @DisplayName("should list all documents")
         void shouldListAllDocuments() {
             String expectedDocs = "[{\"id\": \"doc1\", \"title\": \"Document 1\"}, {\"id\": \"doc2\", \"title\": \"Document 2\"}]";
-            when(ragSearchTool.listDocuments()).thenReturn(expectedDocs);
+            when(documentSearchTool.listDocuments()).thenReturn(expectedDocs);
 
             String result = service.listDocuments();
 
             assertThat(result).isEqualTo(expectedDocs);
-            verify(ragSearchTool).listDocuments();
+            verify(documentSearchTool).listDocuments();
         }
     }
 

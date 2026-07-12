@@ -27,7 +27,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pnpm -C apps/web exec eslint "src/**/*.ts" --ext .ts 2>&1 |
+          pnpm lint 2>&1 |
             reviewdog -f=eslint -reporter=github-pr-review -level=error
 
   typescript:
@@ -52,8 +52,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          (pnpm -C apps/web exec tsc --noEmit -p tsconfig.app.json &&
-            pnpm -C apps/web exec tsc --noEmit -p tsconfig.spec.json) 2>&1 |
+          pnpm typecheck 2>&1 |
             reviewdog -f=tsc -reporter=github-pr-review -level=error
 
   test:
@@ -70,4 +69,4 @@ jobs:
       - name: Setup web env
         uses: ./.github/actions/setup-web-env
       - name: Run tests (Vitest + jsdom)
-        run: pnpm --filter web exec vitest run
+        run: pnpm test
