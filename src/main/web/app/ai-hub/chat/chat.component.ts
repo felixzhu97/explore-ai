@@ -3,20 +3,19 @@ import {
   inject,
   OnInit,
   OnDestroy,
-  ElementRef,
-  viewChild,
   ChangeDetectionStrategy,
   model,
-  effect,
+  computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  ChatAssistantMessageComponent,
-  ChatEmptyStateComponent,
-  ChatUserMessageComponent,
+  ChatBubbleListComponent,
+  ChatBubbleMessage,
+  ChatWelcomePanelComponent,
 } from '@shared/components/chat-shell';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
+import { NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ChatService } from '../chat.service';
@@ -27,9 +26,8 @@ import { ChatService } from '../chat.service';
     FormsModule,
     NxSenderComponent,
     NzIconModule,
-    ChatEmptyStateComponent,
-    ChatUserMessageComponent,
-    ChatAssistantMessageComponent,
+    ChatWelcomePanelComponent,
+    ChatBubbleListComponent,
   ],
   templateUrl: './chat.component.html',
   styles: [
@@ -55,14 +53,24 @@ export class ChatTabComponent implements OnInit, OnDestroy {
   protected readonly i18n = inject(I18nService);
 
   readonly input = model('');
-  readonly messagesEnd = viewChild<ElementRef>('messagesEnd');
 
-  constructor() {
-    effect(() => {
-      this.chat.messages();
-      this.scrollToBottom();
-    });
-  }
+  readonly chatPrompts = computed((): NxPrompt[] => {
+    return this.i18n.t().chat.suggestedPrompts.map(prompt => ({
+      key: prompt.key,
+      label: prompt.label,
+      description: prompt.description,
+    }));
+  });
+
+  readonly bubbleMessages = computed((): ChatBubbleMessage[] => {
+    return this.chat.messages().map(message => ({
+      id: message.id,
+      role: message.role,
+      content: message.content,
+      timestamp: message.timestamp,
+      streaming: this.chat.streamingMessageId() === message.id,
+    }));
+  });
 
   ngOnInit() {
     this.chat.loadProviders();
@@ -84,6 +92,10 @@ export class ChatTabComponent implements OnInit, OnDestroy {
     this.chat.setModel(model);
   }
 
+  onPromptSelect(label: string): void {
+    this.input.set(label);
+  }
+
   send() {
     const text = this.input().trim();
     if (!text || this.chat.isLoading()) {
@@ -91,12 +103,5 @@ export class ChatTabComponent implements OnInit, OnDestroy {
     }
     this.input.set('');
     this.chat.sendMessage(text);
-  }
-
-  private scrollToBottom() {
-    const el = this.messagesEnd();
-    if (el) {
-      el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
   }
 }

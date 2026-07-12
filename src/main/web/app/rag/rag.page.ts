@@ -3,19 +3,18 @@ import {
   inject,
   OnInit,
   ChangeDetectionStrategy,
-  ElementRef,
-  viewChild,
-  effect,
+  computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RagService } from './rag.service';
 import {
-  ChatAssistantMessageComponent,
-  ChatEmptyStateComponent,
-  ChatUserMessageComponent,
+  ChatBubbleListComponent,
+  ChatBubbleMessage,
+  ChatWelcomePanelComponent,
 } from '@shared/components/chat-shell';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
+import { NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 
@@ -25,9 +24,8 @@ import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
     FormsModule,
     NxSenderComponent,
     NzIconModule,
-    ChatEmptyStateComponent,
-    ChatUserMessageComponent,
-    ChatAssistantMessageComponent,
+    ChatWelcomePanelComponent,
+    ChatBubbleListComponent,
   ],
   templateUrl: './rag.page.html',
   providers: [provideNzIconsPatch([ArrowUpOutline])],
@@ -38,14 +36,37 @@ export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);
   protected readonly i18n = inject(I18nService);
 
-  readonly messagesEnd = viewChild<ElementRef>('messagesEnd');
+  readonly ragPrompts = computed((): NxPrompt[] => {
+    const t = this.i18n.t().ragChat;
+    return [
+      { key: 'what', label: t.whatIsThis, description: t.askQuestion },
+      { key: 'summarize', label: t.summarize, description: t.explain },
+      { key: 'keyInfo', label: t.keyInfo, description: t.explain },
+    ];
+  });
 
-  constructor() {
-    effect(() => {
-      this.ragService.messages();
-      this.scrollToBottom();
-    });
-  }
+  readonly bubbleMessages = computed((): ChatBubbleMessage[] => {
+    return this.ragService.messages().map(message => ({
+      id: message.id,
+      role: message.role,
+      content: message.content,
+      timestamp: message.timestamp,
+      images: message.images,
+      sources: message.sources,
+      sourcesExpanded: this.ragService.expandedSources().has(message.id),
+      streaming: this.ragService.streamingMessageIds().has(message.id),
+      assistantIcon: 'document',
+    }));
+  });
+
+  readonly footerLabels = computed(() => {
+    const t = this.i18n.t().ragChat;
+    return {
+      sources: t.sources,
+      similarity: t.similarity,
+      basedOn: t.basedOn,
+    };
+  });
 
   ngOnInit() {
     this.ragService.fetchAvailableDocs();
@@ -93,12 +114,11 @@ export class RagPageComponent implements OnInit {
     });
   }
 
-  setInput(text: string): void {
-    this.ragService.setInput(text);
+  onPromptSelect(label: string): void {
+    this.ragService.setInput(label);
   }
 
-  private scrollToBottom(): void {
-    const end = this.messagesEnd()?.nativeElement;
-    end?.scrollIntoView({ behavior: 'smooth' });
+  onToggleSources(messageId: string): void {
+    this.ragService.toggleSources(messageId);
   }
 }

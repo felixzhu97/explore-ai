@@ -130,6 +130,26 @@ export const en: Translations = {
   chat: {
     thinking: 'Thinking...',
     inputPlaceholder: 'Type your message...',
+    welcomeTitle: 'How can I help you today?',
+    welcomeDescription: 'Start a conversation with the agent',
+    suggestedPromptsTitle: 'Suggested prompts',
+    suggestedPrompts: [
+      {
+        key: 'explain',
+        label: 'Explain a concept',
+        description: 'Break down a topic in simple terms',
+      },
+      {
+        key: 'summarize',
+        label: 'Summarize this',
+        description: 'Get a concise summary of key points',
+      },
+      {
+        key: 'brainstorm',
+        label: 'Brainstorm ideas',
+        description: 'Generate creative options for a problem',
+      },
+    ],
   },
   generate: {
     tabs: {
