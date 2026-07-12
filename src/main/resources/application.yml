@@ -135,7 +135,7 @@ app:
       - http://localhost:3000
       - http://127.0.0.1:4200
       - http://127.0.0.1:4321
-      - https://explore-ai-git-*.felixzhu97s-projects.vercel.app
+      - https://explore-ai-git-*-felixzhu97s-projects.vercel.app
       - https://explore-ai-three.vercel.app
       - https://www.felixzhu.chat
       - https://felixzhu.chat
