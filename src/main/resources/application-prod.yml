@@ -14,12 +14,10 @@ spring:
           jdbc:
             initialize-schema: never
     ollama:
-      embedding:
-        enabled: false
       chat:
         enabled: false
 
-# Railway / cloud: Ollama is not available on localhost. Use OpenAI-compatible APIs.
+# Railway / cloud: Ollama chat/vision is not available on localhost. Use OpenAI-compatible APIs.
 app:
   vision:
     enabled: false
