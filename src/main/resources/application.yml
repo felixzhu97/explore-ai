@@ -130,8 +130,9 @@ app:
       connect-timeout: 5s
       read-timeout: 60s
   cors:
-    allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat
+    allowed-origin-patterns: http://localhost:4200,http://localhost:3000,https://explore-ai-git-*.felixzhu97s-projects.vercel.app,https://explore-ai-three.vercel.app,https://www.felixzhu.chat,https://felixzhu.chat
   vision:
+    enabled: ${VISION_ENABLED:true}
     models-dir: ${VISION_MODELS_DIR:models}
     detect:
       onnx-path: ${VISION_DETECT_MODEL:models/yolov8n.onnx}

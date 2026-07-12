@@ -3,11 +3,13 @@ package com.ai.vision.infrastructure.config;
 import com.ai.vision.domain.repository.ImageCaptioner;
 import com.ai.vision.domain.repository.ObjectDetector;
 import com.ai.vision.domain.repository.OcrEngine;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class VisionHealthIndicator implements HealthIndicator {
 
     private final ImageCaptioner captioner;

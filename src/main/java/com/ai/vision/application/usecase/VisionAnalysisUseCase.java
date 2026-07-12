@@ -12,6 +12,7 @@ import com.ai.vision.web.dto.OcrResponse;
 import com.ai.vision.web.dto.VisionHealthResponse;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class VisionAnalysisUseCase {
 
     private final ImageCaptioner captioner;

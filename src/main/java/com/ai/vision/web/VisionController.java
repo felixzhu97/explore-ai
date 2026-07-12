@@ -6,6 +6,7 @@ import com.ai.vision.web.dto.CaptionResponse;
 import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.OcrResponse;
 import com.ai.vision.web.dto.VisionHealthResponse;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/vision")
+@ConditionalOnProperty(prefix = "app.vision", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class VisionController {
 
     private final VisionAnalysisUseCase visionAnalysisUseCase;
