@@ -1,3 +1,4 @@
+/** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
 export function parseSseToken(data: string): string | null {
   if (data === '') {
     return '\n';
@@ -31,12 +32,13 @@ export function parseSseToken(data: string): string | null {
   return data;
 }
 
-interface SseEventPayload {
+export interface SseEventPayload {
   eventType: string;
   data: string;
 }
 
-class SseEventAssembler {
+/** Accumulates SSE data lines until a blank line, joining with `\n` per SSE spec. */
+export class SseEventAssembler {
   private eventType = '';
   private dataLines: string[] = [];
 
@@ -77,19 +79,27 @@ class SseEventAssembler {
   }
 }
 
-export interface StreamSsePostOptions {
-  onEvent: (event: SseEventPayload) => boolean | void;
+export interface SseStreamHandlers {
+  onEvent: (event: SseEventPayload) => boolean;
   onDone: () => void;
-  onError: (err: Error) => void;
+  onError: (error: Error) => void;
 }
 
 export function streamSsePost(
   url: string,
   body: unknown,
-  options: StreamSsePostOptions,
+  handlers: SseStreamHandlers,
 ): { abort: () => void } {
   const controller = new AbortController();
   const sseAssembler = new SseEventAssembler();
+  let finished = false;
+
+  const finish = () => {
+    if (!finished) {
+      finished = true;
+      handlers.onDone();
+    }
+  };
 
   const readerPromise = fetch(url, {
     method: 'POST',
@@ -98,31 +108,18 @@ export function streamSsePost(
     signal: controller.signal,
   }).then(async (response) => {
     if (!response.ok) {
-      options.onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
+      handlers.onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
       return;
     }
 
     if (!response.body) {
-      options.onError(new Error('No response body'));
+      handlers.onError(new Error('No response body'));
       return;
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let finished = false;
-
-    const finish = () => {
-      if (!finished) {
-        finished = true;
-        options.onDone();
-      }
-    };
-
-    const handleSseEvent = (event: SseEventPayload): boolean => {
-      const shouldStop = options.onEvent(event);
-      return shouldStop === true;
-    };
 
     const processBuffer = (flushPending = false) => {
       const lines = buffer.split('\n');
@@ -131,14 +128,16 @@ export function streamSsePost(
       for (const rawLine of lines) {
         const line = rawLine.replace(/\r$/, '');
         const event = sseAssembler.pushLine(line);
-        if (event !== null && handleSseEvent(event)) {
+        if (event !== null && handlers.onEvent(event)) {
+          finished = true;
           return true;
         }
       }
 
       if (flushPending) {
         const event = sseAssembler.flush();
-        if (event !== null && handleSseEvent(event)) {
+        if (event !== null && handlers.onEvent(event)) {
+          finished = true;
           return true;
         }
       }
@@ -153,7 +152,6 @@ export function streamSsePost(
           buffer += decoder.decode(value, { stream: !done });
         }
         if (processBuffer()) {
-          finished = true;
           break;
         }
         if (done) {
@@ -165,14 +163,14 @@ export function streamSsePost(
       finish();
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        options.onError(err as Error);
+        handlers.onError(err as Error);
       }
     }
   });
 
   readerPromise.catch((err) => {
     if ((err as Error).name !== 'AbortError') {
-      options.onError(err as Error);
+      handlers.onError(err as Error);
     }
   });
 
