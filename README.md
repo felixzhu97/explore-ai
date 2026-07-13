@@ -238,8 +238,7 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 |------|------|------|
 | **Vercel** (Production) | `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN` | 构建时由 `scripts/inject-datadog-env.mjs` 注入 |
 | **Vercel** (可选) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 默认 `us5.datadoghq.com` / `explore-ai-web` / `production` |
-| **Railway** (Production) | `DD_API_KEY` | 设置后容器挂载 `dd-java-agent` 上报 APM |
-| **Railway** `explore-ai` | `DD_AGENT_HOST`, `DD_TRACE_AGENT_PORT` | `${{datadog-agent.RAILWAY_PRIVATE_DOMAIN}}` / `8126` |
+| **Railway** `explore-ai` | `DD_AGENT_HOST`, `DD_TRACE_AGENT_PORT` | `${{datadog-agent.RAILWAY_PRIVATE_DOMAIN}}` / `8126`；无需 `DD_API_KEY` |
 | **Railway** `datadog-agent` | `DD_API_KEY`, `DD_HOSTNAME`, `DD_SITE` | Agent 服务；`DD_HOSTNAME=${{RAILWAY_PRIVATE_DOMAIN}}` |
 | **Railway** (已有) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 建议 `us5.datadoghq.com` / `explore-ai-api` / `production` |
 
@@ -252,7 +251,7 @@ Railway 需单独部署 `datadog-agent` 服务（`infra/datadog-agent/`），通
 3. Railway `explore-ai` 日志中 `agent_error":false` 且 `agent_url` 指向 `datadog-agent.railway.internal:8126`
 4. Datadog 控制台可见 RUM Sessions 与 APM Service `explore-ai-api`
 
-未配置 `DD_API_KEY` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地）。
+未配置 `DD_API_KEY` 且未配置 `DD_AGENT_HOST` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地）。
 
 ---
 
