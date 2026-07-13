@@ -18,6 +18,7 @@ export function initDatadogRum(): void {
     env,
     version,
     sessionSampleRate: 100,
+    traceSampleRate: 100,
     trackUserInteractions: true,
     trackResources: true,
     allowedTracingUrls: [environment.apiBaseUrl],
