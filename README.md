@@ -230,6 +230,28 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 ---
 
+## Production Observability (Datadog us5)
+
+代码已集成 RUM（前端）与 APM（后端）。凭证不入库，需在部署平台配置后重新部署。
+
+| 平台 | 变量 | 说明 |
+|------|------|------|
+| **Vercel** (Production) | `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN` | 构建时由 `scripts/inject-datadog-env.mjs` 注入 |
+| **Vercel** (可选) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 默认 `us5.datadoghq.com` / `explore-ai-web` / `production` |
+| **Railway** (Production) | `DD_API_KEY` | 设置后容器挂载 `dd-java-agent` 上报 APM |
+| **Railway** (已有) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 建议 `us5.datadoghq.com` / `explore-ai-api` / `production` |
+
+验证：
+
+1. Vercel 构建日志出现 `Datadog RUM credentials injected...`
+2. 浏览器 Network 有 POST 到 `browser-intake-us5-datadoghq.com`（202）
+3. Railway 日志无 `Throwable thrown while installing the Datadog Agent`
+4. Datadog 控制台可见 RUM Sessions 与 APM Service `explore-ai-api`
+
+未配置 `DD_API_KEY` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地）。
+
+---
+
 ## 文档
 
 - [API 文档](./docs/api.md)
