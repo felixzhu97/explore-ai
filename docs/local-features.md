@@ -1,6 +1,6 @@
 # Local-Only Features
 
-Optional modules are controlled by [LaunchDarkly feature flags](launchdarkly-setup.md). See [LaunchDarkly setup](launchdarkly-setup.md) for dashboard configuration.
+Optional modules are controlled by LaunchDarkly feature flags (`LAUNCHDARKLY_SDK_KEY` on Railway, `LAUNCHDARKLY_CLIENT_SIDE_ID` on Vercel).
 
 | Module | Flag Key | Local setup |
 |--------|----------|-------------|
