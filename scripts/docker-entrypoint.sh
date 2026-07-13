@@ -6,8 +6,8 @@ if [ -n "${DD_API_KEY}" ]; then
   exec java \
     -javaagent:/app/dd-java-agent.jar \
     -Ddd.logs.injection=true \
-    -jar /app/app.jar
+    -jar /app/app.jar "$@"
 fi
 
 echo "DD_API_KEY unset; starting without Datadog APM javaagent"
-exec java -jar /app/app.jar
+exec java -jar /app/app.jar "$@"
