@@ -149,11 +149,10 @@ explore-ai/
 │       ├── vision/     # 视觉分析（可按环境关闭）
 │       └── ai-hub/     # AI Hub (对话/TTS/图像)
 │
-├── docs/local-features.md  # 本地全功能 vs 云端精简部署说明
-└── docs/c4/           # C4 架构图
+├── docs/c4/           # C4 架构图
 ```
 
-云端部署（Railway + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。详见 [docs/local-features.md](docs/local-features.md)。
+云端部署（Railway + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。
 
 ---
 
