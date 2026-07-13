@@ -3,7 +3,6 @@ package com.ai.tools.application.usecase;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WebSearchTool;
-import com.ai.common.observability.AiMetricsRecorder;
 import com.ai.tools.domain.model.ToolResult;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherQuery;
@@ -38,15 +37,12 @@ class ToolsFacadeTest {
     @Mock
     private WebSearchTool webSearchTool;
 
-    @Mock
-    private AiMetricsRecorder metricsRecorder;
-
     private ToolsFacade toolsFacade;
 
     @BeforeEach
     void setUp() {
         toolsFacade = new ToolsFacade(
-                chatClientProvider, weatherTools, weatherReport, documentSearchTool, webSearchTool, metricsRecorder);
+                chatClientProvider, weatherTools, weatherReport, documentSearchTool, webSearchTool);
     }
 
     @Test

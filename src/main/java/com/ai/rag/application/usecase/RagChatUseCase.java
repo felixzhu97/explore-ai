@@ -2,7 +2,6 @@ package com.ai.rag.application.usecase;
 
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
-import com.ai.common.observability.AiMetricsRecorder;
 import com.ai.common.util.LogSanitizer;
 import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
@@ -24,43 +23,37 @@ public class RagChatUseCase {
     private final RagApplicationService ragApplicationService;
     private final ChatClientProvider chatClientProvider;
     private final LanguageDetectionService languageDetectionService;
-    private final AiMetricsRecorder metricsRecorder;
 
     public RagChatUseCase(
             RagApplicationService ragApplicationService,
             ChatClientProvider chatClientProvider,
-            LanguageDetectionService languageDetectionService,
-            AiMetricsRecorder metricsRecorder) {
+            LanguageDetectionService languageDetectionService) {
         this.ragApplicationService = ragApplicationService;
         this.chatClientProvider = chatClientProvider;
         this.languageDetectionService = languageDetectionService;
-        this.metricsRecorder = metricsRecorder;
     }
 
     public RagChatResult chat(String question, List<String> docIds, Integer topK) {
-        return metricsRecorder.recordRag(() -> {
-            log.info("RAG chat request: {}", LogSanitizer.truncate(question));
+        log.info("RAG chat request: {}", LogSanitizer.truncate(question));
 
-            List<DocumentId> docIdList = null;
-            if (docIds != null && !docIds.isEmpty()) {
-                docIdList = docIds.stream().map(DocumentId::of).toList();
-            }
+        List<DocumentId> docIdList = null;
+        if (docIds != null && !docIds.isEmpty()) {
+            docIdList = docIds.stream().map(DocumentId::of).toList();
+        }
 
-            int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-            var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
-            metricsRecorder.recordRagRetrieval();
-            List<SourceDocument> sources = retrievalResult.sources();
-            String prompt = buildPrompt(question, retrievalResult.context());
+        int topKValue = topK != null ? topK : DEFAULT_TOP_K;
+        var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
+        List<SourceDocument> sources = retrievalResult.sources();
+        String prompt = buildPrompt(question, retrievalResult.context());
 
-            ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
-            String aiResponse = chatClient.prompt()
-                    .user(prompt)
-                    .call()
-                    .content();
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
+        String aiResponse = chatClient.prompt()
+                .user(prompt)
+                .call()
+                .content();
 
-            log.info("RAG chat completed successfully");
-            return new RagChatResult(aiResponse, sources);
-        });
+        log.info("RAG chat completed successfully");
+        return new RagChatResult(aiResponse, sources);
     }
 
     private String buildPrompt(String question, String context) {

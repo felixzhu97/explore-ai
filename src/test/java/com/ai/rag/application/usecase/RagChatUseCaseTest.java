@@ -3,7 +3,6 @@ package com.ai.rag.application.usecase;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.chat.domain.service.LanguageDetectionService;
 import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.observability.AiMetricsRecorder;
 import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
@@ -50,21 +49,14 @@ class RagChatUseCaseTest {
     @Mock
     private LanguageDetectionService languageDetectionService;
 
-    @Mock
-    private AiMetricsRecorder metricsRecorder;
-
     private RagChatUseCase ragChatUseCase;
 
     @BeforeEach
     void setUp() {
-        lenient().when(metricsRecorder.recordRag(any())).thenAnswer(invocation ->
-                invocation.getArgument(0, java.util.function.Supplier.class).get());
-
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
                 chatClientProvider,
-                languageDetectionService,
-                metricsRecorder
+                languageDetectionService
         );
         when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);

@@ -4,7 +4,6 @@ import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WebSearchTool;
-import com.ai.common.observability.AiMetricsRecorder;
 import com.ai.common.util.LogSanitizer;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
@@ -27,32 +26,27 @@ public class ToolsFacade {
     private final WeatherReport weatherReport;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
-    private final AiMetricsRecorder metricsRecorder;
 
     public ToolsFacade(
             ChatClientProvider chatClientProvider,
             WeatherTools weatherTools,
             WeatherReport weatherReport,
             DocumentSearchTool documentSearchTool,
-            WebSearchTool webSearchTool,
-            AiMetricsRecorder metricsRecorder) {
+            WebSearchTool webSearchTool) {
         this.chatClientProvider = chatClientProvider;
         this.weatherTools = weatherTools;
         this.weatherReport = weatherReport;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
-        this.metricsRecorder = metricsRecorder;
     }
 
     public String chatWithTools(String question) {
-        return metricsRecorder.recordToolCall(() -> {
-            log.info("ToolsFacade.chatWithTools: {}", LogSanitizer.truncate(question));
-            ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
-            return chatClient.prompt()
-                    .user(question)
-                    .call()
-                    .content();
-        });
+        log.info("ToolsFacade.chatWithTools: {}", LogSanitizer.truncate(question));
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
+        return chatClient.prompt()
+                .user(question)
+                .call()
+                .content();
     }
 
     public String getWeather(String city) {
