@@ -13,8 +13,20 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     Container_Boundary(app_layer, "App Layer") {
         Component(app_root, "AppComponent", "@Component", "根组件")
         Component(main_layout, "MainLayoutComponent", "@Component", "主布局 (header + sidebar + outlet)")
-        Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, interceptors")
-        Component(app_routes, "app.routes.ts", "Routes", "路由: /chat /generate /rag /vision")
+        Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, DatadogErrorHandler")
+        Component(app_routes, "app.routes.ts", "Routes", "/chat /generate /rag + flag: /vision /mcp /eval /asr")
+        Component(main_ts, "main.ts", "Bootstrap", "initDatadogRum()")
+        Component(datadog_cfg, "datadog-rum.config.ts", "Config", "RUM 初始化 + ErrorHandler")
+    }
+
+    ' ============================================================
+    ' ROUTING & FLAGS
+    ' ============================================================
+    Container_Boundary(routing, "Routing & Feature Flags") {
+        Component(module_guard, "moduleEnabledGuard", "CanActivateFn", "按 LaunchDarkly 开关守卫路由")
+        Component(module_nav, "module-nav.config.ts", "Config", "侧边栏模块 + flagKey 映射")
+        Component(flag_svc, "FeatureFlagService", "@Injectable", "LaunchDarkly Client SDK 封装")
+        Component(flag_keys, "feature-flag-keys.ts", "Constants", "MODULE_VISION/MCP/EVAL/AUDIO_ASR")
     }
 
     ' ============================================================
@@ -24,11 +36,14 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(chat_tab, "ChatTabComponent", "@Component", "对话 (/chat)")
         Component(generate_page, "GeneratePage", "@Component", "生成 (/generate)")
         Container_Boundary(generate_tabs, "Generate Sub-Routes") {
-            Component(tts_tab, "TtsPageComponent", "@Component", "TTS Tab (/generate/tts)")
-            Component(img_tab, "ImageComponent", "@Component", "图像 Tab (/generate/image)")
+            Component(img_tab, "ImageComponent", "@Component", "图像 (/generate/image)")
+            Component(tts_tab, "TtsPageComponent", "@Component", "TTS (/generate/tts)")
         }
-        Component(rag_page, "RagPageComponent", "@Component", "RAG 页面 (/rag)")
-        Component(vision_page, "VisionPageComponent", "@Component", "图像分析 (/vision: Caption/Detect/OCR)")
+        Component(rag_page, "RagPageComponent", "@Component", "RAG (/rag)")
+        Component(vision_page, "VisionPageComponent", "@Component", "图像分析 (/vision) [flag]")
+        Component(mcp_page, "McpPageComponent", "@Component", "MCP Client (/mcp) [flag]")
+        Component(eval_page, "EvalPageComponent", "@Component", "质量评估 (/eval) [flag]")
+        Component(asr_page, "AsrPageComponent", "@Component", "语音转录 (/asr) [flag]")
         Component(detect_overlay, "DetectionOverlayComponent", "@Component", "检测边界框叠加层")
     }
 
@@ -36,20 +51,27 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     ' FEATURE SERVICES
     ' ============================================================
     Container_Boundary(feature_services, "Feature Services") {
-        Component(chat_svc, "ChatService", "@Injectable", "聊天 SSE 流式")
+        Component(chat_svc, "ChatService", "@Injectable", "聊天状态 + 会话")
         Component(rag_svc, "RagService", "@Injectable", "RAG 文档与问答")
-        Component(stream_parser, "StreamParserService", "@Injectable", "SSE 事件解析")
+        Component(mcp_svc, "McpService", "@Injectable", "MCP Client")
+        Component(eval_svc, "EvalService", "@Injectable", "质量评估")
+        Component(asr_svc, "AsrService", "@Injectable", "ASR WebSocket")
+        Component(vision_svc, "VisionService", "@Injectable", "Caption/Detect/OCR")
+        Component(img_gen_svc, "ImageGenerationService", "@Injectable", "图像生成")
     }
 
     ' ============================================================
     ' CORE SERVICES
     ' ============================================================
     Container_Boundary(core_services, "Core Services") {
-        Component(api_svc, "ApiService", "@Injectable", "通用 REST: chat/rag/image/tts/vision")
+        Component(api_chat, "ApiChatService", "@Injectable", "text/providers, sessions, SSE chat")
+        Component(api_rag, "ApiRagService", "@Injectable", "RAG 文档与流式问答")
+        Component(api_media, "ApiMediaService", "@Injectable", "images, TTS, vision API")
+        Component(api_svc, "ApiService", "@Injectable", "遗留通用 REST (逐步迁移)")
+        Component(sse_client, "sse-client.ts", "Utility", "streamSsePost / parseSseToken")
         Component(notif_svc, "NotificationService", "@Injectable", "Toast 通知")
-        Component(http_err_interceptor, "HttpErrorInterceptor", "Interceptor", "HTTP 错误拦截")
         Component(sidebar_svc, "SidebarService", "@Injectable", "侧边栏状态")
-        Component(i18n_svc, "I18nService", "@Injectable", "国际化 (5 语言)")
+        Component(i18n_svc, "I18nService", "@Injectable", "国际化")
         Component(theme_svc, "ThemeService", "@Injectable", "主题切换")
     }
 
@@ -57,10 +79,8 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     ' SHARED UI
     ' ============================================================
     Container_Boundary(shared_layer, "Shared UI") {
-        Component(zardui, "Zard UI Components", "@/shared/components", "z-card, z-button, z-alert, z-segmented, z-toaster 等")
+        Component(zardui, "Zard UI Components", "@/shared/components", "z-card, z-button, z-toaster 等")
         Component(media_shell, "MediaShell", "@Component", "上传/预览/结果/生成表单")
-        Component(language_picker, "LanguagePickerComponent", "@Component", "语言选择 z-dropdown")
-        Component(image_zoom_svc, "ImageZoomService", "@Injectable", "ZardDialog 图片放大")
         Component(citation_comp, "CitationComponent", "@Component", "RAG 来源引用")
         Component(markdown_svc, "MarkdownService", "@Injectable", "Markdown 渲染")
     }
@@ -69,8 +89,10 @@ System_Boundary(frontend, "Angular 22 Web Application") {
 ' ============================================================
 ' EXTERNAL
 ' ============================================================
-System_Boundary(external, "Backend & Browser") {
-    Component(backend_api, "AI Platform Backend", "REST/SSE/WebSocket", "Spring Boot :9000")
+System_Boundary(external, "Backend & Platform") {
+    Component(backend_api, "AI Platform Backend", "REST/SSE/WebSocket", "dev :9000 / prod Railway :8080")
+    Component(launchdarkly, "LaunchDarkly", "Client SDK", "模块功能开关")
+    Component(datadog_rum, "Datadog RUM", "Browser SDK", "us5 遥测")
     Component(browser_apis, "Browser APIs", "Web APIs", "HttpClient, WebSocket, SSE")
 }
 
@@ -78,31 +100,45 @@ System_Boundary(external, "Backend & Browser") {
 ' ROUTES
 ' ============================================================
 Rel(app_routes, main_layout, "根布局")
+Rel(app_routes, module_guard, "canActivate")
 Rel(main_layout, chat_tab, "/chat")
 Rel(main_layout, generate_page, "/generate")
 Rel(main_layout, rag_page, "/rag")
-Rel(main_layout, vision_page, "/vision")
-Rel(generate_page, tts_tab, "/generate/tts")
+Rel(main_layout, vision_page, "/vision [guard]")
+Rel(main_layout, mcp_page, "/mcp [guard]")
+Rel(main_layout, eval_page, "/eval [guard]")
+Rel(main_layout, asr_page, "/asr [guard]")
 Rel(generate_page, img_tab, "/generate/image")
+Rel(generate_page, tts_tab, "/generate/tts")
 
 ' ============================================================
 ' SERVICE RELATIONSHIPS
 ' ============================================================
-Rel(chat_tab, chat_svc, "聊天")
-Rel(chat_tab, stream_parser, "SSE 解析")
-Rel(rag_page, rag_svc, "RAG")
-Rel(tts_tab, api_svc, "TTS API")
-Rel(img_tab, api_svc, "图像 API")
-Rel(vision_page, api_svc, "视觉 API")
-Rel(vision_page, detect_overlay, "检测叠加")
+Rel(main_ts, datadog_cfg, "init RUM")
+Rel(app_cfg, flag_svc, "provideAppInitializer")
+Rel(app_cfg, datadog_cfg, "DatadogErrorHandler")
+Rel(module_guard, flag_svc, "isEnabled")
+Rel(main_layout, module_nav, "导航项过滤")
+Rel(module_nav, flag_svc, "isEnabled")
 
-Rel(chat_svc, api_svc, "HTTP/SSE")
-Rel(rag_svc, api_svc, "HTTP/SSE")
-Rel(api_svc, backend_api, "proxy /api/* → :9000", "HTTP")
-Rel(notif_svc, zardui, "z-toaster 通知")
-Rel(app_root, theme_svc, "主题")
-Rel(app_root, i18n_svc, "国际化")
-Rel(app_root, http_err_interceptor, "错误拦截")
+Rel(chat_tab, chat_svc, "聊天")
+Rel(chat_svc, api_chat, "REST/SSE")
+Rel(api_chat, sse_client, "流式解析")
+Rel(rag_page, rag_svc, "RAG")
+Rel(rag_svc, api_rag, "HTTP/SSE")
+Rel(mcp_page, mcp_svc, "MCP")
+Rel(eval_page, eval_svc, "评估")
+Rel(asr_page, asr_svc, "ASR WebSocket")
+Rel(vision_page, vision_svc, "视觉 API")
+Rel(vision_page, detect_overlay, "检测叠加")
+Rel(img_tab, img_gen_svc, "图像生成")
+Rel(tts_tab, api_media, "TTS")
+
+Rel(api_chat, backend_api, "/api/text, /api/sessions", "HTTP/SSE")
+Rel(api_rag, backend_api, "/api/rag/*", "HTTP/SSE")
+Rel(api_media, backend_api, "/api/images, /api/vision, TTS", "HTTP")
+Rel(flag_svc, launchdarkly, "读取开关", "HTTPS")
+Rel(datadog_cfg, datadog_rum, "上报", "HTTPS")
 
 SHOW_LEGEND()
 @enduml

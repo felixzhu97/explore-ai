@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const envPath = join(root, 'src/main/web/environments/environment.prod.ts');
+
 const clientSideId = process.env.LAUNCHDARKLY_CLIENT_SIDE_ID?.trim() ?? '';
 
 if (!clientSideId) {
@@ -11,10 +12,12 @@ if (!clientSideId) {
   process.exit(0);
 }
 
-const content = readFileSync(envPath, 'utf8').replace(
+let content = readFileSync(envPath, 'utf8');
+
+content = content.replace(
   /launchDarklyClientSideId:\s*'[^']*'/,
   `launchDarklyClientSideId: '${clientSideId}'`,
 );
 
 writeFileSync(envPath, content);
-console.log(`LaunchDarkly client-side ID ${clientSideId ? 'injected' : 'left empty (fallback flags)'}`);
+console.log('LaunchDarkly client-side ID injected into environment.prod.ts');

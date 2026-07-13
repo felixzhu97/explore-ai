@@ -1,4 +1,4 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
@@ -8,6 +8,7 @@ import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor
 import { SESSION_LIST } from './layout/services/session-list.token';
 import { ChatSessionListService } from './app/providers/chat-session-list.service';
 import { FeatureFlagService } from './core/services/feature-flag.service';
+import { DatadogErrorHandler } from './core/config/datadog-rum.config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideZard(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    { provide: ErrorHandler, useClass: DatadogErrorHandler },
     { provide: SESSION_LIST, useClass: ChatSessionListService },
     provideNzConfig({
       theme: {

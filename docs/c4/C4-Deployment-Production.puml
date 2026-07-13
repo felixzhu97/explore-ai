@@ -1,0 +1,66 @@
+@startuml C4-Deployment-Production
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Deployment Diagram - Production (Vercel + Railway)
+
+Person_Ext(user, "End User", "浏览器访问 Vercel 托管前端")
+
+Deployment_Node(vercel, "Vercel", "CDN + Build Pipeline") {
+    Container(angular_static, "Angular 22 Static", "SPA", "构建时注入\nLAUNCHDARKLY_CLIENT_SIDE_ID\nDD_APPLICATION_ID / DD_CLIENT_TOKEN", "HTTPS")
+}
+
+Deployment_Node(railway, "Railway", "Docker Container") {
+    Deployment_Node(java_runtime, "JRE 25 Alpine", "eclipse-temurin:25-jre-alpine") {
+        Container(backend, "Spring Boot Backend", "Spring Boot 4.1 / Java 25", "SPRING_PROFILES_ACTIVE=prod\nDD_API_KEY (APM)\nLAUNCHDARKLY_SDK_KEY", "8080")
+        Container(dd_agent, "dd-java-agent", "Datadog APM", "v1.45.0 javaagent", "内嵌")
+        ContainerDb(h2_volume, "H2 File DB", "H2 + Liquibase", "/app/data/explore-ai\nRailway Volume 持久化", "内嵌")
+    }
+}
+
+Deployment_Node(observability, "Observability", "us5.datadoghq.com") {
+    Container_Ext(datadog_rum, "Datadog RUM", "Browser Intake", "前端会话/错误/资源", "HTTPS")
+    Container_Ext(datadog_apm, "Datadog APM", "Agent Intake", "后端追踪 (javaagent)", "HTTPS")
+}
+
+Deployment_Node(feature_flags, "LaunchDarkly", "SaaS") {
+    Container_Ext(ld_client, "LD Client SDK", "JavaScript", "前端模块可见性", "HTTPS")
+    Container_Ext(ld_server, "LD Server SDK", "Java", "后端 ModuleAccessFilter", "HTTPS")
+}
+
+Deployment_Node(cloud_ai, "Cloud AI APIs", "HTTPS") {
+    Container_Ext(deepseek_api, "DeepSeek API", "REST", "LLM Chat + Eval", "HTTPS")
+    Container_Ext(openai_api, "OpenAI API", "REST", "DALL-E + TTS", "HTTPS")
+    Container_Ext(serper_api, "Serper.dev", "REST", "Web 搜索", "HTTPS")
+}
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+Rel(user, angular_static, "浏览 Web UI", "HTTPS")
+Rel(angular_static, backend, "apiBaseUrl → Railway /api", "HTTPS/SSE/WS")
+Rel(angular_static, datadog_rum, "RUM 事件", "HTTPS")
+Rel(angular_static, ld_client, "功能开关", "HTTPS")
+
+Rel(backend, h2_volume, "JDBC", "内嵌")
+Rel(backend, dd_agent, "JVM 内嵌", "本地")
+Rel(dd_agent, datadog_apm, "追踪上报", "HTTPS")
+Rel(backend, ld_server, "模块开关", "HTTPS")
+
+Rel(backend, deepseek_api, "LLM", "HTTPS")
+Rel(backend, openai_api, "图像 + TTS", "HTTPS")
+Rel(backend, serper_api, "搜索", "HTTPS")
+
+note right of backend
+  **cloud-minimal prod 默认关闭**
+  (LaunchDarkly flags = false):
+  · Vision (ONNX + Tesseract)
+  · ASR (whisper.cpp)
+  · MCP Server / Client
+  · Eval
+  · Ollama Embedding / Vision Chat
+end note
+
+SHOW_LEGEND()
+@enduml

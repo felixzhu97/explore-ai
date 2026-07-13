@@ -6,48 +6,63 @@ LAYOUT_WITH_LEGEND()
 title 系统上下文图 (C1) - AI Chat & Agent Platform
 
 ' ============================================================
-' PEOPLE - 人员
+' PEOPLE
 ' ============================================================
-Person(user, "用户", "与 AI 助手对话、上传文档、调用工具、视觉分析、语音交互")
-Person(admin, "管理员/开发者", "质量评估、文本分析、API 集成")
+Person(user, "用户", "对话、RAG、图像生成/TTS、可选 Vision/MCP/Eval/ASR")
+Person(admin, "管理员/开发者", "质量评估、文本分析、API 集成、功能开关配置")
 
 ' ============================================================
-' AI Chat & Agent Platform 系统边界
+' AI Chat & Agent Platform
 ' ============================================================
 System_Boundary(ai_platform, "AI Chat & Agent Platform") {
-    System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Web 用户界面 (/chat, /rag, /vision)")
-    System(backend, "AI Platform Backend", "Spring Boot 4.0 / Java 25 / Spring AI 2.0", "会话管理·RAG·Tool Calling·图像分析·TTS·ASR·Eval·MCP")
+    System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Vercel 静态部署 (prod) / ng serve :4200 (dev)\n路由: /chat /generate /rag + flag 守卫 /vision /mcp /eval /asr")
+    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Railway Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 10 子域")
 }
 
 ' ============================================================
-' EXTERNAL SYSTEMS - 外部系统
+' PLATFORM SERVICES
+' ============================================================
+System_Ext(launchdarkly, "LaunchDarkly", "功能开关 (module-vision/asr/mcp/eval)\n前端 Client SDK + 后端 Server SDK")
+System_Ext(datadog, "Datadog (us5)", "RUM (浏览器) + APM (dd-java-agent)\n构建时注入凭证，OSS 仓库不含密钥")
+
+' ============================================================
+' CLOUD AI SERVICES (prod + dev)
 ' ============================================================
 System_Ext(deepseek_api, "DeepSeek API", "LLM 对话 (deepseek-v4-flash)")
-System_Ext(h2_db, "H2 Embedded", "嵌入式数据库 + 向量存储 (默认)")
-System_Ext(postgresql, "PostgreSQL + pgvector", "可选生产向量数据库，端口 5432")
-System_Ext(ollama, "Ollama", "本地 Embedding (mxbai-embed-large) + 多模态 RAG Vision (qwen3.5)，端口 11434")
-System_Ext(tesseract, "Tesseract OCR", "本地 OCR 引擎 (eng/chi_sim)，Tess4J JNA 调用")
-System_Ext(whisper_cpp, "whisper.cpp", "本地流式 ASR (OpenAI 兼容 API)，端口 8178")
-System_Ext(dalle_api, "DALL-E API", "OpenAI 图像生成服务")
-System_Ext(tts_api, "TTS Service", "OpenAI Text-to-Speech 语音合成")
-System_Ext(serper_api, "Serper.dev API", "Web 搜索服务，实时信息检索")
+System_Ext(openai_api, "OpenAI API", "DALL-E 图像生成 + TTS 语音合成")
+System_Ext(serper_api, "Serper.dev API", "Web 搜索，实时信息检索")
 
 ' ============================================================
-' RELATIONSHIPS - 关系
+' DATA & LOCAL-ONLY SERVICES (dev / optional)
 ' ============================================================
-Rel(user, frontend, "对话 / 文档 / 工具 / 视觉 / 语音", "HTTPS")
-Rel(admin, backend, "评估 / 分析 API", "HTTP :9000")
-Rel(frontend, backend, "HTTP/SSE/WebSocket 请求", "HTTP :9000")
+System_Ext(h2_db, "H2 Embedded", "嵌入式数据库 + 向量存储 (默认，prod Railway volume)")
+System_Ext(ollama, "Ollama [local]", "本地 Embedding (mxbai-embed-large) + 多模态 RAG Vision (qwen3.5)，:11434\nprod cloud-minimal 默认关闭")
+System_Ext(tesseract, "Tesseract OCR [local]", "本地 OCR (eng/chi_sim)，Tess4J JNA\nprod 默认关闭 (module-vision=false)")
+System_Ext(whisper_cpp, "whisper.cpp [local]", "本地流式 ASR，:8178\nprod 默认关闭 (module-audio-asr=false)")
+System_Ext(onnx_vision, "ONNX Vision Models [local]", "BLIP Caption + YOLOv8 Detect，models/*.onnx\nprod 默认关闭")
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+Rel(user, frontend, "使用 Web UI", "HTTPS")
+Rel(admin, launchdarkly, "配置功能开关", "HTTPS")
+Rel(admin, backend, "评估 / 分析 API", "HTTPS")
+Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS (prod Railway / dev :9000)")
+
+Rel(frontend, launchdarkly, "读取模块开关", "HTTPS")
+Rel(frontend, datadog, "RUM 遥测", "HTTPS us5")
+Rel(backend, launchdarkly, "读取模块开关 + 启动引导", "HTTPS")
+Rel(backend, datadog, "APM 追踪", "HTTPS us5")
 
 Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
-Rel(backend, h2_db, "文档元数据 + 向量存储 (默认)", "JDBC 内嵌")
-Rel_Back(backend, postgresql, "可选向量存储", "JDBC :5432")
-Rel(backend, ollama, "Embedding + 多模态 RAG", "HTTP :11434")
-Rel(backend, tesseract, "OCR (/api/vision/ocr)", "JNA")
-Rel(backend, whisper_cpp, "流式语音转录", "HTTP/WebSocket :8178")
-Rel(backend, dalle_api, "图像生成", "HTTPS")
-Rel(backend, tts_api, "语音合成", "HTTPS")
+Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")
 Rel(backend, serper_api, "Web 搜索", "HTTPS")
+Rel(backend, h2_db, "会话元数据 + ChatMemory + 向量", "JDBC 内嵌")
+
+Rel_Back(backend, ollama, "Embedding + 多模态 RAG [dev]", "HTTP :11434")
+Rel_Back(backend, tesseract, "OCR [dev]", "JNA")
+Rel_Back(backend, whisper_cpp, "流式 ASR [dev]", "HTTP/WS :8178")
+Rel_Back(backend, onnx_vision, "Caption / Detect [dev]", "文件 I/O")
 
 SHOW_LEGEND()
 @enduml

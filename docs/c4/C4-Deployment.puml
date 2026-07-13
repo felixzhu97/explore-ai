@@ -13,8 +13,8 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Java Runtime - Spring Boot Backend (含 H2 内嵌)
     ' ============================================================
     Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine") {
-        Container(backend, "Spring Boot Backend", "Spring Boot 4.0 / Java 25", "11 子域 AI 平台\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
-        ContainerDb(h2_embedded, "H2 Embedded DB", "H2 File DB", "文档元数据 + 向量\n./data/explore-ai", "内嵌")
+        Container(backend, "Spring Boot Backend", "Spring Boot 4.1 / Java 25", "10 子域 AI 平台\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
+        ContainerDb(h2_embedded, "H2 Embedded DB", "H2 File DB", "会话 + ChatMemory + 向量\n./data/explore-ai", "内嵌")
         ContainerDb(vision_models, "Vision Models", "ONNX + tessdata", "models/yolov8n.onnx\nblip_*.onnx\ntessdata/", "本地文件")
     }
 
@@ -22,18 +22,11 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Node.js - Angular Dev Server
     ' ============================================================
     Deployment_Node(node_runtime, "Node 22 + pnpm", "Node 22") {
-        Container(angular_dev, "Angular 22 Dev Server", "Angular CLI", "Web UI\nproxy.conf.json: /api/* → :9000", "4200")
+        Container(angular_dev, "Angular 22 Dev Server", "Angular CLI", "Web UI\nproxy.conf.json: /api/* → :9000\nLaunchDarkly + Datadog (可选，构建注入)", "4200")
     }
 
     ' ============================================================
-    ' Optional Docker - PostgreSQL + pgvector
-    ' ============================================================
-    Deployment_Node(docker_engine, "Docker Engine (Optional)", "Docker") {
-        ContainerDb(postgresql_pgvector, "PostgreSQL + pgvector", "pgvector/pgvector:pg17", "可选生产向量库", "5432")
-    }
-
-    ' ============================================================
-    ' Local AI Services
+    ' Local AI Services (dev only)
     ' ============================================================
     Deployment_Node(local_ai, "Local AI Services", "localhost") {
         Container_Ext(ollama_svc, "Ollama", "REST API", "mxbai-embed-large (1024)\n+ qwen3.5 多模态 RAG", "11434")
@@ -49,16 +42,20 @@ Deployment_Node(deepseek_node, "DeepSeek API", "HTTPS") {
     Container_Ext(deepseek_api, "DeepSeek API", "REST API", "deepseek-v4-flash LLM", "HTTPS")
 }
 
-Deployment_Node(dalle_node, "DALL-E API (OpenAI)", "HTTPS") {
-    Container_Ext(dalle_api, "DALL-E API", "REST API", "dall-e-3 图像生成", "HTTPS")
-}
-
-Deployment_Node(tts_node, "TTS Service (OpenAI)", "HTTPS") {
-    Container_Ext(tts_api, "TTS Service", "REST API", "gpt-4o-mini-tts", "HTTPS")
+Deployment_Node(openai_node, "OpenAI API", "HTTPS") {
+    Container_Ext(openai_api, "OpenAI API", "REST API", "dall-e-3 + gpt-4o-mini-tts", "HTTPS")
 }
 
 Deployment_Node(serper_node, "Serper.dev API", "HTTPS") {
     Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
+}
+
+Deployment_Node(ld_node, "LaunchDarkly (Optional)", "HTTPS") {
+    Container_Ext(launchdarkly, "LaunchDarkly", "SaaS", "本地可用 in-memory fallback", "HTTPS")
+}
+
+Deployment_Node(dd_node, "Datadog (Optional)", "us5.datadoghq.com") {
+    Container_Ext(datadog_rum, "Datadog RUM", "Browser", "需 DD_APPLICATION_ID + DD_CLIENT_TOKEN", "HTTPS")
 }
 
 ' ============================================================
@@ -66,18 +63,24 @@ Deployment_Node(serper_node, "Serper.dev API", "HTTPS") {
 ' ============================================================
 Rel(user, angular_dev, "浏览 Web UI", "HTTP :4200")
 Rel(angular_dev, backend, "/api/* → localhost:9000", "HTTP/SSE/WebSocket")
+Rel(angular_dev, launchdarkly, "功能开关 (可选)", "HTTPS")
+Rel(angular_dev, datadog_rum, "RUM (可选)", "HTTPS")
 
 Rel(backend, h2_embedded, "JDBC (默认)", "内嵌")
 Rel(backend, vision_models, "加载 ONNX/tessdata", "文件 I/O")
-Rel_Back(backend, postgresql_pgvector, "可选 JDBC", "TCP :5432")
 
 Rel(backend, deepseek_api, "LLM Chat + Eval", "HTTPS")
 Rel(backend, ollama_svc, "Embedding + 多模态 RAG", "HTTP :11434")
 Rel(backend, tesseract, "OCR (/api/vision/ocr)", "JNA")
 Rel(backend, whisper_cpp, "Streaming ASR", "HTTP/WS :8178")
-Rel(backend, dalle_api, "Image Generation", "HTTPS")
-Rel(backend, tts_api, "Text-to-Speech", "HTTPS")
+Rel(backend, openai_api, "Image Gen + TTS", "HTTPS")
 Rel(backend, serper_api, "Web Search", "HTTPS")
+Rel(backend, launchdarkly, "功能开关 (可选)", "HTTPS")
+
+note right of backend
+  生产部署见 C4-Deployment-Production.puml
+  Vercel (前端) + Railway (后端 :8080)
+end note
 
 SHOW_LEGEND()
 @enduml

@@ -3,24 +3,26 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 组件图 (C3) - AI Platform Backend (Hexagonal Architecture)
+title 组件图 (C3) - AI Platform Backend (Clean Architecture)
 
-System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Spring AI 2.0)") {
+System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Spring AI 2.0)") {
 
     ' ============================================================
-    ' WEB LAYER (adapter/in)
+    ' WEB LAYER
     ' ============================================================
     Container_Boundary(web_layer, "Web Layer") {
         Component(chat_ctrl, "ChatController", "@RestController", "/api/chat, /api/sessions")
+        Component(text_ctrl, "TextController", "@RestController", "/api/text/* (SSE stream)")
         Component(rag_ctrl, "RagController", "@RestController", "/api/rag/*")
         Component(tool_ctrl, "ToolsController", "@RestController", "/api/tools/*")
         Component(analysis_ctrl, "AnalysisController", "@RestController", "/api/chat/analyze")
         Component(eval_ctrl, "EvalController", "@RestController", "/api/eval/chat")
-        Component(image_ctrl, "ImageController", "@RestController", "/api/image/*")
+        Component(image_ctrl, "ImageController", "@RestController", "/api/images/*")
         Component(vision_ctrl, "VisionController", "@RestController", "/api/vision/*")
         Component(audio_ctrl, "AudioController", "@RestController", "TTS + /ws/audio/transcribe")
         Component(mcp_ctrl, "McpController", "@RestController", "/api/mcp/*")
-        Component(mcp_client_ctrl, "McpClientController", "@RestController", "/api/mcp-client/*")
+        Component(mcp_client_ctrl, "McpClientController", "@RestController", "/api/mcp/client/*")
+        Component(module_filter, "ModuleAccessFilter", "@Component", "模块 API 开关拦截")
         Component(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
     }
 
@@ -28,19 +30,19 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
     ' APPLICATION LAYER
     ' ============================================================
     Container_Boundary(app_layer, "Application Layer") {
-        Component(chat_facade, "ChatFacade", "@Service", "聊天门面")
-        Component(chat_usecase, "SpringAiChatUseCase", "@Service", "Spring AI 对话")
+        Component(chat_usecase, "SpringAiChatUseCase", "@Service", "ChatUseCase 实现")
+        Component(feature_flag_svc, "FeatureFlagService", "@Service", "模块开关")
         Component(rag_app_svc, "RagApplicationService", "@Service", "RAG 门面")
         Component(doc_upload_svc, "DocumentUploadService", "@Service", "文档 ETL 编排")
         Component(doc_search_svc, "DocumentSearchService", "@Service", "向量检索")
         Component(rag_chat_uc, "RagChatUseCase", "@Service", "RAG 聊天")
-        Component(vision_chat_uc, "VisionChatUseCase", "@Service", "多模态 RAG")
+        Component(vision_chat_uc, "VisionChatUseCase", "@Service", "多模态 RAG [local]")
         Component(tool_facade, "ToolsFacade", "@Service", "工具门面")
         Component(analysis_facade, "AnalysisFacade", "@Service", "文本分析门面")
         Component(image_facade, "ImageFacade", "@Service", "图像生成门面")
         Component(vision_usecase, "VisionAnalysisUseCase", "@Service", "Caption/Detect/OCR")
         Component(audio_facade, "AudioFacade", "@Service", "TTS 门面")
-        Component(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式 ASR")
+        Component(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式 ASR [local]")
         Component(mcp_facade, "McpFacade", "@Service", "MCP Client 门面")
     }
 
@@ -51,75 +53,68 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
         Container_Boundary(chat_domain, "Chat") {
             Component(chat_session, "ChatSession", "Aggregate", "会话聚合根")
             Component(chat_message, "ChatMessage", "Entity", "消息实体")
-            Component(chat_repo_port, "ChatSessionRepository", "Port", "会话仓储接口")
+            Component(chat_repo_iface, "ChatSessionRepository", "Repository", "会话仓储接口")
         }
         Container_Boundary(rag_domain, "RAG") {
             Component(document, "Document", "Entity", "文档实体")
-            Component(doc_chunk, "DocumentChunk", "Entity", "文档分块")
-            Component(raw_document, "RawDocument", "Record", "ETL 归一化文档")
-            Component(reader_port, "DocumentReader", "Port", "ETL 读取端口")
-            Component(transformer_port, "DocumentTransformer", "Port", "ETL 转换端口")
-            Component(writer_port, "DocumentWriter", "Port", "ETL 写入端口")
-            Component(doc_repo_port, "IDocumentRepository", "Port", "文档仓储接口")
+            Component(reader_iface, "DocumentReader", "Repository", "ETL 读取")
+            Component(transformer_iface, "DocumentTransformer", "Repository", "ETL 转换")
+            Component(writer_iface, "DocumentWriter", "Repository", "ETL 写入")
+            Component(doc_repo_iface, "IDocumentRepository", "Repository", "文档仓储")
+        }
+        Container_Boundary(common_domain, "Common") {
+            Component(feature_flag_repo, "FeatureFlagRepository", "Repository", "功能开关接口")
+            Component(module_flag, "ModuleFlag", "Value Object", "vision/asr/mcp/eval")
         }
         Container_Boundary(tools_domain, "Tools") {
             Component(weather_report, "WeatherReport", "Domain Model", "天气报告")
-            Component(weather_query, "WeatherQuery", "Value Object", "天气查询 VO")
         }
         Container_Boundary(analysis_domain, "Analysis") {
             Component(text_analysis, "TextAnalysis", "Domain Model", "文本分析结果")
-            Component(analysis_repo_port, "StructuredAnalysisRepository", "Port", "结构化分析接口")
+            Component(analysis_repo_iface, "StructuredAnalysisRepository", "Repository", "结构化分析")
         }
         Container_Boundary(eval_domain, "Evaluation") {
             Component(eval_svc, "ChatQualityEvaluator", "Domain Service", "LLM-as-a-Judge")
-            Component(eval_result, "ChatEvaluationResult", "Value Object", "评估结果")
         }
         Container_Boundary(image_domain, "Image") {
-            Component(generated_image, "GeneratedImage", "Domain Model", "生成图像")
-            Component(image_repo_port, "ImageGenerationRepository", "Port", "图像生成接口")
+            Component(image_repo_iface, "ImageGenerationRepository", "Repository", "图像生成")
         }
         Container_Boundary(vision_domain, "Vision") {
-            Component(caption_result, "CaptionResult", "Domain Model", "描述结果")
-            Component(detection, "Detection", "Domain Model", "检测框 + 置信度")
-            Component(ocr_result, "OcrResult", "Domain Model", "OCR 结果")
-            Component(caption_port, "ImageCaptioner", "Port", "描述端口")
-            Component(detect_port, "ObjectDetector", "Port", "检测端口")
-            Component(ocr_port, "OcrEngine", "Port", "OCR 端口")
+            Component(caption_iface, "ImageCaptioner", "Repository", "描述接口")
+            Component(detect_iface, "ObjectDetector", "Repository", "检测接口")
+            Component(ocr_iface, "OcrEngine", "Repository", "OCR 接口")
         }
         Container_Boundary(audio_domain, "Audio") {
-            Component(synthesized_audio, "SynthesizedAudio", "Domain Model", "合成音频")
-            Component(tts_repo_port, "TextToSpeechRepository", "Port", "TTS 接口")
+            Component(tts_repo_iface, "TextToSpeechRepository", "Repository", "TTS 接口")
         }
         Container_Boundary(mcp_domain, "MCP") {
-            Component(mcp_session, "McpSession", "Entity", "MCP 会话")
-            Component(mcp_tool_def, "McpToolDefinition", "Entity", "工具定义")
-            Component(mcp_client_port, "McpClientRepository", "Port", "MCP Client 接口")
+            Component(mcp_client_iface, "McpClientRepository", "Repository", "MCP Client")
         }
     }
 
     ' ============================================================
-    ' INFRASTRUCTURE LAYER (adapter/out)
+    ' INFRASTRUCTURE LAYER
     ' ============================================================
     Container_Boundary(infra_layer, "Infrastructure Layer") {
-        Component(in_mem_sess_repo, "InMemoryChatSessionRepository", "@Repository", "内存会话")
-        Component(h2_vector, "H2VectorAdapter", "@Component", "H2 向量检索 (默认)")
-        Component(ollama_emb, "OllamaEmbeddingAdapter", "@Component", "mxbai-embed-large")
-        Component(emb_adapter, "EmbeddingAdapter", "Interface", "Embedding 抽象")
+        Component(jdbc_sess_repo, "JdbcChatSessionMetadataRepository", "@Repository", "会话元数据")
+        Component(jdbc_chat_memory, "JdbcChatMemoryRepository", "Spring AI", "消息记忆")
+        Component(ld_repo, "LaunchDarklyFeatureFlagRepository", "@Component", "LaunchDarkly SDK")
+        Component(h2_vector, "H2VectorAdapter", "@Component", "H2 向量检索")
+        Component(ollama_emb, "OllamaEmbeddingAdapter", "@Component", "Embedding [local]")
         Component(etl_reader, "PdfAndTextDocumentReader", "@Component", "ETL 读取")
         Component(etl_transformer, "ChunkingDocumentTransformer", "@Component", "ETL 分块")
         Component(etl_writer, "EmbeddingDocumentWriter", "@Component", "ETL 写入")
         Component(doc_repo, "DocumentRepository", "@Component", "JPA 文档仓储")
         Component(analysis_repo, "SpringAiStructuredAnalysisRepository", "@Component", "结构化分析")
-        Component(image_repo, "SpringAiImageGenerationRepository", "@Component", "DALL-E 适配器")
-        Component(onnx_captioner, "OnnxBlipCaptioner", "@Service", "BLIP ONNX Caption")
-        Component(onnx_detector, "OnnxYoloDetector", "@Service", "YOLOv8 ONNX Detect")
-        Component(tess4j_ocr, "Tess4jOcrEngine", "@Service", "Tesseract OCR")
+        Component(image_repo, "SpringAiImageGenerationRepository", "@Component", "DALL-E")
+        Component(onnx_captioner, "OnnxBlipCaptioner", "@Service", "BLIP [local]")
+        Component(onnx_detector, "OnnxYoloDetector", "@Service", "YOLOv8 [local]")
+        Component(tess4j_ocr, "Tess4jOcrEngine", "@Service", "Tesseract [local]")
         Component(tts_repo, "SpringAiTextToSpeechRepository", "@Component", "OpenAI TTS")
-        Component(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp")
+        Component(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp [local]")
         Component(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
         Component(mcp_server_svc, "AiMcpServerService", "@Component", "MCP Server")
         Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client")
-        Component(doc_search_svc, "DocumentSearchService", "@Service", "RAG 向量检索")
         Component(weather_tools, "WeatherTools", "*Tool", "天气工具")
         Component(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索")
     }
@@ -129,89 +124,89 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.0 / Java 25 / Sprin
 ' EXTERNAL SYSTEMS
 ' ============================================================
 System_Boundary(ext, "External Systems") {
-    Component(deepseek_api, "DeepSeek API", "REST", "LLM 对话 + 评估")
+    Component(deepseek_api, "DeepSeek API", "REST", "LLM")
+    Component(openai_api, "OpenAI API", "REST", "DALL-E + TTS")
     Component(h2_db, "H2 Embedded", "JDBC", "默认存储 + 向量")
-    Component(ollama_ext, "Ollama", "REST", "mxbai-embed-large + qwen3.5 多模态 RAG, :11434")
-    Component(tesseract_ext, "Tesseract OCR", "Native", "eng/chi_sim tessdata")
-    Component(whisper_ext, "whisper.cpp", "REST/WS", "流式 ASR, :8178")
-    Component(dalle_ext, "DALL-E API", "REST", "图像生成")
-    Component(tts_ext, "TTS Service", "REST", "语音合成")
+    Component(ollama_ext, "Ollama [local]", "REST", ":11434")
+    Component(tesseract_ext, "Tesseract [local]", "Native", "OCR")
+    Component(whisper_ext, "whisper.cpp [local]", "REST/WS", ":8178")
     Component(serper_ext, "Serper.dev", "REST", "Web 搜索")
+    Component(launchdarkly_ext, "LaunchDarkly", "SaaS", "功能开关")
+    Component(datadog_ext, "Datadog us5", "SaaS", "APM")
 }
 
 ' ============================================================
 ' RELATIONSHIPS
 ' ============================================================
 
-' Web -> Application
-Rel(chat_ctrl, chat_facade, "调用")
-Rel(chat_facade, chat_usecase, "委托")
+Rel(chat_ctrl, chat_usecase, "调用")
+Rel(text_ctrl, chat_usecase, "SSE 流式")
 Rel(rag_ctrl, rag_app_svc, "调用")
 Rel(rag_ctrl, vision_chat_uc, "视觉聊天")
-Rel(rag_app_svc, doc_upload_svc, "上传/删除")
-Rel(rag_app_svc, doc_search_svc, "检索")
-Rel(rag_app_svc, rag_chat_uc, "RAG 聊天")
 Rel(tool_ctrl, tool_facade, "调用")
 Rel(analysis_ctrl, analysis_facade, "调用")
 Rel(eval_ctrl, eval_svc, "调用")
 Rel(image_ctrl, image_facade, "调用")
 Rel(vision_ctrl, vision_usecase, "调用")
-Rel(vision_usecase, caption_port, "Caption")
-Rel(vision_usecase, detect_port, "Detect")
-Rel(vision_usecase, ocr_port, "OCR")
 Rel(audio_ctrl, audio_facade, "TTS")
-Rel(audio_ctrl, asr_ws_handler, "ASR WebSocket")
+Rel(audio_ctrl, asr_ws_handler, "ASR")
 Rel(mcp_ctrl, mcp_server_svc, "调用")
 Rel(mcp_client_ctrl, mcp_facade, "调用")
+Rel(module_filter, feature_flag_svc, "查询")
 
-' Application -> Domain
 Rel(chat_usecase, chat_session, "操作")
-Rel(chat_usecase, chat_repo_port, "依赖")
-Rel(doc_upload_svc, reader_port, "ETL")
-Rel(doc_upload_svc, transformer_port, "ETL")
-Rel(doc_upload_svc, writer_port, "ETL")
-Rel(doc_upload_svc, doc_repo_port, "持久化")
-Rel(doc_search_svc, document, "检索")
+Rel(chat_usecase, chat_repo_iface, "依赖")
+Rel(feature_flag_svc, feature_flag_repo, "依赖")
+Rel(doc_upload_svc, reader_iface, "ETL")
+Rel(doc_upload_svc, transformer_iface, "ETL")
+Rel(doc_upload_svc, writer_iface, "ETL")
+Rel(doc_upload_svc, doc_repo_iface, "持久化")
 Rel(tool_facade, weather_report, "天气")
 Rel(analysis_facade, text_analysis, "分析")
-Rel(analysis_facade, analysis_repo_port, "依赖")
-Rel(image_facade, image_repo_port, "依赖")
-Rel(caption_port, onnx_captioner, "实现")
-Rel(detect_port, onnx_detector, "实现")
-Rel(ocr_port, tess4j_ocr, "实现")
-Rel(audio_facade, tts_repo_port, "依赖")
+Rel(analysis_facade, analysis_repo_iface, "依赖")
+Rel(image_facade, image_repo_iface, "依赖")
+Rel(vision_usecase, caption_iface, "Caption")
+Rel(vision_usecase, detect_iface, "Detect")
+Rel(vision_usecase, ocr_iface, "OCR")
+Rel(audio_facade, tts_repo_iface, "依赖")
 Rel(asr_usecase, asr_adapter, "转录")
-Rel(mcp_facade, mcp_client_port, "依赖")
+Rel(mcp_facade, mcp_client_iface, "依赖")
 
-' Domain Ports -> Infrastructure
-Rel(chat_repo_port, in_mem_sess_repo, "实现")
-Rel(reader_port, etl_reader, "实现")
-Rel(transformer_port, etl_transformer, "实现")
-Rel(writer_port, etl_writer, "实现")
-Rel(doc_repo_port, doc_repo, "实现")
-Rel(analysis_repo_port, analysis_repo, "实现")
-Rel(image_repo_port, image_repo, "实现")
-Rel(tts_repo_port, tts_repo, "实现")
-Rel(mcp_client_port, mcp_client_repo, "实现")
+Rel(chat_repo_iface, jdbc_sess_repo, "实现")
+Rel(feature_flag_repo, ld_repo, "实现")
+Rel(reader_iface, etl_reader, "实现")
+Rel(transformer_iface, etl_transformer, "实现")
+Rel(writer_iface, etl_writer, "实现")
+Rel(doc_repo_iface, doc_repo, "实现")
+Rel(analysis_repo_iface, analysis_repo, "实现")
+Rel(image_repo_iface, image_repo, "实现")
+Rel(caption_iface, onnx_captioner, "实现")
+Rel(detect_iface, onnx_detector, "实现")
+Rel(ocr_iface, tess4j_ocr, "实现")
+Rel(tts_repo_iface, tts_repo, "实现")
+Rel(mcp_client_iface, mcp_client_repo, "实现")
 Rel(tool_facade, doc_search_svc, "RAG 工具")
-Rel(tool_facade, weather_tools, "天气工具")
-Rel(tool_facade, web_search_tool, "搜索工具")
-Rel(doc_search_svc, rag_app_svc, "RAG 检索")
+Rel(tool_facade, weather_tools, "天气")
+Rel(tool_facade, web_search_tool, "搜索")
 
-' Infrastructure -> External
+Rel(chat_usecase, jdbc_chat_memory, "消息记忆")
 Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
 Rel(eval_svc, deepseek_api, "评估", "HTTPS")
-Rel(analysis_repo, deepseek_api, "结构化输出", "HTTPS")
-Rel(doc_search_svc, h2_vector, "向量检索")
-Rel(h2_vector, h2_db, "存储", "JDBC")
+Rel(analysis_repo, deepseek_api, "结构化", "HTTPS")
+Rel(doc_search_svc, h2_vector, "检索")
+Rel(jdbc_sess_repo, h2_db, "JDBC")
+Rel(jdbc_chat_memory, h2_db, "JDBC")
+Rel(h2_vector, h2_db, "JDBC")
 Rel(etl_writer, ollama_emb, "Embedding")
-Rel(ollama_emb, ollama_ext, "Embedding", "HTTP")
-Rel(vision_chat_uc, ollama_ext, "多模态 RAG", "HTTP")
-Rel(tess4j_ocr, tesseract_ext, "OCR", "JNA")
-Rel(asr_adapter, whisper_ext, "ASR", "HTTP :8178")
-Rel(image_repo, dalle_ext, "图像", "HTTPS")
-Rel(tts_repo, tts_ext, "TTS", "HTTPS")
+Rel(ollama_emb, ollama_ext, "HTTP")
+Rel(vision_chat_uc, ollama_ext, "多模态", "HTTP")
+Rel(tess4j_ocr, tesseract_ext, "OCR")
+Rel(asr_adapter, whisper_ext, "ASR")
+Rel(image_repo, openai_api, "DALL-E", "HTTPS")
+Rel(tts_repo, openai_api, "TTS", "HTTPS")
 Rel(web_search_tool, serper_ext, "搜索", "HTTPS")
+Rel(ld_repo, launchdarkly_ext, "SDK", "HTTPS")
+Rel(backend, datadog_ext, "javaagent", "HTTPS")
 
 SHOW_LEGEND()
 @enduml

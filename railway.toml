@@ -2,5 +2,5 @@
 builder = "dockerfile"
 
 [deploy]
-healthcheckPath = "/api/health"
+healthcheckPath = "/actuator/health"
 healthcheckTimeout = 300
