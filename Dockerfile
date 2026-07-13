@@ -18,7 +18,7 @@ RUN addgroup -g 1001 -S appgroup && \
 
 WORKDIR /app
 
-ARG DD_AGENT_VERSION=1.45.0
+ARG DD_AGENT_VERSION=1.64.0
 RUN apk add --no-cache wget && \
     wget -O /app/dd-java-agent.jar "https://github.com/DataDog/dd-trace-java/releases/download/v${DD_AGENT_VERSION}/dd-java-agent.jar" && \
     chown appuser:appgroup /app/dd-java-agent.jar

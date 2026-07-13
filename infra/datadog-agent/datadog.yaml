@@ -1,0 +1,2 @@
+logs_config:
+  force_use_http: true
