@@ -41,6 +41,9 @@ importers:
       '@ant-design/icons-angular':
         specifier: ^21.0.0
         version: 21.0.0(@angular/common@22.0.2(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@22.0.2(@angular/animations@22.0.2(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@22.0.2(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@22.0.2(@angular/compiler@22.0.2)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
+      '@datadog/browser-rum':
+        specifier: ^7.5.0
+        version: 7.5.0
       '@floating-ui/dom':
         specifier: ^1.7.6
         version: 1.7.6
@@ -643,6 +646,23 @@ packages:
   '@ctrl/tinycolor@3.6.1':
     resolution: {integrity: sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==}
     engines: {node: '>=10'}
+
+  '@datadog/browser-core@7.5.0':
+    resolution: {integrity: sha512-qvjv0Ox55+x/wxFT8cjIAse1voLVorJd3lg2Q53nJ0CREZ1bqqjo2gDz/Lm4t0fqQnqyqrOncc3X2pg4LxCFzg==}
+
+  '@datadog/browser-rum-core@7.5.0':
+    resolution: {integrity: sha512-Okyq2+y3Dtw5AL4xpw/fT1Dkmyr/Q4na3Wa+D9FU+i1g5i3BGyr6HNUv6L7vCrF6CyDVfCi3Nv90lgdprRCkyQ==}
+
+  '@datadog/browser-rum@7.5.0':
+    resolution: {integrity: sha512-w7T0sAu9wx0zIdAmHM4avwdJW/gu+llCUCyeo5mQO5Qbf7VcA8K9Y+R4ZsNizRC14K5beAAkj5MqdaBC2x+yZg==}
+    peerDependencies:
+      '@datadog/browser-logs': 7.5.0
+    peerDependenciesMeta:
+      '@datadog/browser-logs':
+        optional: true
+
+  '@datadog/js-core@0.0.5':
+    resolution: {integrity: sha512-9cGazfbindLRCcHh7Pgle68SZrSKMr6ScIvtT7XwxTGp38RaskXA/CG4nUojb46nWnsmV+KyH3C8WymkXdgMJg==}
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -5035,6 +5055,23 @@ snapshots:
   '@csstools/css-tokenizer@3.0.4': {}
 
   '@ctrl/tinycolor@3.6.1': {}
+
+  '@datadog/browser-core@7.5.0':
+    dependencies:
+      '@datadog/js-core': 0.0.5
+
+  '@datadog/browser-rum-core@7.5.0':
+    dependencies:
+      '@datadog/browser-core': 7.5.0
+      '@datadog/js-core': 0.0.5
+
+  '@datadog/browser-rum@7.5.0':
+    dependencies:
+      '@datadog/browser-core': 7.5.0
+      '@datadog/browser-rum-core': 7.5.0
+      '@datadog/js-core': 0.0.5
+
+  '@datadog/js-core@0.0.5': {}
 
   '@emnapi/core@1.11.1':
     dependencies:

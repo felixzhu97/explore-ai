@@ -9,6 +9,7 @@ import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.observability.AiMetricsRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -36,6 +37,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     private final ChatMemory chatMemory;
     private final ConversationMemoryRepository conversationMemoryRepository;
     private final SessionTitleGenerator sessionTitleGenerator;
+    private final AiMetricsRecorder metricsRecorder;
 
     public SpringAiChatUseCase(
             ChatClientProvider chatClientProvider,
@@ -43,13 +45,15 @@ public class SpringAiChatUseCase implements ChatUseCase {
             RetryTemplate retryTemplate,
             ChatMemory chatMemory,
             ConversationMemoryRepository conversationMemoryRepository,
-            SessionTitleGenerator sessionTitleGenerator) {
+            SessionTitleGenerator sessionTitleGenerator,
+            AiMetricsRecorder metricsRecorder) {
         this.chatClientProvider = chatClientProvider;
         this.repository = repository;
         this.retryTemplate = retryTemplate;
         this.chatMemory = chatMemory;
         this.conversationMemoryRepository = conversationMemoryRepository;
         this.sessionTitleGenerator = sessionTitleGenerator;
+        this.metricsRecorder = metricsRecorder;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public String chat(String userMessage, TextChatOptions options) {
         log.info("Chat request with retry: {}", truncateForLog(userMessage));
-        return retryTemplate.execute(context -> {
+        return metricsRecorder.recordChat(() -> retryTemplate.execute(context -> {
             ChatClient chatClient = chatClientProvider.createStateless(options);
             String response = chatClient.prompt()
                     .user(userMessage)
@@ -70,7 +74,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
                 throw new AiServiceException("AI returned empty response");
             }
             return response;
-        });
+        }));
     }
 
     @Override
@@ -81,6 +85,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public Flux<String> chatStreamWithSession(String sessionId, String userMessage, TextChatOptions options) {
         return Flux.defer(() -> {
+            metricsRecorder.recordChatRequest();
             ChatSession session = loadOrCreateSession(sessionId);
             boolean isFirstTurn = session.isEmpty();
             conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
@@ -95,7 +100,10 @@ public class SpringAiChatUseCase implements ChatUseCase {
                                     afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
                             .subscribeOn(Schedulers.boundedElastic())
                             .subscribe())
-                    .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+                    .doOnError(error -> {
+                        metricsRecorder.recordChatError();
+                        log.error("Stream failed for session {}", sessionId, error);
+                    });
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -136,28 +144,30 @@ public class SpringAiChatUseCase implements ChatUseCase {
             String conversationId,
             String userMessage,
             TextChatOptions options) {
-        conversationMemoryRepository.seedIfEmpty(conversationId, session.getMessages());
-        boolean isFirstTurn = session.isEmpty();
+        return metricsRecorder.recordChat(() -> {
+            conversationMemoryRepository.seedIfEmpty(conversationId, session.getMessages());
+            boolean isFirstTurn = session.isEmpty();
 
-        ChatClient chatClient = chatClientProvider.create(options, conversationId);
-        String aiResponse = chatClient.prompt()
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
-                .user(userMessage)
-                .call()
-                .content();
+            ChatClient chatClient = chatClientProvider.create(options, conversationId);
+            String aiResponse = chatClient.prompt()
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
+                    .user(userMessage)
+                    .call()
+                    .content();
 
-        if (aiResponse == null || aiResponse.isBlank()) {
-            throw new AiServiceException("AI returned empty response");
-        }
+            if (aiResponse == null || aiResponse.isBlank()) {
+                throw new AiServiceException("AI returned empty response");
+            }
 
-        conversationMemoryRepository.syncToSession(conversationId, session);
-        repository.save(session);
+            conversationMemoryRepository.syncToSession(conversationId, session);
+            repository.save(session);
 
-        if (isFirstTurn && session.hasDefaultTitle()) {
-            generateTitleAsync(session.getId(), userMessage, aiResponse);
-        }
+            if (isFirstTurn && session.hasDefaultTitle()) {
+                generateTitleAsync(session.getId(), userMessage, aiResponse);
+            }
 
-        return aiResponse;
+            return aiResponse;
+        });
     }
 
     @Override

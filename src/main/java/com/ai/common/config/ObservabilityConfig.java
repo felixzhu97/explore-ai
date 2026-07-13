@@ -3,6 +3,7 @@ package com.ai.common.config;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class ObservabilityConfig {
 
     @Bean
+    @Qualifier("chatRequestCounter")
     public Counter chatRequestCounter(MeterRegistry meterRegistry) {
         return Counter.builder("ai.chat.requests")
                 .description("Total number of chat requests")
@@ -22,6 +24,7 @@ public class ObservabilityConfig {
     }
 
     @Bean
+    @Qualifier("chatErrorCounter")
     public Counter chatErrorCounter(MeterRegistry meterRegistry) {
         return Counter.builder("ai.chat.errors")
                 .description("Total number of chat errors")
@@ -30,6 +33,7 @@ public class ObservabilityConfig {
     }
 
     @Bean
+    @Qualifier("chatLatencyTimer")
     public Timer chatLatencyTimer(MeterRegistry meterRegistry) {
         return Timer.builder("ai.chat.latency")
                 .description("Chat request latency")
@@ -38,6 +42,7 @@ public class ObservabilityConfig {
     }
 
     @Bean
+    @Qualifier("ragRequestCounter")
     public Counter ragRequestCounter(MeterRegistry meterRegistry) {
         return Counter.builder("ai.rag.requests")
                 .description("Total number of RAG requests")
@@ -46,6 +51,7 @@ public class ObservabilityConfig {
     }
 
     @Bean
+    @Qualifier("ragRetrievalCounter")
     public Counter ragRetrievalCounter(MeterRegistry meterRegistry) {
         return Counter.builder("ai.rag.retrievals")
                 .description("Total number of document retrievals")
@@ -54,6 +60,7 @@ public class ObservabilityConfig {
     }
 
     @Bean
+    @Qualifier("ragLatencyTimer")
     public Timer ragLatencyTimer(MeterRegistry meterRegistry) {
         return Timer.builder("ai.rag.latency")
                 .description("RAG request latency")
@@ -62,6 +69,7 @@ public class ObservabilityConfig {
     }
 
     @Bean
+    @Qualifier("toolCallCounter")
     public Counter toolCallCounter(MeterRegistry meterRegistry) {
         return Counter.builder("ai.tool.calls")
                 .description("Total number of tool calls")

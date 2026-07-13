@@ -37,6 +37,18 @@ app:
     tts:
       api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
 
+management:
+  metrics:
+    tags:
+      env: ${DD_ENV:production}
+      service: ${DD_SERVICE:explore-ai-api}
+  datadog:
+    metrics:
+      export:
+        enabled: ${DD_METRICS_ENABLED:false}
+        api-key: ${DD_API_KEY:}
+        uri: https://api.us5.datadoghq.com
+
 logging:
   level:
     com.ai: INFO

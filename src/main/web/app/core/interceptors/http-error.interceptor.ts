@@ -8,6 +8,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { NotificationService } from '@core/services/notification.service';
+import { DatadogRumService } from '@core/monitoring/datadog-rum.service';
 
 export interface AppError {
   code: string;
@@ -19,10 +20,11 @@ export interface AppError {
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
+  const datadogRum = inject(DatadogRumService);
   return next(req).pipe(
     catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
       const appError = normalizeError(error);
-      logError(req, appError);
+      logError(req, appError, datadogRum);
       notifyUser(appError, notificationService);
       return throwError(() => appError);
     }),
@@ -158,7 +160,11 @@ function extractMessage(error: HttpErrorResponse): string | null {
   );
 }
 
-function logError(req: HttpRequest<unknown>, error: AppError): void {
+function logError(
+  req: HttpRequest<unknown>,
+  error: AppError,
+  datadogRum: DatadogRumService,
+): void {
   const logEntry = {
     url: req.url,
     method: req.method,
@@ -170,6 +176,7 @@ function logError(req: HttpRequest<unknown>, error: AppError): void {
 
   if (error.status >= 500) {
     console.error('[httpErrorInterceptor]', logEntry);
+    datadogRum.addError(new Error(error.message), logEntry);
   } else if (error.status >= 400) {
     console.warn('[httpErrorInterceptor]', logEntry);
   } else {
