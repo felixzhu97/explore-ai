@@ -11,17 +11,26 @@ const site = process.env.DD_SITE?.trim() || 'us5.datadoghq.com';
 const service = process.env.DD_SERVICE?.trim() || 'explore-ai-web';
 const env = process.env.DD_ENV?.trim() || 'production';
 
-if (!applicationId || !clientToken) {
-  console.log('DD_APPLICATION_ID or DD_CLIENT_TOKEN unset; keeping environment.prod.ts as-is');
+if (!applicationId && !clientToken) {
+  console.log('DD_APPLICATION_ID and DD_CLIENT_TOKEN unset; keeping environment.prod.ts datadog block as-is');
   process.exit(0);
 }
 
 let content = readFileSync(envPath, 'utf8');
-content = content.replace(/applicationId:\s*'[^']*'/, `applicationId: '${applicationId}'`);
-content = content.replace(/clientToken:\s*'[^']*'/, `clientToken: '${clientToken}'`);
-content = content.replace(/site:\s*'[^']*'/, `site: '${site}'`);
-content = content.replace(/service:\s*'[^']*'/, `service: '${service}'`);
-content = content.replace(/env:\s*'[^']*'/, `env: '${env}'`);
+
+content = content.replace(/datadog:\s*\{[\s\S]*?\}/, (match) => {
+  let block = match;
+  if (applicationId) {
+    block = block.replace(/applicationId:\s*'[^']*'/, `applicationId: '${applicationId}'`);
+  }
+  if (clientToken) {
+    block = block.replace(/clientToken:\s*'[^']*'/, `clientToken: '${clientToken}'`);
+  }
+  block = block.replace(/site:\s*'[^']*'/, `site: '${site}'`);
+  block = block.replace(/service:\s*'[^']*'/, `service: '${service}'`);
+  block = block.replace(/env:\s*'[^']*'/, `env: '${env}'`);
+  return block;
+});
 
 writeFileSync(envPath, content);
 console.log('Datadog RUM credentials injected into environment.prod.ts');

@@ -44,7 +44,7 @@ Set on project `explore-ai`:
 |----------|--------------|
 | `LAUNCHDARKLY_CLIENT_SIDE_ID` | Production, Preview |
 
-Build injects this via `scripts/inject-launchdarkly-env.mjs` before `ng build`.
+Build injects this via `scripts/inject-launchdarkly-env.mjs` before `ng build`. Datadog RUM uses a separate `scripts/inject-datadog-env.mjs`.
 
 ## Runtime behavior
 

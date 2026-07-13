@@ -8,14 +8,12 @@ import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor
 import { SESSION_LIST } from './layout/services/session-list.token';
 import { ChatSessionListService } from './app/providers/chat-session-list.service';
 import { FeatureFlagService } from './core/services/feature-flag.service';
-import { DatadogRumService } from './core/monitoring/datadog-rum.service';
-import { DatadogErrorHandler } from './core/monitoring/datadog-error.handler';
+import { DatadogErrorHandler } from './core/config/datadog-rum.config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAppInitializer(() => inject(FeatureFlagService).initialize()),
-    provideAppInitializer(() => inject(DatadogRumService).initialize()),
     provideZard(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
