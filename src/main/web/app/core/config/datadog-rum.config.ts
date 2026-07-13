@@ -5,6 +5,10 @@ import { environment } from '@env/environment';
 let rumInitialized = false;
 
 export function initDatadogRum(): void {
+  if (rumInitialized) {
+    return;
+  }
+
   const { applicationId, clientToken, site, service, env, version } = environment.datadog;
   if (!applicationId || !clientToken) {
     return;

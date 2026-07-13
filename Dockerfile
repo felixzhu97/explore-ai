@@ -24,6 +24,8 @@ RUN apk add --no-cache wget && \
     chown appuser:appgroup /app/dd-java-agent.jar
 
 COPY --from=build --chown=appuser:appgroup /app/build/libs/app.jar app.jar
+COPY --chown=appuser:appgroup scripts/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Pre-create H2 database directory with correct permissions
 RUN mkdir -p /app/data && chown appuser:appgroup /app/data
@@ -31,7 +33,4 @@ RUN mkdir -p /app/data && chown appuser:appgroup /app/data
 USER appuser
 ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 8080
-ENTRYPOINT ["java", \
-    "-javaagent:/app/dd-java-agent.jar", \
-    "-Ddd.logs.injection=true", \
-    "-jar", "app.jar"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
