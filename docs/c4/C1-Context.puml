@@ -23,7 +23,7 @@ System_Boundary(ai_platform, "AI Chat & Agent Platform") {
 ' PLATFORM SERVICES
 ' ============================================================
 System_Ext(launchdarkly, "LaunchDarkly", "功能开关 (module-vision/asr/mcp/eval)\n前端 Client SDK + 后端 Server SDK")
-System_Ext(datadog, "Datadog (us5)", "RUM (浏览器) + APM (dd-java-agent)\n构建时注入凭证，OSS 仓库不含密钥")
+System_Ext(datadog, "Datadog (us5)", "RUM (浏览器) + APM (经 Railway Agent)\n构建时注入 RUM 凭证，OSS 仓库不含密钥")
 
 ' ============================================================
 ' CLOUD AI SERVICES (prod + dev)
@@ -52,7 +52,7 @@ Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS (prod Railway / dev :900
 Rel(frontend, launchdarkly, "读取模块开关", "HTTPS")
 Rel(frontend, datadog, "RUM 遥测", "HTTPS us5")
 Rel(backend, launchdarkly, "读取模块开关 + 启动引导", "HTTPS")
-Rel(backend, datadog, "APM 追踪", "HTTPS us5")
+Rel(backend, datadog, "APM（经 Railway Agent）", "Private Network → HTTPS us5")
 
 Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")

@@ -132,7 +132,7 @@ System_Boundary(ext, "External Systems") {
     Component(whisper_ext, "whisper.cpp [local]", "REST/WS", ":8178")
     Component(serper_ext, "Serper.dev", "REST", "Web 搜索")
     Component(launchdarkly_ext, "LaunchDarkly", "SaaS", "功能开关")
-    Component(datadog_ext, "Datadog us5", "SaaS", "APM")
+    Component(datadog_ext, "Datadog us5", "SaaS", "APM via Agent")
 }
 
 ' ============================================================
@@ -206,7 +206,7 @@ Rel(image_repo, openai_api, "DALL-E", "HTTPS")
 Rel(tts_repo, openai_api, "TTS", "HTTPS")
 Rel(web_search_tool, serper_ext, "搜索", "HTTPS")
 Rel(ld_repo, launchdarkly_ext, "SDK", "HTTPS")
-Rel(backend, datadog_ext, "javaagent", "HTTPS")
+Rel(backend, datadog_ext, "javaagent → Agent → us5", "Private Network / HTTPS")
 
 SHOW_LEGEND()
 @enduml
