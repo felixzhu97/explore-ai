@@ -102,6 +102,14 @@ export class ChatTabComponent implements OnInit, OnDestroy {
       content: message.content,
       timestamp: message.timestamp,
       streaming: this.chat.streamingMessageId() === message.id,
+      toolSteps: message.toolSteps,
+      sources: message.sources?.map(source => ({
+        text: source.snippet,
+        score: 1,
+        url: source.url,
+        title: source.title,
+      })),
+      sourcesExpanded: Boolean(message.sources?.length),
     }));
   });
 

@@ -11,6 +11,9 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.method.MethodToolCallbackProvider;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +29,7 @@ public class ChatClientFactory implements ChatClientProvider {
     private final WeatherTool weatherTools;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
+    private final ObjectProvider<ToolCallback[]> mcpToolCallbacks;
     private final boolean loggingAdvisorEnabled;
 
     public ChatClientFactory(
@@ -35,6 +39,7 @@ public class ChatClientFactory implements ChatClientProvider {
             WeatherTool weatherTools,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool,
+            ObjectProvider<ToolCallback[]> mcpToolCallbacks,
             @Value("${app.ai.logging-advisor.enabled:true}") boolean loggingAdvisorEnabled) {
         this.chatModelResolver = chatModelResolver;
         this.chatMemory = chatMemory;
@@ -42,6 +47,7 @@ public class ChatClientFactory implements ChatClientProvider {
         this.weatherTools = weatherTools;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
+        this.mcpToolCallbacks = mcpToolCallbacks;
         this.loggingAdvisorEnabled = loggingAdvisorEnabled;
     }
 
@@ -82,10 +88,31 @@ public class ChatClientFactory implements ChatClientProvider {
         if (withDefaults) {
             builder.defaultSystem(promptTemplates.getDefaultSystemPrompt());
             if (options.toolsEnabled()) {
-                builder.defaultTools(weatherTools, documentSearchTool, webSearchTool);
+                ToolCallback[] callbacks = notifyingCallbacks();
+                if (callbacks.length > 0) {
+                    builder.defaultToolCallbacks(callbacks);
+                }
             }
         }
 
         return builder.build();
+    }
+
+    private ToolCallback[] notifyingCallbacks() {
+        List<ToolCallback> callbacks = new ArrayList<>();
+        ToolCallback[] local = MethodToolCallbackProvider.builder()
+                .toolObjects(weatherTools, documentSearchTool, webSearchTool)
+                .build()
+                .getToolCallbacks();
+        for (ToolCallback callback : local) {
+            callbacks.add(new NotifyingToolCallback(callback));
+        }
+        ToolCallback[] mcp = mcpToolCallbacks.getIfAvailable();
+        if (mcp != null) {
+            for (ToolCallback callback : mcp) {
+                callbacks.add(new NotifyingToolCallback(callback));
+            }
+        }
+        return callbacks.toArray(ToolCallback[]::new);
     }
 }

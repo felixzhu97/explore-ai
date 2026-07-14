@@ -7,6 +7,10 @@ spring:
     mcp:
       server:
         enabled: false
+      client:
+        # Prod: no STDIO MCP (Fetch requires local uvx); lifestyle web search still works
+        stdio:
+          enabled: false
     chat:
       memory:
         repository:

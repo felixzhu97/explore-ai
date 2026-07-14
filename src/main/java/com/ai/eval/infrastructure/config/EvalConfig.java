@@ -14,7 +14,7 @@ public class EvalConfig {
 
     @Bean
     public ChatClient evaluationChatClient(ChatClientProvider chatClientProvider) {
-        return chatClientProvider.createBareStateless(TextChatOptions.defaults());
+        return chatClientProvider.createBareStateless(TextChatOptions.withoutTools());
     }
 
     @Bean

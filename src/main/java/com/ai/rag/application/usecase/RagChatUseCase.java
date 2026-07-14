@@ -46,7 +46,7 @@ public class RagChatUseCase {
         List<SourceDocument> sources = retrievalResult.sources();
         String prompt = buildPrompt(question, retrievalResult.context());
 
-        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.withoutTools());
         String aiResponse = chatClient.prompt()
                 .user(prompt)
                 .call()

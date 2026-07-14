@@ -1,0 +1,13 @@
+# Copy to application-local.yml (gitignored) and enable with:
+#   SPRING_PROFILES_ACTIVE=local
+# Requires uv/uvx: https://docs.astral.sh/uv/
+spring:
+  ai:
+    mcp:
+      client:
+        stdio:
+          connections:
+            fetch:
+              command: uvx
+              args:
+                - mcp-server-fetch

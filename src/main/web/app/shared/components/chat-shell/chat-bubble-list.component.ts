@@ -50,12 +50,29 @@ export interface ChatBubbleFooterLabels {
     </ng-template>
 
     <ng-template #assistantMessageTpl let-content="content" let-info="info">
+      @if (messageById(messageKey(info)); as message) {
+        @if (message.toolSteps?.length) {
+          <div class="mb-2 flex flex-col gap-1">
+            @for (step of message.toolSteps; track step.name + step.label + $index) {
+              <div class="text-xs text-text-secondary">
+                @if (step.status === 'running') {
+                  <span>{{ step.label }}</span>
+                } @else if (step.status === 'success') {
+                  <span>{{ step.label.replace('…', '') }} · 完成</span>
+                } @else {
+                  <span>{{ step.label.replace('…', '') }} · 失败</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
       @if (content) {
         <app-markdown-content
           [content]="content"
           [streaming]="isStreaming(messageKey(info))"
         />
-      } @else {
+      } @else if (!messageById(messageKey(info))?.toolSteps?.length) {
         <span class="text-text-tertiary">{{ thinkingLabel() }}</span>
       }
     </ng-template>
@@ -70,21 +87,35 @@ export interface ChatBubbleFooterLabels {
             @if (message.sourcesExpanded) {
               <div class="mt-1 rounded-lg bg-surface-secondary p-3">
                 <div class="mb-2 text-sm font-semibold text-text">
-                  📖 {{ footerLabels().sources }}
+                  {{ footerLabels().sources }}
                 </div>
-                @for (source of message.sources.slice(0, 3); track $index) {
+                @for (source of message.sources.slice(0, 5); track source.url ?? $index) {
                   <div class="border-b border-border-light py-2 last:border-0">
-                    <div class="mb-1 text-sm text-text">
-                      {{
-                        source.text.length > 200
-                          ? source.text.slice(0, 200) + '...'
-                          : source.text
-                      }}
-                    </div>
-                    <div class="text-xs text-text-tertiary">
-                      {{ footerLabels().similarity }}:
-                      {{ (source.score * 100).toFixed(1) }}%
-                    </div>
+                    @if (source.url) {
+                      <a
+                        class="mb-1 block text-sm text-text underline-offset-2 hover:underline"
+                        [href]="source.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {{ source.title || source.url }}
+                      </a>
+                      @if (source.text) {
+                        <div class="text-xs text-text-tertiary">{{ source.text }}</div>
+                      }
+                    } @else {
+                      <div class="mb-1 text-sm text-text">
+                        {{
+                          source.text.length > 200
+                            ? source.text.slice(0, 200) + '...'
+                            : source.text
+                        }}
+                      </div>
+                      <div class="text-xs text-text-tertiary">
+                        {{ footerLabels().similarity }}:
+                        {{ (source.score * 100).toFixed(1) }}%
+                      </div>
+                    }
                   </div>
                 }
               </div>
@@ -94,7 +125,6 @@ export interface ChatBubbleFooterLabels {
               class="mt-1 flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-xs text-text-secondary"
               (click)="toggleSources.emit(messageKey(info))"
             >
-              📚
               {{
                 formatBasedOn(message.sources.length)
               }}
@@ -150,12 +180,13 @@ export class ChatBubbleListComponent {
       const isAssistant = message.role === 'assistant';
       const isStreaming = this.isStreaming(message.id);
       const hasSources = Boolean(message.sources?.length);
+      const hasToolSteps = Boolean(message.toolSteps?.length);
 
       const item: NxBubbleListItem = {
         key: message.id,
         role: message.role,
         content: message.content,
-        loading: isAssistant && isStreaming && !message.content,
+        loading: isAssistant && isStreaming && !message.content && !hasToolSteps,
         messageRender: isAssistant ? assistantTpl : userTpl,
       };
 

@@ -9,6 +9,9 @@ import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.infrastructure.llm.ToolEventChannel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -20,15 +23,18 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class SpringAiChatUseCase implements ChatUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(SpringAiChatUseCase.class);
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private final ChatClientProvider chatClientProvider;
     private final ChatSessionRepository repository;
@@ -86,17 +92,38 @@ public class SpringAiChatUseCase implements ChatUseCase {
             conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
 
             ChatClient chatClient = chatClientProvider.create(options, sessionId);
-            return chatClient.prompt()
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
-                    .user(userMessage)
-                    .stream()
-                    .content()
+            return mergeToolEvents(
+                    chatClient.prompt()
+                            .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
+                            .user(userMessage)
+                            .stream()
+                            .content(),
+                    options.toolsEnabled())
                     .doOnComplete(() -> Mono.fromRunnable(() ->
                                     afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
                             .subscribeOn(Schedulers.boundedElastic())
                             .subscribe())
                     .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
         }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private Flux<String> mergeToolEvents(Flux<String> content, boolean toolsEnabled) {
+        if (!toolsEnabled) {
+            return content.map(this::messageEvent);
+        }
+        Sinks.Many<String> sink = ToolEventChannel.open();
+        Flux<String> toolEvents = ToolEventChannel.asFlux(sink);
+        Flux<String> textEvents = content.map(this::messageEvent);
+        return Flux.merge(toolEvents, textEvents)
+                .doFinally(signal -> ToolEventChannel.close());
+    }
+
+    private String messageEvent(String token) {
+        try {
+            return JSON.writeValueAsString(Map.of("type", "message", "token", token == null ? "" : token));
+        } catch (JsonProcessingException e) {
+            return "{\"type\":\"message\",\"token\":\"\"}";
+        }
     }
 
     private void afterSessionStream(ChatSessionId sessionId, String conversationId, boolean isFirstTurn, String userMessage) {
@@ -168,10 +195,12 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options) {
         ChatClient chatClient = chatClientProvider.createStateless(options);
-        return chatClient.prompt()
-                .messages(messages.stream().map(this::toSpringMessage).toList())
-                .stream()
-                .content();
+        return mergeToolEvents(
+                chatClient.prompt()
+                        .messages(messages.stream().map(this::toSpringMessage).toList())
+                        .stream()
+                        .content(),
+                options.toolsEnabled());
     }
 
     private void generateTitleAsync(ChatSessionId sessionId, String userMessage, String assistantReply) {

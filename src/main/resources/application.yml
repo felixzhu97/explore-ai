@@ -12,11 +12,11 @@ spring:
         description: AI Explore MCP Server with RAG, Weather, and Chat tools
         annotation-scanner:
           enabled: true
-    client:
-      enabled: true
-      type: SYNC
-      toolcallback:
+      client:
         enabled: true
+        type: SYNC
+        toolcallback:
+          enabled: true
     ollama:
       base-url: http://localhost:11434
       chat:

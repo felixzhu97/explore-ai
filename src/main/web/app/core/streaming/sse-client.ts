@@ -1,35 +1,95 @@
 /** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
 export function parseSseToken(data: string): string | null {
+  const event = parseChatStreamEvent(data);
+  if (event === null) {
+    return null;
+  }
+  return event.type === 'message' ? event.token : null;
+}
+
+export interface ChatStreamSourceItem {
+  title: string;
+  url: string;
+  snippet: string;
+}
+
+export type ChatStreamEvent =
+  | { type: 'message'; token: string }
+  | { type: 'tool_call'; name: string; input: string }
+  | { type: 'tool_result'; name: string; ok: boolean; output: string }
+  | { type: 'sources'; query: string; items: ChatStreamSourceItem[] };
+
+/** Parse chat SSE data payloads (message tokens, tool events, web sources). */
+export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
   if (data === '') {
-    return '\n';
+    return { type: 'message', token: '\n' };
   }
 
   const first = data.trimStart()[0];
   if (first === '{' || first === '[') {
     try {
-      const parsed = JSON.parse(data) as { token?: string | number };
-      if (parsed && typeof parsed === 'object' && 'token' in parsed) {
-        const token = parsed.token;
-        if (token !== null && token !== undefined) {
-          return String(token);
-        }
+      const parsed = JSON.parse(data) as Record<string, unknown>;
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return null;
       }
+
+      const eventType = parsed['type'];
+      if (eventType === 'tool_call') {
+        return {
+          type: 'tool_call',
+          name: String(parsed['name'] ?? ''),
+          input: String(parsed['input'] ?? ''),
+        };
+      }
+      if (eventType === 'tool_result') {
+        return {
+          type: 'tool_result',
+          name: String(parsed['name'] ?? ''),
+          ok: Boolean(parsed['ok']),
+          output: String(parsed['output'] ?? ''),
+        };
+      }
+      if (eventType === 'sources') {
+        const rawItems = Array.isArray(parsed['items']) ? parsed['items'] : [];
+        const items: ChatStreamSourceItem[] = rawItems.map((item) => {
+          const row = (item ?? {}) as Record<string, unknown>;
+          return {
+            title: String(row['title'] ?? ''),
+            url: String(row['url'] ?? ''),
+            snippet: String(row['snippet'] ?? ''),
+          };
+        });
+        return {
+          type: 'sources',
+          query: String(parsed['query'] ?? ''),
+          items,
+        };
+      }
+
+      if (eventType === 'message' || 'token' in parsed) {
+        const token = parsed['token'];
+        if (token !== null && token !== undefined) {
+          return { type: 'message', token: String(token) };
+        }
+        return null;
+      }
+
+      return null;
     } catch {
-      return data;
+      return { type: 'message', token: data };
     }
-    return null;
   }
 
   if (first === '"') {
     try {
       const parsed = JSON.parse(data);
-      return typeof parsed === 'string' ? parsed : data;
+      return typeof parsed === 'string' ? { type: 'message', token: parsed } : { type: 'message', token: data };
     } catch {
-      return data;
+      return { type: 'message', token: data };
     }
   }
 
-  return data;
+  return { type: 'message', token: data };
 }
 
 export interface SseEventPayload {
