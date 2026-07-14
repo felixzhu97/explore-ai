@@ -146,7 +146,7 @@ Container_Ext(tesseract_svc, "Tesseract OCR [local]", "Native Library", "eng + c
 Container_Ext(whisper_cpp_svc, "whisper.cpp [local]", "REST/WebSocket", "流式 ASR", "8178")
 Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 Container_Ext(launchdarkly, "LaunchDarkly", "SaaS", "功能开关", "HTTPS")
-Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent)", "HTTPS")
+Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent → Agent)", "HTTPS")
 
 ' ============================================================
 ' RELATIONSHIPS
@@ -225,7 +225,7 @@ Rel(mcp_facade, mcp_client_repo, "MCP 连接")
 Rel(module_filter, feature_flag_svc, "查询开关")
 Rel(feature_flag_svc, ld_repo, "读取")
 Rel(ld_repo, launchdarkly, "Server SDK", "HTTPS")
-Rel(backend, datadog, "APM javaagent", "HTTPS")
+Rel(backend, datadog, "javaagent → Agent → us5", "Private Network / HTTPS")
 
 SHOW_LEGEND()
 @enduml

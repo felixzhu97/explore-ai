@@ -11,7 +11,7 @@
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、分解 API 服务、RUM） |
 | `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
-| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Railway + Datadog + LaunchDarkly） |
+| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Railway explore-ai + datadog-agent + Datadog + LaunchDarkly） |
 
 ---
 
@@ -61,7 +61,7 @@
 - **子域**: Chat / RAG / Tools / Analysis / Eval / Image / Vision / Audio (TTS+ASR) / MCP Server / MCP Client
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，4 个模块 flag）
-- **可观测性**: Datadog APM（`dd-java-agent` v1.45.0，Railway `DD_API_KEY`）
+- **可观测性**: Datadog APM（`dd-java-agent` v1.64.0 → Railway `datadog-agent` `:8126`；应用侧 `DD_AGENT_HOST`，Agent 侧 `DD_API_KEY`）。应用指标走 Micrometer/Prometheus（actuator），不上报 Datadog Metrics
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
 - **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Vision
 
@@ -113,8 +113,8 @@ Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
 ### 生产 (cloud-minimal)
 
 ```
-Browser → Vercel (Angular static) → Railway (Docker :8080 + H2 volume + dd-java-agent)
-        ↘ Datadog RUM (us5)              ↘ Datadog APM
+Browser → Vercel (Angular static) → Railway explore-ai (:8080 + H2 + dd-java-agent v1.64.0)
+        ↘ Datadog RUM (us5)              ↘ Private Network :8126 → datadog-agent → Datadog APM
         ↘ LaunchDarkly Client            ↘ LaunchDarkly Server
                                          → DeepSeek / OpenAI / Serper
 ```
@@ -138,7 +138,8 @@ Browser → Vercel (Angular static) → Railway (Docker :8080 + H2 volume + dd-j
 | Vision ONNX Models | `models/` 本地文件 [local] |
 | Angular Dev Server | 4200 |
 | Vercel (prod frontend) | HTTPS |
-| Railway (prod backend) | HTTPS → :8080 |
+| Railway explore-ai (prod backend) | HTTPS → :8080 |
+| Railway datadog-agent | Private Network :8126（APM intake） |
 | DeepSeek / OpenAI / Serper | HTTPS |
 | LaunchDarkly / Datadog us5 | HTTPS |
 
