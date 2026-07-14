@@ -54,6 +54,18 @@ class PromptTemplatesTest {
             assertThat(prompt).contains("# through ###");
             assertThat(prompt).contains("- ");
         }
+
+        @Test
+        @DisplayName("should include A2UI catalog and chart fence instructions")
+        void shouldIncludeA2uiCatalogAndChartFenceInstructions() {
+            String prompt = templates.getDefaultSystemPrompt();
+
+            assertThat(prompt).contains("```a2ui");
+            assertThat(prompt).contains("https://explore-ai.local/catalogs/chat-v0.9");
+            assertThat(prompt).contains("\"version\": \"v0.9\"");
+            assertThat(prompt).contains("Chart");
+            assertThat(prompt).contains("Do NOT output executable JavaScript or bare ECharts option JSON");
+        }
     }
 
     @Nested
@@ -99,6 +111,16 @@ class PromptTemplatesTest {
 
             // Assert
             assertThat(prompt.toLowerCase()).contains("cite");
+        }
+
+        @Test
+        @DisplayName("should include A2UI chart instructions like default prompt")
+        void shouldIncludeA2uiChartInstructionsLikeDefaultPrompt() {
+            String prompt = templates.getRagSystemPrompt();
+
+            assertThat(prompt).contains("```a2ui");
+            assertThat(prompt).contains("https://explore-ai.local/catalogs/chat-v0.9");
+            assertThat(prompt).contains("createSurface");
         }
     }
 

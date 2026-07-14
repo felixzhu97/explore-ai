@@ -1,5 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+vi.mock('@shared/components/markdown-with-a2ui.component', async () => {
+  const { Component, input } = await import('@angular/core');
+
+  @Component({
+    selector: 'app-markdown-with-a2ui',
+    template: '',
+  })
+  class MarkdownWithA2uiComponent {
+    readonly content = input.required<string>();
+    readonly streaming = input(false);
+  }
+
+  return { MarkdownWithA2uiComponent };
+});
+
 import { ChatBubbleListComponent } from './chat-bubble-list.component';
 import { ChatBubbleMessage } from './chat-bubble.model';
 

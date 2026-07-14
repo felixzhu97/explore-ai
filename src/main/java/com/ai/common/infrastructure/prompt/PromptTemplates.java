@@ -27,10 +27,36 @@ public class PromptTemplates {
             - **Label:** description text
             """;
 
+    /**
+     * A2UI v0.9 chart surfaces: NDJSON in ```a2ui fences (not raw ECharts option JSON).
+     */
+    private static final String A2UI_CHART_INSTRUCTIONS = """
+
+            When a chart or visualization helps (trends, comparisons, distribution),
+            emit an A2UI surface after a short markdown explanation using a fenced
+            block labeled a2ui. Inside the fence, put one A2UI JSON message per line
+            (NDJSON). Rules:
+            - Set "version": "v0.9" on every message
+            - First message: createSurface with catalogId
+              "https://explore-ai.local/catalogs/chat-v0.9" and a surfaceId
+            - Then updateComponents with a flat adjacency list that includes id "root"
+              and a Chart component (type: bar|line|pie|doughnut; title; chartData as
+              [{label,value}, ...] literal or data path)
+            - Optional updateDataModel for bound chartData paths
+            - Do NOT output executable JavaScript or bare ECharts option JSON
+            - Do NOT invent other custom components beyond this catalog (incl. Chart)
+
+            Example fence (abbreviated; real output must be valid NDJSON lines):
+            ```a2ui
+            {"version":"v0.9","createSurface":{"surfaceId":"s1","catalogId":"https://explore-ai.local/catalogs/chat-v0.9"}}
+            {"version":"v0.9","updateComponents":{"surfaceId":"s1","components":[{"id":"root","component":"Column","children":["c1"]},{"id":"c1","component":"Chart","type":"bar","title":"Sales","chartData":[{"label":"Q1","value":10},{"label":"Q2","value":20}]}]}}
+            ```
+            """;
+
     private static final String DEFAULT_SYSTEM_PROMPT = """
             You are a helpful AI assistant. Provide accurate and concise responses.
 
-            """ + MARKDOWN_FORMATTING_INSTRUCTIONS;
+            """ + MARKDOWN_FORMATTING_INSTRUCTIONS + A2UI_CHART_INSTRUCTIONS;
 
     private static final String RAG_SYSTEM_PROMPT = """
             You are a helpful AI assistant with access to a knowledge base.
@@ -38,7 +64,7 @@ public class PromptTemplates {
             If the context doesn't contain enough information, say so.
             Always cite relevant sources from the context when available.
 
-            """ + MARKDOWN_FORMATTING_INSTRUCTIONS;
+            """ + MARKDOWN_FORMATTING_INSTRUCTIONS + A2UI_CHART_INSTRUCTIONS;
 
     private static final String SUMMARIZATION_PROMPT = """
             Analyze the following text and provide a structured response.
