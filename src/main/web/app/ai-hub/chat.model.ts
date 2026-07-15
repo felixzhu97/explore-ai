@@ -10,6 +10,7 @@ export interface ChatMessageData extends ChatMessage {
   timestamp: number | Date | string;
   toolCalls?: ToolCall[];
   isLoading?: boolean;
+  sources?: { title: string; url: string; snippet: string }[];
 }
 
 /** POST /api/text/chat/stream */

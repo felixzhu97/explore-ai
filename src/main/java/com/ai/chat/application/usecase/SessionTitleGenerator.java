@@ -32,7 +32,7 @@ public class SessionTitleGenerator {
             return fallback(userMessage);
         }
         try {
-            ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
+            ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.withoutTools());
             SessionTitleResponse response = chatClient.prompt()
                     .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                     .system(SYSTEM_PROMPT)

@@ -5,6 +5,9 @@ import com.ai.chat.web.dto.*;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.chat.domain.repository.ChatWebSourcesRepository;
+import com.ai.chat.domain.vo.ContentHash;
+import com.ai.chat.domain.vo.WebSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -25,11 +29,14 @@ class ChatControllerTest {
     @Mock
     private ChatUseCase chatUseCase;
 
+    @Mock
+    private ChatWebSourcesRepository chatWebSourcesRepository;
+
     private ChatController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ChatController(chatUseCase);
+        controller = new ChatController(chatUseCase, chatWebSourcesRepository);
     }
 
     @Nested
@@ -213,12 +220,34 @@ class ChatControllerTest {
                     ChatMessage.createUserMessage("Hello"),
                     ChatMessage.createAssistantMessage("Hi")
             ));
+            when(chatWebSourcesRepository.findByConversationId("session-1")).thenReturn(Map.of());
 
             var response = controller.getSessionMessages("session-1");
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).hasSize(2);
             assertThat(response.getBody().getFirst().role()).isEqualTo("user");
+        }
+
+        @Test
+        @DisplayName("should attach persisted sources to assistant messages")
+        void should_attach_persisted_sources_to_assistant_messages() {
+            String reply = "Paris is the capital.";
+            when(chatUseCase.getSessionHistory("session-1")).thenReturn(List.of(
+                    ChatMessage.createUserMessage("Where is Paris?"),
+                    ChatMessage.createAssistantMessage(reply)
+            ));
+            when(chatWebSourcesRepository.findByConversationId("session-1")).thenReturn(Map.of(
+                    ContentHash.sha256(reply),
+                    List.of(new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))
+            ));
+
+            var response = controller.getSessionMessages("session-1");
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().get(1).sources()).hasSize(1);
+            assertThat(response.getBody().get(1).sources().getFirst().url())
+                    .isEqualTo("https://en.wikipedia.org/wiki/Paris");
         }
 
         @Test

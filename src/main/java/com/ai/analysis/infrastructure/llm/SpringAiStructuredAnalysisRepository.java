@@ -29,7 +29,7 @@ public class SpringAiStructuredAnalysisRepository implements StructuredAnalysisR
         LanguageHint effectiveHint = hint != null ? hint : LanguageHint.none();
         String prompt = text.buildAnalysisPrompt(effectiveHint);
 
-        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.defaults());
+        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.withoutTools());
         StructuredAnalysisEntity entity = chatClient.prompt()
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(prompt)

@@ -73,16 +73,28 @@ curl -N -X POST "${BASE_URL}/api/text/chat/stream" \
     "provider": "openai",
     "model": "deepseek-v4-flash",
     "sessionId": "optional-session-id",
-    "toolsEnabled": false
+    "toolsEnabled": true
   }'
 ```
 
 **SSE events**
 
+Stream `data:` lines are JSON objects (one per SSE event). When `toolsEnabled` is true (default), tool and citation events are interleaved with message tokens.
+
+
+| `type`         | Fields                         | Description                                      |
+| -------------- | ------------------------------ | ------------------------------------------------ |
+| `message`      | `token`                        | Assistant text chunk                             |
+| `tool_call`    | `name`, `input`                | Tool invocation started                          |
+| `tool_result`  | `name`, `ok`, `output`         | Tool finished (output truncated for SSE)         |
+| `sources`      | `query`, `items[{title,url,snippet}]` | Web search citations for the UI         |
+
+
+Legacy SSE envelope events:
+
 
 | Event   | Data              | Description           |
 | ------- | ----------------- | --------------------- |
-| `meta`  | `{"token":"..."}` | Streaming token chunk |
 | `done`  | `[DONE]`          | Stream complete       |
 | `error` | `{"error":"..."}` | Error payload         |
 

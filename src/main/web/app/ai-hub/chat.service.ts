@@ -8,11 +8,25 @@ import type {
   ChatMessageData,
 } from './chat.model';
 
+export interface UiToolStep {
+  name: string;
+  label: string;
+  status: 'running' | 'success' | 'error';
+}
+
+export interface UiWebSource {
+  title: string;
+  url: string;
+  snippet: string;
+}
+
 export interface UiMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  toolSteps?: UiToolStep[];
+  sources?: UiWebSource[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -219,7 +233,11 @@ export class ChatService {
     this.api.getSessionMessages(sessionId).subscribe({
       next: (history) => {
         if (this.activeSessionId() === sessionId && !this.isLoading()) {
-          this.messages.set(history.map(msg => this.toUiMessage(msg)));
+          this.messages.update(previous => mergeHistoryWithUiState(
+            history.map(msg => this.toUiMessage(msg)),
+            previous,
+          ),
+          );
         }
       },
     });
@@ -305,6 +323,48 @@ export class ChatService {
         this.streamingMessageId.set(null);
         this.streamAbort = null;
       },
+      (event) => {
+        if (event.type === 'message') {
+          return;
+        }
+        this.messages.update(msgs => msgs.map((msg) => {
+          if (msg.id !== assistantId) {
+            return msg;
+          }
+          if (event.type === 'tool_call') {
+            const steps = [...(msg.toolSteps ?? [])];
+            steps.push({
+              name: event.name,
+              label: toolLabel(event.name),
+              status: 'running',
+            });
+            return { ...msg, toolSteps: steps };
+          }
+          if (event.type === 'tool_result') {
+            const steps = (msg.toolSteps ?? []).map((step) => {
+              if (step.name !== event.name || step.status !== 'running') {
+                return step;
+              }
+              return {
+                ...step,
+                status: event.ok ? 'success' as const : 'error' as const,
+              };
+            });
+            return { ...msg, toolSteps: steps };
+          }
+          if (event.type === 'sources') {
+            return {
+              ...msg,
+              sources: event.items.map(item => ({
+                title: item.title,
+                url: item.url,
+                snippet: item.snippet,
+              })),
+            };
+          }
+          return msg;
+        }));
+      },
     );
     this.streamAbort = abort;
   }
@@ -328,6 +388,52 @@ export class ChatService {
       role: msg.role === 'assistant' ? 'assistant' : 'user',
       content: msg.content,
       timestamp,
+      sources: msg.sources?.map(source => ({
+        title: source.title,
+        url: source.url,
+        snippet: source.snippet,
+      })),
     };
   }
+}
+
+/**
+ * After stream complete, history sync may race DB persistence.
+ * Keep local sources when API has not returned them yet for the same content.
+ */
+export function mergeHistoryWithUiState(
+  history: UiMessage[],
+  previous: UiMessage[],
+): UiMessage[] {
+  const previousSources = new Map<string, UiWebSource[]>();
+  for (const msg of previous) {
+    if (msg.role === 'assistant' && msg.sources?.length) {
+      previousSources.set(msg.content, msg.sources);
+    }
+  }
+
+  return history.map((ui) => {
+    if (ui.role !== 'assistant' || ui.sources?.length) {
+      return ui;
+    }
+    const local = previousSources.get(ui.content);
+    return local?.length ? { ...ui, sources: local } : ui;
+  });
+}
+
+function toolLabel(name: string): string {
+  const key = name.toLowerCase();
+  if (key.includes('searchweb') || key === 'search_web' || (key.includes('search') && key.includes('web'))) {
+    return 'Searching…';
+  }
+  if (key.includes('fetch')) {
+    return 'Fetching page…';
+  }
+  if (key.includes('weather') || key.includes('forecast')) {
+    return 'Checking weather…';
+  }
+  if (key.includes('document')) {
+    return 'Searching knowledge base…';
+  }
+  return `Calling ${name}…`;
 }

@@ -8,8 +8,14 @@ import type {
   ProviderInfo,
   SessionInfo,
 } from '@shared/models';
-import { parseSseToken, streamSsePost } from '@core/streaming/sse-client';
+import {
+  parseChatStreamEvent,
+  streamSsePost,
+  type ChatStreamEvent,
+} from '@core/streaming/sse-client';
 import { API_BASE_URL, DEFAULT_MODELS, DEFAULT_PROVIDERS } from './api.constants';
+
+export type ChatStreamEventHandler = (event: ChatStreamEvent) => void;
 
 @Injectable({ providedIn: 'root' })
 export class ApiChatService {
@@ -58,6 +64,7 @@ export class ApiChatService {
     onChunk: (token: string) => void,
     onDone: () => void,
     onError: (err: Error) => void,
+    onEvent?: ChatStreamEventHandler,
   ): { abort: () => void } {
     let finished = false;
     const finish = () => {
@@ -88,10 +95,14 @@ export class ApiChatService {
           return true;
         }
 
-        const token = parseSseToken(data);
-        if (token !== null) {
-          onChunk(token);
+        const event = parseChatStreamEvent(data);
+        if (event === null) {
+          return false;
         }
+        if (event.type === 'message') {
+          onChunk(event.token);
+        }
+        onEvent?.(event);
         return false;
       },
       onDone: finish,

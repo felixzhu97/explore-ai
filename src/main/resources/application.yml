@@ -12,11 +12,13 @@ spring:
         description: AI Explore MCP Server with RAG, Weather, and Chat tools
         annotation-scanner:
           enabled: true
-    client:
-      enabled: true
-      type: SYNC
-      toolcallback:
+      client:
         enabled: true
+        type: SYNC
+        # Custom McpClientToolsConfig exposes callbacks for ChatClientFactory;
+        # disable Spring AI's auto mcpToolCallbacks bean to avoid a name clash.
+        toolcallback:
+          enabled: false
     ollama:
       base-url: http://localhost:11434
       chat:

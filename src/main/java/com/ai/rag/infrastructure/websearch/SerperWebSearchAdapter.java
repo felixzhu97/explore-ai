@@ -1,14 +1,20 @@
 package com.ai.rag.infrastructure.websearch;
 
 import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.infrastructure.llm.ToolEventChannel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,11 +26,13 @@ import java.util.Map;
 public class SerperWebSearchAdapter implements WebSearchTool {
 
     private static final Logger log = LoggerFactory.getLogger(SerperWebSearchAdapter.class);
+    private static final ObjectMapper JSON = new ObjectMapper();
     private static final int RESULT_COUNT = 8;
 
     private final RestClient restClient;
     private final String apiKey;
 
+    @Autowired
     public SerperWebSearchAdapter(
             @Value("${serper.api-key:}") String apiKey) {
         this.apiKey = apiKey;
@@ -35,6 +43,11 @@ public class SerperWebSearchAdapter implements WebSearchTool {
                     headers.set("Content-Type", "application/json");
                 })
                 .build();
+    }
+
+    SerperWebSearchAdapter(String apiKey, RestClient restClient) {
+        this.apiKey = apiKey;
+        this.restClient = restClient;
     }
 
     @Override
@@ -77,11 +90,34 @@ public class SerperWebSearchAdapter implements WebSearchTool {
                 return "No search results found for: " + query;
             }
 
+            publishSources(query, response.organic());
             return formatResults(query, response);
 
         } catch (Exception e) {
             log.error("Web search failed for query: {}", query, e);
             return "Failed to search the web. Please try again later.";
+        }
+    }
+
+    private void publishSources(String query, List<SerperResponse.OrganicResult> results) {
+        List<Map<String, String>> items = new ArrayList<>();
+        if (results != null) {
+            for (SerperResponse.OrganicResult result : results) {
+                Map<String, String> item = new LinkedHashMap<>();
+                item.put("title", result.title() == null ? "" : result.title());
+                item.put("url", result.link() == null ? "" : result.link());
+                item.put("snippet", result.snippet() == null ? "" : result.snippet());
+                items.add(item);
+            }
+        }
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("type", "sources");
+        payload.put("query", query);
+        payload.put("items", items);
+        try {
+            ToolEventChannel.publish(JSON.writeValueAsString(payload));
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to publish search sources event", e);
         }
     }
 
