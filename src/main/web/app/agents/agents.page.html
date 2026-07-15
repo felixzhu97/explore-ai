@@ -1,0 +1,54 @@
+<div class="flex shrink-0 items-center justify-between gap-2 overflow-x-auto border-b border-black/8 bg-white px-4 py-2.5">
+  <div class="flex min-w-0 items-center gap-2">
+    <z-select
+      class="min-w-40"
+      zSize="sm"
+      [ngModel]="selectedAgentType()"
+      (ngModelChange)="onAgentChange($event)"
+      zPlaceholder="Agent"
+    >
+      @for (agent of agents(); track agent.type) {
+        <z-select-item [zValue]="agent.type">{{ agent.name }}</z-select-item>
+      }
+    </z-select>
+    @if (selectedAgent(); as agent) {
+      <p class="hidden truncate text-sm text-text-secondary md:block">{{ agent.description }}</p>
+    }
+  </div>
+</div>
+
+<div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
+  @if (messages().length === 0) {
+    <app-chat-welcome-panel
+      class="h-full"
+      [title]="i18n.t().agents.startConversation"
+      [description]="selectedAgent()?.description ?? i18n.t().agents.descriptions.supervisor"
+      [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+      [prompts]="quickPrompts()"
+      (promptSelect)="onPromptSelect($event)"
+    />
+  } @else {
+    <app-chat-bubble-list
+      [messages]="messages()"
+      [streamingMessageId]="streamingMessageId()"
+      [thinkingLabel]="i18n.t().agents.thinking"
+    />
+  }
+</div>
+
+@if (error()) {
+  <z-alert
+    class="rounded-none border-x-0 border-t"
+    zType="destructive"
+    [zDescription]="error()!"
+  />
+}
+
+<div class="border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+  <nx-sender
+    [placeholder]="i18n.t().agents.inputPlaceholder"
+    [(value)]="input"
+    [loading]="loading()"
+    (submitSend)="send()"
+  />
+</div>

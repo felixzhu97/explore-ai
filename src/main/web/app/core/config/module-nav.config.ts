@@ -15,6 +15,7 @@ export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'mcp', labelKey: 'mcp', path: '/mcp', flagKey: FEATURE_FLAG_KEYS.MODULE_MCP },
   { key: 'eval', labelKey: 'eval', path: '/eval', flagKey: FEATURE_FLAG_KEYS.MODULE_EVAL },
   { key: 'asr', labelKey: 'speechToText', path: '/asr', flagKey: FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR },
+  { key: 'agents', labelKey: 'supervisor', path: '/agents', flagKey: FEATURE_FLAG_KEYS.MODULE_AGENTS },
   { key: 'chat', labelKey: 'chat', path: '/chat' },
   { key: 'generate', labelKey: 'generation', path: '/generate' },
 ];

@@ -22,6 +22,7 @@ launchdarkly:
     module-audio-asr: false
     module-mcp: false
     module-eval: true
+    module-agents: true
 
 app:
   vision:
