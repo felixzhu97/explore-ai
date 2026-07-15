@@ -34,8 +34,30 @@ export function buildEchartsOption(
       {
         type,
         data: values,
-        smooth: type === 'line',
+        ...(type === 'line' ? { smooth: true } : {}),
       },
     ],
   };
+}
+
+/** Coerce LLM chartData rows (value may be a number or numeric string). */
+export function toChartItems(value: unknown): ChartItem[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((item) => {
+      if (!item || typeof item !== 'object') {
+        return null;
+      }
+      const row = item as Record<string, unknown>;
+      const label = row['label'];
+      const rawValue = row['value'];
+      const numeric = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+      if (typeof label !== 'string' || !Number.isFinite(numeric)) {
+        return null;
+      }
+      return { label, value: numeric };
+    })
+    .filter((item): item is ChartItem => item !== null);
 }

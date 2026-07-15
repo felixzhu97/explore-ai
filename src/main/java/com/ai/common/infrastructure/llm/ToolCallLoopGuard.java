@@ -1,10 +1,12 @@
 package com.ai.common.infrastructure.llm;
 
+import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.ai.openai.OpenAiChatOptions;
 
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ final class ToolCallLoopGuard {
     }
 
     static ChatOptions disableFurtherToolUse(ChatOptions options) {
-        if (!(options instanceof ToolCallingChatOptions toolOptions)) {
+        if (!(options instanceof ToolCallingChatOptions)) {
             return options;
         }
         if (options instanceof OpenAiChatOptions openAi) {
@@ -41,9 +43,17 @@ final class ToolCallLoopGuard {
                     .toolChoice("none")
                     .build();
         }
-        return toolOptions.mutate()
-                .toolCallbacks(List.of())
-                .build();
+        if (options instanceof OllamaChatOptions ollama) {
+            return ollama.mutate()
+                    .toolCallbacks(List.of())
+                    .build();
+        }
+        if (options instanceof AnthropicChatOptions anthropic) {
+            return anthropic.mutate()
+                    .toolCallbacks(List.of())
+                    .build();
+        }
+        return options;
     }
 
     static List<Message> withFinalAnswerReminder(List<Message> history) {

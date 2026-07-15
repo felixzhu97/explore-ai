@@ -58,6 +58,49 @@ describe('a2ui-fence', () => {
         { type: 'markdown', content: 'plain text' },
       ]);
     });
+
+    it('should_not_close_a2ui_with_later_typescript_fence', () => {
+      const content = [
+        'Chart:',
+        '',
+        '```a2ui',
+        '{"version":"v0.9","createSurface":{"surfaceId":"s1","catalogId":"c"}}',
+        '```',
+        '',
+        'Code:',
+        '',
+        '```typescript',
+        'const x = 1;',
+        '```',
+      ].join('\n');
+
+      const segments = splitMarkdownAndA2ui(content);
+
+      expect(segments.map(s => s.type)).toEqual(['markdown', 'a2ui', 'markdown']);
+      const mdAfter = segments[2];
+      expect(mdAfter?.type).toBe('markdown');
+      if (mdAfter?.type === 'markdown') {
+        expect(mdAfter.content).toContain('```typescript');
+        expect(mdAfter.content).toContain('const x = 1;');
+      }
+    });
+
+    it('should_keep_pending_when_unclosed_a2ui_precedes_typescript_opener', () => {
+      // ```typescript does not close a2ui; without a bare closing fence, stay pending.
+      const content = [
+        'Intro',
+        '',
+        '```a2ui',
+        '{"version":"v0.9","createSurface":{',
+        '',
+        '```typescript',
+        'const x = 1;',
+      ].join('\n');
+
+      const segments = splitMarkdownAndA2ui(content);
+
+      expect(segments.map(s => s.type)).toEqual(['markdown', 'a2ui-pending']);
+    });
   });
 
   describe('remapSurfaceIds', () => {

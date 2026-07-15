@@ -5,7 +5,8 @@ export type ContentSegment =
   | { type: 'a2ui'; messages: A2uiMessage[]; surfaceId: string; raw: string }
   | { type: 'a2ui-pending' };
 
-const A2UI_FENCE_RE = /```a2ui\s*\n([\s\S]*?)```/gi;
+/** Closing ``` alone on its line (no language tag) so later fences are not stolen. */
+const A2UI_FENCE_RE = /```a2ui\s*\n([\s\S]*?)\n```[ \t]*(?:\n|$)/gi;
 
 /** Stable short id from fence body (djb2). */
 export function stableSurfaceId(raw: string): string {
@@ -122,10 +123,6 @@ export function splitMarkdownAndA2ui(content: string): ContentSegment[] {
 }
 
 function hasUnclosedA2uiFence(text: string): boolean {
-  const openCount = [...text.matchAll(/```a2ui\b/gi)].length;
-  if (openCount === 0) {
-    return false;
-  }
-  const closedCount = [...text.matchAll(/```a2ui\s*\n[\s\S]*?```/gi)].length;
-  return openCount > closedCount;
+  // Closed fences already consumed by A2UI_FENCE_RE; remaining opener is unclosed.
+  return /```a2ui\b/i.test(text);
 }

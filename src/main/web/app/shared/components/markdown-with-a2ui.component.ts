@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
   signal,
+  untracked,
 } from '@angular/core';
 import { A2uiRendererService, SurfaceComponent } from '@a2ui/angular/v0_9';
 import { MarkdownContentComponent } from '@shared/components/markdown-content.component';
@@ -30,7 +32,7 @@ import { EXPLORE_CHAT_CATALOG_ID } from '../../a2ui/catalog.constants';
           }
         }
         @case ('a2ui-pending') {
-          <p class="my-2 text-sm text-text-tertiary">界面生成中…</p>
+          <p class="my-2 text-sm text-text-tertiary">Generating interface…</p>
         }
       }
     }
@@ -43,16 +45,15 @@ export class MarkdownWithA2uiComponent {
   readonly content = input.required<string>();
   readonly streaming = input(false);
 
-  readonly segments = signal<ContentSegment[]>([]);
+  readonly segments = computed(() => splitMarkdownAndA2ui(this.content()));
   readonly ingestError = signal<string | null>(null);
 
   private readonly processedFences = new Set<string>();
 
   constructor() {
     effect(() => {
-      const next = splitMarkdownAndA2ui(this.content());
-      this.segments.set(next);
-      this.ingestError.set(null);
+      const next = this.segments();
+      untracked(() => this.ingestError.set(null));
 
       for (const segment of next) {
         if (segment.type !== 'a2ui') {
@@ -79,12 +80,12 @@ export class MarkdownWithA2uiComponent {
           });
           this.a2ui.processMessages(withCatalog);
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'A2UI 渲染失败';
+          const message = error instanceof Error ? error.message : 'A2UI render failed';
           if (/already exists/i.test(message)) {
             continue;
           }
           this.processedFences.delete(key);
-          this.ingestError.set(message);
+          untracked(() => this.ingestError.set(message));
         }
       }
     });

@@ -62,7 +62,7 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     provideEchartsCore({ echarts }),
-    provideMarkdownRenderer(async markdown => String(marked.parse(String(markdown ?? '')))),
+    provideMarkdownRenderer(async markdown => String(await marked.parse(String(markdown ?? '')))),
     {
       provide: BASIC_CATALOG_OPTIONS,
       useValue: {

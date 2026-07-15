@@ -3,11 +3,14 @@ package com.ai.common.infrastructure.llm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.ai.openai.OpenAiChatOptions;
 
 import java.util.List;
@@ -66,6 +69,43 @@ class ToolCallLoopGuardTest {
             assertThat(openAi.getToolChoice()).isEqualTo("none");
             assertThat(openAi.getToolCallbacks()).isNullOrEmpty();
             assertThat(openAi.getModel()).isEqualTo("deepseek-v4-flash");
+        }
+
+        @Test
+        void should_clearToolCallbacks_when_ollamaOptions() {
+            OllamaChatOptions original = OllamaChatOptions.builder()
+                    .model("llama3.2")
+                    .build();
+
+            var disabled = ToolCallLoopGuard.disableFurtherToolUse(original);
+
+            assertThat(disabled).isInstanceOf(OllamaChatOptions.class);
+            OllamaChatOptions ollama = (OllamaChatOptions) disabled;
+            assertThat(ollama.getToolCallbacks()).isNullOrEmpty();
+            assertThat(ollama.getModel()).isEqualTo("llama3.2");
+        }
+
+        @Test
+        void should_clearToolCallbacks_when_anthropicOptions() {
+            AnthropicChatOptions original = AnthropicChatOptions.builder()
+                    .model("claude-sonnet-4-5")
+                    .build();
+
+            var disabled = ToolCallLoopGuard.disableFurtherToolUse(original);
+
+            assertThat(disabled).isInstanceOf(AnthropicChatOptions.class);
+            AnthropicChatOptions anthropic = (AnthropicChatOptions) disabled;
+            assertThat(anthropic.getToolCallbacks()).isNullOrEmpty();
+            assertThat(anthropic.getModel()).isEqualTo("claude-sonnet-4-5");
+        }
+
+        @Test
+        void should_returnSameInstance_when_unknownChatOptions() {
+            ChatOptions original = ChatOptions.builder().model("custom-model").build();
+
+            var disabled = ToolCallLoopGuard.disableFurtherToolUse(original);
+
+            assertThat(disabled).isSameAs(original);
         }
     }
 
