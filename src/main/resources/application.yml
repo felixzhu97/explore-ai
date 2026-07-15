@@ -39,7 +39,7 @@ spring:
       api-key: ${ANTHROPIC_API_KEY:}
       chat:
         options:
-          model: claude-3-5-sonnet-20241022
+          model: claude-sonnet-5
     rag:
       chunk:
         size: ${RAG_CHUNK_SIZE:500}

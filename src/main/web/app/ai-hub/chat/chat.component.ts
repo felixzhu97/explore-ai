@@ -142,6 +142,10 @@ export class ChatTabComponent implements OnInit, OnDestroy {
     if (!text || this.chat.isLoading()) {
       return;
     }
+    if (!this.chat.isSelectedProviderAvailable()) {
+      this.chat.sendMessage(text);
+      return;
+    }
     this.input.set('');
     this.chat.sendMessage(text);
   }

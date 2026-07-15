@@ -5,16 +5,19 @@ const TEST_SESSION_ID = 'e2e-session-001';
 const PROVIDERS = [
   {
     name: 'openai',
-    displayName: 'OpenAI',
-    models: ['gpt-4o-mini'],
+    displayName: 'DeepSeek',
+    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
     status: 'available',
   },
 ];
 
 const MODELS = {
   provider: 'openai',
-  models: [{ name: 'gpt-4o-mini', provider: 'openai' }],
-  count: 1,
+  models: [
+    { name: 'deepseek-v4-flash', provider: 'openai' },
+    { name: 'deepseek-v4-pro', provider: 'openai' },
+  ],
+  count: 2,
 };
 
 const RAG_DOCUMENTS = {
@@ -62,6 +65,12 @@ function fulfillSse(route: Route, events: string[]): Promise<void> {
     headers: { 'Cache-Control': 'no-cache' },
     body,
   });
+}
+
+/** Encode multi-line assistant text as one SSE event (spec: join data lines with \\n). */
+export function encodeSseTextEvent(text: string): string[] {
+  const dataLines = text.split('\n').map(line => `data: ${line}`);
+  return [...dataLines, '', 'data: [DONE]', ''];
 }
 
 export async function setupCommonMocks(page: Page): Promise<void> {
@@ -122,7 +131,7 @@ export async function setupChatStreamMock(
       },
     ];
 
-    await fulfillSse(route, [`data: ${response}`, 'data: [DONE]', '']);
+    await fulfillSse(route, encodeSseTextEvent(response));
   });
 }
 
@@ -193,5 +202,5 @@ export async function waitForBubbleConversation(
 ): Promise<void> {
   await page.locator('nx-bubble-list').waitFor({ state: 'visible' });
   await page.locator('main').getByText(userText).waitFor({ state: 'visible' });
-  await page.locator('app-markdown-content').waitFor({ state: 'visible' });
+  await page.locator('app-markdown-content').first().waitFor({ state: 'visible' });
 }

@@ -18,7 +18,7 @@ describe('Shared domain models', () => {
       messages: [{ role: 'user', content: 'Hello' }],
       sessionId: 'session-1',
       provider: 'openai',
-      model: 'gpt-4o-mini',
+      model: 'deepseek-v4-flash',
       toolsEnabled: true,
     };
 
@@ -29,12 +29,12 @@ describe('Shared domain models', () => {
   it('should accept aligned provider info fields', () => {
     const provider: ProviderInfo = {
       name: 'openai',
-      displayName: 'OpenAI',
-      models: ['gpt-4o'],
+      displayName: 'DeepSeek',
+      models: ['deepseek-v4-flash'],
       status: 'available',
     };
 
-    expect(provider.displayName).toBe('OpenAI');
+    expect(provider.displayName).toBe('DeepSeek');
   });
 
   it('should accept aligned rag query fields', () => {

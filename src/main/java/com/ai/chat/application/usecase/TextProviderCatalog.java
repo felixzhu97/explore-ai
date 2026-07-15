@@ -13,30 +13,38 @@ public class TextProviderCatalog {
 
     private static final Map<String, List<ModelInfoResponse>> MODELS_BY_PROVIDER = Map.of(
             "openai", List.of(
-                    new ModelInfoResponse("deepseek-v4-flash", "openai", "DeepSeek via OpenAI-compatible API"),
-                    new ModelInfoResponse("gpt-4o-mini", "openai", "Alias for configured chat model"),
-                    new ModelInfoResponse("gpt-4o", "openai", "Alias for configured chat model")
+                    new ModelInfoResponse("deepseek-v4-flash", "openai", "DeepSeek V4 Flash"),
+                    new ModelInfoResponse("deepseek-v4-pro", "openai", "DeepSeek V4 Pro")
             ),
             "anthropic", List.of(
-                    new ModelInfoResponse("claude-3-5-sonnet", "anthropic", "Not configured on this deployment"),
-                    new ModelInfoResponse("claude-3-opus", "anthropic", "Not configured on this deployment"),
-                    new ModelInfoResponse("claude-3-haiku", "anthropic", "Not configured on this deployment")
+                    new ModelInfoResponse("claude-fable-5", "anthropic", "Claude Fable 5"),
+                    new ModelInfoResponse("claude-opus-4-8", "anthropic", "Claude Opus 4.8"),
+                    new ModelInfoResponse("claude-sonnet-5", "anthropic", "Claude Sonnet 5"),
+                    new ModelInfoResponse("claude-haiku-4-5-20251001", "anthropic", "Claude Haiku 4.5"),
+                    new ModelInfoResponse("claude-opus-4-7", "anthropic", "Claude Opus 4.7"),
+                    new ModelInfoResponse("claude-opus-4-6", "anthropic", "Claude Opus 4.6"),
+                    new ModelInfoResponse("claude-sonnet-4-6", "anthropic", "Claude Sonnet 4.6"),
+                    new ModelInfoResponse("claude-sonnet-4-5-20250929", "anthropic", "Claude Sonnet 4.5"),
+                    new ModelInfoResponse("claude-opus-4-5-20251101", "anthropic", "Claude Opus 4.5")
             ),
             "ollama", List.of(
-                    new ModelInfoResponse("qwen3.5", "ollama", "Local Ollama multimodal model"),
-                    new ModelInfoResponse("llama3", "ollama", "Local Ollama chat model")
+                    new ModelInfoResponse("qwen3.5:35b", "ollama", "Qwen 3.5 35B"),
+                    new ModelInfoResponse("qwen3:8b", "ollama", "Qwen 3 8B"),
+                    new ModelInfoResponse("qwen3:14b", "ollama", "Qwen 3 14B"),
+                    new ModelInfoResponse("llama3.2", "ollama", "Llama 3.2"),
+                    new ModelInfoResponse("llama3.1:8b", "ollama", "Llama 3.1 8B"),
+                    new ModelInfoResponse("gemma3:12b", "ollama", "Gemma 3 12B"),
+                    new ModelInfoResponse("mistral", "ollama", "Mistral"),
+                    new ModelInfoResponse("deepseek-r1:14b", "ollama", "DeepSeek R1 14B")
             )
     );
 
-    private final String configuredChatModel;
     private final boolean ollamaChatEnabled;
     private final boolean anthropicEnabled;
 
     public TextProviderCatalog(
-            @Value("${spring.ai.openai.chat.model:deepseek-v4-flash}") String configuredChatModel,
             @Value("${spring.ai.ollama.chat.enabled:false}") boolean ollamaChatEnabled,
             @Value("${spring.ai.anthropic.api-key:}") String anthropicApiKey) {
-        this.configuredChatModel = configuredChatModel;
         this.ollamaChatEnabled = ollamaChatEnabled;
         this.anthropicEnabled = anthropicApiKey != null && !anthropicApiKey.isBlank();
     }
@@ -78,22 +86,7 @@ public class TextProviderCatalog {
 
     public List<ModelInfoResponse> listModels(String provider) {
         String key = provider == null || provider.isBlank() ? "openai" : provider.toLowerCase();
-        List<ModelInfoResponse> models = MODELS_BY_PROVIDER.getOrDefault(key, MODELS_BY_PROVIDER.get("openai"));
-
-        if ("openai".equals(key)) {
-            return models.stream()
-                    .map(model -> primaryModel(model))
-                    .toList();
-        }
-
-        return models;
-    }
-
-    private ModelInfoResponse primaryModel(ModelInfoResponse model) {
-        if ("deepseek-v4-flash".equals(model.name())) {
-            return new ModelInfoResponse(configuredChatModel, model.provider(), model.description());
-        }
-        return model;
+        return MODELS_BY_PROVIDER.getOrDefault(key, MODELS_BY_PROVIDER.get("openai"));
     }
 
     private List<String> modelNames(String provider) {

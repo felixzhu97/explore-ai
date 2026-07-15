@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.anthropic.AnthropicChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.ObjectProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,10 +25,16 @@ class ChatModelResolverTest {
     private OpenAiChatModel openAiChatModel;
 
     @Mock
-    private ObjectProvider<org.springframework.ai.ollama.OllamaChatModel> ollamaChatModel;
+    private ObjectProvider<OllamaChatModel> ollamaChatModel;
 
     @Mock
-    private ObjectProvider<org.springframework.ai.anthropic.AnthropicChatModel> anthropicChatModel;
+    private ObjectProvider<AnthropicChatModel> anthropicChatModel;
+
+    @Mock
+    private OllamaChatModel ollamaBean;
+
+    @Mock
+    private AnthropicChatModel anthropicBean;
 
     @Mock
     private TextProviderCatalog providerCatalog;
@@ -40,7 +48,9 @@ class ChatModelResolverTest {
                 ollamaChatModel,
                 anthropicChatModel,
                 providerCatalog,
-                "deepseek-v4-flash");
+                "deepseek-v4-flash",
+                "qwen3.5:35b",
+                "claude-sonnet-5");
     }
 
     @Test
@@ -56,39 +66,35 @@ class ChatModelResolverTest {
     }
 
     @Test
-    @DisplayName("should fall back to openai when provider unavailable")
-    void should_fallbackWhenProviderUnavailable() {
+    @DisplayName("should reject when provider unavailable")
+    void should_rejectWhenProviderUnavailable() {
         when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(false);
 
-        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("anthropic", "claude-3-5-sonnet"));
-
-        assertThat(resolved.provider()).isEqualTo("openai");
-        assertThat(resolved.chatModel()).isSameAs(openAiChatModel);
-        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
+        assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("anthropic", "claude-sonnet-5")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not configured");
     }
 
     @Test
-    @DisplayName("should fall back to default openai model when ollama bean unavailable")
-    void should_fallbackToDefaultOpenAiModelWhenOllamaUnavailable() {
+    @DisplayName("should reject when ollama bean unavailable")
+    void should_rejectWhenOllamaBeanUnavailable() {
         when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
         when(ollamaChatModel.getIfAvailable()).thenReturn(null);
 
-        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("ollama", "qwen3.5"));
-
-        assertThat(resolved.provider()).isEqualTo("openai");
-        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
+        assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("ollama", "qwen3.5:35b")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Ollama");
     }
 
     @Test
-    @DisplayName("should fall back to default openai model when anthropic bean unavailable")
-    void should_fallbackToDefaultOpenAiModelWhenAnthropicUnavailable() {
+    @DisplayName("should reject when anthropic bean unavailable")
+    void should_rejectWhenAnthropicBeanUnavailable() {
         when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
         when(anthropicChatModel.getIfAvailable()).thenReturn(null);
 
-        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("anthropic", "claude-3-5-sonnet"));
-
-        assertThat(resolved.provider()).isEqualTo("openai");
-        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
+        assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("anthropic", "claude-sonnet-5")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Anthropic");
     }
 
     @Test
@@ -96,8 +102,34 @@ class ChatModelResolverTest {
     void should_useRequestedModelForOpenAi() {
         when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
 
-        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "gpt-4o"));
+        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-pro"));
 
-        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("gpt-4o");
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-pro");
+    }
+
+    @Test
+    @DisplayName("should resolve ollama with configured default model")
+    void should_resolveOllamaWithDefaultModel() {
+        when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
+        when(ollamaChatModel.getIfAvailable()).thenReturn(ollamaBean);
+
+        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("ollama", null));
+
+        assertThat(resolved.provider()).isEqualTo("ollama");
+        assertThat(resolved.chatModel()).isSameAs(ollamaBean);
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("qwen3.5:35b");
+    }
+
+    @Test
+    @DisplayName("should resolve anthropic with configured default model")
+    void should_resolveAnthropicWithDefaultModel() {
+        when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
+        when(anthropicChatModel.getIfAvailable()).thenReturn(anthropicBean);
+
+        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("anthropic", null));
+
+        assertThat(resolved.provider()).isEqualTo("anthropic");
+        assertThat(resolved.chatModel()).isSameAs(anthropicBean);
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("claude-sonnet-5");
     }
 }

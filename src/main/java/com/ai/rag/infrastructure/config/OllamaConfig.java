@@ -1,6 +1,5 @@
 package com.ai.rag.infrastructure.config;
 
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
@@ -49,7 +48,7 @@ public class OllamaConfig {
     @Bean("ollamaVisionChatModel")
     @ConditionalOnProperty(name = "spring.ai.ollama.chat.enabled", havingValue = "true", matchIfMissing = true)
     @NonNull
-    public ChatModel ollamaVisionChatModel() {
+    public OllamaChatModel ollamaVisionChatModel() {
         OllamaApi api = OllamaApi.builder()
                 .baseUrl(baseUrl)
                 .build();

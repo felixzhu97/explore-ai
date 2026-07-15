@@ -12,7 +12,7 @@ import {
   NxBubbleListItem,
   NxBubbleSlotType,
 } from 'ng-zorro-x/bubble';
-import { MarkdownContentComponent } from '@shared/components/markdown-content.component';
+import { MarkdownWithA2uiComponent } from '@shared/components/markdown-with-a2ui.component';
 import { formatMessageTime } from '@shared/utils/format-time.util';
 import { ChatBubbleMessage } from './chat-bubble.model';
 
@@ -24,7 +24,7 @@ export interface ChatBubbleFooterLabels {
 
 @Component({
   selector: 'app-chat-bubble-list',
-  imports: [NxBubbleListComponent, MarkdownContentComponent],
+  imports: [NxBubbleListComponent, MarkdownWithA2uiComponent],
   template: `
     <div class="mx-auto max-w-[880px]">
       <nx-bubble-list [items]="bubbleItems()" [roles]="bubbleRoles" [autoScroll]="true" />
@@ -68,7 +68,7 @@ export interface ChatBubbleFooterLabels {
         }
       }
       @if (content) {
-        <app-markdown-content
+        <app-markdown-with-a2ui
           [content]="content"
           [streaming]="isStreaming(messageKey(info))"
         />

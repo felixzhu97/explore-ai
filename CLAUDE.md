@@ -845,14 +845,19 @@ function divide(a: number, b: number): number {
 
 PR body mirrors the commit message. References must be identical.
 
+**Section labels are plain body text ending with a colon — never Markdown headings (`#` / `##`) and never bold (`**`).**
+
 ```
-## Summary
+Summary:
+
 [Brief description of the change]
 
-## References
+References:
+
 - [Title](URL)
 
-## Jira Links (if applicable)
+Jira Links:
+
 - [Jira Issue Key](https://felixzhu.atlassian.net/browse/AI-XXX)
 ```
 
@@ -868,6 +873,7 @@ PR body mirrors the commit message. References must be identical.
 | Past tense | Use imperative: `add` not `added` |
 | PR base on main | Always base on previous branch |
 | Co-authored-by or Made with | Do not add boilerplate signatures or tool references |
+| PR section labels as `#` / `##` headings or bold | Use plain text with colon: `Summary:`, `References:` |
 
 
 ## Project Dependency Reference
@@ -1296,4 +1302,4 @@ Design for clarity, elegance, and human-centeredness. Prefer simplicity over com
 - [shadcn/ui - Apple](https://www.shadcn.io/design/apple)
 - [shadcn/ui - OpenAI](https://www.shadcn.io/design/openai)
 
-<!-- Generated at Sun Jul 12 10:16:12 CST 2026 -->
+<!-- Generated at Wed Jul 15 22:40:42 CST 2026 -->
