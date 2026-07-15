@@ -29,6 +29,7 @@ public class PromptTemplates {
 
     /**
      * A2UI v0.9 chart surfaces: NDJSON in ```a2ui fences (not raw ECharts option JSON).
+     * When Tools are enabled, prefer searchWeb for live numbers before filling chartData.
      */
     private static final String A2UI_CHART_INSTRUCTIONS = """
 
@@ -45,6 +46,20 @@ public class PromptTemplates {
             - Optional updateDataModel for bound chartData paths
             - Do NOT output executable JavaScript or bare ECharts option JSON
             - Do NOT invent other custom components beyond this catalog (incl. Chart)
+
+            Live / online data + charts (when tools such as searchWeb are available):
+            - If the user needs up-to-date statistics, rankings, prices, population,
+              market shares, election results, or other figures you do not know, call
+              searchWeb exactly once with a focused query (include units / year / region)
+            - After searchWeb returns, do NOT call searchWeb or any other tool again;
+              immediately write a short markdown explanation, then the a2ui chart fence
+            - From the tool results, extract concrete numeric series into chartData
+              as [{label, value}, ...] (numbers only for value; short labels)
+            - Do NOT invent or guess chart numbers when search results are available;
+              if results lack usable numbers, say so in markdown and skip the chart
+              (or ask a clarifying question) instead of fabricating data
+            - After the chart, briefly cite source URLs from the search results in
+              markdown (do not put URLs inside the a2ui fence)
 
             Example fence (abbreviated; real output must be valid NDJSON lines):
             ```a2ui

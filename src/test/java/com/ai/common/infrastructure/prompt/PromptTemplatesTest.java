@@ -65,6 +65,10 @@ class PromptTemplatesTest {
             assertThat(prompt).contains("\"version\": \"v0.9\"");
             assertThat(prompt).contains("Chart");
             assertThat(prompt).contains("Do NOT output executable JavaScript or bare ECharts option JSON");
+            assertThat(prompt).contains("searchWeb");
+            assertThat(prompt).contains("exactly once");
+            assertThat(prompt).contains("do NOT call searchWeb or any other tool again");
+            assertThat(prompt).contains("Do NOT invent or guess chart numbers");
         }
     }
 

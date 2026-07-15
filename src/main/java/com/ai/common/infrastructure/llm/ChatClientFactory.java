@@ -6,11 +6,13 @@ import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +77,13 @@ public class ChatClientFactory implements ChatClientProvider {
             advisors.add(SimpleLoggerAdvisor.builder().build());
         }
 
-        ChatClient.Builder builder = ChatClient.builder(resolved.chatModel())
+        ChatClient.Builder builder = ChatClient.builder(
+                        resolved.chatModel(),
+                        ObservationRegistry.NOOP,
+                        null,
+                        null,
+                        AnswerAfterToolsAdvisor.builder()
+                                .toolCallingManager(ToolCallingManager.builder().build()))
                 .defaultOptions(resolved.optionsBuilder())
                 .defaultAdvisors(advisors);
 

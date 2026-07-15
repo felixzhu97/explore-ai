@@ -62,6 +62,8 @@ export class MarkdownWithA2uiComponent {
         if (this.processedFences.has(key) || segment.messages.length === 0) {
           continue;
         }
+        // Mark before ingest so concurrent effect re-entry does not double createSurface.
+        this.processedFences.add(key);
         try {
           const withCatalog = segment.messages.map((message) => {
             if ('createSurface' in message && message.createSurface) {
@@ -76,9 +78,12 @@ export class MarkdownWithA2uiComponent {
             return message;
           });
           this.a2ui.processMessages(withCatalog);
-          this.processedFences.add(key);
         } catch (error) {
           const message = error instanceof Error ? error.message : 'A2UI 渲染失败';
+          if (/already exists/i.test(message)) {
+            continue;
+          }
+          this.processedFences.delete(key);
           this.ingestError.set(message);
         }
       }

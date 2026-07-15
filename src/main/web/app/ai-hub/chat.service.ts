@@ -31,7 +31,7 @@ export class ChatService {
   readonly isLoading = signal(false);
   readonly streamingMessageId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
-  readonly toolsEnabled = signal(false);
+  readonly toolsEnabled = signal(true);
 
   private streamAbort: (() => void) | null = null;
 
