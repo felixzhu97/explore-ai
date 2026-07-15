@@ -18,30 +18,10 @@ import {
 } from '@a2ui/angular/v0_9';
 import { marked } from 'marked';
 import { provideEchartsCore } from 'ngx-echarts';
-import * as echarts from 'echarts/core';
-import { BarChart, LineChart, PieChart } from 'echarts/charts';
-import {
-  GridComponent,
-  TooltipComponent,
-  TitleComponent,
-  LegendComponent,
-} from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
 import {
   ChartComponentImplementation,
   EXPLORE_CHAT_CATALOG_ID,
 } from './a2ui/explore-chat.catalog';
-
-echarts.use([
-  BarChart,
-  LineChart,
-  PieChart,
-  GridComponent,
-  TooltipComponent,
-  TitleComponent,
-  LegendComponent,
-  CanvasRenderer,
-]);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -61,7 +41,10 @@ export const appConfig: ApplicationConfig = {
         borderRadius: '6px',
       },
     }),
-    provideEchartsCore({ echarts }),
+    // Lazy-load treeshaken ECharts so it stays out of the initial bundle budget.
+    provideEchartsCore({
+      echarts: () => import('./a2ui/echarts.bundle').then(m => m.default),
+    }),
     provideMarkdownRenderer(async markdown => String(await marked.parse(String(markdown ?? '')))),
     {
       provide: BASIC_CATALOG_OPTIONS,
