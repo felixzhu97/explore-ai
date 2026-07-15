@@ -67,6 +67,12 @@ function fulfillSse(route: Route, events: string[]): Promise<void> {
   });
 }
 
+/** Encode multi-line assistant text as one SSE event (spec: join data lines with \\n). */
+export function encodeSseTextEvent(text: string): string[] {
+  const dataLines = text.split('\n').map(line => `data: ${line}`);
+  return [...dataLines, '', 'data: [DONE]', ''];
+}
+
 export async function setupCommonMocks(page: Page): Promise<void> {
   sessionMessages = [];
 
@@ -125,7 +131,7 @@ export async function setupChatStreamMock(
       },
     ];
 
-    await fulfillSse(route, [`data: ${response}`, 'data: [DONE]', '']);
+    await fulfillSse(route, encodeSseTextEvent(response));
   });
 }
 
@@ -196,5 +202,5 @@ export async function waitForBubbleConversation(
 ): Promise<void> {
   await page.locator('nx-bubble-list').waitFor({ state: 'visible' });
   await page.locator('main').getByText(userText).waitFor({ state: 'visible' });
-  await page.locator('app-markdown-content').waitFor({ state: 'visible' });
+  await page.locator('app-markdown-content').first().waitFor({ state: 'visible' });
 }

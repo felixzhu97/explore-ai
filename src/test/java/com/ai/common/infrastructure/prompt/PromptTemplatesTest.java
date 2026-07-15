@@ -54,6 +54,27 @@ class PromptTemplatesTest {
             assertThat(prompt).contains("# through ###");
             assertThat(prompt).contains("- ");
         }
+
+        @Test
+        @DisplayName("should include A2UI catalog and chart fence instructions")
+        void shouldIncludeA2uiCatalogAndChartFenceInstructions() {
+            String prompt = templates.getDefaultSystemPrompt();
+
+            assertThat(prompt).contains("```a2ui");
+            assertThat(prompt).contains("https://explore-ai.local/catalogs/chat-v0.9");
+            assertThat(prompt).contains("\"version\": \"v0.9\"");
+            assertThat(prompt).contains("Chart");
+            assertThat(prompt).contains("Do NOT output executable JavaScript or bare ECharts option JSON");
+            assertThat(prompt).contains("searchWeb");
+            assertThat(prompt).contains("exactly once");
+            assertThat(prompt).contains("do NOT call searchWeb or any other tool again");
+            assertThat(prompt).contains("Do NOT invent or guess chart numbers");
+            assertThat(prompt).contains("在线搜索");
+            assertThat(prompt).contains("柱状图");
+            assertThat(prompt).contains("柱状图/条形图→bar");
+            assertThat(prompt).contains("注明来源");
+            assertThat(prompt).contains("进行在线搜索，2025 年第一季度全球电动汽车市场各品牌份额");
+        }
     }
 
     @Nested
@@ -99,6 +120,16 @@ class PromptTemplatesTest {
 
             // Assert
             assertThat(prompt.toLowerCase()).contains("cite");
+        }
+
+        @Test
+        @DisplayName("should include A2UI chart instructions like default prompt")
+        void shouldIncludeA2uiChartInstructionsLikeDefaultPrompt() {
+            String prompt = templates.getRagSystemPrompt();
+
+            assertThat(prompt).contains("```a2ui");
+            assertThat(prompt).contains("https://explore-ai.local/catalogs/chat-v0.9");
+            assertThat(prompt).contains("createSurface");
         }
     }
 

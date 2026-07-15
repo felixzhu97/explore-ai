@@ -64,14 +64,19 @@ References:
 
 PR body mirrors the commit message. References must be identical.
 
+**Section labels are plain body text ending with a colon — never Markdown headings (`#` / `##`) and never bold (`**`).**
+
 ```
-## Summary
+Summary:
+
 [Brief description of the change]
 
-## References
+References:
+
 - [Title](URL)
 
-## Jira Links (if applicable)
+Jira Links:
+
 - [Jira Issue Key](https://felixzhu.atlassian.net/browse/AI-XXX)
 ```
 
@@ -99,13 +104,16 @@ References:
 # 6. Push and create PR (base: previous branch)
 git push -u origin HEAD
 gh pr create --title "feat: description" --base feat/previous-feature --body "$(cat <<'EOF'
-## Summary
+Summary:
+
 [Brief description of the change]
 
-## References
+References:
+
 - [Title](URL)
 
-## Jira Links
+Jira Links:
+
 - [AI-XXX](https://felixzhu.atlassian.net/browse/AI-XXX)
 EOF
 )"
@@ -133,6 +141,7 @@ main
 | Past tense | Use imperative: `add` not `added` |
 | PR base on main | Always base on previous branch |
 | Co-authored-by or Made with | Do not add boilerplate signatures or tool references |
+| PR section labels as `#` / `##` headings or bold | Use plain text with colon: `Summary:`, `References:` |
 
 ---
 
@@ -144,6 +153,7 @@ The following elements should **never** appear in commit messages or PR descript
 - `Made with xxx` or `Built with xxx` - Unnecessary boilerplate
 - Sign-off lines (`Signed-off-by:`) unless required by CI
 - Emoji prefixes or suffixes in subject lines
+- Markdown heading markers (`#`, `##`, `###`) or bold (`**Label**`) for PR body section labels — use plain `Label:` instead
 
 ---
 

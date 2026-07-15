@@ -20,6 +20,7 @@ import java.util.Map;
 public class SerperWebSearchAdapter implements WebSearchTool {
 
     private static final Logger log = LoggerFactory.getLogger(SerperWebSearchAdapter.class);
+    private static final int RESULT_COUNT = 8;
 
     private final RestClient restClient;
     private final String apiKey;
@@ -37,8 +38,16 @@ public class SerperWebSearchAdapter implements WebSearchTool {
     }
 
     @Override
-    @Tool(description = "Search the web for current information, real-time news, and live data. Use this when user asks about current events, recent news, weather, stock prices, or any topic requiring up-to-date information from the internet.")
-    public String searchWeb(@ToolParam(description = "The search query to find current information") String query) {
+    @Tool(description = """
+            Web search tool (在线搜索 / 联网搜索). Call when the user asks to search
+            online, or needs live statistics to chart (市场份额, EV share, prices,
+            rankings). Also trigger on phrases like 进行在线搜索 / 查一下 / look up.
+            Call at most once per user question. Prefer an English query that includes
+            year/quarter, region, metric, and brand names even if the user wrote Chinese
+            (e.g. "2025 Q1 global EV market share Tesla BYD Volkswagen"). After results
+            return, answer immediately with markdown + a2ui chart if requested; do not
+            call this tool again. Snippets often map to chartData [{label, value}, ...].""")
+    public String searchWeb(@ToolParam(description = "Search query; prefer English with year, region, metric, and brand names") String query) {
         if (query == null || query.isBlank()) {
             return "Please provide a valid search query.";
         }
@@ -53,15 +62,22 @@ public class SerperWebSearchAdapter implements WebSearchTool {
         try {
             var response = restClient.post()
                     .uri("/search")
-                    .body(Map.of("q", query, "num", 5))
+                    .body(Map.of("q", query, "num", RESULT_COUNT))
                     .retrieve()
                     .body(SerperResponse.class);
 
-            if (response == null || response.organic() == null || response.organic().isEmpty()) {
+            if (response == null) {
                 return "No search results found for: " + query;
             }
 
-            return formatResults(query, response.organic());
+            boolean hasOrganic = response.organic() != null && !response.organic().isEmpty();
+            boolean hasAnswer = response.answerBox() != null;
+            boolean hasKnowledge = response.knowledgeGraph() != null;
+            if (!hasOrganic && !hasAnswer && !hasKnowledge) {
+                return "No search results found for: " + query;
+            }
+
+            return formatResults(query, response);
 
         } catch (Exception e) {
             log.error("Web search failed for query: {}", query, e);
@@ -69,29 +85,73 @@ public class SerperWebSearchAdapter implements WebSearchTool {
         }
     }
 
-    private String formatResults(String query, List<SerperResponse.OrganicResult> results) {
+    private String formatResults(String query, SerperResponse response) {
         StringBuilder sb = new StringBuilder();
         sb.append("Web search results for: ").append(query).append("\n\n");
 
-        for (int i = 0; i < results.size(); i++) {
-            SerperResponse.OrganicResult result = results.get(i);
-            sb.append(String.format("[%d] %s\n", i + 1, result.title()));
-            sb.append(String.format("URL: %s\n", result.link()));
-            if (result.snippet() != null) {
-                sb.append(String.format("Summary: %s\n", result.snippet()));
+        if (response.answerBox() != null) {
+            AnswerBox box = response.answerBox();
+            sb.append("Answer box:\n");
+            if (box.title() != null) {
+                sb.append("Title: ").append(box.title()).append('\n');
             }
-            sb.append("\n");
+            if (box.answer() != null) {
+                sb.append("Answer: ").append(box.answer()).append('\n');
+            }
+            if (box.snippet() != null) {
+                sb.append("Snippet: ").append(box.snippet()).append('\n');
+            }
+            if (box.link() != null) {
+                sb.append("URL: ").append(box.link()).append('\n');
+            }
+            sb.append('\n');
         }
 
-        sb.append("Sources:\n");
-        for (SerperResponse.OrganicResult result : results) {
-            sb.append(String.format("- %s\n", result.link()));
+        if (response.knowledgeGraph() != null) {
+            KnowledgeGraph graph = response.knowledgeGraph();
+            sb.append("Knowledge graph:\n");
+            if (graph.title() != null) {
+                sb.append("Title: ").append(graph.title()).append('\n');
+            }
+            if (graph.type() != null) {
+                sb.append("Type: ").append(graph.type()).append('\n');
+            }
+            if (graph.description() != null) {
+                sb.append("Description: ").append(graph.description()).append('\n');
+            }
+            if (graph.attributes() != null && !graph.attributes().isEmpty()) {
+                sb.append("Attributes:\n");
+                graph.attributes().forEach((key, value) ->
+                        sb.append("  - ").append(key).append(": ").append(value).append('\n'));
+            }
+            sb.append('\n');
+        }
+
+        if (response.organic() != null) {
+            for (int i = 0; i < response.organic().size(); i++) {
+                SerperResponse.OrganicResult result = response.organic().get(i);
+                sb.append(String.format("[%d] %s\n", i + 1, result.title()));
+                sb.append(String.format("URL: %s\n", result.link()));
+                if (result.snippet() != null) {
+                    sb.append(String.format("Summary: %s\n", result.snippet()));
+                }
+                sb.append('\n');
+            }
+
+            sb.append("Sources:\n");
+            for (SerperResponse.OrganicResult result : response.organic()) {
+                sb.append(String.format("- %s\n", result.link()));
+            }
         }
 
         return sb.toString();
     }
 
-    record SerperResponse(List<OrganicResult> organic) {
+    record SerperResponse(
+            List<OrganicResult> organic,
+            AnswerBox answerBox,
+            KnowledgeGraph knowledgeGraph
+    ) {
         record OrganicResult(
                 String title,
                 String link,
@@ -100,4 +160,13 @@ public class SerperWebSearchAdapter implements WebSearchTool {
                 List<String> snippetHighlighting
         ) {}
     }
+
+    record AnswerBox(String title, String answer, String snippet, String link) {}
+
+    record KnowledgeGraph(
+            String title,
+            String type,
+            String description,
+            Map<String, Object> attributes
+    ) {}
 }

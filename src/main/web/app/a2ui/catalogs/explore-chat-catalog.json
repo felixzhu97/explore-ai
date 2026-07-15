@@ -1,0 +1,41 @@
+{
+  "catalogId": "https://explore-ai.local/catalogs/chat-v0.9",
+  "instructions": "When the user needs a chart or data visualization, emit an ```a2ui fenced block with A2UI v0.9 NDJSON messages (one JSON object per line): createSurface, updateComponents (include root), and optional updateDataModel. Use component Chart with type bar|line|pie|doughnut and chartData as [{label, value}]. Do not emit executable JavaScript or raw ECharts option objects.",
+  "components": {
+    "Chart": {
+      "type": "object",
+      "description": "Interactive chart rendered with ECharts on the client.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["bar", "line", "pie", "doughnut"]
+        },
+        "title": {
+          "description": "Chart title (literal string or {path})",
+          "oneOf": [
+            { "type": "string" },
+            { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"] }
+          ]
+        },
+        "chartData": {
+          "description": "Series points or a data-model path",
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" },
+                  "value": { "type": "number" }
+                },
+                "required": ["label", "value"]
+              }
+            },
+            { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"] }
+          ]
+        }
+      },
+      "required": ["type", "chartData"]
+    }
+  }
+}
