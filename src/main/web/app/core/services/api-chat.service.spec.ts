@@ -22,7 +22,7 @@ describe('ApiChatService', () => {
   });
 
   it('should fetch providers', () => {
-    const mockProviders = [{ name: 'openai', displayName: 'OpenAI', models: ['gpt-4o'], status: 'available' }];
+    const mockProviders = [{ name: 'openai', displayName: 'DeepSeek', models: ['deepseek-v4-flash'], status: 'available' }];
     service.getProviders().subscribe((providers) => {
       expect(providers).toEqual(mockProviders);
     });

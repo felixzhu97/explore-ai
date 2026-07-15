@@ -5,16 +5,19 @@ const TEST_SESSION_ID = 'e2e-session-001';
 const PROVIDERS = [
   {
     name: 'openai',
-    displayName: 'OpenAI',
-    models: ['gpt-4o-mini'],
+    displayName: 'DeepSeek',
+    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
     status: 'available',
   },
 ];
 
 const MODELS = {
   provider: 'openai',
-  models: [{ name: 'gpt-4o-mini', provider: 'openai' }],
-  count: 1,
+  models: [
+    { name: 'deepseek-v4-flash', provider: 'openai' },
+    { name: 'deepseek-v4-pro', provider: 'openai' },
+  ],
+  count: 2,
 };
 
 const RAG_DOCUMENTS = {
