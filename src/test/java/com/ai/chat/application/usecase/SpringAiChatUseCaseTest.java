@@ -4,6 +4,7 @@ import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
+import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
@@ -45,6 +46,9 @@ class SpringAiChatUseCaseTest {
     @Mock
     private SessionTitleGenerator sessionTitleGenerator;
 
+    @Mock
+    private ChatWebSourcesRepository chatWebSourcesRepository;
+
     private SpringAiChatUseCase useCase;
     private RetryTemplate retryTemplate;
 
@@ -60,7 +64,8 @@ class SpringAiChatUseCaseTest {
                 retryTemplate,
                 chatMemory,
                 conversationMemoryRepository,
-                sessionTitleGenerator
+                sessionTitleGenerator,
+                chatWebSourcesRepository
         );
     }
 
@@ -151,6 +156,7 @@ class SpringAiChatUseCaseTest {
             useCase.deleteSession("session-123");
 
             verify(conversationMemoryRepository).clear("session-123");
+            verify(chatWebSourcesRepository).deleteByConversationId("session-123");
             verify(repository).delete(ChatSessionId.of("session-123"));
         }
     }

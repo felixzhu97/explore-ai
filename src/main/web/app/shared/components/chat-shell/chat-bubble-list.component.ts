@@ -58,9 +58,9 @@ export interface ChatBubbleFooterLabels {
                 @if (step.status === 'running') {
                   <span>{{ step.label }}</span>
                 } @else if (step.status === 'success') {
-                  <span>{{ step.label.replace('…', '') }} · 完成</span>
+                  <span>{{ step.label.replace('…', '') }} · Done</span>
                 } @else {
-                  <span>{{ step.label.replace('…', '') }} · 失败</span>
+                  <span>{{ step.label.replace('…', '') }} · Failed</span>
                 }
               </div>
             }

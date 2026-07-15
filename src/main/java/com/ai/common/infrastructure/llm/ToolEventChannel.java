@@ -3,31 +3,47 @@ package com.ai.common.infrastructure.llm;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Request-scoped sink for tool/source JSON events during chat streaming.
  * Each item is a JSON object string ({@code type}=tool_call|tool_result|sources) sent as SSE data.
+ * Channels are keyed by session/request id — never shared via a global stack peek.
  */
 public final class ToolEventChannel {
 
-    private static final ThreadLocal<Sinks.Many<String>> HOLDER = new ThreadLocal<>();
-    private static final ConcurrentLinkedDeque<Sinks.Many<String>> STACK = new ConcurrentLinkedDeque<>();
+    private static final ConcurrentHashMap<String, Sinks.Many<String>> BY_ID = new ConcurrentHashMap<>();
+    private static final ThreadLocal<String> CURRENT_ID = new ThreadLocal<>();
 
     private ToolEventChannel() {}
 
-    public static Sinks.Many<String> open() {
+    public static Sinks.Many<String> open(String channelId) {
+        Objects.requireNonNull(channelId, "channelId");
         Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
-        STACK.push(sink);
-        HOLDER.set(sink);
+        BY_ID.put(channelId, sink);
+        CURRENT_ID.set(channelId);
         return sink;
     }
 
+    public static void setCurrentSessionId(String channelId) {
+        CURRENT_ID.set(channelId);
+    }
+
+    public static void clearCurrentSessionId() {
+        CURRENT_ID.remove();
+    }
+
+    public static String getCurrentSessionId() {
+        return CURRENT_ID.get();
+    }
+
     public static void publish(String jsonPayload) {
-        Sinks.Many<String> sink = HOLDER.get();
-        if (sink == null) {
-            sink = STACK.peek();
+        String id = CURRENT_ID.get();
+        if (id == null) {
+            return;
         }
+        Sinks.Many<String> sink = BY_ID.get(id);
         if (sink == null) {
             return;
         }
@@ -38,17 +54,16 @@ public final class ToolEventChannel {
         return sink.asFlux();
     }
 
-    public static void close() {
-        Sinks.Many<String> sink = HOLDER.get();
+    public static void close(String channelId) {
+        if (channelId == null) {
+            return;
+        }
+        Sinks.Many<String> sink = BY_ID.remove(channelId);
         if (sink != null) {
             sink.tryEmitComplete();
-            HOLDER.remove();
-            STACK.remove(sink);
-        } else {
-            Sinks.Many<String> top = STACK.poll();
-            if (top != null) {
-                top.tryEmitComplete();
-            }
+        }
+        if (channelId.equals(CURRENT_ID.get())) {
+            CURRENT_ID.remove();
         }
     }
 }

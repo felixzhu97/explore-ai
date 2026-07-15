@@ -2,6 +2,10 @@ package com.ai.chat.web;
 
 import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.chat.domain.model.ChatMessage;
+import com.ai.chat.domain.repository.ChatWebSourcesRepository;
+import com.ai.chat.domain.vo.ContentHash;
+import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.web.dto.HealthResponse;
 import com.ai.chat.web.dto.*;
 import jakarta.validation.Valid;
@@ -11,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -19,9 +24,11 @@ public class ChatController {
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
     private final ChatUseCase chatUseCase;
+    private final ChatWebSourcesRepository chatWebSourcesRepository;
 
-    public ChatController(ChatUseCase chatUseCase) {
+    public ChatController(ChatUseCase chatUseCase, ChatWebSourcesRepository chatWebSourcesRepository) {
         this.chatUseCase = chatUseCase;
+        this.chatWebSourcesRepository = chatWebSourcesRepository;
     }
 
     @GetMapping("/health")
@@ -72,15 +79,32 @@ public class ChatController {
     @GetMapping("/sessions/{sessionId}/messages")
     public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(@PathVariable String sessionId) {
         try {
+            Map<String, List<WebSource>> sourcesByHash =
+                    chatWebSourcesRepository.findByConversationId(sessionId);
             List<MessageInfoResponse> messages = chatUseCase.getSessionHistory(sessionId)
                     .stream()
-                    .map(MessageInfoResponse::from)
+                    .map(message -> toMessageInfo(message, sourcesByHash))
                     .toList();
             return ResponseEntity.ok(messages);
         } catch (ChatSessionNotFoundException e) {
             log.debug("Session not found: {}", sessionId);
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private static MessageInfoResponse toMessageInfo(
+            ChatMessage message,
+            Map<String, List<WebSource>> sourcesByHash) {
+        if (!message.isFromAssistant() || sourcesByHash.isEmpty()) {
+            return MessageInfoResponse.from(message);
+        }
+        List<WebSource> sources = sourcesByHash.get(ContentHash.sha256(message.getText()));
+        if (sources == null || sources.isEmpty()) {
+            return MessageInfoResponse.from(message);
+        }
+        return MessageInfoResponse.from(
+                message,
+                sources.stream().map(WebSourceDto::from).toList());
     }
 
     @DeleteMapping("/sessions/{sessionId}")

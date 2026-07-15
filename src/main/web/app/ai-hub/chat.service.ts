@@ -233,7 +233,11 @@ export class ChatService {
     this.api.getSessionMessages(sessionId).subscribe({
       next: (history) => {
         if (this.activeSessionId() === sessionId && !this.isLoading()) {
-          this.messages.set(history.map(msg => this.toUiMessage(msg)));
+          this.messages.update(previous => mergeHistoryWithUiState(
+            history.map(msg => this.toUiMessage(msg)),
+            previous,
+          ),
+          );
         }
       },
     });
@@ -384,23 +388,52 @@ export class ChatService {
       role: msg.role === 'assistant' ? 'assistant' : 'user',
       content: msg.content,
       timestamp,
+      sources: msg.sources?.map(source => ({
+        title: source.title,
+        url: source.url,
+        snippet: source.snippet,
+      })),
     };
   }
+}
+
+/**
+ * After stream complete, history sync may race DB persistence.
+ * Keep local sources when API has not returned them yet for the same content.
+ */
+export function mergeHistoryWithUiState(
+  history: UiMessage[],
+  previous: UiMessage[],
+): UiMessage[] {
+  const previousSources = new Map<string, UiWebSource[]>();
+  for (const msg of previous) {
+    if (msg.role === 'assistant' && msg.sources?.length) {
+      previousSources.set(msg.content, msg.sources);
+    }
+  }
+
+  return history.map((ui) => {
+    if (ui.role !== 'assistant' || ui.sources?.length) {
+      return ui;
+    }
+    const local = previousSources.get(ui.content);
+    return local?.length ? { ...ui, sources: local } : ui;
+  });
 }
 
 function toolLabel(name: string): string {
   const key = name.toLowerCase();
   if (key.includes('searchweb') || key === 'search_web' || (key.includes('search') && key.includes('web'))) {
-    return '正在搜索…';
+    return 'Searching…';
   }
   if (key.includes('fetch')) {
-    return '正在读取网页…';
+    return 'Fetching page…';
   }
   if (key.includes('weather') || key.includes('forecast')) {
-    return '正在查询天气…';
+    return 'Checking weather…';
   }
   if (key.includes('document')) {
-    return '正在检索知识库…';
+    return 'Searching knowledge base…';
   }
-  return `正在调用 ${name}…`;
+  return `Calling ${name}…`;
 }

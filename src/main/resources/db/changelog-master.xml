@@ -15,4 +15,5 @@
   <include file="changelogs/1.0.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/2.0-chat-memory.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/2.1-chat-memory-repair.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/2.2-chat-web-sources.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

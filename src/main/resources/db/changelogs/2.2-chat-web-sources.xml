@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260715-001-chat-web-sources" dbms="h2">
+    <createTable tableName="chat_web_sources">
+      <column name="conversation_id" type="${string.type}(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content_hash" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="query" type="${string.type}(512)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="sources_json" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey
+        tableName="chat_web_sources"
+        columnNames="conversation_id, content_hash"
+        constraintName="pk_chat_web_sources"/>
+    <createIndex indexName="idx_chat_web_sources_conversation" tableName="chat_web_sources">
+      <column name="conversation_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

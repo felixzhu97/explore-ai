@@ -18,9 +18,12 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @DisplayName("SerperWebSearchAdapter")
 class SerperWebSearchAdapterSourcesTest {
 
+    private static final String CHANNEL = "serper-sources-test";
+
     @AfterEach
     void tearDown() {
-        ToolEventChannel.close();
+        ToolEventChannel.close(CHANNEL);
+        ToolEventChannel.clearCurrentSessionId();
     }
 
     @Test
@@ -41,7 +44,7 @@ class SerperWebSearchAdapterSourcesTest {
                         }
                         """, MediaType.APPLICATION_JSON));
 
-        var sink = ToolEventChannel.open();
+        var sink = ToolEventChannel.open(CHANNEL);
         List<String> events = new ArrayList<>();
         sink.asFlux().subscribe(events::add);
 
@@ -55,6 +58,6 @@ class SerperWebSearchAdapterSourcesTest {
                         .contains("weather beijing")
                         .contains("https://example.com"));
         server.verify();
-        ToolEventChannel.close();
+        ToolEventChannel.close(CHANNEL);
     }
 }

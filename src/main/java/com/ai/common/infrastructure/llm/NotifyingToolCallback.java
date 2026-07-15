@@ -12,15 +12,18 @@ import java.util.Map;
 
 /**
  * Wraps a {@link ToolCallback} and emits SSE-friendly tool_call / tool_result events.
+ * Binds {@link ToolEventChannel} to {@code conversationId} on the tool execution thread.
  */
 public final class NotifyingToolCallback implements ToolCallback {
 
     private static final ObjectMapper JSON = new ObjectMapper();
 
     private final ToolCallback delegate;
+    private final String conversationId;
 
-    public NotifyingToolCallback(ToolCallback delegate) {
+    public NotifyingToolCallback(ToolCallback delegate, String conversationId) {
         this.delegate = delegate;
+        this.conversationId = conversationId;
     }
 
     @Override
@@ -39,30 +42,35 @@ public final class NotifyingToolCallback implements ToolCallback {
     }
 
     private String callAndNotify(String toolInput, @Nullable ToolContext toolContext) {
-        String name = getToolDefinition().name();
-        ToolEventChannel.publish(toJson(Map.of(
-                "type", "tool_call",
-                "name", name,
-                "input", toolInput == null ? "" : toolInput)));
+        ToolEventChannel.setCurrentSessionId(conversationId);
         try {
-            String result = toolContext == null
-                    ? delegate.call(toolInput)
-                    : delegate.call(toolInput, toolContext);
-            Map<String, Object> payload = new LinkedHashMap<>();
-            payload.put("type", "tool_result");
-            payload.put("name", name);
-            payload.put("ok", true);
-            payload.put("output", truncate(result));
-            ToolEventChannel.publish(toJson(payload));
-            return result;
-        } catch (RuntimeException e) {
-            Map<String, Object> payload = new LinkedHashMap<>();
-            payload.put("type", "tool_result");
-            payload.put("name", name);
-            payload.put("ok", false);
-            payload.put("output", e.getMessage() == null ? "tool failed" : e.getMessage());
-            ToolEventChannel.publish(toJson(payload));
-            throw e;
+            String name = getToolDefinition().name();
+            ToolEventChannel.publish(toJson(Map.of(
+                    "type", "tool_call",
+                    "name", name,
+                    "input", toolInput == null ? "" : toolInput)));
+            try {
+                String result = toolContext == null
+                        ? delegate.call(toolInput)
+                        : delegate.call(toolInput, toolContext);
+                Map<String, Object> payload = new LinkedHashMap<>();
+                payload.put("type", "tool_result");
+                payload.put("name", name);
+                payload.put("ok", true);
+                payload.put("output", truncate(result));
+                ToolEventChannel.publish(toJson(payload));
+                return result;
+            } catch (RuntimeException e) {
+                Map<String, Object> payload = new LinkedHashMap<>();
+                payload.put("type", "tool_result");
+                payload.put("name", name);
+                payload.put("ok", false);
+                payload.put("output", e.getMessage() == null ? "tool failed" : e.getMessage());
+                ToolEventChannel.publish(toJson(payload));
+                throw e;
+            }
+        } finally {
+            ToolEventChannel.clearCurrentSessionId();
         }
     }
 

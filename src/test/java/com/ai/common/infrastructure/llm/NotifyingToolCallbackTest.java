@@ -16,15 +16,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("NotifyingToolCallback")
 class NotifyingToolCallbackTest {
 
+    private static final String CHANNEL = "notify-test";
+
     @AfterEach
     void tearDown() {
-        ToolEventChannel.close();
+        ToolEventChannel.close(CHANNEL);
+        ToolEventChannel.clearCurrentSessionId();
     }
 
     @Test
     @DisplayName("should_emit_tool_call_and_result_events_when_delegate_succeeds")
     void should_emit_tool_call_and_result_events_when_delegate_succeeds() {
-        var sink = ToolEventChannel.open();
+        var sink = ToolEventChannel.open(CHANNEL);
+        ToolEventChannel.clearCurrentSessionId();
         List<String> events = new ArrayList<>();
         Flux<String> flux = ToolEventChannel.asFlux(sink).doOnNext(events::add);
 
@@ -40,8 +44,8 @@ class NotifyingToolCallbackTest {
             }
         };
 
-        String result = new NotifyingToolCallback(delegate).call("{\"q\":\"hello\"}");
-        ToolEventChannel.close();
+        String result = new NotifyingToolCallback(delegate, CHANNEL).call("{\"q\":\"hello\"}");
+        ToolEventChannel.close(CHANNEL);
 
         assertThat(result).isEqualTo("ok:{\"q\":\"hello\"}");
         StepVerifier.create(flux)

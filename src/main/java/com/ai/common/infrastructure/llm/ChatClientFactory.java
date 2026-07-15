@@ -27,11 +27,9 @@ public class ChatClientFactory implements ChatClientProvider {
     private final ChatModelResolver chatModelResolver;
     private final ChatMemory chatMemory;
     private final PromptTemplates promptTemplates;
-    private final WeatherTool weatherTools;
-    private final DocumentSearchTool documentSearchTool;
-    private final WebSearchTool webSearchTool;
     private final ObjectProvider<ToolCallback[]> mcpToolCallbacks;
     private final boolean loggingAdvisorEnabled;
+    private final ToolCallback[] localToolCallbacks;
 
     public ChatClientFactory(
             ChatModelResolver chatModelResolver,
@@ -45,11 +43,12 @@ public class ChatClientFactory implements ChatClientProvider {
         this.chatModelResolver = chatModelResolver;
         this.chatMemory = chatMemory;
         this.promptTemplates = promptTemplates;
-        this.weatherTools = weatherTools;
-        this.documentSearchTool = documentSearchTool;
-        this.webSearchTool = webSearchTool;
         this.mcpToolCallbacks = mcpToolCallbacks;
         this.loggingAdvisorEnabled = loggingAdvisorEnabled;
+        this.localToolCallbacks = MethodToolCallbackProvider.builder()
+                .toolObjects(weatherTools, documentSearchTool, webSearchTool)
+                .build()
+                .getToolCallbacks();
     }
 
     @Override
@@ -59,20 +58,24 @@ public class ChatClientFactory implements ChatClientProvider {
 
     @Override
     public ChatClient create(TextChatOptions options, String conversationId) {
-        return buildClient(options, conversationId != null, true);
+        return buildClient(options, conversationId != null, true, conversationId);
     }
 
     @Override
     public ChatClient createStateless(TextChatOptions options) {
-        return buildClient(options, false, true);
+        return buildClient(options, false, true, ToolEventChannel.getCurrentSessionId());
     }
 
     @Override
     public ChatClient createBareStateless(TextChatOptions options) {
-        return buildClient(options, false, false);
+        return buildClient(options, false, false, null);
     }
 
-    private ChatClient buildClient(TextChatOptions options, boolean withMemory, boolean withDefaults) {
+    private ChatClient buildClient(
+            TextChatOptions options,
+            boolean withMemory,
+            boolean withDefaults,
+            String channelId) {
         ResolvedChatModel resolved = chatModelResolver.resolve(options);
         List<Advisor> advisors = new ArrayList<>();
         if (withMemory) {
@@ -93,7 +96,7 @@ public class ChatClientFactory implements ChatClientProvider {
         if (withDefaults) {
             builder.defaultSystem(promptTemplates.getDefaultSystemPrompt());
             if (options.toolsEnabled()) {
-                ToolCallback[] callbacks = notifyingCallbacks();
+                ToolCallback[] callbacks = notifyingCallbacks(channelId);
                 if (callbacks.length > 0) {
                     builder.defaultToolCallbacks(callbacks);
                 }
@@ -103,19 +106,16 @@ public class ChatClientFactory implements ChatClientProvider {
         return builder.build();
     }
 
-    private ToolCallback[] notifyingCallbacks() {
+    private ToolCallback[] notifyingCallbacks(String channelId) {
+        String id = channelId == null ? "" : channelId;
         List<ToolCallback> callbacks = new ArrayList<>();
-        ToolCallback[] local = MethodToolCallbackProvider.builder()
-                .toolObjects(weatherTools, documentSearchTool, webSearchTool)
-                .build()
-                .getToolCallbacks();
-        for (ToolCallback callback : local) {
-            callbacks.add(new NotifyingToolCallback(callback));
+        for (ToolCallback callback : localToolCallbacks) {
+            callbacks.add(new NotifyingToolCallback(callback, id));
         }
         ToolCallback[] mcp = mcpToolCallbacks.getIfAvailable();
         if (mcp != null) {
             for (ToolCallback callback : mcp) {
-                callbacks.add(new NotifyingToolCallback(callback));
+                callbacks.add(new NotifyingToolCallback(callback, id));
             }
         }
         return callbacks.toArray(ToolCallback[]::new);

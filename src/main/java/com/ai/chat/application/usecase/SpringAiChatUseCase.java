@@ -4,6 +4,7 @@ import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
+import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.application.llm.ChatClientProvider;
@@ -11,6 +12,7 @@ import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.infrastructure.llm.ToolEventChannel;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     private final ChatMemory chatMemory;
     private final ConversationMemoryRepository conversationMemoryRepository;
     private final SessionTitleGenerator sessionTitleGenerator;
+    private final ChatWebSourcesRepository chatWebSourcesRepository;
 
     public SpringAiChatUseCase(
             ChatClientProvider chatClientProvider,
@@ -49,13 +52,15 @@ public class SpringAiChatUseCase implements ChatUseCase {
             RetryTemplate retryTemplate,
             ChatMemory chatMemory,
             ConversationMemoryRepository conversationMemoryRepository,
-            SessionTitleGenerator sessionTitleGenerator) {
+            SessionTitleGenerator sessionTitleGenerator,
+            ChatWebSourcesRepository chatWebSourcesRepository) {
         this.chatClientProvider = chatClientProvider;
         this.repository = repository;
         this.retryTemplate = retryTemplate;
         this.chatMemory = chatMemory;
         this.conversationMemoryRepository = conversationMemoryRepository;
         this.sessionTitleGenerator = sessionTitleGenerator;
+        this.chatWebSourcesRepository = chatWebSourcesRepository;
     }
 
     @Override
@@ -91,31 +96,53 @@ public class SpringAiChatUseCase implements ChatUseCase {
             boolean isFirstTurn = session.isEmpty();
             conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
 
-            ChatClient chatClient = chatClientProvider.create(options, sessionId);
-            return mergeToolEvents(
-                    chatClient.prompt()
-                            .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
-                            .user(userMessage)
-                            .stream()
-                            .content(),
-                    options.toolsEnabled())
-                    .doOnComplete(() -> Mono.fromRunnable(() ->
-                                    afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .subscribe())
-                    .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+            ToolEventChannel.setCurrentSessionId(sessionId);
+            try {
+                ChatClient chatClient = chatClientProvider.create(options, sessionId);
+                return mergeToolEvents(
+                        chatClient.prompt()
+                                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
+                                .user(userMessage)
+                                .stream()
+                                .content(),
+                        sessionId,
+                        options.toolsEnabled())
+                        .doOnComplete(() -> Mono.fromRunnable(() ->
+                                        afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .subscribe())
+                        .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+            } finally {
+                ToolEventChannel.clearCurrentSessionId();
+            }
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    private Flux<String> mergeToolEvents(Flux<String> content, boolean toolsEnabled) {
+    private Flux<String> mergeToolEvents(Flux<String> content, String channelId, boolean toolsEnabled) {
         if (!toolsEnabled) {
             return content.map(this::messageEvent);
         }
-        Sinks.Many<String> sink = ToolEventChannel.open();
-        Flux<String> toolEvents = ToolEventChannel.asFlux(sink);
-        Flux<String> textEvents = content.map(this::messageEvent);
-        return Flux.merge(toolEvents, textEvents)
-                .doFinally(signal -> ToolEventChannel.close());
+        Sinks.Many<String> sink = ToolEventChannel.open(channelId);
+        Flux<String> toolEvents = ToolEventChannel.asFlux(sink)
+                .doOnNext(json -> captureSourcesEvent(channelId, json));
+        Flux<String> textEvents = content.map(this::messageEvent)
+                .doFinally(signal -> ToolEventChannel.close(channelId));
+        return Flux.merge(toolEvents, textEvents);
+    }
+
+    private void captureSourcesEvent(String channelId, String json) {
+        try {
+            JsonNode root = JSON.readTree(json);
+            if (root == null || !"sources".equals(root.path("type").asText())) {
+                return;
+            }
+            CapturedWebSources.remember(
+                    channelId,
+                    root.path("query").asText(""),
+                    CapturedWebSources.parseItems(root.get("items")));
+        } catch (JsonProcessingException e) {
+            log.debug("Skipping non-JSON tool event for sources capture");
+        }
     }
 
     private String messageEvent(String token) {
@@ -130,6 +157,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
         repository.findById(sessionId).ifPresent(session -> {
             conversationMemoryRepository.syncToSession(conversationId, session);
             repository.save(session);
+            persistCapturedSources(conversationId, session);
             if (isFirstTurn && session.hasDefaultTitle()) {
                 String assistantReply = session.getLastAssistantMessage() != null
                         ? session.getLastAssistantMessage().getText()
@@ -139,6 +167,23 @@ public class SpringAiChatUseCase implements ChatUseCase {
                 }
             }
         });
+    }
+
+    private void persistCapturedSources(String conversationId, ChatSession session) {
+        CapturedWebSources.Capture capture = CapturedWebSources.take(conversationId);
+        if (capture == null || capture.sources().isEmpty()) {
+            return;
+        }
+        ChatMessage lastAssistant = session.getLastAssistantMessage();
+        if (lastAssistant == null) {
+            CapturedWebSources.clear(conversationId);
+            return;
+        }
+        chatWebSourcesRepository.save(
+                conversationId,
+                lastAssistant.getText(),
+                capture.query(),
+                capture.sources());
     }
 
     @Override
@@ -194,13 +239,20 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options) {
-        ChatClient chatClient = chatClientProvider.createStateless(options);
-        return mergeToolEvents(
-                chatClient.prompt()
-                        .messages(messages.stream().map(this::toSpringMessage).toList())
-                        .stream()
-                        .content(),
-                options.toolsEnabled());
+        String requestId = java.util.UUID.randomUUID().toString();
+        ToolEventChannel.setCurrentSessionId(requestId);
+        try {
+            ChatClient chatClient = chatClientProvider.createStateless(options);
+            return mergeToolEvents(
+                    chatClient.prompt()
+                            .messages(messages.stream().map(this::toSpringMessage).toList())
+                            .stream()
+                            .content(),
+                    requestId,
+                    options.toolsEnabled());
+        } finally {
+            ToolEventChannel.clearCurrentSessionId();
+        }
     }
 
     private void generateTitleAsync(ChatSessionId sessionId, String userMessage, String assistantReply) {
@@ -265,6 +317,8 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public void deleteSession(String sessionId) {
         conversationMemoryRepository.clear(sessionId);
+        chatWebSourcesRepository.deleteByConversationId(sessionId);
+        CapturedWebSources.clear(sessionId);
         repository.delete(ChatSessionId.of(sessionId));
         log.info("Deleted session: {}", sessionId);
     }
