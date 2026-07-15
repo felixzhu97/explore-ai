@@ -30,8 +30,30 @@ public class PromptTemplates {
     /**
      * A2UI v0.9 chart surfaces: NDJSON in ```a2ui fences (not raw ECharts option JSON).
      * When Tools are enabled, prefer searchWeb for live numbers before filling chartData.
+     * Includes bilingual (ZH/EN) intent triggers so explicit Chinese requests are recognized.
      */
     private static final String A2UI_CHART_INSTRUCTIONS = """
+
+            Intent routing (Chinese or English — treat as hard requirements when present):
+            - Online search: 在线搜索 / 联网搜索 / 搜索 / 查一下 / search / look up / google
+              → you MUST call searchWeb exactly once before answering with numbers
+            - Chart drawing: 柱状图 / 条形图 / 折线图 / 饼图 / 图表 / 画图 / 可视化 /
+              bar chart / line chart / pie chart / plot / visualize
+              → you MUST emit an ```a2ui fence with Chart after any brief markdown
+            - Chart type map: 柱状图/条形图→bar; 折线图→line; 饼图→pie; 圆环图→doughnut
+            - Cite sources: 注明来源 / 引用 / 来源 / cite / sources / references
+              → after the chart, list source URLs from search results in markdown
+            - Market share / 市场份额 / 份额 / EV / 电动汽车 / brands named by the user
+              are typical live-data + chart requests — search then chart, do not refuse
+
+            Workflow for search + chart (one turn):
+            1) Call searchWeb once with an English-focused query that includes year,
+               quarter/region, metric, and brand names (e.g. "2025 Q1 global EV market
+               share Tesla BYD Volkswagen")
+            2) Do NOT call any tool again
+            3) Reply in the user's language for markdown prose
+            4) Emit the a2ui Chart (chartData from tool results only)
+            5) Cite sources under a "## 来源" / "## Sources" heading
 
             When a chart or visualization helps (trends, comparisons, distribution),
             emit an A2UI surface after a short markdown explanation using a fenced
@@ -46,11 +68,12 @@ public class PromptTemplates {
             - Optional updateDataModel for bound chartData paths
             - Do NOT output executable JavaScript or bare ECharts option JSON
             - Do NOT invent other custom components beyond this catalog (incl. Chart)
+            - Prefer short brand names as chartData labels (Tesla, BYD, VW)
 
             Live / online data + charts (when tools such as searchWeb are available):
-            - If the user needs up-to-date statistics, rankings, prices, population,
-              market shares, election results, or other figures you do not know, call
-              searchWeb exactly once with a focused query (include units / year / region)
+            - If the user asks to search online OR needs up-to-date statistics,
+              rankings, prices, population, market shares, election results, or other
+              figures you do not know, call searchWeb exactly once first
             - After searchWeb returns, do NOT call searchWeb or any other tool again;
               immediately write a short markdown explanation, then the a2ui chart fence
             - From the tool results, extract concrete numeric series into chartData
@@ -61,15 +84,24 @@ public class PromptTemplates {
             - After the chart, briefly cite source URLs from the search results in
               markdown (do not put URLs inside the a2ui fence)
 
+            Example Chinese request → expected behavior:
+            User: "进行在线搜索，2025 年第一季度全球电动汽车市场各品牌份额
+            （特斯拉、比亚迪、大众），然后绘制柱状图并注明来源。"
+            → searchWeb once with "2025 Q1 global EV market share Tesla BYD Volkswagen"
+            → markdown summary in Chinese + ```a2ui Chart type bar + "## 来源" links
+
             Example fence (abbreviated; real output must be valid NDJSON lines):
             ```a2ui
             {"version":"v0.9","createSurface":{"surfaceId":"s1","catalogId":"https://explore-ai.local/catalogs/chat-v0.9"}}
-            {"version":"v0.9","updateComponents":{"surfaceId":"s1","components":[{"id":"root","component":"Column","children":["c1"]},{"id":"c1","component":"Chart","type":"bar","title":"Sales","chartData":[{"label":"Q1","value":10},{"label":"Q2","value":20}]}]}}
+            {"version":"v0.9","updateComponents":{"surfaceId":"s1","components":[{"id":"root","component":"Column","children":["c1"]},{"id":"c1","component":"Chart","type":"bar","title":"2025 Q1 EV Share","chartData":[{"label":"BYD","value":10.5},{"label":"Tesla","value":7.5},{"label":"VW","value":2}]}]}}
             ```
             """;
 
     private static final String DEFAULT_SYSTEM_PROMPT = """
             You are a helpful AI assistant. Provide accurate and concise responses.
+            Follow the user's language for prose (Chinese in → Chinese out).
+            When the user asks to search online and/or draw a chart, follow the
+            search + a2ui workflow below — do not ignore those intents.
 
             """ + MARKDOWN_FORMATTING_INSTRUCTIONS + A2UI_CHART_INSTRUCTIONS;
 
