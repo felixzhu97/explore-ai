@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -31,6 +32,7 @@ public class SerperWebSearchAdapter implements WebSearchTool {
     private final RestClient restClient;
     private final String apiKey;
 
+    @Autowired
     public SerperWebSearchAdapter(
             @Value("${serper.api-key:}") String apiKey) {
         this.apiKey = apiKey;

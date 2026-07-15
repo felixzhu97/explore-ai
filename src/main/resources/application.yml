@@ -15,8 +15,10 @@ spring:
       client:
         enabled: true
         type: SYNC
+        # Custom McpClientToolsConfig exposes callbacks for ChatClientFactory;
+        # disable Spring AI's auto mcpToolCallbacks bean to avoid a name clash.
         toolcallback:
-          enabled: true
+          enabled: false
     ollama:
       base-url: http://localhost:11434
       chat:
