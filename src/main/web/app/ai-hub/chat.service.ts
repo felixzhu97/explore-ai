@@ -22,7 +22,7 @@ export class ChatService {
   readonly providers = signal<ProviderInfo[]>([]);
   readonly models = signal<ModelInfo[]>([]);
   readonly selectedProvider = signal('openai');
-  readonly selectedModel = signal('gpt-4o-mini');
+  readonly selectedModel = signal('deepseek-v4-flash');
   readonly isLoadingModels = signal(false);
 
   readonly sessions = signal<SessionInfo[]>([]);
@@ -39,19 +39,26 @@ export class ChatService {
     this.api.getProviders().subscribe({
       next: (data) => {
         this.providers.set(data);
-        if (data.length > 0) {
-          this.selectedProvider.set(data[0].name);
-          this.loadModels(data[0].name);
+        const available = data.find(p => p.status === 'available') ?? data[0];
+        if (available) {
+          this.selectedProvider.set(available.name);
+          this.loadModels(available.name);
         }
       },
       error: () => {
         this.providers.set([
           {
             name: 'openai',
-            displayName: 'OpenAI',
-            models: ['gpt-4o', 'gpt-4o-mini'],
+            displayName: 'DeepSeek',
+            models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
             status: 'available',
           },
+        ]);
+        this.selectedProvider.set('openai');
+        this.selectedModel.set('deepseek-v4-flash');
+        this.models.set([
+          { name: 'deepseek-v4-flash', provider: 'openai' },
+          { name: 'deepseek-v4-pro', provider: 'openai' },
         ]);
       },
     });
@@ -77,8 +84,21 @@ export class ChatService {
   }
 
   setProvider(provider: string): void {
+    const info = this.providers().find(p => p.name === provider);
+    if (info?.status === 'unavailable') {
+      this.error.set(
+        `${info.displayName} is not configured. Configure the API key or enable the provider before chatting.`,
+      );
+      return;
+    }
+    this.error.set(null);
     this.selectedProvider.set(provider);
     this.loadModels(provider);
+  }
+
+  isSelectedProviderAvailable(): boolean {
+    const provider = this.providers().find(p => p.name === this.selectedProvider());
+    return provider == null || provider.status === 'available';
   }
 
   setModel(model: string): void {
@@ -208,6 +228,14 @@ export class ChatService {
   sendMessage(content: string): void {
     const sessionId = this.activeSessionId();
     if (!sessionId || !content.trim() || this.isLoading()) {
+      return;
+    }
+
+    if (!this.isSelectedProviderAvailable()) {
+      const provider = this.providers().find(p => p.name === this.selectedProvider());
+      this.error.set(
+        `${provider?.displayName ?? this.selectedProvider()} is not configured. Configure the API key or enable the provider before chatting.`,
+      );
       return;
     }
 

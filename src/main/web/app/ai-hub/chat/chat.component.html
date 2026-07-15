@@ -8,7 +8,12 @@
                 (ngModelChange)="onProviderChange($event)"
         >
             @for (provider of chat.providers(); track provider.name) {
-                <z-select-item [zValue]="provider.name">{{ provider.displayName }}</z-select-item>
+                <z-select-item
+                        [zValue]="provider.name"
+                        [zDisabled]="provider.status === 'unavailable'"
+                >
+                    {{ provider.displayName }}{{ provider.status === 'unavailable' ? ' (unavailable)' : '' }}
+                </z-select-item>
             }
         </z-select>
 
