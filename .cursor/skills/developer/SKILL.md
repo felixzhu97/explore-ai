@@ -7,7 +7,7 @@ description: Feature development for this repo — DDD, BDD, TDD, Domain Glossar
 
 **DDD + BDD + TDD + minimal Clean Code.** Smallest correct change. UI: Apple HIG + minimal.
 
-**Every** commit and PR must follow §5 (project standards). **Every** Jira ticket must follow [jira](../jira/SKILL.md). Do not invent alternate formats.
+**Every** commit and PR must follow §5 (project standards). **Every** Jira ticket must follow [Product Owner](../product-owner/SKILL.md). Do not invent alternate formats.
 
 ## Hard constraints
 
@@ -16,12 +16,12 @@ description: Feature development for this repo — DDD, BDD, TDD, Domain Glossar
 3. Tests: `should_expectedResult_when_condition`
 4. Names: Domain Glossary [Preferred Term](../../../docs/Domain-Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
-6. **Commit / PR / Jira / branches**: always reuse §5 + [jira](../jira/SKILL.md); branch `feat/AI-<key>-slug`; References = official docs + research
+6. **Commit / PR / Jira / branches**: always reuse §5 + [Product Owner](../product-owner/SKILL.md); branch `<type>/AI-<key>` (type matches commit); References = official docs + research
 
 ## Workflow
 
 ```
-BDD → TDD → DDD (+ Clean Code) → Commit/PR (+ Jira via jira skill)
+BDD → TDD → DDD (+ Clean Code) → Commit/PR (+ Jira via Product Owner skill)
 (+ Apple HIG when touching UI)
 ```
 
@@ -69,31 +69,41 @@ Detail: [apple-minimal-ux](references/apple-minimal-ux.md)
 
 #### Branch naming
 
-| Kind | Pattern | Example |
+**Prefix = change type** (same set as commit types). Do **not** default every branch to `feat`.
+
+| Type | Pattern | Example |
 |------|---------|---------|
-| Feature (default) | `feat/AI-<key>-<short-slug>` | `feat/AI-113-session-archive` |
-| Feature (no ticket yet) | `feat/<short-slug>` | `feat/multi-agent-orchestration` |
-| Fix | `fix/AI-<key>-<short-slug>` | `fix/AI-99-cors-origins` |
-| Chore / docs / test | `chore/…` `docs/…` `test/…` | `chore/ci-feat-glob` |
+| feat | `feat/AI-<key>` | `feat/AI-113` |
+| fix | `fix/AI-<key>` | `fix/AI-99` |
+| refactor | `refactor/AI-<key>` | `refactor/AI-120` |
+| docs | `docs/AI-<key>` | `docs/AI-159` |
+| test | `test/AI-<key>` | `test/AI-88` |
+| chore | `chore/AI-<key>` | `chore/AI-50` |
+| perf | `perf/AI-<key>` | `perf/AI-77` |
+| ci | `ci/AI-<key>` | `ci/AI-42` |
+| (no ticket) | `<type>/<topic>` | `chore/update-deps` |
+
+Allowed types: `feat` | `fix` | `refactor` | `docs` | `test` | `chore` | `perf` | `ci`
 
 Rules:
 
-- Prefer **kebab-case** slugs; no spaces or underscores in the slug
-- Use Jira key when the work has a ticket (`AI-113`)
+- Branch prefix **must** match the primary change type
+- With a Jira ticket: `<type>/AI-<key>` only — no extra slug suffix
+- Without a ticket: `<type>/<topic>` (kebab-case)
 - Do **not** use `feature/` for new branches (legacy only; CI still accepts it)
-- Long-lived integration lines: `main`, `java-angular` (do not push feature work directly to these except via PR)
+- Long-lived integration lines: `main`, `java-angular` (do not push work directly to these except via PR)
 
 #### Branch / PR flow (Chain PRs)
 
 ```
 main
- └── feat/AI-100-base          # PR #1 → base: main
-      └── feat/AI-101-extend   # PR #2 → base: feat/AI-100-base
+ └── feat/AI-100          # PR #1 → base: main
+      └── fix/AI-101      # PR #2 → base: feat/AI-100
 ```
 
 1. First branch in a chain: create from `main` (or current integration line); PR **base** = `main`
-2. Follow-up work in the same chain: create from the **previous feat branch**; PR **base** = that branch (not `main`)
-3. Standalone small fix with no dependency: `feat/…` or `fix/…` from `main`, PR base = `main`
+2. Follow-up work in the same chain: create from the **previous branch**; PR **base** = that branch (not `main`)
+3. Standalone work with no dependency: `<type>/…` from `main`, PR base = `main`; use the type that matches the change
 
 #### Commit message
 
@@ -161,10 +171,10 @@ PR **References** must match the commit References (same links). Use the same of
 - [ ] Domain holds rules; use case orchestrates
 - [ ] Glossary Preferred Terms; glossary updated if new concept
 - [ ] UI (if any): HIG + minimal
-- [ ] Branch: `feat/AI-<key>-slug` (or fix/chore/…); Chain PR base correct
+- [ ] Branch: `<type>/AI-<key>` (type matches commit); Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
 - [ ] PR: plain body + same References + Jira link; chain base
-- [ ] Jira (if any): [jira](../jira/SKILL.md) template followed
+- [ ] Jira (if any): [Product Owner](../product-owner/SKILL.md) template followed
 
 ## Related
 
@@ -177,4 +187,4 @@ PR **References** must match the commit References (same links). Use the same of
 | Spring AI | [spring-ai](../spring-ai/SKILL.md) |
 | Business / tech strategy | [business-tech-analysis](../business-tech-analysis/SKILL.md) |
 | Research / OSS watchlist | [sources.md](../business-tech-analysis/references/sources.md) |
-| Jira | [jira](../jira/SKILL.md) |
+| Product Owner | [Product Owner](../product-owner/SKILL.md) |

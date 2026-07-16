@@ -1,1 +1,0 @@
-../../.cursor/skills/jira/SKILL.md

@@ -18,7 +18,7 @@
 | [angular-developer](./angular-developer/) | Angular 深度指南 |
 | [angular-new-app](./angular-new-app/) | Angular 新项目 |
 | [spring-ai](./spring-ai/) | Spring AI 2.0 |
-| [jira](./jira/) | Jira 票模版与 MCP |
+| [product-owner](./product-owner/) | Product Owner：用户故事、验收标准、DoD、Jira MCP |
 
 ## 如何使用
 
@@ -26,4 +26,4 @@
 - 商业动向 / 技术商业建议 → `business-tech-analysis`
 - Angular 深入 → `angular-developer`
 - Spring AI → `spring-ai`
-- 建 Jira 票 → `jira`
+- 写用户故事 / 梳理待办 / 建 Jira 票 → `product-owner`

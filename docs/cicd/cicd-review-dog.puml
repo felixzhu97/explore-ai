@@ -13,7 +13,7 @@ title CI/CD Workflow - review-dog
 start
 note right
 **Trigger:** pull_request only
-**Branches:** main, java-angular, feat/**, feature/**
+**Branches:** main, java-angular, feat/**, feature/**, fix/**, refactor/**, docs/**, test/**, chore/**, perf/**, ci/**
 end note
 
 fork

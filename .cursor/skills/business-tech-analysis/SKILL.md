@@ -171,5 +171,5 @@ Scoring: [references/rubric.md](references/rubric.md). Sources: [references/sour
 |------|-------|
 | BMC / LTV / CAC deep dive | `business-model-generator` (personal skill) |
 | Implement chosen bet | [developer](../developer/SKILL.md) |
-| Jira story from recommendation | [jira](../jira/SKILL.md) |
+| Product Owner story from recommendation | [Product Owner](../product-owner/SKILL.md) |
 | Spring AI capabilities | [spring-ai](../spring-ai/SKILL.md) |
