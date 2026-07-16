@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, java-angular, "feature/**"]
+    branches: [main, java-angular, "feat/**", "feature/**"]
   pull_request:
-    branches: [main, java-angular, "feature/**"]
+    branches: [main, java-angular, "feat/**", "feature/**"]
 
 jobs:
   backend:

@@ -15,7 +15,7 @@ title CI/CD Workflow - backend-ci
 start
 note right
 **Trigger:** push | pull_request
-**Branches:** main, java-angular, feature/**
+**Branches:** main, java-angular, feat/**, feature/**
 end note
 
 :Checkout code;

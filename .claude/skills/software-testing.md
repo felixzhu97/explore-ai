@@ -1,1 +1,0 @@
-../../.cursor/skills/software-testing/SKILL.md

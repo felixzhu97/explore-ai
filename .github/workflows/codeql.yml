@@ -13,9 +13,9 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "main", "java-angular", "feature/**" ]
+    branches: [ "main", "java-angular", "feat/**", "feature/**" ]
   pull_request:
-    branches: [ "main", "java-angular", "feature/**" ]
+    branches: [ "main", "java-angular", "feat/**", "feature/**" ]
   schedule:
     - cron: '20 5 * * 3'
 

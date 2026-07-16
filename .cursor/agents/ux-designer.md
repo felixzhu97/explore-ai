@@ -13,7 +13,7 @@ readonly: true
 2. **一致性**：保持设计语言和交互模式统一
 3. **无障碍性**：确保所有用户都能使用
 4. **简约**：消除不必要的复杂性
-5. **行业标准**：参考 Apple Human Interface Guidelines (HIG) 等主流设计规范与最佳实践
+5. **行业标准**：用户体验以 [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/) 为准；本仓库实现细则见 [developer / apple-minimal-ux](../skills/developer/references/apple-minimal-ux.md)（极简：清晰、克制、内容优先）
 
 ## 职责范围
 

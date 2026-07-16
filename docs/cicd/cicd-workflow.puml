@@ -15,7 +15,7 @@ title CI/CD Workflow Overview - GitHub Actions
 start
 note right
 **Trigger:** push | pull_request
-**Branches:** main, java-angular, feature/**
+**Branches:** main, java-angular, feat/**, feature/**
 end note
 :**backend-ci**
 (trigger: push | pull_request);
@@ -25,7 +25,7 @@ stop
 start
 note right
 **Trigger:** push | pull_request + cron (weekly)
-**Branches:** main, java-angular, feature/**
+**Branches:** main, java-angular, feat/**, feature/**
 **Schedule:** cron: '20 5 * * 3' (Wed 05:20 UTC)
 end note
 :**codeql**
@@ -37,7 +37,7 @@ stop
 start
 note right
 **Trigger:** pull_request only
-**Branches:** main, java-angular, feature/**
+**Branches:** main, java-angular, feat/**, feature/**
 end note
 :**review-dog**
 (trigger: pull_request
