@@ -114,7 +114,7 @@ should_expectedResult_when_condition
 
 ## Hard constraints (delivery)
 
-When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`feat/AI-<key>-slug`, Chain PRs, commit/PR templates) and [jira](.cursor/skills/jira/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
+When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/AI-<key>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
 
 ## Skills (on demand)
 
@@ -124,4 +124,4 @@ When **creating a Jira ticket**, **branching**, **committing**, or **opening a P
 | Business + tech strategy | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md) |
 | Spring AI / RAG / tools | [spring-ai](.cursor/skills/spring-ai/SKILL.md) |
 | Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
-| Jira | [jira](.cursor/skills/jira/SKILL.md) |
+| Product Owner / Jira | [Product Owner](.cursor/skills/product-owner/SKILL.md) |

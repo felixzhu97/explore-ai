@@ -2,6 +2,24 @@
 
 This project uses `plugin-atlassian-atlassian` MCP Server for Jira operations.
 
+## Configuration
+
+| Property | Value |
+|----------|-------|
+| Site URL | https://felixzhu.atlassian.net |
+| Cloud ID | `75684fb5-daf5-4962-9581-c4948b9c12cf` |
+| User Account ID | `62ee247ff15eecaf500efa39` |
+| Primary Project | `AI` (ExploreAI) |
+
+### Available Projects
+
+| Project Key | Name | Issue Types |
+|-------------|------|-------------|
+| `AI` | ExploreAI | Epic, Story, Task, Subtask, Bug, Feature |
+| `FVXI` | 支持 | Service Request, Incident, Task, Subtask |
+
+> Always include `cloudId` when calling Jira MCP tools.
+
 ## Available Tools
 
 | Tool | Purpose |
