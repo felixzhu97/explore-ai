@@ -13,7 +13,7 @@ title CI/CD Workflow - codeql
 start
 note right
 **Trigger:** push | pull_request + cron (weekly)
-**Branches:** main, java-angular, feature/**
+**Branches:** main, java-angular, feat/**, feature/**
 **Schedule:** `cron: '20 5 * * 3'` (every Wed 05:20 UTC)
 end note
 

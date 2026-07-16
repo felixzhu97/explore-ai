@@ -2,7 +2,7 @@ name: Code Review with Review Dog
 
 on:
   pull_request:
-    branches: ["main", "java-angular", "feature/**"]
+    branches: ["main", "java-angular", "feat/**", "feature/**"]
 
 jobs:
   lint:

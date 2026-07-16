@@ -8,6 +8,10 @@ is_background: true
 
 遵循项目既有风格，极简实现。
 
+**必读 Skill**：实现功能时读取并遵循 [`.cursor/skills/developer/SKILL.md`](../skills/developer/SKILL.md)（DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。
+
+硬约束见 [architecture rule](../rules/architecture.mdc)。UX 细则见 [apple-minimal-ux](../skills/developer/references/apple-minimal-ux.md)；官方文档：[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)。
+
 ## 项目代码风格
 
 ### Java (后端)
@@ -24,8 +28,9 @@ com.ai.{module}
 
 **关键规范**：
 - 私有构造函数 + 工厂方法
-- 只有 getter，无 setter
-- 接口隔离（Port 模式）
+- 行为在领域对象内（充血）；避免贫血模型
+- Repository 接口在 `domain/repository/`（禁止 `*Port` / `domain/port`）
+- 变量与方法命名必须对齐 [领域术语表](../../docs/Domain-Glossary.md) Preferred Term；细则见 developer skill → `references/clean-code-naming.md`
 - 异常使用业务异常类
 
 **示例 - 领域模型**：
@@ -36,7 +41,6 @@ public class ChatSession {
     private final Instant createdAt;
     private final List<ChatMessage> messages;
 
-    // 私有构造
     private ChatSession(ChatSessionId id, String title, Instant createdAt) {
         this.id = Objects.requireNonNull(id);
         this.title = Objects.requireNonNull(title);
@@ -44,12 +48,10 @@ public class ChatSession {
         this.messages = new ArrayList<>();
     }
 
-    // 工厂方法
     public static ChatSession create(String title) {
         return new ChatSession(ChatSessionId.generate(), title, Instant.now());
     }
 
-    // 业务方法
     public ChatMessage addUserMessage(String text) {
         ChatMessage msg = ChatMessage.createUserMessage(text);
         messages.add(msg);
@@ -72,8 +74,8 @@ public interface ChatUseCase {
 **包结构**：
 ```
 src/main/web/app/{feature}/
-├── components/  # 组件
-├── services/    # 服务
+├── components/
+├── services/
 └── {feature}.model.ts
 ```
 
@@ -82,6 +84,7 @@ src/main/web/app/{feature}/
 - 组件用 standalone
 - 依赖注入用 `inject()`
 - 类型优先于接口
+- 命名对齐 Domain Glossary Preferred Term + clean-code-naming（禁止 `data`/`tmp`/`handle` 及术语同义词）
 
 **示例 - Service**：
 ```typescript
@@ -122,21 +125,13 @@ export class ChatComponent {
 
 ## 实现流程
 
-1. **分析需求**：理解 Jira 验收标准
-2. **最小实现**：只写必要的代码
-3. **保持风格**：遵循项目既有规范
-4. **运行测试**：`cd src/main/web && pnpm test`
-5. **提交代码**：遵守 commit 规范
-
-## Commit 规范
-
-```
-<type>: <short description>
-
-Refs: AI-37
-```
-
-Type: `feat`, `fix`, `refactor`, `test`, `chore`
+1. **BDD**：用 Given-When-Then 澄清行为（对齐 Jira AC）
+2. **TDD**：Red → Green → Refactor；测试名 `should_expected_when_condition`
+3. **DDD**：规则落在 domain；use case 只编排
+4. **领域命名**：变量/方法用术语表 Preferred Term，再套 Clean Code 形式
+5. **UI/UX**：对齐 Apple HIG，极简风格（见 apple-minimal-ux）
+6. **分支 / Commit / PR / Jira**：`feat/AI-<key>-slug` + Chain PR；沿用 [developer](../skills/developer/SKILL.md) §5 与 [jira](../skills/jira/SKILL.md)；References 优先官方文档与 research
+7. **运行测试** → 再按上述规范提交
 
 ## 极简原则
 

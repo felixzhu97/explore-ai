@@ -1,10 +1,9 @@
 ---
-description: Core architecture principles - layered architecture, dependency rule, domain model
-globs: **/*.java **/*.kt
+description: Core project constraints — Clean Architecture layers, Java naming, REST, test naming. Deep guides live in skills.
 alwaysApply: true
 ---
 
-# Architecture Standards
+# Architecture & Java Core
 
 ## Dependency Rule
 
@@ -14,11 +13,7 @@ web → application → domain ← infrastructure
 
 **Domain has NO dependencies on other layers.**
 
-> **Canonical source:** Layer structure, dependency rule, and Hexagonal terminology mapping live in this file (`architecture.mdc`). `java-standards.mdc` and `CLAUDE.md` link here — do not duplicate architecture diagrams elsewhere.
-
 ## Terminology Index (Hexagonal ↔ This Project)
-
-External references (Spring docs, Alistair Cockburn, legacy modules) often use **Ports & Adapters (Hexagonal)** naming. **This repo standardizes on Clean Architecture layers and package names below.**
 
 | Hexagonal concept | Hexagonal layout | This project layer | This project package |
 |-------------------|------------------|--------------------|----------------------|
@@ -28,20 +23,11 @@ External references (Spring docs, Alistair Cockburn, legacy modules) often use *
 | Domain core | `domain` | Domain | `{module}/domain/model`, `domain/vo`, `domain/service` |
 | Composition / wiring | `config` | Spring configuration | `{module}/infrastructure/config/`, `common/config/` |
 
-### Forbidden in New Code
+## Forbidden in New Code
 
-- `domain/port/` packages — use `domain/repository/` (or `domain/service/` for domain services)
-- `*Port` interface suffix — prefer `*Repository`, `*Gateway`, or a domain-specific name (e.g. `ConversationMemoryRepository`)
+- `domain/port/` — use `domain/repository/` (or `domain/service/`)
+- `*Port` interface suffix — prefer `*Repository`, `*Gateway`, or a domain-specific name
 - `adapter/in` / `adapter/out` packages — use `web/`, `application/`, `infrastructure/`
-
-### Legacy (migrate when touched)
-
-Some modules still contain Hexagonal-style paths (e.g. `rag/domain/port/DocumentReader`). Treat them as **legacy drift**; new abstractions follow `domain/repository/` in this document.
-
-### Related Reading
-
-- [Ports and Adapters - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
-- Java coding conventions (naming, REST, tests): `java-standards.mdc`
 
 ## Layers
 
@@ -56,20 +42,20 @@ Some modules still contain Hexagonal-style paths (e.g. `rag/domain/port/Document
 
 ```
 src/main/java/com/ai/
-├── {module}/                # Feature module
+├── {module}/
 │   ├── domain/
-│   │   ├── model/           # Entities, Aggregates
-│   │   ├── vo/              # Value Objects
-│   │   └── repository/      # Repository interfaces
+│   │   ├── model/
+│   │   ├── vo/
+│   │   └── repository/
 │   ├── application/
-│   │   └── usecase/         # Use cases
+│   │   └── usecase/
 │   ├── infrastructure/
-│   │   └── persistence/    # Repository implementations
+│   │   └── persistence/
 │   └── web/
-│       ├── controller/      # REST controllers
-│       └── dto/             # Request/Response DTOs
-└── common/                  # Shared code
-    └── exception/           # Shared exceptions
+│       ├── controller/
+│       └── dto/
+└── common/
+    └── exception/
 ```
 
 ## Domain Rules
@@ -79,92 +65,45 @@ src/main/java/com/ai/
 - Value Objects: immutable `record`
 - Repository: interface in domain, implementation in infrastructure
 
-## Examples
+## Java Naming
 
-### Domain
+| Type | Rule | Example |
+|------|------|---------|
+| Domain Model | PascalCase | `ChatSession` |
+| Value Objects | PascalCase | `SessionId` |
+| Repository | PascalCase + Repository | `ChatRepository` |
+| Use Case | PascalCase + UseCase | `ChatUseCase` |
+| Controller | PascalCase + Controller | `ChatController` |
+| DTO | PascalCase + Request/Response | `ChatRequest` |
+| Methods | camelCase | `findById` |
+| Constants | UPPER_SNAKE_CASE | `MAX_RETRY` |
+| Package | lowercase | `com.ai.domain.model` |
 
-```java
-public class ChatSession {
-    private final ChatSessionId id;
-    private SessionStatus status;
-
-    private ChatSession(ChatSessionId id) {
-        this.id = id;
-        this.status = SessionStatus.ACTIVE;
-    }
-
-    public static ChatSession create() {
-        return new ChatSession(new ChatSessionId(UUID.randomUUID()));
-    }
-
-    public ChatSessionId id() {
-        return id;
-    }
-}
-
-public record ChatSessionId(UUID value) {}
-
-public interface ChatSessionRepository {
-    Optional<ChatSession> findById(ChatSessionId id);
-    void save(ChatSession session);
-}
-```
-
-### Application
+## DI / REST / Validation
 
 ```java
-public record ChatRequest(String message) {}
-public record ChatResponse(String reply) {}
-
-public interface ChatUseCase {
-    ChatResponse chat(ChatRequest request);
-}
-
 @Service
 @RequiredArgsConstructor
 class ChatUseCaseImpl implements ChatUseCase {
-    private final ChatSessionRepository repository;
-
-    @Override
-    public ChatResponse chat(ChatRequest request) {
-        return new ChatResponse("reply");
-    }
+    private final ChatRepository repository;
 }
 ```
 
-### Infrastructure
+| Operation | Status |
+|-----------|--------|
+| Create | 201 |
+| Success | 200 |
+| No Content | 204 |
+| Error | 4xx/5xx |
 
 ```java
-@Repository
-@RequiredArgsConstructor
-class InMemoryChatSessionRepository implements ChatSessionRepository {
-    private final Map<ChatSessionId, ChatSession> store = new ConcurrentHashMap<>();
-
-    @Override
-    public Optional<ChatSession> findById(ChatSessionId id) {
-        return Optional.ofNullable(store.get(id));
-    }
-
-    @Override
-    public void save(ChatSession session) {
-        store.put(session.id(), session);
-    }
-}
+public record ChatRequest(@NotBlank String message, String sessionId) {}
 ```
 
-### Web
+## Test Naming
 
-```java
-@RestController
-@RequiredArgsConstructor
-class ChatController {
-    private final ChatUseCase chatUseCase;
-
-    @PostMapping("/api/chat")
-    public ChatResponse chat(@RequestBody ChatRequest request) {
-        return chatUseCase.chat(request);
-    }
-}
+```
+should_expectedResult_when_condition
 ```
 
 ## Checklist
@@ -172,3 +111,17 @@ class ChatController {
 - [ ] Domain has no outward dependencies
 - [ ] No circular dependencies
 - [ ] Entities encapsulate behavior
+
+## Hard constraints (delivery)
+
+When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`feat/AI-<key>-slug`, Chain PRs, commit/PR templates) and [jira](.cursor/skills/jira/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
+
+## Skills (on demand)
+
+| Task | Skill |
+|------|-------|
+| Feature / tests / commit / Apple UX | [developer](.cursor/skills/developer/SKILL.md) |
+| Business + tech strategy | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md) |
+| Spring AI / RAG / tools | [spring-ai](.cursor/skills/spring-ai/SKILL.md) |
+| Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
+| Jira | [jira](.cursor/skills/jira/SKILL.md) |

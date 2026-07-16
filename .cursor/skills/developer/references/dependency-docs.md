@@ -1,167 +1,8 @@
----
-description: Git commit and PR standards with real-time web references
-alwaysApply: true
----
+# Project Dependency Reference
 
-# Commit & Pull Request Standards
+When referencing dependencies **or research** in commits or PRs, use official documentation and research URLs. Keep this list updated when adding new dependencies. Prefer specific documentation pages over homepages. For lab research / open-source hubs, also use [business-tech-analysis sources](../../business-tech-analysis/references/sources.md) and arXiv abs pages.
 
-## Core Principles
-
-1. **One commit = One complete change**: Each commit delivers one finished piece of work
-2. **Chain PRs**: Each PR is based on the previous branch (not main)
-3. **References**: Always search the web in real-time for authoritative sources
-
----
-
-## Commit Message Format
-
-```
-<type>: <short description>
-
-References:
-- [Title](URL)
-```
-
-### Type Prefixes
-
-| Type | Use Case |
-|------|----------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `refactor` | Code refactoring without behavior change |
-| `docs` | Documentation only |
-| `test` | Adding or updating tests |
-| `chore` | Build, CI, dependencies |
-| `perf` | Performance improvement |
-| `ci` | CI configuration |
-
-### Rules
-
-1. Subject: max 50 characters, imperative mood, no trailing period
-2. References: **always search web in real-time** and cite authoritative sources
-3. References should point to specific pages/docs, not homepages, when possible
-4. Complete work: commit must be self-contained, no partial changes
-
-### Examples
-
-```
-fix: adapt MockEmbeddingAdapterTest to no-arg constructor
-
-References:
-- [JUnit 5 @Nested Test Classes - Baeldung](https://www.baeldung.com/junit-5-nested-test-classes)
-```
-
-```
-feat: implement structured output with Spring AI
-
-References:
-- [Structured Output - Spring AI Reference](https://docs.spring.io/spring-ai/reference/api/structured-output.html)
-```
-
----
-
-## Pull Request Format
-
-PR body mirrors the commit message. References must be identical.
-
-**Section labels are plain body text ending with a colon — never Markdown headings (`#` / `##`) and never bold (`**`).**
-
-```
-Summary:
-
-[Brief description of the change]
-
-References:
-
-- [Title](URL)
-
-Jira Links:
-
-- [Jira Issue Key](https://felixzhu.atlassian.net/browse/AI-XXX)
-```
-
----
-
-## Workflow
-
-```bash
-# 1. Checkout previous branch
-git checkout feat/previous-feature
-
-# 2. Create new branch from it
-git checkout -b feat/your-new-feature
-
-# 3. Make complete change
-# 4. Search web for authoritative references
-# 5. Commit with references
-
-git commit -m "feat: description
-
-References:
-- [Title](URL)
-"
-
-# 6. Push and create PR (base: previous branch)
-git push -u origin HEAD
-gh pr create --title "feat: description" --base feat/previous-feature --body "$(cat <<'EOF'
-Summary:
-
-[Brief description of the change]
-
-References:
-
-- [Title](URL)
-
-Jira Links:
-
-- [AI-XXX](https://felixzhu.atlassian.net/browse/AI-XXX)
-EOF
-)"
-```
-
-### Branch Chain Example
-
-```
-main
-  └── feat/base-feature      # PR #1 → base: main
-        └── feat/extend-1    # PR #2 → base: feat/base-feature
-              └── feat/extend-2    # PR #3 → base: feat/extend-1
-```
-
----
-
-## Common Mistakes
-
-| Mistake | Correction |
-|---------|------------|
-| No references | Always search web in real-time for authoritative sources |
-| Multiple unrelated changes | Split into separate commits/branches/PRs |
-| Partial work in commit | Complete the change before committing |
-| Subject with period | Remove trailing punctuation |
-| Past tense | Use imperative: `add` not `added` |
-| PR base on main | Always base on previous branch |
-| Co-authored-by or Made with | Do not add boilerplate signatures or tool references |
-| PR section labels as `#` / `##` headings or bold | Use plain text with colon: `Summary:`, `References:` |
-
----
-
-## Prohibited Elements
-
-The following elements should **never** appear in commit messages or PR descriptions:
-
-- `Co-authored-by:` - Not needed, all work is attributed to the branch author
-- `Made with xxx` or `Built with xxx` - Unnecessary boilerplate
-- Sign-off lines (`Signed-off-by:`) unless required by CI
-- Emoji prefixes or suffixes in subject lines
-- Markdown heading markers (`#`, `##`, `###`) or bold (`**Label**`) for PR body section labels — use plain `Label:` instead
-
----
-
-## Project Dependency Reference
-
-When referencing dependencies in commits or PRs, use the official documentation URLs below. Keep this list updated when adding new dependencies. Prefer specific documentation pages over homepages.
-
-### Frontend
+## Frontend
 
 | Library | Version | Official Docs |
 |---------|---------|---------------|
@@ -182,7 +23,7 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Vitest | ^4.0.8 | [Vitest](https://vitest.dev/guide/) |
 | pnpm | (managed) | [pnpm](https://pnpm.io/cli/install) |
 
-### Backend
+## Backend
 
 | Library | Version | Official Docs |
 |---------|---------|---------------|
@@ -210,7 +51,7 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Apache OpenNLP | — | [Apache OpenNLP](https://opennlp.apache.org) |
 | Apache Tika | — | [Apache Tika](https://tika.apache.org) |
 
-### Build & Tooling
+## Build & Tooling
 
 | Tool | Version | Official Docs |
 |------|---------|---------------|
@@ -221,7 +62,7 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Husky | — | [Husky](https://typicode.github.io/husky) |
 | lint-staged | — | [lint-staged](https://github.com/okonet/lint-staged) |
 
-### Learning References
+## Learning References
 
 | Resource | Official Docs |
 |----------|---------------|
@@ -233,7 +74,7 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Hugging Face | [huggingface.co](https://huggingface.co) |
 | Agile Manifesto | [agilemanifesto.org](https://agilemanifesto.org/) |
 
-### Design References
+## Design References
 
 | Resource | Official Docs |
 |----------|---------------|
@@ -243,7 +84,7 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Tailwind CSS | [tailwindcss.com/docs](https://tailwindcss.com/docs) |
 | Figma Design Systems | [figma.com/community](https://www.figma.com/community/design-systems) |
 
-### UX References
+## UX References
 
 | Resource | Official Docs |
 |----------|---------------|
@@ -257,7 +98,7 @@ When referencing dependencies in commits or PRs, use the official documentation 
 | Material Design - Motion | [m3.material.io/styles/motion](https://m3.material.io/styles/motion) |
 | Tailwind - Animating with Tailwind | [tailwindcss.com/docs/animation](https://tailwindcss.com/docs/animation) |
 
-### Jira
+## Jira
 
 | Resource | URL |
 |----------|-----|
