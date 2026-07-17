@@ -169,6 +169,8 @@ Scoring: [references/rubric.md](references/rubric.md). Sources: [references/sour
 
 | Need | Where |
 |------|-------|
+| 行业动向（子 Agent） | [business-analyst](../../agents/business-analyst.md) |
+| 前沿研究（子 Agent） | [tech-analyst](../../agents/tech-analyst.md) |
 | BMC / LTV / CAC deep dive | `business-model-generator` (personal skill) |
 | Implement chosen bet | [developer](../developer/SKILL.md) |
 | Product Owner story from recommendation | [Product Owner](../product-owner/SKILL.md) |

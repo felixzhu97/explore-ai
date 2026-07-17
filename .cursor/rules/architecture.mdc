@@ -121,7 +121,7 @@ When **creating a Jira ticket**, **branching**, **committing**, or **opening a P
 | Task | Skill |
 |------|-------|
 | Feature / tests / commit / Apple UX | [developer](.cursor/skills/developer/SKILL.md) |
-| Business + tech strategy | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md) |
+| Business + tech strategy | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md)（由 `business-analyst` / `tech-analyst` 按需读取） |
 | Spring AI / RAG / tools | [spring-ai](.cursor/skills/spring-ai/SKILL.md) |
 | Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
 | Product Owner / Jira | [Product Owner](.cursor/skills/product-owner/SKILL.md) |
