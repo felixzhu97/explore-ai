@@ -12,16 +12,6 @@ export interface DsmlToolInvocation {
 
 const QUERY_MAX = 42;
 
-/** Any opening/closing tag that mentions DSML. */
-const DSML_ANY_TAG = /<\/?\s*[^<>]*DSML[^<>]*>/gi;
-
-/** Paired blocks: open tag containing DSML … matching close tag containing DSML. */
-const DSML_PAIR_BLOCK =
-  /<\s*[^<>]*DSML[^<>]*>[\s\S]*?<\/\s*[^<>]*DSML[^<>]*>/gi;
-
-/** Unclosed DSML open through end (streaming partial). */
-const DSML_UNCLOSED = /<\s*[^<>]*DSML[^<>]*>[\s\S]*$/gi;
-
 const INVOKE_RE =
   /<\s*[^<>]*DSML[^<>]*invoke[^<>]*name\s*=\s*["']([^"']+)["'][^<>]*>([\s\S]*?)<\/\s*[^<>]*DSML[^<>]*invoke[^<>]*>/gi;
 
@@ -32,9 +22,15 @@ export function stripToolCallMarkup(content: string): string {
   if (!content) {
     return '';
   }
-  let cleaned = content.replace(DSML_PAIR_BLOCK, '');
-  cleaned = cleaned.replace(DSML_UNCLOSED, '');
-  cleaned = cleaned.replace(DSML_ANY_TAG, '');
+  let cleaned = content;
+  let previous = '';
+  // Repeat until stable — nested/odd DSML fragments need more than one pass.
+  while (cleaned !== previous) {
+    previous = cleaned;
+    cleaned = removeDsmlPairBlocks(cleaned);
+    cleaned = removeUnclosedDsmlOpen(cleaned);
+    cleaned = removeDsmlTags(cleaned);
+  }
   return cleaned
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -53,7 +49,7 @@ export function parseDsmlToolInvocations(content: string): DsmlToolInvocation[] 
     const toolName = match[1]?.trim() || 'tool';
     const body = match[2] ?? '';
     const param = body.match(QUERY_PARAM_RE);
-    const query = (param?.[1] ?? body.replace(/<[^>]+>/g, '')).trim();
+    const query = (param?.[1] ?? stripAngleBracketTags(body)).trim();
     const key = `${toolName}\0${query}`;
     if (seen.has(key)) {
       continue;
@@ -89,4 +85,138 @@ function truncateQuery(query: string): string {
     return normalized;
   }
   return `${normalized.slice(0, QUERY_MAX).trimEnd()}…`;
+}
+
+/** Remove paired tags whose open/close both mention DSML. */
+function removeDsmlPairBlocks(text: string): string {
+  const lower = text.toLowerCase();
+  let cursor = 0;
+  const parts: string[] = [];
+  while (cursor < text.length) {
+    const openStart = indexOfDsmlOpenTag(text, lower, cursor);
+    if (openStart < 0) {
+      parts.push(text.slice(cursor));
+      break;
+    }
+    parts.push(text.slice(cursor, openStart));
+    const openEnd = text.indexOf('>', openStart);
+    if (openEnd < 0) {
+      parts.push(text.slice(openStart));
+      break;
+    }
+    const closeStart = indexOfDsmlCloseTag(text, lower, openEnd + 1);
+    if (closeStart < 0) {
+      // Leave unclosed open for a later pass.
+      parts.push(text.slice(openStart));
+      break;
+    }
+    const closeEnd = text.indexOf('>', closeStart);
+    if (closeEnd < 0) {
+      parts.push(text.slice(openStart));
+      break;
+    }
+    cursor = closeEnd + 1;
+  }
+  return parts.join('');
+}
+
+/** Drop trailing unclosed DSML open through end of string. */
+function removeUnclosedDsmlOpen(text: string): string {
+  const lower = text.toLowerCase();
+  const openStart = indexOfDsmlOpenTag(text, lower, 0);
+  if (openStart < 0) {
+    return text;
+  }
+  // Only strip if no closing DSML tag remains after this open.
+  if (indexOfDsmlCloseTag(text, lower, openStart + 1) >= 0) {
+    return text;
+  }
+  return text.slice(0, openStart);
+}
+
+/** Remove any single angle-bracket tag that mentions DSML. */
+function removeDsmlTags(text: string): string {
+  const lower = text.toLowerCase();
+  let cursor = 0;
+  const parts: string[] = [];
+  while (cursor < text.length) {
+    const tagStart = text.indexOf('<', cursor);
+    if (tagStart < 0) {
+      parts.push(text.slice(cursor));
+      break;
+    }
+    parts.push(text.slice(cursor, tagStart));
+    const tagEnd = text.indexOf('>', tagStart + 1);
+    if (tagEnd < 0) {
+      parts.push(text.slice(tagStart));
+      break;
+    }
+    const tag = lower.slice(tagStart, tagEnd + 1);
+    if (!tag.includes('dsml')) {
+      parts.push(text.slice(tagStart, tagEnd + 1));
+    }
+    cursor = tagEnd + 1;
+  }
+  return parts.join('');
+}
+
+function indexOfDsmlOpenTag(text: string, lower: string, from: number): number {
+  let cursor = from;
+  while (cursor < text.length) {
+    const start = text.indexOf('<', cursor);
+    if (start < 0) {
+      return -1;
+    }
+    if (lower.charAt(start + 1) === '/') {
+      cursor = start + 1;
+      continue;
+    }
+    const end = text.indexOf('>', start + 1);
+    if (end < 0) {
+      return -1;
+    }
+    if (lower.slice(start, end + 1).includes('dsml')) {
+      return start;
+    }
+    cursor = end + 1;
+  }
+  return -1;
+}
+
+function indexOfDsmlCloseTag(text: string, lower: string, from: number): number {
+  let cursor = from;
+  while (cursor < text.length) {
+    const start = lower.indexOf('</', cursor);
+    if (start < 0) {
+      return -1;
+    }
+    const end = text.indexOf('>', start + 2);
+    if (end < 0) {
+      return -1;
+    }
+    if (lower.slice(start, end + 1).includes('dsml')) {
+      return start;
+    }
+    cursor = end + 1;
+  }
+  return -1;
+}
+
+function stripAngleBracketTags(text: string): string {
+  let cursor = 0;
+  const parts: string[] = [];
+  while (cursor < text.length) {
+    const open = text.indexOf('<', cursor);
+    if (open < 0) {
+      parts.push(text.slice(cursor));
+      break;
+    }
+    parts.push(text.slice(cursor, open));
+    const close = text.indexOf('>', open + 1);
+    if (close < 0) {
+      break;
+    }
+    cursor = close + 1;
+  }
+  return parts.join('');
 }

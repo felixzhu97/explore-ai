@@ -30,9 +30,15 @@ final class ToolCallMarkupFilter {
         if (content == null || content.isEmpty()) {
             return "";
         }
-        String cleaned = DSML_PAIR_BLOCK.matcher(content).replaceAll("");
-        cleaned = DSML_UNCLOSED.matcher(cleaned).replaceAll("");
-        cleaned = DSML_ANY_TAG.matcher(cleaned).replaceAll("");
+        String cleaned = content;
+        String previous;
+        // Repeat until stable — nested/odd DSML fragments need more than one pass.
+        do {
+            previous = cleaned;
+            cleaned = DSML_PAIR_BLOCK.matcher(cleaned).replaceAll("");
+            cleaned = DSML_UNCLOSED.matcher(cleaned).replaceAll("");
+            cleaned = DSML_ANY_TAG.matcher(cleaned).replaceAll("");
+        } while (!cleaned.equals(previous));
         return cleaned.replaceAll("[ \\t]+\\n", "\n")
                 .replaceAll("\\n{3,}", "\n\n")
                 .strip();
