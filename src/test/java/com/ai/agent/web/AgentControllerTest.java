@@ -67,6 +67,26 @@ class AgentControllerTest {
     }
 
     @Test
+    void should_return_404_when_get_agent_unknown() {
+        when(agentFacade.health("missing"))
+                .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
+
+        ResponseEntity<?> response = controller.getAgent("missing");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void should_return_ok_when_get_agent_known() {
+        when(agentFacade.health("k8s")).thenReturn(
+                AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
+
+        ResponseEntity<?> response = controller.getAgent("k8s");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
     void should_stream_supervisor_sse() {
         when(agentFacade.invokeSupervisor("hello")).thenReturn(Flux.just(
                 ServerSentEvent.<String>builder().event("message").data("hi").build(),
@@ -79,5 +99,33 @@ class AgentControllerTest {
                 .assertNext(e -> assertThat(e.event()).isEqualTo("message"))
                 .assertNext(e -> assertThat(e.event()).isEqualTo("done"))
                 .verifyComplete();
+    }
+
+    @Test
+    void should_emit_error_sse_when_direct_invoke_unknown() {
+        when(agentFacade.invokeAgent("missing", "hi"))
+                .thenReturn(Flux.error(new AgentNotFoundException(AgentType.of("missing"))));
+
+        Flux<ServerSentEvent<String>> flux =
+                controller.invokeAgent("missing", new AgentInvokeRequest("hi", null, null));
+
+        StepVerifier.create(flux)
+                .assertNext(e -> assertThat(e.event()).isEqualTo("error"))
+                .assertNext(e -> assertThat(e.event()).isEqualTo("done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_report_module_health() {
+        when(agentFacade.listAgents()).thenReturn(List.of(
+                AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys")));
+
+        ResponseEntity<?> response = controller.moduleHealth();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isInstanceOf(java.util.Map.class);
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> body = (java.util.Map<String, Object>) response.getBody();
+        assertThat(body).containsEntry("status", "UP").containsEntry("agents", 1);
     }
 }

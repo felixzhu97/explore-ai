@@ -5,6 +5,7 @@ import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.domain.repository.AgentRegistry;
 import com.ai.agent.domain.vo.AgentType;
 import com.ai.agent.infrastructure.prompt.AgentPromptCatalog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class InMemoryAgentRegistry implements AgentRegistry {
 
     private final Map<String, AgentDefinition> agents;
 
+    @Autowired
     public InMemoryAgentRegistry(AgentPromptCatalog catalog) {
         Map<String, AgentDefinition> map = new LinkedHashMap<>();
         for (AgentDefinition definition : catalog.defaultAgents()) {

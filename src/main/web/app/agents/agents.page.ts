@@ -94,8 +94,8 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     this.error.set(null);
   }
 
-  onPromptSelect(prompt: NxPrompt): void {
-    this.input.set(prompt.label ?? '');
+  onPromptSelect(label: string): void {
+    this.input.set(label ?? '');
     this.send();
   }
 
