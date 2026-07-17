@@ -72,13 +72,13 @@
       (fMoveNodes)="onMoveNodes($event)"
     >
       <f-canvas fZoom>
-        <f-connection-for-create></f-connection-for-create>
+        <f-connection-for-create />
         <ng-container ngProjectAs="[fConnections]">
           @for (edge of connections(); track edge.id) {
             <f-connection
               [fSourceId]="outId(edge.sourceNodeId)"
               [fTargetId]="inId(edge.targetNodeId)"
-            ></f-connection>
+            />
           }
         </ng-container>
         <ng-container ngProjectAs="[fNodes]">
@@ -105,13 +105,13 @@
                 fConnector
                 fConnectorType="target"
                 [fConnectorId]="inId(node.id)"
-              ></div>
+              />
               <div
                 class="agents-pipeline-port absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
                 fConnector
                 fConnectorType="source"
                 [fConnectorId]="outId(node.id)"
-              ></div>
+              />
             </div>
           }
         </ng-container>
