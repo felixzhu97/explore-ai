@@ -84,26 +84,6 @@ export const en: Translations = {
     inputPlaceholder: 'Type your message...',
     thinking: 'Thinking...',
     errorMessage: 'An error occurred. Please try again.',
-    modes: {
-      chat: 'Chat',
-      pipeline: 'Pipeline',
-    },
-    pipeline: {
-      inputPlaceholder: 'Describe the task for this pipeline...',
-      defaultMessage: 'Execute the configured agent pipeline for this task.',
-      paletteTitle: 'Agents',
-      canvasHint: 'Drag agents onto the canvas, connect outputs to inputs, then run.',
-      clear: 'Clear',
-      run: 'Run pipeline',
-      hints: {
-        empty: 'Add at least one worker agent to the canvas.',
-        needConnections: 'Connect agent nodes before running the pipeline.',
-        orphan: 'Connect every agent into one pipeline path.',
-        cycle: 'Remove cycles from the pipeline graph.',
-        invalid: 'Fix the pipeline graph before running.',
-        runFromCanvas: 'Click Run pipeline on the canvas to execute.',
-      },
-    },
     quickPrompts: {
       supervisor: [
         'List all available agents',

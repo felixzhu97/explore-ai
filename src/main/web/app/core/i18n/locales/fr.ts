@@ -85,26 +85,6 @@ export const fr: Translations = {
     inputPlaceholder: 'Tapez votre message...',
     thinking: 'Réflexion...',
     errorMessage: 'Une erreur s\'est produite. Veuillez réessayer.',
-    modes: {
-      chat: 'Chat',
-      pipeline: 'Pipeline',
-    },
-    pipeline: {
-      inputPlaceholder: 'Décrivez la tâche du pipeline...',
-      defaultMessage: 'Exécutez le pipeline d\'agents configuré pour cette tâche.',
-      paletteTitle: 'Agents',
-      canvasHint: 'Glissez des agents sur le canevas, connectez-les, puis lancez.',
-      clear: 'Effacer',
-      run: 'Lancer le pipeline',
-      hints: {
-        empty: 'Ajoutez au moins un agent worker sur le canevas.',
-        needConnections: 'Connectez les nœuds avant d\'exécuter le pipeline.',
-        orphan: 'Connectez tous les agents dans un seul chemin.',
-        cycle: 'Supprimez les cycles du graphe.',
-        invalid: 'Corrigez le pipeline avant de l\'exécuter.',
-        runFromCanvas: 'Cliquez sur Run pipeline sur le canevas.',
-      },
-    },
     quickPrompts: {
       supervisor: [
         'Lister tous les agents disponibles',

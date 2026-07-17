@@ -3,7 +3,6 @@ package com.ai.agent.application.usecase;
 import com.ai.agent.application.port.SupervisorRouter;
 import com.ai.agent.application.port.WorkerAgentInvoker;
 import com.ai.agent.domain.model.AgentDefinition;
-import com.ai.agent.domain.model.AgentPipeline;
 import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.vo.AgentType;
 import com.ai.agent.infrastructure.registry.InMemoryAgentRegistry;
@@ -157,41 +156,6 @@ class OrchestratorWorkersUseCaseTest {
     void should_use_empty_reason_when_null() {
         ServerSentEvent<String> event = OrchestratorWorkersUseCase.handoffEvent("k8s", null);
         assert event.data().contains("\"reason\":\"\"");
-    }
-
-    @Test
-    void should_run_pipeline_steps_in_order() {
-        AgentPipeline pipeline = AgentPipeline.create(
-                List.of(
-                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
-                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
-                List.of(new AgentPipeline.PipelineEdge("a", "b")));
-
-        StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline))
-                .assertNext(event -> {
-                    assertEvent(event, "agent_handoff");
-                    assert event.data().contains("k8s");
-                })
-                .assertNext(event -> assertEvent(event, "message"))
-                .assertNext(event -> assertEvent(event, "message"))
-                .assertNext(event -> {
-                    assertEvent(event, "agent_handoff");
-                    assert event.data().contains("aiops");
-                })
-                .assertNext(event -> assertEvent(event, "message"))
-                .assertNext(event -> assertEvent(event, "message"))
-                .assertNext(event -> assertEvent(event, "done"))
-                .verifyComplete();
-    }
-
-    @Test
-    void should_emit_error_when_pipeline_invalid() {
-        AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
-
-        StepVerifier.create(useCase.invokePipeline("x", pipeline))
-                .assertNext(event -> assertEvent(event, "error"))
-                .assertNext(event -> assertEvent(event, "done"))
-                .verifyComplete();
     }
 
     private static void assertEvent(ServerSentEvent<String> event, String expected) {

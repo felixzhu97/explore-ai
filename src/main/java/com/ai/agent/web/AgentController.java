@@ -2,12 +2,9 @@ package com.ai.agent.web;
 
 import com.ai.agent.application.usecase.AgentFacade;
 import com.ai.agent.domain.exception.AgentNotFoundException;
-import com.ai.agent.domain.model.AgentPipeline;
-import com.ai.agent.domain.vo.AgentType;
 import com.ai.agent.web.dto.AgentHealthResponse;
 import com.ai.agent.web.dto.AgentInfoResponse;
 import com.ai.agent.web.dto.AgentInvokeRequest;
-import com.ai.agent.web.dto.PipelineInvokeRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -62,17 +59,6 @@ public class AgentController {
     @PostMapping(value = "/supervisor/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> invokeSupervisor(@Valid @RequestBody AgentInvokeRequest request) {
         return agentFacade.invokeSupervisor(request.message());
-    }
-
-    @PostMapping(value = "/pipeline/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> invokePipeline(@Valid @RequestBody PipelineInvokeRequest request) {
-        List<AgentPipeline.PipelineNode> nodes = request.nodes().stream()
-                .map(node -> new AgentPipeline.PipelineNode(node.id(), AgentType.of(node.agentType())))
-                .toList();
-        List<AgentPipeline.PipelineEdge> edges = request.edges().stream()
-                .map(edge -> new AgentPipeline.PipelineEdge(edge.sourceId(), edge.targetId()))
-                .toList();
-        return agentFacade.invokePipeline(request.message(), AgentPipeline.create(nodes, edges));
     }
 
     @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

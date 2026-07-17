@@ -85,26 +85,6 @@ export const es: Translations = {
     inputPlaceholder: 'Escribe tu mensaje...',
     thinking: 'Pensando...',
     errorMessage: 'Ocurrió un error. Por favor, inténtalo de nuevo.',
-    modes: {
-      chat: 'Chat',
-      pipeline: 'Pipeline',
-    },
-    pipeline: {
-      inputPlaceholder: 'Describe la tarea del pipeline...',
-      defaultMessage: 'Ejecuta el pipeline de agentes configurado para esta tarea.',
-      paletteTitle: 'Agents',
-      canvasHint: 'Arrastra agentes al lienzo, conéctalos y ejecuta.',
-      clear: 'Limpiar',
-      run: 'Ejecutar pipeline',
-      hints: {
-        empty: 'Añade al menos un agente worker al lienzo.',
-        needConnections: 'Conecta los nodos antes de ejecutar el pipeline.',
-        orphan: 'Conecta todos los agentes en una sola ruta.',
-        cycle: 'Elimina los ciclos del grafo.',
-        invalid: 'Corrige el pipeline antes de ejecutarlo.',
-        runFromCanvas: 'Haz clic en Run pipeline en el lienzo.',
-      },
-    },
     quickPrompts: {
       supervisor: [
         'Listar todos los agentes disponibles',

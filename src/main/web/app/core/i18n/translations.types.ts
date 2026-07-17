@@ -101,26 +101,6 @@ export interface Translations {
     inputPlaceholder: string;
     thinking: string;
     errorMessage: string;
-    modes: {
-      chat: string;
-      pipeline: string;
-    };
-    pipeline: {
-      inputPlaceholder: string;
-      defaultMessage: string;
-      paletteTitle: string;
-      canvasHint: string;
-      clear: string;
-      run: string;
-      hints: {
-        empty: string;
-        needConnections: string;
-        orphan: string;
-        cycle: string;
-        invalid: string;
-        runFromCanvas: string;
-      };
-    };
     quickPrompts: {
       supervisor: string[];
       k8s: string[];

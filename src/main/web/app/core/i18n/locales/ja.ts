@@ -84,26 +84,6 @@ export const ja: Translations = {
     inputPlaceholder: 'メッセージを入力...',
     thinking: '考え中...',
     errorMessage: 'エラーが発生しました。もう一度お試しください。',
-    modes: {
-      chat: 'チャット',
-      pipeline: 'パイプライン',
-    },
-    pipeline: {
-      inputPlaceholder: 'パイプラインのタスクを入力...',
-      defaultMessage: '設定したエージェントパイプラインを実行してください。',
-      paletteTitle: 'Agents',
-      canvasHint: 'エージェントをキャンバスへドラッグし、接続して実行します。',
-      clear: 'クリア',
-      run: 'パイプライン実行',
-      hints: {
-        empty: 'キャンバスに少なくとも1つのワーカーを追加してください。',
-        needConnections: '実行前にエージェント同士を接続してください。',
-        orphan: 'すべてのエージェントを1本のパイプラインに接続してください。',
-        cycle: 'パイプラインの循環を解消してください。',
-        invalid: 'パイプラインを修正してから実行してください。',
-        runFromCanvas: 'キャンバスの「Run pipeline」を押してください。',
-      },
-    },
     quickPrompts: {
       supervisor: [
         '利用可能なエージェントを一覧表示',

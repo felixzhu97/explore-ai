@@ -32,8 +32,7 @@
               "src/main/web/assets"
             ],
             "styles": [
-              "src/main/web/styles.css",
-              "node_modules/@foblex/flow/styles/default.scss"
+              "src/main/web/styles.css"
             ],
             "scripts": []
           },

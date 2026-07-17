@@ -3,12 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '@core/services/api.constants';
 import { parseSseToken, streamSsePost } from '@core/streaming/sse-client';
-import type {
-  AgentHealth,
-  AgentInfo,
-  AgentInvokeRequest,
-} from './agents.model';
-import type { PipelineInvokeRequest } from './agents-pipeline.model';
+import type { AgentHealth, AgentInfo, AgentInvokeRequest } from './agents.model';
 
 @Injectable({ providedIn: 'root' })
 export class AgentsService {
@@ -35,35 +30,7 @@ export class AgentsService {
         ? `${API_BASE_URL}/agents/supervisor/invoke/sse`
         : `${API_BASE_URL}/agents/${agentType}/invoke/sse`;
 
-    return this.openSse(path, request, onChunk, onHandoff, onDone, onError);
-  }
-
-  invokePipelineStream(
-    request: PipelineInvokeRequest,
-    onChunk: (token: string) => void,
-    onHandoff: (payload: string) => void,
-    onDone: () => void,
-    onError: (error: Error) => void,
-  ): { abort: () => void } {
-    return this.openSse(
-      `${API_BASE_URL}/agents/pipeline/invoke/sse`,
-      request,
-      onChunk,
-      onHandoff,
-      onDone,
-      onError,
-    );
-  }
-
-  private openSse(
-    path: string,
-    body: unknown,
-    onChunk: (token: string) => void,
-    onHandoff: (payload: string) => void,
-    onDone: () => void,
-    onError: (error: Error) => void,
-  ): { abort: () => void } {
-    return streamSsePost(path, body, {
+    return streamSsePost(path, request, {
       onEvent: ({ eventType, data }) => {
         if (data === '[DONE]' || eventType === 'done') {
           onDone();
