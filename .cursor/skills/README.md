@@ -23,7 +23,9 @@
 ## 如何使用
 
 - 日常开发 / 测试 / 提交 / UX → `developer`
-- 商业动向 / 技术商业建议 → `business-tech-analysis`
+- 商业动向 / 竞品 / GTM → Agent `business-analyst`（skill：`business-tech-analysis`）
+- 前沿研究 / 论文 / 模型趋势 → Agent `tech-analyst`（skill：`business-tech-analysis`）
+- 技术–商业联合简报 → 两 Agent + skill `business-tech-analysis`
 - Angular 深入 → `angular-developer`
 - Spring AI → `spring-ai`
 - 写用户故事 / 梳理待办 / 建 Jira 票 → `product-owner`

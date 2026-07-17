@@ -27,7 +27,7 @@ is_background: true
 
 | 任务类型 | 调用 |
 |---------|------|
-| 创建 Jira 任务 | product-manager |
+| 创建 Jira 任务 | product-owner |
 | 写代码 | developer |
 | 写测试 | test-engineer |
 | AI/大模型 | ai-engineer |
@@ -35,6 +35,10 @@ is_background: true
 | 领域设计 | domain-expert |
 | 架构审查 | architect |
 | 用户体验设计 | ux-designer |
+| 商业动向 / 竞品 / GTM | business-analyst |
+| 前沿研究 / 论文 / 模型趋势 | tech-analyst |
+
+技术–商业联合建议：先调 `business-analyst` 与 `tech-analyst`，再汇总。
 
 ## 执行示例
 
