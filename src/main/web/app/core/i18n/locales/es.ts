@@ -104,6 +104,25 @@ export const es: Translations = {
         invalid: 'Corrige el pipeline antes de ejecutarlo.',
         runFromCanvas: 'Haz clic en Run pipeline en el lienzo.',
       },
+      templates: {
+        title: 'Plantillas',
+        use: 'Usar',
+        skipped: 'Agentes no disponibles omitidos: {types}',
+        items: {
+          incidentTriage: {
+            name: 'Triage de incidentes',
+            description: 'Métricas → AIOps → remediación Kubernetes.',
+          },
+          clusterHealth: {
+            name: 'Salud del clúster',
+            description: 'Inspeccionar el clúster y luego la observabilidad.',
+          },
+          ragOps: {
+            name: 'Ops con conocimiento',
+            description: 'Recuperar docs y triar con AIOps.',
+          },
+        },
+      },
     },
     quickPrompts: {
       supervisor: [

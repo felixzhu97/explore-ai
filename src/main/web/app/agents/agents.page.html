@@ -49,6 +49,7 @@
     [validationHint]="pipelineHint()"
     (runRequested)="runPipeline($event)"
     (clearValidation)="pipelineHint.set(null)"
+    (templateHint)="onTemplateHint($event)"
   />
   @if (messages().length > 0) {
     <div class="max-h-48 shrink-0 overflow-y-auto border-t border-black/8 bg-surface px-4 py-3">
