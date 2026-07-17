@@ -45,8 +45,11 @@ export class AgentsPipelineCanvasComponent {
   readonly agents = input.required<AgentInfo[]>();
   readonly validationHint = input<string | null>(null);
   readonly runRequested = output<PipelineGraph>();
+  readonly graphChange = output<PipelineGraph>();
   readonly clearValidation = output<void>();
   readonly templateHint = output<string | null>();
+  /** Emits short topic for the input box and brief prompt for invoke-time merge. */
+  readonly templateApplied = output<{ topic: string; brief: string }>();
 
   readonly nodes = signal<PipelineNode[]>([]);
   readonly connections = signal<PipelineConnection[]>([]);
@@ -57,6 +60,7 @@ export class AgentsPipelineCanvasComponent {
   );
 
   readonly templates = PIPELINE_TEMPLATE_CATALOG;
+  readonly isEmpty = computed(() => this.nodes().length === 0);
 
   /** Drop target holds no items; agents come from the palette via cdkDragData. */
   readonly canvasDropData: AgentInfo[] = [];
@@ -83,8 +87,8 @@ export class AgentsPipelineCanvasComponent {
       return;
     }
     this.addNode(agent, {
-      x: 100 + this.nodes().length * 36,
-      y: 100 + this.nodes().length * 28,
+      x: 100 + this.nodes().length * 220,
+      y: 120,
     });
     this.clearValidation.emit();
   }
@@ -113,6 +117,7 @@ export class AgentsPipelineCanvasComponent {
         targetNodeId,
       },
     ]);
+    this.emitGraph();
     this.clearValidation.emit();
     this.cdr.markForCheck();
   }
@@ -124,6 +129,7 @@ export class AgentsPipelineCanvasComponent {
       return position ? { ...node, position: { x: position.x, y: position.y } } : node;
     }),
     );
+    this.emitGraph();
     this.cdr.markForCheck();
   }
 
@@ -133,12 +139,14 @@ export class AgentsPipelineCanvasComponent {
       edge => edge.sourceNodeId !== nodeId && edge.targetNodeId !== nodeId,
     ),
     );
+    this.emitGraph();
     this.clearValidation.emit();
   }
 
   clearCanvas(): void {
     this.nodes.set([]);
     this.connections.set([]);
+    this.emitGraph();
     this.clearValidation.emit();
     this.templateHint.emit(null);
   }
@@ -154,7 +162,12 @@ export class AgentsPipelineCanvasComponent {
     this.connectionSeq = seed + result.graph.connections.length;
     this.nodes.set(result.graph.nodes);
     this.connections.set(result.graph.connections);
+    this.emitGraph();
     this.clearValidation.emit();
+    this.templateApplied.emit({
+      topic: this.shortTopicFor(id),
+      brief: this.briefPromptFor(id),
+    });
     if (result.skippedAgentTypes.length > 0) {
       const template = this.i18n.t().agents.pipeline.templates.skipped.replace(
         '{types}',
@@ -189,16 +202,56 @@ export class AgentsPipelineCanvasComponent {
   }
 
   private addNode(agent: AgentInfo, position: { x: number; y: number }): void {
+    const chainTailId = this.findChainTailId();
     this.nodeSeq += 1;
+    const nodeId = `node-${this.nodeSeq}`;
     this.nodes.update(list => [
       ...list,
       {
-        id: `node-${this.nodeSeq}`,
+        id: nodeId,
         agentType: agent.type,
         name: agent.name,
         description: agent.description,
         position,
       },
     ]);
+    if (chainTailId) {
+      this.connectionSeq += 1;
+      this.connections.update(list => [
+        ...list,
+        {
+          id: `edge-${this.connectionSeq}`,
+          sourceNodeId: chainTailId,
+          targetNodeId: nodeId,
+        },
+      ]);
+    }
+    this.emitGraph();
+  }
+
+  /** Prefer a node with no outgoing edge; otherwise the last node on the canvas. */
+  private findChainTailId(): string | null {
+    const nodes = this.nodes();
+    if (nodes.length === 0) {
+      return null;
+    }
+    const sources = new Set(this.connections().map(edge => edge.sourceNodeId));
+    const tails = nodes.filter(node => !sources.has(node.id));
+    if (tails.length > 0) {
+      return tails[tails.length - 1].id;
+    }
+    return nodes[nodes.length - 1].id;
+  }
+
+  private shortTopicFor(id: PipelineTemplateId): string {
+    return this.i18n.t().agents.pipeline.templates.shortTopics[id];
+  }
+
+  private briefPromptFor(id: PipelineTemplateId): string {
+    return this.i18n.t().agents.pipeline.templates.briefPrompts[id];
+  }
+
+  private emitGraph(): void {
+    this.graphChange.emit(this.graph());
   }
 }

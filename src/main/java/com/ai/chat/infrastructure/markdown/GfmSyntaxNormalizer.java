@@ -48,15 +48,27 @@ public class GfmSyntaxNormalizer {
         hrMatcher.appendTail(protectedContent);
 
         String normalized = protectedContent.toString();
+        // Split glued thematic break + heading (e.g. "」。---##标题")
+        normalized = normalized.replaceAll(
+                "([：。！？；:」』\"'])(-{3,}|_{3,}|\\*{3,})(#{1,6})(?=[^\\s#\\n])",
+                "$1\n$2\n$3 ");
+        normalized = normalized.replaceAll(
+                "(-{3,}|_{3,}|\\*{3,})(#{1,6})(?=[^\\s#\\n])",
+                "$1\n$2 ");
         normalized = normalized.replaceAll("(?m)^(#{1,6})([^\\s#\\n])", "$1 $2");
         normalized = normalized.replaceAll("(?m)^(\\d+\\.)([^\\s\\n])", "$1 $2");
+        // Split heading glued after punctuation, with or without space after #
+        normalized = normalized.replaceAll("([：。！？；:])(#{1,6})(?=[^\\s#\\n])", "$1\n$2 ");
         normalized = normalized.replaceAll("([：。！？；:])(#{1,6}\\s)", "$1\n$2");
+        // Year timeline list: "。-2025年…" / "^-2025年…" (keep "-1" negatives intact)
+        normalized = normalized.replaceAll("([：。！？；:])-(\\d{4}年)", "$1\n- $2");
         normalized = normalized.replaceAll("([：。！？；:])-(?!-)(?=[^\\s\\n0-9a-zA-Z])", "$1\n- ");
         normalized = normalized.replaceAll("([：。！？；:])(\\d+\\.)(?=[^\\s\\n])", "$1\n$2 ");
         normalized = normalized.replaceAll(
                 "([一二三四五六七八九十]+、[^\\n-]+)(-(?!-)(?=[^\\s\\n0-9a-zA-Z]))",
                 "$1\n$2");
         normalized = promoteOutlineSectionHeadings(normalized);
+        normalized = normalized.replaceAll("(?m)^-(\\d{4}年)", "- $1");
         normalized = normalized.replaceAll("(?m)^-(?!-)(?=[^\\s\\n0-9a-zA-Z])", "- ");
         normalized = normalized.replaceAll("(?m)^\\*(?!\\*)(?=[^\\s\\n0-9a-zA-Z])", "* ");
         normalized = normalized.replaceAll("(?m)^\\+(?=[^\\s\\n0-9a-zA-Z])", "+ ");

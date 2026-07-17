@@ -97,14 +97,8 @@ export interface Translations {
     fileSelected: string;
   };
   agents: {
-    startConversation: string;
-    inputPlaceholder: string;
     thinking: string;
     errorMessage: string;
-    modes: {
-      chat: string;
-      pipeline: string;
-    };
     pipeline: {
       inputPlaceholder: string;
       defaultMessage: string;
@@ -112,13 +106,16 @@ export interface Translations {
       canvasHint: string;
       clear: string;
       run: string;
+      emptyState: {
+        title: string;
+        description: string;
+      };
       hints: {
         empty: string;
         needConnections: string;
         orphan: string;
         cycle: string;
         invalid: string;
-        runFromCanvas: string;
       };
       templates: {
         title: string;
@@ -128,22 +125,32 @@ export interface Translations {
           webResearch: { name: string; description: string };
           knowledgeAnswer: { name: string; description: string };
           weatherBrief: { name: string; description: string };
+          businessAnalysis: { name: string; description: string };
+          techAnalysis: { name: string; description: string };
+        };
+        shortTopics: {
+          webResearch: string;
+          knowledgeAnswer: string;
+          weatherBrief: string;
+          businessAnalysis: string;
+          techAnalysis: string;
+        };
+        briefPrompts: {
+          webResearch: string;
+          knowledgeAnswer: string;
+          weatherBrief: string;
+          businessAnalysis: string;
+          techAnalysis: string;
         };
       };
     };
-    quickPrompts: {
-      supervisor: string[];
-      research: string[];
-      weather: string[];
-      vectordb: string[];
-      analyst: string[];
-    };
-    descriptions: {
-      supervisor: string;
-      research: string;
-      weather: string;
-      vectordb: string;
-      analyst: string;
+    results: {
+      title: string;
+      collapse: string;
+      expand: string;
+      empty: string;
+      expandMessage: string;
+      collapseMessage: string;
     };
   };
   chat: {

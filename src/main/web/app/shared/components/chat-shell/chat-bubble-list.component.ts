@@ -4,6 +4,7 @@ import {
   computed,
   input,
   output,
+  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
@@ -33,7 +34,22 @@ export interface ChatBubbleFooterLabels {
     <ng-template #userMessageTpl let-info="info">
       @if (messageById(messageKey(info)); as message) {
         @if (message.content) {
-          <div class="wrap-break-word whitespace-pre-wrap">{{ message.content }}</div>
+          <div class="wrap-break-word whitespace-pre-wrap">
+            {{ userMessageText(message) }}
+          </div>
+          @if (isLongUserMessage(message)) {
+            <button
+              type="button"
+              class="mt-1 border-none bg-transparent p-0 text-xs text-text-secondary underline-offset-2 hover:underline"
+              (click)="toggleUserExpanded(message.id)"
+            >
+              {{
+                isUserExpanded(message.id)
+                  ? collapseLabel()
+                  : expandLabel()
+              }}
+            </button>
+          }
         }
         @if (message.images?.length) {
           <div class="mt-2 flex flex-wrap gap-2">
@@ -58,9 +74,9 @@ export interface ChatBubbleFooterLabels {
                 @if (step.status === 'running') {
                   <span>{{ step.label }}</span>
                 } @else if (step.status === 'success') {
-                  <span>{{ step.label.replace('…', '') }} · Done</span>
+                  <span>{{ step.label }} · {{ toolStepDoneLabel() }}</span>
                 } @else {
-                  <span>{{ step.label.replace('…', '') }} · Failed</span>
+                  <span>{{ step.label }} · {{ toolStepFailedLabel() }}</span>
                 }
               </div>
             }
@@ -142,6 +158,11 @@ export class ChatBubbleListComponent {
   readonly streamingMessageId = input<string | null>(null);
   readonly streamingMessageIds = input<ReadonlySet<string>>(new Set());
   readonly thinkingLabel = input('Thinking...');
+  readonly collapseLongUserMessages = input(false);
+  readonly expandLabel = input('Show more');
+  readonly collapseLabel = input('Show less');
+  readonly toolStepDoneLabel = input('Done');
+  readonly toolStepFailedLabel = input('Failed');
   readonly footerLabels = input<ChatBubbleFooterLabels>({
     sources: 'Sources',
     similarity: 'Similarity',
@@ -149,6 +170,10 @@ export class ChatBubbleListComponent {
   });
 
   readonly toggleSources = output<string>();
+
+  private readonly expandedUserIds = signal<ReadonlySet<string>>(new Set());
+
+  private static readonly USER_COLLAPSE_CHARS = 160;
 
   readonly userMessageTpl =
     viewChild<TemplateRef<NxBubbleSlotType>>('userMessageTpl');
@@ -235,5 +260,35 @@ export class ChatBubbleListComponent {
 
   formatBasedOn(count: number): string {
     return this.footerLabels().basedOn.replace('{count}', `${count}`);
+  }
+
+  isLongUserMessage(message: ChatBubbleMessage): boolean {
+    return (
+      this.collapseLongUserMessages()
+      && message.content.length > ChatBubbleListComponent.USER_COLLAPSE_CHARS
+    );
+  }
+
+  isUserExpanded(messageId: string): boolean {
+    return this.expandedUserIds().has(messageId);
+  }
+
+  userMessageText(message: ChatBubbleMessage): string {
+    if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
+      return message.content;
+    }
+    return `${message.content.slice(0, ChatBubbleListComponent.USER_COLLAPSE_CHARS).trimEnd()}…`;
+  }
+
+  toggleUserExpanded(messageId: string): void {
+    this.expandedUserIds.update((current) => {
+      const next = new Set(current);
+      if (next.has(messageId)) {
+        next.delete(messageId);
+      } else {
+        next.add(messageId);
+      }
+      return next;
+    });
   }
 }

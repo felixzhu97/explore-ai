@@ -1,48 +1,50 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  HostListener,
   OnDestroy,
   OnInit,
-  computed,
   inject,
   model,
   signal,
+  viewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import {
   ChatBubbleListComponent,
   ChatBubbleMessage,
-  ChatWelcomePanelComponent,
 } from '@shared/components/chat-shell';
 import { I18nService } from '@core/i18n';
 import { NxSenderComponent } from 'ng-zorro-x/sender';
-import { NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardAlertComponent } from '@/shared/components/alert';
-import { ZardSelectImports } from '@/shared/components/select/select.imports';
 import { AgentsService } from './agents.service';
 import { AgentsPipelineCanvasComponent } from './agents-pipeline.canvas';
-import type { AgentInfo, AgentQuickPromptKey } from './agents.model';
+import type { AgentInfo } from './agents.model';
 import {
   toPipelineInvokeRequest,
   validatePipeline,
   type PipelineGraph,
 } from './agents-pipeline.model';
+import {
+  parseDsmlToolInvocations,
+  stripToolCallMarkup,
+  toMinimalToolSteps,
+} from './tool-call-markup.filter';
+import type { ChatBubbleToolStep } from '@shared/components/chat-shell';
 
-type AgentsViewMode = 'chat' | 'pipeline';
+const DEFAULT_RESULTS_RATIO = 0.38;
+const MIN_PANE_PX = 240;
 
 @Component({
   selector: 'app-agents-page',
   imports: [
-    FormsModule,
     NxSenderComponent,
     NzIconModule,
-    ChatWelcomePanelComponent,
     ChatBubbleListComponent,
     ZardAlertComponent,
     AgentsPipelineCanvasComponent,
-    ...ZardSelectImports,
   ],
   templateUrl: './agents.page.html',
   providers: [provideNzIconsPatch([ArrowUpOutline])],
@@ -53,45 +55,28 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
   private readonly agentsApi = inject(AgentsService);
   readonly i18n = inject(I18nService);
 
+  private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
+
   readonly agents = signal<AgentInfo[]>([]);
-  readonly selectedAgentType = signal('supervisor');
-  readonly viewMode = signal<AgentsViewMode>('chat');
   readonly messages = signal<ChatBubbleMessage[]>([]);
   readonly streamingMessageId = signal<string | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly pipelineHint = signal<string | null>(null);
   readonly input = model('');
-  private pendingPipeline: PipelineGraph | null = null;
+  readonly resultsCollapsed = signal(false);
+  readonly resultsRatio = signal(DEFAULT_RESULTS_RATIO);
+  readonly isDraggingSplitter = signal(false);
 
+  private currentGraph: PipelineGraph = { nodes: [], connections: [] };
+  private activeBriefPrompt: string | null = null;
   private streamAbort: (() => void) | null = null;
   private messageSeq = 0;
-
-  readonly selectedAgent = computed(() => {
-    const type = this.selectedAgentType();
-    return this.agents().find(agent => agent.type === type) ?? null;
-  });
-
-  readonly quickPrompts = computed((): NxPrompt[] => {
-    const type = this.selectedAgentType() as AgentQuickPromptKey;
-    const prompts = this.i18n.t().agents.quickPrompts[type]
-      ?? this.i18n.t().agents.quickPrompts.supervisor;
-    return prompts.map((label, index) => ({
-      key: `${type}-${index}`,
-      label,
-      description: '',
-    }));
-  });
+  private savedRatio = DEFAULT_RESULTS_RATIO;
 
   ngOnInit(): void {
     this.agentsApi.listAgents().subscribe({
-      next: (agents) => {
-        this.agents.set(agents);
-        const selected = this.selectedAgentType();
-        if (!agents.some(a => a.type === selected) && agents.length > 0) {
-          this.selectedAgentType.set(agents[0].type);
-        }
-      },
+      next: agents => this.agents.set(agents),
       error: () => this.error.set(this.i18n.t().agents.errorMessage),
     });
   }
@@ -100,69 +85,112 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     this.streamAbort?.();
   }
 
-  setViewMode(mode: AgentsViewMode): void {
-    this.viewMode.set(mode);
+  onGraphChange(graph: PipelineGraph): void {
+    this.currentGraph = graph;
+    if (graph.nodes.length === 0) {
+      this.activeBriefPrompt = null;
+    }
     this.pipelineHint.set(null);
-    this.error.set(null);
   }
 
   onTemplateHint(hint: string | null): void {
     this.pipelineHint.set(hint);
   }
 
-  onAgentChange(type: string): void {
-    this.selectedAgentType.set(type);
-    this.messages.set([]);
-    this.error.set(null);
-  }
-
-  onPromptSelect(label: string): void {
-    this.input.set(label ?? '');
-    this.send();
+  onTemplateApplied(event: { topic: string; brief: string }): void {
+    this.activeBriefPrompt = event.brief;
+    this.input.set(event.topic);
   }
 
   runPipeline(graph: PipelineGraph): void {
+    this.currentGraph = graph;
+    this.executePipeline(graph);
+  }
+
+  send(): void {
+    this.executePipeline(this.currentGraph);
+  }
+
+  toggleResultsCollapsed(): void {
+    if (this.resultsCollapsed()) {
+      this.resultsCollapsed.set(false);
+      this.resultsRatio.set(this.savedRatio);
+      return;
+    }
+    this.savedRatio = this.resultsRatio();
+    this.resultsCollapsed.set(true);
+  }
+
+  onSplitterPointerDown(event: PointerEvent): void {
+    if (this.resultsCollapsed()) {
+      return;
+    }
+    event.preventDefault();
+    this.isDraggingSplitter.set(true);
+    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
+  }
+
+  @HostListener('document:pointermove', ['$event'])
+  onDocumentPointerMove(event: PointerEvent): void {
+    if (!this.isDraggingSplitter()) {
+      return;
+    }
+    const host = this.splitHost()?.nativeElement;
+    if (!host) {
+      return;
+    }
+    const rect = host.getBoundingClientRect();
+    if (rect.width <= 0) {
+      return;
+    }
+    const fromRight = rect.right - event.clientX;
+    const minRight = MIN_PANE_PX;
+    const maxRight = rect.width - MIN_PANE_PX;
+    const clamped = Math.min(maxRight, Math.max(minRight, fromRight));
+    this.resultsRatio.set(clamped / rect.width);
+  }
+
+  @HostListener('document:pointerup')
+  @HostListener('document:pointercancel')
+  onDocumentPointerUp(): void {
+    if (this.isDraggingSplitter()) {
+      this.isDraggingSplitter.set(false);
+      this.savedRatio = this.resultsRatio();
+    }
+  }
+
+  private executePipeline(graph: PipelineGraph): void {
+    if (this.loading()) {
+      return;
+    }
+
     const result = validatePipeline(graph);
     if (!result.ok) {
       this.pipelineHint.set(this.pipelineReasonMessage(result.reason));
       return;
     }
-    this.pendingPipeline = graph;
-    const message = this.input().trim() || this.i18n.t().agents.pipeline.defaultMessage;
-    this.input.set(message);
-    this.send();
-  }
 
-  send(): void {
-    const message = this.input().trim();
-    if (!message || this.loading()) {
-      return;
-    }
-
-    if (this.viewMode() === 'pipeline') {
-      if (!this.pendingPipeline) {
-        this.pipelineHint.set(this.i18n.t().agents.pipeline.hints.runFromCanvas);
-        return;
-      }
-      const result = validatePipeline(this.pendingPipeline);
-      if (!result.ok) {
-        this.pipelineHint.set(this.pipelineReasonMessage(result.reason));
-        return;
-      }
-    }
+    const topic =
+      this.input().trim() || this.i18n.t().agents.pipeline.defaultMessage;
+    const brief = this.activeBriefPrompt?.trim();
+    const invokeMessage = brief ? `${topic}\n\n${brief}` : topic;
 
     this.streamAbort?.();
     this.error.set(null);
     this.pipelineHint.set(null);
-    this.input.set('');
+    this.input.set(topic);
     this.loading.set(true);
+    if (this.resultsCollapsed()) {
+      this.resultsCollapsed.set(false);
+      this.resultsRatio.set(this.savedRatio);
+    }
 
     const userId = this.nextId('user');
     const assistantId = this.nextId('assistant');
 
     this.messages.update(msgs => [
       ...msgs,
-      { id: userId, role: 'user', content: message, timestamp: Date.now() },
+      { id: userId, role: 'user', content: topic, timestamp: Date.now() },
       {
         id: assistantId,
         role: 'assistant',
@@ -173,55 +201,56 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     ]);
     this.streamingMessageId.set(assistantId);
 
-    let fullContent = '';
+    let rawContent = '';
     const finish = (content: string, err?: Error) => {
-      this.patchAssistant(assistantId, content, false);
+      const cleaned = stripToolCallMarkup(content);
+      const steps = toMinimalToolSteps(
+        parseDsmlToolInvocations(content),
+        err ? 'error' : 'success',
+      );
+      this.patchAssistant(assistantId, cleaned, false, steps);
       this.streamingMessageId.set(null);
       this.loading.set(false);
       this.streamAbort = null;
-      this.pendingPipeline = null;
       if (err) {
         this.error.set(err.message || this.i18n.t().agents.errorMessage);
       }
     };
 
     const onChunk = (chunk: string) => {
-      fullContent += chunk;
-      this.patchAssistant(assistantId, fullContent, true);
+      rawContent += chunk;
+      const cleaned = stripToolCallMarkup(rawContent);
+      const steps = toMinimalToolSteps(
+        parseDsmlToolInvocations(rawContent),
+        'running',
+      );
+      this.patchAssistant(assistantId, cleaned, true, steps);
     };
     const onHandoff = (handoff: string) => {
       try {
         const parsed = JSON.parse(handoff) as { agentType?: string; reason?: string };
         if (parsed.agentType) {
           const note = `\n_Delegated to **${parsed.agentType}**_\n\n`;
-          fullContent += note;
-          this.patchAssistant(assistantId, fullContent, true);
+          rawContent += note;
+          const cleaned = stripToolCallMarkup(rawContent);
+          const steps = toMinimalToolSteps(
+            parseDsmlToolInvocations(rawContent),
+            'running',
+          );
+          this.patchAssistant(assistantId, cleaned, true, steps);
         }
       } catch {
         // ignore malformed handoff payloads
       }
     };
 
-    if (this.viewMode() === 'pipeline' && this.pendingPipeline) {
-      const request = toPipelineInvokeRequest(message, this.pendingPipeline);
-      const { abort } = this.agentsApi.invokePipelineStream(
-        request,
-        onChunk,
-        onHandoff,
-        () => finish(fullContent || this.i18n.t().agents.thinking),
-        err => finish(fullContent || this.i18n.t().agents.errorMessage, err),
-      );
-      this.streamAbort = abort;
-      return;
-    }
-
-    const { abort } = this.agentsApi.invokeStream(
-      this.selectedAgentType(),
-      { message, agentType: this.selectedAgentType() },
+    const request = toPipelineInvokeRequest(invokeMessage, graph);
+    const { abort } = this.agentsApi.invokePipelineStream(
+      request,
       onChunk,
       onHandoff,
-      () => finish(fullContent || this.i18n.t().agents.thinking),
-      err => finish(fullContent || this.i18n.t().agents.errorMessage, err),
+      () => finish(rawContent || this.i18n.t().agents.thinking),
+      err => finish(rawContent || this.i18n.t().agents.errorMessage, err),
     );
     this.streamAbort = abort;
   }
@@ -246,13 +275,19 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     id: string,
     content: string,
     streaming: boolean,
+    toolSteps: ChatBubbleToolStep[] = [],
   ): void {
     this.messages.update((msgs) => {
       return msgs.map((msg) => {
         if (msg.id !== id) {
           return msg;
         }
-        return { ...msg, content, streaming };
+        return {
+          ...msg,
+          content,
+          streaming,
+          toolSteps: toolSteps.length > 0 ? toolSteps : undefined,
+        };
       });
     });
   }

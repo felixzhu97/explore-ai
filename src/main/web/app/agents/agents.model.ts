@@ -17,10 +17,3 @@ export interface AgentInvokeRequest {
   sessionId?: string;
   agentType?: string;
 }
-
-export type AgentQuickPromptKey =
-  | 'supervisor'
-  | 'research'
-  | 'weather'
-  | 'vectordb'
-  | 'analyst';

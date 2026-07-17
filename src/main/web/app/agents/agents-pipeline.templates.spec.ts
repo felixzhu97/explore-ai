@@ -86,7 +86,36 @@ describe('applyPipelineTemplate', () => {
     });
   });
 
-  it('should_expose_at_least_three_builtin_templates', () => {
-    expect(PIPELINE_TEMPLATE_CATALOG.length).toBeGreaterThanOrEqual(3);
+  it('should_build_business_analysis_four_node_pipeline', () => {
+    const definition = findPipelineTemplate('businessAnalysis')!;
+
+    const result = applyPipelineTemplate(definition, catalog);
+
+    expect(result.skippedAgentTypes).toEqual([]);
+    expect(validatePipeline(result.graph)).toEqual({
+      ok: true,
+      order: ['research', 'research', 'vectordb', 'analyst'],
+    });
+    expect(result.graph.nodes).toHaveLength(4);
+    expect(result.graph.connections).toHaveLength(3);
+  });
+
+  it('should_build_tech_analysis_four_node_pipeline', () => {
+    const definition = findPipelineTemplate('techAnalysis')!;
+
+    const result = applyPipelineTemplate(definition, catalog);
+
+    expect(result.skippedAgentTypes).toEqual([]);
+    expect(validatePipeline(result.graph)).toEqual({
+      ok: true,
+      order: ['research', 'research', 'vectordb', 'analyst'],
+    });
+  });
+
+  it('should_expose_analysis_templates_in_catalog', () => {
+    const ids = PIPELINE_TEMPLATE_CATALOG.map(item => item.id);
+    expect(ids).toContain('businessAnalysis');
+    expect(ids).toContain('techAnalysis');
+    expect(PIPELINE_TEMPLATE_CATALOG.length).toBeGreaterThanOrEqual(5);
   });
 });

@@ -247,7 +247,9 @@ describe('I18nService', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.t().agents).toBeDefined();
-      expect(service.t().agents.quickPrompts.supervisor).toHaveLength(3);
+      expect(service.t().agents.pipeline.templates.items.businessAnalysis.name).toBe(
+        'Business analysis',
+      );
     });
 
     it('should provide generate translations', () => {

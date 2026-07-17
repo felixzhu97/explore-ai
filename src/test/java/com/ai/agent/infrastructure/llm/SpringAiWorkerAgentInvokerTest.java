@@ -12,6 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,6 +84,21 @@ class SpringAiWorkerAgentInvokerTest {
 
         verify(requestSpec, never()).tools(any());
         verify(requestSpec).call();
+    }
+
+    @Test
+    void should_use_blocking_call_when_streaming_tool_agent() {
+        SpringAiWorkerAgentInvoker invoker = newInvoker();
+        stubCallChain();
+        when(callResponseSpec.content()).thenReturn(
+                "brief <｜DSML｜tool_calls>leak</｜DSML｜tool_calls> done");
+
+        StepVerifier.create(invoker.invokeStream(agent("research"), "search topic"))
+                .expectNext("brief  done")
+                .verifyComplete();
+
+        verify(requestSpec).call();
+        verify(requestSpec, never()).stream();
     }
 
     private SpringAiWorkerAgentInvoker newInvoker() {

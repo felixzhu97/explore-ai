@@ -112,4 +112,25 @@ describe('ChatBubbleListComponent', () => {
     const items = component.bubbleItems();
     expect(items[0].loading).toBe(true);
   });
+
+  it('should_collapse_long_user_messages_when_enabled', () => {
+    const longContent = 'x'.repeat(200);
+    fixture.componentRef.setInput('messages', [
+      {
+        id: 'user-long',
+        role: 'user',
+        content: longContent,
+        timestamp: Date.now(),
+      },
+    ]);
+    fixture.componentRef.setInput('collapseLongUserMessages', true);
+    fixture.detectChanges();
+
+    const message = component.messageById('user-long')!;
+    expect(component.isLongUserMessage(message)).toBe(true);
+    expect(component.userMessageText(message).endsWith('…')).toBe(true);
+
+    component.toggleUserExpanded('user-long');
+    expect(component.userMessageText(message)).toBe(longContent);
+  });
 });
