@@ -10,6 +10,8 @@ import com.ai.common.domain.repository.WebSearchTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
@@ -32,14 +34,36 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
     @Override
     public Flux<String> invokeStream(AgentDefinition agent, String task) {
-        ChatClient.ChatClientRequestSpec spec = basePrompt(agent, task);
-        return spec.stream().content();
+        // Tool-calling models (e.g. DeepSeek) often stream DSML/tool_calls markup as
+        // plain text on .stream().content(). Use blocking call so ToolCallingAdvisor
+        // completes the tool loop, then emit the sanitized final answer.
+        if (usesTools(agent)) {
+            return Mono.fromCallable(() -> invoke(agent, task))
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .flatMapMany(answer -> {
+                        if (answer == null || answer.isBlank()) {
+                            return Flux.empty();
+                        }
+                        return Flux.just(answer);
+                    });
+        }
+        return basePrompt(agent, task).stream()
+                .content()
+                .map(ToolCallMarkupFilter::sanitize)
+                .filter(chunk -> chunk != null && !chunk.isEmpty());
     }
 
     @Override
     public String invoke(AgentDefinition agent, String task) {
         String content = basePrompt(agent, task).call().content();
-        return content == null ? "" : content;
+        return ToolCallMarkupFilter.sanitize(content == null ? "" : content);
+    }
+
+    private boolean usesTools(AgentDefinition agent) {
+        return switch (agent.type().value()) {
+            case "vectordb", "research", "weather" -> true;
+            default -> false;
+        };
     }
 
     private ChatClient.ChatClientRequestSpec basePrompt(AgentDefinition agent, String task) {

@@ -1,85 +1,86 @@
-<div class="flex shrink-0 items-center justify-between gap-2 overflow-x-auto border-b border-black/8 bg-white px-4 py-2.5">
-  <div class="flex min-w-0 items-center gap-2">
-    <div class="flex rounded-lg border border-black/8 p-0.5">
-      <button
-        type="button"
-        class="rounded-md px-2.5 py-1 text-xs font-medium"
-        [class.bg-black/6]="viewMode() === 'chat'"
-        [class.text-text-primary]="viewMode() === 'chat'"
-        [class.text-text-secondary]="viewMode() !== 'chat'"
-        (click)="setViewMode('chat')"
-      >
-        {{ i18n.t().agents.modes.chat }}
-      </button>
-      <button
-        type="button"
-        class="rounded-md px-2.5 py-1 text-xs font-medium"
-        [class.bg-black/6]="viewMode() === 'pipeline'"
-        [class.text-text-primary]="viewMode() === 'pipeline'"
-        [class.text-text-secondary]="viewMode() !== 'pipeline'"
-        (click)="setViewMode('pipeline')"
-      >
-        {{ i18n.t().agents.modes.pipeline }}
-      </button>
-    </div>
-
-    @if (viewMode() === 'chat') {
-      <z-select
-        class="min-w-40"
-        zSize="sm"
-        [ngModel]="selectedAgentType()"
-        (ngModelChange)="onAgentChange($event)"
-        zPlaceholder="Agent"
-      >
-        @for (agent of agents(); track agent.type) {
-          <z-select-item [zValue]="agent.type">{{ agent.name }}</z-select-item>
-        }
-      </z-select>
-      @if (selectedAgent(); as agent) {
-        <p class="hidden truncate text-sm text-text-secondary md:block">{{ agent.description }}</p>
-      }
-    }
+<div
+  #splitHost
+  class="flex min-h-0 flex-1 overflow-hidden"
+  [class.select-none]="isDraggingSplitter()"
+>
+  <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <app-agents-pipeline-canvas
+      class="min-h-0 flex-1"
+      [agents]="agents()"
+      [validationHint]="pipelineHint()"
+      (runRequested)="runPipeline($event)"
+      (graphChange)="onGraphChange($event)"
+      (clearValidation)="pipelineHint.set(null)"
+      (templateHint)="onTemplateHint($event)"
+      (templateApplied)="onTemplateApplied($event)"
+    />
   </div>
-</div>
 
-@if (viewMode() === 'pipeline') {
-  <app-agents-pipeline-canvas
-    class="min-h-0 flex-1"
-    [agents]="agents()"
-    [validationHint]="pipelineHint()"
-    (runRequested)="runPipeline($event)"
-    (clearValidation)="pipelineHint.set(null)"
-    (templateHint)="onTemplateHint($event)"
-  />
-  @if (messages().length > 0) {
-    <div class="max-h-48 shrink-0 overflow-y-auto border-t border-black/8 bg-surface px-4 py-3">
-      <app-chat-bubble-list
-        [messages]="messages()"
-        [streamingMessageId]="streamingMessageId()"
-        [thinkingLabel]="i18n.t().agents.thinking"
-      />
+  @if (!resultsCollapsed()) {
+    <div
+      class="group relative z-10 w-1.5 shrink-0 cursor-col-resize bg-black/6 hover:bg-black/15"
+      role="separator"
+      aria-orientation="vertical"
+      (pointerdown)="onSplitterPointerDown($event)"
+    >
+      <div
+        class="pointer-events-none absolute inset-y-0 -left-1 -right-1"
+      ></div>
     </div>
   }
-} @else {
-  <div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
-    @if (messages().length === 0) {
-      <app-chat-welcome-panel
-        class="h-full"
-        [title]="i18n.t().agents.startConversation"
-        [description]="selectedAgent()?.description ?? i18n.t().agents.descriptions.supervisor"
-        [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
-        [prompts]="quickPrompts()"
-        (promptSelect)="onPromptSelect($event)"
-      />
+
+  <aside
+    class="flex min-h-0 flex-col border-l border-black/8 bg-white"
+    [style.width]="resultsCollapsed() ? '40px' : `${resultsRatio() * 100}%`"
+    [style.flex]="'none'"
+  >
+    @if (resultsCollapsed()) {
+      <button
+        type="button"
+        class="flex h-full w-full flex-col items-center justify-center gap-2 px-1 py-3 text-xs text-text-secondary hover:bg-black/4"
+        (click)="toggleResultsCollapsed()"
+        [attr.aria-label]="i18n.t().agents.results.expand"
+      >
+        <span style="writing-mode: vertical-rl" class="tracking-wide">
+          {{ i18n.t().agents.results.expand }}
+        </span>
+      </button>
     } @else {
-      <app-chat-bubble-list
-        [messages]="messages()"
-        [streamingMessageId]="streamingMessageId()"
-        [thinkingLabel]="i18n.t().agents.thinking"
-      />
+      <div
+        class="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 px-3 py-2"
+      >
+        <p class="text-xs font-medium text-text-secondary">
+          {{ i18n.t().agents.results.title }}
+        </p>
+        <button
+          type="button"
+          class="rounded-md px-2 py-1 text-xs text-text-secondary hover:bg-black/4"
+          (click)="toggleResultsCollapsed()"
+        >
+          {{ i18n.t().agents.results.collapse }}
+        </button>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+        @if (messages().length === 0) {
+          <p class="text-xs text-text-secondary">
+            {{ i18n.t().agents.results.empty }}
+          </p>
+        } @else {
+          <app-chat-bubble-list
+            [messages]="messages()"
+            [streamingMessageId]="streamingMessageId()"
+            [thinkingLabel]="i18n.t().agents.thinking"
+            [collapseLongUserMessages]="true"
+            [expandLabel]="i18n.t().agents.results.expandMessage"
+            [collapseLabel]="i18n.t().agents.results.collapseMessage"
+            toolStepDoneLabel="完成"
+            toolStepFailedLabel="失败"
+          />
+        }
+      </div>
     }
-  </div>
-}
+  </aside>
+</div>
 
 @if (error()) {
   <z-alert
@@ -91,9 +92,7 @@
 
 <div class="border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
   <nx-sender
-    [placeholder]="viewMode() === 'pipeline'
-      ? i18n.t().agents.pipeline.inputPlaceholder
-      : i18n.t().agents.inputPlaceholder"
+    [placeholder]="i18n.t().agents.pipeline.inputPlaceholder"
     [(value)]="input"
     [loading]="loading()"
     (submitSend)="send()"

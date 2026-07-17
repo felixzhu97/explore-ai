@@ -80,28 +80,25 @@ export const en: Translations = {
     fileSelected: '{count} file(s) selected',
   },
   agents: {
-    startConversation: 'Start a conversation with the agent',
-    inputPlaceholder: 'Type your message...',
     thinking: 'Thinking...',
     errorMessage: 'An error occurred. Please try again.',
-    modes: {
-      chat: 'Chat',
-      pipeline: 'Pipeline',
-    },
     pipeline: {
-      inputPlaceholder: 'Describe the task for this pipeline...',
+      inputPlaceholder: 'Enter a short topic for this pipeline...',
       defaultMessage: 'Execute the configured agent pipeline for this task.',
       paletteTitle: 'Agents',
-      canvasHint: 'Drag agents onto the canvas, connect outputs to inputs, then run.',
+      canvasHint: 'Click or drag agents onto the canvas — edges chain automatically. Or start from a template.',
       clear: 'Clear',
       run: 'Run pipeline',
+      emptyState: {
+        title: 'Start with a template',
+        description: 'Pick a pipeline, edit the task below, then run. You can also add agents from the left.',
+      },
       hints: {
         empty: 'Add at least one worker agent to the canvas.',
         needConnections: 'Connect agent nodes before running the pipeline.',
         orphan: 'Connect every agent into one pipeline path.',
         cycle: 'Remove cycles from the pipeline graph.',
         invalid: 'Fix the pipeline graph before running.',
-        runFromCanvas: 'Click Run pipeline on the canvas to execute.',
       },
       templates: {
         title: 'Templates',
@@ -120,42 +117,77 @@ export const en: Translations = {
             name: 'Weather brief',
             description: 'Look up weather tools, then summarize for the user.',
           },
+          businessAnalysis: {
+            name: 'Business analysis',
+            description:
+              'Two web research passes, knowledge-base context, then a commercial strategy brief.',
+          },
+          techAnalysis: {
+            name: 'Tech analysis',
+            description:
+              'Two research passes on tech signals, codebase knowledge, then a feasibility brief.',
+          },
+        },
+        shortTopics: {
+          webResearch: 'Web research brief',
+          knowledgeAnswer: 'Knowledge-base answer',
+          weatherBrief: 'Weather brief',
+          businessAnalysis: 'AI product business analysis',
+          techAnalysis: 'AI stack technical feasibility',
+        },
+        briefPrompts: {
+          webResearch:
+            'Research the topic in the user context (or AI agent orchestration if unspecified). Produce a short evidence-based brief with sources.',
+          knowledgeAnswer:
+            'Answer using the knowledge base first. If documents are thin, say what is missing. End with a clear recommendation.',
+          weatherBrief:
+            'Look up current weather for the city mentioned (default: Beijing) and summarize conditions for the user.',
+          businessAnalysis: `Produce a Business Brief for AI chat/RAG/agent products (or the topic in context).
+
+Workflow for workers:
+1) Research pass 1 — scan dated commercial signals from Google, Apple, Microsoft, NVIDIA, Meta, OpenAI, DeepMind, Anthropic, Vercel, Cursor (product/pricing/GTM).
+2) Research pass 2 — competitors, buyer demand, and monetization patterns.
+3) Knowledge — retrieve any indexed product/docs context for this codebase.
+4) Analyst — synthesize.
+
+Required output sections:
+## Thesis
+## Watchlist scan (dated signals + links)
+## Business read (who pays, value chain, moat vs commodity)
+## Options (2–3: bet / why now / business move / effort / risk)
+## Recommendation (primary + defer)
+## Next actions (3–5 executable)
+## References
+
+Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
+          techAnalysis: `Produce a Technical Feasibility Brief for AI chat/RAG/agent products (or the topic in context).
+
+Workflow for workers:
+1) Research pass 1 — vendor/platform tech moves (OpenAI, Anthropic, Google, Microsoft, NVIDIA, Vercel, Spring AI / Angular ecosystem).
+2) Research pass 2 — Hugging Face Trending and recent arXiv (cs.AI / cs.LG / cs.CL) methods relevant to the stack.
+3) Knowledge — retrieve indexed docs about this repo’s stack (Java/Spring AI, Angular, RAG, agents).
+4) Analyst — synthesize.
+
+Required output sections:
+## Thesis
+## Tech signals (dated + links)
+## Technical read (maturity, stack fit, cost/latency/data, build vs buy)
+## Options (2–3: tech move / business link / effort / risk)
+## Recommendation (primary + defer)
+## Next actions (3–5 executable spikes)
+## References
+
+Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
         },
       },
     },
-    quickPrompts: {
-      supervisor: [
-        'List all available agents',
-        'Delegate a research question to Research Agent',
-        'Ask Weather Agent for Beijing weather',
-      ],
-      research: [
-        'Search the web for the latest Spring AI release notes',
-        'Find recent news about RAG evaluation',
-        'What changed in Angular CDK drag-drop?',
-      ],
-      weather: [
-        'What is the weather in Beijing?',
-        'Give a 3-day forecast for Shanghai',
-        'Compare weather in Tokyo and Seoul',
-      ],
-      vectordb: [
-        'Search the knowledge base for onboarding docs',
-        'List indexed documents',
-        'Find passages about agent orchestration',
-      ],
-      analyst: [
-        'Summarize the previous findings in 5 bullets',
-        'Turn the research into an action checklist',
-        'Highlight risks and open questions',
-      ],
-    },
-    descriptions: {
-      supervisor: 'Multi-agent orchestrator - coordinates specialized agents for complex tasks',
-      research: 'Live web research via search tools',
-      weather: 'Current weather and forecasts via weather tools',
-      vectordb: 'Document retrieval and knowledge-base Q&A via search tools',
-      analyst: 'Synthesizes prior worker outputs into a clear brief',
+    results: {
+      title: 'Results',
+      collapse: 'Collapse',
+      expand: 'Expand results',
+      empty: 'Run the pipeline to see results here.',
+      expandMessage: 'Show more',
+      collapseMessage: 'Show less',
     },
   },
   chat: {

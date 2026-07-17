@@ -80,28 +80,25 @@ export const zh: Translations = {
     fileSelected: '已选择 {count} 个文件',
   },
   agents: {
-    startConversation: '开始与 Agent 对话',
-    inputPlaceholder: '输入消息...',
     thinking: '思考中...',
     errorMessage: '发生错误，请重试。',
-    modes: {
-      chat: '对话',
-      pipeline: '编排',
-    },
     pipeline: {
-      inputPlaceholder: '描述流水线要完成的任务...',
+      inputPlaceholder: '输入分析主题（可选补充）...',
       defaultMessage: '按当前编排执行多智能体流水线。',
       paletteTitle: 'Agents',
-      canvasHint: '将 Agent 拖到画布，从输出端口连到输入端口，然后运行。',
+      canvasHint: '点击或拖拽左侧 Agent 到画布会自动串线；也可从模版一键开始。',
       clear: '清空',
       run: '运行流水线',
+      emptyState: {
+        title: '从模版开始',
+        description: '选择编排模版，编辑下方任务后运行；也可从左侧添加 Agent。',
+      },
       hints: {
         empty: '请至少将一个专业 Agent 放到画布上。',
         needConnections: '请先连接 Agent 节点再运行。',
         orphan: '请将所有 Agent 连成一条可执行流水线。',
         cycle: '请移除流水线中的环路。',
         invalid: '请先修正流水线结构。',
-        runFromCanvas: '请在画布上点击「运行流水线」。',
       },
       templates: {
         title: '编排模版',
@@ -120,22 +117,75 @@ export const zh: Translations = {
             name: '天气简报',
             description: '先调用天气工具，再整理给用户。',
           },
+          businessAnalysis: {
+            name: '商业分析',
+            description: '双轮网页扫描 + 知识库上下文，输出商业策略简报。',
+          },
+          techAnalysis: {
+            name: '技术分析',
+            description: '双轮技术信号调研 + 仓库知识，输出可行性简报。',
+          },
+        },
+        shortTopics: {
+          webResearch: '网页调研简报',
+          knowledgeAnswer: '知识库问答',
+          weatherBrief: '天气简报',
+          businessAnalysis: 'AI 产品商业分析',
+          techAnalysis: 'AI 技术栈可行性分析',
+        },
+        briefPrompts: {
+          webResearch:
+            '针对上下文主题（未指定则围绕 AI Agent 编排）做网页调研，给出有出处的简要结论。',
+          knowledgeAnswer:
+            '优先用知识库回答。若文档不足请说明缺口，并给出清晰建议。',
+          weatherBrief:
+            '查询提及城市的天气（默认北京），向用户简明总结实况。',
+          businessAnalysis: `请输出面向 AI 对话/RAG/Agent 产品（或上下文主题）的「商业简报」。
+
+工作流：
+1) 调研第 1 轮：扫描 Google、Apple、Microsoft、NVIDIA、Meta、OpenAI、DeepMind、Anthropic、Vercel、Cursor 的带日期商业信号（产品/定价/GTM）。
+2) 调研第 2 轮：竞品、买方需求与变现模式。
+3) 知识库：检索本仓库/产品相关文档上下文。
+4) 分析师：综合成稿。
+
+必含章节：
+## Thesis
+## Watchlist scan（带日期信号 + 链接）
+## Business read（谁付钱、价值链、护城河 vs 商品化）
+## Options（2–3：下注 / 为何现在 / 商业动作 / 工作量 / 风险）
+## Recommendation（主推 + 暂缓）
+## Next actions（3–5 条可执行）
+## References
+
+区分事实 / 推断 / 建议；禁止编造 URL。`,
+          techAnalysis: `请输出面向 AI 对话/RAG/Agent 产品（或上下文主题）的「技术可行性简报」。
+
+工作流：
+1) 调研第 1 轮：厂商/平台技术动向（OpenAI、Anthropic、Google、Microsoft、NVIDIA、Vercel、Spring AI / Angular 生态）。
+2) 调研第 2 轮：Hugging Face Trending 与近期 arXiv（cs.AI / cs.LG / cs.CL）中与栈相关的方法。
+3) 知识库：检索本仓库栈相关文档（Java/Spring AI、Angular、RAG、agents）。
+4) 分析师：综合成稿。
+
+必含章节：
+## Thesis
+## Tech signals（带日期 + 链接）
+## Technical read（成熟度、栈匹配、成本/延迟/数据、build vs buy）
+## Options（2–3：技术动作 / 商业关联 / 工作量 / 风险）
+## Recommendation（主推 + 暂缓）
+## Next actions（3–5 条可执行 spike）
+## References
+
+区分事实 / 推断 / 建议；禁止编造 URL。`,
         },
       },
     },
-    quickPrompts: {
-      supervisor: ['列出所有可用的 Agent', '把调研问题交给 Research Agent', '让 Weather Agent 查北京天气'],
-      research: ['搜索最新的 Spring AI 发布说明', '查找 RAG 评测相关新闻', 'Angular CDK 拖拽最近有什么变化？'],
-      weather: ['北京现在天气怎么样？', '给出上海未来 3 天预报', '对比东京和首尔的天气'],
-      vectordb: ['在知识库搜索入职文档', '列出已索引文档', '查找与 Agent 编排相关的段落'],
-      analyst: ['用 5 条要点总结前述结论', '把调研结果整理成行动清单', '标出风险与待确认问题'],
-    },
-    descriptions: {
-      supervisor: '多 Agent 协调器 - 协调专业 Agent 处理复杂任务',
-      research: '通过网页搜索工具做实时调研',
-      weather: '通过天气工具查询实况与预报',
-      vectordb: '通过文档检索工具做知识库问答',
-      analyst: '综合前述 Agent 输出，整理成清晰简报',
+    results: {
+      title: '运行结果',
+      collapse: '收起',
+      expand: '展开结果',
+      empty: '运行流水线后，结果会显示在这里。',
+      expandMessage: '展开',
+      collapseMessage: '收起',
     },
   },
   chat: {

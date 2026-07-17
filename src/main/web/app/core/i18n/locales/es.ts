@@ -81,28 +81,25 @@ export const es: Translations = {
     fileSelected: '{count} archivo(s) seleccionado(s)',
   },
   agents: {
-    startConversation: 'Iniciar una conversación con el agente',
-    inputPlaceholder: 'Escribe tu mensaje...',
     thinking: 'Pensando...',
     errorMessage: 'Ocurrió un error. Por favor, inténtalo de nuevo.',
-    modes: {
-      chat: 'Chat',
-      pipeline: 'Pipeline',
-    },
     pipeline: {
       inputPlaceholder: 'Describe la tarea del pipeline...',
       defaultMessage: 'Ejecuta el pipeline de agentes configurado para esta tarea.',
       paletteTitle: 'Agents',
-      canvasHint: 'Arrastra agentes al lienzo, conéctalos y ejecuta.',
+      canvasHint: 'Haz clic o arrastra agentes: se encadenan solos. O empieza con una plantilla.',
       clear: 'Limpiar',
       run: 'Ejecutar pipeline',
+      emptyState: {
+        title: 'Empieza con una plantilla',
+        description: 'Elige un pipeline, edita la tarea y ejecuta. También puedes añadir agentes a la izquierda.',
+      },
       hints: {
         empty: 'Añade al menos un agente worker al lienzo.',
         needConnections: 'Conecta los nodos antes de ejecutar el pipeline.',
         orphan: 'Conecta todos los agentes en una sola ruta.',
         cycle: 'Elimina los ciclos del grafo.',
         invalid: 'Corrige el pipeline antes de ejecutarlo.',
-        runFromCanvas: 'Haz clic en Run pipeline en el lienzo.',
       },
       templates: {
         title: 'Plantillas',
@@ -121,42 +118,77 @@ export const es: Translations = {
             name: 'Brief del clima',
             description: 'Usar herramientas del clima y resumir.',
           },
+          businessAnalysis: {
+            name: 'Análisis de negocio',
+            description: 'Dos pases web + conocimiento, brief de estrategia comercial.',
+          },
+          techAnalysis: {
+            name: 'Análisis técnico',
+            description: 'Señales tech + docs del repo, brief de viabilidad.',
+          },
         },
+
+        shortTopics: {
+          webResearch: 'Brief de investigación web',
+          knowledgeAnswer: 'Respuesta de conocimiento',
+          weatherBrief: 'Brief del clima',
+          businessAnalysis: 'Análisis de negocio producto AI',
+          techAnalysis: 'Viabilidad técnica stack AI',
+        },
+        briefPrompts: {
+          webResearch:
+            'Research the topic in the user context (or AI agent orchestration if unspecified). Produce a short evidence-based brief with sources.',
+          knowledgeAnswer:
+            'Answer using the knowledge base first. If documents are thin, say what is missing. End with a clear recommendation.',
+          weatherBrief:
+            'Look up current weather for the city mentioned (default: Beijing) and summarize conditions for the user.',
+          businessAnalysis: `Produce a Business Brief for AI chat/RAG/agent products (or the topic in context).
+
+Workflow for workers:
+1) Research pass 1 — scan dated commercial signals from Google, Apple, Microsoft, NVIDIA, Meta, OpenAI, DeepMind, Anthropic, Vercel, Cursor (product/pricing/GTM).
+2) Research pass 2 — competitors, buyer demand, and monetization patterns.
+3) Knowledge — retrieve any indexed product/docs context for this codebase.
+4) Analyst — synthesize.
+
+Required output sections:
+## Thesis
+## Watchlist scan (dated signals + links)
+## Business read (who pays, value chain, moat vs commodity)
+## Options (2–3: bet / why now / business move / effort / risk)
+## Recommendation (primary + defer)
+## Next actions (3–5 executable)
+## References
+
+Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
+          techAnalysis: `Produce a Technical Feasibility Brief for AI chat/RAG/agent products (or the topic in context).
+
+Workflow for workers:
+1) Research pass 1 — vendor/platform tech moves (OpenAI, Anthropic, Google, Microsoft, NVIDIA, Vercel, Spring AI / Angular ecosystem).
+2) Research pass 2 — Hugging Face Trending and recent arXiv (cs.AI / cs.LG / cs.CL) methods relevant to the stack.
+3) Knowledge — retrieve indexed docs about this repo’s stack (Java/Spring AI, Angular, RAG, agents).
+4) Analyst — synthesize.
+
+Required output sections:
+## Thesis
+## Tech signals (dated + links)
+## Technical read (maturity, stack fit, cost/latency/data, build vs buy)
+## Options (2–3: tech move / business link / effort / risk)
+## Recommendation (primary + defer)
+## Next actions (3–5 executable spikes)
+## References
+
+Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
+        },
+
       },
     },
-    quickPrompts: {
-      supervisor: [
-        'Listar todos los agentes disponibles',
-        'Delegar una investigación al Research Agent',
-        'Preguntar el clima de Beijing al Weather Agent',
-      ],
-      research: [
-        'Buscar las últimas notas de lanzamiento de Spring AI',
-        'Encontrar noticias recientes sobre evaluación RAG',
-        '¿Qué cambió en Angular CDK drag-drop?',
-      ],
-      weather: [
-        '¿Cómo está el clima en Beijing?',
-        'Pronóstico de 3 días para Shanghái',
-        'Comparar el clima en Tokio y Seúl',
-      ],
-      vectordb: [
-        'Buscar docs de onboarding en la base',
-        'Listar documentos indexados',
-        'Encontrar pasajes sobre orquestación de agentes',
-      ],
-      analyst: [
-        'Resumir en 5 viñetas',
-        'Convertir la investigación en checklist',
-        'Destacar riesgos y preguntas abiertas',
-      ],
-    },
-    descriptions: {
-      supervisor: 'Orquestador multiagente - coordina agentes especializados',
-      research: 'Investigación web en vivo con herramientas de búsqueda',
-      weather: 'Clima actual y pronósticos con herramientas meteorológicas',
-      vectordb: 'Q&A de base de conocimiento con búsqueda documental',
-      analyst: 'Sintetiza salidas previas en un brief claro',
+    results: {
+      title: 'Resultados',
+      collapse: 'Contraer',
+      expand: 'Expandir resultados',
+      empty: 'Ejecuta el pipeline para ver los resultados aquí.',
+      expandMessage: 'Ver más',
+      collapseMessage: 'Ver menos',
     },
   },
 

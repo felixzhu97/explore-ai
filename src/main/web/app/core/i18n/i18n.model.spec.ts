@@ -151,51 +151,33 @@ describe('i18n.model', () => {
     describe('agents translations', () => {
       it('should have agents translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].agents.startConversation).toBeDefined();
-          expect(translations[lang].agents.inputPlaceholder).toBeDefined();
           expect(translations[lang].agents.thinking).toBeDefined();
           expect(translations[lang].agents.errorMessage).toBeDefined();
+          expect(translations[lang].agents.pipeline.inputPlaceholder).toBeDefined();
+          expect(translations[lang].agents.pipeline.emptyState.title).toBeDefined();
         });
       });
 
-      it('should have quickPrompts for all agent types', () => {
-        const agentTypes = [
-          'supervisor',
-          'research',
-          'weather',
-          'vectordb',
-          'analyst',
+      it('should have pipeline templates including analysis flows', () => {
+        const templateIds = [
+          'webResearch',
+          'knowledgeAnswer',
+          'weatherBrief',
+          'businessAnalysis',
+          'techAnalysis',
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          agentTypes.forEach((type) => {
-            expect(translations[lang].agents.quickPrompts[type]).toBeDefined();
-            expect(
-              Array.isArray(translations[lang].agents.quickPrompts[type]),
-            ).toBe(true);
-            expect(
-              translations[lang].agents.quickPrompts[type].length,
-            ).toBeGreaterThan(0);
+          templateIds.forEach((id) => {
+            const items = translations[lang].agents.pipeline.templates.items;
+            const topics = translations[lang].agents.pipeline.templates.shortTopics;
+            const briefs = translations[lang].agents.pipeline.templates.briefPrompts;
+            expect(items[id].name).toBeDefined();
+            expect(topics[id].length).toBeGreaterThan(0);
+            expect(briefs[id].length).toBeGreaterThan(0);
+            expect(topics[id].length).toBeLessThan(briefs[id].length);
           });
-        });
-      });
-
-      it('should have descriptions for all agent types', () => {
-        const agentTypes = [
-          'supervisor',
-          'research',
-          'weather',
-          'vectordb',
-          'analyst',
-        ] as const;
-
-        SUPPORTED_LANGUAGES.forEach((lang) => {
-          agentTypes.forEach((type) => {
-            expect(translations[lang].agents.descriptions[type]).toBeDefined();
-            expect(
-              typeof translations[lang].agents.descriptions[type],
-            ).toBe('string');
-          });
+          expect(translations[lang].agents.results.title).toBeDefined();
         });
       });
     });

@@ -80,28 +80,25 @@ export const ja: Translations = {
     fileSelected: '{count} ファイル選択済み',
   },
   agents: {
-    startConversation: 'エージェントと会話を始める',
-    inputPlaceholder: 'メッセージを入力...',
     thinking: '考え中...',
     errorMessage: 'エラーが発生しました。もう一度お試しください。',
-    modes: {
-      chat: 'チャット',
-      pipeline: 'パイプライン',
-    },
     pipeline: {
       inputPlaceholder: 'パイプラインのタスクを入力...',
       defaultMessage: '設定したエージェントパイプラインを実行してください。',
       paletteTitle: 'Agents',
-      canvasHint: 'エージェントをキャンバスへドラッグし、接続して実行します。',
+      canvasHint: '左のエージェントをクリック/ドラッグすると自動で接続されます。テンプレートからも開始できます。',
       clear: 'クリア',
       run: 'パイプライン実行',
+      emptyState: {
+        title: 'テンプレートから開始',
+        description: 'テンプレートを選び、下のタスクを編集して実行。左からエージェントを追加することもできます。',
+      },
       hints: {
         empty: 'キャンバスに少なくとも1つのワーカーを追加してください。',
         needConnections: '実行前にエージェント同士を接続してください。',
         orphan: 'すべてのエージェントを1本のパイプラインに接続してください。',
         cycle: 'パイプラインの循環を解消してください。',
         invalid: 'パイプラインを修正してから実行してください。',
-        runFromCanvas: 'キャンバスの「Run pipeline」を押してください。',
       },
       templates: {
         title: 'テンプレート',
@@ -120,43 +117,77 @@ export const ja: Translations = {
             name: '天気ブリーフ',
             description: '天気ツールを呼び、要点をまとめます。',
           },
+          businessAnalysis: {
+            name: 'ビジネス分析',
+            description: '2回のWeb調査とナレッジ、商業戦略ブリーフ。',
+          },
+          techAnalysis: {
+            name: '技術分析',
+            description: '技術シグナル調査とリポジトリ知識、実現性ブリーフ。',
+          },
         },
+
+        shortTopics: {
+          webResearch: 'Web調査ブリーフ',
+          knowledgeAnswer: 'ナレッジ回答',
+          weatherBrief: '天気ブリーフ',
+          businessAnalysis: 'AIプロダクト事業分析',
+          techAnalysis: 'AIスタック技術実現性',
+        },
+        briefPrompts: {
+          webResearch:
+            'Research the topic in the user context (or AI agent orchestration if unspecified). Produce a short evidence-based brief with sources.',
+          knowledgeAnswer:
+            'Answer using the knowledge base first. If documents are thin, say what is missing. End with a clear recommendation.',
+          weatherBrief:
+            'Look up current weather for the city mentioned (default: Beijing) and summarize conditions for the user.',
+          businessAnalysis: `Produce a Business Brief for AI chat/RAG/agent products (or the topic in context).
+
+Workflow for workers:
+1) Research pass 1 — scan dated commercial signals from Google, Apple, Microsoft, NVIDIA, Meta, OpenAI, DeepMind, Anthropic, Vercel, Cursor (product/pricing/GTM).
+2) Research pass 2 — competitors, buyer demand, and monetization patterns.
+3) Knowledge — retrieve any indexed product/docs context for this codebase.
+4) Analyst — synthesize.
+
+Required output sections:
+## Thesis
+## Watchlist scan (dated signals + links)
+## Business read (who pays, value chain, moat vs commodity)
+## Options (2–3: bet / why now / business move / effort / risk)
+## Recommendation (primary + defer)
+## Next actions (3–5 executable)
+## References
+
+Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
+          techAnalysis: `Produce a Technical Feasibility Brief for AI chat/RAG/agent products (or the topic in context).
+
+Workflow for workers:
+1) Research pass 1 — vendor/platform tech moves (OpenAI, Anthropic, Google, Microsoft, NVIDIA, Vercel, Spring AI / Angular ecosystem).
+2) Research pass 2 — Hugging Face Trending and recent arXiv (cs.AI / cs.LG / cs.CL) methods relevant to the stack.
+3) Knowledge — retrieve indexed docs about this repo’s stack (Java/Spring AI, Angular, RAG, agents).
+4) Analyst — synthesize.
+
+Required output sections:
+## Thesis
+## Tech signals (dated + links)
+## Technical read (maturity, stack fit, cost/latency/data, build vs buy)
+## Options (2–3: tech move / business link / effort / risk)
+## Recommendation (primary + defer)
+## Next actions (3–5 executable spikes)
+## References
+
+Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
+        },
+
       },
     },
-    quickPrompts: {
-      supervisor: [
-        '利用可能なエージェントを一覧表示',
-        '調査タスクを Research Agent に委任',
-        'Weather Agent に北京の天気を聞く',
-      ],
-      research: [
-        'Spring AI の最新リリースノートを検索',
-        'RAG 評価に関する最近のニュースを探す',
-        'Angular CDK ドラッグ&ドロップの変更点は？',
-      ],
-      weather: [
-        '北京の現在の天気は？',
-        '上海の3日予報を出して',
-        '東京とソウルの天気を比較',
-      ],
-      vectordb: [
-        'ナレッジベースでオンボーディング文書を検索',
-        'インデックス済み文書を一覧表示',
-        'エージェント編成に関する段落を探す',
-      ],
-      analyst: [
-        'これまでの結果を5点で要約',
-        '調査結果をアクションリストに整理',
-        'リスクと未確認点を強調',
-      ],
-    },
-    descriptions: {
-      supervisor:
-          'マルチエージェントオーケストレーター - 専門エージェントを調整して複雑なタスクを解決',
-      research: 'Web検索ツールによるリアルタイム調査',
-      weather: '天気ツールによる現況と予報',
-      vectordb: '文書検索ツールによるナレッジベース Q&A',
-      analyst: '先行エージェントの出力を簡潔に整理',
+    results: {
+      title: '結果',
+      collapse: '折りたたむ',
+      expand: '結果を表示',
+      empty: 'パイプラインを実行すると結果がここに表示されます。',
+      expandMessage: 'もっと見る',
+      collapseMessage: '閉じる',
     },
   },
   chat: {
