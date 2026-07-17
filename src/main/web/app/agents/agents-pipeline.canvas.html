@@ -18,7 +18,7 @@
         [cdkDragData]="agent"
         (click)="addNodeFromClick(agent)"
       >
-        <div class="text-sm font-medium text-text-primary">{{ agent.name }}</div>
+        <div class="text-text-primary text-sm font-medium">{{ agent.name }}</div>
         <div class="mt-0.5 line-clamp-2 text-xs text-text-secondary">{{ agent.description }}</div>
         <div *cdkDragPreview class="rounded-lg border border-black/12 bg-white px-3 py-2 shadow-md">
           {{ agent.name }}
@@ -43,7 +43,7 @@
       </button>
       <button
         type="button"
-        class="rounded-md bg-text-primary px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+        class="bg-text-primary rounded-md px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
         (click)="run()"
       >
         {{ i18n.t().agents.pipeline.run }}
@@ -96,7 +96,7 @@
     (cdkDropListDropped)="onCanvasDrop($event)"
   >
     <f-flow
-      class="agents-pipeline-flow block h-full w-full"
+      class="agents-pipeline-flow block size-full"
       fDraggable
       (fCreateConnection)="onCreateConnection($event)"
       (fMoveNodes)="onMoveNodes($event)"
@@ -122,26 +122,26 @@
             >
               <button
                 type="button"
-                class="absolute right-2 top-2 text-xs text-text-secondary hover:text-text-primary"
+                class="hover:text-text-primary absolute top-2 right-2 text-xs text-text-secondary"
                 fDragBlocker
                 (click)="removeNode(node.id)"
               >
                 ×
               </button>
-              <div class="pr-4 text-sm font-medium text-text-primary">{{ node.name }}</div>
+              <div class="text-text-primary pr-4 text-sm font-medium">{{ node.name }}</div>
               <div class="mt-1 line-clamp-2 text-xs text-text-secondary">{{ node.description }}</div>
               <div
-                class="agents-pipeline-port absolute -left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
+                class="agents-pipeline-port absolute top-1/2 -left-1.5 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
                 fConnector
                 fConnectorType="target"
                 [fConnectorId]="inId(node.id)"
-              />
+              ></div>
               <div
-                class="agents-pipeline-port absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
+                class="agents-pipeline-port absolute top-1/2 -right-1.5 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
                 fConnector
                 fConnectorType="source"
                 [fConnectorId]="outId(node.id)"
-              />
+              ></div>
             </div>
           }
         </ng-container>
