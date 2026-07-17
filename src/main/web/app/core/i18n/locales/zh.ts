@@ -108,38 +108,34 @@ export const zh: Translations = {
         use: '使用',
         skipped: '已跳过不可用 Agent：{types}',
         items: {
-          incidentTriage: {
-            name: '事件分诊',
-            description: '监控 → AIOps → K8s 处置路径。',
+          webResearch: {
+            name: '网页调研',
+            description: '先网页搜索，再综合成简报。',
           },
-          clusterHealth: {
-            name: '集群健康',
-            description: '先看集群状态，再核对可观测性。',
+          knowledgeAnswer: {
+            name: '知识问答',
+            description: '先检索文档，再综合回答。',
           },
-          ragOps: {
-            name: '知识增强运维',
-            description: '先检索文档，再由 AIOps 分诊。',
+          weatherBrief: {
+            name: '天气简报',
+            description: '先调用天气工具，再整理给用户。',
           },
         },
       },
     },
     quickPrompts: {
-      supervisor: ['列出所有可用的 Agent', '委托任务给 K8s Agent', '检查整体系统健康状态'],
-      k8s: ['显示所有运行中的 Pod', '检查集群健康状态', '扩容部署到 3 个副本'],
-      monitoring: ['显示过去一小时的 CPU 使用率', '列出所有活跃告警', '检查内存利用率'],
-      model: ['列出已部署的模型', '显示模型性能指标', '对比推理延迟'],
-      llmops: ['显示当前训练任务', '列出微调后的模型', '检查训练数据集状态'],
-      aiops: ['分析最近的事件', '显示 #123 事件的根因', '列出待处理的自动化任务'],
-      vectordb: ['搜索相似文档', '显示索引统计信息', '列出最近的嵌入向量'],
+      supervisor: ['列出所有可用的 Agent', '把调研问题交给 Research Agent', '让 Weather Agent 查北京天气'],
+      research: ['搜索最新的 Spring AI 发布说明', '查找 RAG 评测相关新闻', 'Angular CDK 拖拽最近有什么变化？'],
+      weather: ['北京现在天气怎么样？', '给出上海未来 3 天预报', '对比东京和首尔的天气'],
+      vectordb: ['在知识库搜索入职文档', '列出已索引文档', '查找与 Agent 编排相关的段落'],
+      analyst: ['用 5 条要点总结前述结论', '把调研结果整理成行动清单', '标出风险与待确认问题'],
     },
     descriptions: {
       supervisor: '多 Agent 协调器 - 协调专业 Agent 处理复杂任务',
-      k8s: '管理 Kubernetes 集群、Pod、服务和部署',
-      monitoring: '查询指标、设置告警、分析系统性能',
-      model: '管理 ML 模型、版本控制、部署和推理',
-      llmops: '训练、评估和微调 LLM 模型',
-      aiops: '智能运维 - 事件分析、根因定位、自动化',
-      vectordb: '管理向量嵌入、相似度搜索和文档索引',
+      research: '通过网页搜索工具做实时调研',
+      weather: '通过天气工具查询实况与预报',
+      vectordb: '通过文档检索工具做知识库问答',
+      analyst: '综合前述 Agent 输出，整理成清晰简报',
     },
   },
   chat: {

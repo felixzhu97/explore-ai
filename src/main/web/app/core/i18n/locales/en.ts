@@ -108,17 +108,17 @@ export const en: Translations = {
         use: 'Use',
         skipped: 'Skipped unavailable agents: {types}',
         items: {
-          incidentTriage: {
-            name: 'Incident triage',
-            description: 'Metrics → AIOps → Kubernetes remediation path.',
+          webResearch: {
+            name: 'Web research',
+            description: 'Search the web, then synthesize a brief.',
           },
-          clusterHealth: {
-            name: 'Cluster health',
-            description: 'Inspect cluster state, then check observability.',
+          knowledgeAnswer: {
+            name: 'Knowledge answer',
+            description: 'Retrieve documents, then synthesize an answer.',
           },
-          ragOps: {
-            name: 'Knowledge-grounded ops',
-            description: 'Retrieve docs, then triage with AIOps.',
+          weatherBrief: {
+            name: 'Weather brief',
+            description: 'Look up weather tools, then summarize for the user.',
           },
         },
       },
@@ -126,48 +126,36 @@ export const en: Translations = {
     quickPrompts: {
       supervisor: [
         'List all available agents',
-        'Delegate task to Kubernetes agent',
-        'Check overall system health',
+        'Delegate a research question to Research Agent',
+        'Ask Weather Agent for Beijing weather',
       ],
-      k8s: [
-        'Show me all running pods',
-        'Check cluster health status',
-        'Scale deployment to 3 replicas',
+      research: [
+        'Search the web for the latest Spring AI release notes',
+        'Find recent news about RAG evaluation',
+        'What changed in Angular CDK drag-drop?',
       ],
-      monitoring: [
-        'Show CPU usage in last hour',
-        'List all active alerts',
-        'Check memory utilization',
-      ],
-      model: [
-        'List deployed models',
-        'Show model performance metrics',
-        'Compare inference latency',
-      ],
-      llmops: [
-        'Show current training jobs',
-        'List fine-tuned models',
-        'Check training dataset status',
-      ],
-      aiops: [
-        'Analyze recent incidents',
-        'Show root cause for incident #123',
-        'List pending automations',
+      weather: [
+        'What is the weather in Beijing?',
+        'Give a 3-day forecast for Shanghai',
+        'Compare weather in Tokyo and Seoul',
       ],
       vectordb: [
-        'Search for similar documents',
-        'Show index statistics',
-        'List recent embeddings',
+        'Search the knowledge base for onboarding docs',
+        'List indexed documents',
+        'Find passages about agent orchestration',
+      ],
+      analyst: [
+        'Summarize the previous findings in 5 bullets',
+        'Turn the research into an action checklist',
+        'Highlight risks and open questions',
       ],
     },
     descriptions: {
       supervisor: 'Multi-agent orchestrator - coordinates specialized agents for complex tasks',
-      k8s: 'Manage Kubernetes clusters, pods, services, and deployments',
-      monitoring: 'Query metrics, set up alerts, and analyze system performance',
-      model: 'Manage ML models, versioning, deployment, and inference',
-      llmops: 'Train, evaluate, and fine-tune LLM models',
-      aiops: 'Intelligent operations - incident analysis, root cause, automation',
-      vectordb: 'Manage vector embeddings, similarity search, and document indexing',
+      research: 'Live web research via search tools',
+      weather: 'Current weather and forecasts via weather tools',
+      vectordb: 'Document retrieval and knowledge-base Q&A via search tools',
+      analyst: 'Synthesizes prior worker outputs into a clear brief',
     },
   },
   chat: {

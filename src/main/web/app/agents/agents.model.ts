@@ -20,9 +20,7 @@ export interface AgentInvokeRequest {
 
 export type AgentQuickPromptKey =
   | 'supervisor'
-  | 'k8s'
-  | 'monitoring'
-  | 'model'
-  | 'llmops'
-  | 'aiops'
-  | 'vectordb';
+  | 'research'
+  | 'weather'
+  | 'vectordb'
+  | 'analyst';
