@@ -1,0 +1,151 @@
+<aside class="flex w-52 shrink-0 flex-col border-r border-black/8 bg-white">
+  <p class="border-b border-black/8 px-3 py-2 text-xs font-medium text-text-secondary">
+    {{ i18n.t().agents.pipeline.paletteTitle }}
+  </p>
+  <div
+    class="flex flex-1 flex-col gap-2 overflow-y-auto p-2"
+    cdkDropList
+    id="agent-palette"
+    [cdkDropListData]="workers()"
+    [cdkDropListConnectedTo]="['pipeline-canvas']"
+    cdkDropListSortingDisabled
+  >
+    @for (agent of workers(); track agent.type) {
+      <button
+        type="button"
+        class="cursor-grab rounded-lg border border-black/8 bg-surface px-2.5 py-2 text-left transition hover:border-black/20 active:cursor-grabbing"
+        cdkDrag
+        [cdkDragData]="agent"
+        (click)="addNodeFromClick(agent)"
+      >
+        <div class="text-text-primary text-sm font-medium">{{ agent.name }}</div>
+        <div class="mt-0.5 line-clamp-2 text-xs text-text-secondary">{{ agent.description }}</div>
+        <div *cdkDragPreview class="rounded-lg border border-black/12 bg-white px-3 py-2 shadow-md">
+          {{ agent.name }}
+        </div>
+      </button>
+    }
+  </div>
+</aside>
+
+<section class="flex min-w-0 flex-1 flex-col">
+  <div class="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 bg-white px-3 py-2">
+    <p class="text-xs text-text-secondary">
+      {{ i18n.t().agents.pipeline.canvasHint }}
+    </p>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        class="rounded-md px-2.5 py-1.5 text-xs text-text-secondary hover:bg-black/4"
+        (click)="clearCanvas()"
+      >
+        {{ i18n.t().agents.pipeline.clear }}
+      </button>
+      <button
+        type="button"
+        class="bg-text-primary rounded-md px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+        (click)="run()"
+      >
+        {{ i18n.t().agents.pipeline.run }}
+      </button>
+    </div>
+  </div>
+
+  <div class="shrink-0 border-b border-black/8 bg-white px-3 py-2">
+    <p class="mb-2 text-xs font-medium text-text-secondary">
+      {{ i18n.t().agents.pipeline.templates.title }}
+    </p>
+    <div class="flex flex-wrap gap-2">
+      @for (template of templates; track template.id) {
+        <div
+          class="flex min-w-[12rem] max-w-xs flex-1 flex-col gap-1 rounded-lg border border-black/8 bg-surface px-2.5 py-2"
+        >
+          <div class="text-sm font-medium text-text-primary">
+            {{ templateLabel(template.id).name }}
+          </div>
+          <p class="line-clamp-2 text-xs text-text-secondary">
+            {{ templateLabel(template.id).description }}
+          </p>
+          <p class="font-mono text-[10px] text-text-secondary">
+            {{ templateOrder(template.id) }}
+          </p>
+          <button
+            type="button"
+            class="mt-1 self-start rounded-md border border-black/10 bg-white px-2.5 py-1 text-xs font-medium text-text-primary hover:bg-black/4"
+            (click)="applyTemplate(template.id)"
+          >
+            {{ i18n.t().agents.pipeline.templates.use }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (validationHint()) {
+    <p class="border-b border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+      {{ validationHint() }}
+    </p>
+  }
+
+  <div
+    class="relative min-h-0 flex-1 bg-[#f7f7f5]"
+    cdkDropList
+    id="pipeline-canvas"
+    [cdkDropListData]="canvasDropData"
+    [cdkDropListConnectedTo]="['agent-palette']"
+    (cdkDropListDropped)="onCanvasDrop($event)"
+  >
+    <f-flow
+      class="agents-pipeline-flow block size-full"
+      fDraggable
+      (fCreateConnection)="onCreateConnection($event)"
+      (fMoveNodes)="onMoveNodes($event)"
+    >
+      <f-canvas fZoom>
+        <f-connection-for-create />
+        <ng-container ngProjectAs="[fConnections]">
+          @for (edge of connections(); track edge.id) {
+            <f-connection
+              [fSourceId]="outId(edge.sourceNodeId)"
+              [fTargetId]="inId(edge.targetNodeId)"
+            />
+          }
+        </ng-container>
+        <ng-container ngProjectAs="[fNodes]">
+          @for (node of nodes(); track node.id) {
+            <div
+              class="agents-pipeline-node relative w-48 rounded-xl border border-black/10 bg-white p-3 shadow-sm"
+              fNode
+              fDragHandle
+              [fNodeId]="node.id"
+              [fNodePosition]="node.position"
+            >
+              <button
+                type="button"
+                class="hover:text-text-primary absolute top-2 right-2 text-xs text-text-secondary"
+                fDragBlocker
+                (click)="removeNode(node.id)"
+              >
+                ×
+              </button>
+              <div class="text-text-primary pr-4 text-sm font-medium">{{ node.name }}</div>
+              <div class="mt-1 line-clamp-2 text-xs text-text-secondary">{{ node.description }}</div>
+              <div
+                class="agents-pipeline-port absolute top-1/2 -left-1.5 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
+                fConnector
+                fConnectorType="target"
+                [fConnectorId]="inId(node.id)"
+              ></div>
+              <div
+                class="agents-pipeline-port absolute top-1/2 -right-1.5 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
+                fConnector
+                fConnectorType="source"
+                [fConnectorId]="outId(node.id)"
+              ></div>
+            </div>
+          }
+        </ng-container>
+      </f-canvas>
+    </f-flow>
+  </div>
+</section>

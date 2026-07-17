@@ -1,6 +1,7 @@
 package com.ai.agent.application.usecase;
 
 import com.ai.agent.domain.model.AgentDefinition;
+import com.ai.agent.domain.model.AgentPipeline;
 import com.ai.agent.domain.repository.AgentRegistry;
 import com.ai.agent.domain.vo.AgentType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -34,5 +35,9 @@ public class AgentFacade {
 
     public Flux<ServerSentEvent<String>> invokeAgent(String agentType, String message) {
         return orchestrator.invokeAgent(AgentType.of(agentType), message);
+    }
+
+    public Flux<ServerSentEvent<String>> invokePipeline(String message, AgentPipeline pipeline) {
+        return orchestrator.invokePipeline(message, pipeline);
     }
 }

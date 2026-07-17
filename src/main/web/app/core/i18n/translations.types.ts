@@ -101,23 +101,49 @@ export interface Translations {
     inputPlaceholder: string;
     thinking: string;
     errorMessage: string;
+    modes: {
+      chat: string;
+      pipeline: string;
+    };
+    pipeline: {
+      inputPlaceholder: string;
+      defaultMessage: string;
+      paletteTitle: string;
+      canvasHint: string;
+      clear: string;
+      run: string;
+      hints: {
+        empty: string;
+        needConnections: string;
+        orphan: string;
+        cycle: string;
+        invalid: string;
+        runFromCanvas: string;
+      };
+      templates: {
+        title: string;
+        use: string;
+        skipped: string;
+        items: {
+          webResearch: { name: string; description: string };
+          knowledgeAnswer: { name: string; description: string };
+          weatherBrief: { name: string; description: string };
+        };
+      };
+    };
     quickPrompts: {
       supervisor: string[];
-      k8s: string[];
-      monitoring: string[];
-      model: string[];
-      llmops: string[];
-      aiops: string[];
+      research: string[];
+      weather: string[];
       vectordb: string[];
+      analyst: string[];
     };
     descriptions: {
       supervisor: string;
-      k8s: string;
-      monitoring: string;
-      model: string;
-      llmops: string;
-      aiops: string;
+      research: string;
+      weather: string;
       vectordb: string;
+      analyst: string;
     };
   };
   chat: {
