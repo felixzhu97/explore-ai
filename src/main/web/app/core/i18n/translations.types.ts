@@ -120,16 +120,6 @@ export interface Translations {
         invalid: string;
         runFromCanvas: string;
       };
-      templates: {
-        title: string;
-        use: string;
-        skipped: string;
-        items: {
-          incidentTriage: { name: string; description: string };
-          clusterHealth: { name: string; description: string };
-          ragOps: { name: string; description: string };
-        };
-      };
     };
     quickPrompts: {
       supervisor: string[];

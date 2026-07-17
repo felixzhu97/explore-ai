@@ -103,25 +103,6 @@ export const zh: Translations = {
         invalid: '请先修正流水线结构。',
         runFromCanvas: '请在画布上点击「运行流水线」。',
       },
-      templates: {
-        title: '编排模版',
-        use: '使用',
-        skipped: '已跳过不可用 Agent：{types}',
-        items: {
-          incidentTriage: {
-            name: '事件分诊',
-            description: '监控 → AIOps → K8s 处置路径。',
-          },
-          clusterHealth: {
-            name: '集群健康',
-            description: '先看集群状态，再核对可观测性。',
-          },
-          ragOps: {
-            name: '知识增强运维',
-            description: '先检索文档，再由 AIOps 分诊。',
-          },
-        },
-      },
     },
     quickPrompts: {
       supervisor: ['列出所有可用的 Agent', '委托任务给 K8s Agent', '检查整体系统健康状态'],

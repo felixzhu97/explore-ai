@@ -103,25 +103,6 @@ export const ja: Translations = {
         invalid: 'パイプラインを修正してから実行してください。',
         runFromCanvas: 'キャンバスの「Run pipeline」を押してください。',
       },
-      templates: {
-        title: 'テンプレート',
-        use: '使用',
-        skipped: '利用できないエージェントをスキップしました: {types}',
-        items: {
-          incidentTriage: {
-            name: 'インシデント対応',
-            description: '監視 → AIOps → Kubernetes の対応経路。',
-          },
-          clusterHealth: {
-            name: 'クラスター健全性',
-            description: 'クラスター状態を確認し、可観測性を点検。',
-          },
-          ragOps: {
-            name: '知識連携オペレーション',
-            description: 'ドキュメント検索後に AIOps で切り分け。',
-          },
-        },
-      },
     },
     quickPrompts: {
       supervisor: [

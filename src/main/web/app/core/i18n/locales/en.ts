@@ -103,25 +103,6 @@ export const en: Translations = {
         invalid: 'Fix the pipeline graph before running.',
         runFromCanvas: 'Click Run pipeline on the canvas to execute.',
       },
-      templates: {
-        title: 'Templates',
-        use: 'Use',
-        skipped: 'Skipped unavailable agents: {types}',
-        items: {
-          incidentTriage: {
-            name: 'Incident triage',
-            description: 'Metrics → AIOps → Kubernetes remediation path.',
-          },
-          clusterHealth: {
-            name: 'Cluster health',
-            description: 'Inspect cluster state, then check observability.',
-          },
-          ragOps: {
-            name: 'Knowledge-grounded ops',
-            description: 'Retrieve docs, then triage with AIOps.',
-          },
-        },
-      },
     },
     quickPrompts: {
       supervisor: [

@@ -106,10 +106,6 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     this.error.set(null);
   }
 
-  onTemplateHint(hint: string | null): void {
-    this.pipelineHint.set(hint);
-  }
-
   onAgentChange(type: string): void {
     this.selectedAgentType.set(type);
     this.messages.set([]);
