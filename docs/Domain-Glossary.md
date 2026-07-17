@@ -135,6 +135,7 @@ flowchart TB
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5                      |
 | Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
 | Agent Pipeline                       | Agent 流水线 | User-authored multi-agent graph executed in topological order | Pattern   | `com.ai.agent` + `/agents` pipeline view | AI-148 canvas + `/api/agents/pipeline/invoke/sse` |
+| Agent Pipeline Template              | Agent 编排模版 | Built-in ordered agent graph users can apply in one click | Pattern   | `/agents` Pipeline templates | AI-163 catalog + canvas apply |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Minimal task routing                |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. domain-expert, developer       |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `RagChatUseCase.buildPrompt()`                | Reduces unsupported claims          |

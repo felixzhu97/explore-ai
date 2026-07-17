@@ -48,6 +48,7 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 | E Session save & export | 3 | No |
 | F Pluggable real ops tools | 8 | No |
 | G Drag-drop agent pipeline canvas (CDK + Foblex) | 8 | Yes ([AI-148](https://felixzhu.atlassian.net/browse/AI-148)) |
+| H Built-in agent pipeline templates (one-click use) | 3 | Yes ([AI-163](https://felixzhu.atlassian.net/browse/AI-163)) |
 
 ## Out of scope (this PR)
 
@@ -60,6 +61,7 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 
 - CDK palette drag + Foblex node/edge canvas on `/agents` Pipeline mode
 - `POST /api/agents/pipeline/invoke/sse` with `{ message, nodes, edges }`
+- Built-in Agent Pipeline Templates (AI-163): one-click apply then run
 
 ## Copy-paste user stories
 

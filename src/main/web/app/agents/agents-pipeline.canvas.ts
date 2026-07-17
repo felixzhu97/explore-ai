@@ -24,6 +24,12 @@ import {
   type PipelineGraph,
   type PipelineNode,
 } from './agents-pipeline.model';
+import {
+  applyPipelineTemplate,
+  findPipelineTemplate,
+  PIPELINE_TEMPLATE_CATALOG,
+  type PipelineTemplateId,
+} from './agents-pipeline.templates';
 
 @Component({
   selector: 'app-agents-pipeline-canvas',
@@ -40,6 +46,7 @@ export class AgentsPipelineCanvasComponent {
   readonly validationHint = input<string | null>(null);
   readonly runRequested = output<PipelineGraph>();
   readonly clearValidation = output<void>();
+  readonly templateHint = output<string | null>();
 
   readonly nodes = signal<PipelineNode[]>([]);
   readonly connections = signal<PipelineConnection[]>([]);
@@ -48,6 +55,8 @@ export class AgentsPipelineCanvasComponent {
 
   readonly workers = computed(() => this.agents().filter(agent => !agent.supervisor),
   );
+
+  readonly templates = PIPELINE_TEMPLATE_CATALOG;
 
   /** Drop target holds no items; agents come from the palette via cdkDragData. */
   readonly canvasDropData: AgentInfo[] = [];
@@ -131,6 +140,40 @@ export class AgentsPipelineCanvasComponent {
     this.nodes.set([]);
     this.connections.set([]);
     this.clearValidation.emit();
+    this.templateHint.emit(null);
+  }
+
+  applyTemplate(id: PipelineTemplateId): void {
+    const definition = findPipelineTemplate(id);
+    if (!definition) {
+      return;
+    }
+    const seed = this.nodeSeq + 1;
+    const result = applyPipelineTemplate(definition, this.agents(), seed);
+    this.nodeSeq = seed + result.graph.nodes.length;
+    this.connectionSeq = seed + result.graph.connections.length;
+    this.nodes.set(result.graph.nodes);
+    this.connections.set(result.graph.connections);
+    this.clearValidation.emit();
+    if (result.skippedAgentTypes.length > 0) {
+      const template = this.i18n.t().agents.pipeline.templates.skipped.replace(
+        '{types}',
+        result.skippedAgentTypes.join(', '),
+      );
+      this.templateHint.emit(template);
+    } else {
+      this.templateHint.emit(null);
+    }
+    this.cdr.markForCheck();
+  }
+
+  templateLabel(id: PipelineTemplateId): { name: string; description: string } {
+    return this.i18n.t().agents.pipeline.templates.items[id];
+  }
+
+  templateOrder(id: PipelineTemplateId): string {
+    const definition = findPipelineTemplate(id);
+    return definition?.agentTypes.join(' → ') ?? '';
   }
 
   run(): void {
