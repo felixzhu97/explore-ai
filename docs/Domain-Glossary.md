@@ -134,7 +134,8 @@ flowchart TB
 | Advisor                              | 顾问      | Interceptor/enhancer in the ChatClient call chain          | Technical | Spring AI Advisors                            | e.g. structured output              |
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5                      |
 | Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
-| Agent                                | 智能体     | Autonomous AI entity with goals and tool access            | Pattern   | `.cursor/agents/`                             | Project subagent definitions        |
+| Agent Pipeline                       | Agent 流水线 | User-authored multi-agent graph executed in topological order | Pattern   | `com.ai.agent` + `/agents` pipeline view | AI-148 canvas + `/api/agents/pipeline/invoke/sse` |
+| Agent Pipeline Template              | Agent 编排模版 | Built-in ordered agent graph users can apply in one click | Pattern   | `/agents` Pipeline templates | AI-163/AI-164 catalog + real tool workers |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Minimal task routing                |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. domain-expert, developer       |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `RagChatUseCase.buildPrompt()`                | Reduces unsupported claims          |

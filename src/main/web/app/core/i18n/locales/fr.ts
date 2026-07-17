@@ -85,54 +85,81 @@ export const fr: Translations = {
     inputPlaceholder: 'Tapez votre message...',
     thinking: 'Réflexion...',
     errorMessage: 'Une erreur s\'est produite. Veuillez réessayer.',
+    modes: {
+      chat: 'Chat',
+      pipeline: 'Pipeline',
+    },
+    pipeline: {
+      inputPlaceholder: 'Décrivez la tâche du pipeline...',
+      defaultMessage: 'Exécutez le pipeline d\'agents configuré pour cette tâche.',
+      paletteTitle: 'Agents',
+      canvasHint: 'Glissez des agents sur le canevas, connectez-les, puis lancez.',
+      clear: 'Effacer',
+      run: 'Lancer le pipeline',
+      hints: {
+        empty: 'Ajoutez au moins un agent worker sur le canevas.',
+        needConnections: 'Connectez les nœuds avant d\'exécuter le pipeline.',
+        orphan: 'Connectez tous les agents dans un seul chemin.',
+        cycle: 'Supprimez les cycles du graphe.',
+        invalid: 'Corrigez le pipeline avant de l\'exécuter.',
+        runFromCanvas: 'Cliquez sur Run pipeline sur le canevas.',
+      },
+      templates: {
+        title: 'Modèles',
+        use: 'Utiliser',
+        skipped: 'Agents indisponibles ignorés : {types}',
+        items: {
+          webResearch: {
+            name: 'Recherche web',
+            description: 'Rechercher sur le web, puis synthétiser.',
+          },
+          knowledgeAnswer: {
+            name: 'Réponse documentaire',
+            description: 'Récupérer des documents, puis synthétiser.',
+          },
+          weatherBrief: {
+            name: 'Brief météo',
+            description: 'Appeler les outils météo, puis résumer.',
+          },
+        },
+      },
+    },
     quickPrompts: {
       supervisor: [
         'Lister tous les agents disponibles',
-        'Déléguer une tâche à l\'agent Kubernetes',
-        'Vérifier l\'état de santé du système',
+        'Déléguer une recherche à Research Agent',
+        'Demander la météo de Beijing à Weather Agent',
       ],
-      k8s: [
-        'Afficher tous les pods en cours',
-        'Vérifier l\'état de santé du cluster',
-        'Mettre à l\'échelle à 3 réplicas',
+      research: [
+        'Rechercher les dernières notes de version Spring AI',
+        'Trouver des actualités sur l\'évaluation RAG',
+        'Quels changements pour Angular CDK drag-drop ?',
       ],
-      monitoring: [
-        'Afficher l\'utilisation CPU',
-        'Lister toutes les alertes actives',
-        'Vérifier utilisation mémoire',
-      ],
-      model: [
-        'Lister les modèles déployés',
-        'Afficher les métriques de performance',
-        'Comparer la latence d\'inférence',
-      ],
-      llmops: [
-        'Afficher les tâches entraînement',
-        'Lister les modèles affinés',
-        'Vérifier l\'état du dataset',
-      ],
-      aiops: [
-        'Analyser les incidents récents',
-        'Afficher la cause de l\'incident #123',
-        'Lister les automatisations en attente',
+      weather: [
+        'Quel temps fait-il à Beijing ?',
+        'Prévisions sur 3 jours pour Shanghai',
+        'Comparer Tokyo et Séoul',
       ],
       vectordb: [
-        'Rechercher des documents similaires',
-        'Afficher les statistiques d\'index',
-        'Lister les embeddings récents',
+        'Chercher des docs d\'onboarding dans la base',
+        'Lister les documents indexés',
+        'Trouver des passages sur l\'orchestration d\'agents',
+      ],
+      analyst: [
+        'Résumer en 5 puces',
+        'Transformer la recherche en checklist',
+        'Mettre en avant risques et questions ouvertes',
       ],
     },
     descriptions: {
-      supervisor:
-          'Orchestrateur multi-agents - coordonne les agents spécialisés pour les tâches complexes',
-      k8s: 'Gérer les clusters Kubernetes, pods, services et déploiements',
-      monitoring: 'Requêter les métriques, configurer les alertes et analyser les performances',
-      model: 'Gérer les modèles ML, versioning, déploiement et inférence',
-      llmops: 'Entraîner, évaluer et affiner les modèles LLM',
-      aiops: 'Opérations intelligentes - analyse des incidents, cause racine, automatisation',
-      vectordb: 'Gérer les embeddings vectoriels, recherche de similarité et indexation',
+      supervisor: 'Orchestrateur multi-agents - coordonne des agents spécialisés',
+      research: 'Recherche web en direct via outils de recherche',
+      weather: 'Météo actuelle et prévisions via outils météo',
+      vectordb: 'Q&A sur base de connaissances via recherche documentaire',
+      analyst: 'Synthétise les sorties précédentes en brief clair',
     },
   },
+
   chat: {
     thinking: 'Réflexion...',
     inputPlaceholder: 'Tapez votre message...',

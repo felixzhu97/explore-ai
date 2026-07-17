@@ -4,6 +4,7 @@ import com.ai.agent.application.port.SupervisorRouter;
 import com.ai.agent.application.port.WorkerAgentInvoker;
 import com.ai.agent.domain.exception.AgentNotFoundException;
 import com.ai.agent.domain.model.AgentDefinition;
+import com.ai.agent.domain.model.AgentPipeline;
 import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.repository.AgentRegistry;
 import com.ai.agent.domain.vo.AgentType;
@@ -77,6 +78,32 @@ public class OrchestratorWorkersUseCase {
         } catch (AgentNotFoundException e) {
             return Flux.just(errorEvent(e.getMessage()), doneEvent());
         }
+    }
+
+    public Flux<ServerSentEvent<String>> invokePipeline(String message, AgentPipeline pipeline) {
+        if (message == null || message.isBlank()) {
+            return Flux.just(errorEvent("message must not be blank"), doneEvent());
+        }
+        try {
+            List<AgentType> order = pipeline.executionOrder();
+            return Flux.concat(
+                            Flux.fromIterable(order).concatMap(type -> runPipelineStep(type, message)),
+                            Flux.just(doneEvent()))
+                    .onErrorResume(err -> Flux.just(
+                            errorEvent(err.getMessage() != null ? err.getMessage() : "pipeline failed"),
+                            doneEvent()));
+        } catch (IllegalArgumentException | AgentNotFoundException e) {
+            return Flux.just(errorEvent(e.getMessage()), doneEvent());
+        }
+    }
+
+    private Flux<ServerSentEvent<String>> runPipelineStep(AgentType type, String message) {
+        AgentDefinition agent = registry.require(type);
+        return Flux.concat(
+                Flux.just(handoffEvent(type.value(), "pipeline step")),
+                workerInvoker.invokeStream(agent, message)
+                        .map(OrchestratorWorkersUseCase::messageEvent),
+                Flux.just(messageEvent("\n\n")));
     }
 
     private Flux<ServerSentEvent<String>> executePlan(String originalMessage, RoutingPlan plan) {

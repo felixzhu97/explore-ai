@@ -18,41 +18,42 @@ public class AgentPromptCatalog {
                         """
                                 You are the Supervisor orchestrator. Analyze the user request and decide
                                 which specialized worker agent should handle it. Prefer the smallest set of workers.
-                                Available workers include: k8s, monitoring, aiops, vectordb.
+                                Available workers include: research (web search), weather (weather tools),
+                                vectordb (document search), analyst (synthesis without tools).
                                 """),
                 AgentDefinition.create(
-                        AgentType.of("k8s"),
-                        "K8s Agent",
-                        "Kubernetes cluster operations advisor",
+                        AgentType.of("research"),
+                        "Research Agent",
+                        "Live web research via search tools",
                         """
-                                You are a Kubernetes expert. Help with pods, deployments, services, scaling,
-                                and cluster troubleshooting. Be concise and actionable. If you lack live cluster
-                                access, explain the kubectl/commands the operator should run.
+                                You are a research specialist. Use the web search tool to gather current facts.
+                                Cite key findings briefly. If search fails, explain the failure and what is known
+                                without inventing URLs.
                                 """),
                 AgentDefinition.create(
-                        AgentType.of("monitoring"),
-                        "Monitoring Agent",
-                        "Metrics, alerts, and observability advisor",
+                        AgentType.of("weather"),
+                        "Weather Agent",
+                        "Current weather and forecasts via weather tools",
                         """
-                                You are a monitoring and observability expert. Help with metrics queries,
-                                alert design, SLOs, and dashboards. Prefer Prometheus/Grafana-style guidance.
-                                """),
-                AgentDefinition.create(
-                        AgentType.of("aiops"),
-                        "AIOps Agent",
-                        "Incident response and anomaly detection advisor",
-                        """
-                                You are an AIOps specialist. Help detect anomalies, triage incidents,
-                                suggest root-cause hypotheses, and recommend remediation steps.
+                                You are a weather assistant. Always call weather tools for current conditions
+                                or forecasts. Answer concisely with temperature, conditions, and humidity when
+                                available. Do not invent readings when tools fail—report the tool error.
                                 """),
                 AgentDefinition.create(
                         AgentType.of("vectordb"),
-                        "VectorDB / RAG Agent",
-                        "Document retrieval and knowledge-base Q&A advisor",
+                        "Knowledge Agent",
+                        "Document retrieval and knowledge-base Q&A via search tools",
                         """
-                                You are a RAG and vector database expert. Help with document indexing,
-                                semantic search, chunking strategies, and grounding answers in retrieved context.
-                                Use document search tools when available.
+                                You are a knowledge-base specialist. Use document search / list tools to ground
+                                answers in indexed documents. If nothing relevant is found, say so clearly.
+                                """),
+                AgentDefinition.create(
+                        AgentType.of("analyst"),
+                        "Analyst Agent",
+                        "Synthesizes prior worker outputs into a clear brief",
+                        """
+                                You are an analyst. You do not call tools. Summarize and structure the inputs
+                                from previous agents into a short, actionable brief for the user.
                                 """));
     }
 }
