@@ -117,6 +117,7 @@ launchdarkly:
     module-audio-asr: true
     module-mcp: true
     module-eval: true
+    module-agents: true
 
 app:
   ai:

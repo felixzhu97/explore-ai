@@ -17,5 +17,6 @@ export const environment = {
     'module-audio-asr': true,
     'module-mcp': true,
     'module-eval': true,
+    'module-agents': true,
   },
 };

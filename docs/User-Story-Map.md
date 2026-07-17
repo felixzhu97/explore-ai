@@ -24,9 +24,10 @@ journey
         Chat 评估: 4: QA
         文本分析: 4: 管理员
         Tools 领域建模: 3: 开发者
+        Multi-Agent 编排核心: 5: 用户
     section Future V3
-        Multi-Agent: 4: 用户
-        完整 AIOps: 3: 管理员
+        会话导出: 3: 用户
+        完整 AIOps 工具矩阵: 3: 管理员
 ```
 
 ---
@@ -448,22 +449,39 @@ journey
 
 ---
 
-## Future - V3：Multi-Agent + AIOps
+## In Progress - V3：Multi-Agent 编排核心
 
-### 12. Multi-Agent 对话（规划中）
+详细 backlog 与可拷贝用户故事见 [docs/backlog/multi-agent-orchestration.md](backlog/multi-agent-orchestration.md)。
+
+### 12. Multi-Agent 对话（核心已实现）
+
+| Story | SP | 状态 |
+|-------|----|------|
+| A 列出 Agent + health | 3 | 本 PR |
+| B Supervisor 路由 + SSE | 5 | 本 PR |
+| C 直调专业 Agent + SSE | 5 | 本 PR |
+| D 前端 `/agents` 选 Agent / 流式 / Quick Prompts | 5 | 本 PR |
+| E 会话保存与导出 | 3 | 后续 |
+| F 可插拔真工具（K8s/AIOps…） | 8 | 后续 |
 
 ```mermaid
 journey
-    title Future - Multi-Agent
-    section Agent 配置
-        创建自定义 Agent: 4: 用户
-        配置 Agent 角色: 4: 用户
-        绑定工具: 4: 用户
+    title In Progress - Multi-Agent
+    section Agent 发现
+        列出可用 Agent: 5: 用户
+        查看健康状态: 4: 用户
     section Agent 对话
-        选择不同 Agent: 5: 用户
-        Agent 之间协作: 4: 用户
-        查看思考过程: 5: 用户
+        选择 Supervisor 或专业 Agent: 5: 用户
+        流式查看协作与答复: 5: 用户
+        Quick Prompts: 4: 用户
+    section 后续
+        会话导出: 3: 用户
+        绑定真实运维工具: 3: 用户
 ```
+
+**API**: `GET /api/agents/list`, `GET /api/agents/{type}/health`, `POST /api/agents/supervisor/invoke/sse`, `POST /api/agents/{type}/invoke/sse`  
+**路由**: `/agents`（feature flag `module-agents`）  
+**实现**: `com.ai.agent`（Orchestrator-Workers）、`AgentsPageComponent`
 
 ---
 
@@ -492,7 +510,7 @@ journey
 
 | 角色 | 覆盖能力 | 优先级 |
 |------|----------|--------|
-| **最终用户** | 对话、Provider/Model 选择、RAG、图像、TTS、Vision、ASR | P0 |
+| **最终用户** | 对话、Provider/Model 选择、RAG、图像、TTS、Vision、ASR、Multi-Agent | P0 |
 | **开发者** | MCP、Tools API、RAG ETL ports | P1 |
 | **QA 工程师** | Chat Evaluation API | P1 |
 | **管理员** | 文本分析、未来 AIOps | P2 |
@@ -505,8 +523,8 @@ journey
 |------|------|----------|--------|
 | **MVP** | Delivered | AI 对话 + Provider/Model 选择 + RAG 知识问答 | ~21 |
 | **V2** | Delivered | 图像 + TTS + MCP + Vision + ASR | ~25 |
-| **In Progress** | 进行中 | ETL 管道 + Eval + 文本分析 + Tools DDD | ~15 |
-| **V3** | Planned | Multi-Agent + 完整 AIOps | ~15 |
+| **In Progress** | 进行中 | ETL + Eval + 文本分析 + Tools DDD + Multi-Agent 核心 | ~21 |
+| **V3 后续** | Planned | 会话导出 + 完整 AIOps 工具矩阵 | ~10 |
 
 ---
 

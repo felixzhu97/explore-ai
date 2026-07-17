@@ -34,6 +34,11 @@ export const routes: Routes = [
         loadComponent: () => import('./asr/asr.page').then(m => m.AsrPageComponent),
       },
       {
+        path: 'agents',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AGENTS)],
+        loadComponent: () => import('./agents/agents.page').then(m => m.AgentsPageComponent),
+      },
+      {
         path: 'chat',
         loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
       },

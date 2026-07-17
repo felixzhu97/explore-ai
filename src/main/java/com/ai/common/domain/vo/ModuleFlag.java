@@ -5,7 +5,8 @@ public enum ModuleFlag {
     VISION("module-vision", "/api/vision"),
     AUDIO_ASR("module-audio-asr", "/ws/audio"),
     MCP("module-mcp", "/api/mcp"),
-    EVAL("module-eval", "/api/eval");
+    EVAL("module-eval", "/api/eval"),
+    AGENTS("module-agents", "/api/agents");
 
     private final String key;
     private final String pathPrefix;
