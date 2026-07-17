@@ -1,40 +1,84 @@
 <div class="flex shrink-0 items-center justify-between gap-2 overflow-x-auto border-b border-black/8 bg-white px-4 py-2.5">
   <div class="flex min-w-0 items-center gap-2">
-    <z-select
-      class="min-w-40"
-      zSize="sm"
-      [ngModel]="selectedAgentType()"
-      (ngModelChange)="onAgentChange($event)"
-      zPlaceholder="Agent"
-    >
-      @for (agent of agents(); track agent.type) {
-        <z-select-item [zValue]="agent.type">{{ agent.name }}</z-select-item>
+    <div class="flex rounded-lg border border-black/8 p-0.5">
+      <button
+        type="button"
+        class="rounded-md px-2.5 py-1 text-xs font-medium"
+        [class.bg-black/6]="viewMode() === 'chat'"
+        [class.text-text-primary]="viewMode() === 'chat'"
+        [class.text-text-secondary]="viewMode() !== 'chat'"
+        (click)="setViewMode('chat')"
+      >
+        {{ i18n.t().agents.modes.chat }}
+      </button>
+      <button
+        type="button"
+        class="rounded-md px-2.5 py-1 text-xs font-medium"
+        [class.bg-black/6]="viewMode() === 'pipeline'"
+        [class.text-text-primary]="viewMode() === 'pipeline'"
+        [class.text-text-secondary]="viewMode() !== 'pipeline'"
+        (click)="setViewMode('pipeline')"
+      >
+        {{ i18n.t().agents.modes.pipeline }}
+      </button>
+    </div>
+
+    @if (viewMode() === 'chat') {
+      <z-select
+        class="min-w-40"
+        zSize="sm"
+        [ngModel]="selectedAgentType()"
+        (ngModelChange)="onAgentChange($event)"
+        zPlaceholder="Agent"
+      >
+        @for (agent of agents(); track agent.type) {
+          <z-select-item [zValue]="agent.type">{{ agent.name }}</z-select-item>
+        }
+      </z-select>
+      @if (selectedAgent(); as agent) {
+        <p class="hidden truncate text-sm text-text-secondary md:block">{{ agent.description }}</p>
       }
-    </z-select>
-    @if (selectedAgent(); as agent) {
-      <p class="hidden truncate text-sm text-text-secondary md:block">{{ agent.description }}</p>
     }
   </div>
 </div>
 
-<div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
-  @if (messages().length === 0) {
-    <app-chat-welcome-panel
-      class="h-full"
-      [title]="i18n.t().agents.startConversation"
-      [description]="selectedAgent()?.description ?? i18n.t().agents.descriptions.supervisor"
-      [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
-      [prompts]="quickPrompts()"
-      (promptSelect)="onPromptSelect($event)"
-    />
-  } @else {
-    <app-chat-bubble-list
-      [messages]="messages()"
-      [streamingMessageId]="streamingMessageId()"
-      [thinkingLabel]="i18n.t().agents.thinking"
-    />
+@if (viewMode() === 'pipeline') {
+  <app-agents-pipeline-canvas
+    class="min-h-0 flex-1"
+    [agents]="agents()"
+    [validationHint]="pipelineHint()"
+    (runRequested)="runPipeline($event)"
+    (clearValidation)="pipelineHint.set(null)"
+  />
+  @if (messages().length > 0) {
+    <div class="max-h-48 shrink-0 overflow-y-auto border-t border-black/8 bg-surface px-4 py-3">
+      <app-chat-bubble-list
+        [messages]="messages()"
+        [streamingMessageId]="streamingMessageId()"
+        [thinkingLabel]="i18n.t().agents.thinking"
+      />
+    </div>
   }
-</div>
+} @else {
+  <div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
+    @if (messages().length === 0) {
+      <app-chat-welcome-panel
+        class="h-full"
+        [title]="i18n.t().agents.startConversation"
+        [description]="selectedAgent()?.description ?? i18n.t().agents.descriptions.supervisor"
+        [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+        [prompts]="quickPrompts()"
+        (promptSelect)="onPromptSelect($event)"
+      />
+    } @else {
+      <app-chat-bubble-list
+        [messages]="messages()"
+        [streamingMessageId]="streamingMessageId()"
+        [thinkingLabel]="i18n.t().agents.thinking"
+      />
+    }
+  </div>
+}
 
 @if (error()) {
   <z-alert
@@ -46,7 +90,9 @@
 
 <div class="border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
   <nx-sender
-    [placeholder]="i18n.t().agents.inputPlaceholder"
+    [placeholder]="viewMode() === 'pipeline'
+      ? i18n.t().agents.pipeline.inputPlaceholder
+      : i18n.t().agents.inputPlaceholder"
     [(value)]="input"
     [loading]="loading()"
     (submitSend)="send()"
