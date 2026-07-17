@@ -23,7 +23,7 @@ UI /agents
 | GET | `/api/agents/{type}/health` | Agent health |
 | GET | `/api/agents/{type}` | Agent details |
 | POST | `/api/agents/supervisor/invoke/sse` | Supervisor orchestration stream |
-| POST | `/api/agents/pipeline/invoke/sse` | Run user-authored agent pipeline graph |
+| POST | `/api/agents/{type}/invoke/sse` | Direct worker stream |
 
 Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 
@@ -32,10 +32,10 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 | Type | Role |
 |------|------|
 | `supervisor` | Orchestrator (routing only) |
-| `research` | Web research via `WebSearchTool` |
-| `weather` | Weather via `WeatherTool` |
-| `vectordb` | Knowledge / RAG via `DocumentSearchTool` |
-| `analyst` | Synthesis (no tools) |
+| `k8s` | Kubernetes advisor |
+| `monitoring` | Metrics / alerts advisor |
+| `aiops` | Incident / anomaly advisor |
+| `vectordb` | RAG / vector advisor (+ document search tools) |
 
 ## Story map
 
@@ -47,8 +47,7 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 | D Frontend agent picker / stream / quick prompts | 5 | Yes |
 | E Session save & export | 3 | No |
 | F Pluggable real ops tools | 8 | No |
-| G Drag-drop agent pipeline canvas (CDK + Foblex) | 8 | Yes ([AI-148](https://felixzhu.atlassian.net/browse/AI-148)) |
-| H Built-in agent pipeline templates (one-click use) | 3 | Yes ([AI-163](https://felixzhu.atlassian.net/browse/AI-163)) |
+| G Drag-drop agent pipeline canvas (CDK + Foblex) | 8 | No ([AI-148](https://felixzhu.atlassian.net/browse/AI-148)) |
 
 ## Out of scope (this PR)
 
@@ -56,13 +55,7 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 - Python LangGraph migration
 - Custom agent authoring UI
 - Conversation export
-
-## Pipeline canvas (AI-148)
-
-- CDK palette drag + Foblex node/edge canvas on `/agents` Pipeline mode
-- `POST /api/agents/pipeline/invoke/sse` with `{ message, nodes, edges }`
-- Built-in Agent Pipeline Templates (AI-163/AI-164): webResearch, knowledgeAnswer, weatherBrief
-- Workers bind real tools: research→web, weather→weather, vectordb→documents; analyst synthesizes
+- Drag-drop pipeline canvas (Story G / [AI-148](https://felixzhu.atlassian.net/browse/AI-148))
 
 ## Copy-paste user stories
 

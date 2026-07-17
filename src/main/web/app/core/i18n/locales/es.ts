@@ -85,81 +85,54 @@ export const es: Translations = {
     inputPlaceholder: 'Escribe tu mensaje...',
     thinking: 'Pensando...',
     errorMessage: 'Ocurrió un error. Por favor, inténtalo de nuevo.',
-    modes: {
-      chat: 'Chat',
-      pipeline: 'Pipeline',
-    },
-    pipeline: {
-      inputPlaceholder: 'Describe la tarea del pipeline...',
-      defaultMessage: 'Ejecuta el pipeline de agentes configurado para esta tarea.',
-      paletteTitle: 'Agents',
-      canvasHint: 'Arrastra agentes al lienzo, conéctalos y ejecuta.',
-      clear: 'Limpiar',
-      run: 'Ejecutar pipeline',
-      hints: {
-        empty: 'Añade al menos un agente worker al lienzo.',
-        needConnections: 'Conecta los nodos antes de ejecutar el pipeline.',
-        orphan: 'Conecta todos los agentes en una sola ruta.',
-        cycle: 'Elimina los ciclos del grafo.',
-        invalid: 'Corrige el pipeline antes de ejecutarlo.',
-        runFromCanvas: 'Haz clic en Run pipeline en el lienzo.',
-      },
-      templates: {
-        title: 'Plantillas',
-        use: 'Usar',
-        skipped: 'Agentes no disponibles omitidos: {types}',
-        items: {
-          webResearch: {
-            name: 'Investigación web',
-            description: 'Buscar en la web y luego sintetizar.',
-          },
-          knowledgeAnswer: {
-            name: 'Respuesta de conocimiento',
-            description: 'Recuperar documentos y luego sintetizar.',
-          },
-          weatherBrief: {
-            name: 'Brief del clima',
-            description: 'Usar herramientas del clima y resumir.',
-          },
-        },
-      },
-    },
     quickPrompts: {
       supervisor: [
         'Listar todos los agentes disponibles',
-        'Delegar una investigación al Research Agent',
-        'Preguntar el clima de Beijing al Weather Agent',
+        'Delegar tarea al agente de Kubernetes',
+        'Verificar el estado de salud del sistema',
       ],
-      research: [
-        'Buscar las últimas notas de lanzamiento de Spring AI',
-        'Encontrar noticias recientes sobre evaluación RAG',
-        '¿Qué cambió en Angular CDK drag-drop?',
+      k8s: [
+        'Mostrar todos los pods en ejecución',
+        'Verificar el estado del cluster',
+        'Escalar a 3 réplicas',
       ],
-      weather: [
-        '¿Cómo está el clima en Beijing?',
-        'Pronóstico de 3 días para Shanghái',
-        'Comparar el clima en Tokio y Seúl',
+      monitoring: [
+        'Mostrar uso de CPU',
+        'Listar todas las alertas activas',
+        'Verificar uso de memoria',
+      ],
+      model: [
+        'Listar modelos desplegados',
+        'Mostrar métricas de rendimiento',
+        'Comparar latencia de inferencia',
+      ],
+      llmops: [
+        'Mostrar trabajos de entrenamiento',
+        'Listar modelos afinados',
+        'Verificar estado del dataset',
+      ],
+      aiops: [
+        'Analizar incidentes recientes',
+        'Mostrar causa del incidente #123',
+        'Listar automatizaciones pendientes',
       ],
       vectordb: [
-        'Buscar docs de onboarding en la base',
-        'Listar documentos indexados',
-        'Encontrar pasajes sobre orquestación de agentes',
-      ],
-      analyst: [
-        'Resumir en 5 viñetas',
-        'Convertir la investigación en checklist',
-        'Destacar riesgos y preguntas abiertas',
+        'Buscar documentos similares',
+        'Mostrar estadísticas de índice',
+        'Listar embeddings recientes',
       ],
     },
     descriptions: {
-      supervisor: 'Orquestador multiagente - coordina agentes especializados',
-      research: 'Investigación web en vivo con herramientas de búsqueda',
-      weather: 'Clima actual y pronósticos con herramientas meteorológicas',
-      vectordb: 'Q&A de base de conocimiento con búsqueda documental',
-      analyst: 'Sintetiza salidas previas en un brief claro',
+      supervisor:
+          'Orquestador multi-agente - coordina agentes especializados para tareas complejas',
+      k8s: 'Gestionar clusters Kubernetes, pods, servicios y despliegues',
+      monitoring: 'Consultar métricas, configurar alertas y analizar rendimiento del sistema',
+      model: 'Gestionar modelos ML, versionado, despliegue e inferencia',
+      llmops: 'Entrenar, evaluar y ajustar modelos LLM',
+      aiops: 'Operaciones inteligentes - análisis de incidentes, causa raíz, automatización',
+      vectordb: 'Gestionar embeddings vectoriales, búsqueda de similitud e indexación',
     },
   },
-
   chat: {
     thinking: 'Pensando...',
     inputPlaceholder: 'Escribe tu mensaje...',

@@ -161,10 +161,12 @@ describe('i18n.model', () => {
       it('should have quickPrompts for all agent types', () => {
         const agentTypes = [
           'supervisor',
-          'research',
-          'weather',
+          'k8s',
+          'monitoring',
+          'model',
+          'llmops',
+          'aiops',
           'vectordb',
-          'analyst',
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {
@@ -183,10 +185,12 @@ describe('i18n.model', () => {
       it('should have descriptions for all agent types', () => {
         const agentTypes = [
           'supervisor',
-          'research',
-          'weather',
+          'k8s',
+          'monitoring',
+          'model',
+          'llmops',
+          'aiops',
           'vectordb',
-          'analyst',
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {

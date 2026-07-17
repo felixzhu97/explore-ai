@@ -5,8 +5,6 @@ import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WeatherTool;
-import com.ai.common.domain.repository.WebSearchTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -16,18 +14,12 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
     private final ChatClientProvider chatClientProvider;
     private final DocumentSearchTool documentSearchTool;
-    private final WebSearchTool webSearchTool;
-    private final WeatherTool weatherTool;
 
     public SpringAiWorkerAgentInvoker(
             ChatClientProvider chatClientProvider,
-            DocumentSearchTool documentSearchTool,
-            WebSearchTool webSearchTool,
-            WeatherTool weatherTool) {
+            DocumentSearchTool documentSearchTool) {
         this.chatClientProvider = chatClientProvider;
         this.documentSearchTool = documentSearchTool;
-        this.webSearchTool = webSearchTool;
-        this.weatherTool = weatherTool;
     }
 
     @Override
@@ -48,11 +40,9 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
                 .system(agent.systemPrompt())
                 .user(task);
 
-        return switch (agent.type().value()) {
-            case "vectordb" -> spec.tools(documentSearchTool);
-            case "research" -> spec.tools(webSearchTool);
-            case "weather" -> spec.tools(weatherTool);
-            default -> spec;
-        };
+        if ("vectordb".equals(agent.type().value())) {
+            spec = spec.tools(documentSearchTool);
+        }
+        return spec;
     }
 }
