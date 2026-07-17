@@ -32,10 +32,10 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 | Type | Role |
 |------|------|
 | `supervisor` | Orchestrator (routing only) |
-| `research` | Web research via `WebSearchTool` |
-| `weather` | Weather via `WeatherTool` |
-| `vectordb` | Knowledge / RAG via `DocumentSearchTool` |
-| `analyst` | Synthesis (no tools) |
+| `k8s` | Kubernetes advisor |
+| `monitoring` | Metrics / alerts advisor |
+| `aiops` | Incident / anomaly advisor |
+| `vectordb` | RAG / vector advisor (+ document search tools) |
 
 ## Story map
 
@@ -61,8 +61,7 @@ Request body: `{ "message": "...", "sessionId?: "...", "agentType?: "..." }`
 
 - CDK palette drag + Foblex node/edge canvas on `/agents` Pipeline mode
 - `POST /api/agents/pipeline/invoke/sse` with `{ message, nodes, edges }`
-- Built-in Agent Pipeline Templates (AI-163/AI-164): webResearch, knowledgeAnswer, weatherBrief
-- Workers bind real tools: research→web, weather→weather, vectordb→documents; analyst synthesizes
+- Built-in Agent Pipeline Templates (AI-163): one-click apply then run
 
 ## Copy-paste user stories
 

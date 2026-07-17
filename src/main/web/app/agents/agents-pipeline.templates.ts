@@ -2,7 +2,7 @@ import type { AgentInfo } from './agents.model';
 import type { PipelineConnection, PipelineGraph, PipelineNode } from './agents-pipeline.model';
 
 /** Built-in Agent Pipeline Template ids (i18n under agents.pipeline.templates.items). */
-export type PipelineTemplateId = 'webResearch' | 'knowledgeAnswer' | 'weatherBrief';
+export type PipelineTemplateId = 'incidentTriage' | 'clusterHealth' | 'ragOps';
 
 export interface PipelineTemplateDefinition {
   id: PipelineTemplateId;
@@ -17,16 +17,16 @@ export interface PipelineTemplateApplyResult {
 
 export const PIPELINE_TEMPLATE_CATALOG: readonly PipelineTemplateDefinition[] = [
   {
-    id: 'webResearch',
-    agentTypes: ['research', 'analyst'],
+    id: 'incidentTriage',
+    agentTypes: ['monitoring', 'aiops', 'k8s'],
   },
   {
-    id: 'knowledgeAnswer',
-    agentTypes: ['vectordb', 'analyst'],
+    id: 'clusterHealth',
+    agentTypes: ['k8s', 'monitoring'],
   },
   {
-    id: 'weatherBrief',
-    agentTypes: ['weather', 'analyst'],
+    id: 'ragOps',
+    agentTypes: ['vectordb', 'aiops'],
   },
 ] as const;
 

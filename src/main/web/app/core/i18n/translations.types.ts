@@ -125,25 +125,29 @@ export interface Translations {
         use: string;
         skipped: string;
         items: {
-          webResearch: { name: string; description: string };
-          knowledgeAnswer: { name: string; description: string };
-          weatherBrief: { name: string; description: string };
+          incidentTriage: { name: string; description: string };
+          clusterHealth: { name: string; description: string };
+          ragOps: { name: string; description: string };
         };
       };
     };
     quickPrompts: {
       supervisor: string[];
-      research: string[];
-      weather: string[];
+      k8s: string[];
+      monitoring: string[];
+      model: string[];
+      llmops: string[];
+      aiops: string[];
       vectordb: string[];
-      analyst: string[];
     };
     descriptions: {
       supervisor: string;
-      research: string;
-      weather: string;
+      k8s: string;
+      monitoring: string;
+      model: string;
+      llmops: string;
+      aiops: string;
       vectordb: string;
-      analyst: string;
     };
   };
   chat: {

@@ -15,30 +15,30 @@ const catalog: AgentInfo[] = [
     supervisor: true,
   },
   {
-    type: 'research',
-    name: 'Research',
-    description: 'web',
+    type: 'k8s',
+    name: 'K8s',
+    description: 'cluster',
     healthy: true,
     supervisor: false,
   },
   {
-    type: 'weather',
-    name: 'Weather',
-    description: 'forecast',
+    type: 'monitoring',
+    name: 'Monitoring',
+    description: 'metrics',
+    healthy: true,
+    supervisor: false,
+  },
+  {
+    type: 'aiops',
+    name: 'AIOps',
+    description: 'incidents',
     healthy: true,
     supervisor: false,
   },
   {
     type: 'vectordb',
-    name: 'Knowledge',
+    name: 'VectorDB',
     description: 'rag',
-    healthy: true,
-    supervisor: false,
-  },
-  {
-    type: 'analyst',
-    name: 'Analyst',
-    description: 'synth',
     healthy: true,
     supervisor: false,
   },
@@ -46,39 +46,39 @@ const catalog: AgentInfo[] = [
 
 describe('applyPipelineTemplate', () => {
   it('should_build_valid_connected_graph_when_all_agents_exist', () => {
-    const definition = findPipelineTemplate('weatherBrief')!;
+    const definition = findPipelineTemplate('incidentTriage')!;
 
     const result = applyPipelineTemplate(definition, catalog);
 
     expect(result.skippedAgentTypes).toEqual([]);
     expect(validatePipeline(result.graph)).toEqual({
       ok: true,
-      order: ['weather', 'analyst'],
+      order: ['monitoring', 'aiops', 'k8s'],
     });
-    expect(result.graph.nodes.map(n => n.position.x)).toEqual([80, 300]);
+    expect(result.graph.nodes.map(n => n.position.x)).toEqual([80, 300, 520]);
   });
 
   it('should_skip_missing_agent_types_and_reconnect_remaining', () => {
-    const definition = findPipelineTemplate('webResearch')!;
-    const withoutResearch = catalog.filter(agent => agent.type !== 'research');
+    const definition = findPipelineTemplate('incidentTriage')!;
+    const withoutAiops = catalog.filter(agent => agent.type !== 'aiops');
 
-    const result = applyPipelineTemplate(definition, withoutResearch);
+    const result = applyPipelineTemplate(definition, withoutAiops);
 
-    expect(result.skippedAgentTypes).toEqual(['research']);
+    expect(result.skippedAgentTypes).toEqual(['aiops']);
     expect(validatePipeline(result.graph)).toEqual({
       ok: true,
-      order: ['analyst'],
+      order: ['monitoring', 'k8s'],
     });
   });
 
   it('should_return_empty_graph_when_no_template_agents_available', () => {
-    const definition = findPipelineTemplate('knowledgeAnswer')!;
+    const definition = findPipelineTemplate('ragOps')!;
 
     const result = applyPipelineTemplate(definition, [
       catalog.find(a => a.type === 'supervisor')!,
     ]);
 
-    expect(result.skippedAgentTypes).toEqual(['vectordb', 'analyst']);
+    expect(result.skippedAgentTypes).toEqual(['vectordb', 'aiops']);
     expect(result.graph.nodes).toEqual([]);
     expect(validatePipeline(result.graph)).toEqual({
       ok: false,

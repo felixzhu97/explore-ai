@@ -109,17 +109,17 @@ export const fr: Translations = {
         use: 'Utiliser',
         skipped: 'Agents indisponibles ignorés : {types}',
         items: {
-          webResearch: {
-            name: 'Recherche web',
-            description: 'Rechercher sur le web, puis synthétiser.',
+          incidentTriage: {
+            name: 'Triage d\'incident',
+            description: 'Métriques → AIOps → remédiation Kubernetes.',
           },
-          knowledgeAnswer: {
-            name: 'Réponse documentaire',
-            description: 'Récupérer des documents, puis synthétiser.',
+          clusterHealth: {
+            name: 'Santé du cluster',
+            description: 'Inspecter le cluster, puis l\'observabilité.',
           },
-          weatherBrief: {
-            name: 'Brief météo',
-            description: 'Appeler les outils météo, puis résumer.',
+          ragOps: {
+            name: 'Ops ancrées dans la connaissance',
+            description: 'Récupérer des documents, puis trier avec AIOps.',
           },
         },
       },
@@ -127,39 +127,51 @@ export const fr: Translations = {
     quickPrompts: {
       supervisor: [
         'Lister tous les agents disponibles',
-        'Déléguer une recherche à Research Agent',
-        'Demander la météo de Beijing à Weather Agent',
+        'Déléguer une tâche à l\'agent Kubernetes',
+        'Vérifier l\'état de santé du système',
       ],
-      research: [
-        'Rechercher les dernières notes de version Spring AI',
-        'Trouver des actualités sur l\'évaluation RAG',
-        'Quels changements pour Angular CDK drag-drop ?',
+      k8s: [
+        'Afficher tous les pods en cours',
+        'Vérifier l\'état de santé du cluster',
+        'Mettre à l\'échelle à 3 réplicas',
       ],
-      weather: [
-        'Quel temps fait-il à Beijing ?',
-        'Prévisions sur 3 jours pour Shanghai',
-        'Comparer Tokyo et Séoul',
+      monitoring: [
+        'Afficher l\'utilisation CPU',
+        'Lister toutes les alertes actives',
+        'Vérifier utilisation mémoire',
+      ],
+      model: [
+        'Lister les modèles déployés',
+        'Afficher les métriques de performance',
+        'Comparer la latence d\'inférence',
+      ],
+      llmops: [
+        'Afficher les tâches entraînement',
+        'Lister les modèles affinés',
+        'Vérifier l\'état du dataset',
+      ],
+      aiops: [
+        'Analyser les incidents récents',
+        'Afficher la cause de l\'incident #123',
+        'Lister les automatisations en attente',
       ],
       vectordb: [
-        'Chercher des docs d\'onboarding dans la base',
-        'Lister les documents indexés',
-        'Trouver des passages sur l\'orchestration d\'agents',
-      ],
-      analyst: [
-        'Résumer en 5 puces',
-        'Transformer la recherche en checklist',
-        'Mettre en avant risques et questions ouvertes',
+        'Rechercher des documents similaires',
+        'Afficher les statistiques d\'index',
+        'Lister les embeddings récents',
       ],
     },
     descriptions: {
-      supervisor: 'Orchestrateur multi-agents - coordonne des agents spécialisés',
-      research: 'Recherche web en direct via outils de recherche',
-      weather: 'Météo actuelle et prévisions via outils météo',
-      vectordb: 'Q&A sur base de connaissances via recherche documentaire',
-      analyst: 'Synthétise les sorties précédentes en brief clair',
+      supervisor:
+          'Orchestrateur multi-agents - coordonne les agents spécialisés pour les tâches complexes',
+      k8s: 'Gérer les clusters Kubernetes, pods, services et déploiements',
+      monitoring: 'Requêter les métriques, configurer les alertes et analyser les performances',
+      model: 'Gérer les modèles ML, versioning, déploiement et inférence',
+      llmops: 'Entraîner, évaluer et affiner les modèles LLM',
+      aiops: 'Opérations intelligentes - analyse des incidents, cause racine, automatisation',
+      vectordb: 'Gérer les embeddings vectoriels, recherche de similarité et indexation',
     },
   },
-
   chat: {
     thinking: 'Réflexion...',
     inputPlaceholder: 'Tapez votre message...',
