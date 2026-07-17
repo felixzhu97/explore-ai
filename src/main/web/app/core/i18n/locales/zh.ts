@@ -84,6 +84,26 @@ export const zh: Translations = {
     inputPlaceholder: '输入消息...',
     thinking: '思考中...',
     errorMessage: '发生错误，请重试。',
+    modes: {
+      chat: '对话',
+      pipeline: '编排',
+    },
+    pipeline: {
+      inputPlaceholder: '描述流水线要完成的任务...',
+      defaultMessage: '按当前编排执行多智能体流水线。',
+      paletteTitle: 'Agents',
+      canvasHint: '将 Agent 拖到画布，从输出端口连到输入端口，然后运行。',
+      clear: '清空',
+      run: '运行流水线',
+      hints: {
+        empty: '请至少将一个专业 Agent 放到画布上。',
+        needConnections: '请先连接 Agent 节点再运行。',
+        orphan: '请将所有 Agent 连成一条可执行流水线。',
+        cycle: '请移除流水线中的环路。',
+        invalid: '请先修正流水线结构。',
+        runFromCanvas: '请在画布上点击「运行流水线」。',
+      },
+    },
     quickPrompts: {
       supervisor: ['列出所有可用的 Agent', '委托任务给 K8s Agent', '检查整体系统健康状态'],
       k8s: ['显示所有运行中的 Pod', '检查集群健康状态', '扩容部署到 3 个副本'],
