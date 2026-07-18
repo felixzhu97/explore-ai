@@ -1,11 +1,11 @@
 ---
 name: developer
-description: Feature development for this repo — DDD, BDD, TDD, Domain Glossary naming, Apple HIG minimal UX, and mandatory commit/PR standards (why body + References from official docs and research). Use when implementing features, writing tests, committing, opening PRs, UI work, or DDD/TDD/BDD/clean-code tasks.
+description: Feature development for this repo — XP, DDD, BDD, TDD, Domain Glossary naming, Apple HIG minimal UX, and mandatory commit/PR standards (why body + References from official docs and research). Use when implementing features, writing tests, committing, opening PRs, UI work, or DDD/TDD/BDD/XP/clean-code tasks.
 ---
 
 # Developer
 
-**DDD + BDD + TDD + minimal Clean Code.** Smallest correct change. UI: Apple HIG + minimal.
+**XP + DDD + BDD + TDD + minimal Clean Code.** Smallest correct change. UI: Apple HIG + minimal.
 
 **Every** commit and PR must follow §5 (project standards). **Every** Jira ticket must follow [Product Owner](../product-owner/SKILL.md). Do not invent alternate formats.
 
@@ -17,13 +17,16 @@ description: Feature development for this repo — DDD, BDD, TDD, Domain Glossar
 4. Names: Domain Glossary [Preferred Term](../../../docs/Domain-Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
 6. **Commit / PR / Jira / branches**: always reuse §5 + [Product Owner](../product-owner/SKILL.md); branch `<type>/AI-<key>` (type matches commit); References = official docs + research
+7. **XP**: follow [extreme-programming](references/extreme-programming.md) — Simple Design / YAGNI, CI green, small releases, customer / AC feedback
 
 ## Workflow
 
 ```
-BDD → TDD → DDD (+ Clean Code) → Commit/PR (+ Jira via Product Owner skill)
+XP (Customer + Small steps) → BDD → TDD → DDD (+ Clean Code) → Commit/PR (+ Jira via Product Owner skill)
 (+ Apple HIG when touching UI)
 ```
+
+Detail: [extreme-programming](references/extreme-programming.md)
 
 ### 1. Testing — BDD then TDD
 
@@ -166,20 +169,23 @@ PR **References** must match the commit References (same links). Use the same of
 
 ## Checklist
 
+- [ ] Customer / AC outcome clear (XP Planning Game + On-site Customer)
 - [ ] BDD scenario / AC covered
-- [ ] TDD; test name `should_…_when_…`
+- [ ] TDD; test name `should_…_when_…`; Refactor while green
+- [ ] YAGNI / Simple Design — no speculative extras
 - [ ] Domain holds rules; use case orchestrates
 - [ ] Glossary Preferred Terms; glossary updated if new concept
 - [ ] UI (if any): HIG + minimal
 - [ ] Branch: `<type>/AI-<key>` (type matches commit); Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
-- [ ] PR: plain body + same References + Jira link; chain base
+- [ ] PR: plain body + same References + Jira link; chain base; CI green
 - [ ] Jira (if any): [Product Owner](../product-owner/SKILL.md) template followed
 
 ## Related
 
 | Need | Where |
 |------|-------|
+| Extreme Programming | [extreme-programming](references/extreme-programming.md) |
 | Architecture | [architecture rule](../../rules/architecture.mdc) |
 | Glossary | [Domain-Glossary](../../../docs/Domain-Glossary.md) |
 | Testing core | [testing](references/testing.md) |

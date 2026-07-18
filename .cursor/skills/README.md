@@ -13,7 +13,7 @@
 
 | Skill | 描述 |
 |-------|------|
-| [developer](./developer/) | **主技能**：DDD / BDD / TDD / 术语表 / Apple HIG 极简 UX / Commit·PR / 测试核心 |
+| [developer](./developer/) | **主技能**：XP / DDD / BDD / TDD / 术语表 / Apple HIG 极简 UX / Commit·PR / 测试核心 |
 | [business-tech-analysis](./business-tech-analysis/) | 商业动向 + 技术分析 → 技术商业建议（需实时检索） |
 | [angular-developer](./angular-developer/) | Angular 深度指南 |
 | [angular-new-app](./angular-new-app/) | Angular 新项目 |
@@ -22,7 +22,7 @@
 
 ## 如何使用
 
-- 日常开发 / 测试 / 提交 / UX → `developer`
+- 日常开发 / 测试 / 提交 / UX / XP 节奏 → `developer`
 - 商业动向 / 竞品 / GTM → Agent `business-analyst`（skill：`business-tech-analysis`）
 - 前沿研究 / 论文 / 模型趋势 → Agent `tech-analyst`（skill：`business-tech-analysis`）
 - 技术–商业联合简报 → 两 Agent + skill `business-tech-analysis`
