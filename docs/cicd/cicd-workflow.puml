@@ -11,14 +11,16 @@ skinparam packageStyle rectangle
 
 title CI/CD Workflow Overview - GitHub Actions
 
-|#palegreen|**Workflow: backend-ci.yml**|
+|#palegreen|**Workflow: ci.yml**|
 start
 note right
 **Trigger:** push | pull_request
 **Branches:** main, java-angular, feat/**, feature/**, fix/**, refactor/**, docs/**, test/**, chore/**, perf/**, ci/**
+**Jobs:** backend + frontend (always)
 end note
-:**backend-ci**
-(trigger: push | pull_request);
+:**CI**
+(backend: Gradle test + JaCoCo
+ frontend: typecheck → lint → test → build);
 stop
 
 |#orange|**Workflow: codeql.yml**|
@@ -33,21 +35,20 @@ end note
  + matrix: java-kotlin + javascript-typescript);
 stop
 
-|#lightskyblue|**Workflow: review-dog.yml**|
+|#lightskyblue|**Workflow: e2e-nightly.yml**|
 start
 note right
-**Trigger:** pull_request only
-**Branches:** main, java-angular, feat/**, feature/**, fix/**, refactor/**, docs/**, test/**, chore/**, perf/**, ci/**
+**Trigger:** cron + workflow_dispatch
+**Schedule:** cron: '0 2 * * *' (02:00 UTC daily)
 end note
-:**review-dog**
-(trigger: pull_request
- + 4 parallel jobs: eslint | tsc | prettier | vitest);
+:**e2e-nightly**
+(Playwright visual regression);
 stop
 
 legend right
 | Workflow | Trigger | Color |
-| backend-ci | push / pull_request | #palegreen |
+| ci | push / pull_request | #palegreen |
 | codeql | push / pull_request / cron | #orange |
-| review-dog | pull_request | #lightskyblue |
+| e2e-nightly | cron / dispatch | #lightskyblue |
 endlegend
 @enduml

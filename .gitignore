@@ -37,6 +37,9 @@ volumes/
 .cache/
 .pytest_cache/
 
+# CI metrics (generated in GitHub Actions / local summary dry-runs)
+ci-metrics/
+
 # SQLite databases
 *.db
 
