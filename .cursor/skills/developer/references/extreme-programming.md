@@ -14,7 +14,7 @@ Map XP to this repo. Do not invent a second process — reuse DDD / BDD / TDD / 
 | Courage | Refactor while green; delete dead code in scope |
 | Respect | Collective ownership within the task; no drive-by rewrites |
 
-## Practices →落点
+## Practices → This Repo
 
 | XP practice | Do this |
 |-------------|---------|
