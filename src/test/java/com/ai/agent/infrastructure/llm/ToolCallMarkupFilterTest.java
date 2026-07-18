@@ -61,6 +61,31 @@ class ToolCallMarkupFilterTest {
     }
 
     @Test
+    void should_strip_unclosed_dsml_stream_fragment() {
+        String raw = """
+                第一段答案。
+                <|DSML|tool_calls>
+                <|DSML|invoke name="searchWeb">
+                <|DSML|parameter name="query" string="true">private lookup
+                """;
+
+        String cleaned = ToolCallMarkupFilter.sanitize(raw);
+
+        assertEquals("第一段答案。", cleaned);
+        assertFalse(cleaned.contains("DSML"));
+        assertFalse(cleaned.contains("private lookup"));
+    }
+
+    @Test
+    void should_preserve_non_dsml_angle_tags_when_sanitizing() {
+        String raw = "Keep <code>literal</code> tags and <custom data=\"x\">metadata</custom>.";
+
+        String cleaned = ToolCallMarkupFilter.sanitize(raw);
+
+        assertEquals(raw, cleaned);
+    }
+
+    @Test
     void should_return_empty_when_only_markup() {
         String raw = "<｜DSML｜tool_calls><｜DSML｜invoke name=\"searchWeb\"></｜DSML｜tool_calls>";
         assertEquals("", ToolCallMarkupFilter.sanitize(raw));
@@ -69,6 +94,7 @@ class ToolCallMarkupFilterTest {
     @Test
     void should_detect_tool_markup() {
         assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup("<｜DSML｜tool_calls>"));
+        assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup("<tool_calls>"));
         assertFalse(ToolCallMarkupFilter.looksLikeToolMarkup("plain research summary"));
     }
 }
