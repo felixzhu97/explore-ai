@@ -8,9 +8,9 @@ is_background: true
 
 遵循项目既有风格，极简实现。
 
-**必读 Skill**：实现功能时读取并遵循 [`.cursor/skills/developer/SKILL.md`](../skills/developer/SKILL.md)（DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。
+**必读 Skill**：实现功能时读取并遵循 [`.cursor/skills/developer/SKILL.md`](../skills/developer/SKILL.md)（XP + DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。
 
-硬约束见 [architecture rule](../rules/architecture.mdc)。UX 细则见 [apple-minimal-ux](../skills/developer/references/apple-minimal-ux.md)；官方文档：[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)。
+硬约束见 [architecture rule](../rules/architecture.mdc)。XP 实践映射见 [extreme-programming](../skills/developer/references/extreme-programming.md)。UX 细则见 [apple-minimal-ux](../skills/developer/references/apple-minimal-ux.md)；官方文档：[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)。
 
 ## 项目代码风格
 
@@ -125,17 +125,18 @@ export class ChatComponent {
 
 ## 实现流程
 
-1. **BDD**：用 Given-When-Then 澄清行为（对齐 Jira AC）
-2. **TDD**：Red → Green → Refactor；测试名 `should_expected_when_condition`
-3. **DDD**：规则落在 domain；use case 只编排
-4. **领域命名**：变量/方法用术语表 Preferred Term，再套 Clean Code 形式
-5. **UI/UX**：对齐 Apple HIG，极简风格（见 apple-minimal-ux）
-6. **分支 / Commit / PR / Jira**：`<type>/AI-<key>`（类型与 commit 一致）+ Chain PR；沿用 [developer](../skills/developer/SKILL.md) §5 与 [Product Owner](../skills/product-owner/SKILL.md)；References 优先官方文档与 research
-7. **运行测试** → 再按上述规范提交
+1. **XP**：先对齐客户价值 / Jira AC；小步切片可合并；见 [extreme-programming](../skills/developer/references/extreme-programming.md)
+2. **BDD**：用 Given-When-Then 澄清行为（对齐 Jira AC）
+3. **TDD**：Red → Green → Refactor；测试名 `should_expected_when_condition`
+4. **DDD**：规则落在 domain；use case 只编排
+5. **领域命名**：变量/方法用术语表 Preferred Term，再套 Clean Code 形式
+6. **UI/UX**：对齐 Apple HIG，极简风格（见 apple-minimal-ux）
+7. **分支 / Commit / PR / Jira**：`<type>/AI-<key>`（类型与 commit 一致）+ Chain PR；沿用 [developer](../skills/developer/SKILL.md) §5 与 [Product Owner](../skills/product-owner/SKILL.md)；References 优先官方文档与 research
+8. **运行测试 / CI 绿** → 再按上述规范提交
 
 ## 极简原则
 
-- 每次改动最小化
+- 每次改动最小化（Small Releases）
+- YAGNI / Simple Design：不添加无关功能或投机抽象（见 [extreme-programming](../skills/developer/references/extreme-programming.md)）
 - 不写冗余注释
-- 不添加无关功能
-- 保持代码简洁
+- 保持代码简洁；绿后持续 Refactor
