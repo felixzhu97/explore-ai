@@ -36,11 +36,11 @@ Scan **research pages + GitHub orgs** for new papers, code drops, model releases
 
 ## China open models (Qwen-style refs)
 
-Core domestic open-model hubs for commit/PR **References** (paper + HF + official release + GitHub). Scan with the same ~30–90 day window as other orgs.
+Core domestic open-model hubs for commit/PR **References** (paper + HF + official release + GitHub). Also covers local+prod text defaults (DeepSeek primary, Qwen secondary). Scan with the same ~30–90 day window as other orgs.
 
 | Org | Research | HF | Blog / docs | GitHub |
 |-----|----------|-----|-------------|--------|
-| **Qwen** | [arXiv search: Qwen](https://arxiv.org/search/?query=Qwen&searchtype=all) | [huggingface.co/Qwen](https://huggingface.co/Qwen) | [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
+| **Qwen** | [arXiv search: Qwen](https://arxiv.org/search/?query=Qwen&searchtype=all) · [Qwen3-ASR report](https://arxiv.org/abs/2601.21337) | [huggingface.co/Qwen](https://huggingface.co/Qwen) · [Qwen3-ASR collection](https://huggingface.co/collections/Qwen/qwen3-asr) | [qwen.ai](https://qwen.ai/) · [Qwen3-ASR blog](https://qwen.ai/blog?id=qwen3asr) | [github.com/QwenLM](https://github.com/QwenLM) · [Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR) |
 | **DeepSeek** | [DeepSeek-V3](https://arxiv.org/abs/2412.19437) | [huggingface.co/deepseek-ai](https://huggingface.co/deepseek-ai) | [api-docs.deepseek.com](https://api-docs.deepseek.com/) | [github.com/deepseek-ai](https://github.com/deepseek-ai) |
 | **智谱 GLM** | [arXiv search: GLM](https://arxiv.org/search/?query=GLM-4&searchtype=all) | [huggingface.co/THUDM](https://huggingface.co/THUDM) | [zhipuai.cn](https://www.zhipuai.cn/) | [github.com/THUDM](https://github.com/THUDM) |
 | **Intern** | [arXiv search: InternLM](https://arxiv.org/search/?query=InternLM&searchtype=all) | [huggingface.co/internlm](https://huggingface.co/internlm) | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) |
@@ -54,19 +54,16 @@ Top two domestic labs for research scanning (national + industry). Aligns with C
 | **上海人工智能实验室** | National AI research / Intern / AI4S | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) · [OpenGVLab](https://github.com/OpenGVLab) |
 | **阿里达摩院 / 通义** | Industry frontier / Qwen | [damo.alibaba.com](https://damo.alibaba.com/) · [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
 
-## Open-source prod stack (AI-190)
+## Open-source speech & image
 
-local + prod defaults from Epic [AI-190](https://felixzhu.atlassian.net/browse/AI-190) (stories AI-191–AI-194). Prefer open weights / GitHub; compatible API or self-host `base-url` allowed.
+local + prod speech/TTS/image defaults (open weights). Prefer self-host or OpenAI-compatible gateways; DashScope commercial APIs are optional fallback only.
 
-| Capability | Story | Research / docs | HF / models | GitHub / OSS |
-|------------|-------|-----------------|-------------|--------------|
-| **Text primary (DeepSeek)** | [AI-191](https://felixzhu.atlassian.net/browse/AI-191) | [DeepSeek-V3](https://arxiv.org/abs/2412.19437) · [API docs](https://api-docs.deepseek.com/) | [huggingface.co/deepseek-ai](https://huggingface.co/deepseek-ai) | [github.com/deepseek-ai](https://github.com/deepseek-ai) |
-| **Text secondary (Qwen)** | [AI-192](https://felixzhu.atlassian.net/browse/AI-192) | [qwen.ai](https://qwen.ai/) · [arXiv: Qwen](https://arxiv.org/search/?query=Qwen&searchtype=all) | [huggingface.co/Qwen](https://huggingface.co/Qwen) | [github.com/QwenLM](https://github.com/QwenLM) |
-| **ASR** | [AI-193](https://felixzhu.atlassian.net/browse/AI-193) | [Qwen3-ASR report](https://arxiv.org/abs/2601.21337) · [Qwen3-ASR blog](https://qwen.ai/blog?id=qwen3asr) | [Qwen3-ASR collection](https://huggingface.co/collections/Qwen/qwen3-asr) | [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR) · [FunASR](https://github.com/modelscope/FunASR) (alt) |
-| **TTS (CosyVoice)** | [AI-193](https://felixzhu.atlassian.net/browse/AI-193) | CosyVoice README / releases | [FunAudioLLM on HF](https://huggingface.co/FunAudioLLM) | [FunAudioLLM/CosyVoice](https://github.com/FunAudioLLM/CosyVoice) |
-| **Image (FLUX)** | [AI-194](https://felixzhu.atlassian.net/browse/AI-194) | FLUX release notes | [black-forest-labs on HF](https://huggingface.co/black-forest-labs) | [black-forest-labs/flux](https://github.com/black-forest-labs/flux) |
-
-DashScope / 通义万相 remain optional commercial fallback only — not default scan targets for this stack.
+| Org / project | Research / docs | HF | GitHub |
+|---------------|-----------------|-----|--------|
+| **Qwen3-ASR** | [Technical Report](https://arxiv.org/abs/2601.21337) · [blog](https://qwen.ai/blog?id=qwen3asr) | [Qwen3-ASR collection](https://huggingface.co/collections/Qwen/qwen3-asr) | [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR) |
+| **FunASR** (ASR alt) | [ModelScope FunASR docs](https://github.com/modelscope/FunASR#readme) | [FunASR models](https://huggingface.co/models?search=funasr) | [modelscope/FunASR](https://github.com/modelscope/FunASR) |
+| **CosyVoice** (TTS) | [CosyVoice README](https://github.com/FunAudioLLM/CosyVoice#readme) | [FunAudioLLM](https://huggingface.co/FunAudioLLM) | [FunAudioLLM/CosyVoice](https://github.com/FunAudioLLM/CosyVoice) |
+| **FLUX** (image) | [FLUX release notes](https://github.com/black-forest-labs/flux#readme) | [black-forest-labs](https://huggingface.co/black-forest-labs) | [black-forest-labs/flux](https://github.com/black-forest-labs/flux) |
 
 ## Open models & papers (required)
 
