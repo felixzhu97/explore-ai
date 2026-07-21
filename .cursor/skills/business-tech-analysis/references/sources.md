@@ -45,6 +45,17 @@ Core domestic open-model hubs for commit/PR **References** (paper + HF + officia
 | **智谱 GLM** | [arXiv search: GLM](https://arxiv.org/search/?query=GLM-4&searchtype=all) | [huggingface.co/THUDM](https://huggingface.co/THUDM) | [zhipuai.cn](https://www.zhipuai.cn/) | [github.com/THUDM](https://github.com/THUDM) |
 | **Intern** | [arXiv search: InternLM](https://arxiv.org/search/?query=InternLM&searchtype=all) | [huggingface.co/internlm](https://huggingface.co/internlm) | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) |
 
+## China AI labs (research hubs)
+
+Domestic labs aligned with China-first production (DeepSeek primary + Qwen secondary). Scan website + GitHub in the same ~30–90 day window.
+
+| Lab | Prod relevance | Research / site | OSS / GitHub |
+|-----|----------------|-----------------|--------------|
+| **阿里达摩院 / 通义** | Qwen (P1) research & release | [damo.alibaba.com](https://damo.alibaba.com/) · [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
+| **上海人工智能实验室** | Intern / AI4S research | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) · [OpenGVLab](https://github.com/OpenGVLab) |
+| **智源 BAAI** | Open models & datasets | [baai.ac.cn](https://www.baai.ac.cn/) | [github.com/FlagOpen](https://github.com/FlagOpen) · [huggingface.co/BAAI](https://huggingface.co/BAAI) |
+| **鹏城实验室** | Compute fabric / open community | [pcl.ac.cn](https://pcl.ac.cn/) | [openi.org.cn](https://openi.org.cn/) |
+
 ## Open models & papers (required)
 
 | Source | What to check | URL |
