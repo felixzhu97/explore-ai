@@ -54,6 +54,20 @@ Top two domestic labs for research scanning (national + industry). Aligns with C
 | **上海人工智能实验室** | National AI research / Intern / AI4S | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) · [OpenGVLab](https://github.com/OpenGVLab) |
 | **阿里达摩院 / 通义** | Industry frontier / Qwen | [damo.alibaba.com](https://damo.alibaba.com/) · [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
 
+## Open-source prod stack (AI-190)
+
+local + prod defaults from Epic [AI-190](https://felixzhu.atlassian.net/browse/AI-190) (stories AI-191–AI-194). Prefer open weights / GitHub; compatible API or self-host `base-url` allowed.
+
+| Capability | Story | Research / docs | HF / models | GitHub / OSS |
+|------------|-------|-----------------|-------------|--------------|
+| **Text primary (DeepSeek)** | [AI-191](https://felixzhu.atlassian.net/browse/AI-191) | [DeepSeek-V3](https://arxiv.org/abs/2412.19437) · [API docs](https://api-docs.deepseek.com/) | [huggingface.co/deepseek-ai](https://huggingface.co/deepseek-ai) | [github.com/deepseek-ai](https://github.com/deepseek-ai) |
+| **Text secondary (Qwen)** | [AI-192](https://felixzhu.atlassian.net/browse/AI-192) | [qwen.ai](https://qwen.ai/) · [arXiv: Qwen](https://arxiv.org/search/?query=Qwen&searchtype=all) | [huggingface.co/Qwen](https://huggingface.co/Qwen) | [github.com/QwenLM](https://github.com/QwenLM) |
+| **ASR** | [AI-193](https://felixzhu.atlassian.net/browse/AI-193) | [Qwen3-ASR report](https://arxiv.org/abs/2601.21337) · [Qwen3-ASR blog](https://qwen.ai/blog?id=qwen3asr) | [Qwen3-ASR collection](https://huggingface.co/collections/Qwen/qwen3-asr) | [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR) · [FunASR](https://github.com/modelscope/FunASR) (alt) |
+| **TTS (CosyVoice)** | [AI-193](https://felixzhu.atlassian.net/browse/AI-193) | CosyVoice README / releases | [FunAudioLLM on HF](https://huggingface.co/FunAudioLLM) | [FunAudioLLM/CosyVoice](https://github.com/FunAudioLLM/CosyVoice) |
+| **Image (FLUX)** | [AI-194](https://felixzhu.atlassian.net/browse/AI-194) | FLUX release notes | [black-forest-labs on HF](https://huggingface.co/black-forest-labs) | [black-forest-labs/flux](https://github.com/black-forest-labs/flux) |
+
+DashScope / 通义万相 remain optional commercial fallback only — not default scan targets for this stack.
+
 ## Open models & papers (required)
 
 | Source | What to check | URL |

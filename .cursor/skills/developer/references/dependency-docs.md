@@ -20,7 +20,7 @@ Example reference set:
 - [Qwen3-ASR & Qwen3-ForcedAligner is Now Open Sourced](https://qwen.ai/blog?id=qwen3asr)
 - [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)
 
-Domestic core open models (Qwen / DeepSeek / 智谱 GLM / Intern): [China open models (Qwen-style refs)](../../business-tech-analysis/references/sources.md#china-open-models-qwen-style-refs). Labs (上海 AI Lab / 达摩院·通义): [China AI labs (research hubs)](../../business-tech-analysis/references/sources.md#china-ai-labs-research-hubs).
+Domestic core open models (Qwen / DeepSeek / 智谱 GLM / Intern): [China open models (Qwen-style refs)](../../business-tech-analysis/references/sources.md#china-open-models-qwen-style-refs). Labs (上海 AI Lab / 达摩院·通义): [China AI labs (research hubs)](../../business-tech-analysis/references/sources.md#china-ai-labs-research-hubs). local+prod open stack (DeepSeek / Qwen / Qwen3-ASR / CosyVoice / FLUX): [Open-source prod stack (AI-190)](../../business-tech-analysis/references/sources.md#open-source-prod-stack-ai-190).
 
 ## Frontend
 
