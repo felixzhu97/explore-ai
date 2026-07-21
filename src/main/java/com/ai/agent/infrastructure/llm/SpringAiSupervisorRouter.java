@@ -6,6 +6,7 @@ import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.vo.AgentType;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
+import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -53,13 +54,14 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
         RoutingDecisionResponse decision = chatClientProvider
                 .createBareStateless(TextChatOptions.defaults())
                 .prompt()
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .system("""
                         You are a multi-agent supervisor. Route work to specialized agents.
                         Never set primaryAgent to supervisor. Prefer a single worker when possible.
                         """)
                 .user(prompt)
                 .call()
-                .entity(RoutingDecisionResponse.class);
+                .entity(RoutingDecisionResponse.class, spec -> spec.validateSchema());
 
         return toPlan(decision, allowed, workers.getFirst().type());
     }

@@ -177,14 +177,14 @@ class RagControllerTest {
             RagChatResult chatResult = new RagChatResult(
                     "AI response", List.of()
             );
-            when(ragChatUseCase.chat(eq("What is AI?"), isNull(), eq(5))).thenReturn(chatResult);
+            when(ragChatUseCase.chat(eq("What is AI?"), isNull(), eq(5), isNull())).thenReturn(chatResult);
             when(streamingService.streamWithSources(eq("AI response"), anyList()))
                     .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response").build()));
 
             Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
             assertThat(response).isNotNull();
-            verify(ragChatUseCase).chat(eq("What is AI?"), isNull(), eq(5));
+            verify(ragChatUseCase).chat(eq("What is AI?"), isNull(), eq(5), isNull());
         }
 
         @SuppressWarnings("unchecked")
@@ -196,7 +196,7 @@ class RagControllerTest {
             RagChatResult chatResult = new RagChatResult(
                     "Response", List.of(new SourceDocument("doc", 0.9, null))
             );
-            when(ragChatUseCase.chat(anyString(), any(), anyInt())).thenReturn(chatResult);
+            when(ragChatUseCase.chat(anyString(), any(), any(), any())).thenReturn(chatResult);
             when(streamingService.streamWithSources(eq("Response"), anyList()))
                     .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response").build()));
 
@@ -213,7 +213,7 @@ class RagControllerTest {
             RagChatResult chatResult = new RagChatResult(
                     "Response", List.of()
             );
-            when(ragChatUseCase.chat(anyString(), isNull(), eq(10))).thenReturn(chatResult);
+            when(ragChatUseCase.chat(anyString(), isNull(), eq(10), isNull())).thenReturn(chatResult);
             when(streamingService.streamWithSources(eq("Response"), anyList()))
                     .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response").build()));
 
@@ -227,7 +227,7 @@ class RagControllerTest {
         @DisplayName("should propagate exception when service fails")
         void shouldPropagateExceptionWhenServiceFails() {
             RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, null, null);
-            when(ragChatUseCase.chat(anyString(), any(), anyInt()))
+            when(ragChatUseCase.chat(anyString(), any(), any(), any()))
                     .thenThrow(new RuntimeException("Service error"));
 
             assertThatThrownBy(() -> controller.ragChatStream(request))

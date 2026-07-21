@@ -84,13 +84,13 @@ public class RagController {
         if (hasImages(request.images())) {
             VisionChatUseCase visionChat = visionChatUseCase.getIfAvailable();
             if (visionChat == null) {
-                result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
+                result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK(), request.sessionId());
             } else {
                 result = visionChat.chatWithImages(
                         request.question(), request.docIds(), request.images(), request.topK());
             }
         } else {
-            result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK());
+            result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK(), request.sessionId());
         }
 
         var sourceDtos = result.sources().stream()

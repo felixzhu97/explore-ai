@@ -2,6 +2,7 @@ package com.ai.agent.infrastructure.llm;
 
 import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.domain.vo.AgentType;
+import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
@@ -114,7 +115,7 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     private void stubCallChain() {
-        when(chatClientProvider.createBareStateless(any())).thenReturn(chatClient);
+        when(chatClientProvider.create(any(), any(ChatClientProfile.class), any())).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
         when(requestSpec.user(any(String.class))).thenReturn(requestSpec);
@@ -124,7 +125,7 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     private void stubCallChainWithoutTools() {
-        when(chatClientProvider.createBareStateless(any())).thenReturn(chatClient);
+        when(chatClientProvider.create(any(), any(ChatClientProfile.class), any())).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
         when(requestSpec.user(any(String.class))).thenReturn(requestSpec);
