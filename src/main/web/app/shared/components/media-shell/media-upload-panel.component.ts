@@ -6,9 +6,9 @@ import {
 } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideImage } from '@ng-icons/lucide';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCardComponent } from '@/shared/components/card';
-import { ZardSkeletonComponent } from '@/shared/components/skeleton';
+import { ZardButtonComponent } from '../button';
+import { ZardCardComponent } from '../card';
+import { ZardSkeletonComponent } from '../skeleton';
 import { DetectionOverlayComponent } from '../../../vision/detection-overlay.component';
 import type { Detection } from '../../../vision/vision.model';
 

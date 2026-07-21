@@ -18,7 +18,7 @@
         [cdkDragData]="agent"
         (click)="addNodeFromClick(agent)"
       >
-        <div class="text-text-primary text-sm font-medium">{{ agent.name }}</div>
+        <div class="text-sm font-medium text-text">{{ agent.name }}</div>
         <div class="mt-0.5 line-clamp-2 text-xs text-text-secondary">{{ agent.description }}</div>
         <div *cdkDragPreview class="rounded-lg border border-black/12 bg-white px-3 py-2 shadow-md">
           {{ agent.name }}
@@ -43,7 +43,7 @@
       </button>
       <button
         type="button"
-        class="bg-text-primary rounded-md px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+        class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
         (click)="run()"
       >
         {{ i18n.t().agents.pipeline.run }}
@@ -63,7 +63,7 @@
             class="rounded-md border border-black/10 bg-surface px-2.5 py-1.5 text-left text-xs hover:bg-black/4"
             (click)="applyTemplate(template.id)"
           >
-            <span class="font-medium text-text-primary">{{ templateLabel(template.id).name }}</span>
+            <span class="font-medium text-text">{{ templateLabel(template.id).name }}</span>
           </button>
         }
       </div>
@@ -86,8 +86,8 @@
   >
     @if (isEmpty()) {
       <div class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-6">
-        <div class="pointer-events-auto max-w-3xl w-full">
-          <p class="mb-1 text-center text-sm font-medium text-text-primary">
+        <div class="pointer-events-auto w-full max-w-3xl">
+          <p class="mb-1 text-center text-sm font-medium text-text">
             {{ i18n.t().agents.pipeline.emptyState.title }}
           </p>
           <p class="mb-4 text-center text-xs text-text-secondary">
@@ -97,10 +97,10 @@
             @for (template of templates; track template.id) {
               <button
                 type="button"
-                class="flex flex-col gap-1 rounded-xl border border-black/10 bg-white px-3 py-3 text-left shadow-sm transition hover:border-black/25 hover:shadow"
+                class="flex flex-col gap-1 rounded-xl border border-black/10 bg-white p-3 text-left shadow-sm transition hover:border-black/25 hover:shadow"
                 (click)="applyTemplate(template.id)"
               >
-                <div class="text-sm font-medium text-text-primary">
+                <div class="text-sm font-medium text-text">
                   {{ templateLabel(template.id).name }}
                 </div>
                 <p class="line-clamp-3 text-xs text-text-secondary">
@@ -109,7 +109,7 @@
                 <p class="mt-1 font-mono text-[10px] text-text-secondary">
                   {{ templateOrder(template.id) }}
                 </p>
-                <span class="mt-1 text-xs font-medium text-text-primary">
+                <span class="mt-1 text-xs font-medium text-text">
                   {{ i18n.t().agents.pipeline.templates.use }}
                 </span>
               </button>
@@ -120,7 +120,7 @@
     }
 
     <f-flow
-      class="agents-pipeline-flow block size-full"
+      class="block size-full min-h-80"
       fDraggable
       (fCreateConnection)="onCreateConnection($event)"
       (fMoveNodes)="onMoveNodes($event)"
@@ -138,7 +138,7 @@
         <ng-container ngProjectAs="[fNodes]">
           @for (node of nodes(); track node.id) {
             <div
-              class="agents-pipeline-node relative w-48 rounded-xl border border-black/10 bg-white p-3 shadow-sm"
+              class="relative w-48 rounded-xl border border-black/10 bg-white p-3 shadow-sm select-none"
               fNode
               fDragHandle
               [fNodeId]="node.id"
@@ -146,22 +146,22 @@
             >
               <button
                 type="button"
-                class="hover:text-text-primary absolute top-2 right-2 text-xs text-text-secondary"
+                class="absolute top-2 right-2 text-xs text-text-secondary hover:text-text"
                 fDragBlocker
                 (click)="removeNode(node.id)"
               >
                 ×
               </button>
-              <div class="text-text-primary pr-4 text-sm font-medium">{{ node.name }}</div>
+              <div class="pr-4 text-sm font-medium text-text">{{ node.name }}</div>
               <div class="mt-1 line-clamp-2 text-xs text-text-secondary">{{ node.description }}</div>
               <div
-                class="agents-pipeline-port absolute top-1/2 -left-1.5 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
+                class="absolute top-1/2 -left-1.5 z-[2] size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
                 fConnector
                 fConnectorType="target"
                 [fConnectorId]="inId(node.id)"
               ></div>
               <div
-                class="agents-pipeline-port absolute top-1/2 -right-1.5 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
+                class="absolute top-1/2 -right-1.5 z-[2] size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
                 fConnector
                 fConnectorType="source"
                 [fConnectorId]="outId(node.id)"

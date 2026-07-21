@@ -10,7 +10,7 @@ import {
 
 import type { ClassValue } from 'clsx';
 
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import { ZardDropdownService } from './dropdown.service';
 import { dropdownItemVariants, type ZardDropdownItemVariants } from './dropdown.variants';

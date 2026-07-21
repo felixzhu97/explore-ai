@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { FormsModule } from '@angular/forms';
 import { McpService } from './mcp.service';
 import type { McpClientStatusResponse, McpHealthResponse, McpTool } from './mcp.model';
-import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardButtonComponent } from '../shared/components/button';
 
 @Component({
   selector: 'app-mcp-page',

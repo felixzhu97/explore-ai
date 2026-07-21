@@ -15,7 +15,7 @@ export const zh: Translations = {
     mcp: 'MCP',
     eval: '评估',
     speechToText: '语音转写',
-    supervisor: '协调器',
+    agents: 'Agent',
     kubernetes: 'K8s',
     monitoring: '监控',
     aiinfra: 'AI 基础设施',

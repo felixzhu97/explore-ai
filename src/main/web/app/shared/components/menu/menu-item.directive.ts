@@ -4,7 +4,7 @@ import { booleanAttribute, computed, Directive, effect, inject, input, signal, u
 
 import type { ClassValue } from 'clsx';
 
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import { menuItemVariants, type ZardMenuItemTypeVariants } from './menu.variants';
 

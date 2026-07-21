@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Z_MODAL_DATA } from '@/shared/components/dialog';
+import { Z_MODAL_DATA } from '../dialog';
 
 export interface ImageZoomData {
   src: string;

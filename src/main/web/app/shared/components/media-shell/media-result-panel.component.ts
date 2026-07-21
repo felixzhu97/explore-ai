@@ -4,10 +4,10 @@ import {
   input,
   output,
 } from '@angular/core';
-import { ZardAlertComponent } from '@/shared/components/alert';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCardComponent } from '@/shared/components/card';
+import { ZardAlertComponent } from '../alert';
+import { ZardBadgeComponent } from '../badge';
+import { ZardButtonComponent } from '../button';
+import { ZardCardComponent } from '../card';
 import type { VisionResult } from '../../../vision/vision.model';
 import type { VisionTaskType } from '../../../vision/vision.service';
 

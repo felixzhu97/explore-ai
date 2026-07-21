@@ -3,17 +3,15 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
-  HostListener,
   computed,
   OnInit,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { I18nService } from '@core/i18n';
+import { I18nService } from '../core/i18n';
 import {
   SidebarGroupComponent,
-} from '@/shared/components/layout/sidebar.component';
-import { ZardSidebarMenuButtonDirective } from '@/shared/components/layout/sidebar-menu-button.directive';
+} from '../shared/components/layout/sidebar.component';
+import { ZardSidebarMenuButtonDirective } from '../shared/components/layout/sidebar-menu-button.directive';
 import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
 import { LanguagePickerComponent } from './components/language-picker/language-picker.component';
@@ -24,14 +22,13 @@ import {
   isNavTabEnabled,
   MODULE_NAV_TABS,
   type ModuleNavTab,
-} from '@core/config/module-nav.config';
-import { FeatureFlagService } from '@core/services/feature-flag.service';
+} from '../core/config/module-nav.config';
+import { FeatureFlagService } from '../core/feature-flag.service';
 
 @Component({
   selector: 'app-sidebar',
   imports: [
     RouterLink,
-    CommonModule,
     SidebarGroupComponent,
     ZardSidebarMenuButtonDirective,
     SessionItemComponent,
@@ -39,6 +36,10 @@ import { FeatureFlagService } from '@core/services/feature-flag.service';
   ],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:resize)': 'onResize()',
+    '(document:pointerdown)': 'onDocumentPointerDown($event)',
+  },
 })
 export class SidebarComponent implements OnInit {
   private readonly router = inject(Router);
@@ -104,7 +105,6 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  @HostListener('window:resize')
   onResize(): void {
     this.updateMobileState();
   }
@@ -162,7 +162,6 @@ export class SidebarComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
-  @HostListener('document:pointerdown', ['$event'])
   onDocumentPointerDown(event: PointerEvent): void {
     const target = event.target as Element;
     const isOutsideSidebar =

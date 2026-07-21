@@ -10,8 +10,8 @@ import {
 
 import type { ClassValue } from 'clsx';
 
-import { menuLabelVariants } from '@/shared/components/menu/menu.variants';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { menuLabelVariants } from './menu.variants';
+import { mergeClasses } from '../../utils/merge-classes';
 
 @Component({
   selector: 'z-menu-label, [z-menu-label], z-dropdown-menu-label, [z-dropdown-menu-label]',

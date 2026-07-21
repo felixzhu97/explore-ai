@@ -17,7 +17,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import type { ClassValue } from 'clsx';
 
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import { segmentedItemVariants, segmentedVariants, type ZardSegmentedVariants } from './segmented.variants';
 

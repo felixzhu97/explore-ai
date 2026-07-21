@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input, ViewEncapsulation 
 import type { ClassValue } from 'clsx';
 import { NgxSonnerToaster } from 'ngx-sonner';
 
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import { toastVariants, type ZardToastVariants } from './toast.variants';
 

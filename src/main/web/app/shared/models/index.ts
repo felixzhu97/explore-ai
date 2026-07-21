@@ -6,7 +6,7 @@ export type {
   ProviderInfo,
   SessionInfo,
   ToolCall,
-} from '../../ai-hub/chat.model';
+} from '../../chat/chat.model';
 
 export type {
   DocumentListItem,
@@ -22,8 +22,8 @@ export type {
   ImageGenerationResult,
   ImageCatalogResponse,
   ImageSize,
-} from '../../ai-hub/image.model';
+} from '../../generate/image/image.model';
 
-export type { TtsRequest, Voice } from '../../ai-hub/tts.model';
+export type { TtsRequest, Voice } from '../../generate/tts/tts.model';
 
 export type { Detection, VisionHealthResponse, VisionResult } from '../../vision/vision.model';

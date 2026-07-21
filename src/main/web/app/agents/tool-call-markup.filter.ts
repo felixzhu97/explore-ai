@@ -1,4 +1,4 @@
-import type { ChatBubbleToolStep } from '@shared/components/chat-shell';
+import type { ChatBubbleToolStep } from '../shared/components/chat-shell';
 
 /**
  * DeepSeek DSML tool-call markup helpers (not A2UI).

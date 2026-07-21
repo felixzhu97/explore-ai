@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { httpErrorInterceptor, AppError } from './http-error.interceptor';
-import { NotificationService } from '@core/services/notification.service';
+import { NotificationService } from '../notification.service';
 
 describe('httpErrorInterceptor', () => {
   let notificationService: NotificationService;

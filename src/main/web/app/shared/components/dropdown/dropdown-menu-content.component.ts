@@ -10,8 +10,8 @@ import {
 
 import type { ClassValue } from 'clsx';
 
-import { dropdownContentVariants } from '@/shared/components/dropdown/dropdown.variants';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { dropdownContentVariants } from './dropdown.variants';
+import { mergeClasses } from '../../utils/merge-classes';
 
 @Component({
   selector: 'z-dropdown-menu-content',

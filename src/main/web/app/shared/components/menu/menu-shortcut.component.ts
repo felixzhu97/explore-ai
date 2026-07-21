@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input, ViewEncapsulation 
 
 import type { ClassValue } from 'clsx';
 
-import { menuShortcutVariants } from '@/shared/components/menu/menu.variants';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { menuShortcutVariants } from './menu.variants';
+import { mergeClasses } from '../../utils/merge-classes';
 
 @Component({
   selector: 'z-menu-shortcut, [z-menu-shortcut]',

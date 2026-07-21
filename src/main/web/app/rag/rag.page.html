@@ -32,32 +32,27 @@
     </div>
 </div>
 
-<!-- Messages -->
-<div class="flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6">
-    @if (ragService.messages().length === 0) {
-        <app-chat-welcome-panel
-                class="h-full"
-                [title]="i18n.t().ragChat.title"
-                [description]="i18n.t().ragChat.askQuestion"
-                [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
-                [prompts]="ragPrompts()"
-                (promptSelect)="onPromptSelect($event)"
-        />
-    } @else {
-        <app-chat-bubble-list
-                [messages]="bubbleMessages()"
-                [streamingMessageIds]="ragService.streamingMessageIds()"
-                [thinkingLabel]="i18n.t().chat.thinking"
-                [footerLabels]="footerLabels()"
-                (toggleSources)="onToggleSources($event)"
-        />
-    }
-</div>
+<app-chat-message-pane
+        [messages]="bubbleMessages()"
+        [streamingMessageIds]="ragService.streamingMessageIds()"
+        [thinkingLabel]="i18n.t().chat.thinking"
+        [footerLabels]="footerLabels()"
+        [welcomeTitle]="i18n.t().ragChat.title"
+        [welcomeDescription]="i18n.t().ragChat.askQuestion"
+        [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+        [prompts]="ragPrompts()"
+        (promptSelect)="onPromptSelect($event)"
+        (toggleSources)="onToggleSources($event)"
+/>
 
-<!-- Input -->
-<div class="shrink-0 border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+<app-chat-sender-bar
+        [placeholder]="i18n.t().ragChat.inputPlaceholder"
+        [(value)]="ragService.input"
+        [loading]="ragService.isLoading()"
+        (submitSend)="ragService.sendMessage()"
+>
     @if (ragService.pendingImages().length > 0) {
-        <div class="mb-2 flex flex-wrap gap-2">
+        <div chatSenderPrelude class="mb-2 flex flex-wrap gap-2">
             @for (img of ragService.pendingImages(); track $index) {
                 <div class="group relative">
                     <img [src]="img" alt="Pending image" class="size-16 rounded-lg object-cover" />
@@ -78,33 +73,25 @@
             }
         </div>
     }
-    <div class="flex items-center gap-2">
-        <label class="cursor-pointer">
-            <input
-                    #imageInput
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    class="hidden"
-                    (change)="onImageSelect($event)"
-            />
-            <button
-                    type="button"
-                    z-button
-                    zType="ghost"
-                    zSize="icon"
-                    title="Add image"
-                    aria-label="Add image"
-                    (click)="imageInput.click()"
-            >
-                <ng-icon name="lucideImage" class="size-5!" />
-            </button>
-        </label>
-        <nx-sender
-                [placeholder]="i18n.t().ragChat.inputPlaceholder"
-                [(value)]="ragService.input"
-                [loading]="ragService.isLoading()"
-                (submitSend)="ragService.sendMessage()"
+    <label chatSenderActions class="cursor-pointer">
+        <input
+                #imageInput
+                type="file"
+                accept="image/*"
+                multiple
+                class="hidden"
+                (change)="onImageSelect($event)"
         />
-    </div>
-</div>
+        <button
+                type="button"
+                z-button
+                zType="ghost"
+                zSize="icon"
+                title="Add image"
+                aria-label="Add image"
+                (click)="imageInput.click()"
+        >
+            <ng-icon name="lucideImage" class="size-5!" />
+        </button>
+    </label>
+</app-chat-sender-bar>

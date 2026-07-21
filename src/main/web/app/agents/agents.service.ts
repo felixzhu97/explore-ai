@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_BASE_URL } from '@core/services/api.constants';
-import { parseSseToken, streamSsePost } from '@core/streaming/sse-client';
+import { API_BASE_URL } from '../core/api.constants';
+import { parseSseToken, streamSsePost } from '../core/streaming/sse-client';
 import type {
   AgentHealth,
   AgentInfo,

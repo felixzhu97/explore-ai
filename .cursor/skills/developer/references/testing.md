@@ -17,7 +17,7 @@ Prefer many fast unit tests over a wide E2E suite.
 - Business language; one scenario = one behavior
 - Structure: **Given** precondition → **When** action → **Then** outcome
 - Outcomes, not “system calls X”
-- Same vocabulary as [Domain Glossary](../../../../docs/Domain-Glossary.md)
+- Same vocabulary as [Glossary](../../../../docs/Glossary.md)
 
 ## TDD
 

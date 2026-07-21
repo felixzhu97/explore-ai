@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { environment } from '@env/environment';
+import { environment } from '../../environments/environment';
 import type { AsrConnectionState, AsrServerMessage } from './asr.model';
 
 @Injectable({ providedIn: 'root' })

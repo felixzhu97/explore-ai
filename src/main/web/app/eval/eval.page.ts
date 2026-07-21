@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { EvalService } from './eval.service';
 import type { EvaluationResponse } from './eval.model';
-import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardButtonComponent } from '../shared/components/button';
 
 @Component({
   selector: 'app-eval-page',

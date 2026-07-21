@@ -24,7 +24,7 @@
       (pointerdown)="onSplitterPointerDown($event)"
     >
       <div
-        class="pointer-events-none absolute inset-y-0 -left-1 -right-1"
+        class="pointer-events-none absolute -inset-x-1 inset-y-0"
       ></div>
     </div>
   }
@@ -37,7 +37,7 @@
     @if (resultsCollapsed()) {
       <button
         type="button"
-        class="flex h-full w-full flex-col items-center justify-center gap-2 px-1 py-3 text-xs text-text-secondary hover:bg-black/4"
+        class="flex size-full flex-col items-center justify-center gap-2 px-1 py-3 text-xs text-text-secondary hover:bg-black/4"
         (click)="toggleResultsCollapsed()"
         [attr.aria-label]="i18n.t().agents.results.expand"
       >
@@ -60,24 +60,18 @@
           {{ i18n.t().agents.results.collapse }}
         </button>
       </div>
-      <div class="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-        @if (messages().length === 0) {
-          <p class="text-xs text-text-secondary">
-            {{ i18n.t().agents.results.empty }}
-          </p>
-        } @else {
-          <app-chat-bubble-list
-            [messages]="messages()"
-            [streamingMessageId]="streamingMessageId()"
-            [thinkingLabel]="i18n.t().agents.thinking"
-            [collapseLongUserMessages]="true"
-            [expandLabel]="i18n.t().agents.results.expandMessage"
-            [collapseLabel]="i18n.t().agents.results.collapseMessage"
-            toolStepDoneLabel="完成"
-            toolStepFailedLabel="失败"
-          />
-        }
-      </div>
+      <app-chat-message-pane
+        [messages]="messages()"
+        [streamingMessageId]="streamingMessageId()"
+        [thinkingLabel]="i18n.t().agents.thinking"
+        [collapseLongUserMessages]="true"
+        [expandLabel]="i18n.t().agents.results.expandMessage"
+        [collapseLabel]="i18n.t().agents.results.collapseMessage"
+        toolStepDoneLabel="完成"
+        toolStepFailedLabel="失败"
+        [emptyText]="i18n.t().agents.results.empty"
+        [compact]="true"
+      />
     }
   </aside>
 </div>
@@ -90,11 +84,9 @@
   />
 }
 
-<div class="border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-  <nx-sender
-    [placeholder]="i18n.t().agents.pipeline.inputPlaceholder"
-    [(value)]="input"
-    [loading]="loading()"
-    (submitSend)="send()"
-  />
-</div>
+<app-chat-sender-bar
+  [placeholder]="i18n.t().agents.pipeline.inputPlaceholder"
+  [(value)]="input"
+  [loading]="loading()"
+  (submitSend)="send()"
+/>

@@ -2,12 +2,12 @@ import { ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provide
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
-import { provideZard } from '@/shared/core';
+import { provideZard } from './shared/zard';
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 import { SESSION_LIST } from './layout/services/session-list.token';
-import { ChatSessionListService } from './app/providers/chat-session-list.service';
-import { FeatureFlagService } from './core/services/feature-flag.service';
+import { ChatSessionListService } from './chat/chat-session-list.service';
+import { FeatureFlagService } from './core/feature-flag.service';
 import { DatadogErrorHandler } from './core/config/datadog-rum.config';
 import {
   A2UI_RENDERER_CONFIG,

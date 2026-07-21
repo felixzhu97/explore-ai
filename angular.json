@@ -9,7 +9,23 @@
         "@schematics/angular:component": {
           "style": "scss",
           "standalone": true,
-          "changeDetection": "OnPush"
+          "changeDetection": "OnPush",
+          "skipTests": false
+        },
+        "@schematics/angular:directive": {
+          "standalone": true
+        },
+        "@schematics/angular:pipe": {
+          "standalone": true
+        },
+        "@schematics/angular:guard": {
+          "functional": true
+        },
+        "@schematics/angular:interceptor": {
+          "functional": true
+        },
+        "@schematics/angular:resolver": {
+          "functional": true
         }
       },
       "root": "src/main/web",

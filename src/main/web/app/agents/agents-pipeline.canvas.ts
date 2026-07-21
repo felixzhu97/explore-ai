@@ -14,7 +14,7 @@ import {
   FFlowModule,
   FMoveNodesEvent,
 } from '@foblex/flow';
-import { I18nService } from '@core/i18n';
+import { I18nService } from '../core/i18n';
 import type { AgentInfo } from './agents.model';
 import {
   connectorInId,

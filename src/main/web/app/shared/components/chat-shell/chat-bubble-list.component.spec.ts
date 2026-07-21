@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-vi.mock('@shared/components/markdown-with-a2ui.component', async () => {
+vi.mock('../markdown-with-a2ui.component', async () => {
   const { Component, input } = await import('@angular/core');
 
   @Component({

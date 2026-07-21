@@ -6,11 +6,11 @@ import {
   output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCardComponent } from '@/shared/components/card';
-import { ZardInputDirective } from '@/shared/components/input';
-import { ZardSegmentedComponent } from '@/shared/components/segmented';
-import type { ImageSize } from '../../../ai-hub/image.model';
+import { ZardButtonComponent } from '../button';
+import { ZardCardComponent } from '../card';
+import { ZardInputDirective } from '../input';
+import { ZardSegmentedComponent } from '../segmented';
+import type { ImageSize } from '../../../generate/image/image.model';
 
 @Component({
   selector: 'app-image-gen-form',

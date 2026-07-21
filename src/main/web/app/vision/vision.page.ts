@@ -1,11 +1,11 @@
 import { Component, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { I18nService } from '@core/i18n';
-import { ZardSegmentedComponent } from '@/shared/components/segmented';
+import { I18nService } from '../core/i18n';
+import { ZardSegmentedComponent } from '../shared/components/segmented';
 import {
   MediaResultPanelComponent,
   MediaUploadPanelComponent,
-} from '@shared/components/media-shell';
+} from '../shared/components/media-shell';
 import { VisionService, type VisionTaskType } from './vision.service';
 
 @Component({

@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   OnDestroy,
   OnInit,
   inject,
@@ -11,14 +10,14 @@ import {
   viewChild,
 } from '@angular/core';
 import {
-  ChatBubbleListComponent,
   ChatBubbleMessage,
-} from '@shared/components/chat-shell';
-import { I18nService } from '@core/i18n';
-import { NxSenderComponent } from 'ng-zorro-x/sender';
+  ChatMessagePaneComponent,
+  ChatSenderBarComponent,
+} from '../shared/components/chat-shell';
+import { I18nService } from '../core/i18n';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
-import { ZardAlertComponent } from '@/shared/components/alert';
+import { ZardAlertComponent } from '../shared/components/alert';
 import { AgentsService } from './agents.service';
 import { AgentsPipelineCanvasComponent } from './agents-pipeline.canvas';
 import type { AgentInfo } from './agents.model';
@@ -32,7 +31,7 @@ import {
   stripToolCallMarkup,
   toMinimalToolSteps,
 } from './tool-call-markup.filter';
-import type { ChatBubbleToolStep } from '@shared/components/chat-shell';
+import type { ChatBubbleToolStep } from '../shared/components/chat-shell';
 
 const DEFAULT_RESULTS_RATIO = 0.38;
 const MIN_PANE_PX = 240;
@@ -40,9 +39,9 @@ const MIN_PANE_PX = 240;
 @Component({
   selector: 'app-agents-page',
   imports: [
-    NxSenderComponent,
     NzIconModule,
-    ChatBubbleListComponent,
+    ChatMessagePaneComponent,
+    ChatSenderBarComponent,
     ZardAlertComponent,
     AgentsPipelineCanvasComponent,
   ],
@@ -130,7 +129,6 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
   }
 
-  @HostListener('document:pointermove', ['$event'])
   onDocumentPointerMove(event: PointerEvent): void {
     if (!this.isDraggingSplitter()) {
       return;
@@ -150,8 +148,6 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     this.resultsRatio.set(clamped / rect.width);
   }
 
-  @HostListener('document:pointerup')
-  @HostListener('document:pointercancel')
   onDocumentPointerUp(): void {
     if (this.isDraggingSplitter()) {
       this.isDraggingSplitter.set(false);

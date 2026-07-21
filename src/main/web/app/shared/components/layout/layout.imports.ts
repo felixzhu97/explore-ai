@@ -1,13 +1,13 @@
-import { ContentComponent } from '@/shared/components/layout/content.component';
-import { FooterComponent } from '@/shared/components/layout/footer.component';
-import { HeaderComponent } from '@/shared/components/layout/header.component';
-import { LayoutComponent } from '@/shared/components/layout/layout.component';
+import { ContentComponent } from './content.component';
+import { FooterComponent } from './footer.component';
+import { HeaderComponent } from './header.component';
+import { LayoutComponent } from './layout.component';
 import {
   SidebarComponent,
   SidebarGroupComponent,
   SidebarGroupLabelComponent,
-} from '@/shared/components/layout/sidebar.component';
-import { ZardSidebarMenuButtonDirective } from '@/shared/components/layout/sidebar-menu-button.directive';
+} from './sidebar.component';
+import { ZardSidebarMenuButtonDirective } from './sidebar-menu-button.directive';
 
 export const LayoutImports = [
   LayoutComponent,

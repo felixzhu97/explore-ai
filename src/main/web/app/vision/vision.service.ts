@@ -1,9 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiMediaService } from '@core/services/api-media.service';
-import { I18nService } from '@core/i18n';
-import { ImageZoomService } from '@shared/services/image-zoom.service';
+import { API_BASE_URL } from '../core/api.constants';
+import { I18nService } from '../core/i18n';
+import { ImageZoomService } from '../shared/services/image-zoom.service';
 import type { VisionResult } from './vision.model';
 
 export type VisionTaskType = 'caption' | 'detect' | 'ocr';
@@ -24,7 +24,7 @@ const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
 
 @Injectable({ providedIn: 'root' })
 export class VisionService {
-  private readonly api = inject(ApiMediaService);
+  private readonly http = inject(HttpClient);
   private readonly i18n = inject(I18nService);
   private readonly imageZoom = inject(ImageZoomService);
 
@@ -94,13 +94,13 @@ export class VisionService {
     let request: Observable<VisionResult>;
     switch (task) {
       case 'caption':
-        request = this.api.captionImage(currentFile);
+        request = this.captionImage(currentFile);
         break;
       case 'detect':
-        request = this.api.detectObjects(currentFile);
+        request = this.detectObjects(currentFile);
         break;
       case 'ocr':
-        request = this.api.ocrImage(currentFile);
+        request = this.ocrImage(currentFile);
         break;
     }
 
@@ -116,6 +116,33 @@ export class VisionService {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private captionImage(file: File): Observable<Pick<VisionResult, 'caption' | 'processingTimeMs'>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Pick<VisionResult, 'caption' | 'processingTimeMs'>>(
+      `${API_BASE_URL}/vision/caption`,
+      formData,
+    );
+  }
+
+  private detectObjects(file: File): Observable<Pick<VisionResult, 'detections' | 'processingTimeMs'>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Pick<VisionResult, 'detections' | 'processingTimeMs'>>(
+      `${API_BASE_URL}/vision/detect`,
+      formData,
+    );
+  }
+
+  private ocrImage(file: File): Observable<Pick<VisionResult, 'fullText' | 'processingTimeMs'>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Pick<VisionResult, 'fullText' | 'processingTimeMs'>>(
+      `${API_BASE_URL}/vision/ocr`,
+      formData,
+    );
   }
 
   private resolveErrorMessage(err: unknown): string {

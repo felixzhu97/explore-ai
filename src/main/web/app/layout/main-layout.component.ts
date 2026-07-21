@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ZardToastComponent } from '@/shared/components/toast';
+import { ZardToastComponent } from '../shared/components/toast';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { SidebarService } from './sidebar.service';

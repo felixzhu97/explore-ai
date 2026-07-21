@@ -13,8 +13,8 @@ import {
   NxBubbleListItem,
   NxBubbleSlotType,
 } from 'ng-zorro-x/bubble';
-import { MarkdownWithA2uiComponent } from '@shared/components/markdown-with-a2ui.component';
-import { formatMessageTime } from '@shared/utils/format-time.util';
+import { MarkdownWithA2uiComponent } from '../markdown-with-a2ui.component';
+import { formatMessageTime } from '../../utils/format-time.util';
 import { ChatBubbleMessage } from './chat-bubble.model';
 
 export interface ChatBubbleFooterLabels {

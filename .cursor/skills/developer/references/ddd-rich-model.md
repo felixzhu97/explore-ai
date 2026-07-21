@@ -81,7 +81,7 @@ Business rules like “cannot archive twice” stay on `ChatSession`, not in the
 
 ## Ubiquitous language
 
-Source of truth: [docs/Domain-Glossary.md](../../../../docs/Domain-Glossary.md)
+Source of truth: [docs/Glossary.md](../../../../docs/Glossary.md)
 
 - Name **types, variables, and methods** with the glossary **Preferred Term (English)** for that bounded context
 - Example: `archive()`, not `updateStatusFlag` / `close()` — only if `archive` is the preferred verb for that concept
