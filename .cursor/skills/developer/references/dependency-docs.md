@@ -8,10 +8,10 @@ For model-driven changes such as ASR, TTS, LLM, RAG, agent, benchmark, or algori
 
 When available, use this full reference set in both the commit and PR:
 
-1. Academic reference: arXiv abs page or official paper page
-2. Hugging Face reference: model card, collection, or paper page
-3. Official vendor blog, release note, or announcement
-4. Upstream GitHub repository or official implementation docs
+1. One **academic** source, preferably the arXiv abs page or official paper page
+2. One **Hugging Face** model, collection, or paper page
+3. One official **vendor blog**, release note, or announcement page
+4. The upstream **GitHub repository** or official implementation docs when they are the implementation source
 
 Example reference set:
 

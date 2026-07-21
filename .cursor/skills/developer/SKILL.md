@@ -158,7 +158,7 @@ Types: `feat` | `fix` | `refactor` | `docs` | `test` | `chore` | `perf` | `ci`
 Example:
 
 ```
-feat: add Qwen3-ASR reference guidance to PR skill
+ docs: add Qwen3-ASR reference guidance to PR skill
 
 Contributors need a consistent citation set for model-related changes so commits and PRs point to the paper, release notes, distribution page, and upstream implementation.
 
