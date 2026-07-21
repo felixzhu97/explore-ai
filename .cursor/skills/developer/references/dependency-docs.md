@@ -20,7 +20,7 @@ Example reference set:
 - [Qwen3-ASR & Qwen3-ForcedAligner is Now Open Sourced](https://qwen.ai/blog?id=qwen3asr)
 - [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)
 
-Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [Open models](../../business-tech-analysis/references/sources.md#open-models). Labs (上海 AI Lab / 达摩院·通义): [China AI labs (research hubs)](../../business-tech-analysis/references/sources.md#china-ai-labs-research-hubs). Speech & image (Qwen3-ASR / FunASR / CosyVoice / FLUX / Whisper / Stable Diffusion): [Open-source speech & image](../../business-tech-analysis/references/sources.md#open-source-speech--image).
+Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [Open models](../../business-tech-analysis/references/sources.md#open-models). Research hubs (incl. 上海 AI Lab / 达摩院·通义): [Open-source & research hubs](../../business-tech-analysis/references/sources.md#open-source--research-hubs-required). Speech & image (Qwen3-ASR / FunASR / CosyVoice / FLUX / Whisper / Stable Diffusion): [Open-source speech & image](../../business-tech-analysis/references/sources.md#open-source-speech--image).
 
 ## Frontend
 

@@ -16,6 +16,8 @@
 | **Anthropic** | Claude, API, interpretability | [anthropic.com/news](https://www.anthropic.com/news), [docs.anthropic.com](https://docs.anthropic.com/) |
 | **Vercel** | AI SDK, Next.js, DX | [vercel.com/blog](https://vercel.com/blog), [sdk.vercel.ai](https://sdk.vercel.ai/) |
 | **Cursor** | IDE agent product, pricing | [cursor.com/changelog](https://cursor.com/changelog), [cursor.com/blog](https://cursor.com/blog) |
+| **上海人工智能实验室** | Intern / AI4S / open research | [shlab.org.cn](https://www.shlab.org.cn/) |
+| **阿里达摩院 / 通义** | Qwen, industry AI | [damo.alibaba.com](https://damo.alibaba.com/) · [qwen.ai](https://qwen.ai/) |
 
 ## Open-source & research hubs (required)
 
@@ -33,6 +35,8 @@ Scan **research pages + GitHub orgs** for new papers, code drops, model releases
 | **Anthropic** | [anthropic.com/research](https://www.anthropic.com/research) | [github.com/anthropics](https://github.com/anthropics) · [anthropic-sdk-python](https://github.com/anthropics/anthropic-sdk-python) · [courses](https://github.com/anthropics/courses) |
 | **Vercel** | Product research via blog/docs (AI SDK) | [github.com/vercel](https://github.com/vercel) · [ai](https://github.com/vercel/ai) (AI SDK) · [next.js](https://github.com/vercel/next.js) |
 | **Cursor** | Product/engineering via changelog & blog | [github.com/getcursor](https://github.com/getcursor) · [cursor.com/changelog](https://cursor.com/changelog) (primary); note limited public research repos |
+| **上海人工智能实验室** | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) · [OpenGVLab](https://github.com/OpenGVLab) |
+| **阿里达摩院 / 通义** | [damo.alibaba.com](https://damo.alibaba.com/) · [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
 
 ## Open models
 
@@ -48,18 +52,9 @@ Core open-model hubs for commit/PR **References** (paper + HF + official release
 | **Gemma** | [arXiv search: Gemma](https://arxiv.org/search/?query=Gemma&searchtype=all) · [Gemma 2 report](https://arxiv.org/abs/2408.00118) | [huggingface.co/google](https://huggingface.co/google) · [Gemma models](https://huggingface.co/models?search=gemma) | [ai.google.dev/gemma](https://ai.google.dev/gemma) | [google-deepmind/gemma](https://github.com/google-deepmind/gemma) |
 | **Mistral** | [arXiv search: Mistral](https://arxiv.org/search/?query=Mistral&searchtype=all) · [Mixtral paper](https://arxiv.org/abs/2401.04088) | [huggingface.co/mistralai](https://huggingface.co/mistralai) | [docs.mistral.ai](https://docs.mistral.ai/) | [github.com/mistralai](https://github.com/mistralai) |
 
-## China AI labs (research hubs)
-
-Top two domestic labs for research scanning (national + industry). Aligns with China-first production (DeepSeek primary + Qwen secondary). Same ~30–90 day window.
-
-| Lab | Focus | Research / site | OSS / GitHub |
-|-----|-------|-----------------|--------------|
-| **上海人工智能实验室** | National AI research / Intern / AI4S | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) · [OpenGVLab](https://github.com/OpenGVLab) |
-| **阿里达摩院 / 通义** | Industry frontier / Qwen | [damo.alibaba.com](https://damo.alibaba.com/) · [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
-
 ## Open-source speech & image
 
-local + prod speech/TTS/image defaults (open weights). Prefer self-host or OpenAI-compatible gateways; DashScope commercial APIs are optional fallback only.
+local + prod speech/TTS/image defaults (open weights). Prefer self-host or OpenAI-compatible gateways; commercial hosted APIs are optional fallback only.
 
 | Org / project | Research / docs | HF | GitHub |
 |---------------|-----------------|-----|--------|
