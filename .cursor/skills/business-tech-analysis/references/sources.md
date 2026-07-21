@@ -34,6 +34,17 @@ Scan **research pages + GitHub orgs** for new papers, code drops, model releases
 | **Vercel** | Product research via blog/docs (AI SDK) | [github.com/vercel](https://github.com/vercel) · [ai](https://github.com/vercel/ai) (AI SDK) · [next.js](https://github.com/vercel/next.js) |
 | **Cursor** | Product/engineering via changelog & blog | [github.com/getcursor](https://github.com/getcursor) · [cursor.com/changelog](https://cursor.com/changelog) (primary); note limited public research repos |
 
+## China open models (Qwen-style refs)
+
+Core domestic open-model hubs for commit/PR **References** (paper + HF + official release + GitHub). Scan with the same ~30–90 day window as other orgs.
+
+| Org | Research | HF | Blog / docs | GitHub |
+|-----|----------|-----|-------------|--------|
+| **Qwen** | [arXiv search: Qwen](https://arxiv.org/search/?query=Qwen&searchtype=all) | [huggingface.co/Qwen](https://huggingface.co/Qwen) | [qwen.ai](https://qwen.ai/) | [github.com/QwenLM](https://github.com/QwenLM) |
+| **DeepSeek** | [DeepSeek-V3](https://arxiv.org/abs/2412.19437) | [huggingface.co/deepseek-ai](https://huggingface.co/deepseek-ai) | [api-docs.deepseek.com](https://api-docs.deepseek.com/) | [github.com/deepseek-ai](https://github.com/deepseek-ai) |
+| **智谱 GLM** | [arXiv search: GLM](https://arxiv.org/search/?query=GLM-4&searchtype=all) | [huggingface.co/THUDM](https://huggingface.co/THUDM) | [zhipuai.cn](https://www.zhipuai.cn/) | [github.com/THUDM](https://github.com/THUDM) |
+| **Intern** | [arXiv search: InternLM](https://arxiv.org/search/?query=InternLM&searchtype=all) | [huggingface.co/internlm](https://huggingface.co/internlm) | [shlab.org.cn](https://www.shlab.org.cn/) | [github.com/InternLM](https://github.com/InternLM) |
+
 ## Open models & papers (required)
 
 | Source | What to check | URL |

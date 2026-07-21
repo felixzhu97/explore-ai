@@ -20,6 +20,8 @@ Example reference set:
 - [Qwen3-ASR & Qwen3-ForcedAligner is Now Open Sourced](https://qwen.ai/blog?id=qwen3asr)
 - [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)
 
+Domestic core open models (Qwen / DeepSeek / 智谱 GLM / Intern): [China open models (Qwen-style refs)](../../business-tech-analysis/references/sources.md#china-open-models-qwen-style-refs).
+
 ## Frontend
 
 | Library | Version | Official Docs |
