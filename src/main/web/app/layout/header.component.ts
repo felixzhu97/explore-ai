@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, output } from '@angular/core';
-import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardButtonComponent } from '../shared/components/button';
 import { LanguagePickerComponent } from './components/language-picker/language-picker.component';
 
 @Component({

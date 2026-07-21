@@ -74,6 +74,12 @@ export default defineConfig([
           { type: 'attribute', prefix: ['app', 'z', 'zard'], style: 'camelCase' },
         ],
       ],
+      // Covered by angularCompilerOptions.strictStandalone — avoid double reporting
+      '@angular-eslint/prefer-standalone': 'off',
+      // Modern Angular style (explicit; prefer-inject also in tsRecommended)
+      '@angular-eslint/prefer-inject': 'error',
+      '@angular-eslint/prefer-host-metadata-property': 'error',
+      '@angular-eslint/prefer-output-emitter-ref': 'error',
       '@angular-eslint/no-uncalled-signals': 'error',
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
       '@angular-eslint/prefer-signal-model': 'error',
@@ -121,11 +127,26 @@ export default defineConfig([
       '@angular-eslint/template/no-empty-control-flow': 'error',
       '@angular-eslint/template/no-positive-tabindex': 'error',
       '@angular-eslint/template/prefer-at-empty': 'error',
+      '@angular-eslint/template/prefer-class-binding': 'error',
       '@angular-eslint/template/prefer-contextual-for-variables': 'error',
       '@angular-eslint/template/prefer-control-flow': 'error',
+      '@angular-eslint/template/prefer-ngsrc': 'error',
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
       '@angular-eslint/template/prefer-static-string-properties': 'error',
       '@angular-eslint/template/prefer-template-literal': 'error',
+    },
+  },
+  // Dynamic / base64 previews cannot use NgOptimizedImage
+  {
+    files: [
+      '**/media-shell/**',
+      '**/chat-shell/**',
+      '**/image-zoom/**',
+      '**/vision/**',
+      '**/rag.page.html',
+    ],
+    rules: {
+      '@angular-eslint/template/prefer-ngsrc': 'off',
     },
   },
   // https://www.npmjs.com/package/eslint-plugin-tailwindcss
@@ -143,19 +164,17 @@ export default defineConfig([
     // https://github.com/francoismassart/eslint-plugin-tailwindcss/tree/4edd2dc560e52f99f9268d6380f00942a601cc4d/docs/rules
     rules: {
       // https://github.com/francoismassart/eslint-plugin-tailwindcss/blob/HEAD/docs/rules/classnames-order.md
-      'tailwindcss/classnames-order': 'warn',
-      'tailwindcss/enforces-shorthand': "warn",
-      'tailwindcss/enforces-negative-arbitrary-values': "warn",
-      'tailwindcss/no-arbitrary-value': "off",
-      'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
-      'tailwindcss/no-contradicting-classname': 'warn',
+      'tailwindcss/classnames-order': 'error',
+      'tailwindcss/enforces-shorthand': 'error',
+      'tailwindcss/enforces-negative-arbitrary-values': 'error',
+      'tailwindcss/no-arbitrary-value': 'off',
+      'tailwindcss/no-unnecessary-arbitrary-value': 'error',
+      'tailwindcss/no-contradicting-classname': 'error',
       'tailwindcss/no-custom-classname': [
-        'warn',
+        'error',
         {
           whitelist: [
-            'custom-*',
-            'font-inherit',
-            'transition-width',
+            'custom-.*',
           ],
         },
       ],

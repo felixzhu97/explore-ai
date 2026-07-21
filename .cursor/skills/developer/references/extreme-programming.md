@@ -8,7 +8,7 @@ Map XP to this repo. Do not invent a second process — reuse DDD / BDD / TDD / 
 
 | Value | Practice here |
 |-------|----------------|
-| Communication | Domain Glossary Preferred Terms; AC in business language |
+| Communication | Glossary Preferred Terms; AC in business language |
 | Simplicity | Smallest correct change; YAGNI |
 | Feedback | TDD + CI green before merge; Customer / AC review |
 | Courage | Refactor while green; delete dead code in scope |
@@ -20,7 +20,7 @@ Map XP to this repo. Do not invent a second process — reuse DDD / BDD / TDD / 
 |-------------|---------|
 | Planning Game | Shape work with [Product Owner](../../product-owner/SKILL.md); estimate SP; behavior first, design second |
 | Small Releases | One outcome per PR; Chain PRs when dependent; no unrelated piles |
-| Metaphor | [Domain Glossary](../../../../docs/Domain-Glossary.md) as shared language |
+| Metaphor | [Glossary](../../../../docs/Glossary.md) as shared language |
 | Simple Design | Pass tests with the simplest structure; no speculative abstractions |
 | Test-First / TDD | [testing](testing.md) — Red → Green → Refactor |
 | Refactoring | Improve design only while tests stay green; keep diffs reviewable |

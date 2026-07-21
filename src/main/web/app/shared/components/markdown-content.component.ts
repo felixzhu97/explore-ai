@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { MarkdownService } from '@shared/utils/markdown.service';
+import { MarkdownService } from '../utils/markdown.service';
 
 @Component({
   selector: 'app-markdown-content',

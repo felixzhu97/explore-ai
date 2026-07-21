@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input, ViewEncapsulation 
 
 import type { ClassValue } from 'clsx';
 
-import { contentVariants } from '@/shared/components/layout/layout.variants';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { contentVariants } from './layout.variants';
+import { mergeClasses } from '../../utils/merge-classes';
 
 @Component({
   selector: 'z-content',

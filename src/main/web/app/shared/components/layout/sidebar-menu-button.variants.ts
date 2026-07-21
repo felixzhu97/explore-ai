@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { buttonVariants } from '@/shared/components/button/button.variants';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { buttonVariants } from '../button/button.variants';
+import { mergeClasses } from '../../utils/merge-classes';
 
 export const sidebarMenuButtonVariants = cva(
   mergeClasses(

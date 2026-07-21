@@ -4,8 +4,8 @@ import {
   input,
   output,
 } from '@angular/core';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardSidebarMenuButtonDirective } from '@/shared/components/layout/sidebar-menu-button.directive';
+import { ZardButtonComponent } from '../../../shared/components/button';
+import { ZardSidebarMenuButtonDirective } from '../../../shared/components/layout/sidebar-menu-button.directive';
 import type { SidebarSession } from '../../sidebar-session.model';
 
 @Component({

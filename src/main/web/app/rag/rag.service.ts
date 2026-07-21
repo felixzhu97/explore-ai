@@ -1,8 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ApiRagService } from '@core/services/api-rag.service';
-import { NotificationService } from '@core/services/notification.service';
-import { I18nService } from '@core/i18n';
-import { SourceDocument, RagQuery } from './rag.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, catchError } from 'rxjs';
+import { API_BASE_URL } from '../core/api.constants';
+import { NotificationService } from '../core/notification.service';
+import { I18nService } from '../core/i18n';
+import { streamSsePost } from '../core/streaming/sse-client';
+import { SourceDocument, RagQuery, DocumentListResponse } from './rag.model';
 
 export interface RagDocumentItem {
   id: string;
@@ -31,7 +34,7 @@ const DEFAULT_TOP_K = 5;
 
 @Injectable({ providedIn: 'root' })
 export class RagService {
-  private readonly api = inject(ApiRagService);
+  private readonly http = inject(HttpClient);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18nService);
   private readonly sessionId = `session_${Date.now()}`;
@@ -62,7 +65,7 @@ export class RagService {
 
   fetchAvailableDocs(): void {
     this.isLoadingDocs.set(true);
-    this.api.getDocuments().subscribe({
+    this.getDocuments().subscribe({
       next: (data) => {
         const docs = (data.documents || []).map(d => ({
           id: d.id,
@@ -116,7 +119,7 @@ export class RagService {
       return new Set(ids).add(docId);
     });
 
-    this.api.deleteDocument(docId).subscribe({
+    this.deleteDocumentRequest(docId).subscribe({
       next: () => {
         setTimeout(() => {
           this.availableDocs.update(docs => docs.filter(d => d.id !== docId));
@@ -210,7 +213,7 @@ export class RagService {
         return next;
       });
 
-      this.api.uploadDocument(file).subscribe({
+      this.uploadDocument(file).subscribe({
         next: () => {
           this.uploadStatuses.update((statuses) => {
             const next = new Map(statuses);
@@ -309,7 +312,7 @@ export class RagService {
       requestBody.images = images;
     }
 
-    this.api.ragChat(
+    this.ragChat(
       requestBody,
       (chunk: string) => {
         this.messages.update(msgs => msgs.map(msg => msg.id === assistantMessageId
@@ -349,6 +352,61 @@ export class RagService {
         this.isLoading.set(false);
       },
     );
+  }
+
+  private getDocuments(): Observable<DocumentListResponse> {
+    return this.http
+      .get<DocumentListResponse>(`${API_BASE_URL}/rag/documents`)
+      .pipe(catchError(() => of({ documents: [] })));
+  }
+
+  private uploadDocument(file: File, title?: string): Observable<{ id: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', title ?? file.name);
+    return this.http.post<{ id: string }>(`${API_BASE_URL}/rag/documents/upload`, formData);
+  }
+
+  private deleteDocumentRequest(docId: string): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/rag/documents/${docId}`);
+  }
+
+  private ragChat(
+    query: RagQuery,
+    onChunk: (text: string) => void,
+    onSources: (sources: SourceDocument[]) => void,
+    onDone: () => void,
+    onError: (err: Error) => void,
+  ): { abort: () => void } {
+    return streamSsePost(`${API_BASE_URL}/rag/chat/stream`, query, {
+      onEvent: ({ eventType, data }) => {
+        if (data === '[DONE]') {
+          onDone();
+          return true;
+        }
+
+        if (data.startsWith('Error:')) {
+          onError(new Error(data.slice(6)));
+          return true;
+        }
+
+        if (eventType === 'sources') {
+          try {
+            const sources = JSON.parse(data);
+            onSources(Array.isArray(sources) ? sources : []);
+          } catch {
+            /* ignore */
+          }
+          return false;
+        }
+
+        const displayData = data.replace(/<br\s*\/?>/gi, '\n');
+        onChunk(displayData);
+        return false;
+      },
+      onDone,
+      onError,
+    });
   }
 
   toggleSources(messageId: string): void {

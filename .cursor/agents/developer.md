@@ -30,7 +30,7 @@ com.ai.{module}
 - 私有构造函数 + 工厂方法
 - 行为在领域对象内（充血）；避免贫血模型
 - Repository 接口在 `domain/repository/`（禁止 `*Port` / `domain/port`）
-- 变量与方法命名必须对齐 [领域术语表](../../docs/Domain-Glossary.md) Preferred Term；细则见 developer skill → `references/clean-code-naming.md`
+- 变量与方法命名必须对齐 [领域术语表](../../docs/Glossary.md) Preferred Term；细则见 developer skill → `references/clean-code-naming.md`
 - 异常使用业务异常类
 
 **示例 - 领域模型**：
@@ -84,7 +84,7 @@ src/main/web/app/{feature}/
 - 组件用 standalone
 - 依赖注入用 `inject()`
 - 类型优先于接口
-- 命名对齐 Domain Glossary Preferred Term + clean-code-naming（禁止 `data`/`tmp`/`handle` 及术语同义词）
+- 命名对齐 Glossary Preferred Term + clean-code-naming（禁止 `data`/`tmp`/`handle` 及术语同义词）
 
 **示例 - Service**：
 ```typescript

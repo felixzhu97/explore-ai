@@ -34,15 +34,15 @@ import { lucideChevronDown } from '@ng-icons/lucide';
 import type { ClassValue } from 'clsx';
 import { filter } from 'rxjs';
 
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
+import { ZardBadgeComponent } from '../badge';
+import { ZardSelectItemComponent } from './select-item.component';
 import {
   selectContentVariants,
   selectTriggerVariants,
   selectVariants,
   type ZardSelectSizeVariants,
-} from '@/shared/components/select/select.variants';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+} from './select.variants';
+import { mergeClasses } from '../../utils/merge-classes';
 
 type OnTouchedType = () => void;
 type OnChangeType = (value: string) => void;

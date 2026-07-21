@@ -1,40 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpErrorResponse } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
-import { ApiMediaService } from '@core/services/api-media.service';
-import { I18nService } from '@core/i18n';
-import { ImageZoomService } from '@shared/services/image-zoom.service';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { I18nService } from '../core/i18n';
+import { ImageZoomService } from '../shared/services/image-zoom.service';
 import { VisionService } from './vision.service';
 
 describe('VisionService', () => {
   let service: VisionService;
+  let httpMock: HttpTestingController;
   let imageZoom: { open: ReturnType<typeof vi.fn> };
-  let api: {
-    captionImage: ReturnType<typeof vi.fn>;
-    detectObjects: ReturnType<typeof vi.fn>;
-    ocrImage: ReturnType<typeof vi.fn>;
-  };
 
   beforeEach(() => {
-    api = {
-      captionImage: vi.fn(),
-      detectObjects: vi.fn(),
-      ocrImage: vi.fn(),
-    };
-
     imageZoom = { open: vi.fn() };
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [
         VisionService,
-        { provide: ApiMediaService, useValue: api },
         { provide: ImageZoomService, useValue: imageZoom },
         I18nService,
       ],
     });
 
     service = TestBed.inject(VisionService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   it('should start with caption task active', () => {
@@ -88,14 +77,16 @@ describe('VisionService', () => {
 
   it('should call caption API for caption task', async () => {
     const file = new File(['data'], 'photo.png', { type: 'image/png' });
-    api.captionImage.mockReturnValue(of({ caption: 'A cat', processingTimeMs: 120 }));
 
     service.processFile(file);
     await vi.waitFor(() => expect(service.currentState().file).toBe(file));
 
     service.analyze();
 
-    expect(api.captionImage).toHaveBeenCalledWith(file);
+    const req = httpMock.expectOne('/api/vision/caption');
+    expect(req.request.method).toBe('POST');
+    req.flush({ caption: 'A cat', processingTimeMs: 120 });
+
     await vi.waitFor(() => {
       expect(service.currentState().result?.caption).toBe('A cat');
       expect(service.isLoading()).toBe(false);
@@ -104,17 +95,16 @@ describe('VisionService', () => {
 
   it('should map provider unavailable errors', async () => {
     const file = new File(['data'], 'photo.png', { type: 'image/png' });
-    api.captionImage.mockReturnValue(
-      throwError(() => new HttpErrorResponse({
-        status: 503,
-        error: { errorCode: 'VISION_PROVIDER_UNAVAILABLE' },
-      })),
-    );
 
     service.processFile(file);
     await vi.waitFor(() => expect(service.currentState().file).toBe(file));
 
     service.analyze();
+
+    httpMock.expectOne('/api/vision/caption').flush(
+      { errorCode: 'VISION_PROVIDER_UNAVAILABLE' },
+      { status: 503, statusText: 'Unavailable' },
+    );
 
     await vi.waitFor(() => {
       expect(service.currentState().error).toContain('unavailable');

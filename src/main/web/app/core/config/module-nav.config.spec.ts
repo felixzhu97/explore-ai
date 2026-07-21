@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { FEATURE_FLAG_KEYS } from '@core/config/feature-flag-keys';
-import { isNavTabEnabled, MODULE_NAV_TABS } from '@core/config/module-nav.config';
+import { FEATURE_FLAG_KEYS } from './feature-flag-keys';
+import { isNavTabEnabled, MODULE_NAV_TABS } from './module-nav.config';
 
 describe('module-nav.config', () => {
   const visionTab = MODULE_NAV_TABS.find(tab => tab.key === 'vision');

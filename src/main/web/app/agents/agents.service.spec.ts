@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AgentsService } from './agents.service';
-import { API_BASE_URL } from '@core/services/api.constants';
+import { API_BASE_URL } from '../core/api.constants';
 
 describe('AgentsService', () => {
   let service: AgentsService;

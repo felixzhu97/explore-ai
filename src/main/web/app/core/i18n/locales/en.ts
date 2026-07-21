@@ -15,7 +15,7 @@ export const en: Translations = {
     mcp: 'MCP',
     eval: 'Eval',
     speechToText: 'Speech to Text',
-    supervisor: 'Supervisor',
+    agents: 'Agents',
     kubernetes: 'K8s',
     monitoring: 'Monitoring',
     aiinfra: 'AI Infra',

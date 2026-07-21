@@ -4,8 +4,8 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleAlert } from '@ng-icons/lucide';
 import type { ClassValue } from 'clsx';
 
-import { ZardStringTemplateOutletDirective } from '@/shared/core/directives/string-template-outlet/string-template-outlet.directive';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { ZardStringTemplateOutletDirective } from '../../zard/directives/string-template-outlet/string-template-outlet.directive';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import {
   alertDescriptionVariants,

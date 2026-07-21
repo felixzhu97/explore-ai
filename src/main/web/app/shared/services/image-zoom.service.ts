@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { ZardDialogService } from '@/shared/components/dialog';
-import { ImageZoomDialogComponent } from '@/shared/components/image-zoom/image-zoom-dialog.component';
+import { ZardDialogService } from '../components/dialog';
+import { ImageZoomDialogComponent } from '../components/image-zoom/image-zoom-dialog.component';
 
 @Injectable({ providedIn: 'root' })
 export class ImageZoomService {

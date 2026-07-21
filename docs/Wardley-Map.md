@@ -169,5 +169,5 @@ quadrantChart
 
 - [Wardley Maps - Simon Wardley](https://wardleymaps.com/)
 - [On Wardley Maps - Medium](https://medium.com/wardleymaps)
-- [C4 模型文档](./c4/README.md)
+- [C4 模型文档](./c4-model/README.md)
 - [用户故事地图](./User-Story-Map.md)

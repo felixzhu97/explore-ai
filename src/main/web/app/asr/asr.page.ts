@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnDestroy } from '@angular/core';
 import { AsrService } from './asr.service';
-import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardButtonComponent } from '../shared/components/button';
 
 @Component({
   selector: 'app-asr-page',

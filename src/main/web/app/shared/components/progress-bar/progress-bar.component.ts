@@ -9,7 +9,7 @@ import {
 
 import type { ClassValue } from 'clsx';
 
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import {
   containerProgressBarVariants,

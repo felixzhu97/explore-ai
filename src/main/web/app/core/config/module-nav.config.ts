@@ -1,6 +1,6 @@
-import type { Translations } from '@core/i18n/translations.types';
-import { FEATURE_FLAG_KEYS, type FeatureFlagKey } from '@core/config/feature-flag-keys';
-import type { FeatureFlagService } from '@core/services/feature-flag.service';
+import type { Translations } from '../i18n/translations.types';
+import { FEATURE_FLAG_KEYS, type FeatureFlagKey } from './feature-flag-keys';
+import type { FeatureFlagService } from '../feature-flag.service';
 
 export interface ModuleNavTab {
   key: string;
@@ -15,7 +15,7 @@ export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'mcp', labelKey: 'mcp', path: '/mcp', flagKey: FEATURE_FLAG_KEYS.MODULE_MCP },
   { key: 'eval', labelKey: 'eval', path: '/eval', flagKey: FEATURE_FLAG_KEYS.MODULE_EVAL },
   { key: 'asr', labelKey: 'speechToText', path: '/asr', flagKey: FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR },
-  { key: 'agents', labelKey: 'supervisor', path: '/agents', flagKey: FEATURE_FLAG_KEYS.MODULE_AGENTS },
+  { key: 'agents', labelKey: 'agents', path: '/agents', flagKey: FEATURE_FLAG_KEYS.MODULE_AGENTS },
   { key: 'chat', labelKey: 'chat', path: '/chat' },
   { key: 'generate', labelKey: 'generation', path: '/generate' },
 ];

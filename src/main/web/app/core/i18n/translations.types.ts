@@ -5,7 +5,6 @@ export const SUPPORTED_LANGUAGES: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];
 
 /** Sidebar nav keys reserved for future modules (no route wired yet). */
 export const PLANNED_NAV_KEYS = [
-  'supervisor',
   'kubernetes',
   'monitoring',
   'aiinfra',
@@ -32,7 +31,7 @@ export interface Translations {
     mcp: string;
     eval: string;
     speechToText: string;
-    supervisor: string;
+    agents: string;
     kubernetes: string;
     monitoring: string;
     aiinfra: string;

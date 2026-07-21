@@ -5,7 +5,7 @@
     bg-sidebar text-sidebar-foreground transition-all duration-250 ease-out
     max-md:pb-[env(safe-area-inset-bottom)]
   "
-  [ngClass]="sidebarClasses()"
+  [class]="sidebarClasses()"
 >
   <div class="flex h-13 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
     @if (!collapsed()) {

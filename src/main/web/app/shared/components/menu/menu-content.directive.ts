@@ -4,7 +4,7 @@ import { computed, Directive, inject, input, type OnInit } from '@angular/core';
 
 import type { ClassValue } from 'clsx';
 
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import { menuContentVariants } from './menu.variants';
 

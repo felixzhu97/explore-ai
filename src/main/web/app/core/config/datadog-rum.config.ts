@@ -1,6 +1,6 @@
 import { ErrorHandler } from '@angular/core';
 import { datadogRum } from '@datadog/browser-rum';
-import { environment } from '@env/environment';
+import { environment } from '../../../environments/environment';
 
 let rumInitialized = false;
 

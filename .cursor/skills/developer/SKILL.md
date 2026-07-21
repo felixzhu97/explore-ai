@@ -1,6 +1,6 @@
 ---
 name: developer
-description: Feature development for this repo — XP, DDD, BDD, TDD, Domain Glossary naming, Apple HIG minimal UX, and mandatory commit/PR standards (why body + References from official docs and research). Use when implementing features, writing tests, committing, opening PRs, UI work, or DDD/TDD/BDD/XP/clean-code tasks.
+description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary naming, Apple HIG minimal UX, and mandatory commit/PR standards (why body + References from official docs and research). Use when implementing features, writing tests, committing, opening PRs, UI work, or DDD/TDD/BDD/XP/clean-code tasks.
 ---
 
 # Developer
@@ -14,7 +14,7 @@ description: Feature development for this repo — XP, DDD, BDD, TDD, Domain Glo
 1. Layers: [architecture](../../rules/architecture.mdc) — `web → application → domain ← infrastructure`
 2. No `domain/port`, `adapter/in|out`, `*Port` in new code
 3. Tests: `should_expectedResult_when_condition`
-4. Names: Domain Glossary [Preferred Term](../../../docs/Domain-Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
+4. Names: Glossary [Preferred Term](../../../docs/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
 6. **Commit / PR / Jira / branches**: always reuse §5 + [Product Owner](../product-owner/SKILL.md); branch `<type>/AI-<key>` (type matches commit); References = official docs + research
 7. **XP**: follow [extreme-programming](references/extreme-programming.md) — Simple Design / YAGNI, CI green, small releases, customer / AC feedback
@@ -32,7 +32,7 @@ Detail: [extreme-programming](references/extreme-programming.md)
 
 Detail: [testing](references/testing.md)
 
-**BDD:** one scenario, business language, Given / When / Then (outcomes, not framework calls). Align terms with Domain Glossary.
+**BDD:** one scenario, business language, Given / When / Then (outcomes, not framework calls). Align terms with Glossary.
 
 **TDD:** Red → Green → Refactor; AAA; no private-method tests; no I/O in unit tests.
 
@@ -206,7 +206,7 @@ PR **References** must match the commit References (same links). Use the same of
 |------|-------|
 | Extreme Programming | [extreme-programming](references/extreme-programming.md) |
 | Architecture | [architecture rule](../../rules/architecture.mdc) |
-| Glossary | [Domain-Glossary](../../../docs/Domain-Glossary.md) |
+| Glossary | [Glossary](../../../docs/Glossary.md) |
 | Testing core | [testing](references/testing.md) |
 | Angular depth | [angular-developer](../angular-developer/SKILL.md) |
 | Spring AI | [spring-ai](../spring-ai/SKILL.md) |

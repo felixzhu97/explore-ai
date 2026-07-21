@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, contentChildren, input, V
 
 import type { ClassValue } from 'clsx';
 
-import { layoutVariants, type LayoutVariants } from '@/shared/components/layout/layout.variants';
-import { SidebarComponent } from '@/shared/components/layout/sidebar.component';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+import { layoutVariants, type LayoutVariants } from './layout.variants';
+import { SidebarComponent } from './sidebar.component';
+import { mergeClasses } from '../../utils/merge-classes';
 
 @Component({
   selector: 'z-layout',

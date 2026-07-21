@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideImage } from '@ng-icons/lucide';
-import { ZardCardComponent } from '@/shared/components/card';
-import { ZardSkeletonComponent } from '@/shared/components/skeleton';
+import { ZardCardComponent } from '../card';
+import { ZardSkeletonComponent } from '../skeleton';
 
 @Component({
   selector: 'app-media-preview-panel',

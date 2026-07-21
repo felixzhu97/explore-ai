@@ -10,27 +10,25 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideImage, lucideListChecks, lucideX } from '@ng-icons/lucide';
 import { RagService } from './rag.service';
 import {
-  ChatBubbleListComponent,
   ChatBubbleMessage,
-  ChatWelcomePanelComponent,
-} from '@shared/components/chat-shell';
-import { I18nService } from '@core/i18n';
-import { NxSenderComponent } from 'ng-zorro-x/sender';
+  ChatMessagePaneComponent,
+  ChatSenderBarComponent,
+} from '../shared/components/chat-shell';
+import { I18nService } from '../core/i18n';
 import { NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardBadgeComponent } from '../shared/components/badge';
+import { ZardButtonComponent } from '../shared/components/button';
 
 @Component({
   selector: 'app-rag-page',
   imports: [
     FormsModule,
     NgIcon,
-    NxSenderComponent,
     NzIconModule,
-    ChatWelcomePanelComponent,
-    ChatBubbleListComponent,
+    ChatMessagePaneComponent,
+    ChatSenderBarComponent,
     ZardBadgeComponent,
     ZardButtonComponent,
   ],
@@ -64,7 +62,6 @@ export class RagPageComponent implements OnInit {
       images: message.images,
       sources: message.sources,
       sourcesExpanded: this.ragService.expandedSources().has(message.id),
-      streaming: this.ragService.streamingMessageIds().has(message.id),
       assistantIcon: 'document',
     }));
   });

@@ -18,9 +18,9 @@ import {
   sidebarGroupVariants,
   sidebarTriggerVariants,
   sidebarVariants,
-} from '@/shared/components/layout/layout.variants';
-import { ZardStringTemplateOutletDirective } from '@/shared/core/directives/string-template-outlet/string-template-outlet.directive';
-import { mergeClasses } from '@/shared/utils/merge-classes';
+} from './layout.variants';
+import { ZardStringTemplateOutletDirective } from '../../zard/directives/string-template-outlet/string-template-outlet.directive';
+import { mergeClasses } from '../../utils/merge-classes';
 
 @Component({
   selector: 'z-sidebar',

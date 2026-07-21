@@ -7,7 +7,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { NotificationService } from '@core/services/notification.service';
+import { NotificationService } from '../notification.service';
 
 export interface AppError {
   code: string;

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout';
-import { FEATURE_FLAG_KEYS } from '@core/config/feature-flag-keys';
-import { moduleEnabledGuard } from '@core/guards/module-enabled.guard';
+import { FEATURE_FLAG_KEYS } from './core/config/feature-flag-keys';
+import { moduleEnabledGuard } from './core/guards/module-enabled.guard';
 
 export const routes: Routes = [
   {
@@ -40,7 +40,7 @@ export const routes: Routes = [
       },
       {
         path: 'chat',
-        loadComponent: () => import('./ai-hub/chat/chat.component').then(m => m.ChatTabComponent),
+        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
       },
       {
         path: 'generate',
@@ -49,11 +49,11 @@ export const routes: Routes = [
           { path: '', redirectTo: 'image', pathMatch: 'full' },
           {
             path: 'image',
-            loadComponent: () => import('./ai-hub/image/image.component').then(m => m.ImageComponent),
+            loadComponent: () => import('./generate/image/image.page').then(m => m.ImagePage),
           },
           {
             path: 'tts',
-            loadComponent: () => import('./ai-hub/tts/tts.component').then(m => m.TtsPageComponent),
+            loadComponent: () => import('./generate/tts/tts.page').then(m => m.TtsPage),
           },
         ],
       },

@@ -52,7 +52,7 @@ describe('i18n.model', () => {
         'mcp',
         'eval',
         'speechToText',
-        'supervisor',
+        'agents',
         'kubernetes',
         'monitoring',
         'aiinfra',

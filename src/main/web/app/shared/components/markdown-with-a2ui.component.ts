@@ -9,8 +9,8 @@ import {
   untracked,
 } from '@angular/core';
 import { A2uiRendererService, SurfaceComponent } from '@a2ui/angular/v0_9';
-import { MarkdownContentComponent } from '@shared/components/markdown-content.component';
-import { splitMarkdownAndA2ui, type ContentSegment } from '@shared/utils/a2ui-fence';
+import { MarkdownContentComponent } from './markdown-content.component';
+import { splitMarkdownAndA2ui, type ContentSegment } from '../utils/a2ui-fence';
 import { EXPLORE_CHAT_CATALOG_ID } from '../../a2ui/catalog.constants';
 
 @Component({

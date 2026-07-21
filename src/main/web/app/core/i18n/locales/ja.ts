@@ -15,7 +15,7 @@ export const ja: Translations = {
     mcp: 'MCP',
     eval: '評価',
     speechToText: '音声認識',
-    supervisor: 'Supervisor',
+    agents: 'Agents',
     kubernetes: 'K8s',
     monitoring: '監視',
     aiinfra: 'AI インフラ',

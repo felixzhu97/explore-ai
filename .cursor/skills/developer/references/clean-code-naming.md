@@ -2,9 +2,9 @@
 
 > Based on Robert C. Martin's *Clean Code*, plus this repo's **Ubiquitous Language**.
 
-## Domain Glossary first (required)
+## Glossary first (required)
 
-Canonical source: [docs/Domain-Glossary.md](../../../../docs/Domain-Glossary.md)
+Canonical source: [docs/Glossary.md](../../../../docs/Glossary.md)
 
 | Rule | Detail |
 |------|--------|
@@ -18,7 +18,7 @@ Canonical source: [docs/Domain-Glossary.md](../../../../docs/Domain-Glossary.md)
 Conversation conv = store.get(id);
 conv.setClosed(true);
 
-// ✅ GOOD — Preferred Terms from Domain Glossary (Chat Domain)
+// ✅ GOOD — Preferred Terms from Glossary (Chat)
 ChatSession chatSession = repository.findById(chatSessionId).orElseThrow();
 chatSession.archive();
 ```
