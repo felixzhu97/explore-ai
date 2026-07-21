@@ -131,6 +131,19 @@ Prefer **specific** pages, not homepages. Search the web in real time when neede
 
 Avoid: random blogs, undated tweets, marketing landing pages (unless no primary source exists — then note why).
 
+#### AI / model reference set (required when relevant)
+
+For model, benchmark, ASR / TTS / LLM, RAG, agent, or algorithm-related changes, the reference set must be more specific than a generic docs link.
+
+When these source types exist, include all of them in both the commit and the PR:
+
+1. One **academic** source, preferably the arXiv abs page or official paper page
+2. One **Hugging Face** model, collection, or paper page
+3. One official **vendor blog**, release note, or announcement page
+4. The upstream **GitHub repository** or official implementation docs when they are the implementation source
+
+For framework or dependency-only changes, keep using official docs first. For AI / model changes, prefer the full reference set above over a single docs link.
+
 ```
 <type>: <short description>
 
@@ -145,21 +158,27 @@ Types: `feat` | `fix` | `refactor` | `docs` | `test` | `chore` | `perf` | `ci`
 Example:
 
 ```
-feat: add session archive for inactive chats
+ docs: add Qwen3-ASR reference guidance to PR skill
 
-Users need to archive stale sessions so the list stays focused on active work.
+Contributors need a consistent citation set for model-related changes so commits and PRs point to the paper, release notes, distribution page, and upstream implementation.
 
 References:
-- [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/reference/)
+- [Qwen3-ASR Technical Report](https://arxiv.org/abs/2601.21337)
+- [Qwen3-ASR - a Qwen Collection](https://huggingface.co/collections/Qwen/qwen3-asr)
+- [Qwen3-ASR & Qwen3-ForcedAligner is Now Open Sourced](https://qwen.ai/blog?id=qwen3asr)
+- [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)
 ```
 
 PR body (no markdown headings — plain sections only):
 
 ```
-<1–3 sentences: what changed and why>
+This change updates the commit and PR skill so model-related work cites a full reference set instead of a single generic docs link. It makes AI-facing changes easier to review and trace back to the paper, release notes, distribution page, and source implementation.
 
 References:
-- [Title](URL)
+- [Qwen3-ASR Technical Report](https://arxiv.org/abs/2601.21337)
+- [Qwen3-ASR - a Qwen Collection](https://huggingface.co/collections/Qwen/qwen3-asr)
+- [Qwen3-ASR & Qwen3-ForcedAligner is Now Open Sourced](https://qwen.ai/blog?id=qwen3asr)
+- [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)
 
 Jira:
 - https://felixzhu.atlassian.net/browse/AI-XXX

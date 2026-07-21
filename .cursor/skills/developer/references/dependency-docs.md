@@ -2,6 +2,24 @@
 
 When referencing dependencies **or research** in commits or PRs, use official documentation and research URLs. Keep this list updated when adding new dependencies. Prefer specific documentation pages over homepages. For lab research / open-source hubs, also use [business-tech-analysis sources](../../business-tech-analysis/references/sources.md) and arXiv abs pages.
 
+## AI / Model reference set
+
+For model-driven changes such as ASR, TTS, LLM, RAG, agent, benchmark, or algorithm updates, do not stop at a single docs link.
+
+When available, use this full reference set in both the commit and PR:
+
+1. One **academic** source, preferably the arXiv abs page or official paper page
+2. One **Hugging Face** model, collection, or paper page
+3. One official **vendor blog**, release note, or announcement page
+4. The upstream **GitHub repository** or official implementation docs when they are the implementation source
+
+Example reference set:
+
+- [Qwen3-ASR Technical Report](https://arxiv.org/abs/2601.21337)
+- [Qwen3-ASR - a Qwen Collection](https://huggingface.co/collections/Qwen/qwen3-asr)
+- [Qwen3-ASR & Qwen3-ForcedAligner is Now Open Sourced](https://qwen.ai/blog?id=qwen3asr)
+- [QwenLM/Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR)
+
 ## Frontend
 
 | Library | Version | Official Docs |
