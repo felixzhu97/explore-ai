@@ -5,7 +5,6 @@ import com.ai.common.application.llm.TextChatOptions;
 import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
 import com.ai.workflow.domain.model.GenerationStep;
 import com.ai.workflow.domain.service.EvaluatorOptimizerWorkflow;
-import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,11 +39,21 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
     private final String evaluatorPrompt;
     private final int maxIterations;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public SpringAiEvaluatorOptimizerWorkflow(ChatClientProvider chatClientProvider) {
         this(chatClientProvider, DEFAULT_GENERATOR_PROMPT, DEFAULT_EVALUATOR_PROMPT, DEFAULT_MAX_ITERATIONS);
     }
 
-    SpringAiEvaluatorOptimizerWorkflow(
+    static SpringAiEvaluatorOptimizerWorkflow forTest(
+            ChatClientProvider chatClientProvider,
+            String generatorPrompt,
+            String evaluatorPrompt,
+            int maxIterations) {
+        return new SpringAiEvaluatorOptimizerWorkflow(
+                chatClientProvider, generatorPrompt, evaluatorPrompt, maxIterations);
+    }
+
+    private SpringAiEvaluatorOptimizerWorkflow(
             ChatClientProvider chatClientProvider,
             String generatorPrompt,
             String evaluatorPrompt,
@@ -96,7 +105,6 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
         GenerationEntity entity = chatClientProvider
                 .createBareStateless(TextChatOptions.defaults())
                 .prompt()
-                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(userMessage)
                 .call()
                 .entity(GenerationEntity.class);
@@ -112,7 +120,6 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
         EvaluationEntity entity = chatClientProvider
                 .createBareStateless(TextChatOptions.defaults())
                 .prompt()
-                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(userMessage)
                 .call()
                 .entity(EvaluationEntity.class);

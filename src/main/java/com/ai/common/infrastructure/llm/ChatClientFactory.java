@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class ChatClientFactory implements ChatClientProvider {
@@ -123,13 +125,21 @@ public class ChatClientFactory implements ChatClientProvider {
     private ToolCallback[] notifyingCallbacks(String channelId) {
         String id = channelId == null ? "" : channelId;
         List<ToolCallback> callbacks = new ArrayList<>();
+        Set<String> names = new HashSet<>();
         for (ToolCallback callback : localToolCallbacks) {
-            callbacks.add(new NotifyingToolCallback(callback, id));
+            String name = callback.getToolDefinition().name();
+            if (names.add(name)) {
+                callbacks.add(new NotifyingToolCallback(callback, id));
+            }
         }
+        // Prefer local @Tool over MCP when names collide (DeepSeek/Spring AI reject duplicates).
         ToolCallback[] mcp = mcpToolCallbacks.getIfAvailable();
         if (mcp != null) {
             for (ToolCallback callback : mcp) {
-                callbacks.add(new NotifyingToolCallback(callback, id));
+                String name = callback.getToolDefinition().name();
+                if (names.add(name)) {
+                    callbacks.add(new NotifyingToolCallback(callback, id));
+                }
             }
         }
         return callbacks.toArray(ToolCallback[]::new);

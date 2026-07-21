@@ -35,24 +35,37 @@ class ChatClientFactoryMcpMergeTest {
     @Test
     @DisplayName("should_build_client_when_mcp_callbacks_present")
     void should_build_client_when_mcp_callbacks_present() {
-        ToolCallback mcp = new ToolCallback() {
+        ToolCallback mcp = namedTool("fetch", "fetched");
+        ChatClientFactory factory = factoryWithMcp(new ToolCallback[]{mcp});
+        assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("should_prefer_local_tool_when_mcp_name_collides")
+    void should_prefer_local_tool_when_mcp_name_collides() {
+        ToolCallback duplicateWeather = namedTool("getWeather", "mcp-weather");
+        ChatClientFactory factory = factoryWithMcp(new ToolCallback[]{duplicateWeather});
+        assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))
+                .doesNotThrowAnyException();
+    }
+
+    private static ToolCallback namedTool(String name, String result) {
+        return new ToolCallback() {
             @Override
             public ToolDefinition getToolDefinition() {
                 return ToolDefinition.builder()
-                        .name("fetch")
-                        .description("fetch url")
+                        .name(name)
+                        .description(name)
                         .inputSchema("{}")
                         .build();
             }
 
             @Override
             public String call(String toolInput) {
-                return "fetched";
+                return result;
             }
         };
-        ChatClientFactory factory = factoryWithMcp(new ToolCallback[]{mcp});
-        assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))
-                .doesNotThrowAnyException();
     }
 
     private static ChatClientFactory factoryWithMcp(ToolCallback[] mcp) {

@@ -5,7 +5,6 @@ import com.ai.common.application.llm.TextChatOptions;
 import com.ai.workflow.domain.model.OrchestratorWorkersResult;
 import com.ai.workflow.domain.model.WorkerTask;
 import com.ai.workflow.domain.service.OrchestratorWorkersWorkflow;
-import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -63,11 +62,12 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
     private final String workerPrompt;
     private final String synthesizerPrompt;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public SpringAiOrchestratorWorkersWorkflow(ChatClientProvider chatClientProvider) {
         this(chatClientProvider, DEFAULT_ORCHESTRATOR_PROMPT, DEFAULT_WORKER_PROMPT, DEFAULT_SYNTHESIZER_PROMPT);
     }
 
-    SpringAiOrchestratorWorkersWorkflow(
+    private SpringAiOrchestratorWorkersWorkflow(
             ChatClientProvider chatClientProvider,
             String orchestratorPrompt,
             String workerPrompt,
@@ -87,7 +87,6 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
         OrchestratorPlan plan = chatClientProvider
                 .createBareStateless(TextChatOptions.defaults())
                 .prompt()
-                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(orchestratorPrompt.replace("{task}", task))
                 .call()
                 .entity(OrchestratorPlan.class);

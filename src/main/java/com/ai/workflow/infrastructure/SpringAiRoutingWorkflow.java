@@ -4,7 +4,6 @@ import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.workflow.domain.model.RoutingResult;
 import com.ai.workflow.domain.service.RoutingWorkflow;
-import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -66,7 +65,6 @@ public class SpringAiRoutingWorkflow implements RoutingWorkflow {
         RouteClassification classification = chatClientProvider
                 .createBareStateless(TextChatOptions.defaults())
                 .prompt()
-                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .user(selectorPrompt)
                 .call()
                 .entity(RouteClassification.class);

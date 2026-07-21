@@ -66,9 +66,10 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     }
 
     private ChatClient.ChatClientRequestSpec basePrompt(AgentDefinition agent, String task) {
-        // TOOLS profile merges local @Tool + MCP callbacks when toolsEnabled.
+        // BARE avoids factory-wide tool defaults; attach only this worker's tools below.
+        // (TOOLS + .tools(weatherTool) duplicated getWeather/getForecast and failed ChatOptions.)
         ChatClient client = chatClientProvider.create(
-                TextChatOptions.defaults(), ChatClientProfile.TOOLS, null);
+                TextChatOptions.defaults(), ChatClientProfile.BARE, null);
         ChatClient.ChatClientRequestSpec spec = client.prompt()
                 .system(agent.systemPrompt())
                 .user(task);
