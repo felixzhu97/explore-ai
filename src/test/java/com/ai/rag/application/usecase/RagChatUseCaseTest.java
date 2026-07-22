@@ -1,7 +1,7 @@
 package com.ai.rag.application.usecase;
 
 import com.ai.common.application.llm.TextChatOptions;
-import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.infrastructure.prompt.LocalizedRagPromptBuilder;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
@@ -47,7 +47,7 @@ class RagChatUseCaseTest {
     private ChatClient.CallResponseSpec callResponseSpec;
 
     @Mock
-    private LanguageDetectionService languageDetectionService;
+    private LocalizedRagPromptBuilder localizedRagPromptBuilder;
 
     private RagChatUseCase ragChatUseCase;
 
@@ -56,14 +56,13 @@ class RagChatUseCaseTest {
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
                 chatClientProvider,
-                languageDetectionService
+                localizedRagPromptBuilder
         );
         when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(languageDetectionService.detect(anyString())).thenReturn("en");
-        when(languageDetectionService.buildPrompt(anyString(), anyString(), anyString()))
+        when(localizedRagPromptBuilder.build(anyString(), anyString()))
                 .thenAnswer(invocation -> "prompt:" + invocation.getArgument(0));
     }
 
@@ -93,7 +92,7 @@ class RagChatUseCaseTest {
             assertThat(result.sources().getFirst().text()).isEqualTo("AI definition");
 
             verify(ragApplicationService).retrieveContext(question, null, 5);
-            verify(languageDetectionService).buildPrompt(question, "context", "en");
+            verify(localizedRagPromptBuilder).build(question, "context");
             verify(requestSpec).user("prompt:" + question);
         }
 

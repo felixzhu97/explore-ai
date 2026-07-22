@@ -6,7 +6,7 @@ import com.ai.common.util.LogSanitizer;
 import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.infrastructure.prompt.LocalizedRagPromptBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -22,15 +22,15 @@ public class RagChatUseCase {
 
     private final RagApplicationService ragApplicationService;
     private final ChatClientProvider chatClientProvider;
-    private final LanguageDetectionService languageDetectionService;
+    private final LocalizedRagPromptBuilder localizedRagPromptBuilder;
 
     public RagChatUseCase(
             RagApplicationService ragApplicationService,
             ChatClientProvider chatClientProvider,
-            LanguageDetectionService languageDetectionService) {
+            LocalizedRagPromptBuilder localizedRagPromptBuilder) {
         this.ragApplicationService = ragApplicationService;
         this.chatClientProvider = chatClientProvider;
-        this.languageDetectionService = languageDetectionService;
+        this.localizedRagPromptBuilder = localizedRagPromptBuilder;
     }
 
     public RagChatResult chat(String question, List<String> docIds, Integer topK) {
@@ -57,7 +57,6 @@ public class RagChatUseCase {
     }
 
     private String buildPrompt(String question, String context) {
-        String languageCode = languageDetectionService.detect(question);
-        return languageDetectionService.buildPrompt(question, context, languageCode);
+        return localizedRagPromptBuilder.build(question, context);
     }
 }
