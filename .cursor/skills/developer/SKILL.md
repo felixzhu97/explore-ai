@@ -16,7 +16,7 @@ description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary n
 3. Tests: `should_expectedResult_when_condition`
 4. Names: Glossary [Preferred Term](../../../docs/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
-6. **Commit / PR / Jira / branches**: always reuse §5 + [Product Owner](../product-owner/SKILL.md); branch `<type>/AI-<key>` (type matches commit); References = official docs + research
+6. **Commit / PR / Jira / branches**: always reuse §5 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
 7. **XP**: follow [extreme-programming](references/extreme-programming.md) — Simple Design / YAGNI, CI green, small releases, customer / AC feedback
 
 ## Workflow
@@ -76,37 +76,37 @@ Detail: [apple-minimal-ux](references/apple-minimal-ux.md)
 
 | Type | Pattern | Example |
 |------|---------|---------|
-| feat | `feat/AI-<key>` | `feat/AI-113` |
-| fix | `fix/AI-<key>` | `fix/AI-99` |
-| refactor | `refactor/AI-<key>` | `refactor/AI-120` |
-| docs | `docs/AI-<key>` | `docs/AI-159` |
-| test | `test/AI-<key>` | `test/AI-88` |
-| chore | `chore/AI-<key>` | `chore/AI-50` |
-| perf | `perf/AI-<key>` | `perf/AI-77` |
-| ci | `ci/AI-<key>` | `ci/AI-42` |
-| (no ticket) | `<type>/<topic>` | `chore/update-deps` |
+| feat | `feat/<slug>` | `feat/minimal-clean-prompts` |
+| fix | `fix/<slug>` | `fix/prompt-style-typo` |
+| refactor | `refactor/<slug>` | `refactor/chat-session-model` |
+| docs | `docs/<slug>` | `docs/branch-naming-slug` |
+| test | `test/<slug>` | `test/rag-prompt-builder` |
+| chore | `chore/<slug>` | `chore/update-deps` |
+| perf | `perf/<slug>` | `perf/vector-search` |
+| ci | `ci/<slug>` | `ci/codeql-paths` |
 
 Allowed types: `feat` | `fix` | `refactor` | `docs` | `test` | `chore` | `perf` | `ci`
 
 Rules:
 
 - Branch prefix **must** match the primary change type
-- With a Jira ticket: `<type>/AI-<key>` only — no extra slug suffix
-- Without a ticket: `<type>/<topic>` (kebab-case)
+- Always use `<type>/<slug>` with a kebab-case slug that describes the change
+- With a Jira ticket: still use `<type>/<slug>` — put the issue key only in commit/PR body (`Jira: https://…/AI-xxx`), not in the branch name
 - Do **not** use `feature/` for new branches (legacy only; CI still accepts it)
+- Do **not** embed `AI-<key>` in new branch names
 - Long-lived integration lines: `main`, `java-angular` (do not push work directly to these except via PR)
 
 #### Branch / PR flow (Chain PRs)
 
 ```
 main
- └── feat/AI-100          # PR #1 → base: main
-      └── fix/AI-101      # PR #2 → base: feat/AI-100
+ └── feat/minimal-clean-prompts     # PR #1 → base: main
+      └── fix/prompt-style-typo     # PR #2 → base: feat/minimal-clean-prompts
 ```
 
 1. First branch in a chain: create from `main` (or current integration line); PR **base** = `main`
 2. Follow-up work in the same chain: create from the **previous branch**; PR **base** = that branch (not `main`)
-3. Standalone work with no dependency: `<type>/…` from `main`, PR base = `main`; use the type that matches the change
+3. Standalone work with no dependency: `<type>/<slug>` from `main`, PR base = `main`; use the type that matches the change
 
 #### Commit message
 
@@ -195,7 +195,7 @@ PR **References** must match the commit References (same links). Use the same of
 - [ ] Domain holds rules; use case orchestrates
 - [ ] Glossary Preferred Terms; glossary updated if new concept
 - [ ] UI (if any): HIG + minimal
-- [ ] Branch: `<type>/AI-<key>` (type matches commit); Chain PR base correct
+- [ ] Branch: `<type>/<slug>` (type matches commit); Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
 - [ ] PR: plain body + same References + Jira link; chain base; CI green
 - [ ] Jira (if any): [Product Owner](../product-owner/SKILL.md) template followed

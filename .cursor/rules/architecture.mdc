@@ -114,7 +114,7 @@ should_expectedResult_when_condition
 
 ## Hard constraints (delivery)
 
-When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/AI-<key>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
+When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/<slug>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
 
 ## Skills (on demand)
 

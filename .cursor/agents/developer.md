@@ -131,7 +131,7 @@ export class ChatComponent {
 4. **DDD**：规则落在 domain；use case 只编排
 5. **领域命名**：变量/方法用术语表 Preferred Term，再套 Clean Code 形式
 6. **UI/UX**：对齐 Apple HIG，极简风格（见 apple-minimal-ux）
-7. **分支 / Commit / PR / Jira**：`<type>/AI-<key>`（类型与 commit 一致）+ Chain PR；沿用 [developer](../skills/developer/SKILL.md) §5 与 [Product Owner](../skills/product-owner/SKILL.md)；References 优先官方文档与 research
+7. **分支 / Commit / PR / Jira**：`<type>/<slug>`（类型与 commit 一致；Jira key 仅写在 commit/PR）+ Chain PR；沿用 [developer](../skills/developer/SKILL.md) §5 与 [Product Owner](../skills/product-owner/SKILL.md)；References 优先官方文档与 research
 8. **运行测试 / CI 绿** → 再按上述规范提交
 
 ## 极简原则
