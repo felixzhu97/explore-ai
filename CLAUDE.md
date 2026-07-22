@@ -117,16 +117,16 @@ should_expectedResult_when_condition
 
 ## Hard constraints (delivery)
 
-When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/AI-<key>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
+When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/<slug>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
 
 ## Skills (on demand)
 
 | Task | Skill |
 |------|-------|
 | Feature / tests / commit / Apple UX | [developer](.cursor/skills/developer/SKILL.md) |
-| Business + tech strategy | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md) |
+| Business + tech strategy | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md)（由 `business-analyst` / `tech-analyst` 按需读取） |
 | Spring AI / RAG / tools | [spring-ai](.cursor/skills/spring-ai/SKILL.md) |
 | Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
 | Product Owner / Jira | [Product Owner](.cursor/skills/product-owner/SKILL.md) |
 
-<!-- Generated at Thu Jul 16 11:49:05 CST 2026 -->
+<!-- Generated at Wed Jul 22 22:09:43 CST 2026 -->
