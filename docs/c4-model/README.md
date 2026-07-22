@@ -76,6 +76,23 @@
 | Supervisor SSE | `POST /api/agents/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
 | Pipeline SSE | `POST /api/agents/pipeline/invoke/sse` | `OrchestratorWorkersUseCase` |
 
+Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSystemPrompt` → `classpath:prompts/agent/*.st`，并追加共享风格片段。
+
+### Prompt Catalog（横切）
+
+提示词作为工程资产外置到 `src/main/resources/prompts/`：
+
+| 路径 | 用途 |
+| --- | --- |
+| `shared/style-minimal.st` / `format-gfm.st` | 极简风格 + GFM（单一事实源） |
+| `chat/` | 默认 system 角色、工具策略、A2UI |
+| `rag/` | RAG system + 多语言 user / no-context |
+| `agent/` | Supervisor / Worker system |
+| `task/` | 摘要 / 翻译 / Q&A |
+| `guards/after-tools.st` | 工具调用后最终作答提醒 |
+
+组合入口：`PromptTemplates` + `ClasspathPromptLoader`；RAG/Vision user：`LocalizedRagPromptBuilder`。
+
 ### Image Analysis 子域（包名 `com.ai.vision`）
 
 独立 `/vision` 页面，**不经过 Ollama**（受 `module-vision` flag 守卫）：
