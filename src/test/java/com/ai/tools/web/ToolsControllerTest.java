@@ -1,6 +1,8 @@
 package com.ai.tools.web;
 
 import com.ai.tools.application.usecase.ToolsFacade;
+import com.ai.tools.domain.vo.ToolCatalogEntry;
+import com.ai.tools.domain.vo.ToolSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -295,6 +297,27 @@ class ToolsControllerTest {
 
             assertThat(response.getStatusCode().value()).isEqualTo(500);
             assertThat(response.getBody().answer()).contains("抱歉");
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/tools/catalog")
+    class ListCatalog {
+
+        @Test
+        @DisplayName("should_returnCatalog_when_facadeListsTools")
+        void should_returnCatalog_when_facadeListsTools() {
+            when(toolsFacade.listCatalog()).thenReturn(List.of(
+                    ToolCatalogEntry.of("getWeather", "Weather", ToolSource.LOCAL),
+                    ToolCatalogEntry.of("mcpTool", "MCP", ToolSource.MCP)));
+
+            ResponseEntity<List<ToolsController.ToolCatalogResponse>> response = controller.listCatalog();
+
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody()).hasSize(2);
+            assertThat(response.getBody().getFirst().name()).isEqualTo("getWeather");
+            assertThat(response.getBody().getFirst().source()).isEqualTo("LOCAL");
+            assertThat(response.getBody().get(1).source()).isEqualTo("MCP");
         }
     }
 }

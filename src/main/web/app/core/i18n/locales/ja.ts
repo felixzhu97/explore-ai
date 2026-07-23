@@ -224,6 +224,30 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
       },
     ],
   },
+  sender: {
+    openActions: '操作を開く',
+    filterPlaceholder: '操作を絞り込み…',
+    empty: '一致する操作がありません',
+    groups: {
+      tools: 'ツール',
+      agents: 'Agent',
+      navigate: '移動',
+      session: 'セッション',
+    },
+    actions: {
+      openAgentPipeline: 'Agent パイプラインを開く',
+      openAgentPipelineHint: '複数ステップのパイプラインを構築して実行',
+      newChat: '新しいチャット',
+      toggleTools: 'ツールの切替',
+    },
+    toolPrompts: {
+      getWeather: '北京の今日の天気は？',
+      getForecast: '上海の3日間の天気予報をください。',
+      searchWeb: '最新の AI ニュースをウェブ検索して。',
+      searchDocuments: 'ナレッジベースで製品機能を検索して。',
+      generic: 'ツール {name} を使ってこの依頼を手伝ってください。',
+    },
+  },
   generate: {
     tabs: {
       image: '画像生成',

@@ -206,7 +206,12 @@
       [placeholder]="i18n.t().ragChat.inputPlaceholder"
       [(value)]="ragService.input"
       [loading]="ragService.isLoading()"
+      [actionGroups]="actionGroups()"
+      [filterPlaceholder]="i18n.t().sender.filterPlaceholder"
+      [emptyLabel]="i18n.t().sender.empty"
+      [openActionsLabel]="i18n.t().sender.openActions"
       (submitSend)="ragService.sendMessage()"
+      (actionSelect)="onSenderAction($event)"
     >
       @if (ragService.pendingImages().length > 0) {
         <div chatSenderPrelude class="mb-2 flex flex-wrap gap-2">

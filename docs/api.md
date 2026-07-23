@@ -452,6 +452,37 @@ curl -X GET "${BASE_URL}/api/vision/health"
 
 ## Tool Calling API
 
+### List Tool Catalog
+
+List tools registered for Chat tool-calling (local `@Tool` callbacks and MCP tools). Metadata only — does not invoke tools.
+
+```bash
+curl -X GET "${BASE_URL}/api/tools/catalog"
+```
+
+**Response Example**
+
+```json
+[
+  {
+    "name": "getWeather",
+    "description": "获取指定城市的当前天气信息，包括温度、天气状况和湿度",
+    "source": "LOCAL"
+  },
+  {
+    "name": "searchWeb",
+    "description": "Search the web…",
+    "source": "LOCAL"
+  }
+]
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Tool name used by the model |
+| `description` | string | Tool description |
+| `source` | string | `LOCAL` or `MCP` |
+
 ### Get Weather
 
 Get current weather for a specified city.

@@ -93,6 +93,25 @@ public class ToolsController {
     }
 
     /**
+     * List tools available for Chat tool-calling (local + MCP).
+     */
+    @GetMapping("/tools/catalog")
+    public ResponseEntity<List<ToolCatalogResponse>> listCatalog() {
+        try {
+            List<ToolCatalogResponse> body = toolsFacade.listCatalog().stream()
+                    .map(entry -> new ToolCatalogResponse(
+                            entry.name(),
+                            entry.description(),
+                            entry.source().name()))
+                    .toList();
+            return ResponseEntity.ok(body);
+        } catch (Exception e) {
+            log.error("Error listing tool catalog", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
      * Chat with function calling.
      */
     @PostMapping("/tools/chat")
@@ -112,4 +131,6 @@ public class ToolsController {
     public record ToolChatRequest(String question, List<String> docIds) {}
 
     public record ToolChatResponse(String answer, List<String> toolCalls) {}
+
+    public record ToolCatalogResponse(String name, String description, String source) {}
 }

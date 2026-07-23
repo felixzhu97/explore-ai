@@ -37,4 +37,49 @@ describe('ChatSenderBarComponent', () => {
 
     expect(fixture.componentInstance.value()).toBe('hello');
   });
+
+  it('should_openSuggestion_when_slashTyped', () => {
+    fixture.componentRef.setInput('actionGroups', [
+      {
+        id: 'tools',
+        label: 'Tools',
+        items: [
+          {
+            id: 'tool:getWeather',
+            kind: 'tool',
+            label: 'getWeather',
+            promptTemplate: 'weather?',
+          },
+        ],
+      },
+    ]);
+    fixture.detectChanges();
+
+    fixture.componentInstance.onValueChange('hello/');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.suggestionOpen()).toBe(true);
+    expect(fixture.componentInstance.value()).toBe('hello');
+    expect(fixture.nativeElement.querySelector('app-sender-suggestion')).toBeTruthy();
+  });
+
+  it('should_emitActionSelect_when_suggestionItemChosen', () => {
+    const spy = vi.fn();
+    fixture.componentInstance.actionSelect.subscribe(spy);
+    const item = {
+      id: 'tool:getWeather',
+      kind: 'tool' as const,
+      label: 'getWeather',
+      promptTemplate: 'weather?',
+    };
+    fixture.componentRef.setInput('actionGroups', [
+      { id: 'tools', label: 'Tools', items: [item] },
+    ]);
+    fixture.detectChanges();
+
+    fixture.componentInstance.onActionSelect(item);
+
+    expect(spy).toHaveBeenCalledWith(item);
+    expect(fixture.componentInstance.suggestionOpen()).toBe(false);
+  });
 });

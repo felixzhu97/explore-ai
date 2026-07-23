@@ -222,6 +222,30 @@ export const zh: Translations = {
       },
     ],
   },
+  sender: {
+    openActions: '打开操作',
+    filterPlaceholder: '筛选操作…',
+    empty: '没有匹配的操作',
+    groups: {
+      tools: '工具',
+      agents: 'Agent',
+      navigate: '导航',
+      session: '会话',
+    },
+    actions: {
+      openAgentPipeline: '打开 Agent 流水线',
+      openAgentPipelineHint: '编排并运行多步流水线',
+      newChat: '新对话',
+      toggleTools: '开关工具',
+    },
+    toolPrompts: {
+      getWeather: '北京今天天气怎么样？',
+      getForecast: '给我上海未来 3 天的天气预报。',
+      searchWeb: '搜索网上最新的 AI 新闻。',
+      searchDocuments: '在知识库中搜索产品功能相关内容。',
+      generic: '请使用工具 {name} 来帮助完成这个请求。',
+    },
+  },
   generate: {
     tabs: {
       image: '图像生成',

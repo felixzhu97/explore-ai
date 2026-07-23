@@ -20,9 +20,14 @@ import {
 } from '@ng-icons/lucide';
 import { RagService, UploadStatus } from './rag.service';
 import {
+  buildSenderActionGroups,
   ChatBubbleMessage,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
+  ToolsCatalogService,
+  type SenderActionGroup,
+  type SenderActionItem,
+  type ToolCatalogEntryDto,
 } from '../shared/components/chat-shell';
 import { I18nService } from '../core/i18n';
 import { NxPrompt } from 'ng-zorro-x/prompts';
@@ -30,6 +35,10 @@ import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardBadgeComponent } from '../shared/components/badge';
 import { ZardButtonComponent } from '../shared/components/button';
+import { Router } from '@angular/router';
+import { FeatureFlagService } from '../core/feature-flag.service';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-rag-page',
@@ -62,8 +71,22 @@ import { ZardButtonComponent } from '../shared/components/button';
 export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);
   protected readonly i18n = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly toolsCatalog = inject(ToolsCatalogService);
+  private readonly featureFlags = inject(FeatureFlagService);
   /** Mobile document rail visibility; desktop rail is always shown. */
   readonly docsOpen = signal(false);
+  private readonly tools = signal<ToolCatalogEntryDto[]>([]);
+
+  readonly actionGroups = computed((): SenderActionGroup[] => {
+    return buildSenderActionGroups({
+      t: this.i18n.t(),
+      tools: this.tools(),
+      agents: [],
+      featureFlags: this.featureFlags,
+      scope: 'rag',
+    });
+  });
 
   readonly ragPrompts = computed((): NxPrompt[] => {
     const t = this.i18n.t().ragChat;
@@ -98,6 +121,19 @@ export class RagPageComponent implements OnInit {
 
   ngOnInit() {
     this.ragService.fetchAvailableDocs();
+    this.toolsCatalog.listCatalog().pipe(catchError(() => of([]))).subscribe((tools) => {
+      this.tools.set(tools);
+    });
+  }
+
+  onSenderAction(action: SenderActionItem): void {
+    if (action.kind === 'tool' && action.promptTemplate) {
+      this.ragService.setInput(action.promptTemplate);
+      return;
+    }
+    if ((action.kind === 'agent' || action.kind === 'navigate') && action.path) {
+      void this.router.navigateByUrl(action.path);
+    }
   }
 
   deleteDocument(docId: string, event: Event): void {

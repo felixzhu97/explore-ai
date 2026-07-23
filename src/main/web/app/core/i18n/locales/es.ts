@@ -226,6 +226,30 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
       },
     ],
   },
+  sender: {
+    openActions: 'Abrir acciones',
+    filterPlaceholder: 'Filtrar acciones…',
+    empty: 'No hay acciones coincidentes',
+    groups: {
+      tools: 'Herramientas',
+      agents: 'Agents',
+      navigate: 'Navegar',
+      session: 'Sesión',
+    },
+    actions: {
+      openAgentPipeline: 'Abrir pipeline de Agent',
+      openAgentPipelineHint: 'Crear y ejecutar un pipeline de varios pasos',
+      newChat: 'Nuevo chat',
+      toggleTools: 'Alternar herramientas',
+    },
+    toolPrompts: {
+      getWeather: '¿Qué tiempo hace hoy en Pekín?',
+      getForecast: 'Dame el pronóstico del tiempo a 3 días para Shanghái.',
+      searchWeb: 'Busca en la web las últimas noticias de IA.',
+      searchDocuments: 'Busca en la base de conocimiento funciones del producto.',
+      generic: 'Usa la herramienta {name} para ayudar con esta solicitud.',
+    },
+  },
   generate: {
     tabs: {
       image: 'Generación de imágenes',
