@@ -13,7 +13,6 @@ import { I18nService } from '../../core/i18n';
 import { TtsService } from './tts.service';
 import { ZardAlertComponent } from '../../shared/components/alert';
 import { ZardButtonComponent } from '../../shared/components/button';
-import { ZardCardComponent } from '../../shared/components/card';
 import { ZardInputDirective } from '../../shared/components/input';
 import { ZardProgressBarComponent } from '../../shared/components/progress-bar';
 import { ZardSelectImports } from '../../shared/components/select/select.imports';
@@ -27,7 +26,6 @@ import type { Voice } from './tts.model';
     NgIcon,
     ZardAlertComponent,
     ZardButtonComponent,
-    ZardCardComponent,
     ZardInputDirective,
     ZardProgressBarComponent,
     ZardSliderComponent,

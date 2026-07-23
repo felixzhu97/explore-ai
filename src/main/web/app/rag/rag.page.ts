@@ -4,11 +4,20 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   computed,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideImage, lucideListChecks, lucideTrash2, lucideUpload, lucideX } from '@ng-icons/lucide';
+import {
+  lucideImage,
+  lucideListChecks,
+  lucidePanelLeft,
+  lucidePanelLeftClose,
+  lucideTrash2,
+  lucideUpload,
+  lucideX,
+} from '@ng-icons/lucide';
 import { RagService, UploadStatus } from './rag.service';
 import {
   ChatBubbleMessage,
@@ -37,14 +46,24 @@ import { ZardButtonComponent } from '../shared/components/button';
   templateUrl: './rag.page.html',
   providers: [
     provideNzIconsPatch([ArrowUpOutline]),
-    provideIcons({ lucideListChecks, lucideX, lucideImage, lucideUpload, lucideTrash2 }),
+    provideIcons({
+      lucideListChecks,
+      lucideX,
+      lucideImage,
+      lucideUpload,
+      lucideTrash2,
+      lucidePanelLeft,
+      lucidePanelLeftClose,
+    }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
+  host: { class: 'relative flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
 export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);
   protected readonly i18n = inject(I18nService);
+  /** Mobile document rail visibility; desktop rail is always shown. */
+  readonly docsOpen = signal(false);
 
   readonly ragPrompts = computed((): NxPrompt[] => {
     const t = this.i18n.t().ragChat;

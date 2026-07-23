@@ -23,9 +23,7 @@
       aria-orientation="vertical"
       (pointerdown)="onSplitterPointerDown($event)"
     >
-      <div
-        class="pointer-events-none absolute -inset-x-1 inset-y-0"
-      ></div>
+      <div class="pointer-events-none absolute -inset-x-1 inset-y-0"></div>
     </div>
   }
 
@@ -61,6 +59,7 @@
         </button>
       </div>
       <app-chat-message-pane
+        class="min-h-0 flex-1"
         [messages]="messages()"
         [streamingMessageId]="streamingMessageId()"
         [thinkingLabel]="i18n.t().agents.thinking"
@@ -72,21 +71,19 @@
         [emptyText]="i18n.t().agents.results.empty"
         [compact]="true"
       />
+      @if (error()) {
+        <z-alert
+          class="rounded-none border-x-0 border-t"
+          zType="destructive"
+          [zDescription]="error()!"
+        />
+      }
+      <app-chat-sender-bar
+        [placeholder]="i18n.t().agents.pipeline.inputPlaceholder"
+        [(value)]="input"
+        [loading]="loading()"
+        (submitSend)="send()"
+      />
     }
   </aside>
 </div>
-
-@if (error()) {
-  <z-alert
-    class="rounded-none border-x-0 border-t"
-    zType="destructive"
-    [zDescription]="error()!"
-  />
-}
-
-<app-chat-sender-bar
-  [placeholder]="i18n.t().agents.pipeline.inputPlaceholder"
-  [(value)]="input"
-  [loading]="loading()"
-  (submitSend)="send()"
-/>

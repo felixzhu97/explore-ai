@@ -24,6 +24,23 @@ import type { VisionTaskType } from '../../../vision/vision.service';
       class="flex h-full flex-col gap-4 py-4 shadow-card [&_[data-slot=card-title]]:text-sm [&_[data-slot=card-title]]:font-medium [&_[data-slot=card-title]]:tracking-wide [&_[data-slot=card-title]]:text-muted-foreground [&_[data-slot=card-title]]:uppercase"
       [zTitle]="title()"
     >
+      <div class="mt-1 mb-4 w-full">
+        <button
+          type="button"
+          z-button
+          zFull
+          zSize="lg"
+          [zDisabled]="!canAnalyze() || loading()"
+          (click)="analyzeRequested.emit()"
+        >
+          @if (loading()) {
+            {{ analyzingLabel() }}
+          } @else {
+            {{ analyzeLabel() }}
+          }
+        </button>
+      </div>
+
       @if (result()) {
         @if (task() === 'caption') {
           <p class="text-lg text-foreground italic">"{{ result()!.caption }}"</p>
@@ -71,22 +88,6 @@ import type { VisionTaskType } from '../../../vision/vision.service';
       @if (error()) {
         <z-alert zType="destructive" class="mt-4" [zDescription]="error()!" />
       }
-
-      <div card-footer class="mt-auto w-full border-t border-black/8 pt-4">
-        <button
-          type="button"
-          z-button
-          zFull
-          [zDisabled]="!canAnalyze() || loading()"
-          (click)="analyzeRequested.emit()"
-        >
-          @if (loading()) {
-            {{ analyzingLabel() }}
-          } @else {
-            {{ analyzeLabel() }}
-          }
-        </button>
-      </div>
     </z-card>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -7,7 +7,7 @@ import { ZardButtonComponent } from '../shared/components/button';
   imports: [ZardButtonComponent],
   templateUrl: './asr.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
+  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class AsrPageComponent implements OnDestroy {
   protected readonly asr = inject(AsrService);

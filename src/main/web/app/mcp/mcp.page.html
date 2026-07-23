@@ -1,92 +1,79 @@
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-  <header>
-    <h1 class="text-xl font-semibold text-foreground">MCP</h1>
-    <p class="mt-1 text-sm text-foreground/60">Model Context Protocol server and client tools</p>
-  </header>
-
-  @if (error()) {
-    <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error() }}</p>
-  }
-
-  @if (loading()) {
-    <p class="text-sm text-foreground/60">Loading MCP status...</p>
-  } @else {
-    <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-      <h2 class="text-sm font-semibold text-foreground">Server Health</h2>
-      @if (health(); as healthInfo) {
-        <dl class="mt-3 grid gap-2 text-sm">
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Status</dt>
-            <dd>{{ healthInfo.status }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Server</dt>
-            <dd>{{ healthInfo.server }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Protocol</dt>
-            <dd>{{ healthInfo.protocol }}</dd>
-          </div>
-        </dl>
-      }
-    </section>
-
-    <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-      <h2 class="text-sm font-semibold text-foreground">Client Status</h2>
-      @if (clientStatus(); as status) {
-        <dl class="mt-3 grid gap-2 text-sm">
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Status</dt>
-            <dd>{{ status.status }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Registered Tools</dt>
-            <dd>{{ status.registeredTools }}</dd>
-          </div>
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Connected Servers</dt>
-            <dd>{{ status.connectedServers.length }}</dd>
-          </div>
-        </dl>
-      }
-    </section>
-
-    <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-      <h2 class="text-sm font-semibold text-foreground">Tools</h2>
-      <ul class="mt-3 space-y-2">
-        @for (tool of tools(); track tool.name) {
-          <li class="rounded-lg bg-surface px-3 py-2 text-sm">
-            <p class="font-medium text-foreground">{{ tool.name }}</p>
-            <p class="text-foreground/60">{{ tool.description }}</p>
-          </li>
-        } @empty {
-          <li class="text-sm text-foreground/60">No tools registered</li>
+<div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+  <div
+    class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3"
+  >
+    <div class="min-w-0">
+      <h1 class="text-base font-semibold text-foreground">MCP</h1>
+      <p class="text-xs text-foreground/60">Model Context Protocol</p>
+    </div>
+    @if (!loading()) {
+      <div class="flex flex-wrap items-center gap-3 text-xs text-foreground/70">
+        @if (health(); as healthInfo) {
+          <span>
+            Server:
+            <span class="font-medium text-foreground">{{ healthInfo.status }}</span>
+          </span>
         }
-      </ul>
-    </section>
+        @if (clientStatus(); as status) {
+          <span>
+            Client:
+            <span class="font-medium text-foreground">{{ status.status }}</span>
+          </span>
+          <span>{{ status.registeredTools }} tools</span>
+        }
+      </div>
+    } @else {
+      <p class="text-xs text-foreground/60">Loading status…</p>
+    }
+  </div>
 
-    <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-      <h2 class="text-sm font-semibold text-foreground">Chat with MCP Tools</h2>
-      <textarea
-        class="mt-3 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-        rows="3"
-        placeholder="Ask a question..."
-        [ngModel]="question()"
-        (ngModelChange)="question.set($event)"
-      ></textarea>
-      <button
-        type="button"
-        z-button
-        zType="default"
-        class="mt-3"
-        [disabled]="chatting() || !question().trim()"
-        (click)="submitQuestion()"
-      >
-        {{ chatting() ? 'Sending...' : 'Send' }}
-      </button>
-      @if (chatResponse(); as response) {
-        <p class="mt-3 rounded-lg bg-surface px-3 py-2 text-sm text-foreground">{{ response }}</p>
+  <div class="min-h-0 flex-1 overflow-y-auto px-4 py-6">
+    <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      @if (error()) {
+        <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {{ error() }}
+        </p>
       }
-    </section>
-  }
+
+      @if (!loading()) {
+        <section>
+          <h2 class="text-sm font-semibold text-foreground">Tools</h2>
+          <ul class="mt-3 divide-y divide-black/6 rounded-xl border border-black/8 bg-white">
+            @for (tool of tools(); track tool.name) {
+              <li class="px-4 py-3">
+                <p class="text-sm font-medium text-foreground">{{ tool.name }}</p>
+                <p class="mt-0.5 text-sm text-foreground/60">{{ tool.description }}</p>
+              </li>
+            } @empty {
+              <li class="px-4 py-6 text-sm text-foreground/60">No tools registered</li>
+            }
+          </ul>
+        </section>
+
+        <section class="rounded-xl border border-dashed border-black/12 bg-white/60 p-4">
+          <h2 class="text-sm font-medium text-foreground/80">Try with tools</h2>
+          <textarea
+            class="mt-3 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+            rows="3"
+            placeholder="Ask a question..."
+            [ngModel]="question()"
+            (ngModelChange)="question.set($event)"
+          ></textarea>
+          <button
+            type="button"
+            z-button
+            zType="default"
+            class="mt-3"
+            [disabled]="chatting() || !question().trim()"
+            (click)="submitQuestion()"
+          >
+            {{ chatting() ? 'Sending...' : 'Send' }}
+          </button>
+          @if (chatResponse(); as response) {
+            <p class="mt-3 rounded-lg bg-surface px-3 py-2 text-sm text-foreground">{{ response }}</p>
+          }
+        </section>
+      }
+    </div>
+  </div>
 </div>

@@ -87,6 +87,9 @@ export interface Translations {
     keyInfo: string;
     explain: string;
     documents: string;
+    documentsShort: string;
+    showDocuments: string;
+    hideDocuments: string;
     noDocuments: string;
     selectedDocuments: string;
     selectAll: string;
@@ -202,6 +205,7 @@ export interface Translations {
       synthesizing: string;
       audioReady: string;
       downloadAudio: string;
+      emptyState: string;
     };
   };
   sidebar: {

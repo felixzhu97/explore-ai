@@ -1,84 +1,100 @@
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+<div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
   <header>
     <h1 class="text-xl font-semibold text-foreground">Chat Evaluation</h1>
     <p class="mt-1 text-sm text-foreground/60">LLM-as-Judge quality and safety scoring</p>
   </header>
 
-  <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-    <label class="block text-sm font-medium text-foreground" for="eval-user-message">User Message</label>
-    <textarea
-      id="eval-user-message"
-      class="mt-2 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-      rows="3"
-      [ngModel]="userMessage()"
-      (ngModelChange)="userMessage.set($event)"
-    ></textarea>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="flex flex-col rounded-xl border border-black/8 bg-white p-4">
+      <label class="block text-sm font-medium text-foreground" for="eval-user-message">
+        User Message
+      </label>
+      <textarea
+        id="eval-user-message"
+        class="mt-2 w-full flex-1 rounded-lg border border-black/10 px-3 py-2 text-sm"
+        rows="4"
+        [ngModel]="userMessage()"
+        (ngModelChange)="userMessage.set($event)"
+      ></textarea>
 
-    <label class="mt-4 block text-sm font-medium text-foreground" for="eval-assistant-response">Assistant Response</label>
-    <textarea
-      id="eval-assistant-response"
-      class="mt-2 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-      rows="4"
-      [ngModel]="assistantResponse()"
-      (ngModelChange)="assistantResponse.set($event)"
-    ></textarea>
+      <label class="mt-4 block text-sm font-medium text-foreground" for="eval-assistant-response">
+        Assistant Response
+      </label>
+      <textarea
+        id="eval-assistant-response"
+        class="mt-2 w-full flex-1 rounded-lg border border-black/10 px-3 py-2 text-sm"
+        rows="6"
+        [ngModel]="assistantResponse()"
+        (ngModelChange)="assistantResponse.set($event)"
+      ></textarea>
 
-    <button
-      type="button"
-      z-button
-      zType="default"
-      class="mt-4"
-      [disabled]="loading() || !userMessage().trim() || !assistantResponse().trim()"
-      (click)="submit()"
-    >
-      {{ loading() ? 'Evaluating...' : 'Evaluate' }}
-    </button>
-  </section>
+      <button
+        type="button"
+        z-button
+        zType="default"
+        class="mt-4"
+        [disabled]="loading() || !userMessage().trim() || !assistantResponse().trim()"
+        (click)="submit()"
+      >
+        {{ loading() ? 'Evaluating...' : 'Evaluate' }}
+      </button>
 
-  @if (error()) {
-    <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error() }}</p>
-  }
-
-  @if (result(); as evaluation) {
-    <section class="rounded-xl border border-black/8 bg-white p-4 shadow-card">
-      <h2 class="text-sm font-semibold text-foreground">Results</h2>
-      <dl class="mt-3 grid gap-2 text-sm">
-        <div class="flex justify-between gap-4">
-          <dt class="text-foreground/60">Overall</dt>
-          <dd>{{ evaluation.overallScore }}</dd>
-        </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-foreground/60">Coherence</dt>
-          <dd>{{ evaluation.coherenceScore }}</dd>
-        </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-foreground/60">Relevance</dt>
-          <dd>{{ evaluation.relevanceScore }}</dd>
-        </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-foreground/60">Helpfulness</dt>
-          <dd>{{ evaluation.helpfulnessScore }}</dd>
-        </div>
-        @if (evaluation.factualityAvailable) {
-          <div class="flex justify-between gap-4">
-            <dt class="text-foreground/60">Factuality</dt>
-            <dd>{{ evaluation.factualityScore }}</dd>
-          </div>
-        }
-        <div class="flex justify-between gap-4">
-          <dt class="text-foreground/60">Safety Issues</dt>
-          <dd>{{ evaluation.hasSafetyIssues ? 'Yes' : 'No' }}</dd>
-        </div>
-      </dl>
-
-      @if (evaluation.suggestions.length > 0) {
-        <h3 class="mt-4 text-sm font-medium text-foreground">Suggestions</h3>
-        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-foreground/80">
-          @for (suggestion of evaluation.suggestions; track suggestion) {
-            <li>{{ suggestion }}</li>
-          }
-        </ul>
+      @if (error()) {
+        <p class="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {{ error() }}
+        </p>
       }
     </section>
-  }
+
+    <section class="flex min-h-72 flex-col rounded-xl border border-black/8 bg-white p-5">
+      @if (result(); as evaluation) {
+        <div class="flex items-baseline justify-between gap-3 border-b border-black/8 pb-4">
+          <h2 class="text-sm font-medium tracking-wide text-foreground/50 uppercase">Overall</h2>
+          <p class="text-3xl font-semibold tabular-nums text-foreground">
+            {{ evaluation.overallScore }}
+          </p>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-surface px-3 py-3">
+            <p class="text-xs text-foreground/50">Coherence</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.coherenceScore }}</p>
+          </div>
+          <div class="rounded-lg bg-surface px-3 py-3">
+            <p class="text-xs text-foreground/50">Relevance</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.relevanceScore }}</p>
+          </div>
+          <div class="rounded-lg bg-surface px-3 py-3">
+            <p class="text-xs text-foreground/50">Helpfulness</p>
+            <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.helpfulnessScore }}</p>
+          </div>
+          @if (evaluation.factualityAvailable) {
+            <div class="rounded-lg bg-surface px-3 py-3">
+              <p class="text-xs text-foreground/50">Factuality</p>
+              <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.factualityScore }}</p>
+            </div>
+          }
+          <div class="rounded-lg bg-surface px-3 py-3">
+            <p class="text-xs text-foreground/50">Safety Issues</p>
+            <p class="mt-1 text-lg font-semibold">
+              {{ evaluation.hasSafetyIssues ? 'Yes' : 'No' }}
+            </p>
+          </div>
+        </div>
+
+        @if (evaluation.suggestions.length > 0) {
+          <h3 class="mt-5 text-sm font-medium text-foreground">Suggestions</h3>
+          <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-foreground/80">
+            @for (suggestion of evaluation.suggestions; track suggestion) {
+              <li>{{ suggestion }}</li>
+            }
+          </ul>
+        }
+      } @else {
+        <div class="flex flex-1 flex-col items-center justify-center text-center">
+          <p class="text-sm text-foreground/50">Scores appear here after you evaluate.</p>
+        </div>
+      }
+    </section>
+  </div>
 </div>

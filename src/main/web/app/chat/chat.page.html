@@ -1,95 +1,99 @@
-<!-- Top Bar with Model Selector -->
-<div class="flex shrink-0 items-center justify-between gap-2 overflow-x-auto border-b border-black/8 bg-white px-4 py-2.5">
-    <div class="flex min-w-0 items-center gap-2">
-        <z-select
-                class="min-w-32"
-                zSize="sm"
-                [ngModel]="chat.selectedProvider()"
-                (ngModelChange)="onProviderChange($event)"
-        >
-            @for (provider of chat.providers(); track provider.name) {
-                <z-select-item
-                        [zValue]="provider.name"
-                        [zDisabled]="provider.status === 'unavailable'"
-                >
-                    {{ provider.displayName }}{{ provider.status === 'unavailable' ? ' (unavailable)' : '' }}
-                </z-select-item>
-            }
-        </z-select>
-
-        <z-select
-                class="min-w-28"
-                zSize="sm"
-                [ngModel]="chat.selectedModel()"
-                (ngModelChange)="setSelectedModel($event)"
-                [zDisabled]="chat.isLoadingModels()"
-                zPlaceholder="Model"
-        >
-            @if (chat.isLoadingModels()) {
-                <z-select-item zValue="" [zDisabled]="true">Loading...</z-select-item>
-            } @else {
-                @for (model of chat.models(); track model.name) {
-                    <z-select-item [zValue]="model.name">{{ model.name }}</z-select-item>
-                }
-            }
-        </z-select>
-
-        <div class="hidden shrink-0 items-center sm:flex">
-            <z-switch
-                    [ngModel]="chat.toolsEnabled()"
-                    (ngModelChange)="chat.setToolsEnabled($event)"
-            >
-                Tools
-            </z-switch>
-        </div>
-    </div>
-
-    <a
-            routerLink="/agents"
-            z-button
-            zType="ghost"
-            zSize="sm"
-            class="hidden text-xs sm:inline-flex"
-            [attr.title]="i18n.t().chat.openAgentWorkbench"
+<!-- Compact controls; compose area stays primary -->
+<div
+  class="flex shrink-0 items-center gap-2 overflow-x-auto border-b border-black/8 bg-white px-3 py-2 sm:px-4"
+>
+  <div class="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+    <z-select
+      class="min-w-28 sm:min-w-32"
+      zSize="sm"
+      [ngModel]="chat.selectedProvider()"
+      (ngModelChange)="onProviderChange($event)"
     >
-        {{ i18n.t().chat.openAgentWorkbench }}
+      @for (provider of chat.providers(); track provider.name) {
+        <z-select-item
+          [zValue]="provider.name"
+          [zDisabled]="provider.status === 'unavailable'"
+        >
+          {{ provider.displayName }}{{ provider.status === 'unavailable' ? ' (unavailable)' : '' }}
+        </z-select-item>
+      }
+    </z-select>
+
+    <z-select
+      class="min-w-24 sm:min-w-28"
+      zSize="sm"
+      [ngModel]="chat.selectedModel()"
+      (ngModelChange)="setSelectedModel($event)"
+      [zDisabled]="chat.isLoadingModels()"
+      zPlaceholder="Model"
+    >
+      @if (chat.isLoadingModels()) {
+        <z-select-item zValue="" [zDisabled]="true">Loading...</z-select-item>
+      } @else {
+        @for (model of chat.models(); track model.name) {
+          <z-select-item [zValue]="model.name">{{ model.name }}</z-select-item>
+        }
+      }
+    </z-select>
+
+    <div class="hidden shrink-0 items-center lg:flex">
+      <z-switch
+        [ngModel]="chat.toolsEnabled()"
+        (ngModelChange)="chat.setToolsEnabled($event)"
+      >
+        Tools
+      </z-switch>
+    </div>
+  </div>
+
+  <div class="flex shrink-0 items-center gap-0.5">
+    <a
+      routerLink="/agents"
+      z-button
+      zType="ghost"
+      zSize="sm"
+      class="hidden text-xs xl:inline-flex"
+      [attr.title]="i18n.t().chat.openAgentWorkbench"
+    >
+      {{ i18n.t().chat.openAgentWorkbench }}
     </a>
     <button
-            type="button"
-            z-button
-            zType="ghost"
-            zSize="icon"
-            (click)="newChat()"
-            title="New Chat"
-            aria-label="New Chat"
+      type="button"
+      z-button
+      zType="ghost"
+      zSize="icon"
+      (click)="newChat()"
+      title="New Chat"
+      aria-label="New Chat"
     >
-        <ng-icon name="lucideRefreshCw" class="size-4!" />
+      <ng-icon name="lucideRefreshCw" class="size-4!" />
     </button>
+  </div>
 </div>
 
 <app-chat-message-pane
-        [messages]="bubbleMessages()"
-        [streamingMessageId]="chat.streamingMessageId()"
-        [thinkingLabel]="i18n.t().chat.thinking"
-        [welcomeTitle]="i18n.t().chat.welcomeTitle"
-        [welcomeDescription]="i18n.t().chat.welcomeDescription"
-        [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
-        [prompts]="chatPrompts()"
-        [autoScroll]="true"
-        (promptSelect)="onPromptSelect($event)"
+  [messages]="bubbleMessages()"
+  [streamingMessageId]="chat.streamingMessageId()"
+  [thinkingLabel]="i18n.t().chat.thinking"
+  [welcomeTitle]="i18n.t().chat.welcomeTitle"
+  [welcomeDescription]="i18n.t().chat.welcomeDescription"
+  [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+  [prompts]="chatPrompts()"
+  [autoScroll]="true"
+  (promptSelect)="onPromptSelect($event)"
 />
 
 @if (chat.error()) {
-    <z-alert
-            class="rounded-none border-x-0 border-t"
-            zType="destructive"
-            [zDescription]="chat.error()!"
-    />
+  <z-alert
+    class="rounded-none border-x-0 border-t"
+    zType="destructive"
+    [zDescription]="chat.error()!"
+  />
 }
 
 <app-chat-sender-bar
-        [placeholder]="i18n.t().chat.inputPlaceholder"
-        [(value)]="input"
-        [loading]="chat.isLoading()"
-        (submitSend)="send()"
+  [placeholder]="i18n.t().chat.inputPlaceholder"
+  [(value)]="input"
+  [loading]="chat.isLoading()"
+  (submitSend)="send()"
 />
