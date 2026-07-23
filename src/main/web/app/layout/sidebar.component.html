@@ -102,21 +102,47 @@
 
           @for (section of navSections(); track section.group) {
             <div class="mt-2 first:mt-0">
-              <p class="px-2 pb-1 text-[11px] font-medium tracking-wide text-sidebar-foreground/50 uppercase">
-                {{ groupLabel(section.group) }}
-              </p>
-              @for (tab of section.tabs; track tab.key) {
-                <a
-                  z-sidebar-menu-button
-                  [routerLink]="tab.path"
-                  [title]="t().nav[tab.labelKey]"
-                  (click)="onNavClick()"
+              <button
+                type="button"
+                class="
+                  mb-0.5 flex w-full cursor-pointer items-center justify-between gap-1 rounded-md
+                  px-2 py-1.5 text-[11px] font-medium tracking-wide text-sidebar-foreground/60
+                  uppercase transition-colors hover:bg-sidebar-accent
+                  hover:text-sidebar-accent-foreground
+                "
+                [attr.aria-expanded]="isGroupExpanded(section.group)"
+                [attr.aria-controls]="'nav-group-' + section.group"
+                (click)="toggleGroup(section.group); $event.stopPropagation()"
+              >
+                <span>{{ groupLabel(section.group) }}</span>
+                <svg
+                  class="size-3.5 shrink-0 opacity-70 transition-transform duration-200"
+                  [class.rotate-90]="isGroupExpanded(section.group)"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.25"
+                  aria-hidden="true"
                 >
-                  <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
-                  <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
-                    {{ t().nav[tab.labelKey] }}
-                  </span>
-                </a>
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+              @if (isGroupExpanded(section.group)) {
+                <div [id]="'nav-group-' + section.group" role="group">
+                  @for (tab of section.tabs; track tab.key) {
+                    <a
+                      z-sidebar-menu-button
+                      [routerLink]="tab.path"
+                      [title]="t().nav[tab.labelKey]"
+                      (click)="onNavClick()"
+                    >
+                      <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
+                      <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+                        {{ t().nav[tab.labelKey] }}
+                      </span>
+                    </a>
+                  }
+                </div>
               }
             </div>
           }

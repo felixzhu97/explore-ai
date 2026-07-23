@@ -53,6 +53,11 @@ export class SidebarComponent implements OnInit {
 
   readonly collapsed = this.sidebar.collapsed;
   readonly recentsExpanded = signal(true);
+  readonly expandedGroups = signal<Record<ModuleNavGroup, boolean>>({
+    work: true,
+    create: true,
+    lab: true,
+  });
 
   private readonly isMobile = signal(false);
 
@@ -95,6 +100,17 @@ export class SidebarComponent implements OnInit {
 
   groupLabel(group: ModuleNavGroup): string {
     return this.i18n.t().nav.groups[group];
+  }
+
+  isGroupExpanded(group: ModuleNavGroup): boolean {
+    return this.expandedGroups()[group];
+  }
+
+  toggleGroup(group: ModuleNavGroup): void {
+    this.expandedGroups.update(state => ({
+      ...state,
+      [group]: !state[group],
+    }));
   }
 
   constructor() {
