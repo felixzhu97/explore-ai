@@ -6,7 +6,7 @@
       <h1 class="text-base font-semibold text-foreground">Speech to Text</h1>
       <p class="text-xs text-foreground/60">
         Connection:
-        <span class="capitalize text-foreground">{{ asr.connectionState() }}</span>
+        <span class="text-foreground capitalize">{{ asr.connectionState() }}</span>
       </p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
@@ -43,7 +43,7 @@
 
       @if (asr.lastMessage()) {
         <details class="rounded-lg border border-black/8 bg-white px-4 py-3 text-xs text-foreground/70">
-          <summary class="cursor-pointer select-none font-medium text-foreground/60">
+          <summary class="cursor-pointer font-medium text-foreground/60 select-none">
             Last server message
           </summary>
           <pre class="mt-2 overflow-x-auto whitespace-pre-wrap">{{ asr.lastMessage() }}</pre>

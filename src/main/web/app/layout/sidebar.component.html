@@ -111,7 +111,7 @@
                   hover:text-sidebar-accent-foreground
                 "
                 [attr.aria-expanded]="isGroupExpanded(section.group)"
-                [attr.aria-controls]="'nav-group-' + section.group"
+                [attr.aria-controls]="`nav-group-${section.group}`"
                 (click)="toggleGroup(section.group); $event.stopPropagation()"
               >
                 <span>{{ groupLabel(section.group) }}</span>
@@ -128,7 +128,7 @@
                 </svg>
               </button>
               @if (isGroupExpanded(section.group)) {
-                <div [id]="'nav-group-' + section.group" role="group">
+                <div [id]="`nav-group-${section.group}`" role="group">
                   @for (tab of section.tabs; track tab.key) {
                     <a
                       z-sidebar-menu-button

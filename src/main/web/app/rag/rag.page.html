@@ -112,7 +112,7 @@
       </div>
     }
 
-    <div class="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+    <div class="min-h-0 flex-1 overflow-y-auto p-2">
       @if (ragService.isLoadingDocs()) {
         <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().ragChat.thinking }}</p>
       } @else if (ragService.availableDocs().length === 0) {
@@ -120,7 +120,7 @@
       } @else {
         <ul class="flex flex-col gap-0.5" role="list">
           @for (doc of ragService.availableDocs(); track doc.id) {
-            <li class="flex items-center gap-2 rounded-md px-1.5 py-1.5 hover:bg-black/4">
+            <li class="flex items-center gap-2 rounded-md p-1.5 hover:bg-black/4">
               <input
                 type="checkbox"
                 class="size-3.5 shrink-0 accent-black"

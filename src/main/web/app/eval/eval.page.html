@@ -50,31 +50,31 @@
       @if (result(); as evaluation) {
         <div class="flex items-baseline justify-between gap-3 border-b border-black/8 pb-4">
           <h2 class="text-sm font-medium tracking-wide text-foreground/50 uppercase">Overall</h2>
-          <p class="text-3xl font-semibold tabular-nums text-foreground">
+          <p class="text-3xl font-semibold text-foreground tabular-nums">
             {{ evaluation.overallScore }}
           </p>
         </div>
 
         <div class="mt-4 grid grid-cols-2 gap-3">
-          <div class="rounded-lg bg-surface px-3 py-3">
+          <div class="rounded-lg bg-surface p-3">
             <p class="text-xs text-foreground/50">Coherence</p>
             <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.coherenceScore }}</p>
           </div>
-          <div class="rounded-lg bg-surface px-3 py-3">
+          <div class="rounded-lg bg-surface p-3">
             <p class="text-xs text-foreground/50">Relevance</p>
             <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.relevanceScore }}</p>
           </div>
-          <div class="rounded-lg bg-surface px-3 py-3">
+          <div class="rounded-lg bg-surface p-3">
             <p class="text-xs text-foreground/50">Helpfulness</p>
             <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.helpfulnessScore }}</p>
           </div>
           @if (evaluation.factualityAvailable) {
-            <div class="rounded-lg bg-surface px-3 py-3">
+            <div class="rounded-lg bg-surface p-3">
               <p class="text-xs text-foreground/50">Factuality</p>
               <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.factualityScore }}</p>
             </div>
           }
-          <div class="rounded-lg bg-surface px-3 py-3">
+          <div class="rounded-lg bg-surface p-3">
             <p class="text-xs text-foreground/50">Safety Issues</p>
             <p class="mt-1 text-lg font-semibold">
               {{ evaluation.hasSafetyIssues ? 'Yes' : 'No' }}
