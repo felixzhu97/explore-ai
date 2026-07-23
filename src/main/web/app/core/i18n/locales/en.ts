@@ -15,7 +15,7 @@ export const en: Translations = {
     mcp: 'MCP',
     eval: 'Eval',
     speechToText: 'Speech to Text',
-    agents: 'Agents',
+    agents: 'Agent',
     kubernetes: 'K8s',
     monitoring: 'Monitoring',
     aiinfra: 'AI Infra',
@@ -27,6 +27,11 @@ export const en: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: 'VectorDB',
+    groups: {
+      work: 'Work',
+      create: 'Create',
+      lab: 'Lab',
+    },
   },
   imageUploader: {
     imageLabel: 'Image',
@@ -78,6 +83,7 @@ export const en: Translations = {
     documentDeleted: 'Document deleted',
     deleteFailed: 'Delete failed, please retry',
     fileSelected: '{count} file(s) selected',
+    openAgentWorkbench: 'Open Agent pipeline',
   },
   agents: {
     thinking: 'Thinking...',
@@ -90,8 +96,8 @@ export const en: Translations = {
       clear: 'Clear',
       run: 'Run pipeline',
       emptyState: {
-        title: 'Start with a template',
-        description: 'Pick a pipeline, edit the task below, then run. You can also add agents from the left.',
+        title: 'Build a multi-step pipeline',
+        description: 'Pick a template or add agents, set the task, run the pipeline, then review results.',
       },
       hints: {
         empty: 'Add at least one worker agent to the canvas.',
@@ -194,7 +200,8 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     thinking: 'Thinking...',
     inputPlaceholder: 'Type your message...',
     welcomeTitle: 'How can I help you today?',
-    welcomeDescription: 'Start a conversation with the agent',
+    welcomeDescription: 'Ask anything — or open Agent for multi-step pipelines',
+    openAgentWorkbench: 'Open Agent pipeline',
     suggestedPromptsTitle: 'Suggested prompts',
     suggestedPrompts: [
       {

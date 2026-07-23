@@ -44,6 +44,16 @@
         </div>
     </div>
 
+    <a
+            routerLink="/agents"
+            z-button
+            zType="ghost"
+            zSize="sm"
+            class="hidden text-xs sm:inline-flex"
+            [attr.title]="i18n.t().chat.openAgentWorkbench"
+    >
+        {{ i18n.t().chat.openAgentWorkbench }}
+    </a>
     <button
             type="button"
             z-button

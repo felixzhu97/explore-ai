@@ -15,7 +15,7 @@ export const fr: Translations = {
     mcp: 'MCP',
     eval: 'Évaluation',
     speechToText: 'Transcription vocale',
-    agents: 'Agents',
+    agents: 'Agent',
     kubernetes: 'K8s',
     monitoring: 'Surveillance',
     aiinfra: 'AI Infra',
@@ -27,6 +27,11 @@ export const fr: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: 'VectorDB',
+    groups: {
+      work: 'Travail',
+      create: 'Création',
+      lab: 'Labo',
+    },
   },
   imageUploader: {
     imageLabel: 'Image',
@@ -79,6 +84,7 @@ export const fr: Translations = {
     documentDeleted: 'Document supprimé',
     deleteFailed: 'Échec de la suppression, veuillez réessayer',
     fileSelected: '{count} fichier(s) sélectionné(s)',
+    openAgentWorkbench: 'Ouvrir le pipeline Agent',
   },
   agents: {
     thinking: 'Réflexion...',
@@ -91,8 +97,8 @@ export const fr: Translations = {
       clear: 'Effacer',
       run: 'Lancer le pipeline',
       emptyState: {
-        title: 'Commencer par un modèle',
-        description: 'Choisissez un pipeline, éditez la tâche, puis lancez. Vous pouvez aussi ajouter des agents à gauche.',
+        title: 'Construire un pipeline multi-étapes',
+        description: 'Choisissez un modèle ou ajoutez des agents, définissez la tâche, lancez, puis consultez les résultats.',
       },
       hints: {
         empty: 'Ajoutez au moins un agent worker sur le canevas.',
@@ -196,7 +202,8 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     thinking: 'Réflexion...',
     inputPlaceholder: 'Tapez votre message...',
     welcomeTitle: 'Comment puis-je vous aider aujourd\'hui ?',
-    welcomeDescription: 'Démarrer une conversation avec l\'agent',
+    welcomeDescription: 'Posez une question — ou ouvrez Agent pour un pipeline multi-étapes',
+    openAgentWorkbench: 'Ouvrir le pipeline Agent',
     suggestedPromptsTitle: 'Suggestions',
     suggestedPrompts: [
       {

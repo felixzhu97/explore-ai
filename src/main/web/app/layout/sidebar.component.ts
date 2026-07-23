@@ -19,8 +19,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST } from './services/session-list.token';
 import type { SidebarSession } from './sidebar-session.model';
 import {
+  groupNavTabs,
   isNavTabEnabled,
   MODULE_NAV_TABS,
+  type ModuleNavGroup,
   type ModuleNavTab,
 } from '../core/config/module-nav.config';
 import { FeatureFlagService } from '../core/feature-flag.service';
@@ -88,6 +90,12 @@ export class SidebarComponent implements OnInit {
   readonly tabs = computed<ModuleNavTab[]>(() => MODULE_NAV_TABS.filter(
     tab => isNavTabEnabled(tab, this.featureFlags),
   ));
+
+  readonly navSections = computed(() => groupNavTabs(this.tabs()));
+
+  groupLabel(group: ModuleNavGroup): string {
+    return this.i18n.t().nav.groups[group];
+  }
 
   constructor() {
     this.updateMobileState();

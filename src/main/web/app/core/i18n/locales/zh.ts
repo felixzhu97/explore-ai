@@ -27,6 +27,11 @@ export const zh: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: '向量库',
+    groups: {
+      work: '工作',
+      create: '创作',
+      lab: '实验室',
+    },
   },
   imageUploader: {
     imageLabel: '图片',
@@ -78,6 +83,7 @@ export const zh: Translations = {
     documentDeleted: '文档已删除',
     deleteFailed: '删除失败，请重试',
     fileSelected: '已选择 {count} 个文件',
+    openAgentWorkbench: '打开 Agent 流水线',
   },
   agents: {
     thinking: '思考中...',
@@ -90,8 +96,8 @@ export const zh: Translations = {
       clear: '清空',
       run: '运行流水线',
       emptyState: {
-        title: '从模版开始',
-        description: '选择编排模版，编辑下方任务后运行；也可从左侧添加 Agent。',
+        title: '搭建多步流水线',
+        description: '选择模版或添加 Agent，填写任务，运行流水线，再查看结果。',
       },
       hints: {
         empty: '请至少将一个专业 Agent 放到画布上。',
@@ -192,7 +198,8 @@ export const zh: Translations = {
     thinking: '思考中...',
     inputPlaceholder: '输入消息...',
     welcomeTitle: '今天我能帮你什么？',
-    welcomeDescription: '开始与 Agent 对话',
+    welcomeDescription: '随便问，或打开 Agent 做多步流水线',
+    openAgentWorkbench: '打开 Agent 流水线',
     suggestedPromptsTitle: '推荐提示',
     suggestedPrompts: [
       {

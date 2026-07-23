@@ -15,7 +15,7 @@ export const es: Translations = {
     mcp: 'MCP',
     eval: 'Evaluación',
     speechToText: 'Voz a texto',
-    agents: 'Agents',
+    agents: 'Agent',
     kubernetes: 'K8s',
     monitoring: 'Monitoreo',
     aiinfra: 'AI Infra',
@@ -27,6 +27,11 @@ export const es: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: 'VectorDB',
+    groups: {
+      work: 'Trabajo',
+      create: 'Crear',
+      lab: 'Lab',
+    },
   },
   imageUploader: {
     imageLabel: 'Imagen',
@@ -79,6 +84,7 @@ export const es: Translations = {
     documentDeleted: 'Documento eliminado',
     deleteFailed: 'Error al eliminar, por favor inténtelo de nuevo',
     fileSelected: '{count} archivo(s) seleccionado(s)',
+    openAgentWorkbench: 'Abrir pipeline de Agent',
   },
   agents: {
     thinking: 'Pensando...',
@@ -91,8 +97,8 @@ export const es: Translations = {
       clear: 'Limpiar',
       run: 'Ejecutar pipeline',
       emptyState: {
-        title: 'Empieza con una plantilla',
-        description: 'Elige un pipeline, edita la tarea y ejecuta. También puedes añadir agentes a la izquierda.',
+        title: 'Arma un pipeline de varios pasos',
+        description: 'Elige una plantilla o añade agentes, define la tarea, ejecuta y revisa los resultados.',
       },
       hints: {
         empty: 'Añade al menos un agente worker al lienzo.',
@@ -196,7 +202,8 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     thinking: 'Pensando...',
     inputPlaceholder: 'Escribe tu mensaje...',
     welcomeTitle: '¿En qué puedo ayudarte hoy?',
-    welcomeDescription: 'Inicia una conversación con el agente',
+    welcomeDescription: 'Pregunta lo que quieras — o abre Agent para pipelines multi-paso',
+    openAgentWorkbench: 'Abrir pipeline de Agent',
     suggestedPromptsTitle: 'Sugerencias',
     suggestedPrompts: [
       {

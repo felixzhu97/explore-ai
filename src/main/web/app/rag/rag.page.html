@@ -7,6 +7,16 @@
         </z-badge>
     </div>
     <div class="flex items-center gap-2">
+        <a
+                routerLink="/agents"
+                z-button
+                zType="ghost"
+                zSize="sm"
+                class="hidden text-xs sm:inline-flex"
+                [attr.title]="i18n.t().ragChat.openAgentWorkbench"
+        >
+            {{ i18n.t().ragChat.openAgentWorkbench }}
+        </a>
         <input
                 #docInput
                 type="file"
