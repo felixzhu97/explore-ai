@@ -16,9 +16,13 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * Orchestrator-Workers workflow: route via supervisor, run workers, emit SSE events.
+ * Orchestrator-Workers workflow: route via supervisor, run workers (parallel when multi-subtask),
+ * compose pipeline steps by feeding prior output forward.
  */
 @Service
 public class OrchestratorWorkersUseCase {
@@ -86,9 +90,9 @@ public class OrchestratorWorkersUseCase {
         }
         try {
             List<AgentType> order = pipeline.executionOrder();
-            return Flux.concat(
-                            Flux.fromIterable(order).concatMap(type -> runPipelineStep(type, message)),
-                            Flux.just(doneEvent()))
+            return Mono.fromCallable(() -> runPipelineComposed(message, order))
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .flatMapMany(events -> Flux.fromIterable(events))
                     .onErrorResume(err -> Flux.just(
                             errorEvent(err.getMessage() != null ? err.getMessage() : "pipeline failed"),
                             doneEvent()));
@@ -97,13 +101,28 @@ public class OrchestratorWorkersUseCase {
         }
     }
 
-    private Flux<ServerSentEvent<String>> runPipelineStep(AgentType type, String message) {
-        AgentDefinition agent = registry.require(type);
-        return Flux.concat(
-                Flux.just(handoffEvent(type.value(), "pipeline step")),
-                workerInvoker.invokeStream(agent, message)
-                        .map(OrchestratorWorkersUseCase::messageEvent),
-                Flux.just(messageEvent("\n\n")));
+    private List<ServerSentEvent<String>> runPipelineComposed(String message, List<AgentType> order) {
+        List<ServerSentEvent<String>> events = new ArrayList<>();
+        String current = message;
+        for (AgentType type : order) {
+            AgentDefinition agent = registry.require(type);
+            events.add(handoffEvent(type.value(), "pipeline step"));
+            String stepInput = """
+                    Original user request:
+                    %s
+
+                    Context from previous pipeline step:
+                    %s
+
+                    Continue the task as your specialist role.
+                    """.formatted(message, current);
+            String output = workerInvoker.invoke(agent, stepInput);
+            current = output == null ? "" : output;
+            events.add(messageEvent(current));
+            events.add(messageEvent("\n\n"));
+        }
+        events.add(doneEvent());
+        return events;
     }
 
     private Flux<ServerSentEvent<String>> executePlan(String originalMessage, RoutingPlan plan) {
@@ -124,13 +143,22 @@ public class OrchestratorWorkersUseCase {
 
     private Flux<ServerSentEvent<String>> runSubtasksAndSynthesize(String originalMessage, RoutingPlan plan) {
         return Mono.fromCallable(() -> {
-                    StringBuilder collected = new StringBuilder();
-                    for (RoutingPlan.Subtask subtask : plan.subtasks()) {
-                        AgentDefinition worker = registry.require(subtask.agentType());
-                        String result = workerInvoker.invoke(worker, subtask.instruction());
-                        collected.append("### ").append(subtask.agentType().value()).append('\n')
-                                .append(result).append("\n\n");
+                    List<RoutingPlan.Subtask> subtasks = plan.subtasks();
+                    List<String> workerOutputs;
+                    try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
+                        List<CompletableFuture<String>> futures = subtasks.stream()
+                                .map(subtask -> CompletableFuture.supplyAsync(() -> {
+                                    AgentDefinition worker = registry.require(subtask.agentType());
+                                    String result = workerInvoker.invoke(worker, subtask.instruction());
+                                    return "### " + subtask.agentType().value() + '\n'
+                                            + result + "\n\n";
+                                }, pool))
+                                .toList();
+                        workerOutputs = futures.stream()
+                                .map(CompletableFuture::join)
+                                .toList();
                     }
+                    String collected = String.join("", workerOutputs);
                     AgentDefinition synthesizer = registry.require(plan.primaryAgent());
                     String synthesisPrompt = """
                             Original user request:

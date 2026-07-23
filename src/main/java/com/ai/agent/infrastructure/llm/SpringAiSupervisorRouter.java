@@ -6,6 +6,7 @@ import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.vo.AgentType;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,6 +15,10 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * DeepSeek (and many OpenAI-compatible providers) reject native {@code response_format}.
+ * Route via prompt JSON + {@link BeanOutputConverter} instead of {@code .entity()}.
+ */
 @Component
 public class SpringAiSupervisorRouter implements SupervisorRouter {
 
@@ -37,6 +42,9 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
                 .map(w -> "- " + w.type().value() + ": " + w.description())
                 .collect(Collectors.joining("\n"));
 
+        BeanOutputConverter<RoutingDecisionResponse> converter =
+                new BeanOutputConverter<>(RoutingDecisionResponse.class);
+
         String prompt = """
                 Analyze the user request and choose worker agent(s).
 
@@ -48,19 +56,23 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
 
                 Return primaryAgent as one of the worker type ids above.
                 Only add subtasks when the request clearly needs multiple specialists.
-                """.formatted(catalog, userMessage);
 
-        RoutingDecisionResponse decision = chatClientProvider
+                %s
+                """.formatted(catalog, userMessage, converter.getFormat());
+
+        String raw = chatClientProvider
                 .createBareStateless(TextChatOptions.defaults())
                 .prompt()
                 .system("""
                         You are a multi-agent supervisor. Route work to specialized agents.
                         Never set primaryAgent to supervisor. Prefer a single worker when possible.
+                        Respond with JSON only.
                         """)
                 .user(prompt)
                 .call()
-                .entity(RoutingDecisionResponse.class);
+                .content();
 
+        RoutingDecisionResponse decision = converter.convert(raw);
         return toPlan(decision, allowed, workers.getFirst().type());
     }
 

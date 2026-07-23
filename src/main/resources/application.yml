@@ -121,6 +121,8 @@ launchdarkly:
 
 app:
   ai:
+    chat-memory:
+      max-messages: ${CHAT_MEMORY_MAX_MESSAGES:20}
     image:
       enabled: ${IMAGE_ENABLED:true}
       provider: ${IMAGE_PROVIDER:ollama}

@@ -11,4 +11,9 @@ public interface ChatClientProvider {
     ChatClient createStateless(TextChatOptions options);
 
     ChatClient createBareStateless(TextChatOptions options);
+
+    /**
+     * Build a ChatClient for a composition profile (memory / tools / bare).
+     */
+    ChatClient create(TextChatOptions options, ChatClientProfile profile, String conversationId);
 }

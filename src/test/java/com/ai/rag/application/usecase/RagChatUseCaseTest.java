@@ -1,11 +1,13 @@
 package com.ai.rag.application.usecase;
 
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.chat.infrastructure.prompt.LocalizedRagPromptBuilder;
+import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.application.llm.TextChatOptions;
 import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.infrastructure.retrieval.H2DocumentRetriever;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RagChatUseCase")
@@ -47,7 +51,10 @@ class RagChatUseCaseTest {
     private ChatClient.CallResponseSpec callResponseSpec;
 
     @Mock
-    private LocalizedRagPromptBuilder localizedRagPromptBuilder;
+    private LanguageDetectionService languageDetectionService;
+
+    @Mock
+    private H2DocumentRetriever documentRetriever;
 
     private RagChatUseCase ragChatUseCase;
 
@@ -56,14 +63,17 @@ class RagChatUseCaseTest {
         ragChatUseCase = new RagChatUseCase(
                 ragApplicationService,
                 chatClientProvider,
-                localizedRagPromptBuilder
+                languageDetectionService,
+                documentRetriever
         );
-        when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
+        when(chatClientProvider.create(any(TextChatOptions.class), any(ChatClientProfile.class), any()))
+                .thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
+        when(requestSpec.advisors(any(Advisor.class))).thenReturn(requestSpec);
+        when(requestSpec.system(anyString())).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(localizedRagPromptBuilder.build(anyString(), anyString()))
-                .thenAnswer(invocation -> "prompt:" + invocation.getArgument(0));
+        when(languageDetectionService.detect(anyString())).thenReturn("en");
     }
 
     @Nested
@@ -71,8 +81,8 @@ class RagChatUseCaseTest {
     class Chat {
 
         @Test
-        @DisplayName("should return ChatResult with response and sources")
-        void shouldReturnChatResultWithResponseAndSources() {
+        @DisplayName("should_returnChatResultWithResponseAndSources_when_questionProvided")
+        void should_returnChatResultWithResponseAndSources_when_questionProvided() {
             String question = "What is AI?";
             String aiResponse = "AI is Artificial Intelligence";
             List<SourceDocument> sources = List.of(
@@ -92,13 +102,12 @@ class RagChatUseCaseTest {
             assertThat(result.sources().getFirst().text()).isEqualTo("AI definition");
 
             verify(ragApplicationService).retrieveContext(question, null, 5);
-            verify(localizedRagPromptBuilder).build(question, "context");
-            verify(requestSpec).user("prompt:" + question);
+            verify(requestSpec).user(question);
         }
 
         @Test
-        @DisplayName("should pass docIds to service when provided")
-        void shouldPassDocIdsToServiceWhenProvided() {
+        @DisplayName("should_passDocIdsToService_when_provided")
+        void should_passDocIdsToService_when_provided() {
             String question = "What is AI?";
             String docId1 = UUID.randomUUID().toString();
             List<String> docIds = List.of(docId1);
@@ -116,8 +125,8 @@ class RagChatUseCaseTest {
         }
 
         @Test
-        @DisplayName("should use custom topK when provided")
-        void shouldUseCustomTopKWhenProvided() {
+        @DisplayName("should_useCustomTopK_when_provided")
+        void should_useCustomTopK_when_provided() {
             String question = "What is AI?";
             int customTopK = 10;
 
@@ -133,8 +142,8 @@ class RagChatUseCaseTest {
         }
 
         @Test
-        @DisplayName("should use default topK value of 5 when topK is null")
-        void shouldUseDefaultTopKWhenTopKIsNull() {
+        @DisplayName("should_useDefaultTopK_when_topKIsNull")
+        void should_useDefaultTopK_when_topKIsNull() {
             String question = "What is AI?";
             int expectedDefaultTopK = 5;
 
@@ -150,8 +159,8 @@ class RagChatUseCaseTest {
         }
 
         @Test
-        @DisplayName("should handle empty docIds list")
-        void shouldHandleEmptyDocIdsList() {
+        @DisplayName("should_handleEmptyDocIdsList_when_empty")
+        void should_handleEmptyDocIdsList_when_empty() {
             String question = "What is AI?";
             List<String> emptyDocIds = Collections.emptyList();
 

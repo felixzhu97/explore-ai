@@ -9,6 +9,7 @@ import java.util.List;
  */
 public record RagChatRequest(
     @JsonProperty("query")
+    @JsonAlias("question")
     String question,
 
     @JsonAlias("session_id")

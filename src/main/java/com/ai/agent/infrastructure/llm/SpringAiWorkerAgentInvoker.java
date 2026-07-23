@@ -2,6 +2,7 @@ package com.ai.agent.infrastructure.llm;
 
 import com.ai.agent.application.port.WorkerAgentInvoker;
 import com.ai.agent.domain.model.AgentDefinition;
+import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.repository.DocumentSearchTool;
@@ -34,9 +35,7 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
     @Override
     public Flux<String> invokeStream(AgentDefinition agent, String task) {
-        // Tool-calling models (e.g. DeepSeek) often stream DSML/tool_calls markup as
-        // plain text on .stream().content(). Use blocking call so ToolCallingAdvisor
-        // completes the tool loop, then emit the sanitized final answer.
+        // Tool-calling models often stream tool markup as plain text; block for tool loop.
         if (usesTools(agent)) {
             return Mono.fromCallable(() -> invoke(agent, task))
                     .subscribeOn(Schedulers.boundedElastic())
@@ -67,7 +66,10 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     }
 
     private ChatClient.ChatClientRequestSpec basePrompt(AgentDefinition agent, String task) {
-        ChatClient client = chatClientProvider.createBareStateless(TextChatOptions.defaults());
+        // BARE avoids factory-wide tool defaults; attach only this worker's tools below.
+        // (TOOLS + .tools(weatherTool) duplicated getWeather/getForecast and failed ChatOptions.)
+        ChatClient client = chatClientProvider.create(
+                TextChatOptions.defaults(), ChatClientProfile.BARE, null);
         ChatClient.ChatClientRequestSpec spec = client.prompt()
                 .system(agent.systemPrompt())
                 .user(task);
