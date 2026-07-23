@@ -29,6 +29,30 @@ import type { SenderActionGroup, SenderActionItem } from './sender-action.model'
             [emptyLabel]="emptyLabel()"
             (itemSelect)="onActionSelect($event)"
           />
+          @if (selectedTool(); as tool) {
+            <div class="mb-2 flex flex-wrap items-center gap-1.5" data-selected-tool>
+              <span
+                class="
+                  inline-flex max-w-full items-center gap-1 rounded-lg bg-foreground/8
+                  px-2.5 py-1 text-sm font-medium text-foreground ring-1 ring-foreground/15
+                "
+              >
+                <span class="truncate">{{ tool.label }}</span>
+                <button
+                  type="button"
+                  class="
+                    flex size-4 shrink-0 items-center justify-center rounded text-foreground/50
+                    hover:bg-black/8 hover:text-foreground
+                  "
+                  [attr.title]="removeToolLabel()"
+                  [attr.aria-label]="removeToolLabel()"
+                  (click)="clearSelectedTool($event)"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+          }
           <nx-sender
             class="w-full min-w-0"
             [placeholder]="placeholder()"
@@ -68,10 +92,12 @@ export class ChatSenderBarComponent {
   readonly placeholder = input.required<string>();
   readonly loading = input(false);
   readonly value = model('');
+  readonly selectedTool = model<SenderActionItem | null>(null);
   readonly actionGroups = input<SenderActionGroup[]>([]);
   readonly filterPlaceholder = input('Filter…');
   readonly emptyLabel = input('No matches');
   readonly openActionsLabel = input('Open actions');
+  readonly removeToolLabel = input('Remove tool');
 
   readonly submitSend = output<void>();
   readonly actionSelect = output<SenderActionItem>();
@@ -123,7 +149,16 @@ export class ChatSenderBarComponent {
   }
 
   onActionSelect(item: SenderActionItem): void {
+    if (item.kind === 'tool') {
+      this.selectedTool.set(item);
+    }
     this.actionSelect.emit(item);
     this.suggestionOpen.set(false);
+  }
+
+  clearSelectedTool(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectedTool.set(null);
   }
 }

@@ -267,15 +267,16 @@ export class RagService {
     this.input.set(text);
   }
 
-  async sendMessage(): Promise<void> {
+  async sendMessage(options?: { streamQuery?: string }): Promise<void> {
     if (!this.input().trim() && this.pendingImages().length === 0) return;
     if (this.isLoading()) return;
 
     const images = this.pendingImages();
+    const displayContent = this.input().trim() || (images.length > 0 ? '(Image)' : '');
     const userMessage: RagChatMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
-      content: this.input().trim() || (images.length > 0 ? '(Image)' : ''),
+      content: displayContent,
       timestamp: Date.now(),
       images: images.length > 0 ? images : undefined,
     };
@@ -298,7 +299,7 @@ export class RagService {
     this.streamingMessageIds.update(ids => new Set(ids).add(assistantMessageId));
 
     const requestBody: RagQuery = {
-      query: userMessage.content,
+      query: (options?.streamQuery ?? displayContent).trim() || displayContent,
       sessionId: this.sessionId,
       topK: DEFAULT_TOP_K,
       temperature: DEFAULT_TEMPERATURE,

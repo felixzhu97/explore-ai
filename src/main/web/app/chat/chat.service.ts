@@ -254,9 +254,10 @@ export class ChatService {
     });
   }
 
-  sendMessage(content: string): void {
+  sendMessage(content: string, options?: { streamContent?: string }): void {
     const sessionId = this.activeSessionId();
-    if (!sessionId || !content.trim() || this.isLoading()) {
+    const displayContent = content.trim();
+    if (!sessionId || !displayContent || this.isLoading()) {
       return;
     }
 
@@ -272,10 +273,12 @@ export class ChatService {
       this.streamAbort();
     }
 
+    const streamContent = (options?.streamContent ?? displayContent).trim();
+
     const userMsg: UiMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
-      content: content.trim(),
+      content: displayContent,
       timestamp: Date.now(),
     };
     const assistantId = `assistant_${Date.now()}`;
@@ -290,7 +293,7 @@ export class ChatService {
     this.error.set(null);
 
     let fullContent = '';
-    const streamRequest: ChatMessage[] = [{ role: 'user', content: userMsg.content }];
+    const streamRequest: ChatMessage[] = [{ role: 'user', content: streamContent }];
 
     const { abort } = this.chatStream(
       {

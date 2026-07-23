@@ -94,11 +94,13 @@
 <app-chat-sender-bar
   [placeholder]="i18n.t().chat.inputPlaceholder"
   [(value)]="input"
+  [(selectedTool)]="selectedTool"
   [loading]="chat.isLoading()"
   [actionGroups]="actionGroups()"
   [filterPlaceholder]="i18n.t().sender.filterPlaceholder"
   [emptyLabel]="i18n.t().sender.empty"
   [openActionsLabel]="i18n.t().sender.openActions"
+  [removeToolLabel]="i18n.t().sender.removeTool"
   (submitSend)="send()"
   (actionSelect)="onSenderAction($event)"
 />

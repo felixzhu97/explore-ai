@@ -5,15 +5,6 @@ import { isNavTabEnabled, MODULE_NAV_TABS } from '../../../core/config/module-na
 import type { ToolCatalogEntryDto } from './tools-catalog.service';
 import type { SenderActionGroup, SenderActionItem } from './sender-action.model';
 
-const KNOWN_TOOL_PROMPTS: Record<string, keyof Translations['sender']['toolPrompts']> = {
-  getWeather: 'getWeather',
-  getForecast: 'getForecast',
-  searchWeb: 'searchWeb',
-  search_documents: 'searchDocuments',
-  searchDocuments: 'searchDocuments',
-  list_documents: 'searchDocuments',
-};
-
 export type SenderCatalogScope = 'full' | 'rag' | 'agents';
 
 export function buildSenderActionGroups(options: {
@@ -28,19 +19,12 @@ export function buildSenderActionGroups(options: {
   const groups: SenderActionGroup[] = [];
 
   if (scope === 'full' || scope === 'rag') {
-    const toolItems: SenderActionItem[] = options.tools.map((tool) => {
-      const promptKey = KNOWN_TOOL_PROMPTS[tool.name];
-      const promptTemplate = promptKey
-        ? s.toolPrompts[promptKey]
-        : s.toolPrompts.generic.replace('{name}', tool.name);
-      return {
-        id: `tool:${tool.name}`,
-        kind: 'tool',
-        label: tool.name,
-        description: tool.description || `${tool.source}`,
-        promptTemplate,
-      };
-    });
+    const toolItems: SenderActionItem[] = options.tools.map(tool => ({
+      id: `tool:${tool.name}`,
+      kind: 'tool',
+      label: tool.name,
+      description: tool.description || `${tool.source}`,
+    }));
     if (toolItems.length > 0) {
       groups.push({ id: 'tools', label: s.groups.tools, items: toolItems });
     }

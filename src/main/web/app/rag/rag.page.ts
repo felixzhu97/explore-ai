@@ -4,6 +4,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   computed,
+  model,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +26,7 @@ import {
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
   ToolsCatalogService,
+  composeToolAwareQuery,
   type SenderActionGroup,
   type SenderActionItem,
   type ToolCatalogEntryDto,
@@ -76,6 +78,7 @@ export class RagPageComponent implements OnInit {
   private readonly featureFlags = inject(FeatureFlagService);
   /** Mobile document rail visibility; desktop rail is always shown. */
   readonly docsOpen = signal(false);
+  readonly selectedTool = model<SenderActionItem | null>(null);
   private readonly tools = signal<ToolCatalogEntryDto[]>([]);
 
   readonly actionGroups = computed((): SenderActionGroup[] => {
@@ -127,13 +130,29 @@ export class RagPageComponent implements OnInit {
   }
 
   onSenderAction(action: SenderActionItem): void {
-    if (action.kind === 'tool' && action.promptTemplate) {
-      this.ragService.setInput(action.promptTemplate);
+    if (action.kind === 'tool') {
+      this.selectedTool.set(action);
       return;
     }
     if ((action.kind === 'agent' || action.kind === 'navigate') && action.path) {
       void this.router.navigateByUrl(action.path);
     }
+  }
+
+  sendWithSelectedTool(): void {
+    const text = this.ragService.input().trim();
+    if (!text && this.ragService.pendingImages().length === 0) {
+      return;
+    }
+    if (this.ragService.isLoading()) {
+      return;
+    }
+    const tool = this.selectedTool();
+    const streamQuery = tool?.kind === 'tool'
+      ? composeToolAwareQuery(text, tool.label, this.i18n.t().sender.toolIntent)
+      : undefined;
+    this.selectedTool.set(null);
+    void this.ragService.sendMessage(streamQuery ? { streamQuery } : undefined);
   }
 
   deleteDocument(docId: string, event: Event): void {

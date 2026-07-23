@@ -178,6 +178,8 @@ export interface Translations {
     openActions: string;
     filterPlaceholder: string;
     empty: string;
+    removeTool: string;
+    toolIntent: string;
     groups: {
       tools: string;
       agents: string;
@@ -189,13 +191,6 @@ export interface Translations {
       openAgentPipelineHint: string;
       newChat: string;
       toggleTools: string;
-    };
-    toolPrompts: {
-      getWeather: string;
-      getForecast: string;
-      searchWeb: string;
-      searchDocuments: string;
-      generic: string;
     };
   };
   generate: {

@@ -48,7 +48,6 @@ describe('ChatSenderBarComponent', () => {
             id: 'tool:getWeather',
             kind: 'tool',
             label: 'getWeather',
-            promptTemplate: 'weather?',
           },
         ],
       },
@@ -63,14 +62,14 @@ describe('ChatSenderBarComponent', () => {
     expect(fixture.nativeElement.querySelector('app-sender-suggestion')).toBeTruthy();
   });
 
-  it('should_emitActionSelect_when_suggestionItemChosen', () => {
+  it('should_setSelectedToolChip_when_toolChosen_withoutChangingInput', () => {
     const spy = vi.fn();
     fixture.componentInstance.actionSelect.subscribe(spy);
+    fixture.componentInstance.value.set('my question');
     const item = {
       id: 'tool:getWeather',
       kind: 'tool' as const,
       label: 'getWeather',
-      promptTemplate: 'weather?',
     };
     fixture.componentRef.setInput('actionGroups', [
       { id: 'tools', label: 'Tools', items: [item] },
@@ -78,8 +77,29 @@ describe('ChatSenderBarComponent', () => {
     fixture.detectChanges();
 
     fixture.componentInstance.onActionSelect(item);
+    fixture.detectChanges();
 
     expect(spy).toHaveBeenCalledWith(item);
+    expect(fixture.componentInstance.selectedTool()?.label).toBe('getWeather');
+    expect(fixture.componentInstance.value()).toBe('my question');
+    expect(fixture.nativeElement.querySelector('[data-selected-tool]')).toBeTruthy();
     expect(fixture.componentInstance.suggestionOpen()).toBe(false);
+  });
+
+  it('should_clearSelectedTool_when_removeClicked', () => {
+    fixture.componentInstance.selectedTool.set({
+      id: 'tool:getWeather',
+      kind: 'tool',
+      label: 'getWeather',
+    });
+    fixture.detectChanges();
+
+    const remove = fixture.nativeElement.querySelector(
+      '[data-selected-tool] button',
+    ) as HTMLButtonElement;
+    remove.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedTool()).toBeNull();
   });
 });

@@ -226,6 +226,8 @@ export const zh: Translations = {
     openActions: '打开操作',
     filterPlaceholder: '筛选操作…',
     empty: '没有匹配的操作',
+    removeTool: '移除工具',
+    toolIntent: '请使用工具 {name} 来帮助完成这个请求。',
     groups: {
       tools: '工具',
       agents: 'Agent',
@@ -237,13 +239,6 @@ export const zh: Translations = {
       openAgentPipelineHint: '编排并运行多步流水线',
       newChat: '新对话',
       toggleTools: '开关工具',
-    },
-    toolPrompts: {
-      getWeather: '北京今天天气怎么样？',
-      getForecast: '给我上海未来 3 天的天气预报。',
-      searchWeb: '搜索网上最新的 AI 新闻。',
-      searchDocuments: '在知识库中搜索产品功能相关内容。',
-      generic: '请使用工具 {name} 来帮助完成这个请求。',
     },
   },
   generate: {

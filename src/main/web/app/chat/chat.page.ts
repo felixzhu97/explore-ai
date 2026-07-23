@@ -18,6 +18,7 @@ import {
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
   ToolsCatalogService,
+  composeToolAwareQuery,
   type SenderActionGroup,
   type SenderActionItem,
   type ToolCatalogEntryDto,
@@ -82,6 +83,7 @@ export class ChatPage implements OnInit, OnDestroy {
   private readonly featureFlags = inject(FeatureFlagService);
 
   readonly input = model('');
+  readonly selectedTool = model<SenderActionItem | null>(null);
   private readonly tools = signal<ToolCatalogEntryDto[]>([]);
   private readonly agents = signal<AgentInfo[]>([]);
 
@@ -155,9 +157,7 @@ export class ChatPage implements OnInit, OnDestroy {
     switch (action.kind) {
       case 'tool':
         this.chat.setToolsEnabled(true);
-        if (action.promptTemplate) {
-          this.input.set(action.promptTemplate);
-        }
+        this.selectedTool.set(action);
         break;
       case 'agent':
       case 'navigate':
@@ -182,11 +182,19 @@ export class ChatPage implements OnInit, OnDestroy {
     if (!text || this.chat.isLoading()) {
       return;
     }
+    const tool = this.selectedTool();
+    if (tool?.kind === 'tool') {
+      this.chat.setToolsEnabled(true);
+    }
+    const streamContent = tool?.kind === 'tool'
+      ? composeToolAwareQuery(text, tool.label, this.i18n.t().sender.toolIntent)
+      : text;
     if (!this.chat.isSelectedProviderAvailable()) {
-      this.chat.sendMessage(text);
+      this.chat.sendMessage(text, { streamContent });
       return;
     }
     this.input.set('');
-    this.chat.sendMessage(text);
+    this.selectedTool.set(null);
+    this.chat.sendMessage(text, { streamContent });
   }
 }
