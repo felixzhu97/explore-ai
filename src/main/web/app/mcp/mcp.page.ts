@@ -9,7 +9,7 @@ import { ZardButtonComponent } from '../shared/components/button';
   imports: [FormsModule, ZardButtonComponent],
   templateUrl: './mcp.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
+  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class McpPageComponent implements OnInit {
   private readonly mcp = inject(McpService);

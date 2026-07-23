@@ -16,9 +16,9 @@ import { ZardSkeletonComponent } from '../skeleton';
     <z-card class="flex min-h-[300px] flex-col gap-3 py-4 shadow-card">
       <div
         class="
-          relative flex min-h-64 w-full flex-1 items-stretch justify-center
+          relative flex min-h-72 w-full flex-1 items-stretch justify-center
           overflow-hidden rounded-xl border-2 border-dashed border-input
-          bg-muted/40
+          bg-muted/40 md:min-h-96
         "
       >
         @if (loading()) {
@@ -37,7 +37,7 @@ import { ZardSkeletonComponent } from '../skeleton';
         @if (imageSrc()) {
           <img
             class="
-              max-h-96 max-w-full animate-fade-in cursor-zoom-in rounded-xl
+              max-h-[28rem] max-w-full animate-fade-in cursor-zoom-in rounded-xl
               object-contain transition-transform hover:scale-[1.02]
             "
             [src]="imageSrc()"
@@ -64,6 +64,7 @@ import { ZardSkeletonComponent } from '../skeleton';
           </div>
         }
       </div>
+      <ng-content select="[previewActions]" />
     </z-card>
   `,
   providers: [provideIcons({ lucideImage })],

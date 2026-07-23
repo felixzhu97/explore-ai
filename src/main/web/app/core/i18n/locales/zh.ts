@@ -71,6 +71,9 @@ export const zh: Translations = {
     keyInfo: '有哪些关键信息？',
     explain: '解释一下相关概念',
     documents: '可用文档',
+    documentsShort: '文档',
+    showDocuments: '显示文档',
+    hideDocuments: '隐藏文档',
     noDocuments: '暂无上传的文档',
     selectedDocuments: '已选择: {count}',
     selectAll: '全选',
@@ -250,6 +253,7 @@ export const zh: Translations = {
       synthesizing: '合成中...',
       audioReady: '音频就绪',
       downloadAudio: '下载音频',
+      emptyState: '合成后在此试听',
     },
   },
   sidebar: {

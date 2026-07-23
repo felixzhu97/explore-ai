@@ -132,6 +132,9 @@ describe('i18n.model', () => {
         'keyInfo',
         'explain',
         'documents',
+        'documentsShort',
+        'showDocuments',
+        'hideDocuments',
         'noDocuments',
         'selectedDocuments',
         'selectAll',
@@ -144,6 +147,7 @@ describe('i18n.model', () => {
         'documentDeleted',
         'deleteFailed',
         'fileSelected',
+        'openAgentWorkbench',
       ] as const;
 
       it('should have ragChat translations for all languages', () => {
@@ -243,6 +247,7 @@ describe('i18n.model', () => {
           expect(translations[lang].generate.tts.synthesizing).toBeDefined();
           expect(translations[lang].generate.tts.audioReady).toBeDefined();
           expect(translations[lang].generate.tts.downloadAudio).toBeDefined();
+          expect(translations[lang].generate.tts.emptyState).toBeDefined();
         });
       });
     });

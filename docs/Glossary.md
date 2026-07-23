@@ -68,6 +68,8 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 **Sidebar IA groups (frontend):** `MODULE_NAV_TABS` in `src/main/web/app/core/config/module-nav.config.ts` orders live nav as **Work** (`/chat` → `/rag` → `/agents`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`. Do not wire planned AIOps keys into these groups until productized.
 
+**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + tools list); Eval (input ‖ scores).
+
 ```mermaid
 flowchart TB
   subgraph contexts [BusinessDomains]
