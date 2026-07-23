@@ -7,14 +7,34 @@
         </z-badge>
     </div>
     <div class="flex items-center gap-2">
+        <input
+                #docInput
+                type="file"
+                accept=".pdf,.md,.txt,.markdown,application/pdf,text/plain,text/markdown"
+                multiple
+                class="hidden"
+                (change)="onFileSelect($event)"
+        />
+        <button
+                type="button"
+                z-button
+                zType="ghost"
+                zSize="icon"
+                [disabled]="ragService.isUploading()"
+                [attr.title]="i18n.t().ragChat.uploadDocs"
+                [attr.aria-label]="i18n.t().ragChat.uploadDocs"
+                (click)="docInput.click()"
+        >
+            <ng-icon name="lucideUpload" class="size-4!" />
+        </button>
         <button
                 type="button"
                 z-button
                 zType="ghost"
                 zSize="icon"
                 (click)="ragService.selectAllDocs()"
-                title="Select All"
-                aria-label="Select All"
+                [attr.title]="i18n.t().ragChat.selectAll"
+                [attr.aria-label]="i18n.t().ragChat.selectAll"
         >
             <ng-icon name="lucideListChecks" class="size-4!" />
         </button>
@@ -24,12 +44,84 @@
                 zType="ghost"
                 zSize="icon"
                 (click)="ragService.clearDocSelection()"
-                title="Clear Selection"
-                aria-label="Clear Selection"
+                [attr.title]="i18n.t().ragChat.clearSelection"
+                [attr.aria-label]="i18n.t().ragChat.clearSelection"
         >
             <ng-icon name="lucideX" class="size-4!" />
         </button>
     </div>
+</div>
+
+@if (ragService.pendingFiles().length > 0) {
+    <div class="flex shrink-0 flex-wrap items-center gap-2 border-b border-black/8 bg-white px-4 py-2">
+        @for (file of ragService.pendingFiles(); track file.name) {
+            <div class="inline-flex items-center gap-1.5 rounded-md bg-black/4 px-2 py-1 text-xs text-text">
+                <span class="max-w-40 truncate">{{ file.name }}</span>
+                @if (getUploadStatus(file.name); as status) {
+                    <span class="text-muted-foreground">{{ status.status }}</span>
+                }
+                <button
+                        type="button"
+                        z-button
+                        zType="ghost"
+                        zSize="icon"
+                        class="size-5!"
+                        [disabled]="ragService.isUploading()"
+                        [attr.title]="i18n.t().ragChat.clearSelection"
+                        [attr.aria-label]="i18n.t().ragChat.clearSelection"
+                        (click)="removePendingFile($index)"
+                >
+                    <ng-icon name="lucideX" class="size-3!" />
+                </button>
+            </div>
+        }
+        <button
+                type="button"
+                z-button
+                zType="secondary"
+                zSize="sm"
+                [disabled]="ragService.isUploading()"
+                (click)="uploadFiles()"
+        >
+            {{ ragService.isUploading() ? i18n.t().ragChat.uploading : i18n.t().ragChat.upload }}
+        </button>
+    </div>
+}
+
+<div class="max-h-36 shrink-0 overflow-y-auto border-b border-black/8 bg-white px-4 py-2">
+    @if (ragService.isLoadingDocs()) {
+        <p class="text-xs text-muted-foreground">{{ i18n.t().ragChat.thinking }}</p>
+    } @else if (ragService.availableDocs().length === 0) {
+        <p class="text-xs text-muted-foreground">{{ i18n.t().ragChat.noDocuments }}</p>
+    } @else {
+        <ul class="flex flex-col gap-1" role="list">
+            @for (doc of ragService.availableDocs(); track doc.id) {
+                <li class="flex items-center gap-2 rounded-md p-1 hover:bg-black/4">
+                    <input
+                            type="checkbox"
+                            class="size-3.5 accent-black"
+                            [checked]="ragService.selectedDocIds().has(doc.id)"
+                            [attr.aria-label]="doc.title"
+                            (change)="ragService.toggleDocSelection(doc.id)"
+                    />
+                    <span class="min-w-0 flex-1 truncate text-sm text-text">{{ doc.title }}</span>
+                    <button
+                            type="button"
+                            z-button
+                            zType="ghost"
+                            zSize="icon"
+                            class="size-7!"
+                            [disabled]="ragService.deletingDocIds().has(doc.id)"
+                            title="Delete document"
+                            aria-label="Delete document"
+                            (click)="deleteDocument(doc.id, $event)"
+                    >
+                        <ng-icon name="lucideTrash2" class="size-3.5!" />
+                    </button>
+                </li>
+            }
+        </ul>
+    }
 </div>
 
 <app-chat-message-pane
