@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,6 @@ class SpringAiEvaluatorOptimizerWorkflowTest {
     void setUp() {
         when(chatClientProvider.createBareStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
-        when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
         workflow = new SpringAiEvaluatorOptimizerWorkflow(chatClientProvider);
