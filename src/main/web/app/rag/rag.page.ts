@@ -134,7 +134,17 @@ export class RagPageComponent implements OnInit {
       this.selectedTool.set(action);
       return;
     }
-    if ((action.kind === 'agent' || action.kind === 'navigate') && action.path) {
+    if (action.kind === 'agent') {
+      if (action.id === 'agent:open' && action.path) {
+        void this.router.navigateByUrl(action.path);
+        return;
+      }
+      if (action.label) {
+        this.ragService.setInput(action.label);
+      }
+      return;
+    }
+    if (action.kind === 'navigate' && action.path) {
       void this.router.navigateByUrl(action.path);
     }
   }

@@ -160,6 +160,15 @@ export class ChatPage implements OnInit, OnDestroy {
         this.selectedTool.set(action);
         break;
       case 'agent':
+        // Only the explicit "open pipeline" action navigates; workers fill the input.
+        if (action.id === 'agent:open' && action.path) {
+          void this.router.navigateByUrl(action.path);
+          break;
+        }
+        if (action.label) {
+          this.input.set(action.label);
+        }
+        break;
       case 'navigate':
         if (action.path) {
           void this.router.navigateByUrl(action.path);

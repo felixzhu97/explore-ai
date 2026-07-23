@@ -26,7 +26,13 @@ describe('sender-action.catalog', () => {
 
     expect(groups.map(group => group.id)).toContain('tools');
     expect(groups.map(group => group.id)).toContain('agents');
+    expect(groups.map(group => group.id)).not.toContain('navigate');
     expect(groups.find(group => group.id === 'tools')?.items[0].label).toBe('getWeather');
+    const researcher = groups
+      .find(group => group.id === 'agents')
+      ?.items.find(item => item.id === 'agent:researcher');
+    expect(researcher?.path).toBeUndefined();
+    expect(researcher?.label).toBe('Researcher');
   });
 
   it('should_filterItems_when_queryTyped', () => {

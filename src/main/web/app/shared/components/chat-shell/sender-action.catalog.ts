@@ -1,7 +1,6 @@
 import type { Translations } from '../../../core/i18n/translations.types';
 import type { AgentInfo } from '../../../agents/agents.model';
 import type { FeatureFlagService } from '../../../core/feature-flag.service';
-import { isNavTabEnabled, MODULE_NAV_TABS } from '../../../core/config/module-nav.config';
 import type { ToolCatalogEntryDto } from './tools-catalog.service';
 import type { SenderActionGroup, SenderActionItem } from './sender-action.model';
 
@@ -46,25 +45,10 @@ export function buildSenderActionGroups(options: {
           kind: 'agent' as const,
           label: agent.name,
           description: agent.description,
-          path: '/agents',
           agentType: agent.type,
         })),
     ];
     groups.push({ id: 'agents', label: s.groups.agents, items: agentItems });
-  }
-
-  if (scope === 'full') {
-    const navItems: SenderActionItem[] = MODULE_NAV_TABS.filter(
-      tab => tab.path !== '/chat' && isNavTabEnabled(tab, options.featureFlags),
-    ).map(tab => ({
-      id: `nav:${tab.key}`,
-      kind: 'navigate' as const,
-      label: options.t.nav[tab.labelKey],
-      path: tab.path,
-    }));
-    if (navItems.length > 0) {
-      groups.push({ id: 'navigate', label: s.groups.navigate, items: navItems });
-    }
   }
 
   const sessionItems: SenderActionItem[] = [];
