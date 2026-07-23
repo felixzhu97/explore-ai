@@ -56,6 +56,23 @@ class PromptTemplatesTest {
         }
 
         @Test
+        @DisplayName("should_keepRepliesMinimalAndForbidDecorativeEmoji_when_defaultSystemPromptBuilt")
+        void should_keepRepliesMinimalAndForbidDecorativeEmoji_when_defaultSystemPromptBuilt() {
+            String prompt = templates.getDefaultSystemPrompt();
+
+            assertThat(prompt).contains("minimal and high-value");
+            assertThat(prompt).contains("No decorative emoji");
+            assertThat(prompt).contains("explicitly asks");
+        }
+
+        @Test
+        @DisplayName("should_exposeSharedStyle_when_catalogLoaded")
+        void should_exposeSharedStyle_when_catalogLoaded() {
+            assertThat(templates.getSharedStyleInstructions()).contains("minimal and high-value");
+            assertThat(templates.getAfterToolsReminder()).contains("Produce your final answer now");
+        }
+
+        @Test
         @DisplayName("should include A2UI catalog and chart fence instructions")
         void shouldIncludeA2uiCatalogAndChartFenceInstructions() {
             String prompt = templates.getDefaultSystemPrompt();

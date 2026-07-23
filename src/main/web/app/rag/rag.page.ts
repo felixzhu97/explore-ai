@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideImage, lucideListChecks, lucideX } from '@ng-icons/lucide';
-import { RagService } from './rag.service';
+import { lucideImage, lucideListChecks, lucideTrash2, lucideUpload, lucideX } from '@ng-icons/lucide';
+import { RagService, UploadStatus } from './rag.service';
 import {
   ChatBubbleMessage,
   ChatMessagePaneComponent,
@@ -35,7 +35,7 @@ import { ZardButtonComponent } from '../shared/components/button';
   templateUrl: './rag.page.html',
   providers: [
     provideNzIconsPatch([ArrowUpOutline]),
-    provideIcons({ lucideListChecks, lucideX, lucideImage }),
+    provideIcons({ lucideListChecks, lucideX, lucideImage, lucideUpload, lucideTrash2 }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
@@ -91,6 +91,18 @@ export class RagPageComponent implements OnInit {
       this.ragService.onFileSelect(Array.from(files));
     }
     input.value = '';
+  }
+
+  removePendingFile(index: number): void {
+    this.ragService.removePendingFile(index);
+  }
+
+  uploadFiles(): void {
+    this.ragService.uploadFiles();
+  }
+
+  getUploadStatus(name: string): UploadStatus | undefined {
+    return this.ragService.getUploadStatus(name);
   }
 
   onImageSelect(event: Event): void {

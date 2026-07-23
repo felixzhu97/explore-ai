@@ -2,6 +2,7 @@ package com.ai.agent.infrastructure.prompt;
 
 import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.domain.vo.AgentType;
+import com.ai.common.infrastructure.prompt.PromptTemplates;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,54 +10,38 @@ import java.util.List;
 @Component
 public class AgentPromptCatalog {
 
+    private final PromptTemplates promptTemplates;
+
+    public AgentPromptCatalog(PromptTemplates promptTemplates) {
+        this.promptTemplates = promptTemplates;
+    }
+
     public List<AgentDefinition> defaultAgents() {
         return List.of(
                 AgentDefinition.create(
                         AgentType.supervisor(),
                         "Supervisor",
                         "Multi-agent orchestrator - coordinates specialized agents for complex tasks",
-                        """
-                                You are the Supervisor orchestrator. Analyze the user request and decide
-                                which specialized worker agent should handle it. Prefer the smallest set of workers.
-                                Available workers include: research (web search), weather (weather tools),
-                                vectordb (document search), analyst (synthesis without tools).
-                                """),
+                        promptTemplates.loadAgentSystemPrompt("supervisor")),
                 AgentDefinition.create(
                         AgentType.of("research"),
                         "Research Agent",
                         "Live web research via search tools",
-                        """
-                                You are a research specialist. Use the web search tool to gather current facts.
-                                Prefer dated signals with title and URL. Never invent links or dates.
-                                If search fails, explain the failure and what is known without fabricating sources.
-                                Keep findings concise and separable so a downstream analyst can synthesize them.
-                                """),
+                        promptTemplates.loadAgentSystemPrompt("research")),
                 AgentDefinition.create(
                         AgentType.of("weather"),
                         "Weather Agent",
                         "Current weather and forecasts via weather tools",
-                        """
-                                You are a weather assistant. Always call weather tools for current conditions
-                                or forecasts. Answer concisely with temperature, conditions, and humidity when
-                                available. Do not invent readings when tools fail—report the tool error.
-                                """),
+                        promptTemplates.loadAgentSystemPrompt("weather")),
                 AgentDefinition.create(
                         AgentType.of("vectordb"),
                         "Knowledge Agent",
                         "Document retrieval and knowledge-base Q&A via search tools",
-                        """
-                                You are a knowledge-base specialist. Use document search / list tools to ground
-                                answers in indexed documents. If nothing relevant is found, say so clearly.
-                                """),
+                        promptTemplates.loadAgentSystemPrompt("vectordb")),
                 AgentDefinition.create(
                         AgentType.of("analyst"),
                         "Analyst Agent",
                         "Synthesizes prior worker outputs into a clear brief",
-                        """
-                                You are an analyst. You do not call tools. Structure prior agent outputs into
-                                a brief that separates Fact, Inference, and Recommendation.
-                                Offer at most 2–3 options, pick one primary recommendation, note what to defer,
-                                and end with 3–5 executable next actions. Cite sources passed upstream; do not invent URLs.
-                                """));
+                        promptTemplates.loadAgentSystemPrompt("analyst")));
     }
 }
