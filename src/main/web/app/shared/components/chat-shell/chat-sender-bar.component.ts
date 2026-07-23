@@ -33,16 +33,21 @@ import type { SenderActionGroup, SenderActionItem } from './sender-action.model'
             <div class="mb-2 flex flex-wrap items-center gap-1.5" data-selected-tool>
               <span
                 class="
-                  inline-flex max-w-full items-center gap-1 rounded-lg bg-foreground/8
-                  px-2.5 py-1 text-sm font-medium text-foreground ring-1 ring-foreground/15
+                  inline-flex max-w-full items-center gap-1.5 rounded-full bg-foreground
+                  py-1 pr-1 pl-2.5 text-sm font-semibold text-white shadow-sm
                 "
               >
-                <span class="truncate">{{ tool.label }}</span>
+                <span
+                  class="shrink-0 text-[10px] font-medium tracking-wide text-white/65 uppercase"
+                >
+                  {{ tool.kind === 'agent' ? agentChipLabel() : toolChipLabel() }}
+                </span>
+                <span class="min-w-0 truncate">{{ tool.label }}</span>
                 <button
                   type="button"
                   class="
-                    flex size-4 shrink-0 items-center justify-center rounded text-foreground/50
-                    hover:bg-black/8 hover:text-foreground
+                    flex size-5 shrink-0 items-center justify-center rounded-full
+                    bg-white/15 text-base leading-none text-white hover:bg-white/25
                   "
                   [attr.title]="removeToolLabel()"
                   [attr.aria-label]="removeToolLabel()"
@@ -98,6 +103,8 @@ export class ChatSenderBarComponent {
   readonly emptyLabel = input('No matches');
   readonly openActionsLabel = input('Open actions');
   readonly removeToolLabel = input('Remove tool');
+  readonly toolChipLabel = input('Tool');
+  readonly agentChipLabel = input('Agent');
 
   readonly submitSend = output<void>();
   readonly actionSelect = output<SenderActionItem>();
@@ -149,7 +156,7 @@ export class ChatSenderBarComponent {
   }
 
   onActionSelect(item: SenderActionItem): void {
-    if (item.kind === 'tool') {
+    if (item.kind === 'tool' || (item.kind === 'agent' && item.id !== 'agent:open')) {
       this.selectedTool.set(item);
     }
     this.actionSelect.emit(item);

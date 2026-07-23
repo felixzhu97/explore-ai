@@ -82,8 +82,25 @@ describe('ChatSenderBarComponent', () => {
     expect(spy).toHaveBeenCalledWith(item);
     expect(fixture.componentInstance.selectedTool()?.label).toBe('getWeather');
     expect(fixture.componentInstance.value()).toBe('my question');
-    expect(fixture.nativeElement.querySelector('[data-selected-tool]')).toBeTruthy();
+    const chip = fixture.nativeElement.querySelector('[data-selected-tool] span');
+    expect(chip?.className).toContain('bg-foreground');
+    expect(chip?.className).toContain('text-white');
     expect(fixture.componentInstance.suggestionOpen()).toBe(false);
+  });
+
+  it('should_setSelectedChip_when_agentChosen_withoutChangingInput', () => {
+    const item = {
+      id: 'agent:weather',
+      kind: 'agent' as const,
+      label: 'Weather Agent',
+      agentType: 'weather',
+    };
+    fixture.componentInstance.value.set('ask about rain');
+    fixture.componentInstance.onActionSelect(item);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedTool()?.label).toBe('Weather Agent');
+    expect(fixture.componentInstance.value()).toBe('ask about rain');
   });
 
   it('should_clearSelectedTool_when_removeClicked', () => {

@@ -139,9 +139,7 @@ export class RagPageComponent implements OnInit {
         void this.router.navigateByUrl(action.path);
         return;
       }
-      if (action.label) {
-        this.ragService.setInput(action.label);
-      }
+      this.selectedTool.set(action);
       return;
     }
     if (action.kind === 'navigate' && action.path) {
