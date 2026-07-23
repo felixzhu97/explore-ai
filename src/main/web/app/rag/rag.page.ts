@@ -6,6 +6,7 @@ import {
   computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideImage, lucideListChecks, lucideTrash2, lucideUpload, lucideX } from '@ng-icons/lucide';
 import { RagService, UploadStatus } from './rag.service';
@@ -25,6 +26,7 @@ import { ZardButtonComponent } from '../shared/components/button';
   selector: 'app-rag-page',
   imports: [
     FormsModule,
+    RouterLink,
     NgIcon,
     NzIconModule,
     ChatMessagePaneComponent,

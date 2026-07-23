@@ -27,6 +27,11 @@ export const ja: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: 'VectorDB',
+    groups: {
+      work: '作業',
+      create: '作成',
+      lab: 'ラボ',
+    },
   },
   imageUploader: {
     imageLabel: '画像',
@@ -78,6 +83,7 @@ export const ja: Translations = {
     documentDeleted: 'ドキュメントが削除されました',
     deleteFailed: '削除に失敗しました。もう一度お試しください',
     fileSelected: '{count} ファイル選択済み',
+    openAgentWorkbench: 'Agent パイプラインを開く',
   },
   agents: {
     thinking: '考え中...',
@@ -90,8 +96,8 @@ export const ja: Translations = {
       clear: 'クリア',
       run: 'パイプライン実行',
       emptyState: {
-        title: 'テンプレートから開始',
-        description: 'テンプレートを選び、下のタスクを編集して実行。左からエージェントを追加することもできます。',
+        title: '複数ステップのパイプラインを組む',
+        description: 'テンプレートを選ぶかエージェントを追加し、タスクを設定して実行し、結果を確認します。',
       },
       hints: {
         empty: 'キャンバスに少なくとも1つのワーカーを追加してください。',
@@ -194,7 +200,8 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     thinking: '考え中...',
     inputPlaceholder: 'メッセージを入力...',
     welcomeTitle: '今日は何をお手伝いできますか？',
-    welcomeDescription: 'エージェントとの会話を始めましょう',
+    welcomeDescription: '何でも聞くか、Agent で多段パイプラインを開く',
+    openAgentWorkbench: 'Agent パイプラインを開く',
     suggestedPromptsTitle: 'おすすめプロンプト',
     suggestedPrompts: [
       {

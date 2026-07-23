@@ -43,6 +43,11 @@ export interface Translations {
     llmops: string;
     aiops: string;
     vectordb: string;
+    groups: {
+      work: string;
+      create: string;
+      lab: string;
+    };
   };
   imageUploader: {
     imageLabel: string;
@@ -94,6 +99,7 @@ export interface Translations {
     documentDeleted: string;
     deleteFailed: string;
     fileSelected: string;
+    openAgentWorkbench: string;
   };
   agents: {
     thinking: string;
@@ -157,6 +163,7 @@ export interface Translations {
     inputPlaceholder: string;
     welcomeTitle: string;
     welcomeDescription: string;
+    openAgentWorkbench: string;
     suggestedPromptsTitle: string;
     suggestedPrompts: {
       key: string;

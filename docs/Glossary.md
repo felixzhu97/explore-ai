@@ -66,6 +66,8 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 **Planned sidebar labels (no route yet):** `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb` — i18n keys retained for future modules. Nav key `agents` maps to **Agent** (`/agents`).
 
+**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` in `src/main/web/app/core/config/module-nav.config.ts` orders live nav as **Work** (`/chat` → `/rag` → `/agents`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`. Do not wire planned AIOps keys into these groups until productized.
+
 ```mermaid
 flowchart TB
   subgraph contexts [BusinessDomains]

@@ -8,6 +8,7 @@ import {
   computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRefreshCw } from '@ng-icons/lucide';
 import {
@@ -29,6 +30,7 @@ import { ChatService } from './chat.service';
   selector: 'app-chat-page',
   imports: [
     FormsModule,
+    RouterLink,
     NgIcon,
     NzIconModule,
     ChatMessagePaneComponent,

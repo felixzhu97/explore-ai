@@ -100,18 +100,25 @@
             </span>
           </button>
 
-          @for (tab of tabs(); track tab.key) {
-            <a
-              z-sidebar-menu-button
-              [routerLink]="tab.path"
-              [title]="t().nav[tab.labelKey]"
-              (click)="onNavClick()"
-            >
-              <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
-              <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
-                {{ t().nav[tab.labelKey] }}
-              </span>
-            </a>
+          @for (section of navSections(); track section.group) {
+            <div class="mt-2 first:mt-0">
+              <p class="px-2 pb-1 text-[11px] font-medium tracking-wide text-sidebar-foreground/50 uppercase">
+                {{ groupLabel(section.group) }}
+              </p>
+              @for (tab of section.tabs; track tab.key) {
+                <a
+                  z-sidebar-menu-button
+                  [routerLink]="tab.path"
+                  [title]="t().nav[tab.labelKey]"
+                  (click)="onNavClick()"
+                >
+                  <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
+                  <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+                    {{ t().nav[tab.labelKey] }}
+                  </span>
+                </a>
+              }
+            </div>
           }
         </z-sidebar-group>
       </nav>

@@ -74,6 +74,14 @@ describe('i18n.model', () => {
           });
         });
       });
+
+      it('should_haveNavGroupLabels_when_allLanguagesLoaded', () => {
+        SUPPORTED_LANGUAGES.forEach((lang) => {
+          expect(translations[lang].nav.groups.work).toBeDefined();
+          expect(translations[lang].nav.groups.create).toBeDefined();
+          expect(translations[lang].nav.groups.lab).toBeDefined();
+        });
+      });
     });
 
     describe('imageUploader translations', () => {
