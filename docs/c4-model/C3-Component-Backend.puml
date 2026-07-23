@@ -15,7 +15,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(text_ctrl, "TextController", "@RestController", "/api/text/* (SSE stream)")
         Component(agent_ctrl, "AgentController", "@RestController", "/api/agents/*")
         Component(rag_ctrl, "RagController", "@RestController", "/api/rag/*")
-        Component(tool_ctrl, "ToolsController", "@RestController", "/api/tools/*")
+        Component(tool_ctrl, "ToolsController", "@RestController", "/api/tools/* incl. GET /catalog")
         Component(analysis_ctrl, "AnalysisController", "@RestController", "/api/chat/analyze")
         Component(eval_ctrl, "EvalController", "@RestController", "/api/eval/chat")
         Component(image_ctrl, "ImageController", "@RestController", "/api/images/*")
@@ -40,7 +40,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(doc_search_svc, "DocumentSearchService", "@Service", "向量检索")
         Component(rag_chat_uc, "RagChatUseCase", "@Service", "RAG 聊天")
         Component(vision_chat_uc, "VisionChatUseCase", "@Service", "多模态 RAG [local]")
-        Component(tool_facade, "ToolsFacade", "@Service", "工具门面")
+        Component(tool_facade, "ToolsFacade", "@Service", "工具门面 + listCatalog")
         Component(analysis_facade, "AnalysisFacade", "@Service", "文本分析门面")
         Component(image_facade, "ImageFacade", "@Service", "图像生成门面")
         Component(vision_usecase, "VisionAnalysisUseCase", "@Service", "Caption/Detect/OCR")
@@ -78,6 +78,9 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         }
         Container_Boundary(tools_domain, "Tools") {
             Component(weather_report, "WeatherReport", "Domain Model", "天气报告")
+            Component(tool_catalog_entry, "ToolCatalogEntry", "Value Object", "name / description / source")
+            Component(tool_source, "ToolSource", "Value Object", "LOCAL | MCP")
+            Component(tool_catalog_iface, "ToolCatalogRepository", "Repository", "工具目录接口")
         }
         Container_Boundary(analysis_domain, "Analysis") {
             Component(text_analysis, "TextAnalysis", "Domain Model", "文本分析结果")
@@ -135,6 +138,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client")
         Component(weather_tools, "WeatherTools", "*Tool", "天气工具")
         Component(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索")
+        Component(tool_catalog_repo, "SpringAiToolCatalogRepository", "@Repository", "LOCAL + MCP ToolCallback 目录")
     }
 }
 
@@ -193,6 +197,9 @@ Rel(doc_upload_svc, transformer_iface, "ETL")
 Rel(doc_upload_svc, writer_iface, "ETL")
 Rel(doc_upload_svc, doc_repo_iface, "持久化")
 Rel(tool_facade, weather_report, "天气")
+Rel(tool_facade, tool_catalog_iface, "listCatalog")
+Rel(tool_catalog_iface, tool_catalog_entry, "返回")
+Rel(tool_catalog_entry, tool_source, "source")
 Rel(analysis_facade, text_analysis, "分析")
 Rel(analysis_facade, analysis_repo_iface, "依赖")
 Rel(image_facade, image_repo_iface, "依赖")
@@ -220,6 +227,10 @@ Rel(mcp_client_iface, mcp_client_repo, "实现")
 Rel(tool_facade, doc_search_svc, "RAG 工具")
 Rel(tool_facade, weather_tools, "天气")
 Rel(tool_facade, web_search_tool, "搜索")
+Rel(tool_catalog_iface, tool_catalog_repo, "实现")
+Rel(tool_catalog_repo, weather_tools, "LOCAL callbacks")
+Rel(tool_catalog_repo, web_search_tool, "LOCAL callbacks")
+Rel(tool_catalog_repo, mcp_client_repo, "MCP callbacks [optional]")
 
 Rel(prompt_templates, prompt_loader, "load/join")
 Rel(prompt_loader, prompt_resources, "classpath:prompts")
