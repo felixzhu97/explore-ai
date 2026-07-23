@@ -78,7 +78,7 @@ export class RagPageComponent implements OnInit {
   private readonly featureFlags = inject(FeatureFlagService);
   /** Mobile document rail visibility; desktop rail is always shown. */
   readonly docsOpen = signal(false);
-  readonly selectedTool = model<SenderActionItem | null>(null);
+  readonly selectedActions = model<SenderActionItem[]>([]);
   private readonly tools = signal<ToolCatalogEntryDto[]>([]);
 
   readonly actionGroups = computed((): SenderActionGroup[] => {
@@ -130,16 +130,8 @@ export class RagPageComponent implements OnInit {
   }
 
   onSenderAction(action: SenderActionItem): void {
-    if (action.kind === 'tool') {
-      this.selectedTool.set(action);
-      return;
-    }
-    if (action.kind === 'agent') {
-      if (action.id === 'agent:open' && action.path) {
-        void this.router.navigateByUrl(action.path);
-        return;
-      }
-      this.selectedTool.set(action);
+    if (action.kind === 'agent' && action.id === 'agent:open' && action.path) {
+      void this.router.navigateByUrl(action.path);
       return;
     }
     if (action.kind === 'navigate' && action.path) {
@@ -155,11 +147,13 @@ export class RagPageComponent implements OnInit {
     if (this.ragService.isLoading()) {
       return;
     }
-    const tool = this.selectedTool();
-    const streamQuery = tool?.kind === 'tool'
-      ? composeToolAwareQuery(text, tool.label, this.i18n.t().sender.toolIntent)
+    const toolNames = this.selectedActions()
+      .filter(action => action.kind === 'tool')
+      .map(action => action.label);
+    const streamQuery = toolNames.length > 0
+      ? composeToolAwareQuery(text, toolNames, this.i18n.t().sender.toolIntent)
       : undefined;
-    this.selectedTool.set(null);
+    this.selectedActions.set([]);
     void this.ragService.sendMessage(streamQuery ? { streamQuery } : undefined);
   }
 

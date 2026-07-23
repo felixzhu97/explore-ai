@@ -62,30 +62,30 @@ describe('ChatSenderBarComponent', () => {
     expect(fixture.nativeElement.querySelector('app-sender-suggestion')).toBeTruthy();
   });
 
-  it('should_setSelectedToolChip_when_toolChosen_withoutChangingInput', () => {
-    const spy = vi.fn();
-    fixture.componentInstance.actionSelect.subscribe(spy);
-    fixture.componentInstance.value.set('my question');
-    const item = {
+  it('should_stackSelectedChips_when_multipleToolsChosen', () => {
+    const weather = {
       id: 'tool:getWeather',
       kind: 'tool' as const,
       label: 'getWeather',
     };
-    fixture.componentRef.setInput('actionGroups', [
-      { id: 'tools', label: 'Tools', items: [item] },
+    const search = {
+      id: 'tool:searchWeb',
+      kind: 'tool' as const,
+      label: 'searchWeb',
+    };
+    fixture.componentInstance.value.set('my question');
+
+    fixture.componentInstance.onActionSelect(weather);
+    fixture.componentInstance.onActionSelect(search);
+    fixture.componentInstance.onActionSelect(weather);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedActions().map(item => item.id)).toEqual([
+      'tool:getWeather',
+      'tool:searchWeb',
     ]);
-    fixture.detectChanges();
-
-    fixture.componentInstance.onActionSelect(item);
-    fixture.detectChanges();
-
-    expect(spy).toHaveBeenCalledWith(item);
-    expect(fixture.componentInstance.selectedTool()?.label).toBe('getWeather');
     expect(fixture.componentInstance.value()).toBe('my question');
-    const chip = fixture.nativeElement.querySelector('[data-selected-tool] span');
-    expect(chip?.className).toContain('bg-foreground');
-    expect(chip?.className).toContain('text-white');
-    expect(fixture.componentInstance.suggestionOpen()).toBe(false);
+    expect(fixture.nativeElement.querySelectorAll('[data-selected-action]')).toHaveLength(2);
   });
 
   it('should_setSelectedChip_when_agentChosen_withoutChangingInput', () => {
@@ -99,24 +99,25 @@ describe('ChatSenderBarComponent', () => {
     fixture.componentInstance.onActionSelect(item);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.selectedTool()?.label).toBe('Weather Agent');
+    expect(fixture.componentInstance.selectedActions()[0]?.label).toBe('Weather Agent');
     expect(fixture.componentInstance.value()).toBe('ask about rain');
   });
 
-  it('should_clearSelectedTool_when_removeClicked', () => {
-    fixture.componentInstance.selectedTool.set({
-      id: 'tool:getWeather',
-      kind: 'tool',
-      label: 'getWeather',
-    });
+  it('should_removeOneChip_when_removeClicked', () => {
+    fixture.componentInstance.selectedActions.set([
+      { id: 'tool:getWeather', kind: 'tool', label: 'getWeather' },
+      { id: 'tool:searchWeb', kind: 'tool', label: 'searchWeb' },
+    ]);
     fixture.detectChanges();
 
     const remove = fixture.nativeElement.querySelector(
-      '[data-selected-tool] button',
+      '[data-selected-action] button',
     ) as HTMLButtonElement;
     remove.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.selectedTool()).toBeNull();
+    expect(fixture.componentInstance.selectedActions().map(item => item.id)).toEqual([
+      'tool:searchWeb',
+    ]);
   });
 });

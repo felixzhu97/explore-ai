@@ -205,7 +205,7 @@
     <app-chat-sender-bar
       [placeholder]="i18n.t().ragChat.inputPlaceholder"
       [(value)]="ragService.input"
-      [(selectedTool)]="selectedTool"
+      [(selectedActions)]="selectedActions"
       [loading]="ragService.isLoading()"
       [actionGroups]="actionGroups()"
       [filterPlaceholder]="i18n.t().sender.filterPlaceholder"

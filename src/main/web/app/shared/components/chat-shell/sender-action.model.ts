@@ -17,16 +17,39 @@ export interface SenderActionGroup {
   items: SenderActionItem[];
 }
 
-/** Prefer a selected tool in the model query; keep user text for the bubble. */
+/** Prefer selected tools in the model query; keep user text for the bubble. */
 export function composeToolAwareQuery(
   question: string,
-  toolName: string,
+  toolNames: string | readonly string[],
   intentTemplate: string,
 ): string {
+  const names = (Array.isArray(toolNames) ? toolNames : [toolNames])
+    .map(name => name.trim())
+    .filter(Boolean);
   const trimmed = question.trim();
-  const intent = intentTemplate.replaceAll('{name}', toolName).trim();
+  if (names.length === 0) {
+    return trimmed;
+  }
+  const intent = intentTemplate.replaceAll('{name}', names.join(', ')).trim();
   if (!trimmed) {
     return intent;
   }
   return `${intent}\n\n${trimmed}`;
+}
+
+export function appendUniqueSenderAction(
+  current: readonly SenderActionItem[],
+  item: SenderActionItem,
+): SenderActionItem[] {
+  if (current.some(existing => existing.id === item.id)) {
+    return [...current];
+  }
+  return [...current, item];
+}
+
+export function removeSenderActionById(
+  current: readonly SenderActionItem[],
+  id: string,
+): SenderActionItem[] {
+  return current.filter(item => item.id !== id);
 }

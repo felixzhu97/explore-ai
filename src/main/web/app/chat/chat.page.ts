@@ -83,7 +83,7 @@ export class ChatPage implements OnInit, OnDestroy {
   private readonly featureFlags = inject(FeatureFlagService);
 
   readonly input = model('');
-  readonly selectedTool = model<SenderActionItem | null>(null);
+  readonly selectedActions = model<SenderActionItem[]>([]);
   private readonly tools = signal<ToolCatalogEntryDto[]>([]);
   private readonly agents = signal<AgentInfo[]>([]);
 
@@ -157,15 +157,12 @@ export class ChatPage implements OnInit, OnDestroy {
     switch (action.kind) {
       case 'tool':
         this.chat.setToolsEnabled(true);
-        this.selectedTool.set(action);
         break;
       case 'agent':
-        // Only the explicit "open pipeline" action navigates; workers use a chip.
+        // Chip stacking is handled by the sender bar; only open-pipeline navigates.
         if (action.id === 'agent:open' && action.path) {
           void this.router.navigateByUrl(action.path);
-          break;
         }
-        this.selectedTool.set(action);
         break;
       case 'navigate':
         if (action.path) {
@@ -189,19 +186,22 @@ export class ChatPage implements OnInit, OnDestroy {
     if (!text || this.chat.isLoading()) {
       return;
     }
-    const tool = this.selectedTool();
-    if (tool?.kind === 'tool') {
+    const selected = this.selectedActions();
+    const toolNames = selected
+      .filter(action => action.kind === 'tool')
+      .map(action => action.label);
+    if (toolNames.length > 0) {
       this.chat.setToolsEnabled(true);
     }
-    const streamContent = tool?.kind === 'tool'
-      ? composeToolAwareQuery(text, tool.label, this.i18n.t().sender.toolIntent)
+    const streamContent = toolNames.length > 0
+      ? composeToolAwareQuery(text, toolNames, this.i18n.t().sender.toolIntent)
       : text;
     if (!this.chat.isSelectedProviderAvailable()) {
       this.chat.sendMessage(text, { streamContent });
       return;
     }
     this.input.set('');
-    this.selectedTool.set(null);
+    this.selectedActions.set([]);
     this.chat.sendMessage(text, { streamContent });
   }
 }

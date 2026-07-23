@@ -65,4 +65,15 @@ describe('composeToolAwareQuery', () => {
       'Please use the tool getWeather to help with this request.\n\nBeijing weather?',
     );
   });
+
+  it('should_joinToolNames_when_multipleToolsSelected', () => {
+    const result = composeToolAwareQuery(
+      'help',
+      ['getWeather', 'searchWeb'],
+      'Please use the tool {name} to help with this request.',
+    );
+    expect(result).toBe(
+      'Please use the tool getWeather, searchWeb to help with this request.\n\nhelp',
+    );
+  });
 });

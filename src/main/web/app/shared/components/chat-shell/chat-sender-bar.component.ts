@@ -8,7 +8,12 @@ import {
 } from '@angular/core';
 import { NxSenderComponent, NxSenderExtendActionDirective } from 'ng-zorro-x/sender';
 import { SenderSuggestionComponent } from './sender-suggestion.component';
-import type { SenderActionGroup, SenderActionItem } from './sender-action.model';
+import {
+  appendUniqueSenderAction,
+  removeSenderActionById,
+  type SenderActionGroup,
+  type SenderActionItem,
+} from './sender-action.model';
 
 @Component({
   selector: 'app-chat-sender-bar',
@@ -29,33 +34,36 @@ import type { SenderActionGroup, SenderActionItem } from './sender-action.model'
             [emptyLabel]="emptyLabel()"
             (itemSelect)="onActionSelect($event)"
           />
-          @if (selectedTool(); as tool) {
-            <div class="mb-2 flex flex-wrap items-center gap-1.5" data-selected-tool>
-              <span
-                class="
-                  inline-flex max-w-full items-center gap-1.5 rounded-full bg-foreground
-                  py-1 pr-1 pl-2.5 text-sm font-semibold text-white shadow-sm
-                "
-              >
+          @if (selectedActions().length > 0) {
+            <div class="mb-2 flex flex-wrap items-center gap-1.5" data-selected-actions>
+              @for (action of selectedActions(); track action.id) {
                 <span
-                  class="shrink-0 text-[10px] font-medium tracking-wide text-white/65 uppercase"
-                >
-                  {{ tool.kind === 'agent' ? agentChipLabel() : toolChipLabel() }}
-                </span>
-                <span class="min-w-0 truncate">{{ tool.label }}</span>
-                <button
-                  type="button"
                   class="
-                    flex size-5 shrink-0 items-center justify-center rounded-full
-                    bg-white/15 text-base leading-none text-white hover:bg-white/25
+                    inline-flex max-w-full items-center gap-1.5 rounded-full bg-foreground
+                    py-1 pr-1 pl-2.5 text-sm font-semibold text-white shadow-sm
                   "
-                  [attr.title]="removeToolLabel()"
-                  [attr.aria-label]="removeToolLabel()"
-                  (click)="clearSelectedTool($event)"
+                  data-selected-action
                 >
-                  ×
-                </button>
-              </span>
+                  <span
+                    class="shrink-0 text-[10px] font-medium tracking-wide text-white/65 uppercase"
+                  >
+                    {{ action.kind === 'agent' ? agentChipLabel() : toolChipLabel() }}
+                  </span>
+                  <span class="min-w-0 truncate">{{ action.label }}</span>
+                  <button
+                    type="button"
+                    class="
+                      flex size-5 shrink-0 items-center justify-center rounded-full
+                      bg-white/15 text-base leading-none text-white hover:bg-white/25
+                    "
+                    [attr.title]="removeToolLabel()"
+                    [attr.aria-label]="removeToolLabel()"
+                    (click)="removeSelectedAction($event, action.id)"
+                  >
+                    ×
+                  </button>
+                </span>
+              }
             </div>
           }
           <nx-sender
@@ -97,7 +105,7 @@ export class ChatSenderBarComponent {
   readonly placeholder = input.required<string>();
   readonly loading = input(false);
   readonly value = model('');
-  readonly selectedTool = model<SenderActionItem | null>(null);
+  readonly selectedActions = model<SenderActionItem[]>([]);
   readonly actionGroups = input<SenderActionGroup[]>([]);
   readonly filterPlaceholder = input('Filter…');
   readonly emptyLabel = input('No matches');
@@ -157,15 +165,15 @@ export class ChatSenderBarComponent {
 
   onActionSelect(item: SenderActionItem): void {
     if (item.kind === 'tool' || (item.kind === 'agent' && item.id !== 'agent:open')) {
-      this.selectedTool.set(item);
+      this.selectedActions.set(appendUniqueSenderAction(this.selectedActions(), item));
     }
     this.actionSelect.emit(item);
     this.suggestionOpen.set(false);
   }
 
-  clearSelectedTool(event: Event): void {
+  removeSelectedAction(event: Event, id: string): void {
     event.preventDefault();
     event.stopPropagation();
-    this.selectedTool.set(null);
+    this.selectedActions.set(removeSenderActionById(this.selectedActions(), id));
   }
 }
