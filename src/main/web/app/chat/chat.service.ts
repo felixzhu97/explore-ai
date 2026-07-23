@@ -7,6 +7,7 @@ import {
   streamSsePost,
   type ChatStreamEvent,
 } from '../core/streaming/sse-client';
+import { AgentsService } from '../agents/agents.service';
 import { DEFAULT_MODELS, DEFAULT_PROVIDERS } from './chat.constants';
 import type {
   ChatMessage,
@@ -40,9 +41,15 @@ export interface UiMessage {
   sources?: UiWebSource[];
 }
 
+export interface ChatAgentTarget {
+  type: string;
+  label: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
+  private readonly agentsApi = inject(AgentsService);
 
   readonly providers = signal<ProviderInfo[]>([]);
   readonly models = signal<ModelInfo[]>([]);
@@ -381,6 +388,126 @@ export class ChatService {
       },
     );
     this.streamAbort = abort;
+  }
+
+  /**
+   * Send through one or more worker/supervisor agents (SSE), not the plain chat path.
+   * Multiple agents run sequentially and their outputs are concatenated.
+   */
+  sendViaAgents(
+    displayContent: string,
+    streamContent: string,
+    agents: ChatAgentTarget[],
+  ): void {
+    const sessionId = this.activeSessionId();
+    const display = displayContent.trim();
+    const payload = streamContent.trim() || display;
+    if (!sessionId || !display || agents.length === 0 || this.isLoading()) {
+      return;
+    }
+
+    if (this.streamAbort) {
+      this.streamAbort();
+    }
+
+    const userMsg: UiMessage = {
+      id: `user_${Date.now()}`,
+      role: 'user',
+      content: display,
+      timestamp: Date.now(),
+    };
+    const assistantId = `assistant_${Date.now()}`;
+
+    this.messages.update(msgs => [
+      ...msgs,
+      userMsg,
+      { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
+    ]);
+    this.isLoading.set(true);
+    this.streamingMessageId.set(assistantId);
+    this.error.set(null);
+
+    let fullContent = '';
+    let index = 0;
+    let settled = false;
+
+    const finishOk = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      this.isLoading.set(false);
+      this.streamingMessageId.set(null);
+      this.streamAbort = null;
+      this.syncSessionMessages(sessionId);
+      this.loadSessions();
+    };
+
+    const finishErr = (err: Error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      this.error.set(err.message);
+      this.messages.update(msgs => msgs.map((msg) => {
+        if (msg.id !== assistantId) {
+          return msg;
+        }
+        const fallback = fullContent.trim() || err.message;
+        return { ...msg, content: fallback };
+      }));
+      this.isLoading.set(false);
+      this.streamingMessageId.set(null);
+      this.streamAbort = null;
+    };
+
+    const writeContent = (next: string) => {
+      fullContent = next;
+      this.messages.update(msgs => msgs.map((msg) => {
+        if (msg.id !== assistantId) {
+          return msg;
+        }
+        return { ...msg, content: fullContent };
+      }));
+    };
+
+    const runNext = () => {
+      if (settled) {
+        return;
+      }
+      if (index >= agents.length) {
+        finishOk();
+        return;
+      }
+
+      const agent = agents[index];
+      index += 1;
+
+      if (agents.length > 1) {
+        const header = `${fullContent ? '\n\n' : ''}### ${agent.label}\n`;
+        writeContent(fullContent + header);
+      }
+
+      const { abort } = this.agentsApi.invokeStream(
+        agent.type,
+        { message: payload, sessionId, agentType: agent.type },
+        (token) => {
+          writeContent(fullContent + token);
+        },
+        () => {
+          /* handoff events are informational; content stream carries the answer */
+        },
+        () => {
+          runNext();
+        },
+        (err) => {
+          finishErr(err);
+        },
+      );
+      this.streamAbort = abort;
+    };
+
+    runNext();
   }
 
   abortStream(): void {

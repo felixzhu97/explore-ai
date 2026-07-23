@@ -190,12 +190,30 @@ export class ChatPage implements OnInit, OnDestroy {
     const toolNames = selected
       .filter(action => action.kind === 'tool')
       .map(action => action.label);
-    if (toolNames.length > 0) {
-      this.chat.setToolsEnabled(true);
-    }
+    const agents = selected
+      .filter(action => action.kind === 'agent' && Boolean(action.agentType))
+      .map(action => ({
+        type: action.agentType!,
+        label: action.label,
+      }));
+
     const streamContent = toolNames.length > 0
       ? composeToolAwareQuery(text, toolNames, this.i18n.t().sender.toolIntent)
       : text;
+
+    if (agents.length > 0) {
+      if (toolNames.length > 0) {
+        this.chat.setToolsEnabled(true);
+      }
+      this.input.set('');
+      this.selectedActions.set([]);
+      this.chat.sendViaAgents(text, streamContent, agents);
+      return;
+    }
+
+    if (toolNames.length > 0) {
+      this.chat.setToolsEnabled(true);
+    }
     if (!this.chat.isSelectedProviderAvailable()) {
       this.chat.sendMessage(text, { streamContent });
       return;
