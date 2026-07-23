@@ -4,6 +4,7 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  computed,
   inject,
   model,
   signal,
@@ -13,6 +14,10 @@ import {
   ChatBubbleMessage,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
+  buildSenderActionGroups,
+  type SenderActionGroup,
+  type SenderActionItem,
+  type ChatBubbleToolStep,
 } from '../shared/components/chat-shell';
 import { I18nService } from '../core/i18n';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
@@ -31,7 +36,7 @@ import {
   stripToolCallMarkup,
   toMinimalToolSteps,
 } from './tool-call-markup.filter';
-import type { ChatBubbleToolStep } from '../shared/components/chat-shell';
+import { FeatureFlagService } from '../core/feature-flag.service';
 
 const DEFAULT_RESULTS_RATIO = 0.38;
 const MIN_PANE_PX = 240;
@@ -53,6 +58,7 @@ const MIN_PANE_PX = 240;
 export class AgentsPageComponent implements OnInit, OnDestroy {
   private readonly agentsApi = inject(AgentsService);
   readonly i18n = inject(I18nService);
+  private readonly featureFlags = inject(FeatureFlagService);
 
   private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
@@ -66,6 +72,16 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
   readonly resultsCollapsed = signal(false);
   readonly resultsRatio = signal(DEFAULT_RESULTS_RATIO);
   readonly isDraggingSplitter = signal(false);
+
+  readonly actionGroups = computed((): SenderActionGroup[] => {
+    return buildSenderActionGroups({
+      t: this.i18n.t(),
+      tools: [],
+      agents: this.agents(),
+      featureFlags: this.featureFlags,
+      scope: 'agents',
+    });
+  });
 
   private currentGraph: PipelineGraph = { nodes: [], connections: [] };
   private activeBriefPrompt: string | null = null;
@@ -108,6 +124,17 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
 
   send(): void {
     this.executePipeline(this.currentGraph);
+  }
+
+  onSenderAction(action: SenderActionItem): void {
+    if (action.kind === 'session' && action.id === 'session:newChat') {
+      this.messages.set([]);
+      this.input.set('');
+      return;
+    }
+    if (action.kind === 'agent' && action.agentType) {
+      this.input.set(action.label);
+    }
   }
 
   toggleResultsCollapsed(): void {

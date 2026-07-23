@@ -226,6 +226,25 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
       },
     ],
   },
+  sender: {
+    openActions: 'Ouvrir les actions',
+    filterPlaceholder: 'Filtrer les actions…',
+    empty: 'Aucune action correspondante',
+    removeTool: 'Retirer l’outil',
+    toolIntent: 'Utilise l’outil {name} pour m’aider avec cette demande.',
+    groups: {
+      tools: 'Outils',
+      agents: 'Agents',
+      navigate: 'Naviguer',
+      session: 'Session',
+    },
+    actions: {
+      openAgentPipeline: 'Ouvrir le pipeline Agent',
+      openAgentPipelineHint: 'Construire et exécuter un pipeline multi-étapes',
+      newChat: 'Nouveau chat',
+      toggleTools: 'Activer/désactiver les outils',
+    },
+  },
   generate: {
     tabs: {
       image: 'Génération d\'images',

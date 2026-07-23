@@ -4,6 +4,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   computed,
+  model,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,9 +21,15 @@ import {
 } from '@ng-icons/lucide';
 import { RagService, UploadStatus } from './rag.service';
 import {
+  buildSenderActionGroups,
   ChatBubbleMessage,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
+  ToolsCatalogService,
+  composeToolAwareQuery,
+  type SenderActionGroup,
+  type SenderActionItem,
+  type ToolCatalogEntryDto,
 } from '../shared/components/chat-shell';
 import { I18nService } from '../core/i18n';
 import { NxPrompt } from 'ng-zorro-x/prompts';
@@ -30,6 +37,10 @@ import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardBadgeComponent } from '../shared/components/badge';
 import { ZardButtonComponent } from '../shared/components/button';
+import { Router } from '@angular/router';
+import { FeatureFlagService } from '../core/feature-flag.service';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-rag-page',
@@ -62,8 +73,23 @@ import { ZardButtonComponent } from '../shared/components/button';
 export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);
   protected readonly i18n = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly toolsCatalog = inject(ToolsCatalogService);
+  private readonly featureFlags = inject(FeatureFlagService);
   /** Mobile document rail visibility; desktop rail is always shown. */
   readonly docsOpen = signal(false);
+  readonly selectedActions = model<SenderActionItem[]>([]);
+  private readonly tools = signal<ToolCatalogEntryDto[]>([]);
+
+  readonly actionGroups = computed((): SenderActionGroup[] => {
+    return buildSenderActionGroups({
+      t: this.i18n.t(),
+      tools: this.tools(),
+      agents: [],
+      featureFlags: this.featureFlags,
+      scope: 'rag',
+    });
+  });
 
   readonly ragPrompts = computed((): NxPrompt[] => {
     const t = this.i18n.t().ragChat;
@@ -98,6 +124,37 @@ export class RagPageComponent implements OnInit {
 
   ngOnInit() {
     this.ragService.fetchAvailableDocs();
+    this.toolsCatalog.listCatalog().pipe(catchError(() => of([]))).subscribe((tools) => {
+      this.tools.set(tools);
+    });
+  }
+
+  onSenderAction(action: SenderActionItem): void {
+    if (action.kind === 'agent' && action.id === 'agent:open' && action.path) {
+      void this.router.navigateByUrl(action.path);
+      return;
+    }
+    if (action.kind === 'navigate' && action.path) {
+      void this.router.navigateByUrl(action.path);
+    }
+  }
+
+  sendWithSelectedTool(): void {
+    const text = this.ragService.input().trim();
+    if (!text && this.ragService.pendingImages().length === 0) {
+      return;
+    }
+    if (this.ragService.isLoading()) {
+      return;
+    }
+    const toolNames = this.selectedActions()
+      .filter(action => action.kind === 'tool')
+      .map(action => action.label);
+    const streamQuery = toolNames.length > 0
+      ? composeToolAwareQuery(text, toolNames, this.i18n.t().sender.toolIntent)
+      : undefined;
+    this.selectedActions.set([]);
+    void this.ragService.sendMessage(streamQuery ? { streamQuery } : undefined);
   }
 
   deleteDocument(docId: string, event: Event): void {

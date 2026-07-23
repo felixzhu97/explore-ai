@@ -6,6 +6,8 @@ import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.common.util.LogSanitizer;
 import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.repository.ToolCatalogRepository;
+import com.ai.tools.domain.vo.ToolCatalogEntry;
 import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
 import com.ai.tools.infrastructure.tools.WeatherTools;
@@ -26,18 +28,21 @@ public class ToolsFacade {
     private final WeatherReport weatherReport;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
+    private final ToolCatalogRepository toolCatalogRepository;
 
     public ToolsFacade(
             ChatClientProvider chatClientProvider,
             WeatherTools weatherTools,
             WeatherReport weatherReport,
             DocumentSearchTool documentSearchTool,
-            WebSearchTool webSearchTool) {
+            WebSearchTool webSearchTool,
+            ToolCatalogRepository toolCatalogRepository) {
         this.chatClientProvider = chatClientProvider;
         this.weatherTools = weatherTools;
         this.weatherReport = weatherReport;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
+        this.toolCatalogRepository = toolCatalogRepository;
     }
 
     public String chatWithTools(String question) {
@@ -72,6 +77,11 @@ public class ToolsFacade {
     public String searchWeb(String query) {
         log.info("ToolsFacade.searchWeb: {}", LogSanitizer.truncate(query));
         return webSearchTool.searchWeb(query);
+    }
+
+    public List<ToolCatalogEntry> listCatalog() {
+        log.info("ToolsFacade.listCatalog");
+        return toolCatalogRepository.listCatalog();
     }
 
 }

@@ -222,6 +222,25 @@ export const zh: Translations = {
       },
     ],
   },
+  sender: {
+    openActions: '打开操作',
+    filterPlaceholder: '筛选操作…',
+    empty: '没有匹配的操作',
+    removeTool: '移除工具',
+    toolIntent: '请使用工具 {name} 来帮助完成这个请求。',
+    groups: {
+      tools: '工具',
+      agents: 'Agent',
+      navigate: '导航',
+      session: '会话',
+    },
+    actions: {
+      openAgentPipeline: '打开 Agent 流水线',
+      openAgentPipelineHint: '编排并运行多步流水线',
+      newChat: '新对话',
+      toggleTools: '开关工具',
+    },
+  },
   generate: {
     tabs: {
       image: '图像生成',

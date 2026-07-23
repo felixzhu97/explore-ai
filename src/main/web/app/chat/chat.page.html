@@ -94,6 +94,15 @@
 <app-chat-sender-bar
   [placeholder]="i18n.t().chat.inputPlaceholder"
   [(value)]="input"
+  [(selectedActions)]="selectedActions"
   [loading]="chat.isLoading()"
+  [actionGroups]="actionGroups()"
+  [filterPlaceholder]="i18n.t().sender.filterPlaceholder"
+  [emptyLabel]="i18n.t().sender.empty"
+  [openActionsLabel]="i18n.t().sender.openActions"
+  [removeToolLabel]="i18n.t().sender.removeTool"
+  [toolChipLabel]="i18n.t().sender.groups.tools"
+  [agentChipLabel]="i18n.t().sender.groups.agents"
   (submitSend)="send()"
+  (actionSelect)="onSenderAction($event)"
 />

@@ -14,7 +14,7 @@ Person(admin, "管理员/开发者", "评估、文本分析、功能开关")
 ' ============================================================
 ' FRONTEND
 ' ============================================================
-Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag + flag: /agents /vision /mcp /eval /asr\nLaunchDarkly + Datadog RUM")
+Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag + flag: /agents /vision /mcp /eval /asr\nSender Suggestion (/) + LaunchDarkly + Datadog RUM")
 
 ' ============================================================
 ' BACKEND
@@ -66,8 +66,9 @@ Container_Boundary(rag_domain, "RAG Domain") {
 ' DOMAIN 4: TOOLS
 ' ============================================================
 Container_Boundary(tool_domain, "Tools Domain") {
-    Container(tool_controller, "ToolsController", "@RestController", "/api/tools/*")
-    Container(tool_facade, "ToolsFacade", "Application Service", "工具门面")
+    Container(tool_controller, "ToolsController", "@RestController", "/api/tools/* (weather, docs, catalog, chat)")
+    Container(tool_facade, "ToolsFacade", "Application Service", "工具门面 + listCatalog")
+    Container(tool_catalog_repo, "SpringAiToolCatalogRepository", "@Repository", "LOCAL @Tool + MCP → ToolCatalogEntry")
     Container(weather_tool, "WeatherTools", "*Tool", "天气查询工具")
     Container(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索 (Serper.dev)")
 }
@@ -174,7 +175,7 @@ Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, text_controller, "流式对话", "SSE")
 Rel(angular_app, agent_controller, "Agent 流水线 [flag]", "SSE")
 Rel(angular_app, rag_controller, "RAG", "HTTP/SSE")
-Rel(angular_app, tool_controller, "工具", "HTTP")
+Rel(angular_app, tool_controller, "工具 + catalog", "HTTP")
 Rel(angular_app, image_controller, "图像生成", "HTTP")
 Rel(angular_app, vision_controller, "图像分析 [flag]", "HTTP")
 Rel(angular_app, audio_controller, "TTS + ASR [flag]", "HTTP/WebSocket")
@@ -225,9 +226,14 @@ Rel(vision_usecase, tess4j_ocr, "OCR")
 Rel(tess4j_ocr, tesseract_svc, "OCR", "JNA")
 
 Rel(tool_controller, tool_facade, "调用")
+Rel(tool_facade, tool_catalog_repo, "listCatalog")
 Rel(tool_facade, weather_tool, "天气")
 Rel(tool_facade, rag_doc_search, "RAG 搜索")
 Rel(tool_facade, web_search_tool, "Web 搜索")
+Rel(tool_catalog_repo, weather_tool, "LOCAL ToolCallback")
+Rel(tool_catalog_repo, web_search_tool, "LOCAL ToolCallback")
+Rel(tool_catalog_repo, rag_doc_search, "LOCAL DocumentSearchTool")
+Rel(tool_catalog_repo, mcp_client_repo, "MCP ToolCallback [optional]")
 Rel(web_search_tool, serper_api, "搜索", "HTTPS")
 
 Rel(analysis_controller, analysis_facade, "调用")

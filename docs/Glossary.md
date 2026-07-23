@@ -231,6 +231,8 @@ UPLOADING → PROCESSING → READY
 | Document Search          | 文档检索     | Vector similarity retrieval over document chunks      | Application Service  | `DocumentSearchService`                   | Uses `DocumentChunkSearchRepository` |
 | Weather Tool             | 天气工具     | Query weather and forecast                            | Tool                 | `WeatherTools`                            | Mock data                            |
 | Web Search Tool          | 网页搜索工具   | Search live web content via Serper                    | Repository / Adapter | `WebSearchTool`, `SerperWebSearchAdapter` | Requires API key                     |
+| Tool Catalog             | 工具目录     | Metadata list of tools available to Chat tool-calling | Application / API    | `ToolCatalogEntry`, `ToolCatalogRepository`, `GET /api/tools/catalog` | LOCAL + MCP; name/description/source |
+| Sender Suggestion        | 输入动作建议   | Slash-triggered action panel on chat sender for Tools / Agent / navigate / session | Frontend UX | `app-sender-suggestion`, `buildSenderActionGroups` | Custom panel; not `nx-suggestion` |
 
 
 ---

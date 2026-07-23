@@ -82,7 +82,12 @@
         [placeholder]="i18n.t().agents.pipeline.inputPlaceholder"
         [(value)]="input"
         [loading]="loading()"
+        [actionGroups]="actionGroups()"
+        [filterPlaceholder]="i18n.t().sender.filterPlaceholder"
+        [emptyLabel]="i18n.t().sender.empty"
+        [openActionsLabel]="i18n.t().sender.openActions"
         (submitSend)="send()"
+        (actionSelect)="onSenderAction($event)"
       />
     }
   </aside>

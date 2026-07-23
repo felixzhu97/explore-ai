@@ -9,7 +9,7 @@
 | `C1-Context.puml` | C1 | 系统上下文图（含 LaunchDarkly、Datadog、cloud-minimal prod） |
 | `C2-Container.puml` | C2 | 容器图（11 个子域 + 功能开关横切） |
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
-| `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
+| `C3-Component-Frontend.puml` | C3 | 前端组件图（Sender Suggestion、chat-shell、domain services、RUM） |
 | `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
 | `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Railway explore-ai + datadog-agent + Datadog + LaunchDarkly） |
 
@@ -78,6 +78,20 @@
 
 Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSystemPrompt` → `classpath:prompts/agent/*.st`，并追加共享风格片段。
 
+### Tools Catalog + Sender Suggestion
+
+Chat / RAG / Agents 共用输入栏的 **`/` Sender Suggestion**：从后端工具目录与 Agent 列表组装动作，选中后以 chip 回填；发送时 Tools chip 走 tool-aware chat，Agents chip 走 `sendViaAgents`。
+
+| 层 | 组件 | 说明 |
+| --- | --- | --- |
+| API | `GET /api/tools/catalog` | `ToolsController` → `ToolsFacade.listCatalog()` |
+| Domain | `ToolCatalogEntry` / `ToolSource` / `ToolCatalogRepository` | LOCAL + MCP 元数据 |
+| Infra | `SpringAiToolCatalogRepository` | 与 Chat tool-calling 同源（`MethodToolCallbackProvider` + MCP `ToolCallback[]`） |
+| Frontend | `ToolsCatalogService` | 拉取 catalog |
+| Frontend | `SenderSuggestion` / `ChatSenderBar` | `/` 面板 + multi-chip |
+| Frontend | `sender-action.catalog` | `buildSenderActionGroups` / `composeToolAwareQuery` |
+| Frontend | `ChatService.sendViaAgents` | `POST /api/agents/{type}/invoke/sse` 顺序调用 |
+
 ### Prompt Catalog（横切）
 
 提示词作为工程资产外置到 `src/main/resources/prompts/`：
@@ -110,9 +124,9 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 
 - **框架**: Angular 22 + TypeScript
 - **路由**: `/chat` / `/generate` (image, tts) / `/rag` + flag 守卫 `/agents` `/vision` `/mcp` `/eval` `/asr`
-- **对话壳**: `shared/components/chat-shell`（message-pane / sender-bar / bubble-list / welcome），供 Chat / RAG / Agents 共用
+- **对话壳**: `shared/components/chat-shell`（message-pane / bubble-list / welcome + **ChatSenderBar** / **SenderSuggestion**），供 Chat / RAG / Agents 共用
 - **实现目录**: `app/chat/`、`app/generate/{image,tts}/`（与业务域 / 路由对齐）
-- **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` + `sse-client.ts`
+- **API 服务**: domain `ChatService` / `RagService` / `AgentsService` / `ToolsCatalogService` + `sse-client.ts`（已去掉 `Api*` 中间层）
 - **功能开关**: `FeatureFlagService` + `moduleEnabledGuard`（LaunchDarkly Client SDK）
 - **可观测性**: `datadog-rum.config.ts`
 - **端口**: dev 4200 (proxy `/api` → `:9000`) / prod Vercel 静态托管
@@ -121,11 +135,13 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 
 | 端点 | 说明 |
 | --- | --- |
-| `POST /api/text/chat/stream` | SSE 流式对话（`TextController`） |
+| `POST /api/text/chat/stream` | SSE 流式对话（`TextController`；Tools chip → tool-aware query） |
 | `GET /api/text/providers` | 可用 LLM Provider |
 | `GET /api/text/models` | 模型列表 |
 | `POST /api/chat` | 非流式对话（`ChatController`） |
 | `GET/POST /api/sessions` | 会话 CRUD |
+| `GET /api/tools/catalog` | Tool Catalog（Sender Suggestion Tools 分组） |
+| `POST /api/agents/{type}/invoke/sse` | Agent chip → `ChatService.sendViaAgents` |
 
 ---
 

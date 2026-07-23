@@ -6,15 +6,22 @@ import {
   ChangeDetectionStrategy,
   model,
   computed,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRefreshCw } from '@ng-icons/lucide';
 import {
+  buildSenderActionGroups,
   ChatBubbleMessage,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
+  ToolsCatalogService,
+  composeToolAwareQuery,
+  type SenderActionGroup,
+  type SenderActionItem,
+  type ToolCatalogEntryDto,
 } from '../shared/components/chat-shell';
 import { I18nService } from '../core/i18n';
 import { NxPrompt } from 'ng-zorro-x/prompts';
@@ -25,6 +32,11 @@ import { ZardButtonComponent } from '../shared/components/button';
 import { ZardSelectImports } from '../shared/components/select/select.imports';
 import { ZardSwitchComponent } from '../shared/components/switch';
 import { ChatService } from './chat.service';
+import { AgentsService } from '../agents/agents.service';
+import type { AgentInfo } from '../agents/agents.model';
+import { FeatureFlagService } from '../core/feature-flag.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-chat-page',
@@ -65,8 +77,25 @@ import { ChatService } from './chat.service';
 export class ChatPage implements OnInit, OnDestroy {
   protected readonly chat = inject(ChatService);
   protected readonly i18n = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly agentsApi = inject(AgentsService);
+  private readonly toolsCatalog = inject(ToolsCatalogService);
+  private readonly featureFlags = inject(FeatureFlagService);
 
   readonly input = model('');
+  readonly selectedActions = model<SenderActionItem[]>([]);
+  private readonly tools = signal<ToolCatalogEntryDto[]>([]);
+  private readonly agents = signal<AgentInfo[]>([]);
+
+  readonly actionGroups = computed((): SenderActionGroup[] => {
+    return buildSenderActionGroups({
+      t: this.i18n.t(),
+      tools: this.tools(),
+      agents: this.agents(),
+      featureFlags: this.featureFlags,
+      scope: 'full',
+    });
+  });
 
   readonly chatPrompts = computed((): NxPrompt[] => {
     return this.i18n.t().chat.suggestedPrompts.map(prompt => ({
@@ -95,6 +124,13 @@ export class ChatPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.chat.loadProviders();
+    forkJoin({
+      tools: this.toolsCatalog.listCatalog().pipe(catchError(() => of([]))),
+      agents: this.agentsApi.listAgents().pipe(catchError(() => of([]))),
+    }).subscribe(({ tools, agents }) => {
+      this.tools.set(tools);
+      this.agents.set(agents);
+    });
   }
 
   ngOnDestroy() {
@@ -117,16 +153,73 @@ export class ChatPage implements OnInit, OnDestroy {
     this.input.set(label);
   }
 
+  onSenderAction(action: SenderActionItem): void {
+    switch (action.kind) {
+      case 'tool':
+        this.chat.setToolsEnabled(true);
+        break;
+      case 'agent':
+        // Chip stacking is handled by the sender bar; only open-pipeline navigates.
+        if (action.id === 'agent:open' && action.path) {
+          void this.router.navigateByUrl(action.path);
+        }
+        break;
+      case 'navigate':
+        if (action.path) {
+          void this.router.navigateByUrl(action.path);
+        }
+        break;
+      case 'session':
+        if (action.id === 'session:newChat') {
+          this.newChat();
+        } else if (action.id === 'session:toggleTools') {
+          this.chat.setToolsEnabled(!this.chat.toolsEnabled());
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   send() {
     const text = this.input().trim();
     if (!text || this.chat.isLoading()) {
       return;
     }
+    const selected = this.selectedActions();
+    const toolNames = selected
+      .filter(action => action.kind === 'tool')
+      .map(action => action.label);
+    const agents = selected
+      .filter(action => action.kind === 'agent' && Boolean(action.agentType))
+      .map(action => ({
+        type: action.agentType!,
+        label: action.label,
+      }));
+
+    const streamContent = toolNames.length > 0
+      ? composeToolAwareQuery(text, toolNames, this.i18n.t().sender.toolIntent)
+      : text;
+
+    if (agents.length > 0) {
+      if (toolNames.length > 0) {
+        this.chat.setToolsEnabled(true);
+      }
+      this.input.set('');
+      this.selectedActions.set([]);
+      this.chat.sendViaAgents(text, streamContent, agents);
+      return;
+    }
+
+    if (toolNames.length > 0) {
+      this.chat.setToolsEnabled(true);
+    }
     if (!this.chat.isSelectedProviderAvailable()) {
-      this.chat.sendMessage(text);
+      this.chat.sendMessage(text, { streamContent });
       return;
     }
     this.input.set('');
-    this.chat.sendMessage(text);
+    this.selectedActions.set([]);
+    this.chat.sendMessage(text, { streamContent });
   }
 }

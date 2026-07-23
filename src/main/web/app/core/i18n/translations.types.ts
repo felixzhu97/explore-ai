@@ -174,6 +174,25 @@ export interface Translations {
       description: string;
     }[];
   };
+  sender: {
+    openActions: string;
+    filterPlaceholder: string;
+    empty: string;
+    removeTool: string;
+    toolIntent: string;
+    groups: {
+      tools: string;
+      agents: string;
+      navigate: string;
+      session: string;
+    };
+    actions: {
+      openAgentPipeline: string;
+      openAgentPipelineHint: string;
+      newChat: string;
+      toggleTools: string;
+    };
+  };
   generate: {
     tabs: {
       image: string;

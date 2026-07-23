@@ -224,6 +224,25 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
       },
     ],
   },
+  sender: {
+    openActions: '操作を開く',
+    filterPlaceholder: '操作を絞り込み…',
+    empty: '一致する操作がありません',
+    removeTool: 'ツールを削除',
+    toolIntent: 'ツール {name} を使ってこの依頼を手伝ってください。',
+    groups: {
+      tools: 'ツール',
+      agents: 'Agent',
+      navigate: '移動',
+      session: 'セッション',
+    },
+    actions: {
+      openAgentPipeline: 'Agent パイプラインを開く',
+      openAgentPipelineHint: '複数ステップのパイプラインを構築して実行',
+      newChat: '新しいチャット',
+      toggleTools: 'ツールの切替',
+    },
+  },
   generate: {
     tabs: {
       image: '画像生成',
