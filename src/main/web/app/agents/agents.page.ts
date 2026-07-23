@@ -32,6 +32,11 @@ import {
   toMinimalToolSteps,
 } from './tool-call-markup.filter';
 import type { ChatBubbleToolStep } from '../shared/components/chat-shell';
+import {
+  appendPipelineStage,
+  finalizePipelineStages,
+  mergeToolSteps,
+} from './pipeline-stage.util';
 
 const DEFAULT_RESULTS_RATIO = 0.38;
 const MIN_PANE_PX = 240;
@@ -174,7 +179,7 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     this.streamAbort?.();
     this.error.set(null);
     this.pipelineHint.set(null);
-    this.input.set(topic);
+    this.input.set('');
     this.loading.set(true);
     if (this.resultsCollapsed()) {
       this.resultsCollapsed.set(false);
@@ -198,13 +203,25 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     this.streamingMessageId.set(assistantId);
 
     let rawContent = '';
+    let pipelineStages: ChatBubbleToolStep[] = [];
+
+    const visibleSteps = (dsmlStatus: 'running' | 'success' | 'error') => mergeToolSteps(
+      pipelineStages,
+      toMinimalToolSteps(parseDsmlToolInvocations(rawContent), dsmlStatus),
+    );
+
     const finish = (content: string, err?: Error) => {
-      const cleaned = stripToolCallMarkup(content);
-      const steps = toMinimalToolSteps(
-        parseDsmlToolInvocations(content),
+      pipelineStages = finalizePipelineStages(
+        pipelineStages,
         err ? 'error' : 'success',
       );
-      this.patchAssistant(assistantId, cleaned, false, steps);
+      const cleaned = stripToolCallMarkup(content);
+      this.patchAssistant(
+        assistantId,
+        cleaned,
+        false,
+        visibleSteps(err ? 'error' : 'success'),
+      );
       this.streamingMessageId.set(null);
       this.loading.set(false);
       this.streamAbort = null;
@@ -216,24 +233,17 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
     const onChunk = (chunk: string) => {
       rawContent += chunk;
       const cleaned = stripToolCallMarkup(rawContent);
-      const steps = toMinimalToolSteps(
-        parseDsmlToolInvocations(rawContent),
-        'running',
-      );
-      this.patchAssistant(assistantId, cleaned, true, steps);
+      this.patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
     };
     const onHandoff = (handoff: string) => {
       try {
         const parsed = JSON.parse(handoff) as { agentType?: string; reason?: string };
         if (parsed.agentType) {
+          pipelineStages = appendPipelineStage(pipelineStages, parsed.agentType);
           const note = `\n_Delegated to **${parsed.agentType}**_\n\n`;
           rawContent += note;
           const cleaned = stripToolCallMarkup(rawContent);
-          const steps = toMinimalToolSteps(
-            parseDsmlToolInvocations(rawContent),
-            'running',
-          );
-          this.patchAssistant(assistantId, cleaned, true, steps);
+          this.patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
         }
       } catch {
         // ignore malformed handoff payloads

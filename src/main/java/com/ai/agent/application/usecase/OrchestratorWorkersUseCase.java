@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Orchestrator-Workers workflow: route via supervisor, run workers (parallel when multi-subtask),
@@ -90,9 +91,7 @@ public class OrchestratorWorkersUseCase {
         }
         try {
             List<AgentType> order = pipeline.executionOrder();
-            return Mono.fromCallable(() -> runPipelineComposed(message, order))
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .flatMapMany(events -> Flux.fromIterable(events))
+            return runPipelineStreamed(message, order)
                     .onErrorResume(err -> Flux.just(
                             errorEvent(err.getMessage() != null ? err.getMessage() : "pipeline failed"),
                             doneEvent()));
@@ -101,28 +100,38 @@ public class OrchestratorWorkersUseCase {
         }
     }
 
-    private List<ServerSentEvent<String>> runPipelineComposed(String message, List<AgentType> order) {
-        List<ServerSentEvent<String>> events = new ArrayList<>();
-        String current = message;
-        for (AgentType type : order) {
-            AgentDefinition agent = registry.require(type);
-            events.add(handoffEvent(type.value(), "pipeline step"));
-            String stepInput = """
-                    Original user request:
-                    %s
+    /**
+     * Emits handoff + streamed worker output per step so clients see stages as they run.
+     * Step order and prior-output context forwarding are unchanged.
+     */
+    private Flux<ServerSentEvent<String>> runPipelineStreamed(String message, List<AgentType> order) {
+        AtomicReference<String> current = new AtomicReference<>(message);
+        return Flux.fromIterable(order)
+                .concatMap(type -> {
+                    AgentDefinition agent = registry.require(type);
+                    String stepInput = """
+                            Original user request:
+                            %s
 
-                    Context from previous pipeline step:
-                    %s
+                            Context from previous pipeline step:
+                            %s
 
-                    Continue the task as your specialist role.
-                    """.formatted(message, current);
-            String output = workerInvoker.invoke(agent, stepInput);
-            current = output == null ? "" : output;
-            events.add(messageEvent(current));
-            events.add(messageEvent("\n\n"));
-        }
-        events.add(doneEvent());
-        return events;
+                            Continue the task as your specialist role.
+                            """.formatted(message, current.get());
+                    StringBuilder stepOutput = new StringBuilder();
+                    return Flux.concat(
+                            Flux.just(handoffEvent(type.value(), "pipeline step")),
+                            workerInvoker.invokeStream(agent, stepInput)
+                                    .doOnNext(chunk -> {
+                                        if (chunk != null) {
+                                            stepOutput.append(chunk);
+                                        }
+                                    })
+                                    .map(OrchestratorWorkersUseCase::messageEvent),
+                            Mono.fromRunnable(() -> current.set(stepOutput.toString()))
+                                    .thenMany(Flux.just(messageEvent("\n\n"))));
+                })
+                .concatWith(Flux.just(doneEvent()));
     }
 
     private Flux<ServerSentEvent<String>> executePlan(String originalMessage, RoutingPlan plan) {
