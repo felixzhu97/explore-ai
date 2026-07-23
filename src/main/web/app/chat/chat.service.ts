@@ -439,7 +439,8 @@ export class ChatService {
       this.isLoading.set(false);
       this.streamingMessageId.set(null);
       this.streamAbort = null;
-      this.syncSessionMessages(sessionId);
+      // Agent SSE replies are not persisted in chat session history yet;
+      // syncing would wipe the local bubble content.
       this.loadSessions();
     };
 
