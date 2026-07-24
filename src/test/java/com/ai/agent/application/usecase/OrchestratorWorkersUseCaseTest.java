@@ -182,6 +182,49 @@ class OrchestratorWorkersUseCaseTest {
                 .assertNext(event -> assertEvent(event, "message"))
                 .assertNext(event -> assertEvent(event, "done"))
                 .verifyComplete();
+
+        assert invoker.streamOrder.equals(List.of("k8s", "aiops"));
+        assert invoker.lastTask.contains("worker-reply");
+        assert invoker.lastTask.contains("investigate outage");
+    }
+
+    @Test
+    void should_emit_first_handoff_before_second_worker_starts() {
+        DelayedRecordingInvoker delayed = new DelayedRecordingInvoker();
+        useCase = new OrchestratorWorkersUseCase(
+                new InMemoryAgentRegistry(List.of(
+                        AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
+                        AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
+                        AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
+                (message, workers) -> RoutingPlan.single(AgentType.of("k8s"), "unused"),
+                delayed);
+
+        AgentPipeline pipeline = AgentPipeline.create(
+                List.of(
+                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
+                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
+                List.of(new AgentPipeline.PipelineEdge("a", "b")));
+
+        StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("k8s");
+                    assert !delayed.streamOrder.contains("aiops")
+                            : "second worker must not start before first handoff is visible";
+                })
+                .thenAwait(java.time.Duration.ofMillis(50))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("aiops");
+                })
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+
+        assert delayed.streamOrder.equals(List.of("k8s", "aiops"));
     }
 
     @Test
@@ -202,12 +245,14 @@ class OrchestratorWorkersUseCaseTest {
         private String lastAgentType;
         private String lastTask;
         private int invokeCount;
+        private final List<String> streamOrder = new java.util.ArrayList<>();
 
         @Override
         public Flux<String> invokeStream(AgentDefinition agent, String task) {
             lastAgentType = agent.type().value();
             lastTask = task;
             invokeCount++;
+            streamOrder.add(agent.type().value());
             return Flux.just("worker-reply");
         }
 
@@ -217,6 +262,22 @@ class OrchestratorWorkersUseCaseTest {
             lastTask = task;
             invokeCount++;
             return "worker-reply for " + agent.type().value();
+        }
+    }
+
+    private static final class DelayedRecordingInvoker implements WorkerAgentInvoker {
+        private final List<String> streamOrder = new java.util.ArrayList<>();
+
+        @Override
+        public Flux<String> invokeStream(AgentDefinition agent, String task) {
+            streamOrder.add(agent.type().value());
+            return Flux.just("worker-reply-" + agent.type().value())
+                    .delayElements(java.time.Duration.ofMillis(120));
+        }
+
+        @Override
+        public String invoke(AgentDefinition agent, String task) {
+            return invokeStream(agent, task).blockFirst();
         }
     }
 }
