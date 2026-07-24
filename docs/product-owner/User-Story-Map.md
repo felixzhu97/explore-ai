@@ -809,8 +809,8 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 
 - [Mermaid User Journey Syntax](https://mermaid.ai/open-source/syntax/userJourney.html)
 - [User Story Mapping - Jeff Patton](https://www.jpattonassociates.com/user-story-mapping/)
-- [C4 模型文档](./c4-model/README.md)
-- [沃德利地图](./Wardley-Map.md)
-- [API 文档](./api.md)
+- [C4 模型文档](../developer/c4-model/README.md)
+- [沃德利地图](../Wardley-Map.md)
+- [API 文档](../developer/api.md)
 - Epic [AI-201 企业通用工作流扩展（V4）](https://felixzhu.atlassian.net/browse/AI-201)
 - Story [AI-202 更新用户故事地图](https://felixzhu.atlassian.net/browse/AI-202)

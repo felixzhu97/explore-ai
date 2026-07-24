@@ -161,23 +161,23 @@ explore-ai/
 
 ### C1 - 系统上下文
 
-![C1-Context](./docs/c4-model/png/C1-Context.png)
+![C1-Context](docs/developer/c4-model/png/C1-Context.png)
 
 ### C2 - 容器图
 
-![C2-Container](./docs/c4-model/png/C2-Container.png)
+![C2-Container](docs/developer/c4-model/png/C2-Container.png)
 
 ### C3 - 后端组件
 
-![C3-Backend](./docs/c4-model/png/C3-Component-Backend.png)
+![C3-Backend](docs/developer/c4-model/png/C3-Component-Backend.png)
 
 ### C3 - 前端组件
 
-![C3-Frontend](./docs/c4-model/png/C3-Component-Frontend.png)
+![C3-Frontend](docs/developer/c4-model/png/C3-Component-Frontend.png)
 
 ### C4 - 部署图
 
-![C4-Deployment](./docs/c4-model/png/C4-Deployment.png)
+![C4-Deployment](docs/developer/c4-model/png/C4-Deployment.png)
 
 ---
 
@@ -258,8 +258,8 @@ Railway 需单独部署 `datadog-agent` 服务（`infra/datadog-agent/`），通
 
 ## 文档
 
-- [API 文档](./docs/api.md)
-- [C4 架构图](./docs/c4-model/)
+- [API 文档](docs/developer/api.md)
+- [C4 架构图](docs/developer/c4-model/)
 - [沃德利地图](./docs/Wardley-Map.md)
-- [用户故事地图](./docs/User-Story-Map.md)
-- [快速入门](./docs/QUICKSTART.md)
+- [用户故事地图](docs/product-owner/User-Story-Map.md)
+- [快速入门](docs/developer/QUICKSTART.md)
