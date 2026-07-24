@@ -221,7 +221,7 @@ cd docs/c4-model && docker run --rm -v "$PWD":/data plantuml/plantuml -o png '*.
 
 ## 相关文档
 
-- [术语表](../Glossary.md) — Ubiquitous Language 与代码映射
+- [术语表](../../Glossary.md) — Ubiquitous Language 与代码映射
 - [API 文档](../api.md) — REST / SSE 与 JSON 字段约定
-- [沃德利地图](../Wardley-Map.md)
-- [用户故事地图](../User-Story-Map.md)
+- [沃德利地图](../../Wardley-Map.md)
+- [用户故事地图](../../product-owner/User-Story-Map.md)
