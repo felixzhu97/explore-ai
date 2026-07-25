@@ -1,13 +1,13 @@
 ---
 name: developer
-description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary naming, Apple HIG minimal UX, and mandatory commit/PR standards (why body + References from official docs and research). Use when implementing features, writing tests, committing, opening PRs, UI work, or DDD/TDD/BDD/XP/clean-code tasks.
+description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary naming, Apple HIG minimal UX, living docs sync (C4 / Glossary / User Story Map), and mandatory commit/PR standards (why body + References from official docs and research). Use when implementing features, writing tests, committing, opening PRs, UI work, or DDD/TDD/BDD/XP/clean-code tasks.
 ---
 
 # Developer
 
 **XP + DDD + BDD + TDD + minimal Clean Code.** Smallest correct change. UI: Apple HIG + minimal.
 
-**Every** commit and PR must follow §5 (project standards). **Every** Jira ticket must follow [Product Owner](../product-owner/SKILL.md). Do not invent alternate formats.
+**Every** commit and PR must follow §6 (project standards). **Every** Jira ticket must follow [Product Owner](../product-owner/SKILL.md). Do not invent alternate formats.
 
 ## Hard constraints
 
@@ -16,8 +16,9 @@ description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary n
 3. Tests: `should_expectedResult_when_condition`
 4. Names: Glossary [Preferred Term](../../../docs/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
-6. **Commit / PR / Jira / branches**: always reuse §5 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
+6. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
 7. **XP**: follow [extreme-programming](references/extreme-programming.md) — Simple Design / YAGNI, CI green, small releases, customer / AC feedback
+8. **Living docs**: when the change hits the trigger matrix, update Glossary, C4 `.puml`, and/or User Story Map in the **same PR** — see §4 and [living-docs](references/living-docs.md)
 
 ## Workflow
 
@@ -62,13 +63,34 @@ Glossary Preferred Term first → Clean Code form. No synonyms (`Conversation` v
 
 Detail: [clean-code-naming](references/clean-code-naming.md)
 
-### 4. UI — Apple HIG + minimal
+### 4. Living docs sync
+
+When a change matches the trigger matrix, update the matching living docs in the **same PR** (same commit or a docs commit on the same branch). Unmatched rows → N/A. Do not skip with “optional” or “later”.
+
+| Document | Path |
+|----------|------|
+| Glossary | [docs/Glossary.md](../../../docs/Glossary.md) |
+| C4 | [docs/developer/c4-model/](../../../docs/developer/c4-model/) (`.puml` source; refresh `png/` when PlantUML is available) |
+| User Story Map | [docs/product-owner/User-Story-Map.md](../../../docs/product-owner/User-Story-Map.md) |
+
+| Change | Must update |
+|--------|-------------|
+| New/changed Preferred Term, module package, route, API prefix, business concept | Glossary |
+| New module/subdomain, container boundary, external system, deploy topology, front/back component structure | Matching C4 `.puml` layer(s); cross-layer → multiple diagrams |
+| New user-visible capability, delivery status (Delivered / In Progress / Future), primary nav add/remove | User Story Map |
+| Pure tests / pure styling / no product or architecture semantics | None (N/A) |
+
+Flow: implement code → apply trigger matrix → update docs → reflect in commit/PR. Prefer editing `.puml`; if PlantUML is unavailable, note in the PR that `png/` is pending render.
+
+Detail + examples: [living-docs](references/living-docs.md)
+
+### 5. UI — Apple HIG + minimal
 
 Official: [HIG](https://developer.apple.com/design/human-interface-guidelines/). Clarity, deference, one primary action; no decorative noise.
 
 Detail: [apple-minimal-ux](references/apple-minimal-ux.md)
 
-### 5. Branches / Commit / PR (mandatory every time)
+### 6. Branches / Commit / PR (mandatory every time)
 
 #### Branch naming
 
@@ -193,7 +215,9 @@ PR **References** must match the commit References (same links). Use the same of
 - [ ] TDD; test name `should_…_when_…`; Refactor while green
 - [ ] YAGNI / Simple Design — no speculative extras
 - [ ] Domain holds rules; use case orchestrates
-- [ ] Glossary Preferred Terms; glossary updated if new concept
+- [ ] Glossary Preferred Terms; Glossary updated per trigger matrix (or N/A)
+- [ ] C4 `.puml` updated per trigger matrix (or N/A); `png/` refreshed or PR notes pending render
+- [ ] User Story Map updated per trigger matrix (or N/A)
 - [ ] UI (if any): HIG + minimal
 - [ ] Branch: `<type>/<slug>` (type matches commit); Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
@@ -205,8 +229,11 @@ PR **References** must match the commit References (same links). Use the same of
 | Need | Where |
 |------|-------|
 | Extreme Programming | [extreme-programming](references/extreme-programming.md) |
+| Living docs sync | [living-docs](references/living-docs.md) |
 | Architecture | [architecture rule](../../rules/architecture.mdc) |
 | Glossary | [Glossary](../../../docs/Glossary.md) |
+| C4 model | [c4-model](../../../docs/developer/c4-model/README.md) |
+| User Story Map | [User-Story-Map](../../../docs/product-owner/User-Story-Map.md) |
 | Testing core | [testing](references/testing.md) |
 | Angular depth | [angular-developer](../angular-developer/SKILL.md) |
 | Spring AI | [spring-ai](../spring-ai/SKILL.md) |
