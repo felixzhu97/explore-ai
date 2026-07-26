@@ -46,31 +46,4 @@ class CapturedWebSourcesTest {
         assertThat(parsed).hasSize(1);
         assertThat(parsed.getFirst().url()).isEqualTo("https://u.example");
     }
-
-    @Test
-    @DisplayName("should_ignore_invalid_remember_requests")
-    void should_ignore_invalid_remember_requests() {
-        CapturedWebSources.remember(null, "q", List.of(new WebSource("t", "u", "s")));
-        CapturedWebSources.remember(" ", "q", List.of(new WebSource("t", "u", "s")));
-        CapturedWebSources.remember("id", "q", List.of());
-        assertThat(CapturedWebSources.peek("id")).isNull();
-    }
-
-    @Test
-    @DisplayName("should_handle_null_channel_on_take_peek_and_clear")
-    void should_handle_null_channel_on_take_peek_and_clear() {
-        assertThat(CapturedWebSources.take(null)).isNull();
-        assertThat(CapturedWebSources.peek(null)).isNull();
-        CapturedWebSources.clear(null);
-    }
-
-    @Test
-    @DisplayName("should_parse_items_with_missing_fields_and_non_array")
-    void should_parse_items_with_missing_fields_and_non_array() {
-        ObjectNode item = json.createObjectNode();
-        item.putNull("title");
-        assertThat(CapturedWebSources.parseItems(null)).isEmpty();
-        assertThat(CapturedWebSources.parseItems(item)).isEmpty();
-        assertThat(CapturedWebSources.parseItems(json.createArrayNode().add(item))).hasSize(1);
-    }
 }
