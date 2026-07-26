@@ -79,6 +79,7 @@ describe('ChatService http flows', () => {
     httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
       sessionId: 's1',
       title: 'New',
+      messageCount: 0,
       createdAt: '2026-07-01T00:00:00Z',
       lastActivityAt: '2026-07-01T00:00:00Z',
     });
@@ -93,12 +94,14 @@ describe('ChatService http flows', () => {
       {
         sessionId: 's2',
         title: 'Older',
+        messageCount: 1,
         createdAt: '2026-07-01T00:00:00Z',
         lastActivityAt: '2026-07-01T00:00:00Z',
       },
       {
         sessionId: 's1',
         title: 'Newer',
+        messageCount: 2,
         createdAt: '2026-07-02T00:00:00Z',
         lastActivityAt: '2026-07-02T00:00:00Z',
       },
@@ -115,6 +118,7 @@ describe('ChatService http flows', () => {
       {
         sessionId: 's1',
         title: 'Only',
+        messageCount: 1,
         createdAt: '2026-07-01T00:00:00Z',
         lastActivityAt: '2026-07-01T00:00:00Z',
       },
