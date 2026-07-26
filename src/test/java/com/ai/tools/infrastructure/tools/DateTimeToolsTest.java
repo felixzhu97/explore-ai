@@ -1,30 +1,51 @@
 package com.ai.tools.infrastructure.tools;
 
-import com.ai.tools.domain.service.CurrentDateTimeFormatter;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.i18n.SimpleTimeZoneAwareLocaleContext;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("DateTimeTools")
 class DateTimeToolsTest {
 
+    @AfterEach
+    void clearLocaleContext() {
+        LocaleContextHolder.resetLocaleContext();
+    }
+
     @Test
-    @DisplayName("should_return_formatted_clock_when_getCurrentDateTime_called")
-    void should_return_formatted_clock_when_getCurrentDateTime_called() {
+    @DisplayName("should_return_zoned_datetime_in_user_timezone_when_called")
+    void should_return_zoned_datetime_in_user_timezone_when_called() {
         Instant fixed = Instant.parse("2026-07-26T04:40:00Z");
-        ZoneId zone = ZoneId.of("Asia/Shanghai");
-        DateTimeTools tools = new DateTimeTools(
-                new CurrentDateTimeFormatter(Clock.fixed(fixed, zone), zone));
+        ZoneId shanghai = ZoneId.of("Asia/Shanghai");
+        LocaleContextHolder.setLocaleContext(new SimpleTimeZoneAwareLocaleContext(
+                Locale.CHINA, TimeZone.getTimeZone(shanghai)));
 
-        String result = tools.getCurrentDateTime(null);
+        DateTimeTools tools = new DateTimeTools(Clock.fixed(fixed, shanghai));
 
-        assertThat(result).contains("year=2026");
-        assertThat(result).contains("localDate=2026-07-26");
-        assertThat(result).contains("timeZone=Asia/Shanghai");
+        String result = tools.getCurrentDateTime();
+
+        assertThat(result).isEqualTo("2026-07-26T12:40+08:00[Asia/Shanghai]");
+    }
+
+    @Test
+    @DisplayName("should_use_locale_context_timezone_when_utc")
+    void should_use_locale_context_timezone_when_utc() {
+        Instant fixed = Instant.parse("2026-07-26T04:40:00Z");
+        LocaleContextHolder.setLocaleContext(new SimpleTimeZoneAwareLocaleContext(
+                Locale.US, TimeZone.getTimeZone("UTC")));
+
+        DateTimeTools tools = new DateTimeTools(Clock.fixed(fixed, ZoneId.of("UTC")));
+
+        assertThat(tools.getCurrentDateTime()).isEqualTo("2026-07-26T04:40Z[UTC]");
     }
 }

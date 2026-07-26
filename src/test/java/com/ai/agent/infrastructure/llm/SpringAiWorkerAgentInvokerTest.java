@@ -16,7 +16,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -51,9 +50,7 @@ class SpringAiWorkerAgentInvokerTest {
 
         invoker.invoke(agent("weather"), "Beijing weather");
 
-        ArgumentCaptor<Object[]> tools = ArgumentCaptor.forClass(Object[].class);
-        verify(requestSpec).tools(tools.capture());
-        assertSame(weatherTool, tools.getValue()[0]);
+        verify(requestSpec).tools(eq(weatherTool));
     }
 
     @Test
@@ -73,9 +70,7 @@ class SpringAiWorkerAgentInvokerTest {
 
         invoker.invoke(agent("vectordb"), "find onboarding docs");
 
-        ArgumentCaptor<Object[]> tools = ArgumentCaptor.forClass(Object[].class);
-        verify(requestSpec).tools(tools.capture());
-        assertSame(documentSearchTool, tools.getValue()[0]);
+        verify(requestSpec).tools(eq(documentSearchTool));
     }
 
     @Test

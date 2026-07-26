@@ -123,9 +123,9 @@ class ChatClientFactoryMcpMergeTest {
     }
 
     static class StubDateTimeTool implements DateTimeTool {
-        @Tool(description = "current datetime")
-        public String getCurrentDateTime(String zoneId) {
-            return "year=2026";
+        @Tool(description = "Get the current date and time in the user's timezone")
+        public String getCurrentDateTime() {
+            return "2026-07-26T12:40+08:00[Asia/Shanghai]";
         }
     }
 }
