@@ -19,7 +19,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should create session with title")
         void shouldCreateSessionWithTitle() {
-            ChatSession session = ChatSession.create("My Chat");
+            ChatSession session = ChatSession.create("My Chat", "client-a");
 
             assertThat(session.getTitle()).isEqualTo("My Chat");
             assertThat(session.getId()).isNotNull();
@@ -30,7 +30,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should create session with null title")
         void shouldCreateSessionWithNullTitle() {
-            ChatSession session = ChatSession.create(null);
+            ChatSession session = ChatSession.create(null, "client-a");
 
             assertThat(session.getTitle()).isEqualTo("New Chat");
         }
@@ -38,7 +38,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should create session with blank title")
         void shouldCreateSessionWithBlankTitle() {
-            ChatSession session = ChatSession.create("   ");
+            ChatSession session = ChatSession.create("   ", "client-a");
 
             assertThat(session.getTitle()).isEqualTo("New Chat");
         }
@@ -47,7 +47,7 @@ class ChatSessionTest {
         @DisplayName("should truncate long title")
         void shouldTruncateLongTitle() {
             String longTitle = "A".repeat(150);
-            ChatSession session = ChatSession.create(longTitle);
+            ChatSession session = ChatSession.create(longTitle, "client-a");
 
             assertThat(session.getTitle()).hasSize(100);
             assertThat(session.getTitle()).isEqualTo(longTitle.substring(0, 100));
@@ -56,7 +56,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should trim title")
         void shouldTrimTitle() {
-            ChatSession session = ChatSession.create("  My Chat  ");
+            ChatSession session = ChatSession.create("  My Chat  ", "client-a");
 
             assertThat(session.getTitle()).isEqualTo("My Chat");
         }
@@ -72,7 +72,7 @@ class ChatSessionTest {
             var id = com.ai.chat.domain.vo.ChatSessionId.of("test-id");
             Instant createdAt = Instant.now();
 
-            ChatSession session = ChatSession.of(id, "Title", createdAt);
+            ChatSession session = ChatSession.of(id, "Title", createdAt, "client-a");
 
             assertThat(session.getId()).isEqualTo(id);
             assertThat(session.getTitle()).isEqualTo("Title");
@@ -96,7 +96,7 @@ class ChatSessionTest {
                     ChatMessage.createAssistantMessage("Hi!")
             );
 
-            ChatSession session = ChatSession.reconstitute(id, "Title", createdAt, lastActivity, messages);
+            ChatSession session = ChatSession.reconstitute(id, "Title", createdAt, lastActivity, messages, "client-a");
 
             assertThat(session.getId()).isEqualTo(id);
             assertThat(session.getLastActivityAt()).isEqualTo(lastActivity);
@@ -109,7 +109,7 @@ class ChatSessionTest {
             var id = com.ai.chat.domain.vo.ChatSessionId.of("test-id");
             Instant createdAt = Instant.now();
 
-            ChatSession session = ChatSession.reconstitute(id, "Title", createdAt, null, java.util.List.of());
+            ChatSession session = ChatSession.reconstitute(id, "Title", createdAt, null, java.util.List.of(), "client-a");
 
             assertThat(session.getLastActivityAt()).isEqualTo(createdAt);
         }
@@ -122,7 +122,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should add user message")
         void shouldAddUserMessage() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
 
             ChatMessage message = session.addUserMessage("Hello");
 
@@ -135,7 +135,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should update lastActivityAt")
         void shouldUpdateLastActivityAt() throws InterruptedException {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             Instant beforeAdd = session.getLastActivityAt();
 
             Thread.sleep(10);
@@ -152,7 +152,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should add assistant message")
         void shouldAddAssistantMessage() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
 
             ChatMessage message = session.addAssistantMessage("Hello");
 
@@ -170,7 +170,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return last user message")
         void shouldReturnLastUserMessage() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("First");
             session.addAssistantMessage("Response");
             session.addUserMessage("Second");
@@ -183,7 +183,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return null when no user messages")
         void shouldReturnNullWhenNoUserMessages() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
 
             ChatMessage lastUser = session.getLastUserMessage();
 
@@ -198,7 +198,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return last assistant message")
         void shouldReturnLastAssistantMessage() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Question");
             session.addAssistantMessage("First Response");
             session.addAssistantMessage("Second Response");
@@ -211,7 +211,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return null when no assistant messages")
         void shouldReturnNullWhenNoAssistantMessages() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
 
             ChatMessage lastAssistant = session.getLastAssistantMessage();
 
@@ -226,7 +226,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return recent messages")
         void shouldReturnRecentMessages() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             for (int i = 1; i <= 5; i++) {
                 session.addUserMessage("Message " + i);
             }
@@ -241,7 +241,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return all messages when count exceeds size")
         void shouldReturnAllMessagesWhenCountExceedsSize() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("One");
             session.addUserMessage("Two");
 
@@ -253,7 +253,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return empty list for zero count")
         void shouldReturnEmptyListForZeroCount() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Hello");
 
             var recent = session.getRecentMessages(0);
@@ -264,7 +264,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return empty list for negative count")
         void shouldReturnEmptyListForNegativeCount() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
 
             var recent = session.getRecentMessages(-1);
 
@@ -274,7 +274,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return unmodifiable list")
         void shouldReturnUnmodifiableList() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Hello");
 
             var recent = session.getRecentMessages(10);
@@ -291,7 +291,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return true for empty session")
         void shouldReturnTrueForEmptySession() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
 
             assertThat(session.isEmpty()).isTrue();
         }
@@ -299,7 +299,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return false for session with messages")
         void shouldReturnFalseForSessionWithMessages() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Hello");
 
             assertThat(session.isEmpty()).isFalse();
@@ -313,7 +313,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should clear all messages")
         void shouldClearAllMessages() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Hello");
             session.addAssistantMessage("Hi");
 
@@ -325,7 +325,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should update lastActivityAt")
         void shouldUpdateLastActivityAt() throws InterruptedException {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Hello");
             Instant beforeClear = session.getLastActivityAt();
 
@@ -343,7 +343,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return unmodifiable list")
         void shouldReturnUnmodifiableList() {
-            ChatSession session = ChatSession.create("Test");
+            ChatSession session = ChatSession.create("Test", "client-a");
             session.addUserMessage("Hello");
 
             assertThatThrownBy(() -> session.getMessages().add(ChatMessage.createUserMessage("New")))
@@ -359,8 +359,8 @@ class ChatSessionTest {
         @DisplayName("should be equal when id is same")
         void shouldBeEqualWhenIdIsSame() {
             var id = com.ai.chat.domain.vo.ChatSessionId.of("same-id");
-            ChatSession session1 = ChatSession.of(id, "Title 1", Instant.now());
-            ChatSession session2 = ChatSession.of(id, "Title 2", Instant.now());
+            ChatSession session1 = ChatSession.of(id, "Title 1", Instant.now(), "client-a");
+            ChatSession session2 = ChatSession.of(id, "Title 2", Instant.now(), "client-a");
 
             assertThat(session1).isEqualTo(session2);
             assertThat(session1.hashCode()).isEqualTo(session2.hashCode());
@@ -370,11 +370,9 @@ class ChatSessionTest {
         @DisplayName("should not be equal when id is different")
         void shouldNotBeEqualWhenIdIsDifferent() {
             ChatSession session1 = ChatSession.of(
-                    com.ai.chat.domain.vo.ChatSessionId.of("id-1"),
-                    "Title", Instant.now());
+                    com.ai.chat.domain.vo.ChatSessionId.of("id-1"), "Title", Instant.now(), "client-a");
             ChatSession session2 = ChatSession.of(
-                    com.ai.chat.domain.vo.ChatSessionId.of("id-2"),
-                    "Title", Instant.now());
+                    com.ai.chat.domain.vo.ChatSessionId.of("id-2"), "Title", Instant.now(), "client-a");
 
             assertThat(session1).isNotEqualTo(session2);
         }
@@ -387,7 +385,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should rename session with valid title")
         void shouldRenameSessionWithValidTitle() {
-            ChatSession session = ChatSession.create("New Chat");
+            ChatSession session = ChatSession.create("New Chat", "client-a");
 
             session.rename("Kubernetes Guide");
 
@@ -397,7 +395,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should ignore blank rename")
         void shouldIgnoreBlankRename() {
-            ChatSession session = ChatSession.create("New Chat");
+            ChatSession session = ChatSession.create("New Chat", "client-a");
 
             session.rename("   ");
 
@@ -407,7 +405,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should truncate long rename")
         void shouldTruncateLongRename() {
-            ChatSession session = ChatSession.create("New Chat");
+            ChatSession session = ChatSession.create("New Chat", "client-a");
             String longTitle = "A".repeat(150);
 
             session.rename(longTitle);
@@ -423,7 +421,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return true for default title")
         void shouldReturnTrueForDefaultTitle() {
-            ChatSession session = ChatSession.create(null);
+            ChatSession session = ChatSession.create(null, "client-a");
 
             assertThat(session.hasDefaultTitle()).isTrue();
         }
@@ -431,7 +429,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should return false for custom title")
         void shouldReturnFalseForCustomTitle() {
-            ChatSession session = ChatSession.create("Custom");
+            ChatSession session = ChatSession.create("Custom", "client-a");
 
             assertThat(session.hasDefaultTitle()).isFalse();
         }
@@ -444,7 +442,7 @@ class ChatSessionTest {
         @Test
         @DisplayName("should contain id, title and message count")
         void shouldContainIdTitleAndMessageCount() {
-            ChatSession session = ChatSession.create("Test Session");
+            ChatSession session = ChatSession.create("Test Session", "client-a");
             session.addUserMessage("Hello");
 
             String str = session.toString();

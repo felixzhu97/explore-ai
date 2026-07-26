@@ -116,15 +116,16 @@ public class SpringAiChatUseCase implements ChatUseCase {
     }
 
     @Override
-    public Flux<String> chatStreamWithSession(String sessionId, String userMessage) {
-        return chatStreamWithSession(sessionId, userMessage, TextChatOptions.defaults());
+    public Flux<String> chatStreamWithSession(String sessionId, String userMessage, String clientId) {
+        return chatStreamWithSession(sessionId, userMessage, TextChatOptions.defaults(), clientId);
     }
 
     @Override
-    public Flux<String> chatStreamWithSession(String sessionId, String userMessage, TextChatOptions options) {
+    public Flux<String> chatStreamWithSession(
+            String sessionId, String userMessage, TextChatOptions options, String clientId) {
         return Flux.defer(() -> {
             long startedAt = System.nanoTime();
-            ChatSession session = loadOrCreateSession(sessionId);
+            ChatSession session = loadOrCreateSession(sessionId, clientId);
             boolean isFirstTurn = session.isEmpty();
             conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
 
@@ -315,19 +316,19 @@ public class SpringAiChatUseCase implements ChatUseCase {
     }
 
     @Override
-    public String chatWithSession(String sessionId, String userMessage) {
+    public String chatWithSession(String sessionId, String userMessage, String clientId) {
         try {
-            ChatSession session = loadOrCreateSession(sessionId);
+            ChatSession session = loadOrCreateSession(sessionId, clientId);
             return exchangeMessages(session, sessionId, userMessage, TextChatOptions.defaults());
         } catch (ChatSessionNotFoundException e) {
             log.warn("Session not found, using default: {}", sessionId);
-            return chatWithSession(userMessage);
+            return chatWithSession(userMessage, clientId);
         }
     }
 
     @Override
-    public String chatWithSession(String userMessage) {
-        ChatSession session = getOrCreateDefaultSession();
+    public String chatWithSession(String userMessage, String clientId) {
+        ChatSession session = getOrCreateDefaultSession(clientId);
         return exchangeMessages(session, session.getId().value(), userMessage, TextChatOptions.defaults());
     }
 
@@ -398,36 +399,41 @@ public class SpringAiChatUseCase implements ChatUseCase {
                 );
     }
 
-    private ChatSession getOrCreateDefaultSession() {
-        List<ChatSession> sessions = repository.findAll();
+    private ChatSession getOrCreateDefaultSession(String clientId) {
+        List<ChatSession> sessions = repository.findByClientId(clientId);
         if (sessions.isEmpty()) {
-            ChatSession newSession = ChatSession.create("Default Chat");
+            ChatSession newSession = ChatSession.create("Default Chat", clientId);
             repository.save(newSession);
             return newSession;
         }
         return sessions.getFirst();
     }
 
-    private ChatSession loadOrCreateSession(String sessionId) {
+    private ChatSession loadOrCreateSession(String sessionId, String clientId) {
         ChatSessionId id = ChatSessionId.of(sessionId);
-        return repository.findById(id).orElseGet(() -> {
-            ChatSession session = ChatSession.createWithId(id, ChatSession.DEFAULT_TITLE);
-            repository.save(session);
-            return session;
-        });
-    }
-
-    @Override
-    public ChatSession createSession(String title) {
-        ChatSession session = ChatSession.create(title);
+        Optional<ChatSession> owned = repository.findByIdAndClientId(id, clientId);
+        if (owned.isPresent()) {
+            return owned.get();
+        }
+        if (repository.exists(id)) {
+            throw new ChatSessionNotFoundException(sessionId);
+        }
+        ChatSession session = ChatSession.createWithId(id, ChatSession.DEFAULT_TITLE, clientId);
         repository.save(session);
-        log.info("Created new session: {} with id: {}", title, session.getId());
         return session;
     }
 
     @Override
-    public Optional<ChatSession> getSession(String sessionId) {
-        return repository.findById(ChatSessionId.of(sessionId))
+    public ChatSession createSession(String title, String clientId) {
+        ChatSession session = ChatSession.create(title, clientId);
+        repository.save(session);
+        log.info("Created new session: {} with id: {} for client {}", title, session.getId(), clientId);
+        return session;
+    }
+
+    @Override
+    public Optional<ChatSession> getSession(String sessionId, String clientId) {
+        return repository.findByIdAndClientId(ChatSessionId.of(sessionId), clientId)
                 .map(session -> {
                     conversationMemoryRepository.syncToSession(sessionId, session);
                     return session;
@@ -435,25 +441,29 @@ public class SpringAiChatUseCase implements ChatUseCase {
     }
 
     @Override
-    public List<ChatMessage> getSessionHistory(String sessionId) {
-        ChatSession session = repository.findById(ChatSessionId.of(sessionId))
+    public List<ChatMessage> getSessionHistory(String sessionId, String clientId) {
+        ChatSession session = repository.findByIdAndClientId(ChatSessionId.of(sessionId), clientId)
                 .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
         conversationMemoryRepository.syncToSession(sessionId, session);
         return session.getMessages();
     }
 
     @Override
-    public void deleteSession(String sessionId) {
+    public void deleteSession(String sessionId, String clientId) {
+        ChatSessionId id = ChatSessionId.of(sessionId);
+        if (repository.findByIdAndClientId(id, clientId).isEmpty()) {
+            throw new ChatSessionNotFoundException(sessionId);
+        }
         conversationMemoryRepository.clear(sessionId);
         chatWebSourcesRepository.deleteByConversationId(sessionId);
         CapturedWebSources.clear(sessionId);
-        repository.delete(ChatSessionId.of(sessionId));
+        repository.delete(id);
         log.info("Deleted session: {}", sessionId);
     }
 
     @Override
-    public List<ChatSession> getAllSessions() {
-        return repository.findAll().stream()
+    public List<ChatSession> getSessionsForClient(String clientId) {
+        return repository.findByClientId(clientId).stream()
                 .map(session -> {
                     conversationMemoryRepository.syncToSession(session.getId().value(), session);
                     return session;

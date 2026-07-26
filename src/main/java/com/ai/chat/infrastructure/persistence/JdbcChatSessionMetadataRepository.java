@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * JDBC persistence for chat session metadata (messages stored in ChatMemory).
@@ -25,7 +24,11 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
         String title = rs.getString("title");
         Instant createdAt = rs.getTimestamp("created_at").toInstant();
         Instant lastActivityAt = rs.getTimestamp("last_activity_at").toInstant();
-        return ChatSession.reconstitute(id, title, createdAt, lastActivityAt, List.of());
+        String clientId = rs.getString("client_id");
+        if (clientId == null || clientId.isBlank()) {
+            return ChatSession.reconstituteOrphan(id, title, createdAt, lastActivityAt, List.of());
+        }
+        return ChatSession.reconstitute(id, title, createdAt, lastActivityAt, List.of(), clientId);
     };
 
     private final JdbcTemplate jdbcTemplate;
@@ -37,9 +40,23 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     @Override
     public Optional<ChatSession> findById(ChatSessionId id) {
         List<ChatSession> results = jdbcTemplate.query(
-                "SELECT id, title, created_at, last_activity_at FROM chat_sessions WHERE id = ?",
+                "SELECT id, title, created_at, last_activity_at, client_id FROM chat_sessions WHERE id = ?",
                 ROW_MAPPER,
                 id.value());
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
+    }
+
+    @Override
+    public Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId) {
+        List<ChatSession> results = jdbcTemplate.query(
+                """
+                SELECT id, title, created_at, last_activity_at, client_id
+                FROM chat_sessions
+                WHERE id = ? AND client_id = ?
+                """,
+                ROW_MAPPER,
+                id.value(),
+                clientId);
         return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
     }
 
@@ -48,14 +65,15 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     public void save(ChatSession session) {
         jdbcTemplate.update(
                 """
-                MERGE INTO chat_sessions (id, title, created_at, last_activity_at)
+                MERGE INTO chat_sessions (id, title, created_at, last_activity_at, client_id)
                 KEY (id)
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
                 """,
                 session.getId().value(),
                 session.getTitle(),
                 Timestamp.from(session.getCreatedAt()),
-                Timestamp.from(session.getLastActivityAt()));
+                Timestamp.from(session.getLastActivityAt()),
+                session.getClientId());
     }
 
     @Override
@@ -65,10 +83,16 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     }
 
     @Override
-    public List<ChatSession> findAll() {
+    public List<ChatSession> findByClientId(String clientId) {
         return jdbcTemplate.query(
-                "SELECT id, title, created_at, last_activity_at FROM chat_sessions ORDER BY last_activity_at DESC",
-                ROW_MAPPER);
+                """
+                SELECT id, title, created_at, last_activity_at, client_id
+                FROM chat_sessions
+                WHERE client_id = ?
+                ORDER BY last_activity_at DESC
+                """,
+                ROW_MAPPER,
+                clientId);
     }
 
     @Override

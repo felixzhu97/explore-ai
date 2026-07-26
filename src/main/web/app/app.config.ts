@@ -5,6 +5,7 @@ import { provideNzConfig } from 'ng-zorro-antd/core/config';
 import { provideZard } from './shared/zard';
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { credentialsInterceptor } from './core/interceptors/credentials.interceptor';
 import { SESSION_LIST } from './layout/services/session-list.token';
 import { ChatSessionListService } from './chat/chat-session-list.service';
 import { FeatureFlagService } from './core/feature-flag.service';
@@ -29,7 +30,7 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(FeatureFlagService).initialize()),
     provideZard(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    provideHttpClient(withInterceptors([credentialsInterceptor, httpErrorInterceptor])),
     { provide: ErrorHandler, useClass: DatadogErrorHandler },
     { provide: SESSION_LIST, useClass: ChatSessionListService },
     provideNzConfig({

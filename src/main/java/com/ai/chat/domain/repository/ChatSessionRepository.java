@@ -13,11 +13,13 @@ public interface ChatSessionRepository {
 
     Optional<ChatSession> findById(ChatSessionId id);
 
+    Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId);
+
     void save(ChatSession session);
 
     void delete(ChatSessionId id);
 
-    List<ChatSession> findAll();
+    List<ChatSession> findByClientId(String clientId);
 
     boolean exists(ChatSessionId id);
 }

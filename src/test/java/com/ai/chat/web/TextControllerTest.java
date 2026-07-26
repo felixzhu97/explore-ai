@@ -6,6 +6,8 @@ import com.ai.chat.application.usecase.TextProviderCatalog;
 import com.ai.chat.web.dto.ChatStreamRequest;
 import com.ai.chat.web.dto.ModelInfoResponse;
 import com.ai.chat.web.dto.ProviderInfoResponse;
+import com.ai.common.web.ClientIdentity;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +20,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TextControllerTest {
+
+    private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
 
     @Mock
     private ChatUseCase chatUseCase;
@@ -30,11 +35,15 @@ class TextControllerTest {
     @Mock
     private TextProviderCatalog providerCatalog;
 
+    @Mock
+    private HttpServletRequest httpRequest;
+
     private TextController controller;
 
     @BeforeEach
     void setUp() {
         controller = new TextController(chatUseCase, providerCatalog);
+        lenient().when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
     }
 
     @Test
@@ -65,7 +74,11 @@ class TextControllerTest {
 
     @Test
     void should_use_session_stream_when_session_id_provided() {
-        when(chatUseCase.chatStreamWithSession("session-1", "Hello", TextChatOptions.of("openai", "deepseek-v4-flash", false)))
+        when(chatUseCase.chatStreamWithSession(
+                "session-1",
+                "Hello",
+                TextChatOptions.of("openai", "deepseek-v4-flash", false),
+                CLIENT_ID))
                 .thenReturn(Flux.just("Hi", " there"));
 
         Flux<String> result = controller.chatStream(new ChatStreamRequest(
@@ -74,12 +87,16 @@ class TextControllerTest {
                 "openai",
                 "deepseek-v4-flash",
                 false
-        ));
+        ), httpRequest);
 
         StepVerifier.create(result)
                 .expectNext("Hi", " there")
                 .verifyComplete();
-        verify(chatUseCase).chatStreamWithSession("session-1", "Hello", TextChatOptions.of("openai", "deepseek-v4-flash", false));
+        verify(chatUseCase).chatStreamWithSession(
+                "session-1",
+                "Hello",
+                TextChatOptions.of("openai", "deepseek-v4-flash", false),
+                CLIENT_ID);
     }
 
     @Test
@@ -93,7 +110,7 @@ class TextControllerTest {
                 null,
                 null,
                 false
-        ));
+        ), httpRequest);
 
         StepVerifier.create(result)
                 .expectNext("token")

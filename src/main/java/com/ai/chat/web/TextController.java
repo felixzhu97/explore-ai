@@ -7,6 +7,8 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.web.dto.ChatStreamRequest;
 import com.ai.chat.web.dto.ModelsListResponse;
 import com.ai.chat.web.dto.ProviderInfoResponse;
+import com.ai.common.web.ClientIdentity;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -38,7 +40,9 @@ public class TextController {
     }
 
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatStream(@RequestBody ChatStreamRequest request) {
+    public Flux<String> chatStream(
+            @RequestBody ChatStreamRequest request,
+            HttpServletRequest httpRequest) {
         TextChatOptions options = TextChatOptions.of(
                 request.provider(), request.model(), request.toolsEnabled());
 
@@ -47,7 +51,8 @@ public class TextController {
             if (userMessage == null || userMessage.isBlank()) {
                 return Flux.error(new IllegalArgumentException("User message is required when sessionId is provided"));
             }
-            return chatUseCase.chatStreamWithSession(request.sessionId(), userMessage, options);
+            String clientId = ClientIdentity.require(httpRequest);
+            return chatUseCase.chatStreamWithSession(request.sessionId(), userMessage, options, clientId);
         }
 
         List<ChatMessage> messages = request.messages().stream()

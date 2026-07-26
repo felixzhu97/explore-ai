@@ -14,17 +14,26 @@ public class ChatSession {
     public static final String DEFAULT_TITLE = "New Chat";
 
     private final ChatSessionId id;
+    private final String clientId;
     private String title;
     private final List<ChatMessage> messages;
     private final Instant createdAt;
     private Instant lastActivityAt;
 
-    ChatSession(ChatSessionId id, String title, Instant createdAt) {
+    ChatSession(ChatSessionId id, String title, Instant createdAt, String clientId) {
         this.id = Objects.requireNonNull(id, "ChatSessionId cannot be null");
         this.title = validateTitle(title);
         this.messages = new ArrayList<>();
         this.createdAt = Objects.requireNonNull(createdAt, "CreatedAt cannot be null");
         this.lastActivityAt = createdAt;
+        this.clientId = requireClientId(clientId);
+    }
+
+    private static String requireClientId(String clientId) {
+        if (clientId == null || clientId.isBlank()) {
+            throw new IllegalArgumentException("ClientId cannot be null or blank");
+        }
+        return clientId.trim();
     }
 
     private static String validateTitle(String title) {
@@ -37,28 +46,58 @@ public class ChatSession {
         return title.trim();
     }
 
-    public static ChatSession create(String title) {
-        return new ChatSession(ChatSessionId.generate(), title, Instant.now());
+    public static ChatSession create(String title, String clientId) {
+        return new ChatSession(ChatSessionId.generate(), title, Instant.now(), clientId);
     }
 
-    public static ChatSession createWithId(ChatSessionId id, String title) {
-        return new ChatSession(id, title, Instant.now());
+    public static ChatSession createWithId(ChatSessionId id, String title, String clientId) {
+        return new ChatSession(id, title, Instant.now(), clientId);
     }
 
-    public static ChatSession of(ChatSessionId id, String title, Instant createdAt) {
-        return new ChatSession(id, title, createdAt);
+    public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String clientId) {
+        return new ChatSession(id, title, createdAt, clientId);
     }
 
-    public static ChatSession reconstitute(ChatSessionId id, String title, Instant createdAt,
-                                         Instant lastActivityAt, List<ChatMessage> messages) {
-        ChatSession session = new ChatSession(id, title, createdAt);
+    public static ChatSession reconstitute(
+            ChatSessionId id,
+            String title,
+            Instant createdAt,
+            Instant lastActivityAt,
+            List<ChatMessage> messages,
+            String clientId) {
+        ChatSession session = new ChatSession(id, title, createdAt, clientId);
         session.lastActivityAt = lastActivityAt != null ? lastActivityAt : createdAt;
         session.messages.addAll(messages);
         return session;
     }
 
+    /**
+     * Reconstitute a legacy row that has no client ownership (invisible to clients).
+     */
+    public static ChatSession reconstituteOrphan(
+            ChatSessionId id,
+            String title,
+            Instant createdAt,
+            Instant lastActivityAt,
+            List<ChatMessage> messages) {
+        ChatSession session = new ChatSession(id, title, createdAt, "__orphan__");
+        session.lastActivityAt = lastActivityAt != null ? lastActivityAt : createdAt;
+        if (messages != null) {
+            session.messages.addAll(messages);
+        }
+        return session;
+    }
+
     public ChatSessionId getId() {
         return id;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public boolean belongsTo(String otherClientId) {
+        return clientId.equals(otherClientId);
     }
 
     public String getTitle() {

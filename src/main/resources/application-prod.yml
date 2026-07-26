@@ -30,6 +30,11 @@ launchdarkly:
     module-eval: false
 
 app:
+  client-identity:
+    cookie-name: __Host-ea_cid
+    secure: true
+    same-site: Lax
+    max-age: 365d
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
   ai:
