@@ -8,6 +8,8 @@ import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
+import com.ai.common.web.ClientIdentity;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,17 +28,23 @@ import static org.mockito.Mockito.*;
 @DisplayName("ChatController")
 class ChatControllerTest {
 
+    private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
+
     @Mock
     private ChatUseCase chatUseCase;
 
     @Mock
     private ChatWebSourcesRepository chatWebSourcesRepository;
 
+    @Mock
+    private HttpServletRequest httpRequest;
+
     private ChatController controller;
 
     @BeforeEach
     void setUp() {
         controller = new ChatController(chatUseCase, chatWebSourcesRepository);
+        lenient().when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
     }
 
     @Nested
@@ -60,19 +68,19 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return response for valid message")
         void shouldReturnResponseForValidMessage() {
-            when(chatUseCase.chatWithSession("Hello")).thenReturn("Hi there!");
+            when(chatUseCase.chatWithSession("Hello", CLIENT_ID)).thenReturn("Hi there!");
 
-            var response = controller.chat(new ChatRequest("Hello", null));
+            var response = controller.chat(new ChatRequest("Hello", null), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().response()).isEqualTo("Hi there!");
-            verify(chatUseCase).chatWithSession("Hello");
+            verify(chatUseCase).chatWithSession("Hello", CLIENT_ID);
         }
 
         @Test
         @DisplayName("should return 400 for null message")
         void shouldReturn400ForNullMessage() {
-            var response = controller.chat(new ChatRequest(null, null));
+            var response = controller.chat(new ChatRequest(null, null), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(400);
             assertThat(response.getBody().response()).isEqualTo("Please provide a message.");
@@ -81,7 +89,7 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return 400 for blank message")
         void shouldReturn400ForBlankMessage() {
-            var response = controller.chat(new ChatRequest("   ", null));
+            var response = controller.chat(new ChatRequest("   ", null), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
@@ -89,23 +97,23 @@ class ChatControllerTest {
         @Test
         @DisplayName("should use session when sessionId provided")
         void shouldUseSessionWhenSessionIdProvided() {
-            when(chatUseCase.chatWithSession("session-123", "Hello"))
+            when(chatUseCase.chatWithSession("session-123", "Hello", CLIENT_ID))
                     .thenReturn("Response with context");
 
-            var response = controller.chat(new ChatRequest("Hello", "session-123"));
+            var response = controller.chat(new ChatRequest("Hello", "session-123"), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().response()).isEqualTo("Response with context");
-            verify(chatUseCase).chatWithSession("session-123", "Hello");
+            verify(chatUseCase).chatWithSession("session-123", "Hello", CLIENT_ID);
         }
 
         @Test
         @DisplayName("should handle long message without error")
         void shouldHandleLongMessageWithoutError() {
             String longMessage = "A".repeat(100);
-            when(chatUseCase.chatWithSession(longMessage)).thenReturn("Response to long message");
+            when(chatUseCase.chatWithSession(longMessage, CLIENT_ID)).thenReturn("Response to long message");
 
-            var response = controller.chat(new ChatRequest(longMessage, null));
+            var response = controller.chat(new ChatRequest(longMessage, null), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
         }
@@ -119,9 +127,9 @@ class ChatControllerTest {
         @DisplayName("should create session with custom title")
         void shouldCreateSessionWithCustomTitle() {
             ChatSession session = createTestSession("new-session", "Custom Title");
-            when(chatUseCase.createSession("Custom Title")).thenReturn(session);
+            when(chatUseCase.createSession("Custom Title", CLIENT_ID)).thenReturn(session);
 
-            var response = controller.createSession(new CreateSessionRequest("Custom Title"));
+            var response = controller.createSession(new CreateSessionRequest("Custom Title"), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().title()).isEqualTo("Custom Title");
@@ -131,9 +139,9 @@ class ChatControllerTest {
         @DisplayName("should create session with default title when not provided")
         void shouldCreateSessionWithDefaultTitleWhenNotProvided() {
             ChatSession session = createTestSession("new-session", "New Chat");
-            when(chatUseCase.createSession("New Chat")).thenReturn(session);
+            when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
 
-            var response = controller.createSession(new CreateSessionRequest(null));
+            var response = controller.createSession(new CreateSessionRequest(null), httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().title()).isEqualTo("New Chat");
@@ -143,9 +151,9 @@ class ChatControllerTest {
         @DisplayName("should create session with default title when body is null")
         void shouldCreateSessionWithDefaultTitleWhenBodyIsNull() {
             ChatSession session = createTestSession("new-session", "New Chat");
-            when(chatUseCase.createSession("New Chat")).thenReturn(session);
+            when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
 
-            var response = controller.createSession(null);
+            var response = controller.createSession(null, httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
         }
@@ -156,15 +164,15 @@ class ChatControllerTest {
     class GetAllSessions {
 
         @Test
-        @DisplayName("should return all sessions")
-        void shouldReturnAllSessions() {
+        @DisplayName("should return client sessions")
+        void shouldReturnClientSessions() {
             List<ChatSession> sessions = List.of(
                     createTestSession("session-1", "Chat 1"),
                     createTestSession("session-2", "Chat 2")
             );
-            when(chatUseCase.getAllSessions()).thenReturn(sessions);
+            when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(sessions);
 
-            var response = controller.getAllSessions();
+            var response = controller.getAllSessions(httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).hasSize(2);
@@ -173,9 +181,9 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return empty list when no sessions")
         void shouldReturnEmptyListWhenNoSessions() {
-            when(chatUseCase.getAllSessions()).thenReturn(List.of());
+            when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(List.of());
 
-            var response = controller.getAllSessions();
+            var response = controller.getAllSessions(httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).isEmpty();
@@ -190,9 +198,9 @@ class ChatControllerTest {
         @DisplayName("should return session when found")
         void shouldReturnSessionWhenFound() {
             ChatSession session = createTestSession("session-1", "My Chat");
-            when(chatUseCase.getSession("session-1")).thenReturn(java.util.Optional.of(session));
+            when(chatUseCase.getSession("session-1", CLIENT_ID)).thenReturn(java.util.Optional.of(session));
 
-            var response = controller.getSession("session-1");
+            var response = controller.getSession("session-1", httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().title()).isEqualTo("My Chat");
@@ -201,9 +209,9 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return 404 when session not found")
         void shouldReturn404WhenSessionNotFound() {
-            when(chatUseCase.getSession("missing")).thenReturn(java.util.Optional.empty());
+            when(chatUseCase.getSession("missing", CLIENT_ID)).thenReturn(java.util.Optional.empty());
 
-            var response = controller.getSession("missing");
+            var response = controller.getSession("missing", httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(404);
         }
@@ -216,13 +224,13 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return messages for session")
         void shouldReturnMessagesForSession() {
-            when(chatUseCase.getSessionHistory("session-1")).thenReturn(List.of(
+            when(chatUseCase.getSessionHistory("session-1", CLIENT_ID)).thenReturn(List.of(
                     ChatMessage.createUserMessage("Hello"),
                     ChatMessage.createAssistantMessage("Hi")
             ));
             when(chatWebSourcesRepository.findByConversationId("session-1")).thenReturn(Map.of());
 
-            var response = controller.getSessionMessages("session-1");
+            var response = controller.getSessionMessages("session-1", httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody()).hasSize(2);
@@ -233,7 +241,7 @@ class ChatControllerTest {
         @DisplayName("should attach persisted sources to assistant messages")
         void should_attach_persisted_sources_to_assistant_messages() {
             String reply = "Paris is the capital.";
-            when(chatUseCase.getSessionHistory("session-1")).thenReturn(List.of(
+            when(chatUseCase.getSessionHistory("session-1", CLIENT_ID)).thenReturn(List.of(
                     ChatMessage.createUserMessage("Where is Paris?"),
                     ChatMessage.createAssistantMessage(reply)
             ));
@@ -242,7 +250,7 @@ class ChatControllerTest {
                     List.of(new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))
             ));
 
-            var response = controller.getSessionMessages("session-1");
+            var response = controller.getSessionMessages("session-1", httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(200);
             assertThat(response.getBody().get(1).sources()).hasSize(1);
@@ -253,10 +261,10 @@ class ChatControllerTest {
         @Test
         @DisplayName("should return 404 when session not found")
         void shouldReturn404WhenSessionNotFound() {
-            when(chatUseCase.getSessionHistory("missing"))
+            when(chatUseCase.getSessionHistory("missing", CLIENT_ID))
                     .thenThrow(new ChatSessionNotFoundException("missing"));
 
-            var response = controller.getSessionMessages("missing");
+            var response = controller.getSessionMessages("missing", httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(404);
         }
@@ -269,24 +277,19 @@ class ChatControllerTest {
         @Test
         @DisplayName("should delete session and return 204")
         void shouldDeleteSessionAndReturn204() {
-            doNothing().when(chatUseCase).deleteSession("session-to-delete");
+            doNothing().when(chatUseCase).deleteSession("session-to-delete", CLIENT_ID);
 
-            var response = controller.deleteSession("session-to-delete");
+            var response = controller.deleteSession("session-to-delete", httpRequest);
 
             assertThat(response.getStatusCode().value()).isEqualTo(204);
-            verify(chatUseCase).deleteSession("session-to-delete");
+            verify(chatUseCase).deleteSession("session-to-delete", CLIENT_ID);
         }
     }
 
     private ChatSession createTestSession(String id, String title) {
-        ChatSession session = ChatSession.create(title);
-        try {
-            java.lang.reflect.Field idField = ChatSession.class.getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(session, com.ai.chat.domain.vo.ChatSessionId.of(id));
-        } catch (Exception e) {
-            // Ignore for testing
-        }
-        return session;
+        return ChatSession.createWithId(
+                com.ai.chat.domain.vo.ChatSessionId.of(id),
+                title,
+                CLIENT_ID);
     }
 }

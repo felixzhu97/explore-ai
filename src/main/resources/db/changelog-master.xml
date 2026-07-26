@@ -16,6 +16,8 @@
   <include file="changelogs/2.0-chat-memory.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/2.1-chat-memory-repair.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/2.2-chat-web-sources.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/2.3-chat-session-client-id.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/3.0-ai-invocation-events.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
+
 

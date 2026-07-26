@@ -1,0 +1,18 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260726-001-chat-sessions-client-id" dbms="h2">
+    <addColumn tableName="chat_sessions">
+      <column name="client_id" type="${string.type}(64)"/>
+    </addColumn>
+    <createIndex indexName="idx_chat_sessions_client_id" tableName="chat_sessions">
+      <column name="client_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

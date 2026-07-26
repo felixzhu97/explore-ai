@@ -144,8 +144,28 @@ journey
 - **GIVEN** 用户发送消息 **WHEN** 消息保存到后端 **THEN** 内容不含 `undefined` 前缀
 
 **API**: `POST /api/text/chat/stream` (含 `session_id`), `GET /api/sessions`, `GET /api/sessions/{id}/messages`, `GET /api/health`  
-**实现**: `SpringAiChatUseCase`, `SessionTitleGenerator`, `ChatService`, `TextController`, `ChatController`  
-**Jira**: [AI-101](https://felixzhu.atlassian.net/browse/AI-101)
+**实现**: `SpringAiChatUseCase`, `SessionTitleGenerator`, `ChatService`, `TextController`, `ChatController`, `ClientIdentityFilter`  
+**Jira**: [AI-101](https://felixzhu.atlassian.net/browse/AI-101), [AI-211](https://felixzhu.atlassian.net/browse/AI-211)（按浏览器隔离会话）
+
+---
+
+### 1b. 按浏览器隔离聊天会话（已交付）
+
+**用户故事**
+
+**As a** 使用 ExploreAI 的访客  
+**I want** 我的聊天会话只对本浏览器可见  
+**So that** 其他电脑无法看到或操作我的对话
+
+**Acceptance Criteria**
+
+- **GIVEN** 浏览器 A 已创建会话 **WHEN** 浏览器 B 打开列表 **THEN** 看不到 A 的会话
+- **GIVEN** 浏览器 A 拥有会话 S **WHEN** 浏览器 B 读/删/发消息到 S **THEN** 返回 404
+- **GIVEN** 首次访问无 Cookie **WHEN** 调用会话 API **THEN** 签发 HttpOnly SameSite Cookie
+
+**API**: `GET/POST/DELETE /api/sessions*`, `POST /api/text/chat/stream`（Cookie 身份）  
+**实现**: `ClientIdentityFilter`, `ChatSession.clientId`, `findByClientId` / `findByIdAndClientId`  
+**Jira**: [AI-211](https://felixzhu.atlassian.net/browse/AI-211)
 
 ---
 

@@ -5,6 +5,7 @@ import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,11 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
     }
 
     @Override
+    public Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId) {
+        return findById(id).filter(session -> session.belongsTo(clientId));
+    }
+
+    @Override
     public void save(ChatSession session) {
         storage.put(session.getId(), session);
     }
@@ -34,8 +40,11 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
     }
 
     @Override
-    public List<ChatSession> findAll() {
-        return new ArrayList<>(storage.values());
+    public List<ChatSession> findByClientId(String clientId) {
+        return storage.values().stream()
+                .filter(session -> session.belongsTo(clientId))
+                .sorted(Comparator.comparing(ChatSession::getLastActivityAt).reversed())
+                .toList();
     }
 
     @Override

@@ -12,6 +12,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
     ' ============================================================
     Container_Boundary(web_layer, "Web Layer") {
         Component(chat_ctrl, "ChatController", "@RestController", "/api/chat, /api/sessions")
+        Component(client_id_filter, "ClientIdentityFilter", "Filter", "HttpOnly Cookie 浏览器身份")
         Component(text_ctrl, "TextController", "@RestController", "/api/text/* (SSE stream)")
         Component(agent_ctrl, "AgentController", "@RestController", "/api/agents/*")
         Component(rag_ctrl, "RagController", "@RestController", "/api/rag/*")

@@ -33,6 +33,9 @@ import static org.mockito.Mockito.*;
 @DisplayName("SpringAiChatUseCase")
 class SpringAiChatUseCaseTest {
 
+    private static final String CLIENT_A = "11111111-1111-1111-1111-111111111111";
+    private static final String CLIENT_B = "22222222-2222-2222-2222-222222222222";
+
     @Mock
     private ChatClientProvider chatClientProvider;
 
@@ -81,13 +84,14 @@ class SpringAiChatUseCaseTest {
     class CreateSession {
 
         @Test
-        @DisplayName("should create and save session with title")
-        void shouldCreateAndSaveSessionWithTitle() {
+        @DisplayName("should create and save session with title and client")
+        void should_createAndSaveSession_whenTitleAndClientProvided() {
             doNothing().when(repository).save(any(ChatSession.class));
 
-            ChatSession result = useCase.createSession("My Chat");
+            ChatSession result = useCase.createSession("My Chat", CLIENT_A);
 
             assertThat(result.getTitle()).isEqualTo("My Chat");
+            assertThat(result.getClientId()).isEqualTo(CLIENT_A);
             verify(repository).save(any(ChatSession.class));
         }
     }
@@ -97,25 +101,25 @@ class SpringAiChatUseCaseTest {
     class GetSession {
 
         @Test
-        @DisplayName("should return session when found")
-        void shouldReturnSessionWhenFound() {
-            ChatSession session = ChatSession.create("Test");
-            when(repository.findById(ChatSessionId.of("session-123")))
+        @DisplayName("should return session when owned by client")
+        void should_returnSession_whenOwnedByClient() {
+            ChatSession session = ChatSession.create("Test", CLIENT_A);
+            when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
                     .thenReturn(Optional.of(session));
 
-            Optional<ChatSession> result = useCase.getSession("session-123");
+            Optional<ChatSession> result = useCase.getSession("session-123", CLIENT_A);
 
             assertThat(result).isPresent().contains(session);
             verify(conversationMemoryRepository).syncToSession(eq("session-123"), eq(session));
         }
 
         @Test
-        @DisplayName("should return empty when not found")
-        void shouldReturnEmptyWhenNotFound() {
-            when(repository.findById(ChatSessionId.of("non-existent")))
+        @DisplayName("should return empty when owned by another client")
+        void should_returnEmpty_whenOwnedByAnotherClient() {
+            when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_B))
                     .thenReturn(Optional.empty());
 
-            Optional<ChatSession> result = useCase.getSession("non-existent");
+            Optional<ChatSession> result = useCase.getSession("session-123", CLIENT_B);
 
             assertThat(result).isEmpty();
         }
@@ -126,27 +130,27 @@ class SpringAiChatUseCaseTest {
     class GetSessionHistory {
 
         @Test
-        @DisplayName("should return messages for session")
-        void shouldReturnMessagesForSession() {
-            ChatSession session = ChatSession.create("Test");
+        @DisplayName("should return messages for owned session")
+        void should_returnMessages_whenSessionOwned() {
+            ChatSession session = ChatSession.create("Test", CLIENT_A);
             session.addUserMessage("Hello");
             session.addAssistantMessage("Hi!");
-            when(repository.findById(ChatSessionId.of("session-123")))
+            when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
                     .thenReturn(Optional.of(session));
 
-            List<ChatMessage> history = useCase.getSessionHistory("session-123");
+            List<ChatMessage> history = useCase.getSessionHistory("session-123", CLIENT_A);
 
             assertThat(history).hasSize(2);
             verify(conversationMemoryRepository).syncToSession(eq("session-123"), eq(session));
         }
 
         @Test
-        @DisplayName("should throw exception when session not found")
-        void shouldThrowExceptionWhenSessionNotFound() {
-            when(repository.findById(ChatSessionId.of("non-existent")))
+        @DisplayName("should throw when session not owned")
+        void should_throw_whenSessionNotOwned() {
+            when(repository.findByIdAndClientId(ChatSessionId.of("non-existent"), CLIENT_A))
                     .thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> useCase.getSessionHistory("non-existent"))
+            assertThatThrownBy(() -> useCase.getSessionHistory("non-existent", CLIENT_A))
                     .isInstanceOf(ChatSessionNotFoundException.class);
         }
     }
@@ -156,42 +160,57 @@ class SpringAiChatUseCaseTest {
     class DeleteSession {
 
         @Test
-        @DisplayName("should delete session from repository and clear memory")
-        void shouldDeleteSessionFromRepositoryAndClearMemory() {
+        @DisplayName("should delete owned session")
+        void should_deleteSession_whenOwned() {
+            ChatSession session = ChatSession.createWithId(
+                    ChatSessionId.of("session-123"), "Test", CLIENT_A);
+            when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
+                    .thenReturn(Optional.of(session));
             doNothing().when(repository).delete(ChatSessionId.of("session-123"));
 
-            useCase.deleteSession("session-123");
+            useCase.deleteSession("session-123", CLIENT_A);
 
             verify(conversationMemoryRepository).clear("session-123");
             verify(chatWebSourcesRepository).deleteByConversationId("session-123");
             verify(repository).delete(ChatSessionId.of("session-123"));
         }
+
+        @Test
+        @DisplayName("should throw when deleting another client's session")
+        void should_throw_whenDeletingAnotherClientsSession() {
+            when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_B))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> useCase.deleteSession("session-123", CLIENT_B))
+                    .isInstanceOf(ChatSessionNotFoundException.class);
+            verify(repository, never()).delete(any());
+        }
     }
 
     @Nested
-    @DisplayName("getAllSessions()")
-    class GetAllSessions {
+    @DisplayName("getSessionsForClient()")
+    class GetSessionsForClient {
 
         @Test
-        @DisplayName("should return all sessions")
-        void shouldReturnAllSessions() {
+        @DisplayName("should return sessions for client")
+        void should_returnSessions_whenClientHasSessions() {
             List<ChatSession> sessions = List.of(
-                    ChatSession.create("Session 1"),
-                    ChatSession.create("Session 2")
+                    ChatSession.create("Session 1", CLIENT_A),
+                    ChatSession.create("Session 2", CLIENT_A)
             );
-            when(repository.findAll()).thenReturn(sessions);
+            when(repository.findByClientId(CLIENT_A)).thenReturn(sessions);
 
-            List<ChatSession> result = useCase.getAllSessions();
+            List<ChatSession> result = useCase.getSessionsForClient(CLIENT_A);
 
             assertThat(result).hasSize(2);
         }
 
         @Test
-        @DisplayName("should return empty list when no sessions")
-        void shouldReturnEmptyListWhenNoSessions() {
-            when(repository.findAll()).thenReturn(List.of());
+        @DisplayName("should return empty list when client has no sessions")
+        void should_returnEmptyList_whenClientHasNoSessions() {
+            when(repository.findByClientId(CLIENT_A)).thenReturn(List.of());
 
-            List<ChatSession> result = useCase.getAllSessions();
+            List<ChatSession> result = useCase.getSessionsForClient(CLIENT_A);
 
             assertThat(result).isEmpty();
         }

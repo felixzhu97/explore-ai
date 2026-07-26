@@ -155,6 +155,11 @@ app:
       - https://explore-ai-three.vercel.app
       - https://www.felixzhu.chat
       - https://felixzhu.chat
+  client-identity:
+    cookie-name: ea_cid
+    secure: false
+    same-site: Lax
+    max-age: 365d
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
     detect:

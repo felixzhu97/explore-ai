@@ -17,21 +17,22 @@ public interface ChatUseCase {
 
     Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options);
 
-    Flux<String> chatStreamWithSession(String sessionId, String userMessage);
+    Flux<String> chatStreamWithSession(String sessionId, String userMessage, String clientId);
 
-    Flux<String> chatStreamWithSession(String sessionId, String userMessage, TextChatOptions options);
+    Flux<String> chatStreamWithSession(
+            String sessionId, String userMessage, TextChatOptions options, String clientId);
 
-    String chatWithSession(String sessionId, String userMessage);
+    String chatWithSession(String sessionId, String userMessage, String clientId);
 
-    String chatWithSession(String userMessage);
+    String chatWithSession(String userMessage, String clientId);
 
-    ChatSession createSession(String title);
+    ChatSession createSession(String title, String clientId);
 
-    Optional<ChatSession> getSession(String sessionId);
+    Optional<ChatSession> getSession(String sessionId, String clientId);
 
-    List<ChatMessage> getSessionHistory(String sessionId);
+    List<ChatMessage> getSessionHistory(String sessionId, String clientId);
 
-    void deleteSession(String sessionId);
+    void deleteSession(String sessionId, String clientId);
 
-    List<ChatSession> getAllSessions();
+    List<ChatSession> getSessionsForClient(String clientId);
 }
