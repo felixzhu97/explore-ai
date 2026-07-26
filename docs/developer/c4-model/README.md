@@ -162,7 +162,10 @@ Browser → Vercel (Angular static) → Railway explore-ai (:8080 + H2 + dd-java
                                          → DeepSeek / OpenAI / Serper
 ```
 
-**Prod API**: `https://explore-ai-production.up.railway.app/api`
+**Prod frontend**: `https://www.felixzhu.chat` (Vercel)  
+**Prod API (browser)**: same-origin `/api` → Vercel rewrite → Railway  
+**Prod API (direct)**: `https://explore-ai-production.up.railway.app/api`
+
 
 **cloud-minimal**: `module-agents` **开启**；Vision / ASR / MCP / Eval / Ollama **关闭**
 
