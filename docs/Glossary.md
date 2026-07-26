@@ -230,6 +230,7 @@ UPLOADING → PROCESSING → READY
 | RAG Search Tool          | RAG 搜索工具 | MCP tool adapter delegating to DocumentSearchService  | Adapter              | `RagSearchTool`                           | Invoked via MCP                      |
 | Document Search          | 文档检索     | Vector similarity retrieval over document chunks      | Application Service  | `DocumentSearchService`                   | Uses `DocumentChunkSearchRepository` |
 | Weather Tool             | 天气工具     | Query weather and forecast                            | Tool                 | `WeatherTools`                            | Mock data                            |
+| DateTime Tool            | 时间工具     | Authoritative current date/time in the user timezone  | Tool                 | `DateTimeTool`, `DateTimeTools`           | Spring AI official `@Tool` pattern; `LocaleContextHolder` |
 | Web Search Tool          | 网页搜索工具   | Search live web content via Serper                    | Repository / Adapter | `WebSearchTool`, `SerperWebSearchAdapter` | Requires API key                     |
 
 

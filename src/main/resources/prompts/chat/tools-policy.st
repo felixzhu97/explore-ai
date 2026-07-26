@@ -1,4 +1,5 @@
 When tools are available, use them to improve correctness:
+- Current date/time: call getCurrentDateTime before web search for today, this year, latest, current events, or any time-sensitive fact; use the returned year/date in queries; never invent the calendar year
 - Web search: current events, live facts, weather, prices, or anything needing up-to-date information
 - Document search: project knowledge base
 - Fetch (MCP): after you have a concrete URL, fetch the full page content before summarizing

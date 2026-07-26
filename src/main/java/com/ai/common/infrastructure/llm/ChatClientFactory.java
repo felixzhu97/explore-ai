@@ -3,6 +3,7 @@ package com.ai.common.infrastructure.llm;
 import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
+import com.ai.common.domain.repository.DateTimeTool;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
@@ -41,6 +42,7 @@ public class ChatClientFactory implements ChatClientProvider {
             WeatherTool weatherTools,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool,
+            DateTimeTool dateTimeTool,
             ObjectProvider<ToolCallback[]> mcpToolCallbacks,
             @Value("${app.ai.logging-advisor.enabled:true}") boolean loggingAdvisorEnabled) {
         this.chatModelResolver = chatModelResolver;
@@ -49,7 +51,7 @@ public class ChatClientFactory implements ChatClientProvider {
         this.mcpToolCallbacks = mcpToolCallbacks;
         this.loggingAdvisorEnabled = loggingAdvisorEnabled;
         this.localToolCallbacks = MethodToolCallbackProvider.builder()
-                .toolObjects(weatherTools, documentSearchTool, webSearchTool)
+                .toolObjects(weatherTools, documentSearchTool, webSearchTool, dateTimeTool)
                 .build()
                 .getToolCallbacks();
     }
