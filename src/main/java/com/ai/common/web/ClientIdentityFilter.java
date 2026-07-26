@@ -9,12 +9,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -30,10 +28,10 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     private static final Pattern UUID_PATTERN = Pattern.compile(
             "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-    private final ClientIdentityProperties properties;
+    private final ClientIdentityCookieFactory cookieFactory;
 
-    public ClientIdentityFilter(ClientIdentityProperties properties) {
-        this.properties = properties;
+    public ClientIdentityFilter(ClientIdentityCookieFactory cookieFactory) {
+        this.cookieFactory = cookieFactory;
     }
 
     @Override
@@ -52,8 +50,8 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
         if (existing != null) {
             clientId = existing;
         } else {
-            clientId = UUID.randomUUID().toString();
-            response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(clientId).toString());
+            clientId = cookieFactory.newClientId();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(clientId).toString());
         }
         request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
         filterChain.doFilter(request, response);
@@ -64,7 +62,7 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
         if (cookies == null) {
             return null;
         }
-        String cookieName = properties.getCookieName();
+        String cookieName = cookieFactory.cookieName();
         for (Cookie cookie : cookies) {
             if (cookieName.equals(cookie.getName())) {
                 String value = cookie.getValue();
@@ -75,15 +73,5 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
             }
         }
         return null;
-    }
-
-    private ResponseCookie buildCookie(String clientId) {
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(properties.getCookieName(), clientId)
-                .httpOnly(true)
-                .path("/")
-                .maxAge(properties.getMaxAge())
-                .sameSite(properties.getSameSite())
-                .secure(properties.isSecure());
-        return builder.build();
     }
 }

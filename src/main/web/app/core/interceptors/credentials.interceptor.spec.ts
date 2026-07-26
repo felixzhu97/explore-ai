@@ -21,12 +21,15 @@ describe('credentialsInterceptor', () => {
   it('should_setWithCredentials_whenRequestCloned', () => {
     const req = new HttpRequest('GET', '/api/sessions');
     let withCredentials = false;
+    let csrfHeader = '';
 
     interceptor(req, (outgoing) => {
       withCredentials = outgoing.withCredentials;
+      csrfHeader = outgoing.headers.get('X-Requested-With') ?? '';
       return of(new HttpResponse({ status: 200 }));
     }).subscribe();
 
     expect(withCredentials).toBe(true);
+    expect(csrfHeader).toBe('XMLHttpRequest');
   });
 });

@@ -34,5 +34,7 @@ public interface ChatUseCase {
 
     void deleteSession(String sessionId, String clientId);
 
+    void deleteAllSessionsForClient(String clientId);
+
     List<ChatSession> getSessionsForClient(String clientId);
 }

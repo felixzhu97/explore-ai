@@ -38,7 +38,7 @@ class ClientIdentityFilterTest {
         properties.setCookieName("ea_cid");
         properties.setSecure(false);
         properties.setSameSite("Lax");
-        filter = new ClientIdentityFilter(properties);
+        filter = new ClientIdentityFilter(new ClientIdentityCookieFactory(properties));
     }
 
     @Test

@@ -116,6 +116,7 @@ flowchart TB
 | ------------------------ | ---- | ----------------------------------------------------- | ----------------- | --------------------------------------------- | -------------------------------------- |
 | Chat Session             | 会话   | Multi-turn conversation container between user and AI | Aggregate Root    | `ChatSession`                                 | Default title: "New Chat"; owned by Client Identity |
 | Client Identity          | 客户端身份 | Anonymous browser identity for session ownership (HttpOnly cookie) | Technical         | `ClientIdentity`, `ea_cid` / `__Host-ea_cid` | Server-issued; not stored in localStorage |
+| Privacy Erasure          | 隐私清除 | Delete all sessions for current Client Identity / rotate identity cookie | Use Case          | `PrivacyController`, `deleteAllSessionsForClient` | GDPR-style right to erasure for anonymous chats |
 | Chat Message             | 消息   | Single message within a session                       | Entity            | `ChatMessage`                                 | Immutable; created via factory methods |
 | User Message             | 用户消息 | Message sent by the user                              | Enum / Role       | `ChatMessageType.USER`, role=`user`           | —                                      |
 | Assistant Message        | 助手消息 | Message returned by the AI                            | Enum / Role       | `ChatMessageType.ASSISTANT`, role=`assistant` | —                                      |

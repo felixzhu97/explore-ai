@@ -13,6 +13,7 @@ import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;
 import com.ai.common.infrastructure.llm.ToolEventChannel;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
+import com.ai.common.util.LogSanitizer;
 import com.ai.metrics.application.AiInvocationRecorder;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -88,7 +89,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public String chat(String userMessage, TextChatOptions options) {
-        log.info("Chat request with retry: {}", truncateForLog(userMessage));
+        log.info("Chat request with retry: {}", LogSanitizer.truncate(userMessage, 100));
         long startedAt = System.nanoTime();
         try {
             String response = retryTemplate.execute(context -> {
@@ -159,7 +160,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
                                     .subscribe();
                         })
                         .doOnError(error -> {
-                            log.error("Stream failed for session {}", sessionId, error);
+                            log.error("Stream failed for sessionFp={}", LogSanitizer.fingerprint(sessionId), error);
                             invocationRecorder.recordError(
                                     AiDomain.CHAT, "chat.stream", elapsedMs(startedAt),
                                     options.provider(), options.model(), sessionId,
@@ -182,7 +183,9 @@ public class SpringAiChatUseCase implements ChatUseCase {
         if (!ToolCallMarkupFilter.sanitize(rawAssistant).isBlank()) {
             return Flux.empty();
         }
-        log.warn("Assistant returned tool markup only for session {}; repairing without tools", sessionId);
+        log.warn(
+                "Assistant returned tool markup only for sessionFp={}; repairing without tools",
+                LogSanitizer.fingerprint(sessionId));
         TextChatOptions noTools = TextChatOptions.of(options.provider(), options.model(), false);
         ChatClient repairClient = chatClientProvider.createBareStateless(noTools);
         List<Message> promptMessages = new ArrayList<>();
@@ -317,13 +320,8 @@ public class SpringAiChatUseCase implements ChatUseCase {
 
     @Override
     public String chatWithSession(String sessionId, String userMessage, String clientId) {
-        try {
-            ChatSession session = loadOrCreateSession(sessionId, clientId);
-            return exchangeMessages(session, sessionId, userMessage, TextChatOptions.defaults());
-        } catch (ChatSessionNotFoundException e) {
-            log.warn("Session not found, using default: {}", sessionId);
-            return chatWithSession(userMessage, clientId);
-        }
+        ChatSession session = loadOrCreateSession(sessionId, clientId);
+        return exchangeMessages(session, sessionId, userMessage, TextChatOptions.defaults());
     }
 
     @Override
@@ -392,10 +390,16 @@ public class SpringAiChatUseCase implements ChatUseCase {
                             if (session.hasDefaultTitle()) {
                                 session.rename(title);
                                 repository.save(session);
-                                log.info("Renamed session {} to '{}'", sessionId, title);
+                                log.info(
+                                        "Renamed sessionFp={} title={}",
+                                        LogSanitizer.fingerprint(sessionId.value()),
+                                        title);
                             }
                         }),
-                        error -> log.warn("Async title generation failed for session {}", sessionId, error)
+                        error -> log.warn(
+                                "Async title generation failed for sessionFp={}",
+                                LogSanitizer.fingerprint(sessionId.value()),
+                                error)
                 );
     }
 
@@ -427,7 +431,11 @@ public class SpringAiChatUseCase implements ChatUseCase {
     public ChatSession createSession(String title, String clientId) {
         ChatSession session = ChatSession.create(title, clientId);
         repository.save(session);
-        log.info("Created new session: {} with id: {} for client {}", title, session.getId(), clientId);
+        log.info(
+                "Created new session title={} idFp={} clientFp={}",
+                title,
+                LogSanitizer.fingerprint(session.getId().value()),
+                LogSanitizer.fingerprint(clientId));
         return session;
     }
 
@@ -458,7 +466,23 @@ public class SpringAiChatUseCase implements ChatUseCase {
         chatWebSourcesRepository.deleteByConversationId(sessionId);
         CapturedWebSources.clear(sessionId);
         repository.delete(id);
-        log.info("Deleted session: {}", sessionId);
+        log.info("Deleted sessionFp={}", LogSanitizer.fingerprint(sessionId));
+    }
+
+    @Override
+    public void deleteAllSessionsForClient(String clientId) {
+        List<ChatSession> sessions = repository.findByClientId(clientId);
+        for (ChatSession session : sessions) {
+            String sessionId = session.getId().value();
+            conversationMemoryRepository.clear(sessionId);
+            chatWebSourcesRepository.deleteByConversationId(sessionId);
+            CapturedWebSources.clear(sessionId);
+            repository.delete(session.getId());
+        }
+        log.info(
+                "Erased {} sessions for clientFp={}",
+                sessions.size(),
+                LogSanitizer.fingerprint(clientId));
     }
 
     @Override
@@ -479,15 +503,5 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return msg.isFromUser()
                 ? new UserMessage(msg.getText())
                 : new AssistantMessage(msg.getText());
-    }
-
-    private String truncateForLog(String text) {
-        if (text == null) {
-            return "null";
-        }
-        if (text.length() <= 100) {
-            return text;
-        }
-        return text.substring(0, 100) + "...";
     }
 }
