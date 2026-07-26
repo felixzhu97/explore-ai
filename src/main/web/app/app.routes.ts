@@ -47,6 +47,10 @@ export const routes: Routes = [
         loadChildren: () => import('./metrics/metrics.routes').then(m => m.METRICS_ROUTES),
       },
       {
+        path: 'privacy',
+        loadComponent: () => import('./privacy/privacy.page').then(m => m.PrivacyPage),
+      },
+      {
         path: 'generate',
         loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePage),
         children: [

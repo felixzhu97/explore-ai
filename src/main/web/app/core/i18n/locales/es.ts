@@ -21,6 +21,7 @@ export const es: Translations = {
     aiinfra: 'AI Infra',
     chat: 'Chat',
     metrics: 'Métricas',
+    privacy: 'Privacidad',
     generation: 'Generación',
     modelDev: 'Desarrollo',
     modelOps: 'Operaciones',
@@ -267,5 +268,13 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     pinned: 'Fijado',
     recents: 'Recientes',
     searchConversations: 'Buscar conversaciones...',
+  },
+  privacy: {
+    consentTitle: 'Analytics cookies',
+    consentBody:
+      'We use a necessary identity cookie for chat. Analytics (Datadog / LaunchDarkly) is optional.',
+    consentLearnMore: 'Privacy details',
+    consentAccept: 'Allow analytics',
+    consentReject: 'Necessary only',
   },
 };

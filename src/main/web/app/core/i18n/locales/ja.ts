@@ -21,6 +21,7 @@ export const ja: Translations = {
     aiinfra: 'AI インフラ',
     chat: 'チャット',
     metrics: 'メトリクス',
+    privacy: 'プライバシー',
     generation: '生成',
     modelDev: '開発',
     modelOps: '運用',
@@ -265,5 +266,13 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     pinned: 'ピン留め',
     recents: '最近',
     searchConversations: '会話を検索...',
+  },
+  privacy: {
+    consentTitle: 'Analytics cookies',
+    consentBody:
+      'We use a necessary identity cookie for chat. Analytics (Datadog / LaunchDarkly) is optional.',
+    consentLearnMore: 'Privacy details',
+    consentAccept: 'Allow analytics',
+    consentReject: 'Necessary only',
   },
 };

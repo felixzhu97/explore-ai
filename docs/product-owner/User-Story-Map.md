@@ -169,6 +169,27 @@ journey
 
 ---
 
+### 1c. 欧盟隐私告知、同意与擦除控制（进行中）
+
+**用户故事**
+
+**As a** 使用 ExploreAI 的访客  
+**I want** 看到隐私说明、选择分析 Cookie，并能擦除本浏览器数据  
+**So that** 我了解处理目的并行使基本隐私控制
+
+**Acceptance Criteria**
+
+- **GIVEN** 首次访问 **WHEN** 打开应用 **THEN** 显示分析同意横幅（必要身份 Cookie 单独说明）
+- **GIVEN** 用户拒绝分析 **WHEN** 启动应用 **THEN** 不初始化 Datadog RUM / LaunchDarkly SDK
+- **GIVEN** 用户打开 `/privacy` **WHEN** 点击擦除 **THEN** 调用 DELETE `/api/privacy/sessions` 并清理本地会话列表
+- **GIVEN** 会话超过留存期 **WHEN** 定时任务运行 **THEN** 清理不活跃会话与过期 metrics
+
+**API / 路由**: `/privacy`, `DELETE/POST /api/privacy/*`, CSP headers  
+**实现**: `PrivacyPage`, `ConsentBanner`, `PrivacyConsentService`, `ChatDataRetentionJob`, `SecurityHeadersFilter` CSP  
+**Jira**: [AI-215](https://felixzhu.atlassian.net/browse/AI-215)（Epic）, [AI-216](https://felixzhu.atlassian.net/browse/AI-216)–[AI-219](https://felixzhu.atlassian.net/browse/AI-219)
+
+---
+
 ### 2. RAG 知识问答（已交付）
 
 **用户故事**

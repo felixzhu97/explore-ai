@@ -37,6 +37,7 @@ export interface Translations {
     aiinfra: string;
     chat: string;
     metrics: string;
+    privacy: string;
     generation: string;
     modelDev: string;
     modelOps: string;
@@ -215,5 +216,12 @@ export interface Translations {
     pinned: string;
     recents: string;
     searchConversations: string;
+  };
+  privacy: {
+    consentTitle: string;
+    consentBody: string;
+    consentLearnMore: string;
+    consentAccept: string;
+    consentReject: string;
   };
 }

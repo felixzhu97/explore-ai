@@ -4,7 +4,7 @@ import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,14 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
         return storage.values().stream()
                 .filter(session -> session.belongsTo(clientId))
                 .sorted(Comparator.comparing(ChatSession::getLastActivityAt).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<ChatSession> findInactiveSince(Instant cutoff) {
+        return storage.values().stream()
+                .filter(session -> session.getLastActivityAt().isBefore(cutoff))
+                .sorted(Comparator.comparing(ChatSession::getLastActivityAt))
                 .toList();
     }
 

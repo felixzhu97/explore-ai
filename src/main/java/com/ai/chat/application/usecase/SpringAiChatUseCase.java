@@ -15,6 +15,7 @@ import com.ai.common.infrastructure.llm.ToolEventChannel;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
 import com.ai.common.util.LogSanitizer;
 import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -60,6 +61,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     private final ChatWebSourcesRepository chatWebSourcesRepository;
     private final PromptTemplates promptTemplates;
     private final AiInvocationRecorder invocationRecorder;
+    private final AiInvocationEventRepository invocationEventRepository;
 
     public SpringAiChatUseCase(
             ChatClientProvider chatClientProvider,
@@ -70,7 +72,8 @@ public class SpringAiChatUseCase implements ChatUseCase {
             SessionTitleGenerator sessionTitleGenerator,
             ChatWebSourcesRepository chatWebSourcesRepository,
             PromptTemplates promptTemplates,
-            AiInvocationRecorder invocationRecorder) {
+            AiInvocationRecorder invocationRecorder,
+            AiInvocationEventRepository invocationEventRepository) {
         this.chatClientProvider = chatClientProvider;
         this.repository = repository;
         this.retryTemplate = retryTemplate;
@@ -80,6 +83,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
         this.chatWebSourcesRepository = chatWebSourcesRepository;
         this.promptTemplates = promptTemplates;
         this.invocationRecorder = invocationRecorder;
+        this.invocationEventRepository = invocationEventRepository;
     }
 
     @Override
@@ -472,6 +476,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public void deleteAllSessionsForClient(String clientId) {
         List<ChatSession> sessions = repository.findByClientId(clientId);
+        List<String> sessionIds = sessions.stream().map(session -> session.getId().value()).toList();
         for (ChatSession session : sessions) {
             String sessionId = session.getId().value();
             conversationMemoryRepository.clear(sessionId);
@@ -479,9 +484,11 @@ public class SpringAiChatUseCase implements ChatUseCase {
             CapturedWebSources.clear(sessionId);
             repository.delete(session.getId());
         }
+        int metricsDeleted = invocationEventRepository.deleteBySessionIds(sessionIds);
         log.info(
-                "Erased {} sessions for clientFp={}",
+                "Erased {} sessions and {} metrics events for clientFp={}",
                 sessions.size(),
+                metricsDeleted,
                 LogSanitizer.fingerprint(clientId));
     }
 

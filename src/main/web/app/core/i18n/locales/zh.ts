@@ -21,6 +21,7 @@ export const zh: Translations = {
     aiinfra: 'AI 基础设施',
     chat: '对话',
     metrics: '指标',
+    privacy: '隐私',
     generation: '生成',
     modelDev: '开发',
     modelOps: '运维',
@@ -263,5 +264,13 @@ export const zh: Translations = {
     pinned: '已固定',
     recents: '最近',
     searchConversations: '搜索对话...',
+  },
+  privacy: {
+    consentTitle: '分析类 Cookie',
+    consentBody:
+      '聊天需要必要的身份 Cookie。分析（Datadog / LaunchDarkly）为可选项。',
+    consentLearnMore: '隐私详情',
+    consentAccept: '允许分析',
+    consentReject: '仅必要',
   },
 };

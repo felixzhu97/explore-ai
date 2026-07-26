@@ -173,7 +173,11 @@ System_Boundary(ext, "External Systems") {
 ' ============================================================
 
 Rel(chat_ctrl, chat_usecase, "调用")
+Rel(privacy_ctrl, chat_usecase, "擦除 / 重置身份")
 Rel(text_ctrl, chat_usecase, "SSE 流式")
+Rel(client_id_filter, chat_ctrl, "注入 Client Identity")
+Rel(csrf_filter, chat_ctrl, "变更请求 CSRF 头")
+Rel(sec_headers, chat_ctrl, "安全响应头 + CSP")
 Rel(agent_ctrl, agent_facade, "调用")
 Rel(agent_facade, orch_usecase, "编排")
 Rel(agent_facade, agent_registry_iface, "注册表")

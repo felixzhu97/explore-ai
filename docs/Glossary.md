@@ -32,7 +32,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 | Preferred Term   | 中文        | Java Package      | Frontend Route          | API Prefix                                | Feature Flag                  | Notes                                 |
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
-| Chat             | 对话        | `com.ai.chat`     | `/chat`                 | `/api/text`, `/api/sessions`, `/api/chat` | —                             | UI under `app/chat/`                  |
+| Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
 | Agent            | Agent 流水线 | `com.ai.agent`    | `/agents`               | `/api/agents`                             | `module-agents`               | Pipeline / Supervisor / Worker SSE    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
@@ -117,6 +117,8 @@ flowchart TB
 | Chat Session             | 会话   | Multi-turn conversation container between user and AI | Aggregate Root    | `ChatSession`                                 | Default title: "New Chat"; owned by Client Identity |
 | Client Identity          | 客户端身份 | Anonymous browser identity for session ownership (HttpOnly cookie) | Technical         | `ClientIdentity`, `ea_cid` / `__Host-ea_cid` | Server-issued; not stored in localStorage |
 | Privacy Erasure          | 隐私清除 | Delete all sessions for current Client Identity / rotate identity cookie | Use Case          | `PrivacyController`, `deleteAllSessionsForClient` | GDPR-style right to erasure for anonymous chats |
+| Privacy Consent          | 隐私同意 | Browser preference for optional analytics (RUM / LaunchDarkly) | Technical         | `PrivacyConsentService`, `explore-ai-privacy-consent` | Stored in localStorage; necessary Client Identity cookie is separate |
+| Data Retention           | 数据留存 | Timed purge of inactive sessions and aged metrics events | Job               | `ChatDataRetentionJob`, `app.data-retention` | Default 90d aligned with Client Identity cookie |
 | Chat Message             | 消息   | Single message within a session                       | Entity            | `ChatMessage`                                 | Immutable; created via factory methods |
 | User Message             | 用户消息 | Message sent by the user                              | Enum / Role       | `ChatMessageType.USER`, role=`user`           | —                                      |
 | Assistant Message        | 助手消息 | Message returned by the AI                            | Enum / Role       | `ChatMessageType.ASSISTANT`, role=`assistant` | —                                      |
