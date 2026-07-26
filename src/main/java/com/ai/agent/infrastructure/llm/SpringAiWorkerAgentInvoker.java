@@ -2,6 +2,7 @@ package com.ai.agent.infrastructure.llm;
 
 import com.ai.agent.application.port.WorkerAgentInvoker;
 import com.ai.agent.domain.model.AgentDefinition;
+import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;
 import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;

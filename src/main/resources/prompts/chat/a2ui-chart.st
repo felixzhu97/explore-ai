@@ -16,7 +16,7 @@ Workflow for search + chart (one turn):
 2) Call searchWeb once with an English-focused query that includes that
    year (or quarter/region derived from it), metric, and brand names
    (do not invent years such as a hardcoded "2025")
-3) Do NOT call any tool again after searchWeb returns
+3) Do NOT call any tool again after searchWeb returns (including fetch)
 4) Reply in the user's language for markdown prose
 5) Emit the a2ui Chart (chartData from tool results only)
 6) Cite sources under a "## 来源" / "## Sources" heading
@@ -41,7 +41,7 @@ Live / online data + charts (when tools such as searchWeb are available):
   rankings, prices, population, market shares, election results, or other
   figures you do not know, call getCurrentDateTime first, then searchWeb
   exactly once
-- After searchWeb returns, do NOT call searchWeb or any other tool again;
+- After searchWeb returns, do NOT call searchWeb, fetch, or any other tool;
   immediately write a short markdown explanation, then the a2ui chart fence
 - From the tool results, extract concrete numeric series into chartData
   as [{label, value}, ...] (numbers only for value; short labels)

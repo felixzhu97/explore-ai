@@ -8,6 +8,7 @@ import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.common.infrastructure.prompt.PromptTemplates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -65,7 +66,8 @@ class SpringAiChatUseCaseTest {
                 chatMemory,
                 conversationMemoryRepository,
                 sessionTitleGenerator,
-                chatWebSourcesRepository
+                chatWebSourcesRepository,
+                new PromptTemplates()
         );
     }
 

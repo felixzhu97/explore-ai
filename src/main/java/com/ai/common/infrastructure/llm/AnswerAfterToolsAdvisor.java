@@ -15,10 +15,11 @@ import org.springframework.ai.model.tool.ToolExecutionResult;
 import java.util.List;
 
 /**
- * After tool results land in the conversation, disable further tool use and
- * remind the model to answer immediately (search once → chart).
+ * Allows bridge tools (getCurrentDateTime) before a terminal retrieval tool,
+ * then disables further tool use and reminds the model to answer (search → chart).
  *
- * @see <a href="https://docs.spring.io/spring-ai/reference/2.0/api/tools.html">Tool Calling</a>
+ * @see <a href="https://docs.spring.io/spring-ai/reference/api/tools.html">Tool Calling</a>
+ * @see <a href="https://api-docs.deepseek.com/guides/function_calling">DeepSeek Function Calling</a>
  */
 public final class AnswerAfterToolsAdvisor extends ToolCallingAdvisor {
 
@@ -54,7 +55,7 @@ public final class AnswerAfterToolsAdvisor extends ToolCallingAdvisor {
             ChatClientRequest chatClientRequest,
             ChatClientResponse chatClientResponse,
             ToolExecutionResult toolExecutionResult) {
-        return ToolCallLoopGuard.withFinalAnswerReminder(
+        return withStageReminder(
                 super.doGetNextInstructionsForToolCall(chatClientRequest, chatClientResponse, toolExecutionResult));
     }
 
@@ -63,14 +64,24 @@ public final class AnswerAfterToolsAdvisor extends ToolCallingAdvisor {
             ChatClientRequest chatClientRequest,
             ChatClientResponse chatClientResponse,
             ToolExecutionResult toolExecutionResult) {
-        return ToolCallLoopGuard.withFinalAnswerReminder(
+        return withStageReminder(
                 super.doGetNextInstructionsForToolCallStream(
                         chatClientRequest, chatClientResponse, toolExecutionResult));
     }
 
+    private static List<Message> withStageReminder(List<Message> history) {
+        if (ToolCallLoopGuard.shouldForceFinalAnswer(history)) {
+            return ToolCallLoopGuard.withFinalAnswerReminder(history);
+        }
+        if (ToolCallLoopGuard.hasOnlyBridgeToolResults(history)) {
+            return ToolCallLoopGuard.withContinuationReminder(history);
+        }
+        return history;
+    }
+
     private static ChatClientRequest maybeDisableTools(ChatClientRequest request) {
         List<Message> instructions = request.prompt().getInstructions();
-        if (!ToolCallLoopGuard.hasToolResults(instructions)) {
+        if (!ToolCallLoopGuard.shouldForceFinalAnswer(instructions)) {
             return request;
         }
         ChatOptions disabled = ToolCallLoopGuard.disableFurtherToolUse(request.prompt().getOptions());

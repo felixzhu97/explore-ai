@@ -8,6 +8,7 @@ import {
   type ChatStreamEvent,
 } from '../core/streaming/sse-client';
 import { DEFAULT_MODELS, DEFAULT_PROVIDERS } from './chat.constants';
+import { stripToolCallMarkup } from '../shared/utils/tool-call-markup.filter';
 import type {
   ChatMessage,
   ChatStreamRequest,
@@ -302,11 +303,12 @@ export class ChatService {
       },
       (chunk) => {
         fullContent += chunk;
+        const displayContent = stripToolCallMarkup(fullContent);
         this.messages.update(msgs => msgs.map((msg) => {
           if (msg.id !== assistantId) {
             return msg;
           }
-          return { ...msg, content: fullContent };
+          return { ...msg, content: displayContent };
         }),
         );
       },
@@ -483,10 +485,13 @@ export class ChatService {
       typeof msg.timestamp === 'number'
         ? msg.timestamp
         : new Date(msg.timestamp).getTime();
+    const content = msg.role === 'assistant'
+      ? stripToolCallMarkup(msg.content ?? '')
+      : (msg.content ?? '');
     return {
       id: msg.id ?? `${msg.role}_${timestamp}`,
       role: msg.role === 'assistant' ? 'assistant' : 'user',
-      content: msg.content,
+      content,
       timestamp,
       sources: msg.sources?.map(source => ({
         title: source.title,
@@ -509,6 +514,10 @@ export function mergeHistoryWithUiState(
   for (const msg of previous) {
     if (msg.role === 'assistant' && msg.sources?.length) {
       previousSources.set(msg.content, msg.sources);
+      const stripped = stripToolCallMarkup(msg.content);
+      if (stripped !== msg.content) {
+        previousSources.set(stripped, msg.sources);
+      }
     }
   }
 
@@ -516,7 +525,8 @@ export function mergeHistoryWithUiState(
     if (ui.role !== 'assistant' || ui.sources?.length) {
       return ui;
     }
-    const local = previousSources.get(ui.content);
+    const local = previousSources.get(ui.content)
+      ?? previousSources.get(stripToolCallMarkup(ui.content));
     return local?.length ? { ...ui, sources: local } : ui;
   });
 }
