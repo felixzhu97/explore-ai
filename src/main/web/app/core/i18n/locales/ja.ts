@@ -268,32 +268,6 @@ Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
     searchConversations: '会話を検索...',
   },
   privacy: {
-    title: 'Privacy',
-    subtitle: 'How ExploreAI handles anonymous browser data',
-    noticeHeading: 'Notice',
-    noticeIdentity:
-      'A functional HttpOnly cookie (Client Identity) scopes chat sessions to this browser. It is required for session isolation and is not used for advertising.',
-    noticeChat:
-      'Chat messages are sent to language-model and optional search providers to generate replies. Do not submit sensitive personal data you do not want processed.',
-    noticeRetention:
-      'Inactive chat sessions and related metrics events are purged after about 90 days. You can erase this browser’s sessions anytime below.',
-    processorsHeading: 'Sub-processors',
-    analyticsHeading: 'Analytics preference',
-    analyticsHelp:
-      'Optional Datadog RUM and LaunchDarkly load only when you allow analytics. Feature modules still work with local fallbacks when analytics is off.',
-    analyticsLabel: 'Allow analytics & feature telemetry',
-    controlsHeading: 'Your controls',
-    controlsHelp:
-      'Erase removes chat sessions and linked metrics for this browser identity. Reset identity issues a new cookie and hides prior sessions.',
-    eraseButton: 'Erase my chat data',
-    resetButton: 'Reset browser identity',
-    eraseConfirm: 'Delete all chat sessions for this browser?',
-    resetConfirm: 'Reset identity cookie and clear local session list?',
-    eraseSuccess: 'Chat data erased',
-    eraseFailed: 'Failed to erase chat data',
-    resetSuccess: 'Browser identity reset',
-    resetFailed: 'Failed to reset identity',
-    backToChat: 'Back to chat',
     consentTitle: 'Analytics cookies',
     consentBody:
       'We use a necessary identity cookie for chat. Analytics (Datadog / LaunchDarkly) is optional.',

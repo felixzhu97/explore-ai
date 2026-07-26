@@ -218,27 +218,6 @@ export interface Translations {
     searchConversations: string;
   };
   privacy: {
-    title: string;
-    subtitle: string;
-    noticeHeading: string;
-    noticeIdentity: string;
-    noticeChat: string;
-    noticeRetention: string;
-    processorsHeading: string;
-    analyticsHeading: string;
-    analyticsHelp: string;
-    analyticsLabel: string;
-    controlsHeading: string;
-    controlsHelp: string;
-    eraseButton: string;
-    resetButton: string;
-    eraseConfirm: string;
-    resetConfirm: string;
-    eraseSuccess: string;
-    eraseFailed: string;
-    resetSuccess: string;
-    resetFailed: string;
-    backToChat: string;
     consentTitle: string;
     consentBody: string;
     consentLearnMore: string;

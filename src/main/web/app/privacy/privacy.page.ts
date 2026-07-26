@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ZardSwitchComponent } from '../shared/components/switch/switch.component';
@@ -7,6 +7,7 @@ import { ChatService } from '../chat/chat.service';
 import { PrivacyApiService } from './privacy-api.service';
 import { PrivacyConsentService } from './privacy-consent.service';
 import { I18nService } from '../core/i18n';
+import { PRIVACY_PAGE_COPY } from './privacy.page.copy';
 
 @Component({
   selector: 'app-privacy-page',
@@ -15,21 +16,21 @@ import { I18nService } from '../core/i18n';
     <div class="mx-auto flex w-full max-w-3xl flex-col gap-8">
       <header>
         <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
-        <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ t().privacy.title }}</h1>
-        <p class="mt-1 text-sm text-muted-foreground">{{ t().privacy.subtitle }}</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ copy().title }}</h1>
+        <p class="mt-1 text-sm text-muted-foreground">{{ copy().subtitle }}</p>
       </header>
 
       <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ t().privacy.noticeHeading }}</h2>
+        <h2 class="text-base font-semibold">{{ copy().noticeHeading }}</h2>
         <div class="mt-3 space-y-3 text-sm leading-relaxed text-muted-foreground">
-          <p>{{ t().privacy.noticeIdentity }}</p>
-          <p>{{ t().privacy.noticeChat }}</p>
-          <p>{{ t().privacy.noticeRetention }}</p>
+          <p>{{ copy().noticeIdentity }}</p>
+          <p>{{ copy().noticeChat }}</p>
+          <p>{{ copy().noticeRetention }}</p>
         </div>
       </section>
 
       <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ t().privacy.processorsHeading }}</h2>
+        <h2 class="text-base font-semibold">{{ copy().processorsHeading }}</h2>
         <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
           @for (item of processors; track item.name) {
             <li>
@@ -41,10 +42,10 @@ import { I18nService } from '../core/i18n';
       </section>
 
       <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ t().privacy.analyticsHeading }}</h2>
-        <p class="mt-2 text-sm text-muted-foreground">{{ t().privacy.analyticsHelp }}</p>
+        <h2 class="text-base font-semibold">{{ copy().analyticsHeading }}</h2>
+        <p class="mt-2 text-sm text-muted-foreground">{{ copy().analyticsHelp }}</p>
         <div class="mt-4 flex items-center justify-between gap-4">
-          <span class="text-sm">{{ t().privacy.analyticsLabel }}</span>
+          <span class="text-sm">{{ copy().analyticsLabel }}</span>
           <z-switch
             [ngModel]="consent.consent().analytics"
             (ngModelChange)="onAnalyticsToggle($event)"
@@ -53,8 +54,8 @@ import { I18nService } from '../core/i18n';
       </section>
 
       <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ t().privacy.controlsHeading }}</h2>
-        <p class="mt-2 text-sm text-muted-foreground">{{ t().privacy.controlsHelp }}</p>
+        <h2 class="text-base font-semibold">{{ copy().controlsHeading }}</h2>
+        <p class="mt-2 text-sm text-muted-foreground">{{ copy().controlsHelp }}</p>
         <div class="mt-4 flex flex-wrap gap-3">
           <button
             type="button"
@@ -62,7 +63,7 @@ import { I18nService } from '../core/i18n';
             [disabled]="busy()"
             (click)="eraseSessions()"
           >
-            {{ t().privacy.eraseButton }}
+            {{ copy().eraseButton }}
           </button>
           <button
             type="button"
@@ -70,13 +71,13 @@ import { I18nService } from '../core/i18n';
             [disabled]="busy()"
             (click)="resetIdentity()"
           >
-            {{ t().privacy.resetButton }}
+            {{ copy().resetButton }}
           </button>
         </div>
       </section>
 
       <p class="text-xs text-muted-foreground">
-        <a routerLink="/chat" class="underline underline-offset-2">{{ t().privacy.backToChat }}</a>
+        <a routerLink="/chat" class="underline underline-offset-2">{{ copy().backToChat }}</a>
       </p>
     </div>
   `,
@@ -93,7 +94,7 @@ export class PrivacyPage {
   private readonly i18n = inject(I18nService);
   protected readonly consent = inject(PrivacyConsentService);
 
-  readonly t = this.i18n.t;
+  readonly copy = computed(() => PRIVACY_PAGE_COPY[this.i18n.language()]);
   readonly busy = signal(false);
 
   readonly processors = [
@@ -113,7 +114,7 @@ export class PrivacyPage {
   }
 
   eraseSessions(): void {
-    if (!confirm(this.t().privacy.eraseConfirm)) {
+    if (!confirm(this.copy().eraseConfirm)) {
       return;
     }
     this.busy.set(true);
@@ -122,18 +123,18 @@ export class PrivacyPage {
         this.chat.sessions.set([]);
         this.chat.activeSessionId.set(null);
         this.chat.messages.set([]);
-        this.notify.showSuccess(this.t().privacy.eraseSuccess);
+        this.notify.showSuccess(this.copy().eraseSuccess);
         this.busy.set(false);
       },
       error: () => {
-        this.notify.showError(this.t().privacy.eraseFailed);
+        this.notify.showError(this.copy().eraseFailed);
         this.busy.set(false);
       },
     });
   }
 
   resetIdentity(): void {
-    if (!confirm(this.t().privacy.resetConfirm)) {
+    if (!confirm(this.copy().resetConfirm)) {
       return;
     }
     this.busy.set(true);
@@ -143,11 +144,11 @@ export class PrivacyPage {
         this.chat.activeSessionId.set(null);
         this.chat.messages.set([]);
         this.chat.loadSessions();
-        this.notify.showSuccess(this.t().privacy.resetSuccess);
+        this.notify.showSuccess(this.copy().resetSuccess);
         this.busy.set(false);
       },
       error: () => {
-        this.notify.showError(this.t().privacy.resetFailed);
+        this.notify.showError(this.copy().resetFailed);
         this.busy.set(false);
       },
     });
