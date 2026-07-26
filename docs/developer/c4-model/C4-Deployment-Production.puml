@@ -42,7 +42,7 @@ Deployment_Node(cloud_ai, "Cloud AI APIs", "HTTPS") {
 ' RELATIONSHIPS
 ' ============================================================
 Rel(user, angular_static, "浏览 Web UI", "HTTPS")
-Rel(angular_static, backend, "apiBaseUrl → Railway /api", "HTTPS/SSE/WS")
+Rel(angular_static, backend, "same-origin /api (Vercel rewrite) + WS", "HTTPS/SSE/WSS")
 Rel(angular_static, datadog_rum, "RUM 事件", "HTTPS")
 Rel(angular_static, ld_client, "功能开关", "HTTPS")
 
