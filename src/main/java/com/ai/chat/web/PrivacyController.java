@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Privacy controls for anonymous browser-scoped chat data.
  *
- * @see <a href="https://gdpr.eu/right-to-erasure-right-to-be-forgotten/">GDPR right to erasure</a>
+ * @see <a href="https://gdpr.eu/right-to-be-forgotten/">GDPR right to erasure</a>
+ * @see <a href="https://gdpr.eu/article-17-right-to-be-forgotten/">Art. 17 GDPR</a>
  */
 @RestController
 @RequestMapping("/api/privacy")
