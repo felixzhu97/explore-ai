@@ -31,6 +31,13 @@ final class CapturedWebSources {
         return BY_CHANNEL.remove(channelId);
     }
 
+    static Capture peek(String channelId) {
+        if (channelId == null) {
+            return null;
+        }
+        return BY_CHANNEL.get(channelId);
+    }
+
     static void clear(String channelId) {
         if (channelId != null) {
             BY_CHANNEL.remove(channelId);

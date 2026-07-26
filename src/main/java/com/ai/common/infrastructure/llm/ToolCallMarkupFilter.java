@@ -1,4 +1,4 @@
-package com.ai.agent.infrastructure.llm;
+package com.ai.common.infrastructure.llm;
 
 import java.util.regex.Pattern;
 
@@ -8,8 +8,9 @@ import java.util.regex.Pattern;
  * {@code ｜} and oddly spaced variants.
  *
  * @see <a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/encoding/README.md">DeepSeek DSML</a>
+ * @see <a href="https://api-docs.deepseek.com/guides/function_calling">DeepSeek Function Calling</a>
  */
-final class ToolCallMarkupFilter {
+public final class ToolCallMarkupFilter {
 
     private static final Pattern DSML_PAIR_BLOCK = Pattern.compile(
             "<\\s*[^<>]*DSML[^<>]*>[\\s\\S]*?</\\s*[^<>]*DSML[^<>]*>",
@@ -26,7 +27,7 @@ final class ToolCallMarkupFilter {
     private ToolCallMarkupFilter() {
     }
 
-    static String sanitize(String content) {
+    public static String sanitize(String content) {
         if (content == null || content.isEmpty()) {
             return "";
         }
@@ -44,7 +45,7 @@ final class ToolCallMarkupFilter {
                 .strip();
     }
 
-    static boolean looksLikeToolMarkup(String content) {
+    public static boolean looksLikeToolMarkup(String content) {
         if (content == null || content.isEmpty()) {
             return false;
         }

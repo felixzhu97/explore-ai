@@ -1,5 +1,6 @@
 package com.ai.chat.infrastructure.config;
 
+import com.ai.chat.infrastructure.memory.SanitizingChatMemory;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
@@ -38,10 +39,11 @@ public class ChatConfig {
     public ChatMemory chatMemory(
             ChatMemoryRepository chatMemoryRepository,
             @Value("${app.ai.chat-memory.max-messages:20}") int maxMessages) {
-        return MessageWindowChatMemory.builder()
+        ChatMemory window = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .maxMessages(maxMessages)
                 .build();
+        return new SanitizingChatMemory(window);
     }
 
     @Bean

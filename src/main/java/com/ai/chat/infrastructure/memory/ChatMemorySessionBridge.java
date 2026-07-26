@@ -4,9 +4,11 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.MessageId;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Component;
 
@@ -64,6 +66,11 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
     private ChatMessage toDomainMessage(Message message) {
         String role = message.getMessageType().getValue();
-        return ChatMessage.of(MessageId.generate(), message.getText(), role, Instant.now());
+        String text = message.getText() == null ? "" : message.getText();
+        if (message.getMessageType() == MessageType.ASSISTANT
+                && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
+            text = ToolCallMarkupFilter.sanitize(text);
+        }
+        return ChatMessage.of(MessageId.generate(), text, role, Instant.now());
     }
 }
