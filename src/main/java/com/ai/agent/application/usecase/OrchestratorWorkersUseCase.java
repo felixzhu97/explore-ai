@@ -8,6 +8,10 @@ import com.ai.agent.domain.model.AgentPipeline;
 import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.repository.AgentRegistry;
 import com.ai.agent.domain.vo.AgentType;
+import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationOutcome;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -31,14 +35,17 @@ public class OrchestratorWorkersUseCase {
     private final AgentRegistry registry;
     private final SupervisorRouter supervisorRouter;
     private final WorkerAgentInvoker workerInvoker;
+    private final AiInvocationRecorder invocationRecorder;
 
     public OrchestratorWorkersUseCase(
             AgentRegistry registry,
             SupervisorRouter supervisorRouter,
-            WorkerAgentInvoker workerInvoker) {
+            WorkerAgentInvoker workerInvoker,
+            AiInvocationRecorder invocationRecorder) {
         this.registry = registry;
         this.supervisorRouter = supervisorRouter;
         this.workerInvoker = workerInvoker;
+        this.invocationRecorder = invocationRecorder;
     }
 
     public List<AgentDefinition> listAgents() {
@@ -54,12 +61,15 @@ public class OrchestratorWorkersUseCase {
             return Flux.just(errorEvent("message must not be blank"), doneEvent());
         }
 
+        long startedAt = System.nanoTime();
         return Mono.fromCallable(() -> {
                     List<AgentDefinition> workers = registry.listWorkers();
                     return supervisorRouter.plan(message, workers);
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMapMany(plan -> executePlan(message, plan))
+                .doOnComplete(() -> recordAgent("supervisor", "agent.supervisor", startedAt, true, null))
+                .doOnError(err -> recordAgent("supervisor", "agent.supervisor", startedAt, false, err.getMessage()))
                 .onErrorResume(err -> Flux.just(
                         errorEvent(err.getMessage() != null ? err.getMessage() : "orchestration failed"),
                         doneEvent()));
@@ -73,16 +83,32 @@ public class OrchestratorWorkersUseCase {
             return invokeSupervisor(message);
         }
 
+        long startedAt = System.nanoTime();
         try {
             AgentDefinition agent = registry.require(type);
             return Flux.concat(
                     Flux.just(handoffEvent(type.value(), "direct invoke")),
                     workerInvoker.invokeStream(agent, message)
                             .map(OrchestratorWorkersUseCase::messageEvent),
-                    Flux.just(doneEvent()));
+                    Flux.just(doneEvent()))
+                    .doOnComplete(() -> recordAgent(type.value(), "agent.invoke", startedAt, true, null))
+                    .doOnError(err -> recordAgent(type.value(), "agent.invoke", startedAt, false, err.getMessage()));
         } catch (AgentNotFoundException e) {
+            recordAgent(type.value(), "agent.invoke", startedAt, false, e.getMessage());
             return Flux.just(errorEvent(e.getMessage()), doneEvent());
         }
+    }
+
+    private void recordAgent(String agentType, String operation, long startedAt, boolean success, String errorMessage) {
+        long latencyMs = (System.nanoTime() - startedAt) / 1_000_000L;
+        invocationRecorder.record(AiInvocationEvent.builder()
+                .domain(AiDomain.AGENTS)
+                .operation(operation)
+                .outcome(success ? InvocationOutcome.SUCCESS : InvocationOutcome.ERROR)
+                .latencyMs(latencyMs)
+                .agentType(agentType)
+                .errorMessage(errorMessage)
+                .build());
     }
 
     public Flux<ServerSentEvent<String>> invokePipeline(String message, AgentPipeline pipeline) {

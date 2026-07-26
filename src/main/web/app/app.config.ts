@@ -43,7 +43,7 @@ export const appConfig: ApplicationConfig = {
     }),
     // Lazy-load treeshaken ECharts so it stays out of the initial bundle budget.
     provideEchartsCore({
-      echarts: () => import('./a2ui/echarts.bundle').then(m => m.default),
+      echarts: () => import('./shared/components/charts/echarts.bundle').then(m => m.default),
     }),
     provideMarkdownRenderer(async markdown => String(await marked.parse(String(markdown ?? '')))),
     {

@@ -24,6 +24,7 @@ journey
         企业研判 brief 模板: 5: 业务
         Chat 质量评估 UI: 4: QA
         Pipeline 阶段流式可见: 5: 用户
+        AI 指标看板: 5: 管理员
     section In Progress
         RAG ETL 管道: 4: 开发者
         文本分析: 4: 管理员
@@ -368,6 +369,54 @@ journey
 - **GIVEN** 请求未包含 referenceDocuments  
   **WHEN** 评估完成  
   **THEN** factuality 维度被跳过且 factualityAvailable 为 false
+
+---
+
+## Delivered - V3：可观测性
+
+### 9.1 AI 指标看板（已交付）
+
+**用户故事**
+
+**As a** 管理员 / 运维  
+**I want** 在 `/metrics` 查看 AI 请求量、延迟、错误率与域健康，并从概览下钻到 Chat/RAG/Agents/Tools/Vision 调用明细  
+**So that** 我可以快速定位异常调用并跳转到相关会话
+
+```mermaid
+journey
+    title Delivered - AI 指标看板
+    section 概览
+        打开 /metrics: 5: 管理员
+        查看 KPI 与域分布: 5: 管理员
+        空数据时空态可读: 4: 管理员
+    section 域下钻
+        进入 /metrics/chat 等域页: 5: 管理员
+        按日或模型筛选: 5: 管理员
+        查看调用明细表: 5: 管理员
+    section 跳转
+        点击含 sessionId 的行: 4: 管理员
+        进入 /chat 继续排查: 5: 管理员
+```
+
+**API**: `GET /api/metrics/overview`, `GET /api/metrics/domains/{domain}`, `GET /api/metrics/series`, `GET /api/metrics/drilldown`  
+**路由**: `/metrics`, `/metrics/:domain`（Work 导航，无 feature flag）  
+**实现**: `MetricsOverviewPage`, `MetricsDomainPage`, `MetricsController`, `MetricsUseCase`, `AiInvocationRecorder`  
+**PR**: https://github.com/felixzhu97/explore-ai/pull/305  
+**Jira**: [AI-208](https://felixzhu.atlassian.net/browse/AI-208)
+
+**Acceptance Criteria**
+
+- **GIVEN** 数据库无调用事件  
+  **WHEN** 打开 `/metrics`  
+  **THEN** KPI / 图表 / 表格展示可读空态且不报错
+
+- **GIVEN** Chat/RAG 等路径已产生调用事件  
+  **WHEN** 刷新概览  
+  **THEN** 请求量与域分布更新
+
+- **GIVEN** 用户在域页点击某日或模型  
+  **WHEN** 加载 drilldown  
+  **THEN** 明细表按筛选条件过滤
 
 ---
 

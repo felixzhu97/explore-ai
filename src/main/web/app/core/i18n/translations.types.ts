@@ -36,6 +36,7 @@ export interface Translations {
     monitoring: string;
     aiinfra: string;
     chat: string;
+    metrics: string;
     generation: string;
     modelDev: string;
     modelOps: string;

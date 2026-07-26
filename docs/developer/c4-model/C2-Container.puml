@@ -3,18 +3,18 @@
 
 LAYOUT_WITH_LEGEND()
 
-title 容器图 (C2) - AI Platform Backend (11 子域)
+title 容器图 (C2) - AI Platform Backend (12 子域)
 
 ' ============================================================
 ' PEOPLE
 ' ============================================================
 Person(user, "用户", "对话、文档、Agent 流水线、工具、图像分析、语音")
-Person(admin, "管理员/开发者", "评估、文本分析、功能开关")
+Person(admin, "管理员/开发者", "评估、文本分析、AI 指标看板、功能开关")
 
 ' ============================================================
 ' FRONTEND
 ' ============================================================
-Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag + flag: /agents /vision /mcp /eval /asr\nLaunchDarkly + Datadog RUM")
+Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag /metrics + flag: /agents /vision /mcp /eval /asr\nLaunchDarkly + Datadog RUM")
 
 ' ============================================================
 ' BACKEND
@@ -138,6 +138,18 @@ Container_Boundary(mcp_client_domain, "MCP Client Domain") {
 }
 
 ' ============================================================
+' DOMAIN: METRICS
+' ============================================================
+Container_Boundary(metrics_domain, "Metrics Domain") {
+    Container(metrics_controller, "MetricsController", "@RestController", "/api/metrics/* (overview, domains, series, drilldown)")
+    Container(metrics_usecase, "MetricsUseCase", "Use Case", "概览 / 域快照 / 时序 / 下钻")
+    Container(invocation_recorder, "AiInvocationRecorder", "Application", "业务路径旁路记录调用事件")
+    Container(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
+    Container(jdbc_invocation_repo, "JdbcAiInvocationEventRepository", "@Repository", "调用事件 JDBC")
+    Container(jdbc_metrics_query, "JdbcMetricsQueryRepository", "@Repository", "聚合查询 JDBC")
+}
+
+' ============================================================
 ' CROSS-CUTTING
 ' ============================================================
 Container_Boundary(crosscut, "Cross-Cutting") {
@@ -153,7 +165,7 @@ Container_Boundary(crosscut, "Cross-Cutting") {
 ' ============================================================
 ' EXTERNAL SYSTEMS
 ' ============================================================
-ContainerDb(h2_db, "H2 Embedded", "H2 + Liquibase", "会话 + ChatMemory + 向量 (默认)", "内嵌")
+ContainerDb(h2_db, "H2 Embedded", "H2 + Liquibase", "会话 + ChatMemory + 向量 + AI 调用事件 (默认)", "内嵌")
 Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话", "HTTPS")
 Container_Ext(openai_api, "OpenAI API", "REST API", "DALL-E + TTS", "HTTPS")
 Container_Ext(ollama_svc, "Ollama [local]", "REST API", "Embedding + qwen3.5 多模态 RAG", "11434")
@@ -169,6 +181,7 @@ Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent → Agent)", "HTTP
 Rel(user, angular_app, "使用 Web UI", "HTTP/SSE/WebSocket")
 Rel(admin, eval_controller, "质量评估", "HTTP")
 Rel(admin, analysis_controller, "文本分析", "HTTP")
+Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, text_controller, "流式对话", "SSE")
@@ -180,6 +193,7 @@ Rel(angular_app, vision_controller, "图像分析 [flag]", "HTTP")
 Rel(angular_app, audio_controller, "TTS + ASR [flag]", "HTTP/WebSocket")
 Rel(angular_app, mcp_controller, "MCP Server [flag]", "HTTP")
 Rel(angular_app, mcp_client_controller, "MCP Client [flag]", "HTTP")
+Rel(angular_app, metrics_controller, "AI 指标", "HTTP")
 Rel(angular_app, launchdarkly, "前端功能开关", "HTTPS")
 
 Rel(chat_controller, chat_usecase, "调用")
@@ -223,6 +237,13 @@ Rel(vision_usecase, onnx_captioner, "Caption")
 Rel(vision_usecase, onnx_detector, "Detect")
 Rel(vision_usecase, tess4j_ocr, "OCR")
 Rel(tess4j_ocr, tesseract_svc, "OCR", "JNA")
+
+Rel(metrics_controller, metrics_usecase, "调用")
+Rel(metrics_usecase, jdbc_metrics_query, "聚合")
+Rel(metrics_usecase, jdbc_invocation_repo, "下钻")
+Rel(invocation_recorder, jdbc_invocation_repo, "写入事件")
+Rel(jdbc_invocation_repo, h2_db, "JDBC")
+Rel(jdbc_metrics_query, h2_db, "JDBC")
 
 Rel(tool_controller, tool_facade, "调用")
 Rel(tool_facade, weather_tool, "天气")

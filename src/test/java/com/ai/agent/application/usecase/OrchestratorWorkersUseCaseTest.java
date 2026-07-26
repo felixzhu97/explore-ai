@@ -7,6 +7,9 @@ import com.ai.agent.domain.model.AgentPipeline;
 import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.vo.AgentType;
 import com.ai.agent.infrastructure.registry.InMemoryAgentRegistry;
+import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.repository.AiInvocationEventRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.codec.ServerSentEvent;
@@ -20,6 +23,15 @@ class OrchestratorWorkersUseCaseTest {
     private OrchestratorWorkersUseCase useCase;
     private RecordingInvoker invoker;
 
+    private static AiInvocationRecorder recorder() {
+        return new AiInvocationRecorder(new AiInvocationEventRepository() {
+            @Override public void save(com.ai.metrics.domain.model.AiInvocationEvent event) {}
+            @Override public PageResult findDrilldown(DrilldownQuery query) {
+                return new PageResult(java.util.List.of(), 0);
+            }
+        }, new SimpleMeterRegistry());
+    }
+
     @BeforeEach
     void setUp() {
         InMemoryAgentRegistry registry = new InMemoryAgentRegistry(List.of(
@@ -29,7 +41,7 @@ class OrchestratorWorkersUseCaseTest {
         invoker = new RecordingInvoker();
         SupervisorRouter router = (message, workers) ->
                 RoutingPlan.single(AgentType.of("k8s"), "kubernetes intent");
-        useCase = new OrchestratorWorkersUseCase(registry, router, invoker);
+        useCase = new OrchestratorWorkersUseCase(registry, router, invoker, recorder());
     }
 
     @Test
@@ -107,13 +119,13 @@ class OrchestratorWorkersUseCaseTest {
                 List.of(
                         new RoutingPlan.Subtask(AgentType.of("k8s"), "check pods"),
                         new RoutingPlan.Subtask(AgentType.of("aiops"), "check anomalies")));
-        useCase = new OrchestratorWorkersUseCase(
-                new InMemoryAgentRegistry(List.of(
+        useCase = new OrchestratorWorkersUseCase(new InMemoryAgentRegistry(List.of(
                         AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
                         AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
                         AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
                 multiRouter,
-                invoker);
+                invoker,
+                recorder());
 
         StepVerifier.create(useCase.invokeSupervisor("pod crash and anomaly"))
                 .assertNext(event -> assertEvent(event, "agent_handoff"))
@@ -129,12 +141,12 @@ class OrchestratorWorkersUseCaseTest {
         SupervisorRouter failing = (message, workers) -> {
             throw new IllegalStateException("router down");
         };
-        useCase = new OrchestratorWorkersUseCase(
-                new InMemoryAgentRegistry(List.of(
+        useCase = new OrchestratorWorkersUseCase(new InMemoryAgentRegistry(List.of(
                         AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
                         AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"))),
                 failing,
-                invoker);
+                invoker,
+                recorder());
 
         StepVerifier.create(useCase.invokeSupervisor("anything"))
                 .assertNext(event -> {
@@ -191,13 +203,13 @@ class OrchestratorWorkersUseCaseTest {
     @Test
     void should_emit_first_handoff_before_second_worker_starts() {
         DelayedRecordingInvoker delayed = new DelayedRecordingInvoker();
-        useCase = new OrchestratorWorkersUseCase(
-                new InMemoryAgentRegistry(List.of(
+        useCase = new OrchestratorWorkersUseCase(new InMemoryAgentRegistry(List.of(
                         AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
                         AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
                         AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
                 (message, workers) -> RoutingPlan.single(AgentType.of("k8s"), "unused"),
-                delayed);
+                delayed,
+                recorder());
 
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(

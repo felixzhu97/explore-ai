@@ -1,5 +1,7 @@
 package com.ai.vision.application.usecase;
 
+import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.repository.ImageCaptioner;
@@ -34,47 +36,77 @@ public class VisionAnalysisUseCase {
     private final Timer captionTimer;
     private final Timer detectTimer;
     private final Timer ocrTimer;
+    private final AiInvocationRecorder invocationRecorder;
 
     public VisionAnalysisUseCase(
             ImageCaptioner captioner,
             ObjectDetector detector,
             OcrEngine ocrEngine,
-            MeterRegistry meterRegistry) {
+            MeterRegistry meterRegistry,
+            AiInvocationRecorder invocationRecorder) {
         this.captioner = captioner;
         this.detector = detector;
         this.ocrEngine = ocrEngine;
         this.captionTimer = meterRegistry.timer("vision.caption.duration");
         this.detectTimer = meterRegistry.timer("vision.detect.duration");
         this.ocrTimer = meterRegistry.timer("vision.ocr.duration");
+        this.invocationRecorder = invocationRecorder;
     }
 
     public CaptionResponse caption(MultipartFile file) throws IOException {
         BufferedImage image = toImage(file);
         long startedAt = System.nanoTime();
-        var result = captioner.caption(image);
-        long processingTimeMs = elapsedMillis(startedAt);
-        captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-        return new CaptionResponse(result.text(), processingTimeMs);
+        try {
+            var result = captioner.caption(image);
+            long processingTimeMs = elapsedMillis(startedAt);
+            captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+            invocationRecorder.recordSuccess(
+                    AiDomain.VISION, "vision.caption", processingTimeMs, null, null, null);
+            return new CaptionResponse(result.text(), processingTimeMs);
+        } catch (RuntimeException ex) {
+            invocationRecorder.recordError(
+                    AiDomain.VISION, "vision.caption", elapsedMillis(startedAt),
+                    null, null, null, ex.getClass().getSimpleName(), ex.getMessage());
+            throw ex;
+        }
     }
 
     public OcrResponse ocr(MultipartFile file) throws IOException {
         BufferedImage image = toImage(file);
         long startedAt = System.nanoTime();
-        var result = ocrEngine.extract(image);
-        long processingTimeMs = elapsedMillis(startedAt);
-        ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-        return new OcrResponse(result.text(), processingTimeMs);
+        try {
+            var result = ocrEngine.extract(image);
+            long processingTimeMs = elapsedMillis(startedAt);
+            ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+            invocationRecorder.recordSuccess(
+                    AiDomain.VISION, "vision.ocr", processingTimeMs, null, null, null);
+            return new OcrResponse(result.text(), processingTimeMs);
+        } catch (RuntimeException ex) {
+            invocationRecorder.recordError(
+                    AiDomain.VISION, "vision.ocr", elapsedMillis(startedAt),
+                    null, null, null, ex.getClass().getSimpleName(), ex.getMessage());
+            throw ex;
+        }
     }
 
     public DetectResponse detect(MultipartFile file) throws IOException {
         BufferedImage image = toImage(file);
         long startedAt = System.nanoTime();
-        List<DetectionDto> detections = detector.detect(image).stream()
-                .map(this::toDto)
-                .toList();
-        long processingTimeMs = elapsedMillis(startedAt);
-        detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-        return new DetectResponse(detections, processingTimeMs);
+        try {
+            List<DetectionDto> detections = detector.detect(image).stream()
+                    .map(this::toDto)
+                    .toList();
+            long processingTimeMs = elapsedMillis(startedAt);
+            detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+            invocationRecorder.recordSuccess(
+                    AiDomain.VISION, "vision.detect", processingTimeMs, null, null, null);
+            return new DetectResponse(detections, processingTimeMs);
+        } catch (RuntimeException ex) {
+            invocationRecorder.recordError(
+                    AiDomain.VISION, "vision.detect", elapsedMillis(startedAt),
+                    null, null, null, ex.getClass().getSimpleName(), ex.getMessage());
+            throw ex;
+        }
     }
 
     public VisionHealthResponse health() {

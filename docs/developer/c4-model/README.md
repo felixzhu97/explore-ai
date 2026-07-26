@@ -7,7 +7,7 @@
 | 文件 | 层级 | 说明 |
 | --- | --- | --- |
 | `C1-Context.puml` | C1 | 系统上下文图（含 LaunchDarkly、Datadog、cloud-minimal prod） |
-| `C2-Container.puml` | C2 | 容器图（11 个子域 + 功能开关横切） |
+| `C2-Container.puml` | C2 | 容器图（12 个子域 + 功能开关横切） |
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
 | `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
@@ -58,8 +58,8 @@
 - **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0
 - **架构**: Clean Architecture（`domain/repository/`，非 Hexagonal `domain/port/`）
 - **端口**: dev **9000** / prod **8080** (Railway `PORT`)
-- **子域 (11)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client
-- **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量）
+- **子域 (12)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
+- **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
 - **可观测性**: Datadog APM（`dd-java-agent` v1.64.0 → Railway `datadog-agent` `:8126`）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
@@ -106,13 +106,26 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 
 > **区分**: **Image Analysis** (`/vision`, `/api/vision/*`) vs **Vision Chat** (RAG 流式多模态，Ollama qwen3.5)
 
+### Metrics 子域（包名 `com.ai.metrics`）
+
+路由 `/metrics`（Work 导航，无 feature flag），API `/api/metrics/*`：
+
+| 能力 | API | 主要组件 |
+| --- | --- | --- |
+| 概览 | `GET /api/metrics/overview` | `MetricsController`, `MetricsUseCase` |
+| 域快照 | `GET /api/metrics/domains/{domain}` | `JdbcMetricsQueryRepository` |
+| 时序 | `GET /api/metrics/series` | `SeriesSnapshot` |
+| 下钻 | `GET /api/metrics/drilldown` | `AiInvocationEvent`, `JdbcAiInvocationEventRepository` |
+
+业务路径通过 `AiInvocationRecorder` 旁路写入 `ai_invocation_events`（Chat / RAG / Agents / Tools / Vision）。
+
 ### 前端 (Web Frontend)
 
 - **框架**: Angular 22 + TypeScript
-- **路由**: `/chat` / `/generate` (image, tts) / `/rag` + flag 守卫 `/agents` `/vision` `/mcp` `/eval` `/asr`
+- **路由**: `/chat` / `/generate` (image, tts) / `/rag` / `/metrics` + flag 守卫 `/agents` `/vision` `/mcp` `/eval` `/asr`
 - **对话壳**: `shared/components/chat-shell`（message-pane / sender-bar / bubble-list / welcome），供 Chat / RAG / Agents 共用
-- **实现目录**: `app/chat/`、`app/generate/{image,tts}/`（与业务域 / 路由对齐）
-- **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` + `sse-client.ts`
+- **实现目录**: `app/chat/`、`app/generate/{image,tts}/`、`app/metrics/`（与业务域 / 路由对齐）
+- **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` / `MetricsService` + `sse-client.ts` + shared ECharts panels
 - **功能开关**: `FeatureFlagService` + `moduleEnabledGuard`（LaunchDarkly Client SDK）
 - **可观测性**: `datadog-rum.config.ts`
 - **端口**: dev 4200 (proxy `/api` → `:9000`) / prod Vercel 静态托管

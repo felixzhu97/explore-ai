@@ -13,6 +13,8 @@ import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;
 import com.ai.common.infrastructure.llm.ToolEventChannel;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
+import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.vo.AiDomain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +58,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     private final SessionTitleGenerator sessionTitleGenerator;
     private final ChatWebSourcesRepository chatWebSourcesRepository;
     private final PromptTemplates promptTemplates;
+    private final AiInvocationRecorder invocationRecorder;
 
     public SpringAiChatUseCase(
             ChatClientProvider chatClientProvider,
@@ -65,7 +68,8 @@ public class SpringAiChatUseCase implements ChatUseCase {
             ConversationMemoryRepository conversationMemoryRepository,
             SessionTitleGenerator sessionTitleGenerator,
             ChatWebSourcesRepository chatWebSourcesRepository,
-            PromptTemplates promptTemplates) {
+            PromptTemplates promptTemplates,
+            AiInvocationRecorder invocationRecorder) {
         this.chatClientProvider = chatClientProvider;
         this.repository = repository;
         this.retryTemplate = retryTemplate;
@@ -74,6 +78,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
         this.sessionTitleGenerator = sessionTitleGenerator;
         this.chatWebSourcesRepository = chatWebSourcesRepository;
         this.promptTemplates = promptTemplates;
+        this.invocationRecorder = invocationRecorder;
     }
 
     @Override
@@ -84,17 +89,30 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public String chat(String userMessage, TextChatOptions options) {
         log.info("Chat request with retry: {}", truncateForLog(userMessage));
-        return retryTemplate.execute(context -> {
-            ChatClient chatClient = chatClientProvider.createStateless(options);
-            String response = chatClient.prompt()
-                    .user(userMessage)
-                    .call()
-                    .content();
-            if (response == null || response.isBlank()) {
-                throw new AiServiceException("AI returned empty response");
-            }
+        long startedAt = System.nanoTime();
+        try {
+            String response = retryTemplate.execute(context -> {
+                ChatClient chatClient = chatClientProvider.createStateless(options);
+                String content = chatClient.prompt()
+                        .user(userMessage)
+                        .call()
+                        .content();
+                if (content == null || content.isBlank()) {
+                    throw new AiServiceException("AI returned empty response");
+                }
+                return content;
+            });
+            invocationRecorder.recordSuccess(
+                    AiDomain.CHAT, "chat.call", elapsedMs(startedAt),
+                    options.provider(), options.model(), null);
             return response;
-        });
+        } catch (RuntimeException ex) {
+            invocationRecorder.recordError(
+                    AiDomain.CHAT, "chat.call", elapsedMs(startedAt),
+                    options.provider(), options.model(), null,
+                    ex.getClass().getSimpleName(), ex.getMessage());
+            throw ex;
+        }
     }
 
     @Override
@@ -105,6 +123,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     @Override
     public Flux<String> chatStreamWithSession(String sessionId, String userMessage, TextChatOptions options) {
         return Flux.defer(() -> {
+            long startedAt = System.nanoTime();
             ChatSession session = loadOrCreateSession(sessionId);
             boolean isFirstTurn = session.isEmpty();
             conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
@@ -129,15 +148,30 @@ public class SpringAiChatUseCase implements ChatUseCase {
                 Flux<String> repaired = Flux.defer(() ->
                         repairIfToolMarkupOnly(rawAssistant.get(), sessionId, options));
                 return Flux.concat(primary, repaired)
-                        .doOnComplete(() -> Mono.fromRunnable(() ->
-                                        afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .subscribe())
-                        .doOnError(error -> log.error("Stream failed for session {}", sessionId, error));
+                        .doOnComplete(() -> {
+                            invocationRecorder.recordSuccess(
+                                    AiDomain.CHAT, "chat.stream", elapsedMs(startedAt),
+                                    options.provider(), options.model(), sessionId);
+                            Mono.fromRunnable(() ->
+                                            afterSessionStream(session.getId(), sessionId, isFirstTurn, userMessage))
+                                    .subscribeOn(Schedulers.boundedElastic())
+                                    .subscribe();
+                        })
+                        .doOnError(error -> {
+                            log.error("Stream failed for session {}", sessionId, error);
+                            invocationRecorder.recordError(
+                                    AiDomain.CHAT, "chat.stream", elapsedMs(startedAt),
+                                    options.provider(), options.model(), sessionId,
+                                    error.getClass().getSimpleName(), error.getMessage());
+                        });
             } finally {
                 ToolEventChannel.clearCurrentSessionId();
             }
         }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private static long elapsedMs(long startedAtNanos) {
+        return (System.nanoTime() - startedAtNanos) / 1_000_000L;
     }
 
     private Flux<String> repairIfToolMarkupOnly(String rawAssistant, String sessionId, TextChatOptions options) {

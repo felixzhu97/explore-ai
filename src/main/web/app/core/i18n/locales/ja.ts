@@ -20,6 +20,7 @@ export const ja: Translations = {
     monitoring: '監視',
     aiinfra: 'AI インフラ',
     chat: 'チャット',
+    metrics: 'メトリクス',
     generation: '生成',
     modelDev: '開発',
     modelOps: '運用',

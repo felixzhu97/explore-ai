@@ -19,6 +19,7 @@ export const MODULE_NAV_GROUP_ORDER: readonly ModuleNavGroup[] = ['work', 'creat
 export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'chat', labelKey: 'chat', path: '/chat', group: 'work' },
   { key: 'rag', labelKey: 'documentQA', path: '/rag', group: 'work' },
+  { key: 'metrics', labelKey: 'metrics', path: '/metrics', group: 'work' },
   { key: 'agents', labelKey: 'agents', path: '/agents', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_AGENTS },
   { key: 'generate', labelKey: 'generation', path: '/generate', group: 'create' },
   { key: 'vision', labelKey: 'imageAnalysis', path: '/vision', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_VISION },
