@@ -20,13 +20,13 @@ describe('credentialsInterceptor', () => {
 
   it('should_setWithCredentials_whenRequestCloned', () => {
     const req = new HttpRequest('GET', '/api/sessions');
-    let seen: HttpRequest<unknown> | null = null;
+    let withCredentials = false;
 
     interceptor(req, (outgoing) => {
-      seen = outgoing;
+      withCredentials = outgoing.withCredentials;
       return of(new HttpResponse({ status: 200 }));
     }).subscribe();
 
-    expect(seen?.withCredentials).toBe(true);
+    expect(withCredentials).toBe(true);
   });
 });
