@@ -4,12 +4,12 @@ import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.domain.vo.AgentType;
 import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
+import com.ai.common.domain.repository.DateTimeTool;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
@@ -18,6 +18,8 @@ import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +35,8 @@ class SpringAiWorkerAgentInvokerTest {
     private WebSearchTool webSearchTool;
     @Mock
     private WeatherTool weatherTool;
+    @Mock
+    private DateTimeTool dateTimeTool;
     @Mock
     private ChatClient chatClient;
     @Mock
@@ -53,15 +57,13 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     @Test
-    void should_bind_web_search_tool_when_research_agent_invoked() {
+    void should_bind_web_search_and_datetime_tools_when_research_agent_invoked() {
         SpringAiWorkerAgentInvoker invoker = newInvoker();
         stubCallChain();
 
         invoker.invoke(agent("research"), "latest Spring AI release");
 
-        ArgumentCaptor<Object[]> tools = ArgumentCaptor.forClass(Object[].class);
-        verify(requestSpec).tools(tools.capture());
-        assertSame(webSearchTool, tools.getValue()[0]);
+        verify(requestSpec).tools(eq(webSearchTool), eq(dateTimeTool));
     }
 
     @Test
@@ -107,7 +109,8 @@ class SpringAiWorkerAgentInvokerTest {
                 chatClientProvider,
                 documentSearchTool,
                 webSearchTool,
-                weatherTool);
+                weatherTool,
+                dateTimeTool);
     }
 
     private static AgentDefinition agent(String type) {
@@ -119,7 +122,8 @@ class SpringAiWorkerAgentInvokerTest {
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
         when(requestSpec.user(any(String.class))).thenReturn(requestSpec);
-        when(requestSpec.tools(any())).thenReturn(requestSpec);
+        lenient().when(requestSpec.tools(any())).thenReturn(requestSpec);
+        lenient().when(requestSpec.tools(any(), any())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
         when(callResponseSpec.content()).thenReturn("ok");
     }

@@ -648,6 +648,7 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 | ----------------- | ---------------------------------------- | ---------------- |
 | `getWeather`      | Get current weather for a city           | No               |
 | `getForecast`     | Get weather forecast                     | No               |
+| `getCurrentDateTime` | Authoritative system date/time (default Asia/Shanghai) | No        |
 | `searchDocuments` | Search knowledge base documents          | No               |
 | `listDocuments`   | List all knowledge base documents        | No               |
 | `searchWeb`       | Search the web for real-time information | SERPER_API_KEY   |

@@ -5,6 +5,7 @@ import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
+import com.ai.common.domain.repository.DateTimeTool;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
@@ -21,16 +22,19 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
     private final WeatherTool weatherTool;
+    private final DateTimeTool dateTimeTool;
 
     public SpringAiWorkerAgentInvoker(
             ChatClientProvider chatClientProvider,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool,
-            WeatherTool weatherTool) {
+            WeatherTool weatherTool,
+            DateTimeTool dateTimeTool) {
         this.chatClientProvider = chatClientProvider;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
         this.weatherTool = weatherTool;
+        this.dateTimeTool = dateTimeTool;
     }
 
     @Override
@@ -76,7 +80,7 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
         return switch (agent.type().value()) {
             case "vectordb" -> spec.tools(documentSearchTool);
-            case "research" -> spec.tools(webSearchTool);
+            case "research" -> spec.tools(webSearchTool, dateTimeTool);
             case "weather" -> spec.tools(weatherTool);
             default -> spec;
         };

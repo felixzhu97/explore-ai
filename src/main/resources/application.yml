@@ -120,6 +120,8 @@ launchdarkly:
     module-agents: true
 
 app:
+  datetime:
+    zone: ${APP_DATETIME_ZONE:Asia/Shanghai}
   ai:
     chat-memory:
       max-messages: ${CHAT_MEMORY_MAX_MESSAGES:20}
