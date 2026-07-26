@@ -36,6 +36,13 @@ export const zh: Translations = {
       lab: '实验室',
     },
   },
+  account: {
+    guest: '访客',
+    plan: '{plan} 套餐',
+    language: '语言',
+    help: '帮助',
+    menuLabel: '账号菜单',
+  },
   imageUploader: {
     imageLabel: '图片',
     resultLabel: '分析结果',

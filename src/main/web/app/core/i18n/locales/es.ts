@@ -36,6 +36,13 @@ export const es: Translations = {
       lab: 'Lab',
     },
   },
+  account: {
+    guest: 'Invitado',
+    plan: 'Plan {plan}',
+    language: 'Idioma',
+    help: 'Ayuda',
+    menuLabel: 'Menú de cuenta',
+  },
   imageUploader: {
     imageLabel: 'Imagen',
     resultLabel: 'Resultado',

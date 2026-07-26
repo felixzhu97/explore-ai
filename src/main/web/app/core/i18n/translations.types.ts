@@ -52,6 +52,13 @@ export interface Translations {
       lab: string;
     };
   };
+  account: {
+    guest: string;
+    plan: string;
+    language: string;
+    help: string;
+    menuLabel: string;
+  };
   imageUploader: {
     imageLabel: string;
     resultLabel: string;

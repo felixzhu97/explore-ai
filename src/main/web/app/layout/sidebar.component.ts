@@ -14,7 +14,7 @@ import {
 import { ZardSidebarMenuButtonDirective } from '../shared/components/layout/sidebar-menu-button.directive';
 import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
-import { LanguagePickerComponent } from './components/language-picker/language-picker.component';
+import { SidebarUserMenuComponent } from './components/sidebar-user-menu/sidebar-user-menu.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST } from './services/session-list.token';
 import type { SidebarSession } from './sidebar-session.model';
@@ -34,7 +34,7 @@ import { FeatureFlagService } from '../core/feature-flag.service';
     SidebarGroupComponent,
     ZardSidebarMenuButtonDirective,
     SessionItemComponent,
-    LanguagePickerComponent,
+    SidebarUserMenuComponent,
   ],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -186,14 +186,6 @@ export class SidebarComponent implements OnInit {
     const iconSvg = icons[key] || `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
     return this.sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
-
-  readonly privacyIcon = this.sanitizer.bypassSecurityTrustHtml(
-    `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>`,
-  );
-
-  readonly legalIcon = this.sanitizer.bypassSecurityTrustHtml(
-    `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>`,
-  );
 
   onDocumentPointerDown(event: PointerEvent): void {
     const target = event.target as Element;

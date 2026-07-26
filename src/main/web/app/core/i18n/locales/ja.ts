@@ -36,6 +36,13 @@ export const ja: Translations = {
       lab: 'ラボ',
     },
   },
+  account: {
+    guest: 'ゲスト',
+    plan: '{plan} プラン',
+    language: '言語',
+    help: 'ヘルプ',
+    menuLabel: 'アカウントメニュー',
+  },
   imageUploader: {
     imageLabel: '画像',
     resultLabel: '分析結果',

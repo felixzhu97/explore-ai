@@ -36,6 +36,13 @@ export const en: Translations = {
       lab: 'Lab',
     },
   },
+  account: {
+    guest: 'Guest',
+    plan: '{plan} plan',
+    language: 'Language',
+    help: 'Help',
+    menuLabel: 'Account menu',
+  },
   imageUploader: {
     imageLabel: 'Image',
     resultLabel: 'Analysis Result',
