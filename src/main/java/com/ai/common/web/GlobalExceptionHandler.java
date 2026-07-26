@@ -3,6 +3,7 @@ package com.ai.common.web;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.util.LogSanitizer;
 import com.ai.common.web.dto.ErrorResponse;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
@@ -30,9 +31,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ChatSessionNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSessionNotFound(ChatSessionNotFoundException e) {
-        log.warn("Session not found: {}", e.getSessionId());
+        log.warn("Session not found: {}", LogSanitizer.fingerprint(e.getSessionId()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of("Session not found: " + e.getSessionId(), "SESSION_NOT_FOUND"));
+                .body(ErrorResponse.of("Session not found", "SESSION_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(ClientIdentityRequiredException.class)
+    public ResponseEntity<ErrorResponse> handleClientIdentityRequired(ClientIdentityRequiredException e) {
+        log.warn("Client identity missing");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
     }
 
     @ExceptionHandler(AiServiceException.class)

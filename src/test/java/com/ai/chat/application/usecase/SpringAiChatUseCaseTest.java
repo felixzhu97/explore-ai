@@ -185,6 +185,20 @@ class SpringAiChatUseCaseTest {
                     .isInstanceOf(ChatSessionNotFoundException.class);
             verify(repository, never()).delete(any());
         }
+
+        @Test
+        @DisplayName("should erase all sessions for client")
+        void should_eraseAllSessions_whenClientRequestsPrivacyDelete() {
+            ChatSession owned = ChatSession.createWithId(
+                    ChatSessionId.of("session-123"), "Test", CLIENT_A);
+            when(repository.findByClientId(CLIENT_A)).thenReturn(List.of(owned));
+
+            useCase.deleteAllSessionsForClient(CLIENT_A);
+
+            verify(conversationMemoryRepository).clear("session-123");
+            verify(chatWebSourcesRepository).deleteByConversationId("session-123");
+            verify(repository).delete(ChatSessionId.of("session-123"));
+        }
     }
 
     @Nested

@@ -159,7 +159,11 @@ app:
     cookie-name: ea_cid
     secure: false
     same-site: Lax
-    max-age: 365d
+    max-age: 90d
+  rate-limit:
+    enabled: true
+    requests-per-window: 60
+    window-seconds: 60
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
     detect:

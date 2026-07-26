@@ -34,10 +34,16 @@ app:
     cookie-name: __Host-ea_cid
     secure: true
     same-site: Lax
-    max-age: 365d
+    max-age: 90d
+  rate-limit:
+    enabled: true
+    requests-per-window: 60
+    window-seconds: 60
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
   ai:
+    logging-advisor:
+      enabled: false
     image:
       provider: ${IMAGE_PROVIDER:openai}
       model: ${IMAGE_MODEL:dall-e-3}
@@ -45,6 +51,12 @@ app:
       base-url: ${IMAGE_BASE_URL:https://api.openai.com/v1}
     tts:
       api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 logging:
   level:

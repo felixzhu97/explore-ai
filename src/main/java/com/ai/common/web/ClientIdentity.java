@@ -15,7 +15,7 @@ public final class ClientIdentity {
     public static String require(HttpServletRequest request) {
         Object value = request.getAttribute(REQUEST_ATTRIBUTE);
         if (!(value instanceof String clientId) || clientId.isBlank()) {
-            throw new IllegalStateException("Client identity is required");
+            throw new ClientIdentityRequiredException();
         }
         return clientId;
     }

@@ -164,7 +164,7 @@ journey
 - **GIVEN** 首次访问无 Cookie **WHEN** 调用会话 API **THEN** 签发 HttpOnly SameSite Cookie
 
 **API**: `GET/POST/DELETE /api/sessions*`, `POST /api/text/chat/stream`（Cookie 身份）  
-**实现**: `ClientIdentityFilter`, `ChatSession.clientId`, `findByClientId` / `findByIdAndClientId`  
+**实现**: `ClientIdentityFilter`, `ChatSession.clientId`, `findByClientId` / `findByIdAndClientId`, `SecurityHeadersFilter`, `CsrfProtectionFilter`, `ClientRateLimitFilter`, `PrivacyController`  
 **Jira**: [AI-211](https://felixzhu.atlassian.net/browse/AI-211)
 
 ---

@@ -54,7 +54,7 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().errorCode()).isEqualTo("SESSION_NOT_FOUND");
-            assertThat(response.getBody().message()).contains("test-session-123");
+            assertThat(response.getBody().message()).isEqualTo("Session not found");
         }
 
         @Test
@@ -65,7 +65,7 @@ class GlobalExceptionHandlerTest {
             ResponseEntity<ErrorResponse> response = handler.handleSessionNotFound(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-            assertThat(response.getBody().message()).contains("another-session");
+            assertThat(response.getBody().message()).isEqualTo("Session not found");
         }
     }
 
