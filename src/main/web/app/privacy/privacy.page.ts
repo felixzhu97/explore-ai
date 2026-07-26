@@ -81,7 +81,10 @@ import { I18nService } from '../core/i18n';
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block min-h-full bg-surface px-4 py-6' },
+  // Own vertical scroll: main layout uses overflow-hidden (same as metrics).
+  host: {
+    class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
+  },
 })
 export class PrivacyPage {
   private readonly api = inject(PrivacyApiService);
