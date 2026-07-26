@@ -22,6 +22,7 @@ export const ja: Translations = {
     chat: 'チャット',
     metrics: 'メトリクス',
     privacy: 'プライバシー',
+    legal: '法的情報',
     generation: '生成',
     modelDev: '開発',
     modelOps: '運用',

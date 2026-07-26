@@ -25,5 +25,9 @@ launchdarkly:
     module-agents: true
 
 app:
+  billing:
+    quota-enabled: false
+  metrics:
+    admin-api-key:
   vision:
     models-dir: models

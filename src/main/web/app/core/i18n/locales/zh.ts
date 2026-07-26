@@ -22,6 +22,7 @@ export const zh: Translations = {
     chat: '对话',
     metrics: '指标',
     privacy: '隐私',
+    legal: '法律',
     generation: '生成',
     modelDev: '开发',
     modelOps: '运维',

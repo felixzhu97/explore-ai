@@ -38,6 +38,7 @@ export interface Translations {
     chat: string;
     metrics: string;
     privacy: string;
+    legal: string;
     generation: string;
     modelDev: string;
     modelOps: string;

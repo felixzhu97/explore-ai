@@ -76,8 +76,12 @@ import { PRIVACY_PAGE_COPY } from './privacy.page.copy';
         </div>
       </section>
 
-      <p class="text-xs text-muted-foreground">
+      <p class="flex flex-wrap gap-4 text-xs text-muted-foreground">
         <a routerLink="/chat" class="underline underline-offset-2">{{ copy().backToChat }}</a>
+        <a routerLink="/legal" class="underline underline-offset-2">{{ copy().legalHub }}</a>
+        <a routerLink="/legal/subprocessors" class="underline underline-offset-2">{{
+          copy().subprocessorsLink
+        }}</a>
       </p>
     </div>
   `,

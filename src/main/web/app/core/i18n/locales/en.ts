@@ -22,6 +22,7 @@ export const en: Translations = {
     chat: 'Chat',
     metrics: 'Metrics',
     privacy: 'Privacy',
+    legal: 'Legal',
     generation: 'Generation',
     modelDev: 'Dev',
     modelOps: 'Ops',

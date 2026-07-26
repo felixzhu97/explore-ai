@@ -169,7 +169,7 @@ journey
 
 ---
 
-### 1c. 欧盟隐私告知、同意与擦除控制（进行中）
+### 1c. 欧盟隐私告知、同意与擦除控制（已交付）
 
 **用户故事**
 
@@ -187,6 +187,27 @@ journey
 **API / 路由**: `/privacy`, `DELETE/POST /api/privacy/*`, CSP headers  
 **实现**: `PrivacyPage`, `ConsentBanner`, `PrivacyConsentService`, `ChatDataRetentionJob`, `SecurityHeadersFilter` CSP  
 **Jira**: [AI-215](https://felixzhu.atlassian.net/browse/AI-215)（Epic）, [AI-216](https://felixzhu.atlassian.net/browse/AI-216)–[AI-219](https://felixzhu.atlassian.net/browse/AI-219)
+
+---
+
+### 1d. 商业化底座：配额、法务页与账号雏形（进行中）
+
+**用户故事**
+
+**As a** ExploreAI 访客与运营方  
+**I want** 日配额保护成本、法务文档可访问、Metrics 可按需上锁，并看到匿名账号状态  
+**So that** 产品具备可商业化的最小计费与合规入口
+
+**Acceptance Criteria**
+
+- **GIVEN** Free 计划日配额耗尽 **WHEN** 再调用计费 AI API **THEN** 返回 `429` / `QUOTA_EXCEEDED`
+- **GIVEN** 配置了 `METRICS_ADMIN_API_KEY` **WHEN** 无 `X-Admin-Key` 访问 `/api/metrics/**` **THEN** 返回 `401`
+- **GIVEN** 访客打开 `/legal` **WHEN** 选择条款/隐私/Cookie/子处理方 **THEN** 看到对应 Phase-0 文案
+- **GIVEN** 已有 Client Identity **WHEN** `GET /api/account/me` **THEN** 返回 `mode=anonymous` 与当前 plan
+
+**API / 路由**: `/legal`, `/legal/:doc`, `GET /api/account/me`, `UsageQuotaFilter`, `MetricsAdminAuthFilter`  
+**文档**: `docs/business/business-model-canvas.md`, `docs/business/pricing.md`  
+**Jira**: Epic [AI-220](https://felixzhu.atlassian.net/browse/AI-220)–[AI-223](https://felixzhu.atlassian.net/browse/AI-223)；本切片覆盖 [AI-227](https://felixzhu.atlassian.net/browse/AI-227), [AI-229](https://felixzhu.atlassian.net/browse/AI-229), [AI-231](https://felixzhu.atlassian.net/browse/AI-231), [AI-233](https://felixzhu.atlassian.net/browse/AI-233), [AI-234](https://felixzhu.atlassian.net/browse/AI-234), [AI-224](https://felixzhu.atlassian.net/browse/AI-224)（账号雏形）
 
 ---
 

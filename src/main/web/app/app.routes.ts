@@ -51,6 +51,14 @@ export const routes: Routes = [
         loadComponent: () => import('./privacy/privacy.page').then(m => m.PrivacyPage),
       },
       {
+        path: 'legal',
+        loadComponent: () => import('./legal/legal.page').then(m => m.LegalPage),
+      },
+      {
+        path: 'legal/:doc',
+        loadComponent: () => import('./legal/legal.page').then(m => m.LegalPage),
+      },
+      {
         path: 'generate',
         loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePage),
         children: [

@@ -14,7 +14,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(app_root, "AppComponent", "@Component", "根组件")
         Component(main_layout, "MainLayoutComponent", "@Component", "主布局 (header + sidebar + outlet)")
         Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, DatadogErrorHandler")
-        Component(app_routes, "app.routes.ts", "Routes", "/chat /generate /rag /metrics + flag: /agents /vision /mcp /eval /asr")
+        Component(app_routes, "app.routes.ts", "Routes", "/chat /privacy /legal /metrics + flag modules")
         Component(main_ts, "main.ts", "Bootstrap", "initDatadogRum()")
         Component(datadog_cfg, "datadog-rum.config.ts", "Config", "RUM 初始化 + ErrorHandler")
     }
@@ -47,6 +47,8 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(mcp_page, "McpPageComponent", "@Component", "MCP Client (/mcp) [flag]")
         Component(eval_page, "EvalPageComponent", "@Component", "质量评估 (/eval) [flag]")
         Component(asr_page, "AsrPageComponent", "@Component", "语音转录 (/asr) [flag]")
+        Component(privacy_page, "PrivacyPage", "@Component", "隐私控制 (/privacy)")
+        Component(legal_page, "LegalPage", "@Component", "法务文档 (/legal/:doc)")
         Component(detect_overlay, "DetectionOverlayComponent", "@Component", "检测边界框叠加层")
     }
 

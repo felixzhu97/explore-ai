@@ -234,6 +234,15 @@
         <span class="opacity-60" [innerHTML]="privacyIcon"></span>
         <span>{{ t().nav.privacy }}</span>
       </a>
+      <a
+        z-sidebar-menu-button
+        routerLink="/legal"
+        class="mb-1"
+        (click)="onNavClick()"
+      >
+        <span class="opacity-60" [innerHTML]="legalIcon"></span>
+        <span>{{ t().nav.legal }}</span>
+      </a>
       <app-language-picker [fullWidth]="true" />
     } @else {
       <a
@@ -246,6 +255,17 @@
         (click)="onNavClick()"
       >
         <span class="opacity-60" [innerHTML]="privacyIcon"></span>
+      </a>
+      <a
+        z-sidebar-menu-button
+        zIconOnly
+        [zFull]="false"
+        routerLink="/legal"
+        [title]="t().nav.legal"
+        class="mb-1"
+        (click)="onNavClick()"
+      >
+        <span class="opacity-60" [innerHTML]="legalIcon"></span>
       </a>
       <app-language-picker [showLabel]="false" [showChevron]="false" [fullWidth]="true" />
     }
