@@ -163,9 +163,9 @@ journey
 - **GIVEN** 浏览器 A 拥有会话 S **WHEN** 浏览器 B 读/删/发消息到 S **THEN** 返回 404
 - **GIVEN** 首次访问无 Cookie **WHEN** 调用会话 API **THEN** 签发 HttpOnly SameSite Cookie
 
-**API**: `GET/POST/DELETE /api/sessions*`, `POST /api/text/chat/stream`（Cookie 身份）  
+**API**: `GET/POST/DELETE /api/sessions*`, `POST /api/text/chat/stream`（Cookie 身份）, `DELETE/POST /api/privacy/*`  
 **实现**: `ClientIdentityFilter`, `ChatSession.clientId`, `findByClientId` / `findByIdAndClientId`, `SecurityHeadersFilter`, `CsrfProtectionFilter`, `ClientRateLimitFilter`, `PrivacyController`  
-**Jira**: [AI-211](https://felixzhu.atlassian.net/browse/AI-211)
+**Jira**: [AI-211](https://felixzhu.atlassian.net/browse/AI-211), [AI-212](https://felixzhu.atlassian.net/browse/AI-212)
 
 ---
 
