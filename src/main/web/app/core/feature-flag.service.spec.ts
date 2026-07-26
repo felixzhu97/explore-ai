@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { FEATURE_FLAG_KEYS } from './config/feature-flag-keys';
+import { PRIVACY_CONSENT_STORAGE_KEY } from '../privacy/privacy-consent.storage';
 
 const mockClient = {
   on: vi.fn(),
@@ -32,6 +33,7 @@ describe('FeatureFlagService', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules();
+    localStorage.clear();
     envState.launchDarklyClientSideId = '';
     envState.featureFlagFallback = {
       'module-vision': true,
@@ -48,7 +50,15 @@ describe('FeatureFlagService', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    localStorage.clear();
   });
+
+  function allowAnalytics(): void {
+    localStorage.setItem(
+      PRIVACY_CONSENT_STORAGE_KEY,
+      JSON.stringify({ decided: true, analytics: true }),
+    );
+  }
 
   it('should_use_environment_fallback_when_client_side_id_missing', async () => {
     const { FeatureFlagService } = await import('./feature-flag.service');
@@ -61,7 +71,21 @@ describe('FeatureFlagService', () => {
     expect(mockClient.start).not.toHaveBeenCalled();
   });
 
+  it('should_skip_launchdarkly_when_analytics_consent_missing', async () => {
+    envState.launchDarklyClientSideId = 'client-id';
+    const { createClient } = await import('@launchdarkly/js-client-sdk');
+    const { FeatureFlagService } = await import('./feature-flag.service');
+    TestBed.configureTestingModule({ providers: [FeatureFlagService] });
+    const service = TestBed.inject(FeatureFlagService);
+
+    await service.initialize();
+
+    expect(createClient).not.toHaveBeenCalled();
+    expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_VISION)).toBe(true);
+  });
+
   it('should_sync_flags_after_launchdarkly_init', async () => {
+    allowAnalytics();
     envState.launchDarklyClientSideId = 'client-id';
     mockClient.boolVariation.mockImplementation(
       (key: string) => key === FEATURE_FLAG_KEYS.MODULE_VISION,
@@ -79,6 +103,7 @@ describe('FeatureFlagService', () => {
   });
 
   it('should_fallback_when_launchdarkly_init_times_out', async () => {
+    allowAnalytics();
     vi.useFakeTimers();
     envState.launchDarklyClientSideId = 'client-id';
     envState.featureFlagFallback = {

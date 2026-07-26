@@ -96,6 +96,19 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     }
 
     @Override
+    public List<ChatSession> findInactiveSince(Instant cutoff) {
+        return jdbcTemplate.query(
+                """
+                SELECT id, title, created_at, last_activity_at, client_id
+                FROM chat_sessions
+                WHERE last_activity_at < ?
+                ORDER BY last_activity_at ASC
+                """,
+                ROW_MAPPER,
+                Timestamp.from(cutoff));
+    }
+
+    @Override
     public boolean exists(ChatSessionId id) {
         Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM chat_sessions WHERE id = ?",

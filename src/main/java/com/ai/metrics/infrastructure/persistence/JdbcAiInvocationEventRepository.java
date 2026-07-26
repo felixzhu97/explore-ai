@@ -14,6 +14,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,6 +74,30 @@ public class JdbcAiInvocationEventRepository implements AiInvocationEventReposit
                 event.getCompletionTokens(),
                 event.getErrorCode(),
                 event.getErrorMessage());
+    }
+
+    @Override
+    @Transactional
+    public int deleteBySessionIds(Collection<String> sessionIds) {
+        if (sessionIds == null || sessionIds.isEmpty()) {
+            return 0;
+        }
+        List<String> ids = sessionIds.stream().filter(id -> id != null && !id.isBlank()).distinct().toList();
+        if (ids.isEmpty()) {
+            return 0;
+        }
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        return jdbcTemplate.update(
+                "DELETE FROM ai_invocation_events WHERE session_id IN (" + placeholders + ")",
+                ids.toArray());
+    }
+
+    @Override
+    @Transactional
+    public int deleteOlderThan(Instant cutoff) {
+        return jdbcTemplate.update(
+                "DELETE FROM ai_invocation_events WHERE occurred_at < ?",
+                Timestamp.from(cutoff));
     }
 
     @Override

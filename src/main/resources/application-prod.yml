@@ -39,6 +39,10 @@ app:
     enabled: true
     requests-per-window: 60
     window-seconds: 60
+  data-retention:
+    enabled: true
+    session-max-age: 90d
+    cron: "0 0 3 * * *"
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
   ai:

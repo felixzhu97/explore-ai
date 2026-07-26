@@ -170,4 +170,25 @@ class JdbcAiInvocationEventRepositoryTest {
         assertThat(page.total()).isZero();
         assertThat(page.items()).isEmpty();
     }
+
+    @Test
+    @DisplayName("should_delete_events_by_session_ids")
+    void should_deleteEvents_whenSessionIdsProvided() {
+        when(jdbcTemplate.update(anyString(), eq("s1"), eq("s2"))).thenReturn(2);
+
+        int deleted = repository.deleteBySessionIds(List.of("s1", "s2"));
+
+        assertThat(deleted).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("should_delete_events_older_than_cutoff")
+    void should_deleteEvents_whenOlderThanCutoff() {
+        Instant cutoff = Instant.parse("2026-01-01T00:00:00Z");
+        when(jdbcTemplate.update(anyString(), eq(Timestamp.from(cutoff)))).thenReturn(5);
+
+        int deleted = repository.deleteOlderThan(cutoff);
+
+        assertThat(deleted).isEqualTo(5);
+    }
 }

@@ -3,6 +3,7 @@ package com.ai.chat.domain.repository;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,8 @@ public interface ChatSessionRepository {
     void delete(ChatSessionId id);
 
     List<ChatSession> findByClientId(String clientId);
+
+    List<ChatSession> findInactiveSince(Instant cutoff);
 
     boolean exists(ChatSessionId id);
 }

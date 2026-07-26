@@ -4,10 +4,17 @@ import { ZardToastComponent } from '../shared/components/toast';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { SidebarService } from './sidebar.service';
+import { ConsentBannerComponent } from '../privacy/consent-banner.component';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, ZardToastComponent, SidebarComponent, HeaderComponent],
+  imports: [
+    RouterOutlet,
+    ZardToastComponent,
+    SidebarComponent,
+    HeaderComponent,
+    ConsentBannerComponent,
+  ],
   template: `
       <z-toaster position="top-right" [richColors]="true" [closeButton]="true" />
       <app-sidebar />
@@ -19,6 +26,7 @@ import { SidebarService } from './sidebar.service';
       >
           <router-outlet/>
       </main>
+      <app-consent-banner />
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

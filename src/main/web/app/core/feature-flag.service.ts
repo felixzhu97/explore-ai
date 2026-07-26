@@ -6,19 +6,26 @@ import {
   type FeatureFlagKey,
   MODULE_FLAG_FALLBACK,
 } from './config/feature-flag-keys';
+import { hasAnalyticsConsent } from '../privacy/privacy-consent.storage';
 
 const FLAG_KEYS = Object.values(FEATURE_FLAG_KEYS);
 
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagService {
   private readonly flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
+  private ldStarted = false;
 
   async initialize(): Promise<void> {
     const clientSideId = environment.launchDarklyClientSideId;
-    if (!clientSideId) {
+    if (!clientSideId || !hasAnalyticsConsent()) {
       this.flags.set(environment.featureFlagFallback);
       return;
     }
+
+    if (this.ldStarted) {
+      return;
+    }
+    this.ldStarted = true;
 
     const client = createClient(clientSideId, {
       kind: 'user',

@@ -10,6 +10,7 @@ import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
 import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -57,6 +58,9 @@ class SpringAiChatUseCaseTest {
     @Mock
     private AiInvocationRecorder invocationRecorder;
 
+    @Mock
+    private AiInvocationEventRepository invocationEventRepository;
+
     private SpringAiChatUseCase useCase;
     private RetryTemplate retryTemplate;
 
@@ -75,7 +79,8 @@ class SpringAiChatUseCaseTest {
                 sessionTitleGenerator,
                 chatWebSourcesRepository,
                 new PromptTemplates(),
-                invocationRecorder
+                invocationRecorder,
+                invocationEventRepository
         );
     }
 
@@ -198,6 +203,7 @@ class SpringAiChatUseCaseTest {
             verify(conversationMemoryRepository).clear("session-123");
             verify(chatWebSourcesRepository).deleteByConversationId("session-123");
             verify(repository).delete(ChatSessionId.of("session-123"));
+            verify(invocationEventRepository).deleteBySessionIds(List.of("session-123"));
         }
     }
 
