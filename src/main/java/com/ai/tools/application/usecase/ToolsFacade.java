@@ -5,6 +5,8 @@ import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.common.util.LogSanitizer;
+import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
@@ -26,27 +28,45 @@ public class ToolsFacade {
     private final WeatherReport weatherReport;
     private final DocumentSearchTool documentSearchTool;
     private final WebSearchTool webSearchTool;
+    private final AiInvocationRecorder invocationRecorder;
 
     public ToolsFacade(
             ChatClientProvider chatClientProvider,
             WeatherTools weatherTools,
             WeatherReport weatherReport,
             DocumentSearchTool documentSearchTool,
-            WebSearchTool webSearchTool) {
+            WebSearchTool webSearchTool,
+            AiInvocationRecorder invocationRecorder) {
         this.chatClientProvider = chatClientProvider;
         this.weatherTools = weatherTools;
         this.weatherReport = weatherReport;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
+        this.invocationRecorder = invocationRecorder;
     }
 
     public String chatWithTools(String question) {
         log.info("ToolsFacade.chatWithTools: {}", LogSanitizer.truncate(question));
-        ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
-        return chatClient.prompt()
-                .user(question)
-                .call()
-                .content();
+        long startedAt = System.nanoTime();
+        try {
+            ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
+            String content = chatClient.prompt()
+                    .user(question)
+                    .call()
+                    .content();
+            invocationRecorder.recordSuccess(
+                    AiDomain.TOOLS, "tool.chat",
+                    (System.nanoTime() - startedAt) / 1_000_000L,
+                    "openai", null, null);
+            return content;
+        } catch (RuntimeException ex) {
+            invocationRecorder.recordError(
+                    AiDomain.TOOLS, "tool.chat",
+                    (System.nanoTime() - startedAt) / 1_000_000L,
+                    "openai", null, null,
+                    ex.getClass().getSimpleName(), ex.getMessage());
+            throw ex;
+        }
     }
 
     public String getWeather(String city) {

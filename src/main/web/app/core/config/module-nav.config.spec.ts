@@ -43,7 +43,12 @@ describe('module-nav.config', () => {
     const sections = groupNavTabs(MODULE_NAV_TABS);
 
     expect(sections.map(section => section.group)).toEqual(['work', 'create', 'lab']);
-    expect(sections[0].tabs.map(tab => tab.key)).toEqual(['chat', 'rag', 'agents']);
+    expect(sections[0].tabs.map(tab => tab.key)).toEqual([
+      'chat',
+      'rag',
+      'metrics',
+      'agents',
+    ]);
     expect(sections[1].tabs.map(tab => tab.key)).toEqual(['generate']);
     expect(sections[2].tabs.map(tab => tab.key)).toEqual(['vision', 'asr', 'mcp', 'eval']);
   });

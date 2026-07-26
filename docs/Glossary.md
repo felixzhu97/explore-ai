@@ -45,6 +45,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Workflow         | 工作流原语    | `com.ai.workflow` | —                       | `/api/workflows`                          | —                             | Spring AI Effective Agents patterns   |
 | Generation       | 生成        | —                 | `/generate`             | —                                         | —                             | UI shell for image + TTS              |
 | Common           | 横切        | `com.ai.common`   | —                       | —                                         | —                             | Feature flags, filters, shared tools  |
+| Metrics          | AI 指标看板  | `com.ai.metrics`  | `/metrics`              | `/api/metrics`                            | —                             | Overview + domain drill-down          |
 
 
 **Frontend route map (canonical)**
@@ -62,13 +63,14 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/asr`            | Audio (ASR)      | `/ws/audio`                     |
 | `/mcp`            | MCP              | `/api/mcp`, `/api/mcp/client`   |
 | `/eval`           | Eval             | `/api/eval`                     |
+| `/metrics`        | Metrics          | `/api/metrics`                  |
 
 
 **Planned sidebar labels (no route yet):** `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb` — i18n keys retained for future modules. Nav key `agents` maps to **Agent** (`/agents`).
 
-**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` in `src/main/web/app/core/config/module-nav.config.ts` orders live nav as **Work** (`/chat` → `/rag` → `/agents`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`. Do not wire planned AIOps keys into these groups until productized.
+**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` in `src/main/web/app/core/config/module-nav.config.ts` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/agents`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`. Do not wire planned AIOps keys into these groups until productized.
 
-**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + tools list); Eval (input ‖ scores).
+**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + tools list); Eval (input ‖ scores); Metrics (KPI strip + charts + drill-down table).
 
 ```mermaid
 flowchart TB
@@ -83,17 +85,24 @@ flowchart TB
     Mcp[MCP]
     Analysis[Analysis]
     Eval[Eval]
+    Metrics[Metrics]
   end
   User[User] --> Chat
   User --> Agent
   User --> RAG
   User --> Tools
   User --> Audio
+  User --> Metrics
   Chat --> Tools
   Agent --> Tools
   RAG --> Tools
   RAG --> Eval
   Chat --> Eval
+  Chat --> Metrics
+  RAG --> Metrics
+  Agent --> Metrics
+  Tools --> Metrics
+  Vision --> Metrics
 ```
 
 
@@ -337,13 +346,34 @@ Package: `com.ai.mcp` (Server + Client).
 
 ---
 
-## 13. Generation | 生成
+## 13. Metrics | AI 指标看板
+
+Package: `com.ai.metrics`. Route `/metrics` (Work nav). API `/api/metrics`.
+
+
+| Preferred Term (English) | 中文       | Definition                                                         | Type           | Code Mapping                   | Notes                                      |
+| ------------------------ | -------- | ------------------------------------------------------------------ | -------------- | ------------------------------ | ------------------------------------------ |
+| Metrics                  | AI 指标看板  | Operator view of AI request volume, latency, errors, and domain health | Capability     | `MetricsUseCase`, `/metrics`   | Overview + domain pages                    |
+| AI Invocation Event      | AI 调用事件  | Append-only record of a single AI invocation                       | Entity         | `AiInvocationEvent`            | Table `ai_invocation_events`               |
+| AI Domain                | AI 业务域   | Business domain that emits invocation events                       | Value Object   | `AiDomain`                     | chat / rag / agents / tools / vision / workflow |
+| Invocation Outcome       | 调用结果    | Success or failure of an invocation                                | Value Object   | `InvocationOutcome`            | SUCCESS, FAILURE                           |
+| Metrics Overview         | 指标概览    | Aggregated KPIs and distributions for a time range                 | Application    | `MetricsOverview`              | `GET /api/metrics/overview`                |
+| Metrics Domain Snapshot  | 域指标快照   | Domain-scoped KPIs, series, and top models/operations              | Application    | `MetricsDomainSnapshot`        | `GET /api/metrics/domains/{domain}`        |
+| Metrics Series           | 指标时序    | Named time-bucketed metric series                                  | Application    | `SeriesSnapshot`               | `GET /api/metrics/series`                  |
+| Metrics Drill-down       | 指标下钻    | Filtered page of invocation events                                 | Application    | `DrilldownPage`                | `GET /api/metrics/drilldown`               |
+| AI Invocation Recorder   | AI 调用记录器 | Records invocation events without failing the business path        | Application    | `AiInvocationRecorder`         | Chat / RAG / Agents / Tools / Vision inject |
+
+Shared BI vocabulary (Dashboard, KPI, Dimension, Drill-down, …): see **Appendix C**.
+
+---
+
+## 14. Generation | 生成
 
 UI shell only (no dedicated Java package). Routes under `/generate` host **Image Generation** and **Text-to-Speech** pages (`app/generate/image/`, `app/generate/tts/`). Prefer those business-domain terms in code and API naming.
 
 ---
 
-## 14. Common | 横切
+## 15. Common | 横切
 
 
 | Preferred Term (English) | 中文     | Definition                        | Type           | Code Mapping         | Notes                         |
@@ -405,7 +435,61 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 
 ---
 
-## 15. Terms to Avoid | 禁用/易混淆术语对照
+## Appendix C. Business Intelligence Terms | 商业智能通用术语
+
+Standard BI / dimensional-analysis vocabulary used by the **Metrics** dashboard. Prefer these English terms in APIs, UI copy keys, commits, and stories. Industry basis: Kimball dimensional modeling (fact, dimension, grain, drill-down).
+
+
+| Preferred Term (English)     | 中文      | Definition                                                                 | Type           | Code Mapping                                      | Notes                                              |
+| ---------------------------- | ------- | -------------------------------------------------------------------------- | -------------- | ------------------------------------------------- | -------------------------------------------------- |
+| Business Intelligence (BI)   | 商业智能    | Practice of turning operational events into analyzable metrics and views     | Discipline     | Metrics domain                                    | Product surface: `/metrics`                        |
+| Dashboard                    | 仪表盘     | Single-screen composition of KPIs, charts, and tables for a time range     | UI Concept     | `/metrics`, `MetricsOverviewPage`                 | Overview + domain pages                            |
+| Key Performance Indicator (KPI) | 关键绩效指标 | Small set of headline measures shown for quick health assessment         | Measure        | `requestCount`, `errorRate`, `latencyP50Ms`       | Prefer “KPI cards”, not “stat pills”               |
+| Metric                       | 指标      | Named quantitative measure of a process (count, rate, latency, tokens)     | Concept        | series `name`, `SeriesPoint.value`                | Singular BI sense; product capability is **Metrics** |
+| Measure                      | 度量      | Numeric fact value that can be aggregated                                  | Concept        | `latencyMs`, token counts, `COUNT(*)`             | Kimball “fact” numeric payload                     |
+| Dimension                    | 维度      | Context used to filter or group measures (who / what / when / where)       | Concept        | `AiDomain`, `model`, `day`, `outcome`, `operation` | Drill-down query params                            |
+| Fact Event                   | 事实事件    | Atomic measurable occurrence at a declared grain                           | Concept        | `AiInvocationEvent`                               | One row ≈ one AI invocation                        |
+| Grain                        | 粒度      | Business meaning of one fact row (“one AI invocation”)                     | Concept        | `AiInvocationEvent`                               | Do not mix grains in one aggregate without care    |
+| Aggregation                  | 聚合      | Computing summaries (count, sum, rate, percentile) over facts              | Operation      | `JdbcMetricsQueryRepository`, `MetricsUseCase`    | Overview / domain / series                         |
+| Time Range                   | 时间范围    | Inclusive reporting window for queries                                     | Parameter      | `range` (`7d`, `30d`), `RangeWindow`              | API query param                                    |
+| Time Bucket                  | 时间分桶    | Discrete period used to group a time series (e.g. calendar day)            | Concept        | SQL `bucket_day`, series `label`                  | H2 alias avoids reserved `day`                     |
+| Time Series                  | 时序      | Ordered sequence of (bucket, measure) points                               | Concept        | `SeriesSnapshot`, `SeriesPoint`                   | `GET /api/metrics/series`                          |
+| Categorical Series           | 分类序列    | Named categories with counts (not time-ordered)                            | Concept        | `NamedCount`, `requestsByDomain`, `modelSeries`   | Domain / model breakdowns                          |
+| Distribution                 | 分布      | How volume or outcomes split across a dimension                            | Concept        | `requestsByDomain`, domain health                 | Overview charts                                    |
+| Trend                        | 趋势      | Direction of a measure across successive time buckets                      | Concept        | `requestSeries`, `latency_p95` series             | Domain page charts                                 |
+| Filter                       | 筛选      | Constraint that narrows facts before aggregation or listing                | Operation      | drilldown query (`domain`, `day`, `model`, …)     | Combine with dimensions                            |
+| Drill-down                   | 下钻      | Move from summary to finer grain by adding dimension constraints           | Interaction    | `GET /api/metrics/drilldown`, `DrilldownPage`     | Kimball: add grouping / filter context             |
+| Roll-up                      | 上卷      | Move from detail back to a coarser aggregate                               | Interaction    | Overview ← domain ← event table                   | Inverse of drill-down                              |
+| Slice                        | 切片      | Fix one dimension value and analyze the rest                               | Interaction    | domain page `/metrics/{domain}`                   | e.g. fix `AiDomain=chat`                           |
+| Success Rate                 | 成功率     | Share of invocations with successful outcome                               | KPI            | `successRate`                                     | `1 - errorRate`                                    |
+| Error Rate                   | 错误率     | Share of invocations with failure outcome                                  | KPI            | `errorRate`                                       | From `InvocationOutcome`                           |
+| Request Count                | 请求量     | Number of invocations in the selected time range                           | KPI            | `requestCount`                                    | Primary volume measure                             |
+| Latency                      | 延迟      | End-to-end duration of an invocation                                       | Measure        | `latencyMs`, `latencyP50Ms`, `latencyP95Ms`       | Milliseconds                                       |
+| Percentile                   | 百分位     | Value below which a given percentage of observations fall                  | Statistic      | P50 / P95 latency                                 | Prefer P95 for tail latency                        |
+| Token Usage                  | 令牌用量    | Prompt and completion token totals in the range                            | Measure        | `promptTokens`, `completionTokens`                | Nullable when provider omits usage                 |
+| Inventory                    | 清单指标    | Supporting counts of catalog entities for a domain (not event facts)       | Measure        | domain `inventory` map                            | e.g. sessions / documents when available           |
+| Empty State                  | 空态      | Dashboard presentation when no facts match the filters                     | UI Concept     | overview / charts / drilldown empty UI            | Must remain readable, not an error                 |
+| Refresh                      | 刷新      | Reload metrics for the current filters and time range                      | Interaction    | Metrics pages reload                              | Manual or navigation-triggered                     |
+
+
+**Canonical mapping (Metrics product)**
+
+| BI concept        | This project                                                         |
+| ----------------- | -------------------------------------------------------------------- |
+| Fact Event        | `AiInvocationEvent` / `ai_invocation_events`                         |
+| Dimensions        | domain, operation, outcome, model, provider, day, agentType, toolName |
+| KPIs              | request count, success/error rate, latency P50/P95, token usage      |
+| Dashboard         | `/metrics` overview + `/metrics/:domain`                             |
+| Drill-down        | `/api/metrics/drilldown` + event table                               |
+
+References:
+
+- [Kimball Dimensional Modeling Techniques](https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/)
+- [Facts for Measurements (Kimball Group)](https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/facts-for-measurement/)
+
+---
+
+## 16. Terms to Avoid | 禁用/易混淆术语对照
 
 
 | Avoid ❌                                      | Use Instead ✅                | Notes                                                                         |
@@ -434,6 +518,12 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | RAG ETL Domain                               | **RAG** (+ ETL Pipeline)     | Not a separate bounded context                                                |
 | `com.ai.mcp.server` / `.client` packages     | `**com.ai.mcp`**             | Single package in code                                                        |
 | `domain.port`                                | `**domain.repository`**      | Project architecture rule                                                     |
+| stats / statistics (UI)                      | **KPI** / **Metric**         | Prefer BI Preferred Terms on Metrics pages                                    |
+| chart data (domain noun)                     | **Time Series** / **Categorical Series** | Charts are presentation; name the measure series                    |
+| log row / telemetry row                      | **Fact Event** / **AI Invocation Event** | Metrics facts are domain events, not raw logs                       |
+| click into details (ambiguous)               | **Drill-down**               | Use the BI interaction term                                                   |
+| avg latency (as sole SLA)                    | **Latency** P50 / **P95**    | Prefer percentiles over mean for tails                                        |
+| Metric module / Metrics module synonym mix   | **Metrics** (capability)     | Singular **Metric** = one measure; plural product name stays Metrics          |
 
 
 Chinese equivalents to avoid in technical docs:
@@ -448,11 +538,14 @@ Chinese equivalents to avoid in technical docs:
 | 大模型   | **LLM**                 |
 | 幻觉    | **Factuality Score** 偏低 |
 | 插件    | **Tool** / **MCP Tool** |
+| 统计数据  | **KPI** / **Metric**    |
+| 下探    | **Drill-down**          |
+| 平均延迟  | **Latency** P50 / P95   |
 
 
 ---
 
-## 16. Maintenance | 维护与关联文档
+## 17. Maintenance | 维护与关联文档
 
 ### Related Docs
 
@@ -483,4 +576,4 @@ Chinese equivalents to avoid in technical docs:
 
 ---
 
-*Last updated: 2026-07-18*
+*Last updated: 2026-07-26*

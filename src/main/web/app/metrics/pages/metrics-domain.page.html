@@ -1,0 +1,92 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <nav class="text-sm text-muted-foreground">
+    <a routerLink="/metrics" class="underline">Metrics</a>
+    <span class="mx-1.5">/</span>
+    <span class="text-foreground">{{ title() }}</span>
+  </nav>
+
+  @if (!domain()) {
+    <p class="text-sm text-rose-600">Unknown domain. <a routerLink="/metrics" class="underline">Back to overview</a></p>
+  } @else {
+    <header class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground">{{ title() }} metrics</h1>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Domain-scoped KPIs, charts, and invocation drill-down
+          @if (day()) {
+            <span>· day {{ day() }}</span>
+          }
+          @if (model()) {
+            <span>· model {{ model() }}</span>
+          }
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        @if (day() || model()) {
+          <button type="button" class="text-sm text-muted-foreground underline" (click)="clearFilters()">
+            Clear filters
+          </button>
+        }
+        <div class="inline-flex rounded-lg border border-border p-0.5">
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm"
+            [class.bg-card]="range() === '7d'"
+            (click)="setRange('7d')"
+          >
+            7d
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm"
+            [class.bg-card]="range() === '30d'"
+            (click)="setRange('30d')"
+          >
+            30d
+          </button>
+        </div>
+      </div>
+    </header>
+
+    @if (domainResource.error()) {
+      <p class="text-sm text-rose-600">Failed to load domain metrics</p>
+    } @else if (domainResource.isLoading() && !domainResource.value()) {
+      <p class="text-sm text-muted-foreground">Loading…</p>
+    } @else {
+      <app-metrics-kpi-cards [items]="kpis()" />
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <app-chart-panel
+          type="line"
+          heading="Requests over time"
+          emptyText="No requests in this range"
+          [data]="requestSeries()"
+          (chartClick)="onRequestClick($event)"
+        />
+        <app-chart-panel
+          type="bar"
+          heading="Calls by model"
+          emptyText="No model usage yet"
+          [data]="modelSeries()"
+          (chartClick)="onModelClick($event)"
+        />
+      </div>
+
+      @if (domain() === 'rag') {
+        <app-chart-panel
+          type="doughnut"
+          heading="Documents by status"
+          emptyText="No documents yet"
+          [data]="docsSeries()"
+        />
+      }
+
+      <app-metrics-drilldown-table
+        heading="Filtered invocations"
+        [items]="drilldownItems()"
+        [total]="drilldownTotal()"
+        (rowClick)="onRowClick($event)"
+      />
+    }
+  }
+</div>

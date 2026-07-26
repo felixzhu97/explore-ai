@@ -1,5 +1,6 @@
 package com.ai.vision.application.usecase;
 
+import com.ai.metrics.application.AiInvocationRecorder;
 import com.ai.vision.domain.model.CaptionResult;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.model.OcrResult;
@@ -35,12 +36,15 @@ class VisionAnalysisUseCaseTest {
     @Mock
     private OcrEngine ocrEngine;
 
+    @Mock
+    private AiInvocationRecorder invocationRecorder;
+
     private VisionAnalysisUseCase useCase;
 
     @BeforeEach
     void setUp() {
         useCase = new VisionAnalysisUseCase(
-                captioner, detector, ocrEngine, new SimpleMeterRegistry());
+                captioner, detector, ocrEngine, new SimpleMeterRegistry(), invocationRecorder);
     }
 
     @Test

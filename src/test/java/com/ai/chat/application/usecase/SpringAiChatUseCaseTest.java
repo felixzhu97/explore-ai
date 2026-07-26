@@ -8,6 +8,7 @@ import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.metrics.application.AiInvocationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -49,6 +50,9 @@ class SpringAiChatUseCaseTest {
     @Mock
     private ChatWebSourcesRepository chatWebSourcesRepository;
 
+    @Mock
+    private AiInvocationRecorder invocationRecorder;
+
     private SpringAiChatUseCase useCase;
     private RetryTemplate retryTemplate;
 
@@ -65,7 +69,8 @@ class SpringAiChatUseCaseTest {
                 chatMemory,
                 conversationMemoryRepository,
                 sessionTitleGenerator,
-                chatWebSourcesRepository
+                chatWebSourcesRepository,
+                invocationRecorder
         );
     }
 

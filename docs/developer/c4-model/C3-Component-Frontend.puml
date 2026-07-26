@@ -14,7 +14,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(app_root, "AppComponent", "@Component", "根组件")
         Component(main_layout, "MainLayoutComponent", "@Component", "主布局 (header + sidebar + outlet)")
         Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, DatadogErrorHandler")
-        Component(app_routes, "app.routes.ts", "Routes", "/chat /generate /rag + flag: /agents /vision /mcp /eval /asr")
+        Component(app_routes, "app.routes.ts", "Routes", "/chat /generate /rag /metrics + flag: /agents /vision /mcp /eval /asr")
         Component(main_ts, "main.ts", "Bootstrap", "initDatadogRum()")
         Component(datadog_cfg, "datadog-rum.config.ts", "Config", "RUM 初始化 + ErrorHandler")
     }
@@ -40,6 +40,8 @@ System_Boundary(frontend, "Angular 22 Web Application") {
             Component(tts_tab, "TtsPage", "@Component", "TTS (/generate/tts)")
         }
         Component(rag_page, "RagPageComponent", "@Component", "RAG (/rag)")
+        Component(metrics_overview, "MetricsOverviewPage", "@Component", "指标概览 (/metrics)")
+        Component(metrics_domain, "MetricsDomainPage", "@Component", "域下钻 (/metrics/:domain)")
         Component(agents_page, "AgentsPageComponent", "@Component", "Agent 流水线 (/agents) [flag]")
         Component(vision_page, "VisionPageComponent", "@Component", "图像分析 (/vision) [flag]")
         Component(mcp_page, "McpPageComponent", "@Component", "MCP Client (/mcp) [flag]")
@@ -54,6 +56,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     Container_Boundary(feature_services, "Feature Services") {
         Component(chat_svc, "ChatService", "@Injectable", "聊天状态 + 会话")
         Component(rag_svc, "RagService", "@Injectable", "RAG 文档与问答")
+        Component(metrics_svc, "MetricsService", "@Injectable", "overview / domain / series / drilldown")
         Component(agents_svc, "AgentsService", "@Injectable", "Agent list + pipeline SSE")
         Component(mcp_svc, "McpService", "@Injectable", "MCP Client")
         Component(eval_svc, "EvalService", "@Injectable", "质量评估")
@@ -85,6 +88,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(chat_shell, "chat-shell", "@Component", "message-pane / sender-bar / bubble-list / welcome")
         Component(media_shell, "MediaShell", "@Component", "上传/预览/结果/生成表单")
         Component(citation_comp, "CitationComponent", "@Component", "RAG 来源引用")
+        Component(chart_panels, "shared/components/charts", "@Component", "ECharts KPI / series panels")
         Component(markdown_svc, "MarkdownService", "@Injectable", "Markdown 渲染")
     }
 }
@@ -107,6 +111,8 @@ Rel(app_routes, module_guard, "canActivate")
 Rel(main_layout, chat_tab, "/chat")
 Rel(main_layout, generate_page, "/generate")
 Rel(main_layout, rag_page, "/rag")
+Rel(main_layout, metrics_overview, "/metrics")
+Rel(main_layout, metrics_domain, "/metrics/:domain")
 Rel(main_layout, agents_page, "/agents [guard]")
 Rel(main_layout, vision_page, "/vision [guard]")
 Rel(main_layout, mcp_page, "/mcp [guard]")
@@ -114,6 +120,7 @@ Rel(main_layout, eval_page, "/eval [guard]")
 Rel(main_layout, asr_page, "/asr [guard]")
 Rel(generate_page, img_tab, "/generate/image")
 Rel(generate_page, tts_tab, "/generate/tts")
+Rel(metrics_overview, metrics_domain, "域下钻")
 
 ' ============================================================
 ' SERVICE RELATIONSHIPS
@@ -132,6 +139,11 @@ Rel(api_chat, sse_client, "流式解析")
 Rel(rag_page, rag_svc, "RAG")
 Rel(rag_page, chat_shell, "对话壳")
 Rel(rag_svc, api_rag, "HTTP/SSE")
+Rel(metrics_overview, metrics_svc, "概览")
+Rel(metrics_domain, metrics_svc, "域/下钻")
+Rel(metrics_overview, chart_panels, "图表")
+Rel(metrics_domain, chart_panels, "图表")
+Rel(metrics_svc, backend_api, "/api/metrics/*", "HTTP")
 Rel(agents_page, agents_svc, "Pipeline SSE")
 Rel(agents_page, chat_shell, "对话壳")
 Rel(agents_svc, backend_api, "/api/agents/*", "HTTP/SSE")

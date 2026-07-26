@@ -20,6 +20,7 @@ export const fr: Translations = {
     monitoring: 'Surveillance',
     aiinfra: 'AI Infra',
     chat: 'Chat',
+    metrics: 'Métriques',
     generation: 'Génération',
     modelDev: 'Dev',
     modelOps: 'Ops',

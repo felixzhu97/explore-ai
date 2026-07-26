@@ -1,0 +1,73 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">AI Metrics</h1>
+      <p class="mt-1 text-sm text-muted-foreground">Request volume, latency, errors, and domain health</p>
+    </div>
+    <div class="inline-flex rounded-lg border border-border p-0.5">
+      <button
+        type="button"
+        class="rounded-md px-3 py-1.5 text-sm"
+        [class.bg-card]="range() === '7d'"
+        [class.font-medium]="range() === '7d'"
+        (click)="setRange('7d')"
+      >
+        7d
+      </button>
+      <button
+        type="button"
+        class="rounded-md px-3 py-1.5 text-sm"
+        [class.bg-card]="range() === '30d'"
+        [class.font-medium]="range() === '30d'"
+        (click)="setRange('30d')"
+      >
+        30d
+      </button>
+    </div>
+  </header>
+
+  @if (overviewResource.error()) {
+    <p class="text-sm text-rose-600">Failed to load metrics overview</p>
+  } @else if (overviewResource.isLoading() && !overviewResource.value()) {
+    <p class="text-sm text-muted-foreground">Loading metrics…</p>
+  } @else {
+    <app-metrics-kpi-cards [items]="kpis()" (kpiClick)="onKpiClick($event)" />
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <app-chart-panel
+        type="line"
+        heading="AI requests"
+        emptyText="No AI requests in this range"
+        [data]="requestSeries()"
+      />
+      <app-chart-panel
+        type="doughnut"
+        heading="Requests by domain"
+        emptyText="No domain distribution yet"
+        [data]="domainSeries()"
+        (chartClick)="openDomain($event.label)"
+      />
+    </div>
+
+    <app-metrics-domain-health
+      heading="Domain health"
+      [items]="healthItems()"
+      (domainClick)="openDomain($event)"
+    />
+
+    <app-metrics-drilldown-table
+      heading="Recent invocations"
+      [items]="drilldownItems()"
+      [total]="drilldownTotal()"
+      (rowClick)="onRowClick($event)"
+    />
+
+    <p class="text-xs text-muted-foreground">
+      Open a domain for filtered charts —
+      <a routerLink="/metrics/chat" class="underline">Chat</a>,
+      <a routerLink="/metrics/rag" class="underline">RAG</a>,
+      <a routerLink="/metrics/agents" class="underline">Agents</a>.
+    </p>
+  }
+</div>

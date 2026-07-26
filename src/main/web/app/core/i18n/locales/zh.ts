@@ -20,6 +20,7 @@ export const zh: Translations = {
     monitoring: '监控',
     aiinfra: 'AI 基础设施',
     chat: '对话',
+    metrics: '指标',
     generation: '生成',
     modelDev: '开发',
     modelOps: '运维',

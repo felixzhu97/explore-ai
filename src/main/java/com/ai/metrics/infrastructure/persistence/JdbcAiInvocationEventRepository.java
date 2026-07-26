@@ -1,0 +1,145 @@
+package com.ai.metrics.infrastructure.persistence;
+
+import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.repository.AiInvocationEventRepository;
+import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationOutcome;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public class JdbcAiInvocationEventRepository implements AiInvocationEventRepository {
+
+    private static final RowMapper<AiInvocationEvent> ROW_MAPPER = (rs, rowNum) -> AiInvocationEvent.builder()
+            .id(UUID.fromString(rs.getString("id")))
+            .occurredAt(rs.getTimestamp("occurred_at").toInstant())
+            .domain(AiDomain.require(rs.getString("domain")))
+            .operation(rs.getString("operation"))
+            .outcome(InvocationOutcome.parse(rs.getString("outcome")))
+            .latencyMs(rs.getLong("latency_ms"))
+            .provider(rs.getString("provider"))
+            .model(rs.getString("model"))
+            .sessionId(rs.getString("session_id"))
+            .documentId(rs.getString("document_id"))
+            .agentType(rs.getString("agent_type"))
+            .toolName(rs.getString("tool_name"))
+            .promptTokens((Integer) rs.getObject("prompt_tokens"))
+            .completionTokens((Integer) rs.getObject("completion_tokens"))
+            .errorCode(rs.getString("error_code"))
+            .errorMessage(rs.getString("error_message"))
+            .build();
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public JdbcAiInvocationEventRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    @Transactional
+    public void save(AiInvocationEvent event) {
+        jdbcTemplate.update(
+                """
+                INSERT INTO ai_invocation_events (
+                    id, occurred_at, domain, operation, outcome, latency_ms,
+                    provider, model, session_id, document_id, agent_type, tool_name,
+                    prompt_tokens, completion_tokens, error_code, error_message
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                event.getId().toString(),
+                Timestamp.from(event.getOccurredAt()),
+                event.getDomain().value(),
+                event.getOperation(),
+                event.getOutcome().value(),
+                event.getLatencyMs(),
+                event.getProvider(),
+                event.getModel(),
+                event.getSessionId(),
+                event.getDocumentId(),
+                event.getAgentType(),
+                event.getToolName(),
+                event.getPromptTokens(),
+                event.getCompletionTokens(),
+                event.getErrorCode(),
+                event.getErrorMessage());
+    }
+
+    @Override
+    public PageResult findDrilldown(DrilldownQuery query) {
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        List<Object> args = new ArrayList<>();
+
+        query.domain().ifPresent(domain -> {
+            where.append(" AND domain = ?");
+            args.add(domain.value());
+        });
+        query.from().ifPresent(from -> {
+            where.append(" AND occurred_at >= ?");
+            args.add(Timestamp.from(from));
+        });
+        query.to().ifPresent(to -> {
+            where.append(" AND occurred_at < ?");
+            args.add(Timestamp.from(to));
+        });
+        query.day().ifPresent(day -> {
+            LocalDate date = LocalDate.parse(day);
+            Instant start = date.atStartOfDay().toInstant(ZoneOffset.UTC);
+            Instant end = date.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+            where.append(" AND occurred_at >= ? AND occurred_at < ?");
+            args.add(Timestamp.from(start));
+            args.add(Timestamp.from(end));
+        });
+        query.outcome().ifPresent(outcome -> {
+            where.append(" AND outcome = ?");
+            args.add(outcome.value());
+        });
+        query.model().ifPresent(model -> {
+            where.append(" AND model = ?");
+            args.add(model);
+        });
+        query.agentType().ifPresent(agentType -> {
+            where.append(" AND agent_type = ?");
+            args.add(agentType);
+        });
+        query.toolName().ifPresent(toolName -> {
+            where.append(" AND tool_name = ?");
+            args.add(toolName);
+        });
+
+        Long total = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM ai_invocation_events" + where,
+                Long.class,
+                args.toArray());
+        long totalCount = total == null ? 0L : total;
+
+        int size = Math.max(1, Math.min(query.size(), 100));
+        int page = Math.max(0, query.page());
+        int offset = page * size;
+
+        List<Object> pageArgs = new ArrayList<>(args);
+        pageArgs.add(size);
+        pageArgs.add(offset);
+
+        List<AiInvocationEvent> items = jdbcTemplate.query(
+                """
+                SELECT id, occurred_at, domain, operation, outcome, latency_ms,
+                       provider, model, session_id, document_id, agent_type, tool_name,
+                       prompt_tokens, completion_tokens, error_code, error_message
+                FROM ai_invocation_events
+                """ + where + " ORDER BY occurred_at DESC LIMIT ? OFFSET ?",
+                ROW_MAPPER,
+                pageArgs.toArray());
+
+        return new PageResult(items, totalCount);
+    }
+}

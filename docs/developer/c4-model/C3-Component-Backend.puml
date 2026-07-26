@@ -23,6 +23,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(audio_ctrl, "AudioController", "@RestController", "TTS + /ws/audio/transcribe")
         Component(mcp_ctrl, "McpController", "@RestController", "/api/mcp/*")
         Component(mcp_client_ctrl, "McpClientController", "@RestController", "/api/mcp/client/*")
+        Component(metrics_ctrl, "MetricsController", "@RestController", "/api/metrics/*")
         Component(module_filter, "ModuleAccessFilter", "@Component", "模块 API 开关拦截")
         Component(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
     }
@@ -47,6 +48,8 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(audio_facade, "AudioFacade", "@Service", "TTS 门面")
         Component(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式 ASR [local]")
         Component(mcp_facade, "McpFacade", "@Service", "MCP Client 门面")
+        Component(metrics_usecase, "MetricsUseCase", "@Service", "概览 / 域 / 时序 / 下钻")
+        Component(invocation_recorder, "AiInvocationRecorder", "@Component", "旁路记录 AI 调用事件")
     }
 
     ' ============================================================
@@ -100,6 +103,12 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Container_Boundary(mcp_domain, "MCP") {
             Component(mcp_client_iface, "McpClientRepository", "Repository", "MCP Client")
         }
+        Container_Boundary(metrics_domain, "Metrics") {
+            Component(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
+            Component(ai_domain_vo, "AiDomain", "Value Object", "chat/rag/agents/tools/vision/workflow")
+            Component(invocation_repo_iface, "AiInvocationEventRepository", "Repository", "调用事件写入")
+            Component(metrics_query_iface, "MetricsQueryRepository", "Repository", "聚合查询")
+        }
     }
 
     ' ============================================================
@@ -133,6 +142,8 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
         Component(mcp_server_svc, "AiMcpServerService", "@Component", "MCP Server")
         Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client")
+        Component(jdbc_invocation_repo, "JdbcAiInvocationEventRepository", "@Repository", "AI 调用事件")
+        Component(jdbc_metrics_query, "JdbcMetricsQueryRepository", "@Repository", "指标聚合查询")
         Component(weather_tools, "WeatherTools", "*Tool", "天气工具")
         Component(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索")
     }
@@ -144,7 +155,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
 System_Boundary(ext, "External Systems") {
     Component(deepseek_api, "DeepSeek API", "REST", "LLM")
     Component(openai_api, "OpenAI API", "REST", "DALL-E + TTS")
-    Component(h2_db, "H2 Embedded", "JDBC", "默认存储 + 向量")
+    Component(h2_db, "H2 Embedded", "JDBC", "默认存储 + 向量 + AI 调用事件")
     Component(ollama_ext, "Ollama [local]", "REST", ":11434")
     Component(tesseract_ext, "Tesseract [local]", "Native", "OCR")
     Component(whisper_ext, "whisper.cpp [local]", "REST/WS", ":8178")
@@ -174,6 +185,14 @@ Rel(vision_chat_uc, rag_prompt_builder, "构建 user prompt")
 Rel(rag_prompt_builder, lang_detect, "detect")
 Rel(rag_prompt_builder, prompt_templates, "shared style")
 Rel(chat_usecase, prompt_templates, "defaultSystem via ChatClientFactory")
+Rel(metrics_ctrl, metrics_usecase, "调用")
+Rel(metrics_usecase, metrics_query_iface, "聚合")
+Rel(metrics_usecase, invocation_repo_iface, "下钻")
+Rel(invocation_recorder, invocation_repo_iface, "写入")
+Rel(invocation_repo_iface, jdbc_invocation_repo, "实现")
+Rel(metrics_query_iface, jdbc_metrics_query, "实现")
+Rel(jdbc_invocation_repo, h2_db, "JDBC")
+Rel(jdbc_metrics_query, h2_db, "JDBC")
 Rel(tool_ctrl, tool_facade, "调用")
 Rel(analysis_ctrl, analysis_facade, "调用")
 Rel(eval_ctrl, eval_svc, "调用")

@@ -43,6 +43,10 @@ export const routes: Routes = [
         loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
       },
       {
+        path: 'metrics',
+        loadChildren: () => import('./metrics/metrics.routes').then(m => m.METRICS_ROUTES),
+      },
+      {
         path: 'generate',
         loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePage),
         children: [

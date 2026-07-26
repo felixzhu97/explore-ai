@@ -7,6 +7,7 @@ import com.ai.common.application.llm.TextChatOptions;
 import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
+import com.ai.metrics.application.AiInvocationRecorder;
 import com.ai.rag.infrastructure.retrieval.H2DocumentRetriever;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,6 +57,9 @@ class RagChatUseCaseTest {
     @Mock
     private H2DocumentRetriever documentRetriever;
 
+    @Mock
+    private AiInvocationRecorder invocationRecorder;
+
     private RagChatUseCase ragChatUseCase;
 
     @BeforeEach
@@ -64,7 +68,8 @@ class RagChatUseCaseTest {
                 ragApplicationService,
                 chatClientProvider,
                 languageDetectionService,
-                documentRetriever
+                documentRetriever,
+                invocationRecorder
         );
         when(chatClientProvider.create(any(TextChatOptions.class), any(ChatClientProfile.class), any()))
                 .thenReturn(chatClient);

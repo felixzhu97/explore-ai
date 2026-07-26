@@ -9,14 +9,14 @@ title 系统上下文图 (C1) - AI Chat & Agent Platform
 ' PEOPLE
 ' ============================================================
 Person(user, "用户", "对话、RAG、Agent 流水线、图像生成/TTS、可选 Image Analysis/MCP/Eval/ASR")
-Person(admin, "管理员/开发者", "质量评估、文本分析、API 集成、功能开关配置")
+Person(admin, "管理员/开发者", "质量评估、文本分析、AI 指标看板、API 集成、功能开关配置")
 
 ' ============================================================
 ' AI Chat & Agent Platform
 ' ============================================================
 System_Boundary(ai_platform, "AI Chat & Agent Platform") {
-    System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Vercel 静态部署 (prod) / ng serve :4200 (dev)\n路由: /chat /generate /rag + flag: /agents /vision /mcp /eval /asr")
-    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Railway Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 11 子域")
+    System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Vercel 静态部署 (prod) / ng serve :4200 (dev)\n路由: /chat /generate /rag /metrics + flag: /agents /vision /mcp /eval /asr")
+    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Railway Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 12 子域")
 }
 
 ' ============================================================
@@ -46,7 +46,7 @@ System_Ext(onnx_vision, "Image Analysis ONNX [local]", "BLIP Caption + YOLOv8 De
 ' ============================================================
 Rel(user, frontend, "使用 Web UI", "HTTPS")
 Rel(admin, launchdarkly, "配置功能开关", "HTTPS")
-Rel(admin, backend, "评估 / 分析 API", "HTTPS")
+Rel(admin, backend, "评估 / 分析 / 指标 API", "HTTPS")
 Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS (prod Railway / dev :9000)")
 
 Rel(frontend, launchdarkly, "读取模块开关", "HTTPS")
@@ -57,7 +57,7 @@ Rel(backend, datadog, "APM（经 Railway Agent）", "Private Network → HTTPS u
 Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")
 Rel(backend, serper_api, "Web 搜索", "HTTPS")
-Rel(backend, h2_db, "会话元数据 + ChatMemory + 向量", "JDBC 内嵌")
+Rel(backend, h2_db, "会话元数据 + ChatMemory + 向量 + AI 调用事件", "JDBC 内嵌")
 
 Rel_Back(backend, ollama, "Embedding + 多模态 RAG [dev]", "HTTP :11434")
 Rel_Back(backend, tesseract, "OCR [dev]", "JNA")
