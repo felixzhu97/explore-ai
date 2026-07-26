@@ -82,15 +82,17 @@ class PromptTemplatesTest {
             assertThat(prompt).contains("\"version\": \"v0.9\"");
             assertThat(prompt).contains("Chart");
             assertThat(prompt).contains("Do NOT output executable JavaScript or bare ECharts option JSON");
+            assertThat(prompt).contains("getCurrentDateTime");
             assertThat(prompt).contains("searchWeb");
-            assertThat(prompt).contains("exactly once");
-            assertThat(prompt).contains("do NOT call searchWeb or any other tool again");
+            assertThat(prompt).contains("Call searchWeb once");
+            assertThat(prompt).contains("Do NOT call any tool again after searchWeb returns");
             assertThat(prompt).contains("Do NOT invent or guess chart numbers");
             assertThat(prompt).contains("在线搜索");
             assertThat(prompt).contains("柱状图");
             assertThat(prompt).contains("柱状图/条形图→bar");
             assertThat(prompt).contains("注明来源");
-            assertThat(prompt).contains("进行在线搜索，2025 年第一季度全球电动汽车市场各品牌份额");
+            assertThat(prompt).contains("进行在线搜索，最新一季度全球电动汽车市场各品牌份额");
+            assertThat(prompt).doesNotContain("进行在线搜索，2025 年第一季度");
         }
     }
 

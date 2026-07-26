@@ -1,6 +1,7 @@
 package com.ai.common.infrastructure.llm;
 
 import com.ai.common.application.llm.TextChatOptions;
+import com.ai.common.domain.repository.DateTimeTool;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
@@ -87,6 +88,7 @@ class ChatClientFactoryMcpMergeTest {
                 new StubWeatherTool(),
                 new StubDocumentSearchTool(),
                 new StubWebSearchTool(),
+                new StubDateTimeTool(),
                 mcpProvider,
                 false);
     }
@@ -117,6 +119,13 @@ class ChatClientFactoryMcpMergeTest {
         @Tool(description = "search web")
         public String searchWeb(String query) {
             return query;
+        }
+    }
+
+    static class StubDateTimeTool implements DateTimeTool {
+        @Tool(description = "Get the current date and time in the user's timezone")
+        public String getCurrentDateTime() {
+            return "2026-07-26T12:40+08:00[Asia/Shanghai]";
         }
     }
 }

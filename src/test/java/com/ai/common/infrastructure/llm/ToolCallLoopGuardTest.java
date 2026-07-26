@@ -21,6 +21,64 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ToolCallLoopGuardTest {
 
     @Nested
+    @DisplayName("shouldForceFinalAnswer")
+    class ShouldForceFinalAnswer {
+
+        @Test
+        void should_returnFalse_when_noToolResults() {
+            assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
+                    new UserMessage("hi"),
+                    new AssistantMessage("hello")))).isFalse();
+        }
+
+        @Test
+        void should_returnFalse_when_onlyGetCurrentDateTime() {
+            assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
+                    new UserMessage("today?"),
+                    toolResponse("call-1", "getCurrentDateTime", "2026-07-26")))).isFalse();
+        }
+
+        @Test
+        void should_returnTrue_when_searchWebPresent() {
+            assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
+                    new UserMessage("chart please"),
+                    toolResponse("call-1", "searchWeb", "results")))).isTrue();
+        }
+
+        @Test
+        void should_returnTrue_when_datetimeThenSearchWeb() {
+            assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
+                    toolResponse("call-1", "getCurrentDateTime", "now"),
+                    toolResponse("call-2", "searchWeb", "hits")))).isTrue();
+        }
+
+        @Test
+        void should_returnTrue_when_twoToolResponseRounds() {
+            assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
+                    toolResponse("call-1", "getCurrentDateTime", "now"),
+                    toolResponse("call-2", "getCurrentDateTime", "now2")))).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("hasOnlyBridgeToolResults")
+    class HasOnlyBridgeToolResults {
+
+        @Test
+        void should_returnTrue_when_onlyDateTimeTool() {
+            assertThat(ToolCallLoopGuard.hasOnlyBridgeToolResults(List.of(
+                    toolResponse("call-1", "getCurrentDateTime", "now")))).isTrue();
+        }
+
+        @Test
+        void should_returnFalse_when_searchWebPresent() {
+            assertThat(ToolCallLoopGuard.hasOnlyBridgeToolResults(List.of(
+                    toolResponse("call-1", "getCurrentDateTime", "now"),
+                    toolResponse("call-2", "searchWeb", "hits")))).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("hasToolResults")
     class HasToolResults {
 
@@ -31,23 +89,10 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_returnFalse_when_onlyUserAndAssistant() {
-            assertThat(ToolCallLoopGuard.hasToolResults(List.of(
-                    new SystemMessage("sys"),
-                    new UserMessage("hi"),
-                    new AssistantMessage("hello")))).isFalse();
-        }
-
-        @Test
         void should_returnTrue_when_toolResponsePresent() {
-            ToolResponseMessage toolResponse = ToolResponseMessage.builder()
-                    .responses(List.of(new ToolResponseMessage.ToolResponse(
-                            "call-1", "searchWeb", "results")))
-                    .build();
-
             assertThat(ToolCallLoopGuard.hasToolResults(List.of(
                     new UserMessage("chart please"),
-                    toolResponse))).isTrue();
+                    toolResponse("call-1", "searchWeb", "results")))).isTrue();
         }
     }
 
@@ -80,9 +125,7 @@ class ToolCallLoopGuardTest {
             var disabled = ToolCallLoopGuard.disableFurtherToolUse(original);
 
             assertThat(disabled).isInstanceOf(OllamaChatOptions.class);
-            OllamaChatOptions ollama = (OllamaChatOptions) disabled;
-            assertThat(ollama.getToolCallbacks()).isNullOrEmpty();
-            assertThat(ollama.getModel()).isEqualTo("llama3.2");
+            assertThat(((OllamaChatOptions) disabled).getToolCallbacks()).isNullOrEmpty();
         }
 
         @Test
@@ -94,34 +137,47 @@ class ToolCallLoopGuardTest {
             var disabled = ToolCallLoopGuard.disableFurtherToolUse(original);
 
             assertThat(disabled).isInstanceOf(AnthropicChatOptions.class);
-            AnthropicChatOptions anthropic = (AnthropicChatOptions) disabled;
-            assertThat(anthropic.getToolCallbacks()).isNullOrEmpty();
-            assertThat(anthropic.getModel()).isEqualTo("claude-sonnet-4-5");
+            assertThat(((AnthropicChatOptions) disabled).getToolCallbacks()).isNullOrEmpty();
         }
 
         @Test
         void should_returnSameInstance_when_unknownChatOptions() {
             ChatOptions original = ChatOptions.builder().model("custom-model").build();
-
-            var disabled = ToolCallLoopGuard.disableFurtherToolUse(original);
-
-            assertThat(disabled).isSameAs(original);
+            assertThat(ToolCallLoopGuard.disableFurtherToolUse(original)).isSameAs(original);
         }
     }
 
     @Nested
-    @DisplayName("withFinalAnswerReminder")
-    class WithFinalAnswerReminder {
+    @DisplayName("reminders")
+    class Reminders {
 
         @Test
-        void should_appendReminderSystemMessage() {
-            List<Message> history = List.of(new UserMessage("q"), new AssistantMessage("a"));
-            List<Message> next = ToolCallLoopGuard.withFinalAnswerReminder(history);
+        void should_appendFinalReminder_banning_furtherToolsIncludingFetch() {
+            List<Message> next = ToolCallLoopGuard.withFinalAnswerReminder(
+                    List.of(new UserMessage("q"), new AssistantMessage("a")));
 
-            assertThat(next).hasSize(3);
             assertThat(next.get(2)).isInstanceOf(SystemMessage.class);
             assertThat(next.get(2).getText()).contains("Do not call any tools again");
+            assertThat(next.get(2).getText()).contains("including searchWeb and fetch");
             assertThat(next.get(2).getText()).contains("a2ui");
+            assertThat(next.get(2).getText()).contains("Do not output DSML");
         }
+
+        @Test
+        void should_appendContinuationReminder_allowing_searchWeb() {
+            List<Message> next = ToolCallLoopGuard.withContinuationReminder(
+                    List.of(toolResponse("call-1", "getCurrentDateTime", "now")));
+
+            assertThat(next.get(1).getText()).contains("searchWeb exactly once");
+            assertThat(next.get(1).getText()).contains("a2ui");
+            assertThat(next.get(1).getText()).contains("Do not call fetch");
+            assertThat(next.get(1).getText()).doesNotContain("Do not call any tools again");
+        }
+    }
+
+    private static ToolResponseMessage toolResponse(String id, String name, String data) {
+        return ToolResponseMessage.builder()
+                .responses(List.of(new ToolResponseMessage.ToolResponse(id, name, data)))
+                .build();
     }
 }

@@ -133,7 +133,7 @@ class OrchestratorWorkersUseCaseTest {
                 .expectNextMatches(event -> "done".equals(event.event()))
                 .verifyComplete();
 
-        assert invoker.invokeCount >= 3;
+        assert invoker.invokeCount.get() >= 3;
     }
 
     @Test
@@ -256,14 +256,15 @@ class OrchestratorWorkersUseCaseTest {
     private static final class RecordingInvoker implements WorkerAgentInvoker {
         private String lastAgentType;
         private String lastTask;
-        private int invokeCount;
+        private final java.util.concurrent.atomic.AtomicInteger invokeCount =
+                new java.util.concurrent.atomic.AtomicInteger();
         private final List<String> streamOrder = new java.util.ArrayList<>();
 
         @Override
         public Flux<String> invokeStream(AgentDefinition agent, String task) {
             lastAgentType = agent.type().value();
             lastTask = task;
-            invokeCount++;
+            invokeCount.incrementAndGet();
             streamOrder.add(agent.type().value());
             return Flux.just("worker-reply");
         }
@@ -272,7 +273,7 @@ class OrchestratorWorkersUseCaseTest {
         public String invoke(AgentDefinition agent, String task) {
             lastAgentType = agent.type().value();
             lastTask = task;
-            invokeCount++;
+            invokeCount.incrementAndGet();
             return "worker-reply for " + agent.type().value();
         }
     }

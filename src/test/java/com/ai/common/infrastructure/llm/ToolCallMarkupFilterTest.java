@@ -1,4 +1,4 @@
-package com.ai.agent.infrastructure.llm;
+package com.ai.common.infrastructure.llm;
 
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +64,19 @@ class ToolCallMarkupFilterTest {
     void should_return_empty_when_only_markup() {
         String raw = "<｜DSML｜tool_calls><｜DSML｜invoke name=\"searchWeb\"></｜DSML｜tool_calls>";
         assertEquals("", ToolCallMarkupFilter.sanitize(raw));
+    }
+
+    @Test
+    void should_strip_double_fullwidth_pipe_variant() {
+        String raw = """
+                <｜｜DSML｜｜tool_calls>
+                <｜｜DSML｜｜invoke name="searchWeb">
+                <｜｜DSML｜｜parameter name="query" string="true">2025 global EV</｜｜DSML｜｜parameter>
+                </｜｜DSML｜｜invoke>
+                </｜｜DSML｜｜tool_calls>
+                """;
+        assertEquals("", ToolCallMarkupFilter.sanitize(raw));
+        assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup(raw));
     }
 
     @Test

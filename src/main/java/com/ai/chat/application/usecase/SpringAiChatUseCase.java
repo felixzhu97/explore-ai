@@ -10,7 +10,9 @@ import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;
 import com.ai.common.infrastructure.llm.ToolEventChannel;
+import com.ai.common.infrastructure.prompt.PromptTemplates;
 import com.ai.metrics.application.AiInvocationRecorder;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +24,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
@@ -30,15 +33,22 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class SpringAiChatUseCase implements ChatUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(SpringAiChatUseCase.class);
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static final String REPAIR_USER_PROMPT = """
+            Produce the final answer now using the web search results provided in this prompt.
+            Reply in the user's language. If a chart was requested, emit the a2ui fence with chartData from those results.
+            Do not call tools. Do not emit DSML or tool-call markup. Do not say search results are missing.
+            """;
 
     private final ChatClientProvider chatClientProvider;
     private final ChatSessionRepository repository;
@@ -47,6 +57,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
     private final ConversationMemoryRepository conversationMemoryRepository;
     private final SessionTitleGenerator sessionTitleGenerator;
     private final ChatWebSourcesRepository chatWebSourcesRepository;
+    private final PromptTemplates promptTemplates;
     private final AiInvocationRecorder invocationRecorder;
 
     public SpringAiChatUseCase(
@@ -57,6 +68,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
             ConversationMemoryRepository conversationMemoryRepository,
             SessionTitleGenerator sessionTitleGenerator,
             ChatWebSourcesRepository chatWebSourcesRepository,
+            PromptTemplates promptTemplates,
             AiInvocationRecorder invocationRecorder) {
         this.chatClientProvider = chatClientProvider;
         this.repository = repository;
@@ -65,6 +77,7 @@ public class SpringAiChatUseCase implements ChatUseCase {
         this.conversationMemoryRepository = conversationMemoryRepository;
         this.sessionTitleGenerator = sessionTitleGenerator;
         this.chatWebSourcesRepository = chatWebSourcesRepository;
+        this.promptTemplates = promptTemplates;
         this.invocationRecorder = invocationRecorder;
     }
 
@@ -118,14 +131,23 @@ public class SpringAiChatUseCase implements ChatUseCase {
             ToolEventChannel.setCurrentSessionId(sessionId);
             try {
                 ChatClient chatClient = chatClientProvider.create(options, sessionId);
-                return mergeToolEvents(
+                AtomicReference<String> rawAssistant = new AtomicReference<>("");
+                Flux<String> primary = mergeToolEvents(
                         chatClient.prompt()
                                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
                                 .user(userMessage)
                                 .stream()
-                                .content(),
+                                .content()
+                                .doOnNext(token -> {
+                                    if (token != null && !token.isEmpty()) {
+                                        rawAssistant.updateAndGet(prev -> prev + token);
+                                    }
+                                }),
                         sessionId,
-                        options.toolsEnabled())
+                        options.toolsEnabled());
+                Flux<String> repaired = Flux.defer(() ->
+                        repairIfToolMarkupOnly(rawAssistant.get(), sessionId, options));
+                return Flux.concat(primary, repaired)
                         .doOnComplete(() -> {
                             invocationRecorder.recordSuccess(
                                     AiDomain.CHAT, "chat.stream", elapsedMs(startedAt),
@@ -152,16 +174,88 @@ public class SpringAiChatUseCase implements ChatUseCase {
         return (System.nanoTime() - startedAtNanos) / 1_000_000L;
     }
 
+    private Flux<String> repairIfToolMarkupOnly(String rawAssistant, String sessionId, TextChatOptions options) {
+        if (!ToolCallMarkupFilter.looksLikeToolMarkup(rawAssistant)) {
+            return Flux.empty();
+        }
+        if (!ToolCallMarkupFilter.sanitize(rawAssistant).isBlank()) {
+            return Flux.empty();
+        }
+        log.warn("Assistant returned tool markup only for session {}; repairing without tools", sessionId);
+        TextChatOptions noTools = TextChatOptions.of(options.provider(), options.model(), false);
+        ChatClient repairClient = chatClientProvider.createBareStateless(noTools);
+        List<Message> promptMessages = new ArrayList<>();
+        promptMessages.add(new SystemMessage(promptTemplates.getDefaultSystemPrompt()));
+        promptMessages.addAll(chatMemory.get(sessionId));
+        CapturedWebSources.Capture capture = CapturedWebSources.peek(sessionId);
+        if (capture != null && !capture.sources().isEmpty()) {
+            promptMessages.add(new SystemMessage(formatCapturedSources(capture)));
+        }
+        promptMessages.add(new SystemMessage(promptTemplates.getAfterToolsReminder()));
+        promptMessages.add(new UserMessage(REPAIR_USER_PROMPT));
+
+        StringBuilder repaired = new StringBuilder();
+        return repairClient.prompt()
+                .messages(promptMessages)
+                .stream()
+                .content()
+                .doOnNext(token -> {
+                    if (token != null) {
+                        repaired.append(token);
+                    }
+                })
+                .map(this::sanitizeStreamToken)
+                .filter(token -> !token.isEmpty())
+                .map(this::messageEvent)
+                .doOnComplete(() -> {
+                    String text = ToolCallMarkupFilter.sanitize(repaired.toString());
+                    if (!text.isBlank()) {
+                        chatMemory.add(sessionId, List.of(new AssistantMessage(text)));
+                    }
+                });
+    }
+
+    private static String formatCapturedSources(CapturedWebSources.Capture capture) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Web search results already retrieved for query: ")
+                .append(capture.query())
+                .append("\n\n");
+        int index = 1;
+        for (var source : capture.sources()) {
+            sb.append('[').append(index++).append("] ")
+                    .append(source.title()).append('\n')
+                    .append("URL: ").append(source.url()).append('\n')
+                    .append("Summary: ").append(source.snippet()).append("\n\n");
+        }
+        sb.append("Use these results for the final answer and chart. Do not claim search results are missing.");
+        return sb.toString();
+    }
+
     private Flux<String> mergeToolEvents(Flux<String> content, String channelId, boolean toolsEnabled) {
+        Flux<String> textTokens = content.map(this::sanitizeStreamToken);
         if (!toolsEnabled) {
-            return content.map(this::messageEvent);
+            return textTokens
+                    .filter(token -> !token.isEmpty())
+                    .map(this::messageEvent);
         }
         Sinks.Many<String> sink = ToolEventChannel.open(channelId);
         Flux<String> toolEvents = ToolEventChannel.asFlux(sink)
                 .doOnNext(json -> captureSourcesEvent(channelId, json));
-        Flux<String> textEvents = content.map(this::messageEvent)
+        Flux<String> textEvents = textTokens
+                .filter(token -> !token.isEmpty())
+                .map(this::messageEvent)
                 .doFinally(signal -> ToolEventChannel.close(channelId));
         return Flux.merge(toolEvents, textEvents);
+    }
+
+    private String sanitizeStreamToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return "";
+        }
+        if (!ToolCallMarkupFilter.looksLikeToolMarkup(token)) {
+            return token;
+        }
+        return ToolCallMarkupFilter.sanitize(token);
     }
 
     private void captureSourcesEvent(String channelId, String json) {

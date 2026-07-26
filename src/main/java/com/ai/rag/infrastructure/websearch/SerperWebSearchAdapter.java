@@ -55,12 +55,14 @@ public class SerperWebSearchAdapter implements WebSearchTool {
             Web search tool (在线搜索 / 联网搜索). Call when the user asks to search
             online, or needs live statistics to chart (市场份额, EV share, prices,
             rankings). Also trigger on phrases like 进行在线搜索 / 查一下 / look up.
-            Call at most once per user question. Prefer an English query that includes
-            year/quarter, region, metric, and brand names even if the user wrote Chinese
-            (e.g. "2025 Q1 global EV market share Tesla BYD Volkswagen"). After results
-            return, answer immediately with markdown + a2ui chart if requested; do not
-            call this tool again. Snippets often map to chartData [{label, value}, ...].""")
-    public String searchWeb(@ToolParam(description = "Search query; prefer English with year, region, metric, and brand names") String query) {
+            If the query needs a current year, quarter, or "today/latest", call
+            getCurrentDateTime first and use that year/date — never invent the year.
+            Call searchWeb at most once per user question. Prefer an English query that
+            includes year/quarter, region, metric, and brand names even if the user
+            wrote Chinese. After results return, answer immediately with markdown +
+            a2ui chart if requested; do not call this tool again. Snippets often map
+            to chartData [{label, value}, ...].""")
+    public String searchWeb(@ToolParam(description = "Search query; prefer English with year from getCurrentDateTime, region, metric, and brand names") String query) {
         if (query == null || query.isBlank()) {
             return "Please provide a valid search query.";
         }
