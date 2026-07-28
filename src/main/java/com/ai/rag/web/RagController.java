@@ -80,25 +80,23 @@ public class RagController {
     @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "RAG streaming chat")
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
-        RagChatResult result;
         if (hasImages(request.images())) {
             VisionChatUseCase visionChat = visionChatUseCase.getIfAvailable();
+            RagChatResult result;
             if (visionChat == null) {
                 result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK(), request.sessionId());
             } else {
                 result = visionChat.chatWithImages(
                         request.question(), request.docIds(), request.images(), request.topK());
             }
-        } else {
-            result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK(), request.sessionId());
+            var sourceDtos = result.sources().stream()
+                    .filter(s -> s.text() != null && !s.text().isBlank())
+                    .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
+                    .toList();
+            return streamingService.streamWithSources(result.response(), sourceDtos);
         }
-
-        var sourceDtos = result.sources().stream()
-                .filter(s -> s.text() != null && !s.text().isBlank())
-                .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
-                .toList();
-
-        return streamingService.streamWithSources(result.response(), sourceDtos);
+        return ragChatUseCase.chatStream(
+                request.question(), request.docIds(), request.topK(), request.sessionId());
     }
 
     private boolean hasImages(List<String> images) {

@@ -1,16 +1,13 @@
 package com.ai.rag.web;
 
 import com.ai.common.streaming.StreamingService;
-import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.application.usecase.VisionChatUseCase;
-import com.ai.rag.web.RagController;
 import com.ai.rag.web.dto.RagChatRequest;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
-import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -169,68 +166,55 @@ class RagControllerTest {
     @DisplayName("POST /api/rag/chat/stream")
     class RagChatStream {
 
-        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should handle RAG chat request")
         void shouldHandleRagChatRequest() {
             RagChatRequest request = new RagChatRequest("What is AI?", null, null, 0.7, null, null);
-            RagChatResult chatResult = new RagChatResult(
-                    "AI response", List.of()
-            );
-            when(ragChatUseCase.chat(eq("What is AI?"), isNull(), eq(5), isNull())).thenReturn(chatResult);
-            when(streamingService.streamWithSources(eq("AI response"), anyList()))
-                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response").build()));
+            when(ragChatUseCase.chatStream(eq("What is AI?"), isNull(), eq(5), isNull()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response ").build()));
 
             Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
-            assertThat(response).isNotNull();
-            verify(ragChatUseCase).chat(eq("What is AI?"), isNull(), eq(5), isNull());
+            assertThat(response.collectList().block()).isNotEmpty();
+            verify(ragChatUseCase).chatStream(eq("What is AI?"), isNull(), eq(5), isNull());
+            verifyNoInteractions(streamingService);
         }
 
-        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should use docIds when provided")
         void shouldUseDocIdsWhenProvided() {
             List<String> docIds = List.of(UUID.randomUUID().toString());
             RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, docIds, null);
-            RagChatResult chatResult = new RagChatResult(
-                    "Response", List.of(new SourceDocument("doc", 0.9, null))
-            );
-            when(ragChatUseCase.chat(anyString(), any(), any(), any())).thenReturn(chatResult);
-            when(streamingService.streamWithSources(eq("Response"), anyList()))
-                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response").build()));
+            when(ragChatUseCase.chatStream(eq("Question"), eq(docIds), eq(5), isNull()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
             Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
-            assertThat(response).isNotNull();
+            assertThat(response.collectList().block()).hasSize(1);
+            verify(ragChatUseCase).chatStream(eq("Question"), eq(docIds), eq(5), isNull());
         }
 
-        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should use custom topK when provided")
         void shouldUseCustomTopKWhenProvided() {
             RagChatRequest request = new RagChatRequest("Question", null, 10, 0.7, null, null);
-            RagChatResult chatResult = new RagChatResult(
-                    "Response", List.of()
-            );
-            when(ragChatUseCase.chat(anyString(), isNull(), eq(10), isNull())).thenReturn(chatResult);
-            when(streamingService.streamWithSources(eq("Response"), anyList()))
-                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response").build()));
+            when(ragChatUseCase.chatStream(eq("Question"), isNull(), eq(10), isNull()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
             Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
 
-            assertThat(response).isNotNull();
+            assertThat(response.collectList().block()).hasSize(1);
+            verify(ragChatUseCase).chatStream(eq("Question"), isNull(), eq(10), isNull());
         }
 
-        @SuppressWarnings("unchecked")
         @Test
         @DisplayName("should propagate exception when service fails")
         void shouldPropagateExceptionWhenServiceFails() {
             RagChatRequest request = new RagChatRequest("Question", null, null, 0.7, null, null);
-            when(ragChatUseCase.chat(anyString(), any(), any(), any()))
-                    .thenThrow(new RuntimeException("Service error"));
+            when(ragChatUseCase.chatStream(anyString(), any(), any(), any()))
+                    .thenReturn(Flux.error(new RuntimeException("Service error")));
 
-            assertThatThrownBy(() -> controller.ragChatStream(request))
+            assertThatThrownBy(() -> controller.ragChatStream(request).blockLast())
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Service error");
         }

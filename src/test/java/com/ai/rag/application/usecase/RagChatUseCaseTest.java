@@ -6,7 +6,8 @@ import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.metrics.application.AiInvocationRecorder;
 import com.ai.rag.application.dto.RagChatResult;
-import com.ai.rag.infrastructure.retrieval.H2DocumentRetriever;
+import com.ai.rag.domain.repository.RagRetrievalSettings;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,6 +24,9 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.Filter;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +61,10 @@ class RagChatUseCaseTest {
     private LanguageDetectionService languageDetectionService;
 
     @Mock
-    private H2DocumentRetriever documentRetriever;
+    private VectorStore vectorStore;
+
+    @Mock
+    private RagRetrievalSettings retrievalSettings;
 
     @Mock
     private AiInvocationRecorder invocationRecorder;
@@ -66,11 +73,14 @@ class RagChatUseCaseTest {
 
     @BeforeEach
     void setUp() {
+        when(retrievalSettings.getScoreThreshold()).thenReturn(0.5);
         ragChatUseCase = new RagChatUseCase(
                 chatClientProvider,
                 languageDetectionService,
-                documentRetriever,
-                invocationRecorder
+                vectorStore,
+                retrievalSettings,
+                invocationRecorder,
+                new ObjectMapper()
         );
         when(chatClientProvider.create(any(TextChatOptions.class), any(ChatClientProfile.class), any()))
                 .thenReturn(chatClient);
@@ -106,14 +116,13 @@ class RagChatUseCaseTest {
         }
 
         @Test
-        @DisplayName("should_passDocIdsViaAdvisorParams_when_provided")
-        void should_passDocIdsViaAdvisorParams_when_provided() {
+        @DisplayName("should_passDocIdsViaFilterExpression_when_provided")
+        void should_passDocIdsViaFilterExpression_when_provided() {
             String question = "What is AI?";
             String docId1 = UUID.randomUUID().toString();
-            List<String> docIds = List.of(docId1);
             stubChatClientResponse("response", List.of());
 
-            ragChatUseCase.chat(question, docIds, null);
+            ragChatUseCase.chat(question, List.of(docId1), null);
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
@@ -122,19 +131,17 @@ class RagChatUseCaseTest {
 
             CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
             advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
-            assertThat(capturing.params)
-                    .containsEntry(H2DocumentRetriever.TOP_K_CONTEXT_KEY, 5)
-                    .containsEntry(H2DocumentRetriever.DOC_IDS_CONTEXT_KEY, docIds);
+            assertThat(capturing.params).containsKey(VectorStoreDocumentRetriever.FILTER_EXPRESSION);
+            assertThat(capturing.params.get(VectorStoreDocumentRetriever.FILTER_EXPRESSION))
+                    .isInstanceOf(Filter.Expression.class);
         }
 
         @Test
-        @DisplayName("should_useCustomTopK_when_provided")
-        void should_useCustomTopK_when_provided() {
-            String question = "What is AI?";
-            int customTopK = 10;
+        @DisplayName("should_omitFilter_when_docIdsEmpty")
+        void should_omitFilter_when_docIdsEmpty() {
             stubChatClientResponse("response", List.of());
 
-            ragChatUseCase.chat(question, null, customTopK);
+            ragChatUseCase.chat("q", Collections.emptyList(), 10);
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
@@ -143,45 +150,7 @@ class RagChatUseCaseTest {
 
             CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
             advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
-            assertThat(capturing.params).containsEntry(H2DocumentRetriever.TOP_K_CONTEXT_KEY, customTopK);
-            assertThat(capturing.params).doesNotContainKey(H2DocumentRetriever.DOC_IDS_CONTEXT_KEY);
-        }
-
-        @Test
-        @DisplayName("should_useDefaultTopK_when_topKIsNull")
-        void should_useDefaultTopK_when_topKIsNull() {
-            String question = "What is AI?";
-            stubChatClientResponse("response", List.of());
-
-            ragChatUseCase.chat(question, null, null);
-
-            @SuppressWarnings("unchecked")
-            ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
-                    ArgumentCaptor.forClass(Consumer.class);
-            verify(requestSpec, atLeastOnce()).advisors(advisorCaptor.capture());
-
-            CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
-            advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
-            assertThat(capturing.params).containsEntry(H2DocumentRetriever.TOP_K_CONTEXT_KEY, 5);
-        }
-
-        @Test
-        @DisplayName("should_handleEmptyDocIdsList_when_empty")
-        void should_handleEmptyDocIdsList_when_empty() {
-            String question = "What is AI?";
-            List<String> emptyDocIds = Collections.emptyList();
-            stubChatClientResponse("response", List.of());
-
-            ragChatUseCase.chat(question, emptyDocIds, null);
-
-            @SuppressWarnings("unchecked")
-            ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
-                    ArgumentCaptor.forClass(Consumer.class);
-            verify(requestSpec, atLeastOnce()).advisors(advisorCaptor.capture());
-
-            CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
-            advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
-            assertThat(capturing.params).doesNotContainKey(H2DocumentRetriever.DOC_IDS_CONTEXT_KEY);
+            assertThat(capturing.params).doesNotContainKey(VectorStoreDocumentRetriever.FILTER_EXPRESSION);
         }
     }
 
