@@ -2,6 +2,13 @@ spring:
   application:
     name: server-springai
   ai:
+    chat:
+      client:
+        observations:
+          log-prompt: false
+      observations:
+        log-prompt: false
+        include-completion: false
     mcp:
       server:
         type: SYNC

@@ -118,6 +118,7 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 | 下钻 | `GET /api/metrics/drilldown` | `AiInvocationEvent`, `JdbcAiInvocationEventRepository` |
 
 业务路径通过 `AiInvocationRecorder` 旁路写入 `ai_invocation_events`（Chat / RAG / Agents / Tools / Vision）。
+LLM 调用另由 Spring AI Micrometer Observation 导出 GenAI 语义指标（`/actuator/prometheus`）；业务域计数仍以 `AiInvocationRecorder` 为准。
 
 ### 前端 (Web Frontend)
 
