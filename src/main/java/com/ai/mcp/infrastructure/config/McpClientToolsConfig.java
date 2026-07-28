@@ -24,18 +24,23 @@ public class McpClientToolsConfig {
     public ToolCallback[] mcpToolCallbacks(
             ObjectProvider<ToolCallbackProvider> toolCallbackProviders,
             McpToolCallbackRegistry registry) {
-        ToolCallbackProvider provider = toolCallbackProviders.getIfAvailable();
-        if (provider == null) {
-            log.debug("No MCP ToolCallbackProvider; chat will use local tools only");
+        try {
+            ToolCallbackProvider provider = toolCallbackProviders.getIfAvailable();
+            if (provider == null) {
+                log.debug("No MCP ToolCallbackProvider; chat will use local tools only");
+                return new ToolCallback[0];
+            }
+            ToolCallback[] callbacks = provider.getToolCallbacks();
+            if (callbacks == null || callbacks.length == 0) {
+                log.debug("MCP client has no external tools registered");
+                return new ToolCallback[0];
+            }
+            registry.registerToolCallbacks(callbacks, "external-mcp");
+            log.info("Merged {} MCP tool callback(s) into chat", callbacks.length);
+            return callbacks;
+        } catch (RuntimeException ex) {
+            log.warn("MCP tool registration failed; chat will use local tools only: {}", ex.getMessage());
             return new ToolCallback[0];
         }
-        ToolCallback[] callbacks = provider.getToolCallbacks();
-        if (callbacks == null || callbacks.length == 0) {
-            log.debug("MCP client has no external tools registered");
-            return new ToolCallback[0];
-        }
-        registry.registerToolCallbacks(callbacks, "external-mcp");
-        log.info("Merged {} MCP tool callback(s) into chat", callbacks.length);
-        return callbacks;
     }
 }
