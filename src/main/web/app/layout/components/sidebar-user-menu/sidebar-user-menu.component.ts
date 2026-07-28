@@ -1,10 +1,10 @@
+import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
-  OnInit,
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -15,7 +15,8 @@ import {
   SUPPORTED_LANGUAGES,
   type Language,
 } from '../../../core/i18n';
-import { AccountApiService, type AccountMe } from '../../../core/account-api.service';
+import { API_BASE_URL } from '../../../core/api.constants';
+import type { AccountMe } from '../../../core/account-api.service';
 import { ZardSidebarMenuButtonDirective } from '../../../shared/components/layout/sidebar-menu-button.directive';
 import { SidebarService } from '../../sidebar.service';
 
@@ -179,9 +180,8 @@ import { SidebarService } from '../../sidebar.service';
     '(document:pointerdown)': 'onDocumentPointerDown($event)',
   },
 })
-export class SidebarUserMenuComponent implements OnInit {
+export class SidebarUserMenuComponent {
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly accountApi = inject(AccountApiService);
   private readonly sidebar = inject(SidebarService);
   protected readonly i18n = inject(I18nService);
 
@@ -190,7 +190,16 @@ export class SidebarUserMenuComponent implements OnInit {
   readonly menuOpen = signal(false);
   readonly helpPinned = signal(false);
   readonly langPinned = signal(false);
-  private readonly account = signal<AccountMe | null>(null);
+  readonly accountResource = httpResource<AccountMe>(
+    () => `${API_BASE_URL}/account/me`,
+  );
+
+  readonly account = computed(() => {
+    if (this.accountResource.hasValue()) {
+      return this.accountResource.value()!;
+    }
+    return null;
+  });
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
   readonly languageNames = languageNames;
@@ -250,13 +259,6 @@ export class SidebarUserMenuComponent implements OnInit {
 
   get t() {
     return this.i18n.t;
-  }
-
-  ngOnInit(): void {
-    this.accountApi.me().subscribe({
-      next: me => this.account.set(me),
-      error: () => this.account.set(null),
-    });
   }
 
   toggleMenu(event: MouseEvent): void {

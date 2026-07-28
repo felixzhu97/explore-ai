@@ -1,14 +1,17 @@
+import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnDestroy,
-  OnInit,
+  computed,
+  effect,
   inject,
   model,
   signal,
   viewChild,
 } from '@angular/core';
+import { API_BASE_URL } from '../core/api.constants';
 import {
   ChatBubbleMessage,
   ChatMessagePaneComponent,
@@ -55,13 +58,23 @@ const MIN_PANE_PX = 240;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
-export class AgentsPageComponent implements OnInit, OnDestroy {
+export class AgentsPageComponent implements OnDestroy {
   private readonly agentsApi = inject(AgentsService);
   readonly i18n = inject(I18nService);
 
   private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
-  readonly agents = signal<AgentInfo[]>([]);
+  readonly agentsResource = httpResource<AgentInfo[]>(
+    () => `${API_BASE_URL}/agents/list`,
+  );
+
+  readonly agents = computed(() => {
+    if (this.agentsResource.hasValue()) {
+      return this.agentsResource.value()!;
+    }
+    return [];
+  });
+
   readonly messages = signal<ChatBubbleMessage[]>([]);
   readonly streamingMessageId = signal<string | null>(null);
   readonly loading = signal(false);
@@ -78,10 +91,11 @@ export class AgentsPageComponent implements OnInit, OnDestroy {
   private messageSeq = 0;
   private savedRatio = DEFAULT_RESULTS_RATIO;
 
-  ngOnInit(): void {
-    this.agentsApi.listAgents().subscribe({
-      next: agents => this.agents.set(agents),
-      error: () => this.error.set(this.i18n.t().agents.errorMessage),
+  constructor() {
+    effect(() => {
+      if (this.agentsResource.error() && !this.agentsResource.hasValue()) {
+        this.error.set(this.i18n.t().agents.errorMessage);
+      }
     });
   }
 
