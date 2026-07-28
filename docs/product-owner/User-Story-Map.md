@@ -908,6 +908,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-244](https://felixzhu.atlassian.net/browse/AI-244) | 收敛 AnswerAfterToolsAdvisor | 5 | 已交付 |
 | [AI-245](https://felixzhu.atlassian.net/browse/AI-245) | ETL TokenTextSplitter 对齐 | 5 | 已交付 |
 | [AI-246](https://felixzhu.atlassian.net/browse/AI-246) | 生产 MCP Streamable HTTP | 5 | 已交付 |
+| [AI-249](https://felixzhu.atlassian.net/browse/AI-249) | 上传进度保持 XHR | 2 | Draft |
 | [AI-250](https://felixzhu.atlassian.net/browse/AI-250) | Agent Skills 运行时（可选启用） | 1 | 已交付 |
 | [AI-251](https://felixzhu.atlassian.net/browse/AI-251) | 接入 ToolSearchAdvisor（可配置） | 5 | 已交付 |
 | [AI-253](https://felixzhu.atlassian.net/browse/AI-253) | 决策：冻结 AI-239/240 RAG 主路径 | 1 | 已交付 |
