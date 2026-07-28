@@ -5,6 +5,7 @@ import {
   needsPrivacyConsentDecision,
   readPrivacyConsent,
   writePrivacyConsent,
+  writePrivacyPreferences,
 } from './privacy-consent.storage';
 
 describe('privacy-consent.storage', () => {
@@ -32,5 +33,14 @@ describe('privacy-consent.storage', () => {
     writePrivacyConsent(false);
     expect(hasAnalyticsConsent()).toBe(false);
     expect(needsPrivacyConsentDecision()).toBe(false);
+  });
+
+  it('should_persistContactEmail_whenPreferencesSaved', () => {
+    writePrivacyPreferences({ analytics: true, contactEmail: 'privacy@example.com' });
+    expect(readPrivacyConsent()).toMatchObject({
+      analytics: true,
+      contactEmail: 'privacy@example.com',
+      decided: true,
+    });
   });
 });
