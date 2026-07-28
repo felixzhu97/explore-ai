@@ -8,9 +8,9 @@ import java.util.Objects;
 
 /**
  * Loads prompt text from {@code classpath:prompts/**}.
- * Templates are plain UTF-8 resources; variables use {@code {name}} and
- * {@link String#replace(CharSequence, CharSequence)} (avoids StringTemplate
- * conflicts with JSON braces in A2UI examples).
+ * Variable substitution uses Spring AI {@link PromptTemplate} via
+ * {@link ClasspathPromptTemplate}; static fragments with JSON braces are loaded
+ * and joined here without rendering.
  */
 public final class ClasspathPromptLoader {
 
@@ -49,7 +49,4 @@ public final class ClasspathPromptLoader {
         return sb.toString();
     }
 
-    public static String fill(String template, String key, String value) {
-        return template.replace("{" + key + "}", value == null ? "" : value);
-    }
 }

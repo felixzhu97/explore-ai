@@ -168,7 +168,7 @@ flowchart TB
 | Agent Handoff            | Agent 交接      | Transfer marking delegation from one Agent to another         | Stream Event   | `agent_handoff`                                    | Frontend stage boundaries                       |
 | Agent Prompt Catalog     | Agent 提示词目录   | Loads Agent system prompts from classpath and appends shared style | Infrastructure | `AgentPromptCatalog`, `prompts/agent/*.st`     | Via `PromptTemplates.loadAgentSystemPrompt`     |
 | Prompt Catalog           | 提示词目录         | Versioned prompt fragments under classpath resources               | Infrastructure | `classpath:prompts/**`                         | shared / chat / rag / agent / task / guards     |
-| Prompt Templates         | 提示词组合服务       | Composes default system, RAG system, and Agent prompts             | Infrastructure | `PromptTemplates`, `ClasspathPromptLoader`     | Injected into ChatClientFactory                 |
+| Prompt Templates         | 提示词组合服务       | Composes default system, RAG system, and Agent prompts             | Infrastructure | `PromptTemplates`, `ClasspathPromptTemplate`     | Injected into ChatClientFactory                 |
 | Localized RAG Prompt     | 本地化 RAG 提示词    | Builds multilingual RAG/Vision user prompts with shared style      | Infrastructure | `LocalizedRagPromptBuilder`                    | Used by `RagChatUseCase`, `VisionChatUseCase`   |
 
 
@@ -427,7 +427,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | ChatModel                            | 对话模型    | Abstraction over an LLM provider                           | Technical | `org.springframework.ai.chat.model.ChatModel` | Implemented by OpenAI, Ollama, etc. |
 | Prompt                               | 提示词     | Input text sent to an LLM                                  | Technical | `Prompt`, `PromptTemplate`                    | User + system messages              |
 | System Prompt                        | 系统提示词   | Instruction defining AI role and behavior                  | Technical | `PromptTemplates`, `prompts/chat/*.st`        | Composed from classpath fragments   |
-| Prompt Template                      | 提示词模板   | Reusable prompt with placeholders                          | Technical | `classpath:prompts/**`, Spring `PromptTemplate` | Prefer resources over Java strings |
+| Prompt Template                      | 提示词模板   | Reusable prompt with placeholders                          | Technical | `classpath:prompts/**`, `ClasspathPromptTemplate` | Spring AI `PromptTemplate` render path |
 | Shared Style Prompt                  | 共享风格提示词 | Minimal high-value style + no decorative emoji             | Technical | `prompts/shared/style-minimal.st`             | Shared by chat / RAG / agents       |
 | Context Window                       | 上下文窗口   | Maximum conversation history included in a request         | Technical | `ChatSession.getRecentMessages()`             | Limits token usage                  |
 | Token                                | 令牌      | Atomic unit of text for LLM input/output and billing       | Technical | —                                             | Industry standard unit              |

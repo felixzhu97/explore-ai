@@ -9,11 +9,11 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.ai.common.infrastructure.prompt.ClasspathPromptTemplate;
 import com.ai.common.util.LogSanitizer;
 import org.springframework.stereotype.Service;
 
@@ -184,11 +184,9 @@ public class ChatQualityEvaluator {
     }
 
     private LlmEvaluationResponse evaluateSafetyAndQuality(String userMessage, String assistantResponse) {
-        PromptTemplate template = new PromptTemplate(SAFETY_EVALUATION_PROMPT);
-        String promptText = template.render(java.util.Map.of(
-            "userMessage", userMessage,
-            "assistantResponse", assistantResponse
-        ));
+        String promptText = ClasspathPromptTemplate.render(
+                SAFETY_EVALUATION_PROMPT,
+                java.util.Map.of("userMessage", userMessage, "assistantResponse", assistantResponse));
 
         return evaluationChatClient.prompt()
             .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
