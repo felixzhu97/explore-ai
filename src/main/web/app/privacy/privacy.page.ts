@@ -74,7 +74,6 @@ import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.comp
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Own vertical scroll: main layout uses overflow-hidden (same as metrics).
   host: {
     class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
   },
