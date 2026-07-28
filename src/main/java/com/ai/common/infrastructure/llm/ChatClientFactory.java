@@ -13,7 +13,6 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.beans.factory.ObjectProvider;
@@ -102,9 +101,7 @@ public class ChatClientFactory implements ChatClientProvider {
         }
         if (withTools) {
             // ToolAdvisor in the chain skips ChatClient's auto-registered ToolCallingAdvisor.
-            advisors.add(AnswerAfterToolsAdvisor.builder()
-                    .toolCallingManager(ToolCallingManager.builder().build())
-                    .build());
+            advisors.add(ToolCallLoopGuardAdvisor.builder().build());
         }
 
         ChatClient.Builder builder = ChatClient.builder(resolved.chatModel())

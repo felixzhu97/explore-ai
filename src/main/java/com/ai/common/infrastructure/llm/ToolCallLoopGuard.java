@@ -107,6 +107,29 @@ final class ToolCallLoopGuard {
         return List.copyOf(next);
     }
 
+    static List<Message> withStageReminder(List<Message> history) {
+        if (shouldForceFinalAnswer(history)) {
+            return withFinalAnswerReminder(history);
+        }
+        if (hasOnlyBridgeToolResults(history)) {
+            return withContinuationReminder(history);
+        }
+        return history;
+    }
+
+    static org.springframework.ai.chat.client.ChatClientRequest maybeDisableToolsRequest(
+            org.springframework.ai.chat.client.ChatClientRequest request) {
+        List<Message> instructions = request.prompt().getInstructions();
+        if (!shouldForceFinalAnswer(instructions)) {
+            return request;
+        }
+        ChatOptions disabled = disableFurtherToolUse(request.prompt().getOptions());
+        return org.springframework.ai.chat.client.ChatClientRequest.builder()
+                .prompt(new org.springframework.ai.chat.prompt.Prompt(instructions, disabled))
+                .context(request.context())
+                .build();
+    }
+
     private static List<ToolResponseMessage> toolResponseMessages(List<Message> messages) {
         if (messages == null || messages.isEmpty()) {
             return List.of();
