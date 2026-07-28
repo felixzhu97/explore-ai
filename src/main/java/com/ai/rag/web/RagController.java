@@ -1,13 +1,10 @@
 package com.ai.rag.web;
 
-import com.ai.common.streaming.StreamingService;
-import com.ai.rag.application.dto.RagChatResult;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
 import com.ai.rag.application.usecase.VisionChatUseCase;
 import com.ai.rag.domain.model.Document;
-import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,17 +33,14 @@ public class RagController {
     private final RagApplicationService ragApplicationService;
     private final RagChatUseCase ragChatUseCase;
     private final ObjectProvider<VisionChatUseCase> visionChatUseCase;
-    private final StreamingService streamingService;
 
     public RagController(
             RagApplicationService ragApplicationService,
             RagChatUseCase ragChatUseCase,
-            ObjectProvider<VisionChatUseCase> visionChatUseCase,
-            StreamingService streamingService) {
+            ObjectProvider<VisionChatUseCase> visionChatUseCase) {
         this.ragApplicationService = ragApplicationService;
         this.ragChatUseCase = ragChatUseCase;
         this.visionChatUseCase = visionChatUseCase;
-        this.streamingService = streamingService;
     }
 
     @GetMapping("/documents")
@@ -82,18 +76,12 @@ public class RagController {
     public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
         if (hasImages(request.images())) {
             VisionChatUseCase visionChat = visionChatUseCase.getIfAvailable();
-            RagChatResult result;
             if (visionChat == null) {
-                result = ragChatUseCase.chat(request.question(), request.docIds(), request.topK(), request.sessionId());
-            } else {
-                result = visionChat.chatWithImages(
-                        request.question(), request.docIds(), request.images(), request.topK());
+                return ragChatUseCase.chatStream(
+                        request.question(), request.docIds(), request.topK(), request.sessionId());
             }
-            var sourceDtos = result.sources().stream()
-                    .filter(s -> s.text() != null && !s.text().isBlank())
-                    .map(s -> new SourceDocumentDto(null, s.text(), (float) s.score(), s.metadata()))
-                    .toList();
-            return streamingService.streamWithSources(result.response(), sourceDtos);
+            return visionChat.chatStreamWithImages(
+                    request.question(), request.docIds(), request.images(), request.topK());
         }
         return ragChatUseCase.chatStream(
                 request.question(), request.docIds(), request.topK(), request.sessionId());

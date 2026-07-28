@@ -1,6 +1,5 @@
 package com.ai.rag.web;
 
-import com.ai.common.streaming.StreamingService;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
@@ -49,9 +48,6 @@ class RagControllerTest {
     @Mock
     private ObjectProvider<VisionChatUseCase> visionChatUseCaseProvider;
 
-    @Mock
-    private StreamingService streamingService;
-
     private ObjectMapper objectMapper;
     private RagController controller;
 
@@ -60,7 +56,7 @@ class RagControllerTest {
         objectMapper = new ObjectMapper();
         lenient().when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(visionChatUseCase);
         controller = new RagController(
-                ragApplicationService, ragChatUseCase, visionChatUseCaseProvider, streamingService);
+                ragApplicationService, ragChatUseCase, visionChatUseCaseProvider);
     }
 
     @Nested
@@ -177,7 +173,7 @@ class RagControllerTest {
 
             assertThat(response.collectList().block()).isNotEmpty();
             verify(ragChatUseCase).chatStream(eq("What is AI?"), isNull(), eq(5), isNull());
-            verifyNoInteractions(streamingService);
+            verifyNoInteractions(visionChatUseCase);
         }
 
         @Test
@@ -205,6 +201,39 @@ class RagControllerTest {
 
             assertThat(response.collectList().block()).hasSize(1);
             verify(ragChatUseCase).chatStream(eq("Question"), isNull(), eq(10), isNull());
+        }
+
+        @Test
+        @DisplayName("should stream vision RAG when images provided")
+        void should_streamVisionRagWhenImagesProvided() {
+            List<String> images = List.of("iVBORw0KGgo=");
+            RagChatRequest request = new RagChatRequest("Describe image", null, null, 0.7, null, images);
+            when(visionChatUseCase.chatStreamWithImages(
+                    eq("Describe image"), isNull(), eq(images), eq(5)))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("token").build()));
+
+            Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
+
+            assertThat(response.collectList().block()).hasSize(1);
+            verify(visionChatUseCase).chatStreamWithImages(
+                    eq("Describe image"), isNull(), eq(images), eq(5));
+            verify(ragChatUseCase, never()).chatStream(anyString(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("should fallback to text stream when vision unavailable")
+        void should_fallbackToTextStreamWhenVisionUnavailable() {
+            when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(null);
+            List<String> images = List.of("iVBORw0KGgo=");
+            RagChatRequest request = new RagChatRequest("Describe image", null, null, 0.7, null, images);
+            when(ragChatUseCase.chatStream(eq("Describe image"), isNull(), eq(5), isNull()))
+                    .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("text ").build()));
+
+            Flux<ServerSentEvent<String>> response = controller.ragChatStream(request);
+
+            assertThat(response.collectList().block()).hasSize(1);
+            verify(ragChatUseCase).chatStream(eq("Describe image"), isNull(), eq(5), isNull());
+            verifyNoInteractions(visionChatUseCase);
         }
 
         @Test
