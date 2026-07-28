@@ -1,6 +1,6 @@
 import { ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
 import { provideZard } from './shared/zard';
 import { routes } from './app.routes';
@@ -30,7 +30,12 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(FeatureFlagService).initialize()),
     provideZard(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([credentialsInterceptor, httpErrorInterceptor])),
+    // AI-249: Angular 22 defaults to FetchBackend (no upload progress).
+    // Keep XHR for RAG document upload progress; do not switch to withFetch().
+    provideHttpClient(
+      withXhr(),
+      withInterceptors([credentialsInterceptor, httpErrorInterceptor]),
+    ),
     { provide: ErrorHandler, useClass: DatadogErrorHandler },
     { provide: SESSION_LIST, useClass: ChatSessionListService },
     provideNzConfig({
