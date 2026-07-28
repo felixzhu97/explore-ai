@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, resource, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ChartPanelComponent } from '../../shared/components/charts';
+import { API_BASE_URL } from '../../core/api.constants';
 import {
   MetricsDomainHealthComponent,
   type DomainHealthItem,
@@ -10,9 +12,13 @@ import {
   type MetricsKpi,
 } from '../components/metrics-kpi-cards.component';
 import { MetricsDrilldownTableComponent } from '../components/metrics-drilldown-table.component';
-import type { InvocationEvent, MetricsRange } from '../metrics.model';
-import { MetricsService } from '../metrics.service';
-import { firstValueFrom } from 'rxjs';
+import type {
+  DrilldownPage,
+  InvocationEvent,
+  MetricsOverview,
+  MetricsRange,
+  SeriesResponse,
+} from '../metrics.model';
 
 @Component({
   selector: 'app-metrics-overview-page',
@@ -28,46 +34,24 @@ import { firstValueFrom } from 'rxjs';
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
 export class MetricsOverviewPage {
-  private readonly metricsService = inject(MetricsService);
   private readonly router = inject(Router);
 
   readonly range = signal<MetricsRange>('7d');
 
-  readonly overviewResource = resource({
-    params: () => ({ range: this.range() }),
-    loader: ({ params }) => firstValueFrom(this.metricsService.getOverview(params.range)),
-  });
+  readonly overviewResource = httpResource<MetricsOverview>(() => ({
+    url: `${API_BASE_URL}/metrics/overview`,
+    params: { range: this.range() },
+  }));
 
-  readonly seriesResource = resource({
-    params: () => ({ range: this.range() }),
-    loader: ({ params }) => firstValueFrom(
-      this.metricsService.getSeries('requests', undefined, params.range),
-    ),
-  });
+  readonly seriesResource = httpResource<SeriesResponse>(() => ({
+    url: `${API_BASE_URL}/metrics/series`,
+    params: { name: 'requests', range: this.range() },
+  }));
 
-  readonly domainSeriesResource = resource({
-    params: () => ({ range: this.range() }),
-    loader: async ({ params }) => {
-      const overview = await firstValueFrom(
-        this.metricsService.getOverview(params.range),
-      );
-      return overview.requestsByDomain.map(item => ({
-        label: item.name,
-        value: item.count,
-      }));
-    },
-  });
-
-  readonly drilldownResource = resource({
-    params: () => ({ range: this.range() }),
-    loader: ({ params }) => firstValueFrom(
-      this.metricsService.getDrilldown({
-        page: 0,
-        size: 10,
-        range: params.range,
-      }),
-    ),
-  });
+  readonly drilldownResource = httpResource<DrilldownPage>(() => ({
+    url: `${API_BASE_URL}/metrics/drilldown`,
+    params: { page: 0, size: 10, range: this.range() },
+  }));
 
   readonly kpis = computed((): MetricsKpi[] => {
     const overview = this.overviewResource.value();
@@ -176,7 +160,16 @@ export class MetricsOverviewPage {
     }));
   });
 
-  readonly domainSeries = computed(() => this.domainSeriesResource.value() ?? []);
+  readonly domainSeries = computed(() => {
+    const overview = this.overviewResource.value();
+    if (!overview) {
+      return [];
+    }
+    return overview.requestsByDomain.map(item => ({
+      label: item.name,
+      value: item.count,
+    }));
+  });
 
   readonly drilldownItems = computed(
     () => this.drilldownResource.value()?.items ?? [],
