@@ -906,6 +906,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-242](https://felixzhu.atlassian.net/browse/AI-242) | RAG 视觉真流式 | 3 | 已交付 |
 | [AI-243](https://felixzhu.atlassian.net/browse/AI-243) | 统一 PromptTemplate | 5 | 已交付 |
 | [AI-245](https://felixzhu.atlassian.net/browse/AI-245) | ETL TokenTextSplitter 对齐 | 5 | 已交付 |
+| [AI-246](https://felixzhu.atlassian.net/browse/AI-246) | 生产 MCP Streamable HTTP | 5 | Draft |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
