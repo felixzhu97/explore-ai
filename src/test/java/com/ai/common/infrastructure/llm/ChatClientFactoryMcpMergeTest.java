@@ -90,6 +90,7 @@ class ChatClientFactoryMcpMergeTest {
                 new StubWebSearchTool(),
                 new StubDateTimeTool(),
                 mcpProvider,
+                false,
                 false);
     }
 
