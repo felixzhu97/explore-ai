@@ -902,6 +902,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-108](https://felixzhu.atlassian.net/browse/AI-108) | VectorStore + RAG Advisor | 8 | 已交付 |
 | [AI-239](https://felixzhu.atlassian.net/browse/AI-239) | RAG 单次检索 + Spring AI Observation | 3 | 已交付 |
 | [AI-240](https://felixzhu.atlassian.net/browse/AI-240) | H2SpringAiVectorStore + MCP local boot + RAG true stream | 5 | 已交付 |
+| [AI-250](https://felixzhu.atlassian.net/browse/AI-250) | 决策：不引入 Agent Skills 运行时 | 1 | Deferred |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
