@@ -119,6 +119,7 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 
 业务路径通过 `AiInvocationRecorder` 旁路写入 `ai_invocation_events`（Chat / RAG / Agents / Tools / Vision）。
 LLM 调用另由 Spring AI Micrometer Observation 导出 GenAI 语义指标（`/actuator/prometheus`）；业务域计数仍以 `AiInvocationRecorder` 为准。
+RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorStoreDocumentRetriever`；本地 profile 默认关闭 MCP client，避免 STDIO 阻断启动（生产用 Streamable HTTP）。
 
 ### 前端 (Web Frontend)
 

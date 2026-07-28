@@ -1,13 +1,25 @@
-# Copy to application-local.yml (gitignored) and enable with:
+# Local profile: MCP client is OFF by default so bootRun is not blocked by STDIO
+# (e.g. missing uvx / mcp-server-fetch). Enable explicitly when needed.
+#
 #   SPRING_PROFILES_ACTIVE=local
-# Requires uv/uvx: https://docs.astral.sh/uv/
+#
+# Production / shared envs should use Streamable HTTP MCP, not STDIO:
+#   https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html
+#
+# Optional STDIO Fetch (requires uv/uvx: https://docs.astral.sh/uv/):
+# spring:
+#   ai:
+#     mcp:
+#       client:
+#         enabled: true
+#         stdio:
+#           connections:
+#             fetch:
+#               command: uvx
+#               args:
+#                 - mcp-server-fetch
 spring:
   ai:
     mcp:
       client:
-        stdio:
-          connections:
-            fetch:
-              command: uvx
-              args:
-                - mcp-server-fetch
+        enabled: false
