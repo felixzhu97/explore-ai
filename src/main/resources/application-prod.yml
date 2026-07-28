@@ -8,9 +8,17 @@ spring:
       server:
         enabled: false
       client:
-        # Prod: no STDIO MCP (Fetch requires local uvx); lifestyle web search still works
+        enabled: ${MCP_CLIENT_ENABLED:false}
+        request-timeout: ${MCP_REQUEST_TIMEOUT:15s}
+        initialized: false
+        # Prod: Streamable HTTP only; STDIO is local-optional (see application-local.yml.example).
         stdio:
           enabled: false
+        streamable-http:
+          connections:
+            remote:
+              url: ${MCP_STREAMABLE_HTTP_URL:}
+              endpoint: ${MCP_STREAMABLE_HTTP_ENDPOINT:/mcp}
     chat:
       memory:
         repository:
