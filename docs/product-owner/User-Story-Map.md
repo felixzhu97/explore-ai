@@ -904,6 +904,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-240](https://felixzhu.atlassian.net/browse/AI-240) | H2SpringAiVectorStore + MCP local boot + RAG true stream | 5 | 已交付 |
 | [AI-241](https://felixzhu.atlassian.net/browse/AI-241) | Angular 钉到 22.0.8 | 2 | 已交付 |
 | [AI-242](https://felixzhu.atlassian.net/browse/AI-242) | RAG 视觉真流式 | 3 | 已交付 |
+| [AI-243](https://felixzhu.atlassian.net/browse/AI-243) | 统一 PromptTemplate | 5 | Draft |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
