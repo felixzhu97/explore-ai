@@ -47,6 +47,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
     implementation("org.springframework.ai:spring-ai-starter-mcp-client")
     implementation("org.springaicommunity:spring-ai-agent-utils:0.10.0")
+    implementation("org.springframework.ai:spring-ai-tool-search-advisor")
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.14.0")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")

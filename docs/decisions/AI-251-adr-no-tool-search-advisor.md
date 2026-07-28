@@ -1,25 +1,24 @@
-# ADR: Defer ToolSearchAdvisor (AI-251)
+# AI-251 — ToolSearchToolCallingAdvisor
 
-Status: Accepted (Won't / Deferred this phase)  
+Status: Implemented  
 Date: 2026-07-28
 
-## Decision
+## Goal
 
-Do **not** enable ToolSearchAdvisor in production until tool catalog size justifies it.
+Wire Spring AI `ToolSearchToolCallingAdvisor` behind a config switch so large tool catalogs only expose search-matched tools to the model.
 
-## Why
+## Behavior
 
-ToolSearch helps large tool catalogs (token cost). Current tool count is below the ~15–20 threshold.
+- Default: `app.ai.tool-search.enabled=false` — keep existing `AnswerAfterToolsAdvisor` tool loop
+- Enabled: use `ToolSearchToolCallingAdvisor` + `RegexToolIndex` instead of the full-schema tool advisor
+- Env: `AI_TOOL_SEARCH_ENABLED=true`
 
-## Revisit when
+## Out of scope
 
-Registered production tools exceed ~15–20 **or** prompt token share from tool schemas becomes a measured cost issue.
-
-## Boundary
-
-- AI-244 may converge `AnswerAfterToolsAdvisor` to official ToolCalling **without** ToolSearch
-- This ADR forbids ToolSearch only
+- Vector / Lucene indexes (regex is enough for current catalog size)
+- Changing AI-244 loop-guard convergence on other branches (merge may rebase this switch onto `ToolCallLoopGuardAdvisor`)
 
 ## References
 
-- https://docs.spring.io/spring-ai-agent-utils/reference/toolsearch.html
+- https://docs.spring.io/spring-ai/reference/guides/dynamic-tool-search.html
+- https://docs.spring.io/spring-ai/reference/api/tools.html

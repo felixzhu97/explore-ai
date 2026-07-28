@@ -144,6 +144,8 @@ app:
       base-url: ${IMAGE_BASE_URL:http://localhost:11434/v1}
     logging-advisor:
       enabled: ${AI_LOGGING_ADVISOR_ENABLED:true}
+    tool-search:
+      enabled: ${AI_TOOL_SEARCH_ENABLED:false}
     tts:
       enabled: ${TTS_ENABLED:true}
       model: ${TTS_MODEL:gpt-4o-mini-tts}
