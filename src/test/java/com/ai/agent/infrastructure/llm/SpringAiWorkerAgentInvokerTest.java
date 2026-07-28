@@ -2,6 +2,7 @@ package com.ai.agent.infrastructure.llm;
 
 import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.domain.vo.AgentType;
+import com.ai.agent.infrastructure.skills.AgentSkillsRuntime;
 import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.domain.repository.DateTimeTool;
@@ -36,6 +37,8 @@ class SpringAiWorkerAgentInvokerTest {
     private WeatherTool weatherTool;
     @Mock
     private DateTimeTool dateTimeTool;
+    @Mock
+    private AgentSkillsRuntime agentSkillsRuntime;
     @Mock
     private ChatClient chatClient;
     @Mock
@@ -100,12 +103,14 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     private SpringAiWorkerAgentInvoker newInvoker() {
+        lenient().when(agentSkillsRuntime.augmentSystemPrompt(any(String.class))).thenAnswer(invocation -> invocation.getArgument(0));
         return new SpringAiWorkerAgentInvoker(
                 chatClientProvider,
                 documentSearchTool,
                 webSearchTool,
                 weatherTool,
-                dateTimeTool);
+                dateTimeTool,
+                agentSkillsRuntime);
     }
 
     private static AgentDefinition agent(String type) {

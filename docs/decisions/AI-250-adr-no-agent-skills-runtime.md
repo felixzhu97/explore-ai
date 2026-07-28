@@ -1,27 +1,37 @@
-# ADR: Defer Agent Skills runtime (AI-250)
+# ADR: Opt-in Agent Skills runtime (AI-250)
 
-Status: Accepted (Won't / Deferred this phase)  
+Status: Accepted (Implemented)  
 Date: 2026-07-28
 
 ## Decision
 
-Do **not** wire Agent Skills / Cursor skill directories / `spring-ai-agent-utils` Skills runtime into production in this phase.
+Add an **opt-in** Agent Skills loader for the Agent module. Controlled skill id lists load `SKILL.md` metadata from classpath resources and inject prompt guidance plus the Spring AI `SkillsTool` callback into worker invocations. Default is **off**; invalid or unlisted skills fail soft with logs only.
 
 ## Why
 
-API surface is still evolving; ExploreAI Agent already has `AgentPromptCatalog` + tools. Premature binding risks churn without user value.
+ExploreAI Agent already has `AgentPromptCatalog` and per-worker tools. Agent Skills add a controlled way to ship reusable instruction packs without changing default boot behavior or binding Cursor dev-tooling paths into production.
 
-## Revisit when
+## Configuration
 
-1. Official Skills API marked stable for Spring AI 2.x production use
-2. Clear Agent-module ROI (measurable latency/quality or ops benefit)
+```yaml
+app:
+  agent:
+    skills:
+      enabled: ${AGENT_SKILLS_ENABLED:false}
+      ids: [] # e.g. [brief-style]
+      resource-location: classpath:agent/skills/
+```
+
+When `enabled=false` (default), no skills are loaded and worker prompts are unchanged.
 
 ## Consequences
 
-- Observe upstream only; no production skill-file loader
-- Experimental branches allowed if isolated from default boot
+- `AgentSkillLoader` parses and filters skills by configured ids; malformed files are skipped
+- `AgentSkillsRuntime` augments worker system prompts and registers `SkillsTool` when active
+- `spring-ai-agent-utils` is on the classpath; runtime wiring stays Agent-module scoped
+- Sample skill: `classpath:agent/skills/brief-style/SKILL.md`
 
 ## References
 
-- https://docs.spring.io/spring-ai-agent-utils/reference/
+- https://spring-ai-community.github.io/spring-ai-agent-utils/latest-snapshot/tools/SkillsTool/
 - https://docs.spring.io/spring-ai/reference/
