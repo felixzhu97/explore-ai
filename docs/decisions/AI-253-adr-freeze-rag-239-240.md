@@ -1,6 +1,6 @@
 # ADR: Freeze AI-239/240 RAG main path (AI-253)
 
-Status: Accepted (Won't rewrite)  
+Status: Implemented (contract lock)  
 Date: 2026-07-28
 
 ## Decision
