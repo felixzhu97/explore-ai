@@ -1,16 +1,23 @@
 # AI-241 — Pin Angular to 22.0.8
 
-Status: Draft / In Progress  
+Status: Implemented  
 Type: Implementation
 
 ## Goal
 
 Pin `@angular/*` to 22.0.8 (or verified equivalent patch) to pick up NG0318-related fixes.
 
-## Scope
+## What changed
 
-- Update `package.json` / lockfile for `@angular/*` 22.0.8
-- Run `npm test`, `npm run typecheck`, smoke e2e
+- **dependencies**: `@angular/animations`, `common`, `compiler`, `core`, `forms`, `platform-browser`, `platform-browser-dynamic`, `router` pinned to **22.0.8** (from ^22.0.0 / 22.0.2 resolved).
+- **dependencies**: `@angular/cdk` pinned to **22.0.6** (latest 22.0.x on npm; no 22.0.8 release for CDK).
+- **devDependencies**: `@angular/build`, `@angular/cli`, `@angular/compiler-cli` pinned to **22.0.8** (from ^22.0.0 / 22.0.2–22.0.3 resolved).
+- **lockfile**: `pnpm-lock.yaml` refreshed via `pnpm install`.
+
+## Verification
+
+- `pnpm test`
+- `pnpm typecheck`
 
 ## Out of scope
 
