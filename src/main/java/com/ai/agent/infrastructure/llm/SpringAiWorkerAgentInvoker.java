@@ -2,6 +2,7 @@ package com.ai.agent.infrastructure.llm;
 
 import com.ai.agent.application.port.WorkerAgentInvoker;
 import com.ai.agent.domain.model.AgentDefinition;
+import com.ai.agent.infrastructure.skills.AgentSkillsRuntime;
 import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;
 import com.ai.common.application.llm.ChatClientProfile;
 import com.ai.common.application.llm.ChatClientProvider;
@@ -24,18 +25,21 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     private final WebSearchTool webSearchTool;
     private final WeatherTool weatherTool;
     private final DateTimeTool dateTimeTool;
+    private final AgentSkillsRuntime agentSkillsRuntime;
 
     public SpringAiWorkerAgentInvoker(
             ChatClientProvider chatClientProvider,
             DocumentSearchTool documentSearchTool,
             WebSearchTool webSearchTool,
             WeatherTool weatherTool,
-            DateTimeTool dateTimeTool) {
+            DateTimeTool dateTimeTool,
+            AgentSkillsRuntime agentSkillsRuntime) {
         this.chatClientProvider = chatClientProvider;
         this.documentSearchTool = documentSearchTool;
         this.webSearchTool = webSearchTool;
         this.weatherTool = weatherTool;
         this.dateTimeTool = dateTimeTool;
+        this.agentSkillsRuntime = agentSkillsRuntime;
     }
 
     @Override
@@ -75,9 +79,12 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
         // (TOOLS + .tools(weatherTool) duplicated getWeather/getForecast and failed ChatOptions.)
         ChatClient client = chatClientProvider.create(
                 TextChatOptions.defaults(), ChatClientProfile.BARE, null);
+        String systemPrompt = agentSkillsRuntime.augmentSystemPrompt(agent.systemPrompt());
         ChatClient.ChatClientRequestSpec spec = client.prompt()
-                .system(agent.systemPrompt())
+                .system(systemPrompt)
                 .user(task);
+
+        agentSkillsRuntime.skillToolCallback().ifPresent(spec::toolCallbacks);
 
         return switch (agent.type().value()) {
             case "vectordb" -> spec.tools(documentSearchTool);
