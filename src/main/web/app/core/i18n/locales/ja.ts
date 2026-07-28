@@ -22,6 +22,7 @@ export const ja: Translations = {
     chat: 'チャット',
     metrics: 'メトリクス',
     privacy: 'プライバシー',
+    legal: '法的情報',
     generation: '生成',
     modelDev: '開発',
     modelOps: '運用',
@@ -34,6 +35,13 @@ export const ja: Translations = {
       create: '作成',
       lab: 'ラボ',
     },
+  },
+  account: {
+    guest: 'ゲスト',
+    plan: '{plan} プラン',
+    language: '言語',
+    help: 'ヘルプ',
+    menuLabel: 'アカウントメニュー',
   },
   imageUploader: {
     imageLabel: '画像',

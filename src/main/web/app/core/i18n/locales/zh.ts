@@ -22,6 +22,7 @@ export const zh: Translations = {
     chat: '对话',
     metrics: '指标',
     privacy: '隐私',
+    legal: '法律',
     generation: '生成',
     modelDev: '开发',
     modelOps: '运维',
@@ -34,6 +35,13 @@ export const zh: Translations = {
       create: '创作',
       lab: '实验室',
     },
+  },
+  account: {
+    guest: '访客',
+    plan: '{plan} 套餐',
+    language: '语言',
+    help: '帮助',
+    menuLabel: '账号菜单',
   },
   imageUploader: {
     imageLabel: '图片',

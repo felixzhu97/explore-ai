@@ -164,6 +164,13 @@ app:
     enabled: true
     requests-per-window: 60
     window-seconds: 60
+  billing:
+    quota-enabled: true
+    plan: ${APP_BILLING_PLAN:free}
+    free-daily-requests: ${APP_BILLING_FREE_DAILY:50}
+    pro-daily-requests: ${APP_BILLING_PRO_DAILY:2000}
+  metrics:
+    admin-api-key: ${METRICS_ADMIN_API_KEY:}
   data-retention:
     enabled: true
     session-max-age: 90d

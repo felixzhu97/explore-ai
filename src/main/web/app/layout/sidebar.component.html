@@ -223,32 +223,10 @@
     }
   </div>
 
-  <div class="mt-auto hidden shrink-0 border-t border-sidebar-border p-2 md:block">
-    @if (!collapsed()) {
-      <a
-        z-sidebar-menu-button
-        routerLink="/privacy"
-        class="mb-1"
-        (click)="onNavClick()"
-      >
-        <span class="opacity-60" [innerHTML]="privacyIcon"></span>
-        <span>{{ t().nav.privacy }}</span>
-      </a>
-      <app-language-picker [fullWidth]="true" />
-    } @else {
-      <a
-        z-sidebar-menu-button
-        zIconOnly
-        [zFull]="false"
-        routerLink="/privacy"
-        [title]="t().nav.privacy"
-        class="mb-1"
-        (click)="onNavClick()"
-      >
-        <span class="opacity-60" [innerHTML]="privacyIcon"></span>
-      </a>
-      <app-language-picker [showLabel]="false" [showChevron]="false" [fullWidth]="true" />
-    }
+  <div
+    class="relative z-20 mt-auto shrink-0 overflow-visible border-t border-sidebar-border p-2"
+  >
+    <app-sidebar-user-menu [collapsed]="collapsed()" />
   </div>
 </aside>
 

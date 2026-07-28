@@ -38,6 +38,7 @@ export interface Translations {
     chat: string;
     metrics: string;
     privacy: string;
+    legal: string;
     generation: string;
     modelDev: string;
     modelOps: string;
@@ -50,6 +51,13 @@ export interface Translations {
       create: string;
       lab: string;
     };
+  };
+  account: {
+    guest: string;
+    plan: string;
+    language: string;
+    help: string;
+    menuLabel: string;
   };
   imageUploader: {
     imageLabel: string;

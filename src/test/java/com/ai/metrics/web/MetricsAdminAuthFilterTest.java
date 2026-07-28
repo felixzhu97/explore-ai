@@ -1,0 +1,68 @@
+package com.ai.metrics.web;
+
+import jakarta.servlet.FilterChain;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("MetricsAdminAuthFilter")
+class MetricsAdminAuthFilterTest {
+
+    @Mock
+    private FilterChain filterChain;
+
+    private MetricsAdminProperties properties;
+    private MetricsAdminAuthFilter filter;
+
+    @BeforeEach
+    void setUp() {
+        properties = new MetricsAdminProperties();
+        properties.setAdminApiKey("secret-key");
+        filter = new MetricsAdminAuthFilter(properties);
+    }
+
+    @Test
+    void should_allow_whenAdminKeyMatches() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
+        request.addHeader(MetricsAdminAuthFilter.ADMIN_KEY_HEADER, "secret-key");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    void should_reject_whenAdminKeyMissing() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, filterChain);
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("METRICS_ADMIN_REQUIRED");
+        verify(filterChain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void should_notFilter_whenAdminKeyNotConfigured() throws Exception {
+        properties.setAdminApiKey("");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+    }
+}

@@ -22,6 +22,7 @@ export const en: Translations = {
     chat: 'Chat',
     metrics: 'Metrics',
     privacy: 'Privacy',
+    legal: 'Legal',
     generation: 'Generation',
     modelDev: 'Dev',
     modelOps: 'Ops',
@@ -34,6 +35,13 @@ export const en: Translations = {
       create: 'Create',
       lab: 'Lab',
     },
+  },
+  account: {
+    guest: 'Guest',
+    plan: '{plan} plan',
+    language: 'Language',
+    help: 'Help',
+    menuLabel: 'Account menu',
   },
   imageUploader: {
     imageLabel: 'Image',
