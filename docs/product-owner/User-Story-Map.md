@@ -902,7 +902,8 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-108](https://felixzhu.atlassian.net/browse/AI-108) | VectorStore + RAG Advisor | 8 | 已交付 |
 | [AI-239](https://felixzhu.atlassian.net/browse/AI-239) | RAG 单次检索 + Spring AI Observation | 3 | 已交付 |
 | [AI-240](https://felixzhu.atlassian.net/browse/AI-240) | H2SpringAiVectorStore + MCP local boot + RAG true stream | 5 | 已交付 |
-| [AI-250](https://felixzhu.atlassian.net/browse/AI-250) | 决策：不引入 Agent Skills 运行时 | 1 | Deferred |
+| [AI-250](https://felixzhu.atlassian.net/browse/AI-250) | Agent Skills 运行时（可选启用） | 1 | 已交付 |
+| [AI-246](https://felixzhu.atlassian.net/browse/AI-246) | 生产 MCP Streamable HTTP | 5 | 已交付 |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
@@ -916,6 +917,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 - `SessionTitleGenerator` / `ChatQualityEvaluator`：Native Structured Output + schema 校验
 - `H2SpringAiVectorStore` + `VectorStoreDocumentRetriever` + `RetrievalAugmentationAdvisor`：RAG 走 Spring AI VectorStore SPI；`ChatClient.stream()` 真流式；会话态可选 `CompressionQueryTransformer`
 - 本地 profile 默认 `spring.ai.mcp.client.enabled=false`（避免 STDIO 阻断启动）
+- 生产 profile：`MCP_CLIENT_ENABLED=true` + Streamable HTTP（`MCP_STREAMABLE_HTTP_URL`）；`McpClientResilienceConfig` 超时隔离；MCP 失败时 Chat/RAG 降级为本地工具
 - 可选 Anthropic Provider（`spring.ai.anthropic.api-key`）
 
 ---

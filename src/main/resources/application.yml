@@ -22,6 +22,8 @@ spring:
       client:
         enabled: true
         type: SYNC
+        request-timeout: ${MCP_REQUEST_TIMEOUT:20s}
+        initialized: false
         # Custom McpClientToolsConfig exposes callbacks for ChatClientFactory;
         # disable Spring AI's auto mcpToolCallbacks bean to avoid a name clash.
         toolcallback:
@@ -182,6 +184,11 @@ app:
     enabled: true
     session-max-age: 90d
     cron: "0 0 3 * * *"
+  agent:
+    skills:
+      enabled: ${AGENT_SKILLS_ENABLED:false}
+      ids: []
+      resource-location: classpath:agent/skills/
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
     detect:
