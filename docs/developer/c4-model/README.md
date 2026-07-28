@@ -91,7 +91,7 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 | `task/` | 摘要 / 翻译 / Q&A |
 | `guards/after-tools.st` | 工具调用后最终作答提醒 |
 
-组合入口：`PromptTemplates` + `ClasspathPromptLoader`；RAG/Vision user：`LocalizedRagPromptBuilder`。
+组合入口：`PromptTemplates` + `ClasspathPromptTemplate`；RAG/Vision user：`LocalizedRagPromptBuilder`。
 
 ### Image Analysis 子域（包名 `com.ai.vision`）
 
