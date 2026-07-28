@@ -31,7 +31,9 @@ public class RagProperties {
     }
 
     public static class Chunk {
+        /** Target chunk size in tokens ({@link org.springframework.ai.transformer.splitter.TokenTextSplitter}). */
         private int size = 500;
+        /** Legacy overlap (characters); unused by Spring AI 2.0 {@code TokenTextSplitter}. */
         private int overlap = 50;
 
         public int getSize() {

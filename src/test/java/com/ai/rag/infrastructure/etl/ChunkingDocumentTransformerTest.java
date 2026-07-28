@@ -1,65 +1,68 @@
 package com.ai.rag.infrastructure.etl;
 
-import com.ai.rag.application.usecase.ChunkingService;
 import com.ai.rag.domain.model.RawDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 @DisplayName("ChunkingDocumentTransformer")
 class ChunkingDocumentTransformerTest {
-
-    @Mock
-    private ChunkingService chunkingService;
 
     private ChunkingDocumentTransformer transformer;
 
     @BeforeEach
     void setUp() {
-        transformer = new ChunkingDocumentTransformer(chunkingService);
+        TokenTextSplitter splitter = TokenTextSplitter.builder()
+                .withChunkSize(20)
+                .withMinChunkSizeChars(1)
+                .withMinChunkLengthToEmbed(1)
+                .build();
+        transformer = new ChunkingDocumentTransformer(splitter);
     }
 
     @Test
     @DisplayName("should create raw documents for chunks preserving metadata and source")
     void should_create_raw_documents_for_chunks_preserving_metadata_and_source() {
         Map<String, Object> metadata = Map.of("fileName", "guide.txt", "category", "docs");
-        RawDocument document = new RawDocument("first paragraph second paragraph", metadata, "guide.txt");
-        when(chunkingService.chunk(document.content())).thenReturn(List.of("first paragraph", "second paragraph"));
+        String content = "First paragraph with enough words to exceed the token limit. "
+                + "Second paragraph also needs sufficient length for another chunk boundary.";
+        RawDocument document = new RawDocument(content, metadata, "guide.txt");
 
         List<RawDocument> chunks = transformer.transform(document);
 
-        assertThat(chunks)
-                .hasSize(2)
-                .extracting(RawDocument::content)
-                .containsExactly("first paragraph", "second paragraph");
+        assertThat(chunks).hasSizeGreaterThanOrEqualTo(2);
         assertThat(chunks)
                 .allSatisfy(chunk -> {
                     assertThat(chunk.metadata()).isEqualTo(metadata);
                     assertThat(chunk.source()).isEqualTo("guide.txt");
+                    assertThat(chunk.content()).isNotBlank();
                 });
-        verify(chunkingService).chunk(document.content());
     }
 
     @Test
-    @DisplayName("should return empty list when chunking produces no content")
-    void should_return_empty_list_when_chunking_produces_no_content() {
+    @DisplayName("should return empty list when content is blank")
+    void should_return_empty_list_when_content_is_blank() {
         RawDocument document = new RawDocument("   ", Map.of("fileName", "blank.txt"), "blank.txt");
-        when(chunkingService.chunk(document.content())).thenReturn(List.of());
 
         List<RawDocument> chunks = transformer.transform(document);
 
         assertThat(chunks).isEmpty();
-        verify(chunkingService).chunk(document.content());
+    }
+
+    @Test
+    @DisplayName("should return single chunk when text fits token limit")
+    void should_return_single_chunk_when_text_fits_token_limit() {
+        RawDocument document = new RawDocument("Short note.", Map.of("fileName", "short.txt"), "short.txt");
+
+        List<RawDocument> chunks = transformer.transform(document);
+
+        assertThat(chunks).hasSize(1);
+        assertThat(chunks.getFirst().content()).isEqualTo("Short note.");
     }
 }

@@ -2,29 +2,32 @@ package com.ai.rag.infrastructure.etl;
 
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentTransformer;
-import com.ai.rag.application.usecase.ChunkingService;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Infrastructure adapter for chunking documents.
+ * Infrastructure adapter: splits documents with Spring AI {@link TokenTextSplitter}.
  */
 @Component
 public class ChunkingDocumentTransformer implements DocumentTransformer {
 
-    private final ChunkingService chunkingService;
+    private final TokenTextSplitter textSplitter;
 
-    public ChunkingDocumentTransformer(ChunkingService chunkingService) {
-        this.chunkingService = chunkingService;
+    public ChunkingDocumentTransformer(TokenTextSplitter textSplitter) {
+        this.textSplitter = textSplitter;
     }
 
     @Override
     public List<RawDocument> transform(RawDocument document) {
-        List<String> chunks = chunkingService.chunk(document.content());
-        return chunks.stream()
-                .map(chunk -> new RawDocument(chunk, document.metadata(), document.source()))
-                .collect(Collectors.toList());
+        if (document.content() == null || document.content().isBlank()) {
+            return List.of();
+        }
+        Document springDocument = new Document(document.content(), document.metadata());
+        return textSplitter.apply(List.of(springDocument)).stream()
+                .map(chunk -> new RawDocument(chunk.getText(), document.metadata(), document.source()))
+                .toList();
     }
 }
