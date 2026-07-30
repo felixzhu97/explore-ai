@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr, HttpEventType } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { API_BASE_URL } from '../core/api.constants';
 import { NotificationService } from '../core/notification.service';
@@ -35,7 +35,7 @@ describe('RagService', () => {
     };
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         RagService,
         { provide: NotificationService, useValue: notifications },
@@ -144,11 +144,29 @@ describe('RagService', () => {
     const file = new File(['data'], 'doc.pdf');
     service.pendingFiles.set([file]);
     service.uploadFiles();
-    httpMock.expectOne(`${API_BASE_URL}/rag/documents/upload`).flush({ id: 'new-id' });
+    const uploadReq = httpMock.expectOne(`${API_BASE_URL}/rag/documents/upload`);
+    uploadReq.event({ type: HttpEventType.UploadProgress, loaded: 50, total: 100 });
+    expect(service.getUploadStatus('doc.pdf')?.progress).toBe(50);
+    uploadReq.flush({ id: 'new-id' });
     httpMock.expectOne(`${API_BASE_URL}/rag/documents`).flush({ documents: [] });
     await vi.advanceTimersByTimeAsync(2000);
     expect(notifications.showSuccess).toHaveBeenCalled();
     expect(service.pendingFiles()).toEqual([]);
+  });
+
+  it('should_report_upload_progress_during_xhr_upload', () => {
+    vi.useFakeTimers();
+    const file = new File(['data'], 'progress.pdf');
+    service.pendingFiles.set([file]);
+    service.uploadFiles();
+    const uploadReq = httpMock.expectOne(`${API_BASE_URL}/rag/documents/upload`);
+    uploadReq.event({ type: HttpEventType.UploadProgress, loaded: 25, total: 100 });
+    expect(service.getUploadStatus('progress.pdf')?.progress).toBe(25);
+    uploadReq.event({ type: HttpEventType.UploadProgress, loaded: 100, total: 100 });
+    expect(service.getUploadStatus('progress.pdf')?.progress).toBe(100);
+    uploadReq.flush({ id: 'progress-id' });
+    httpMock.expectOne(`${API_BASE_URL}/rag/documents`).flush({ documents: [] });
+    vi.useRealTimers();
   });
 
   it('should_handle_upload_error', () => {

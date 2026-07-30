@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Observable, of, catchError } from 'rxjs';
 import { API_BASE_URL } from '../core/api.constants';
 import { NotificationService } from '../core/notification.service';
@@ -214,7 +214,24 @@ export class RagService {
       });
 
       this.uploadDocument(file).subscribe({
-        next: () => {
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            const progress = Math.round((100 * event.loaded) / event.total);
+            this.uploadStatuses.update((statuses) => {
+              const next = new Map(statuses);
+              const current = next.get(file.name);
+              if (current) {
+                next.set(file.name, { ...current, progress });
+              }
+              return next;
+            });
+            return;
+          }
+
+          if (event.type !== HttpEventType.Response) {
+            return;
+          }
+
           this.uploadStatuses.update((statuses) => {
             const next = new Map(statuses);
             next.set(file.name, {
@@ -360,11 +377,18 @@ export class RagService {
       .pipe(catchError(() => of({ documents: [] })));
   }
 
-  private uploadDocument(file: File, title?: string): Observable<{ id: string }> {
+  /** Needs app-level withXhr(); FetchBackend cannot emit upload progress (AI-249). */
+  private uploadDocument(
+    file: File,
+    title?: string,
+  ): Observable<HttpEvent<{ id: string }>> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title ?? file.name);
-    return this.http.post<{ id: string }>(`${API_BASE_URL}/rag/documents/upload`, formData);
+    return this.http.post<{ id: string }>(`${API_BASE_URL}/rag/documents/upload`, formData, {
+      reportProgress: true,
+      observe: 'events',
+    });
   }
 
   private deleteDocumentRequest(docId: string): Observable<void> {
