@@ -910,6 +910,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-246](https://felixzhu.atlassian.net/browse/AI-246) | 生产 MCP Streamable HTTP | 5 | 已交付 |
 | [AI-250](https://felixzhu.atlassian.net/browse/AI-250) | Agent Skills 运行时（可选启用） | 1 | 已交付 |
 | [AI-251](https://felixzhu.atlassian.net/browse/AI-251) | 接入 ToolSearchAdvisor（可配置） | 5 | 已交付 |
+| [AI-253](https://felixzhu.atlassian.net/browse/AI-253) | 决策：冻结 AI-239/240 RAG 主路径 | 1 | 已交付 |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
