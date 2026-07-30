@@ -16,14 +16,14 @@ Person(admin, "管理员/开发者", "质量评估、文本分析、AI 指标看
 ' ============================================================
 System_Boundary(ai_platform, "AI Chat & Agent Platform") {
     System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Vercel 静态部署 (prod) / ng serve :4200 (dev)\n路由: /chat /generate /rag /metrics + flag: /agents /vision /mcp /eval /asr")
-    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Railway Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 12 子域")
+    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Render Free Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 12 子域")
 }
 
 ' ============================================================
 ' PLATFORM SERVICES
 ' ============================================================
 System_Ext(launchdarkly, "LaunchDarkly", "功能开关 (module-agents/vision/asr/mcp/eval)\n前端 Client SDK + 后端 Server SDK")
-System_Ext(datadog, "Datadog (us5)", "RUM (浏览器) + APM (经 Railway Agent)\n构建时注入 RUM 凭证，OSS 仓库不含密钥")
+System_Ext(datadog, "Datadog (us5)", "RUM (浏览器)；APM 可选（Render Free 默认关闭）\n构建时注入 RUM 凭证，OSS 仓库不含密钥")
 
 ' ============================================================
 ' CLOUD AI SERVICES (prod + dev)
@@ -35,7 +35,7 @@ System_Ext(serper_api, "Serper.dev API", "Web 搜索，实时信息检索")
 ' ============================================================
 ' DATA & LOCAL-ONLY SERVICES (dev / optional)
 ' ============================================================
-System_Ext(h2_db, "H2 Embedded", "嵌入式数据库 + 向量存储 (默认，prod Railway volume)")
+System_Ext(h2_db, "H2 Embedded", "嵌入式数据库 + 向量存储 (默认，prod Render ephemeral)")
 System_Ext(ollama, "Ollama [local]", "本地 Embedding (mxbai-embed-large) + 多模态 RAG Vision (qwen3.5)，:11434\nprod cloud-minimal 默认关闭")
 System_Ext(tesseract, "Tesseract OCR [local]", "本地 OCR (eng/chi_sim)，Tess4J JNA\nprod 默认关闭 (module-vision=false)")
 System_Ext(whisper_cpp, "whisper.cpp [local]", "本地流式 ASR，:8178\nprod 默认关闭 (module-audio-asr=false)")
@@ -47,12 +47,12 @@ System_Ext(onnx_vision, "Image Analysis ONNX [local]", "BLIP Caption + YOLOv8 De
 Rel(user, frontend, "使用 Web UI", "HTTPS")
 Rel(admin, launchdarkly, "配置功能开关", "HTTPS")
 Rel(admin, backend, "评估 / 分析 / 指标 API", "HTTPS")
-Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS (prod Railway / dev :9000)")
+Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS (prod Render / dev :9000)")
 
 Rel(frontend, launchdarkly, "读取模块开关", "HTTPS")
 Rel(frontend, datadog, "RUM 遥测", "HTTPS us5")
 Rel(backend, launchdarkly, "读取模块开关 + 启动引导", "HTTPS")
-Rel(backend, datadog, "APM（经 Railway Agent）", "Private Network → HTTPS us5")
+Rel(backend, datadog, "APM（可选 javaagent）", "HTTPS us5")
 
 Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")

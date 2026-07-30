@@ -11,7 +11,7 @@
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
 | `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
-| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Railway explore-ai + datadog-agent + Datadog + LaunchDarkly） |
+| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Render Free + Datadog RUM + LaunchDarkly） |
 
 ---
 
@@ -57,11 +57,11 @@
 
 - **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0
 - **架构**: Clean Architecture（`domain/repository/`，非 Hexagonal `domain/port/`）
-- **端口**: dev **9000** / prod **8080** (Railway `PORT`)
+- **端口**: dev **9000** / prod **8080** (Render `PORT`)
 - **子域 (12)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
-- **可观测性**: Datadog APM（`dd-java-agent` v1.64.0 → Railway `datadog-agent` `:8126`）
+- **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Free 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
 - **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis
 
@@ -187,7 +187,6 @@ Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephem
 | Angular Dev Server | 4200 |
 | Vercel (prod frontend) | HTTPS |
 | Render explore-ai (prod backend) | HTTPS → :8080（Free：休眠 / 无持久盘） |
-| Railway datadog-agent | Private Network :8126（APM intake） |
 | DeepSeek / OpenAI / Serper | HTTPS |
 | LaunchDarkly / Datadog us5 | HTTPS |
 

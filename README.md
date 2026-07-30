@@ -28,7 +28,7 @@
 | 本地 ASR | whisper.cpp (端口 8178) |
 | 前端 | Angular 22 + TypeScript |
 | 数据库 | H2 嵌入式 + Liquibase |
-| 部署 | 本地 `bootRun`；生产默认 **Render Free**（Docker）+ **Vercel**（前端）；`railway.toml` 仅作历史可选 |
+| 部署 | 本地 `bootRun`；生产默认 **Render Free**（Docker）+ **Vercel**（前端） |
 
 ## 快速启动
 
@@ -249,8 +249,6 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 - 无持久盘 → H2 随休眠/重启清空
 - 月 750 实例小时
 
-可选历史路径：[`railway.toml`](railway.toml) 仍可用于 Railway（需付费/有效 trial）。
-
 ### Vercel
 
 合入 `main` 后自动部署前端。确认 Production 的 rewrite 目标指向当前 Render 域名。
@@ -266,8 +264,6 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 | **Vercel** (Production) | `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN` | 构建时由 `scripts/inject-datadog-env.mjs` 注入 |
 | **Vercel** (可选) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 默认 `us5.datadoghq.com` / `explore-ai-web` / `production` |
 | **Render Free** | （不配置 APM） | Free 512MB：不启 Datadog javaagent |
-| **Railway**（可选历史）`explore-ai` | `DD_AGENT_HOST`, `DD_TRACE_AGENT_PORT` | 需另部署 `datadog-agent` sidecar |
-| **Railway**（可选历史）`datadog-agent` | `DD_API_KEY`, `DD_HOSTNAME`, `DD_SITE` | 见 `infra/datadog-agent/` |
 
 验证：
 

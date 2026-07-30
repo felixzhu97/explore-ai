@@ -1,5 +1,0 @@
-logs:
-  - type: udp
-    port: 514
-    service: explore-ai-api
-    source: syslog
