@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, resource, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { firstValueFrom, map } from 'rxjs';
+import { map } from 'rxjs';
 import { ChartPanelComponent, type ChartClickPayload } from '../../shared/components/charts';
+import { API_BASE_URL } from '../../core/api.constants';
 import {
   MetricsKpiCardsComponent,
   type MetricsKpi,
@@ -10,11 +12,13 @@ import {
 import { MetricsDrilldownTableComponent } from '../components/metrics-drilldown-table.component';
 import {
   isMetricsDomain,
+  type DrilldownPage,
   type InvocationEvent,
   type MetricsDomain,
+  type MetricsDomainSnapshot,
   type MetricsRange,
+  type SeriesResponse,
 } from '../metrics.model';
-import { MetricsService } from '../metrics.service';
 
 @Component({
   selector: 'app-metrics-domain-page',
@@ -29,7 +33,6 @@ import { MetricsService } from '../metrics.service';
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
 export class MetricsDomainPage {
-  private readonly metricsService = inject(MetricsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -56,59 +59,54 @@ export class MetricsDomainPage {
   readonly model = computed(() => this.queryParams().get('model') ?? undefined);
   readonly page = signal(0);
 
-  readonly domainResource = resource({
-    params: () => ({ domain: this.domain(), range: this.range() }),
-    loader: ({ params }) => {
-      if (!params.domain) {
-        return Promise.resolve(null);
-      }
-      return firstValueFrom(this.metricsService.getDomain(params.domain, params.range));
-    },
+  readonly domainResource = httpResource<MetricsDomainSnapshot>(() => {
+    const domain = this.domain();
+    if (!domain) {
+      return undefined;
+    }
+    return {
+      url: `${API_BASE_URL}/metrics/domains/${domain}`,
+      params: { range: this.range() },
+    };
   });
 
-  readonly docsSeriesResource = resource({
-    params: () => ({ domain: this.domain(), range: this.range() }),
-    loader: ({ params }) => {
-      if (params.domain !== 'rag') {
-        return Promise.resolve([]);
-      }
-      return firstValueFrom(
-        this.metricsService.getSeries(
-          'documents_by_status',
-          'rag',
-          params.range,
-        ),
-      ).then(response => response.points.map(point => ({
-        label: point.label,
-        value: point.value,
-      })),
-      );
-    },
+  readonly docsSeriesResource = httpResource<SeriesResponse>(() => {
+    if (this.domain() !== 'rag') {
+      return undefined;
+    }
+    return {
+      url: `${API_BASE_URL}/metrics/series`,
+      params: {
+        name: 'documents_by_status',
+        domain: 'rag',
+        range: this.range(),
+      },
+    };
   });
 
-  readonly drilldownResource = resource({
-    params: () => ({
-      domain: this.domain(),
+  readonly drilldownResource = httpResource<DrilldownPage>(() => {
+    const domain = this.domain();
+    if (!domain) {
+      return undefined;
+    }
+    const params: Record<string, string | number> = {
+      domain,
       range: this.range(),
-      day: this.day(),
-      model: this.model(),
       page: this.page(),
-    }),
-    loader: ({ params }) => {
-      if (!params.domain) {
-        return Promise.resolve({ items: [], total: 0, page: 0, size: 20 });
-      }
-      return firstValueFrom(
-        this.metricsService.getDrilldown({
-          domain: params.domain,
-          range: params.range,
-          day: params.day,
-          model: params.model,
-          page: params.page,
-          size: 20,
-        }),
-      );
-    },
+      size: 20,
+    };
+    const day = this.day();
+    const model = this.model();
+    if (day) {
+      params['day'] = day;
+    }
+    if (model) {
+      params['model'] = model;
+    }
+    return {
+      url: `${API_BASE_URL}/metrics/drilldown`,
+      params,
+    };
   });
 
   readonly title = computed(() => {
@@ -167,9 +165,16 @@ export class MetricsDomainPage {
     }));
   });
 
-  readonly docsSeries = computed(
-    () => this.docsSeriesResource.value() ?? [],
-  );
+  readonly docsSeries = computed(() => {
+    const response = this.docsSeriesResource.value();
+    if (!response) {
+      return [];
+    }
+    return response.points.map(point => ({
+      label: point.label,
+      value: point.value,
+    }));
+  });
 
   readonly drilldownItems = computed(
     () => this.drilldownResource.value()?.items ?? [],
