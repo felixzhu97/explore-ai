@@ -1,0 +1,41 @@
+# Render Blueprint — production backend (Free)
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: explore-ai
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JAVA_TOOL_OPTIONS
+        value: "-XX:MaxRAMPercentage=60.0"
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: IMAGE_PROVIDER
+        value: openai
+      - key: IMAGE_API_KEY
+        sync: false
+      - key: IMAGE_BASE_URL
+        value: https://api.openai.com/v1
+      - key: TTS_API_KEY
+        sync: false
+      - key: LAUNCHDARKLY_ENABLED
+        value: "true"
+      - key: LAUNCHDARKLY_SDK_KEY
+        sync: false
+      - key: METRICS_ADMIN_API_KEY
+        sync: false
+      - key: APP_BILLING_PLAN
+        value: free

@@ -158,15 +158,15 @@ Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
 ### 生产 (cloud-minimal)
 
 ```
-Browser → Vercel (Angular static) → Railway explore-ai (:8080 + H2 + dd-java-agent v1.64.0)
-        ↘ Datadog RUM (us5)              ↘ Private Network :8126 → datadog-agent → Datadog APM
+Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephemeral)
+        ↘ Datadog RUM (us5, 可选)        ↘ 无 APM sidecar（Free 省内存，不启 javaagent）
         ↘ LaunchDarkly Client            ↘ LaunchDarkly Server
                                          → DeepSeek / OpenAI / Serper
 ```
 
 **Prod frontend**: `https://www.felixzhu.chat` (Vercel)  
-**Prod API (browser)**: same-origin `/api` → Vercel rewrite → Railway  
-**Prod API (direct)**: `https://explore-ai-production.up.railway.app/api`
+**Prod API (browser)**: same-origin `/api` → Vercel rewrite → Render  
+**Prod API (direct)**: `https://explore-ai.onrender.com/api`
 
 
 **cloud-minimal**: `module-agents` **开启**；Vision / ASR / MCP / Eval / Ollama **关闭**
@@ -186,7 +186,7 @@ Browser → Vercel (Angular static) → Railway explore-ai (:8080 + H2 + dd-java
 | Image Analysis ONNX Models | `models/` 本地文件 [local] |
 | Angular Dev Server | 4200 |
 | Vercel (prod frontend) | HTTPS |
-| Railway explore-ai (prod backend) | HTTPS → :8080 |
+| Render explore-ai (prod backend) | HTTPS → :8080（Free：休眠 / 无持久盘） |
 | Railway datadog-agent | Private Network :8126（APM intake） |
 | DeepSeek / OpenAI / Serper | HTTPS |
 | LaunchDarkly / Datadog us5 | HTTPS |
