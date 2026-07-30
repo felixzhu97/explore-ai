@@ -51,7 +51,9 @@ spring:
           model: claude-sonnet-5
     rag:
       chunk:
+        # Token count for Spring AI TokenTextSplitter (ETL ingest)
         size: ${RAG_CHUNK_SIZE:500}
+        # Legacy; TokenTextSplitter 2.0 has no overlap — kept for MCP config compatibility
         overlap: ${RAG_CHUNK_OVERLAP:50}
       retrieval:
         top-k: ${RAG_TOP_K:5}

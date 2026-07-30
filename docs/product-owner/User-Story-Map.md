@@ -508,7 +508,7 @@ journey
         更新文档状态: 4: 开发者
 ```
 
-**实现**: `DocumentReader`, `DocumentTransformer`, `DocumentWriter` ports → `PdfAndTextDocumentReader`, `ChunkingDocumentTransformer`, `EmbeddingDocumentWriter`
+**实现**: `DocumentReader`, `DocumentTransformer`, `DocumentWriter` ports → `PdfAndTextDocumentReader`, `ChunkingDocumentTransformer` (`TokenTextSplitter`), `EmbeddingDocumentWriter`
 
 **Acceptance Criteria**
 
@@ -516,7 +516,7 @@ journey
   **WHEN** 文档处理完成  
   **THEN** 文档状态变为 READY 且 chunkCount > 0
 
-- **GIVEN** ETL 管道配置了 chunk size 500  
+- **GIVEN** ETL 管道配置了 chunk size 500（tokens）  
   **WHEN** 大文档被处理  
   **THEN** 生成多个 DocumentChunk 并写入向量库
 
@@ -905,6 +905,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-241](https://felixzhu.atlassian.net/browse/AI-241) | Angular 钉到 22.0.8 | 2 | 已交付 |
 | [AI-242](https://felixzhu.atlassian.net/browse/AI-242) | RAG 视觉真流式 | 3 | 已交付 |
 | [AI-243](https://felixzhu.atlassian.net/browse/AI-243) | 统一 PromptTemplate | 5 | 已交付 |
+| [AI-245](https://felixzhu.atlassian.net/browse/AI-245) | ETL TokenTextSplitter 对齐 | 5 | 已交付 |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
@@ -917,7 +918,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 - 主 Chat 流式接口支持 `tools_enabled`（前端 Tools 开关）
 - `SessionTitleGenerator` / `ChatQualityEvaluator`：Native Structured Output + schema 校验
 - `H2SpringAiVectorStore` + `VectorStoreDocumentRetriever` + `RetrievalAugmentationAdvisor`：RAG 走 Spring AI VectorStore SPI；`ChatClient.stream()` 真流式；会话态可选 `CompressionQueryTransformer`
-- Vision RAG（`images` 请求）：`VisionChatUseCase.chatStreamWithImages` + Ollama 多模态 `ChatClient.stream()`；不再使用 `StreamingService` 假流式
+
 - 本地 profile 默认 `spring.ai.mcp.client.enabled=false`（避免 STDIO 阻断启动）
 - 可选 Anthropic Provider（`spring.ai.anthropic.api-key`）
 
