@@ -233,14 +233,14 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 ## Production Deploy (Render Free + Vercel)
 
-生产后端默认跑在 **[Render Free](https://render.com/docs/free)**（Blueprint：根目录 [`render.yaml`](render.yaml)）；前端仍在 Vercel，`/api/*` 经 [`vercel.json`](vercel.json) 反代到 `https://explore-ai.onrender.com`。
+生产后端默认跑在 **[Render Free](https://render.com/docs/free)**（Blueprint：根目录 [`render.yaml`](render.yaml)）；前端仍在 Vercel，`/api/*` 经 [`vercel.json`](vercel.json) 反代到 `https://explore-ai-3krr.onrender.com`。
 
 ### Render
 
 1. [Dashboard](https://dashboard.render.com) → **New** → **Blueprint** → 连接本仓库 → 应用 `render.yaml`
 2. 在服务环境变量中填写 Dashboard 提示的 `sync: false` 密钥（至少 `DEEPSEEK_API_KEY`；其余按需）
 3. 等待 Docker 构建与健康检查 `/actuator/health` 通过
-4. 若实际子域不是 `explore-ai.onrender.com`，同步更新 `vercel.json` rewrite 与 `environment.prod.ts` 的 `wsUrl`
+4. 若实际子域不是 `explore-ai-3krr.onrender.com`，同步更新 `vercel.json` rewrite 与 `environment.prod.ts` 的 `wsUrl`
 
 **Free 限制（需接受）：**
 
@@ -273,7 +273,7 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 1. Vercel 构建日志出现 `Datadog RUM credentials injected...`（若已配置）
 2. 浏览器 Network 有 POST 到 `browser-intake-us5-datadoghq.com`（202）
-3. `curl https://explore-ai.onrender.com/api/health` → 200
+3. `curl https://explore-ai-3krr.onrender.com/api/health` → 200
 4. Datadog 控制台可见 RUM Sessions（APM 在 Render Free 默认关闭）
 
 未配置 `DD_API_KEY` 且未配置 `DD_AGENT_HOST` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地与 Render Free）。
