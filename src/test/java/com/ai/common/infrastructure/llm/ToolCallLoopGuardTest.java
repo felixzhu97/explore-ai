@@ -175,6 +175,57 @@ class ToolCallLoopGuardTest {
         }
     }
 
+    @Nested
+    @DisplayName("withStageReminder")
+    class WithStageReminder {
+
+        @Test
+        void should_appendFinalReminder_when_terminalToolPresent() {
+            List<Message> next = ToolCallLoopGuard.withStageReminder(List.of(
+                    toolResponse("call-1", "searchWeb", "hits")));
+
+            assertThat(next).hasSize(2);
+            assertThat(next.get(1).getText()).contains("Do not call any tools again");
+        }
+
+        @Test
+        void should_appendBridgeReminder_when_onlyDateTimePresent() {
+            List<Message> next = ToolCallLoopGuard.withStageReminder(List.of(
+                    toolResponse("call-1", "getCurrentDateTime", "now")));
+
+            assertThat(next).hasSize(2);
+            assertThat(next.get(1).getText()).contains("searchWeb exactly once");
+        }
+
+        @Test
+        void should_leaveHistoryUnchanged_when_noToolResults() {
+            List<Message> history = List.of(new UserMessage("hi"));
+            assertThat(ToolCallLoopGuard.withStageReminder(history)).isSameAs(history);
+        }
+    }
+
+    @Nested
+    @DisplayName("maybeDisableToolsRequest")
+    class MaybeDisableToolsRequest {
+
+        @Test
+        void should_disableTools_when_terminalToolPresent() {
+            OpenAiChatOptions options = OpenAiChatOptions.builder()
+                    .model("deepseek-v4-flash")
+                    .toolChoice("auto")
+                    .build();
+            var request = org.springframework.ai.chat.client.ChatClientRequest.builder()
+                    .prompt(new org.springframework.ai.chat.prompt.Prompt(
+                            List.of(toolResponse("call-1", "searchWeb", "hits")), options))
+                    .build();
+
+            var adjusted = ToolCallLoopGuard.maybeDisableToolsRequest(request);
+
+            OpenAiChatOptions disabled = (OpenAiChatOptions) adjusted.prompt().getOptions();
+            assertThat(disabled.getToolChoice()).isEqualTo("none");
+        }
+    }
+
     private static ToolResponseMessage toolResponse(String id, String name, String data) {
         return ToolResponseMessage.builder()
                 .responses(List.of(new ToolResponseMessage.ToolResponse(id, name, data)))

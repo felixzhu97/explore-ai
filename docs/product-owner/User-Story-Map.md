@@ -905,6 +905,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-241](https://felixzhu.atlassian.net/browse/AI-241) | Angular 钉到 22.0.8 | 2 | 已交付 |
 | [AI-242](https://felixzhu.atlassian.net/browse/AI-242) | RAG 视觉真流式 | 3 | 已交付 |
 | [AI-243](https://felixzhu.atlassian.net/browse/AI-243) | 统一 PromptTemplate | 5 | 已交付 |
+| [AI-244](https://felixzhu.atlassian.net/browse/AI-244) | 收敛 AnswerAfterToolsAdvisor | 5 | 已交付 |
 | [AI-245](https://felixzhu.atlassian.net/browse/AI-245) | ETL TokenTextSplitter 对齐 | 5 | 已交付 |
 | [AI-246](https://felixzhu.atlassian.net/browse/AI-246) | 生产 MCP Streamable HTTP | 5 | 已交付 |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
