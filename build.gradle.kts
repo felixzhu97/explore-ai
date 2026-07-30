@@ -127,7 +127,7 @@ tasks.jacocoTestCoverageVerification {
     }
 }
 
-// Railway deployment: ensure bootJar produces app.jar
+// Docker / Render deployment: ensure bootJar produces app.jar
 tasks.bootJar {
     archiveFileName.set("app.jar")
 }

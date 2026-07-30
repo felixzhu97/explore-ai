@@ -99,7 +99,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
 ' EXTERNAL
 ' ============================================================
 System_Boundary(external, "Backend & Platform") {
-    Component(backend_api, "AI Platform Backend", "REST/SSE/WebSocket", "dev :9000 / prod Railway :8080")
+    Component(backend_api, "AI Platform Backend", "REST/SSE/WebSocket", "dev :9000 / prod Render :8080")
     Component(launchdarkly, "LaunchDarkly", "Client SDK", "模块功能开关")
     Component(datadog_rum, "Datadog RUM", "Browser SDK", "us5 遥测")
     Component(browser_apis, "Browser APIs", "Web APIs", "HttpClient, WebSocket, SSE")

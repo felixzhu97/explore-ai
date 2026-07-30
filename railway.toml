@@ -1,6 +1,0 @@
-[build]
-builder = "dockerfile"
-
-[deploy]
-healthcheckPath = "/actuator/health"
-healthcheckTimeout = 300

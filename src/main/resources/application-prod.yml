@@ -1,7 +1,7 @@
 server:
   port: ${PORT:8080}
 
-# Railway / cloud-minimal profile: optional local-only modules are disabled.
+# cloud-minimal profile (Render): optional local-only modules are disabled.
 spring:
   ai:
     mcp:
