@@ -1,17 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ZardSwitchComponent } from '../shared/components/switch/switch.component';
 import { NotificationService } from '../core/notification.service';
 import { ChatService } from '../chat/chat.service';
 import { PrivacyApiService } from './privacy-api.service';
-import { PrivacyConsentService } from './privacy-consent.service';
 import { I18nService } from '../core/i18n';
 import { PRIVACY_PAGE_COPY } from './privacy.page.copy';
+import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.component';
 
 @Component({
   selector: 'app-privacy-page',
-  imports: [FormsModule, RouterLink, ZardSwitchComponent],
+  imports: [RouterLink, PrivacyPreferencesFormComponent],
   template: `
     <div class="mx-auto flex w-full max-w-3xl flex-col gap-8">
       <header>
@@ -41,17 +39,7 @@ import { PRIVACY_PAGE_COPY } from './privacy.page.copy';
         </ul>
       </section>
 
-      <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ copy().analyticsHeading }}</h2>
-        <p class="mt-2 text-sm text-muted-foreground">{{ copy().analyticsHelp }}</p>
-        <div class="mt-4 flex items-center justify-between gap-4">
-          <span class="text-sm">{{ copy().analyticsLabel }}</span>
-          <z-switch
-            [ngModel]="consent.consent().analytics"
-            (ngModelChange)="onAnalyticsToggle($event)"
-          />
-        </div>
-      </section>
+      <app-privacy-preferences-form [copy]="copy()" />
 
       <section class="rounded-xl border border-black/8 bg-background p-5">
         <h2 class="text-base font-semibold">{{ copy().controlsHeading }}</h2>
@@ -96,7 +84,6 @@ export class PrivacyPage {
   private readonly chat = inject(ChatService);
   private readonly notify = inject(NotificationService);
   private readonly i18n = inject(I18nService);
-  protected readonly consent = inject(PrivacyConsentService);
 
   readonly copy = computed(() => PRIVACY_PAGE_COPY[this.i18n.language()]);
   readonly busy = signal(false);
@@ -108,14 +95,6 @@ export class PrivacyPage {
     { name: 'LaunchDarkly', purpose: 'Feature flags (only with analytics consent)' },
     { name: 'Datadog', purpose: 'Optional RUM / APM (only with analytics consent)' },
   ];
-
-  onAnalyticsToggle(enabled: boolean): void {
-    if (enabled) {
-      this.consent.acceptAnalytics();
-    } else {
-      this.consent.rejectAnalytics();
-    }
-  }
 
   eraseSessions(): void {
     if (!confirm(this.copy().eraseConfirm)) {

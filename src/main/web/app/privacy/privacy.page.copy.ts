@@ -12,6 +12,12 @@ export interface PrivacyPageCopy {
   analyticsHeading: string;
   analyticsHelp: string;
   analyticsLabel: string;
+  contactEmailLabel: string;
+  contactEmailHelp: string;
+  contactEmailInvalid: string;
+  savePreferencesButton: string;
+  savePreferencesSaving: string;
+  savePreferencesSuccess: string;
   controlsHeading: string;
   controlsHelp: string;
   eraseButton: string;
@@ -43,6 +49,13 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     analyticsHelp:
       'Optional Datadog RUM and LaunchDarkly load only when you allow analytics. Feature modules still work with local fallbacks when analytics is off.',
     analyticsLabel: 'Allow analytics & feature telemetry',
+    contactEmailLabel: 'Privacy contact email (optional)',
+    contactEmailHelp:
+      'Optional email if you want a record for privacy requests tied to this browser.',
+    contactEmailInvalid: 'Enter a valid email address',
+    savePreferencesButton: 'Save preferences',
+    savePreferencesSaving: 'Saving…',
+    savePreferencesSuccess: 'Privacy preferences saved',
     controlsHeading: 'Your controls',
     controlsHelp:
       'Erase removes chat sessions and linked metrics for this browser identity. Reset identity issues a new cookie and hides prior sessions.',
@@ -73,6 +86,12 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     analyticsHelp:
       '仅在您允许分析时加载可选的 Datadog RUM 与 LaunchDarkly。关闭分析时功能模块仍使用本地回退配置。',
     analyticsLabel: '允许分析与功能遥测',
+    contactEmailLabel: '隐私联系邮箱（可选）',
+    contactEmailHelp: '可选：便于将隐私请求与本浏览器关联。',
+    contactEmailInvalid: '请输入有效邮箱地址',
+    savePreferencesButton: '保存偏好',
+    savePreferencesSaving: '保存中…',
+    savePreferencesSuccess: '隐私偏好已保存',
     controlsHeading: '您的控制',
     controlsHelp:
       '擦除会删除本浏览器身份下的聊天会话及关联指标。重置身份会签发新 Cookie 并隐藏旧会话。',
@@ -103,6 +122,13 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     analyticsHelp:
       'Optional Datadog RUM and LaunchDarkly load only when you allow analytics. Feature modules still work with local fallbacks when analytics is off.',
     analyticsLabel: 'Allow analytics & feature telemetry',
+    contactEmailLabel: 'Privacy contact email (optional)',
+    contactEmailHelp:
+      'Optional email if you want a record for privacy requests tied to this browser.',
+    contactEmailInvalid: 'Enter a valid email address',
+    savePreferencesButton: 'Save preferences',
+    savePreferencesSaving: 'Saving…',
+    savePreferencesSuccess: 'Privacy preferences saved',
     controlsHeading: 'Your controls',
     controlsHelp:
       'Erase removes chat sessions and linked metrics for this browser identity. Reset identity issues a new cookie and hides prior sessions.',
@@ -133,6 +159,13 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     analyticsHelp:
       'Optional Datadog RUM and LaunchDarkly load only when you allow analytics. Feature modules still work with local fallbacks when analytics is off.',
     analyticsLabel: 'Allow analytics & feature telemetry',
+    contactEmailLabel: 'Privacy contact email (optional)',
+    contactEmailHelp:
+      'Optional email if you want a record for privacy requests tied to this browser.',
+    contactEmailInvalid: 'Enter a valid email address',
+    savePreferencesButton: 'Save preferences',
+    savePreferencesSaving: 'Saving…',
+    savePreferencesSuccess: 'Privacy preferences saved',
     controlsHeading: 'Your controls',
     controlsHelp:
       'Erase removes chat sessions and linked metrics for this browser identity. Reset identity issues a new cookie and hides prior sessions.',
@@ -163,6 +196,13 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     analyticsHelp:
       'Optional Datadog RUM and LaunchDarkly load only when you allow analytics. Feature modules still work with local fallbacks when analytics is off.',
     analyticsLabel: 'Allow analytics & feature telemetry',
+    contactEmailLabel: 'Privacy contact email (optional)',
+    contactEmailHelp:
+      'Optional email if you want a record for privacy requests tied to this browser.',
+    contactEmailInvalid: 'Enter a valid email address',
+    savePreferencesButton: 'Save preferences',
+    savePreferencesSaving: 'Saving…',
+    savePreferencesSuccess: 'Privacy preferences saved',
     controlsHeading: 'Your controls',
     controlsHelp:
       'Erase removes chat sessions and linked metrics for this browser identity. Reset identity issues a new cookie and hides prior sessions.',
