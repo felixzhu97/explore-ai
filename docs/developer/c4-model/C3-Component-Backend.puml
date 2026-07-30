@@ -129,6 +129,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(worker_invoker, "SpringAiWorkerAgentInvoker", "@Component", "Worker + ToolCallMarkupFilter")
         Component(agent_prompts, "AgentPromptCatalog", "@Component", "Agent system ← PromptTemplates")
         Component(prompt_templates, "PromptTemplates", "@Component", "组合 classpath:prompts/**")
+        Component(prompt_template, "ClasspathPromptTemplate", "Util", "Spring AI PromptTemplate 渲染")
         Component(prompt_loader, "ClasspathPromptLoader", "Util", "加载 .st 片段")
         Component(rag_prompt_builder, "LocalizedRagPromptBuilder", "@Component", "RAG/Vision 多语言 user prompt")
         Component(prompt_resources, "prompts/*.st", "Classpath", "shared/chat/rag/agent/task/guards")
