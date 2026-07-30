@@ -903,6 +903,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-239](https://felixzhu.atlassian.net/browse/AI-239) | RAG 单次检索 + Spring AI Observation | 3 | 已交付 |
 | [AI-240](https://felixzhu.atlassian.net/browse/AI-240) | H2SpringAiVectorStore + MCP local boot + RAG true stream | 5 | 已交付 |
 | [AI-241](https://felixzhu.atlassian.net/browse/AI-241) | Angular 钉到 22.0.8 | 2 | 已交付 |
+| [AI-242](https://felixzhu.atlassian.net/browse/AI-242) | RAG 视觉真流式 | 3 | 已交付 |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
@@ -915,6 +916,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 - 主 Chat 流式接口支持 `tools_enabled`（前端 Tools 开关）
 - `SessionTitleGenerator` / `ChatQualityEvaluator`：Native Structured Output + schema 校验
 - `H2SpringAiVectorStore` + `VectorStoreDocumentRetriever` + `RetrievalAugmentationAdvisor`：RAG 走 Spring AI VectorStore SPI；`ChatClient.stream()` 真流式；会话态可选 `CompressionQueryTransformer`
+- Vision RAG（`images` 请求）：`VisionChatUseCase.chatStreamWithImages` + Ollama 多模态 `ChatClient.stream()`；不再使用 `StreamingService` 假流式
 - 本地 profile 默认 `spring.ai.mcp.client.enabled=false`（避免 STDIO 阻断启动）
 - 可选 Anthropic Provider（`spring.ai.anthropic.api-key`）
 
