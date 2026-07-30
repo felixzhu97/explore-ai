@@ -206,7 +206,6 @@ journey
 - **GIVEN** 已有 Client Identity **WHEN** `GET /api/account/me` **THEN** 返回 `mode=anonymous` 与当前 plan
 
 **API / 路由**: `/legal`, `/legal/:doc`, `GET /api/account/me`, `UsageQuotaFilter`, `MetricsAdminAuthFilter`  
-**文档**: `docs/business/business-model-canvas.md`, `docs/business/pricing.md`  
 **Jira**: Epic [AI-220](https://felixzhu.atlassian.net/browse/AI-220)–[AI-223](https://felixzhu.atlassian.net/browse/AI-223)；本切片覆盖 [AI-227](https://felixzhu.atlassian.net/browse/AI-227), [AI-229](https://felixzhu.atlassian.net/browse/AI-229), [AI-231](https://felixzhu.atlassian.net/browse/AI-231), [AI-233](https://felixzhu.atlassian.net/browse/AI-233), [AI-234](https://felixzhu.atlassian.net/browse/AI-234), [AI-224](https://felixzhu.atlassian.net/browse/AI-224)（账号雏形）
 
 ---
