@@ -906,6 +906,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 | [AI-242](https://felixzhu.atlassian.net/browse/AI-242) | RAG 视觉真流式 | 3 | 已交付 |
 | [AI-243](https://felixzhu.atlassian.net/browse/AI-243) | 统一 PromptTemplate | 5 | 已交付 |
 | [AI-245](https://felixzhu.atlassian.net/browse/AI-245) | ETL TokenTextSplitter 对齐 | 5 | 已交付 |
+| [AI-246](https://felixzhu.atlassian.net/browse/AI-246) | 生产 MCP Streamable HTTP | 5 | 已交付 |
 | [AI-109](https://felixzhu.atlassian.net/browse/AI-109) | Observability Advisors | 2 | 已交付 |
 | [AI-110](https://felixzhu.atlassian.net/browse/AI-110) | spring-ai-test 与 Anthropic Provider | 5 | 已交付 |
 
@@ -920,6 +921,7 @@ Epic: [AI-102 Spring AI 能力补齐](https://felixzhu.atlassian.net/browse/AI-1
 - `H2SpringAiVectorStore` + `VectorStoreDocumentRetriever` + `RetrievalAugmentationAdvisor`：RAG 走 Spring AI VectorStore SPI；`ChatClient.stream()` 真流式；会话态可选 `CompressionQueryTransformer`
 
 - 本地 profile 默认 `spring.ai.mcp.client.enabled=false`（避免 STDIO 阻断启动）
+- 生产 profile：`MCP_CLIENT_ENABLED=true` + Streamable HTTP（`MCP_STREAMABLE_HTTP_URL`）；`McpClientResilienceConfig` 超时隔离；MCP 失败时 Chat/RAG 降级为本地工具
 - 可选 Anthropic Provider（`spring.ai.anthropic.api-key`）
 
 ---
