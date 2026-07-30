@@ -58,9 +58,17 @@ export class FeatureFlagService {
   }
 
   private syncFlags(client: LDClient): void {
+    // Prefer allFlags() so missing keys use local fallback without
+    // boolVariation → "Unknown feature flag" console noise.
+    // https://docs.launchdarkly.com/sdk/features/evaluating
+    const available = client.allFlags();
     const values = {} as Record<FeatureFlagKey, boolean>;
     for (const key of FLAG_KEYS) {
-      values[key] = client.boolVariation(key, environment.featureFlagFallback[key]);
+      if (Object.prototype.hasOwnProperty.call(available, key)) {
+        values[key] = Boolean(available[key]);
+      } else {
+        values[key] = environment.featureFlagFallback[key];
+      }
     }
     this.flags.set(values);
   }

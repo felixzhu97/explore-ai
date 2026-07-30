@@ -7,6 +7,7 @@ const mockClient = {
   on: vi.fn(),
   start: vi.fn(),
   waitForInitialization: vi.fn(),
+  allFlags: vi.fn(() => ({})),
   boolVariation: vi.fn((_key: string, fallback: boolean) => fallback),
 };
 
@@ -43,6 +44,7 @@ describe('FeatureFlagService', () => {
       'module-agents': true,
     };
     mockClient.waitForInitialization.mockResolvedValue(undefined);
+    mockClient.allFlags.mockReturnValue({});
     mockClient.boolVariation.mockImplementation(
       (_key: string, fallback: boolean) => fallback,
     );
@@ -87,9 +89,10 @@ describe('FeatureFlagService', () => {
   it('should_sync_flags_after_launchdarkly_init', async () => {
     allowAnalytics();
     envState.launchDarklyClientSideId = 'client-id';
-    mockClient.boolVariation.mockImplementation(
-      (key: string) => key === FEATURE_FLAG_KEYS.MODULE_VISION,
-    );
+    mockClient.allFlags.mockReturnValue({
+      [FEATURE_FLAG_KEYS.MODULE_VISION]: true,
+      [FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR]: false,
+    });
 
     const { createClient } = await import('@launchdarkly/js-client-sdk');
     const { FeatureFlagService } = await import('./feature-flag.service');
@@ -100,6 +103,33 @@ describe('FeatureFlagService', () => {
 
     expect(createClient).toHaveBeenCalled();
     expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_VISION)).toBe(true);
+    expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR)).toBe(false);
+    expect(mockClient.boolVariation).not.toHaveBeenCalled();
+  });
+
+  it('should_use_fallback_without_boolVariation_when_flag_missing_from_allFlags', async () => {
+    allowAnalytics();
+    envState.launchDarklyClientSideId = 'client-id';
+    envState.featureFlagFallback = {
+      'module-vision': true,
+      'module-audio-asr': true,
+      'module-mcp': true,
+      'module-eval': true,
+      'module-agents': true,
+    };
+    mockClient.allFlags.mockReturnValue({
+      [FEATURE_FLAG_KEYS.MODULE_VISION]: false,
+    });
+
+    const { FeatureFlagService } = await import('./feature-flag.service');
+    TestBed.configureTestingModule({ providers: [FeatureFlagService] });
+    const service = TestBed.inject(FeatureFlagService);
+
+    await service.initialize();
+
+    expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_VISION)).toBe(false);
+    expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_AGENTS)).toBe(true);
+    expect(mockClient.boolVariation).not.toHaveBeenCalled();
   });
 
   it('should_fallback_when_launchdarkly_init_times_out', async () => {
