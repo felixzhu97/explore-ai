@@ -9,7 +9,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.launchdarkly.com https://www.datadoghq-browser-agent.com https://*.datadoghq.com https://static.cloudflareinsights.com; connect-src 'self' https://*.launchdarkly.com https://*.datadoghq.com https://browser-intake-us5-datadoghq.com https://*.onrender.com wss://*.onrender.com; font-src 'self' data:; form-action 'self'"
+          "value": "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://vercel.live; script-src 'self' 'unsafe-inline' https://*.launchdarkly.com https://www.datadoghq-browser-agent.com https://*.datadoghq.com https://static.cloudflareinsights.com https://vercel.live; connect-src 'self' https://*.launchdarkly.com https://*.datadoghq.com https://browser-intake-us5-datadoghq.com https://*.onrender.com wss://*.onrender.com https://vercel.live wss://ws-us3.pusher.com; font-src 'self' data: https://vercel.live https://assets.vercel.com; frame-src https://vercel.live; form-action 'self'"
         },
         {
           "key": "X-Content-Type-Options",
