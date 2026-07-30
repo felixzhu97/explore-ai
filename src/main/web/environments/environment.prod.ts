@@ -4,7 +4,7 @@
 export const environment = {
   production: true,
   apiBaseUrl: '/api',
-  wsUrl: 'wss://explore-ai.onrender.com',
+  wsUrl: 'wss://explore-ai-3krr.onrender.com',
   launchDarklyClientSideId: '6a53b2bf3d90280be0afbf03',
   datadog: {
     applicationId: '',

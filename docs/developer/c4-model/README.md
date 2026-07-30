@@ -166,7 +166,7 @@ Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephem
 
 **Prod frontend**: `https://www.felixzhu.chat` (Vercel)  
 **Prod API (browser)**: same-origin `/api` → Vercel rewrite → Render  
-**Prod API (direct)**: `https://explore-ai.onrender.com/api`
+**Prod API (direct)**: `https://explore-ai-3krr.onrender.com/api`
 
 
 **cloud-minimal**: `module-agents` **开启**；Vision / ASR / MCP / Eval / Ollama **关闭**
