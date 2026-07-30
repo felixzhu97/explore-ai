@@ -1,10 +1,10 @@
 // Environment configuration for production (cloud-minimal)
-// Browser calls same-origin /api (Vercel rewrite → Railway) so HttpOnly
+// Browser calls same-origin /api (Vercel rewrite → Render) so HttpOnly
 // client identity cookies stay first-party (SameSite=Lax works).
 export const environment = {
   production: true,
   apiBaseUrl: '/api',
-  wsUrl: 'wss://explore-ai-production.up.railway.app',
+  wsUrl: 'wss://explore-ai.onrender.com',
   launchDarklyClientSideId: '6a53b2bf3d90280be0afbf03',
   datadog: {
     applicationId: '',

@@ -28,7 +28,7 @@
 | 本地 ASR | whisper.cpp (端口 8178) |
 | 前端 | Angular 22 + TypeScript |
 | 数据库 | H2 嵌入式 + Liquibase |
-| 部署 | `./gradlew bootRun` + 静态前端；生产可用 Docker 镜像（默认 H2，PostgreSQL + pgvector 需自行编排） |
+| 部署 | 本地 `bootRun`；生产默认 **Render Free**（Docker）+ **Vercel**（前端）；`railway.toml` 仅作历史可选 |
 
 ## 快速启动
 
@@ -153,7 +153,7 @@ explore-ai/
 ├── docs/c4-model/           # C4 架构图
 ```
 
-云端部署（Railway + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。
+云端部署（Render Free + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。
 
 ---
 
@@ -231,28 +231,52 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 ---
 
+## Production Deploy (Render Free + Vercel)
+
+生产后端默认跑在 **[Render Free](https://render.com/docs/free)**（Blueprint：根目录 [`render.yaml`](render.yaml)）；前端仍在 Vercel，`/api/*` 经 [`vercel.json`](vercel.json) 反代到 `https://explore-ai.onrender.com`。
+
+### Render
+
+1. [Dashboard](https://dashboard.render.com) → **New** → **Blueprint** → 连接本仓库 → 应用 `render.yaml`
+2. 在服务环境变量中填写 Dashboard 提示的 `sync: false` 密钥（至少 `DEEPSEEK_API_KEY`；其余按需）
+3. 等待 Docker 构建与健康检查 `/actuator/health` 通过
+4. 若实际子域不是 `explore-ai.onrender.com`，同步更新 `vercel.json` rewrite 与 `environment.prod.ts` 的 `wsUrl`
+
+**Free 限制（需接受）：**
+
+- 512 MB RAM → 已设 `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=60.0`；**不要**设 `DD_API_KEY` / `DD_AGENT_HOST`（避免 javaagent 占内存）
+- 空闲 15 分钟休眠；冷启动约 1 分钟起（Spring Boot 可能更久）
+- 无持久盘 → H2 随休眠/重启清空
+- 月 750 实例小时
+
+可选历史路径：[`railway.toml`](railway.toml) 仍可用于 Railway（需付费/有效 trial）。
+
+### Vercel
+
+合入 `main` 后自动部署前端。确认 Production 的 rewrite 目标指向当前 Render 域名。
+
+---
+
 ## Production Observability (Datadog us5)
 
-代码已集成 RUM（前端）与 APM（后端）。凭证不入库，需在部署平台配置后重新部署。
+代码已集成 RUM（前端）与可选 APM（后端）。凭证不入库，需在部署平台配置后重新部署。
 
 | 平台 | 变量 | 说明 |
 |------|------|------|
 | **Vercel** (Production) | `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN` | 构建时由 `scripts/inject-datadog-env.mjs` 注入 |
 | **Vercel** (可选) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 默认 `us5.datadoghq.com` / `explore-ai-web` / `production` |
-| **Railway** `explore-ai` | `DD_AGENT_HOST`, `DD_TRACE_AGENT_PORT` | `${{datadog-agent.RAILWAY_PRIVATE_DOMAIN}}` / `8126`；无需 `DD_API_KEY` |
-| **Railway** `datadog-agent` | `DD_API_KEY`, `DD_HOSTNAME`, `DD_SITE` | Agent 服务；`DD_HOSTNAME=${{RAILWAY_PRIVATE_DOMAIN}}` |
-| **Railway** (已有) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 建议 `us5.datadoghq.com` / `explore-ai-api` / `production` |
-
-Railway 需单独部署 `datadog-agent` 服务（`infra/datadog-agent/`），通过 Private Network 接收 APM traces。参考 [Set Up a Datadog Agent in Railway](https://docs.railway.com/guides/set-up-a-datadog-agent)。
+| **Render Free** | （不配置 APM） | Free 512MB：不启 Datadog javaagent |
+| **Railway**（可选历史）`explore-ai` | `DD_AGENT_HOST`, `DD_TRACE_AGENT_PORT` | 需另部署 `datadog-agent` sidecar |
+| **Railway**（可选历史）`datadog-agent` | `DD_API_KEY`, `DD_HOSTNAME`, `DD_SITE` | 见 `infra/datadog-agent/` |
 
 验证：
 
-1. Vercel 构建日志出现 `Datadog RUM credentials injected...`
+1. Vercel 构建日志出现 `Datadog RUM credentials injected...`（若已配置）
 2. 浏览器 Network 有 POST 到 `browser-intake-us5-datadoghq.com`（202）
-3. Railway `explore-ai` 日志中 `agent_error":false` 且 `agent_url` 指向 `datadog-agent.railway.internal:8126`
-4. Datadog 控制台可见 RUM Sessions 与 APM Service `explore-ai-api`
+3. `curl https://explore-ai.onrender.com/api/health` → 200
+4. Datadog 控制台可见 RUM Sessions（APM 在 Render Free 默认关闭）
 
-未配置 `DD_API_KEY` 且未配置 `DD_AGENT_HOST` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地）。
+未配置 `DD_API_KEY` 且未配置 `DD_AGENT_HOST` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地与 Render Free）。
 
 ---
 
