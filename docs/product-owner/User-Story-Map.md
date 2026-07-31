@@ -62,7 +62,7 @@ title: AI Chat & Agent Platform - 用户故事地图
 **I want** 在对话中调用已接入的外部工具  
 **So that** AI 能完成查天气、搜文档等超出纯文本的任务
 
-### MCP 标准三原语与多 Server Host
+### MCP Host：按 Server 浏览 Tools/Resources/Prompts 并对外暴露三原语
 
 **As a** 最终用户 / 平台开发者  
 **I want** 在 `/mcp` 按已连接 Server 查看 Tools、Resources、Prompts，且本应用对外 MCP Server 真实暴露这些能力  
