@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,19 +42,56 @@ public class McpClientController {
     @Operation(summary = "List all registered MCP tools")
     public ResponseEntity<List<Map<String, String>>> listTools() {
         List<Map<String, String>> tools = mcpFacade.getToolDefinitions().stream()
-                .map(def -> Map.of("name", def.name(), "description", def.description()))
+                .map(def -> Map.of(
+                        "name", def.name(),
+                        "description", def.description(),
+                        "serverName", def.serverName()))
                 .toList();
         return ResponseEntity.ok(tools);
+    }
+
+    @GetMapping("/resources")
+    @Operation(summary = "List MCP resources from connected servers")
+    public ResponseEntity<List<Map<String, String>>> listResources() {
+        List<Map<String, String>> resources = mcpFacade.getResourceDefinitions().stream()
+                .map(def -> Map.of(
+                        "uri", def.uri(),
+                        "name", def.name(),
+                        "description", def.description(),
+                        "serverName", def.serverName()))
+                .toList();
+        return ResponseEntity.ok(resources);
+    }
+
+    @GetMapping("/prompts")
+    @Operation(summary = "List MCP prompts from connected servers")
+    public ResponseEntity<List<Map<String, String>>> listPrompts() {
+        List<Map<String, String>> prompts = mcpFacade.getPromptDefinitions().stream()
+                .map(def -> Map.of(
+                        "name", def.name(),
+                        "description", def.description(),
+                        "serverName", def.serverName()))
+                .toList();
+        return ResponseEntity.ok(prompts);
     }
 
     @GetMapping("/servers")
     @Operation(summary = "List connected MCP servers")
     public ResponseEntity<List<Map<String, Object>>> listServers() {
         List<Map<String, Object>> servers = mcpFacade.getConnectedServers().values().stream()
-                .map(info -> Map.<String, Object>of(
-                        "name", info.name(),
-                        "toolCount", info.toolCount(),
-                        "status", info.status().name()))
+                .map(info -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("name", info.name());
+                    row.put("toolCount", info.toolCount());
+                    row.put("resourceCount", info.resourceCount());
+                    row.put("promptCount", info.promptCount());
+                    row.put("status", info.status().name());
+                    row.put("capabilities", Map.of(
+                            "tools", info.toolsSupported(),
+                            "resources", info.resourcesSupported(),
+                            "prompts", info.promptsSupported()));
+                    return row;
+                })
                 .toList();
         return ResponseEntity.ok(servers);
     }

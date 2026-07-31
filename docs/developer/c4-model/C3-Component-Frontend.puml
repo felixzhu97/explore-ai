@@ -44,7 +44,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(metrics_domain, "MetricsDomainPage", "@Component", "域下钻 (/metrics/:domain)")
         Component(agents_page, "AgentsPageComponent", "@Component", "Agent 流水线 (/agents) [flag]")
         Component(vision_page, "VisionPageComponent", "@Component", "图像分析 (/vision) [flag]")
-        Component(mcp_page, "McpPageComponent", "@Component", "MCP Client (/mcp) [flag]")
+        Component(mcp_page, "McpPageComponent", "@Component", "MCP Host UI Tools/Resources/Prompts (/mcp) [flag]")
         Component(eval_page, "EvalPageComponent", "@Component", "质量评估 (/eval) [flag]")
         Component(asr_page, "AsrPageComponent", "@Component", "语音转录 (/asr) [flag]")
         Component(privacy_page, "PrivacyPage", "@Component", "隐私控制 (/privacy)")

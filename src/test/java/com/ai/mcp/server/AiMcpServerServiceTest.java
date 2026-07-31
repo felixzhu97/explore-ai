@@ -219,4 +219,52 @@ class AiMcpServerServiceTest {
             assertThat(result).isEqualTo("Configuration key not found: unknown.key");
         }
     }
+
+    @Nested
+    @DisplayName("getDocument")
+    class GetDocumentTests {
+
+        @Test
+        @DisplayName("should_return_not_found_when_document_missing")
+        void should_return_not_found_when_document_missing() {
+            when(documentSearchTool.listDocuments()).thenReturn("[]");
+
+            String result = service.getDocument("missing-id");
+
+            assertThat(result).isEqualTo("Document not found: missing-id");
+        }
+
+        @Test
+        @DisplayName("should_return_search_content_when_document_exists")
+        void should_return_search_content_when_document_exists() {
+            when(documentSearchTool.listDocuments()).thenReturn("[{\"id\":\"doc-1\"}]");
+            when(documentSearchTool.searchDocuments("document doc-1", List.of("doc-1")))
+                    .thenReturn("[{\"text\":\"hello\"}]");
+
+            String result = service.getDocument("doc-1");
+
+            assertThat(result).contains("hello");
+        }
+    }
+
+    @Nested
+    @DisplayName("prompts")
+    class PromptTests {
+
+        @Test
+        @DisplayName("should_build_analyze_document_prompt")
+        void should_build_analyze_document_prompt() {
+            String result = service.analyzeDocumentPrompt("doc-1", "risks");
+
+            assertThat(result).contains("doc-1").contains("risks");
+        }
+
+        @Test
+        @DisplayName("should_build_greeting_prompt")
+        void should_build_greeting_prompt() {
+            String result = service.greetingPrompt("Felix");
+
+            assertThat(result).contains("Felix");
+        }
+    }
 }

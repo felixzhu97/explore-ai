@@ -72,6 +72,32 @@ class SpringAiMcpClientRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("resources and prompts")
+    class ResourcesAndPromptsTests {
+
+        @Test
+        @DisplayName("should_list_resources_and_prompts_per_server")
+        void should_list_resources_and_prompts_per_server() {
+            repository.registerToolCallbacks(createMockTools("tool1"), "server1");
+            repository.registerResources(
+                    List.of(com.ai.mcp.domain.model.McpResourceDefinition.create(
+                            "config:///k", "Config", "desc", "server1")),
+                    "server1");
+            repository.registerPrompts(
+                    List.of(com.ai.mcp.domain.model.McpPromptDefinition.create(
+                            "greeting", "hi", "server1")),
+                    "server1");
+            repository.updateServerCapabilities("server1", true, true, true);
+
+            assertThat(repository.listResources()).hasSize(1);
+            assertThat(repository.listPrompts()).hasSize(1);
+            assertThat(repository.listTools().getFirst().serverName()).isEqualTo("server1");
+            assertThat(repository.listServers().get("server1").resourcesSupported()).isTrue();
+            assertThat(repository.listServers().get("server1").promptsSupported()).isTrue();
+        }
+    }
+
     private ToolCallback[] createMockTools(String... names) {
         ToolCallback[] tools = new ToolCallback[names.length];
         for (int i = 0; i < names.length; i++) {

@@ -73,12 +73,51 @@ class McpClientControllerTest {
         @DisplayName("should return list of registered MCP tools")
         void should_return_list_of_registered_mcp_tools() {
             when(mcpFacade.getToolDefinitions()).thenReturn(List.of(
-                    McpToolDefinition.create("get_weather", "Get current weather")));
+                    McpToolDefinition.create("get_weather", "Get current weather", "fetch")));
 
             var response = controller.listTools();
 
             assertThat(response.getBody()).hasSize(1);
             assertThat(response.getBody().getFirst().get("name")).isEqualTo("get_weather");
+            assertThat(response.getBody().getFirst().get("serverName")).isEqualTo("fetch");
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/mcp/client/resources")
+    class ListResources {
+
+        @Test
+        @DisplayName("should_return_resources_with_server_name")
+        void should_return_resources_with_server_name() {
+            when(mcpFacade.getResourceDefinitions()).thenReturn(List.of(
+                    com.ai.mcp.domain.model.McpResourceDefinition.create(
+                            "config:///key", "Configuration", "Config values", "fetch")));
+
+            var response = controller.listResources();
+
+            assertThat(response.getBody()).hasSize(1);
+            assertThat(response.getBody().getFirst().get("uri")).isEqualTo("config:///key");
+            assertThat(response.getBody().getFirst().get("serverName")).isEqualTo("fetch");
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/mcp/client/prompts")
+    class ListPrompts {
+
+        @Test
+        @DisplayName("should_return_prompts_with_server_name")
+        void should_return_prompts_with_server_name() {
+            when(mcpFacade.getPromptDefinitions()).thenReturn(List.of(
+                    com.ai.mcp.domain.model.McpPromptDefinition.create(
+                            "greeting", "Greeting prompt", "fetch")));
+
+            var response = controller.listPrompts();
+
+            assertThat(response.getBody()).hasSize(1);
+            assertThat(response.getBody().getFirst().get("name")).isEqualTo("greeting");
+            assertThat(response.getBody().getFirst().get("serverName")).isEqualTo("fetch");
         }
     }
 

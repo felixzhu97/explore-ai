@@ -314,12 +314,15 @@ Package: `com.ai.mcp` (Server + Client).
 
 | Preferred Term (English) | 中文        | Definition                                    | Type              | Code Mapping                         | Notes                          |
 | ------------------------ | --------- | --------------------------------------------- | ----------------- | ------------------------------------ | ------------------------------ |
-| MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `AiMcpServerService`                 | Model Context Protocol         |
-| MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Service           | `AiMcpClientService`                 | Registers external tools       |
-| MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | `AiMcpClientService.registerTools()` | —                              |
-| MCP Tool Definition      | MCP 工具定义  | Name and description of an MCP tool           | Value Object      | `McpToolDefinition`                  | Registered by Client           |
-| MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | Managed by `McpSessionManager` |
-| MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | —                              |
+| MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `AiMcpServerService`                 | Tools + Resources + Prompts    |
+| MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Host / Repository | `SpringAiMcpClientRepository`        | Per-server tool registration   |
+| MCP Facade               | MCP 门面    | Application orchestration for MCP Host        | Use Case          | `McpFacade`                          | Chat + list primitives         |
+| MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | `McpToolCallbackRegistry`            | Prefixed per server            |
+| MCP Tool Definition      | MCP 工具定义  | Name, description, and server of an MCP tool  | Value Object      | `McpToolDefinition`                  | Includes `serverName`          |
+| MCP Resource Definition  | MCP 资源定义  | URI-addressable resource from an MCP server   | Value Object      | `McpResourceDefinition`              | Listed by Client Host          |
+| MCP Prompt Definition    | MCP 提示词定义 | Prompt template exposed by an MCP server      | Value Object      | `McpPromptDefinition`                | Listed by Client Host          |
+| MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | One active session per server  |
+| MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | Counts + capability flags      |
 | MCP Chat                 | MCP 对话    | AI conversation initiated via MCP Client      | Use Case Behavior | `McpClientController.chat()`         | —                              |
 
 

@@ -6,6 +6,9 @@ import type {
   McpChatResponse,
   McpClientStatusResponse,
   McpHealthResponse,
+  McpPrompt,
+  McpResource,
+  McpServerInfo,
   McpTool,
 } from './mcp.model';
 
@@ -21,8 +24,20 @@ export class McpService {
     return this.http.get<McpClientStatusResponse>(`${API_BASE_URL}/mcp/client/status`);
   }
 
+  listServers(): Observable<McpServerInfo[]> {
+    return this.http.get<McpServerInfo[]>(`${API_BASE_URL}/mcp/client/servers`);
+  }
+
   listTools(): Observable<McpTool[]> {
     return this.http.get<McpTool[]>(`${API_BASE_URL}/mcp/client/tools`);
+  }
+
+  listResources(): Observable<McpResource[]> {
+    return this.http.get<McpResource[]>(`${API_BASE_URL}/mcp/client/resources`);
+  }
+
+  listPrompts(): Observable<McpPrompt[]> {
+    return this.http.get<McpPrompt[]>(`${API_BASE_URL}/mcp/client/prompts`);
   }
 
   chat(question: string): Observable<McpChatResponse> {

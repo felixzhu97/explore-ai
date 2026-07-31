@@ -1031,76 +1031,52 @@ app:
 
 ## MCP Server API
 
-### Health Check
+REST metadata for the embedded MCP Server. Protocol transport remains Spring AI Streamable HTTP at `/mcp` when `spring.ai.mcp.server.enabled=true`.
 
-Check MCP server health status.
+### Health Check
 
 ```bash
 curl -X GET "${BASE_URL}/api/mcp/health"
 ```
 
-**Response Example**
-
 ```json
 {
   "status": "UP",
-  "server": "MCP Server",
+  "server": "explore-ai-mcp-server",
   "version": "1.0.0",
-  "protocol": "2024-11-05"
+  "protocol": "MCP 1.0"
 }
 ```
 
----
-
 ### Get MCP Server Info
 
-Get detailed MCP server information.
+Returns capabilities aligned with real `@McpTool` / `@McpResource` / `@McpPrompt` implementations (not a static fake list).
 
 ```bash
 curl -X GET "${BASE_URL}/api/mcp/info"
 ```
 
-**Response Example**
-
 ```json
 {
-  "name": "Example MCP Server",
+  "name": "explore-ai-mcp-server",
   "version": "1.0.0",
-  "description": "A sample MCP server implementation",
-  "capabilities": {
-    "tools": true,
-    "resources": true,
-    "prompts": true
+  "description": "AI Explore MCP Server with RAG, Weather, Chat tools, resources, and prompts",
+  "capabilities": { "tools": true, "resources": true, "prompts": true },
+  "availableTools": {
+    "get_weather": "Get current weather for a city",
+    "get_forecast": "Get weather forecast",
+    "search_knowledge_base": "Search documents in knowledge base",
+    "list_documents": "List all documents",
+    "ai_chat": "Chat with AI assistant"
   },
-  "availableTools": [
-    {
-      "name": "get_weather",
-      "description": "Get weather information for a city",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "city": { "type": "string" }
-        },
-        "required": ["city"]
-      }
-    }
-  ],
-  "availableResources": [
-    {
-      "uri": "weather://current",
-      "name": "Current Weather",
-      "description": "Current weather conditions"
-    }
-  ],
-  "availablePrompts": [
-    {
-      "name": "weather_query",
-      "description": "Query weather for a location",
-      "arguments": [
-        { "name": "city", "required": true, "description": "City name" }
-      ]
-    }
-  ]
+  "availableResources": {
+    "document:///{docId}": "Access document by ID",
+    "config:///{key}": "Access configuration values"
+  },
+  "availablePrompts": {
+    "analyze-document": "Generate document analysis prompt",
+    "greeting": "Generate greeting message"
+  }
 }
 ```
 
@@ -1108,113 +1084,112 @@ curl -X GET "${BASE_URL}/api/mcp/info"
 
 ## MCP Client API
 
-### Get Client Status
+Host-side REST for connected MCP servers. Tools are registered per server name (YAML connection / remote `serverInfo.name`).
 
-Get MCP client connection status.
+### Get Client Status
 
 ```bash
 curl -X GET "${BASE_URL}/api/mcp/client/status"
 ```
 
-**Response Example**
-
 ```json
 {
-  "status": "CONNECTED",
-  "registeredTools": 5,
-  "connectedServers": ["weather-server", "docs-server"]
+  "status": "READY",
+  "registeredTools": 2,
+  "connectedServers": ["fetch"]
 }
 ```
 
----
-
 ### List Registered Tools
-
-List all MCP tools registered with the client.
 
 ```bash
 curl -X GET "${BASE_URL}/api/mcp/client/tools"
 ```
 
-**Response Example**
-
 ```json
-{
-  "tools": [
-    {
-      "name": "get_weather",
-      "server": "weather-server",
-      "description": "Get weather for a city"
-    },
-    {
-      "name": "search_documents",
-      "server": "docs-server",
-      "description": "Search knowledge base"
-    }
-  ]
-}
+[
+  {
+    "name": "fetch",
+    "description": "Fetch a URL",
+    "serverName": "fetch"
+  }
+]
 ```
 
----
+### List Resources
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/client/resources"
+```
+
+```json
+[
+  {
+    "uri": "config:///spring.ai.rag.chunk.size",
+    "name": "Configuration Resource",
+    "description": "Access application configuration",
+    "serverName": "explore-ai-mcp-server"
+  }
+]
+```
+
+Empty array when the remote server does not advertise resources (no fabricated entries).
+
+### List Prompts
+
+```bash
+curl -X GET "${BASE_URL}/api/mcp/client/prompts"
+```
+
+```json
+[
+  {
+    "name": "greeting",
+    "description": "Generate greeting message",
+    "serverName": "explore-ai-mcp-server"
+  }
+]
+```
 
 ### List Connected Servers
-
-List all connected MCP servers.
 
 ```bash
 curl -X GET "${BASE_URL}/api/mcp/client/servers"
 ```
 
-**Response Example**
-
 ```json
-{
-  "servers": [
-    {
-      "name": "weather-server",
-      "version": "1.0.0",
-      "status": "CONNECTED"
-    },
-    {
-      "name": "docs-server",
-      "version": "1.0.0",
-      "status": "CONNECTED"
+[
+  {
+    "name": "fetch",
+    "toolCount": 1,
+    "resourceCount": 0,
+    "promptCount": 0,
+    "status": "ACTIVE",
+    "capabilities": {
+      "tools": true,
+      "resources": false,
+      "prompts": false
     }
-  ]
-}
+  }
+]
 ```
 
----
-
 ### Chat with MCP Tools
-
-Chat with AI using available MCP tools.
 
 ```bash
 curl -X POST "${BASE_URL}/api/mcp/client/chat" \
   -H "Content-Type: application/json" \
-  -d '{
-    "question": "What is the weather in Beijing?",
-    "docIds": []
-  }'
+  -H "X-Requested-With: XMLHttpRequest" \
+  -d '{ "question": "What is the weather in Beijing?" }'
 ```
 
-**Request Body**
-
-
-| Field      | Type   | Required | Description                  |
-| ---------- | ------ | -------- | ---------------------------- |
-| `question` | string | Yes      | Question text                |
-| `docIds`   | array  | No       | Document IDs for RAG context |
-
-
-**Response Example**
+| Field      | Type   | Required | Description   |
+| ---------- | ------ | -------- | ------------- |
+| `question` | string | Yes      | Question text |
 
 ```json
 {
-  "answer": "The weather in Beijing today is sunny with a temperature of 25°C.",
-  "toolCalls": ["get_weather"],
-  "sessionId": "session-123"
+  "response": "The weather in Beijing today is sunny with a temperature of 25°C."
 }
 ```
 

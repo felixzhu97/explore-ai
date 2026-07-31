@@ -77,7 +77,7 @@ class McpFacadeTest {
     @Test
     @DisplayName("should_return_tool_definitions_from_repository")
     void should_return_tool_definitions_from_repository() {
-        List<McpToolDefinition> tools = List.of(McpToolDefinition.create("weather", "Weather lookup"));
+        List<McpToolDefinition> tools = List.of(McpToolDefinition.create("weather", "Weather lookup", "weather"));
         when(mcpClientRepository.listTools()).thenReturn(tools);
 
         assertThat(facade.getToolDefinitions()).isEqualTo(tools);

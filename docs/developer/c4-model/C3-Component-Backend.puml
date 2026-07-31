@@ -29,7 +29,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(vision_ctrl, "VisionController", "@RestController", "/api/vision/*")
         Component(audio_ctrl, "AudioController", "@RestController", "TTS + /ws/audio/transcribe")
         Component(mcp_ctrl, "McpController", "@RestController", "/api/mcp/*")
-        Component(mcp_client_ctrl, "McpClientController", "@RestController", "/api/mcp/client/*")
+        Component(mcp_client_ctrl, "McpClientController", "@RestController", "/api/mcp/client/* tools/resources/prompts")
         Component(metrics_ctrl, "MetricsController", "@RestController", "/api/metrics/*")
         Component(module_filter, "ModuleAccessFilter", "@Component", "模块 API 开关拦截")
         Component(ex_handler, "GlobalExceptionHandler", "@RestControllerAdvice", "统一异常处理")
@@ -54,7 +54,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(vision_usecase, "VisionAnalysisUseCase", "@Service", "Caption/Detect/OCR")
         Component(audio_facade, "AudioFacade", "@Service", "TTS 门面")
         Component(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式 ASR [local]")
-        Component(mcp_facade, "McpFacade", "@Service", "MCP Client 门面")
+        Component(mcp_facade, "McpFacade", "@Service", "MCP Host 门面 (Tools/Resources/Prompts)")
         Component(metrics_usecase, "MetricsUseCase", "@Service", "概览 / 域 / 时序 / 下钻")
         Component(invocation_recorder, "AiInvocationRecorder", "@Component", "旁路记录 AI 调用事件")
     }

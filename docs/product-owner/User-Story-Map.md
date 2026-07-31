@@ -112,6 +112,12 @@ title: AI Chat & Agent Platform - 用户故事地图
 
 ## 进行中
 
+### MCP 标准三原语与多 Server Host
+
+**As a** 最终用户 / 平台开发者  
+**I want** 在 `/mcp` 按已连接 Server 查看 Tools、Resources、Prompts，且本应用对外 MCP Server 真实暴露这些能力  
+**So that** 对话与外部 Host 都能按业界标准使用 MCP
+
 ### 商业化底座：配额、法务页与账号雏形
 
 **As a** ExploreAI 访客与运营方  
