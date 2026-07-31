@@ -102,14 +102,11 @@ class McpFacadeTest {
     }
 
     @Test
-    @DisplayName("should_chat_with_registered_tools")
-    void should_chat_with_registered_tools() {
-        ToolCallback[] callbacks = new ToolCallback[] {toolCallback};
-        when(toolCallbackRegistry.getRegisteredToolCallbacks()).thenReturn(callbacks);
+    @DisplayName("should_chat_with_stateless_client_defaults_without_duplicate_tools")
+    void should_chat_with_stateless_client_defaults_without_duplicate_tools() {
         when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user("What is the weather?")).thenReturn(requestSpec);
-        when(requestSpec.tools((Object[]) callbacks)).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
         when(callResponseSpec.content()).thenReturn("Sunny");
 
@@ -117,6 +114,7 @@ class McpFacadeTest {
 
         assertThat(answer).isEqualTo("Sunny");
         verify(chatClientProvider).createStateless(any(TextChatOptions.class));
-        verify(requestSpec).tools((Object[]) callbacks);
+        verify(requestSpec, never()).tools(any(Object[].class));
+        verify(toolCallbackRegistry, never()).getRegisteredToolCallbacks();
     }
 }

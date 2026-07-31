@@ -59,11 +59,11 @@ public class McpFacade {
     }
 
     public String chatWithTools(String question) {
-        ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
+        // createStateless(TOOLS) already registers MCP + local tool callbacks as defaults.
+        // Do not pass them again via .tools(...) — Spring AI rejects duplicate tool names.
         return chatClientProvider.createStateless(TextChatOptions.defaults())
                 .prompt()
                 .user(question)
-                .tools(tools)
                 .call()
                 .content();
     }
