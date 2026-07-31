@@ -70,7 +70,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 **Sidebar IA groups (frontend):** `MODULE_NAV_TABS` in `src/main/web/app/core/config/module-nav.config.ts` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/agents`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`. Do not wire planned AIOps keys into these groups until productized.
 
-**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + tools list); Eval (input ‖ scores); Metrics (KPI strip + charts + drill-down table).
+**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + Servers + Tools/Resources/Prompts tabs + try-chat); Eval (input ‖ scores); Metrics (KPI strip + charts + drill-down table).
 
 ```mermaid
 flowchart TB
@@ -443,7 +443,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Tool Callback                        | 工具回调    | Spring AI mechanism for LLM-initiated tool invocation      | Technical | `ToolCallback`, `McpToolCallbackRegistry`     | Bridges LLM and Tools               |
 | Advisor                              | 顾问      | Interceptor/enhancer in the ChatClient call chain          | Technical | Spring AI Advisors                            | e.g. structured output              |
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5                      |
-| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
+| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for Tools, Resources, and Prompts with LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated; Spring AI Host/Server |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. domain-expert, developer       |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `LocalizedRagPromptBuilder`, `RagChatUseCase` | Reduces unsupported claims          |

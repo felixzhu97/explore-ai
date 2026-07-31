@@ -8,8 +8,8 @@ title 系统上下文图 (C1) - AI Chat & Agent Platform
 ' ============================================================
 ' PEOPLE
 ' ============================================================
-Person(user, "用户", "对话、RAG、Agent 流水线、图像生成/TTS、可选 Image Analysis/MCP/Eval/ASR")
-Person(admin, "管理员/开发者", "质量评估、文本分析、AI 指标看板、API 集成、功能开关配置")
+Person(user, "用户", "对话、RAG、Agent 流水线、图像生成/TTS、可选 Image Analysis/MCP Host/Eval/ASR")
+Person(admin, "管理员/开发者", "质量评估、文本分析、AI 指标看板、MCP Server 集成、功能开关配置")
 
 ' ============================================================
 ' AI Chat & Agent Platform
@@ -40,13 +40,14 @@ System_Ext(ollama, "Ollama [local]", "本地 Embedding (mxbai-embed-large) + 多
 System_Ext(tesseract, "Tesseract OCR [local]", "本地 OCR (eng/chi_sim)，Tess4J JNA\nprod 默认关闭 (module-vision=false)")
 System_Ext(whisper_cpp, "whisper.cpp [local]", "本地流式 ASR，:8178\nprod 默认关闭 (module-audio-asr=false)")
 System_Ext(onnx_vision, "Image Analysis ONNX [local]", "BLIP Caption + YOLOv8 Detect，models/*.onnx\nprod 默认关闭 (module-vision=false)")
+System_Ext(ext_mcp, "External MCP Servers", "STDIO / Streamable HTTP\nTools + Resources + Prompts\n本地可选；prod module-mcp 默认关闭")
 
 ' ============================================================
 ' RELATIONSHIPS
 ' ============================================================
 Rel(user, frontend, "使用 Web UI", "HTTPS")
 Rel(admin, launchdarkly, "配置功能开关", "HTTPS")
-Rel(admin, backend, "评估 / 分析 / 指标 API", "HTTPS")
+Rel(admin, backend, "评估 / 分析 / 指标 / MCP REST", "HTTPS")
 Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS (prod Render / dev :9000)")
 
 Rel(frontend, launchdarkly, "读取模块开关", "HTTPS")
@@ -58,6 +59,8 @@ Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")
 Rel(backend, serper_api, "Web 搜索", "HTTPS")
 Rel(backend, h2_db, "会话元数据 + ChatMemory + 向量 + AI 调用事件", "JDBC 内嵌")
+Rel(backend, ext_mcp, "MCP Client Host [flag]", "STDIO / Streamable HTTP")
+Rel_Back(ext_mcp, backend, "MCP Server /mcp [flag]", "Streamable HTTP")
 
 Rel_Back(backend, ollama, "Embedding + 多模态 RAG [dev]", "HTTP :11434")
 Rel_Back(backend, tesseract, "OCR [dev]", "JNA")

@@ -60,7 +60,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(rag_svc, "RagService", "@Injectable", "RAG 文档与问答")
         Component(metrics_svc, "MetricsService", "@Injectable", "overview / domain / series / drilldown")
         Component(agents_svc, "AgentsService", "@Injectable", "Agent list + pipeline SSE")
-        Component(mcp_svc, "McpService", "@Injectable", "MCP Client")
+        Component(mcp_svc, "McpService", "@Injectable", "servers/tools/resources/prompts/chat")
         Component(eval_svc, "EvalService", "@Injectable", "质量评估")
         Component(asr_svc, "AsrService", "@Injectable", "ASR WebSocket")
         Component(vision_svc, "VisionService", "@Injectable", "Caption/Detect/OCR")

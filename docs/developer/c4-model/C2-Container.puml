@@ -124,17 +124,19 @@ Container_Boundary(audio_domain, "Audio Domain") {
 ' DOMAIN 10: MCP SERVER [flag-guarded]
 ' ============================================================
 Container_Boundary(mcp_server_domain, "MCP Server Domain") {
-    Container(mcp_controller, "McpController", "@RestController", "/api/mcp/*")
-    Container(mcp_server_svc, "AiMcpServerService", "Infrastructure", "MCP Server 实现")
+    Container(mcp_controller, "McpController", "@RestController", "/api/mcp/health|/info")
+    Container(mcp_cap_catalog, "McpServerCapabilityCatalog", "Infrastructure", "对齐 @McpTool/Resource/Prompt")
+    Container(mcp_server_svc, "AiMcpServerService", "Infrastructure", "Tools + document:// + prompts\nStreamable HTTP /mcp")
 }
 
 ' ============================================================
-' DOMAIN 11: MCP CLIENT [flag-guarded]
+' DOMAIN 11: MCP CLIENT HOST [flag-guarded]
 ' ============================================================
-Container_Boundary(mcp_client_domain, "MCP Client Domain") {
-    Container(mcp_client_controller, "McpClientController", "@RestController", "/api/mcp/client/*")
-    Container(mcp_facade, "McpFacade", "Application Service", "MCP Client 门面")
-    Container(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client 适配器")
+Container_Boundary(mcp_client_domain, "MCP Client Host Domain") {
+    Container(mcp_client_controller, "McpClientController", "@RestController", "/api/mcp/client/*\nservers/tools/resources/prompts/chat")
+    Container(mcp_facade, "McpFacade", "Application Service", "Host 门面：列举原语 + 试聊")
+    Container(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "按 Server 注册 tools")
+    Container(mcp_client_cfg, "McpClientToolsConfig", "Config", "连接 YAML → ToolCallbackProvider")
 }
 
 ' ============================================================
@@ -174,6 +176,7 @@ Container_Ext(whisper_cpp_svc, "whisper.cpp [local]", "REST/WebSocket", "流式 
 Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 Container_Ext(launchdarkly, "LaunchDarkly", "SaaS", "功能开关", "HTTPS")
 Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent → Agent)", "HTTPS")
+Container_Ext(ext_mcp_servers, "External MCP Servers", "STDIO / HTTP", "远端 Tools/Resources/Prompts", "本地可选")
 
 ' ============================================================
 ' RELATIONSHIPS
@@ -269,9 +272,13 @@ Rel(asr_usecase, asr_adapter, "调用")
 Rel(asr_adapter, whisper_cpp_svc, "转录", "HTTP :8178")
 Rel(tts_repo, openai_api, "TTS", "HTTPS")
 
-Rel(mcp_controller, mcp_server_svc, "调用")
+Rel(mcp_controller, mcp_cap_catalog, "info 能力目录")
+Rel(mcp_server_svc, mcp_cap_catalog, "注解原语来源")
 Rel(mcp_client_controller, mcp_facade, "调用")
-Rel(mcp_facade, mcp_client_repo, "MCP 连接")
+Rel(mcp_facade, mcp_client_repo, "列举 / 试聊")
+Rel(mcp_client_cfg, mcp_client_repo, "注入已连接 clients")
+Rel(mcp_client_repo, ext_mcp_servers, "MCP Client [flag]", "STDIO / Streamable HTTP")
+Rel(ext_mcp_servers, mcp_server_svc, "外部 Host 可连本 Server", "Streamable HTTP /mcp")
 
 Rel(module_filter, feature_flag_svc, "查询开关")
 Rel(feature_flag_svc, ld_repo, "读取")

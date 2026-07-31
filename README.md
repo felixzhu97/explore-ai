@@ -1,6 +1,6 @@
 # AI-Explore
 
-基于 Spring AI + Angular 的 AI 应用平台，支持 RAG 文档问答、Tool Calling、图像生成、语音合成、视觉分析和实时流式语音识别。
+基于 Spring AI + Angular 的 AI 应用平台，支持 RAG 文档问答、Tool Calling、MCP（Tools / Resources / Prompts）、图像生成、语音合成、视觉分析和实时流式语音识别。
 
 ## 核心功能
 
@@ -9,6 +9,7 @@
 | **AI 对话** | 多 Provider (OpenAI/Anthropic/Ollama) 切换，SSE 流式输出 | Markdown 渲染，会话管理 |
 | **RAG 文档问答** | PDF/TXT 文档上传，向量检索增强生成 | 流式响应，来源引用，**本地 Ollama 视觉理解** |
 | **Tool Calling** | 天气查询、文档搜索、Web 搜索 | 自动工具选择 |
+| **MCP Host / Server** | 标准三原语：Tools、Resources、Prompts；按远端 Server 注册 | Streamable HTTP `/mcp`；Host UI `/mcp`；`module-mcp` |
 | **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
 | **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
 | **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | whisper.cpp 本地免费 ASR |
@@ -125,6 +126,28 @@ wss://localhost:9000/ws/audio/transcribe
 {"type": "final", "text": "识别完成的文字"}
 ```
 
+### MCP（Host + Server）
+
+协议传输为 Spring AI Streamable HTTP（`/mcp`，需 `spring.ai.mcp.server.enabled=true`）。REST 元数据与 Host API：
+
+```bash
+# 本应用 MCP Server 能力（与 @McpTool/@McpResource/@McpPrompt 对齐）
+curl http://localhost:9000/api/mcp/info
+
+# Host：已连接 Server / Tools / Resources / Prompts
+curl http://localhost:9000/api/mcp/client/servers
+curl http://localhost:9000/api/mcp/client/tools
+curl http://localhost:9000/api/mcp/client/resources
+curl http://localhost:9000/api/mcp/client/prompts
+
+# 试聊（绑定已注册的 MCP tools）
+curl -X POST http://localhost:9000/api/mcp/client/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "List available tools briefly."}'
+```
+
+前端 Lab → **MCP**（`/mcp`，`module-mcp`）：状态栏、Servers、Tools/Resources/Prompts 标签与试聊。详见 [API 文档 · MCP](docs/developer/api.md#mcp-server-api)。
+
 ## 项目结构
 
 ```
@@ -140,7 +163,11 @@ explore-ai/
 │   ├── audio/          # 语音合成 + ASR
 │   ├── analysis/       # 文本结构化分析
 │   ├── eval/           # Chat 质量评估 — 可选模块
-│   ├── mcp/            # MCP Server/Client — 可选模块
+│   ├── mcp/            # MCP Server + Client Host — 可选模块
+│   │   ├── domain/     # Tool/Resource/Prompt 定义、McpClientRepository
+│   │   ├── application/# McpFacade
+│   │   ├── infrastructure/  # AiMcpServerService、SpringAiMcpClientRepository
+│   │   └── web/        # /api/mcp、/api/mcp/client
 │   └── common/         # 共享配置、LLM 工厂、全局异常处理
 │
 ├── src/main/web/       # Angular 22 前端
@@ -148,12 +175,14 @@ explore-ai/
 │       ├── chat/       # 对话
 │       ├── generate/   # 生成（image / tts）
 │       ├── rag/        # RAG 页面
+│       ├── mcp/        # MCP Host UI（Servers + 三原语 + 试聊）
 │       └── vision/     # 图像分析（可按环境关闭）
 │
-├── docs/c4-model/           # C4 架构图
+├── docs/developer/c4-model/  # C4 架构图（.puml + png）
+├── docs/product-owner/       # 用户故事地图
 ```
 
-云端部署（Render Free + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。
+云端部署（Render Free + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。MCP Client 本地可用 STDIO / Streamable HTTP 连接外部 Server（见 `application-local.yml.example`）。
 
 ---
 

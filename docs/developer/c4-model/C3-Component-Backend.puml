@@ -108,7 +108,11 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
             Component(tts_repo_iface, "TextToSpeechRepository", "Repository", "TTS 接口")
         }
         Container_Boundary(mcp_domain, "MCP") {
-            Component(mcp_client_iface, "McpClientRepository", "Repository", "MCP Client")
+            Component(mcp_client_iface, "McpClientRepository", "Repository", "listServers/tools/resources/prompts")
+            Component(mcp_tool_def, "McpToolDefinition", "Value Object", "name + serverName")
+            Component(mcp_res_def, "McpResourceDefinition", "Value Object", "uri + serverName")
+            Component(mcp_prompt_def, "McpPromptDefinition", "Value Object", "name + serverName")
+            Component(mcp_conn, "McpServerConnection", "Value Object", "counts + capabilities")
         }
         Container_Boundary(metrics_domain, "Metrics") {
             Component(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
@@ -149,8 +153,10 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(tts_repo, "SpringAiTextToSpeechRepository", "@Component", "OpenAI TTS")
         Component(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp [local]")
         Component(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
-        Component(mcp_server_svc, "AiMcpServerService", "@Component", "MCP Server")
-        Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client")
+        Component(mcp_server_svc, "AiMcpServerService", "@Component", "@McpTool/@McpResource/@McpPrompt")
+        Component(mcp_cap_catalog, "McpServerCapabilityCatalog", "@Component", "/api/mcp/info 能力目录")
+        Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "按 Server 注册 tools")
+        Component(mcp_client_cfg, "McpClientToolsConfig", "@Configuration", "连接与原语同步")
         Component(jdbc_invocation_repo, "JdbcAiInvocationEventRepository", "@Repository", "AI 调用事件")
         Component(jdbc_metrics_query, "JdbcMetricsQueryRepository", "@Repository", "指标聚合查询")
         Component(weather_tools, "WeatherTools", "*Tool", "天气工具")
@@ -216,8 +222,10 @@ Rel(image_ctrl, image_facade, "调用")
 Rel(vision_ctrl, vision_usecase, "调用")
 Rel(audio_ctrl, audio_facade, "TTS")
 Rel(audio_ctrl, asr_ws_handler, "ASR")
-Rel(mcp_ctrl, mcp_server_svc, "调用")
+Rel(mcp_ctrl, mcp_cap_catalog, "health/info")
+Rel(mcp_server_svc, mcp_cap_catalog, "原语对齐")
 Rel(mcp_client_ctrl, mcp_facade, "调用")
+Rel(mcp_client_cfg, mcp_client_repo, "注入")
 Rel(module_filter, feature_flag_svc, "查询")
 
 Rel(chat_usecase, chat_session, "操作")

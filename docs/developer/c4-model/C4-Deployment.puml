@@ -13,7 +13,7 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
     ' Java Runtime - Spring Boot Backend (含 H2 内嵌)
     ' ============================================================
     Deployment_Node(java_runtime, "JDK 25 (Gradle Build)", "eclipse-temurin:25-jdk-alpine") {
-        Container(backend, "Spring Boot Backend", "Spring Boot 4.1 / Java 25", "11 子域 AI 平台\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
+        Container(backend, "Spring Boot Backend", "Spring Boot 4.1 / Java 25", "12 子域 AI 平台\nMCP Server/Client Host [flag]\nH2 内嵌 (默认)\nLiquibase 迁移", "9000")
         ContainerDb(h2_embedded, "H2 Embedded DB", "H2 File DB", "会话 + ChatMemory + 向量\n./data/explore-ai", "内嵌")
         ContainerDb(vision_models, "Image Analysis Models", "ONNX + tessdata", "models/yolov8n.onnx\nblip_*.onnx\ntessdata/", "本地文件")
     }

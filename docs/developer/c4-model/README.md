@@ -58,12 +58,25 @@
 - **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0
 - **架构**: Clean Architecture（`domain/repository/`，非 Hexagonal `domain/port/`）
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
-- **子域 (12)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
+- **子域 (12)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client Host / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Free 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
-- **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis
+- **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis / External MCP Servers (STDIO)
+
+### MCP 子域（包名 `com.ai.mcp`）
+
+路由 `/mcp`（`module-mcp`），协议传输 Streamable HTTP `/mcp`；REST：
+
+| 能力 | API | 主要组件 |
+| --- | --- | --- |
+| Server 健康 / 能力 | `GET /api/mcp/health`, `GET /api/mcp/info` | `McpController`, `McpServerCapabilityCatalog` |
+| 原语注解 | Streamable HTTP `/mcp` | `AiMcpServerService`（`@McpTool` / `@McpResource` / `@McpPrompt`） |
+| Host 列举 | `GET /api/mcp/client/{servers,tools,resources,prompts}` | `McpClientController`, `McpFacade` |
+| 试聊 | `POST /api/mcp/client/chat` | `McpFacade.chatWithTools`（按 Server 注册的 tools，避免重复绑定） |
+
+前端：`McpPageComponent` — 状态栏 + Servers + Tools/Resources/Prompts 标签 + 试聊。
 
 ### Agent 子域
 
@@ -119,15 +132,15 @@ Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSy
 
 业务路径通过 `AiInvocationRecorder` 旁路写入 `ai_invocation_events`（Chat / RAG / Agents / Tools / Vision）。
 LLM 调用另由 Spring AI Micrometer Observation 导出 GenAI 语义指标（`/actuator/prometheus`）；业务域计数仍以 `AiInvocationRecorder` 为准。
-RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorStoreDocumentRetriever`；本地 profile 默认关闭 MCP client，避免 STDIO 阻断启动（生产用 Streamable HTTP）。
+RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorStoreDocumentRetriever`。MCP：本应用 Server 用 Streamable HTTP；Client Host 可连 STDIO / HTTP 远端 Server（见 `application-local.yml.example`）；prod `module-mcp=false`。
 
 ### 前端 (Web Frontend)
 
 - **框架**: Angular 22 + TypeScript
 - **路由**: `/chat` / `/generate` (image, tts) / `/rag` / `/metrics` + flag 守卫 `/agents` `/vision` `/mcp` `/eval` `/asr`
 - **对话壳**: `shared/components/chat-shell`（message-pane / sender-bar / bubble-list / welcome），供 Chat / RAG / Agents 共用
-- **实现目录**: `app/chat/`、`app/generate/{image,tts}/`、`app/metrics/`（与业务域 / 路由对齐）
-- **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` / `MetricsService` + `sse-client.ts` + shared ECharts panels
+- **实现目录**: `app/chat/`、`app/generate/{image,tts}/`、`app/metrics/`、`app/mcp/`（与业务域 / 路由对齐）
+- **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` / `MetricsService` / `McpService` + `sse-client.ts` + shared ECharts panels
 - **功能开关**: `FeatureFlagService` + `moduleEnabledGuard`（LaunchDarkly Client SDK）
 - **可观测性**: `datadog-rum.config.ts`
 - **端口**: dev 4200 (proxy `/api` → `:9000`) / prod Vercel 静态托管
