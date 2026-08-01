@@ -1348,3 +1348,44 @@ All errors return the following standard format:
 - Maximum upload file size: 50MB
 - Maximum chat message length: 10,000 characters
 
+---
+
+## Service-to-service (BFF)
+
+Trusted backends (e.g. whatsfeed NestJS BFF) can call `/api/**` on behalf of an end-user without browser cookies.
+
+### Headers
+
+| Header | Required | Description |
+| ------ | -------- | ----------- |
+| `X-Service-Key` | Yes | Shared secret configured on explore-ai |
+| `X-Client-Id` | Yes | End-user anonymous id (UUID v4) propagated from the BFF |
+
+When both headers are valid, explore-ai sets `ClientIdentity` from `X-Client-Id` and does **not** issue or overwrite the `ea_cid` cookie.
+
+If the service key is missing, invalid, or not configured, the normal HttpOnly cookie flow applies unchanged.
+
+### Configuration (explore-ai)
+
+```yaml
+app:
+  service-auth:
+    api-key: ${EXPLORE_AI_SERVICE_KEY:}
+```
+
+Set the same value in the BFF environment. For higher daily quotas in dev/staging:
+
+```bash
+export APP_BILLING_PLAN=pro
+```
+
+Billing defaults remain `free` when unset.
+
+### Example
+
+```bash
+curl -X GET "${BASE_URL}/api/sessions" \
+  -H "X-Service-Key: ${EXPLORE_AI_SERVICE_KEY}" \
+  -H "X-Client-Id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+```
+

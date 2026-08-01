@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,6 +21,9 @@ import static org.mockito.Mockito.*;
 @DisplayName("ClientIdentityFilter")
 class ClientIdentityFilterTest {
 
+    private static final String SERVICE_KEY = "bff-secret";
+    private static final String CLIENT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+
     @Mock
     private HttpServletRequest request;
 
@@ -30,6 +34,7 @@ class ClientIdentityFilterTest {
     private FilterChain filterChain;
 
     private ClientIdentityProperties properties;
+    private ServiceAuthProperties serviceAuthProperties;
     private ClientIdentityFilter filter;
 
     @BeforeEach
@@ -38,7 +43,10 @@ class ClientIdentityFilterTest {
         properties.setCookieName("ea_cid");
         properties.setSecure(false);
         properties.setSameSite("Lax");
-        filter = new ClientIdentityFilter(new ClientIdentityCookieFactory(properties));
+        serviceAuthProperties = new ServiceAuthProperties();
+        filter = new ClientIdentityFilter(
+                new ClientIdentityCookieFactory(properties),
+                serviceAuthProperties);
     }
 
     @Test
@@ -63,13 +71,12 @@ class ClientIdentityFilterTest {
 
     @Test
     void should_reuseExistingCookie_whenValidUuidPresent() throws Exception {
-        String existing = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
         when(request.getRequestURI()).thenReturn("/api/sessions");
-        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("ea_cid", existing)});
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("ea_cid", CLIENT_ID)});
 
         filter.doFilter(request, response, filterChain);
 
-        verify(request).setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, existing);
+        verify(request).setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, CLIENT_ID);
         verify(response, never()).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
         verify(filterChain).doFilter(request, response);
     }
@@ -82,5 +89,69 @@ class ClientIdentityFilterTest {
 
         verify(request, never()).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), any());
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Nested
+    @DisplayName("service-key path")
+    class ServiceKeyPath {
+
+        @BeforeEach
+        void enableServiceAuth() {
+            serviceAuthProperties.setApiKey(SERVICE_KEY);
+        }
+
+        @Test
+        void should_useClientIdHeader_whenServiceKeyValid() throws Exception {
+            when(request.getRequestURI()).thenReturn("/api/sessions");
+            when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
+            when(request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER)).thenReturn(CLIENT_ID);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(request).setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, CLIENT_ID);
+            verify(response, never()).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
+            verify(request, never()).getCookies();
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        void should_fallBackToCookie_whenServiceKeyInvalid() throws Exception {
+            when(request.getRequestURI()).thenReturn("/api/sessions");
+            when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn("wrong-key");
+            when(request.getCookies()).thenReturn(null);
+
+            filter.doFilter(request, response, filterChain);
+
+            ArgumentCaptor<String> attr = ArgumentCaptor.forClass(String.class);
+            verify(request).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), attr.capture());
+            assertThat(attr.getValue()).isNotEqualTo(CLIENT_ID);
+            verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        void should_fallBackToCookie_whenClientIdHeaderInvalid() throws Exception {
+            when(request.getRequestURI()).thenReturn("/api/sessions");
+            when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
+            when(request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER)).thenReturn("not-a-uuid");
+            when(request.getCookies()).thenReturn(null);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
+            verify(filterChain).doFilter(request, response);
+        }
+
+        @Test
+        void should_fallBackToCookie_whenServiceKeyNotConfigured() throws Exception {
+            serviceAuthProperties.setApiKey("");
+            when(request.getRequestURI()).thenReturn("/api/sessions");
+            when(request.getCookies()).thenReturn(null);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
+            verify(filterChain).doFilter(request, response);
+        }
     }
 }

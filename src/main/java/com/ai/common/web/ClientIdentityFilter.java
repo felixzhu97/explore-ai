@@ -13,25 +13,35 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.regex.Pattern;
 
 /**
- * Issues and resolves an anonymous browser client id via HttpOnly cookie.
+ * Issues and resolves an anonymous browser client id via HttpOnly cookie,
+ * or accepts a trusted BFF identity via {@code X-Service-Key} + {@code X-Client-Id}.
  *
  * @see <a href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">OWASP Session Management</a>
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
-@EnableConfigurationProperties(ClientIdentityProperties.class)
+@EnableConfigurationProperties({ClientIdentityProperties.class, ServiceAuthProperties.class})
 public class ClientIdentityFilter extends OncePerRequestFilter {
+
+    public static final String SERVICE_KEY_HEADER = "X-Service-Key";
+    public static final String CLIENT_ID_HEADER = "X-Client-Id";
 
     private static final Pattern UUID_PATTERN = Pattern.compile(
             "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     private final ClientIdentityCookieFactory cookieFactory;
+    private final ServiceAuthProperties serviceAuthProperties;
 
-    public ClientIdentityFilter(ClientIdentityCookieFactory cookieFactory) {
+    public ClientIdentityFilter(
+            ClientIdentityCookieFactory cookieFactory,
+            ServiceAuthProperties serviceAuthProperties) {
         this.cookieFactory = cookieFactory;
+        this.serviceAuthProperties = serviceAuthProperties;
     }
 
     @Override
@@ -45,6 +55,13 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+        String serviceClientId = resolveServiceClientId(request);
+        if (serviceClientId != null) {
+            request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, serviceClientId);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String existing = readCookie(request);
         String clientId;
         if (existing != null) {
@@ -55,6 +72,21 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
         }
         request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveServiceClientId(HttpServletRequest request) {
+        if (!serviceAuthProperties.isEnabled()) {
+            return null;
+        }
+        String serviceKey = request.getHeader(SERVICE_KEY_HEADER);
+        if (!constantTimeEquals(serviceKey, serviceAuthProperties.getApiKey())) {
+            return null;
+        }
+        String clientId = request.getHeader(CLIENT_ID_HEADER);
+        if (clientId == null || !UUID_PATTERN.matcher(clientId).matches()) {
+            return null;
+        }
+        return clientId;
     }
 
     private String readCookie(HttpServletRequest request) {
@@ -73,5 +105,12 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
             }
         }
         return null;
+    }
+
+    private static boolean constantTimeEquals(String a, String b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
     }
 }
