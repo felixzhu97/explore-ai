@@ -92,6 +92,18 @@ Detail: [apple-minimal-ux](references/apple-minimal-ux.md)
 
 ### 6. Branches / Commit / PR (mandatory every time)
 
+#### Language
+
+| Artifact                          | Language                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| Branch name                       | English kebab-case (`feat/minimal-clean-prompts`)                          |
+| Commit subject + why + References | English                                                                    |
+| PR title + body                   | English                                                                    |
+| Jira **summary**                  | English (`As a … I want … so that …`)                                  |
+| Jira description                  | English (headings, prefixes, body, Definition of Done)                 |
+
+Jira tickets follow [Product Owner](../product-owner/SKILL.md): business-facing, short descriptions.
+
 #### Branch naming
 
 **Prefix = change type** (same set as commit types). Do **not** default every branch to `feat`.

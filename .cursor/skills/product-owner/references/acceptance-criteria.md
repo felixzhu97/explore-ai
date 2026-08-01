@@ -1,6 +1,6 @@
 # Acceptance Criteria
 
-Use **numbered scenarios** with **Scenario / GIVEN / WHEN / THEN** (and optional **AND**). Each scenario is independently testable.
+Use **numbered scenarios** with **Scenario / GIVEN / WHEN / THEN** (and optional **AND**) in English. Each scenario is independently testable.
 
 ## Format
 
@@ -16,10 +16,11 @@ Use **numbered scenarios** with **Scenario / GIVEN / WHEN / THEN** (and optional
 ## Rules
 
 - Each AC item includes **Scenario**, **GIVEN**, **WHEN**, **THEN** (and optional **AND**)
-- One scenario = one behavior; name the scenario in business language
+- One scenario = one behavior; name the scenario by outcome (consistent pre-commit checks / streaming reply visible), not by tool
 - At least **3–5** scenarios per ticket (happy path + edge/error cases)
 - **GIVEN** = state only; **WHEN** = single trigger; **THEN/AND** = observable outcomes only
-- No implementation details (APIs, DB, class names)
+- No implementation details (APIs, DB, class, env, CLI, hook filenames, package names)
+- Prefer commercial outcomes in THEN (commit succeeds / blocked with feedback / less cross-repo rework / user sees result)
 - Present tense ("the user clicks", not "the user will click")
 - UI tickets: reference OpenAI-style interaction patterns where relevant
 
@@ -53,26 +54,32 @@ Use **numbered scenarios** with **Scenario / GIVEN / WHEN / THEN** (and optional
    **GIVEN** the user wants to upload a file
    **WHEN** they click the button
    **THEN** the system works correctly
+
+3.
+   **Scenario** Run eslint --fix
+   **GIVEN** staged *.ts files
+   **WHEN** husky pre-commit runs lint-staged
+   **THEN** pnpm typecheck passes
 ```
 
 ## OpenAI-Style Interaction Patterns
 
 When describing UI/UX acceptance criteria, reference these patterns:
 
-| Pattern | Description |
-|---------|-------------|
-| Chat bubbles | User messages right-aligned, AI responses left-aligned with avatars |
-| Markdown rendering | Support for code blocks, lists, bold, italic |
-| Typing indicator | Animated dots during AI processing |
-| Copy button | One-click copy for code and text blocks |
-| Regenerate | Re-run the last query and replace the response |
-| Toast notifications | Non-blocking success/error feedback |
-| Skeleton loader | Pulsing placeholder during loading states |
-| Smooth transitions | Page/panel open/close animations |
+| Pattern             | Description                                                         |
+| ------------------- | ------------------------------------------------------------------- |
+| Chat bubbles        | User messages right-aligned, AI responses left-aligned with avatars |
+| Markdown rendering  | Support for code blocks, lists, bold, italic                        |
+| Typing indicator    | Animated dots during AI processing                                  |
+| Copy button         | One-click copy for code and text blocks                             |
+| Regenerate          | Re-run the last query and replace the response                      |
+| Toast notifications | Non-blocking success/error feedback                                 |
+| Skeleton loader     | Pulsing placeholder during loading states                           |
+| Smooth transitions  | Page/panel open/close animations                                    |
 
 ## Checklist
 
 - [ ] At least 3 numbered scenarios with **Scenario** / GIVEN / WHEN / THEN
-- [ ] Acceptance criteria focus on behavior, not implementation
+- [ ] Acceptance criteria focus on business-observable behavior, not tooling
 - [ ] Edge cases and error states are covered
 - [ ] OpenAI-style interaction patterns referenced where applicable
