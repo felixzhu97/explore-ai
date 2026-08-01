@@ -280,6 +280,6 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 - [API 文档](docs/developer/api.md)
 - [C4 架构图](docs/developer/c4-model/)
-- [沃德利地图](./docs/Wardley-Map.md)
+- [TOGAF 业务架构](docs/product-owner/togaf/README.md)
 - [用户故事地图](docs/product-owner/User-Story-Map.md)
 - [快速入门](docs/developer/QUICKSTART.md)
