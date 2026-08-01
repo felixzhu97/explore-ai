@@ -569,7 +569,6 @@ Chinese equivalents to avoid in technical docs:
 | [C4 Architecture](developer/c4-model/README.md) | Business domains and component structure   |
 | [API Reference](developer/api.md)               | REST / SSE endpoints and JSON field shapes |
 | [User Story Map](product-owner/User-Story-Map.md)   | User activities and business value         |
-| [TOGAF Business Architecture](product-owner/togaf/README.md) | Phase A/B Capability / Value Stream catalogs & matrices |
 | [Quick Start](developer/QUICKSTART.md)          | Local development setup                    |
 
 

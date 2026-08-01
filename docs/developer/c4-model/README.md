@@ -240,5 +240,4 @@ cd docs/c4-model && docker run --rm -v "$PWD":/data plantuml/plantuml -o png '*.
 
 - [术语表](../../Glossary.md) — Ubiquitous Language 与代码映射
 - [API 文档](../api.md) — REST / SSE 与 JSON 字段约定
-- [TOGAF Business Architecture](../../product-owner/togaf/README.md) — Phase A/B Catalog / Matrix / Diagram（业务能力与价值流；解决方案/技术视图仍以本 C4 为准）
 - [用户故事地图](../../product-owner/User-Story-Map.md)
