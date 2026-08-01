@@ -1,6 +1,6 @@
 package com.ai.mcp.domain.model;
 
-public record McpToolDefinition(String name, String description) {
+public record McpToolDefinition(String name, String description, String serverName) {
 
     public McpToolDefinition {
         if (name == null || name.isBlank()) {
@@ -8,9 +8,13 @@ public record McpToolDefinition(String name, String description) {
         }
         name = name.trim();
         description = description != null ? description.trim() : "";
+        if (serverName == null || serverName.isBlank()) {
+            throw new IllegalArgumentException("MCP tool serverName must not be blank");
+        }
+        serverName = serverName.trim();
     }
 
-    public static McpToolDefinition create(String name, String description) {
-        return new McpToolDefinition(name, description);
+    public static McpToolDefinition create(String name, String description, String serverName) {
+        return new McpToolDefinition(name, description, serverName);
     }
 }

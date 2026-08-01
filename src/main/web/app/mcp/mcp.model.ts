@@ -11,9 +11,38 @@ export interface McpClientStatusResponse {
   connectedServers: string[];
 }
 
+export interface McpServerCapabilities {
+  tools: boolean;
+  resources: boolean;
+  prompts: boolean;
+}
+
+export interface McpServerInfo {
+  name: string;
+  toolCount: number;
+  resourceCount: number;
+  promptCount: number;
+  status: string;
+  capabilities: McpServerCapabilities;
+}
+
 export interface McpTool {
   name: string;
   description: string;
+  serverName: string;
+}
+
+export interface McpResource {
+  uri: string;
+  name: string;
+  description: string;
+  serverName: string;
+}
+
+export interface McpPrompt {
+  name: string;
+  description: string;
+  serverName: string;
 }
 
 export interface McpChatResponse {

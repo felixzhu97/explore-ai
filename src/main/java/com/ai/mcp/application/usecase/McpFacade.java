@@ -3,6 +3,8 @@ package com.ai.mcp.application.usecase;
 import com.ai.common.application.llm.ChatClientProvider;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.mcp.application.port.McpToolCallbackRegistry;
+import com.ai.mcp.domain.model.McpPromptDefinition;
+import com.ai.mcp.domain.model.McpResourceDefinition;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;
 import com.ai.mcp.domain.vo.McpServerConnection;
@@ -40,6 +42,14 @@ public class McpFacade {
         return mcpClientRepository.listTools();
     }
 
+    public List<McpResourceDefinition> getResourceDefinitions() {
+        return mcpClientRepository.listResources();
+    }
+
+    public List<McpPromptDefinition> getPromptDefinitions() {
+        return mcpClientRepository.listPrompts();
+    }
+
     public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
         toolCallbackRegistry.registerToolCallbacks(tools, serverName);
     }
@@ -49,11 +59,11 @@ public class McpFacade {
     }
 
     public String chatWithTools(String question) {
-        ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
+        // createStateless(TOOLS) already registers MCP + local tool callbacks as defaults.
+        // Do not pass them again via .tools(...) — Spring AI rejects duplicate tool names.
         return chatClientProvider.createStateless(TextChatOptions.defaults())
                 .prompt()
                 .user(question)
-                .tools(tools)
                 .call()
                 .content();
     }

@@ -54,7 +54,7 @@ note right of backend
   · **关闭** (flags = false):
     Vision / Image Analysis (ONNX + Tesseract)
     ASR (whisper.cpp)
-    MCP Server / Client
+    MCP Server / Client Host（Tools/Resources/Prompts）
     Eval
     Ollama Embedding / Vision Chat
   · Free: 15min 休眠；512MB；无持久盘

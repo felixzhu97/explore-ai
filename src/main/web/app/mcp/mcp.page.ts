@@ -1,8 +1,19 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { McpService } from './mcp.service';
-import type { McpClientStatusResponse, McpHealthResponse, McpTool } from './mcp.model';
+import type {
+  McpClientStatusResponse,
+  McpHealthResponse,
+  McpPrompt,
+  McpResource,
+  McpServerInfo,
+  McpTool,
+} from './mcp.model';
 import { ZardButtonComponent } from '../shared/components/button';
+
+type PrimitiveTab = 'tools' | 'resources' | 'prompts';
 
 @Component({
   selector: 'app-mcp-page',
@@ -16,7 +27,11 @@ export class McpPageComponent implements OnInit {
 
   readonly health = signal<McpHealthResponse | null>(null);
   readonly clientStatus = signal<McpClientStatusResponse | null>(null);
+  readonly servers = signal<McpServerInfo[]>([]);
   readonly tools = signal<McpTool[]>([]);
+  readonly resources = signal<McpResource[]>([]);
+  readonly prompts = signal<McpPrompt[]>([]);
+  readonly activeTab = signal<PrimitiveTab>('tools');
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly question = signal('');
@@ -27,27 +42,36 @@ export class McpPageComponent implements OnInit {
     this.loadDashboard();
   }
 
+  selectTab(tab: PrimitiveTab): void {
+    this.activeTab.set(tab);
+  }
+
   loadDashboard(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.mcp.getHealth().subscribe({
-      next: health => this.health.set(health),
-      error: () => this.error.set('Failed to load MCP health'),
-    });
-
-    this.mcp.getClientStatus().subscribe({
-      next: status => this.clientStatus.set(status),
-      error: () => this.error.set('Failed to load MCP client status'),
-    });
-
-    this.mcp.listTools().subscribe({
-      next: (tools) => {
-        this.tools.set(tools);
+    forkJoin({
+      health: this.mcp.getHealth().pipe(catchError(() => of(null))),
+      status: this.mcp.getClientStatus().pipe(catchError(() => of(null))),
+      servers: this.mcp.listServers().pipe(catchError(() => of([] as McpServerInfo[]))),
+      tools: this.mcp.listTools().pipe(catchError(() => of([] as McpTool[]))),
+      resources: this.mcp.listResources().pipe(catchError(() => of([] as McpResource[]))),
+      prompts: this.mcp.listPrompts().pipe(catchError(() => of([] as McpPrompt[]))),
+    }).subscribe({
+      next: (result) => {
+        this.health.set(result.health);
+        this.clientStatus.set(result.status);
+        this.servers.set(result.servers);
+        this.tools.set(result.tools);
+        this.resources.set(result.resources);
+        this.prompts.set(result.prompts);
+        if (!result.health && !result.status) {
+          this.error.set('Failed to load MCP dashboard');
+        }
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Failed to load MCP tools');
+        this.error.set('Failed to load MCP dashboard');
         this.loading.set(false);
       },
     });

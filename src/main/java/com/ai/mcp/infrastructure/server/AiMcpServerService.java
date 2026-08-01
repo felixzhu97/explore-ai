@@ -7,6 +7,8 @@ import com.ai.tools.infrastructure.tools.WeatherTools;
 import com.ai.common.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.mcp.annotation.McpArg;
+import org.springframework.ai.mcp.annotation.McpPrompt;
 import org.springframework.ai.mcp.annotation.McpResource;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
@@ -77,6 +79,26 @@ public class AiMcpServerService {
         return aiChatUseCase.chat(message);
     }
 
+    @McpResource(uri = "document:///{docId}", name = "Document Resource", description = "Access document by ID")
+    public String getDocument(String docId) {
+        log.info("MCP resource: getDocument called for docId: {}", docId);
+        if (docId == null || docId.isBlank()) {
+            return "Document id must not be blank";
+        }
+        String listing = documentSearchTool.listDocuments();
+        if (listing == null || listing.isBlank() || "[]".equals(listing.strip())) {
+            return "Document not found: " + docId;
+        }
+        if (!listing.contains(docId)) {
+            return "Document not found: " + docId;
+        }
+        String content = documentSearchTool.searchDocuments("document " + docId, List.of(docId));
+        if (content == null || content.isBlank() || "[]".equals(content.strip())) {
+            return "Document found but has no searchable content: " + docId;
+        }
+        return content;
+    }
+
     @McpResource(uri = "config:///{key}", name = "Configuration Resource", description = "Access application configuration")
     public String getConfig(String key) {
         log.info("MCP resource: getConfig called for key: {}", key);
@@ -88,6 +110,30 @@ public class AiMcpServerService {
             case "spring.ai.rag.retrieval.score-threshold" -> String.valueOf(ragProperties.getRetrieval().getScoreThreshold());
             default -> "Configuration key not found: " + key;
         };
+    }
+
+    @McpPrompt(name = "analyze-document", description = "Generate document analysis prompt")
+    public String analyzeDocumentPrompt(
+            @McpArg(name = "docId", description = "Document ID to analyze", required = true) String docId,
+            @McpArg(name = "focus", description = "Optional analysis focus", required = false) String focus) {
+        log.info("MCP prompt: analyze-document for docId={}", docId);
+        String focusLine = (focus == null || focus.isBlank())
+                ? "Provide a clear summary, key points, and open questions."
+                : "Focus on: " + focus;
+        return """
+                Analyze the knowledge-base document with id "%s".
+                %s
+                Use search_knowledge_base or the document:///%s resource when you need content.
+                """.formatted(docId, focusLine, docId).strip();
+    }
+
+    @McpPrompt(name = "greeting", description = "Generate greeting message")
+    public String greetingPrompt(
+            @McpArg(name = "name", description = "Name to greet", required = false) String name) {
+        log.info("MCP prompt: greeting name={}", name);
+        String who = (name == null || name.isBlank()) ? "there" : name.trim();
+        return "Write a short, friendly greeting for %s about exploring AI tools on this platform."
+                .formatted(who);
     }
 
 }

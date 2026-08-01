@@ -70,7 +70,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 **Sidebar IA groups (frontend):** `MODULE_NAV_TABS` in `src/main/web/app/core/config/module-nav.config.ts` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/agents`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`. Do not wire planned AIOps keys into these groups until productized.
 
-**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + tools list); Eval (input ‖ scores); Metrics (KPI strip + charts + drill-down table).
+**Page layout by scenario (frontend):** each live route uses a task-fit shell — Chat (conversation column); RAG (document rail + Q&A); Agent (canvas + results rail with input inside the rail); Generation image/TTS and Vision (form ‖ preview/result); ASR (connection bar + live transcript); MCP (status bar + Servers + Tools/Resources/Prompts tabs + try-chat); Eval (input ‖ scores); Metrics (KPI strip + charts + drill-down table).
 
 ```mermaid
 flowchart TB
@@ -314,12 +314,15 @@ Package: `com.ai.mcp` (Server + Client).
 
 | Preferred Term (English) | 中文        | Definition                                    | Type              | Code Mapping                         | Notes                          |
 | ------------------------ | --------- | --------------------------------------------- | ----------------- | ------------------------------------ | ------------------------------ |
-| MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `AiMcpServerService`                 | Model Context Protocol         |
-| MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Service           | `AiMcpClientService`                 | Registers external tools       |
-| MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | `AiMcpClientService.registerTools()` | —                              |
-| MCP Tool Definition      | MCP 工具定义  | Name and description of an MCP tool           | Value Object      | `McpToolDefinition`                  | Registered by Client           |
-| MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | Managed by `McpSessionManager` |
-| MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | —                              |
+| MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `AiMcpServerService`                 | Tools + Resources + Prompts    |
+| MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Host / Repository | `SpringAiMcpClientRepository`        | Per-server tool registration   |
+| MCP Facade               | MCP 门面    | Application orchestration for MCP Host        | Use Case          | `McpFacade`                          | Chat + list primitives         |
+| MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | `McpToolCallbackRegistry`            | Prefixed per server            |
+| MCP Tool Definition      | MCP 工具定义  | Name, description, and server of an MCP tool  | Value Object      | `McpToolDefinition`                  | Includes `serverName`          |
+| MCP Resource Definition  | MCP 资源定义  | URI-addressable resource from an MCP server   | Value Object      | `McpResourceDefinition`              | Listed by Client Host          |
+| MCP Prompt Definition    | MCP 提示词定义 | Prompt template exposed by an MCP server      | Value Object      | `McpPromptDefinition`                | Listed by Client Host          |
+| MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | One active session per server  |
+| MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | Counts + capability flags      |
 | MCP Chat                 | MCP 对话    | AI conversation initiated via MCP Client      | Use Case Behavior | `McpClientController.chat()`         | —                              |
 
 
@@ -440,7 +443,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Tool Callback                        | 工具回调    | Spring AI mechanism for LLM-initiated tool invocation      | Technical | `ToolCallback`, `McpToolCallbackRegistry`     | Bridges LLM and Tools               |
 | Advisor                              | 顾问      | Interceptor/enhancer in the ChatClient call chain          | Technical | Spring AI Advisors                            | e.g. structured output              |
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5                      |
-| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
+| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for Tools, Resources, and Prompts with LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated; Spring AI Host/Server |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. domain-expert, developer       |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `LocalizedRagPromptBuilder`, `RagChatUseCase` | Reduces unsupported claims          |

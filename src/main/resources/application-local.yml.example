@@ -6,7 +6,8 @@
 # Production / shared envs should use Streamable HTTP MCP, not STDIO:
 #   https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html
 #
-# Optional STDIO Fetch (requires uv/uvx: https://docs.astral.sh/uv/):
+# Optional MCP Client — connection keys become Host server names for Tools/Resources/Prompts.
+# STDIO Fetch (requires uv/uvx: https://docs.astral.sh/uv/):
 # spring:
 #   ai:
 #     mcp:
@@ -18,6 +19,11 @@
 #               command: uvx
 #               args:
 #                 - mcp-server-fetch
+#         streamable-http:
+#           connections:
+#             remote:
+#               url: http://localhost:8080
+#               endpoint: /mcp
 spring:
   ai:
     mcp:
