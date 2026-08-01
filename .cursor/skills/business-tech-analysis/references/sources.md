@@ -6,7 +6,7 @@
 
 | Org | What to check | Starting points |
 |-----|---------------|-----------------|
-| **Google** | Full ecosystem (not Cloud-only): engineering, design, AI/research, Android, Cloud | [blog.google](https://blog.google/), [cloud.google.com/blog](https://cloud.google.com/blog/), [ai.google.dev](https://ai.google.dev/), [eng-practices](https://google.github.io/eng-practices/), [styleguide](https://google.github.io/styleguide/), [sre.google](https://sre.google/), [Material Design 3](https://m3.material.io/), [Well-Architected Framework](https://docs.cloud.google.com/architecture/framework) |
+| **Google** | Full ecosystem (not Cloud-only): engineering, SRE, AI/research, Android, Cloud. UI design for this repo stays Apple HIG. | [blog.google](https://blog.google/), [cloud.google.com/blog](https://cloud.google.com/blog/), [ai.google.dev](https://ai.google.dev/), [eng-practices](https://google.github.io/eng-practices/), [styleguide](https://google.github.io/styleguide/), [sre.google](https://sre.google/), [Well-Architected Framework](https://docs.cloud.google.com/architecture/framework) |
 | **Apple** | Apple Intelligence, on-device ML, HIG/dev | [apple.com/newsroom](https://www.apple.com/newsroom/), [developer.apple.com/news](https://developer.apple.com/news/), [machinelearning.apple.com](https://machinelearning.apple.com/) |
 | **Microsoft** | Azure OpenAI, Copilot, GitHub | [blogs.microsoft.com](https://blogs.microsoft.com/), [azure.microsoft.com/blog](https://azure.microsoft.com/blog/), [github.blog](https://github.blog/) |
 | **NVIDIA** | GPUs, NIM, CUDA, enterprise AI | [blogs.nvidia.com](https://blogs.nvidia.com/), [developer.nvidia.com/blog](https://developer.nvidia.com/blog/) |

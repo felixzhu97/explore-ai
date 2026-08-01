@@ -97,7 +97,7 @@ Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [
 
 ## Google Ecosystem
 
-**Full Google ecosystem** (engineering, design, AI/research, Android, Cloud) — not Cloud-only. Pick the row whose **Claim in why** matches the commit/PR why paragraph. Prefer deep links over homepages.
+**Full Google ecosystem** (engineering, SRE, AI/research, Android, Cloud) — not Cloud-only. **UI design stays Apple HIG** (do not cite Material Design for product UI in this repo). Pick the row whose **Claim in why** matches the commit/PR why paragraph. Prefer deep links over homepages.
 
 ### Engineering practices & style
 
@@ -116,16 +116,6 @@ Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [
 | SRE practices / reliability culture | [Site Reliability Engineering — sre.google](https://sre.google/) |
 | Latency / traffic / errors / saturation (golden signals) | [SRE Book — Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/) |
 | Eliminating toil / automation | [SRE Book — Eliminating Toil](https://sre.google/sre-book/eliminating-toil/) |
-
-### Design (Material)
-
-| Claim in why | Official doc |
-|--------------|--------------|
-| Cross-platform Material UI / motion / layout | [Material Design 3](https://m3.material.io/) |
-| Web Material components | [Material Web](https://material-web.dev/) |
-| Material motion tokens / patterns | [Material Design 3 — Motion](https://m3.material.io/styles/motion) |
-
-Also listed under [Design References](#design-references) / [UX References](#ux-references) for UI work.
 
 ### Android / mobile (when relevant)
 
@@ -155,13 +145,13 @@ Also listed under [Design References](#design-references) / [UX References](#ux-
 
 ## Design References
 
+Product UI design for this repo: **Apple HIG only** (not Material).
+
 | Resource | Official Docs |
 |----------|---------------|
 | Apple Human Interface Guidelines | [developer.apple.com/design](https://developer.apple.com/design/) |
-| Material Design | [m3.material.io](https://m3.material.io) |
-| Angular Material Design | [material.angular.io](https://material.angular.io) |
-| Tailwind CSS | [tailwindcss.com/docs](https://tailwindcss.com/docs) |
-| Figma Design Systems | [figma.com/community](https://www.figma.com/community/design-systems) |
+| Apple HIG (guidelines hub) | [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/) |
+| Tailwind CSS (implementation utility) | [tailwindcss.com/docs](https://tailwindcss.com/docs) |
 
 ## UX References
 
@@ -173,8 +163,6 @@ Also listed under [Design References](#design-references) / [UX References](#ux-
 | Apple HIG - Motion | [developer.apple.com/design/human-interface-guidelines/foundations/motion](https://developer.apple.com/design/human-interface-guidelines/foundations/motion) |
 | Apple HIG - Accessibility | [developer.apple.com/design/human-interface-guidelines/foundations/accessibility](https://developer.apple.com/design/human-interface-guidelines/foundations/accessibility) |
 | shadcn/ui - Apple Design | [shadcn/ui - Apple](https://www.shadcn.io/design/apple) |
-| shadcn/ui - OpenAI | [shadcn/ui - OpenAI](https://www.shadcn.io/design/openai) |
-| Material Design - Motion | [m3.material.io/styles/motion](https://m3.material.io/styles/motion) |
 | Tailwind - Animating with Tailwind | [tailwindcss.com/docs/animation](https://tailwindcss.com/docs/animation) |
 
 ## Jira
