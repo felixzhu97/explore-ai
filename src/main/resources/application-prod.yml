@@ -43,6 +43,8 @@ app:
     secure: true
     same-site: Lax
     max-age: 90d
+  service-auth:
+    api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:
     enabled: true
     requests-per-window: 60

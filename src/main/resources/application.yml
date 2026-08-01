@@ -162,7 +162,9 @@ app:
     allowed-origin-patterns:
       - http://localhost:4200
       - http://localhost:3000
+      - http://localhost:4000
       - http://127.0.0.1:4200
+      - http://127.0.0.1:4000
       - http://127.0.0.1:4321
       - https://explore-ai-git-*-felixzhu97s-projects.vercel.app
       - https://explore-ai-three.vercel.app
@@ -173,6 +175,8 @@ app:
     secure: false
     same-site: Lax
     max-age: 90d
+  service-auth:
+    api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:
     enabled: true
     requests-per-window: 60
