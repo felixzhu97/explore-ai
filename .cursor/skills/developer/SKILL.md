@@ -149,7 +149,7 @@ Prefer **specific** pages, not homepages. Search the web in real time when neede
 | 1 | Project dependency official docs | [dependency-docs](references/dependency-docs.md) |
 | 2 | Vendor / lab **research** + open-source | [business-tech-analysis sources](../business-tech-analysis/references/sources.md) (research hubs + GitHub) |
 | 3 | **arXiv** papers (abs page) | [arXiv](https://arxiv.org/) — when the change cites a method/paper |
-| 4 | Standards / HIG / Google ecosystem | [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/); **Google ecosystem** (eng practices, style guides, SRE, Material, AI, Cloud Architecture) — [dependency-docs](references/dependency-docs.md) § Google Ecosystem |
+| 4 | Standards / HIG / Google ecosystem | **UI design:** [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/) only. **Google ecosystem** (eng practices, style guides, SRE, AI, Cloud Architecture — not Material UI) — [dependency-docs](references/dependency-docs.md) § Google Ecosystem |
 
 **Corroborate the why (required):** each Reference URL must support a **concrete claim** in the commit/PR why paragraph (latency, reliability, cost, naming, review quality, UI system, etc.). Prefer the page that states the practice. Do not paste org/product homepages as decoration.
 
