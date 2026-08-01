@@ -8,7 +8,8 @@ Code that changes architecture, domain language, or product capabilities must up
 |----------|------|------|
 | Domain Glossary | [docs/Glossary.md](../../../../docs/Glossary.md) | Preferred Terms, modules, routes, API prefixes |
 | C4 model | [docs/developer/c4-model/](../../../../docs/developer/c4-model/) | Context / containers / components / deployment (`.puml` is source of truth) |
-| User Story Map | [docs/product-owner/User-Story-Map.md](../../../../docs/product-owner/User-Story-Map.md) | Delivered / In Progress / Future capabilities |
+| User Story Map | [docs/product-owner/User-Story-Map.md](../../../../docs/product-owner/User-Story-Map.md) | Journey / Backbone / Epic index (status) |
+| User stories (Epics) | [docs/product-owner/user-stories/](../../../../docs/product-owner/user-stories/) | Per-US As a / GWT acceptance criteria / status |
 
 ## Trigger matrix
 
@@ -21,7 +22,7 @@ If **any** row matches, update the listed doc(s) in the same PR. If none match, 
 | Backend layering or major package/component structure | C3-Component-Backend |
 | Frontend routes, shells, shared app structure | C3-Component-Frontend |
 | Local or production deploy topology, ports, hosting | C4-Deployment and/or C4-Deployment-Production |
-| New user-visible capability, nav/module add/remove, delivery status change | User Story Map |
+| New user-visible capability, nav/module add/remove, delivery status change | User Story Map index **and** the matching `user-stories/E*.md` (US text, GWT AC, status) |
 | Pure unit/integration tests, formatting, dependency bump with no product/architecture semantics | None (N/A) |
 
 ### C4 layer cheat sheet
@@ -49,4 +50,5 @@ Adding `com.ai.metrics` + `/metrics` + `/api/metrics`:
 
 1. **Glossary** — business-domain row (Metrics), frontend route map, notes.
 2. **C4** — at least `C2-Container.puml` and `C3-Component-Frontend.puml` (and Backend C3 if package structure is shown); regenerate png if possible.
-3. **User Story Map** — add “AI 指标看板” under the correct release section with status (e.g. Delivered / In Progress).
+3. **User Story Map** — add the US to the Backbone / Epic index with the correct status.
+4. **user-stories/E*.md** — add or update the US block (As a / I want / So that, GWT AC, status) in the matching Epic file.

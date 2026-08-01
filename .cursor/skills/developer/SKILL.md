@@ -71,13 +71,13 @@ When a change matches the trigger matrix, update the matching living docs in the
 |----------|------|
 | Glossary | [docs/Glossary.md](../../../docs/Glossary.md) |
 | C4 | [docs/developer/c4-model/](../../../docs/developer/c4-model/) (`.puml` source; refresh `png/` when PlantUML is available) |
-| User Story Map | [docs/product-owner/User-Story-Map.md](../../../docs/product-owner/User-Story-Map.md) |
+| User Story Map | [docs/product-owner/User-Story-Map.md](../../../docs/product-owner/User-Story-Map.md) (+ [user-stories/E*.md](../../../docs/product-owner/user-stories/)) |
 
 | Change | Must update |
 |--------|-------------|
 | New/changed Preferred Term, module package, route, API prefix, business concept | Glossary |
 | New module/subdomain, container boundary, external system, deploy topology, front/back component structure | Matching C4 `.puml` layer(s); cross-layer → multiple diagrams |
-| New user-visible capability, delivery status (Delivered / In Progress / Future), primary nav add/remove | User Story Map |
+| New user-visible capability, delivery status (已实现 / 进行中 / 规划中), primary nav add/remove | User Story Map index + matching `user-stories/E*.md` |
 | Pure tests / pure styling / no product or architecture semantics | None (N/A) |
 
 Flow: implement code → apply trigger matrix → update docs → reflect in commit/PR. Prefer editing `.puml`; if PlantUML is unavailable, note in the PR that `png/` is pending render.

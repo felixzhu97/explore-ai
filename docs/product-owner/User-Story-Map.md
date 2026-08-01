@@ -4,184 +4,130 @@ title: AI Chat & Agent Platform - 用户故事地图
 
 # 用户故事地图
 
-按交付状态组织；每条仅保留用户故事（As a / I want / So that）。
+> 格式：Jeff Patton 故事地图 + Mermaid journey + GWT（Epic 分文件）。  
+> 故事正文与验收标准见 [user-stories/](./user-stories/)；本页只做索引，避免双源。
 
-## 已交付
+## 用户画像
 
-### AI 对话
+| 角色 | 说明 |
+|------|------|
+| 最终用户 | 在浏览器中使用对话、RAG、媒体与工具能力 |
+| 访客 | 未登录使用 ExploreAI，会话按浏览器隔离 |
+| QA 工程师 | 在 Eval 页评估回答质量 |
+| 管理员 / 运维 | 查看 AI 指标与域健康 |
+| 业务分析师 / 产品经理 / 业务或技术负责人 | 使用 Multi-Agent 工作台与研判输出 |
+| 平台工程师 / 开发者 | 平台管道、领域建模与 Lab 编排（进行中/规划） |
+| 企业员工 / 知识工作者 / 合规与平台管理员 | 企业场景（规划） |
 
-**As a** 最终用户  
-**I want** 与 AI 助手进行流式对话  
-**So that** 我可以快速获得智能回答
+## 旅程总览
 
-### Provider / Model 选择
+### 对话与会话
 
-**As a** 最终用户  
-**I want** 进入 Chat 页时看到可用的 Provider 与 Model 列表  
-**So that** 我可以选择模型且无错误提示
+```mermaid
+journey
+    title 对话与会话
+    section 对话
+        流式对话: 5: 最终用户
+        选择 Provider 与 Model: 5: 最终用户
+    section 会话
+        多轮与自动标题: 5: 最终用户
+        侧边栏找历史: 4: 最终用户
+```
 
-### 多轮对话与自动标题
+### 隐私与隔离
 
-**As a** 最终用户  
-**I want** 在同一会话中连续对话并由系统自动生成会话标题  
-**So that** 我可以记住上下文并在侧边栏快速找到历史会话
+```mermaid
+journey
+    title 隐私与隔离
+    section 隔离
+        会话仅本浏览器可见: 5: 访客
+    section 隐私
+        隐私说明与 Cookie: 4: 访客
+        擦除本浏览器数据: 4: 访客
+```
 
-### 按浏览器隔离聊天会话
+### RAG 与视觉 / 媒体
 
-**As a** 使用 ExploreAI 的访客  
-**I want** 我的聊天会话只对本浏览器可见  
-**So that** 其他电脑无法看到或操作我的对话
+```mermaid
+journey
+    title RAG 与媒体
+    section 知识
+        上传文档问答: 5: 最终用户
+        图片加文档问答: 4: 最终用户
+        独立图像分析: 4: 最终用户
+    section 媒体
+        文生图: 5: 最终用户
+        TTS 播放下载: 4: 最终用户
+        麦克风 ASR: 4: 最终用户
+```
 
-### 欧盟隐私告知、同意与擦除控制
+### 工具、观测与 Agent
 
-**As a** 使用 ExploreAI 的访客  
-**I want** 看到隐私说明、选择分析 Cookie，并能擦除本浏览器数据  
-**So that** 我了解处理目的并行使基本隐私控制
+```mermaid
+journey
+    title 工具观测与 Agent
+    section 工具
+        MCP 外部工具: 5: 最终用户
+    section 观测
+        Eval 质量评估: 4: QA
+        Metrics 下钻: 4: 运维
+    section Agent
+        画布编排流水线: 5: 分析师
+        选用预置模板: 4: 产品经理
+        标准化 brief: 5: 负责人
+```
 
-### RAG 知识问答
+---
 
-**As a** 最终用户  
-**I want** 上传文档并基于文档内容提问  
-**So that** AI 回答有据可查
+## Backbone 故事地图
 
-### 图像生成
+### 已交付
 
-**As a** 最终用户  
-**I want** 用文字描述生成图像  
-**So that** 我可以快速获得可用的视觉素材
+| 对话与会话 | 隐私与隔离 | RAG 与视觉 | 媒体 | MCP | 评估与指标 | Multi-Agent |
+|------------|------------|------------|------|-----|------------|-------------|
+| [US-01](./user-stories/E1-chat-session.md#us-01-ai-对话) AI 对话 | [US-04](./user-stories/E2-privacy-isolation.md#us-04-按浏览器隔离聊天会话) 浏览器隔离 | [US-06](./user-stories/E3-rag-vision.md#us-06-rag-知识问答) RAG | [US-09](./user-stories/E4-media.md#us-09-图像生成) 图像生成 | [US-12](./user-stories/E5-mcp-tools.md#us-12-mcp-工具调用) MCP | [US-13](./user-stories/E6-eval-metrics.md#us-13-chat-质量评估) Eval | [US-15](./user-stories/E7-multi-agent.md#us-15-multi-agent-pipeline-工作台) Pipeline |
+| [US-02](./user-stories/E1-chat-session.md#us-02-provider--model-选择) Provider/Model | [US-05](./user-stories/E2-privacy-isolation.md#us-05-欧盟隐私告知同意与擦除控制) 隐私控制 | [US-07](./user-stories/E3-rag-vision.md#us-07-vision-多模态-rag) Vision RAG | [US-10](./user-stories/E4-media.md#us-10-语音合成-tts) TTS | | [US-14](./user-stories/E6-eval-metrics.md#us-14-ai-指标看板) Metrics | [US-16](./user-stories/E7-multi-agent.md#us-16-内置企业工作流模板) 预置模板 |
+| [US-03](./user-stories/E1-chat-session.md#us-03-多轮对话与自动标题) 多轮与标题 | | [US-08](./user-stories/E3-rag-vision.md#us-08-图像分析独立) 图像分析 | [US-11](./user-stories/E4-media.md#us-11-流式-asr-语音识别) ASR | | | [US-17](./user-stories/E7-multi-agent.md#us-17-企业研判标准化输出) 标准化输出 |
 
-### 语音合成 TTS
+### 进行中
 
-**As a** 最终用户  
-**I want** 将文本合成为语音并播放或下载  
-**So that** 我可以听读 AI 输出的内容
+| 商业化与平台 |
+|--------------|
+| [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 |
+| [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL |
+| [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 |
+| [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 |
+| [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor |
 
-### MCP 工具调用
+### 未来（规划中）
 
-**As a** 最终用户  
-**I want** 在对话中调用已接入的外部工具  
-**So that** AI 能完成查天气、搜文档等超出纯文本的任务
+| 企业与 Lab |
+|------------|
+| [US-23](./user-stories/E9-enterprise-future.md#us-23-aiops-智能运维) AIOps |
+| [US-24](./user-stories/E9-enterprise-future.md#us-24-知识与制度) 知识与制度 |
+| [US-25](./user-stories/E9-enterprise-future.md#us-25-沟通与内容生产) 沟通与内容 |
+| [US-26](./user-stories/E9-enterprise-future.md#us-26-决策支持与运营轻量) 决策支持 |
+| [US-27](./user-stories/E9-enterprise-future.md#us-27-治理与人机协同) 治理 |
+| [US-28](./user-stories/E9-enterprise-future.md#us-28-spring-ai-workflow-原语产品化) Spring AI Workflow Lab |
+| [US-29](./user-stories/E9-enterprise-future.md#us-29-会话导出) 会话导出 |
 
-### Vision 多模态 RAG
+---
 
-**As a** 最终用户  
-**I want** 上传图片并结合文档进行问答  
-**So that** 我可以分析图表、截图等视觉内容
+## Epic 索引
 
-### 图像分析（独立）
+| Epic | 文件 | 故事 | 状态 |
+|------|------|------|------|
+| E1 对话与会话 | [E1-chat-session.md](./user-stories/E1-chat-session.md) | US-01 – US-03 | 已实现 |
+| E2 隐私与隔离 | [E2-privacy-isolation.md](./user-stories/E2-privacy-isolation.md) | US-04 – US-05 | 已实现 |
+| E3 RAG 与视觉 | [E3-rag-vision.md](./user-stories/E3-rag-vision.md) | US-06 – US-08 | 已实现 |
+| E4 媒体 | [E4-media.md](./user-stories/E4-media.md) | US-09 – US-11 | 已实现 |
+| E5 MCP | [E5-mcp-tools.md](./user-stories/E5-mcp-tools.md) | US-12 | 已实现 |
+| E6 评估与指标 | [E6-eval-metrics.md](./user-stories/E6-eval-metrics.md) | US-13 – US-14 | 已实现 |
+| E7 Multi-Agent | [E7-multi-agent.md](./user-stories/E7-multi-agent.md) | US-15 – US-17 | 已实现 |
+| E8 商业化与平台 | [E8-commercial-platform.md](./user-stories/E8-commercial-platform.md) | US-18 – US-22 | 进行中 |
+| E9 企业与未来 | [E9-enterprise-future.md](./user-stories/E9-enterprise-future.md) | US-23 – US-29 | 规划中 |
 
-**As a** 最终用户  
-**I want** 在独立页面完成图像描述、目标检测与 OCR  
-**So that** 无需进入 RAG 对话即可获得结构化视觉分析结果
+## 参考
 
-### 流式 ASR 语音识别
-
-**As a** 最终用户  
-**I want** 通过麦克风实时转写语音为文字  
-**So that** 我可以用语音输入与 AI 交互
-
-### Chat 质量评估
-
-**As a** QA 工程师  
-**I want** 在 Eval 页自动评估 AI 回答的质量  
-**So that** 我可以量化对话效果并持续改进
-
-### AI 指标看板
-
-**As a** 管理员 / 运维  
-**I want** 查看 AI 请求量、延迟、错误率与域健康，并能下钻到调用明细  
-**So that** 我可以快速定位异常调用并继续排查
-
-### Multi-Agent Pipeline 工作台
-
-**As a** 业务分析师  
-**I want** 在画布上编排 Agent 流水线并流式审阅阶段与结果  
-**So that** 我可以按企业流程定制多步 AI 工作流
-
-### 内置企业工作流模板
-
-**As a** 产品经理  
-**I want** 一键选用预置编排模板  
-**So that** 常见商业/技术研判无需从零搭图
-
-### 企业研判标准化输出
-
-**As a** 业务或技术负责人  
-**I want** Analyst 以 Fact / Inference / Recommendation 结构输出 brief  
-**So that** 研判结果可复核、可汇报
-
-## 进行中
-
-### 商业化底座：配额、法务页与账号雏形
-
-**As a** ExploreAI 访客与运营方  
-**I want** 日配额保护成本、法务文档可访问、Metrics 可按需上锁，并看到匿名账号状态  
-**So that** 产品具备可商业化的最小计费与合规入口
-
-### RAG ETL 管道
-
-**As a** 平台工程师  
-**I want** 通过可插拔的 ETL 端口处理不同格式文档  
-**So that** 新增文档类型时无需修改应用层代码
-
-### 文本分析
-
-**As a** 管理员  
-**I want** 对文本进行结构化情感分析  
-**So that** 我可以了解用户反馈的情绪倾向
-
-### Tools 天气查询
-
-**As a** 开发者  
-**I want** 通过充血领域模型封装天气查询逻辑  
-**So that** 工具调用遵循领域建模最佳实践
-
-### Supervisor 自动路由
-
-**As a** 最终用户  
-**I want** 描述任务后由 Supervisor 自动分派专家 Agent  
-**So that** 我不必手动设计流水线
-
-## 未来
-
-### AIOps 智能运维
-
-**As a** 管理员  
-**I want** 监控系统健康、用自然语言查日志并收到告警  
-**So that** 运维问题可被及时发现与处理
-
-### 知识与制度
-
-**As a** 企业员工  
-**I want** 按权限查制度、使用入职知识包，并提醒过期文档  
-**So that** 口径一致且知识不过期
-
-### 沟通与内容生产
-
-**As a** 知识工作者  
-**I want** 会议纪要生成行动项、按受众起草公文，并做术语约束本地化  
-**So that** 沟通可闭环且口径统一
-
-### 决策支持与运营轻量
-
-**As a** 业务或一线人员  
-**I want** 竞品/供应商对比、客服答复草稿、合同要点与复盘初稿  
-**So that** 决策与响应更快且可人工确认
-
-### 治理与人机协同
-
-**As a** 合规与平台管理员  
-**I want** 审批节点、入模前脱敏、审计用量，以及 IM/邮件与定时触发  
-**So that** AI 工作流可安全嵌入日常企业流程
-
-### Spring AI Workflow 原语产品化
-
-**As a** 平台工程师  
-**I want** 在 Lab 中组合 Chain / Parallel / Route / Evaluator-Optimizer  
-**So that** 无 Agent 注册表时也能编排 LLM 工作流
-
-### 会话导出
-
-**As a** 最终用户  
-**I want** 导出历史会话内容  
-**So that** 我可以归档或在站外继续使用对话结果
+- [User Story Mapping — Jeff Patton](https://www.jpattonassociates.com/user-story-mapping/)
+- [Domain Glossary](../Glossary.md)
