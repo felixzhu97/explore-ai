@@ -149,7 +149,12 @@ Prefer **specific** pages, not homepages. Search the web in real time when neede
 | 1 | Project dependency official docs | [dependency-docs](references/dependency-docs.md) |
 | 2 | Vendor / lab **research** + open-source | [business-tech-analysis sources](../business-tech-analysis/references/sources.md) (research hubs + GitHub) |
 | 3 | **arXiv** papers (abs page) | [arXiv](https://arxiv.org/) — when the change cites a method/paper |
-| 4 | Standards / HIG | e.g. [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/) |
+| 4 | Standards / HIG / Google ecosystem | [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/); **Google ecosystem** (eng practices, style guides, SRE, Material, AI, Cloud Architecture) — [dependency-docs](references/dependency-docs.md) § Google Ecosystem |
+
+**Corroborate the why (required):** each Reference URL must support a **concrete claim** in the commit/PR why paragraph (latency, reliability, cost, naming, review quality, UI system, etc.). Prefer the page that states the practice. Do not paste org/product homepages as decoration.
+
+- Bad: why says “reduce cold-start latency for chat UX” + link to a marketing landing page with no latency guidance.
+- Good: why says “treat latency as a golden signal and avoid idle scale-to-zero for interactive chat” + [SRE Book — Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/).
 
 Avoid: random blogs, undated tweets, marketing landing pages (unless no primary source exists — then note why).
 
@@ -221,6 +226,7 @@ PR **References** must match the commit References (same links). Use the same of
 - [ ] UI (if any): HIG + minimal
 - [ ] Branch: `<type>/<slug>` (type matches commit); Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
+- [ ] Each References link maps to a claim in the why text (or N/A with note)
 - [ ] PR: plain body + same References + Jira link; chain base; CI green
 - [ ] Jira (if any): [Product Owner](../product-owner/SKILL.md) template followed
 

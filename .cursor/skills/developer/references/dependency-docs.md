@@ -93,6 +93,65 @@ Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [
 | arXiv | [arxiv.org](https://arxiv.org) |
 | Hugging Face | [huggingface.co](https://huggingface.co) |
 | Agile Manifesto | [agilemanifesto.org](https://agilemanifesto.org/) |
+| Google Ecosystem (claim → URL) | [§ Google Ecosystem](#google-ecosystem) below |
+
+## Google Ecosystem
+
+**Full Google ecosystem** (engineering, design, AI/research, Android, Cloud) — not Cloud-only. Pick the row whose **Claim in why** matches the commit/PR why paragraph. Prefer deep links over homepages.
+
+### Engineering practices & style
+
+| Claim in why | Official doc |
+|--------------|--------------|
+| Code review / CL quality | [Google Engineering Practices — Code Review](https://google.github.io/eng-practices/review/) |
+| Java formatting / naming / Javadoc conventions | [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) |
+| TypeScript style (frontend when relevant) | [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html) |
+| JavaScript style (frontend when relevant) | [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html) |
+| Style guide index (other languages) | [Google Style Guides](https://google.github.io/styleguide/) |
+
+### SRE & production
+
+| Claim in why | Official doc |
+|--------------|--------------|
+| SRE practices / reliability culture | [Site Reliability Engineering — sre.google](https://sre.google/) |
+| Latency / traffic / errors / saturation (golden signals) | [SRE Book — Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/) |
+| Eliminating toil / automation | [SRE Book — Eliminating Toil](https://sre.google/sre-book/eliminating-toil/) |
+
+### Design (Material)
+
+| Claim in why | Official doc |
+|--------------|--------------|
+| Cross-platform Material UI / motion / layout | [Material Design 3](https://m3.material.io/) |
+| Web Material components | [Material Web](https://material-web.dev/) |
+| Material motion tokens / patterns | [Material Design 3 — Motion](https://m3.material.io/styles/motion) |
+
+Also listed under [Design References](#design-references) / [UX References](#ux-references) for UI work.
+
+### Android / mobile (when relevant)
+
+| Claim in why | Official doc |
+|--------------|--------------|
+| Android app architecture / quality | [Android Developers — Guide to app architecture](https://developer.android.com/topic/architecture) |
+| AOSP / Android Java conventions | [AOSP Java code style](https://source.android.com/docs/setup/contribute/code-style) |
+
+### AI & research (complements arXiv / Hugging Face sets)
+
+| Claim in why | Official doc |
+|--------------|--------------|
+| Gemini / Google AI developer APIs | [Google AI for Developers](https://ai.google.dev/) |
+| Google Research publications | [research.google](https://research.google/) · [Publications](https://research.google/pubs/) |
+
+### Google Cloud (subset of ecosystem)
+
+| Claim in why | Official doc |
+|--------------|--------------|
+| Secure / resilient / performant / cost-effective topology | [Google Cloud Well-Architected Framework](https://docs.cloud.google.com/architecture/framework) |
+| Reliability as a design pillar | [Well-Architected — Reliability](https://docs.cloud.google.com/architecture/framework/reliability) |
+| Performance optimization | [Well-Architected — Performance optimization](https://docs.cloud.google.com/architecture/framework/performance-optimization) |
+| Cost / right-sizing | [Well-Architected — Cost optimization](https://docs.cloud.google.com/architecture/framework/cost-optimization) |
+| SLOs, ops readiness, reduce toil | [Well-Architected — Operational excellence](https://docs.cloud.google.com/architecture/framework/operational-excellence) |
+| Scalable / resilient app patterns (incl. golden signals) | [Patterns for scalable and resilient apps](https://docs.cloud.google.com/architecture/scalable-and-resilient-apps) |
+| Java on Google Cloud | [Java on Google Cloud](https://cloud.google.com/java) |
 
 ## Design References
 
