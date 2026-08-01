@@ -10,7 +10,6 @@ Code that changes architecture, domain language, or product capabilities must up
 | C4 model | [docs/developer/c4-model/](../../../../docs/developer/c4-model/) | Context / containers / components / deployment (`.puml` is source of truth) |
 | User Story Map | [docs/product-owner/User-Story-Map.md](../../../../docs/product-owner/User-Story-Map.md) | Journey / Backbone / Epic index (status) |
 | User stories (Epics) | [docs/product-owner/user-stories/](../../../../docs/product-owner/user-stories/) | Per-US As a / GWT acceptance criteria / status |
-| TOGAF BA (Phase A/B) | [docs/product-owner/togaf/](../../../../docs/product-owner/togaf/) | Business Capability / Value Stream catalogs, matrices, diagrams |
 
 ## Trigger matrix
 
@@ -24,7 +23,6 @@ If **any** row matches, update the listed doc(s) in the same PR. If none match, 
 | Frontend routes, shells, shared app structure | C3-Component-Frontend |
 | Local or production deploy topology, ports, hosting | C4-Deployment and/or C4-Deployment-Production |
 | New user-visible capability, nav/module add/remove, delivery status change | User Story Map index **and** the matching `user-stories/E*.md` (US text, GWT AC, status) |
-| Business Capability boundary or Value Stream Stage change | TOGAF `catalogs/` + `matrices/` (and matching diagram IDs); keep aligned with USM Epic status |
 | Pure unit/integration tests, formatting, dependency bump with no product/architecture semantics | None (N/A) |
 
 ### C4 layer cheat sheet
@@ -44,7 +42,7 @@ If **any** row matches, update the listed doc(s) in the same PR. If none match, 
 1. Implement the code change.
 2. Run the trigger matrix; update every matched doc.
 3. Include doc updates in the same PR (same commit or a follow-up docs commit on the same branch).
-4. Checklist: Glossary / C4 / Story Map / TOGAF BA (if capability or value-stream boundary changed) — done or N/A per matrix.
+4. Checklist: Glossary / C4 / Story Map — done or N/A per matrix.
 
 ## Example — new Metrics module
 
