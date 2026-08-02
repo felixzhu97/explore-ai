@@ -4,20 +4,91 @@
     "config:recommended",
     ":dependencyDashboard"
   ],
+  "enabledManagers": [
+    "npm",
+    "gradle",
+    "github-actions"
+  ],
+  "timezone": "Asia/Shanghai",
+  "schedule": [
+    "before 6am on Monday"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "prConcurrentLimit": 5,
   "packageRules": [
     {
-      "matchPackagePatterns": ["^@angular/", "^angular-eslint", "^@angular-eslint/"],
+      "description": "Group Angular platform and lint packages",
+      "matchPackagePatterns": [
+        "^@angular/",
+        "^angular-eslint",
+        "^@angular-eslint/"
+      ],
       "groupName": "Angular"
     },
     {
-      "matchPackagePatterns": ["^org.springframework", "^org.springframework.ai"],
+      "description": "Group Spring Boot / Spring AI stack",
+      "matchPackagePatterns": [
+        "^org.springframework",
+        "^org.springframework.ai"
+      ],
       "groupName": "Spring"
     },
     {
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
+      "description": "Group NG-ZORRO UI toolkit patch/minor updates",
+      "matchPackagePatterns": [
+        "^ng-zorro-antd$",
+        "^@ant-design/icons-angular$"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "NG-ZORRO"
+    },
+    {
+      "description": "Do not auto-propose ng-zorro-x majors until peers catch up",
+      "matchPackageNames": [
+        "ng-zorro-x"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Group frontend tooling patch/minor updates",
+      "matchPackagePatterns": [
+        "^eslint$",
+        "^@eslint/",
+        "^eslint-plugin-",
+        "^typescript-eslint$",
+        "^@typescript-eslint/",
+        "^vitest$",
+        "^@vitest/",
+        "^@playwright/",
+        "^lint-staged$",
+        "^tsx$"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "frontend tooling"
+    },
+    {
+      "description": "Keep automerge off; humans review CI-green PRs",
+      "matchDepTypes": [
+        "devDependencies",
+        "dependencies"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
       "automerge": false
     }
-  ],
-  "schedule": ["before 6am on Monday"]
+  ]
 }
