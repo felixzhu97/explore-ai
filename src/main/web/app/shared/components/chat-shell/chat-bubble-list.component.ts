@@ -27,7 +27,7 @@ export interface ChatBubbleFooterLabels {
   selector: 'app-chat-bubble-list',
   imports: [NxBubbleListComponent, MarkdownWithA2uiComponent],
   template: `
-    <div class="mx-auto max-w-[880px]">
+    <div class="mx-auto max-w-220">
       <nx-bubble-list [items]="bubbleItems()" [roles]="bubbleRoles" [autoScroll]="true" />
     </div>
 

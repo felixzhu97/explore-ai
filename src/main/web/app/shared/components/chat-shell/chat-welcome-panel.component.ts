@@ -13,7 +13,7 @@ import { NxWelcomeComponent } from 'ng-zorro-x/welcome';
   template: `
     <div
       class="
-        mx-auto box-border flex size-full max-w-[880px] flex-col items-center
+        mx-auto box-border flex size-full max-w-220 flex-col items-center
         justify-center gap-6 px-4 py-8
       "
     >
