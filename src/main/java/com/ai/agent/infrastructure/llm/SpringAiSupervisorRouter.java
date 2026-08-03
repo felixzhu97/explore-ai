@@ -1,6 +1,6 @@
 package com.ai.agent.infrastructure.llm;
 
-import com.ai.agent.application.port.SupervisorRouter;
+import com.ai.agent.application.SupervisorRouter;
 import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.domain.model.RoutingPlan;
 import com.ai.agent.domain.vo.AgentType;

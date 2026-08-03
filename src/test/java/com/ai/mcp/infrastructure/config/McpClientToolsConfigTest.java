@@ -1,6 +1,6 @@
 package com.ai.mcp.infrastructure.config;
 
-import com.ai.mcp.application.port.McpToolCallbackRegistry;
+import com.ai.mcp.application.McpToolCallbackRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.tool.ToolCallback;

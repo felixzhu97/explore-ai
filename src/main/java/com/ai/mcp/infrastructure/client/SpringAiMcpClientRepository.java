@@ -1,6 +1,6 @@
 package com.ai.mcp.infrastructure.client;
 
-import com.ai.mcp.application.port.McpToolCallbackRegistry;
+import com.ai.mcp.application.McpToolCallbackRegistry;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientRepository;
 import com.ai.mcp.domain.service.McpSessionManager;

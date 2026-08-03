@@ -1,4 +1,4 @@
-package com.ai.agent.application.port;
+package com.ai.agent.application;
 
 import com.ai.agent.domain.model.AgentDefinition;
 import reactor.core.publisher.Flux;
