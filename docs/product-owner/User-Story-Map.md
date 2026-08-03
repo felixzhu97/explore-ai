@@ -122,7 +122,7 @@ journey
 | E3 RAG 与视觉 | [E3-rag-vision.md](./user-stories/E3-rag-vision.md) | US-06 – US-08 | 已实现 |
 | E4 媒体 | [E4-media.md](./user-stories/E4-media.md) | US-09 – US-11 | 已实现 |
 | E5 MCP | [E5-mcp-tools.md](./user-stories/E5-mcp-tools.md) | US-12 | 已实现 |
-| E6 评估与指标 | [E6-eval-metrics.md](./user-stories/E6-eval-metrics.md) | US-13 – US-14 | 已实现 |
+| E6 评估与指标 | [E6-eval-metrics.md](./user-stories/E6-eval-metrics.md) | US-13 – US-14, US-17 | 已实现 |
 | E7 Multi-Agent | [E7-multi-agent.md](./user-stories/E7-multi-agent.md) | US-15 – US-17 | 已实现 |
 | E8 商业化与平台 | [E8-commercial-platform.md](./user-stories/E8-commercial-platform.md) | US-18 – US-22 | 进行中 |
 | E9 企业与未来 | [E9-enterprise-future.md](./user-stories/E9-enterprise-future.md) | US-23 – US-29 | 规划中 |

@@ -2,16 +2,12 @@ package com.ai.eval.application.usecase;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.LlmEvaluationResponse;
+import com.ai.eval.domain.model.OfficialGateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
-import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.evaluation.EvaluationRequest;
-import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.ai.common.infrastructure.prompt.ClasspathPromptTemplate;
 import com.ai.common.util.LogSanitizer;
@@ -50,16 +46,13 @@ public class ChatQualityEvaluator {
         - suggestion: string with improvement (or empty string)
         """;
 
-    private final RelevancyEvaluator relevancyEvaluator;
-    private final FactCheckingEvaluator factCheckingEvaluator;
+    private final OfficialSpringAiEvaluators officialEvaluators;
     private final ChatClient evaluationChatClient;
 
     public ChatQualityEvaluator(
-            RelevancyEvaluator relevancyEvaluator,
-            FactCheckingEvaluator factCheckingEvaluator,
+            OfficialSpringAiEvaluators officialEvaluators,
             @Qualifier("evaluationChatClient") ChatClient evaluationChatClient) {
-        this.relevancyEvaluator = relevancyEvaluator;
-        this.factCheckingEvaluator = factCheckingEvaluator;
+        this.officialEvaluators = officialEvaluators;
         this.evaluationChatClient = evaluationChatClient;
     }
 
@@ -69,13 +62,7 @@ public class ChatQualityEvaluator {
             List<String> referenceDocuments) {
         log.debug("Evaluating response for user message: {}", LogSanitizer.truncate(userMessage));
 
-        List<Document> documents = toDocuments(referenceDocuments);
-        boolean factualityAvailable = !documents.isEmpty();
-
-        double relevancyScore = evaluateRelevancy(userMessage, assistantResponse, documents);
-        Double factualityScore = factualityAvailable
-            ? evaluateFactuality(assistantResponse, documents)
-            : null;
+        OfficialGateResult gate = officialEvaluators.evaluate(userMessage, assistantResponse, referenceDocuments);
 
         LlmEvaluationResponse safetyResult = evaluateSafetyAndQuality(userMessage, assistantResponse);
         if (safetyResult == null) {
@@ -85,26 +72,27 @@ public class ChatQualityEvaluator {
 
         double overallScore = calculateOverallScore(
             safetyResult.coherenceScore(),
-            relevancyScore,
+            gate.relevanceScore(),
             safetyResult.helpfulnessScore(),
-            factualityScore
+            gate.factualityScore()
         );
 
-        List<String> safetyFlags = buildSafetyFlags(safetyResult, factualityAvailable, factualityScore);
-        List<String> suggestions = buildSuggestions(
-            safetyResult, relevancyScore, factualityAvailable, factualityScore
-        );
+        List<String> safetyFlags = buildSafetyFlags(safetyResult, gate);
+        List<String> suggestions = buildSuggestions(safetyResult, gate);
 
         return ChatEvaluationResult.builder()
             .coherenceScore(safetyResult.coherenceScore())
-            .relevanceScore(relevancyScore)
+            .relevanceScore(gate.relevanceScore())
             .helpfulnessScore(safetyResult.helpfulnessScore())
-            .factualityScore(factualityScore)
-            .factualityAvailable(factualityAvailable)
+            .factualityScore(gate.factualityScore())
+            .factualityAvailable(gate.factualityEvaluated())
             .overallScore(overallScore)
             .hasSafetyIssues(safetyResult.hasSafetyIssues())
             .safetyFlags(safetyFlags)
             .suggestions(suggestions)
+            .relevancyPass(gate.relevancyPass())
+            .factualityPass(gate.factualityPass())
+            .evaluatorFeedback(gate.feedback())
             .build();
     }
 
@@ -122,26 +110,19 @@ public class ChatQualityEvaluator {
         return (coherenceScore * 0.3) + (relevancyScore * 0.4) + (helpfulnessScore * 0.3);
     }
 
-    private List<String> buildSafetyFlags(
-            LlmEvaluationResponse safetyResult,
-            boolean factualityAvailable,
-            Double factualityScore) {
+    private List<String> buildSafetyFlags(LlmEvaluationResponse safetyResult, OfficialGateResult gate) {
         List<String> safetyFlags = new ArrayList<>();
         if (safetyResult.hasSafetyIssues()) {
             String concern = safetyResult.safetyConcern();
             safetyFlags.add(concern != null && !concern.isBlank() ? concern : DEFAULT_SAFETY_CONCERN);
         }
-        if (factualityAvailable && factualityScore != null && factualityScore < 0.5) {
-            safetyFlags.add("Low factuality score: " + String.format("%.2f", factualityScore));
+        if (gate.factualityEvaluated() && gate.factualityScore() != null && gate.factualityScore() < 0.5) {
+            safetyFlags.add("Low factuality score: " + String.format("%.2f", gate.factualityScore()));
         }
         return safetyFlags;
     }
 
-    private List<String> buildSuggestions(
-            LlmEvaluationResponse safetyResult,
-            double relevancyScore,
-            boolean factualityAvailable,
-            Double factualityScore) {
+    private List<String> buildSuggestions(LlmEvaluationResponse safetyResult, OfficialGateResult gate) {
         List<String> suggestions = new ArrayList<>();
         if (safetyResult.suggestion() != null && !safetyResult.suggestion().isBlank()) {
             suggestions.add(safetyResult.suggestion());
@@ -149,38 +130,13 @@ public class ChatQualityEvaluator {
         if (safetyResult.coherenceScore() < 0.7) {
             suggestions.add("Improve logical flow and coherence");
         }
-        if (relevancyScore < 0.7) {
+        if (!gate.relevancyPass()) {
             suggestions.add("Response does not fully address the user's question");
         }
-        if (factualityAvailable && factualityScore != null && factualityScore < 0.7) {
+        if (gate.factualityEvaluated() && Boolean.FALSE.equals(gate.factualityPass())) {
             suggestions.add("Response may contain inaccurate information");
         }
         return suggestions;
-    }
-
-    private double evaluateRelevancy(
-            String userMessage,
-            String assistantResponse,
-            List<Document> documents) {
-        EvaluationRequest request = new EvaluationRequest(
-            userMessage,
-            documents,
-            assistantResponse
-        );
-
-        EvaluationResponse response = relevancyEvaluator.evaluate(request);
-        return response.isPass() ? 1.0 : 0.5;
-    }
-
-    private double evaluateFactuality(String assistantResponse, List<Document> documents) {
-        EvaluationRequest request = new EvaluationRequest(
-            assistantResponse,
-            documents,
-            assistantResponse
-        );
-
-        EvaluationResponse response = factCheckingEvaluator.evaluate(request);
-        return response.isPass() ? 1.0 : 0.3;
     }
 
     private LlmEvaluationResponse evaluateSafetyAndQuality(String userMessage, String assistantResponse) {
@@ -193,16 +149,6 @@ public class ChatQualityEvaluator {
             .messages(new UserMessage(promptText))
             .call()
             .entity(LlmEvaluationResponse.class, spec -> spec.validateSchema());
-    }
-
-    private List<Document> toDocuments(List<String> referenceDocuments) {
-        if (referenceDocuments == null || referenceDocuments.isEmpty()) {
-            return List.of();
-        }
-        return referenceDocuments.stream()
-            .filter(doc -> doc != null && !doc.isBlank())
-            .map(text -> Document.builder().text(text).build())
-            .toList();
     }
 
 }

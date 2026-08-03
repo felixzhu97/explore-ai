@@ -14,7 +14,10 @@ public record ChatEvaluationResult(
     double overallScore,
     boolean hasSafetyIssues,
     List<String> safetyFlags,
-    List<String> suggestions
+    List<String> suggestions,
+    boolean relevancyPass,
+    Boolean factualityPass,
+    List<String> evaluatorFeedback
 ) {
 
     public static Builder builder() {
@@ -31,6 +34,9 @@ public record ChatEvaluationResult(
         private boolean hasSafetyIssues;
         private List<String> safetyFlags = List.of();
         private List<String> suggestions = List.of();
+        private boolean relevancyPass;
+        private Boolean factualityPass;
+        private List<String> evaluatorFeedback = List.of();
 
         public Builder coherenceScore(double score) {
             this.coherenceScore = Math.max(0, Math.min(1, score));
@@ -77,6 +83,21 @@ public record ChatEvaluationResult(
             return this;
         }
 
+        public Builder relevancyPass(boolean pass) {
+            this.relevancyPass = pass;
+            return this;
+        }
+
+        public Builder factualityPass(Boolean pass) {
+            this.factualityPass = pass;
+            return this;
+        }
+
+        public Builder evaluatorFeedback(List<String> feedback) {
+            this.evaluatorFeedback = feedback == null ? List.of() : List.copyOf(feedback);
+            return this;
+        }
+
         public ChatEvaluationResult build() {
             return new ChatEvaluationResult(
                 coherenceScore,
@@ -87,7 +108,10 @@ public record ChatEvaluationResult(
                 overallScore,
                 hasSafetyIssues,
                 safetyFlags,
-                suggestions
+                suggestions,
+                relevancyPass,
+                factualityPass,
+                evaluatorFeedback
             );
         }
     }
