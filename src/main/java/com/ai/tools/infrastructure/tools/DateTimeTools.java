@@ -24,7 +24,10 @@ public class DateTimeTools implements DateTimeTool {
         this.clock = clock;
     }
 
-    @Tool(description = "Get the current date and time in the user's timezone")
+    @Tool(description = """
+            Authoritative current date/time in the user's timezone. Call before any
+            time-sensitive web search (today, this year, latest, current events) and
+            use the returned year/date in queries; never invent the calendar year.""")
     public String getCurrentDateTime() {
         return Instant.now(clock)
                 .atZone(LocaleContextHolder.getTimeZone().toZoneId())

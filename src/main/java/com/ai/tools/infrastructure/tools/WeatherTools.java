@@ -18,8 +18,10 @@ public class WeatherTools implements WeatherTool {
         this.weatherReport = weatherReport;
     }
 
-    @Tool(description = "获取指定城市的当前天气信息，包括温度、天气状况和湿度")
-    public String getWeather(@ToolParam(description = "城市名称（中文或英文，如：北京、beijing）") String city) {
+    @Tool(description = """
+            Current weather for a city (当前天气 / weather now). Prefer this over
+            searchWeb for temperature, conditions, and humidity. Do not invent readings.""")
+    public String getWeather(@ToolParam(description = "City name in Chinese or English (e.g. 北京, beijing)") String city) {
         try {
             return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
         } catch (InvalidWeatherQueryException e) {
@@ -27,10 +29,12 @@ public class WeatherTools implements WeatherTool {
         }
     }
 
-    @Tool(description = "获取指定城市的天气预报，支持查询未来几天的天气")
+    @Tool(description = """
+            Multi-day forecast for a city (天气预报 / forecast). Prefer this over
+            searchWeb for upcoming weather. Days default to 3 when omitted (1–7).""")
     public String getForecast(
-            @ToolParam(description = "城市名称（中文或英文）") String city,
-            @ToolParam(description = "预报天数（1-7天）", required = false) Integer days) {
+            @ToolParam(description = "City name in Chinese or English") String city,
+            @ToolParam(description = "Forecast days (1-7)", required = false) Integer days) {
         try {
             WeatherQuery query = WeatherQuery.of(city);
             int forecastDays = days != null ? Math.max(1, Math.min(7, days)) : 3;
