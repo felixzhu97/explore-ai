@@ -34,6 +34,32 @@ QA 可在 Eval 页自动评估 AI 回答质量；管理员/运维可查看请求
 
 ---
 
+## US-17 Chat / Document QA 黄金集回归（测试）
+
+**As a** QA 工程师  
+**I want** 用固定黄金集对 Chat 与 Document QA 的真实回答做回归评估  
+**So that** 提示词或模型变更导致的质量回退能在发版前被发现  
+
+### 验收标准
+
+1. **Scenario** 运行 Chat 黄金集
+   **GIVEN** Chat 黄金 JSONL 已就绪  
+   **WHEN** 执行黄金评估集成测试  
+   **THEN** 每条用例对真实生成结果给出通过/失败与评估反馈  
+   **AND** 汇总通过率可用
+
+2. **Scenario** 运行 Document QA 黄金集
+   **GIVEN** RAG 黄金 JSONL 与 fixture 文档已就绪  
+   **WHEN** 执行黄金评估集成测试  
+   **THEN** 每条用例基于检索或参考上下文打分  
+   **AND** 汇总通过率可用
+
+### 状态
+
+已实现
+
+---
+
 ## US-14 AI 指标看板
 
 **As a** 管理员 / 运维  

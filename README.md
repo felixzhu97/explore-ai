@@ -1,57 +1,120 @@
 # AI-Explore
 
-基于 Spring AI + Angular 的 AI 应用平台，支持 RAG 文档问答、Tool Calling、图像生成、语音合成、视觉分析和实时流式语音识别。
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](https://spring.io/projects/spring-boot)
+[![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0-blue.svg)](https://docs.spring.io/spring-ai/reference/)
 
-## 核心功能
+Demo / learning platform for conversational AI built with **Spring AI** and **Angular**: Chat, RAG, tools, vision, audio, and quality evaluation.
 
-| 功能 | 描述 | 技术亮点 |
-|------|------|---------|
-| **AI 对话** | 多 Provider (OpenAI/Anthropic/Ollama) 切换，SSE 流式输出 | Markdown 渲染，会话管理 |
-| **RAG 文档问答** | PDF/TXT 文档上传，向量检索增强生成 | 流式响应，来源引用，**本地 Ollama 视觉理解** |
-| **Tool Calling** | 天气查询、文档搜索、Web 搜索 | 自动工具选择 |
-| **图像生成** | DALL-E/FLUX 图像生成 | 多尺寸支持 |
-| **语音合成 (TTS)** | 多语言多音色，语速调节 | 实时预览，下载 MP3 |
-| **实时语音识别 (ASR)** | WebSocket 流式语音转文字 | whisper.cpp 本地免费 ASR |
-| **视觉分析** | 图像描述、物体检测、OCR 文字识别 | `/vision` 独立页面，ONNX Runtime + BLIP/YOLO + Tess4J |
-| **Chat 评估** | LLM-as-a-Judge 质量评分 | 相关性/安全性/事实性，可选参考文档 |
-| **文本分析** | 结构化情感分析 | Spring AI Structured Output |
+**Live:** [https://www.felixzhu.chat](https://www.felixzhu.chat)
 
-## 技术栈
+## Table of Contents
 
-| 组件 | 技术 |
-|------|------|
-| 后端 | Java 25 + Spring Boot 4.1 |
-| AI | Spring AI 2.0 (DeepSeek / OpenAI / Ollama) |
-| 本地视觉 (RAG) | Ollama qwen3.5（多模态 RAG 对话，非 `/vision`） |
-| 图像分析 (CV) | ONNX Runtime + BLIP/YOLOv8 ONNX + Tess4J/Tesseract |
-| 本地 Embedding | Ollama mxbai-embed-large (1024 维) |
-| 本地 ASR | whisper.cpp (端口 8178) |
-| 前端 | Angular 22 + TypeScript |
-| 数据库 | H2 嵌入式 + Liquibase |
-| 部署 | 本地 `bootRun`；生产默认 **Render Free**（Docker）+ **Vercel**（前端） |
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [Deployment](#deployment)
+- [Documentation](#documentation)
+- [License](#license)
 
-## 快速启动
+## Features
+
+| Area | Capability |
+|------|------------|
+| **Chat** | Multi-provider LLM, SSE streaming, session-friendly UX |
+| **RAG** | Document upload, vector retrieval, optional multimodal (Ollama) |
+| **Tools** | Weather, web search (Serper), datetime, and related tool calling |
+| **Eval** | LLM-as-a-Judge; **Golden Suite** regression (Chat + RAG, test-only) |
+| **Vision** | Local caption / detect / OCR (ONNX + Tesseract) |
+| **Audio / Image** | TTS, whisper.cpp ASR, image generation |
+| **Ops** | Actuator health, optional Datadog RUM, Render + Vercel deploy |
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Backend | Java 25, Spring Boot 4.1, Spring AI 2.0 |
+| Frontend | Angular 22, TypeScript, pnpm |
+| Data | H2 (embedded) + Liquibase |
+| Local AI | Ollama (embed / multimodal), whisper.cpp, ONNX models |
+
+Architecture follows hexagonal-style layers: `web → application → domain ← infrastructure`.
+
+## Prerequisites
+
+| Tool | Version |
+|------|---------|
+| JDK | 25+ |
+| Node.js | 20+ |
+| pnpm | 8+ |
+| Git | latest |
+
+Optional: [Ollama](https://ollama.com/), [Tesseract](https://github.com/tesseract-ocr/tesseract), whisper.cpp — only if you use the matching features.
+
+## Getting Started
 
 ```bash
-# 1. 配置 API Keys
-cat > .env << EOF
-DEEPSEEK_API_KEY=your-deepseek-key
-OPENAI_API_KEY=your-openai-key
-SERPER_API_KEY=your-serper-key   # 可选，Web 搜索用
-EOF
-
-# 2. 启动后端 (H2 自动建表)
-./gradlew bootRun
-
-# 3. 新终端启动前端
-cd src/main/web && pnpm install && pnpm start
+git clone https://github.com/felixzhu97/explore-ai.git
+cd explore-ai
 ```
 
-访问 http://localhost:4200
+### 1. Environment
 
-## API 示例
+```bash
+cat > .env << EOF
+DEEPSEEK_API_KEY=your-deepseek-key
+OPENAI_API_KEY=your-openai-key      # optional
+SERPER_API_KEY=your-serper-key      # optional (web search)
+EOF
+```
 
-### AI 对话
+Load before running:
+
+```bash
+set -a && source .env && set +a
+```
+
+### 2. Backend
+
+```bash
+./gradlew bootRun
+# → http://localhost:9000
+curl -s http://localhost:9000/actuator/health
+```
+
+### 3. Frontend
+
+```bash
+cd src/main/web
+pnpm install
+pnpm start
+# → http://localhost:4200
+```
+
+More detail: [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
+
+## Configuration
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `DEEPSEEK_API_KEY` | Yes (default path) | Primary chat / eval models |
+| `OPENAI_API_KEY` | No | OpenAI-compatible features |
+| `SERPER_API_KEY` | No | Web search tool |
+| `H2_URL` | No | Override DB URL (default `./data/explore-ai`) |
+| `GOLDEN_EVAL_IT` | No | Set `true` to enable live Golden Eval IT |
+| `VISION_MODELS_READY` | No | Set `true` when local vision models are downloaded |
+
+Defaults live in `src/main/resources/application.yml`. Do not commit real secrets.
+
+## Usage
+
+Minimal API smoke check (backend must be running):
 
 ```bash
 curl -X POST http://localhost:9000/api/chat \
@@ -59,226 +122,112 @@ curl -X POST http://localhost:9000/api/chat \
   -d '{"message": "你好"}'
 ```
 
-### RAG 文档问答
+Full HTTP / SSE / WebSocket reference: [docs/developer/api.md](docs/developer/api.md).
+
+### Vision (optional)
 
 ```bash
-# 上传文档
-curl -X POST http://localhost:9000/api/rag/documents/upload \
-  -F "file=@manual.pdf" -F "title=用户手册"
-
-# 流式问答
-curl -X POST http://localhost:9000/api/rag/chat/stream \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -d '{"query": "产品的保修期是多久？"}'
-
-# 多模态问答（带图片）
-curl -X POST http://localhost:9000/api/rag/chat/stream \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -d '{"query": "这张图表说明了什么？", "images": ["data:image/png;base64,iVBORw0KG..."]}'
+pnpm vision:models && pnpm vision:fixtures
+./gradlew bootRun
+pnpm vision:verify
 ```
 
-### Tool Calling (天气 + Web 搜索)
+## Testing
+
+### Unit / default CI
 
 ```bash
-curl -X POST http://localhost:9000/api/tools/chat \
-  -H "Content-Type: application/json" \
-  -d '{"question": "今天北京的天气怎么样？"}'
-
-# 需要实时信息时自动调用 Web 搜索
-curl -X POST http://localhost:9000/api/tools/chat \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is the latest AI news today?"}'
+./gradlew test
 ```
 
-### 图像生成
+Default runs do **not** call paid LLM APIs for Golden Eval.
+
+### Golden Eval (live quality regression)
+
+Runs OpenAI Evals–style JSONL cases against **real** Chat / RAG generation, then scores with Spring AI official [RelevancyEvaluator / FactCheckingEvaluator](https://docs.spring.io/spring-ai/reference/api/testing.html).
+
+| Item | Path |
+|------|------|
+| Suites | `src/main/resources/eval/golden/chat.jsonl`, `rag.jsonl` |
+| RAG fixtures | `src/main/resources/eval/golden/fixtures/` |
+| IT | `src/test/java/com/ai/eval/GoldenEvalIT.java` |
+| Orchestration | `GoldenEvalUseCase` (no public REST; test-only) |
 
 ```bash
-curl -X POST http://localhost:9000/api/images/generate \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "A beautiful sunset over the ocean", "width": 1024, "height": 1024}'
+set -a && source .env && set +a
+
+# Separate H2 file so bootRun does not lock the default DB
+export H2_URL='jdbc:h2:file:./data/explore-ai-golden;AUTO_SERVER=TRUE'
+export GOLDEN_EVAL_IT=true
+
+./gradlew test --tests 'com.ai.eval.GoldenEvalIT' --rerun-tasks
 ```
 
-### 语音合成
+**Where to read the report**
 
-```bash
-curl -X POST http://localhost:9000/api/audio/speak \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Hello, welcome to AI Explore!", "voice": "en-US"}' \
-  --output speech.mp3
+Stdout summary (also embedded in Gradle reports):
+
+```text
+Golden RAG: total=3 passed=3 failed=0 passRate=1.00
+Golden CHAT: total=4 passed=1 failed=3 passRate=0.25
 ```
 
-### 实时语音识别 (WebSocket)
+| Artifact | Location |
+|----------|----------|
+| JUnit XML | `build/test-results/test/TEST-com.ai.eval.GoldenEvalIT.xml` |
+| HTML | `build/reports/tests/test/index.html` → class `GoldenEvalIT` |
 
-```bash
-# WebSocket 连接
-wss://localhost:9000/ws/audio/transcribe
+**How to interpret**
 
-# 客户端发送音频 base64
-{"type": "audio", "data": "base64_wav_data"}
+- Pass rate = share of cases where relevancy passes, and factuality passes when context is present (quality gate — not “intent accuracy”).
+- RAG usually tracks retrieval grounding; Chat cases with `metadata.contexts` fact-check against that context **without** injecting it into generation — low Chat pass rate can be an expected product-knowledge signal.
+- The IT asserts a valid report shape; it does **not** require `passRate == 1.0`.
 
-# 服务端返回部分结果
-{"type": "partial", "text": "正在识别..."}
+Extend suites by appending JSONL lines (`id`, `input`, `ideal`, `metadata`). See [OpenAI Evals](https://github.com/openai/evals) format and Spring AI [Evaluation Testing](https://docs.spring.io/spring-ai/reference/api/testing.html).
 
-# 服务端返回最终结果
-{"type": "final", "text": "识别完成的文字"}
-```
-
-## 项目结构
-
-```
-explore-ai/
-├── src/main/java/com/ai/
-│   ├── chat/           # AI 对话
-│   ├── rag/            # RAG 文档问答
-│   │   ├── domain/repository/  # DocumentReader, DocumentWriter 等
-│   │   └── infrastructure/     # 向量存储、ETL 适配器
-│   ├── tools/          # Tool Calling (天气/搜索)
-│   ├── image/          # 图像生成
-│   ├── vision/         # 图像分析 (Caption/Detect/OCR) — 本地模块
-│   ├── audio/          # 语音合成 + ASR
-│   ├── analysis/       # 文本结构化分析
-│   ├── eval/           # Chat 质量评估 — 可选模块
-│   ├── mcp/            # MCP Server/Client — 可选模块
-│   └── common/         # 共享配置、LLM 工厂、全局异常处理
-│
-├── src/main/web/       # Angular 22 前端
-│   └── app/
-│       ├── chat/       # 对话
-│       ├── generate/   # 生成（image / tts）
-│       ├── rag/        # RAG 页面
-│       └── vision/     # 图像分析（可按环境关闭）
-│
-├── docs/c4-model/           # C4 架构图
-```
-
-云端部署（Render Free + Vercel）默认关闭 Vision、whisper ASR、MCP、Eval；本地开发默认全部启用。
-
----
-
-## C4 架构图
-
-### C1 - 系统上下文
-
-![C1-Context](docs/developer/c4-model/png/C1-Context.png)
-
-### C2 - 容器图
-
-![C2-Container](docs/developer/c4-model/png/C2-Container.png)
-
-### C3 - 后端组件
-
-![C3-Backend](docs/developer/c4-model/png/C3-Component-Backend.png)
-
-### C3 - 前端组件
-
-![C3-Frontend](docs/developer/c4-model/png/C3-Component-Frontend.png)
-
-### C4 - 部署图
-
-![C4-Deployment](docs/developer/c4-model/png/C4-Deployment.png)
-
----
-
-## 图像分析（Vision）
-
-`/vision` 使用本地 CV 引擎（**非** Ollama Prompt），与 RAG 多模态对话（Ollama qwen3.5）相互独立：
-
-| 能力 | API | 技术 |
-|------|-----|------|
-| Caption | `POST /api/vision/caption` | ONNX Runtime + BLIP ONNX |
-| Detect | `POST /api/vision/detect` | ONNX Runtime + YOLOv8 ONNX (COCO 80 类) |
-| OCR | `POST /api/vision/ocr` | Tess4J + Tesseract |
-| Health | `GET /api/vision/health` | 各 Provider 就绪状态 |
-
-**依赖**：
-
-- 系统安装 [Tesseract](https://github.com/tesseract-ocr/tesseract)（macOS: `brew install tesseract`）
-- 本地 ONNX 模型与 tessdata（`pnpm vision:models` 下载至 `models/`）
-
-```bash
-pnpm vision:models      # 下载 ONNX 模型与 tessdata 到 models/
-pnpm vision:fixtures    # 生成测试样例图
-./gradlew bootRun       # 启动后端 (port 9000)
-pnpm vision:verify      # API 功能验证 smoke test
-```
-
-### API 示例
-
-```bash
-# 图像描述
-curl -X POST http://localhost:9000/api/vision/caption \
-  -F "file=@photo.jpg"
-
-# 目标检测
-curl -X POST http://localhost:9000/api/vision/detect \
-  -F "file=@photo.jpg"
-
-# OCR 文字识别
-curl -X POST http://localhost:9000/api/vision/ocr \
-  -F "file=@scan.png"
-
-# 健康检查
-curl http://localhost:9000/api/vision/health
-```
-
-集成测试（需模型已下载）：
+### Vision IT
 
 ```bash
 VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVerificationIT
 ```
 
----
+## Project Structure
 
-## Production Deploy (Render Free + Vercel)
+```
+explore-ai/
+├── src/main/java/com/ai/     # Modules: chat, rag, eval, tools, vision, …
+├── src/main/web/             # Angular app
+├── src/main/resources/
+│   ├── application.yml
+│   └── eval/golden/          # Golden Suite JSONL + fixtures
+├── docs/                     # API, C4, Glossary, user stories
+├── render.yaml               # Render Blueprint
+└── vercel.json               # Frontend + /api proxy
+```
 
-生产后端默认跑在 **[Render Free](https://render.com/docs/free)**（Blueprint：根目录 [`render.yaml`](render.yaml)）；前端仍在 Vercel，`/api/*` 经 [`vercel.json`](vercel.json) 反代到 `https://explore-ai-3krr.onrender.com`。
+## Deployment
 
-### Render
+| Target | Role |
+|--------|------|
+| [Render Free](https://render.com/docs/free) | Backend via [`render.yaml`](render.yaml); health: `/actuator/health` |
+| [Vercel](https://vercel.com) | Frontend; [`vercel.json`](vercel.json) rewrites `/api/*` to Render |
 
-1. [Dashboard](https://dashboard.render.com) → **New** → **Blueprint** → 连接本仓库 → 应用 `render.yaml`
-2. 在服务环境变量中填写 Dashboard 提示的 `sync: false` 密钥（至少 `DEEPSEEK_API_KEY`；其余按需）
-3. 等待 Docker 构建与健康检查 `/actuator/health` 通过
-4. 若实际子域不是 `explore-ai-3krr.onrender.com`，同步更新 `vercel.json` rewrite 与 `environment.prod.ts` 的 `wsUrl`
+Notes for Free tier: idle sleep, no durable disk, keep Datadog javaagent off (RAM). Optional RUM on Vercel: `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN`.
 
-**Free 限制（需接受）：**
+## Documentation
 
-- 512 MB RAM → 已设 `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=60.0`；**不要**设 `DD_API_KEY` / `DD_AGENT_HOST`（避免 javaagent 占内存）
-- 空闲 15 分钟休眠；冷启动约 1 分钟起（Spring Boot 可能更久）
-- 无持久盘 → H2 随休眠/重启清空
-- 月 750 实例小时
+| Doc | Link |
+|-----|------|
+| Quick start | [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md) |
+| API | [docs/developer/api.md](docs/developer/api.md) |
+| C4 model | [docs/developer/c4-model/](docs/developer/c4-model/) |
+| Glossary | [docs/Glossary.md](docs/Glossary.md) |
+| User story map | [docs/product-owner/User-Story-Map.md](docs/product-owner/User-Story-Map.md) |
 
-### Vercel
+![C1 Context](docs/developer/c4-model/png/C1-Context.png)
 
-合入 `main` 后自动部署前端。确认 Production 的 rewrite 目标指向当前 Render 域名。
+![C2 Container](docs/developer/c4-model/png/C2-Container.png)
 
----
+## License
 
-## Production Observability (Datadog us5)
-
-代码已集成 RUM（前端）与可选 APM（后端）。凭证不入库，需在部署平台配置后重新部署。
-
-| 平台 | 变量 | 说明 |
-|------|------|------|
-| **Vercel** (Production) | `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN` | 构建时由 `scripts/inject-datadog-env.mjs` 注入 |
-| **Vercel** (可选) | `DD_SITE`, `DD_SERVICE`, `DD_ENV` | 默认 `us5.datadoghq.com` / `explore-ai-web` / `production` |
-| **Render Free** | （不配置 APM） | Free 512MB：不启 Datadog javaagent |
-
-验证：
-
-1. Vercel 构建日志出现 `Datadog RUM credentials injected...`（若已配置）
-2. 浏览器 Network 有 POST 到 `browser-intake-us5-datadoghq.com`（202）
-3. `curl https://explore-ai-3krr.onrender.com/api/health` → 200
-4. Datadog 控制台可见 RUM Sessions（APM 在 Render Free 默认关闭）
-
-未配置 `DD_API_KEY` 且未配置 `DD_AGENT_HOST` 时 Docker 镜像正常启动，不挂载 javaagent（适合 OSS/本地与 Render Free）。
-
----
-
-## 文档
-
-- [API 文档](docs/developer/api.md)
-- [C4 架构图](docs/developer/c4-model/)
-- [用户故事地图](docs/product-owner/User-Story-Map.md)
-- [快速入门](docs/developer/QUICKSTART.md)
+[MIT](LICENSE) © 2026 Felix

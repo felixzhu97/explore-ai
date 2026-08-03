@@ -16,7 +16,10 @@ public record EvaluationResponse(
     double overallScore,
     boolean hasSafetyIssues,
     List<String> safetyFlags,
-    List<String> suggestions
+    List<String> suggestions,
+    boolean relevancyPass,
+    Boolean factualityPass,
+    List<String> evaluatorFeedback
 ) {
 
     public static EvaluationResponse from(ChatEvaluationResult result) {
@@ -29,7 +32,10 @@ public record EvaluationResponse(
             round(result.overallScore()),
             result.hasSafetyIssues(),
             result.safetyFlags(),
-            result.suggestions()
+            result.suggestions(),
+            result.relevancyPass(),
+            result.factualityPass(),
+            result.evaluatorFeedback()
         );
     }
 

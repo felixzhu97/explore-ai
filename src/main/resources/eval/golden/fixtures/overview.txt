@@ -1,0 +1,5 @@
+Explore AI is a demo platform for conversational AI, Document QA (RAG), tools, and quality evaluation.
+Core modules include Chat, RAG, Eval, Metrics, Agent, and Vision.
+Chat supports multi-provider text models with optional tools such as weather and web search.
+Document QA retrieves relevant chunks from uploaded documents and answers grounded in that context.
+Eval uses Spring AI RelevancyEvaluator and FactCheckingEvaluator to score answer quality.
