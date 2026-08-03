@@ -1,6 +1,6 @@
 package com.ai.account.web;
 
-import com.ai.billing.BillingProperties;
+import com.ai.billing.infrastructure.config.BillingProperties;
 import com.ai.common.web.ClientIdentity;
 import com.ai.common.web.ClientIdentityRequiredException;
 import jakarta.servlet.http.HttpServletRequest;

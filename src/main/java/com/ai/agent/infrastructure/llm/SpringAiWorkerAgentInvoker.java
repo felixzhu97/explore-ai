@@ -1,6 +1,6 @@
 package com.ai.agent.infrastructure.llm;
 
-import com.ai.agent.application.port.WorkerAgentInvoker;
+import com.ai.agent.application.WorkerAgentInvoker;
 import com.ai.agent.domain.model.AgentDefinition;
 import com.ai.agent.infrastructure.skills.AgentSkillsRuntime;
 import com.ai.common.infrastructure.llm.ToolCallMarkupFilter;

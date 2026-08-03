@@ -1,15 +1,11 @@
 package com.ai.workflow.web;
 
+import com.ai.workflow.application.usecase.WorkflowUseCase;
 import com.ai.workflow.domain.model.ChainResult;
 import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
 import com.ai.workflow.domain.model.OrchestratorWorkersResult;
 import com.ai.workflow.domain.model.ParallelizationResult;
 import com.ai.workflow.domain.model.RoutingResult;
-import com.ai.workflow.domain.service.ChainWorkflow;
-import com.ai.workflow.domain.service.EvaluatorOptimizerWorkflow;
-import com.ai.workflow.domain.service.OrchestratorWorkersWorkflow;
-import com.ai.workflow.domain.service.ParallelizationWorkflow;
-import com.ai.workflow.domain.service.RoutingWorkflow;
 import com.ai.workflow.web.dto.ChainWorkflowRequest;
 import com.ai.workflow.web.dto.EvaluatorOptimizerRequest;
 import com.ai.workflow.web.dto.OrchestratorWorkersRequest;
@@ -26,28 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/workflows")
 public class WorkflowController {
 
-    private final ChainWorkflow chainWorkflow;
-    private final ParallelizationWorkflow parallelizationWorkflow;
-    private final RoutingWorkflow routingWorkflow;
-    private final OrchestratorWorkersWorkflow orchestratorWorkersWorkflow;
-    private final EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow;
+    private final WorkflowUseCase workflowUseCase;
 
-    public WorkflowController(
-            ChainWorkflow chainWorkflow,
-            ParallelizationWorkflow parallelizationWorkflow,
-            RoutingWorkflow routingWorkflow,
-            OrchestratorWorkersWorkflow orchestratorWorkersWorkflow,
-            EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow) {
-        this.chainWorkflow = chainWorkflow;
-        this.parallelizationWorkflow = parallelizationWorkflow;
-        this.routingWorkflow = routingWorkflow;
-        this.orchestratorWorkersWorkflow = orchestratorWorkersWorkflow;
-        this.evaluatorOptimizerWorkflow = evaluatorOptimizerWorkflow;
+    public WorkflowController(WorkflowUseCase workflowUseCase) {
+        this.workflowUseCase = workflowUseCase;
     }
 
     @PostMapping("/chain")
     public ResponseEntity<ChainResult> chain(@Valid @RequestBody ChainWorkflowRequest request) {
-        return ResponseEntity.ok(chainWorkflow.chain(request.userInput(), request.systemPrompts()));
+        return ResponseEntity.ok(workflowUseCase.chain(request.userInput(), request.systemPrompts()));
     }
 
     @PostMapping("/parallel")
@@ -55,23 +38,23 @@ public class WorkflowController {
             @Valid @RequestBody ParallelizationWorkflowRequest request) {
         int parallelism = request.parallelism() == null ? 2 : request.parallelism();
         return ResponseEntity.ok(
-                parallelizationWorkflow.parallel(request.prompt(), request.items(), parallelism));
+                workflowUseCase.parallel(request.prompt(), request.items(), parallelism));
     }
 
     @PostMapping("/route")
     public ResponseEntity<RoutingResult> route(@Valid @RequestBody RoutingWorkflowRequest request) {
-        return ResponseEntity.ok(routingWorkflow.route(request.input(), request.routes()));
+        return ResponseEntity.ok(workflowUseCase.route(request.input(), request.routes()));
     }
 
     @PostMapping("/orchestrator-workers")
     public ResponseEntity<OrchestratorWorkersResult> orchestratorWorkers(
             @Valid @RequestBody OrchestratorWorkersRequest request) {
-        return ResponseEntity.ok(orchestratorWorkersWorkflow.process(request.task()));
+        return ResponseEntity.ok(workflowUseCase.orchestratorWorkers(request.task()));
     }
 
     @PostMapping("/evaluator-optimizer")
     public ResponseEntity<EvaluatorOptimizerResult> evaluatorOptimizer(
             @Valid @RequestBody EvaluatorOptimizerRequest request) {
-        return ResponseEntity.ok(evaluatorOptimizerWorkflow.loop(request.task()));
+        return ResponseEntity.ok(workflowUseCase.evaluatorOptimizer(request.task()));
     }
 }

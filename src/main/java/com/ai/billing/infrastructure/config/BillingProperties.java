@@ -1,4 +1,4 @@
-package com.ai.billing;
+package com.ai.billing.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -195,14 +195,15 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 ```
 explore-ai/
-├── src/main/java/com/ai/     # Modules: chat, rag, eval, tools, vision, …
-├── src/main/web/             # Angular app
+├── src/main/java/com/ai/{domain}/   # Business modules: web → application → domain ← infrastructure
+│   ├── chat/, rag/, eval/, billing/, workflow/, …
+├── src/main/web/                    # Angular app
 ├── src/main/resources/
 │   ├── application.yml
-│   └── eval/golden/          # Golden Suite JSONL + fixtures
-├── docs/                     # API, C4, Glossary, user stories
-├── render.yaml               # Render Blueprint
-└── vercel.json               # Frontend + /api proxy
+│   └── eval/golden/                 # Golden Suite JSONL + fixtures
+├── docs/                            # API, C4, Glossary, user stories
+├── render.yaml                      # Render Blueprint
+└── vercel.json                      # Frontend + /api proxy
 ```
 
 ## Deployment

@@ -1,4 +1,4 @@
-package com.ai.mcp.application.port;
+package com.ai.mcp.application;
 
 import org.springframework.ai.tool.ToolCallback;
 
