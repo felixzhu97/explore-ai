@@ -1,11 +1,11 @@
 package com.ai.image.web;
 
-import com.ai.image.application.usecase.ImageFacade;
-import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
-import com.ai.image.domain.exception.InvalidImagePromptException;
-import com.ai.image.domain.model.GeneratedImage;
-import com.ai.image.web.dto.ImageGenerationRequest;
-import com.ai.image.web.dto.ImageGenerationResponse;
+import com.ai.image.application.ImageFacade;
+import com.ai.image.domain.ImageProviderNotConfiguredException;
+import com.ai.image.domain.InvalidImagePromptException;
+import com.ai.image.domain.GeneratedImage;
+import com.ai.image.web.ImageGenerationRequest;
+import com.ai.image.web.ImageGenerationResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -22,13 +22,14 @@ web → application → domain ← infrastructure
 |-------------------|------------------|--------------------|----------------------|
 | Driving adapter | `adapter/in` | Web + Application | `{module}/web/`, `{module}/application/` |
 | Driven adapter | `adapter/out` | Infrastructure | `{module}/infrastructure/` |
-| Outbound port | `domain/port` | Repository interface | `{module}/domain/repository/` |
-| Domain core | `domain` | Domain | `{module}/domain/model`, `domain/vo`, `domain/service` |
-| Composition / wiring | `config` | Spring configuration | `{module}/infrastructure/config/`, `common/config/` |
+| Outbound port | `domain/port` | Repository interface | `{module}/domain/` (`*Repository`) |
+| Domain core | `domain` | Domain | `{module}/domain/` (entities, VOs, services) |
+| Composition / wiring | `config` | Spring configuration | `{module}/infrastructure/` (keep shallow; `config` only when needed) |
 
 ## Forbidden in New Code
 
-- `domain/port/` — use `domain/repository/` (or `domain/service/`)
+- `domain/port/` — put repository interfaces in `{module}/domain/`
+- Extra nesting under layers — do **not** add `usecase/`, `dto/`, `model/`, `vo/`, `repository/`, `controller/` subpackages
 - `*Port` interface suffix — prefer `*Repository`, `*Gateway`, or a domain-specific name
 - `adapter/in` / `adapter/out` packages — use `web/`, `application/`, `infrastructure/`
 
@@ -36,30 +37,24 @@ web → application → domain ← infrastructure
 
 | Layer | Contains |
 |-------|----------|
-| `domain/` | Entities, Value Objects, Repository interfaces |
-| `application/` | Use Cases, Facades |
-| `infrastructure/` | Repository implementations, External adapters |
-| `web/` | Controllers, DTOs |
+| `domain/` | Entities, Value Objects, Repository interfaces (flat package) |
+| `application/` | Use Cases, Facades (flat package) |
+| `infrastructure/` | Repository implementations, External adapters (prefer flat; optional one-level `config`/`persistence`) |
+| `web/` | Controllers, Request/Response DTOs (flat package) |
 
 ## Project Structure
 
 ```
 src/main/java/com/ai/
 ├── {module}/
-│   ├── domain/
-│   │   ├── model/
-│   │   ├── vo/
-│   │   └── repository/
-│   ├── application/
-│   │   └── usecase/
-│   ├── infrastructure/
-│   │   └── persistence/
-│   └── web/
-│       ├── controller/
-│       └── dto/
-└── common/
-    └── exception/
+│   ├── domain/           # ChatSession, SessionId, ChatRepository, …
+│   ├── application/      # ChatUseCase, …
+│   ├── infrastructure/   # adapters + wiring (shallow)
+│   └── web/              # ChatController, ChatRequest, …
+└── common/               # shared cross-cutting (keep shallow)
 ```
+
+Distinguish types by naming (`*UseCase`, `*Controller`, `*Repository`, `*Request`/`*Response`), not by deep subpackages.
 
 ## Domain Rules
 
@@ -80,7 +75,7 @@ src/main/java/com/ai/
 | DTO | PascalCase + Request/Response | `ChatRequest` |
 | Methods | camelCase | `findById` |
 | Constants | UPPER_SNAKE_CASE | `MAX_RETRY` |
-| Package | lowercase | `com.ai.domain.model` |
+| Package | lowercase | `com.ai.chat.domain` |
 
 ## DI / REST / Validation
 
@@ -129,4 +124,4 @@ When **creating a Jira ticket**, **branching**, **committing**, or **opening a P
 | Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
 | Product Owner / Jira | [Product Owner](.cursor/skills/product-owner/SKILL.md) |
 
-<!-- Generated at Wed Jul 22 22:09:43 CST 2026 -->
+<!-- Generated at Tue Aug  4 08:37:32 CST 2026 -->

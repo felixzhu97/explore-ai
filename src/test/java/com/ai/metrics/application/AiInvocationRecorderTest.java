@@ -1,9 +1,9 @@
 package com.ai.metrics.application;
 
-import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.AiInvocationEvent;
+import com.ai.metrics.domain.AiInvocationEventRepository;
+import com.ai.metrics.domain.AiDomain;
+import com.ai.metrics.domain.InvocationOutcome;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

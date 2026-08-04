@@ -1,13 +1,13 @@
 package com.ai.rag.web;
 
-import com.ai.rag.application.usecase.DocumentUploadService;
-import com.ai.rag.application.usecase.RagApplicationService;
-import com.ai.rag.application.usecase.RagChatUseCase;
-import com.ai.rag.application.usecase.VisionChatUseCase;
-import com.ai.rag.web.dto.RagChatRequest;
-import com.ai.rag.domain.model.Document;
-import com.ai.rag.domain.model.DocumentStatus;
-import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.application.DocumentUploadService;
+import com.ai.rag.application.RagApplicationService;
+import com.ai.rag.application.RagChatUseCase;
+import com.ai.rag.application.VisionChatUseCase;
+import com.ai.rag.web.RagChatRequest;
+import com.ai.rag.domain.Document;
+import com.ai.rag.domain.DocumentStatus;
+import com.ai.rag.domain.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

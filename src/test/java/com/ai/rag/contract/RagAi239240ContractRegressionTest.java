@@ -1,13 +1,13 @@
 package com.ai.rag.contract;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
-import com.ai.common.application.llm.ChatClientProfile;
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
+import com.ai.chat.domain.LanguageDetectionService;
+import com.ai.common.application.ChatClientProfile;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
 import com.ai.metrics.application.AiInvocationRecorder;
-import com.ai.rag.application.usecase.RagApplicationService;
-import com.ai.rag.application.usecase.RagChatUseCase;
-import com.ai.rag.domain.repository.RagRetrievalSettings;
+import com.ai.rag.application.RagApplicationService;
+import com.ai.rag.application.RagChatUseCase;
+import com.ai.rag.domain.RagRetrievalSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;

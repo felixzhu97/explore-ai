@@ -1,6 +1,6 @@
 package com.ai.billing.web;
 
-import com.ai.billing.infrastructure.config.BillingProperties;
+import com.ai.billing.infrastructure.BillingProperties;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;

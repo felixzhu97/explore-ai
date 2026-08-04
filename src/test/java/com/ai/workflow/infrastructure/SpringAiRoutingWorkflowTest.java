@@ -1,8 +1,8 @@
 package com.ai.workflow.infrastructure;
 
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.workflow.domain.model.RoutingResult;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
+import com.ai.workflow.domain.RoutingResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

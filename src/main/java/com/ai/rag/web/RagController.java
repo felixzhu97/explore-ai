@@ -1,11 +1,11 @@
 package com.ai.rag.web;
 
-import com.ai.rag.application.usecase.DocumentUploadService;
-import com.ai.rag.application.usecase.RagApplicationService;
-import com.ai.rag.application.usecase.RagChatUseCase;
-import com.ai.rag.application.usecase.VisionChatUseCase;
-import com.ai.rag.domain.model.Document;
-import com.ai.rag.web.dto.*;
+import com.ai.rag.application.DocumentUploadService;
+import com.ai.rag.application.RagApplicationService;
+import com.ai.rag.application.RagChatUseCase;
+import com.ai.rag.application.VisionChatUseCase;
+import com.ai.rag.domain.Document;
+import com.ai.rag.web.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

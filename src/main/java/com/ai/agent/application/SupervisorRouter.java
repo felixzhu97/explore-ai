@@ -1,7 +1,7 @@
 package com.ai.agent.application;
 
-import com.ai.agent.domain.model.AgentDefinition;
-import com.ai.agent.domain.model.RoutingPlan;
+import com.ai.agent.domain.AgentDefinition;
+import com.ai.agent.domain.RoutingPlan;
 
 import java.util.List;
 

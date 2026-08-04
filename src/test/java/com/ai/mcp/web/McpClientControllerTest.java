@@ -1,8 +1,8 @@
 package com.ai.mcp.web;
 
-import com.ai.mcp.application.usecase.McpFacade;
-import com.ai.mcp.domain.model.McpToolDefinition;
-import com.ai.mcp.domain.vo.McpServerConnection;
+import com.ai.mcp.application.McpFacade;
+import com.ai.mcp.domain.McpToolDefinition;
+import com.ai.mcp.domain.McpServerConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

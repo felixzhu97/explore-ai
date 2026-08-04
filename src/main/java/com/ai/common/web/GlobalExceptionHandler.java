@@ -1,16 +1,16 @@
 package com.ai.common.web;
 
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
-import com.ai.common.domain.exception.AiServiceException;
+import com.ai.audio.domain.TtsProviderNotConfiguredException;
+import com.ai.chat.domain.ChatSessionNotFoundException;
+import com.ai.common.domain.AiServiceException;
 import com.ai.common.util.LogSanitizer;
-import com.ai.common.web.dto.ErrorResponse;
-import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
-import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.exception.RagServiceException;
-import com.ai.vision.domain.exception.VisionInvalidFileException;
-import com.ai.vision.domain.exception.VisionOcrException;
-import com.ai.vision.domain.exception.VisionProviderUnavailableException;
+import com.ai.common.web.ErrorResponse;
+import com.ai.image.domain.ImageProviderNotConfiguredException;
+import com.ai.rag.domain.DocumentNotFoundException;
+import com.ai.rag.domain.RagServiceException;
+import com.ai.vision.domain.VisionInvalidFileException;
+import com.ai.vision.domain.VisionOcrException;
+import com.ai.vision.domain.VisionProviderUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;

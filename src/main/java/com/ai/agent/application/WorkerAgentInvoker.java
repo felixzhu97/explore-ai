@@ -1,6 +1,6 @@
 package com.ai.agent.application;
 
-import com.ai.agent.domain.model.AgentDefinition;
+import com.ai.agent.domain.AgentDefinition;
 import reactor.core.publisher.Flux;
 
 /**

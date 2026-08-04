@@ -1,2 +1,2 @@
 org.springframework.boot.env.EnvironmentPostProcessor=\
-com.ai.common.infrastructure.featureflag.LaunchDarklyEnvironmentPostProcessor
+com.ai.common.infrastructure.LaunchDarklyEnvironmentPostProcessor

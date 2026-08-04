@@ -1,12 +1,12 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.chat.application.usecase.TextProviderCatalog;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.web.dto.ChatStreamRequest;
-import com.ai.chat.web.dto.ModelsListResponse;
-import com.ai.chat.web.dto.ProviderInfoResponse;
+import com.ai.chat.application.ChatUseCase;
+import com.ai.chat.application.TextProviderCatalog;
+import com.ai.common.application.TextChatOptions;
+import com.ai.chat.domain.ChatMessage;
+import com.ai.chat.web.ChatStreamRequest;
+import com.ai.chat.web.ModelsListResponse;
+import com.ai.chat.web.ProviderInfoResponse;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
@@ -57,7 +57,7 @@ public class TextController {
 
         List<ChatMessage> messages = request.messages().stream()
                 .map(dto -> ChatMessage.of(
-                        com.ai.chat.domain.vo.MessageId.generate(),
+                        com.ai.chat.domain.MessageId.generate(),
                         dto.content(),
                         dto.role(),
                         java.time.Instant.now()))

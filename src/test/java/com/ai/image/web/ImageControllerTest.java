@@ -1,9 +1,9 @@
 package com.ai.image.web;
 
-import com.ai.image.application.usecase.ImageFacade;
-import com.ai.image.domain.model.GeneratedImage;
-import com.ai.image.web.dto.ImageGenerationRequest;
-import com.ai.image.web.dto.ImageGenerationResponse;
+import com.ai.image.application.ImageFacade;
+import com.ai.image.domain.GeneratedImage;
+import com.ai.image.web.ImageGenerationRequest;
+import com.ai.image.web.ImageGenerationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

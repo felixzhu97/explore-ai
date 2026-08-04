@@ -1,10 +1,10 @@
 package com.ai.workflow.infrastructure;
 
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.workflow.domain.model.OrchestratorWorkersResult;
-import com.ai.workflow.domain.model.WorkerTask;
-import com.ai.workflow.domain.service.OrchestratorWorkersWorkflow;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
+import com.ai.workflow.domain.OrchestratorWorkersResult;
+import com.ai.workflow.domain.WorkerTask;
+import com.ai.workflow.domain.OrchestratorWorkersWorkflow;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

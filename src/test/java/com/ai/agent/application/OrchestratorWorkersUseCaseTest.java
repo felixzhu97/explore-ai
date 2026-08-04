@@ -1,0 +1,296 @@
+package com.ai.agent.application;
+
+import com.ai.agent.application.SupervisorRouter;
+import com.ai.agent.application.WorkerAgentInvoker;
+import com.ai.agent.domain.AgentDefinition;
+import com.ai.agent.domain.AgentPipeline;
+import com.ai.agent.domain.RoutingPlan;
+import com.ai.agent.domain.AgentType;
+import com.ai.agent.infrastructure.InMemoryAgentRegistry;
+import com.ai.metrics.application.AiInvocationRecorder;
+import com.ai.metrics.domain.AiInvocationEventRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.codec.ServerSentEvent;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import java.util.List;
+
+class OrchestratorWorkersUseCaseTest {
+
+    private OrchestratorWorkersUseCase useCase;
+    private RecordingInvoker invoker;
+
+    private static AiInvocationRecorder recorder() {
+        return new AiInvocationRecorder(new AiInvocationEventRepository() {
+            @Override public void save(com.ai.metrics.domain.AiInvocationEvent event) {}
+            @Override public PageResult findDrilldown(DrilldownQuery query) {
+                return new PageResult(java.util.List.of(), 0);
+            }
+        }, new SimpleMeterRegistry());
+    }
+
+    @BeforeEach
+    void setUp() {
+        InMemoryAgentRegistry registry = new InMemoryAgentRegistry(List.of(
+                AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
+                AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
+                AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops")));
+        invoker = new RecordingInvoker();
+        SupervisorRouter router = (message, workers) ->
+                RoutingPlan.single(AgentType.of("k8s"), "kubernetes intent");
+        useCase = new OrchestratorWorkersUseCase(registry, router, invoker, recorder());
+    }
+
+    @Test
+    void should_emit_handoff_message_and_done_when_supervisor_routes() {
+        StepVerifier.create(useCase.invokeSupervisor("list pods in prod"))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("k8s");
+                })
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+
+        assert invoker.lastAgentType.equals("k8s");
+        assert invoker.lastTask.contains("list pods");
+    }
+
+    @Test
+    void should_invoke_worker_directly_when_agent_type_given() {
+        StepVerifier.create(useCase.invokeAgent(AgentType.of("aiops"), "detect anomaly"))
+                .assertNext(event -> assertEvent(event, "agent_handoff"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+
+        assert invoker.lastAgentType.equals("aiops");
+    }
+
+    @Test
+    void should_delegate_to_supervisor_when_agent_type_is_supervisor() {
+        StepVerifier.create(useCase.invokeAgent(AgentType.supervisor(), "scale deployment"))
+                .assertNext(event -> assertEvent(event, "agent_handoff"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_emit_error_when_agent_unknown() {
+        StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hello"))
+                .assertNext(event -> assertEvent(event, "error"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_emit_error_when_message_blank() {
+        StepVerifier.create(useCase.invokeSupervisor("  "))
+                .assertNext(event -> assertEvent(event, "error"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_emit_error_when_message_null() {
+        StepVerifier.create(useCase.invokeSupervisor(null))
+                .assertNext(event -> assertEvent(event, "error"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_emit_error_when_direct_invoke_message_blank() {
+        StepVerifier.create(useCase.invokeAgent(AgentType.of("k8s"), " "))
+                .assertNext(event -> assertEvent(event, "error"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_synthesize_subtasks_when_plan_has_multiple_workers() {
+        SupervisorRouter multiRouter = (message, workers) -> new RoutingPlan(
+                AgentType.of("k8s"),
+                "needs k8s and aiops",
+                List.of(
+                        new RoutingPlan.Subtask(AgentType.of("k8s"), "check pods"),
+                        new RoutingPlan.Subtask(AgentType.of("aiops"), "check anomalies")));
+        useCase = new OrchestratorWorkersUseCase(new InMemoryAgentRegistry(List.of(
+                        AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
+                        AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
+                        AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
+                multiRouter,
+                invoker,
+                recorder());
+
+        StepVerifier.create(useCase.invokeSupervisor("pod crash and anomaly"))
+                .assertNext(event -> assertEvent(event, "agent_handoff"))
+                .thenConsumeWhile(event -> "message".equals(event.event()))
+                .expectNextMatches(event -> "done".equals(event.event()))
+                .verifyComplete();
+
+        assert invoker.invokeCount.get() >= 3;
+    }
+
+    @Test
+    void should_emit_error_when_router_fails() {
+        SupervisorRouter failing = (message, workers) -> {
+            throw new IllegalStateException("router down");
+        };
+        useCase = new OrchestratorWorkersUseCase(new InMemoryAgentRegistry(List.of(
+                        AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
+                        AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"))),
+                failing,
+                invoker,
+                recorder());
+
+        StepVerifier.create(useCase.invokeSupervisor("anything"))
+                .assertNext(event -> {
+                    assertEvent(event, "error");
+                    assert event.data().contains("router down");
+                })
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_escape_quotes_in_handoff_reason() {
+        ServerSentEvent<String> event =
+                OrchestratorWorkersUseCase.handoffEvent("k8s", "say \"hello\" \\world");
+        assertEvent(event, "agent_handoff");
+        assert event.data().contains("\\\"hello\\\"");
+    }
+
+    @Test
+    void should_use_empty_reason_when_null() {
+        ServerSentEvent<String> event = OrchestratorWorkersUseCase.handoffEvent("k8s", null);
+        assert event.data().contains("\"reason\":\"\"");
+    }
+
+    @Test
+    void should_run_pipeline_steps_in_order() {
+        AgentPipeline pipeline = AgentPipeline.create(
+                List.of(
+                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
+                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
+                List.of(new AgentPipeline.PipelineEdge("a", "b")));
+
+        StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("k8s");
+                })
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("aiops");
+                })
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+
+        assert invoker.streamOrder.equals(List.of("k8s", "aiops"));
+        assert invoker.lastTask.contains("worker-reply");
+        assert invoker.lastTask.contains("investigate outage");
+    }
+
+    @Test
+    void should_emit_first_handoff_before_second_worker_starts() {
+        DelayedRecordingInvoker delayed = new DelayedRecordingInvoker();
+        useCase = new OrchestratorWorkersUseCase(new InMemoryAgentRegistry(List.of(
+                        AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
+                        AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
+                        AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
+                (message, workers) -> RoutingPlan.single(AgentType.of("k8s"), "unused"),
+                delayed,
+                recorder());
+
+        AgentPipeline pipeline = AgentPipeline.create(
+                List.of(
+                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
+                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
+                List.of(new AgentPipeline.PipelineEdge("a", "b")));
+
+        StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("k8s");
+                    assert !delayed.streamOrder.contains("aiops")
+                            : "second worker must not start before first handoff is visible";
+                })
+                .thenAwait(java.time.Duration.ofMillis(50))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> {
+                    assertEvent(event, "agent_handoff");
+                    assert event.data().contains("aiops");
+                })
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "message"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+
+        assert delayed.streamOrder.equals(List.of("k8s", "aiops"));
+    }
+
+    @Test
+    void should_emit_error_when_pipeline_invalid() {
+        AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
+
+        StepVerifier.create(useCase.invokePipeline("x", pipeline))
+                .assertNext(event -> assertEvent(event, "error"))
+                .assertNext(event -> assertEvent(event, "done"))
+                .verifyComplete();
+    }
+
+    private static void assertEvent(ServerSentEvent<String> event, String expected) {
+        assert expected.equals(event.event()) : "expected " + expected + " but was " + event.event();
+    }
+
+    private static final class RecordingInvoker implements WorkerAgentInvoker {
+        private String lastAgentType;
+        private String lastTask;
+        private final java.util.concurrent.atomic.AtomicInteger invokeCount =
+                new java.util.concurrent.atomic.AtomicInteger();
+        private final List<String> streamOrder = new java.util.ArrayList<>();
+
+        @Override
+        public Flux<String> invokeStream(AgentDefinition agent, String task) {
+            lastAgentType = agent.type().value();
+            lastTask = task;
+            invokeCount.incrementAndGet();
+            streamOrder.add(agent.type().value());
+            return Flux.just("worker-reply");
+        }
+
+        @Override
+        public String invoke(AgentDefinition agent, String task) {
+            lastAgentType = agent.type().value();
+            lastTask = task;
+            invokeCount.incrementAndGet();
+            return "worker-reply for " + agent.type().value();
+        }
+    }
+
+    private static final class DelayedRecordingInvoker implements WorkerAgentInvoker {
+        private final List<String> streamOrder = new java.util.ArrayList<>();
+
+        @Override
+        public Flux<String> invokeStream(AgentDefinition agent, String task) {
+            streamOrder.add(agent.type().value());
+            return Flux.just("worker-reply-" + agent.type().value())
+                    .delayElements(java.time.Duration.ofMillis(120));
+        }
+
+        @Override
+        public String invoke(AgentDefinition agent, String task) {
+            return invokeStream(agent, task).blockFirst();
+        }
+    }
+}

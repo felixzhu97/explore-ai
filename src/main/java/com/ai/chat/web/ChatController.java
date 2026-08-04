@@ -1,13 +1,13 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
-import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.repository.ChatWebSourcesRepository;
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
-import com.ai.chat.web.dto.HealthResponse;
-import com.ai.chat.web.dto.*;
+import com.ai.chat.application.ChatUseCase;
+import com.ai.chat.domain.ChatSessionNotFoundException;
+import com.ai.chat.domain.ChatMessage;
+import com.ai.chat.domain.ChatWebSourcesRepository;
+import com.ai.chat.domain.ContentHash;
+import com.ai.chat.domain.WebSource;
+import com.ai.chat.web.HealthResponse;
+import com.ai.chat.web.*;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

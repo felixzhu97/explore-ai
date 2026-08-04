@@ -1,12 +1,12 @@
 package com.ai.vision.web;
 
-import com.ai.vision.application.usecase.VisionAnalysisUseCase;
-import com.ai.vision.domain.exception.VisionInvalidFileException;
-import com.ai.vision.web.dto.CaptionResponse;
-import com.ai.vision.web.dto.DetectResponse;
-import com.ai.vision.web.dto.DetectionDto;
-import com.ai.vision.web.dto.OcrResponse;
-import com.ai.vision.web.dto.VisionHealthResponse;
+import com.ai.vision.application.VisionAnalysisUseCase;
+import com.ai.vision.domain.VisionInvalidFileException;
+import com.ai.vision.web.CaptionResponse;
+import com.ai.vision.web.DetectResponse;
+import com.ai.vision.web.DetectionDto;
+import com.ai.vision.web.OcrResponse;
+import com.ai.vision.web.VisionHealthResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

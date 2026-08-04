@@ -1,8 +1,8 @@
 package com.ai.audio.web;
 
-import com.ai.audio.application.usecase.AudioFacade;
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
-import com.ai.audio.domain.vo.VoiceInfo;
+import com.ai.audio.application.AudioFacade;
+import com.ai.audio.domain.TtsProviderNotConfiguredException;
+import com.ai.audio.domain.VoiceInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

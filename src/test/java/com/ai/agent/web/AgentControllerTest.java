@@ -1,10 +1,10 @@
 package com.ai.agent.web;
 
-import com.ai.agent.application.usecase.AgentFacade;
-import com.ai.agent.domain.exception.AgentNotFoundException;
-import com.ai.agent.domain.model.AgentDefinition;
-import com.ai.agent.domain.vo.AgentType;
-import com.ai.agent.web.dto.AgentInvokeRequest;
+import com.ai.agent.application.AgentFacade;
+import com.ai.agent.domain.AgentNotFoundException;
+import com.ai.agent.domain.AgentDefinition;
+import com.ai.agent.domain.AgentType;
+import com.ai.agent.web.AgentInvokeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

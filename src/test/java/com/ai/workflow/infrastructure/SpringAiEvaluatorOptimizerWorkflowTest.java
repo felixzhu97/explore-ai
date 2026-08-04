@@ -1,8 +1,8 @@
 package com.ai.workflow.infrastructure;
 
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
+import com.ai.workflow.domain.EvaluatorOptimizerResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -94,7 +94,7 @@ tasks.jacocoTestReport {
     }
     classDirectories.setFrom(files(classDirectories.files.map { f ->
         fileTree(f) {
-            exclude("com/ai/config/**", "com/ai/domain/repository/**")
+            exclude("com/ai/config/**")
         }
     }))
 }
@@ -107,7 +107,6 @@ tasks.jacocoTestCoverageVerification {
             element = "PACKAGE"
             excludes = listOf(
                 "com.ai.config.*",
-                "com.ai.domain.repository.*",
                 "com.ai.*"
             )
         }

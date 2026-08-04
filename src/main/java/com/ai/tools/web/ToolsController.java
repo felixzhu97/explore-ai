@@ -1,6 +1,6 @@
 package com.ai.tools.web;
 
-import com.ai.tools.application.usecase.ToolsFacade;
+import com.ai.tools.application.ToolsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

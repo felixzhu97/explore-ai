@@ -1,13 +1,13 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.*;
-import com.ai.chat.web.dto.*;
-import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
-import com.ai.chat.domain.repository.ChatWebSourcesRepository;
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.application.*;
+import com.ai.chat.web.*;
+import com.ai.chat.domain.ChatMessage;
+import com.ai.chat.domain.ChatSession;
+import com.ai.chat.domain.ChatSessionNotFoundException;
+import com.ai.chat.domain.ChatWebSourcesRepository;
+import com.ai.chat.domain.ContentHash;
+import com.ai.chat.domain.WebSource;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -288,7 +288,7 @@ class ChatControllerTest {
 
     private ChatSession createTestSession(String id, String title) {
         return ChatSession.createWithId(
-                com.ai.chat.domain.vo.ChatSessionId.of(id),
+                com.ai.chat.domain.ChatSessionId.of(id),
                 title,
                 CLIENT_ID);
     }

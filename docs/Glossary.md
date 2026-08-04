@@ -34,7 +34,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
 | Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
 | Agent            | Agent 流水线 | `com.ai.agent`    | `/agents`               | `/api/agents`                             | `module-agents`               | Pipeline / Supervisor / Worker SSE    |
-| RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
+| RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `rag.domain` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
 | Analysis         | 结构化分析     | `com.ai.analysis` | —                       | `/api/chat/analyze`                       | —                             | No dedicated frontend route           |
 | Eval             | 对话质量评估    | `com.ai.eval`     | `/eval`                 | `/api/eval`                               | `module-eval`                 | LLM-as-a-Judge                        |
@@ -214,9 +214,9 @@ flowchart TB
 | Chunk Overlap            | 分块重叠     | Legacy overlap setting (characters)                 | Config               | `RagProperties.Chunk.overlap`             | Default: 50; unused by Spring AI 2.0 `TokenTextSplitter`            |
 | Top K                    | 检索数量     | Maximum number of chunks returned                   | Config               | `RagProperties.Retrieval.topK`            | Default: 5                                                          |
 | Score Threshold          | 分数阈值     | Minimum similarity score for retrieval results      | Config               | `RagProperties.Retrieval.scoreThreshold`  | Default: 0.5                                                        |
-| Document Reader          | 文档读取器    | ETL: reads raw bytes into RawDocument               | Repository           | `DocumentReader`                          | Package: `com.ai.rag.domain.repository`                             |
-| Document Transformer     | 文档转换器    | ETL: transforms RawDocument into chunks             | Repository           | `DocumentTransformer`                     | Package: `com.ai.rag.domain.repository`                             |
-| Document Writer          | 文档写入器    | ETL: persists processed chunks to Vector Store      | Repository           | `DocumentWriter`                          | Package: `com.ai.rag.domain.repository`                             |
+| Document Reader          | 文档读取器    | ETL: reads raw bytes into RawDocument               | Repository           | `DocumentReader`                          | Package: `com.ai.rag.domain`                                        |
+| Document Transformer     | 文档转换器    | ETL: transforms RawDocument into chunks             | Repository           | `DocumentTransformer`                     | Package: `com.ai.rag.domain`                                        |
+| Document Writer          | 文档写入器    | ETL: persists processed chunks to Vector Store      | Repository           | `DocumentWriter`                          | Package: `com.ai.rag.domain`                                        |
 | RAG ETL Pipeline         | RAG 数据管道 | End-to-end ingest: Reader → Transformer → Writer    | Pipeline             | `DocumentUploadService`                   | Triggered on upload; not a separate bounded context                 |
 
 
@@ -534,7 +534,7 @@ References:
 | bot                                          | **Agent** / **ChatClient**   | Prefer Agent for autonomous entities                                          |
 | RAG ETL Domain                               | **RAG** (+ ETL Pipeline)     | Not a separate bounded context                                                |
 | `com.ai.mcp.server` / `.client` packages     | `**com.ai.mcp`**             | Single package in code                                                        |
-| `domain.port`                                | `**domain.repository`**      | Project architecture rule                                                     |
+| `domain.port` / deep `usecase`/`dto`/`model` | `**{module}.domain` / flat layers** | Prefer shallow `web`/`application`/`domain`/`infrastructure` |
 | stats / statistics (UI)                      | **KPI** / **Metric**         | Prefer BI Preferred Terms on Metrics pages                                    |
 | chart data (domain noun)                     | **Time Series** / **Categorical Series** | Charts are presentation; name the measure series                    |
 | log row / telemetry row                      | **Fact Event** / **AI Invocation Event** | Metrics facts are domain events, not raw logs                       |

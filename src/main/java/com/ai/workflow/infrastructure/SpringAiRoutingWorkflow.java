@@ -1,9 +1,9 @@
 package com.ai.workflow.infrastructure;
 
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.workflow.domain.model.RoutingResult;
-import com.ai.workflow.domain.service.RoutingWorkflow;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
+import com.ai.workflow.domain.RoutingResult;
+import com.ai.workflow.domain.RoutingWorkflow;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

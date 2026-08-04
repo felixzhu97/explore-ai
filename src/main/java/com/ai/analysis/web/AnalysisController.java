@@ -1,9 +1,9 @@
 package com.ai.analysis.web;
 
-import com.ai.analysis.application.usecase.AnalysisFacade;
-import com.ai.analysis.domain.exception.InvalidAnalysisTextException;
-import com.ai.analysis.web.dto.TextAnalysisRequest;
-import com.ai.analysis.web.dto.TextAnalysisResult;
+import com.ai.analysis.application.AnalysisFacade;
+import com.ai.analysis.domain.InvalidAnalysisTextException;
+import com.ai.analysis.web.TextAnalysisRequest;
+import com.ai.analysis.web.TextAnalysisResult;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

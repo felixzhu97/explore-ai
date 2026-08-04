@@ -195,8 +195,11 @@ VISION_MODELS_READY=true ./gradlew test --tests com.ai.vision.VisionFunctionalVe
 
 ```
 explore-ai/
-├── src/main/java/com/ai/{domain}/   # Business modules: web → application → domain ← infrastructure
-│   ├── chat/, rag/, eval/, billing/, workflow/, …
+├── src/main/java/com/ai/{module}/   # Business modules (flat layers)
+│   ├── web/                         # Controllers + Request/Response
+│   ├── application/                 # UseCases
+│   ├── domain/                      # Entities, VOs, Repository interfaces
+│   └── infrastructure/              # Adapters (shallow)
 ├── src/main/web/                    # Angular app
 ├── src/main/resources/
 │   ├── application.yml

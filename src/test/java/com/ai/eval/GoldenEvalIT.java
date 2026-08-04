@@ -1,8 +1,8 @@
 package com.ai.eval;
 
-import com.ai.eval.application.usecase.GoldenEvalUseCase;
-import com.ai.eval.domain.model.GoldenSuiteReport;
-import com.ai.eval.domain.vo.GoldenEvalDomain;
+import com.ai.eval.application.GoldenEvalUseCase;
+import com.ai.eval.domain.GoldenSuiteReport;
+import com.ai.eval.domain.GoldenEvalDomain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;

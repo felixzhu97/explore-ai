@@ -1,6 +1,6 @@
 package com.ai.tools.web;
 
-import com.ai.tools.application.usecase.ToolsFacade;
+import com.ai.tools.application.ToolsFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

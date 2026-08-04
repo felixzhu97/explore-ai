@@ -1,9 +1,9 @@
 package com.ai.eval.web;
 
-import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.application.usecase.ChatQualityEvaluator;
-import com.ai.eval.web.dto.EvaluationRequest;
-import com.ai.eval.web.dto.EvaluationResponse;
+import com.ai.eval.domain.ChatEvaluationResult;
+import com.ai.eval.application.ChatQualityEvaluator;
+import com.ai.eval.web.EvaluationRequest;
+import com.ai.eval.web.EvaluationResponse;
 import com.ai.common.util.LogSanitizer;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;

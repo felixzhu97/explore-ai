@@ -1,9 +1,9 @@
 package com.ai.audio.web;
 
-import com.ai.audio.application.usecase.AudioFacade;
-import com.ai.audio.domain.exception.InvalidSpeechTextException;
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
-import com.ai.audio.web.dto.VoiceResponse;
+import com.ai.audio.application.AudioFacade;
+import com.ai.audio.domain.InvalidSpeechTextException;
+import com.ai.audio.domain.TtsProviderNotConfiguredException;
+import com.ai.audio.web.VoiceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;

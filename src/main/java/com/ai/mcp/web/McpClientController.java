@@ -1,6 +1,6 @@
 package com.ai.mcp.web;
 
-import com.ai.mcp.application.usecase.McpFacade;
+import com.ai.mcp.application.McpFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;

@@ -1,9 +1,9 @@
 package com.ai.workflow.infrastructure;
 
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.workflow.domain.model.ChainResult;
-import com.ai.workflow.domain.service.ChainWorkflow;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
+import com.ai.workflow.domain.ChainResult;
+import com.ai.workflow.domain.ChainWorkflow;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

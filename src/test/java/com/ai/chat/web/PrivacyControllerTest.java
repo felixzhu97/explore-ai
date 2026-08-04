@@ -1,6 +1,6 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.chat.application.ChatUseCase;
 import com.ai.common.web.ClientIdentity;
 import com.ai.common.web.ClientIdentityCookieFactory;
 import com.ai.common.web.ClientIdentityProperties;

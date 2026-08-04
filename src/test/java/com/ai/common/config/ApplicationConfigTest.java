@@ -1,6 +1,6 @@
 package com.ai.common.config;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.domain.LanguageDetectionService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.ai.account.web;
 
-import com.ai.account.web.dto.AccountMeResponse;
-import com.ai.billing.infrastructure.config.BillingProperties;
+import com.ai.account.web.AccountMeResponse;
+import com.ai.billing.infrastructure.BillingProperties;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

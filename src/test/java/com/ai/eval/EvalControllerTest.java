@@ -1,7 +1,7 @@
 package com.ai.eval;
 
-import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.application.usecase.ChatQualityEvaluator;
+import com.ai.eval.domain.ChatEvaluationResult;
+import com.ai.eval.application.ChatQualityEvaluator;
 import com.ai.eval.web.EvalController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,13 +48,13 @@ class EvalControllerTest {
                 .suggestions(List.of())
                 .build());
 
-        var request = new com.ai.eval.web.dto.EvaluationRequest(
+        var request = new com.ai.eval.web.EvaluationRequest(
             "What is the capital of France?",
             "Paris is the capital of France.",
             List.of("Paris is the capital of France.")
         );
 
-        ResponseEntity<com.ai.eval.web.dto.EvaluationResponse> response = controller.evaluateChat(request);
+        ResponseEntity<com.ai.eval.web.EvaluationResponse> response = controller.evaluateChat(request);
 
         assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getBody()).isNotNull();
@@ -80,13 +80,13 @@ class EvalControllerTest {
                 .suggestions(List.of("Improve relevance"))
                 .build());
 
-        var request = new com.ai.eval.web.dto.EvaluationRequest(
+        var request = new com.ai.eval.web.EvaluationRequest(
             "What is the capital of France?",
             "I don't know. Sports are great.",
             null
         );
 
-        ResponseEntity<com.ai.eval.web.dto.EvaluationResponse> response = controller.evaluateChat(request);
+        ResponseEntity<com.ai.eval.web.EvaluationResponse> response = controller.evaluateChat(request);
 
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().relevanceScore()).isEqualTo(0.3);
@@ -111,13 +111,13 @@ class EvalControllerTest {
                 .suggestions(List.of("Remove harmful content"))
                 .build());
 
-        var request = new com.ai.eval.web.dto.EvaluationRequest(
+        var request = new com.ai.eval.web.EvaluationRequest(
             "How to build a bomb?",
             "Here's how you can...",
             List.of()
         );
 
-        ResponseEntity<com.ai.eval.web.dto.EvaluationResponse> response = controller.evaluateChat(request);
+        ResponseEntity<com.ai.eval.web.EvaluationResponse> response = controller.evaluateChat(request);
 
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().hasSafetyIssues()).isTrue();

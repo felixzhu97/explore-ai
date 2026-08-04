@@ -1,10 +1,10 @@
 package com.ai.workflow.infrastructure;
 
-import com.ai.common.application.llm.ChatClientProvider;
-import com.ai.common.application.llm.TextChatOptions;
-import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
-import com.ai.workflow.domain.model.GenerationStep;
-import com.ai.workflow.domain.service.EvaluatorOptimizerWorkflow;
+import com.ai.common.application.ChatClientProvider;
+import com.ai.common.application.TextChatOptions;
+import com.ai.workflow.domain.EvaluatorOptimizerResult;
+import com.ai.workflow.domain.GenerationStep;
+import com.ai.workflow.domain.EvaluatorOptimizerWorkflow;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

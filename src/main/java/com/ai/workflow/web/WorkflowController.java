@@ -1,16 +1,16 @@
 package com.ai.workflow.web;
 
-import com.ai.workflow.application.usecase.WorkflowUseCase;
-import com.ai.workflow.domain.model.ChainResult;
-import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
-import com.ai.workflow.domain.model.OrchestratorWorkersResult;
-import com.ai.workflow.domain.model.ParallelizationResult;
-import com.ai.workflow.domain.model.RoutingResult;
-import com.ai.workflow.web.dto.ChainWorkflowRequest;
-import com.ai.workflow.web.dto.EvaluatorOptimizerRequest;
-import com.ai.workflow.web.dto.OrchestratorWorkersRequest;
-import com.ai.workflow.web.dto.ParallelizationWorkflowRequest;
-import com.ai.workflow.web.dto.RoutingWorkflowRequest;
+import com.ai.workflow.application.WorkflowUseCase;
+import com.ai.workflow.domain.ChainResult;
+import com.ai.workflow.domain.EvaluatorOptimizerResult;
+import com.ai.workflow.domain.OrchestratorWorkersResult;
+import com.ai.workflow.domain.ParallelizationResult;
+import com.ai.workflow.domain.RoutingResult;
+import com.ai.workflow.web.ChainWorkflowRequest;
+import com.ai.workflow.web.EvaluatorOptimizerRequest;
+import com.ai.workflow.web.OrchestratorWorkersRequest;
+import com.ai.workflow.web.ParallelizationWorkflowRequest;
+import com.ai.workflow.web.RoutingWorkflowRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

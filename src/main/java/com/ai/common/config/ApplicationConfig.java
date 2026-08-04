@@ -1,6 +1,6 @@
 package com.ai.common.config;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.domain.LanguageDetectionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
