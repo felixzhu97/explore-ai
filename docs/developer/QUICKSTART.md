@@ -302,11 +302,26 @@ java --version  # Must be 25+
 | ------------------- | ---------------------------------------------------- | ------------------------------------- |
 | `DEEPSEEK_API_KEY`  | -                                                    | Your DeepSeek API key (required)      |
 | `DEEPSEEK_BASE_URL` | [https://api.deepseek.com](https://api.deepseek.com) | DeepSeek API endpoint                 |
+| `OLLAMA_EMBEDDING_MODEL` | `qwen3-embedding:0.6b`                          | Local RAG embedding (1024-d via Ollama) |
 | `IMAGE_PROVIDER`    | `ollama`                                             | Image provider: `ollama` or `openai`  |
 | `IMAGE_MODEL`       | `x/flux2-klein`                                      | Ollama/OpenAI image model name        |
 | `IMAGE_BASE_URL`    | `http://localhost:11434/v1`                          | Image API base URL                    |
 | `OPENAI_API_KEY`    | -                                                    | Required when `IMAGE_PROVIDER=openai` |
 
+
+### RAG Embedding (Ollama Qwen3) | RAG 嵌入（Ollama Qwen3）
+
+Document QA uses local **Qwen3 Embedding** by default (aligned with the Qwen multimodal stack).
+
+```bash
+# 1. Pull the embedding model
+ollama pull qwen3-embedding:0.6b
+
+# 2. Ensure Ollama is running on http://localhost:11434
+# Optional larger models: qwen3-embedding:4b / :8b (update spring.ai.ollama.embedding.dimensions)
+```
+
+After switching from a previous embedding model (e.g. `mxbai-embed-large`), **re-upload / re-ingest documents** — existing vectors are incompatible.
 
 ### Image Generation (Free Ollama) | 图像生成（免费 Ollama）
 

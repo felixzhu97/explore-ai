@@ -209,7 +209,7 @@ Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephem
 | 用途 | 模型 | 维度/说明 |
 | --- | --- | --- |
 | LLM Chat / Agent | deepseek-v4-flash | DeepSeek API |
-| Embedding | mxbai-embed-large | 1024 维 (Ollama, local) |
+| Embedding | qwen3-embedding:0.6b | 1024 维 (Ollama, local Qwen3 Embedding) |
 | Vision Chat (RAG) | qwen3.5 | Ollama 多模态对话 (local) |
 | Caption | BLIP base ONNX | ONNX Runtime 本地 |
 | Detect | YOLOv8n ONNX | COCO 80 类 |

@@ -21,7 +21,7 @@ public class OllamaConfig {
     @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
     private String baseUrl;
 
-    @Value("${spring.ai.ollama.embedding.model:nomic-embed-text}")
+    @Value("${spring.ai.ollama.embedding.model:qwen3-embedding:0.6b}")
     private String embeddingModelName;
 
     @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")

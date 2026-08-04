@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Ollama embedding adapter using Spring AI.
- * Generates embeddings using local Ollama models (e.g., nomic-embed-text).
+ * Generates embeddings using local Ollama models (default: qwen3-embedding:0.6b).
  */
 @Component
 @ConditionalOnProperty(name = "spring.ai.ollama.embedding.enabled", havingValue = "true", matchIfMissing = true)
@@ -27,7 +27,7 @@ public class OllamaEmbeddingAdapter implements TextEmbeddingRepository {
 
     public OllamaEmbeddingAdapter(
             EmbeddingModel embeddingModel,
-            @Value("${spring.ai.ollama.embedding.dimensions:768}") int dimensions) {
+            @Value("${spring.ai.ollama.embedding.dimensions:1024}") int dimensions) {
         this.embeddingModel = embeddingModel;
         this.dimensions = dimensions;
     }

@@ -30,7 +30,7 @@ class OllamaEmbeddingAdapterTest {
 
     @BeforeEach
     void setUp() {
-        adapter = new OllamaEmbeddingAdapter(embeddingModel, 768);
+        adapter = new OllamaEmbeddingAdapter(embeddingModel, 1024);
     }
 
     @Nested
@@ -142,7 +142,7 @@ class OllamaEmbeddingAdapterTest {
         @Test
         @DisplayName("should return configured dimensions")
         void shouldReturnConfiguredDimensions() {
-            assertThat(adapter.getDimensions()).isEqualTo(768);
+            assertThat(adapter.getDimensions()).isEqualTo(1024);
         }
     }
 }

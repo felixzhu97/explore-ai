@@ -16,7 +16,7 @@ class OllamaConfigTest {
     void should_create_embedding_and_vision_chat_models() {
         OllamaConfig config = new OllamaConfig();
         ReflectionTestUtils.setField(config, "baseUrl", "http://localhost:11434");
-        ReflectionTestUtils.setField(config, "embeddingModelName", "nomic-embed-text");
+        ReflectionTestUtils.setField(config, "embeddingModelName", "qwen3-embedding:0.6b");
         ReflectionTestUtils.setField(config, "visionModelName", "qwen3.5:35b");
 
         EmbeddingModel embeddingModel = config.embeddingModel();

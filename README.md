@@ -42,7 +42,7 @@ Demo / learning platform for conversational AI built with **Spring AI** and **An
 | Backend | Java 25, Spring Boot 4.1, Spring AI 2.0 |
 | Frontend | Angular 22, TypeScript, pnpm |
 | Data | H2 (embedded) + Liquibase |
-| Local AI | Ollama (embed / multimodal), whisper.cpp, ONNX models |
+| Local AI | Ollama (`qwen3-embedding:0.6b` / multimodal), whisper.cpp, ONNX models |
 
 Architecture follows hexagonal-style layers: `web → application → domain ← infrastructure`.
 
@@ -55,7 +55,7 @@ Architecture follows hexagonal-style layers: `web → application → domain ←
 | pnpm | 8+ |
 | Git | latest |
 
-Optional: [Ollama](https://ollama.com/), [Tesseract](https://github.com/tesseract-ocr/tesseract), whisper.cpp — only if you use the matching features.
+Optional: [Ollama](https://ollama.com/) (`ollama pull qwen3-embedding:0.6b` for RAG; re-ingest documents after changing embedding models), [Tesseract](https://github.com/tesseract-ocr/tesseract), whisper.cpp — only if you use the matching features.
 
 ## Getting Started
 
