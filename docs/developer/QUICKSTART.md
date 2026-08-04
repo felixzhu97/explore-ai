@@ -321,7 +321,7 @@ ollama pull qwen3-embedding:0.6b
 # Optional larger models: qwen3-embedding:4b / :8b (update spring.ai.ollama.embedding.dimensions)
 ```
 
-After switching from a previous embedding model (e.g. `mxbai-embed-large`), **re-upload / re-ingest documents** — existing vectors are incompatible.
+After changing the embedding model, **re-upload / re-ingest documents** — existing vectors from other models are incompatible.
 
 ### Image Generation (Free Ollama) | 图像生成（免费 Ollama）
 

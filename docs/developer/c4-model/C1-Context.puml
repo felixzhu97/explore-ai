@@ -36,7 +36,7 @@ System_Ext(serper_api, "Serper.dev API", "Web 搜索，实时信息检索")
 ' DATA & LOCAL-ONLY SERVICES (dev / optional)
 ' ============================================================
 System_Ext(h2_db, "H2 Embedded", "嵌入式数据库 + 向量存储 (默认，prod Render ephemeral)")
-System_Ext(ollama, "Ollama [local]", "本地 Embedding (mxbai-embed-large) + 多模态 RAG Vision (qwen3.5)，:11434\nprod cloud-minimal 默认关闭")
+System_Ext(ollama, "Ollama [local]", "本地 Embedding (qwen3-embedding:0.6b) + 多模态 RAG Vision (qwen3.5)，:11434\nprod cloud-minimal 默认关闭")
 System_Ext(tesseract, "Tesseract OCR [local]", "本地 OCR (eng/chi_sim)，Tess4J JNA\nprod 默认关闭 (module-vision=false)")
 System_Ext(whisper_cpp, "whisper.cpp [local]", "本地流式 ASR，:8178\nprod 默认关闭 (module-audio-asr=false)")
 System_Ext(onnx_vision, "Image Analysis ONNX [local]", "BLIP Caption + YOLOv8 Detect，models/*.onnx\nprod 默认关闭 (module-vision=false)")

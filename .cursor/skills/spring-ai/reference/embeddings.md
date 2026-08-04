@@ -327,7 +327,8 @@ spring:
 | Model | Dimensions | Description |
 |-------|------------|-------------|
 | `nomic-embed-text` | 768 | High-quality general-purpose embeddings |
-| `mxbai-embed-large` | 1024 | Maximum performance embeddings |
+| `qwen3-embedding:0.6b` | 1024 | Qwen3 Embedding (default local) |
+| `qwen3-embedding:4b` / `:8b` | 2560 / up to 4096 | Larger Qwen3 Embedding variants |
 | `all-minilm` | 384 | Lightweight, fast embeddings |
 
 **Usage:**

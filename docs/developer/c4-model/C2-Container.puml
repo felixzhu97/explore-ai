@@ -59,7 +59,7 @@ Container_Boundary(rag_domain, "RAG Domain") {
     Container(etl_transformer, "ChunkingDocumentTransformer", "@Component", "分块转换")
     Container(etl_writer, "EmbeddingDocumentWriter", "@Component", "Embedding 写入")
     Container(h2_vector, "H2VectorAdapter", "@Component", "H2 向量检索 (默认)")
-    Container(ollama_emb, "OllamaEmbeddingAdapter", "@Component", "mxbai-embed-large [local]")
+    Container(ollama_emb, "OllamaEmbeddingAdapter", "@Component", "qwen3-embedding:0.6b [local]")
 }
 
 ' ============================================================
