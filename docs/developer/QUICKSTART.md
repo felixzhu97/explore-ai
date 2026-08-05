@@ -341,6 +341,10 @@ pnpm start          # terminal 2
 
 Optional paid path: set `IMAGE_PROVIDER=openai`, `IMAGE_API_KEY`, and `IMAGE_BASE_URL=https://api.openai.com/v1` in `.env`.
 
+### Golden Eval | 黄金评测
+
+Live Chat/RAG quality regression (flag-gated IT): see [golden-eval.md](./golden-eval.md).
+
 ### Need More Help? | 需要更多帮助？
 
 - **Backend Issues**: Check logs in `build.gradle.kts`

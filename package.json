@@ -2,7 +2,7 @@
   "name": "explore-ai",
   "version": "0.0.1",
   "private": true,
-  "description": "Demo / learning platform for conversational AI built with Spring AI and Angular: Chat, RAG, tools, vision, audio, and quality evaluation.",
+  "description": "Demo / learning platform for conversational AI built with Spring AI and Angular: Chat, RAG, tool calling, and quality evaluation.",
   "keywords": [
     "java",
     "spring-boot",
