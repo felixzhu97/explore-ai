@@ -34,10 +34,11 @@ export const routes: Routes = [
         loadComponent: () => import('./asr/asr.page').then(m => m.AsrPageComponent),
       },
       {
-        path: 'agents',
-        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AGENTS)],
-        loadComponent: () => import('./agents/agents.page').then(m => m.AgentsPageComponent),
+        path: 'pipelines',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_PIPELINES)],
+        loadComponent: () => import('./pipelines/pipelines.page').then(m => m.PipelinesPageComponent),
       },
+      { path: 'agents', redirectTo: 'pipelines', pathMatch: 'full' },
       {
         path: 'skills',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_SKILLS)],

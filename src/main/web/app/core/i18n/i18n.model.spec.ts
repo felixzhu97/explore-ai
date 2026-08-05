@@ -35,7 +35,7 @@ describe('i18n.model', () => {
     });
 
     it('should have required top-level keys for all languages', () => {
-      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'agents', 'chat', 'generate'] as const;
+      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'agents', 'pipelines', 'chat', 'generate'] as const;
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
         const langTranslations = translations[lang];
@@ -53,6 +53,7 @@ describe('i18n.model', () => {
         'eval',
         'speechToText',
         'agents',
+        'pipelines',
         'kubernetes',
         'monitoring',
         'aiinfra',
@@ -147,7 +148,7 @@ describe('i18n.model', () => {
         'documentDeleted',
         'deleteFailed',
         'fileSelected',
-        'openAgentWorkbench',
+        'openPipelineWorkbench',
       ] as const;
 
       it('should have ragChat translations for all languages', () => {
@@ -160,13 +161,13 @@ describe('i18n.model', () => {
       });
     });
 
-    describe('agents translations', () => {
-      it('should have agents translations for all languages', () => {
+    describe('pipelines translations', () => {
+      it('should have pipelines translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].agents.thinking).toBeDefined();
-          expect(translations[lang].agents.errorMessage).toBeDefined();
-          expect(translations[lang].agents.pipeline.inputPlaceholder).toBeDefined();
-          expect(translations[lang].agents.pipeline.emptyState.title).toBeDefined();
+          expect(translations[lang].pipelines.thinking).toBeDefined();
+          expect(translations[lang].pipelines.errorMessage).toBeDefined();
+          expect(translations[lang].pipelines.pipeline.inputPlaceholder).toBeDefined();
+          expect(translations[lang].pipelines.pipeline.emptyState.title).toBeDefined();
         });
       });
 
@@ -181,15 +182,25 @@ describe('i18n.model', () => {
 
         SUPPORTED_LANGUAGES.forEach((lang) => {
           templateIds.forEach((id) => {
-            const items = translations[lang].agents.pipeline.templates.items;
-            const topics = translations[lang].agents.pipeline.templates.shortTopics;
-            const briefs = translations[lang].agents.pipeline.templates.briefPrompts;
+            const items = translations[lang].pipelines.pipeline.templates.items;
+            const topics = translations[lang].pipelines.pipeline.templates.shortTopics;
+            const briefs = translations[lang].pipelines.pipeline.templates.briefPrompts;
             expect(items[id].name).toBeDefined();
             expect(topics[id].length).toBeGreaterThan(0);
             expect(briefs[id].length).toBeGreaterThan(0);
             expect(topics[id].length).toBeLessThan(briefs[id].length);
           });
-          expect(translations[lang].agents.results.title).toBeDefined();
+          expect(translations[lang].pipelines.results.title).toBeDefined();
+        });
+      });
+    });
+
+    describe('agents translations', () => {
+      it('should have agents translations for all languages', () => {
+        SUPPORTED_LANGUAGES.forEach((lang) => {
+          expect(translations[lang].agents.thinking).toBeDefined();
+          expect(translations[lang].agents.welcomeTitle).toBeDefined();
+          expect(translations[lang].agents.trace.plan).toBeDefined();
         });
       });
     });

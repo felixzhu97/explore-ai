@@ -23,6 +23,7 @@ launchdarkly:
     module-mcp: false
     module-eval: true
     module-agents: true
+    module-pipelines: true
 
 app:
   billing:

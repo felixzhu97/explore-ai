@@ -1,8 +1,8 @@
 package com.ai.metrics.infrastructure.health;
 
-import com.ai.agent.application.usecase.AgentFacade;
-import com.ai.agent.domain.model.AgentDefinition;
-import com.ai.agent.domain.vo.AgentType;
+import com.ai.pipeline.application.usecase.PipelineFacade;
+import com.ai.pipeline.domain.model.AgentDefinition;
+import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.mcp.application.usecase.McpFacade;
 import com.ai.mcp.domain.vo.McpServerConnection;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class DomainHealthGatewayTest {
 
     @Mock
-    private AgentFacade agentFacade;
+    private PipelineFacade pipelineFacade;
 
     @Mock
     private McpFacade mcpFacade;
@@ -33,7 +33,7 @@ class DomainHealthGatewayTest {
 
     @BeforeEach
     void setUp() {
-        gateway = new DomainHealthGateway(agentFacade, mcpFacade);
+        gateway = new DomainHealthGateway(pipelineFacade, mcpFacade);
     }
 
     @Test
@@ -47,7 +47,7 @@ class DomainHealthGatewayTest {
     @Test
     @DisplayName("should_report_agents_up_when_all_registered_agents_are_healthy")
     void should_report_agents_up_when_all_registered_agents_are_healthy() {
-        when(agentFacade.listAgents()).thenReturn(List.of(
+        when(pipelineFacade.listAgents()).thenReturn(List.of(
                 AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
                 AgentDefinition.create(AgentType.supervisor(), "Supervisor", "desc", "prompt")));
 
@@ -61,7 +61,7 @@ class DomainHealthGatewayTest {
     @Test
     @DisplayName("should_report_agents_degraded_when_list_empty_or_unhealthy")
     void should_report_agents_degraded_when_list_empty_or_unhealthy() {
-        when(agentFacade.listAgents()).thenReturn(List.of());
+        when(pipelineFacade.listAgents()).thenReturn(List.of());
 
         Map<String, Object> emptyHealth = gateway.agentsHealth();
         assertThat(emptyHealth).containsEntry("status", "DEGRADED");
@@ -69,7 +69,7 @@ class DomainHealthGatewayTest {
 
         AgentDefinition unhealthy = mock(AgentDefinition.class);
         when(unhealthy.healthy()).thenReturn(false);
-        when(agentFacade.listAgents()).thenReturn(List.of(unhealthy));
+        when(pipelineFacade.listAgents()).thenReturn(List.of(unhealthy));
 
         Map<String, Object> degradedHealth = gateway.agentsHealth();
         assertThat(degradedHealth).containsEntry("status", "DEGRADED");

@@ -129,6 +129,7 @@ launchdarkly:
     module-mcp: true
     module-eval: true
     module-agents: true
+    module-pipelines: true
     module-skills: true
 
 app:
@@ -193,7 +194,7 @@ app:
     enabled: true
     session-max-age: 90d
     cron: "0 0 3 * * *"
-  agent:
+  pipeline:
     skills:
       enabled: ${AGENT_SKILLS_ENABLED:false}
       ids: []
