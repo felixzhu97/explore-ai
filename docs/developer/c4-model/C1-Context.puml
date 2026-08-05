@@ -8,7 +8,7 @@ title 系统上下文图 (C1) - AI Chat & Agent Platform
 ' ============================================================
 ' PEOPLE
 ' ============================================================
-Person(user, "用户", "对话、RAG、Agent 流水线、图像生成/TTS、可选 Image Analysis/MCP/Eval/ASR")
+Person(user, "用户", "对话、RAG、Agent / 工作流、图像生成/TTS、可选 Image Analysis/MCP/Eval/ASR")
 Person(admin, "管理员/开发者", "质量评估、文本分析、AI 指标看板、API 集成、功能开关配置")
 
 ' ============================================================

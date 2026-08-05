@@ -50,7 +50,7 @@ Rel(backend, serper_api, "搜索", "HTTPS")
 
 note right of backend
   **cloud-minimal prod (Render Starter)**
-  · **开启**: module-agents (Agent 流水线)
+  · **开启**: module-agents (Agent / 工作流)
   · **关闭** (flags = false):
     Vision / Image Analysis (ONNX + Tesseract)
     ASR (whisper.cpp)

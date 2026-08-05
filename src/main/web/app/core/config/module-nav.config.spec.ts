@@ -47,6 +47,7 @@ describe('module-nav.config', () => {
       'chat',
       'rag',
       'metrics',
+      'agents',
       'pipelines',
       'skills',
     ]);

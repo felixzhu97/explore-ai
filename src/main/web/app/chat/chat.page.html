@@ -104,6 +104,16 @@
 
   <div class="flex shrink-0 items-center gap-0.5">
     <a
+      routerLink="/agents"
+      z-button
+      zType="ghost"
+      zSize="sm"
+      class="hidden text-xs xl:inline-flex"
+      [attr.title]="i18n.t().agents.title"
+    >
+      {{ i18n.t().agents.title }}
+    </a>
+    <a
       routerLink="/pipelines"
       z-button
       zType="ghost"

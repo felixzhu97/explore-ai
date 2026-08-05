@@ -58,7 +58,7 @@
 - **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0
 - **架构**: Clean Architecture（`domain/repository/`，非 Hexagonal `domain/port/`）
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
-- **子域 (13)**: Chat / Agent / Skill / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
+- **子域 (14)**: Chat / Agent / Pipeline / Skill / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
@@ -71,12 +71,24 @@
 
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
-| 列表 / 健康 | `GET /api/agents`, `GET /api/agents/health` | `AgentController`, `AgentFacade` |
-| 单 Agent SSE | `POST /api/agents/{type}/invoke/sse` | `SpringAiWorkerAgentInvoker` |
-| Supervisor SSE | `POST /api/agents/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
-| Pipeline SSE | `POST /api/agents/pipeline/invoke/sse` | `OrchestratorWorkersUseCase` |
+| 会话 CRUD | `POST/GET/DELETE /api/agents/sessions` | `AgentController`, `DeepAgentUseCase` |
+| 深度调用 SSE | `POST /api/agents/sessions/{id}/invoke/sse` | plan / replan / thought / tool / message / evaluation |
+| 健康 | `GET /api/agents/health` | — |
 
-Agent system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSystemPrompt` → `classpath:prompts/agent/*.st`，并追加共享风格片段。
+对话记忆：`ChatMemory`，conversation id = `agent:{sessionId}`。
+
+### Pipeline（工作流）子域
+
+路由 `/pipelines`（`module-pipelines`），API `/api/pipelines/*`：
+
+| 能力 | API | 主要组件 |
+| --- | --- | --- |
+| Worker 列表 / 健康 | `GET /api/pipelines/list`, `.../health` | `PipelineController`, `PipelineFacade` |
+| 单 Worker SSE | `POST /api/pipelines/{type}/invoke/sse` | `SpringAiWorkerAgentInvoker` |
+| Supervisor SSE | `POST /api/pipelines/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
+| 画布图 SSE | `POST /api/pipelines/invoke/sse` | `OrchestratorWorkersUseCase` |
+
+Worker system prompt 来自 `AgentPromptCatalog` → `PromptTemplates.loadAgentSystemPrompt` → `classpath:prompts/agent/*.st`。Classpath Agent Skills：`AgentSkillsRuntime`（`com.ai.common`，`app.pipeline.skills`）。
 
 ### Prompt Catalog（横切）
 
@@ -124,7 +136,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 ### 前端 (Web Frontend)
 
 - **框架**: Angular 22 + TypeScript
-- **路由**: `/chat` / `/generate` (image, tts) / `/rag` / `/metrics` + flag 守卫 `/agents` `/vision` `/mcp` `/eval` `/asr`
+- **路由**: `/chat` / `/generate` / `/rag` / `/metrics` + flag `/agents` `/pipelines` `/skills` `/vision` `/mcp` `/eval` `/asr`
 - **对话壳**: `shared/components/chat-shell`（message-pane / sender-bar / bubble-list / welcome），供 Chat / RAG / Agents 共用
 - **实现目录**: `app/chat/`、`app/generate/{image,tts}/`、`app/metrics/`（与业务域 / 路由对齐）
 - **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` / `MetricsService` + `sse-client.ts` + shared ECharts panels
@@ -197,6 +209,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Flag Key | 模块 | 前端路由 | 后端路径前缀 | prod fallback |
 | --- | --- | --- | --- | --- |
 | `module-agents` | Agent | `/agents` | `/api/agents` | `true` |
+| `module-pipelines` | Pipeline（工作流） | `/pipelines` | `/api/pipelines` | `true` |
 | `module-vision` | Image Analysis | `/vision` | `/api/vision` | `false` |
 | `module-audio-asr` | ASR | `/asr` | `/ws/audio` | `false` |
 | `module-mcp` | MCP | `/mcp` | `/api/mcp` | `false` |

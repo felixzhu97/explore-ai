@@ -8,7 +8,7 @@ title 容器图 (C2) - AI Platform Backend (12 子域)
 ' ============================================================
 ' PEOPLE
 ' ============================================================
-Person(user, "用户", "对话、文档、Agent 流水线、工具、图像分析、语音")
+Person(user, "用户", "对话、文档、Agent / 工作流、工具、图像分析、语音")
 Person(admin, "管理员/开发者", "评估、文本分析、AI 指标看板、功能开关")
 
 ' ============================================================
@@ -34,18 +34,26 @@ Container_Boundary(chat_domain, "Chat Domain") {
 }
 
 ' ============================================================
-' DOMAIN 2: AGENT [flag-guarded]
+' DOMAIN 2: PIPELINE [flag-guarded]
 ' ============================================================
-Container_Boundary(agent_domain, "Pipeline Domain") {
-    Container(agent_controller, "PipelineController", "@RestController", "/api/pipelines/* (list, invoke/sse)")
+Container_Boundary(pipeline_domain, "Pipeline Domain") {
+    Container(pipeline_controller, "PipelineController", "@RestController", "/api/pipelines/* (list, invoke/sse)")
     Container(workflow_template_controller, "WorkflowTemplateController", "@RestController", "/api/pipelines/templates catalog + library CRUD")
-    Container(agent_facade, "PipelineFacade", "Application Service", "Worker / Supervisor / Pipeline 门面")
+    Container(pipeline_facade, "PipelineFacade", "Application Service", "Worker / Supervisor / Pipeline 门面")
     Container(workflow_template_usecase, "WorkflowTemplateUseCase", "Use Case", "内置模版 + 用户库")
     Container(workflow_template_repo, "JdbcWorkflowTemplateRepository", "@Repository", "workflow_templates 表")
     Container(orch_usecase, "OrchestratorWorkersUseCase", "Use Case", "编排 Worker 流水线")
     Container(agent_registry, "InMemoryAgentRegistry", "@Component", "Agent 注册表")
     Container(supervisor_router, "SpringAiSupervisorRouter", "@Component", "Supervisor 路由")
     Container(worker_invoker, "SpringAiWorkerAgentInvoker", "@Component", "Worker 调用 + DSML 过滤")
+}
+
+' ============================================================
+' DOMAIN 2b: DEEP AGENT [flag-guarded]
+' ============================================================
+Container_Boundary(deep_agent_domain, "Deep Agent Domain") {
+    Container(agent_controller, "AgentController", "@RestController", "/api/agents/* (sessions, invoke/sse, health)")
+    Container(deep_agent_usecase, "DeepAgentUseCase", "Use Case", "plan / replan / memory SSE")
 }
 
 Container_Boundary(skill_domain, "Skill Domain") {
@@ -195,7 +203,8 @@ Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, text_controller, "流式对话", "SSE")
-Rel(angular_app, agent_controller, "工作流画布 [flag]", "SSE")
+Rel(angular_app, agent_controller, "Agent 会话 [flag]", "SSE")
+Rel(angular_app, pipeline_controller, "工作流画布 [flag]", "SSE")
 Rel(angular_app, workflow_template_controller, "工作流模版 [flag]", "HTTP")
 Rel(angular_app, skill_controller, "Skills CRUD [flag]", "HTTP")
 Rel(angular_app, rag_controller, "RAG", "HTTP/SSE")
@@ -222,14 +231,22 @@ Rel(jdbc_chat_memory, h2_db, "JDBC")
 Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
 Rel(chat_usecase, prompt_templates, "defaultSystem")
 
-Rel(agent_controller, agent_facade, "调用")
-Rel(agent_facade, orch_usecase, "编排")
-Rel(agent_facade, agent_registry, "注册表")
+Rel(pipeline_controller, pipeline_facade, "调用")
+Rel(workflow_template_controller, workflow_template_usecase, "调用")
+Rel(workflow_template_usecase, workflow_template_repo, "持久化")
+Rel(workflow_template_repo, h2_db, "JDBC")
+Rel(pipeline_facade, orch_usecase, "编排")
+Rel(pipeline_facade, agent_registry, "注册表")
 Rel(orch_usecase, supervisor_router, "路由")
 Rel(orch_usecase, worker_invoker, "Worker")
 Rel(agent_registry, prompt_templates, "Agent system prompts")
 Rel(worker_invoker, deepseek_api, "LLM", "HTTPS")
 Rel(supervisor_router, deepseek_api, "LLM", "HTTPS")
+
+Rel(agent_controller, deep_agent_usecase, "调用")
+Rel(deep_agent_usecase, deepseek_api, "LLM", "HTTPS")
+Rel(deep_agent_usecase, jdbc_chat_memory, "会话记忆")
+Rel(deep_agent_usecase, prompt_templates, "Agent prompts")
 
 Rel(rag_controller, rag_app_svc, "调用")
 Rel(rag_app_svc, doc_upload_svc, "上传/删除")

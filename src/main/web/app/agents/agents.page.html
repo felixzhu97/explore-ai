@@ -1,0 +1,77 @@
+<div class="flex min-h-0 flex-1 overflow-hidden">
+  <aside class="flex w-56 shrink-0 flex-col border-r border-black/8 bg-white">
+    <div class="flex items-center justify-between gap-2 px-3 py-3">
+      <h1 class="text-sm font-medium text-text-primary">{{ i18n.t().agents.title }}</h1>
+      <button
+        type="button"
+        class="rounded-md px-2 py-1 text-xs text-text-secondary hover:bg-black/4"
+        (click)="newSession()"
+      >
+        {{ i18n.t().agents.newSession }}
+      </button>
+    </div>
+    <ul class="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+      @for (session of sessions(); track session.id) {
+        <li>
+          <button
+            type="button"
+            class="mb-1 flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-xs hover:bg-black/4"
+            [class.bg-black/6]="session.id === activeSessionId()"
+            (click)="selectSession(session.id)"
+          >
+            <span class="truncate text-text-primary">{{ session.title }}</span>
+            <span
+              class="ml-2 shrink-0 text-[10px] text-text-secondary hover:text-text-primary"
+              (click)="deleteSession($event, session.id)"
+              >{{ i18n.t().agents.deleteSession }}</span
+            >
+          </button>
+        </li>
+      } @empty {
+        <li class="px-2 py-4 text-xs text-text-secondary">{{ i18n.t().agents.emptySessions }}</li>
+      }
+    </ul>
+  </aside>
+
+  <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-surface">
+    @if (trace().length > 0) {
+      <div class="border-b border-black/8 bg-white px-4 py-2">
+        <p class="mb-1 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
+          {{ i18n.t().agents.traceTitle }}
+        </p>
+        <ul class="flex flex-wrap gap-2">
+          @for (item of trace(); track $index) {
+            <li class="rounded-full bg-black/4 px-2 py-0.5 text-[11px] text-text-secondary">
+              {{ item }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <app-chat-message-pane
+      class="min-h-0 flex-1"
+      [messages]="messages()"
+      [streamingMessageId]="streamingMessageId()"
+      [thinkingLabel]="i18n.t().agents.thinking"
+      [welcomeTitle]="i18n.t().agents.welcomeTitle"
+      [welcomeDescription]="i18n.t().agents.welcomeDescription"
+      
+      [prompts]="[]"
+      [promptsTitle]="''"
+    />
+
+    @if (error(); as err) {
+      <z-alert class="mx-4 mb-2" zType="destructive" [zDescription]="err" />
+    }
+
+    <div class="border-t border-black/8 bg-white px-4 py-3">
+      <app-chat-sender-bar
+        [placeholder]="i18n.t().agents.inputPlaceholder"
+        [(value)]="input"
+        [loading]="loading()"
+        (submitSend)="send()"
+      />
+    </div>
+  </div>
+</div>
