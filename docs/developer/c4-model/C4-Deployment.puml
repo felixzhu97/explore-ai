@@ -38,8 +38,8 @@ Deployment_Node(developer_workstation, "Developer Workstation", "localhost") {
 ' ============================================================
 ' EXTERNAL CLOUD SERVICES
 ' ============================================================
-Deployment_Node(deepseek_node, "DeepSeek API", "HTTPS") {
-    Container_Ext(deepseek_api, "DeepSeek API", "REST API", "deepseek-v4-flash LLM", "HTTPS")
+Deployment_Node(bailian_node, "Alibaba Bailian", "HTTPS") {
+    Container_Ext(bailian_api, "Alibaba Bailian", "REST API", "qwen-plus LLM (OpenAI-compatible)", "HTTPS")
 }
 
 Deployment_Node(openai_node, "OpenAI API", "HTTPS") {
@@ -69,7 +69,7 @@ Rel(angular_dev, datadog_rum, "RUM (可选)", "HTTPS")
 Rel(backend, h2_embedded, "JDBC (默认)", "内嵌")
 Rel(backend, vision_models, "加载 ONNX/tessdata", "文件 I/O")
 
-Rel(backend, deepseek_api, "LLM Chat + Eval", "HTTPS")
+Rel(backend, bailian_api, "LLM Chat + Eval", "HTTPS")
 Rel(backend, ollama_svc, "Embedding + 多模态 RAG", "HTTP :11434")
 Rel(backend, tesseract, "OCR (/api/vision/ocr)", "JNA")
 Rel(backend, whisper_cpp, "Streaming ASR", "HTTP/WS :8178")

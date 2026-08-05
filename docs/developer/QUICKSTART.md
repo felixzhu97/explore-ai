@@ -64,25 +64,24 @@ pnpm list --depth 0
 cp .env.example .env
 ```
 
-### Step 2: Configure DeepSeek API Key | 步骤 2: 配置 DeepSeek API Key
+### Step 2: Configure Alibaba Bailian (Qwen) | 步骤 2: 配置阿里云百炼
 
-Edit the `.env` file in ``:
+Both variables are **required** (no application defaults for the base URL):
 
 ```bash
 # .env
 
-# DeepSeek API Configuration
-DEEPSEEK_API_KEY=your-deepseek-api-key-here
-DEEPSEEK_BASE_URL=https://api.deepseek.com
+# Alibaba Bailian / DashScope (OpenAI-compatible)
+DASHSCOPE_API_KEY=your-dashscope-api-key-here
+DASHSCOPE_BASE_URL=https://your-workspace.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
 ```
 
-#### How to Get DeepSeek API Key | 如何获取 DeepSeek API Key
+#### How to Get Bailian credentials | 如何获取百炼凭证
 
-1. Visit [platform.deepseek.com](https://platform.deepseek.com)
-2. Register or log in to your account
-3. Go to **API Keys** section
-4. Click **Create API Key**
-5. Copy and paste the key into `.env`
+1. Open [Alibaba Cloud Model Studio (百炼)](https://bailian.console.aliyun.com/)
+2. Create or select a workspace, then create an **API Key**
+3. Copy the **OpenAI-compatible** endpoint for that workspace into `DASHSCOPE_BASE_URL`
+4. Paste the key into `DASHSCOPE_API_KEY`
 
 > **Important | 重要**: Never commit your `.env` file to version control. It is already in `.gitignore`.
 
@@ -232,7 +231,7 @@ curl http://localhost:9000/actuator/health
 cat .env
 
 # 2. Verify API key format (should start with sk-)
-grep DEEPSEEK_API_KEY .env
+grep DASHSCOPE_API_KEY .env
 
 # 3. Restart backend after configuring
 ./gradlew bootRun
@@ -300,8 +299,8 @@ java --version  # Must be 25+
 
 | Variable            | Default                                              | Description                           |
 | ------------------- | ---------------------------------------------------- | ------------------------------------- |
-| `DEEPSEEK_API_KEY`  | -                                                    | Your DeepSeek API key (required)      |
-| `DEEPSEEK_BASE_URL` | [https://api.deepseek.com](https://api.deepseek.com) | DeepSeek API endpoint                 |
+| `DASHSCOPE_API_KEY` | -                                                    | Alibaba Bailian API key (required)    |
+| `DASHSCOPE_BASE_URL` | -                                                   | Bailian OpenAI-compatible URL (required, no default) |
 | `OLLAMA_EMBEDDING_MODEL` | `qwen3-embedding:0.6b`                          | Local RAG embedding (1024-d via Ollama) |
 | `IMAGE_PROVIDER`    | `ollama`                                             | Image provider: `ollama` or `openai`  |
 | `IMAGE_MODEL`       | `x/flux2-klein`                                      | Ollama/OpenAI image model name        |
@@ -325,7 +324,7 @@ After changing the embedding model, **re-upload / re-ingest documents** — exis
 
 ### Image Generation (Free Ollama) | 图像生成（免费 Ollama）
 
-Chat uses DeepSeek; image generation uses a **separate provider** (default: local Ollama, zero API cost).
+Chat uses Qwen on Alibaba Bailian; image generation uses a **separate provider** (default: local Ollama, zero API cost).
 
 ```bash
 # 1. Pull an image model (requires GPU on Apple Silicon or NVIDIA)
@@ -363,7 +362,7 @@ Live Chat/RAG quality regression (flag-gated IT): see [golden-eval.md](./golden-
 │  1. Install:     pnpm install                               │
 │                                                              │
 │  2. Configure:   .env                           │
-│                   └─ DEEPSEEK_API_KEY=sk-xxx               │
+│                   └─ DASHSCOPE_API_KEY / DASHSCOPE_BASE_URL │
 │                                                              │
 │  3. Start:       ./gradlew bootRun  +  pnpm start           │
 │                   └─ Backend:  http://localhost:9000        │

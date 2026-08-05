@@ -71,7 +71,7 @@ curl -N -X POST "${BASE_URL}/api/text/chat/stream" \
   -d '{
     "messages": [{"role": "user", "content": "Hello"}],
     "provider": "openai",
-    "model": "deepseek-v4-flash",
+    "model": "qwen-plus",
     "sessionId": "optional-session-id",
     "toolsEnabled": true
   }'

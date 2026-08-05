@@ -49,27 +49,27 @@ class TextControllerTest {
     @Test
     void should_return_providers_when_listProviders_called() {
         when(providerCatalog.listProviders()).thenReturn(List.of(
-                new ProviderInfoResponse("openai", "DeepSeek", List.of("deepseek-v4-flash"), "available")
+                new ProviderInfoResponse("openai", "Qwen (Bailian)", List.of("qwen-plus"), "available")
         ));
 
         var providers = controller.listProviders();
 
         assertThat(providers).hasSize(1);
         assertThat(providers.getFirst().name()).isEqualTo("openai");
-        assertThat(providers.getFirst().displayName()).isEqualTo("DeepSeek");
+        assertThat(providers.getFirst().displayName()).isEqualTo("Qwen (Bailian)");
     }
 
     @Test
     void should_return_models_when_listModels_called() {
         when(providerCatalog.listModels("openai")).thenReturn(List.of(
-                new ModelInfoResponse("deepseek-v4-flash", "openai", "DeepSeek chat model")
+                new ModelInfoResponse("qwen-plus", "openai", "Qwen chat model")
         ));
 
         var response = controller.listModels("openai");
 
         assertThat(response.provider()).isEqualTo("openai");
         assertThat(response.count()).isEqualTo(1);
-        assertThat(response.models().getFirst().name()).isEqualTo("deepseek-v4-flash");
+        assertThat(response.models().getFirst().name()).isEqualTo("qwen-plus");
     }
 
     @Test
@@ -77,7 +77,7 @@ class TextControllerTest {
         when(chatUseCase.chatStreamWithSession(
                 "session-1",
                 "Hello",
-                TextChatOptions.of("openai", "deepseek-v4-flash", false),
+                TextChatOptions.of("openai", "qwen-plus", false),
                 CLIENT_ID))
                 .thenReturn(Flux.just("Hi", " there"));
 
@@ -85,7 +85,7 @@ class TextControllerTest {
                 List.of(new ChatStreamRequest.ChatMessageDto("user", "Hello")),
                 "session-1",
                 "openai",
-                "deepseek-v4-flash",
+                "qwen-plus",
                 false
         ), httpRequest);
 
@@ -95,7 +95,7 @@ class TextControllerTest {
         verify(chatUseCase).chatStreamWithSession(
                 "session-1",
                 "Hello",
-                TextChatOptions.of("openai", "deepseek-v4-flash", false),
+                TextChatOptions.of("openai", "qwen-plus", false),
                 CLIENT_ID);
     }
 

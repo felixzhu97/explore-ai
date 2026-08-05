@@ -162,7 +162,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
 ' EXTERNAL SYSTEMS
 ' ============================================================
 System_Boundary(ext, "External Systems") {
-    Component(deepseek_api, "DeepSeek API", "REST", "LLM")
+    Component(bailian_api, "Alibaba Bailian", "REST", "Qwen LLM")
     Component(openai_api, "OpenAI API", "REST", "DALL-E + TTS")
     Component(h2_db, "H2 Embedded", "JDBC", "默认存储 + 向量 + AI 调用事件")
     Component(ollama_ext, "Ollama [local]", "REST", ":11434")
@@ -262,11 +262,11 @@ Rel(agent_prompts, prompt_resources, "agent/*.st via catalog")
 Rel(rag_prompt_builder, prompt_resources, "rag/user-*.st")
 
 Rel(chat_usecase, jdbc_chat_memory, "消息记忆")
-Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
-Rel(worker_invoker, deepseek_api, "LLM", "HTTPS")
-Rel(supervisor_router, deepseek_api, "LLM", "HTTPS")
-Rel(eval_svc, deepseek_api, "评估", "HTTPS")
-Rel(analysis_repo, deepseek_api, "结构化", "HTTPS")
+Rel(chat_usecase, bailian_api, "LLM", "HTTPS")
+Rel(worker_invoker, bailian_api, "LLM", "HTTPS")
+Rel(supervisor_router, bailian_api, "LLM", "HTTPS")
+Rel(eval_svc, bailian_api, "评估", "HTTPS")
+Rel(analysis_repo, bailian_api, "结构化", "HTTPS")
 Rel(doc_search_svc, h2_vector, "检索")
 Rel(rag_chat_uc, h2_spring_vs, "VectorStoreDocumentRetriever")
 Rel(h2_spring_vs, h2_vector, "search")

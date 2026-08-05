@@ -166,7 +166,7 @@ Container_Boundary(crosscut, "Cross-Cutting") {
 ' EXTERNAL SYSTEMS
 ' ============================================================
 ContainerDb(h2_db, "H2 Embedded", "H2 + Liquibase", "会话 + ChatMemory + 向量 + AI 调用事件 (默认)", "内嵌")
-Container_Ext(deepseek_api, "DeepSeek API", "REST API", "LLM 对话", "HTTPS")
+Container_Ext(bailian_api, "Alibaba Bailian", "REST API", "LLM 对话 (Qwen)", "HTTPS")
 Container_Ext(openai_api, "OpenAI API", "REST API", "DALL-E + TTS", "HTTPS")
 Container_Ext(ollama_svc, "Ollama [local]", "REST API", "Embedding + qwen3.5 多模态 RAG", "11434")
 Container_Ext(tesseract_svc, "Tesseract OCR [local]", "Native Library", "eng + chi_sim tessdata", "系统安装")
@@ -202,7 +202,7 @@ Rel(chat_usecase, jdbc_sess_repo, "会话元数据")
 Rel(chat_usecase, jdbc_chat_memory, "消息记忆")
 Rel(jdbc_sess_repo, h2_db, "JDBC")
 Rel(jdbc_chat_memory, h2_db, "JDBC")
-Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
+Rel(chat_usecase, bailian_api, "LLM", "HTTPS")
 Rel(chat_usecase, prompt_templates, "defaultSystem")
 
 Rel(agent_controller, agent_facade, "调用")
@@ -211,8 +211,8 @@ Rel(agent_facade, agent_registry, "注册表")
 Rel(orch_usecase, supervisor_router, "路由")
 Rel(orch_usecase, worker_invoker, "Worker")
 Rel(agent_registry, prompt_templates, "Agent system prompts")
-Rel(worker_invoker, deepseek_api, "LLM", "HTTPS")
-Rel(supervisor_router, deepseek_api, "LLM", "HTTPS")
+Rel(worker_invoker, bailian_api, "LLM", "HTTPS")
+Rel(supervisor_router, bailian_api, "LLM", "HTTPS")
 
 Rel(rag_controller, rag_app_svc, "调用")
 Rel(rag_app_svc, doc_upload_svc, "上传/删除")
@@ -252,10 +252,10 @@ Rel(tool_facade, web_search_tool, "Web 搜索")
 Rel(web_search_tool, serper_api, "搜索", "HTTPS")
 
 Rel(analysis_controller, analysis_facade, "调用")
-Rel(analysis_facade, deepseek_api, "结构化输出", "HTTPS")
+Rel(analysis_facade, bailian_api, "结构化输出", "HTTPS")
 
 Rel(eval_controller, eval_svc, "调用")
-Rel(eval_svc, deepseek_api, "LLM 评估", "HTTPS")
+Rel(eval_svc, bailian_api, "LLM 评估", "HTTPS")
 
 Rel(image_controller, image_facade, "调用")
 Rel(image_facade, image_repo, "生成")

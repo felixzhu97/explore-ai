@@ -148,7 +148,7 @@ class ToolCallLoopGuardAdvisorTest {
 
     private static ChatClientRequest requestWithHistory(List<Message> history) {
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model("deepseek-v4-flash")
+                .model("qwen-plus")
                 .toolChoice("auto")
                 .build();
         return ChatClientRequest.builder()

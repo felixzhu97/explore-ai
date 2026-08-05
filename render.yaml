@@ -13,10 +13,10 @@ services:
         value: prod
       - key: JAVA_TOOL_OPTIONS
         value: "-XX:MaxRAMPercentage=60.0"
-      - key: DEEPSEEK_API_KEY
+      - key: DASHSCOPE_API_KEY
         sync: false
-      - key: DEEPSEEK_BASE_URL
-        value: https://api.deepseek.com
+      - key: DASHSCOPE_BASE_URL
+        sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: SERPER_API_KEY

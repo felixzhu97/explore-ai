@@ -5,8 +5,8 @@ const TEST_SESSION_ID = 'e2e-session-001';
 const PROVIDERS = [
   {
     name: 'openai',
-    displayName: 'DeepSeek',
-    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+    displayName: 'Qwen (Bailian)',
+    models: ['qwen-plus', 'qwen-turbo', 'qwen-max'],
     status: 'available',
   },
 ];
@@ -14,10 +14,11 @@ const PROVIDERS = [
 const MODELS = {
   provider: 'openai',
   models: [
-    { name: 'deepseek-v4-flash', provider: 'openai' },
-    { name: 'deepseek-v4-pro', provider: 'openai' },
+    { name: 'qwen-plus', provider: 'openai' },
+    { name: 'qwen-turbo', provider: 'openai' },
+    { name: 'qwen-max', provider: 'openai' },
   ],
-  count: 2,
+  count: 3,
 };
 
 const RAG_DOCUMENTS = {

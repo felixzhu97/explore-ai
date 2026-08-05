@@ -103,7 +103,7 @@ class ToolCallLoopGuardTest {
         @Test
         void should_setToolChoiceNoneAndClearCallbacks_when_openAiOptions() {
             OpenAiChatOptions original = OpenAiChatOptions.builder()
-                    .model("deepseek-v4-flash")
+                    .model("qwen-plus")
                     .toolChoice("auto")
                     .build();
 
@@ -113,7 +113,7 @@ class ToolCallLoopGuardTest {
             OpenAiChatOptions openAi = (OpenAiChatOptions) disabled;
             assertThat(openAi.getToolChoice()).isEqualTo("none");
             assertThat(openAi.getToolCallbacks()).isNullOrEmpty();
-            assertThat(openAi.getModel()).isEqualTo("deepseek-v4-flash");
+            assertThat(openAi.getModel()).isEqualTo("qwen-plus");
         }
 
         @Test
@@ -211,7 +211,7 @@ class ToolCallLoopGuardTest {
         @Test
         void should_disableTools_when_terminalToolPresent() {
             OpenAiChatOptions options = OpenAiChatOptions.builder()
-                    .model("deepseek-v4-flash")
+                    .model("qwen-plus")
                     .toolChoice("auto")
                     .build();
             var request = org.springframework.ai.chat.client.ChatClientRequest.builder()

@@ -28,7 +28,7 @@ System_Ext(datadog, "Datadog (us5)", "RUM (浏览器)；APM 可选（Render Free
 ' ============================================================
 ' CLOUD AI SERVICES (prod + dev)
 ' ============================================================
-System_Ext(deepseek_api, "DeepSeek API", "LLM 对话 (deepseek-v4-flash)")
+System_Ext(bailian_api, "Alibaba Bailian", "LLM 对话 (qwen-plus, OpenAI-compatible)")
 System_Ext(openai_api, "OpenAI API", "DALL-E 图像生成 + TTS 语音合成")
 System_Ext(serper_api, "Serper.dev API", "Web 搜索，实时信息检索")
 
@@ -54,7 +54,7 @@ Rel(frontend, datadog, "RUM 遥测", "HTTPS us5")
 Rel(backend, launchdarkly, "读取模块开关 + 启动引导", "HTTPS")
 Rel(backend, datadog, "APM（可选 javaagent）", "HTTPS us5")
 
-Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
+Rel(backend, bailian_api, "LLM 调用", "HTTPS")
 Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")
 Rel(backend, serper_api, "Web 搜索", "HTTPS")
 Rel(backend, h2_db, "会话元数据 + ChatMemory + 向量 + AI 调用事件", "JDBC 内嵌")

@@ -27,8 +27,8 @@ describe('ChatService http flows', () => {
     httpMock.expectOne(`${API_BASE_URL}/text/providers`).flush([
       {
         name: 'openai',
-        displayName: 'DeepSeek',
-        models: ['deepseek-v4-flash'],
+        displayName: 'Qwen (Bailian)',
+        models: ['qwen-plus'],
         status: 'available',
       },
     ]);
@@ -38,20 +38,20 @@ describe('ChatService http flows', () => {
       )
       .flush({
         provider: 'openai',
-        models: [{ name: 'deepseek-v4-flash', provider: 'openai' }],
+        models: [{ name: 'qwen-plus', provider: 'openai' }],
         count: 1,
       });
 
     expect(service.providers()).toHaveLength(1);
     expect(service.selectedProvider()).toBe('openai');
-    expect(service.models()[0].name).toBe('deepseek-v4-flash');
+    expect(service.models()[0].name).toBe('qwen-plus');
   });
 
   it('should_fallback_providers_when_api_fails', () => {
     service.loadProviders();
     httpMock.expectOne(`${API_BASE_URL}/text/providers`).error(new ProgressEvent('error'));
     expect(service.providers()[0].name).toBe('openai');
-    expect(service.selectedModel()).toBe('deepseek-v4-flash');
+    expect(service.selectedModel()).toBe('qwen-plus');
   });
 
   it('should_set_error_when_provider_unavailable', () => {
@@ -68,9 +68,9 @@ describe('ChatService http flows', () => {
   });
 
   it('should_set_model_and_tools_flags', () => {
-    service.setModel('deepseek-v4-pro');
+    service.setModel('qwen-max');
     service.setToolsEnabled(false);
-    expect(service.selectedModel()).toBe('deepseek-v4-pro');
+    expect(service.selectedModel()).toBe('qwen-max');
     expect(service.toolsEnabled()).toBe(false);
   });
 
@@ -143,7 +143,7 @@ describe('ChatService http flows', () => {
     service.providers.set([
       {
         name: 'openai',
-        displayName: 'DeepSeek',
+        displayName: 'Qwen (Bailian)',
         models: [],
         status: 'unavailable',
       },

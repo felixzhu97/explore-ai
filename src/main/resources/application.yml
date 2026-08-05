@@ -38,10 +38,10 @@ spring:
         model: ${OLLAMA_EMBEDDING_MODEL:qwen3-embedding:0.6b}
         dimensions: 1024
     openai:
-      api-key: ${DEEPSEEK_API_KEY}
-      base-url: ${DEEPSEEK_BASE_URL}
+      api-key: ${DASHSCOPE_API_KEY}
+      base-url: ${DASHSCOPE_BASE_URL}
       chat:
-        model: deepseek-v4-flash
+        model: qwen-plus
       image:
         model: dall-e-3
         quality: standard

@@ -48,7 +48,7 @@ export class ChatService {
   readonly providers = signal<ProviderInfo[]>([]);
   readonly models = signal<ModelInfo[]>([]);
   readonly selectedProvider = signal('openai');
-  readonly selectedModel = signal('deepseek-v4-flash');
+  readonly selectedModel = signal('qwen-plus');
   readonly isLoadingModels = signal(false);
 
   readonly sessions = signal<SessionInfo[]>([]);
@@ -75,16 +75,17 @@ export class ChatService {
         this.providers.set([
           {
             name: 'openai',
-            displayName: 'DeepSeek',
-            models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+            displayName: 'Qwen (Bailian)',
+            models: ['qwen-plus', 'qwen-turbo', 'qwen-max'],
             status: 'available',
           },
         ]);
         this.selectedProvider.set('openai');
-        this.selectedModel.set('deepseek-v4-flash');
+        this.selectedModel.set('qwen-plus');
         this.models.set([
-          { name: 'deepseek-v4-flash', provider: 'openai' },
-          { name: 'deepseek-v4-pro', provider: 'openai' },
+          { name: 'qwen-plus', provider: 'openai' },
+          { name: 'qwen-turbo', provider: 'openai' },
+          { name: 'qwen-max', provider: 'openai' },
         ]);
       },
     });
@@ -97,13 +98,14 @@ export class ChatService {
         this.models.set(data);
         if (data.length > 0) {
           const defaultModel =
-            data.find(m => m.name.includes('mini') || m.name.includes('flash')) || data[0];
+            data.find(m => m.name.includes('plus') || m.name.includes('turbo') || m.name.includes('mini') || m.name.includes('flash'))
+            || data[0];
           this.selectedModel.set(defaultModel.name);
         }
       },
       error: () => {
-        this.models.set([{ name: 'deepseek-v4-flash', provider }]);
-        this.selectedModel.set('deepseek-v4-flash');
+        this.models.set([{ name: 'qwen-plus', provider }]);
+        this.selectedModel.set('qwen-plus');
       },
       complete: () => this.isLoadingModels.set(false),
     });

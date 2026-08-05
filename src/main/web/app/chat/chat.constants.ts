@@ -3,8 +3,8 @@ import type { ModelInfo, ProviderInfo } from './chat.model';
 export const DEFAULT_PROVIDERS: ProviderInfo[] = [
   {
     name: 'openai',
-    displayName: 'DeepSeek',
-    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+    displayName: 'Qwen (Bailian)',
+    models: ['qwen-plus', 'qwen-turbo', 'qwen-max'],
     status: 'available',
   },
   {
@@ -42,8 +42,9 @@ export const DEFAULT_PROVIDERS: ProviderInfo[] = [
 
 export const DEFAULT_MODELS: Record<string, ModelInfo[]> = {
   openai: [
-    { name: 'deepseek-v4-flash', provider: 'openai' },
-    { name: 'deepseek-v4-pro', provider: 'openai' },
+    { name: 'qwen-plus', provider: 'openai' },
+    { name: 'qwen-turbo', provider: 'openai' },
+    { name: 'qwen-max', provider: 'openai' },
   ],
   anthropic: [
     { name: 'claude-fable-5', provider: 'anthropic' },

@@ -30,7 +30,7 @@ public class ChatModelResolver {
             ObjectProvider<OllamaChatModel> ollamaChatModel,
             ObjectProvider<AnthropicChatModel> anthropicChatModel,
             TextProviderCatalog providerCatalog,
-            @Value("${spring.ai.openai.chat.model:deepseek-v4-flash}") String defaultOpenAiModel,
+            @Value("${spring.ai.openai.chat.model:qwen-plus}") String defaultOpenAiModel,
             @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}") String defaultOllamaModel,
             @Value("${spring.ai.anthropic.chat.options.model:claude-sonnet-5}") String defaultAnthropicModel) {
         this.defaultChatModel = defaultChatModel;

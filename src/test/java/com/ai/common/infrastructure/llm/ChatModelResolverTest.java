@@ -48,7 +48,7 @@ class ChatModelResolverTest {
                 ollamaChatModel,
                 anthropicChatModel,
                 providerCatalog,
-                "deepseek-v4-flash",
+                "qwen-plus",
                 "qwen3.5:35b",
                 "claude-sonnet-5");
     }
@@ -62,7 +62,7 @@ class ChatModelResolverTest {
 
         assertThat(resolved.provider()).isEqualTo("openai");
         assertThat(resolved.chatModel()).isSameAs(openAiChatModel);
-        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("qwen-plus");
     }
 
     @Test
@@ -102,9 +102,9 @@ class ChatModelResolverTest {
     void should_useRequestedModelForOpenAi() {
         when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
 
-        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-pro"));
+        ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "qwen-max"));
 
-        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-pro");
+        assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("qwen-max");
     }
 
     @Test

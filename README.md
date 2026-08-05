@@ -65,7 +65,8 @@ cd explore-ai
 
 ```bash
 cat > .env << EOF
-DEEPSEEK_API_KEY=your-deepseek-key
+DASHSCOPE_API_KEY=your-dashscope-api-key
+DASHSCOPE_BASE_URL=https://your-workspace.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
 OPENAI_API_KEY=your-openai-key      # optional
 SERPER_API_KEY=your-serper-key      # optional (web search)
 EOF
@@ -106,7 +107,8 @@ More detail: [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `DEEPSEEK_API_KEY` | Yes (default path) | Primary chat / eval models |
+| `DASHSCOPE_API_KEY` | Yes | Alibaba Bailian API key (Qwen chat) |
+| `DASHSCOPE_BASE_URL` | Yes | Bailian OpenAI-compatible endpoint (no app default) |
 | `OPENAI_API_KEY` | No | OpenAI-compatible features |
 | `SERPER_API_KEY` | No | Web search tool |
 | `H2_URL` | No | Override DB URL (default `./data/explore-ai`) |

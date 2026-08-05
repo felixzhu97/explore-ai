@@ -18,7 +18,7 @@ describe('Shared domain models', () => {
       messages: [{ role: 'user', content: 'Hello' }],
       sessionId: 'session-1',
       provider: 'openai',
-      model: 'deepseek-v4-flash',
+      model: 'qwen-plus',
       toolsEnabled: true,
     };
 
@@ -29,12 +29,12 @@ describe('Shared domain models', () => {
   it('should accept aligned provider info fields', () => {
     const provider: ProviderInfo = {
       name: 'openai',
-      displayName: 'DeepSeek',
-      models: ['deepseek-v4-flash'],
+      displayName: 'Qwen (Bailian)',
+      models: ['qwen-plus'],
       status: 'available',
     };
 
-    expect(provider.displayName).toBe('DeepSeek');
+    expect(provider.displayName).toBe('Qwen (Bailian)');
   });
 
   it('should accept aligned rag query fields', () => {

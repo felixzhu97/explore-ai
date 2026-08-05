@@ -88,7 +88,7 @@ export class PrivacyPage {
   readonly busy = signal(false);
 
   readonly processors = [
-    { name: 'DeepSeek', purpose: 'Large language model inference for chat' },
+    { name: 'Qwen (Bailian)', purpose: 'Large language model inference for chat' },
     { name: 'OpenAI', purpose: 'Optional image generation and text-to-speech' },
     { name: 'Serper', purpose: 'Web search tool results' },
     { name: 'LaunchDarkly', purpose: 'Feature flags (only with analytics consent)' },

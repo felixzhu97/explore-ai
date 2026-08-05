@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
         "spring.ai.openai.api-key=test-key",
-        "spring.ai.openai.base-url=https://api.deepseek.com",
+        "spring.ai.openai.base-url=https://example.test/compatible-mode/v1",
         "spring.datasource.url=jdbc:h2:mem:vision-it;DB_CLOSE_DELAY=-1",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.jpa.hibernate.ddl-auto=create-drop",

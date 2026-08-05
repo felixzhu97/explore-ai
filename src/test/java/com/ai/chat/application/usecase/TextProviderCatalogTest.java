@@ -15,19 +15,19 @@ class TextProviderCatalogTest {
         assertThat(providers).hasSize(3);
         assertThat(providers.getFirst().name()).isEqualTo("openai");
         assertThat(providers.getFirst().status()).isEqualTo("available");
-        assertThat(providers.getFirst().displayName()).isEqualTo("DeepSeek");
+        assertThat(providers.getFirst().displayName()).isEqualTo("Qwen (Bailian)");
     }
 
     @Test
-    void should_return_deepseek_models_for_openai_provider() {
+    void should_return_bailian_qwen_models_for_openai_provider() {
         var catalog = new TextProviderCatalog(false, "");
 
         var models = catalog.listModels("openai");
 
         assertThat(models).extracting(m -> m.name())
-                .containsExactly("deepseek-v4-flash", "deepseek-v4-pro");
+                .containsExactly("qwen-plus", "qwen-turbo", "qwen-max");
         assertThat(models.getFirst().provider()).isEqualTo("openai");
-        assertThat(models.getFirst().description()).isEqualTo("DeepSeek V4 Flash");
+        assertThat(models.getFirst().description()).isEqualTo("Qwen Plus");
     }
 
     @Test
@@ -88,6 +88,6 @@ class TextProviderCatalogTest {
         var models = catalog.listModels(null);
 
         assertThat(models.getFirst().provider()).isEqualTo("openai");
-        assertThat(models.getFirst().name()).isEqualTo("deepseek-v4-flash");
+        assertThat(models.getFirst().name()).isEqualTo("qwen-plus");
     }
 }

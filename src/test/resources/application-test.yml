@@ -13,7 +13,7 @@ spring:
   ai:
     openai:
       api-key: test-key
-      base-url: https://api.deepseek.com
+      base-url: https://example.test/compatible-mode/v1
 
 launchdarkly:
   enabled: false

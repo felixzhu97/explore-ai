@@ -62,7 +62,7 @@
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Free 默认关闭）
-- **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
+- **外部服务 (cloud)**: Alibaba Bailian Qwen (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
 - **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis
 
 ### Agent 子域
@@ -152,7 +152,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
                                               ↘ H2 ./data/explore-ai
                                               ↘ Ollama :11434 / whisper :8178 / Tesseract
-                                              ↘ DeepSeek / OpenAI / Serper
+                                              ↘ Bailian / OpenAI / Serper
 ```
 
 ### 生产 (cloud-minimal)
@@ -161,7 +161,7 @@ Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
 Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephemeral)
         ↘ Datadog RUM (us5, 可选)        ↘ 无 APM sidecar（Free 省内存，不启 javaagent）
         ↘ LaunchDarkly Client            ↘ LaunchDarkly Server
-                                         → DeepSeek / OpenAI / Serper
+                                         → Bailian / OpenAI / Serper
 ```
 
 **Prod frontend**: `https://www.felixzhu.chat` (Vercel)  
@@ -187,7 +187,7 @@ Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephem
 | Angular Dev Server | 4200 |
 | Vercel (prod frontend) | HTTPS |
 | Render explore-ai (prod backend) | HTTPS → :8080（Free：休眠 / 无持久盘） |
-| DeepSeek / OpenAI / Serper | HTTPS |
+| Bailian / OpenAI / Serper | HTTPS |
 | LaunchDarkly / Datadog us5 | HTTPS |
 
 ---
@@ -208,7 +208,7 @@ Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephem
 
 | 用途 | 模型 | 维度/说明 |
 | --- | --- | --- |
-| LLM Chat / Agent | deepseek-v4-flash | DeepSeek API |
+| LLM Chat / Agent | qwen-plus | Alibaba Bailian (OpenAI-compatible) |
 | Embedding | qwen3-embedding:0.6b | 1024 维 (Ollama, local Qwen3 Embedding) |
 | Vision Chat (RAG) | qwen3.5 | Ollama 多模态对话 (local) |
 | Caption | BLIP base ONNX | ONNX Runtime 本地 |

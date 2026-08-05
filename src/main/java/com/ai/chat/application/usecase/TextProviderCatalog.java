@@ -13,8 +13,9 @@ public class TextProviderCatalog {
 
     private static final Map<String, List<ModelInfoResponse>> MODELS_BY_PROVIDER = Map.of(
             "openai", List.of(
-                    new ModelInfoResponse("deepseek-v4-flash", "openai", "DeepSeek V4 Flash"),
-                    new ModelInfoResponse("deepseek-v4-pro", "openai", "DeepSeek V4 Pro")
+                    new ModelInfoResponse("qwen-plus", "openai", "Qwen Plus"),
+                    new ModelInfoResponse("qwen-turbo", "openai", "Qwen Turbo"),
+                    new ModelInfoResponse("qwen-max", "openai", "Qwen Max")
             ),
             "anthropic", List.of(
                     new ModelInfoResponse("claude-fable-5", "anthropic", "Claude Fable 5"),
@@ -65,7 +66,7 @@ public class TextProviderCatalog {
         return List.of(
                 new ProviderInfoResponse(
                         "openai",
-                        "DeepSeek",
+                        "Qwen (Bailian)",
                         modelNames("openai"),
                         "available"
                 ),

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * DeepSeek (and many OpenAI-compatible providers) reject native {@code response_format}.
+ * Many OpenAI-compatible providers (including Bailian) reject native {@code response_format}.
  * Route via prompt JSON + {@link BeanOutputConverter} instead of {@code .entity()}.
  */
 @Component
