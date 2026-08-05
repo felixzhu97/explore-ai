@@ -19,6 +19,7 @@
   <include file="changelogs/2.3-chat-session-client-id.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/3.0-ai-invocation-events.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.0-skills.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/4.1-workflow-templates.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 
 

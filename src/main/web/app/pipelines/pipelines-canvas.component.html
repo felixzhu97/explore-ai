@@ -37,6 +37,13 @@
       <button
         type="button"
         class="rounded-md px-2.5 py-1.5 text-xs text-text-secondary hover:bg-black/4"
+        (click)="startCreate()"
+      >
+        {{ i18n.t().pipelines.pipeline.templates.newTemplate }}
+      </button>
+      <button
+        type="button"
+        class="rounded-md px-2.5 py-1.5 text-xs text-text-secondary hover:bg-black/4"
         (click)="clearCanvas()"
       >
         {{ i18n.t().pipelines.pipeline.clear }}
@@ -51,19 +58,105 @@
     </div>
   </div>
 
+  @if (showForm()) {
+    <div class="shrink-0 border-b border-black/8 bg-white px-3 py-3">
+      <p class="mb-2 text-xs font-medium text-text">
+        {{
+          editingId()
+            ? i18n.t().pipelines.pipeline.templates.editTitle
+            : i18n.t().pipelines.pipeline.templates.createTitle
+        }}
+      </p>
+      <div class="grid gap-2 sm:grid-cols-2">
+        <label class="flex flex-col gap-1 text-xs text-text-secondary">
+          {{ i18n.t().pipelines.pipeline.templates.name }}
+          <input
+            class="rounded-md border border-black/10 bg-surface px-2 py-1.5 text-sm text-text"
+            [ngModel]="formName()"
+            (ngModelChange)="formName.set($event)"
+          />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-text-secondary">
+          {{ i18n.t().pipelines.pipeline.templates.shortTopic }}
+          <input
+            class="rounded-md border border-black/10 bg-surface px-2 py-1.5 text-sm text-text"
+            [ngModel]="formShortTopic()"
+            (ngModelChange)="formShortTopic.set($event)"
+          />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-text-secondary sm:col-span-2">
+          {{ i18n.t().pipelines.pipeline.templates.description }}
+          <input
+            class="rounded-md border border-black/10 bg-surface px-2 py-1.5 text-sm text-text"
+            [ngModel]="formDescription()"
+            (ngModelChange)="formDescription.set($event)"
+          />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-text-secondary sm:col-span-2">
+          {{ i18n.t().pipelines.pipeline.templates.agentTypes }}
+          <input
+            class="rounded-md border border-black/10 bg-surface px-2 py-1.5 font-mono text-sm text-text"
+            [ngModel]="formAgentTypes()"
+            (ngModelChange)="formAgentTypes.set($event)"
+            placeholder="research, vectordb, analyst"
+          />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-text-secondary sm:col-span-2">
+          {{ i18n.t().pipelines.pipeline.templates.briefPrompt }}
+          <textarea
+            rows="4"
+            class="rounded-md border border-black/10 bg-surface px-2 py-1.5 text-sm text-text"
+            [ngModel]="formBriefPrompt()"
+            (ngModelChange)="formBriefPrompt.set($event)"
+          ></textarea>
+        </label>
+      </div>
+      <div class="mt-2 flex gap-2">
+        <button
+          type="button"
+          class="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+          [disabled]="saving()"
+          (click)="saveForm()"
+        >
+          {{
+            saving()
+              ? i18n.t().pipelines.pipeline.templates.saving
+              : i18n.t().pipelines.pipeline.templates.save
+          }}
+        </button>
+        <button
+          type="button"
+          class="rounded-md px-3 py-1.5 text-xs text-text-secondary hover:bg-black/4"
+          (click)="cancelForm()"
+        >
+          {{ i18n.t().pipelines.pipeline.templates.cancel }}
+        </button>
+      </div>
+    </div>
+  }
+
   @if (!isEmpty()) {
     <div class="shrink-0 border-b border-black/8 bg-white px-3 py-2">
       <p class="mb-2 text-xs font-medium text-text-secondary">
         {{ i18n.t().pipelines.pipeline.templates.title }}
       </p>
       <div class="flex flex-wrap gap-2">
-        @for (template of templates; track template.id) {
+        @for (template of builtinTemplates(); track template.id) {
           <button
             type="button"
             class="rounded-md border border-black/10 bg-surface px-2.5 py-1.5 text-left text-xs hover:bg-black/4"
-            (click)="applyTemplate(template.id)"
+            (click)="applyBuiltin(template)"
           >
-            <span class="font-medium text-text">{{ templateLabel(template.id).name }}</span>
+            <span class="font-medium text-text">{{ template.name }}</span>
+          </button>
+        }
+        @for (template of enabledLibrary(); track template.id) {
+          <button
+            type="button"
+            class="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-left text-xs hover:bg-emerald-100"
+            (click)="applySaved(template)"
+          >
+            <span class="font-medium text-text">{{ template.name }}</span>
           </button>
         }
       </div>
@@ -85,36 +178,139 @@
     (cdkDropListDropped)="onCanvasDrop($event)"
   >
     @if (isEmpty()) {
-      <div class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-6">
-        <div class="pointer-events-auto w-full max-w-3xl">
+      <div class="absolute inset-0 z-10 overflow-y-auto p-6">
+        <div class="mx-auto w-full max-w-4xl">
           <p class="mb-1 text-center text-sm font-medium text-text">
             {{ i18n.t().pipelines.pipeline.emptyState.title }}
           </p>
-          <p class="mb-4 text-center text-xs text-text-secondary">
+          <p class="mb-6 text-center text-xs text-text-secondary">
             {{ i18n.t().pipelines.pipeline.emptyState.description }}
           </p>
-          <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            @for (template of templates; track template.id) {
-              <button
-                type="button"
-                class="flex flex-col gap-1 rounded-xl border border-black/10 bg-white p-3 text-left shadow-sm transition hover:border-black/25 hover:shadow"
-                (click)="applyTemplate(template.id)"
-              >
-                <div class="text-sm font-medium text-text">
-                  {{ templateLabel(template.id).name }}
+
+          <section class="mb-8">
+            <div class="mb-2 flex flex-wrap items-end justify-between gap-2">
+              <h2 class="text-sm font-semibold text-text">
+                {{ i18n.t().pipelines.pipeline.templates.title }}
+              </h2>
+              <p class="text-xs text-text-secondary">
+                {{ i18n.t().pipelines.pipeline.templates.templatesHint }}
+              </p>
+            </div>
+            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              @for (template of builtinTemplates(); track template.id) {
+                <div
+                  class="flex flex-col gap-2 rounded-xl border border-black/10 bg-white p-3 shadow-sm"
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="text-sm font-medium text-text">{{ template.name }}</div>
+                    @if (isInLibrary(template)) {
+                      <span class="text-[11px] text-text-secondary">
+                        {{ i18n.t().pipelines.pipeline.templates.inLibrary }}
+                      </span>
+                    }
+                  </div>
+                  <p class="line-clamp-3 text-xs text-text-secondary">{{ template.description }}</p>
+                  <p class="font-mono text-[10px] text-text-secondary">
+                    {{ templateOrder(template.agentTypes) }}
+                  </p>
+                  <div class="mt-auto flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-white hover:opacity-90"
+                      (click)="applyBuiltin(template)"
+                    >
+                      {{ i18n.t().pipelines.pipeline.templates.use }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-md border border-black/10 px-2.5 py-1 text-xs hover:bg-black/4"
+                      [disabled]="addingTemplateId() === template.id"
+                      (click)="addFromTemplate(template)"
+                    >
+                      {{
+                        addingTemplateId() === template.id
+                          ? i18n.t().pipelines.pipeline.templates.adding
+                          : i18n.t().pipelines.pipeline.templates.add
+                      }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-md px-2.5 py-1 text-xs text-text-secondary hover:bg-black/4"
+                      (click)="customizeTemplate(template)"
+                    >
+                      {{ i18n.t().pipelines.pipeline.templates.customize }}
+                    </button>
+                  </div>
                 </div>
-                <p class="line-clamp-3 text-xs text-text-secondary">
-                  {{ templateLabel(template.id).description }}
-                </p>
-                <p class="mt-1 font-mono text-[10px] text-text-secondary">
-                  {{ templateOrder(template.id) }}
-                </p>
-                <span class="mt-1 text-xs font-medium text-text">
-                  {{ i18n.t().pipelines.pipeline.templates.use }}
-                </span>
-              </button>
+              }
+            </div>
+          </section>
+
+          <section>
+            <h2 class="mb-2 text-sm font-semibold text-text">
+              {{ i18n.t().pipelines.pipeline.templates.myTemplates }}
+            </h2>
+            @if (library().length === 0) {
+              <p class="text-xs text-text-secondary">
+                {{ i18n.t().pipelines.pipeline.templates.emptyLibrary }}
+              </p>
+            } @else {
+              <ul class="grid gap-2 sm:grid-cols-2">
+                @for (template of library(); track template.id) {
+                  <li
+                    class="flex flex-col gap-2 rounded-xl border border-black/10 bg-white p-3 shadow-sm"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div class="text-sm font-medium text-text">{{ template.name }}</div>
+                      @if (!template.enabled) {
+                        <span class="text-[11px] text-text-secondary">
+                          {{ i18n.t().pipelines.pipeline.templates.statusDisabled }}
+                        </span>
+                      }
+                    </div>
+                    <p class="line-clamp-2 text-xs text-text-secondary">{{ template.description }}</p>
+                    <p class="font-mono text-[10px] text-text-secondary">
+                      {{ templateOrder(template.agentTypes) }}
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        class="rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-white hover:opacity-90"
+                        (click)="applySaved(template)"
+                      >
+                        {{ i18n.t().pipelines.pipeline.templates.use }}
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-md px-2.5 py-1 text-xs text-text-secondary hover:bg-black/4"
+                        (click)="editSaved(template)"
+                      >
+                        {{ i18n.t().pipelines.pipeline.templates.edit }}
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-md px-2.5 py-1 text-xs text-text-secondary hover:bg-black/4"
+                        (click)="toggleEnabled(template)"
+                      >
+                        {{
+                          template.enabled
+                            ? i18n.t().pipelines.pipeline.templates.disable
+                            : i18n.t().pipelines.pipeline.templates.enable
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-md px-2.5 py-1 text-xs text-red-600 hover:bg-red-50"
+                        (click)="deleteSaved(template)"
+                      >
+                        {{ i18n.t().pipelines.pipeline.templates.delete }}
+                      </button>
+                    </div>
+                  </li>
+                }
+              </ul>
             }
-          </div>
+          </section>
         </div>
       </div>
     }

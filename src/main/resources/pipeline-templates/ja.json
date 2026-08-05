@@ -1,0 +1,107 @@
+[
+  {
+    "id": "competitiveIntel",
+    "name": "競合インテリジェンス",
+    "description": "公開シグナルを調査し、競合ブリーフにまとめる。",
+    "agentTypes": [
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "競合ランドスケープ",
+    "briefPrompt": "Produce a Competitive Intelligence Brief for the company, product, or market in context.\n\nWorkflow:\n1) Research — dated public signals (product, pricing, GTM, hiring, partnerships).\n2) Analyst — synthesize.\n\nRequired sections:\n## Thesis\n## Competitor / market signals (dated + links)\n## Business read (positioning, threats, opportunities)\n## Options (2–3 moves)\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "policyQa",
+    "name": "制度・ナレッジQ&A",
+    "description": "社内文書を検索し、推奨付きで回答する。",
+    "agentTypes": [
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "社内制度の質問",
+    "briefPrompt": "Answer using the internal knowledge base first for the policy, process, or FAQ in context.\n\nIf documents are thin, say what is missing. End with a clear recommendation and cite retrieved sources when available.\n\nRequired sections:\n## Answer\n## Evidence (from knowledge base)\n## Gaps / assumptions\n## Recommendation\n## Next actions"
+  },
+  {
+    "id": "vendorDiligence",
+    "name": "ベンダーデューデリジェンス",
+    "description": "公開調査＋社内知識でリスク志向のブリーフを作成。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "ベンダー評価",
+    "briefPrompt": "Produce a Vendor / Partner Due Diligence Brief for the vendor or product in context.\n\nWorkflow:\n1) Research — public reputation, pricing signals, incidents, roadmap clues.\n2) Knowledge — retrieve any indexed contracts, RFPs, runbooks, or prior evaluations.\n3) Analyst — synthesize risk and fit.\n\nRequired sections:\n## Thesis\n## Public signals (dated + links)\n## Internal evidence\n## Risk read (security, lock-in, cost, delivery)\n## Options (engage / pilot / defer)\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "executiveBrief",
+    "name": "経営向け意思決定ブリーフ",
+    "description": "二回の調査の後、経営層向けの選択肢ブリーフを作成。",
+    "agentTypes": [
+      "research",
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "経営意思決定ブリーフ",
+    "briefPrompt": "Produce an Executive Decision Brief for the initiative or topic in context.\n\nWorkflow:\n1) Research pass 1 — market / customer / regulatory signals.\n2) Research pass 2 — competitor and alternative approaches.\n3) Analyst — options-ready brief for leadership.\n\nRequired sections:\n## Thesis\n## Situation (dated signals + links)\n## Options (2–3: bet / why now / effort / risk)\n## Recommendation (primary + defer)\n## Next actions (3–5 executable)\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "meetingPrep",
+    "name": "ステークホルダー会議準備",
+    "description": "外部背景＋社内メモで会議ブリーフィングを作成。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "会議準備",
+    "briefPrompt": "Produce a Stakeholder Meeting Prep Brief for the meeting topic or attendees in context.\n\nWorkflow:\n1) Research — recent public context on the company, person, or initiative.\n2) Knowledge — retrieve internal notes, prior decisions, or related docs.\n3) Analyst — synthesize an actionable briefing.\n\nRequired sections:\n## Meeting objective\n## Context (external + internal)\n## Likely questions / objections\n## Talking points\n## Ask / decision needed\n## Follow-ups\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "incidentReview",
+    "name": "インシデント振り返り",
+    "description": "公開シグナルとランブックから非難なしの振り返りブリーフを作成。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "インシデントレビュー",
+    "briefPrompt": "Produce a blameless Incident Postmortem Brief for the incident or outage in context.\n\nWorkflow:\n1) Research — public status pages, notices, related industry incidents (dated).\n2) Knowledge — retrieve internal runbooks, prior incidents, alerts.\n3) Analyst — synthesize.\n\nRequired sections:\n## Summary\n## Timeline (known facts)\n## Impact\n## Root cause hypotheses (Fact vs Inference)\n## What went well / poorly\n## Action items (owner + due when known)\n## References\n\nDo not invent URLs or blame individuals."
+  },
+  {
+    "id": "marketScan",
+    "name": "市場・業界スキャン",
+    "description": "二回の調査で市場動向を把握し、経営向けスキャンを作成。",
+    "agentTypes": [
+      "research",
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "週次市場スキャン",
+    "briefPrompt": "Produce a Market & Industry Scan for the sector or topic in context.\n\nWorkflow:\n1) Research pass 1 — dated market / regulatory / funding signals.\n2) Research pass 2 — competitor and customer demand signals.\n3) Analyst — synthesize.\n\nRequired sections:\n## Thesis\n## Signals (dated + links)\n## Implications\n## Watchlist\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "customerInsight",
+    "name": "顧客インサイトブリーフ",
+    "description": "顧客・市場の声を調査し、実行可能な洞察にまとめる。",
+    "agentTypes": [
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "顧客インサイト",
+    "briefPrompt": "Produce a Customer Insight Brief for the segment, product, or feedback theme in context.\n\nWorkflow:\n1) Research — public reviews, forums, social, analyst notes (dated).\n2) Analyst — synthesize jobs-to-be-done and pain points.\n\nRequired sections:\n## Thesis\n## Voice of customer (themes + evidence)\n## Jobs / pains / gains\n## Opportunities\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "riskAssessment",
+    "name": "リスク評価",
+    "description": "外部リスク信号と社内文書から優先度付きリスクブリーフを作成。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "リスク評価",
+    "briefPrompt": "Produce a Risk Assessment Brief for the initiative, vendor, or change in context.\n\nWorkflow:\n1) Research — public risk, compliance, security, and market signals (dated).\n2) Knowledge — retrieve internal policies, risk registers, prior assessments.\n3) Analyst — prioritize risks and mitigations.\n\nRequired sections:\n## Thesis\n## Risk register (likelihood × impact)\n## Evidence (external + internal)\n## Mitigations\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  }
+]

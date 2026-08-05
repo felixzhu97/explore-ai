@@ -36,9 +36,12 @@ Container_Boundary(chat_domain, "Chat Domain") {
 ' ============================================================
 ' DOMAIN 2: AGENT [flag-guarded]
 ' ============================================================
-Container_Boundary(agent_domain, "Agent Domain") {
-    Container(agent_controller, "AgentController", "@RestController", "/api/agents/* (list, health, invoke/sse, pipeline/invoke/sse)")
-    Container(agent_facade, "AgentFacade", "Application Service", "Agent / Supervisor / Pipeline 门面")
+Container_Boundary(agent_domain, "Pipeline Domain") {
+    Container(agent_controller, "PipelineController", "@RestController", "/api/pipelines/* (list, invoke/sse)")
+    Container(workflow_template_controller, "WorkflowTemplateController", "@RestController", "/api/pipelines/templates catalog + library CRUD")
+    Container(agent_facade, "PipelineFacade", "Application Service", "Worker / Supervisor / Pipeline 门面")
+    Container(workflow_template_usecase, "WorkflowTemplateUseCase", "Use Case", "内置模版 + 用户库")
+    Container(workflow_template_repo, "JdbcWorkflowTemplateRepository", "@Repository", "workflow_templates 表")
     Container(orch_usecase, "OrchestratorWorkersUseCase", "Use Case", "编排 Worker 流水线")
     Container(agent_registry, "InMemoryAgentRegistry", "@Component", "Agent 注册表")
     Container(supervisor_router, "SpringAiSupervisorRouter", "@Component", "Supervisor 路由")
@@ -192,7 +195,8 @@ Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, text_controller, "流式对话", "SSE")
-Rel(angular_app, agent_controller, "Agent 流水线 [flag]", "SSE")
+Rel(angular_app, agent_controller, "工作流画布 [flag]", "SSE")
+Rel(angular_app, workflow_template_controller, "工作流模版 [flag]", "HTTP")
 Rel(angular_app, skill_controller, "Skills CRUD [flag]", "HTTP")
 Rel(angular_app, rag_controller, "RAG", "HTTP/SSE")
 Rel(angular_app, tool_controller, "工具", "HTTP")

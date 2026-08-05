@@ -1,0 +1,107 @@
+[
+  {
+    "id": "competitiveIntel",
+    "name": "Inteligencia competitiva",
+    "description": "Escanear señales públicas y sintetizar un brief de competidores.",
+    "agentTypes": [
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "Brief de panorama competitivo",
+    "briefPrompt": "Produce a Competitive Intelligence Brief for the company, product, or market in context.\n\nWorkflow:\n1) Research — dated public signals (product, pricing, GTM, hiring, partnerships).\n2) Analyst — synthesize.\n\nRequired sections:\n## Thesis\n## Competitor / market signals (dated + links)\n## Business read (positioning, threats, opportunities)\n## Options (2–3 moves)\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "policyQa",
+    "name": "Q&A de políticas y conocimiento",
+    "description": "Recuperar documentos internos y responder con recomendaciones.",
+    "agentTypes": [
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "Pregunta de política interna",
+    "briefPrompt": "Answer using the internal knowledge base first for the policy, process, or FAQ in context.\n\nIf documents are thin, say what is missing. End with a clear recommendation and cite retrieved sources when available.\n\nRequired sections:\n## Answer\n## Evidence (from knowledge base)\n## Gaps / assumptions\n## Recommendation\n## Next actions"
+  },
+  {
+    "id": "vendorDiligence",
+    "name": "Due diligence de proveedor",
+    "description": "Investigación pública + conocimiento interno; brief orientado a riesgos.",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "Evaluación de proveedor",
+    "briefPrompt": "Produce a Vendor / Partner Due Diligence Brief for the vendor or product in context.\n\nWorkflow:\n1) Research — public reputation, pricing signals, incidents, roadmap clues.\n2) Knowledge — retrieve any indexed contracts, RFPs, runbooks, or prior evaluations.\n3) Analyst — synthesize risk and fit.\n\nRequired sections:\n## Thesis\n## Public signals (dated + links)\n## Internal evidence\n## Risk read (security, lock-in, cost, delivery)\n## Options (engage / pilot / defer)\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "executiveBrief",
+    "name": "Brief ejecutivo de decisión",
+    "description": "Dos pases de investigación y un brief de opciones para liderazgo.",
+    "agentTypes": [
+      "research",
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "Brief de decisión ejecutiva",
+    "briefPrompt": "Produce an Executive Decision Brief for the initiative or topic in context.\n\nWorkflow:\n1) Research pass 1 — market / customer / regulatory signals.\n2) Research pass 2 — competitor and alternative approaches.\n3) Analyst — options-ready brief for leadership.\n\nRequired sections:\n## Thesis\n## Situation (dated signals + links)\n## Options (2–3: bet / why now / effort / risk)\n## Recommendation (primary + defer)\n## Next actions (3–5 executable)\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "meetingPrep",
+    "name": "Preparación de reunión",
+    "description": "Contexto externo + notas internas; briefing para la reunión.",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "Preparación de reunión",
+    "briefPrompt": "Produce a Stakeholder Meeting Prep Brief for the meeting topic or attendees in context.\n\nWorkflow:\n1) Research — recent public context on the company, person, or initiative.\n2) Knowledge — retrieve internal notes, prior decisions, or related docs.\n3) Analyst — synthesize an actionable briefing.\n\nRequired sections:\n## Meeting objective\n## Context (external + internal)\n## Likely questions / objections\n## Talking points\n## Ask / decision needed\n## Follow-ups\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "incidentReview",
+    "name": "Postmortem de incidente",
+    "description": "Señales públicas + runbooks; brief sin culpas.",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "Revisión de incidente",
+    "briefPrompt": "Produce a blameless Incident Postmortem Brief for the incident or outage in context.\n\nWorkflow:\n1) Research — public status pages, notices, related industry incidents (dated).\n2) Knowledge — retrieve internal runbooks, prior incidents, alerts.\n3) Analyst — synthesize.\n\nRequired sections:\n## Summary\n## Timeline (known facts)\n## Impact\n## Root cause hypotheses (Fact vs Inference)\n## What went well / poorly\n## Action items (owner + due when known)\n## References\n\nDo not invent URLs or blame individuals."
+  },
+  {
+    "id": "marketScan",
+    "name": "Escaneo de mercado e industria",
+    "description": "Dos pases de investigación y un escaneo para liderazgo.",
+    "agentTypes": [
+      "research",
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "Escaneo semanal",
+    "briefPrompt": "Produce a Market & Industry Scan for the sector or topic in context.\n\nWorkflow:\n1) Research pass 1 — dated market / regulatory / funding signals.\n2) Research pass 2 — competitor and customer demand signals.\n3) Analyst — synthesize.\n\nRequired sections:\n## Thesis\n## Signals (dated + links)\n## Implications\n## Watchlist\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "customerInsight",
+    "name": "Brief de insight de cliente",
+    "description": "Investigar la voz del cliente y sintetizar insights accionables.",
+    "agentTypes": [
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "Insight de cliente",
+    "briefPrompt": "Produce a Customer Insight Brief for the segment, product, or feedback theme in context.\n\nWorkflow:\n1) Research — public reviews, forums, social, analyst notes (dated).\n2) Analyst — synthesize jobs-to-be-done and pain points.\n\nRequired sections:\n## Thesis\n## Voice of customer (themes + evidence)\n## Jobs / pains / gains\n## Opportunities\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  },
+  {
+    "id": "riskAssessment",
+    "name": "Evaluación de riesgos",
+    "description": "Señales externas + docs internos; brief priorizado.",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "Evaluación de riesgos",
+    "briefPrompt": "Produce a Risk Assessment Brief for the initiative, vendor, or change in context.\n\nWorkflow:\n1) Research — public risk, compliance, security, and market signals (dated).\n2) Knowledge — retrieve internal policies, risk registers, prior assessments.\n3) Analyst — prioritize risks and mitigations.\n\nRequired sections:\n## Thesis\n## Risk register (likelihood × impact)\n## Evidence (external + internal)\n## Mitigations\n## Recommendation\n## Next actions\n## References\n\nSeparate Fact vs Inference vs Recommendation. Do not invent URLs."
+  }
+]

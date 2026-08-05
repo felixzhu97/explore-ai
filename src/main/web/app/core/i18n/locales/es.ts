@@ -146,82 +146,37 @@ export const es: Translations = {
         title: 'Plantillas',
         use: 'Usar',
         skipped: 'Agentes no disponibles omitidos: {types}',
-        items: {
-          webResearch: {
-            name: 'Investigación web',
-            description: 'Buscar en la web y luego sintetizar.',
-          },
-          knowledgeAnswer: {
-            name: 'Respuesta de conocimiento',
-            description: 'Recuperar documentos y luego sintetizar.',
-          },
-          weatherBrief: {
-            name: 'Brief del clima',
-            description: 'Usar herramientas del clima y resumir.',
-          },
-          businessAnalysis: {
-            name: 'Análisis de negocio',
-            description: 'Dos pases web + conocimiento, brief de estrategia comercial.',
-          },
-          techAnalysis: {
-            name: 'Análisis técnico',
-            description: 'Señales tech + docs del repo, brief de viabilidad.',
-          },
-        },
-
-        shortTopics: {
-          webResearch: 'Brief de investigación web',
-          knowledgeAnswer: 'Respuesta de conocimiento',
-          weatherBrief: 'Brief del clima',
-          businessAnalysis: 'Análisis de negocio producto AI',
-          techAnalysis: 'Viabilidad técnica stack AI',
-        },
-        briefPrompts: {
-          webResearch:
-            'Research the topic in the user context (or AI agent orchestration if unspecified). Produce a short evidence-based brief with sources.',
-          knowledgeAnswer:
-            'Answer using the knowledge base first. If documents are thin, say what is missing. End with a clear recommendation.',
-          weatherBrief:
-            'Look up current weather for the city mentioned (default: Beijing) and summarize conditions for the user.',
-          businessAnalysis: `Produce a Business Brief for AI chat/RAG/agent products (or the topic in context).
-
-Workflow for workers:
-1) Research pass 1 — scan dated commercial signals from Google, Apple, Microsoft, NVIDIA, Meta, OpenAI, DeepMind, Anthropic, Vercel, Cursor (product/pricing/GTM).
-2) Research pass 2 — competitors, buyer demand, and monetization patterns.
-3) Knowledge — retrieve any indexed product/docs context for this codebase.
-4) Analyst — synthesize.
-
-Required output sections:
-## Thesis
-## Watchlist scan (dated signals + links)
-## Business read (who pays, value chain, moat vs commodity)
-## Options (2–3: bet / why now / business move / effort / risk)
-## Recommendation (primary + defer)
-## Next actions (3–5 executable)
-## References
-
-Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
-          techAnalysis: `Produce a Technical Feasibility Brief for AI chat/RAG/agent products (or the topic in context).
-
-Workflow for workers:
-1) Research pass 1 — vendor/platform tech moves (OpenAI, Anthropic, Google, Microsoft, NVIDIA, Vercel, Spring AI / Angular ecosystem).
-2) Research pass 2 — Hugging Face Trending and recent arXiv (cs.AI / cs.LG / cs.CL) methods relevant to the stack.
-3) Knowledge — retrieve indexed docs about this repo’s stack (Java/Spring AI, Angular, RAG, agents).
-4) Analyst — synthesize.
-
-Required output sections:
-## Thesis
-## Tech signals (dated + links)
-## Technical read (maturity, stack fit, cost/latency/data, build vs buy)
-## Options (2–3: tech move / business link / effort / risk)
-## Recommendation (primary + defer)
-## Next actions (3–5 executable spikes)
-## References
-
-Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
-        },
-
+        templatesHint: 'Añade una copia a tu biblioteca, o personaliza antes de guardar',
+        myTemplates: 'Mis plantillas',
+        emptyLibrary: 'Aún no hay plantillas guardadas. Añade una integrada o crea la tuya.',
+        newTemplate: 'Nueva plantilla',
+        add: 'Añadir',
+        adding: 'Añadiendo…',
+        customize: 'Personalizar',
+        inLibrary: 'En biblioteca',
+        createTitle: 'Crear plantilla',
+        editTitle: 'Editar plantilla',
+        name: 'Nombre',
+        description: 'Descripción',
+        agentTypes: 'Tipos de agente (separados por comas)',
+        shortTopic: 'Tema corto',
+        briefPrompt: 'Prompt del brief',
+        save: 'Guardar',
+        saving: 'Guardando…',
+        cancel: 'Cancelar',
+        edit: 'Editar',
+        enable: 'Activar',
+        disable: 'Desactivar',
+        statusDisabled: 'Desactivado',
+        delete: 'Eliminar',
+        deleteConfirm: '¿Eliminar la plantilla “{name}”?',
+        added: 'Guardada en tus plantillas',
+        saveFailed: 'Error al guardar la plantilla',
+        updateFailed: 'Error al actualizar la plantilla',
+        deleteFailed: 'Error al eliminar la plantilla',
+        nameRequired: 'Nombre, tipos de agente y prompt son obligatorios',
       },
+
     },
     results: {
       title: 'Resultados',

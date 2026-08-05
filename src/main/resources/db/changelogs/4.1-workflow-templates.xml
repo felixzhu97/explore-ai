@@ -1,0 +1,50 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260805-001-workflow-templates" dbms="h2">
+    <createTable tableName="workflow_templates">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="client_id" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="${string.type}(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="${string.type}(500)"/>
+      <column name="agent_types" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="short_topic" type="${string.type}(200)"/>
+      <column name="brief_prompt" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="source_template_id" type="${string.type}(64)"/>
+      <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addUniqueConstraint
+      tableName="workflow_templates"
+      columnNames="client_id, name"
+      constraintName="uk_workflow_templates_client_id_name"/>
+
+    <createIndex tableName="workflow_templates" indexName="idx_workflow_templates_client_id">
+      <column name="client_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

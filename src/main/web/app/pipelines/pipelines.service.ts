@@ -1,18 +1,24 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../core/api.constants';
+import { I18nService } from '../core/i18n';
 import { parseSseToken, streamSsePost } from '../core/streaming/sse-client';
 import type {
   AgentHealth,
   AgentInfo,
   AgentInvokeRequest,
+  SavedWorkflowTemplate,
+  WorkflowTemplate,
+  WorkflowTemplateWriteRequest,
 } from './pipelines.model';
 import type { PipelineInvokeRequest } from './pipelines.model.graph';
 
 @Injectable({ providedIn: 'root' })
 export class PipelinesService {
   private readonly http = inject(HttpClient);
+  private readonly i18n = inject(I18nService);
+  private readonly templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
   listAgents(): Observable<AgentInfo[]> {
     return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/list`);
@@ -20,6 +26,57 @@ export class PipelinesService {
 
   getHealth(agentType: string): Observable<AgentHealth> {
     return this.http.get<AgentHealth>(`${API_BASE_URL}/pipelines/${agentType}/health`);
+  }
+
+  listTemplates(): Observable<WorkflowTemplate[]> {
+    return this.http.get<WorkflowTemplate[]>(this.templatesBase, {
+      params: this.langParams(),
+    });
+  }
+
+  listLibrary(): Observable<SavedWorkflowTemplate[]> {
+    return this.http.get<SavedWorkflowTemplate[]>(`${this.templatesBase}/library`);
+  }
+
+  createFromTemplate(templateId: string): Observable<SavedWorkflowTemplate> {
+    return this.http.post<SavedWorkflowTemplate>(
+      `${this.templatesBase}/from-template`,
+      { templateId },
+      { params: this.langParams() },
+    );
+  }
+
+  createLibraryTemplate(
+    request: WorkflowTemplateWriteRequest,
+  ): Observable<SavedWorkflowTemplate> {
+    return this.http.post<SavedWorkflowTemplate>(
+      `${this.templatesBase}/library`,
+      request,
+    );
+  }
+
+  updateLibraryTemplate(
+    id: string,
+    request: WorkflowTemplateWriteRequest,
+  ): Observable<SavedWorkflowTemplate> {
+    return this.http.put<SavedWorkflowTemplate>(
+      `${this.templatesBase}/library/${id}`,
+      request,
+    );
+  }
+
+  setLibraryTemplateEnabled(
+    id: string,
+    enabled: boolean,
+  ): Observable<SavedWorkflowTemplate> {
+    return this.http.patch<SavedWorkflowTemplate>(
+      `${this.templatesBase}/library/${id}/enabled`,
+      { enabled },
+    );
+  }
+
+  deleteLibraryTemplate(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.templatesBase}/library/${id}`);
   }
 
   invokeStream(
@@ -53,6 +110,10 @@ export class PipelinesService {
       onDone,
       onError,
     );
+  }
+
+  private langParams(): HttpParams {
+    return new HttpParams().set('lang', this.i18n.language());
   }
 
   private openSse(

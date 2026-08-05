@@ -171,24 +171,21 @@ describe('i18n.model', () => {
         });
       });
 
-      it('should have pipeline templates including analysis flows', () => {
-        const templateIds = [
-          'webResearch',
-          'knowledgeAnswer',
-          'weatherBrief',
-          'businessAnalysis',
-          'techAnalysis',
+      it('should have pipeline template chrome translations', () => {
+        const chromeKeys = [
+          'title',
+          'use',
+          'skipped',
+          'myTemplates',
+          'add',
+          'customize',
+          'newTemplate',
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          templateIds.forEach((id) => {
-            const items = translations[lang].pipelines.pipeline.templates.items;
-            const topics = translations[lang].pipelines.pipeline.templates.shortTopics;
-            const briefs = translations[lang].pipelines.pipeline.templates.briefPrompts;
-            expect(items[id].name).toBeDefined();
-            expect(topics[id].length).toBeGreaterThan(0);
-            expect(briefs[id].length).toBeGreaterThan(0);
-            expect(topics[id].length).toBeLessThan(briefs[id].length);
+          const templates = translations[lang].pipelines.pipeline.templates;
+          chromeKeys.forEach((key) => {
+            expect(templates[key].length).toBeGreaterThan(0);
           });
           expect(translations[lang].pipelines.results.title).toBeDefined();
         });

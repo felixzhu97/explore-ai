@@ -249,9 +249,8 @@ describe('I18nService', () => {
       expect(service.t().agents).toBeDefined();
       expect(service.t().agents.welcomeTitle).toBe('Work with an Agent');
       expect(service.t().pipelines).toBeDefined();
-      expect(service.t().pipelines.pipeline.templates.items.businessAnalysis.name).toBe(
-        'Business analysis',
-      );
+      expect(service.t().pipelines.pipeline.templates.myTemplates).toBeDefined();
+      expect(service.t().pipelines.pipeline.templates.title).toBe('Templates');
     });
 
     it('should provide generate translations', () => {

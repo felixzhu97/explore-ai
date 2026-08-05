@@ -143,84 +143,39 @@ export const ja: Translations = {
       },
       templates: {
         title: 'テンプレート',
-        use: '使用',
-        skipped: '利用できないエージェントをスキップしました: {types}',
-        items: {
-          webResearch: {
-            name: 'Web調査',
-            description: 'Web検索後に要約します。',
-          },
-          knowledgeAnswer: {
-            name: 'ナレッジ回答',
-            description: '文書検索後に回答を整理します。',
-          },
-          weatherBrief: {
-            name: '天気ブリーフ',
-            description: '天気ツールを呼び、要点をまとめます。',
-          },
-          businessAnalysis: {
-            name: 'ビジネス分析',
-            description: '2回のWeb調査とナレッジ、商業戦略ブリーフ。',
-          },
-          techAnalysis: {
-            name: '技術分析',
-            description: '技術シグナル調査とリポジトリ知識、実現性ブリーフ。',
-          },
-        },
-
-        shortTopics: {
-          webResearch: 'Web調査ブリーフ',
-          knowledgeAnswer: 'ナレッジ回答',
-          weatherBrief: '天気ブリーフ',
-          businessAnalysis: 'AIプロダクト事業分析',
-          techAnalysis: 'AIスタック技術実現性',
-        },
-        briefPrompts: {
-          webResearch:
-            'Research the topic in the user context (or AI agent orchestration if unspecified). Produce a short evidence-based brief with sources.',
-          knowledgeAnswer:
-            'Answer using the knowledge base first. If documents are thin, say what is missing. End with a clear recommendation.',
-          weatherBrief:
-            'Look up current weather for the city mentioned (default: Beijing) and summarize conditions for the user.',
-          businessAnalysis: `Produce a Business Brief for AI chat/RAG/agent products (or the topic in context).
-
-Workflow for workers:
-1) Research pass 1 — scan dated commercial signals from Google, Apple, Microsoft, NVIDIA, Meta, OpenAI, DeepMind, Anthropic, Vercel, Cursor (product/pricing/GTM).
-2) Research pass 2 — competitors, buyer demand, and monetization patterns.
-3) Knowledge — retrieve any indexed product/docs context for this codebase.
-4) Analyst — synthesize.
-
-Required output sections:
-## Thesis
-## Watchlist scan (dated signals + links)
-## Business read (who pays, value chain, moat vs commodity)
-## Options (2–3: bet / why now / business move / effort / risk)
-## Recommendation (primary + defer)
-## Next actions (3–5 executable)
-## References
-
-Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
-          techAnalysis: `Produce a Technical Feasibility Brief for AI chat/RAG/agent products (or the topic in context).
-
-Workflow for workers:
-1) Research pass 1 — vendor/platform tech moves (OpenAI, Anthropic, Google, Microsoft, NVIDIA, Vercel, Spring AI / Angular ecosystem).
-2) Research pass 2 — Hugging Face Trending and recent arXiv (cs.AI / cs.LG / cs.CL) methods relevant to the stack.
-3) Knowledge — retrieve indexed docs about this repo’s stack (Java/Spring AI, Angular, RAG, agents).
-4) Analyst — synthesize.
-
-Required output sections:
-## Thesis
-## Tech signals (dated + links)
-## Technical read (maturity, stack fit, cost/latency/data, build vs buy)
-## Options (2–3: tech move / business link / effort / risk)
-## Recommendation (primary + defer)
-## Next actions (3–5 executable spikes)
-## References
-
-Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
-        },
-
+        use: '使う',
+        skipped: '利用できないエージェントをスキップ: {types}',
+        templatesHint: 'ライブラリに追加するか、カスタマイズして保存',
+        myTemplates: 'マイテンプレート',
+        emptyLibrary: '保存済みテンプレートはまだありません。',
+        newTemplate: '新規テンプレート',
+        add: '追加',
+        adding: '追加中…',
+        customize: 'カスタマイズ',
+        inLibrary: 'ライブラリ内',
+        createTitle: 'テンプレート作成',
+        editTitle: 'テンプレート編集',
+        name: '名前',
+        description: '説明',
+        agentTypes: 'エージェント種別（カンマ区切り）',
+        shortTopic: '短いトピック',
+        briefPrompt: 'ブリーフプロンプト',
+        save: '保存',
+        saving: '保存中…',
+        cancel: 'キャンセル',
+        edit: '編集',
+        enable: '有効',
+        disable: '無効',
+        statusDisabled: '無効',
+        delete: '削除',
+        deleteConfirm: 'テンプレート「{name}」を削除しますか？',
+        added: 'テンプレートに保存しました',
+        saveFailed: 'テンプレートの保存に失敗しました',
+        updateFailed: 'テンプレートの更新に失敗しました',
+        deleteFailed: 'テンプレートの削除に失敗しました',
+        nameRequired: '名前・エージェント種別・ブリーフは必須です',
       },
+
     },
     results: {
       title: '結果',

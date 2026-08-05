@@ -162,27 +162,35 @@ export interface Translations {
         title: string;
         use: string;
         skipped: string;
-        items: {
-          webResearch: { name: string; description: string };
-          knowledgeAnswer: { name: string; description: string };
-          weatherBrief: { name: string; description: string };
-          businessAnalysis: { name: string; description: string };
-          techAnalysis: { name: string; description: string };
-        };
-        shortTopics: {
-          webResearch: string;
-          knowledgeAnswer: string;
-          weatherBrief: string;
-          businessAnalysis: string;
-          techAnalysis: string;
-        };
-        briefPrompts: {
-          webResearch: string;
-          knowledgeAnswer: string;
-          weatherBrief: string;
-          businessAnalysis: string;
-          techAnalysis: string;
-        };
+        templatesHint: string;
+        myTemplates: string;
+        emptyLibrary: string;
+        newTemplate: string;
+        add: string;
+        adding: string;
+        customize: string;
+        inLibrary: string;
+        createTitle: string;
+        editTitle: string;
+        name: string;
+        description: string;
+        agentTypes: string;
+        shortTopic: string;
+        briefPrompt: string;
+        save: string;
+        saving: string;
+        cancel: string;
+        edit: string;
+        enable: string;
+        disable: string;
+        statusDisabled: string;
+        delete: string;
+        deleteConfirm: string;
+        added: string;
+        saveFailed: string;
+        updateFailed: string;
+        deleteFailed: string;
+        nameRequired: string;
       };
     };
     results: {
