@@ -32,6 +32,7 @@ export interface Translations {
     eval: string;
     speechToText: string;
     agents: string;
+    pipelines: string;
     skills: string;
     kubernetes: string;
     monitoring: string;
@@ -113,9 +114,30 @@ export interface Translations {
     documentDeleted: string;
     deleteFailed: string;
     fileSelected: string;
-    openAgentWorkbench: string;
+    openPipelineWorkbench: string;
   };
   agents: {
+    title: string;
+    newSession: string;
+    deleteSession: string;
+    emptySessions: string;
+    defaultTitle: string;
+    thinking: string;
+    errorMessage: string;
+    inputPlaceholder: string;
+    welcomeTitle: string;
+    welcomeDescription: string;
+    traceTitle: string;
+    trace: {
+      plan: string;
+      replan: string;
+      thought: string;
+      tool: string;
+      evaluation: string;
+    };
+  };
+
+  pipelines: {
     thinking: string;
     errorMessage: string;
     pipeline: {
@@ -177,7 +199,7 @@ export interface Translations {
     inputPlaceholder: string;
     welcomeTitle: string;
     welcomeDescription: string;
-    openAgentWorkbench: string;
+    openPipelineWorkbench: string;
     suggestedPromptsTitle: string;
     suggestedPrompts: {
       key: string;

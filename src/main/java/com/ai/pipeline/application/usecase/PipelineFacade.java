@@ -1,0 +1,43 @@
+package com.ai.pipeline.application.usecase;
+
+import com.ai.pipeline.domain.model.AgentDefinition;
+import com.ai.pipeline.domain.model.AgentPipeline;
+import com.ai.pipeline.domain.repository.AgentRegistry;
+import com.ai.pipeline.domain.vo.AgentType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+
+@Service
+public class PipelineFacade {
+
+    private final AgentRegistry registry;
+    private final OrchestratorWorkersUseCase orchestrator;
+
+    public PipelineFacade(AgentRegistry registry, OrchestratorWorkersUseCase orchestrator) {
+        this.registry = registry;
+        this.orchestrator = orchestrator;
+    }
+
+    public List<AgentDefinition> listAgents() {
+        return orchestrator.listAgents();
+    }
+
+    public AgentDefinition health(String agentType) {
+        return orchestrator.health(AgentType.of(agentType));
+    }
+
+    public Flux<ServerSentEvent<String>> invokeSupervisor(String message) {
+        return orchestrator.invokeSupervisor(message);
+    }
+
+    public Flux<ServerSentEvent<String>> invokeAgent(String agentType, String message) {
+        return orchestrator.invokeAgent(AgentType.of(agentType), message);
+    }
+
+    public Flux<ServerSentEvent<String>> invokePipeline(String message, AgentPipeline pipeline) {
+        return orchestrator.invokePipeline(message, pipeline);
+    }
+}

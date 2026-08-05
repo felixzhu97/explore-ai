@@ -1,0 +1,89 @@
+<div
+  #splitHost
+  class="flex min-h-0 flex-1 overflow-hidden"
+  [class.select-none]="isDraggingSplitter()"
+>
+  <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <app-pipelines-canvas
+      class="min-h-0 flex-1"
+      [agents]="agents()"
+      [validationHint]="pipelineHint()"
+      (runRequested)="runPipeline($event)"
+      (graphChange)="onGraphChange($event)"
+      (clearValidation)="pipelineHint.set(null)"
+      (templateHint)="onTemplateHint($event)"
+      (templateApplied)="onTemplateApplied($event)"
+    />
+  </div>
+
+  @if (!resultsCollapsed()) {
+    <div
+      class="group relative z-10 w-1.5 shrink-0 cursor-col-resize bg-black/6 hover:bg-black/15"
+      role="separator"
+      aria-orientation="vertical"
+      (pointerdown)="onSplitterPointerDown($event)"
+    >
+      <div class="pointer-events-none absolute -inset-x-1 inset-y-0"></div>
+    </div>
+  }
+
+  <aside
+    class="flex min-h-0 flex-col border-l border-black/8 bg-white"
+    [style.width]="resultsCollapsed() ? '40px' : `${resultsRatio() * 100}%`"
+    [style.flex]="'none'"
+  >
+    @if (resultsCollapsed()) {
+      <button
+        type="button"
+        class="flex size-full flex-col items-center justify-center gap-2 px-1 py-3 text-xs text-text-secondary hover:bg-black/4"
+        (click)="toggleResultsCollapsed()"
+        [attr.aria-label]="i18n.t().pipelines.results.expand"
+      >
+        <span style="writing-mode: vertical-rl" class="tracking-wide">
+          {{ i18n.t().pipelines.results.expand }}
+        </span>
+      </button>
+    } @else {
+      <div
+        class="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 px-3 py-2"
+      >
+        <p class="text-xs font-medium text-text-secondary">
+          {{ i18n.t().pipelines.results.title }}
+        </p>
+        <button
+          type="button"
+          class="rounded-md px-2 py-1 text-xs text-text-secondary hover:bg-black/4"
+          (click)="toggleResultsCollapsed()"
+        >
+          {{ i18n.t().pipelines.results.collapse }}
+        </button>
+      </div>
+      <app-chat-message-pane
+        class="min-h-0 flex-1"
+        [messages]="messages()"
+        [streamingMessageId]="streamingMessageId()"
+        [thinkingLabel]="i18n.t().pipelines.thinking"
+        [collapseLongUserMessages]="true"
+        [expandLabel]="i18n.t().pipelines.results.expandMessage"
+        [collapseLabel]="i18n.t().pipelines.results.collapseMessage"
+        toolStepDoneLabel="完成"
+        toolStepFailedLabel="失败"
+        [emptyText]="i18n.t().pipelines.results.empty"
+        [compact]="true"
+      />
+      @if (error()) {
+        <z-alert
+          class="rounded-none border-x-0 border-t"
+          zType="destructive"
+          [zDescription]="error()!"
+        />
+      }
+      <app-chat-sender-bar
+        [placeholder]="i18n.t().pipelines.pipeline.inputPlaceholder"
+        [(value)]="input"
+        [loading]="loading()"
+        (submitSend)="send()"
+      />
+    }
+  </aside>
+</div>

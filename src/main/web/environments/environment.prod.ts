@@ -20,6 +20,7 @@ export const environment = {
     'module-mcp': false,
     'module-eval': false,
     'module-agents': true,
+    'module-pipelines': true,
     'module-skills': true,
   },
 };

@@ -1,29 +1,29 @@
-# E7 Multi-Agent
+# E7 Pipeline（工作流）
 
 ← [用户故事地图](../User-Story-Map.md)
 
 ## 背景
 
-业务分析师可在画布编排 Agent 流水线并流式审阅阶段与结果；产品经理可一键选用预置模板；研判输出以 Fact / Inference / Recommendation 结构呈现。
+业务分析师可在画布编排工作流并流式审阅阶段与结果；产品经理可一键选用预置模板；研判输出以 Fact / Inference / Recommendation 结构呈现。
 
 ---
 
-## US-15 Multi-Agent Pipeline 工作台
+## US-15 工作流工作台
 
 **As a** 业务分析师  
-**I want** 在画布上编排 Agent 流水线并流式审阅阶段与结果  
+**I want** 在画布上编排工作流并流式审阅阶段与结果  
 **So that** 我可以按企业流程定制多步 AI 工作流
 
 ### 验收标准
 
-1. **Scenario** 画布编排流水线
-   **GIVEN** 业务分析师打开 Multi-Agent Pipeline 工作台  
-   **WHEN** 在画布上编排 Agent 流水线  
-   **THEN** 流水线结构可见并可按多步流程定制
+1. **Scenario** 画布编排工作流
+   **GIVEN** 业务分析师打开工作流工作台  
+   **WHEN** 在画布上编排工作流  
+   **THEN** 工作流结构可见并可按多步流程定制
 
 2. **Scenario** 流式审阅阶段与结果
-   **GIVEN** 已编排并可运行的流水线  
-   **WHEN** 运行流水线  
+   **GIVEN** 已编排并可运行的工作流  
+   **WHEN** 运行工作流  
    **THEN** 可流式审阅各阶段进展与结果  
    **AND** 最终结果可在工作台中查看
 

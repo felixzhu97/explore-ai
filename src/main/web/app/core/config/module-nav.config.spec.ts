@@ -10,7 +10,7 @@ describe('module-nav.config', () => {
   const visionTab = MODULE_NAV_TABS.find(tab => tab.key === 'vision');
   const mcpTab = MODULE_NAV_TABS.find(tab => tab.key === 'mcp');
   const chatTab = MODULE_NAV_TABS.find(tab => tab.key === 'chat');
-  const agentsTab = MODULE_NAV_TABS.find(tab => tab.key === 'agents');
+  const pipelinesTab = MODULE_NAV_TABS.find(tab => tab.key === 'pipelines');
 
   it('should_enableCoreTabs_when_noFlagConfigured', () => {
     const featureFlags = { isEnabled: vi.fn() };
@@ -47,7 +47,7 @@ describe('module-nav.config', () => {
       'chat',
       'rag',
       'metrics',
-      'agents',
+      'pipelines',
       'skills',
     ]);
     expect(sections[1].tabs.map(tab => tab.key)).toEqual(['generate']);
@@ -65,6 +65,6 @@ describe('module-nav.config', () => {
     const sections = groupNavTabs(enabled);
 
     expect(sections.map(section => section.group)).toEqual(['work', 'create']);
-    expect(agentsTab?.group).toBe('work');
+    expect(pipelinesTab?.group).toBe('work');
   });
 });

@@ -243,11 +243,13 @@ describe('I18nService', () => {
       expect(service.t().ragChat.title).toBe('文档问答');
     });
 
-    it('should provide agents translations', () => {
+    it('should provide agents and pipelines translations', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.t().agents).toBeDefined();
-      expect(service.t().agents.pipeline.templates.items.businessAnalysis.name).toBe(
+      expect(service.t().agents.welcomeTitle).toBe('Work with an Agent');
+      expect(service.t().pipelines).toBeDefined();
+      expect(service.t().pipelines.pipeline.templates.items.businessAnalysis.name).toBe(
         'Business analysis',
       );
     });
