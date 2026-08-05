@@ -58,6 +58,8 @@ export class ChatService {
   readonly streamingMessageId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly toolsEnabled = signal(true);
+  readonly availableSkills = signal<{ id: string; name: string }[]>([]);
+  readonly selectedSkillIds = signal<string[]>([]);
 
   private streamAbort: (() => void) | null = null;
 
@@ -133,6 +135,25 @@ export class ChatService {
 
   setToolsEnabled(enabled: boolean): void {
     this.toolsEnabled.set(enabled);
+  }
+
+  setAvailableSkills(skills: { id: string; name: string }[]): void {
+    this.availableSkills.set(skills);
+    const enabledIds = new Set(skills.map(skill => skill.id));
+    this.selectedSkillIds.update(ids => ids.filter(id => enabledIds.has(id)));
+  }
+
+  toggleSkillId(skillId: string): void {
+    this.selectedSkillIds.update((ids) => {
+      if (ids.includes(skillId)) {
+        return ids.filter(id => id !== skillId);
+      }
+      return [...ids, skillId];
+    });
+  }
+
+  isSkillSelected(skillId: string): boolean {
+    return this.selectedSkillIds().includes(skillId);
   }
 
   loadSessions(): void {
@@ -300,6 +321,7 @@ export class ChatService {
         provider: this.selectedProvider(),
         model: this.selectedModel(),
         toolsEnabled: this.toolsEnabled(),
+        skillIds: this.selectedSkillIds(),
       },
       (chunk) => {
         fullContent += chunk;

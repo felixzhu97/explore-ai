@@ -20,6 +20,7 @@ export interface ChatStreamRequest {
   provider?: string;
   model?: string;
   toolsEnabled?: boolean;
+  skillIds?: string[];
 }
 
 export interface ModelInfo {

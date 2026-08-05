@@ -1,8 +1,8 @@
 <!-- Compact controls; compose area stays primary -->
 <div
-  class="flex shrink-0 items-center gap-2 overflow-x-auto border-b border-black/8 bg-white px-3 py-2 sm:px-4"
+  class="relative z-20 flex shrink-0 items-center gap-2 border-b border-black/8 bg-white px-3 py-2 sm:px-4"
 >
-  <div class="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+  <div class="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto sm:gap-2">
     <z-select
       class="min-w-28 sm:min-w-32"
       zSize="sm"
@@ -45,6 +45,62 @@
       </z-switch>
     </div>
   </div>
+
+  @if (skillsEnabled()) {
+    <div #skillsPicker class="relative shrink-0">
+      <button
+        type="button"
+        z-button
+        zType="outline"
+        zSize="sm"
+        class="gap-1.5 text-xs"
+        [attr.aria-expanded]="skillsMenuOpen()"
+        aria-haspopup="listbox"
+        (click)="toggleSkillsMenu($event)"
+      >
+        {{ skillsTriggerLabel() }}
+      </button>
+      @if (skillsMenuOpen() && skillsMenuStyle(); as menuStyle) {
+        <div
+          class="fixed z-80 w-64 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg"
+          role="listbox"
+          aria-multiselectable="true"
+          [style.top]="menuStyle.top"
+          [style.right]="menuStyle.right"
+        >
+          @for (skill of chat.availableSkills(); track skill.id) {
+            <button
+              type="button"
+              role="option"
+              class="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-foreground hover:bg-black/4"
+              [attr.aria-selected]="chat.isSkillSelected(skill.id)"
+              (click)="onSkillToggle($event, skill.id)"
+            >
+              <span
+                class="flex size-4 shrink-0 items-center justify-center rounded border border-black/20 text-[10px] leading-none"
+                [class.bg-foreground]="chat.isSkillSelected(skill.id)"
+                [class.text-white]="chat.isSkillSelected(skill.id)"
+                [class.border-foreground]="chat.isSkillSelected(skill.id)"
+              >
+                @if (chat.isSkillSelected(skill.id)) {
+                  ✓
+                }
+              </span>
+              <span class="min-w-0 truncate">{{ skill.name }}</span>
+            </button>
+          } @empty {
+            <p class="px-2.5 py-2 text-xs text-foreground/55">{{ i18n.t().chat.skillsEmpty }}</p>
+          }
+          <a
+            routerLink="/skills"
+            class="mt-0.5 block rounded-lg px-2.5 py-2 text-xs text-foreground/60 hover:bg-black/4 hover:text-foreground"
+          >
+            {{ i18n.t().chat.skillsManage }}
+          </a>
+        </div>
+      }
+    </div>
+  }
 
   <div class="flex shrink-0 items-center gap-0.5">
     <a

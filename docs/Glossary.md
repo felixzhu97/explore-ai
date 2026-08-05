@@ -34,6 +34,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
 | Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
 | Agent            | Agent 流水线 | `com.ai.agent`    | `/agents`               | `/api/agents`                             | `module-agents`               | Pipeline / Supervisor / Worker SSE    |
+| Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
 | Analysis         | 结构化分析     | `com.ai.analysis` | —                       | `/api/chat/analyze`                       | —                             | No dedicated frontend route           |
@@ -55,6 +56,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | ----------------- | ---------------- | ------------------------------- |
 | `/chat`           | Chat             | `/api/text`, `/api/sessions`    |
 | `/agents`         | Agent            | `/api/agents`                   |
+| `/skills`         | Skill            | `/api/skills`                   |
 | `/generate`       | Generation       | —                               |
 | `/generate/image` | Image Generation | `/api/images`                   |
 | `/generate/tts`   | Text-to-Speech   | `/api/audio` (alias `/api/tts`) |
@@ -167,7 +169,9 @@ flowchart TB
 | Routing Plan             | 路由计划          | Planned subtasks for Supervisor orchestration                 | Value Object   | `RoutingPlan`                                      | —                                               |
 | Agent Handoff            | Agent 交接      | Transfer marking delegation from one Agent to another         | Stream Event   | `agent_handoff`                                    | Frontend stage boundaries                       |
 | Agent Prompt Catalog     | Agent 提示词目录   | Loads Agent system prompts from classpath and appends shared style | Infrastructure | `AgentPromptCatalog`, `prompts/agent/*.st`     | Via `PromptTemplates.loadAgentSystemPrompt`     |
-| Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for Agent workers             | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.agent.skills`                   |
+| Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for Agent workers             | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.agent.skills`; distinct from user **Skill** module |
+| Skill                    | 技能            | User-managed instruction pack stored per client                  | Entity         | `Skill`, `com.ai.skill`                        | CRUD `/skills`; applied via Chat `skillIds`                        |
+| Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository`, `JdbcSkillRepository`       | Scoped by Client Identity                                          |
 | Agent Skills Runtime     | Agent 技能运行时   | Loads controlled skill ids and injects prompt/tool metadata        | Infrastructure | `AgentSkillsRuntime`, `AgentSkillLoader`       | Default off; uses `spring-ai-agent-utils`       |
 | Prompt Catalog           | 提示词目录         | Versioned prompt fragments under classpath resources               | Infrastructure | `classpath:prompts/**`                         | shared / chat / rag / agent / task / guards     |
 | Prompt Templates         | 提示词组合服务       | Composes default system, RAG system, and Agent prompts             | Infrastructure | `PromptTemplates`, `ClasspathPromptTemplate`     | Injected into ChatClientFactory                 |

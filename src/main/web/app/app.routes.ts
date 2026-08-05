@@ -39,6 +39,11 @@ export const routes: Routes = [
         loadComponent: () => import('./agents/agents.page').then(m => m.AgentsPageComponent),
       },
       {
+        path: 'skills',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_SKILLS)],
+        loadComponent: () => import('./skills/skills.page').then(m => m.SkillsPageComponent),
+      },
+      {
         path: 'chat',
         loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
       },

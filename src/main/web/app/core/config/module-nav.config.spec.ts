@@ -48,6 +48,7 @@ describe('module-nav.config', () => {
       'rag',
       'metrics',
       'agents',
+      'skills',
     ]);
     expect(sections[1].tabs.map(tab => tab.key)).toEqual(['generate']);
     expect(sections[2].tabs.map(tab => tab.key)).toEqual(['vision', 'asr', 'mcp', 'eval']);

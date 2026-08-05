@@ -8,7 +8,8 @@ public record ChatStreamRequest(
     @JsonAlias("session_id") String sessionId,
     String provider,
     String model,
-    @JsonAlias("tools_enabled") Boolean toolsEnabled
+    @JsonAlias("tools_enabled") Boolean toolsEnabled,
+    @JsonAlias("skill_ids") List<String> skillIds
 ) {
     public record ChatMessageDto(String role, String content) {}
 }
