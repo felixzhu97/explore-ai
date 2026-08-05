@@ -146,82 +146,37 @@ export const fr: Translations = {
         title: 'Modèles',
         use: 'Utiliser',
         skipped: 'Agents indisponibles ignorés : {types}',
-        items: {
-          webResearch: {
-            name: 'Recherche web',
-            description: 'Rechercher sur le web, puis synthétiser.',
-          },
-          knowledgeAnswer: {
-            name: 'Réponse documentaire',
-            description: 'Récupérer des documents, puis synthétiser.',
-          },
-          weatherBrief: {
-            name: 'Brief météo',
-            description: 'Appeler les outils météo, puis résumer.',
-          },
-          businessAnalysis: {
-            name: 'Analyse business',
-            description: 'Deux passes web + knowledge, brief de stratégie commerciale.',
-          },
-          techAnalysis: {
-            name: 'Analyse technique',
-            description: 'Signaux tech + docs du dépôt, brief de faisabilité.',
-          },
-        },
-
-        shortTopics: {
-          webResearch: 'Brief recherche web',
-          knowledgeAnswer: 'Réponse documentaire',
-          weatherBrief: 'Brief météo',
-          businessAnalysis: 'Analyse business produit AI',
-          techAnalysis: 'Faisabilité technique stack AI',
-        },
-        briefPrompts: {
-          webResearch:
-            'Research the topic in the user context (or AI agent orchestration if unspecified). Produce a short evidence-based brief with sources.',
-          knowledgeAnswer:
-            'Answer using the knowledge base first. If documents are thin, say what is missing. End with a clear recommendation.',
-          weatherBrief:
-            'Look up current weather for the city mentioned (default: Beijing) and summarize conditions for the user.',
-          businessAnalysis: `Produce a Business Brief for AI chat/RAG/agent products (or the topic in context).
-
-Workflow for workers:
-1) Research pass 1 — scan dated commercial signals from Google, Apple, Microsoft, NVIDIA, Meta, OpenAI, DeepMind, Anthropic, Vercel, Cursor (product/pricing/GTM).
-2) Research pass 2 — competitors, buyer demand, and monetization patterns.
-3) Knowledge — retrieve any indexed product/docs context for this codebase.
-4) Analyst — synthesize.
-
-Required output sections:
-## Thesis
-## Watchlist scan (dated signals + links)
-## Business read (who pays, value chain, moat vs commodity)
-## Options (2–3: bet / why now / business move / effort / risk)
-## Recommendation (primary + defer)
-## Next actions (3–5 executable)
-## References
-
-Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
-          techAnalysis: `Produce a Technical Feasibility Brief for AI chat/RAG/agent products (or the topic in context).
-
-Workflow for workers:
-1) Research pass 1 — vendor/platform tech moves (OpenAI, Anthropic, Google, Microsoft, NVIDIA, Vercel, Spring AI / Angular ecosystem).
-2) Research pass 2 — Hugging Face Trending and recent arXiv (cs.AI / cs.LG / cs.CL) methods relevant to the stack.
-3) Knowledge — retrieve indexed docs about this repo’s stack (Java/Spring AI, Angular, RAG, agents).
-4) Analyst — synthesize.
-
-Required output sections:
-## Thesis
-## Tech signals (dated + links)
-## Technical read (maturity, stack fit, cost/latency/data, build vs buy)
-## Options (2–3: tech move / business link / effort / risk)
-## Recommendation (primary + defer)
-## Next actions (3–5 executable spikes)
-## References
-
-Separate Fact vs Inference vs Recommendation. Do not invent URLs.`,
-        },
-
+        templatesHint: 'Ajoutez une copie à votre bibliothèque, ou personnalisez avant d’enregistrer',
+        myTemplates: 'Mes modèles',
+        emptyLibrary: 'Aucun modèle enregistré. Ajoutez un modèle intégré ou créez le vôtre.',
+        newTemplate: 'Nouveau modèle',
+        add: 'Ajouter',
+        adding: 'Ajout…',
+        customize: 'Personnaliser',
+        inLibrary: 'Dans la bibliothèque',
+        createTitle: 'Créer un modèle',
+        editTitle: 'Modifier le modèle',
+        name: 'Nom',
+        description: 'Description',
+        agentTypes: 'Types d’agents (séparés par des virgules)',
+        shortTopic: 'Sujet court',
+        briefPrompt: 'Invite de brief',
+        save: 'Enregistrer',
+        saving: 'Enregistrement…',
+        cancel: 'Annuler',
+        edit: 'Modifier',
+        enable: 'Activer',
+        disable: 'Désactiver',
+        statusDisabled: 'Désactivé',
+        delete: 'Supprimer',
+        deleteConfirm: 'Supprimer le modèle « {name} » ?',
+        added: 'Enregistré dans vos modèles',
+        saveFailed: 'Échec de l’enregistrement du modèle',
+        updateFailed: 'Échec de la mise à jour du modèle',
+        deleteFailed: 'Échec de la suppression du modèle',
+        nameRequired: 'Nom, types d’agents et invite sont requis',
       },
+
     },
     results: {
       title: 'Résultats',

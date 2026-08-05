@@ -145,80 +145,37 @@ export const zh: Translations = {
         title: '编排模版',
         use: '使用',
         skipped: '已跳过不可用 Agent：{types}',
-        items: {
-          webResearch: {
-            name: '网页调研',
-            description: '先网页搜索，再综合成简报。',
-          },
-          knowledgeAnswer: {
-            name: '知识问答',
-            description: '先检索文档，再综合回答。',
-          },
-          weatherBrief: {
-            name: '天气简报',
-            description: '先调用天气工具，再整理给用户。',
-          },
-          businessAnalysis: {
-            name: '商业分析',
-            description: '双轮网页扫描 + 知识库上下文，输出商业策略简报。',
-          },
-          techAnalysis: {
-            name: '技术分析',
-            description: '双轮技术信号调研 + 仓库知识，输出可行性简报。',
-          },
-        },
-        shortTopics: {
-          webResearch: '网页调研简报',
-          knowledgeAnswer: '知识库问答',
-          weatherBrief: '天气简报',
-          businessAnalysis: 'AI 产品商业分析',
-          techAnalysis: 'AI 技术栈可行性分析',
-        },
-        briefPrompts: {
-          webResearch:
-            '针对上下文主题（未指定则围绕 AI Agent 编排）做网页调研，给出有出处的简要结论。',
-          knowledgeAnswer:
-            '优先用知识库回答。若文档不足请说明缺口，并给出清晰建议。',
-          weatherBrief:
-            '查询提及城市的天气（默认北京），向用户简明总结实况。',
-          businessAnalysis: `请输出面向 AI 对话/RAG/Agent 产品（或上下文主题）的「商业简报」。
-
-工作流：
-1) 调研第 1 轮：扫描 Google、Apple、Microsoft、NVIDIA、Meta、OpenAI、DeepMind、Anthropic、Vercel、Cursor 的带日期商业信号（产品/定价/GTM）。
-2) 调研第 2 轮：竞品、买方需求与变现模式。
-3) 知识库：检索本仓库/产品相关文档上下文。
-4) 分析师：综合成稿。
-
-必含章节：
-## Thesis
-## Watchlist scan（带日期信号 + 链接）
-## Business read（谁付钱、价值链、护城河 vs 商品化）
-## Options（2–3：下注 / 为何现在 / 商业动作 / 工作量 / 风险）
-## Recommendation（主推 + 暂缓）
-## Next actions（3–5 条可执行）
-## References
-
-区分事实 / 推断 / 建议；禁止编造 URL。`,
-          techAnalysis: `请输出面向 AI 对话/RAG/Agent 产品（或上下文主题）的「技术可行性简报」。
-
-工作流：
-1) 调研第 1 轮：厂商/平台技术动向（OpenAI、Anthropic、Google、Microsoft、NVIDIA、Vercel、Spring AI / Angular 生态）。
-2) 调研第 2 轮：Hugging Face Trending 与近期 arXiv（cs.AI / cs.LG / cs.CL）中与栈相关的方法。
-3) 知识库：检索本仓库栈相关文档（Java/Spring AI、Angular、RAG、agents）。
-4) 分析师：综合成稿。
-
-必含章节：
-## Thesis
-## Tech signals（带日期 + 链接）
-## Technical read（成熟度、栈匹配、成本/延迟/数据、build vs buy）
-## Options（2–3：技术动作 / 商业关联 / 工作量 / 风险）
-## Recommendation（主推 + 暂缓）
-## Next actions（3–5 条可执行 spike）
-## References
-
-区分事实 / 推断 / 建议；禁止编造 URL。`,
-        },
+        templatesHint: '一键添加到我的模版，或先自定义再保存',
+        myTemplates: '我的模版',
+        emptyLibrary: '还没有已保存模版。可添加内置模版或自行创建。',
+        newTemplate: '新建模版',
+        add: '添加',
+        adding: '添加中…',
+        customize: '自定义',
+        inLibrary: '已在库中',
+        createTitle: '创建模版',
+        editTitle: '编辑模版',
+        name: '名称',
+        description: '描述',
+        agentTypes: 'Agent 类型（逗号分隔）',
+        shortTopic: '短主题',
+        briefPrompt: '简报提示词',
+        save: '保存',
+        saving: '保存中…',
+        cancel: '取消',
+        edit: '编辑',
+        enable: '启用',
+        disable: '停用',
+        statusDisabled: '已停用',
+        delete: '删除',
+        deleteConfirm: '删除模版「{name}」？',
+        added: '已保存到我的模版',
+        saveFailed: '保存模版失败',
+        updateFailed: '更新模版失败',
+        deleteFailed: '删除模版失败',
+        nameRequired: '名称、Agent 类型与简报提示词为必填',
       },
+
     },
     results: {
       title: '运行结果',

@@ -1,7 +1,6 @@
 import {
   applyPipelineTemplate,
-  findPipelineTemplate,
-  PIPELINE_TEMPLATE_CATALOG,
+  type PipelineTemplateDefinition,
 } from './pipelines.templates';
 import { validatePipeline } from './pipelines.model.graph';
 import type { AgentInfo } from './pipelines.model';
@@ -46,20 +45,26 @@ const catalog: AgentInfo[] = [
 
 describe('applyPipelineTemplate', () => {
   it('should_build_valid_connected_graph_when_all_agents_exist', () => {
-    const definition = findPipelineTemplate('weatherBrief')!;
+    const definition: PipelineTemplateDefinition = {
+      id: 'competitiveIntel',
+      agentTypes: ['research', 'analyst'],
+    };
 
     const result = applyPipelineTemplate(definition, catalog);
 
     expect(result.skippedAgentTypes).toEqual([]);
     expect(validatePipeline(result.graph)).toEqual({
       ok: true,
-      order: ['weather', 'analyst'],
+      order: ['research', 'analyst'],
     });
     expect(result.graph.nodes.map(n => n.position.x)).toEqual([80, 300]);
   });
 
   it('should_skip_missing_agent_types_and_reconnect_remaining', () => {
-    const definition = findPipelineTemplate('webResearch')!;
+    const definition: PipelineTemplateDefinition = {
+      id: 'competitiveIntel',
+      agentTypes: ['research', 'analyst'],
+    };
     const withoutResearch = catalog.filter(agent => agent.type !== 'research');
 
     const result = applyPipelineTemplate(definition, withoutResearch);
@@ -72,7 +77,10 @@ describe('applyPipelineTemplate', () => {
   });
 
   it('should_return_empty_graph_when_no_template_agents_available', () => {
-    const definition = findPipelineTemplate('knowledgeAnswer')!;
+    const definition: PipelineTemplateDefinition = {
+      id: 'policyQa',
+      agentTypes: ['vectordb', 'analyst'],
+    };
 
     const result = applyPipelineTemplate(definition, [
       catalog.find(a => a.type === 'supervisor')!,
@@ -86,36 +94,20 @@ describe('applyPipelineTemplate', () => {
     });
   });
 
-  it('should_build_business_analysis_four_node_pipeline', () => {
-    const definition = findPipelineTemplate('businessAnalysis')!;
+  it('should_build_three_node_pipeline', () => {
+    const definition: PipelineTemplateDefinition = {
+      id: 'vendorDiligence',
+      agentTypes: ['research', 'vectordb', 'analyst'],
+    };
 
     const result = applyPipelineTemplate(definition, catalog);
 
     expect(result.skippedAgentTypes).toEqual([]);
     expect(validatePipeline(result.graph)).toEqual({
       ok: true,
-      order: ['research', 'research', 'vectordb', 'analyst'],
+      order: ['research', 'vectordb', 'analyst'],
     });
-    expect(result.graph.nodes).toHaveLength(4);
-    expect(result.graph.connections).toHaveLength(3);
-  });
-
-  it('should_build_tech_analysis_four_node_pipeline', () => {
-    const definition = findPipelineTemplate('techAnalysis')!;
-
-    const result = applyPipelineTemplate(definition, catalog);
-
-    expect(result.skippedAgentTypes).toEqual([]);
-    expect(validatePipeline(result.graph)).toEqual({
-      ok: true,
-      order: ['research', 'research', 'vectordb', 'analyst'],
-    });
-  });
-
-  it('should_expose_analysis_templates_in_catalog', () => {
-    const ids = PIPELINE_TEMPLATE_CATALOG.map(item => item.id);
-    expect(ids).toContain('businessAnalysis');
-    expect(ids).toContain('techAnalysis');
-    expect(PIPELINE_TEMPLATE_CATALOG.length).toBeGreaterThanOrEqual(5);
+    expect(result.graph.nodes).toHaveLength(3);
+    expect(result.graph.connections).toHaveLength(2);
   });
 });

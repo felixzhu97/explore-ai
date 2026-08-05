@@ -33,7 +33,8 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Preferred Term   | 中文        | Java Package      | Frontend Route          | API Prefix                                | Feature Flag                  | Notes                                 |
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
 | Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
-| Agent            | Agent 流水线 | `com.ai.agent`    | `/agents`               | `/api/agents`                             | `module-agents`               | Pipeline / Supervisor / Worker SSE    |
+| Agent            | Agent（自主协作） | `com.ai.agent`    | `/agents`               | `/api/agents`                             | `module-agents`               | Deep Agent sessions / replan SSE      |
+| Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG + workflow templates       |
 | Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
@@ -56,6 +57,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | ----------------- | ---------------- | ------------------------------- |
 | `/chat`           | Chat             | `/api/text`, `/api/sessions`    |
 | `/agents`         | Agent            | `/api/agents`                   |
+| `/pipelines`      | Pipeline         | `/api/pipelines`                |
 | `/skills`         | Skill            | `/api/skills`                   |
 | `/generate`       | Generation       | —                               |
 | `/generate/image` | Image Generation | `/api/images`                   |
@@ -156,11 +158,11 @@ flowchart TB
 | Agent Type               | Agent 类型      | Canonical type id of an Agent                                 | Value Object   | `AgentType`                                        | e.g. weather, search                            |
 | Agent Definition         | Agent 定义      | Name, type, tools, and prompt binding for an Agent            | Entity         | `AgentDefinition`                                  | —                                               |
 | Agent Registry           | Agent 注册表     | Lookup of available Agent definitions                         | Repository     | `AgentRegistry`, `InMemoryAgentRegistry`           | —                                               |
-| Agent Pipeline           | Agent 流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline`                                    | Canvas + `POST /api/agents/pipeline/invoke/sse` |
+| Agent Pipeline           | 工作流流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline` (`com.ai.pipeline`)                | Canvas + `POST /api/pipelines/invoke/sse` |
 | Pipeline Node            | 流水线节点         | Graph node binding an Agent Type                              | Value Object   | `AgentPipeline.PipelineNode`                       | —                                               |
 | Pipeline Edge            | 流水线边          | Directed handoff between nodes                                | Value Object   | `AgentPipeline.PipelineEdge`                       | —                                               |
-| Agent Pipeline Template  | Agent 编排模版    | Built-in ordered agent graph users can apply in one click     | Pattern        | `/agents` Pipeline templates                       | Catalog + real tool workers                     |
-| Agent Facade             | Agent 门面      | Application entry for list, invoke, supervisor, pipeline      | Facade         | `AgentFacade`                                      | —                                               |
+| Workflow Template        | 工作流模版        | Multilingual builtin or client-owned linear agentTypes + brief | Entity / Catalog | `WorkflowTemplate`, `SavedWorkflowTemplate`, `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*` (mirrors Skills) |
+| Agent Facade             | Agent 门面      | Application entry for list, invoke, supervisor, pipeline      | Facade         | `PipelineFacade`                                   | —                                               |
 | Orchestrator Workers     | 编排用例          | Runs Worker Agents according to a routing or pipeline plan    | Use Case       | `OrchestratorWorkersUseCase`                       | —                                               |
 | Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | `POST /api/agents/supervisor/invoke/sse`        |
 | Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker`, `SpringAiWorkerAgentInvoker` | DSML strip via `ToolCallMarkupFilter`           |

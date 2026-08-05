@@ -2,6 +2,8 @@ package com.ai.common.web;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
+import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
 import com.ai.skill.domain.exception.SkillNameConflictException;
 import com.ai.skill.domain.exception.SkillNotFoundException;
 import com.ai.common.domain.exception.AiServiceException;
@@ -57,6 +59,21 @@ public class GlobalExceptionHandler {
         log.warn("Skill name conflict: {}", e.getName());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErrorResponse.of(e.getMessage(), "SKILL_NAME_CONFLICT"));
+    }
+
+    @ExceptionHandler(WorkflowTemplateNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleWorkflowTemplateNotFound(WorkflowTemplateNotFoundException e) {
+        log.warn("Workflow template not found: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(WorkflowTemplateNameConflictException.class)
+    public ResponseEntity<ErrorResponse> handleWorkflowTemplateNameConflict(
+            WorkflowTemplateNameConflictException e) {
+        log.warn("Workflow template name conflict: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NAME_CONFLICT"));
     }
 
     @ExceptionHandler(AiServiceException.class)

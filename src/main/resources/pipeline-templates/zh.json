@@ -1,0 +1,107 @@
+[
+  {
+    "id": "competitiveIntel",
+    "name": "竞品情报",
+    "description": "扫描公开市场信号，再综合成竞品简报。",
+    "agentTypes": [
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "竞品格局简报",
+    "briefPrompt": "请针对上下文中的公司、产品或市场，输出「竞品情报简报」。\n\n工作流：\n1) 调研 — 带日期的公开信号（产品、定价、GTM、招聘、合作）。\n2) 分析师 — 综合成稿。\n\n必含章节：\n## Thesis\n## Competitor / market signals（带日期 + 链接）\n## Business read（定位、威胁、机会）\n## Options（2–3 个动作）\n## Recommendation\n## Next actions\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  },
+  {
+    "id": "policyQa",
+    "name": "制度与知识问答",
+    "description": "先检索内部文档，再给出带建议的回答。",
+    "agentTypes": [
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "内部制度问题",
+    "briefPrompt": "优先用内部知识库回答上下文中的制度、流程或 FAQ 问题。\n\n若文档不足请说明缺口；结尾给出清晰建议，并在可能时引用检索来源。\n\n必含章节：\n## Answer\n## Evidence（来自知识库）\n## Gaps / assumptions\n## Recommendation\n## Next actions"
+  },
+  {
+    "id": "vendorDiligence",
+    "name": "供应商尽职调查",
+    "description": "公开调研 + 内部知识，输出风险导向简报。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "供应商评估",
+    "briefPrompt": "请针对上下文中的供应商或产品，输出「供应商/合作方尽调简报」。\n\n工作流：\n1) 调研 — 公开口碑、定价信号、事故、路线图线索。\n2) 知识库 — 检索合同、RFP、手册或既往评估。\n3) 分析师 — 综合风险与匹配度。\n\n必含章节：\n## Thesis\n## Public signals（带日期 + 链接）\n## Internal evidence\n## Risk read（安全、锁定、成本、交付）\n## Options（合作 / 试点 / 暂缓）\n## Recommendation\n## Next actions\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  },
+  {
+    "id": "executiveBrief",
+    "name": "高管决策简报",
+    "description": "双轮调研后，输出可供管理层选择的决策简报。",
+    "agentTypes": [
+      "research",
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "管理层决策简报",
+    "briefPrompt": "请针对上下文中的事项，输出「高管决策简报」。\n\n工作流：\n1) 调研第 1 轮 — 市场 / 客户 / 监管信号。\n2) 调研第 2 轮 — 竞品与替代方案。\n3) 分析师 — 面向管理层的可选方案简报。\n\n必含章节：\n## Thesis\n## Situation（带日期信号 + 链接）\n## Options（2–3：下注 / 为何现在 / 工作量 / 风险）\n## Recommendation（主推 + 暂缓）\n## Next actions（3–5 条可执行）\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  },
+  {
+    "id": "meetingPrep",
+    "name": "干系人会议准备",
+    "description": "外部背景 + 内部纪要，整理成会前简报。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "干系人会议准备",
+    "briefPrompt": "请针对上下文中的会议主题或参会方，输出「干系人会议准备简报」。\n\n工作流：\n1) 调研 — 公司/人物/事项的近期公开背景。\n2) 知识库 — 检索内部纪要、既往决策或相关文档。\n3) 分析师 — 综合成可执行会前材料。\n\n必含章节：\n## Meeting objective\n## Context（外部 + 内部）\n## Likely questions / objections\n## Talking points\n## Ask / decision needed\n## Follow-ups\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  },
+  {
+    "id": "incidentReview",
+    "name": "事故复盘",
+    "description": "公开信号 + 内部手册，输出无指责的事故复盘简报。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "事故复盘",
+    "briefPrompt": "请针对上下文中的事故/故障，输出「无指责事故复盘简报」。\n\n工作流：\n1) 调研 — 公开状态页、公告、同类行业事件（带日期）。\n2) 知识库 — 检索内部手册、历史事故、告警记录。\n3) 分析师 — 综合成稿。\n\n必含章节：\n## Summary\n## Timeline（已知事实）\n## Impact\n## Root cause hypotheses（区分事实 / 推断）\n## What went well / poorly\n## Action items（责任人 + 期限若可知）\n## References\n\n禁止编造 URL，禁止人身指责。"
+  },
+  {
+    "id": "marketScan",
+    "name": "市场与行业扫描",
+    "description": "双轮调研市场动向，输出面向管理层的扫描简报。",
+    "agentTypes": [
+      "research",
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "周度市场扫描",
+    "briefPrompt": "请针对上下文中的行业或主题，输出「市场与行业扫描」。\n\n工作流：\n1) 调研第 1 轮 — 带日期的市场 / 监管 / 融资信号。\n2) 调研第 2 轮 — 竞品与客户需求信号。\n3) 分析师 — 综合成稿。\n\n必含章节：\n## Thesis\n## Signals（带日期 + 链接）\n## Implications\n## Watchlist\n## Recommendation\n## Next actions\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  },
+  {
+    "id": "customerInsight",
+    "name": "客户洞察简报",
+    "description": "调研客户与市场声音，再综合成可执行洞察。",
+    "agentTypes": [
+      "research",
+      "analyst"
+    ],
+    "shortTopic": "客户洞察",
+    "briefPrompt": "请针对上下文中的客群、产品或反馈主题，输出「客户洞察简报」。\n\n工作流：\n1) 调研 — 公开评价、论坛、社交、分析师观点（带日期）。\n2) 分析师 — 提炼 JTBD 与痛点。\n\n必含章节：\n## Thesis\n## Voice of customer（主题 + 证据）\n## Jobs / pains / gains\n## Opportunities\n## Recommendation\n## Next actions\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  },
+  {
+    "id": "riskAssessment",
+    "name": "风险评估",
+    "description": "外部风险信号 + 内部文档，输出优先级风险简报。",
+    "agentTypes": [
+      "research",
+      "vectordb",
+      "analyst"
+    ],
+    "shortTopic": "风险评估",
+    "briefPrompt": "请针对上下文中的事项、供应商或变更，输出「风险评估简报」。\n\n工作流：\n1) 调研 — 公开风险、合规、安全与市场信号（带日期）。\n2) 知识库 — 检索内部制度、风险清单、既往评估。\n3) 分析师 — 排序风险与缓释措施。\n\n必含章节：\n## Thesis\n## Risk register（可能性 × 影响）\n## Evidence（外部 + 内部）\n## Mitigations\n## Recommendation\n## Next actions\n## References\n\n区分事实 / 推断 / 建议；禁止编造 URL。"
+  }
+]

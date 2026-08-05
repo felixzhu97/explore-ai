@@ -1,16 +1,8 @@
 import type { AgentInfo } from './pipelines.model';
 import type { PipelineConnection, PipelineGraph, PipelineNode } from './pipelines.model.graph';
 
-/** Built-in Agent Pipeline Template ids (i18n under agents.pipeline.templates.items). */
-export type PipelineTemplateId =
-  | 'webResearch'
-  | 'knowledgeAnswer'
-  | 'weatherBrief'
-  | 'businessAnalysis'
-  | 'techAnalysis';
-
 export interface PipelineTemplateDefinition {
-  id: PipelineTemplateId;
+  id: string;
   /** Ordered worker agent types forming a linear pipeline. */
   agentTypes: readonly string[];
 }
@@ -19,29 +11,6 @@ export interface PipelineTemplateApplyResult {
   graph: PipelineGraph;
   skippedAgentTypes: string[];
 }
-
-export const PIPELINE_TEMPLATE_CATALOG: readonly PipelineTemplateDefinition[] = [
-  {
-    id: 'webResearch',
-    agentTypes: ['research', 'analyst'],
-  },
-  {
-    id: 'knowledgeAnswer',
-    agentTypes: ['vectordb', 'analyst'],
-  },
-  {
-    id: 'weatherBrief',
-    agentTypes: ['weather', 'analyst'],
-  },
-  {
-    id: 'businessAnalysis',
-    agentTypes: ['research', 'research', 'vectordb', 'analyst'],
-  },
-  {
-    id: 'techAnalysis',
-    agentTypes: ['research', 'research', 'vectordb', 'analyst'],
-  },
-] as const;
 
 const NODE_GAP_X = 220;
 const NODE_ORIGIN = { x: 80, y: 120 };
@@ -96,10 +65,4 @@ export function applyPipelineTemplate(
     graph: { nodes, connections },
     skippedAgentTypes,
   };
-}
-
-export function findPipelineTemplate(
-  id: PipelineTemplateId,
-): PipelineTemplateDefinition | undefined {
-  return PIPELINE_TEMPLATE_CATALOG.find(item => item.id === id);
 }
