@@ -139,10 +139,10 @@ Live Golden Eval (paid/local LLM calls): see [docs/developer/golden-eval.md](doc
 
 | Target | Role |
 |--------|------|
-| [Render Free](https://render.com/docs/free) | Backend via [`render.yaml`](render.yaml); health: `/actuator/health` |
+| [Render Starter](https://render.com/docs/compute-plans) | Backend via [`render.yaml`](render.yaml); health: `/actuator/health` (always-on) |
 | [Vercel](https://vercel.com) | Frontend; [`vercel.json`](vercel.json) rewrites `/api/*` to Render |
 
-Free tier notes: idle sleep, no durable disk, keep Datadog javaagent off (RAM). Optional RUM on Vercel: `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN`.
+Starter notes: always-on (no Free idle spin-down), still 512MB RAM — keep Datadog javaagent off. Optional RUM on Vercel: `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN`.
 
 ## License
 

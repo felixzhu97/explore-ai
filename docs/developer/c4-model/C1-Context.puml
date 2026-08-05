@@ -16,14 +16,14 @@ Person(admin, "管理员/开发者", "质量评估、文本分析、AI 指标看
 ' ============================================================
 System_Boundary(ai_platform, "AI Chat & Agent Platform") {
     System(frontend, "Web Frontend", "Angular 22 + TypeScript", "Vercel 静态部署 (prod) / ng serve :4200 (dev)\n路由: /chat /generate /rag /metrics + flag: /agents /vision /mcp /eval /asr")
-    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Render Free Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 12 子域")
+    System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Render Starter Docker :8080 (prod) / Gradle :9000 (dev)\nClean Architecture · 12 子域")
 }
 
 ' ============================================================
 ' PLATFORM SERVICES
 ' ============================================================
 System_Ext(launchdarkly, "LaunchDarkly", "功能开关 (module-agents/vision/asr/mcp/eval)\n前端 Client SDK + 后端 Server SDK")
-System_Ext(datadog, "Datadog (us5)", "RUM (浏览器)；APM 可选（Render Free 默认关闭）\n构建时注入 RUM 凭证，OSS 仓库不含密钥")
+System_Ext(datadog, "Datadog (us5)", "RUM (浏览器)；APM 可选（Render Starter 512MB 默认关闭）\n构建时注入 RUM 凭证，OSS 仓库不含密钥")
 
 ' ============================================================
 ' CLOUD AI SERVICES (prod + dev)

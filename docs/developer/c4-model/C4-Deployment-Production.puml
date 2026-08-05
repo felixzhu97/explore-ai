@@ -3,7 +3,7 @@
 
 LAYOUT_WITH_LEGEND()
 
-title Deployment Diagram - Production (Vercel + Render Free)
+title Deployment Diagram - Production (Vercel + Render Starter)
 
 Person_Ext(user, "End User", "浏览器访问 Vercel 托管前端")
 
@@ -11,10 +11,10 @@ Deployment_Node(vercel, "Vercel", "CDN + Build Pipeline") {
     Container(angular_static, "Angular 22 Static", "SPA", "构建时注入\nLAUNCHDARKLY_CLIENT_SIDE_ID\nDD_APPLICATION_ID / DD_CLIENT_TOKEN", "HTTPS")
 }
 
-Deployment_Node(render, "Render Free", "Web Service (Docker)") {
+Deployment_Node(render, "Render Starter", "Web Service (Docker)") {
     Deployment_Node(explore_ai_svc, "explore-ai", "Docker / JRE 25 Alpine") {
         Container(backend, "Spring Boot Backend", "Spring Boot 4.1 / Java 25", "SPRING_PROFILES_ACTIVE=prod\nJAVA_TOOL_OPTIONS MaxRAMPercentage=60\nLAUNCHDARKLY_SDK_KEY\n无 Datadog javaagent（省内存）", "8080")
-        ContainerDb(h2_ephemeral, "H2 File DB", "H2 + Liquibase", "/app/data/explore-ai\nFree 无持久盘；休眠/重启清空", "内嵌 ephemeral")
+        ContainerDb(h2_ephemeral, "H2 File DB", "H2 + Liquibase", "/app/data/explore-ai\n无持久盘；重启清空", "内嵌 ephemeral")
     }
 }
 
@@ -49,7 +49,7 @@ Rel(backend, openai_api, "图像 + TTS", "HTTPS")
 Rel(backend, serper_api, "搜索", "HTTPS")
 
 note right of backend
-  **cloud-minimal prod (Render Free)**
+  **cloud-minimal prod (Render Starter)**
   · **开启**: module-agents (Agent 流水线)
   · **关闭** (flags = false):
     Vision / Image Analysis (ONNX + Tesseract)
@@ -57,7 +57,7 @@ note right of backend
     MCP Server / Client
     Eval
     Ollama Embedding / Vision Chat
-  · Free: 15min 休眠；512MB；无持久盘
+  · Starter: always-on；512MB；无持久盘
 end note
 
 SHOW_LEGEND()

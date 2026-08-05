@@ -11,7 +11,7 @@
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
 | `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
-| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Render Free + Datadog RUM + LaunchDarkly） |
+| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Render Starter + Datadog RUM + LaunchDarkly） |
 
 ---
 
@@ -61,7 +61,7 @@
 - **子域 (12)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
-- **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Free 默认关闭）
+- **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
 - **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis
 
@@ -158,8 +158,8 @@ Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
 ### 生产 (cloud-minimal)
 
 ```
-Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephemeral)
-        ↘ Datadog RUM (us5, 可选)        ↘ 无 APM sidecar（Free 省内存，不启 javaagent）
+Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ephemeral)
+        ↘ Datadog RUM (us5, 可选)        ↘ 无 APM sidecar（Starter 512MB，不启 javaagent）
         ↘ LaunchDarkly Client            ↘ LaunchDarkly Server
                                          → DeepSeek / OpenAI / Serper
 ```
@@ -186,7 +186,7 @@ Browser → Vercel (Angular static) → Render Free explore-ai (:8080 + H2 ephem
 | Image Analysis ONNX Models | `models/` 本地文件 [local] |
 | Angular Dev Server | 4200 |
 | Vercel (prod frontend) | HTTPS |
-| Render explore-ai (prod backend) | HTTPS → :8080（Free：休眠 / 无持久盘） |
+| Render explore-ai (prod backend) | HTTPS → :8080（Starter：always-on / 无持久盘） |
 | DeepSeek / OpenAI / Serper | HTTPS |
 | LaunchDarkly / Datadog us5 | HTTPS |
 

@@ -1,10 +1,10 @@
-# Render Blueprint — production backend (Free)
+# Render Blueprint — production backend (Starter)
 # https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: explore-ai
     runtime: docker
-    plan: free
+    plan: starter
     region: oregon
     healthCheckPath: /actuator/health
     autoDeployTrigger: commit
