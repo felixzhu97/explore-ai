@@ -79,7 +79,7 @@ Rel(backend, launchdarkly, "功能开关 (可选)", "HTTPS")
 
 note right of backend
   生产部署见 C4-Deployment-Production.puml
-  Vercel (前端) + Render Free (后端 :8080)
+  Vercel (前端) + Render Starter (后端 :8080)
 end note
 
 SHOW_LEGEND()
