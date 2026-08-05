@@ -506,57 +506,81 @@ References:
 
 ---
 
-## Appendix D. LLM Engineering | 大模型工程术语
+## Appendix D. LLM Foundations & Engineering | 大模型原理与工程
 
-Short vocabulary for **running and integrating** local model files (Ollama / ONNX). Prefer these English terms in ops, config, and reviews. Spring AI product wiring stays in **Appendix B**; this appendix is not Transformer math.
+Two complementary vocabularies for local Qwen/Ollama (and Vision ONNX) models: **how the model computes**, and **how we run and integrate the files**. Spring AI product wiring stays in **Appendix B**. Prefer English Preferred Terms in both cases.
 
+### D.1 Foundations | 底层原理
 
-| Preferred Term (English)     | 中文      | Definition                                                              | Type      | Code Mapping                                         | Notes                                              |
-| ---------------------------- | ------- | ----------------------------------------------------------------------- | --------- | ---------------------------------------------------- | -------------------------------------------------- |
-| Model Artifact               | 模型产物    | Packaged weights and config loaded for runtime                          | Technical | `~/.ollama/models/blobs`, `models/*.onnx`            | What you download and store on disk                |
-| Parameters (Weights)         | 参数（权重）  | Learned numbers that define model behavior                              | Technical | `parameters` in `ollama show`                        | Reported size (e.g. 9.7B / 36.0B)                  |
-| Quantization                 | 量化      | Stores weights in fewer bits to cut disk and memory use                 | Technical | `quantization: Q4_K_M`                               | Why large models fit locally                       |
-| GGUF                         | GGUF    | Common packaged weight format for local LLMs                            | Technical | Ollama blobs under `~/.ollama/models/blobs`          | Prefer over vague “model.bin”                      |
-| Model Manifest               | 模型清单    | Maps a model name/tag to its weight blobs                               | Technical | `~/.ollama/models/manifests/...`                     | Name users pull vs content-addressed files         |
-| Model Architecture           | 模型架构标识  | Runtime architecture family reported by the runtime                     | Technical | `architecture` in `ollama show`                      | e.g. `qwen35`, `qwen3moe`, `qwen35moe`             |
-| Model Capability             | 模型能力    | Declared runtime abilities (completion, embedding, vision, tools)       | Technical | `Capabilities` in `ollama show`                      | Pick the right model for the job                   |
-| Model Load                   | 模型加载    | Reading weights into memory/GPU before serving requests                 | Technical | first `ollama run` / Spring AI → Ollama              | Drives cold-start latency                          |
-| Inference                    | 推理      | Runtime forward pass that produces outputs from loaded weights          | Technical | Ollama HTTP / local ONNX Runtime                     | Opposite of training in this project               |
-| Tokenizer                    | 分词器     | Converts text to token IDs (and back) for the model                     | Technical | shipped with Ollama model package                    | Affects **Token** counts and context fit           |
-| Embedding Dimension          | 嵌入维度    | Size of vectors produced by an embedding model                          | Technical | `embedding length`; `spring.ai.ollama.embedding.dimensions` | Must match Vector Store schema              |
-| Token Embedding              | 词元嵌入    | Model-internal map from token ID to vector at input                     | Technical | `embedding length` on chat models                    | Not the RAG **Embedding** output vector            |
-| Mixture of Experts (MoE)     | 混合专家    | Architecture that activates only some experts per token                 | Technical | `qwen3.5:35b`, `qwen3-coder:30b`                     | Large param count; different VRAM vs dense         |
-| Context Length               | 上下文长度   | Max tokens the runtime accepts in one request                           | Technical | `context length` in `ollama show`                    | Same idea as **Context Window** (Appendix B)       |
-| KV Cache                     | KV 缓存   | Cached attention state reused while generating further tokens           | Technical | long-context chat models                             | Memory grows with context; speeds decoding         |
-| Sampling                     | 采样      | How the runtime chooses the next token from scores                      | Technical | `temperature` / `top_p` / `top_k` in `ollama show`   | Chat only; embedding models skip this              |
-| Top-p (Nucleus Sampling)     | Top-p 采样 | Restrict sampling to the smallest token set with cumulative mass ≥ p    | Technical | e.g. `qwen3.5:9b` `top_p=0.95`                       | Used with **Temperature**                          |
-| Top-k Sampling               | Top-k 采样 | Restrict sampling to the k highest-scoring tokens                       | Technical | e.g. `top_k=20`                                      | Used with **Temperature**                          |
-| Prompt Tokens                | 提示令牌数   | Token count of the request prompt                                       | Technical | `promptTokens` / `AiInvocationEvent`                 | Metrics and cost signal                            |
-| Completion Tokens            | 补全令牌数   | Token count of the generated completion                                 | Technical | `completionTokens` / `AiInvocationEvent`             | Metrics and cost signal                            |
-| Vision Encoder               | 视觉编码器   | Runtime component that turns an image into features for the LLM         | Technical | `qwen3.5:9b` / `:35b`, `qwen3-vl:30b`                | Requires `vision` **Model Capability**             |
-| Multimodal Projector         | 多模态投影   | Maps vision features into the LLM input space                           | Technical | same vision / VL models                              | Engineering step before text **Inference**         |
-| ONNX                         | ONNX    | Portable model format for local Vision engines                          | Technical | `models/*.onnx`                                      | Caption / Detect; not Ollama chat blobs            |
-| ONNX Runtime                 | ONNX 运行时 | Engine that loads and runs ONNX graphs                                  | Technical | `OnnxBlipCaptioner`, `OnnxYoloDetector`              | Image Analysis path                                |
+How token sequences are computed inside the network.
 
 
-**Local models (engineering mapping)**
+| Preferred Term (English)         | 中文       | Definition                                                        | Type      | Code Mapping                                   | Notes                                           |
+| -------------------------------- | -------- | ----------------------------------------------------------------- | --------- | ---------------------------------------------- | ----------------------------------------------- |
+| Transformer                      | Transformer | Stacked attention + FFN layers that process token sequences    | Technical | `architecture` in `ollama show`                | Base of local Qwen models                       |
+| Self-Attention                   | 自注意力     | Lets each token weigh other tokens in the sequence                | Technical | Qwen chat / embedding models                   | Core step inside each layer                     |
+| Multi-Head Attention             | 多头注意力    | Runs several attention views in parallel                          | Technical | Qwen chat / embedding models                   | Part of Transformer block                       |
+| Feed-Forward Network (FFN)       | 前馈网络     | Per-token MLP after attention                                     | Technical | `qwen3.5:9b`, `qwen3-embedding:*`              | Dense models use fixed FFN                      |
+| Mixture of Experts (MoE)         | 混合专家     | Routes tokens to a few expert FFNs                                | Technical | `qwen3.5:35b`, `qwen3-coder:30b`               | `qwen35moe` / `qwen3moe`; also a VRAM trade-off |
+| Rotary Position Embedding (RoPE) | 旋转位置编码   | Encodes token position into attention                             | Technical | Qwen family                                    | Supports long **Context Window**                |
+| Tokenizer                        | 分词器      | Splits text into token IDs                                        | Technical | Ollama model package                           | First step before **Inference**                 |
+| Token Embedding                  | 词元嵌入     | Maps token IDs to vectors inside the model                        | Technical | `embedding length` in `ollama show`            | Not the RAG **Embedding** vector                |
+| Hidden State                     | 隐藏状态     | Intermediate vectors between layers                               | Technical | Transformer forward pass                       | Passed layer to layer                           |
+| Logits                           | 对数几率     | Raw next-token scores over the vocabulary                         | Technical | Chat / VL models                               | Before Softmax                                  |
+| Softmax                          | Softmax  | Turns logits into next-token probabilities                        | Technical | Chat / VL models                               | Feeds **Sampling**                              |
+| Inference                        | 推理       | Forward pass using loaded weights                                 | Technical | Ollama / ONNX Runtime                          | Load weights → compute                          |
+| Autoregressive Decoding          | 自回归解码    | Predict one token, append, repeat                                 | Technical | `qwen3.5:*`, `qwen3-coder:30b`, `qwen3-vl:30b` | Chat / VL path only                             |
+| Next-Token Prediction            | 下一词预测    | Choosing the next token from the distribution                     | Technical | Chat / VL path                                 | Training and inference objective                |
+| KV Cache                         | KV 缓存    | Reuses past attention keys/values while decoding                  | Technical | Long-context chat (`context length`)           | Speeds multi-step generation                    |
+| Sampling                         | 采样       | Picks the next token from probabilities                           | Technical | `temperature` / `top_p` / `top_k`              | Chat only; embedding models skip this           |
+| Top-p (Nucleus Sampling)         | Top-p 采样 | Sample from the smallest set whose probability mass is at least p | Technical | e.g. `qwen3.5:9b` `top_p=0.95`                 | Used with **Temperature**                       |
+| Top-k Sampling                   | Top-k 采样 | Sample only from the k highest-probability tokens                 | Technical | e.g. `top_k=20`                                | Used with **Temperature**                       |
+| Parameters (Weights)             | 参数（权重）   | Learned numbers stored in the model files                         | Technical | `parameters` in `ollama show`                   | What local model files contain                  |
+| Vision Encoder                   | 视觉编码器    | Turns an image into features for the LLM                          | Technical | `qwen3.5:9b` / `:35b`, `qwen3-vl:30b`          | Not on coder / embedding models                 |
+| Multimodal Projector             | 多模态投影    | Maps vision features into the LLM token space                    | Technical | same vision / VL models                        | Before shared Transformer; see **Multimodal**   |
 
 
-| Model                  | Path               | Key terms                                              |
-| ---------------------- | ------------------ | ------------------------------------------------------ |
-| `qwen3.5:9b`           | Chat (+ vision)    | Quantization, Sampling, Vision Encoder, Model Capability |
-| `qwen3.5:35b`          | Chat (+ vision) + MoE | MoE, Quantization, Sampling, Vision Encoder         |
-| `qwen3-coder:30b`      | Chat + MoE         | MoE, Quantization, Sampling                            |
-| `qwen3-embedding:8b`   | Embedding          | Embedding Dimension, Inference; no chat Sampling       |
-| `qwen3-vl:30b`         | Chat + vision (VL) | Vision Encoder, Multimodal Projector, Sampling         |
-| `qwen3-embedding:0.6b` | Embedding          | Embedding Dimension (project default); vs Token Embedding |
+### D.2 Engineering | 工程运行
+
+How we package, load, configure, and measure local models in this project.
+
+
+| Preferred Term (English) | 中文      | Definition                                                           | Type      | Code Mapping                                                | Notes                                         |
+| ------------------------ | ------- | -------------------------------------------------------------------- | --------- | ----------------------------------------------------------- | --------------------------------------------- |
+| Model Artifact           | 模型产物    | Packaged weights and config loaded for runtime                       | Technical | `~/.ollama/models/blobs`, `models/*.onnx`                   | What you download and store on disk           |
+| Quantization             | 量化      | Stores weights in fewer bits to cut disk and memory use              | Technical | `quantization: Q4_K_M`                                      | Why large models fit locally                  |
+| GGUF                     | GGUF    | Common packaged weight format for local LLMs                         | Technical | Ollama blobs under `~/.ollama/models/blobs`                 | Prefer over vague “model.bin”                 |
+| Model Manifest           | 模型清单    | Maps a model name/tag to its weight blobs                           | Technical | `~/.ollama/models/manifests/...`                            | Name users pull vs content-addressed files    |
+| Model Architecture       | 模型架构标识  | Runtime architecture family reported by the runtime                  | Technical | `architecture` in `ollama show`                             | e.g. `qwen35`, `qwen3moe`, `qwen35moe`        |
+| Model Capability         | 模型能力    | Declared runtime abilities (completion, embedding, vision, tools)    | Technical | `Capabilities` in `ollama show`                             | Pick the right model for the job              |
+| Model Load               | 模型加载    | Reading weights into memory/GPU before serving requests              | Technical | first `ollama run` / Spring AI → Ollama                     | Drives cold-start latency                     |
+| Embedding Dimension      | 嵌入维度    | Size of vectors produced by an embedding model                       | Technical | `embedding length`; `spring.ai.ollama.embedding.dimensions` | Must match Vector Store schema                |
+| Context Length           | 上下文长度   | Max tokens the runtime accepts in one request                        | Technical | `context length` in `ollama show`                           | Same idea as **Context Window** (Appendix B)  |
+| Prompt Tokens            | 提示令牌数   | Token count of the request prompt                                    | Technical | `promptTokens` / `AiInvocationEvent`                        | Metrics and cost signal                       |
+| Completion Tokens        | 补全令牌数   | Token count of the generated completion                              | Technical | `completionTokens` / `AiInvocationEvent`                    | Metrics and cost signal                       |
+| ONNX                     | ONNX    | Portable model format for local Vision engines                       | Technical | `models/*.onnx`                                             | Caption / Detect; not Ollama chat blobs       |
+| ONNX Runtime             | ONNX 运行时 | Engine that loads and runs ONNX graphs                               | Technical | `OnnxBlipCaptioner`, `OnnxYoloDetector`                     | Image Analysis path                           |
+
+
+**Local models (foundations + engineering)**
+
+
+| Model                  | Path                  | Key terms                                                                 |
+| ---------------------- | --------------------- | ------------------------------------------------------------------------- |
+| `qwen3.5:9b`           | Chat (+ vision)       | Transformer, Sampling, Vision Encoder; Quantization, Model Capability     |
+| `qwen3.5:35b`          | Chat (+ vision) + MoE | MoE, Autoregressive Decoding; Quantization, Model Architecture            |
+| `qwen3-coder:30b`      | Chat + MoE            | MoE, Sampling; Quantization                                               |
+| `qwen3-embedding:8b`   | Embedding             | Token Embedding → Inference vector; Embedding Dimension; no chat Sampling |
+| `qwen3-vl:30b`         | Chat + vision (VL)    | Vision Encoder, Multimodal Projector, Sampling; Model Capability          |
+| `qwen3-embedding:0.6b` | Embedding             | Embedding Dimension (project default); vs **Token Embedding**             |
 
 
 References:
 
-- [GGUF (Hugging Face Hub)](https://huggingface.co/docs/hub/en/gguf)
-- [Ollama](https://github.com/ollama/ollama)
+- [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 - [Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/)
+- [GGUF (Hugging Face Hub)](https://huggingface.co/docs/hub/en/gguf)
+- [ollama/ollama](https://github.com/ollama/ollama)
 - [ONNX Runtime](https://onnxruntime.ai/)
 
 ---
