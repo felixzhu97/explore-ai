@@ -31,8 +31,8 @@ export interface Translations {
     mcp: string;
     eval: string;
     speechToText: string;
-    agents: string;
     pipelines: string;
+    agents: string;
     skills: string;
     kubernetes: string;
     monitoring: string;
@@ -116,34 +116,22 @@ export interface Translations {
     fileSelected: string;
     openPipelineWorkbench: string;
   };
-  agents: {
-    title: string;
-    newSession: string;
-    deleteSession: string;
-    emptySessions: string;
-    defaultTitle: string;
-    thinking: string;
-    errorMessage: string;
-    inputPlaceholder: string;
-    welcomeTitle: string;
-    welcomeDescription: string;
-    traceTitle: string;
-    trace: {
-      plan: string;
-      replan: string;
-      thought: string;
-      tool: string;
-      evaluation: string;
-    };
-  };
 
   pipelines: {
     thinking: string;
     errorMessage: string;
     pipeline: {
       inputPlaceholder: string;
+      taskPlaceholder: string;
       defaultMessage: string;
       paletteTitle: string;
+      paletteHint: string;
+      paletteEmpty: string;
+      paletteShow: string;
+      paletteHide: string;
+      addAgent: string;
+      addAgentTitle: string;
+      addAgentHint: string;
       canvasHint: string;
       clear: string;
       run: string;
@@ -158,13 +146,39 @@ export interface Translations {
         cycle: string;
         invalid: string;
       };
+      nodeEditor: {
+        title: string;
+        hint: string;
+        dblclickHint: string;
+        name: string;
+        description: string;
+        systemPrompt: string;
+        toolKeys: string;
+        toolKeysHint: string;
+        save: string;
+        cancel: string;
+      };
       templates: {
         title: string;
         use: string;
+        edit: string;
         skipped: string;
         templatesHint: string;
+        addWorkflow: string;
+        newWorkflowName: string;
+        editMode: string;
+        useMode: string;
+        editModeHint: string;
+        useModeHint: string;
+        backToTemplates: string;
+        useThisGraph: string;
+        editThisGraph: string;
+        previewHint: string;
+        cancel: string;
+        /** @deprecated unused in UI; kept for locale parity */
         myTemplates: string;
         emptyLibrary: string;
+        saveCanvas: string;
         newTemplate: string;
         add: string;
         adding: string;
@@ -175,12 +189,15 @@ export interface Translations {
         name: string;
         description: string;
         agentTypes: string;
+        agentTypesHint: string;
+        useCanvas: string;
+        canvasEmpty: string;
         shortTopic: string;
+        shortTopicHint: string;
         briefPrompt: string;
+        briefPromptHint: string;
         save: string;
         saving: string;
-        cancel: string;
-        edit: string;
         enable: string;
         disable: string;
         statusDisabled: string;
@@ -218,6 +235,39 @@ export interface Translations {
     skillsEmpty: string;
     skillsManage: string;
     skillsSelected: string;
+  };
+  agentsPage: {
+    title: string;
+    subtitle: string;
+    newAgent: string;
+    builtins: string;
+    builtinsHint: string;
+    myAgents: string;
+    emptyLibrary: string;
+    loading: string;
+    typeKey: string;
+    name: string;
+    description: string;
+    systemPrompt: string;
+    toolKeys: string;
+    save: string;
+    saving: string;
+    cancel: string;
+    edit: string;
+    enable: string;
+    disable: string;
+    statusDisabled: string;
+    delete: string;
+    deleteConfirm: string;
+    customize: string;
+    editOverride: string;
+    createTitle: string;
+    editTitle: string;
+    loadFailed: string;
+    saveFailed: string;
+    deleteFailed: string;
+    updateFailed: string;
+    nameRequired: string;
   };
   skillsPage: {
     title: string;

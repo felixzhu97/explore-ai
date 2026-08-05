@@ -25,10 +25,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Orchestrator-Workers workflow: route via supervisor, run workers (parallel when multi-subtask),
- * compose pipeline steps by feeding prior output forward.
- */
 @Service
 public class OrchestratorWorkersUseCase {
 
@@ -48,26 +44,26 @@ public class OrchestratorWorkersUseCase {
         this.invocationRecorder = invocationRecorder;
     }
 
-    public List<AgentDefinition> listAgents() {
-        return registry.listAll();
+    public List<AgentDefinition> listAgents(String clientId, String language) {
+        return registry.listAll(clientId, language);
     }
 
-    public AgentDefinition health(AgentType type) {
-        return registry.require(type);
+    public AgentDefinition health(AgentType type, String clientId, String language) {
+        return registry.require(type, clientId, language);
     }
 
-    public Flux<ServerSentEvent<String>> invokeSupervisor(String message) {
+    public Flux<ServerSentEvent<String>> invokeSupervisor(String message, String clientId, String language) {
         if (message == null || message.isBlank()) {
             return Flux.just(errorEvent("message must not be blank"), doneEvent());
         }
 
         long startedAt = System.nanoTime();
         return Mono.fromCallable(() -> {
-                    List<AgentDefinition> workers = registry.listWorkers();
+                    List<AgentDefinition> workers = registry.listWorkers(clientId, language);
                     return supervisorRouter.plan(message, workers);
                 })
                 .subscribeOn(Schedulers.boundedElastic())
-                .flatMapMany(plan -> executePlan(message, plan))
+                .flatMapMany(plan -> executePlan(message, plan, clientId, language))
                 .doOnComplete(() -> recordAgent("supervisor", "agent.supervisor", startedAt, true, null))
                 .doOnError(err -> recordAgent("supervisor", "agent.supervisor", startedAt, false, err.getMessage()))
                 .onErrorResume(err -> Flux.just(
@@ -75,17 +71,18 @@ public class OrchestratorWorkersUseCase {
                         doneEvent()));
     }
 
-    public Flux<ServerSentEvent<String>> invokeAgent(AgentType type, String message) {
+    public Flux<ServerSentEvent<String>> invokeAgent(
+            AgentType type, String message, String clientId, String language) {
         if (message == null || message.isBlank()) {
             return Flux.just(errorEvent("message must not be blank"), doneEvent());
         }
         if (type.isSupervisor()) {
-            return invokeSupervisor(message);
+            return invokeSupervisor(message, clientId, language);
         }
 
         long startedAt = System.nanoTime();
         try {
-            AgentDefinition agent = registry.require(type);
+            AgentDefinition agent = registry.require(type, clientId, language);
             return Flux.concat(
                     Flux.just(handoffEvent(type.value(), "direct invoke")),
                     workerInvoker.invokeStream(agent, message)
@@ -111,13 +108,14 @@ public class OrchestratorWorkersUseCase {
                 .build());
     }
 
-    public Flux<ServerSentEvent<String>> invokePipeline(String message, AgentPipeline pipeline) {
+    public Flux<ServerSentEvent<String>> invokePipeline(
+            String message, AgentPipeline pipeline, String clientId, String language) {
         if (message == null || message.isBlank()) {
             return Flux.just(errorEvent("message must not be blank"), doneEvent());
         }
         try {
-            List<AgentType> order = pipeline.executionOrder();
-            return runPipelineStreamed(message, order)
+            List<AgentPipeline.PipelineNode> order = pipeline.executionOrder();
+            return runPipelineStreamed(message, order, clientId, language)
                     .onErrorResume(err -> Flux.just(
                             errorEvent(err.getMessage() != null ? err.getMessage() : "pipeline failed"),
                             doneEvent()));
@@ -126,15 +124,15 @@ public class OrchestratorWorkersUseCase {
         }
     }
 
-    /**
-     * Emits handoff + streamed worker output per step so clients see stages as they run.
-     * Step order and prior-output context forwarding are unchanged.
-     */
-    private Flux<ServerSentEvent<String>> runPipelineStreamed(String message, List<AgentType> order) {
+    private Flux<ServerSentEvent<String>> runPipelineStreamed(
+            String message,
+            List<AgentPipeline.PipelineNode> order,
+            String clientId,
+            String language) {
         AtomicReference<String> current = new AtomicReference<>(message);
         return Flux.fromIterable(order)
-                .concatMap(type -> {
-                    AgentDefinition agent = registry.require(type);
+                .concatMap(node -> {
+                    AgentDefinition agent = resolveNode(node, clientId, language);
                     String stepInput = """
                             Original user request:
                             %s
@@ -146,7 +144,7 @@ public class OrchestratorWorkersUseCase {
                             """.formatted(message, current.get());
                     StringBuilder stepOutput = new StringBuilder();
                     return Flux.concat(
-                            Flux.just(handoffEvent(type.value(), "pipeline step")),
+                            Flux.just(handoffEvent(node.agentType().value(), "pipeline step")),
                             workerInvoker.invokeStream(agent, stepInput)
                                     .doOnNext(chunk -> {
                                         if (chunk != null) {
@@ -160,30 +158,33 @@ public class OrchestratorWorkersUseCase {
                 .concatWith(Flux.just(doneEvent()));
     }
 
-    private Flux<ServerSentEvent<String>> executePlan(String originalMessage, RoutingPlan plan) {
+    private Flux<ServerSentEvent<String>> executePlan(
+            String originalMessage, RoutingPlan plan, String clientId, String language) {
         List<Flux<ServerSentEvent<String>>> stages = new ArrayList<>();
         stages.add(Flux.just(handoffEvent(plan.primaryAgent().value(), plan.reason())));
 
         if (plan.subtasks().isEmpty()) {
-            AgentDefinition primary = registry.require(plan.primaryAgent());
+            AgentDefinition primary = registry.require(plan.primaryAgent(), clientId, language);
             stages.add(workerInvoker.invokeStream(primary, originalMessage)
                     .map(OrchestratorWorkersUseCase::messageEvent));
         } else {
-            stages.add(runSubtasksAndSynthesize(originalMessage, plan));
+            stages.add(runSubtasksAndSynthesize(originalMessage, plan, clientId, language));
         }
 
         stages.add(Flux.just(doneEvent()));
         return Flux.concat(stages);
     }
 
-    private Flux<ServerSentEvent<String>> runSubtasksAndSynthesize(String originalMessage, RoutingPlan plan) {
+    private Flux<ServerSentEvent<String>> runSubtasksAndSynthesize(
+            String originalMessage, RoutingPlan plan, String clientId, String language) {
         return Mono.fromCallable(() -> {
                     List<RoutingPlan.Subtask> subtasks = plan.subtasks();
                     List<String> workerOutputs;
                     try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
                         List<CompletableFuture<String>> futures = subtasks.stream()
                                 .map(subtask -> CompletableFuture.supplyAsync(() -> {
-                                    AgentDefinition worker = registry.require(subtask.agentType());
+                                    AgentDefinition worker =
+                                            registry.require(subtask.agentType(), clientId, language);
                                     String result = workerInvoker.invoke(worker, subtask.instruction());
                                     return "### " + subtask.agentType().value() + '\n'
                                             + result + "\n\n";
@@ -194,7 +195,7 @@ public class OrchestratorWorkersUseCase {
                                 .toList();
                     }
                     String collected = String.join("", workerOutputs);
-                    AgentDefinition synthesizer = registry.require(plan.primaryAgent());
+                    AgentDefinition synthesizer = registry.require(plan.primaryAgent(), clientId, language);
                     String synthesisPrompt = """
                             Original user request:
                             %s
@@ -209,6 +210,28 @@ public class OrchestratorWorkersUseCase {
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMapMany(text -> Flux.fromArray(text.split("(?<=\\s)"))
                         .map(OrchestratorWorkersUseCase::messageEvent));
+    }
+
+    private AgentDefinition resolveNode(
+            AgentPipeline.PipelineNode node, String clientId, String language) {
+        if (node.systemPrompt() != null && !node.systemPrompt().isBlank()) {
+            return node.toDefinition();
+        }
+        AgentDefinition builtin = registry.require(node.agentType(), clientId, language);
+        String name = node.name() == null || node.name().isBlank() ? builtin.name() : node.name();
+        String description = node.description() == null || node.description().isBlank()
+                ? builtin.description()
+                : node.description();
+        List<String> tools = node.toolKeys() == null || node.toolKeys().isEmpty()
+                ? builtin.toolKeys()
+                : node.toolKeys();
+        return AgentDefinition.create(
+                node.agentType(),
+                name,
+                description,
+                builtin.systemPrompt(),
+                tools,
+                AgentDefinition.RUNTIME_SINGLE);
     }
 
     static ServerSentEvent<String> messageEvent(String data) {

@@ -46,6 +46,8 @@ export function applyPipelineTemplate(
     agentType: agent.type,
     name: agent.name,
     description: agent.description,
+    systemPrompt: agent.systemPrompt ?? '',
+    toolKeys: [...(agent.toolKeys ?? [])],
     position: {
       x: NODE_ORIGIN.x + index * NODE_GAP_X,
       y: NODE_ORIGIN.y,

@@ -35,7 +35,7 @@ describe('i18n.model', () => {
     });
 
     it('should have required top-level keys for all languages', () => {
-      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'agents', 'pipelines', 'chat', 'generate'] as const;
+      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'pipelines', 'chat', 'generate'] as const;
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
         const langTranslations = translations[lang];
@@ -52,8 +52,8 @@ describe('i18n.model', () => {
         'mcp',
         'eval',
         'speechToText',
-        'agents',
         'pipelines',
+        'skills',
         'kubernetes',
         'monitoring',
         'aiinfra',
@@ -167,6 +167,10 @@ describe('i18n.model', () => {
           expect(translations[lang].pipelines.thinking).toBeDefined();
           expect(translations[lang].pipelines.errorMessage).toBeDefined();
           expect(translations[lang].pipelines.pipeline.inputPlaceholder).toBeDefined();
+          expect(translations[lang].pipelines.pipeline.taskPlaceholder).toBeDefined();
+          expect(translations[lang].pipelines.pipeline.paletteShow).toBeDefined();
+          expect(translations[lang].pipelines.pipeline.paletteHide).toBeDefined();
+          expect(translations[lang].pipelines.pipeline.nodeEditor.title).toBeDefined();
           expect(translations[lang].pipelines.pipeline.emptyState.title).toBeDefined();
         });
       });
@@ -175,11 +179,24 @@ describe('i18n.model', () => {
         const chromeKeys = [
           'title',
           'use',
+          'edit',
           'skipped',
+          'editMode',
+          'useMode',
+          'editModeHint',
+          'useModeHint',
+          'backToTemplates',
+          'useThisGraph',
+          'editThisGraph',
+          'previewHint',
+          'addWorkflow',
+          'newWorkflowName',
           'myTemplates',
-          'add',
-          'customize',
+          'saveCanvas',
           'newTemplate',
+          'agentTypesHint',
+          'shortTopicHint',
+          'briefPromptHint',
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {
@@ -188,16 +205,6 @@ describe('i18n.model', () => {
             expect(templates[key].length).toBeGreaterThan(0);
           });
           expect(translations[lang].pipelines.results.title).toBeDefined();
-        });
-      });
-    });
-
-    describe('agents translations', () => {
-      it('should have agents translations for all languages', () => {
-        SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].agents.thinking).toBeDefined();
-          expect(translations[lang].agents.welcomeTitle).toBeDefined();
-          expect(translations[lang].agents.trace.plan).toBeDefined();
         });
       });
     });

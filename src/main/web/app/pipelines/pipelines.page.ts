@@ -7,7 +7,6 @@ import {
   computed,
   effect,
   inject,
-  model,
   signal,
   viewChild,
 } from '@angular/core';
@@ -15,7 +14,6 @@ import { API_BASE_URL } from '../core/api.constants';
 import {
   ChatBubbleMessage,
   ChatMessagePaneComponent,
-  ChatSenderBarComponent,
 } from '../shared/components/chat-shell';
 import { I18nService } from '../core/i18n';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
@@ -49,7 +47,6 @@ const MIN_PANE_PX = 240;
   imports: [
     NzIconModule,
     ChatMessagePaneComponent,
-    ChatSenderBarComponent,
     ZardAlertComponent,
     PipelinesCanvasComponent,
   ],
@@ -64,9 +61,10 @@ export class PipelinesPageComponent implements OnDestroy {
 
   private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
-  readonly agentsResource = httpResource<AgentInfo[]>(
-    () => `${API_BASE_URL}/pipelines/list`,
-  );
+  readonly agentsResource = httpResource<AgentInfo[]>(() => ({
+    url: `${API_BASE_URL}/pipelines/list`,
+    params: { lang: this.i18n.language() },
+  }));
 
   readonly agents = computed(() => {
     if (this.agentsResource.hasValue()) {
@@ -80,7 +78,6 @@ export class PipelinesPageComponent implements OnDestroy {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly pipelineHint = signal<string | null>(null);
-  readonly input = model('');
   readonly resultsCollapsed = signal(false);
   readonly resultsRatio = signal(DEFAULT_RESULTS_RATIO);
   readonly isDraggingSplitter = signal(false);
@@ -117,16 +114,11 @@ export class PipelinesPageComponent implements OnDestroy {
 
   onTemplateApplied(event: { topic: string; brief: string }): void {
     this.activeBriefPrompt = event.brief;
-    this.input.set(event.topic);
   }
 
-  runPipeline(graph: PipelineGraph): void {
-    this.currentGraph = graph;
-    this.executePipeline(graph);
-  }
-
-  send(): void {
-    this.executePipeline(this.currentGraph);
+  runPipeline(event: { graph: PipelineGraph; task: string }): void {
+    this.currentGraph = event.graph;
+    this.executePipeline(event.graph, event.task);
   }
 
   toggleResultsCollapsed(): void {
@@ -174,7 +166,7 @@ export class PipelinesPageComponent implements OnDestroy {
     }
   }
 
-  private executePipeline(graph: PipelineGraph): void {
+  private executePipeline(graph: PipelineGraph, task: string): void {
     if (this.loading()) {
       return;
     }
@@ -186,14 +178,13 @@ export class PipelinesPageComponent implements OnDestroy {
     }
 
     const topic =
-      this.input().trim() || this.i18n.t().pipelines.pipeline.defaultMessage;
+      task.trim() || this.i18n.t().pipelines.pipeline.defaultMessage;
     const brief = this.activeBriefPrompt?.trim();
     const invokeMessage = brief ? `${topic}\n\n${brief}` : topic;
 
     this.streamAbort?.();
     this.error.set(null);
     this.pipelineHint.set(null);
-    this.input.set('');
     this.loading.set(true);
     if (this.resultsCollapsed()) {
       this.resultsCollapsed.set(false);

@@ -14,23 +14,25 @@ class AgentPipelineTest {
     @Test
     void should_order_single_node_without_edges() {
         AgentPipeline pipeline = AgentPipeline.create(
-                List.of(new AgentPipeline.PipelineNode("n1", AgentType.of("k8s"))),
+                List.of(AgentPipeline.PipelineNode.of("n1", AgentType.of("k8s"))),
                 List.of());
 
-        assertEquals(List.of(AgentType.of("k8s")), pipeline.executionOrder());
+        assertEquals(
+                List.of(AgentType.of("k8s")),
+                pipeline.executionOrder().stream().map(AgentPipeline.PipelineNode::agentType).toList());
     }
 
     @Test
     void should_topo_sort_connected_workers() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
-                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
-                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
+                        AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
+                        AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
                 List.of(new AgentPipeline.PipelineEdge("a", "b")));
 
         assertEquals(
                 List.of(AgentType.of("k8s"), AgentType.of("aiops")),
-                pipeline.executionOrder());
+                pipeline.executionOrder().stream().map(AgentPipeline.PipelineNode::agentType).toList());
     }
 
     @Test
@@ -45,8 +47,8 @@ class AgentPipelineTest {
     void should_reject_unconnected_nodes() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
-                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
-                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
+                        AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
+                        AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
                 List.of());
 
         IllegalArgumentException error = assertThrows(
@@ -58,8 +60,8 @@ class AgentPipelineTest {
     void should_reject_cycle() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
-                        new AgentPipeline.PipelineNode("a", AgentType.of("k8s")),
-                        new AgentPipeline.PipelineNode("b", AgentType.of("aiops"))),
+                        AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
+                        AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
                 List.of(
                         new AgentPipeline.PipelineEdge("a", "b"),
                         new AgentPipeline.PipelineEdge("b", "a")));
@@ -72,9 +74,25 @@ class AgentPipelineTest {
     @Test
     void should_reject_supervisor_node() {
         AgentPipeline pipeline = AgentPipeline.create(
-                List.of(new AgentPipeline.PipelineNode("s", AgentType.supervisor())),
+                List.of(AgentPipeline.PipelineNode.of("s", AgentType.supervisor())),
                 List.of());
 
         assertThrows(IllegalArgumentException.class, pipeline::executionOrder);
+    }
+
+    @Test
+    void should_keep_node_snapshot_fields() {
+        AgentPipeline.PipelineNode node = new AgentPipeline.PipelineNode(
+                "n1",
+                AgentType.of("research"),
+                "Custom Research",
+                "custom desc",
+                "Custom prompt",
+                List.of("web_search"));
+
+        assertEquals("Custom Research", node.name());
+        assertEquals("Custom prompt", node.systemPrompt());
+        assertEquals(List.of("web_search"), node.toolKeys());
+        assertEquals("Custom prompt", node.toDefinition().systemPrompt());
     }
 }

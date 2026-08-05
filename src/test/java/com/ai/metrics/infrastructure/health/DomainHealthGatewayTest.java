@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +49,7 @@ class DomainHealthGatewayTest {
     @Test
     @DisplayName("should_report_agents_up_when_all_registered_agents_are_healthy")
     void should_report_agents_up_when_all_registered_agents_are_healthy() {
-        when(pipelineFacade.listAgents()).thenReturn(List.of(
+        when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of(
                 AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
                 AgentDefinition.create(AgentType.supervisor(), "Supervisor", "desc", "prompt")));
 
@@ -61,7 +63,7 @@ class DomainHealthGatewayTest {
     @Test
     @DisplayName("should_report_agents_degraded_when_list_empty_or_unhealthy")
     void should_report_agents_degraded_when_list_empty_or_unhealthy() {
-        when(pipelineFacade.listAgents()).thenReturn(List.of());
+        when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of());
 
         Map<String, Object> emptyHealth = gateway.agentsHealth();
         assertThat(emptyHealth).containsEntry("status", "DEGRADED");
@@ -69,7 +71,7 @@ class DomainHealthGatewayTest {
 
         AgentDefinition unhealthy = mock(AgentDefinition.class);
         when(unhealthy.healthy()).thenReturn(false);
-        when(pipelineFacade.listAgents()).thenReturn(List.of(unhealthy));
+        when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of(unhealthy));
 
         Map<String, Object> degradedHealth = gateway.agentsHealth();
         assertThat(degradedHealth).containsEntry("status", "DEGRADED");

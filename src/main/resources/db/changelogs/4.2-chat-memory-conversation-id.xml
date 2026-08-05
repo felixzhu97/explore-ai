@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="4.2-widen-chat-memory-conversation-id" author="explore-ai">
+        <comment>
+            Deep Agent conversation keys use prefix "agent:" + UUID (42 chars),
+            which exceeds Spring AI ChatMemory VARCHAR(36).
+        </comment>
+        <modifyDataType tableName="SPRING_AI_CHAT_MEMORY" columnName="conversation_id" newDataType="VARCHAR(64)"/>
+    </changeSet>
+
+</databaseChangeLog>

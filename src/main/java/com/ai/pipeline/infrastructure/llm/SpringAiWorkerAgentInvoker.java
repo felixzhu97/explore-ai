@@ -17,6 +17,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
@@ -68,15 +71,11 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     }
 
     private boolean usesTools(AgentDefinition agent) {
-        return switch (agent.type().value()) {
-            case "vectordb", "research", "weather" -> true;
-            default -> false;
-        };
+        return agent.toolKeys() != null && !agent.toolKeys().isEmpty();
     }
 
     private ChatClient.ChatClientRequestSpec basePrompt(AgentDefinition agent, String task) {
         // BARE avoids factory-wide tool defaults; attach only this worker's tools below.
-        // (TOOLS + .tools(weatherTool) duplicated getWeather/getForecast and failed ChatOptions.)
         ChatClient client = chatClientProvider.create(
                 TextChatOptions.defaults(), ChatClientProfile.BARE, null);
         String systemPrompt = agentSkillsRuntime.augmentSystemPrompt(agent.systemPrompt());
@@ -86,11 +85,29 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
         agentSkillsRuntime.skillToolCallback().ifPresent(spec::toolCallbacks);
 
-        return switch (agent.type().value()) {
-            case "vectordb" -> spec.tools(documentSearchTool);
-            case "research" -> spec.tools(webSearchTool, dateTimeTool);
-            case "weather" -> spec.tools(weatherTool);
-            default -> spec;
-        };
+        Object[] tools = resolveTools(agent.toolKeys());
+        if (tools.length > 0) {
+            return spec.tools(tools);
+        }
+        return spec;
+    }
+
+    private Object[] resolveTools(List<String> toolKeys) {
+        if (toolKeys == null || toolKeys.isEmpty()) {
+            return new Object[0];
+        }
+        List<Object> tools = new ArrayList<>();
+        for (String key : toolKeys) {
+            switch (key) {
+                case "web" -> tools.add(webSearchTool);
+                case "weather" -> tools.add(weatherTool);
+                case "datetime" -> tools.add(dateTimeTool);
+                case "document" -> tools.add(documentSearchTool);
+                default -> {
+                    // ignore unknown keys (already validated for library saves)
+                }
+            }
+        }
+        return tools.toArray();
     }
 }

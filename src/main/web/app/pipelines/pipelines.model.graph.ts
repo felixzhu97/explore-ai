@@ -3,6 +3,8 @@ export interface PipelineNode {
   agentType: string;
   name: string;
   description: string;
+  systemPrompt: string;
+  toolKeys: string[];
   position: { x: number; y: number };
 }
 
@@ -19,7 +21,14 @@ export interface PipelineGraph {
 
 export interface PipelineInvokeRequest {
   message: string;
-  nodes: { id: string; agentType: string }[];
+  nodes: {
+    id: string;
+    agentType: string;
+    name?: string;
+    description?: string;
+    systemPrompt?: string;
+    toolKeys?: string[];
+  }[];
   edges: { sourceId: string; targetId: string }[];
 }
 
@@ -131,7 +140,14 @@ export function toPipelineInvokeRequest(
 ): PipelineInvokeRequest {
   return {
     message,
-    nodes: graph.nodes.map(node => ({ id: node.id, agentType: node.agentType })),
+    nodes: graph.nodes.map(node => ({
+      id: node.id,
+      agentType: node.agentType,
+      name: node.name,
+      description: node.description,
+      systemPrompt: node.systemPrompt,
+      toolKeys: node.toolKeys,
+    })),
     edges: graph.connections.map(edge => ({
       sourceId: edge.sourceNodeId,
       targetId: edge.targetNodeId,

@@ -21,23 +21,29 @@ public class PipelineFacade {
         this.orchestrator = orchestrator;
     }
 
-    public List<AgentDefinition> listAgents() {
-        return orchestrator.listAgents();
+    public List<AgentDefinition> listAgents(String clientId, String language) {
+        return orchestrator.listAgents(clientId, language);
     }
 
-    public AgentDefinition health(String agentType) {
-        return orchestrator.health(AgentType.of(agentType));
+    public AgentDefinition health(String agentType, String clientId, String language) {
+        return orchestrator.health(AgentType.of(agentType), clientId, language);
     }
 
-    public Flux<ServerSentEvent<String>> invokeSupervisor(String message) {
-        return orchestrator.invokeSupervisor(message);
+    public Flux<ServerSentEvent<String>> invokeSupervisor(String message, String clientId, String language) {
+        return orchestrator.invokeSupervisor(message, clientId, language);
     }
 
-    public Flux<ServerSentEvent<String>> invokeAgent(String agentType, String message) {
-        return orchestrator.invokeAgent(AgentType.of(agentType), message);
+    public Flux<ServerSentEvent<String>> invokeAgent(
+            String agentType, String message, String clientId, String language) {
+        return orchestrator.invokeAgent(AgentType.of(agentType), message, clientId, language);
     }
 
-    public Flux<ServerSentEvent<String>> invokePipeline(String message, AgentPipeline pipeline) {
-        return orchestrator.invokePipeline(message, pipeline);
+    public Flux<ServerSentEvent<String>> invokePipeline(
+            String message, AgentPipeline pipeline, String clientId, String language) {
+        return orchestrator.invokePipeline(message, pipeline, clientId, language);
+    }
+
+    public int builtinCount() {
+        return registry.listBuiltins("en").size();
     }
 }

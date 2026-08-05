@@ -51,7 +51,7 @@ class LaunchDarklyEnvironmentPostProcessorTest {
         processor.postProcessEnvironment(environment, new SpringApplication(Object.class));
 
         MapPropertySource bootstrap = firstMapSource(environment);
-        assertThat(bootstrap.getProperty("launchdarkly.bootstrap.module-agents")).isEqualTo(false);
+        assertThat(bootstrap.getProperty("launchdarkly.bootstrap.module-pipelines")).isEqualTo(false);
     }
 
     private static MapPropertySource firstMapSource(MockEnvironment environment) {

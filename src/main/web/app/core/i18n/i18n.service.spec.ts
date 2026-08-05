@@ -243,14 +243,16 @@ describe('I18nService', () => {
       expect(service.t().ragChat.title).toBe('文档问答');
     });
 
-    it('should provide agents and pipelines translations', () => {
+    it('should provide pipelines translations', () => {
       service = new I18nService();
       service.setLanguage('en');
-      expect(service.t().agents).toBeDefined();
-      expect(service.t().agents.welcomeTitle).toBe('Work with an Agent');
       expect(service.t().pipelines).toBeDefined();
+      expect(service.t().pipelines.pipeline.taskPlaceholder).toBeDefined();
+      expect(service.t().pipelines.pipeline.nodeEditor.title).toBeDefined();
       expect(service.t().pipelines.pipeline.templates.myTemplates).toBeDefined();
-      expect(service.t().pipelines.pipeline.templates.title).toBe('Templates');
+      expect(service.t().pipelines.pipeline.templates.title).toBe('Workflows');
+      expect(service.t().pipelines.pipeline.templates.addWorkflow).toBeDefined();
+      expect(service.t().pipelines.pipeline.templates.saveCanvas).toBeDefined();
     });
 
     it('should provide generate translations', () => {

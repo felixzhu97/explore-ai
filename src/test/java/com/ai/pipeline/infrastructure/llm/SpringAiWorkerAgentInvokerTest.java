@@ -114,7 +114,13 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     private static AgentDefinition agent(String type) {
-        return AgentDefinition.create(AgentType.of(type), type, type, "system");
+        java.util.List<String> tools = switch (type) {
+            case "weather" -> java.util.List.of("weather");
+            case "research" -> java.util.List.of("web", "datetime");
+            case "vectordb" -> java.util.List.of("document");
+            default -> java.util.List.of();
+        };
+        return AgentDefinition.create(AgentType.of(type), type, type, "system", tools, "single");
     }
 
     private void stubCallChain() {

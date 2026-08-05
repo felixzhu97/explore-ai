@@ -33,7 +33,9 @@ describe('PipelinesService', () => {
       expect(agents[0].type).toBe('supervisor');
     });
 
-    const req = httpMock.expectOne(`${API_BASE_URL}/pipelines/list`);
+    const req = httpMock.expectOne(
+      r => r.url === `${API_BASE_URL}/pipelines/list` && r.params.get('lang') === 'en',
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mockAgents);
   });
@@ -43,7 +45,9 @@ describe('PipelinesService', () => {
       expect(health.status).toBe('UP');
     });
 
-    const req = httpMock.expectOne(`${API_BASE_URL}/pipelines/k8s/health`);
+    const req = httpMock.expectOne(
+      r => r.url === `${API_BASE_URL}/pipelines/k8s/health` && r.params.get('lang') === 'en',
+    );
     req.flush({ type: 'k8s', healthy: true, status: 'UP' });
   });
 });
