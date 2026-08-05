@@ -442,7 +442,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Vector Store                         | 向量存储    | Database storing Embedding vectors for similarity search   | Technical | `H2VectorAdapter`, pgvector                   | Default: H2 embedded                |
 | Tool Callback                        | 工具回调    | Spring AI mechanism for LLM-initiated tool invocation      | Technical | `ToolCallback`, `McpToolCallbackRegistry`     | Bridges LLM and Tools               |
 | Advisor                              | 顾问      | Interceptor/enhancer in the ChatClient call chain          | Technical | Spring AI Advisors                            | e.g. structured output              |
-| Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5                      |
+| Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5 / qwen3-vl; see Appendix D **Vision Encoder** |
 | Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. domain-expert, developer       |
@@ -506,6 +506,61 @@ References:
 
 ---
 
+## Appendix D. LLM Foundations | 大模型底层原理
+
+Short vocabulary for what runs inside local model weight files (Ollama / Qwen). Prefer these English terms when discussing model internals. Product wiring (ChatClient, Advisors) stays in **Appendix B**.
+
+
+| Preferred Term (English)             | 中文       | Definition                                                         | Type      | Code Mapping                                      | Notes                                              |
+| ------------------------------------ | -------- | ------------------------------------------------------------------ | --------- | ------------------------------------------------- | -------------------------------------------------- |
+| Transformer                          | Transformer | Stacked attention + FFN layers that process token sequences     | Technical | `architecture` in `ollama show`                   | Base of local Qwen models                          |
+| Self-Attention                       | 自注意力     | Lets each token weigh other tokens in the sequence                 | Technical | Qwen chat / embedding models                      | Core step inside each layer                        |
+| Multi-Head Attention                 | 多头注意力    | Runs several attention views in parallel                           | Technical | Qwen chat / embedding models                      | Part of Transformer block                          |
+| Feed-Forward Network (FFN)           | 前馈网络     | Per-token MLP after attention                                      | Technical | `qwen3.5:9b`, `qwen3-embedding:8b` / `:0.6b`      | Dense models use fixed FFN                         |
+| Mixture of Experts (MoE)             | 混合专家     | Routes tokens to a few expert FFNs                                 | Technical | `qwen3.5:35b`, `qwen3-coder:30b`                  | `qwen35moe` / `qwen3moe`                           |
+| Rotary Position Embedding (RoPE)     | 旋转位置编码   | Encodes token position into attention                              | Technical | Qwen family                                       | Supports long **Context Window**                   |
+| Tokenizer                            | 分词器      | Splits text into token IDs                                         | Technical | Ollama model package                              | First step of **Inference**                        |
+| Token Embedding                      | 词元嵌入     | Maps token IDs to vectors inside the model                        | Technical | `embedding length` in `ollama show`               | Not the RAG **Embedding** vector                   |
+| Hidden State                         | 隐藏状态     | Intermediate vectors between layers                                | Technical | Transformer forward pass                          | Passed layer to layer                              |
+| Logits                               | 对数几率     | Raw next-token scores over the vocabulary                          | Technical | Chat / VL models                                  | Before Softmax                                     |
+| Softmax                              | Softmax  | Turns logits into next-token probabilities                         | Technical | Chat / VL models                                  | Feeds **Sampling**                                 |
+| Inference                            | 推理       | Forward pass using loaded weights                                  | Technical | Ollama / `~/.ollama/models/blobs`                 | Load weights → compute                             |
+| Autoregressive Decoding              | 自回归解码    | Predict one token, append, repeat                                  | Technical | `qwen3.5:*`, `qwen3-coder:30b`, `qwen3-vl:30b`    | Chat / VL path only                                |
+| Next-Token Prediction                | 下一词预测    | Choosing the next token from the distribution                      | Technical | Chat / VL path                                    | Training and inference objective                   |
+| KV Cache                             | KV 缓存    | Reuses past attention keys/values while decoding                   | Technical | Long-context chat (`context length`)              | Speeds multi-step generation                       |
+| Sampling                             | 采样       | Picks the next token from probabilities                            | Technical | `temperature` / `top_p` / `top_k` in `ollama show` | Chat defaults differ by model                      |
+| Top-p (Nucleus Sampling)             | Top-p 采样 | Sample from the smallest set whose probability mass is at least p  | Technical | e.g. `qwen3.5:9b` `top_p=0.95`                    | Used with **Temperature**                          |
+| Top-k Sampling                       | Top-k 采样 | Sample only from the k highest-probability tokens                  | Technical | e.g. `top_k=20`                                   | Used with **Temperature**                          |
+| Parameters (Weights)                 | 参数（权重）   | Learned numbers stored in the model files                          | Technical | `parameters` in `ollama show`; blobs              | What local model files contain                     |
+| Quantization                         | 量化       | Stores weights in fewer bits to save space                         | Technical | local models `Q4_K_M`                             | Why large models fit on disk                       |
+| GGUF                                 | GGUF     | Common packaged weight format for local LLMs                       | Technical | `~/.ollama/models/blobs`                          | Ollama content-addressed blobs                     |
+| Vision Encoder                       | 视觉编码器    | Turns an image into features for the LLM                           | Technical | `qwen3.5:9b` / `:35b`, `qwen3-vl:30b`             | Not on coder / embedding models                    |
+| Multimodal Projector                 | 多模态投影    | Maps vision features into the LLM token space                     | Technical | same vision / VL models                           | Before shared Transformer; see **Multimodal**      |
+| ONNX                                 | ONNX     | Portable neural-network format for local Vision engines            | Technical | `models/*.onnx`                                   | Caption / Detect path; separate from Ollama blobs  |
+
+
+**Local models (process mapping)**
+
+
+| Model                    | Path                 | Key terms                                              |
+| ------------------------ | -------------------- | ------------------------------------------------------ |
+| `qwen3.5:9b`             | Chat (+ vision)      | Transformer, Sampling, Vision Encoder                  |
+| `qwen3.5:35b`            | Chat (+ vision) + MoE | MoE, Sampling, Vision Encoder                         |
+| `qwen3-coder:30b`        | Chat + MoE           | MoE, Sampling                                          |
+| `qwen3-embedding:8b`     | Embedding            | Inference → vector; no chat Sampling                   |
+| `qwen3-vl:30b`           | Chat + vision (VL)   | Vision Encoder, Multimodal Projector, Sampling         |
+| `qwen3-embedding:0.6b`   | Embedding            | Embedding path; vs **Token Embedding**                 |
+
+
+References:
+
+- [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+- [Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/)
+- [GGUF (Hugging Face Hub)](https://huggingface.co/docs/hub/en/gguf)
+- [ONNX Runtime](https://onnxruntime.ai/)
+
+---
+
 ## 16. Terms to Avoid | 禁用/易混淆术语对照
 
 
@@ -541,6 +596,9 @@ References:
 | click into details (ambiguous)               | **Drill-down**               | Use the BI interaction term                                                   |
 | avg latency (as sole SLA)                    | **Latency** P50 / **P95**    | Prefer percentiles over mean for tails                                        |
 | Metric module / Metrics module synonym mix   | **Metrics** (capability)     | Singular **Metric** = one measure; plural product name stays Metrics          |
+| word vector (model input embedding)          | **Token Embedding**          | Inside-model ID→vector step; see Appendix D                                   |
+| mixing retrieval vector with token embedding | **Embedding** vs **Token Embedding** | RAG / embedding-model output vs model-internal input                    |
+| model.bin (generic weight file)              | **GGUF** / **ONNX**          | Ollama blobs vs Vision `models/*.onnx`                                        |
 
 
 Chinese equivalents to avoid in technical docs:
@@ -593,4 +651,4 @@ Chinese equivalents to avoid in technical docs:
 
 ---
 
-*Last updated: 2026-07-26*
+*Last updated: 2026-08-05*
