@@ -40,9 +40,10 @@ export const routes: Routes = [
       },
       {
         path: 'agents',
-        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AGENTS)],
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_PIPELINES)],
         loadComponent: () => import('./agents/agents.page').then(m => m.AgentsPageComponent),
       },
+
       {
         path: 'skills',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_SKILLS)],

@@ -43,7 +43,7 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
     Container(workflow_template_usecase, "WorkflowTemplateUseCase", "Use Case", "内置模版 + 用户库")
     Container(workflow_template_repo, "JdbcWorkflowTemplateRepository", "@Repository", "workflow_templates 表")
     Container(orch_usecase, "OrchestratorWorkersUseCase", "Use Case", "编排 Worker 流水线")
-    Container(agent_registry, "InMemoryAgentRegistry", "@Component", "Agent 注册表")
+    Container(agent_registry, "CatalogAgentRegistry", "@Component", "Agent 注册表")
     Container(supervisor_router, "SpringAiSupervisorRouter", "@Component", "Supervisor 路由")
     Container(worker_invoker, "SpringAiWorkerAgentInvoker", "@Component", "Worker 调用 + DSML 过滤")
 }
@@ -51,11 +51,6 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
 ' ============================================================
 ' DOMAIN 2b: DEEP AGENT [flag-guarded]
 ' ============================================================
-Container_Boundary(deep_agent_domain, "Deep Agent Domain") {
-    Container(agent_controller, "AgentController", "@RestController", "/api/agents/* (sessions, invoke/sse, health)")
-    Container(deep_agent_usecase, "DeepAgentUseCase", "Use Case", "plan / replan / memory SSE")
-}
-
 Container_Boundary(skill_domain, "Skill Domain") {
     Container(skill_controller, "SkillController", "@RestController", "/api/skills CRUD + templates")
     Container(skill_usecase, "SkillUseCase", "Use Case", "用户 Skill 管理")
@@ -203,7 +198,6 @@ Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, text_controller, "流式对话", "SSE")
-Rel(angular_app, agent_controller, "Agent 会话 [flag]", "SSE")
 Rel(angular_app, pipeline_controller, "工作流画布 [flag]", "SSE")
 Rel(angular_app, workflow_template_controller, "工作流模版 [flag]", "HTTP")
 Rel(angular_app, skill_controller, "Skills CRUD [flag]", "HTTP")
@@ -243,10 +237,6 @@ Rel(agent_registry, prompt_templates, "Agent system prompts")
 Rel(worker_invoker, deepseek_api, "LLM", "HTTPS")
 Rel(supervisor_router, deepseek_api, "LLM", "HTTPS")
 
-Rel(agent_controller, deep_agent_usecase, "调用")
-Rel(deep_agent_usecase, deepseek_api, "LLM", "HTTPS")
-Rel(deep_agent_usecase, jdbc_chat_memory, "会话记忆")
-Rel(deep_agent_usecase, prompt_templates, "Agent prompts")
 
 Rel(rag_controller, rag_app_svc, "调用")
 Rel(rag_app_svc, doc_upload_svc, "上传/删除")

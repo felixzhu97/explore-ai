@@ -14,7 +14,11 @@ public record PipelineInvokeRequest(
 
     public record PipelineNodeRequest(
             @NotBlank String id,
-            @NotBlank String agentType) {
+            @NotBlank String agentType,
+            String name,
+            String description,
+            String systemPrompt,
+            List<String> toolKeys) {
     }
 
     public record PipelineEdgeRequest(

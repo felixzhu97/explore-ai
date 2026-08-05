@@ -2,191 +2,183 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
-  model,
   signal,
 } from '@angular/core';
-import {
-  ChatBubbleMessage,
-  ChatMessagePaneComponent,
-  ChatSenderBarComponent,
-} from '../shared/components/chat-shell';
+import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../core/notification.service';
 import { I18nService } from '../core/i18n';
-import { ZardAlertComponent } from '../shared/components/alert';
 import { AgentsService } from './agents.service';
-import type { AgentSessionInfo } from './agents.model';
+import type { SavedAgent, SavedAgentWriteRequest } from './agents.model';
+import type { AgentInfo } from '../pipelines/pipelines.model';
+
+const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
 
 @Component({
   selector: 'app-agents-page',
-  imports: [ChatMessagePaneComponent, ChatSenderBarComponent, ZardAlertComponent],
+  imports: [FormsModule],
   templateUrl: './agents.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
+  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class AgentsPageComponent implements OnInit {
-  private readonly api = inject(AgentsService);
-  readonly i18n = inject(I18nService);
+  private readonly agentsApi = inject(AgentsService);
+  private readonly notifications = inject(NotificationService);
+  protected readonly i18n = inject(I18nService);
 
-  readonly sessions = signal<AgentSessionInfo[]>([]);
-  readonly activeSessionId = signal<string | null>(null);
-  readonly messages = signal<ChatBubbleMessage[]>([]);
-  readonly streamingMessageId = signal<string | null>(null);
-  readonly loading = signal(false);
+  readonly catalog = signal<AgentInfo[]>([]);
+  readonly library = signal<SavedAgent[]>([]);
+  readonly loading = signal(true);
+  readonly saving = signal(false);
   readonly error = signal<string | null>(null);
-  readonly trace = signal<string[]>([]);
-  readonly input = model('');
+  readonly showForm = signal(false);
+  readonly editingId = signal<string | null>(null);
+  readonly formTypeKey = signal('');
+  readonly formTypeKeyLocked = signal(false);
+  readonly formName = signal('');
+  readonly formDescription = signal('');
+  readonly formSystemPrompt = signal('');
+  readonly formToolKeys = signal<string[]>([]);
 
-  private abort: (() => void) | null = null;
+  readonly availableToolKeys = TOOL_KEYS;
+
+  readonly builtins = computed(() => this.catalog().filter(agent => !agent.supervisor),
+  );
 
   ngOnInit(): void {
-    this.refreshSessions();
+    this.reload();
   }
 
-  newSession(): void {
-    this.api.createSession(this.i18n.t().agents.defaultTitle).subscribe({
-      next: (session) => {
-        this.sessions.update(list => [session, ...list]);
-        this.selectSession(session.id);
-      },
-      error: () => this.error.set(this.i18n.t().agents.errorMessage),
-    });
-  }
-
-  selectSession(id: string): void {
-    if (this.abort) {
-      this.abort();
-      this.abort = null;
-    }
-    this.activeSessionId.set(id);
-    this.messages.set([]);
-    this.trace.set([]);
+  reload(): void {
+    this.loading.set(true);
     this.error.set(null);
-    this.streamingMessageId.set(null);
-    this.loading.set(false);
-  }
-
-  deleteSession(event: Event, id: string): void {
-    event.stopPropagation();
-    this.api.deleteSession(id).subscribe({
-      next: () => {
-        this.sessions.update(list => list.filter(s => s.id !== id));
-        if (this.activeSessionId() === id) {
-          this.activeSessionId.set(null);
-          this.messages.set([]);
-          this.trace.set([]);
-        }
+    this.agentsApi.listCatalog().subscribe({
+      next: (catalog) => {
+        this.catalog.set(catalog);
+        this.loading.set(false);
       },
+      error: () => {
+        this.error.set(this.i18n.t().agentsPage.loadFailed);
+        this.loading.set(false);
+      },
+    });
+    this.agentsApi.listLibrary().subscribe({
+      next: library => this.library.set(library),
+      error: () => undefined,
     });
   }
 
-  send(): void {
-    const text = this.input().trim();
-    if (!text || this.loading()) {
+  libraryEntryForType(typeKey: string): SavedAgent | undefined {
+    return this.library().find(item => item.typeKey === typeKey);
+  }
+
+  startCreate(): void {
+    this.editingId.set(null);
+    this.formTypeKeyLocked.set(false);
+    this.formTypeKey.set('');
+    this.formName.set('');
+    this.formDescription.set('');
+    this.formSystemPrompt.set('');
+    this.formToolKeys.set([]);
+    this.showForm.set(true);
+  }
+
+  startEditLibrary(agent: SavedAgent): void {
+    this.editingId.set(agent.id);
+    this.formTypeKeyLocked.set(true);
+    this.formTypeKey.set(agent.typeKey);
+    this.formName.set(agent.name);
+    this.formDescription.set(agent.description);
+    this.formSystemPrompt.set(agent.systemPrompt);
+    this.formToolKeys.set([...(agent.toolKeys ?? [])]);
+    this.showForm.set(true);
+  }
+
+  /** Open form to override a builtin (create or edit library row with same typeKey). */
+  customizeBuiltin(agent: AgentInfo): void {
+    const existing = this.libraryEntryForType(agent.type);
+    if (existing) {
+      this.startEditLibrary(existing);
       return;
     }
-    const ensureSession = this.activeSessionId()
-      ? Promise.resolve(this.activeSessionId()!)
-      : new Promise<string>((resolve, reject) => {
-          this.api.createSession(this.i18n.t().agents.defaultTitle).subscribe({
-            next: (session) => {
-              this.sessions.update(list => [session, ...list]);
-              this.activeSessionId.set(session.id);
-              resolve(session.id);
-            },
-            error: reject,
-          });
-        });
-
-    ensureSession
-      .then(sessionId => this.runInvoke(sessionId, text))
-      .catch(() => this.error.set(this.i18n.t().agents.errorMessage));
+    this.editingId.set(null);
+    this.formTypeKeyLocked.set(true);
+    this.formTypeKey.set(agent.type);
+    this.formName.set(agent.name);
+    this.formDescription.set(agent.description);
+    this.formSystemPrompt.set(agent.systemPrompt ?? '');
+    this.formToolKeys.set([...(agent.toolKeys ?? [])]);
+    this.showForm.set(true);
   }
 
-  private runInvoke(sessionId: string, text: string): void {
-    this.input.set('');
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.editingId.set(null);
+  }
+
+  isToolSelected(toolKey: string): boolean {
+    return this.formToolKeys().includes(toolKey);
+  }
+
+  toggleTool(toolKey: string): void {
+    const current = this.formToolKeys();
+    if (current.includes(toolKey)) {
+      this.formToolKeys.set(current.filter(key => key !== toolKey));
+      return;
+    }
+    this.formToolKeys.set([...current, toolKey]);
+  }
+
+  save(): void {
+    const name = this.formName().trim();
+    const systemPrompt = this.formSystemPrompt().trim();
+    const typeKey = this.formTypeKey().trim().toLowerCase();
+    if (!name || !systemPrompt || (!this.editingId() && !typeKey)) {
+      this.error.set(this.i18n.t().agentsPage.nameRequired);
+      return;
+    }
+    const request: SavedAgentWriteRequest = {
+      name,
+      description: this.formDescription().trim(),
+      systemPrompt,
+      toolKeys: [...this.formToolKeys()],
+    };
+    this.saving.set(true);
     this.error.set(null);
-    this.loading.set(true);
-    this.trace.set([]);
-
-    const userMsg: ChatBubbleMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: text,
-    };
-    const assistantId = crypto.randomUUID();
-    const assistantMsg: ChatBubbleMessage = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-    };
-    this.messages.update(msgs => [...msgs, userMsg, assistantMsg]);
-    this.streamingMessageId.set(assistantId);
-
-    const labels = this.i18n.t().agents.trace;
-    let raw = '';
-    const { abort } = this.api.invokeStream(sessionId, { message: text }, {
-      onPlan: data => this.pushTrace(labels.plan, data),
-      onReplan: data => this.pushTrace(labels.replan, data),
-      onThought: data => this.pushTrace(labels.thought, data),
-      onTool: data => this.pushTrace(labels.tool, data),
-      onEvaluation: data => this.pushTrace(labels.evaluation, data),
-      onChunk: (token) => {
-        raw += token;
-        this.patchAssistant(assistantId, raw);
+    const id = this.editingId();
+    const request$ = id
+      ? this.agentsApi.update(id, request)
+      : this.agentsApi.create({ ...request, typeKey });
+    request$.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.showForm.set(false);
+        this.notifications.showSuccess(this.i18n.t().common.success);
+        this.reload();
       },
-      onDone: () => this.finish(assistantId, raw),
-      onError: (err) => {
-        const fallback = this.i18n.t().agents.errorMessage;
-        this.error.set(err.message || fallback);
-        this.finish(assistantId, raw || fallback);
+      error: () => {
+        this.error.set(this.i18n.t().agentsPage.saveFailed);
+        this.saving.set(false);
       },
     });
-    this.abort = abort;
   }
 
-  private pushTrace(label: string, data: string): void {
-    const detail = this.parseTraceDetail(data);
-    const entry = detail ? `${label}: ${detail}` : label;
-    this.trace.update(items => [...items, entry].slice(-12));
+  toggleEnabled(agent: SavedAgent): void {
+    this.agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
+      next: () => this.reload(),
+      error: () => this.error.set(this.i18n.t().agentsPage.updateFailed),
+    });
   }
 
-  private parseTraceDetail(data: string): string {
-    try {
-      const parsed = JSON.parse(data) as {
-        summary?: string;
-        verdict?: string;
-        name?: string;
-        text?: string;
-      };
-      return (
-        parsed.summary || parsed.verdict || parsed.name || parsed.text || ''
-      );
-    } catch {
-      return data.slice(0, 48);
+  delete(agent: SavedAgent): void {
+    const message = this.i18n.t().agentsPage.deleteConfirm.replace('{name}', agent.name);
+    if (!globalThis.confirm(message)) {
+      return;
     }
-  }
-
-  private patchAssistant(assistantId: string, content: string): void {
-    this.messages.update(msgs => msgs.map((message) => {
-      if (message.id !== assistantId) {
-        return message;
-      }
-      return { ...message, content };
-    }),
-    );
-  }
-
-  private finish(assistantId: string, content: string): void {
-    this.loading.set(false);
-    this.streamingMessageId.set(null);
-    this.abort = null;
-    this.patchAssistant(assistantId, content);
-  }
-
-  private refreshSessions(): void {
-    this.api.listSessions().subscribe({
-      next: sessions => this.sessions.set(sessions),
-      error: () => this.sessions.set([]),
+    this.agentsApi.delete(agent.id).subscribe({
+      next: () => this.reload(),
+      error: () => this.error.set(this.i18n.t().agentsPage.deleteFailed),
     });
   }
 }

@@ -17,8 +17,8 @@ const envState = vi.hoisted(() => ({
     'module-audio-asr': true,
     'module-mcp': true,
     'module-eval': true,
-    'module-agents': true,
     'module-pipelines': true,
+    'module-skills': true,
   },
 }));
 
@@ -41,8 +41,8 @@ describe('FeatureFlagService', () => {
       'module-audio-asr': true,
       'module-mcp': true,
       'module-eval': true,
-      'module-agents': true,
       'module-pipelines': true,
+      'module-skills': true,
     };
     mockClient.waitForInitialization.mockResolvedValue(undefined);
     mockClient.boolVariation.mockImplementation(
@@ -113,8 +113,8 @@ describe('FeatureFlagService', () => {
       'module-audio-asr': false,
       'module-mcp': true,
       'module-eval': true,
-      'module-agents': true,
       'module-pipelines': true,
+      'module-skills': true,
     };
     mockClient.waitForInitialization.mockReturnValue(
       new Promise(() => undefined),

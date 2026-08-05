@@ -1,28 +1,19 @@
-export interface AgentSessionInfo {
+export interface SavedAgent {
   id: string;
-  title: string;
-  createdAt: string;
-  lastActivityAt: string;
+  typeKey: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  toolKeys: string[];
+  enabled: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface AgentInvokeRequest {
-  message: string;
-}
-
-export interface AgentPlanEvent {
-  summary: string;
-  goal: string;
-  steps: string[];
-  iteration: number;
-}
-
-export interface AgentThoughtEvent {
-  text: string;
-  iteration: number;
-}
-
-export interface AgentEvaluationEvent {
-  verdict: string;
-  feedback: string;
-  iteration: number;
+export interface SavedAgentWriteRequest {
+  typeKey?: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  toolKeys: string[];
 }

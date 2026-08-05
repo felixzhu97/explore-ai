@@ -1,55 +1,17 @@
-# E11 Deep Agent
+# E11 Deep Agent（已退役）
 
 ← [用户故事地图](../User-Story-Map.md)
 
-## 背景
+> **Status: retired.** Standalone Agent module (`/agents`, Deep sessions, saved agent library, `module-agents`) was removed.
+>
+> Product direction: **Pipeline-only workers**. Builtin multilingual definitions seed the `/pipelines` palette; double-click a canvas node to edit the **per-graph copy** (name, systemPrompt, toolKeys). Workflow templates pick agents visually (no comma-separated `agentTypes`); task input lives next to **Run** on the canvas.
+>
+> Successor stories: [E7 Pipeline（工作流）](./E7-multi-agent.md).
 
-分析师需要带记忆、可再规划、工具过程可见的自主协作体，而不是每次在画布上重搭工作流图。
+## 历史范围（归档）
 
----
-
-## US-32 与带记忆的 Agent 多轮协作
-
-**As an** 分析师  
-**I want** 在 Agent 工作区进行多轮对话并由其保留上下文  
-**So that** 我可以在不重述背景的情况下推进调研
-
-### 验收标准
-
-1. **Scenario** 多轮记忆
-   **GIVEN** 我已有一个 Agent 会话与历史消息  
-   **WHEN** 我发送依赖前文的追问  
-   **THEN** Agent 的回答体现先前上下文
-
-2. **Scenario** 创建与删除会话
-   **GIVEN** Agent 模块可用  
-   **WHEN** 我新建或删除会话  
-   **THEN** 列表与后续调用与所有权一致
-
-### 状态
-
-已实现
-
----
-
-## US-33 查看规划与工具过程
-
-**As an** 分析师  
-**I want** 看到规划、再规划与工具步骤  
-**So that** 我能判断 Agent 如何得出结论并在必要时调整提问
-
-### 验收标准
-
-1. **Scenario** 流式过程可见
-   **GIVEN** 我向 Agent 发送任务  
-   **WHEN** 其规划、调用工具或再规划  
-   **THEN** 我能在界面中看到对应过程线索与最终回答
-
-2. **Scenario** 与工作流区分
-   **GIVEN** Agent 与 Pipeline（工作流）均启用  
-   **WHEN** 我使用主导航  
-   **THEN** 二者为独立入口且文案不混淆
-
-### 状态
-
-已实现
+| ID | 原能力 | 现状 |
+| --- | --- | --- |
+| US-32 | 带记忆的多轮 Agent 会话 | 已移除；不再提供独立 Agent 工作区 |
+| US-33 | Plan / tool / eval 过程可见 | 已移除 Deep SSE；Pipeline 结果轨展示 handoff / 工具步骤 |
+| US-34 | 多语言 Agent 模版库 | 内置目录迁入 Pipeline `agent-templates/{lang}.json`；无客户端 Agent 库 |

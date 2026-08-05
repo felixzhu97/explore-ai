@@ -28,7 +28,7 @@ public class DomainHealthGateway implements MetricsHealthGateway {
 
     @Override
     public Map<String, Object> agentsHealth() {
-        List<AgentDefinition> agents = pipelineFacade.listAgents();
+        List<AgentDefinition> agents = pipelineFacade.listAgents(null, "en");
         long healthy = agents.stream().filter(AgentDefinition::healthy).count();
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", healthy == agents.size() && !agents.isEmpty() ? "UP" : "DEGRADED");

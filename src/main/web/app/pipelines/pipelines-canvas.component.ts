@@ -11,7 +11,6 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import {
   FCreateConnectionEvent,
   FFlowModule,
@@ -36,6 +35,8 @@ import {
 import { applyPipelineTemplate } from './pipelines.templates';
 import { PipelinesService } from './pipelines.service';
 
+type WorkspaceMode = 'gallery' | 'edit' | 'use';
+
 interface ApplyableTemplate {
   id: string;
   name: string;
@@ -43,11 +44,13 @@ interface ApplyableTemplate {
   agentTypes: string[];
   shortTopic: string;
   briefPrompt: string;
+  /** When set, edits persist to the client library. */
+  libraryId?: string;
 }
 
 @Component({
   selector: 'app-pipelines-canvas',
-  imports: [DragDropModule, FFlowModule, FormsModule],
+  imports: [FFlowModule, FormsModule],
   templateUrl: './pipelines-canvas.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex min-h-0 flex-1 overflow-hidden' },
@@ -60,46 +63,50 @@ export class PipelinesCanvasComponent implements OnInit {
 
   readonly agents = input.required<AgentInfo[]>();
   readonly validationHint = input<string | null>(null);
-  readonly runRequested = output<PipelineGraph>();
+  readonly runRequested = output<{ graph: PipelineGraph; task: string }>();
   readonly graphChange = output<PipelineGraph>();
   readonly clearValidation = output<void>();
   readonly templateHint = output<string | null>();
-  /** Emits short topic for the input box and brief prompt for invoke-time merge. */
+  /** Emits when a template is applied (task prefill + brief for invoke merge). */
   readonly templateApplied = output<{ topic: string; brief: string }>();
 
   readonly nodes = signal<PipelineNode[]>([]);
   readonly connections = signal<PipelineConnection[]>([]);
   readonly builtinTemplates = signal<WorkflowTemplate[]>([]);
   readonly library = signal<SavedWorkflowTemplate[]>([]);
-  readonly addingTemplateId = signal<string | null>(null);
-  readonly showForm = signal(false);
-  readonly editingId = signal<string | null>(null);
-  readonly formName = signal('');
-  readonly formDescription = signal('');
-  readonly formAgentTypes = signal('research, analyst');
-  readonly formShortTopic = signal('');
-  readonly formBriefPrompt = signal('');
+  readonly workspaceMode = signal<WorkspaceMode>('gallery');
+  readonly activeTemplateName = signal('');
+  readonly task = signal('');
+  /** Null = builtin session copy or unsaved draft; set = library row. */
+  readonly editingLibraryId = signal<string | null>(null);
+  readonly isDraft = signal(false);
   readonly saving = signal(false);
+
+  /** Node editor occupies the center work area (graph copy only). */
+  readonly editingNodeId = signal<string | null>(null);
+  readonly editName = signal('');
+  readonly editDescription = signal('');
+  readonly editSystemPrompt = signal('');
+  readonly editToolKeys = signal<string[]>([]);
+
+  /** One-shot agent picker for the current workflow — not a persistent Agents catalog. */
+  readonly showAgentPicker = signal(false);
+
+  readonly availableToolKeys = ['web', 'weather', 'datetime', 'document'] as const;
 
   private nodeSeq = 0;
   private connectionSeq = 0;
+  private activeBrief = '';
+
+  private static readonly DEFAULT_BRIEF =
+    'Follow the configured agent pipeline for the user task.';
 
   readonly workers = computed(() => this.agents().filter(agent => !agent.supervisor));
 
-  readonly enabledLibrary = computed(() => this.library().filter(item => item.enabled));
-
-  readonly ownedNames = computed(() => {
-    const names = new Set<string>();
-    for (const item of this.library()) {
-      names.add(item.name.trim().toLowerCase());
-    }
-    return names;
-  });
-
-  readonly isEmpty = computed(() => this.nodes().length === 0);
-
-  /** Drop target holds no items; agents come from the palette via cdkDragData. */
-  readonly canvasDropData: AgentInfo[] = [];
+  readonly isEditingNode = computed(() => this.editingNodeId() != null);
+  readonly isEditMode = computed(() => this.workspaceMode() === 'edit');
+  readonly isUseMode = computed(() => this.workspaceMode() === 'use');
+  readonly isGallery = computed(() => this.workspaceMode() === 'gallery');
 
   readonly graph = computed<PipelineGraph>(() => ({
     nodes: this.nodes(),
@@ -114,45 +121,37 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.reloadLibrary();
     this.reloadBuiltinTemplates();
+    this.reloadLibrary();
   }
 
-  isInLibrary(template: WorkflowTemplate): boolean {
-    const owned = this.ownedNames();
-    const aliases = [template.name, ...(template.nameAliases ?? [])]
-      .map(name => name.trim().toLowerCase())
-      .filter(Boolean);
-    return aliases.some(
-      alias => owned.has(alias) || [...owned].some(ownedName => ownedName.startsWith(`${alias} (`)),
-    );
-  }
-
-  onCanvasDrop(event: CdkDragDrop<AgentInfo[]>): void {
-    const agent = event.item.data as AgentInfo | undefined;
-    if (!agent || agent.supervisor) {
+  openAgentPicker(): void {
+    if (!this.isEditMode()) {
       return;
     }
-    this.addNode(agent, {
-      x: 120 + this.nodes().length * 40,
-      y: 120 + this.nodes().length * 24,
-    });
-    this.clearValidation.emit();
+    this.cancelNodeEdit();
+    this.showAgentPicker.set(true);
   }
 
-  addNodeFromClick(agent: AgentInfo): void {
-    if (agent.supervisor) {
+  closeAgentPicker(): void {
+    this.showAgentPicker.set(false);
+  }
+
+  pickAgent(agent: AgentInfo): void {
+    if (!this.isEditMode() || agent.supervisor) {
       return;
     }
     this.addNode(agent, {
       x: 100 + this.nodes().length * 220,
       y: 120,
     });
+    this.showAgentPicker.set(false);
     this.clearValidation.emit();
+    this.cdr.markForCheck();
   }
 
   onCreateConnection(event: FCreateConnectionEvent): void {
-    if (!event.targetId) {
+    if (!this.isEditMode() || !event.targetId) {
       return;
     }
     const sourceNodeId = nodeIdFromConnector(event.sourceId);
@@ -181,6 +180,9 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   onMoveNodes(event: FMoveNodesEvent): void {
+    if (!this.isEditMode()) {
+      return;
+    }
     const moved = new Map(event.nodes.map(node => [node.id, node.position]));
     this.nodes.update(list => list.map((node) => {
       const position = moved.get(node.id);
@@ -192,143 +194,197 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   removeNode(nodeId: string): void {
+    if (!this.isEditMode()) {
+      return;
+    }
+    if (this.editingNodeId() === nodeId) {
+      this.cancelNodeEdit();
+    }
     this.nodes.update(list => list.filter(node => node.id !== nodeId));
     this.connections.update(list => list.filter(
       edge => edge.sourceNodeId !== nodeId && edge.targetNodeId !== nodeId,
-    ),
-    );
+    ));
     this.emitGraph();
     this.clearValidation.emit();
-  }
-
-  clearCanvas(): void {
-    this.nodes.set([]);
-    this.connections.set([]);
-    this.emitGraph();
-    this.clearValidation.emit();
-    this.templateHint.emit(null);
-  }
-
-  applyBuiltin(template: WorkflowTemplate): void {
-    this.applyTemplate({
-      id: template.id,
-      name: template.name,
-      description: template.description,
-      agentTypes: template.agentTypes,
-      shortTopic: template.shortTopic,
-      briefPrompt: template.briefPrompt,
-    });
-  }
-
-  applySaved(template: SavedWorkflowTemplate): void {
-    this.applyTemplate({
-      id: template.id,
-      name: template.name,
-      description: template.description,
-      agentTypes: template.agentTypes,
-      shortTopic: template.shortTopic,
-      briefPrompt: template.briefPrompt,
-    });
-  }
-
-  addFromTemplate(template: WorkflowTemplate): void {
-    this.addingTemplateId.set(template.id);
-    this.pipelinesApi.createFromTemplate(template.id).subscribe({
-      next: () => {
-        this.addingTemplateId.set(null);
-        this.reloadLibrary();
-        this.notifications.showSuccess(this.templateChrome().added);
-      },
-      error: () => {
-        this.addingTemplateId.set(null);
-        this.notifications.showError(this.templateChrome().saveFailed);
-      },
-    });
-  }
-
-  customizeTemplate(template: WorkflowTemplate): void {
-    this.editingId.set(null);
-    this.formName.set(template.name);
-    this.formDescription.set(template.description);
-    this.formAgentTypes.set(template.agentTypes.join(', '));
-    this.formShortTopic.set(template.shortTopic);
-    this.formBriefPrompt.set(template.briefPrompt);
-    this.showForm.set(true);
     this.cdr.markForCheck();
   }
 
-  startCreate(): void {
-    this.editingId.set(null);
-    this.formName.set('');
-    this.formDescription.set('');
-    this.formAgentTypes.set('research, analyst');
-    this.formShortTopic.set('');
-    this.formBriefPrompt.set('');
-    this.showForm.set(true);
-  }
-
-  editSaved(template: SavedWorkflowTemplate): void {
-    this.editingId.set(template.id);
-    this.formName.set(template.name);
-    this.formDescription.set(template.description);
-    this.formAgentTypes.set(template.agentTypes.join(', '));
-    this.formShortTopic.set(template.shortTopic);
-    this.formBriefPrompt.set(template.briefPrompt);
-    this.showForm.set(true);
-  }
-
-  cancelForm(): void {
-    this.showForm.set(false);
-    this.editingId.set(null);
-  }
-
-  saveForm(): void {
-    const request = this.buildWriteRequest();
-    if (!request) {
-      this.notifications.showError(this.templateChrome().nameRequired);
+  openNodeEditor(node: PipelineNode): void {
+    if (!this.isEditMode()) {
       return;
     }
-    this.saving.set(true);
-    const editingId = this.editingId();
-    const request$ = editingId
-      ? this.pipelinesApi.updateLibraryTemplate(editingId, request)
-      : this.pipelinesApi.createLibraryTemplate(request);
-    request$.subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.showForm.set(false);
-        this.editingId.set(null);
-        this.reloadLibrary();
-        this.notifications.showSuccess(this.templateChrome().added);
-      },
-      error: () => {
-        this.saving.set(false);
-        this.notifications.showError(this.templateChrome().saveFailed);
-      },
-    });
+    this.showAgentPicker.set(false);
+    this.editingNodeId.set(node.id);
+    this.editName.set(node.name);
+    this.editDescription.set(node.description);
+    this.editSystemPrompt.set(node.systemPrompt);
+    this.editToolKeys.set([...(node.toolKeys ?? [])]);
   }
 
-  toggleEnabled(template: SavedWorkflowTemplate): void {
-    const enabled = !template.enabled;
-    this.pipelinesApi.setLibraryTemplateEnabled(template.id, enabled).subscribe({
-      next: () => this.reloadLibrary(),
-      error: () => {
-        this.notifications.showError(this.templateChrome().updateFailed);
-      },
-    });
+  isEditToolSelected(toolKey: string): boolean {
+    return this.editToolKeys().includes(toolKey);
   }
 
-  deleteSaved(template: SavedWorkflowTemplate): void {
-    const message = this.templateChrome().deleteConfirm.replace('{name}', template.name);
+  toggleEditTool(toolKey: string): void {
+    const current = this.editToolKeys();
+    if (current.includes(toolKey)) {
+      this.editToolKeys.set(current.filter(key => key !== toolKey));
+      return;
+    }
+    this.editToolKeys.set([...current, toolKey]);
+  }
+
+  cancelNodeEdit(): void {
+    this.editingNodeId.set(null);
+  }
+
+  saveNodeEdit(): void {
+    const nodeId = this.editingNodeId();
+    if (!nodeId) {
+      return;
+    }
+    const snapshot = {
+      name: this.editName().trim() || 'Agent',
+      description: this.editDescription().trim(),
+      systemPrompt: this.editSystemPrompt().trim(),
+      toolKeys: [...this.editToolKeys()],
+    };
+    this.nodes.update(list => list.map((node) => {
+      if (node.id !== nodeId) {
+        return node;
+      }
+      return { ...node, ...snapshot };
+    }));
+    this.editingNodeId.set(null);
+    this.emitGraph();
+    this.cdr.markForCheck();
+  }
+
+  backToGallery(): void {
+    this.nodes.set([]);
+    this.connections.set([]);
+    this.editingNodeId.set(null);
+    this.showAgentPicker.set(false);
+    this.workspaceMode.set('gallery');
+    this.activeTemplateName.set('');
+    this.editingLibraryId.set(null);
+    this.isDraft.set(false);
+    this.activeBrief = '';
+    this.emitGraph();
+    this.clearValidation.emit();
+    this.templateHint.emit(null);
+    this.reloadLibrary();
+    this.cdr.markForCheck();
+  }
+
+  addWorkflow(): void {
+    this.cancelNodeEdit();
+    this.showAgentPicker.set(false);
+    this.nodes.set([]);
+    this.connections.set([]);
+    this.editingLibraryId.set(null);
+    this.isDraft.set(true);
+    this.activeTemplateName.set(
+      this.i18n.t().pipelines.pipeline.templates.newWorkflowName,
+    );
+    this.activeBrief = PipelinesCanvasComponent.DEFAULT_BRIEF;
+    this.task.set('');
+    this.workspaceMode.set('edit');
+    this.emitGraph();
+    this.clearValidation.emit();
+    this.templateHint.emit(null);
+    this.cdr.markForCheck();
+  }
+
+  editTemplate(template: WorkflowTemplate): void {
+    this.applyTemplate({
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      agentTypes: template.agentTypes,
+      shortTopic: template.shortTopic,
+      briefPrompt: template.briefPrompt,
+    }, 'edit');
+  }
+
+  useTemplate(template: WorkflowTemplate): void {
+    this.applyTemplate({
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      agentTypes: template.agentTypes,
+      shortTopic: template.shortTopic,
+      briefPrompt: template.briefPrompt,
+    }, 'use');
+  }
+
+  editLibrary(template: SavedWorkflowTemplate): void {
+    this.applyTemplate({
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      agentTypes: template.agentTypes,
+      shortTopic: template.shortTopic,
+      briefPrompt: template.briefPrompt,
+      libraryId: template.id,
+    }, 'edit');
+  }
+
+  useLibrary(template: SavedWorkflowTemplate): void {
+    this.applyTemplate({
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      agentTypes: template.agentTypes,
+      shortTopic: template.shortTopic,
+      briefPrompt: template.briefPrompt,
+      libraryId: template.id,
+    }, 'use');
+  }
+
+  deleteLibrary(template: SavedWorkflowTemplate): void {
+    const message = this.i18n.t().pipelines.pipeline.templates.deleteConfirm.replace(
+      '{name}',
+      template.name,
+    );
     if (!globalThis.confirm(message)) {
       return;
     }
     this.pipelinesApi.deleteLibraryTemplate(template.id).subscribe({
       next: () => this.reloadLibrary(),
       error: () => {
-        this.notifications.showError(this.templateChrome().deleteFailed);
+        this.notifications.showError(
+          this.i18n.t().pipelines.pipeline.templates.deleteFailed,
+        );
       },
     });
+  }
+
+  switchToUse(): void {
+    if (this.nodes().length === 0) {
+      this.notifications.showWarning(
+        this.i18n.t().pipelines.pipeline.templates.canvasEmpty,
+      );
+      return;
+    }
+    this.cancelNodeEdit();
+    this.showAgentPicker.set(false);
+    this.persistLibraryIfNeeded(() => {
+      this.workspaceMode.set('use');
+      this.templateApplied.emit({
+        topic: this.task().trim() || this.activeTemplateName(),
+        brief: this.activeBrief,
+      });
+      this.cdr.markForCheck();
+    });
+  }
+
+  switchToEdit(): void {
+    if (this.nodes().length === 0) {
+      return;
+    }
+    this.workspaceMode.set('edit');
+    this.cdr.markForCheck();
   }
 
   templateOrder(agentTypes: readonly string[]): string {
@@ -336,7 +392,10 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   run(): void {
-    this.runRequested.emit(this.graph());
+    if (!this.isUseMode()) {
+      return;
+    }
+    this.runRequested.emit({ graph: this.graph(), task: this.task().trim() });
   }
 
   outId(nodeId: string): string {
@@ -347,25 +406,36 @@ export class PipelinesCanvasComponent implements OnInit {
     return connectorInId(nodeId);
   }
 
-  private applyTemplate(template: ApplyableTemplate): void {
+  private applyTemplate(template: ApplyableTemplate, mode: 'edit' | 'use'): void {
+    this.cancelNodeEdit();
+    this.showAgentPicker.set(false);
     const seed = this.nodeSeq + 1;
     const result = applyPipelineTemplate(
       { id: template.id, agentTypes: template.agentTypes },
-      this.agents(),
+      this.workers(),
       seed,
     );
     this.nodeSeq = seed + result.graph.nodes.length;
     this.connectionSeq = seed + result.graph.connections.length;
     this.nodes.set(result.graph.nodes);
     this.connections.set(result.graph.connections);
+    this.workspaceMode.set(mode);
+    this.activeTemplateName.set(template.name);
+    this.activeBrief = template.briefPrompt || PipelinesCanvasComponent.DEFAULT_BRIEF;
+    this.editingLibraryId.set(template.libraryId ?? null);
+    this.isDraft.set(false);
     this.emitGraph();
     this.clearValidation.emit();
+    const defaultTask = (template.shortTopic ?? '').trim();
+    if (defaultTask) {
+      this.task.set(defaultTask);
+    }
     this.templateApplied.emit({
-      topic: template.shortTopic || template.name,
-      brief: template.briefPrompt,
+      topic: defaultTask || template.name,
+      brief: this.activeBrief,
     });
     if (result.skippedAgentTypes.length > 0) {
-      const hint = this.templateChrome().skipped.replace(
+      const hint = this.i18n.t().pipelines.pipeline.templates.skipped.replace(
         '{types}',
         result.skippedAgentTypes.join(', '),
       );
@@ -376,26 +446,55 @@ export class PipelinesCanvasComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  private templateChrome() {
-    return this.i18n.t().pipelines.pipeline.templates;
+  private persistLibraryIfNeeded(done: () => void): void {
+    const shouldPersist = this.isDraft() || this.editingLibraryId() != null;
+    if (!shouldPersist) {
+      done();
+      return;
+    }
+    const request = this.buildLibraryWriteRequest();
+    if (!request) {
+      this.notifications.showWarning(
+        this.i18n.t().pipelines.pipeline.templates.canvasEmpty,
+      );
+      return;
+    }
+    this.saving.set(true);
+    const libraryId = this.editingLibraryId();
+    const request$ = libraryId
+      ? this.pipelinesApi.updateLibraryTemplate(libraryId, request)
+      : this.pipelinesApi.createLibraryTemplate(request);
+    request$.subscribe({
+      next: (saved) => {
+        this.saving.set(false);
+        this.editingLibraryId.set(saved.id);
+        this.isDraft.set(false);
+        this.activeTemplateName.set(saved.name);
+        this.reloadLibrary();
+        done();
+      },
+      error: () => {
+        this.saving.set(false);
+        this.notifications.showError(
+          this.i18n.t().pipelines.pipeline.templates.saveFailed,
+        );
+      },
+    });
   }
 
-  private buildWriteRequest(): WorkflowTemplateWriteRequest | null {
-    const name = this.formName().trim();
-    const briefPrompt = this.formBriefPrompt().trim();
-    const agentTypes = this.formAgentTypes()
-      .split(/[,，\s]+/)
-      .map(part => part.trim().toLowerCase())
-      .filter(Boolean);
-    if (!name || !briefPrompt || agentTypes.length === 0) {
+  private buildLibraryWriteRequest(): WorkflowTemplateWriteRequest | null {
+    const agentTypes = this.nodes().map(node => node.agentType);
+    if (agentTypes.length === 0) {
       return null;
     }
+    const name = this.activeTemplateName().trim()
+      || this.i18n.t().pipelines.pipeline.templates.newWorkflowName;
     return {
       name,
-      description: this.formDescription().trim(),
+      description: '',
       agentTypes,
-      shortTopic: this.formShortTopic().trim(),
-      briefPrompt,
+      shortTopic: this.task().trim(),
+      briefPrompt: this.activeBrief.trim() || PipelinesCanvasComponent.DEFAULT_BRIEF,
     };
   }
 
@@ -430,6 +529,8 @@ export class PipelinesCanvasComponent implements OnInit {
         agentType: agent.type,
         name: agent.name,
         description: agent.description,
+        systemPrompt: agent.systemPrompt ?? '',
+        toolKeys: [...(agent.toolKeys ?? [])],
         position,
       },
     ]);
@@ -447,7 +548,6 @@ export class PipelinesCanvasComponent implements OnInit {
     this.emitGraph();
   }
 
-  /** Prefer a node with no outgoing edge; otherwise the last node on the canvas. */
   private findChainTailId(): string | null {
     const nodes = this.nodes();
     if (nodes.length === 0) {

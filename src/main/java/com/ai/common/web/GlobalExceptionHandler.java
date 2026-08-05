@@ -2,6 +2,8 @@ package com.ai.common.web;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
+import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
 import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
 import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
 import com.ai.skill.domain.exception.SkillNameConflictException;
@@ -74,6 +76,20 @@ public class GlobalExceptionHandler {
         log.warn("Workflow template name conflict: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NAME_CONFLICT"));
+    }
+
+    @ExceptionHandler(SavedAgentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSavedAgentNotFound(SavedAgentNotFoundException e) {
+        log.warn("Saved agent not found: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(SavedAgentTypeConflictException.class)
+    public ResponseEntity<ErrorResponse> handleSavedAgentTypeConflict(SavedAgentTypeConflictException e) {
+        log.warn("Saved agent type conflict: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_TYPE_CONFLICT"));
     }
 
     @ExceptionHandler(AiServiceException.class)

@@ -23,9 +23,14 @@
 
 2. **Scenario** 流式审阅阶段与结果
    **GIVEN** 已编排并可运行的工作流  
-   **WHEN** 运行工作流  
+   **WHEN** 在画布任务框填写任务并点击 Run  
    **THEN** 可流式审阅各阶段进展与结果  
-   **AND** 最终结果可在工作台中查看
+   **AND** 最终结果可在右侧结果轨查看（结果轨不再作为主任务输入）
+
+3. **Scenario** 编辑节点 Agent 副本
+   **GIVEN** 画布上已有 Worker 节点  
+   **WHEN** 双击该节点并修改名称 / systemPrompt / toolKeys  
+   **THEN** 仅本图画布副本变更，再次运行时 invoke 使用节点快照
 
 ### 状态
 
@@ -83,6 +88,30 @@
    **WHEN** 负责人阅读输出  
    **THEN** 可区分事实、推断与建议  
    **AND** 不必自行重组结构即可汇报
+
+### 状态
+
+已实现
+
+---
+
+## US-18 消费画布 Worker 目录
+
+**As a** 业务分析师  
+**I want** 工作流调色板从多语言内置目录加载 Worker，并在画布上编辑节点副本  
+**So that** 无需独立 Agent 模块也能定制每步角色与工具
+
+### 验收标准
+
+1. **Scenario** 调色板随语言本地化
+   **GIVEN** 我切换 UI 语言  
+   **WHEN** 打开工作流调色板  
+   **THEN** Agent 名称与描述来自 `GET /api/pipelines/list?lang=`
+
+2. **Scenario** 模版选用可视化选 Agent
+   **GIVEN** 我创建或编辑工作流模版  
+   **WHEN** 选择参与编排的 Workers  
+   **THEN** 通过调色板点选与排序完成（而非手输逗号分隔 typeKey）
 
 ### 状态
 

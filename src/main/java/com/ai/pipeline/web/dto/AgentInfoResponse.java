@@ -2,12 +2,17 @@ package com.ai.pipeline.web.dto;
 
 import com.ai.pipeline.domain.model.AgentDefinition;
 
+import java.util.List;
+
 public record AgentInfoResponse(
         String type,
         String name,
         String description,
         boolean healthy,
-        boolean supervisor) {
+        boolean supervisor,
+        String runtime,
+        List<String> toolKeys,
+        String systemPrompt) {
 
     public static AgentInfoResponse from(AgentDefinition definition) {
         return new AgentInfoResponse(
@@ -15,6 +20,9 @@ public record AgentInfoResponse(
                 definition.name(),
                 definition.description(),
                 definition.healthy(),
-                definition.type().isSupervisor());
+                definition.type().isSupervisor(),
+                definition.runtime(),
+                definition.toolKeys(),
+                definition.systemPrompt());
     }
 }

@@ -33,8 +33,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Preferred Term   | 中文        | Java Package      | Frontend Route          | API Prefix                                | Feature Flag                  | Notes                                 |
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
 | Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
-| Agent            | Agent（自主协作） | `com.ai.agent`    | `/agents`               | `/api/agents`                             | `module-agents`               | Session memory + plan/replan + tools SSE |
-| Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG + workflow templates       |
+| Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG; per-node editable agent copies; multilingual builtin catalog |
 | Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
@@ -56,7 +55,6 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Route             | Preferred Term   | API prefix                      |
 | ----------------- | ---------------- | ------------------------------- |
 | `/chat`           | Chat             | `/api/text`, `/api/sessions`    |
-| `/agents`         | Agent            | `/api/agents`                   |
 | `/pipelines`      | Pipeline         | `/api/pipelines`                |
 | `/skills`         | Skill            | `/api/skills`                   |
 | `/generate`       | Generation       | —                               |
@@ -70,11 +68,11 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/metrics`        | Metrics          | `/api/metrics`                  |
 
 
-**Sidebar:** nav key `agents` → **Agent** (`/agents`); `pipelines` → **Pipeline / 工作流** (`/pipelines`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
+**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
 
-**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/agents` → `/pipelines` → `/skills`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`.
+**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/pipelines` → `/skills`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`.
 
-**Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Agent (chat-first + plan/tool trace); Pipeline/工作流 (canvas + results rail); Generation / Vision / ASR / MCP / Eval / Metrics as before.
+**Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Pipeline/工作流 (canvas + task near Run + results rail; double-click node edits name/prompt/tools for that graph copy); Generation / Vision / ASR / MCP / Eval / Metrics as before.
 
 ```mermaid
 flowchart TB
@@ -149,47 +147,34 @@ flowchart TB
 
 ---
 
-## 4. Agent | 自主 Agent
+## 4. Pipeline | 工作流（画布 Agent）
 
-| Preferred Term (EN) | 中文 | Definition | Kind | Code / API | Notes |
-|---------------------|------|------------|------|------------|-------|
-| Agent Session | Agent 会话 | Client-owned conversation for deep Agent turns | Aggregate | `AgentSession`, `SessionId` | Memory key `agent:{id}` |
-| Deep Agent Use Case | 深度 Agent 用例 | Plan → tools → evaluate → replan loop with SSE | Use Case | `DeepAgentUseCase` | Max iterations via `app.agent.max-iterations` |
-| Agent Plan | Agent 规划 | Structured steps for the current turn | Value Object | `AgentPlan` | SSE `plan` / `replan` |
-| Agent Evaluation | Agent 评估 | PASS / NEEDS_IMPROVEMENT / FAIL on an answer | Value Object | `AgentEvaluation` | SSE `evaluation` |
-| Agent Controller | Agent 控制器 | Sessions + invoke SSE | Web | `AgentController` `/api/agents` | Distinct from Pipeline |
-
-**Product Chinese:** Agent（自主协作）. Do not call this module 工作流.
-
-## 4.0 Pipeline | 工作流（画布）
-
-| Preferred Term (EN) | 中文 | Definition | Kind | Code / API | Notes |
-|---------------------|------|------------|------|------------|-------|
-
+> Standalone Agent module (`/agents`, Deep sessions, saved agent library) was **removed**. Worker definitions seed the Pipeline palette; runtime edits live on **canvas node copies**.
 
 | Preferred Term (English) | 中文            | Definition                                                    | Type           | Code Mapping                                       | Notes                                           |
 | ------------------------ | ------------- | ------------------------------------------------------------- | -------------- | -------------------------------------------------- | ----------------------------------------------- |
-| Agent                    | Agent         | Specialized worker that performs a typed task                 | Entity         | `AgentDefinition`                                  | Registered in `AgentRegistry`                   |
-| Agent Type               | Agent 类型      | Canonical type id of an Agent                                 | Value Object   | `AgentType`                                        | e.g. weather, search                            |
-| Agent Definition         | Agent 定义      | Name, type, tools, and prompt binding for an Agent            | Entity         | `AgentDefinition`                                  | —                                               |
-| Agent Registry           | Agent 注册表     | Lookup of available Agent definitions                         | Repository     | `AgentRegistry`, `InMemoryAgentRegistry`           | —                                               |
+| Agent                    | Agent         | Specialized worker that performs a typed task                 | Entity         | `AgentDefinition`                                  | Builtin catalog seeds palette; invoke may use node snapshot |
+| Agent Type               | Agent 类型      | Canonical type id of an Agent                                 | Value Object   | `AgentType`                                        | e.g. research, weather, analyst, supervisor     |
+| Agent Definition         | Agent 定义      | Name, type, toolKeys, and system prompt                       | Entity         | `AgentDefinition`                                  | Runtime is always `single` on Pipeline workers  |
+| Agent Registry           | Agent 注册表     | Lookup of builtin Agent definitions                          | Repository     | `AgentRegistry`, `CatalogAgentRegistry`            | `?lang=` for display; no client agent library   |
+| Agent Template           | Agent 模版      | Multilingual builtin agent definition (prompt, toolKeys)      | Catalog        | `AgentTemplate`, `agent-templates/{lang}.json`     | Owned by Pipeline application layer             |
 | Agent Pipeline           | 工作流流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline` (`com.ai.pipeline`)                | Canvas + `POST /api/pipelines/invoke/sse` |
-| Pipeline Node            | 流水线节点         | Graph node binding an Agent Type                              | Value Object   | `AgentPipeline.PipelineNode`                       | —                                               |
+| Pipeline Node            | 流水线节点         | Graph node with editable agent snapshot                         | Value Object   | `AgentPipeline.PipelineNode`                       | Double-click edit: name / prompt / tools        |
 | Pipeline Edge            | 流水线边          | Directed handoff between nodes                                | Value Object   | `AgentPipeline.PipelineEdge`                       | —                                               |
-| Workflow Template        | 工作流模版        | Multilingual builtin or client-owned linear agentTypes + brief | Entity / Catalog | `WorkflowTemplate`, `SavedWorkflowTemplate`, `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*` (mirrors Skills) |
-| Agent Facade             | Agent 门面      | Application entry for list, invoke, supervisor, pipeline      | Facade         | `PipelineFacade`                                   | —                                               |
-| Orchestrator Workers     | 编排用例          | Runs Worker Agents according to a routing or pipeline plan    | Use Case       | `OrchestratorWorkersUseCase`                       | —                                               |
-| Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | `POST /api/pipelines/supervisor/invoke/sse`        |
-| Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker`, `SpringAiWorkerAgentInvoker` | DSML strip via `ToolCallMarkupFilter`           |
-| Tool Call Markup Filter  | 工具标记过滤器   | Strips DeepSeek DSML tool markup from model text              | Utility        | `ToolCallMarkupFilter`, `SanitizingChatMemory`     | Chat SSE, ChatMemory, Agent workers             |
+| Workflow Template        | 工作流模版        | Multilingual builtin or client-owned linear agentTypes + brief | Entity / Catalog | `WorkflowTemplate`, `SavedWorkflowTemplate`, `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*` |
+| Pipeline Facade          | Pipeline 门面   | Application entry for list, invoke, supervisor, pipeline      | Facade         | `PipelineFacade`                                   | Passes `clientId` + `lang`                      |
+| Orchestrator Workers     | 编排用例          | Runs Worker Agents according to a routing or pipeline plan    | Use Case       | `OrchestratorWorkersUseCase`                       | Prefers node snapshot prompt/tools when present         |
+| Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | Workers exclude supervisor               |
+| Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker`, `SpringAiWorkerAgentInvoker` | Tools from `toolKeys` whitelist                 |
+| Tool Call Markup Filter  | 工具标记过滤器   | Strips DeepSeek DSML tool markup from model text              | Utility        | `ToolCallMarkupFilter`, `SanitizingChatMemory`     | Chat SSE, ChatMemory, Pipeline workers             |
 | Tool Call Loop Guard     | 工具循环守卫     | Allows datetime bridge then forces final answer after search; repairs DSML-only turns | Utility        | `ToolCallLoopGuard`, `ToolCallLoopGuardAdvisor`, `LoopGuardToolCallingManager` | Prevents DSML / phantom fetch after searchWeb   |
 | Routing Plan             | 路由计划          | Planned subtasks for Supervisor orchestration                 | Value Object   | `RoutingPlan`                                      | —                                               |
 | Agent Handoff            | Agent 交接      | Transfer marking delegation from one Agent to another         | Stream Event   | `agent_handoff`                                    | Frontend stage boundaries                       |
-| Agent Prompt Catalog     | Agent 提示词目录   | Loads Agent system prompts from classpath and appends shared style | Infrastructure | `AgentPromptCatalog`, `prompts/agent/*.st`     | Via `PromptTemplates.loadAgentSystemPrompt`     |
-| Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for pipeline workers / deep Agent | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.pipeline.skills`; shared in `com.ai.common`; ≠ user **Skill** |
+| Agent Prompt Catalog     | Agent 提示词目录   | **Superseded** — builtins from `agent-templates/{lang}.json` via `AgentTemplateCatalog` | — | Historical `prompts/agent/*.st` optional reference | Authority: Pipeline `AgentTemplateCatalog` |
+| Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for pipeline workers | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.pipeline.skills`; shared in `com.ai.common`; ≠ user **Skill** |
 | Skill                    | 技能            | User-managed instruction pack stored per client                  | Entity         | `Skill`, `com.ai.skill`                        | CRUD `/skills`; applied via Chat `skillIds`                        |
 | Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository`, `JdbcSkillRepository`       | Scoped by Client Identity                                          |
-| Agent Skills Runtime     | Agent 技能运行时   | Loads controlled skill ids and injects prompt/tool metadata        | Infrastructure | `AgentSkillsRuntime` (`com.ai.common`)         | Default off; shared by Pipeline + Agent         |
+| Agent Skills Runtime     | Agent 技能运行时   | Loads controlled skill ids and injects prompt/tool metadata        | Infrastructure | `AgentSkillsRuntime` (`com.ai.common`)         | Default off; used by Pipeline workers         |
 | Prompt Catalog           | 提示词目录         | Versioned prompt fragments under classpath resources               | Infrastructure | `classpath:prompts/**`                         | shared / chat / rag / agent / task / guards     |
 | Prompt Templates         | 提示词组合服务       | Composes default system, RAG system, and Agent prompts             | Infrastructure | `PromptTemplates`, `ClasspathPromptTemplate`     | Injected into ChatClientFactory                 |
 | Localized RAG Prompt     | 本地化 RAG 提示词    | Builds multilingual RAG/Vision user prompts with shared style      | Infrastructure | `LocalizedRagPromptBuilder`                    | Used by `RagChatUseCase`, `VisionChatUseCase`   |
@@ -433,7 +418,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Value Object             | 值对象  | Immutable object compared by value, no standalone identity                            | Architecture | `ChatSessionId`, `DocumentId`, `SourceDocument`, `AgentType`  | Use `record` or factory methods             |
 | Domain Service           | 领域服务 | Stateless domain logic that does not belong to a single entity                        | Architecture | `LanguageDetectionService`                                    | Cross-entity operations                     |
 | Use Case                 | 用例   | Application-layer orchestration of domain objects and repositories                    | Architecture | `RagChatUseCase`, `ChatUseCase`, `OrchestratorWorkersUseCase` | No business-rule details                    |
-| Facade                   | 门面   | Simplified application entry point                                                    | Architecture | `PipelineFacade` / `DeepAgentUseCase`, `ToolsFacade`, `ImageFacade`, `AudioFacade`    | Coordinates use cases                       |
+| Facade                   | 门面   | Simplified application entry point                                                    | Architecture | `PipelineFacade`, `ToolsFacade`, `ImageFacade`, `AudioFacade`    | Coordinates use cases                       |
 | Repository               | 仓储   | Persistence or outbound capability abstraction for the domain                         | Architecture | `ChatSessionRepository`, `DocumentReader`, `AgentRegistry`    | Interface in domain, impl in infrastructure |
 | Adapter                  | 适配器  | Infrastructure implementation of a repository / outbound contract                     | Architecture | `OllamaEmbeddingAdapter`, `SerperWebSearchAdapter`            | Lives in `infrastructure/`                  |
 | Streaming (SSE)          | 流式响应 | Real-time AI output via Server-Sent Events                                            | Technical    | Chat / RAG / Agent SSE endpoints                              | Shared frontend `sse-client`                |
@@ -629,7 +614,7 @@ References:
 | Vision AI                                    | **Image Analysis**           | Renamed in UI; route `/vision`                                                |
 | AI Hub                                       | **Chat** + **Generation**    | Split into `/chat` and `/generate/*`                                       |
 | TextController / `/api/text` as product name | **Chat** / **Chat Stream**   | Transport legacy; prefer Chat domain language                                 |
-| supervisor (module)                          | **Pipeline** / **Agent**     | Canvas workbench → `/pipelines` (工作流); autonomous Agent → `/agents`          |
+| supervisor (module)                          | **Pipeline**                 | Canvas workbench → `/pipelines` (工作流) |
 | plugin                                       | **Tool** / **MCP Tool**      | Distinguish Tool Calling from MCP                                             |
 | bot                                          | **Agent** / **ChatClient**   | Prefer Agent for autonomous entities                                          |
 | RAG ETL Domain                               | **RAG** (+ ETL Pipeline)     | Not a separate bounded context                                                |

@@ -4,6 +4,9 @@ export interface AgentInfo {
   description: string;
   healthy: boolean;
   supervisor: boolean;
+  runtime?: string;
+  toolKeys?: string[];
+  systemPrompt?: string;
 }
 
 export interface AgentHealth {

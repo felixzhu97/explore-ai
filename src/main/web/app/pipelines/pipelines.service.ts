@@ -21,11 +21,15 @@ export class PipelinesService {
   private readonly templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
   listAgents(): Observable<AgentInfo[]> {
-    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/list`);
+    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/list`, {
+      params: this.langParams(),
+    });
   }
 
   getHealth(agentType: string): Observable<AgentHealth> {
-    return this.http.get<AgentHealth>(`${API_BASE_URL}/pipelines/${agentType}/health`);
+    return this.http.get<AgentHealth>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
+      params: this.langParams(),
+    });
   }
 
   listTemplates(): Observable<WorkflowTemplate[]> {
@@ -36,14 +40,6 @@ export class PipelinesService {
 
   listLibrary(): Observable<SavedWorkflowTemplate[]> {
     return this.http.get<SavedWorkflowTemplate[]>(`${this.templatesBase}/library`);
-  }
-
-  createFromTemplate(templateId: string): Observable<SavedWorkflowTemplate> {
-    return this.http.post<SavedWorkflowTemplate>(
-      `${this.templatesBase}/from-template`,
-      { templateId },
-      { params: this.langParams() },
-    );
   }
 
   createLibraryTemplate(
@@ -124,7 +120,9 @@ export class PipelinesService {
     onDone: () => void,
     onError: (error: Error) => void,
   ): { abort: () => void } {
-    return streamSsePost(path, body, {
+    const separator = path.includes('?') ? '&' : '?';
+    const url = `${path}${separator}lang=${encodeURIComponent(this.i18n.language())}`;
+    return streamSsePost(url, body, {
       onEvent: ({ eventType, data }) => {
         if (data === '[DONE]' || eventType === 'done') {
           onDone();

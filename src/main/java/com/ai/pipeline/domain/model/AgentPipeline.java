@@ -15,6 +15,7 @@ import java.util.Set;
 
 /**
  * User-authored multi-agent pipeline graph (nodes + directed edges).
+ * Each node carries an editable agent snapshot used at invoke time.
  */
 public final class AgentPipeline {
 
@@ -41,9 +42,9 @@ public final class AgentPipeline {
     }
 
     /**
-     * Validates the graph and returns worker agent types in topological order.
+     * Validates the graph and returns worker nodes in topological order.
      */
-    public List<AgentType> executionOrder() {
+    public List<PipelineNode> executionOrder() {
         if (nodes.isEmpty()) {
             throw new IllegalArgumentException("pipeline must contain at least one agent node");
         }
@@ -92,11 +93,11 @@ public final class AgentPipeline {
             }
         }
 
-        List<AgentType> order = new ArrayList<>();
+        List<PipelineNode> order = new ArrayList<>();
         Map<String, Integer> remaining = new HashMap<>(indegree);
         while (!ready.isEmpty()) {
             String id = ready.poll();
-            order.add(byId.get(id).agentType());
+            order.add(byId.get(id));
             for (String next : outgoing.get(id)) {
                 int nextDegree = remaining.merge(next, -1, Integer::sum);
                 if (nextDegree == 0) {
@@ -138,13 +139,44 @@ public final class AgentPipeline {
         return visited.size() != ids.size();
     }
 
-    public record PipelineNode(String id, AgentType agentType) {
+    /**
+     * Graph node with an editable agent snapshot (double-click edit on canvas).
+     */
+    public record PipelineNode(
+            String id,
+            AgentType agentType,
+            String name,
+            String description,
+            String systemPrompt,
+            List<String> toolKeys) {
+
         public PipelineNode {
             Objects.requireNonNull(id, "id");
             Objects.requireNonNull(agentType, "agentType");
             if (id.isBlank()) {
                 throw new IllegalArgumentException("node id must not be blank");
             }
+            name = name == null || name.isBlank() ? agentType.value() : name.trim();
+            description = description == null ? "" : description.trim();
+            systemPrompt = systemPrompt == null ? "" : systemPrompt.trim();
+            toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
+        }
+
+        public static PipelineNode of(String id, AgentType agentType) {
+            return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
+        }
+
+        public AgentDefinition toDefinition() {
+            String prompt = systemPrompt.isBlank()
+                    ? "You are agent " + agentType.value() + "."
+                    : systemPrompt;
+            return AgentDefinition.create(
+                    agentType,
+                    name,
+                    description,
+                    prompt,
+                    toolKeys,
+                    AgentDefinition.RUNTIME_SINGLE);
         }
     }
 
