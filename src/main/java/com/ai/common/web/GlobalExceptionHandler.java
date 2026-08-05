@@ -2,6 +2,8 @@ package com.ai.common.web;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.skill.domain.exception.SkillNameConflictException;
+import com.ai.skill.domain.exception.SkillNotFoundException;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.util.LogSanitizer;
 import com.ai.common.web.dto.ErrorResponse;
@@ -41,6 +43,20 @@ public class GlobalExceptionHandler {
         log.warn("Client identity missing");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ErrorResponse.of("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
+    }
+
+    @ExceptionHandler(SkillNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSkillNotFound(SkillNotFoundException e) {
+        log.warn("Skill not found: {}", e.getSkillId());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(e.getMessage(), "SKILL_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(SkillNameConflictException.class)
+    public ResponseEntity<ErrorResponse> handleSkillNameConflict(SkillNameConflictException e) {
+        log.warn("Skill name conflict: {}", e.getName());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(e.getMessage(), "SKILL_NAME_CONFLICT"));
     }
 
     @ExceptionHandler(AiServiceException.class)

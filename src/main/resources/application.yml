@@ -38,8 +38,8 @@ spring:
         model: ${OLLAMA_EMBEDDING_MODEL:qwen3-embedding:0.6b}
         dimensions: 1024
     openai:
-      api-key: ${DEEPSEEK_API_KEY}
-      base-url: ${DEEPSEEK_BASE_URL}
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
       chat:
         model: deepseek-v4-flash
       image:
@@ -129,6 +129,7 @@ launchdarkly:
     module-mcp: true
     module-eval: true
     module-agents: true
+    module-skills: true
 
 app:
   datetime:

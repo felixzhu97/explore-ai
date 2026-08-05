@@ -7,7 +7,7 @@
 | 文件 | 层级 | 说明 |
 | --- | --- | --- |
 | `C1-Context.puml` | C1 | 系统上下文图（含 LaunchDarkly、Datadog、cloud-minimal prod） |
-| `C2-Container.puml` | C2 | 容器图（12 个子域 + 功能开关横切） |
+| `C2-Container.puml` | C2 | 容器图（13 个子域 + 功能开关横切） |
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
 | `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
@@ -58,7 +58,7 @@
 - **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0
 - **架构**: Clean Architecture（`domain/repository/`，非 Hexagonal `domain/port/`）
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
-- **子域 (12)**: Chat / Agent / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
+- **子域 (13)**: Chat / Agent / Skill / RAG / Tools / Analysis / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`，5 个模块 flag）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Free 默认关闭）

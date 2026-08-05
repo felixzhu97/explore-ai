@@ -36,13 +36,16 @@ class TextControllerTest {
     private TextProviderCatalog providerCatalog;
 
     @Mock
+    private com.ai.skill.domain.repository.SkillRepository skillRepository;
+
+    @Mock
     private HttpServletRequest httpRequest;
 
     private TextController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new TextController(chatUseCase, providerCatalog);
+        controller = new TextController(chatUseCase, providerCatalog, skillRepository);
         lenient().when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
     }
 
@@ -86,7 +89,8 @@ class TextControllerTest {
                 "session-1",
                 "openai",
                 "deepseek-v4-flash",
-                false
+                false,
+                null
         ), httpRequest);
 
         StepVerifier.create(result)
@@ -109,11 +113,49 @@ class TextControllerTest {
                 null,
                 null,
                 null,
-                false
+                false,
+                null
         ), httpRequest);
 
         StepVerifier.create(result)
                 .expectNext("token")
                 .verifyComplete();
+    }
+
+    @Test
+    void should_attachSkillSystemPrompt_when_skillIdsProvided() {
+        com.ai.skill.domain.vo.SkillId skillId = com.ai.skill.domain.vo.SkillId.generate();
+        com.ai.skill.domain.model.Skill skill = com.ai.skill.domain.model.Skill.restore(
+                skillId,
+                CLIENT_ID,
+                "Brief Style",
+                "Short answers.",
+                "Be concise.",
+                List.of(),
+                true,
+                java.time.Instant.now(),
+                java.time.Instant.now());
+        when(skillRepository.findEnabledByClientIdAndIds(
+                org.mockito.ArgumentMatchers.eq(CLIENT_ID),
+                org.mockito.ArgumentMatchers.anyList()))
+                .thenReturn(List.of(skill));
+        when(chatUseCase.chatStream(org.mockito.ArgumentMatchers.anyList(), any(TextChatOptions.class)))
+                .thenReturn(Flux.just("ok"));
+
+        controller.chatStream(new ChatStreamRequest(
+                List.of(new ChatStreamRequest.ChatMessageDto("user", "Hello")),
+                null,
+                "openai",
+                "deepseek-v4-flash",
+                false,
+                List.of(skillId.value())
+        ), httpRequest);
+
+        verify(chatUseCase).chatStream(
+                org.mockito.ArgumentMatchers.anyList(),
+                org.mockito.ArgumentMatchers.argThat(options ->
+                        options.skillSystemPrompt() != null
+                                && options.skillSystemPrompt().contains("## Active Skills")
+                                && options.skillSystemPrompt().contains("Brief Style")));
     }
 }

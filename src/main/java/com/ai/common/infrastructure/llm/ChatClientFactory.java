@@ -117,7 +117,11 @@ public class ChatClientFactory implements ChatClientProvider {
                 .defaultAdvisors(advisors);
 
         if (withDefaults) {
-            builder.defaultSystem(promptTemplates.getDefaultSystemPrompt());
+            String systemPrompt = promptTemplates.getDefaultSystemPrompt();
+            if (options.skillSystemPrompt() != null && !options.skillSystemPrompt().isBlank()) {
+                systemPrompt = systemPrompt + "\n\n" + options.skillSystemPrompt();
+            }
+            builder.defaultSystem(systemPrompt);
             if (withTools) {
                 ToolCallback[] callbacks = notifyingCallbacks(channelId);
                 if (callbacks.length > 0) {

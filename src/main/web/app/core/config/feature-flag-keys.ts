@@ -4,6 +4,7 @@ export const FEATURE_FLAG_KEYS = {
   MODULE_MCP: 'module-mcp',
   MODULE_EVAL: 'module-eval',
   MODULE_AGENTS: 'module-agents',
+  MODULE_SKILLS: 'module-skills',
 } as const;
 
 export type FeatureFlagKey = typeof FEATURE_FLAG_KEYS[keyof typeof FEATURE_FLAG_KEYS];
@@ -14,4 +15,5 @@ export const MODULE_FLAG_FALLBACK: Record<FeatureFlagKey, boolean> = {
   [FEATURE_FLAG_KEYS.MODULE_MCP]: true,
   [FEATURE_FLAG_KEYS.MODULE_EVAL]: true,
   [FEATURE_FLAG_KEYS.MODULE_AGENTS]: true,
+  [FEATURE_FLAG_KEYS.MODULE_SKILLS]: true,
 };

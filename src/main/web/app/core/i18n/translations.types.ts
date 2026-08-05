@@ -32,6 +32,7 @@ export interface Translations {
     eval: string;
     speechToText: string;
     agents: string;
+    skills: string;
     kubernetes: string;
     monitoring: string;
     aiinfra: string;
@@ -183,6 +184,43 @@ export interface Translations {
       label: string;
       description: string;
     }[];
+    skills: string;
+    skillsEmpty: string;
+    skillsManage: string;
+    skillsSelected: string;
+  };
+  skillsPage: {
+    title: string;
+    subtitle: string;
+    newSkill: string;
+    templates: string;
+    templatesHint: string;
+    yourSkills: string;
+    empty: string;
+    name: string;
+    description: string;
+    instructions: string;
+    save: string;
+    saving: string;
+    cancel: string;
+    edit: string;
+    enable: string;
+    disable: string;
+    statusDisabled: string;
+    delete: string;
+    deleteConfirm: string;
+    add: string;
+    adding: string;
+    customize: string;
+    inLibrary: string;
+    createTitle: string;
+    editTitle: string;
+    loadFailed: string;
+    saveFailed: string;
+    deleteFailed: string;
+    updateFailed: string;
+    nameRequired: string;
+    added: string;
   };
   generate: {
     tabs: {

@@ -17,9 +17,10 @@ class TextChatOptionsTest {
     }
 
     @Test
-    @DisplayName("should_disable_tools_when_explicitly_false")
-    void should_disable_tools_when_explicitly_false() {
-        assertThat(TextChatOptions.of("openai", "gpt-4o", false).toolsEnabled()).isFalse();
-        assertThat(TextChatOptions.withoutTools().toolsEnabled()).isFalse();
+    @DisplayName("should_preserveNullSkillSystemPrompt_when_notProvided")
+    void should_preserveNullSkillSystemPrompt_when_notProvided() {
+        assertThat(TextChatOptions.of("openai", "gpt-4o").skillSystemPrompt()).isNull();
+        assertThat(TextChatOptions.of("openai", "gpt-4o", false, "prompt").skillSystemPrompt())
+                .isEqualTo("prompt");
     }
 }
