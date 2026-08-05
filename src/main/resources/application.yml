@@ -199,6 +199,8 @@ app:
       enabled: ${AGENT_SKILLS_ENABLED:false}
       ids: []
       resource-location: classpath:agent/skills/
+  agent:
+    max-iterations: ${AGENT_MAX_ITERATIONS:5}
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
     detect:
