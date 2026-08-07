@@ -2,6 +2,7 @@ package com.ai.automation.domain.model;
 
 import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.vo.ScheduleKind;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -9,6 +10,9 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class AutomationSchedule {
+
+    /** Provisional / terminal next_run_at for one-shot schedules after claim or completion. */
+    public static final Instant ONCE_TERMINAL_NEXT = Instant.parse("9999-12-31T23:59:59Z");
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
@@ -18,6 +22,7 @@ public class AutomationSchedule {
     private final ScheduleId id;
     private final String clientId;
     private String name;
+    private ScheduleKind scheduleKind;
     private String cronExpression;
     private String timezone;
     private boolean enabled;
@@ -34,6 +39,7 @@ public class AutomationSchedule {
             ScheduleId id,
             String clientId,
             String name,
+            ScheduleKind scheduleKind,
             String cronExpression,
             String timezone,
             boolean enabled,
@@ -48,7 +54,8 @@ public class AutomationSchedule {
         this.id = Objects.requireNonNull(id, "ScheduleId cannot be null");
         this.clientId = requireClientId(clientId);
         this.name = requireName(name);
-        this.cronExpression = requireCron(cronExpression);
+        this.scheduleKind = Objects.requireNonNull(scheduleKind, "scheduleKind");
+        this.cronExpression = normalizeCron(scheduleKind, cronExpression);
         this.timezone = requireTimezone(timezone);
         this.enabled = enabled;
         this.actionType = Objects.requireNonNull(actionType, "actionType");
@@ -75,6 +82,7 @@ public class AutomationSchedule {
                 ScheduleId.generate(),
                 clientId,
                 name,
+                ScheduleKind.CRON,
                 cronExpression,
                 timezone,
                 true,
@@ -88,10 +96,42 @@ public class AutomationSchedule {
                 now);
     }
 
+    public static AutomationSchedule createOnce(
+            String clientId,
+            String name,
+            String timezone,
+            String workflowTemplateId,
+            String recipientEmail,
+            String brief,
+            Instant runAt) {
+        Instant now = Instant.now();
+        Objects.requireNonNull(runAt, "runAt");
+        if (!runAt.isAfter(now)) {
+            throw new IllegalArgumentException("One-shot runAt must be in the future");
+        }
+        return new AutomationSchedule(
+                ScheduleId.generate(),
+                clientId,
+                name,
+                ScheduleKind.ONCE,
+                null,
+                timezone,
+                true,
+                AutomationActionType.RUN_SAVED_WORKFLOW,
+                workflowTemplateId,
+                recipientEmail,
+                brief,
+                runAt,
+                null,
+                now,
+                now);
+    }
+
     public static AutomationSchedule restore(
             ScheduleId id,
             String clientId,
             String name,
+            ScheduleKind scheduleKind,
             String cronExpression,
             String timezone,
             boolean enabled,
@@ -107,6 +147,7 @@ public class AutomationSchedule {
                 id,
                 clientId,
                 name,
+                scheduleKind,
                 cronExpression,
                 timezone,
                 enabled,
@@ -122,6 +163,7 @@ public class AutomationSchedule {
 
     public void update(
             String name,
+            ScheduleKind scheduleKind,
             String cronExpression,
             String timezone,
             String workflowTemplateId,
@@ -129,12 +171,17 @@ public class AutomationSchedule {
             String brief,
             Instant nextRunAt) {
         this.name = requireName(name);
-        this.cronExpression = requireCron(cronExpression);
+        this.scheduleKind = Objects.requireNonNull(scheduleKind, "scheduleKind");
+        this.cronExpression = normalizeCron(scheduleKind, cronExpression);
         this.timezone = requireTimezone(timezone);
         this.workflowTemplateId = requireWorkflowTemplateId(workflowTemplateId);
         this.recipientEmail = requireEmail(recipientEmail);
         this.brief = requireBrief(brief);
         this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
+        // Completed one-shot schedules stay disabled until a new future runAt is saved.
+        if (this.scheduleKind == ScheduleKind.ONCE && !ONCE_TERMINAL_NEXT.equals(this.nextRunAt)) {
+            this.enabled = true;
+        }
         this.updatedAt = Instant.now();
     }
 
@@ -155,6 +202,15 @@ public class AutomationSchedule {
         this.updatedAt = Instant.now();
     }
 
+    public void completeOnce(Instant finishedAt) {
+        markExecuted(finishedAt, ONCE_TERMINAL_NEXT);
+        disable();
+    }
+
+    public boolean isOnce() {
+        return scheduleKind == ScheduleKind.ONCE;
+    }
+
     public ScheduleId getId() {
         return id;
     }
@@ -165,6 +221,10 @@ public class AutomationSchedule {
 
     public String getName() {
         return name;
+    }
+
+    public ScheduleKind getScheduleKind() {
+        return scheduleKind;
     }
 
     public String getCronExpression() {
@@ -229,7 +289,10 @@ public class AutomationSchedule {
         return trimmed;
     }
 
-    private static String requireCron(String cronExpression) {
+    private static String normalizeCron(ScheduleKind kind, String cronExpression) {
+        if (kind == ScheduleKind.ONCE) {
+            return null;
+        }
         if (cronExpression == null || cronExpression.isBlank()) {
             throw new IllegalArgumentException("Cron expression cannot be null or blank");
         }

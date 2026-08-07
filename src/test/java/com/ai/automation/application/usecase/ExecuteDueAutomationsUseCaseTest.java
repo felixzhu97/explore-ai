@@ -1,5 +1,6 @@
 package com.ai.automation.application.usecase;
 
+import com.ai.automation.application.AutomationMailFormatter;
 import com.ai.automation.application.AutomationProperties;
 import com.ai.automation.application.CronScheduleCalculator;
 import com.ai.automation.domain.model.AutomationRun;
@@ -58,6 +59,7 @@ class ExecuteDueAutomationsUseCaseTest {
                 runRepository,
                 workflowRunner,
                 emailGateway,
+                new AutomationMailFormatter(),
                 cronCalculator,
                 dailyUsageQuotaService,
                 properties);
@@ -113,5 +115,48 @@ class ExecuteDueAutomationsUseCaseTest {
         ArgumentCaptor<AutomationRun> runCaptor = ArgumentCaptor.forClass(AutomationRun.class);
         verify(runRepository).save(runCaptor.capture());
         assertThat(runCaptor.getValue().getStatus()).isEqualTo(RunStatus.SKIPPED);
+    }
+
+    @Test
+    void should_disableOnceSchedule_when_executed() {
+        Instant past = Instant.now().minusSeconds(60);
+        AutomationSchedule schedule = AutomationSchedule.createOnce(
+                "client-1",
+                "Once",
+                "UTC",
+                "11111111-1111-1111-1111-111111111111",
+                "user@example.com",
+                "Do once",
+                Instant.now().plusSeconds(120));
+        // Force due by restoring with past nextRunAt
+        schedule = AutomationSchedule.restore(
+                schedule.getId(),
+                schedule.getClientId(),
+                schedule.getName(),
+                schedule.getScheduleKind(),
+                schedule.getCronExpression(),
+                schedule.getTimezone(),
+                true,
+                schedule.getActionType(),
+                schedule.getWorkflowTemplateId(),
+                schedule.getRecipientEmail(),
+                schedule.getBrief(),
+                past,
+                null,
+                schedule.getCreatedAt(),
+                schedule.getUpdatedAt());
+        when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
+        when(scheduleRepository.claim(eq(schedule.getId()), eq(past), eq(AutomationSchedule.ONCE_TERMINAL_NEXT)))
+                .thenReturn(true);
+        when(dailyUsageQuotaService.tryConsume("client-1")).thenReturn(true);
+        when(workflowRunner.runSavedWorkflow(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn("once result");
+
+        useCase.executeDue();
+
+        ArgumentCaptor<AutomationSchedule> scheduleCaptor = ArgumentCaptor.forClass(AutomationSchedule.class);
+        verify(scheduleRepository).save(scheduleCaptor.capture());
+        assertThat(scheduleCaptor.getValue().isEnabled()).isFalse();
+        assertThat(scheduleCaptor.getValue().getNextRunAt()).isEqualTo(AutomationSchedule.ONCE_TERMINAL_NEXT);
     }
 }

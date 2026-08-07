@@ -54,6 +54,9 @@ public class ResendEmailGateway implements EmailGateway {
         body.put("to", List.of(message.to()));
         body.put("subject", message.subject());
         body.put("text", message.textBody());
+        if (message.hasHtmlBody()) {
+            body.put("html", message.htmlBody());
+        }
 
         try {
             restClient

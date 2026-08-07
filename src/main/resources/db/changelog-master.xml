@@ -23,6 +23,7 @@
   <include file="changelogs/4.2-chat-memory-conversation-id.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.3-pipeline-agent-library.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.4-automation-schedules.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/4.5-automation-once.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 
 

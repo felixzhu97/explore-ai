@@ -1,7 +1,11 @@
+export type ScheduleKind = 'CRON' | 'ONCE';
+
 export interface AutomationSchedule {
   id: string;
   name: string;
-  cronExpression: string;
+  scheduleKind: ScheduleKind;
+  cronExpression: string | null;
+  runAt: string | null;
   timezone: string;
   enabled: boolean;
   actionType: string;
@@ -27,7 +31,9 @@ export interface AutomationRun {
 
 export interface AutomationScheduleWriteRequest {
   name: string;
-  cronExpression: string;
+  scheduleKind: ScheduleKind;
+  cronExpression?: string | null;
+  runAt?: string | null;
   timezone: string;
   workflowTemplateId: string;
   recipientEmail: string;
@@ -36,23 +42,34 @@ export interface AutomationScheduleWriteRequest {
 
 export type FrequencyPreset = 'daily' | 'weekly' | 'custom';
 
-export function cronForPreset(preset: FrequencyPreset, customCron: string): string {
+export function cronForPreset(preset: FrequencyPreset): string {
   switch (preset) {
     case 'daily':
       return '0 0 9 * * *';
     case 'weekly':
       return '0 0 9 * * MON';
     case 'custom':
-      return customCron.trim();
+      return '';
   }
 }
 
-export function presetFromCron(cron: string): FrequencyPreset {
+export function presetFromSchedule(schedule: AutomationSchedule): FrequencyPreset {
+  if (schedule.scheduleKind === 'ONCE') {
+    return 'custom';
+  }
+  const cron = schedule.cronExpression ?? '';
   if (cron === '0 0 9 * * *') {
     return 'daily';
   }
   if (cron === '0 0 9 * * MON') {
     return 'weekly';
   }
-  return 'custom';
+  return 'daily';
+}
+
+/** Default run-at: now + 5 minutes, truncated to seconds. */
+export function defaultRunAtDate(): Date {
+  const date = new Date(Date.now() + 5 * 60 * 1000);
+  date.setMilliseconds(0);
+  return date;
 }

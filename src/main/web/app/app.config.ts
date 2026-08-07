@@ -1,7 +1,9 @@
 import { ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
+import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { provideZard } from './shared/zard';
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
@@ -27,6 +29,8 @@ import {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
+    provideAnimationsAsync(),
+    provideNzI18n(en_US),
     provideAppInitializer(() => inject(FeatureFlagService).initialize()),
     provideZard(),
     provideRouter(routes),

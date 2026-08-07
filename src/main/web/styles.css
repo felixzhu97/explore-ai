@@ -401,3 +401,79 @@ z-dialog.dialog-leave {
     width: 0;
   }
 }
+
+/* Automations one-shot datetime popup (overlay outside component host) */
+.run-at-picker-popup.ant-picker-dropdown {
+  z-index: 1100;
+}
+
+.run-at-picker-popup .ant-picker-panel-container {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.run-at-picker-popup .ant-picker-datetime-panel {
+  display: flex;
+}
+
+.run-at-picker-popup .ant-picker-date-panel {
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.run-at-picker-popup .ant-picker-time-panel {
+  min-width: 11.5rem;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.run-at-picker-popup .ant-picker-time-panel-column {
+  flex: 1 1 0;
+  width: 3.5rem;
+  overflow-y: auto;
+}
+
+.run-at-picker-popup .ant-picker-time-panel-column > li.ant-picker-time-panel-cell
+  .ant-picker-time-panel-cell-inner {
+  padding-inline: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-at-picker-popup .ant-picker-header,
+.run-at-picker-popup .ant-picker-time-panel-header {
+  font-weight: 600;
+}
+
+.run-at-picker-popup .ant-picker-cell-selected .ant-picker-cell-inner,
+.run-at-picker-popup .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+.run-at-picker-popup .ant-picker-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
+}
+
+.run-at-picker-popup .ant-picker-now-btn {
+  font-weight: 500;
+}
+
+.run-at-picker-popup .ant-picker-ok .ant-btn {
+  min-width: 3.25rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
+.run-at-picker-popup .ant-picker-ok .ant-btn:hover {
+  background: #333 !important;
+  border-color: #333 !important;
+  color: #fff !important;
+}

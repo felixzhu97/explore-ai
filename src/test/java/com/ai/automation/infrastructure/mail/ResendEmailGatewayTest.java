@@ -53,6 +53,38 @@ class ResendEmailGatewayTest {
     }
 
     @Test
+    @DisplayName("should_include_html_when_htmlBodyPresent")
+    void should_include_html_when_htmlBodyPresent() {
+        MailProperties props = new MailProperties();
+        props.setFrom("noreply@example.com");
+        props.setResendApiKey("re_test_key");
+        props.setResendBaseUrl("https://api.resend.com");
+
+        RestClient.Builder builder = RestClient.builder()
+                .baseUrl("https://api.resend.com")
+                .defaultHeader("Authorization", "Bearer re_test_key");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("https://api.resend.com/emails"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().json("""
+                        {
+                          "from": "noreply@example.com",
+                          "to": ["user@example.com"],
+                          "subject": "Daily brief",
+                          "text": "Hello plain",
+                          "html": "<p>Hello html</p>"
+                        }
+                        """))
+                .andRespond(withSuccess("{\"id\":\"msg_2\"}", MediaType.APPLICATION_JSON));
+
+        ResendEmailGateway gateway = new ResendEmailGateway(props, builder.build());
+        gateway.send(new EmailMessage(
+                "user@example.com", "Daily brief", "Hello plain", "<p>Hello html</p>"));
+
+        server.verify();
+    }
+
+    @Test
     @DisplayName("should_throw_when_resend_returns_error_status")
     void should_throw_when_resend_returns_error_status() {
         MailProperties props = new MailProperties();

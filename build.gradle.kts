@@ -70,6 +70,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
     runtimeOnly("com.h2database:h2")
 
+    // Automation result emails: Markdown → HTML
+    implementation("org.commonmark:commonmark:0.24.0")
+
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-test")

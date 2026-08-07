@@ -42,6 +42,14 @@ export class PipelinesService {
     return this.http.get<SavedWorkflowTemplate[]>(`${this.templatesBase}/library`);
   }
 
+  createFromTemplate(templateId: string): Observable<SavedWorkflowTemplate> {
+    return this.http.post<SavedWorkflowTemplate>(
+      `${this.templatesBase}/from-template`,
+      { templateId },
+      { params: this.langParams() },
+    );
+  }
+
   createLibraryTemplate(
     request: WorkflowTemplateWriteRequest,
   ): Observable<SavedWorkflowTemplate> {
