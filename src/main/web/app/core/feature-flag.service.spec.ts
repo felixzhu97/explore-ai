@@ -18,6 +18,7 @@ const envState = vi.hoisted(() => ({
     'module-mcp': true,
     'module-eval': true,
     'module-pipelines': true,
+    'module-automations': true,
     'module-skills': true,
   },
 }));
@@ -42,6 +43,7 @@ describe('FeatureFlagService', () => {
       'module-mcp': true,
       'module-eval': true,
       'module-pipelines': true,
+      'module-automations': true,
       'module-skills': true,
     };
     mockClient.waitForInitialization.mockResolvedValue(undefined);
@@ -114,6 +116,7 @@ describe('FeatureFlagService', () => {
       'module-mcp': true,
       'module-eval': true,
       'module-pipelines': true,
+      'module-automations': true,
       'module-skills': true,
     };
     mockClient.waitForInitialization.mockReturnValue(

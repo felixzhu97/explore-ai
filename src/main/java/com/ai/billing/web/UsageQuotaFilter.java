@@ -1,5 +1,6 @@
 package com.ai.billing.web;
 
+import com.ai.billing.application.DailyUsageQuotaService;
 import com.ai.billing.infrastructure.config.BillingProperties;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.FilterChain;
@@ -16,11 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Free/Pro daily hard quota per Client Identity (commercial cost guardrail).
@@ -32,16 +28,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 @EnableConfigurationProperties(BillingProperties.class)
 public class UsageQuotaFilter extends OncePerRequestFilter {
 
-    private final BillingProperties properties;
-    private final Map<String, DayCounter> counters = new ConcurrentHashMap<>();
+    private final DailyUsageQuotaService dailyUsageQuotaService;
 
-    public UsageQuotaFilter(BillingProperties properties) {
-        this.properties = properties;
+    public UsageQuotaFilter(DailyUsageQuotaService dailyUsageQuotaService) {
+        this.dailyUsageQuotaService = dailyUsageQuotaService;
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        if (!properties.isQuotaEnabled()) {
+        if (!dailyUsageQuotaService.isEnabled()) {
             return true;
         }
         if (!HttpMethod.POST.name().equals(request.getMethod())) {
@@ -55,6 +50,7 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/text")
                 || path.startsWith("/api/rag")
                 || path.startsWith("/api/pipelines")
+                || path.startsWith("/api/automations")
                 || path.startsWith("/api/skills")
                 || path.startsWith("/api/tools")
                 || path.startsWith("/api/images")
@@ -72,20 +68,12 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
         String clientId = attr instanceof String id && !id.isBlank()
                 ? id
                 : "ip:" + request.getRemoteAddr();
-        String day = LocalDate.now(ZoneOffset.UTC).toString();
-        DayCounter counter = counters.compute(clientId, (k, existing) -> {
-            if (existing == null || !existing.day.equals(day)) {
-                return new DayCounter(day);
-            }
-            return existing;
-        });
-        int used = counter.count.incrementAndGet();
-        int limit = properties.dailyLimit();
+        int limit = dailyUsageQuotaService.dailyLimit();
+        boolean allowed = dailyUsageQuotaService.tryConsume(clientId);
         response.setHeader("X-Quota-Limit", String.valueOf(limit));
-        response.setHeader("X-Quota-Remaining", String.valueOf(Math.max(0, limit - used)));
-        response.setHeader("X-Quota-Plan", properties.getPlan());
-        if (used > limit) {
-            counter.count.decrementAndGet();
+        response.setHeader("X-Quota-Remaining", String.valueOf(dailyUsageQuotaService.remaining(clientId)));
+        response.setHeader("X-Quota-Plan", dailyUsageQuotaService.plan());
+        if (!allowed) {
             response.setStatus(429);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getOutputStream().write(
@@ -95,14 +83,5 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
             return;
         }
         filterChain.doFilter(request, response);
-    }
-
-    private static final class DayCounter {
-        private final String day;
-        private final AtomicInteger count = new AtomicInteger();
-
-        private DayCounter(String day) {
-            this.day = day;
-        }
     }
 }

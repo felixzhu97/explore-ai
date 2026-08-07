@@ -7,6 +7,7 @@ public enum ModuleFlag {
     MCP("module-mcp", "/api/mcp"),
     EVAL("module-eval", "/api/eval"),
     PIPELINES("module-pipelines", "/api/pipelines"),
+    AUTOMATIONS("module-automations", "/api/automations"),
     SKILLS("module-skills", "/api/skills");
 
     private final String key;

@@ -39,3 +39,11 @@ services:
         sync: false
       - key: APP_BILLING_PLAN
         value: free
+      - key: APP_MAIL_ENABLED
+        value: "true"
+      - key: APP_MAIL_PROVIDER
+        value: resend
+      - key: APP_MAIL_FROM
+        sync: false
+      - key: APP_MAIL_RESEND_API_KEY
+        sync: false

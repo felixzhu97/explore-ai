@@ -39,6 +39,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pipelines/pipelines.page').then(m => m.PipelinesPageComponent),
       },
       {
+        path: 'automations',
+        canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AUTOMATIONS)],
+        loadComponent: () => import('./automations/automations.page').then(m => m.AutomationsPageComponent),
+      },
+      {
         path: 'agents',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_PIPELINES)],
         loadComponent: () => import('./agents/agents.page').then(m => m.AgentsPageComponent),

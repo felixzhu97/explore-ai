@@ -2,6 +2,8 @@ package com.ai.common.web;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
+import com.ai.automation.domain.exception.AutomationLimitExceededException;
+import com.ai.automation.domain.exception.AutomationScheduleNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
 import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
@@ -83,6 +85,22 @@ public class GlobalExceptionHandler {
         log.warn("Saved agent not found: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(AutomationScheduleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAutomationScheduleNotFound(
+            AutomationScheduleNotFoundException e) {
+        log.warn("Automation schedule not found: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_SCHEDULE_NOT_FOUND"));
+    }
+
+    @ExceptionHandler(AutomationLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleAutomationLimitExceeded(
+            AutomationLimitExceededException e) {
+        log.warn("Automation limit exceeded: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_LIMIT_EXCEEDED"));
     }
 
     @ExceptionHandler(SavedAgentTypeConflictException.class)

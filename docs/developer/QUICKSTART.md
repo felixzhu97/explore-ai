@@ -86,6 +86,26 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 
 > **Important | 重要**: Never commit your `.env` file to version control. It is already in `.gitignore`.
 
+### Step 3: Automations email (Resend) | 步骤 3: 定时自动化邮件（可选）
+
+Local default logs only (`APP_MAIL_ENABLED=false`). To send via Resend:
+
+```bash
+APP_MAIL_ENABLED=true
+APP_MAIL_PROVIDER=resend
+APP_MAIL_FROM=onboarding@resend.dev
+APP_MAIL_RESEND_API_KEY=re_your_key
+```
+
+**Production (Render):** `render.yaml` already sets `APP_MAIL_ENABLED=true` and `APP_MAIL_PROVIDER=resend`. In the Render Dashboard → Environment, set Secrets:
+
+| Variable | Notes |
+| -------- | ----- |
+| `APP_MAIL_RESEND_API_KEY` | Resend API key (rotate if ever leaked) |
+| `APP_MAIL_FROM` | Address on a Resend-verified domain |
+
+Then redeploy and confirm `/actuator/health` is UP. Verify sends in the [Resend dashboard](https://resend.com/emails).
+
 ---
 
 ## 4. Starting Services | 启动服务
