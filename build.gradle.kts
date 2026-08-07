@@ -32,6 +32,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.latencyutils:LatencyUtils:2.0.3")
     implementation("org.springframework.ai:spring-ai-starter-model-openai")

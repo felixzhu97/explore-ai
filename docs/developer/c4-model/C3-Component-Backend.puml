@@ -21,6 +21,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(metrics_admin_filter, "MetricsAdminAuthFilter", "Filter", "X-Admin-Key 保护 Metrics")
         Component(text_ctrl, "TextController", "@RestController", "/api/text/* (SSE stream)")
         Component(pipeline_ctrl, "PipelineController", "@RestController", "/api/pipelines/*")
+        Component(automation_ctrl, "AutomationController", "@RestController", "/api/automations/*")
         Component(rag_ctrl, "RagController", "@RestController", "/api/rag/*")
         Component(tool_ctrl, "ToolsController", "@RestController", "/api/tools/*")
         Component(analysis_ctrl, "AnalysisController", "@RestController", "/api/chat/analyze")
@@ -42,6 +43,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(chat_usecase, "SpringAiChatUseCase", "@Service", "ChatUseCase 实现")
         Component(pipeline_facade, "PipelineFacade", "@Service", "Worker / Supervisor / Pipeline")
         Component(orch_usecase, "OrchestratorWorkersUseCase", "@Service", "编排 Worker")
+        Component(automation_uc, "AutomationUseCase", "@Service", "日程 CRUD + 到期执行")
         Component(feature_flag_svc, "FeatureFlagService", "@Service", "模块开关")
         Component(rag_app_svc, "RagApplicationService", "@Service", "RAG 门面")
         Component(doc_upload_svc, "DocumentUploadService", "@Service", "文档 ETL 编排")
@@ -116,6 +118,9 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
             Component(invocation_repo_iface, "AiInvocationEventRepository", "Repository", "调用事件写入")
             Component(metrics_query_iface, "MetricsQueryRepository", "Repository", "聚合查询")
         }
+        Container_Boundary(automation_domain, "Automation") {
+            Component(email_gateway_iface, "EmailGateway", "Repository", "事务邮件出站")
+        }
     }
 
     ' ============================================================
@@ -148,6 +153,8 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(tess4j_ocr, "Tess4jOcrEngine", "@Service", "Tesseract [local]")
         Component(tts_repo, "SpringAiTextToSpeechRepository", "@Component", "OpenAI TTS")
         Component(asr_adapter, "WhisperCppTranscriptionAdapter", "@Component", "whisper.cpp [local]")
+        Component(resend_gw, "ResendEmailGateway", "@Component", "Resend HTTP /emails")
+        Component(logging_mail_gw, "LoggingEmailGateway", "@Component", "mail disabled 仅日志")
         Component(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
         Component(mcp_server_svc, "AiMcpServerService", "@Component", "MCP Server")
         Component(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client")
@@ -169,6 +176,7 @@ System_Boundary(ext, "External Systems") {
     Component(tesseract_ext, "Tesseract [local]", "Native", "OCR")
     Component(whisper_ext, "whisper.cpp [local]", "REST/WS", ":8178")
     Component(serper_ext, "Serper.dev", "REST", "Web 搜索")
+    Component(resend_ext, "Resend", "REST", "事务邮件 api.resend.com")
     Component(launchdarkly_ext, "LaunchDarkly", "SaaS", "功能开关")
     Component(datadog_ext, "Datadog us5", "SaaS", "APM via Agent")
 }
@@ -187,6 +195,11 @@ Rel(quota_filter, chat_ctrl, "日配额硬限制")
 Rel(metrics_admin_filter, metrics_ctrl, "Admin Key 鉴权")
 Rel(account_ctrl, client_id_filter, "读取匿名身份")
 Rel(pipeline_ctrl, pipeline_facade, "调用")
+Rel(automation_ctrl, automation_uc, "调用")
+Rel(automation_uc, pipeline_facade, "同步运行工作流")
+Rel(automation_uc, email_gateway_iface, "发结果摘要")
+Rel(email_gateway_iface, resend_gw, "实现")
+Rel(resend_gw, resend_ext, "POST /emails", "HTTPS")
 Rel(pipeline_facade, orch_usecase, "编排")
 Rel(pipeline_facade, agent_registry_iface, "注册表")
 Rel(orch_usecase, supervisor_router, "路由")

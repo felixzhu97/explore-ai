@@ -34,6 +34,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
 | Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
 | Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG; per-node editable agent copies; multilingual builtin catalog |
+| Automation       | 定时自动化      | `com.ai.automation` | `/automations`        | `/api/automations`                        | `module-automations`          | Schedule saved workflows; email result summary |
 | Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
@@ -56,6 +57,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | ----------------- | ---------------- | ------------------------------- |
 | `/chat`           | Chat             | `/api/text`, `/api/sessions`    |
 | `/pipelines`      | Pipeline         | `/api/pipelines`                |
+| `/automations`    | Automation       | `/api/automations`              |
 | `/skills`         | Skill            | `/api/skills`                   |
 | `/generate`       | Generation       | —                               |
 | `/generate/image` | Image Generation | `/api/images`                   |
@@ -68,9 +70,9 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/metrics`        | Metrics          | `/api/metrics`                  |
 
 
-**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
+**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
 
-**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/pipelines` → `/skills`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`.
+**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`.
 
 **Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Pipeline/工作流 (canvas + task near Run + results rail; double-click node edits name/prompt/tools for that graph copy); Generation / Vision / ASR / MCP / Eval / Metrics as before.
 
@@ -163,6 +165,9 @@ flowchart TB
 | Pipeline Edge            | 流水线边          | Directed handoff between nodes                                | Value Object   | `AgentPipeline.PipelineEdge`                       | —                                               |
 | Workflow Template        | 工作流模版        | Multilingual builtin or client-owned linear agentTypes + brief | Entity / Catalog | `WorkflowTemplate`, `SavedWorkflowTemplate`, `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*` |
 | Pipeline Facade          | Pipeline 门面   | Application entry for list, invoke, supervisor, pipeline      | Facade         | `PipelineFacade`                                   | Passes `clientId` + `lang`                      |
+| Automation Schedule      | 自动化日程        | Client-owned cron + timezone + saved workflow + recipient email | Aggregate      | `AutomationSchedule` (`com.ai.automation`)         | Due scan every minute; `/api/automations`       |
+| Automation Run           | 自动化运行记录     | One execution attempt with status and email outcome           | Entity         | `AutomationRun`                                    | SUCCESS / FAILED / SKIPPED                      |
+| Email Gateway            | 邮件网关          | Outbound transactional email (Resend HTTP API; optional SMTP) | Repository     | `EmailGateway` → `ResendEmailGateway` / `SmtpEmailGateway` / `LoggingEmailGateway` | Prod: Resend (`APP_MAIL_*`); local default logs only |
 | Orchestrator Workers     | 编排用例          | Runs Worker Agents according to a routing or pipeline plan    | Use Case       | `OrchestratorWorkersUseCase`                       | Prefers node snapshot prompt/tools when present         |
 | Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | Workers exclude supervisor               |
 | Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker`, `SpringAiWorkerAgentInvoker` | Tools from `toolKeys` whitelist                 |

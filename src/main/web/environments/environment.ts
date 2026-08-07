@@ -18,6 +18,7 @@ export const environment = {
     'module-mcp': true,
     'module-eval': true,
     'module-pipelines': true,
+    'module-automations': true,
     'module-skills': true,
   },
 };

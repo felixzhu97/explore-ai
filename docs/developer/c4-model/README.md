@@ -62,7 +62,7 @@
 - **持久化**: H2 嵌入式（会话元数据 `JdbcChatSessionMetadataRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_events`）
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
-- **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索)
+- **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索) / Resend (Automations 邮件)
 - **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis
 
 ### Pipeline（工作流）子域
@@ -153,7 +153,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
                                               ↘ H2 ./data/explore-ai
                                               ↘ Ollama :11434 / whisper :8178 / Tesseract
-                                              ↘ DeepSeek / OpenAI / Serper
+                                              ↘ DeepSeek / OpenAI / Serper / Resend
 ```
 
 ### 生产 (cloud-minimal)
@@ -162,7 +162,7 @@ Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
 Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ephemeral)
         ↘ Datadog RUM (us5, 可选)        ↘ 无 APM sidecar（Starter 512MB，不启 javaagent）
         ↘ LaunchDarkly Client            ↘ LaunchDarkly Server
-                                         → DeepSeek / OpenAI / Serper
+                                         → DeepSeek / OpenAI / Serper / Resend
 ```
 
 **Prod frontend**: `https://www.felixzhu.chat` (Vercel)  
@@ -188,7 +188,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Angular Dev Server | 4200 |
 | Vercel (prod frontend) | HTTPS |
 | Render explore-ai (prod backend) | HTTPS → :8080（Starter：always-on / 无持久盘） |
-| DeepSeek / OpenAI / Serper | HTTPS |
+| DeepSeek / OpenAI / Serper / Resend | HTTPS |
 | LaunchDarkly / Datadog us5 | HTTPS |
 
 ---

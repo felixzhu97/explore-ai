@@ -31,6 +31,7 @@ System_Ext(datadog, "Datadog (us5)", "RUM (浏览器)；APM 可选（Render Star
 System_Ext(deepseek_api, "DeepSeek API", "LLM 对话 (deepseek-v4-flash)")
 System_Ext(openai_api, "OpenAI API", "DALL-E 图像生成 + TTS 语音合成")
 System_Ext(serper_api, "Serper.dev API", "Web 搜索，实时信息检索")
+System_Ext(resend_api, "Resend", "事务邮件 (Automations 结果摘要)\nHTTP API api.resend.com；prod 经 APP_MAIL_*")
 
 ' ============================================================
 ' DATA & LOCAL-ONLY SERVICES (dev / optional)
@@ -57,6 +58,7 @@ Rel(backend, datadog, "APM（可选 javaagent）", "HTTPS us5")
 Rel(backend, deepseek_api, "LLM 调用", "HTTPS")
 Rel(backend, openai_api, "图像生成 + TTS", "HTTPS")
 Rel(backend, serper_api, "Web 搜索", "HTTPS")
+Rel(backend, resend_api, "Automations 邮件", "HTTPS")
 Rel(backend, h2_db, "会话元数据 + ChatMemory + 向量 + AI 调用事件", "JDBC 内嵌")
 
 Rel_Back(backend, ollama, "Embedding + 多模态 RAG [dev]", "HTTP :11434")

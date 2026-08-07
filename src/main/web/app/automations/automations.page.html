@@ -1,0 +1,236 @@
+<div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+  <div
+    class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3"
+  >
+    <div class="min-w-0">
+      <h1 class="text-base font-semibold text-foreground">{{ i18n.t().automationsPage.title }}</h1>
+      <p class="text-xs text-foreground/60">{{ i18n.t().automationsPage.subtitle }}</p>
+    </div>
+    <button type="button" z-button zType="default" zSize="sm" (click)="startCreate()">
+      {{ i18n.t().automationsPage.newSchedule }}
+    </button>
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-y-auto px-4 py-6">
+    <div class="mx-auto flex w-full max-w-4xl flex-col gap-8">
+      @if (error()) {
+        <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {{ error() }}
+        </p>
+      }
+
+      @if (enabledWorkflows().length === 0) {
+        <p class="text-sm text-foreground/60">{{ i18n.t().automationsPage.noWorkflows }}</p>
+      }
+
+      @if (showForm()) {
+        <section class="rounded-xl border border-black/8 bg-white p-4">
+          <div class="mt-1 flex flex-col gap-3">
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automationsPage.name }}
+              <input
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [ngModel]="formName()"
+                (ngModelChange)="formName.set($event)"
+              />
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automationsPage.workflow }}
+              <select
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [ngModel]="formWorkflowId()"
+                (ngModelChange)="formWorkflowId.set($event)"
+              >
+                <option value="" disabled>
+                  {{ i18n.t().automationsPage.workflowPlaceholder }}
+                </option>
+                @for (workflow of enabledWorkflows(); track workflow.id) {
+                  <option [value]="workflow.id">{{ workflow.name }}</option>
+                }
+              </select>
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automationsPage.email }}
+              <input
+                type="email"
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [ngModel]="formEmail()"
+                (ngModelChange)="formEmail.set($event)"
+              />
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automationsPage.timezone }}
+              <input
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [ngModel]="formTimezone()"
+                (ngModelChange)="formTimezone.set($event)"
+              />
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automationsPage.frequency }}
+              <select
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [ngModel]="formPreset()"
+                (ngModelChange)="formPreset.set($event)"
+              >
+                <option value="daily">{{ i18n.t().automationsPage.frequencyDaily }}</option>
+                <option value="weekly">{{ i18n.t().automationsPage.frequencyWeekly }}</option>
+                <option value="custom">{{ i18n.t().automationsPage.frequencyCustom }}</option>
+              </select>
+            </label>
+            @if (formPreset() === 'custom') {
+              <label class="text-xs font-medium text-foreground/70">
+                {{ i18n.t().automationsPage.cronExpression }}
+                <input
+                  class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 font-mono text-sm"
+                  [ngModel]="formCustomCron()"
+                  (ngModelChange)="formCustomCron.set($event)"
+                />
+              </label>
+            }
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automationsPage.brief }}
+              <textarea
+                rows="4"
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [placeholder]="i18n.t().automationsPage.briefPlaceholder"
+                [ngModel]="formBrief()"
+                (ngModelChange)="formBrief.set($event)"
+              ></textarea>
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                z-button
+                zType="default"
+                zSize="sm"
+                [disabled]="saving()"
+                (click)="save()"
+              >
+                {{ saving() ? i18n.t().automationsPage.saving : i18n.t().automationsPage.save }}
+              </button>
+              <button type="button" z-button zType="ghost" zSize="sm" (click)="cancelForm()">
+                {{ i18n.t().automationsPage.cancel }}
+              </button>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section>
+        @if (loading()) {
+          <p class="text-sm text-foreground/50">…</p>
+        } @else if (schedules().length === 0) {
+          <div class="rounded-xl border border-dashed border-black/15 px-4 py-8 text-center">
+            <p class="text-sm font-medium text-foreground">{{ i18n.t().automationsPage.empty }}</p>
+            <p class="mt-1 text-xs text-foreground/55">{{ i18n.t().automationsPage.emptyHint }}</p>
+          </div>
+        } @else {
+          <ul class="flex flex-col gap-3">
+            @for (schedule of schedules(); track schedule.id) {
+              <li class="rounded-xl border border-black/8 bg-white p-4">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="text-sm font-medium text-foreground">{{ schedule.name }}</p>
+                      <span class="text-[11px] text-foreground/45">
+                        {{
+                          schedule.enabled
+                            ? i18n.t().automationsPage.statusEnabled
+                            : i18n.t().automationsPage.statusDisabled
+                        }}
+                      </span>
+                    </div>
+                    <p class="mt-1 text-xs text-foreground/55">
+                      {{ workflowName(schedule.workflowTemplateId) }} ·
+                      {{ schedule.recipientEmail }}
+                    </p>
+                    <p class="mt-1 text-xs text-foreground/45">
+                      {{ i18n.t().automationsPage.nextRun }}:
+                      {{ formatInstant(schedule.nextRunAt) }}
+                      · {{ i18n.t().automationsPage.lastRun }}:
+                      {{ formatInstant(schedule.lastRunAt) }}
+                    </p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      z-button
+                      zType="outline"
+                      zSize="sm"
+                      (click)="startEdit(schedule)"
+                    >
+                      {{ i18n.t().automationsPage.edit }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="ghost"
+                      zSize="sm"
+                      (click)="toggleEnabled(schedule)"
+                    >
+                      {{
+                        schedule.enabled
+                          ? i18n.t().automationsPage.disable
+                          : i18n.t().automationsPage.enable
+                      }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="ghost"
+                      zSize="sm"
+                      (click)="showHistory(schedule)"
+                    >
+                      {{ i18n.t().automationsPage.history }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="destructive"
+                      zSize="sm"
+                      (click)="remove(schedule)"
+                    >
+                      {{ i18n.t().automationsPage.delete }}
+                    </button>
+                  </div>
+                </div>
+
+                @if (historyScheduleId() === schedule.id) {
+                  <div class="mt-4 border-t border-black/6 pt-3">
+                    <p class="text-xs font-medium text-foreground/70">
+                      {{ i18n.t().automationsPage.history }}
+                    </p>
+                    @if (runs().length === 0) {
+                      <p class="mt-2 text-xs text-foreground/45">—</p>
+                    } @else {
+                      <ul class="mt-2 flex flex-col gap-2">
+                        @for (run of runs(); track run.id) {
+                          <li class="rounded-lg bg-black/[0.03] px-3 py-2 text-xs text-foreground/70">
+                            <div class="flex flex-wrap gap-2">
+                              <span
+                                >{{ i18n.t().automationsPage.runStatus }}: {{ run.status }}</span
+                              >
+                              <span
+                                >{{ i18n.t().automationsPage.emailStatus }}:
+                                {{ run.emailStatus }}</span
+                              >
+                              <span>{{ formatInstant(run.startedAt) }}</span>
+                            </div>
+                            @if (run.errorMessage) {
+                              <p class="mt-1 text-red-600">{{ run.errorMessage }}</p>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 package com.ai.billing.web;
 
+import com.ai.billing.application.DailyUsageQuotaService;
 import com.ai.billing.infrastructure.config.BillingProperties;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.FilterChain;
@@ -33,7 +34,7 @@ class UsageQuotaFilterTest {
         properties.setQuotaEnabled(true);
         properties.setPlan("free");
         properties.setFreeDailyRequests(2);
-        filter = new UsageQuotaFilter(properties);
+        filter = new UsageQuotaFilter(new DailyUsageQuotaService(properties));
     }
 
     @Test

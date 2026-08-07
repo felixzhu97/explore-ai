@@ -48,6 +48,8 @@ describe('module-nav.config', () => {
       'rag',
       'metrics',
       'pipelines',
+      'automations',
+      'agents',
       'skills',
     ]);
     expect(sections[1].tabs.map(tab => tab.key)).toEqual(['generate']);

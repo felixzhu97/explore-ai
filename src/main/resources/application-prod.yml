@@ -60,6 +60,14 @@ app:
     enabled: true
     session-max-age: 90d
     cron: "0 0 3 * * *"
+  automation:
+    scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:true}
+  mail:
+    enabled: ${APP_MAIL_ENABLED:false}
+    provider: ${APP_MAIL_PROVIDER:resend}
+    from: ${APP_MAIL_FROM:onboarding@resend.dev}
+    resend-api-key: ${APP_MAIL_RESEND_API_KEY:}
+    resend-base-url: ${APP_MAIL_RESEND_BASE_URL:https://api.resend.com}
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
   ai:
@@ -78,6 +86,9 @@ management:
     web:
       exposure:
         include: health
+  health:
+    mail:
+      enabled: false
 
 logging:
   level:

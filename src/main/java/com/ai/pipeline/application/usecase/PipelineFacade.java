@@ -43,6 +43,11 @@ public class PipelineFacade {
         return orchestrator.invokePipeline(message, pipeline, clientId, language);
     }
 
+    public String invokePipelineSync(
+            String message, AgentPipeline pipeline, String clientId, String language) {
+        return orchestrator.invokePipelineSync(message, pipeline, clientId, language);
+    }
+
     public int builtinCount() {
         return registry.listBuiltins("en").size();
     }

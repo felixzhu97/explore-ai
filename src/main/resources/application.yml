@@ -1,6 +1,17 @@
 spring:
   application:
     name: server-springai
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS:false}
   ai:
     chat:
       client:
@@ -110,6 +121,9 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    mail:
+      enabled: false
   metrics:
     export:
       prometheus:
@@ -129,6 +143,7 @@ launchdarkly:
     module-mcp: true
     module-eval: true
     module-pipelines: true
+    module-automations: true
     module-skills: true
 
 app:
@@ -193,6 +208,17 @@ app:
     enabled: true
     session-max-age: 90d
     cron: "0 0 3 * * *"
+  automation:
+    scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:true}
+    scan-batch-size: ${APP_AUTOMATION_SCAN_BATCH:20}
+    max-schedules-per-client: ${APP_AUTOMATION_MAX_SCHEDULES:10}
+    scan-fixed-delay-ms: ${APP_AUTOMATION_SCAN_DELAY_MS:60000}
+  mail:
+    enabled: ${APP_MAIL_ENABLED:false}
+    provider: ${APP_MAIL_PROVIDER:resend}
+    from: ${APP_MAIL_FROM:onboarding@resend.dev}
+    resend-api-key: ${APP_MAIL_RESEND_API_KEY:}
+    resend-base-url: ${APP_MAIL_RESEND_BASE_URL:https://api.resend.com}
   pipeline:
     skills:
       enabled: ${AGENT_SKILLS_ENABLED:false}

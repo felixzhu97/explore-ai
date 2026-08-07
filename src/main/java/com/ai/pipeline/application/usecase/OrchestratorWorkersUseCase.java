@@ -124,6 +124,44 @@ public class OrchestratorWorkersUseCase {
         }
     }
 
+    /**
+     * Blocking pipeline execution for background automation (no SSE).
+     */
+    public String invokePipelineSync(String message, AgentPipeline pipeline, String clientId, String language) {
+        if (message == null || message.isBlank()) {
+            throw new IllegalArgumentException("message must not be blank");
+        }
+        List<AgentPipeline.PipelineNode> order = pipeline.executionOrder();
+        String current = message;
+        StringBuilder all = new StringBuilder();
+        long startedAt = System.nanoTime();
+        try {
+            for (AgentPipeline.PipelineNode node : order) {
+                AgentDefinition agent = resolveNode(node, clientId, language);
+                String stepInput = """
+                        Original user request:
+                        %s
+
+                        Context from previous pipeline step:
+                        %s
+
+                        Continue the task as your specialist role.
+                        """.formatted(message, current);
+                String stepOutput = workerInvoker.invoke(agent, stepInput);
+                current = stepOutput == null ? "" : stepOutput;
+                if (!all.isEmpty()) {
+                    all.append("\n\n");
+                }
+                all.append(current);
+            }
+            recordAgent("pipeline", "agent.pipeline.sync", startedAt, true, null);
+            return all.toString().trim();
+        } catch (RuntimeException ex) {
+            recordAgent("pipeline", "agent.pipeline.sync", startedAt, false, ex.getMessage());
+            throw ex;
+        }
+    }
+
     private Flux<ServerSentEvent<String>> runPipelineStreamed(
             String message,
             List<AgentPipeline.PipelineNode> order,
