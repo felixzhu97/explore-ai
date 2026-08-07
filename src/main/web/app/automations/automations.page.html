@@ -39,7 +39,7 @@
               <select
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
                 [ngModel]="formWorkflowId()"
-                (ngModelChange)="formWorkflowId.set($event)"
+                (ngModelChange)="onWorkflowChange($event)"
               >
                 <option value="" disabled>
                   {{ i18n.t().automationsPage.workflowPlaceholder }}
@@ -71,7 +71,7 @@
               <select
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
                 [ngModel]="formPreset()"
-                (ngModelChange)="formPreset.set($event)"
+                (ngModelChange)="onPresetChange($event)"
               >
                 <option value="daily">{{ i18n.t().automationsPage.frequencyDaily }}</option>
                 <option value="weekly">{{ i18n.t().automationsPage.frequencyWeekly }}</option>
@@ -79,14 +79,29 @@
               </select>
             </label>
             @if (formPreset() === 'custom') {
-              <label class="text-xs font-medium text-foreground/70">
-                {{ i18n.t().automationsPage.cronExpression }}
-                <input
-                  class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 font-mono text-sm"
-                  [ngModel]="formCustomCron()"
-                  (ngModelChange)="formCustomCron.set($event)"
+              <div
+                class="run-at-field rounded-xl border border-black/15 bg-black/[0.03] p-3"
+              >
+                <div class="mb-2 flex flex-col gap-0.5">
+                  <span class="text-xs font-semibold text-foreground">
+                    {{ i18n.t().automationsPage.runAt }}
+                  </span>
+                  <span class="text-[11px] font-normal text-foreground/55">
+                    {{ i18n.t().automationsPage.runAtHint }}
+                  </span>
+                </div>
+                <nz-date-picker
+                  class="run-at-picker w-full"
+                  nzSize="large"
+                  nzShowTime
+                  nzFormat="yyyy-MM-dd HH:mm:ss"
+                  [nzPlaceHolder]="i18n.t().automationsPage.runAtPlaceholder"
+                  [nzDisabledDate]="disabledDate"
+                  [nzDropdownClassName]="'run-at-picker-popup'"
+                  [ngModel]="formRunAt()"
+                  (ngModelChange)="formRunAt.set($event)"
                 />
-              </label>
+              </div>
             }
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().automationsPage.brief }}
@@ -133,12 +148,16 @@
                   <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-center gap-2">
                       <p class="text-sm font-medium text-foreground">{{ schedule.name }}</p>
-                      <span class="text-[11px] text-foreground/45">
-                        {{
-                          schedule.enabled
-                            ? i18n.t().automationsPage.statusEnabled
-                            : i18n.t().automationsPage.statusDisabled
-                        }}
+                      <span
+                        class="rounded-md px-1.5 py-0.5 text-[11px] font-medium"
+                        [class.bg-black/6]="schedule.enabled && !isOnceCompleted(schedule)"
+                        [class.text-foreground/70]="schedule.enabled && !isOnceCompleted(schedule)"
+                        [class.bg-emerald-50]="isOnceCompleted(schedule)"
+                        [class.text-emerald-800]="isOnceCompleted(schedule)"
+                        [class.bg-black/4]="!schedule.enabled && !isOnceCompleted(schedule)"
+                        [class.text-foreground/45]="!schedule.enabled && !isOnceCompleted(schedule)"
+                      >
+                        {{ statusLabel(schedule) }}
                       </span>
                     </div>
                     <p class="mt-1 text-xs text-foreground/55">
@@ -146,8 +165,16 @@
                       {{ schedule.recipientEmail }}
                     </p>
                     <p class="mt-1 text-xs text-foreground/45">
+                      {{ scheduleSummary(schedule) }}
+                    </p>
+                    @if (isOnceCompleted(schedule)) {
+                      <p class="mt-1 text-xs text-emerald-800/80">
+                        {{ i18n.t().automationsPage.onceCompletedHint }}
+                      </p>
+                    }
+                    <p class="mt-1 text-xs text-foreground/45">
                       {{ i18n.t().automationsPage.nextRun }}:
-                      {{ formatInstant(schedule.nextRunAt) }}
+                      {{ formatNextRun(schedule) }}
                       · {{ i18n.t().automationsPage.lastRun }}:
                       {{ formatInstant(schedule.lastRunAt) }}
                     </p>
@@ -170,9 +197,11 @@
                       (click)="toggleEnabled(schedule)"
                     >
                       {{
-                        schedule.enabled
-                          ? i18n.t().automationsPage.disable
-                          : i18n.t().automationsPage.enable
+                        isOnceCompleted(schedule)
+                          ? i18n.t().automationsPage.reschedule
+                          : schedule.enabled
+                            ? i18n.t().automationsPage.disable
+                            : i18n.t().automationsPage.enable
                       }}
                     </button>
                     <button

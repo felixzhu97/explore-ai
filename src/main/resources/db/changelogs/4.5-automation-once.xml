@@ -1,0 +1,18 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260807-001-automation-once" dbms="h2">
+    <addColumn tableName="automation_schedules">
+      <column name="schedule_kind" type="${string.type}(16)" defaultValue="CRON">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <dropNotNullConstraint tableName="automation_schedules" columnName="cron_expression" columnDataType="${string.type}(80)"/>
+  </changeSet>
+</databaseChangeLog>

@@ -265,6 +265,20 @@
                       >
                         {{ i18n.t().pipelines.pipeline.templates.edit }}
                       </button>
+                      <button
+                        type="button"
+                        class="rounded-md px-2.5 py-1 text-xs text-text-secondary hover:bg-black/4 disabled:opacity-50"
+                        [disabled]="addingTemplateId() === template.id || isInLibrary(template)"
+                        (click)="addFromTemplate(template)"
+                      >
+                        {{
+                          isInLibrary(template)
+                            ? i18n.t().pipelines.pipeline.templates.inLibrary
+                            : addingTemplateId() === template.id
+                              ? i18n.t().pipelines.pipeline.templates.adding
+                              : i18n.t().pipelines.pipeline.templates.add
+                        }}
+                      </button>
                     </div>
                   </div>
                 }

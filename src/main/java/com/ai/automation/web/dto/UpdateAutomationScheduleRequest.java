@@ -3,9 +3,13 @@ package com.ai.automation.web.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.Instant;
+
 public record UpdateAutomationScheduleRequest(
         @NotBlank String name,
-        @NotBlank String cronExpression,
+        String scheduleKind,
+        String cronExpression,
+        Instant runAt,
         @NotBlank String timezone,
         @NotBlank String workflowTemplateId,
         @NotBlank @Email String recipientEmail,

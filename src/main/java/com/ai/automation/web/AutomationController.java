@@ -1,6 +1,7 @@
 package com.ai.automation.web;
 
 import com.ai.automation.application.usecase.AutomationUseCase;
+import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.automation.web.dto.AutomationRunResponse;
 import com.ai.automation.web.dto.AutomationScheduleResponse;
 import com.ai.automation.web.dto.CreateAutomationScheduleRequest;
@@ -51,7 +52,9 @@ public class AutomationController {
                 .body(AutomationScheduleResponse.from(automationUseCase.create(
                         clientId,
                         body.name(),
+                        ScheduleKind.from(body.scheduleKind()),
                         body.cronExpression(),
+                        body.runAt(),
                         body.timezone(),
                         body.workflowTemplateId(),
                         body.recipientEmail(),
@@ -68,7 +71,9 @@ public class AutomationController {
                 clientId,
                 id,
                 body.name(),
+                ScheduleKind.from(body.scheduleKind()),
                 body.cronExpression(),
+                body.runAt(),
                 body.timezone(),
                 body.workflowTemplateId(),
                 body.recipientEmail(),

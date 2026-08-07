@@ -4,6 +4,7 @@ import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.vo.ScheduleKind;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -22,6 +23,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
             ScheduleId.of(rs.getString("id")),
             rs.getString("client_id"),
             rs.getString("name"),
+            ScheduleKind.from(rs.getString("schedule_kind")),
             rs.getString("cron_expression"),
             rs.getString("timezone"),
             rs.getBoolean("enabled"),
@@ -44,16 +46,17 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
         jdbcTemplate.update(
                 """
                 MERGE INTO automation_schedules (
-                    id, client_id, name, cron_expression, timezone, enabled, action_type,
+                    id, client_id, name, schedule_kind, cron_expression, timezone, enabled, action_type,
                     workflow_template_id, recipient_email, brief, next_run_at, last_run_at,
                     created_at, updated_at
                 )
                 KEY (id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 schedule.getId().value(),
                 schedule.getClientId(),
                 schedule.getName(),
+                schedule.getScheduleKind().value(),
                 schedule.getCronExpression(),
                 schedule.getTimezone(),
                 schedule.isEnabled(),

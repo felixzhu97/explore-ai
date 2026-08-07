@@ -129,7 +129,7 @@ journey
 | E7 Pipeline（工作流） | [E7-multi-agent.md](./user-stories/E7-multi-agent.md) | US-15 – US-18 | 已实现（含节点可编辑副本） |
 | E11 Deep Agent | [E11-deep-agent.md](./user-stories/E11-deep-agent.md) | US-32 – US-34 | **已退役**（并入 E7） |
 | E8 商业化与平台 | [E8-commercial-platform.md](./user-stories/E8-commercial-platform.md) | US-18 – US-22 | 进行中 |
-| E9 企业与未来 | [E9-enterprise-future.md](./user-stories/E9-enterprise-future.md) | US-23 – US-29；US-27a 进行中 | 规划中（US-27a 进行中） |
+| E9 企业与未来 | [E9-enterprise-future.md](./user-stories/E9-enterprise-future.md) | US-23 – US-29；US-27a 已实现 | 规划中（US-27a 已实现） |
 | E10 Skills | [E10-skills.md](./user-stories/E10-skills.md) | US-30 – US-31 | 已实现 |
 
 ## 参考

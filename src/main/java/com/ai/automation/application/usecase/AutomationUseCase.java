@@ -2,7 +2,9 @@ package com.ai.automation.application.usecase;
 
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
+import com.ai.automation.domain.vo.ScheduleKind;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface AutomationUseCase {
@@ -12,7 +14,9 @@ public interface AutomationUseCase {
     AutomationSchedule create(
             String clientId,
             String name,
+            ScheduleKind scheduleKind,
             String cronExpression,
+            Instant runAt,
             String timezone,
             String workflowTemplateId,
             String recipientEmail,
@@ -22,7 +26,9 @@ public interface AutomationUseCase {
             String clientId,
             String scheduleId,
             String name,
+            ScheduleKind scheduleKind,
             String cronExpression,
+            Instant runAt,
             String timezone,
             String workflowTemplateId,
             String recipientEmail,

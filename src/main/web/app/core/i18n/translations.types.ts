@@ -286,7 +286,11 @@ export interface Translations {
     frequencyDaily: string;
     frequencyWeekly: string;
     frequencyCustom: string;
-    cronExpression: string;
+    runAt: string;
+    runAtPlaceholder: string;
+    runAtHint: string;
+    runAtRequired: string;
+    runAtPast: string;
     brief: string;
     briefPlaceholder: string;
     save: string;
@@ -295,6 +299,7 @@ export interface Translations {
     edit: string;
     enable: string;
     disable: string;
+    reschedule: string;
     delete: string;
     deleteConfirm: string;
     history: string;
@@ -302,6 +307,9 @@ export interface Translations {
     lastRun: string;
     statusEnabled: string;
     statusDisabled: string;
+    statusCompleted: string;
+    nextRunNone: string;
+    onceCompletedHint: string;
     runStatus: string;
     emailStatus: string;
     loadFailed: string;

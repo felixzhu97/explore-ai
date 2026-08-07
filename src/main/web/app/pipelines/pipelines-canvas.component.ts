@@ -81,6 +81,7 @@ export class PipelinesCanvasComponent implements OnInit {
   readonly editingLibraryId = signal<string | null>(null);
   readonly isDraft = signal(false);
   readonly saving = signal(false);
+  readonly addingTemplateId = signal<string | null>(null);
 
   /** Node editor occupies the center work area (graph copy only). */
   readonly editingNodeId = signal<string | null>(null);
@@ -316,6 +317,32 @@ export class PipelinesCanvasComponent implements OnInit {
       shortTopic: template.shortTopic,
       briefPrompt: template.briefPrompt,
     }, 'use');
+  }
+
+  isInLibrary(template: WorkflowTemplate): boolean {
+    return this.library().some(item => item.sourceTemplateId === template.id);
+  }
+
+  addFromTemplate(template: WorkflowTemplate): void {
+    if (this.addingTemplateId() || this.isInLibrary(template)) {
+      return;
+    }
+    this.addingTemplateId.set(template.id);
+    this.pipelinesApi.createFromTemplate(template.id).subscribe({
+      next: () => {
+        this.addingTemplateId.set(null);
+        this.notifications.showSuccess(
+          this.i18n.t().pipelines.pipeline.templates.added,
+        );
+        this.reloadLibrary();
+      },
+      error: () => {
+        this.addingTemplateId.set(null);
+        this.notifications.showError(
+          this.i18n.t().pipelines.pipeline.templates.saveFailed,
+        );
+      },
+    });
   }
 
   editLibrary(template: SavedWorkflowTemplate): void {

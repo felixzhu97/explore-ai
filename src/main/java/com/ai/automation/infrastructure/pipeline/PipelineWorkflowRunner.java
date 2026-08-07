@@ -12,9 +12,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class PipelineWorkflowRunner implements WorkflowRunner {
+
+    /** Same default as pipelines canvas when no real brief is configured. */
+    static final String GENERIC_PLACEHOLDER =
+            "Follow the configured agent pipeline for the user task.";
 
     private final WorkflowTemplateRepository workflowTemplateRepository;
     private final PipelineFacade pipelineFacade;
@@ -34,7 +39,41 @@ public class PipelineWorkflowRunner implements WorkflowRunner {
                 .filter(SavedWorkflowTemplate::isEnabled)
                 .orElseThrow(() -> new WorkflowTemplateNotFoundException(workflowTemplateId));
         AgentPipeline pipeline = toLinearPipeline(template.getAgentTypes());
-        return pipelineFacade.invokePipelineSync(brief, pipeline, clientId, language);
+        String message = resolveInvokeMessage(
+                brief, template.getShortTopic(), template.getBriefPrompt());
+        return pipelineFacade.invokePipelineSync(message, pipeline, clientId, language);
+    }
+
+    /**
+     * Aligns with pipelines UI: {@code topic + "\\n\\n" + briefPrompt}.
+     * Placeholder / blank schedule briefs fall back to the template short topic.
+     */
+    static String resolveInvokeMessage(String scheduleBrief, String shortTopic, String briefPrompt) {
+        String instructions = briefPrompt == null ? "" : briefPrompt.trim();
+        String topic;
+        if (isGenericPlaceholder(scheduleBrief)) {
+            topic = shortTopic == null ? "" : shortTopic.trim();
+        } else {
+            topic = scheduleBrief.trim();
+        }
+        if (instructions.isBlank()) {
+            return topic.isBlank() ? GENERIC_PLACEHOLDER : topic;
+        }
+        if (!topic.isBlank() && topic.contains(instructions)) {
+            return topic;
+        }
+        if (topic.isBlank()) {
+            return instructions;
+        }
+        return topic + "\n\n" + instructions;
+    }
+
+    static boolean isGenericPlaceholder(String brief) {
+        if (brief == null || brief.isBlank()) {
+            return true;
+        }
+        String normalized = brief.trim().toLowerCase(Locale.ROOT);
+        return normalized.equals(GENERIC_PLACEHOLDER.toLowerCase(Locale.ROOT));
     }
 
     static AgentPipeline toLinearPipeline(List<String> agentTypes) {
