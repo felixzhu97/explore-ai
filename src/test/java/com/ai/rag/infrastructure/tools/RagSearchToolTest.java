@@ -1,5 +1,8 @@
 package com.ai.rag.infrastructure.tools;
 
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
+
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.SourceDocument;
@@ -25,6 +28,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RagSearchTool")
 class RagSearchToolTest {
+    private OwnerContext ownerContext;
 
     @Mock
     private RagApplicationService ragApplicationService;
@@ -36,7 +40,7 @@ class RagSearchToolTest {
 
     @BeforeEach
     void setUp() {
-        ragSearchTool = new RagSearchTool(ragApplicationService);
+        ragSearchTool = new RagSearchTool(ragApplicationService, ownerContext);
     }
 
     @Nested
@@ -151,7 +155,7 @@ class RagSearchToolTest {
         void shouldReturnDocumentList() {
             DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
             Document doc = new Document(docId, TEST_DOC_TITLE, "test.pdf", 1024L);
-            when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
+            when(ragApplicationService.listDocuments(anyString())).thenReturn(List.of(doc));
 
             String result = ragSearchTool.listDocuments();
 
@@ -163,7 +167,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should return message when no documents")
         void shouldReturnMessageWhenNoDocuments() {
-            when(ragApplicationService.listDocuments()).thenReturn(Collections.emptyList());
+            when(ragApplicationService.listDocuments(anyString())).thenReturn(Collections.emptyList());
 
             String result = ragSearchTool.listDocuments();
 
@@ -173,7 +177,7 @@ class RagSearchToolTest {
         @Test
         @DisplayName("should handle service exception")
         void shouldHandleServiceException() {
-            when(ragApplicationService.listDocuments()).thenThrow(new RuntimeException("Service error"));
+            when(ragApplicationService.listDocuments(anyString())).thenThrow(new RuntimeException("Service error"));
 
             String result = ragSearchTool.listDocuments();
 

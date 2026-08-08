@@ -1,5 +1,6 @@
 package com.ai.rag.web;
 
+import com.ai.account.web.OwnerContext;
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
@@ -8,6 +9,7 @@ import com.ai.rag.domain.model.Document;
 import com.ai.rag.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
@@ -30,24 +32,27 @@ import java.util.UUID;
 @Tag(name = "RAG", description = "RAG document management and chat")
 public class RagController {
 
+    private final OwnerContext ownerContext;
+
     private final RagApplicationService ragApplicationService;
     private final RagChatUseCase ragChatUseCase;
     private final ObjectProvider<VisionChatUseCase> visionChatUseCase;
 
-    public RagController(
-            RagApplicationService ragApplicationService,
+    public RagController(RagApplicationService ragApplicationService,
             RagChatUseCase ragChatUseCase,
-            ObjectProvider<VisionChatUseCase> visionChatUseCase) {
+            ObjectProvider<VisionChatUseCase> visionChatUseCase, OwnerContext ownerContext) {
+        this.ownerContext = ownerContext;
         this.ragApplicationService = ragApplicationService;
         this.ragChatUseCase = ragChatUseCase;
         this.visionChatUseCase = visionChatUseCase;
     }
 
     @GetMapping("/documents")
-    @Operation(summary = "List all documents")
-    public ResponseEntity<DocumentListResponse> listDocuments() {
+    @Operation(summary = "List documents for the current owner")
+    public ResponseEntity<DocumentListResponse> listDocuments(HttpServletRequest request) {
+        String ownerKey = ownerContext.requireValue(request);
         return ResponseEntity.ok(new DocumentListResponse(
-                ragApplicationService.listDocuments().stream()
+                ragApplicationService.listDocuments(ownerKey).stream()
                         .map(this::toSummary)
                         .toList()));
     }
@@ -56,8 +61,10 @@ public class RagController {
     @Operation(summary = "Upload a document")
     public ResponseEntity<UploadDocumentResponse> uploadDocument(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "title", required = false) String title) {
-        DocumentUploadService.UploadResult result = ragApplicationService.uploadDocument(file, title);
+            @RequestParam(value = "title", required = false) String title,
+            HttpServletRequest request) {
+        String ownerKey = ownerContext.requireValue(request);
+        DocumentUploadService.UploadResult result = ragApplicationService.uploadDocument(file, title, ownerKey);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new UploadDocumentResponse(
                         result.documentId().value(), result.title(),
@@ -66,8 +73,8 @@ public class RagController {
 
     @DeleteMapping("/documents/{id}")
     @Operation(summary = "Delete a document")
-    public ResponseEntity<Void> deleteDocument(@PathVariable UUID id) {
-        ragApplicationService.deleteDocument(id);
+    public ResponseEntity<Void> deleteDocument(@PathVariable UUID id, HttpServletRequest request) {
+        ragApplicationService.deleteDocument(id, ownerContext.requireValue(request));
         return ResponseEntity.noContent().build();
     }
 

@@ -27,6 +27,14 @@ public interface IDocumentRepository {
      */
     List<Document> findAll();
 
+    List<Document> findAllByOwnerKey(String ownerKey);
+
+    Optional<Document> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+
+    void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+
+    Document save(Document document, String ownerKey);
+
     /**
      * Deletes a document by its ID.
      */

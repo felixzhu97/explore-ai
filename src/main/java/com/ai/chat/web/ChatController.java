@@ -8,6 +8,7 @@ import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.web.dto.HealthResponse;
 import com.ai.chat.web.dto.*;
+import com.ai.account.web.OwnerContext;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -23,12 +24,15 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ChatController {
 
+    private final OwnerContext ownerContext;
+
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
     private final ChatUseCase chatUseCase;
     private final ChatWebSourcesRepository chatWebSourcesRepository;
 
-    public ChatController(ChatUseCase chatUseCase, ChatWebSourcesRepository chatWebSourcesRepository) {
+    public ChatController(ChatUseCase chatUseCase, ChatWebSourcesRepository chatWebSourcesRepository, OwnerContext ownerContext) {
+        this.ownerContext = ownerContext;
         this.chatUseCase = chatUseCase;
         this.chatWebSourcesRepository = chatWebSourcesRepository;
     }
@@ -47,7 +51,7 @@ public class ChatController {
                 .body(ChatResponse.of("Please provide a message."));
         }
 
-        String clientId = ClientIdentity.require(httpRequest);
+        String clientId = ownerContext.requireValue(httpRequest);
         String response;
         if (request.sessionId() != null && !request.sessionId().isBlank()) {
             response = chatUseCase.chatWithSession(request.sessionId(), request.message(), clientId);
@@ -63,13 +67,13 @@ public class ChatController {
             @Valid @RequestBody(required = false) CreateSessionRequest body,
             HttpServletRequest httpRequest) {
         String title = body != null && body.title() != null ? body.title() : "New Chat";
-        var session = chatUseCase.createSession(title, ClientIdentity.require(httpRequest));
+        var session = chatUseCase.createSession(title, ownerContext.requireValue(httpRequest));
         return ResponseEntity.ok(SessionInfo.from(session));
     }
 
     @GetMapping("/sessions")
     public ResponseEntity<List<SessionInfo>> getAllSessions(HttpServletRequest httpRequest) {
-        List<SessionInfo> sessions = chatUseCase.getSessionsForClient(ClientIdentity.require(httpRequest))
+        List<SessionInfo> sessions = chatUseCase.getSessionsForClient(ownerContext.requireValue(httpRequest))
             .stream()
             .map(SessionInfo::from)
             .toList();
@@ -80,7 +84,7 @@ public class ChatController {
     public ResponseEntity<SessionInfo> getSession(
             @PathVariable String sessionId,
             HttpServletRequest httpRequest) {
-        return chatUseCase.getSession(sessionId, ClientIdentity.require(httpRequest))
+        return chatUseCase.getSession(sessionId, ownerContext.requireValue(httpRequest))
                 .map(session -> ResponseEntity.ok(SessionInfo.from(session)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -93,7 +97,7 @@ public class ChatController {
             Map<String, List<WebSource>> sourcesByHash =
                     chatWebSourcesRepository.findByConversationId(sessionId);
             List<MessageInfoResponse> messages = chatUseCase
-                    .getSessionHistory(sessionId, ClientIdentity.require(httpRequest))
+                    .getSessionHistory(sessionId, ownerContext.requireValue(httpRequest))
                     .stream()
                     .map(message -> toMessageInfo(message, sourcesByHash))
                     .toList();
@@ -124,7 +128,7 @@ public class ChatController {
             @PathVariable String sessionId,
             HttpServletRequest httpRequest) {
         try {
-            chatUseCase.deleteSession(sessionId, ClientIdentity.require(httpRequest));
+            chatUseCase.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
             return ResponseEntity.noContent().build();
         } catch (ChatSessionNotFoundException e) {
             return ResponseEntity.notFound().build();

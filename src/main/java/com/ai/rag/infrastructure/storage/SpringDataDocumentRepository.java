@@ -1,7 +1,5 @@
 package com.ai.rag.infrastructure.storage;
 
-import com.ai.rag.domain.model.Document;
-import com.ai.rag.domain.repository.IDocumentRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +12,10 @@ import java.util.UUID;
  */
 @Repository
 public interface SpringDataDocumentRepository extends JpaRepository<DocumentEntity, UUID> {
+
+    List<DocumentEntity> findByOwnerKeyOrderByCreatedAtDesc(String ownerKey);
+
+    Optional<DocumentEntity> findByIdAndOwnerKey(UUID id, String ownerKey);
+
+    void deleteByIdAndOwnerKey(UUID id, String ownerKey);
 }

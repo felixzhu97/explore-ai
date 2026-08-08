@@ -1,5 +1,8 @@
 package com.ai.chat.web;
 
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
+
 import com.ai.chat.application.usecase.*;
 import com.ai.chat.web.dto.*;
 import com.ai.chat.domain.model.ChatMessage;
@@ -27,6 +30,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ChatController")
 class ChatControllerTest {
+    private OwnerContext ownerContext;
 
     private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -43,7 +47,9 @@ class ChatControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new ChatController(chatUseCase, chatWebSourcesRepository);
+        ownerContext = mock(OwnerContext.class);
+        lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
+        controller = new ChatController(chatUseCase, chatWebSourcesRepository, ownerContext);
         lenient().when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
     }
 

@@ -1,5 +1,8 @@
 package com.ai.rag.web;
 
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
+
 import com.ai.rag.application.usecase.DocumentUploadService;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.application.usecase.RagChatUseCase;
@@ -35,6 +38,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RagController")
 class RagControllerTest {
+    private OwnerContext ownerContext;
+
+    @Mock
+    private jakarta.servlet.http.HttpServletRequest request;
 
     @Mock
     private RagApplicationService ragApplicationService;
@@ -54,9 +61,11 @@ class RagControllerTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
+        ownerContext = mock(OwnerContext.class);
+        lenient().when(ownerContext.requireValue(any())).thenReturn("c:test-owner");
         lenient().when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(visionChatUseCase);
         controller = new RagController(
-                ragApplicationService, ragChatUseCase, visionChatUseCaseProvider);
+                ragApplicationService, ragChatUseCase, visionChatUseCaseProvider, ownerContext);
     }
 
     @Nested
@@ -67,20 +76,20 @@ class RagControllerTest {
         @DisplayName("should return list of documents")
         void shouldReturnListOfDocuments() {
             Document doc = createTestDocument("Test Doc", DocumentStatus.READY);
-            when(ragApplicationService.listDocuments()).thenReturn(List.of(doc));
+            when(ragApplicationService.listDocuments("c:test-owner")).thenReturn(List.of(doc));
 
-            ResponseEntity<?> response = controller.listDocuments();
+            ResponseEntity<?> response = controller.listDocuments(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(ragApplicationService).listDocuments();
+            verify(ragApplicationService).listDocuments("c:test-owner");
         }
 
         @Test
         @DisplayName("should return empty list when no documents")
         void shouldReturnEmptyListWhenNoDocuments() {
-            when(ragApplicationService.listDocuments()).thenReturn(List.of());
+            when(ragApplicationService.listDocuments("c:test-owner")).thenReturn(List.of());
 
-            ResponseEntity<?> response = controller.listDocuments();
+            ResponseEntity<?> response = controller.listDocuments(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
@@ -99,13 +108,13 @@ class RagControllerTest {
 
             DocumentUploadService.UploadResult uploadResult =
                     new DocumentUploadService.UploadResult(doc.getId(), "test.txt", "READY", 0);
-            when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull()))
+            when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull(), eq("c:test-owner")))
                     .thenReturn(uploadResult);
 
-            ResponseEntity<?> response = controller.uploadDocument(file, null);
+            ResponseEntity<?> response = controller.uploadDocument(file, null, request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            verify(ragApplicationService).uploadDocument(any(MultipartFile.class), isNull());
+            verify(ragApplicationService).uploadDocument(any(MultipartFile.class), isNull(), eq("c:test-owner"));
         }
 
         @Test
@@ -117,13 +126,13 @@ class RagControllerTest {
 
             DocumentUploadService.UploadResult uploadResult =
                     new DocumentUploadService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
-            when(ragApplicationService.uploadDocument(any(MultipartFile.class), eq("Custom Title")))
+            when(ragApplicationService.uploadDocument(any(MultipartFile.class), eq("Custom Title"), eq("c:test-owner")))
                     .thenReturn(uploadResult);
 
-            ResponseEntity<?> response = controller.uploadDocument(file, "Custom Title");
+            ResponseEntity<?> response = controller.uploadDocument(file, "Custom Title", request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            verify(ragApplicationService).uploadDocument(any(MultipartFile.class), eq("Custom Title"));
+            verify(ragApplicationService).uploadDocument(any(MultipartFile.class), eq("Custom Title"), eq("c:test-owner"));
         }
 
         @Test
@@ -132,11 +141,11 @@ class RagControllerTest {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "document.pdf", "application/pdf", "PDF content".getBytes());
 
-            when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull()))
+            when(ragApplicationService.uploadDocument(any(MultipartFile.class), isNull(), eq("c:test-owner")))
                     .thenThrow(new RuntimeException("Upload failed"));
 
             org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
-                controller.uploadDocument(file, null);
+                controller.uploadDocument(file, null, request);
             });
         }
     }
@@ -149,12 +158,12 @@ class RagControllerTest {
         @DisplayName("should delete document and return 204")
         void shouldDeleteDocumentAndReturn204() {
             UUID docId = UUID.randomUUID();
-            doNothing().when(ragApplicationService).deleteDocument(docId);
+            doNothing().when(ragApplicationService).deleteDocument(docId, "c:test-owner");
 
-            ResponseEntity<?> response = controller.deleteDocument(docId);
+            ResponseEntity<?> response = controller.deleteDocument(docId, request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-            verify(ragApplicationService).deleteDocument(docId);
+            verify(ragApplicationService).deleteDocument(docId, "c:test-owner");
         }
     }
 

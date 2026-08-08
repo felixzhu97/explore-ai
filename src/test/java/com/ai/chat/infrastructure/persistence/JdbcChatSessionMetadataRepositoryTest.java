@@ -158,7 +158,7 @@ class JdbcChatSessionMetadataRepositoryTest {
         when(rs.getString("title")).thenReturn("Title");
         when(rs.getTimestamp("created_at")).thenReturn(Timestamp.from(now));
         when(rs.getTimestamp("last_activity_at")).thenReturn(Timestamp.from(now));
-        when(rs.getString("client_id")).thenReturn(clientId);
+        when(rs.getString("owner_key")).thenReturn(clientId);
         return mapper.mapRow(rs, 0);
     }
 }

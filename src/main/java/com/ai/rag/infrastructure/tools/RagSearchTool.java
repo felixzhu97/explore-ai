@@ -1,14 +1,19 @@
 package com.ai.rag.infrastructure.tools;
 
+import com.ai.account.web.OwnerContext;
 import com.ai.common.domain.repository.DocumentSearchTool;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.application.usecase.RagApplicationService;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.common.util.LogSanitizer;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,9 +26,11 @@ public class RagSearchTool implements DocumentSearchTool {
     private static final int MAX_CONTENT_LENGTH = 500;
 
     private final RagApplicationService ragApplicationService;
+    private final OwnerContext ownerContext;
 
-    public RagSearchTool(RagApplicationService ragApplicationService) {
+    public RagSearchTool(RagApplicationService ragApplicationService, OwnerContext ownerContext) {
         this.ragApplicationService = ragApplicationService;
+        this.ownerContext = ownerContext;
     }
 
     @Override
@@ -60,7 +67,7 @@ public class RagSearchTool implements DocumentSearchTool {
     @Tool(name = "list_documents", description = "List all documents in the knowledge base")
     public String listDocuments() {
         try {
-            var documents = ragApplicationService.listDocuments();
+            var documents = ragApplicationService.listDocuments(currentOwnerKey());
 
             if (documents.isEmpty()) {
                 return "知识库中暂无文档，请先上传文档。";
@@ -82,6 +89,15 @@ public class RagSearchTool implements DocumentSearchTool {
             log.error("Error listing documents", e);
             return "获取文档列表时发生未知错误，请稍后重试。";
         }
+    }
+
+    private String currentOwnerKey() {
+        var attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs instanceof ServletRequestAttributes servletAttrs) {
+            HttpServletRequest request = servletAttrs.getRequest();
+            return ownerContext.requireValue(request);
+        }
+        return OwnerKey.LEGACY_ORPHAN.value();
     }
 
     private String formatSources(List<com.ai.rag.domain.model.SourceDocument> sources) {

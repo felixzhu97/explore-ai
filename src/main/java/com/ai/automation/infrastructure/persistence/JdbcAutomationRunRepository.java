@@ -21,7 +21,7 @@ public class JdbcAutomationRunRepository implements AutomationRunRepository {
     private final RowMapper<AutomationRun> rowMapper = (rs, rowNum) -> AutomationRun.restore(
             RunId.of(rs.getString("id")),
             ScheduleId.of(rs.getString("schedule_id")),
-            rs.getString("client_id"),
+            rs.getString("owner_key"),
             rs.getTimestamp("started_at").toInstant(),
             rs.getTimestamp("finished_at") == null ? null : rs.getTimestamp("finished_at").toInstant(),
             RunStatus.from(rs.getString("status")),
@@ -39,7 +39,7 @@ public class JdbcAutomationRunRepository implements AutomationRunRepository {
         jdbcTemplate.update(
                 """
                 MERGE INTO automation_runs (
-                    id, schedule_id, client_id, started_at, finished_at, status,
+                    id, schedule_id, owner_key, started_at, finished_at, status,
                     error_message, result_excerpt, email_status
                 )
                 KEY (id)
@@ -62,7 +62,7 @@ public class JdbcAutomationRunRepository implements AutomationRunRepository {
         return jdbcTemplate.query(
                 """
                 SELECT * FROM automation_runs
-                WHERE schedule_id = ? AND client_id = ?
+                WHERE schedule_id = ? AND owner_key = ?
                 ORDER BY started_at DESC
                 LIMIT ?
                 """,

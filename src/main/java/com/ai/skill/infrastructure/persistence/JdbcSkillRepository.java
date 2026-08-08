@@ -35,7 +35,7 @@ public class JdbcSkillRepository implements SkillRepository {
         this.objectMapper = objectMapper;
         this.rowMapper = (rs, rowNum) -> Skill.restore(
                 SkillId.of(rs.getString("id")),
-                rs.getString("client_id"),
+                rs.getString("owner_key"),
                 rs.getString("name"),
                 rs.getString("description"),
                 rs.getString("instructions"),
@@ -51,7 +51,7 @@ public class JdbcSkillRepository implements SkillRepository {
         jdbcTemplate.update(
                 """
                 MERGE INTO skills (
-                    id, client_id, name, description, instructions, allowed_tools, enabled, created_at, updated_at
+                    id, owner_key, name, description, instructions, allowed_tools, enabled, created_at, updated_at
                 )
                 KEY (id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -72,9 +72,9 @@ public class JdbcSkillRepository implements SkillRepository {
     public Optional<Skill> findByIdAndClientId(SkillId id, String clientId) {
         List<Skill> results = jdbcTemplate.query(
                 """
-                SELECT id, client_id, name, description, instructions, allowed_tools, enabled, created_at, updated_at
+                SELECT id, owner_key, name, description, instructions, allowed_tools, enabled, created_at, updated_at
                 FROM skills
-                WHERE id = ? AND client_id = ?
+                WHERE id = ? AND owner_key = ?
                 """,
                 rowMapper,
                 id.value(),
@@ -86,9 +86,9 @@ public class JdbcSkillRepository implements SkillRepository {
     public List<Skill> findAllByClientId(String clientId) {
         return jdbcTemplate.query(
                 """
-                SELECT id, client_id, name, description, instructions, allowed_tools, enabled, created_at, updated_at
+                SELECT id, owner_key, name, description, instructions, allowed_tools, enabled, created_at, updated_at
                 FROM skills
-                WHERE client_id = ?
+                WHERE owner_key = ?
                 ORDER BY name ASC
                 """,
                 rowMapper,
@@ -106,9 +106,9 @@ public class JdbcSkillRepository implements SkillRepository {
         ids.forEach(id -> params.add(id.value()));
         return jdbcTemplate.query(
                 """
-                SELECT id, client_id, name, description, instructions, allowed_tools, enabled, created_at, updated_at
+                SELECT id, owner_key, name, description, instructions, allowed_tools, enabled, created_at, updated_at
                 FROM skills
-                WHERE client_id = ? AND enabled = TRUE AND id IN (%s)
+                WHERE owner_key = ? AND enabled = TRUE AND id IN (%s)
                 ORDER BY name ASC
                 """.formatted(placeholders),
                 rowMapper,
@@ -119,7 +119,7 @@ public class JdbcSkillRepository implements SkillRepository {
     @Transactional
     public void deleteByIdAndClientId(SkillId id, String clientId) {
         jdbcTemplate.update(
-                "DELETE FROM skills WHERE id = ? AND client_id = ?",
+                "DELETE FROM skills WHERE id = ? AND owner_key = ?",
                 id.value(),
                 clientId);
     }
@@ -129,13 +129,13 @@ public class JdbcSkillRepository implements SkillRepository {
         Integer count;
         if (excludeId == null) {
             count = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM skills WHERE client_id = ? AND name = ?",
+                    "SELECT COUNT(*) FROM skills WHERE owner_key = ? AND name = ?",
                     Integer.class,
                     clientId,
                     name);
         } else {
             count = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM skills WHERE client_id = ? AND name = ? AND id <> ?",
+                    "SELECT COUNT(*) FROM skills WHERE owner_key = ? AND name = ? AND id <> ?",
                     Integer.class,
                     clientId,
                     name,

@@ -103,6 +103,7 @@ journey
 | 商业化与平台 | 企业自动化 |
 |--------------|------------|
 | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
+| [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ |
 | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | |
 | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | |
 | [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | |
@@ -134,7 +135,7 @@ journey
 | E6 评估与指标 | [E6-eval-metrics.md](./user-stories/E6-eval-metrics.md) | US-13 – US-14, US-17 | 已实现 |
 | E7 Pipeline（工作流） | [E7-multi-agent.md](./user-stories/E7-multi-agent.md) | US-15 – US-18 | 已实现（含节点可编辑副本） |
 | E11 Deep Agent | [E11-deep-agent.md](./user-stories/E11-deep-agent.md) | US-32 – US-34 | **已退役**（并入 E7） |
-| E8 商业化与平台 | [E8-commercial-platform.md](./user-stories/E8-commercial-platform.md) | US-18 – US-22；US-18b 已实现 | 进行中（US-18b 已实现） |
+| E8 商业化与平台 | [E8-commercial-platform.md](./user-stories/E8-commercial-platform.md) | US-18 – US-22；US-18b/US-18c 已实现 | 进行中（US-18b/US-18c 已实现） |
 | E9 企业与未来 | [E9-enterprise-future.md](./user-stories/E9-enterprise-future.md) | US-23 – US-29；US-27a 已实现 | 规划中（US-27a 已实现） |
 | E10 Skills | [E10-skills.md](./user-stories/E10-skills.md) | US-30 – US-31 | 已实现 |
 

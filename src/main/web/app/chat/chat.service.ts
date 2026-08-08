@@ -160,6 +160,25 @@ export class ChatService {
     this.refreshSessions({ createIfEmpty: false });
   }
 
+  /**
+   * Clears owner-scoped chat UI and reloads sessions for the current Owner Key
+   * (guest after logout, or account after sign-in).
+   */
+  resetForOwnerChange(): void {
+    if (this.streamAbort) {
+      this.streamAbort();
+      this.streamAbort = null;
+    }
+    this.isLoading.set(false);
+    this.streamingMessageId.set(null);
+    this.error.set(null);
+    this.messages.set([]);
+    this.activeSessionId.set(null);
+    this.sessions.set([]);
+    this.selectedSkillIds.set([]);
+    this.loadSessions();
+  }
+
   initializeSessions(): void {
     if (this.sessionsInitialized || this.initializationInProgress) {
       return;
@@ -192,6 +211,9 @@ export class ChatService {
           this.selectSession(sorted[0].sessionId);
         } else if (options.createIfEmpty) {
           this.createSession();
+        } else {
+          this.activeSessionId.set(null);
+          this.messages.set([]);
         }
       },
       error: () => this.sessions.set([]),

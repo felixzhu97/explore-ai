@@ -32,7 +32,7 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
         this.objectMapper = objectMapper;
         this.rowMapper = (rs, rowNum) -> SavedAgentDefinition.restore(
                 SavedAgentId.of(rs.getString("id")),
-                rs.getString("client_id"),
+                rs.getString("owner_key"),
                 rs.getString("type_key"),
                 rs.getString("name"),
                 rs.getString("description"),
@@ -49,7 +49,7 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
         jdbcTemplate.update(
                 """
                 MERGE INTO pipeline_agents (
-                    id, client_id, type_key, name, description, system_prompt, tool_keys,
+                    id, owner_key, type_key, name, description, system_prompt, tool_keys,
                     enabled, created_at, updated_at
                 )
                 KEY (id)
@@ -72,10 +72,10 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
     public Optional<SavedAgentDefinition> findByIdAndClientId(SavedAgentId id, String clientId) {
         List<SavedAgentDefinition> results = jdbcTemplate.query(
                 """
-                SELECT id, client_id, type_key, name, description, system_prompt, tool_keys,
+                SELECT id, owner_key, type_key, name, description, system_prompt, tool_keys,
                        enabled, created_at, updated_at
                 FROM pipeline_agents
-                WHERE id = ? AND client_id = ?
+                WHERE id = ? AND owner_key = ?
                 """,
                 rowMapper,
                 id.value(),
@@ -87,10 +87,10 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
     public List<SavedAgentDefinition> findAllByClientId(String clientId) {
         return jdbcTemplate.query(
                 """
-                SELECT id, client_id, type_key, name, description, system_prompt, tool_keys,
+                SELECT id, owner_key, type_key, name, description, system_prompt, tool_keys,
                        enabled, created_at, updated_at
                 FROM pipeline_agents
-                WHERE client_id = ?
+                WHERE owner_key = ?
                 ORDER BY name ASC
                 """,
                 rowMapper,
@@ -101,10 +101,10 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
     public List<SavedAgentDefinition> findEnabledByClientId(String clientId) {
         return jdbcTemplate.query(
                 """
-                SELECT id, client_id, type_key, name, description, system_prompt, tool_keys,
+                SELECT id, owner_key, type_key, name, description, system_prompt, tool_keys,
                        enabled, created_at, updated_at
                 FROM pipeline_agents
-                WHERE client_id = ? AND enabled = TRUE
+                WHERE owner_key = ? AND enabled = TRUE
                 ORDER BY name ASC
                 """,
                 rowMapper,
@@ -114,7 +114,7 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
     @Override
     public void deleteByIdAndClientId(SavedAgentId id, String clientId) {
         jdbcTemplate.update(
-                "DELETE FROM pipeline_agents WHERE id = ? AND client_id = ?",
+                "DELETE FROM pipeline_agents WHERE id = ? AND owner_key = ?",
                 id.value(),
                 clientId);
     }
@@ -125,7 +125,7 @@ public class JdbcSavedAgentRepository implements SavedAgentRepository {
         Integer count = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*) FROM pipeline_agents
-                WHERE client_id = ? AND type_key = ? AND id <> ?
+                WHERE owner_key = ? AND type_key = ? AND id <> ?
                 """,
                 Integer.class,
                 clientId,

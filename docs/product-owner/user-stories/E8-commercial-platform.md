@@ -80,6 +80,36 @@ Jira:
 
 ---
 
+## US-18c Account data isolation via Owner Key
+
+**As a** ExploreAI visitor who signs in  
+**I want** my guest-browser data to move under my account partition after OAuth  
+**So that** the same sessions and library items follow me across devices once authenticated
+
+### Acceptance criteria
+
+1. **Scenario** Guest data uses client owner key
+   **GIVEN** the visitor is anonymous with Client Identity cookie  
+   **WHEN** they create chat / skills / pipelines / automations  
+   **THEN** rows are stored with `owner_key = c:{clientId}`
+
+2. **Scenario** OAuth login merges guest into account
+   **GIVEN** guest rows exist under `c:{clientId}`  
+   **WHEN** OAuth login succeeds and links the Account User  
+   **THEN** those rows are reassigned to `u:{accountUserId}`  
+   **AND** subsequent data APIs resolve Owner Key via CurrentOwnerResolver
+
+3. **Scenario** Privacy erase deletes current owner partition
+   **GIVEN** the current Owner Key owns durable rows  
+   **WHEN** the visitor calls privacy erase  
+   **THEN** owner-scoped stores for that key are deleted
+
+### Status
+
+已实现
+
+---
+
 ## US-19 RAG ETL 管道
 
 **As a** 平台工程师  

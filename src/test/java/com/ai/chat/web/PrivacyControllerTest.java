@@ -1,7 +1,8 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.common.web.ClientIdentity;
+import com.ai.account.application.usecase.OwnerEraseUseCase;
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.web.ClientIdentityCookieFactory;
 import com.ai.common.web.ClientIdentityProperties;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,10 +20,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PrivacyControllerTest {
 
-    private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
+    private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-1111-1111-111111111111");
 
     @Mock
-    private ChatUseCase chatUseCase;
+    private OwnerContext ownerContext;
+
+    @Mock
+    private OwnerEraseUseCase ownerEraseUseCase;
 
     @Mock
     private HttpServletRequest request;
@@ -38,18 +42,18 @@ class PrivacyControllerTest {
         properties.setCookieName("ea_cid");
         properties.setSecure(false);
         properties.setSameSite("Lax");
-        controller = new PrivacyController(chatUseCase, new ClientIdentityCookieFactory(properties));
-        lenient().when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
+        controller = new PrivacyController(
+                ownerContext, ownerEraseUseCase, new ClientIdentityCookieFactory(properties));
     }
 
     @Test
-    void should_eraseAllSessions_whenDeletePrivacySessions() {
-        doNothing().when(chatUseCase).deleteAllSessionsForClient(CLIENT_ID);
+    void should_eraseAllOwnerData_whenDeletePrivacySessions() {
+        when(ownerContext.require(request)).thenReturn(OWNER);
 
         var result = controller.eraseAllSessions(request);
 
         assertThat(result.getStatusCode().value()).isEqualTo(204);
-        verify(chatUseCase).deleteAllSessionsForClient(CLIENT_ID);
+        verify(ownerEraseUseCase).eraseAllForOwner(OWNER);
     }
 
     @Test
