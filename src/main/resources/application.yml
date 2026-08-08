@@ -198,6 +198,8 @@ app:
       client-secret: ${GOOGLE_CLIENT_SECRET:}
       # "/" keeps the OAuth callback host (avoids localhost vs 127.0.0.1 cookie loss)
       success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:/}
+      # Blank = Spring {baseUrl}/login/oauth2/code/{registrationId} (local ng proxy).
+      redirect-uri: ${APP_OAUTH_REDIRECT_URI:}
   service-auth:
     api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:
