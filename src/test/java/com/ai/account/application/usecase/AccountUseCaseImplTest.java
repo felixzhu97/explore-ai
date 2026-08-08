@@ -6,8 +6,12 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.infrastructure.config.OAuthGithubProperties;
 import com.ai.account.infrastructure.config.OAuthGoogleProperties;
 import com.ai.billing.infrastructure.config.BillingProperties;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +21,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AccountUseCaseImpl")
@@ -32,15 +38,19 @@ class AccountUseCaseImplTest {
     private AccountUserRepository accountUserRepository;
 
     private AccountUseCaseImpl useCase;
-    private OAuthGoogleProperties oauthProperties;
+    private OAuthGoogleProperties oauthGoogleProperties;
+    private OAuthGithubProperties oauthGithubProperties;
 
     @BeforeEach
     void setUp() {
         BillingProperties billing = new BillingProperties();
         billing.setPlan("free");
-        oauthProperties = new OAuthGoogleProperties();
-        oauthProperties.setEnabled(false);
-        useCase = new AccountUseCaseImpl(accountUserRepository, billing, oauthProperties);
+        oauthGoogleProperties = new OAuthGoogleProperties();
+        oauthGoogleProperties.setEnabled(false);
+        oauthGithubProperties = new OAuthGithubProperties();
+        oauthGithubProperties.setEnabled(false);
+        useCase = new AccountUseCaseImpl(
+                accountUserRepository, billing, oauthGoogleProperties, oauthGithubProperties);
         SecurityContextHolder.clearContext();
     }
 
@@ -56,6 +66,7 @@ class AccountUseCaseImplTest {
         assertThat(response.mode()).isEqualTo("anonymous");
         assertThat(response.clientId()).isEqualTo("cid-1");
         assertThat(response.loginAvailable()).isFalse();
+        assertThat(response.loginProviders()).isEmpty();
     }
 
     @Test
@@ -71,13 +82,12 @@ class AccountUseCaseImplTest {
 
     @Test
     void should_returnAuthenticated_whenOidcUserPresent() {
-        oauthProperties.setEnabled(true);
-        oauthProperties.setClientId("cid");
-        oauthProperties.setClientSecret("secret");
+        oauthGoogleProperties.setEnabled(true);
+        oauthGoogleProperties.setClientId("cid");
+        oauthGoogleProperties.setClientSecret("secret");
         OidcUser oidcUser = oidcUser("sub-1", "user@example.com");
         SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken(
-                        oidcUser, null, oidcUser.getAuthorities()));
+                .setAuthentication(new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), "google"));
         AccountUser linked = AccountUser.create("google", "sub-1", "user@example.com", "cid-1");
         when(accountUserRepository.findByProviderAndSubject("google", "sub-1"))
                 .thenReturn(Optional.of(linked));
@@ -88,6 +98,52 @@ class AccountUseCaseImplTest {
         assertThat(response.email()).isEqualTo("user@example.com");
         assertThat(response.userId()).isEqualTo(linked.getId());
         assertThat(response.loginAvailable()).isTrue();
+        assertThat(response.loginProviders()).containsExactly("google");
+    }
+
+    @Test
+    void should_returnAuthenticated_whenGithubOAuth2UserPresent() {
+        oauthGithubProperties.setEnabled(true);
+        oauthGithubProperties.setClientId("gh-id");
+        oauthGithubProperties.setClientSecret("gh-secret");
+        OAuth2User githubUser = new DefaultOAuth2User(
+                AuthorityUtils.createAuthorityList("ROLE_USER"),
+                Map.of("id", "42", "login", "octocat", "email", "octocat@github.com"),
+                "id");
+        SecurityContextHolder.getContext()
+                .setAuthentication(
+                        new OAuth2AuthenticationToken(githubUser, githubUser.getAuthorities(), "github"));
+        AccountUser linked = AccountUser.create("github", "42", "octocat@github.com", "cid-gh");
+        when(accountUserRepository.findByProviderAndSubject("github", "42"))
+                .thenReturn(Optional.of(linked));
+
+        var response = useCase.currentAccount("cid-gh");
+
+        assertThat(response.mode()).isEqualTo("authenticated");
+        assertThat(response.email()).isEqualTo("octocat@github.com");
+        assertThat(response.loginProviders()).containsExactly("github");
+    }
+
+    @Test
+    void should_useGithubLogin_whenEmailAttributeMissing() {
+        oauthGithubProperties.setEnabled(true);
+        oauthGithubProperties.setClientId("gh-id");
+        oauthGithubProperties.setClientSecret("gh-secret");
+        OAuth2User githubUser = new DefaultOAuth2User(
+                AuthorityUtils.createAuthorityList("ROLE_USER"),
+                Map.of("id", "42", "login", "octocat"),
+                "id");
+        SecurityContextHolder.getContext()
+                .setAuthentication(
+                        new OAuth2AuthenticationToken(githubUser, githubUser.getAuthorities(), "github"));
+        AccountUser linked = AccountUser.create("github", "42", null, "cid-gh");
+        when(accountUserRepository.findByProviderAndSubject("github", "42"))
+                .thenReturn(Optional.of(linked));
+
+        var response = useCase.currentAccount("cid-gh");
+
+        assertThat(response.mode()).isEqualTo("authenticated");
+        assertThat(response.email()).isEqualTo("octocat");
     }
 
     @Test
@@ -113,20 +169,32 @@ class AccountUseCaseImplTest {
 
     @Test
     void should_reportLoginAvailable_whenGoogleConfigured() {
-        oauthProperties.setEnabled(true);
-        oauthProperties.setClientId("id");
-        oauthProperties.setClientSecret("secret");
+        oauthGoogleProperties.setEnabled(true);
+        oauthGoogleProperties.setClientId("id");
+        oauthGoogleProperties.setClientSecret("secret");
 
         assertThat(useCase.isLoginAvailable()).isTrue();
+        assertThat(useCase.loginProviders()).isEqualTo(List.of("google"));
+    }
+
+    @Test
+    void should_reportBothProviders_whenGoogleAndGithubConfigured() {
+        oauthGoogleProperties.setEnabled(true);
+        oauthGoogleProperties.setClientId("g");
+        oauthGoogleProperties.setClientSecret("gs");
+        oauthGithubProperties.setEnabled(true);
+        oauthGithubProperties.setClientId("h");
+        oauthGithubProperties.setClientSecret("hs");
+
+        assertThat(useCase.loginProviders()).containsExactly("google", "github");
     }
 
     private static OidcUser oidcUser(String subject, String email) {
-        OidcIdToken idToken = OidcIdToken.withTokenValue("token")
-                .claim("sub", subject)
-                .claim("email", email)
-                .issuedAt(java.time.Instant.now())
-                .expiresAt(java.time.Instant.now().plusSeconds(3600))
-                .build();
+        OidcIdToken idToken = new OidcIdToken(
+                "token",
+                Instant.now(),
+                Instant.now().plusSeconds(3600),
+                Map.of("sub", subject, "email", email));
         return new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), idToken);
     }
 }

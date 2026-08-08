@@ -48,10 +48,12 @@ describe('AccountService', () => {
       email: null,
       plan: 'free',
       loginAvailable: true,
+      loginProviders: ['google', 'github'],
     });
 
     expect(service.account()?.mode).toBe('anonymous');
     expect(service.showLogin()).toBe(true);
+    expect(service.loginProviders()).toEqual(['google', 'github']);
   });
 
   it('should_notifySuccess_when_loginQueryIsSuccess', () => {
@@ -63,8 +65,15 @@ describe('AccountService', () => {
       email: 'a@b.com',
       plan: 'free',
       loginAvailable: true,
+      loginProviders: ['google'],
     });
 
     expect(notifications.showSuccess).toHaveBeenCalled();
+  });
+
+  it('should_assignGithubAuthorization_when_startOAuthLoginGithub', () => {
+    const assign = vi.fn();
+    service.startOAuthLogin('github', assign);
+    expect(assign).toHaveBeenCalledWith('/oauth2/authorization/github');
   });
 });

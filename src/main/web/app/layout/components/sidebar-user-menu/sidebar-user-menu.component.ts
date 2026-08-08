@@ -259,8 +259,9 @@ export class SidebarUserMenuComponent {
 
   readonly displayName = computed(() => {
     const me = this.account();
-    if (me?.email) {
-      return me.email;
+    if (me?.mode === 'authenticated') {
+      const email = me.email?.trim();
+      return email || this.i18n.t().account.signedIn;
     }
     return this.i18n.t().account.guest;
   });

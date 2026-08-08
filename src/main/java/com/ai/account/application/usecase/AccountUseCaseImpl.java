@@ -2,34 +2,45 @@ package com.ai.account.application.usecase;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.infrastructure.config.OAuthGithubProperties;
 import com.ai.account.infrastructure.config.OAuthGoogleProperties;
 import com.ai.account.web.dto.AccountMeResponse;
 import com.ai.billing.infrastructure.config.BillingProperties;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@EnableConfigurationProperties({BillingProperties.class, OAuthGoogleProperties.class})
+@EnableConfigurationProperties({
+    BillingProperties.class,
+    OAuthGoogleProperties.class,
+    OAuthGithubProperties.class
+})
 public class AccountUseCaseImpl implements AccountUseCase {
 
     private final AccountUserRepository accountUserRepository;
     private final BillingProperties billingProperties;
     private final OAuthGoogleProperties oauthGoogleProperties;
+    private final OAuthGithubProperties oauthGithubProperties;
 
     public AccountUseCaseImpl(
             AccountUserRepository accountUserRepository,
             BillingProperties billingProperties,
-            OAuthGoogleProperties oauthGoogleProperties) {
+            OAuthGoogleProperties oauthGoogleProperties,
+            OAuthGithubProperties oauthGithubProperties) {
         this.accountUserRepository = accountUserRepository;
         this.billingProperties = billingProperties;
         this.oauthGoogleProperties = oauthGoogleProperties;
+        this.oauthGithubProperties = oauthGithubProperties;
     }
 
     @Override
@@ -59,7 +70,8 @@ public class AccountUseCaseImpl implements AccountUseCase {
                 null,
                 null,
                 billingProperties.getPlan(),
-                isLoginAvailable());
+                isLoginAvailable(),
+                loginProviders());
     }
 
     @Override
@@ -83,11 +95,19 @@ public class AccountUseCaseImpl implements AccountUseCase {
 
     @Override
     public boolean isLoginAvailable() {
-        return oauthGoogleProperties.isEnabled()
-                && oauthGoogleProperties.getClientId() != null
-                && !oauthGoogleProperties.getClientId().isBlank()
-                && oauthGoogleProperties.getClientSecret() != null
-                && !oauthGoogleProperties.getClientSecret().isBlank();
+        return !loginProviders().isEmpty();
+    }
+
+    @Override
+    public List<String> loginProviders() {
+        List<String> providers = new ArrayList<>(2);
+        if (oauthGoogleProperties.isReady()) {
+            providers.add("google");
+        }
+        if (oauthGithubProperties.isReady()) {
+            providers.add("github");
+        }
+        return List.copyOf(providers);
     }
 
     private AccountMeResponse authenticated(String clientId, String userId, String email) {
@@ -97,7 +117,8 @@ public class AccountUseCaseImpl implements AccountUseCase {
                 userId,
                 email,
                 billingProperties.getPlan(),
-                isLoginAvailable());
+                isLoginAvailable(),
+                loginProviders());
     }
 
     private static boolean isAuthenticated(Authentication authentication) {
@@ -107,6 +128,7 @@ public class AccountUseCaseImpl implements AccountUseCase {
     }
 
     private static OAuthIdentity extractIdentity(Authentication authentication) {
+        String provider = registrationId(authentication);
         Object principal = authentication.getPrincipal();
         if (principal instanceof OidcUser oidcUser) {
             String subject = oidcUser.getSubject();
@@ -117,17 +139,40 @@ public class AccountUseCaseImpl implements AccountUseCase {
             if (email == null || email.isBlank()) {
                 email = oidcUser.getAttribute("email");
             }
-            return new OAuthIdentity("google", subject, email);
+            return new OAuthIdentity(provider, subject, email);
         }
         if (principal instanceof OAuth2User oauth2User) {
             String subject = oauth2User.getName();
             if (subject == null || subject.isBlank()) {
                 return null;
             }
-            String email = oauth2User.getAttribute("email");
-            return new OAuthIdentity("google", subject, email);
+            // GitHub often omits email on /user; fall back to login/name for display.
+            return new OAuthIdentity(provider, subject, resolveOAuthEmail(oauth2User));
         }
         return null;
+    }
+
+    private static String resolveOAuthEmail(OAuth2User oauth2User) {
+        String email = oauth2User.getAttribute("email");
+        if (email != null && !email.isBlank()) {
+            return email.trim();
+        }
+        String login = oauth2User.getAttribute("login");
+        if (login != null && !login.isBlank()) {
+            return login.trim();
+        }
+        String name = oauth2User.getAttribute("name");
+        if (name != null && !name.isBlank()) {
+            return name.trim();
+        }
+        return null;
+    }
+
+    private static String registrationId(Authentication authentication) {
+        if (authentication instanceof OAuth2AuthenticationToken token) {
+            return token.getAuthorizedClientRegistrationId();
+        }
+        return "unknown";
     }
 
     private record OAuthIdentity(String provider, String subject, String email) {}

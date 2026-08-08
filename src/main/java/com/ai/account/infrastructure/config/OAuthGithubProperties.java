@@ -2,10 +2,10 @@ package com.ai.account.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "app.oauth.google")
-public class OAuthGoogleProperties {
+@ConfigurationProperties(prefix = "app.oauth.github")
+public class OAuthGithubProperties {
 
-    /** When true and credentials are set, Google OAuth login is offered. */
+    /** When true and credentials are set, GitHub OAuth login is offered. */
     private boolean enabled = false;
 
     private String clientId = "";
@@ -13,7 +13,7 @@ public class OAuthGoogleProperties {
     private String clientSecret = "";
 
     /**
-     * Absolute OAuth callback URL registered in Google Cloud Console.
+     * Absolute OAuth callback URL registered in the GitHub OAuth App.
      * When blank, Spring uses {@code {baseUrl}/login/oauth2/code/{registrationId}}.
      */
     private String redirectUri = "";

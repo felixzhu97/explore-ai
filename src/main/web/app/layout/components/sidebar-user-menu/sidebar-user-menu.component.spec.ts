@@ -49,18 +49,40 @@ describe('SidebarUserMenuComponent', () => {
   it('should_showEmail_when_accountLoaded', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
-      mode: 'anonymous',
+      mode: 'authenticated',
       clientId: 'c1',
-      userId: null,
+      userId: 'u1',
       email: 'user@example.com',
       plan: 'free',
       loginAvailable: true,
+      loginProviders: ['google'],
     });
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.componentInstance.account()?.email).toBe('user@example.com');
     expect(fixture.componentInstance.displayName()).toBe('user@example.com');
+  });
+
+  it('should_showSignedIn_when_authenticatedWithoutEmail', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'authenticated',
+      clientId: 'c1',
+      userId: 'u1',
+      email: null,
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['github'],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.displayName()).toBe(
+      TestBed.inject(I18nService).t().account.signedIn,
+    );
+    expect(fixture.componentInstance.showLogout()).toBe(true);
+    expect(fixture.componentInstance.showLogin()).toBe(false);
   });
 
   it('should_showGuest_when_accountRequestFails', async () => {
@@ -84,6 +106,7 @@ describe('SidebarUserMenuComponent', () => {
       email: null,
       plan: 'free',
       loginAvailable: true,
+      loginProviders: ['google', 'github'],
     });
     await fixture.whenStable();
     fixture.detectChanges();
@@ -101,6 +124,7 @@ describe('SidebarUserMenuComponent', () => {
       email: null,
       plan: 'free',
       loginAvailable: true,
+      loginProviders: ['github'],
     });
     fixture.detectChanges();
 
@@ -117,6 +141,7 @@ describe('SidebarUserMenuComponent', () => {
       email: 'a@b.com',
       plan: 'free',
       loginAvailable: true,
+      loginProviders: ['google', 'github'],
     });
     await fixture.whenStable();
     fixture.detectChanges();

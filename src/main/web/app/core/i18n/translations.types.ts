@@ -57,6 +57,7 @@ export interface Translations {
   };
   account: {
     guest: string;
+    signedIn: string;
     plan: string;
     language: string;
     help: string;
@@ -70,6 +71,7 @@ export interface Translations {
     loginDialogTitle: string;
     loginDialogDescription: string;
     continueWithGoogle: string;
+    continueWithGithub: string;
     logoutDialogTitle: string;
     logoutConfirm: string;
     logoutCancel: string;

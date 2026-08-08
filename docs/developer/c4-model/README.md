@@ -169,7 +169,8 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 **Prod API (browser)**: same-origin `/api` → Vercel rewrite → Render  
 **Prod OAuth (browser)**: same-origin `/oauth2/*` + `/login/oauth2/*` → Vercel rewrite → Render  
 **Prod API (direct)**: `https://explore-ai-3krr.onrender.com/api`  
-**Google OAuth redirect URI**: `https://www.felixzhu.chat/login/oauth2/code/google`
+**Google OAuth redirect URI**: `https://www.felixzhu.chat/login/oauth2/code/google`  
+**GitHub OAuth redirect URI**: `https://www.felixzhu.chat/login/oauth2/code/github`
 
 
 **cloud-minimal**: `module-pipelines` / `module-skills` **开启**；Vision / ASR / MCP / Eval / Ollama **关闭**

@@ -6,7 +6,6 @@ import com.ai.account.infrastructure.oauth.OAuthLoginSuccessHandler;
 import com.ai.common.web.CsrfProtectionFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -22,7 +21,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
- * Optional Google OAuth2 Login on top of anonymous Client Identity (guest mode).
+ * Optional OAuth2 Login (Google and/or GitHub) on top of anonymous Client Identity (guest mode).
  *
  * <p>API routes stay permitAll. Spring Security CSRF is intentionally disabled for the SPA;
  * state-changing {@code /api/**} calls are protected by {@link CsrfProtectionFilter}
@@ -43,7 +42,6 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    @ConditionalOnProperty(prefix = "app.oauth.google", name = "enabled", havingValue = "true")
     @ConditionalOnBean(ClientRegistrationRepository.class)
     SecurityFilterChain oauthSecurityFilterChain(
             HttpSecurity http,

@@ -4,7 +4,7 @@
 
 ## 背景
 
-进行中能力：商业化最小入口（配额、法务、Metrics 上锁、匿名账号）、可选 Google OAuth 登录（访客模式保留）、可插拔 RAG ETL、文本情感分析、天气工具领域化，以及 Supervisor 自动分派专家 Agent。
+进行中能力：商业化最小入口（配额、法务、Metrics 上锁、匿名账号）、可选 Google/GitHub OAuth 登录（访客模式保留）、可插拔 RAG ETL、文本情感分析、天气工具领域化，以及 Supervisor 自动分派专家 Agent。
 
 ---
 
@@ -35,29 +35,36 @@
 
 ---
 
-## US-18b 可选 Google 登录与访客模式
+## US-18b 可选 OAuth 登录与访客模式
 
 **As a** ExploreAI 访客  
-**I want** 在保留访客模式的同时可选 Google 登录，并随时登出  
+**I want** 在保留访客模式的同时可选 Google 或 GitHub 登录，并随时登出  
 **So that** 我可以按需绑定身份而不被强制登录墙挡住
 
 ### 验收标准
 
 1. **Scenario** 未配置 OAuth 时仍为访客
-   **GIVEN** Google OAuth 未启用  
+   **GIVEN** Google 与 GitHub OAuth 均未启用  
    **WHEN** 打开侧栏账号菜单  
    **THEN** `/api/account/me` 返回 `mode=anonymous`  
-   **AND** 不显示登录入口（`loginAvailable=false`）  
+   **AND** 不显示登录入口（`loginAvailable=false`，`loginProviders=[]`）  
    **AND** 会话仍按 Client Identity 隔离
 
 2. **Scenario** 启用 Google 后可登录
    **GIVEN** `APP_OAUTH_GOOGLE_ENABLED=true` 且 Client 凭证已配置  
-   **WHEN** 用户选择 Log in with Google 并完成授权  
+   **WHEN** 用户选择 Continue with Google 并完成授权  
    **THEN** 账号关联到当前 Client Identity  
    **AND** `/api/account/me` 返回 `mode=authenticated` 与邮箱  
    **AND** 侧栏显示登出
 
-3. **Scenario** 登出后回到访客
+3. **Scenario** 启用 GitHub 后可登录
+   **GIVEN** `APP_OAUTH_GITHUB_ENABLED=true` 且 GitHub OAuth App 凭证已配置  
+   **WHEN** 用户选择 Continue with GitHub 并完成授权  
+   **THEN** 账号关联到当前 Client Identity（`provider=github`）  
+   **AND** `/api/account/me` 返回 `mode=authenticated`  
+   **AND** `loginProviders` 包含 `github`
+
+4. **Scenario** 登出后回到访客
    **GIVEN** 用户已登录  
    **WHEN** 用户选择 Log out  
    **THEN** 会话认证清除  
@@ -67,7 +74,9 @@
 
 已实现
 
-Jira: [AI-332](https://felixzhu.atlassian.net/browse/AI-332)
+Jira:
+- Google 访客可选登录：[AI-332](https://felixzhu.atlassian.net/browse/AI-332)
+- GitHub 并列可选登录：[AI-333](https://felixzhu.atlassian.net/browse/AI-333)
 
 ---
 

@@ -39,7 +39,8 @@ class AccountControllerTest {
     void should_returnAnonymousAccount_whenClientIdentityPresent() {
         when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn("cid-123");
         when(accountUseCase.currentAccount("cid-123"))
-                .thenReturn(new AccountMeResponse("anonymous", "cid-123", null, null, "free", false));
+                .thenReturn(new AccountMeResponse(
+                        "anonymous", "cid-123", null, null, "free", false, java.util.List.of()));
 
         var response = controller.me(request);
 

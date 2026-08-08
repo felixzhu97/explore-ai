@@ -57,3 +57,11 @@ services:
         value: https://www.felixzhu.chat/
       - key: APP_OAUTH_REDIRECT_URI
         value: https://www.felixzhu.chat/login/oauth2/code/google
+      - key: APP_OAUTH_GITHUB_ENABLED
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: APP_OAUTH_GITHUB_REDIRECT_URI
+        value: https://www.felixzhu.chat/login/oauth2/code/github
