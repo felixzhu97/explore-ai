@@ -47,3 +47,11 @@ services:
         sync: false
       - key: APP_MAIL_RESEND_API_KEY
         sync: false
+      - key: APP_OAUTH_GOOGLE_ENABLED
+        value: "true"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: APP_OAUTH_SUCCESS_REDIRECT
+        value: https://www.felixzhu.chat/
