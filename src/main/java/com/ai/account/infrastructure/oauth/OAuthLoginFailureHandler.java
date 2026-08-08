@@ -1,25 +1,26 @@
 package com.ai.account.infrastructure.oauth;
 
-import com.ai.account.infrastructure.config.OAuthGoogleProperties;
+import com.ai.account.infrastructure.config.OAuthSpaProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
 /**
- * Sends the browser back to the SPA with {@code login=error} after a failed Google OAuth attempt.
+ * Sends the browser back to the SPA with {@code login=error} after a failed OAuth attempt.
  */
 @Component
-@ConditionalOnProperty(prefix = "app.oauth.google", name = "enabled", havingValue = "true")
+@ConditionalOnBean(ClientRegistrationRepository.class)
 public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
 
-    private final OAuthGoogleProperties properties;
+    private final OAuthSpaProperties spaProperties;
 
-    public OAuthLoginFailureHandler(OAuthGoogleProperties properties) {
-        this.properties = properties;
+    public OAuthLoginFailureHandler(OAuthSpaProperties spaProperties) {
+        this.spaProperties = spaProperties;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
             HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
             throws IOException {
         response.sendRedirect(
-                OAuthSpaRedirects.afterLogin(request, properties.getSuccessRedirectUrl(), "error"));
+                OAuthSpaRedirects.afterLogin(request, spaProperties.getSuccessRedirectUrl(), "error"));
     }
 
     /** Visible for unit tests. */

@@ -1,9 +1,10 @@
 package com.ai.account.infrastructure.config;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -11,31 +12,50 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 
+/**
+ * Builds a single {@link ClientRegistrationRepository} for every enabled OAuth provider.
+ *
+ * @see <a href="https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html">OAuth2 Login</a>
+ * @see <a href="https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps">GitHub OAuth Apps</a>
+ */
 @Configuration
-@EnableConfigurationProperties(OAuthGoogleProperties.class)
+@EnableConfigurationProperties({
+    OAuthGoogleProperties.class,
+    OAuthGithubProperties.class,
+    OAuthSpaProperties.class
+})
 public class OAuthClientConfig {
 
+    private static final String DEFAULT_REDIRECT =
+            "{baseUrl}/login/oauth2/code/{registrationId}";
+
     @Bean
-    @ConditionalOnProperty(prefix = "app.oauth.google", name = "enabled", havingValue = "true")
-    ClientRegistrationRepository googleClientRegistrationRepository(OAuthGoogleProperties properties) {
-        if (properties.getClientId() == null
-                || properties.getClientId().isBlank()
-                || properties.getClientSecret() == null
-                || properties.getClientSecret().isBlank()) {
+    @Conditional(AnyOAuthProviderReadyCondition.class)
+    ClientRegistrationRepository oauthClientRegistrationRepository(
+            OAuthGoogleProperties googleProperties, OAuthGithubProperties githubProperties) {
+        List<ClientRegistration> registrations = new ArrayList<>();
+        if (googleProperties.isReady()) {
+            registrations.add(googleRegistration(googleProperties));
+        }
+        if (githubProperties.isReady()) {
+            registrations.add(githubRegistration(githubProperties));
+        }
+        if (registrations.isEmpty()) {
             throw new IllegalStateException(
-                    "app.oauth.google.enabled=true requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET");
+                    "OAuth enabled but no provider has GOOGLE_/GITHUB_CLIENT_ID and CLIENT_SECRET");
         }
-        String redirectUri = properties.getRedirectUri();
-        if (redirectUri == null || redirectUri.isBlank()) {
-            redirectUri = "{baseUrl}/login/oauth2/code/{registrationId}";
-        }
-        ClientRegistration google = ClientRegistration.withRegistrationId("google")
+        return new InMemoryClientRegistrationRepository(registrations);
+    }
+
+    private static ClientRegistration googleRegistration(OAuthGoogleProperties properties) {
+        return ClientRegistration.withRegistrationId("google")
                 .clientId(properties.getClientId())
                 .clientSecret(properties.getClientSecret())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri(redirectUri)
+                .redirectUri(redirectOrDefault(properties.getRedirectUri()))
                 .scope("openid", "profile", "email")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://oauth2.googleapis.com/token")
@@ -44,6 +64,22 @@ public class OAuthClientConfig {
                 .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
                 .clientName("Google")
                 .build();
-        return new InMemoryClientRegistrationRepository(List.of(google));
+    }
+
+    private static ClientRegistration githubRegistration(OAuthGithubProperties properties) {
+        return CommonOAuth2Provider.GITHUB
+                .getBuilder("github")
+                .clientId(properties.getClientId())
+                .clientSecret(properties.getClientSecret())
+                .redirectUri(redirectOrDefault(properties.getRedirectUri()))
+                .scope("read:user", "user:email")
+                .build();
+    }
+
+    private static String redirectOrDefault(String configured) {
+        if (configured == null || configured.isBlank()) {
+            return DEFAULT_REDIRECT;
+        }
+        return configured;
     }
 }

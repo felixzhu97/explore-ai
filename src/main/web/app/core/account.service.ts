@@ -3,14 +3,14 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { API_BASE_URL } from './api.constants';
-import type { AccountMe } from './account-api.service';
+import type { AccountMe, OAuthProviderId } from './account-api.service';
 import { I18nService } from './i18n';
 import { NotificationService } from './notification.service';
 
 const OAUTH_RETURN_KEY = 'ea_oauth_return';
 
 /**
- * Shared account state for guest + optional Google OAuth.
+ * Shared account state for guest + optional OAuth (Google / GitHub).
  * Login uses a full-page redirect; return is signaled via `?login=`.
  */
 @Injectable({ providedIn: 'root' })
@@ -30,6 +30,7 @@ export class AccountService {
 
   readonly isAuthenticated = computed(() => this.accountSignal()?.mode === 'authenticated');
   readonly loginAvailable = computed(() => !!this.accountSignal()?.loginAvailable);
+  readonly loginProviders = computed(() => this.accountSignal()?.loginProviders ?? []);
   readonly showLogin = computed(
     () => !!this.accountSignal()?.loginAvailable && this.accountSignal()?.mode !== 'authenticated',
   );
@@ -61,16 +62,24 @@ export class AccountService {
   }
 
   /**
-   * Full navigation so the browser follows Google OAuth redirects with cookies.
+   * Full navigation so the browser follows OAuth redirects with cookies.
    * @param assign injectable for tests (defaults to {@code location.assign})
    */
-  startGoogleLogin(
+  startOAuthLogin(
+    provider: OAuthProviderId,
     assign: (url: string) => void = url => window.location.assign(url),
   ): void {
     const { pathname, search, hash } = window.location;
     const returnTo = `${pathname}${search}${hash}`;
     sessionStorage.setItem(OAUTH_RETURN_KEY, returnTo || '/chat');
-    assign('/oauth2/authorization/google');
+    assign(`/oauth2/authorization/${provider}`);
+  }
+
+  /** @deprecated Prefer {@link startOAuthLogin} */
+  startGoogleLogin(
+    assign: (url: string) => void = url => window.location.assign(url),
+  ): void {
+    this.startOAuthLogin('google', assign);
   }
 
   logout(): void {

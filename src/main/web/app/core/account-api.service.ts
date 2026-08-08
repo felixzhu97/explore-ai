@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from './api.constants';
 
+export type OAuthProviderId = 'google' | 'github';
+
 export interface AccountMe {
   mode: string;
   clientId: string;
@@ -10,6 +12,7 @@ export interface AccountMe {
   email: string | null;
   plan: string;
   loginAvailable: boolean;
+  loginProviders: OAuthProviderId[];
 }
 
 /** Thin HTTP client for account endpoints. Prefer {@link AccountService} in UI. */

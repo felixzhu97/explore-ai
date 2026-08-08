@@ -96,7 +96,7 @@ journey
 
 | 故事 |
 |------|
-| [US-18b](./user-stories/E8-commercial-platform.md#us-18b-可选-google-登录与访客模式) 可选 Google 登录 + 访客模式 |
+| [US-18b](./user-stories/E8-commercial-platform.md#us-18b-可选-oauth-登录与访客模式) 可选 Google/GitHub 登录 + 访客模式 |
 
 ### 进行中
 

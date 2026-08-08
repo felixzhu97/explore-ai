@@ -1,6 +1,7 @@
 package com.ai.account.application.usecase;
 
 import com.ai.account.web.dto.AccountMeResponse;
+import java.util.List;
 
 public interface AccountUseCase {
 
@@ -12,4 +13,7 @@ public interface AccountUseCase {
     void unlinkClient(String clientId);
 
     boolean isLoginAvailable();
+
+    /** Registration ids that are currently configured (e.g. {@code google}, {@code github}). */
+    List<String> loginProviders();
 }

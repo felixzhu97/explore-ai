@@ -1,5 +1,7 @@
 package com.ai.account.web.dto;
 
+import java.util.List;
+
 /**
  * Current viewer identity: anonymous guest (Client Identity) or authenticated OAuth user.
  */
@@ -9,6 +11,7 @@ public record AccountMeResponse(
         String userId,
         String email,
         String plan,
-        boolean loginAvailable
+        boolean loginAvailable,
+        List<String> loginProviders
 ) {
 }

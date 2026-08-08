@@ -192,14 +192,19 @@ app:
     same-site: Lax
     max-age: 90d
   oauth:
+    # Shared SPA return after any provider (local "/" avoids localhost vs 127.0.0.1 cookie loss)
+    success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:/}
     google:
       enabled: ${APP_OAUTH_GOOGLE_ENABLED:false}
       client-id: ${GOOGLE_CLIENT_ID:}
       client-secret: ${GOOGLE_CLIENT_SECRET:}
-      # "/" keeps the OAuth callback host (avoids localhost vs 127.0.0.1 cookie loss)
-      success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:/}
       # Blank = Spring {baseUrl}/login/oauth2/code/{registrationId} (local ng proxy).
       redirect-uri: ${APP_OAUTH_REDIRECT_URI:}
+    github:
+      enabled: ${APP_OAUTH_GITHUB_ENABLED:false}
+      client-id: ${GITHUB_CLIENT_ID:}
+      client-secret: ${GITHUB_CLIENT_SECRET:}
+      redirect-uri: ${APP_OAUTH_GITHUB_REDIRECT_URI:}
   service-auth:
     api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:
