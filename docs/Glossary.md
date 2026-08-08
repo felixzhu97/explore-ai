@@ -46,6 +46,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | MCP              | MCP       | `com.ai.mcp`      | `/mcp`                  | `/api/mcp`, `/api/mcp/client`             | `module-mcp`                  | Server + Client in one package        |
 | Workflow         | Workflow Lab 原语 | `com.ai.workflow` | —                       | `/api/workflows`                          | —                             | Educational Effective Agents APIs; ≠ product Pipeline/工作流 |
 | Generation       | 生成        | —                 | `/generate`             | —                                         | —                             | UI shell for image + TTS              |
+| Account          | 账号        | `com.ai.account`  | —                       | `/api/account`                            | —                             | Guest Client Identity + optional Google OAuth |
 | Common           | 横切        | `com.ai.common`   | —                       | —                                         | —                             | Feature flags, filters, shared tools  |
 | Metrics          | AI 指标看板  | `com.ai.metrics`  | `/metrics`              | `/api/metrics`                            | —                             | Overview + domain drill-down          |
 
@@ -125,7 +126,9 @@ flowchart TB
 | Data Retention           | 数据留存 | Timed purge of inactive sessions and aged metrics events | Job               | `ChatDataRetentionJob`, `app.data-retention` | Default 90d aligned with Client Identity cookie |
 | Plan Quota               | 套餐配额 | Daily hard limit on billable AI API calls for Free/Pro plan | Technical         | `billing.web.UsageQuotaFilter`, `app.billing` | Returns `429` / `QUOTA_EXCEEDED`; distinct from short-window rate limit |
 | Metrics Admin Key        | Metrics 管理密钥 | Shared secret protecting `/api/metrics/**` when configured | Technical         | `MetricsAdminAuthFilter`, `METRICS_ADMIN_API_KEY` | Header `X-Admin-Key`; empty key keeps local Metrics UI open |
-| Account Me               | 当前账号 | Viewer identity for commercialization (anonymous today) | Use Case          | `AccountController` `/api/account/me` | Foundation for OAuth user + Workspace claim |
+| Account Me               | 当前账号 | Viewer identity: anonymous Client Identity or authenticated OAuth user | Use Case          | `AccountController` `/api/account/me` | `mode=anonymous\|authenticated`; `loginAvailable` when Google OAuth configured |
+| Account User             | 账号用户 | Persisted OAuth subject linked to a Client Identity cookie | Entity            | `AccountUser`, `account_users` | Provider+subject unique; links browser partition after Google login |
+| OAuth Login              | OAuth 登录 | Optional Google sign-in via Spring Security OAuth2 Client | Capability        | `/oauth2/authorization/google`, `/api/account/logout` | Guest mode remains default; no login wall |
 | Legal Documents          | 法律文档 | Terms, Privacy Policy, Cookie Policy, Sub-processors pages | UI                | `/legal`, `/legal/:doc` | Distinct from interactive `/privacy` controls |
 | Chat Message             | 消息   | Single message within a session                       | Entity            | `ChatMessage`                                 | Immutable; created via factory methods |
 | User Message             | 用户消息 | Message sent by the user                              | Enum / Role       | `ChatMessageType.USER`, role=`user`           | —                                      |

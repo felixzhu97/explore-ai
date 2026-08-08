@@ -191,6 +191,13 @@ app:
     secure: false
     same-site: Lax
     max-age: 90d
+  oauth:
+    google:
+      enabled: ${APP_OAUTH_GOOGLE_ENABLED:false}
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      # "/" keeps the OAuth callback host (avoids localhost vs 127.0.0.1 cookie loss)
+      success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:/}
   service-auth:
     api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:

@@ -1,13 +1,14 @@
 package com.ai.account.web.dto;
 
 /**
- * Current viewer identity. OAuth login will populate {@code userId} / {@code email} later.
+ * Current viewer identity: anonymous guest (Client Identity) or authenticated OAuth user.
  */
 public record AccountMeResponse(
         String mode,
         String clientId,
         String userId,
         String email,
-        String plan
+        String plan,
+        boolean loginAvailable
 ) {
 }

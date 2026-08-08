@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,8 +14,8 @@ import {
   SUPPORTED_LANGUAGES,
   type Language,
 } from '../../../core/i18n';
-import { API_BASE_URL } from '../../../core/api.constants';
-import type { AccountMe } from '../../../core/account-api.service';
+import { AccountDialogService } from '../../../account/account-dialog.service';
+import { AccountService } from '../../../core/account.service';
 import { ZardSidebarMenuButtonDirective } from '../../../shared/components/layout/sidebar-menu-button.directive';
 import { SidebarService } from '../../sidebar.service';
 
@@ -140,6 +139,36 @@ import { SidebarService } from '../../sidebar.service';
               </div>
             </div>
           </div>
+
+          @if (showLogin() || showLogout()) {
+            <div class="my-1 border-t border-sidebar-border" role="separator"></div>
+          }
+
+          @if (showLogin()) {
+            <button
+              type="button"
+              role="menuitem"
+              z-sidebar-menu-button
+              [class]="primaryItemClass"
+              (click)="onLogin()"
+            >
+              <span class="opacity-60" [innerHTML]="loginIcon"></span>
+              <span class="min-w-0 flex-1 truncate text-left">{{ t().account.login }}</span>
+            </button>
+          }
+
+          @if (showLogout()) {
+            <button
+              type="button"
+              role="menuitem"
+              z-sidebar-menu-button
+              [class]="primaryItemClass"
+              (click)="onLogout()"
+            >
+              <span class="opacity-60" [innerHTML]="logoutIcon"></span>
+              <span class="min-w-0 flex-1 truncate text-left">{{ t().account.logout }}</span>
+            </button>
+          }
         </div>
       }
 
@@ -183,6 +212,8 @@ import { SidebarService } from '../../sidebar.service';
 export class SidebarUserMenuComponent {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sidebar = inject(SidebarService);
+  private readonly accountService = inject(AccountService);
+  private readonly accountDialog = inject(AccountDialogService);
   protected readonly i18n = inject(I18nService);
 
   readonly collapsed = input(false);
@@ -190,22 +221,24 @@ export class SidebarUserMenuComponent {
   readonly menuOpen = signal(false);
   readonly helpPinned = signal(false);
   readonly langPinned = signal(false);
-  readonly accountResource = httpResource<AccountMe>(
-    () => `${API_BASE_URL}/account/me`,
-  );
 
-  readonly account = computed(() => {
-    if (this.accountResource.hasValue()) {
-      return this.accountResource.value()!;
-    }
-    return null;
-  });
+  readonly account = this.accountService.account;
+  readonly showLogin = this.accountService.showLogin;
+  readonly showLogout = this.accountService.showLogout;
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
   readonly languageNames = languageNames;
 
   readonly helpIcon = this.sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>`,
+  );
+
+  readonly loginIcon = this.sanitizer.bypassSecurityTrustHtml(
+    `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>`,
+  );
+
+  readonly logoutIcon = this.sanitizer.bypassSecurityTrustHtml(
+    `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>`,
   );
 
   readonly privacyIcon = this.sanitizer.bypassSecurityTrustHtml(
@@ -297,6 +330,21 @@ export class SidebarUserMenuComponent {
     this.closeSubmenus();
     this.menuOpen.set(false);
     this.sidebar.close();
+  }
+
+  onLogin(): void {
+    this.closeSubmenus();
+    this.menuOpen.set(false);
+    this.accountDialog.openLogin();
+  }
+
+  onLogout(): void {
+    this.closeSubmenus();
+    this.menuOpen.set(false);
+    this.accountDialog.openLogout({
+      email: this.account()?.email ?? null,
+      displayName: this.displayName(),
+    });
   }
 
   onDocumentPointerDown(event: PointerEvent): void {

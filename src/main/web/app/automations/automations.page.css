@@ -1,5 +1,5 @@
 /* Input trigger — match form controls, higher contrast */
-:host ::ng-deep .run-at-picker.ant-picker {
+:host ::ng-deep [data-run-at] .ant-picker {
   width: 100%;
   border: 1.5px solid rgba(0, 0, 0, 0.22);
   border-radius: 0.625rem;
@@ -10,20 +10,20 @@
     box-shadow 0.15s ease;
 }
 
-:host ::ng-deep .run-at-picker.ant-picker:hover,
-:host ::ng-deep .run-at-picker.ant-picker-focused {
+:host ::ng-deep [data-run-at] .ant-picker:hover,
+:host ::ng-deep [data-run-at] .ant-picker-focused {
   border-color: #000;
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
-:host ::ng-deep .run-at-picker .ant-picker-input > input {
+:host ::ng-deep [data-run-at] .ant-picker-input > input {
   font-size: 0.9375rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
   color: #111;
 }
 
-:host ::ng-deep .run-at-picker .ant-picker-suffix {
+:host ::ng-deep [data-run-at] .ant-picker-suffix {
   color: #111;
   opacity: 0.65;
   font-size: 1rem;

@@ -60,6 +60,12 @@ app:
     enabled: true
     session-max-age: 90d
     cron: "0 0 3 * * *"
+  oauth:
+    google:
+      enabled: ${APP_OAUTH_GOOGLE_ENABLED:false}
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:https://www.felixzhu.chat/}
   automation:
     scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:true}
   mail:

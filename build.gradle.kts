@@ -33,6 +33,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.latencyutils:LatencyUtils:2.0.3")
     implementation("org.springframework.ai:spring-ai-starter-model-openai")
@@ -76,6 +78,7 @@ dependencies {
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-test")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.ai:spring-ai-test")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("io.projectreactor:reactor-test")

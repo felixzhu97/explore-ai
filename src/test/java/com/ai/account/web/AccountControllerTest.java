@@ -1,6 +1,12 @@
 package com.ai.account.web;
 
-import com.ai.billing.infrastructure.config.BillingProperties;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.ai.account.application.usecase.AccountUseCase;
+import com.ai.account.web.dto.AccountMeResponse;
 import com.ai.common.web.ClientIdentity;
 import com.ai.common.web.ClientIdentityRequiredException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,10 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AccountController")
 class AccountControllerTest {
@@ -23,18 +25,21 @@ class AccountControllerTest {
     @Mock
     private HttpServletRequest request;
 
+    @Mock
+    private AccountUseCase accountUseCase;
+
     private AccountController controller;
 
     @BeforeEach
     void setUp() {
-        BillingProperties billing = new BillingProperties();
-        billing.setPlan("free");
-        controller = new AccountController(billing);
+        controller = new AccountController(accountUseCase);
     }
 
     @Test
     void should_returnAnonymousAccount_whenClientIdentityPresent() {
         when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn("cid-123");
+        when(accountUseCase.currentAccount("cid-123"))
+                .thenReturn(new AccountMeResponse("anonymous", "cid-123", null, null, "free", false));
 
         var response = controller.me(request);
 
@@ -43,7 +48,9 @@ class AccountControllerTest {
         assertThat(response.getBody().mode()).isEqualTo("anonymous");
         assertThat(response.getBody().clientId()).isEqualTo("cid-123");
         assertThat(response.getBody().plan()).isEqualTo("free");
+        assertThat(response.getBody().loginAvailable()).isFalse();
         assertThat(response.getBody().userId()).isNull();
+        verify(accountUseCase).currentAccount("cid-123");
     }
 
     @Test
