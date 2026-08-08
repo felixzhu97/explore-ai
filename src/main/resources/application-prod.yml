@@ -1,5 +1,8 @@
 server:
   port: ${PORT:8080}
+  # Vercel reverse-proxies /api and OAuth paths; honor X-Forwarded-* so
+  # Spring OAuth {baseUrl} and cookies stay on https://www.felixzhu.chat
+  forward-headers-strategy: framework
 
 # cloud-minimal profile (Render): optional local-only modules are disabled.
 spring:

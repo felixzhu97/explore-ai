@@ -28,6 +28,14 @@
       "destination": "https://explore-ai-3krr.onrender.com/api/:path*"
     },
     {
+      "source": "/oauth2/:path*",
+      "destination": "https://explore-ai-3krr.onrender.com/oauth2/:path*"
+    },
+    {
+      "source": "/login/oauth2/:path*",
+      "destination": "https://explore-ai-3krr.onrender.com/login/oauth2/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
