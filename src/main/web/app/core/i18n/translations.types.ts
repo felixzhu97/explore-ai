@@ -61,6 +61,18 @@ export interface Translations {
     language: string;
     help: string;
     menuLabel: string;
+    login: string;
+    logout: string;
+    loginSuccess: string;
+    loginFailed: string;
+    logoutSuccess: string;
+    logoutFailed: string;
+    loginDialogTitle: string;
+    loginDialogDescription: string;
+    continueWithGoogle: string;
+    logoutDialogTitle: string;
+    logoutConfirm: string;
+    logoutCancel: string;
   };
   imageUploader: {
     imageLabel: string;

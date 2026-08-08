@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ZardToastComponent } from '../shared/components/toast';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { SidebarService } from './sidebar.service';
 import { ConsentBannerComponent } from '../privacy/consent-banner.component';
+import { AccountService } from '../core/account.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -27,15 +28,20 @@ import { ConsentBannerComponent } from '../privacy/consent-banner.component';
           <router-outlet/>
       </main>
       <app-consent-banner />
-  `,
+    `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
       'flex h-dvh min-h-0 flex-col overflow-x-hidden bg-gray-100 max-md:max-h-dvh max-md:overflow-hidden',
   },
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   readonly sidebar = inject(SidebarService);
+  private readonly account = inject(AccountService);
+
+  ngOnInit(): void {
+    this.account.consumeLoginReturn();
+  }
 
   openSidebar(): void {
     this.sidebar.open();

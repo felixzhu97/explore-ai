@@ -80,7 +80,8 @@
             </label>
             @if (formPreset() === 'custom') {
               <div
-                class="run-at-field rounded-xl border border-black/15 bg-black/[0.03] p-3"
+                data-run-at
+                class="rounded-xl border border-black/15 bg-black/[0.03] p-3"
               >
                 <div class="mb-2 flex flex-col gap-0.5">
                   <span class="text-xs font-semibold text-foreground">
@@ -91,13 +92,13 @@
                   </span>
                 </div>
                 <nz-date-picker
-                  class="run-at-picker w-full"
+                  class="w-full"
                   nzSize="large"
                   nzShowTime
                   nzFormat="yyyy-MM-dd HH:mm:ss"
                   [nzPlaceHolder]="i18n.t().automationsPage.runAtPlaceholder"
                   [nzDisabledDate]="disabledDate"
-                  [nzDropdownClassName]="'run-at-picker-popup'"
+                  nzDropdownClassName="run-at-picker-popup"
                   [ngModel]="formRunAt()"
                   (ngModelChange)="formRunAt.set($event)"
                 />

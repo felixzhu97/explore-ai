@@ -24,6 +24,8 @@
   <include file="changelogs/4.3-pipeline-agent-library.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.4-automation-schedules.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.5-automation-once.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/4.6-account-users.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/4.7-account-users-unlink.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 
 

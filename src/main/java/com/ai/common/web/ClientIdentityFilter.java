@@ -47,7 +47,13 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path == null || !path.startsWith("/api/");
+        if (path == null) {
+            return true;
+        }
+        // Include OAuth callback paths so login can link the browser Client Identity cookie.
+        return !path.startsWith("/api/")
+                && !path.startsWith("/login/oauth2/")
+                && !path.startsWith("/oauth2/");
     }
 
     @Override

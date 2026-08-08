@@ -1,0 +1,42 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260808-001-account-users" dbms="h2">
+    <createTable tableName="account_users">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="provider" type="${string.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject" type="${string.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email" type="${string.type}(320)"/>
+      <column name="linked_client_id" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addUniqueConstraint
+      tableName="account_users"
+      columnNames="provider, subject"
+      constraintName="uk_account_users_provider_subject"/>
+
+    <createIndex indexName="idx_account_users_linked_client_id" tableName="account_users">
+      <column name="linked_client_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

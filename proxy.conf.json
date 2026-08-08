@@ -2,7 +2,19 @@
   "/api": {
     "target": "http://localhost:9000",
     "secure": false,
-    "changeOrigin": true,
+    "changeOrigin": false,
+    "logLevel": "debug"
+  },
+  "/oauth2": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "debug"
+  },
+  "/login/oauth2": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "changeOrigin": false,
     "logLevel": "debug"
   }
 }
