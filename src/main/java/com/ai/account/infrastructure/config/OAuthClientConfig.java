@@ -26,12 +26,16 @@ public class OAuthClientConfig {
             throw new IllegalStateException(
                     "app.oauth.google.enabled=true requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET");
         }
+        String redirectUri = properties.getRedirectUri();
+        if (redirectUri == null || redirectUri.isBlank()) {
+            redirectUri = "{baseUrl}/login/oauth2/code/{registrationId}";
+        }
         ClientRegistration google = ClientRegistration.withRegistrationId("google")
                 .clientId(properties.getClientId())
                 .clientSecret(properties.getClientSecret())
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+                .redirectUri(redirectUri)
                 .scope("openid", "profile", "email")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://oauth2.googleapis.com/token")

@@ -55,3 +55,5 @@ services:
         sync: false
       - key: APP_OAUTH_SUCCESS_REDIRECT
         value: https://www.felixzhu.chat/
+      - key: APP_OAUTH_REDIRECT_URI
+        value: https://www.felixzhu.chat/login/oauth2/code/google

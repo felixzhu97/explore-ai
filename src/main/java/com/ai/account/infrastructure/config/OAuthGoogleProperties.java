@@ -14,6 +14,12 @@ public class OAuthGoogleProperties {
     /** Where to send the browser after OAuth (SPA origin; query {@code login=} is appended). */
     private String successRedirectUrl = "http://127.0.0.1:4200/";
 
+    /**
+     * Absolute OAuth callback URL registered in Google Cloud Console.
+     * When blank, Spring uses {@code {baseUrl}/login/oauth2/code/{registrationId}}.
+     */
+    private String redirectUri = "";
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -44,5 +50,13 @@ public class OAuthGoogleProperties {
 
     public void setSuccessRedirectUrl(String successRedirectUrl) {
         this.successRedirectUrl = successRedirectUrl;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public void setRedirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
     }
 }

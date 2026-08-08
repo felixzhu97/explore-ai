@@ -69,6 +69,8 @@ app:
       client-id: ${GOOGLE_CLIENT_ID:}
       client-secret: ${GOOGLE_CLIENT_SECRET:}
       success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:https://www.felixzhu.chat/}
+      # Absolute callback so Vercel→Render proxy Host headers cannot drift to onrender.com
+      redirect-uri: ${APP_OAUTH_REDIRECT_URI:https://www.felixzhu.chat/login/oauth2/code/google}
   automation:
     scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:true}
   mail:
