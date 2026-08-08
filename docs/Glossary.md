@@ -46,7 +46,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | MCP              | MCP       | `com.ai.mcp`      | `/mcp`                  | `/api/mcp`, `/api/mcp/client`             | `module-mcp`                  | Server + Client in one package        |
 | Workflow         | Workflow Lab 原语 | `com.ai.workflow` | —                       | `/api/workflows`                          | —                             | Educational Effective Agents APIs; ≠ product Pipeline/工作流 |
 | Generation       | 生成        | —                 | `/generate`             | —                                         | —                             | UI shell for image + TTS              |
-| Account          | 账号        | `com.ai.account`  | —                       | `/api/account`                            | —                             | Guest Client Identity + optional Google/GitHub OAuth |
+| Account          | 账号        | `com.ai.account`  | —                       | `/api/account`                            | —                             | Guest Client Identity + optional Google/GitHub OAuth; data partitioned by Owner Key |
 | Common           | 横切        | `com.ai.common`   | —                       | —                                         | —                             | Feature flags, filters, shared tools  |
 | Metrics          | AI 指标看板  | `com.ai.metrics`  | `/metrics`              | `/api/metrics`                            | —                             | Overview + domain drill-down          |
 
@@ -119,15 +119,16 @@ flowchart TB
 
 | Preferred Term (English) | 中文   | Definition                                            | Type              | Code Mapping                                  | Notes                                  |
 | ------------------------ | ---- | ----------------------------------------------------- | ----------------- | --------------------------------------------- | -------------------------------------- |
-| Chat Session             | 会话   | Multi-turn conversation container between user and AI | Aggregate Root    | `ChatSession`                                 | Default title: "New Chat"; owned by Client Identity |
-| Client Identity          | 客户端身份 | Anonymous browser identity for session ownership (HttpOnly cookie) | Technical         | `ClientIdentity`, `ea_cid` / `__Host-ea_cid` | Server-issued; not stored in localStorage |
-| Privacy Erasure          | 隐私清除 | Delete all sessions for current Client Identity / rotate identity cookie | Use Case          | `PrivacyController`, `deleteAllSessionsForClient` | GDPR-style right to erasure for anonymous chats |
+| Chat Session             | 会话   | Multi-turn conversation container between user and AI | Aggregate Root    | `ChatSession`                                 | Default title: "New Chat"; owned by Owner Key |
+| Client Identity          | 客户端身份 | Anonymous browser identity cookie used to resolve Owner Key | Technical         | `ClientIdentity`, `ea_cid` / `__Host-ea_cid` | Server-issued; not stored in localStorage |
+| Owner Key                | 数据归属键 | Hybrid partition key: guest `c:{clientId}` or account `u:{accountUserId}` | Value Object      | `OwnerKey`, column `owner_key` | Resolved by `CurrentOwnerResolver`; merged on OAuth login |
+| Privacy Erasure          | 隐私清除 | Delete all durable rows for current Owner Key / rotate identity cookie | Use Case          | `OwnerEraseUseCase`, `PrivacyController` | GDPR-style right to erasure across owner-scoped stores |
 | Privacy Consent          | 隐私同意 | Browser preference for optional analytics (RUM / LaunchDarkly) | Technical         | `PrivacyConsentService`, `explore-ai-privacy-consent` | Stored in localStorage; necessary Client Identity cookie is separate |
 | Data Retention           | 数据留存 | Timed purge of inactive sessions and aged metrics events | Job               | `ChatDataRetentionJob`, `app.data-retention` | Default 90d aligned with Client Identity cookie |
 | Plan Quota               | 套餐配额 | Daily hard limit on billable AI API calls for Free/Pro plan | Technical         | `billing.web.UsageQuotaFilter`, `app.billing` | Returns `429` / `QUOTA_EXCEEDED`; distinct from short-window rate limit |
 | Metrics Admin Key        | Metrics 管理密钥 | Shared secret protecting `/api/metrics/**` when configured | Technical         | `MetricsAdminAuthFilter`, `METRICS_ADMIN_API_KEY` | Header `X-Admin-Key`; empty key keeps local Metrics UI open |
 | Account Me               | 当前账号 | Viewer identity: anonymous Client Identity or authenticated OAuth user | Use Case          | `AccountController` `/api/account/me` | `mode=anonymous\|authenticated`; `loginAvailable` + `loginProviders` when any OAuth provider is configured |
-| Account User             | 账号用户 | Persisted OAuth subject linked to a Client Identity cookie | Entity            | `AccountUser`, `account_users` | Provider+subject unique; links browser partition after OAuth login |
+| Account User             | 账号用户 | Persisted OAuth subject linked to a Client Identity cookie | Entity            | `AccountUser`, `account_users` | Provider+subject unique; login merges `c:` rows into `u:{id}` |
 | OAuth Login              | OAuth 登录 | Optional Google/GitHub sign-in via Spring Security OAuth2 Client | Capability        | `/oauth2/authorization/{google\|github}`, `/api/account/logout` | Guest mode remains default; no login wall |
 | Legal Documents          | 法律文档 | Terms, Privacy Policy, Cookie Policy, Sub-processors pages | UI                | `/legal`, `/legal/:doc` | Distinct from interactive `/privacy` controls |
 | Chat Message             | 消息   | Single message within a session                       | Entity            | `ChatMessage`                                 | Immutable; created via factory methods |
@@ -181,7 +182,7 @@ flowchart TB
 | Agent Prompt Catalog     | Agent 提示词目录   | **Superseded** — builtins from `agent-templates/{lang}.json` via `AgentTemplateCatalog` | — | Historical `prompts/agent/*.st` optional reference | Authority: Pipeline `AgentTemplateCatalog` |
 | Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for pipeline workers | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.pipeline.skills`; shared in `com.ai.common`; ≠ user **Skill** |
 | Skill                    | 技能            | User-managed instruction pack stored per client                  | Entity         | `Skill`, `com.ai.skill`                        | CRUD `/skills`; applied via Chat `skillIds`                        |
-| Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository`, `JdbcSkillRepository`       | Scoped by Client Identity                                          |
+| Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository`, `JdbcSkillRepository`       | Scoped by Owner Key                                                |
 | Agent Skills Runtime     | Agent 技能运行时   | Loads controlled skill ids and injects prompt/tool metadata        | Infrastructure | `AgentSkillsRuntime` (`com.ai.common`)         | Default off; used by Pipeline workers         |
 | Prompt Catalog           | 提示词目录         | Versioned prompt fragments under classpath resources               | Infrastructure | `classpath:prompts/**`                         | shared / chat / rag / agent / task / guards     |
 | Prompt Templates         | 提示词组合服务       | Composes default system, RAG system, and Agent prompts             | Infrastructure | `PromptTemplates`, `ClasspathPromptTemplate`     | Injected into ChatClientFactory                 |

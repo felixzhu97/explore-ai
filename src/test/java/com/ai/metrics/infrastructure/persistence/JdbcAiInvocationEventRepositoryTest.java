@@ -63,6 +63,9 @@ class JdbcAiInvocationEventRepositoryTest {
                 .errorMessage("failed")
                 .build();
 
+        when(jdbcTemplate.query(startsWith("SELECT owner_key FROM chat_sessions"), any(RowMapper.class), eq("session-1")))
+                .thenReturn(List.of("c:owner-1"));
+
         repository.save(event);
 
         verify(jdbcTemplate).update(
@@ -82,7 +85,8 @@ class JdbcAiInvocationEventRepositoryTest {
                 eq(10),
                 eq(20),
                 eq("E1"),
-                eq("failed"));
+                eq("failed"),
+                eq("c:owner-1"));
     }
 
     @Test

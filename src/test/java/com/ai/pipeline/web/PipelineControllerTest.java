@@ -1,5 +1,8 @@
 package com.ai.pipeline.web;
 
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
+
 import com.ai.common.web.ClientIdentity;
 import com.ai.pipeline.application.usecase.PipelineFacade;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
@@ -26,10 +29,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PipelineControllerTest {
+    private OwnerContext ownerContext;
 
     private static final String CLIENT_ID = "client-1";
 
@@ -43,7 +48,9 @@ class PipelineControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new PipelineController(agentFacade);
+        ownerContext = mock(OwnerContext.class);
+        lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
+        controller = new PipelineController(agentFacade, ownerContext);
         lenient().when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
     }
 

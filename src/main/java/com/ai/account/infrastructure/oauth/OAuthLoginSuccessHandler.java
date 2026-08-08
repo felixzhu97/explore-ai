@@ -1,6 +1,7 @@
 package com.ai.account.infrastructure.oauth;
 
 import com.ai.account.application.usecase.AccountUseCase;
+import com.ai.account.application.usecase.OwnerMergeUseCase;
 import com.ai.account.infrastructure.config.OAuthSpaProperties;
 import com.ai.common.web.ClientIdentity;
 import jakarta.servlet.ServletException;
@@ -29,14 +30,17 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private static final Logger log = LoggerFactory.getLogger(OAuthLoginSuccessHandler.class);
 
     private final AccountUseCase accountUseCase;
+    private final OwnerMergeUseCase ownerMergeUseCase;
     private final OAuthSpaProperties spaProperties;
     private final SecurityContextRepository securityContextRepository;
 
     public OAuthLoginSuccessHandler(
             AccountUseCase accountUseCase,
+            OwnerMergeUseCase ownerMergeUseCase,
             OAuthSpaProperties spaProperties,
             SecurityContextRepository securityContextRepository) {
         this.accountUseCase = accountUseCase;
+        this.ownerMergeUseCase = ownerMergeUseCase;
         this.spaProperties = spaProperties;
         this.securityContextRepository = securityContextRepository;
         setAlwaysUseDefaultTargetUrl(true);
@@ -50,12 +54,16 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         String provider = registrationId(authentication);
         Object principal = authentication.getPrincipal();
         if (clientId != null) {
+            String accountUserId = null;
             if (principal instanceof OidcUser oidcUser) {
-                accountUseCase.linkOAuthUser(
+                accountUserId = accountUseCase.linkOAuthUser(
                         provider, oidcUser.getSubject(), oidcUser.getEmail(), clientId);
             } else if (principal instanceof OAuth2User oauth2User) {
-                accountUseCase.linkOAuthUser(
+                accountUserId = accountUseCase.linkOAuthUser(
                         provider, oauth2User.getName(), resolveEmail(oauth2User), clientId);
+            }
+            if (accountUserId != null) {
+                ownerMergeUseCase.mergeClientIntoAccount(clientId, accountUserId);
             }
         } else {
             log.warn("OAuth success without Client Identity cookie; session auth only");

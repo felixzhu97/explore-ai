@@ -7,7 +7,8 @@ public interface AccountUseCase {
 
     AccountMeResponse currentAccount(String clientId);
 
-    void linkOAuthUser(String provider, String subject, String email, String clientId);
+    /** Links OAuth identity to the browser cookie and returns the account user id. */
+    String linkOAuthUser(String provider, String subject, String email, String clientId);
 
     /** Clears OAuth ↔ Client Identity link so the browser returns to guest mode. */
     void unlinkClient(String clientId);

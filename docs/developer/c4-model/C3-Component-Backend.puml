@@ -14,6 +14,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(chat_ctrl, "ChatController", "@RestController", "/api/chat, /api/sessions")
         Component(privacy_ctrl, "PrivacyController", "@RestController", "/api/privacy/*")
         Component(account_ctrl, "AccountController", "@RestController", "/api/account/me")
+        Component(owner_context, "OwnerContext", "@Component", "Client Identity + Auth → OwnerKey")
         Component(client_id_filter, "ClientIdentityFilter", "Filter", "HttpOnly Cookie 浏览器身份")
         Component(csrf_filter, "CsrfProtectionFilter", "Filter", "X-Requested-With CSRF")
         Component(sec_headers, "SecurityHeadersFilter", "Filter", "OWASP Secure Headers")
@@ -59,6 +60,10 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(mcp_facade, "McpFacade", "@Service", "MCP Client 门面")
         Component(metrics_usecase, "MetricsUseCase", "@Service", "概览 / 域 / 时序 / 下钻")
         Component(invocation_recorder, "AiInvocationRecorder", "@Component", "旁路记录 AI 调用事件")
+        Component(owner_resolver, "CurrentOwnerResolver", "@Service", "解析 c:/u: OwnerKey")
+        Component(owner_merge_uc, "OwnerMergeUseCase", "@Service", "OAuth 后合并 guest 分区")
+        Component(owner_erase_uc, "OwnerEraseUseCase", "@Service", "按 OwnerKey 擦除数据")
+        Component(account_uc, "AccountUseCase", "@Service", "账号 / OAuth 链接")
     }
 
     ' ============================================================
@@ -186,14 +191,19 @@ System_Boundary(ext, "External Systems") {
 ' ============================================================
 
 Rel(chat_ctrl, chat_usecase, "调用")
-Rel(privacy_ctrl, chat_usecase, "擦除 / 重置身份")
+Rel(privacy_ctrl, owner_erase_uc, "擦除当前 Owner 数据")
+Rel(privacy_ctrl, owner_context, "解析 OwnerKey")
 Rel(text_ctrl, chat_usecase, "SSE 流式")
 Rel(client_id_filter, chat_ctrl, "注入 Client Identity")
+Rel(owner_context, owner_resolver, "resolve")
+Rel(owner_context, client_id_filter, "读取 cookie id")
 Rel(csrf_filter, chat_ctrl, "变更请求 CSRF 头")
 Rel(sec_headers, chat_ctrl, "安全响应头 + CSP")
 Rel(quota_filter, chat_ctrl, "日配额硬限制")
 Rel(metrics_admin_filter, metrics_ctrl, "Admin Key 鉴权")
+Rel(account_ctrl, account_uc, "调用")
 Rel(account_ctrl, client_id_filter, "读取匿名身份")
+Rel(chat_ctrl, owner_context, "数据 API 解析 OwnerKey")
 Rel(pipeline_ctrl, pipeline_facade, "调用")
 Rel(automation_ctrl, automation_uc, "调用")
 Rel(automation_uc, pipeline_facade, "同步运行工作流")

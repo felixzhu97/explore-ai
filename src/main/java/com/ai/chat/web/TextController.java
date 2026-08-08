@@ -7,6 +7,7 @@ import com.ai.chat.web.dto.ChatStreamRequest;
 import com.ai.chat.web.dto.ModelsListResponse;
 import com.ai.chat.web.dto.ProviderInfoResponse;
 import com.ai.common.application.llm.TextChatOptions;
+import com.ai.account.web.OwnerContext;
 import com.ai.common.web.ClientIdentity;
 import com.ai.skill.application.SkillSystemPromptBuilder;
 import com.ai.skill.domain.model.Skill;
@@ -32,16 +33,18 @@ import java.util.List;
 @RequestMapping("/api/text")
 public class TextController {
 
+    private final OwnerContext ownerContext;
+
     private static final Logger log = LoggerFactory.getLogger(TextController.class);
 
     private final ChatUseCase chatUseCase;
     private final TextProviderCatalog providerCatalog;
     private final SkillRepository skillRepository;
 
-    public TextController(
-            ChatUseCase chatUseCase,
+    public TextController(ChatUseCase chatUseCase,
             TextProviderCatalog providerCatalog,
-            SkillRepository skillRepository) {
+            SkillRepository skillRepository, OwnerContext ownerContext) {
+        this.ownerContext = ownerContext;
         this.chatUseCase = chatUseCase;
         this.providerCatalog = providerCatalog;
         this.skillRepository = skillRepository;
@@ -70,7 +73,7 @@ public class TextController {
             if (userMessage == null || userMessage.isBlank()) {
                 return Flux.error(new IllegalArgumentException("User message is required when sessionId is provided"));
             }
-            String clientId = ClientIdentity.require(httpRequest);
+            String clientId = ownerContext.requireValue(httpRequest);
             return chatUseCase.chatStreamWithSession(request.sessionId(), userMessage, options, clientId);
         }
 
@@ -92,7 +95,7 @@ public class TextController {
             return baseOptions;
         }
 
-        String clientId = ClientIdentity.require(httpRequest);
+        String clientId = ownerContext.requireValue(httpRequest);
         List<SkillId> parsedSkillIds = parseSkillIds(skillIds);
         if (parsedSkillIds.isEmpty()) {
             return baseOptions;

@@ -38,11 +38,14 @@ public class DocumentEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "owner_key", nullable = false, length = 80)
+    private String ownerKey;
+
     public DocumentEntity() {
     }
 
     public DocumentEntity(UUID id, String title, String fileName, Long fileSize,
-                          DocumentStatus status, Instant createdAt, Instant updatedAt) {
+                          DocumentStatus status, Instant createdAt, Instant updatedAt, String ownerKey) {
         this.id = id;
         this.title = title;
         this.fileName = fileName;
@@ -50,6 +53,7 @@ public class DocumentEntity {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.ownerKey = ownerKey;
     }
 
     public UUID getId() { return id; }
@@ -73,7 +77,10 @@ public class DocumentEntity {
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
-    public static DocumentEntity fromDomain(Document document) {
+    public String getOwnerKey() { return ownerKey; }
+    public void setOwnerKey(String ownerKey) { this.ownerKey = ownerKey; }
+
+    public static DocumentEntity fromDomain(Document document, String ownerKey) {
         return new DocumentEntity(
             document.getId().value(),
             document.getTitle(),
@@ -81,7 +88,8 @@ public class DocumentEntity {
             document.getFileSize(),
             document.getStatus(),
             document.getCreatedAt(),
-            document.getUpdatedAt()
+            document.getUpdatedAt(),
+            ownerKey
         );
     }
 

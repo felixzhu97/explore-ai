@@ -24,7 +24,7 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
         String title = rs.getString("title");
         Instant createdAt = rs.getTimestamp("created_at").toInstant();
         Instant lastActivityAt = rs.getTimestamp("last_activity_at").toInstant();
-        String clientId = rs.getString("client_id");
+        String clientId = rs.getString("owner_key");
         if (clientId == null || clientId.isBlank()) {
             return ChatSession.reconstituteOrphan(id, title, createdAt, lastActivityAt, List.of());
         }
@@ -40,7 +40,7 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     @Override
     public Optional<ChatSession> findById(ChatSessionId id) {
         List<ChatSession> results = jdbcTemplate.query(
-                "SELECT id, title, created_at, last_activity_at, client_id FROM chat_sessions WHERE id = ?",
+                "SELECT id, title, created_at, last_activity_at, owner_key FROM chat_sessions WHERE id = ?",
                 ROW_MAPPER,
                 id.value());
         return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
@@ -50,9 +50,9 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     public Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId) {
         List<ChatSession> results = jdbcTemplate.query(
                 """
-                SELECT id, title, created_at, last_activity_at, client_id
+                SELECT id, title, created_at, last_activity_at, owner_key
                 FROM chat_sessions
-                WHERE id = ? AND client_id = ?
+                WHERE id = ? AND owner_key = ?
                 """,
                 ROW_MAPPER,
                 id.value(),
@@ -65,7 +65,7 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     public void save(ChatSession session) {
         jdbcTemplate.update(
                 """
-                MERGE INTO chat_sessions (id, title, created_at, last_activity_at, client_id)
+                MERGE INTO chat_sessions (id, title, created_at, last_activity_at, owner_key)
                 KEY (id)
                 VALUES (?, ?, ?, ?, ?)
                 """,
@@ -86,9 +86,9 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     public List<ChatSession> findByClientId(String clientId) {
         return jdbcTemplate.query(
                 """
-                SELECT id, title, created_at, last_activity_at, client_id
+                SELECT id, title, created_at, last_activity_at, owner_key
                 FROM chat_sessions
-                WHERE client_id = ?
+                WHERE owner_key = ?
                 ORDER BY last_activity_at DESC
                 """,
                 ROW_MAPPER,
@@ -99,7 +99,7 @@ public class JdbcChatSessionMetadataRepository implements ChatSessionRepository 
     public List<ChatSession> findInactiveSince(Instant cutoff) {
         return jdbcTemplate.query(
                 """
-                SELECT id, title, created_at, last_activity_at, client_id
+                SELECT id, title, created_at, last_activity_at, owner_key
                 FROM chat_sessions
                 WHERE last_activity_at < ?
                 ORDER BY last_activity_at ASC

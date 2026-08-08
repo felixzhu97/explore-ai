@@ -45,9 +45,10 @@ public class H2VectorAdapter implements IDocumentChunkRepository, DocumentChunkS
         String embeddingString = arrayToJsonString(chunk.getEmbedding());
         String metadataJson = serializeMetadata(chunk.getMetadata());
 
+        String ownerKey = resolveOwnerKey(chunk.getMetadata());
         String sql = "MERGE INTO " + TABLE_NAME +
-                " (id, document_id, content, chunk_index, embedding, metadata, created_at) " +
-                "KEY (id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                " (id, document_id, content, chunk_index, embedding, metadata, created_at, owner_key) " +
+                "KEY (id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
                 chunk.getId().value(),
@@ -56,7 +57,8 @@ public class H2VectorAdapter implements IDocumentChunkRepository, DocumentChunkS
                 chunk.getChunkIndex(),
                 embeddingString,
                 metadataJson,
-                chunk.getCreatedAt().toString());
+                chunk.getCreatedAt().toString(),
+                ownerKey);
     }
 
     @Override
@@ -106,6 +108,17 @@ public class H2VectorAdapter implements IDocumentChunkRepository, DocumentChunkS
         String sql = "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at " +
                 "FROM " + TABLE_NAME;
         return jdbcTemplate.query(sql, chunkRowMapper);
+    }
+
+    private static String resolveOwnerKey(Map<String, Object> metadata) {
+        if (metadata == null) {
+            return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+        }
+        Object value = metadata.get("ownerKey");
+        if (value instanceof String s && !s.isBlank()) {
+            return s.trim();
+        }
+        return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
     }
 
     private String arrayToJsonString(float[] array) {

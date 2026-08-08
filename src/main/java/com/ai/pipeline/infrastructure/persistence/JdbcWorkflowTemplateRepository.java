@@ -32,7 +32,7 @@ public class JdbcWorkflowTemplateRepository implements WorkflowTemplateRepositor
         this.objectMapper = objectMapper;
         this.rowMapper = (rs, rowNum) -> SavedWorkflowTemplate.restore(
                 WorkflowTemplateId.of(rs.getString("id")),
-                rs.getString("client_id"),
+                rs.getString("owner_key"),
                 rs.getString("name"),
                 rs.getString("description"),
                 parseAgentTypes(rs.getString("agent_types")),
@@ -50,7 +50,7 @@ public class JdbcWorkflowTemplateRepository implements WorkflowTemplateRepositor
         jdbcTemplate.update(
                 """
                 MERGE INTO workflow_templates (
-                    id, client_id, name, description, agent_types, short_topic, brief_prompt,
+                    id, owner_key, name, description, agent_types, short_topic, brief_prompt,
                     source_template_id, enabled, created_at, updated_at
                 )
                 KEY (id)
@@ -74,10 +74,10 @@ public class JdbcWorkflowTemplateRepository implements WorkflowTemplateRepositor
     public Optional<SavedWorkflowTemplate> findByIdAndClientId(WorkflowTemplateId id, String clientId) {
         List<SavedWorkflowTemplate> results = jdbcTemplate.query(
                 """
-                SELECT id, client_id, name, description, agent_types, short_topic, brief_prompt,
+                SELECT id, owner_key, name, description, agent_types, short_topic, brief_prompt,
                        source_template_id, enabled, created_at, updated_at
                 FROM workflow_templates
-                WHERE id = ? AND client_id = ?
+                WHERE id = ? AND owner_key = ?
                 """,
                 rowMapper,
                 id.value(),
@@ -89,10 +89,10 @@ public class JdbcWorkflowTemplateRepository implements WorkflowTemplateRepositor
     public List<SavedWorkflowTemplate> findAllByClientId(String clientId) {
         return jdbcTemplate.query(
                 """
-                SELECT id, client_id, name, description, agent_types, short_topic, brief_prompt,
+                SELECT id, owner_key, name, description, agent_types, short_topic, brief_prompt,
                        source_template_id, enabled, created_at, updated_at
                 FROM workflow_templates
-                WHERE client_id = ?
+                WHERE owner_key = ?
                 ORDER BY name ASC
                 """,
                 rowMapper,
@@ -103,7 +103,7 @@ public class JdbcWorkflowTemplateRepository implements WorkflowTemplateRepositor
     @Transactional
     public void deleteByIdAndClientId(WorkflowTemplateId id, String clientId) {
         jdbcTemplate.update(
-                "DELETE FROM workflow_templates WHERE id = ? AND client_id = ?",
+                "DELETE FROM workflow_templates WHERE id = ? AND owner_key = ?",
                 id.value(),
                 clientId);
     }
@@ -114,13 +114,13 @@ public class JdbcWorkflowTemplateRepository implements WorkflowTemplateRepositor
         Integer count;
         if (excludeId == null) {
             count = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM workflow_templates WHERE client_id = ? AND name = ?",
+                    "SELECT COUNT(*) FROM workflow_templates WHERE owner_key = ? AND name = ?",
                     Integer.class,
                     clientId,
                     name);
         } else {
             count = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM workflow_templates WHERE client_id = ? AND name = ? AND id <> ?",
+                    "SELECT COUNT(*) FROM workflow_templates WHERE owner_key = ? AND name = ? AND id <> ?",
                     Integer.class,
                     clientId,
                     name,

@@ -42,15 +42,15 @@ class RagApplicationServiceTest {
         void shouldDelegateToUploadService() {
             DocumentId docId = DocumentId.generate();
             var uploadResult = new DocumentUploadService.UploadResult(docId, "Test", "READY", 3);
-            when(uploadService.upload("Test", "file.txt", 1024L, "content")).thenReturn(uploadResult);
+            when(uploadService.upload("Test", "file.txt", 1024L, "content", "c:test-owner")).thenReturn(uploadResult);
 
-            var result = service.uploadDocument("Test", "file.txt", 1024L, "content");
+            var result = service.uploadDocument("Test", "file.txt", 1024L, "content", "c:test-owner");
 
             assertThat(result.documentId()).isEqualTo(docId);
             assertThat(result.title()).isEqualTo("Test");
             assertThat(result.status()).isEqualTo("READY");
             assertThat(result.chunkCount()).isEqualTo(3);
-            verify(uploadService).upload("Test", "file.txt", 1024L, "content");
+            verify(uploadService).upload("Test", "file.txt", 1024L, "content", "c:test-owner");
         }
 
         @Test
@@ -59,9 +59,9 @@ class RagApplicationServiceTest {
             DocumentId docId = DocumentId.generate();
             byte[] content = "test content".getBytes();
             var uploadResult = new DocumentUploadService.UploadResult(docId, "Test", "READY", 5);
-            when(uploadService.upload("Test", "file.bin", 12L, content)).thenReturn(uploadResult);
+            when(uploadService.upload("Test", "file.bin", 12L, content, "c:test-owner")).thenReturn(uploadResult);
 
-            var result = service.uploadDocumentFromBytes("Test", "file.bin", 12L, content);
+            var result = service.uploadDocumentFromBytes("Test", "file.bin", 12L, content, "c:test-owner");
 
             assertThat(result.documentId()).isEqualTo(docId);
             assertThat(result.chunkCount()).isEqualTo(5);
@@ -77,20 +77,20 @@ class RagApplicationServiceTest {
         void shouldDelegateToUploadService() {
             Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L);
             Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L);
-            when(uploadService.listAll()).thenReturn(List.of(doc1, doc2));
+            when(uploadService.listAll("c:test-owner")).thenReturn(List.of(doc1, doc2));
 
-            List<Document> result = service.listDocuments();
+            List<Document> result = service.listDocuments("c:test-owner");
 
             assertThat(result).hasSize(2);
-            verify(uploadService).listAll();
+            verify(uploadService).listAll("c:test-owner");
         }
 
         @Test
         @DisplayName("should return empty list when no documents")
         void shouldReturnEmptyListWhenNoDocuments() {
-            when(uploadService.listAll()).thenReturn(List.of());
+            when(uploadService.listAll("c:test-owner")).thenReturn(List.of());
 
-            List<Document> result = service.listDocuments();
+            List<Document> result = service.listDocuments("c:test-owner");
 
             assertThat(result).isEmpty();
         }
@@ -105,9 +105,9 @@ class RagApplicationServiceTest {
         void shouldDelegateToUploadService() {
             UUID documentId = UUID.randomUUID();
 
-            service.deleteDocument(documentId);
+            service.deleteDocument(documentId, "c:test-owner");
 
-            verify(uploadService).delete(documentId);
+            verify(uploadService).delete(documentId, "c:test-owner");
         }
     }
 

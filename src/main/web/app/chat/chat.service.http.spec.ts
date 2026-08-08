@@ -22,6 +22,34 @@ describe('ChatService http flows', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
+  it('should_clearActiveChatAndReloadSessions_when_resetForOwnerChange', () => {
+    service.sessions.set([
+      {
+        sessionId: 's-old',
+        title: 'Old',
+        messageCount: 1,
+        createdAt: '2026-08-08T00:00:00Z',
+        lastActivityAt: '2026-08-08T00:00:00Z',
+      },
+    ]);
+    service.activeSessionId.set('s-old');
+    service.messages.set([
+      { id: 'm1', role: 'user', content: 'hi', timestamp: Date.now() },
+    ]);
+    service.selectedSkillIds.set(['skill-1']);
+
+    service.resetForOwnerChange();
+
+    expect(service.sessions()).toEqual([]);
+    expect(service.activeSessionId()).toBeNull();
+    expect(service.messages()).toEqual([]);
+    expect(service.selectedSkillIds()).toEqual([]);
+
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([]);
+    expect(service.sessions()).toEqual([]);
+    expect(service.activeSessionId()).toBeNull();
+  });
+
   it('should_load_providers_and_models_when_api_succeeds', () => {
     service.loadProviders();
     httpMock.expectOne(`${API_BASE_URL}/text/providers`).flush([

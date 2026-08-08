@@ -1,7 +1,8 @@
 package com.ai.chat.web;
 
-import com.ai.chat.application.usecase.ChatUseCase;
-import com.ai.common.web.ClientIdentity;
+import com.ai.account.application.usecase.OwnerEraseUseCase;
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.web.ClientIdentityCookieFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Privacy controls for anonymous browser-scoped chat data.
+ * Privacy controls for the current data owner (guest client or signed-in account).
  *
  * @see <a href="https://gdpr.eu/right-to-be-forgotten/">GDPR right to erasure</a>
  * @see <a href="https://gdpr.eu/article-17-right-to-be-forgotten/">Art. 17 GDPR</a>
@@ -22,20 +23,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/privacy")
 public class PrivacyController {
 
-    private final ChatUseCase chatUseCase;
+    private final OwnerContext ownerContext;
+    private final OwnerEraseUseCase ownerEraseUseCase;
     private final ClientIdentityCookieFactory cookieFactory;
 
-    public PrivacyController(ChatUseCase chatUseCase, ClientIdentityCookieFactory cookieFactory) {
-        this.chatUseCase = chatUseCase;
+    public PrivacyController(
+            OwnerContext ownerContext,
+            OwnerEraseUseCase ownerEraseUseCase,
+            ClientIdentityCookieFactory cookieFactory) {
+        this.ownerContext = ownerContext;
+        this.ownerEraseUseCase = ownerEraseUseCase;
         this.cookieFactory = cookieFactory;
     }
 
     /**
-     * Deletes all chat sessions owned by the current browser identity.
+     * Deletes all durable data owned by the current owner key.
      */
     @DeleteMapping("/sessions")
     public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
-        chatUseCase.deleteAllSessionsForClient(ClientIdentity.require(request));
+        OwnerKey owner = ownerContext.require(request);
+        ownerEraseUseCase.eraseAllForOwner(owner);
         return ResponseEntity.noContent().build();
     }
 

@@ -76,12 +76,13 @@ public class AccountUseCaseImpl implements AccountUseCase {
 
     @Override
     @Transactional
-    public void linkOAuthUser(String provider, String subject, String email, String clientId) {
+    public String linkOAuthUser(String provider, String subject, String email, String clientId) {
         AccountUser user = accountUserRepository
                 .findByProviderAndSubject(provider, subject)
                 .orElseGet(() -> AccountUser.create(provider, subject, email, clientId));
         user.linkSession(email, clientId);
         accountUserRepository.save(user);
+        return user.getId();
     }
 
     @Override

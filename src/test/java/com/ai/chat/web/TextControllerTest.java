@@ -1,5 +1,8 @@
 package com.ai.chat.web;
 
+import com.ai.account.web.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
+
 import com.ai.chat.application.usecase.ChatUseCase;
 import com.ai.common.application.llm.TextChatOptions;
 import com.ai.chat.application.usecase.TextProviderCatalog;
@@ -22,10 +25,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TextControllerTest {
+    private OwnerContext ownerContext;
 
     private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -45,7 +50,9 @@ class TextControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new TextController(chatUseCase, providerCatalog, skillRepository);
+        ownerContext = mock(OwnerContext.class);
+        lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
+        controller = new TextController(chatUseCase, providerCatalog, skillRepository, ownerContext);
         lenient().when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(CLIENT_ID);
     }
 

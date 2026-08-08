@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { ChatService } from '../chat/chat.service';
 import { API_BASE_URL } from './api.constants';
 import { AccountService } from './account.service';
 import { NotificationService } from './notification.service';
@@ -11,14 +12,17 @@ describe('AccountService', () => {
   let service: AccountService;
   let http: HttpTestingController;
   let notifications: NotificationService;
+  let chat: { resetForOwnerChange: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    chat = { resetForOwnerChange: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
         AccountService,
+        { provide: ChatService, useValue: chat },
         {
           provide: NotificationService,
           useValue: {
@@ -68,6 +72,24 @@ describe('AccountService', () => {
       loginProviders: ['google'],
     });
 
+    expect(notifications.showSuccess).toHaveBeenCalled();
+    expect(chat.resetForOwnerChange).toHaveBeenCalled();
+  });
+
+  it('should_resetChatOwnerScope_when_logoutSucceeds', () => {
+    service.logout();
+    http.expectOne(`${API_BASE_URL}/account/logout`).flush(null, { status: 204, statusText: 'No Content' });
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'anonymous',
+      clientId: 'c1',
+      userId: null,
+      email: null,
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['google'],
+    });
+
+    expect(chat.resetForOwnerChange).toHaveBeenCalled();
     expect(notifications.showSuccess).toHaveBeenCalled();
   });
 

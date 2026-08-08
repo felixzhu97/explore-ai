@@ -21,7 +21,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<AutomationSchedule> rowMapper = (rs, rowNum) -> AutomationSchedule.restore(
             ScheduleId.of(rs.getString("id")),
-            rs.getString("client_id"),
+            rs.getString("owner_key"),
             rs.getString("name"),
             ScheduleKind.from(rs.getString("schedule_kind")),
             rs.getString("cron_expression"),
@@ -46,7 +46,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
         jdbcTemplate.update(
                 """
                 MERGE INTO automation_schedules (
-                    id, client_id, name, schedule_kind, cron_expression, timezone, enabled, action_type,
+                    id, owner_key, name, schedule_kind, cron_expression, timezone, enabled, action_type,
                     workflow_template_id, recipient_email, brief, next_run_at, last_run_at,
                     created_at, updated_at
                 )
@@ -75,7 +75,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
     public Optional<AutomationSchedule> findByIdAndClientId(ScheduleId id, String clientId) {
         List<AutomationSchedule> rows = jdbcTemplate.query(
                 """
-                SELECT * FROM automation_schedules WHERE id = ? AND client_id = ?
+                SELECT * FROM automation_schedules WHERE id = ? AND owner_key = ?
                 """,
                 rowMapper,
                 id.value(),
@@ -88,7 +88,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
         return jdbcTemplate.query(
                 """
                 SELECT * FROM automation_schedules
-                WHERE client_id = ?
+                WHERE owner_key = ?
                 ORDER BY created_at DESC
                 """,
                 rowMapper,
@@ -98,7 +98,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
     @Override
     public int countByClientId(String clientId) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM automation_schedules WHERE client_id = ?",
+                "SELECT COUNT(*) FROM automation_schedules WHERE owner_key = ?",
                 Integer.class,
                 clientId);
         return count == null ? 0 : count;
@@ -108,7 +108,7 @@ public class JdbcAutomationScheduleRepository implements AutomationScheduleRepos
     @Transactional
     public void deleteByIdAndClientId(ScheduleId id, String clientId) {
         jdbcTemplate.update(
-                "DELETE FROM automation_schedules WHERE id = ? AND client_id = ?",
+                "DELETE FROM automation_schedules WHERE id = ? AND owner_key = ?",
                 id.value(),
                 clientId);
     }

@@ -1,5 +1,6 @@
 package com.ai.skill.web;
 
+import com.ai.account.web.OwnerContext;
 import com.ai.common.web.ClientIdentity;
 import com.ai.skill.application.usecase.SkillUseCase;
 import com.ai.skill.web.dto.CreateSkillFromTemplateRequest;
@@ -30,15 +31,18 @@ import java.util.Locale;
 @RequestMapping("/api/skills")
 public class SkillController {
 
+    private final OwnerContext ownerContext;
+
     private final SkillUseCase skillUseCase;
 
-    public SkillController(SkillUseCase skillUseCase) {
+    public SkillController(SkillUseCase skillUseCase, OwnerContext ownerContext) {
+        this.ownerContext = ownerContext;
         this.skillUseCase = skillUseCase;
     }
 
     @GetMapping
     public List<SkillResponse> list(HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         return skillUseCase.list(clientId).stream()
                 .map(SkillResponse::from)
                 .toList();
@@ -59,7 +63,7 @@ public class SkillController {
             @Valid @RequestBody CreateSkillFromTemplateRequest body,
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         String language = resolveLanguage(lang, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SkillResponse.from(skillUseCase.createFromTemplate(clientId, body.templateId(), language)));
@@ -67,7 +71,7 @@ public class SkillController {
 
     @GetMapping("/{id}")
     public SkillResponse get(@PathVariable String id, HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         return SkillResponse.from(skillUseCase.get(clientId, id));
     }
 
@@ -75,7 +79,7 @@ public class SkillController {
     public ResponseEntity<SkillResponse> create(
             @Valid @RequestBody CreateSkillRequest body,
             HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SkillResponse.from(skillUseCase.create(
                         clientId,
@@ -90,7 +94,7 @@ public class SkillController {
             @PathVariable String id,
             @Valid @RequestBody UpdateSkillRequest body,
             HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         return SkillResponse.from(skillUseCase.update(
                 clientId,
                 id,
@@ -105,13 +109,13 @@ public class SkillController {
             @PathVariable String id,
             @Valid @RequestBody SetSkillEnabledRequest body,
             HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         return SkillResponse.from(skillUseCase.setEnabled(clientId, id, body.enabled()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         skillUseCase.delete(clientId, id);
         return ResponseEntity.noContent().build();
     }

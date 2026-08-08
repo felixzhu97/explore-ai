@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { ChatService } from '../chat/chat.service';
 import { API_BASE_URL } from './api.constants';
 import type { AccountMe, OAuthProviderId } from './account-api.service';
 import { I18nService } from './i18n';
@@ -19,6 +20,7 @@ export class AccountService {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18nService);
+  private readonly chat = inject(ChatService);
 
   private readonly accountSignal = signal<AccountMe | null>(null);
   private readonly loadingSignal = signal(false);
@@ -86,10 +88,12 @@ export class AccountService {
     this.http.post<void>(`${API_BASE_URL}/account/logout`, {}).subscribe({
       next: () => {
         this.reload();
+        this.chat.resetForOwnerChange();
         this.notifications.showSuccess(this.i18n.t().account.logoutSuccess);
       },
       error: () => {
         this.reload();
+        this.chat.resetForOwnerChange();
         this.notifications.showError(this.i18n.t().account.logoutFailed);
       },
     });
@@ -123,6 +127,7 @@ export class AccountService {
     void this.router.navigateByUrl(cleanUrl, { replaceUrl: true });
 
     this.reload();
+    this.chat.resetForOwnerChange();
 
     if (login === 'success') {
       this.notifications.showSuccess(this.i18n.t().account.loginSuccess);

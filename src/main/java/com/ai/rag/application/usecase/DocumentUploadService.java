@@ -56,46 +56,47 @@ public class DocumentUploadService {
     }
 
     @Transactional
-    public UploadResult upload(String title, String fileName, Long fileSize, String content) {
-        return processUpload(title, fileName, fileSize, content.getBytes());
+    public UploadResult upload(String title, String fileName, Long fileSize, String content, String ownerKey) {
+        return processUpload(title, fileName, fileSize, content.getBytes(), ownerKey);
     }
 
     @Transactional
-    public UploadResult upload(String title, String fileName, Long fileSize, byte[] fileContent) {
-        return processUpload(title, fileName, fileSize, fileContent);
+    public UploadResult upload(String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
+        return processUpload(title, fileName, fileSize, fileContent, ownerKey);
     }
 
     @Transactional
-    public UploadResult upload(MultipartFile file, String title) {
+    public UploadResult upload(MultipartFile file, String title, String ownerKey) {
         String fileName = file.getOriginalFilename();
         String docTitle = title != null && !title.isBlank() ? title : fileName;
         try {
-            return upload(docTitle, fileName, file.getSize(), file.getBytes());
+            return upload(docTitle, fileName, file.getSize(), file.getBytes(), ownerKey);
         } catch (IOException e) {
             throw new RuntimeException("Failed to read file content", e);
         }
     }
 
     @Transactional(readOnly = true)
-    public List<Document> listAll() {
-        return documentRepository.findAll();
+    public List<Document> listAll(String ownerKey) {
+        return documentRepository.findAllByOwnerKey(ownerKey);
     }
 
     @Transactional
-    public void delete(UUID documentId) {
+    public void delete(UUID documentId, String ownerKey) {
         DocumentId docId = DocumentId.of(documentId);
-        Document document = documentRepository.findById(documentId)
+        documentRepository.findByIdAndOwnerKey(documentId, ownerKey)
                 .orElseThrow(() -> new DocumentNotFoundException(documentId));
         log.info("Deleting document {} with {} chunks", documentId,
                 chunkRepository.findChunksByDocumentId(docId).size());
         chunkRepository.deleteChunksByDocumentId(docId);
-        documentRepository.delete(documentId);
+        documentRepository.deleteByIdAndOwnerKey(documentId, ownerKey);
     }
 
-    private UploadResult processUpload(String title, String fileName, Long fileSize, byte[] fileContent) {
+    private UploadResult processUpload(
+            String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
         Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
         document.markProcessing();
-        document = documentRepository.save(document);
+        document = documentRepository.save(document, ownerKey);
 
         try {
             RawDocument raw = reader.read(fileContent, fileName);
@@ -107,6 +108,7 @@ public class DocumentUploadService {
                 Map<String, Object> metadata = new HashMap<>(chunkDoc.metadata());
                 metadata.put("title", document.getTitle());
                 metadata.put("fileName", document.getFileName());
+                metadata.put("ownerKey", ownerKey);
 
                 chunks.add(DocumentChunk.create(
                         DocumentId.generate(),
@@ -119,12 +121,12 @@ public class DocumentUploadService {
 
             writer.write(chunks);
             document.markReady();
-            document = documentRepository.save(document);
+            document = documentRepository.save(document, ownerKey);
             return new UploadResult(document.getId(), document.getTitle(), document.getStatus().name(), chunks.size());
         } catch (Exception e) {
             log.error("Failed to process document", e);
             document.markFailed();
-            documentRepository.save(document);
+            documentRepository.save(document, ownerKey);
             throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
         }
     }

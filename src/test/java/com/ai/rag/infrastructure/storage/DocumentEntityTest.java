@@ -30,7 +30,7 @@ class DocumentEntityTest {
                 createdAt,
                 updatedAt);
 
-        DocumentEntity entity = DocumentEntity.fromDomain(document);
+        DocumentEntity entity = DocumentEntity.fromDomain(document, "c:test-owner");
         Document roundTrip = entity.toDomain();
 
         assertThat(entity.getId()).isEqualTo(uuid);
@@ -77,7 +77,7 @@ class DocumentEntityTest {
         Instant updatedAt = Instant.parse("2026-06-02T00:00:00Z");
 
         DocumentEntity entity = new DocumentEntity(
-                id, "Title", "file.md", 512L, DocumentStatus.UPLOADING, createdAt, updatedAt);
+                id, "Title", "file.md", 512L, DocumentStatus.UPLOADING, createdAt, updatedAt, "c:test-owner");
 
         assertThat(entity.getId()).isEqualTo(id);
         assertThat(entity.getTitle()).isEqualTo("Title");

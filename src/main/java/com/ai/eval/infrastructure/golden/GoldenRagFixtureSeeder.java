@@ -55,7 +55,11 @@ public class GoldenRagFixtureSeeder {
                 }
                 String content = resource.getContentAsString(StandardCharsets.UTF_8);
                 DocumentUploadService.UploadResult uploaded = documentUploadService.upload(
-                        title, filename, (long) content.getBytes(StandardCharsets.UTF_8).length, content);
+                        title,
+                        filename,
+                        (long) content.getBytes(StandardCharsets.UTF_8).length,
+                        content,
+                        "c:eval-golden");
                 String id = uploaded.documentId().value().toString();
                 resolved.put(key, id);
                 byTitle.put(title, id);
@@ -68,7 +72,7 @@ public class GoldenRagFixtureSeeder {
     }
 
     private Map<String, String> indexExistingByTitle() {
-        List<Document> documents = documentUploadService.listAll();
+        List<Document> documents = documentUploadService.listAll("c:eval-golden");
         Map<String, String> byTitle = new HashMap<>();
         for (Document document : documents) {
             if (document.getTitle() != null && document.getTitle().startsWith(TITLE_PREFIX)) {

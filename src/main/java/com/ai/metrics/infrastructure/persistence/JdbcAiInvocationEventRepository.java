@@ -55,8 +55,8 @@ public class JdbcAiInvocationEventRepository implements AiInvocationEventReposit
                 INSERT INTO ai_invocation_events (
                     id, occurred_at, domain, operation, outcome, latency_ms,
                     provider, model, session_id, document_id, agent_type, tool_name,
-                    prompt_tokens, completion_tokens, error_code, error_message
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    prompt_tokens, completion_tokens, error_code, error_message, owner_key
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 event.getId().toString(),
                 Timestamp.from(event.getOccurredAt()),
@@ -73,7 +73,22 @@ public class JdbcAiInvocationEventRepository implements AiInvocationEventReposit
                 event.getPromptTokens(),
                 event.getCompletionTokens(),
                 event.getErrorCode(),
-                event.getErrorMessage());
+                event.getErrorMessage(),
+                resolveOwnerKey(event.getSessionId()));
+    }
+
+    private String resolveOwnerKey(String sessionId) {
+        if (sessionId == null || sessionId.isBlank()) {
+            return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+        }
+        List<String> keys = jdbcTemplate.query(
+                "SELECT owner_key FROM chat_sessions WHERE CAST(id AS VARCHAR) = ?",
+                (rs, rowNum) -> rs.getString(1),
+                sessionId.trim());
+        if (!keys.isEmpty() && keys.getFirst() != null && !keys.getFirst().isBlank()) {
+            return keys.getFirst();
+        }
+        return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
     }
 
     @Override

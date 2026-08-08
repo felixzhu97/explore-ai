@@ -1,5 +1,6 @@
 package com.ai.pipeline.web;
 
+import com.ai.account.web.OwnerContext;
 import com.ai.common.web.ClientIdentity;
 import com.ai.pipeline.application.usecase.PipelineFacade;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
@@ -31,9 +32,12 @@ import java.util.Map;
 @RequestMapping("/api/pipelines")
 public class PipelineController {
 
+    private final OwnerContext ownerContext;
+
     private final PipelineFacade agentFacade;
 
-    public PipelineController(PipelineFacade agentFacade) {
+    public PipelineController(PipelineFacade agentFacade, OwnerContext ownerContext) {
+        this.ownerContext = ownerContext;
         this.agentFacade = agentFacade;
     }
 
@@ -41,7 +45,7 @@ public class PipelineController {
     public ResponseEntity<List<AgentInfoResponse>> listAgents(
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest request) {
-        String clientId = ClientIdentity.require(request);
+        String clientId = ownerContext.requireValue(request);
         String language = resolveLanguage(lang, request);
         List<AgentInfoResponse> agents = agentFacade.listAgents(clientId, language).stream()
                 .map(AgentInfoResponse::from)
@@ -55,7 +59,7 @@ public class PipelineController {
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest request) {
         try {
-            String clientId = ClientIdentity.require(request);
+            String clientId = ownerContext.requireValue(request);
             return ResponseEntity.ok(AgentHealthResponse.from(
                     agentFacade.health(agentType, clientId, resolveLanguage(lang, request))));
         } catch (AgentNotFoundException e) {
@@ -69,7 +73,7 @@ public class PipelineController {
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest request) {
         try {
-            String clientId = ClientIdentity.require(request);
+            String clientId = ownerContext.requireValue(request);
             return ResponseEntity.ok(AgentInfoResponse.from(
                     agentFacade.health(agentType, clientId, resolveLanguage(lang, request))));
         } catch (AgentNotFoundException e) {
@@ -82,7 +86,7 @@ public class PipelineController {
             @Valid @RequestBody AgentInvokeRequest request,
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest httpRequest) {
-        String clientId = ClientIdentity.require(httpRequest);
+        String clientId = ownerContext.requireValue(httpRequest);
         return agentFacade.invokeSupervisor(request.message(), clientId, resolveLanguage(lang, httpRequest));
     }
 
@@ -91,7 +95,7 @@ public class PipelineController {
             @Valid @RequestBody PipelineInvokeRequest request,
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest httpRequest) {
-        String clientId = ClientIdentity.require(httpRequest);
+        String clientId = ownerContext.requireValue(httpRequest);
         List<AgentPipeline.PipelineNode> nodes = request.nodes().stream()
                 .map(node -> new AgentPipeline.PipelineNode(
                         node.id(),
@@ -117,7 +121,7 @@ public class PipelineController {
             @Valid @RequestBody AgentInvokeRequest request,
             @RequestParam(value = "lang", required = false) String lang,
             HttpServletRequest httpRequest) {
-        String clientId = ClientIdentity.require(httpRequest);
+        String clientId = ownerContext.requireValue(httpRequest);
         return agentFacade.invokeAgent(agentType, request.message(), clientId, resolveLanguage(lang, httpRequest))
                 .onErrorResume(AgentNotFoundException.class, e -> Flux.just(
                         ServerSentEvent.<String>builder().event("error").data(e.getMessage()).build(),
