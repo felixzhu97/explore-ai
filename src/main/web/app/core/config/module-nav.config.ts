@@ -4,7 +4,7 @@ import type { FeatureFlagService } from '../feature-flag.service';
 
 export type ModuleNavGroup = 'work' | 'create' | 'lab';
 
-export type ModuleNavLabelKey = Exclude<keyof Translations['nav'], 'groups'>;
+export type ModuleNavLabelKey = Exclude<keyof Translations['nav'], 'groups' | 'more'>;
 
 export interface ModuleNavTab {
   key: string;
@@ -13,6 +13,14 @@ export interface ModuleNavTab {
   group: ModuleNavGroup;
   flagKey?: FeatureFlagKey;
 }
+
+export interface ModuleNavSection {
+  group: ModuleNavGroup;
+  tabs: ModuleNavTab[];
+}
+
+/** Groups shown inside the More flyout (not top-level accordion). */
+export const MORE_NAV_GROUP_ORDER: readonly ModuleNavGroup[] = ['create', 'lab'];
 
 export const MODULE_NAV_GROUP_ORDER: readonly ModuleNavGroup[] = ['work', 'create', 'lab'];
 
@@ -41,9 +49,26 @@ export function isNavTabEnabled(
   return featureFlags.isEnabled(tab.flagKey);
 }
 
-export function groupNavTabs(
-  tabs: readonly ModuleNavTab[],
-): { group: ModuleNavGroup; tabs: ModuleNavTab[] }[] {
+/**
+ * Top-level sidebar links (Work modules except Chat).
+ * Chat is opened via New Chat, so it is omitted from the primary list.
+ */
+export function primaryNavTabs(tabs: readonly ModuleNavTab[]): ModuleNavTab[] {
+  return tabs.filter(tab => tab.group === 'work' && tab.key !== 'chat');
+}
+
+/** Create + Lab sections for the More flyout; empty sections omitted. */
+export function moreNavSections(tabs: readonly ModuleNavTab[]): ModuleNavSection[] {
+  return MORE_NAV_GROUP_ORDER
+    .map(group => ({
+      group,
+      tabs: tabs.filter(tab => tab.group === group),
+    }))
+    .filter(section => section.tabs.length > 0);
+}
+
+/** @deprecated Prefer primaryNavTabs / moreNavSections for the flat sidebar IA. */
+export function groupNavTabs(tabs: readonly ModuleNavTab[]): ModuleNavSection[] {
   return MODULE_NAV_GROUP_ORDER
     .map(group => ({
       group,

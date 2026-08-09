@@ -33,6 +33,7 @@ export const es: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: 'VectorDB',
+    more: 'Más',
     groups: {
       work: 'Trabajo',
       create: 'Crear',

@@ -21,20 +21,6 @@ import type { SidebarSession } from '../../sidebar-session.model';
         [title]="session().title"
         (click)="onSelect()"
       >
-        <span class="size-4 shrink-0 opacity-60">
-          <svg
-            class="size-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </span>
-
         <span class="min-w-0 flex-1 truncate text-left">
           {{ session().title }}
         </span>
@@ -59,15 +45,19 @@ import type { SidebarSession } from '../../sidebar-session.model';
               (click)="onPin($event)"
             >
               <svg
-                class="size-3.5"
+                class="size-3.5 -rotate-45"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
               >
+                <path d="M12 17v5" />
                 <path
                   [attr.fill]="session().pinned ? 'currentColor' : 'none'"
-                  d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"
+                  d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"
                 />
               </svg>
             </button>

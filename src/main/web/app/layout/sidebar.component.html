@@ -1,8 +1,9 @@
 <aside
   data-sidebar-panel
   class="
-    fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col border-r border-sidebar-border
-    bg-sidebar text-sidebar-foreground transition-all duration-250 ease-out
+    fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col overflow-visible
+    border-r border-sidebar-border bg-sidebar text-sidebar-foreground
+    transition-all duration-250 ease-out
     max-md:pb-[env(safe-area-inset-bottom)]
   "
   [class]="sidebarClasses()"
@@ -80,9 +81,9 @@
     }
   </div>
 
-  <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+  <div class="flex min-h-0 flex-1 flex-col">
     @if (!collapsed()) {
-      <nav class="shrink-0 p-2">
+      <nav class="relative z-30 shrink-0 overflow-visible p-2">
         <z-sidebar-group>
           <button
             type="button"
@@ -90,9 +91,20 @@
             (click)="newChat()"
             [title]="t().sidebar.newChat"
           >
-            <span class="size-4 shrink-0 opacity-60">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14M5 12h14" />
+            <span class="size-3.5 shrink-0">
+              <svg
+                class="size-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path
+                  d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12.5 14.5l-4 1 1-4Z"
+                />
               </svg>
             </span>
             <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
@@ -100,100 +112,126 @@
             </span>
           </button>
 
-          @for (section of navSections(); track section.group) {
-            <div class="mt-2 first:mt-0">
-              <button
-                type="button"
-                class="
-                  mb-0.5 flex w-full cursor-pointer items-center justify-between gap-1 rounded-md
-                  px-2 py-1.5 text-[11px] font-medium tracking-wide text-sidebar-foreground/60
-                  uppercase transition-colors hover:bg-sidebar-accent
-                  hover:text-sidebar-accent-foreground
-                "
-                [attr.aria-expanded]="isGroupExpanded(section.group)"
-                [attr.aria-controls]="`nav-group-${section.group}`"
-                (click)="toggleGroup(section.group); $event.stopPropagation()"
-              >
-                <span>{{ groupLabel(section.group) }}</span>
-                <svg
-                  class="size-3.5 shrink-0 opacity-70 transition-transform duration-200"
-                  [class.rotate-90]="isGroupExpanded(section.group)"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.25"
-                  aria-hidden="true"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
-              @if (isGroupExpanded(section.group)) {
-                <div [id]="`nav-group-${section.group}`" role="group">
-                  @for (tab of section.tabs; track tab.key) {
-                    <a
-                      z-sidebar-menu-button
-                      [routerLink]="tab.path"
-                      [title]="t().nav[tab.labelKey]"
-                      (click)="onNavClick()"
-                    >
-                      <span class="size-4 shrink-0 opacity-60" [innerHTML]="getIcon(tab.key)"></span>
-                      <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
-                        {{ t().nav[tab.labelKey] }}
-                      </span>
-                    </a>
-                  }
-                </div>
-              }
-            </div>
+          @for (tab of primaryTabs(); track tab.key) {
+            <a
+              z-sidebar-menu-button
+              [routerLink]="tab.path"
+              [zActive]="isNavActive(tab.path)"
+              [title]="t().nav[tab.labelKey]"
+              (click)="onNavClick()"
+            >
+              <span class="size-3.5 shrink-0" [innerHTML]="getIcon(tab.key)"></span>
+              <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+                {{ t().nav[tab.labelKey] }}
+              </span>
+            </a>
+          }
+
+          @if (moreSections().length > 0) {
+            <app-sidebar-more-menu
+              [sections]="moreSections()"
+              [collapsed]="false"
+              [iconFor]="navIconFn"
+              (navigated)="onNavClick()"
+            />
           }
         </z-sidebar-group>
       </nav>
 
-      <div class="flex-1 overflow-y-auto border-t border-sidebar-border">
+      <div class="min-h-0 flex-1 overflow-y-auto border-t border-sidebar-border">
         @if (displaySessions().length > 0) {
           <div class="px-2 pt-1 pb-2">
-            <button
-              type="button"
-              class="
-                group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-[13px]
-                font-semibold text-sidebar-foreground/70 no-underline transition-all duration-150
-                hover:text-sidebar-accent-foreground
-              "
-              (click)="recentsExpanded.update(v => !v)"
-            >
-              {{ t().sidebar.recents }}
-              <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <svg
-                  class="size-3 transition-transform duration-200"
-                  [class.rotate-90]="recentsExpanded()"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+            @if (pinnedSessions().length > 0) {
+              <div class="mb-2">
+                <button
+                  type="button"
+                  class="
+                    group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-sm
+                    font-medium text-[#8F8F8F] no-underline transition-all duration-150
+                    hover:text-[#8F8F8F]
+                  "
+                  (click)="pinnedExpanded.update(v => !v)"
                 >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </span>
-            </button>
-            @if (recentsExpanded()) {
-              <z-sidebar-group class="space-y-0.5">
-                @for (session of displaySessions(); track session.id) {
-                  <app-session-item
-                    [session]="session"
-                    [isActive]="sessionList.activeSessionId() === session.id"
-                    [collapsed]="collapsed()"
-                    (sessionSelect)="onSessionSelect(session.id)"
-                    (pin)="onSessionPin()"
-                    (delete)="onSessionDelete(session.id)"
-                  />
+                  {{ t().sidebar.pinned }}
+                  <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <svg
+                      class="size-3 transition-transform duration-200"
+                      [class.rotate-90]="pinnedExpanded()"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </span>
+                </button>
+                @if (pinnedExpanded()) {
+                  <z-sidebar-group class="space-y-0.5">
+                    @for (session of pinnedSessions(); track session.id) {
+                      <app-session-item
+                        [session]="session"
+                        [isActive]="sessionList.activeSessionId() === session.id"
+                        [collapsed]="collapsed()"
+                        (sessionSelect)="onSessionSelect(session.id)"
+                        (pin)="onSessionPin(session.id)"
+                        (delete)="onSessionDelete(session.id)"
+                      />
+                    }
+                  </z-sidebar-group>
                 }
-              </z-sidebar-group>
+              </div>
+            }
+
+            @if (recentSessions().length > 0) {
+              <button
+                type="button"
+                class="
+                  group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-sm
+                  font-medium text-[#8F8F8F] no-underline transition-all duration-150
+                  hover:text-[#8F8F8F]
+                "
+                (click)="recentsExpanded.update(v => !v)"
+              >
+                {{ t().sidebar.recents }}
+                <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <svg
+                    class="size-3 transition-transform duration-200"
+                    [class.rotate-90]="recentsExpanded()"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </span>
+              </button>
+              @if (recentsExpanded()) {
+                <z-sidebar-group class="space-y-0.5">
+                  @for (session of recentSessions(); track session.id) {
+                    <app-session-item
+                      [session]="session"
+                      [isActive]="sessionList.activeSessionId() === session.id"
+                      [collapsed]="collapsed()"
+                      (sessionSelect)="onSessionSelect(session.id)"
+                      (pin)="onSessionPin(session.id)"
+                      (delete)="onSessionDelete(session.id)"
+                    />
+                  }
+                </z-sidebar-group>
+              }
             }
           </div>
         }
       </div>
     } @else {
-      <div class="flex flex-col items-center gap-1 border-t border-sidebar-border py-2">
+      <div
+        class="
+          relative z-30 flex flex-col items-center gap-1 overflow-visible
+          border-t border-sidebar-border py-2
+        "
+      >
         <button
           type="button"
           z-sidebar-menu-button
@@ -202,22 +240,41 @@
           (click)="newChat()"
           [title]="t().sidebar.newChat"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14" />
+          <svg
+            class="size-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12.5 14.5l-4 1 1-4Z" />
           </svg>
         </button>
 
-        @for (tab of tabs(); track tab.key) {
+        @for (tab of primaryTabs(); track tab.key) {
           <a
             z-sidebar-menu-button
             zIconOnly
             [zFull]="false"
             [routerLink]="tab.path"
+            [zActive]="isNavActive(tab.path)"
             [title]="t().nav[tab.labelKey]"
             (click)="onNavClick()"
           >
-            <span class="opacity-60" [innerHTML]="getIcon(tab.key)"></span>
+            <span [innerHTML]="getIcon(tab.key)"></span>
           </a>
+        }
+
+        @if (moreSections().length > 0) {
+          <app-sidebar-more-menu
+            [sections]="moreSections()"
+            [collapsed]="true"
+            [iconFor]="navIconFn"
+            (navigated)="onNavClick()"
+          />
         }
       </div>
     }

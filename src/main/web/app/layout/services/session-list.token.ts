@@ -9,6 +9,7 @@ export interface SessionList {
   createSession(): void;
   selectSession(sessionId: string): void;
   deleteSession(sessionId: string): void;
+  togglePin(sessionId: string): void;
 }
 
 export const SESSION_LIST = new InjectionToken<SessionList>('SessionList');

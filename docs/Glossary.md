@@ -70,11 +70,11 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/eval`           | Eval             | `/api/eval`                     |
 | `/metrics`        | Metrics          | `/api/metrics`                  |
 
-Empty / new Chat sessions use bare `/chat` and stay out of the sidebar until the first message. Sessions with history use `/chat/:sessionId` and appear in the sidebar. Only sessions with chat history are remembered in sessionStorage. Invalid or foreign session ids are rejected by Owner Key isolation (404) and the UI redirects to `/chat` (no toast).
+Empty / new Chat sessions use bare `/chat` and stay out of the sidebar until the first message. Sessions with history use `/chat/:sessionId` and appear in the sidebar. Only sessions with chat history are remembered in sessionStorage. Client-side **Pinned** session ids live in localStorage and render above **Recents** when present. Invalid or foreign session ids are rejected by Owner Key isolation (404) and the UI redirects to `/chat` (no toast).
 
 **Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
 
-**Sidebar IA groups (frontend):** `MODULE_NAV_TABS` orders live nav as **Work** (`/chat` → `/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills`), **Create** (`/generate`), **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated). Default route remains `/chat`.
+**Sidebar IA (frontend):** Flat primary nav is **New Chat** plus **Work** modules except Chat (`/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills`). Chat opens via New Chat (bare `/chat`). **Create** (`/generate`) and **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated) live under a **More** hover/tap flyout.
 
 **Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Pipeline/工作流 (canvas + task near Run + results rail; double-click node edits name/prompt/tools for that graph copy); Generation / Vision / ASR / MCP / Eval / Metrics as before.
 
