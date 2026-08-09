@@ -1,0 +1,18 @@
+{
+  "asr.title": "音声認識",
+  "asr.connectionLabel": "接続：",
+  "asr.connect": "接続",
+  "asr.disconnect": "切断",
+  "asr.stop": "停止",
+  "asr.testPayload": "テストペイロード",
+  "asr.transcript": "文字起こし",
+  "asr.empty": "接続するとライブ文字起こしが始まります。",
+  "asr.lastServerMessage": "最後のサーバーメッセージ",
+  "asr.state.disconnected": "切断済み",
+  "asr.state.connecting": "接続中",
+  "asr.state.connected": "接続済み",
+  "asr.state.error": "エラー",
+  "asr.error.connectionFailed": "WebSocket 接続に失敗しました",
+  "asr.error.notConnected": "WebSocket は接続されていません",
+  "asr.error.generic": "音声認識エラー"
+}

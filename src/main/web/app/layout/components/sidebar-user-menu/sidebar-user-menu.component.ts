@@ -322,9 +322,16 @@ export class SidebarUserMenuComponent {
   }
 
   selectLanguage(lang: Language): void {
+    if (lang === this.i18n.language()) {
+      this.closeSubmenus();
+      this.menuOpen.set(false);
+      return;
+    }
     this.i18n.setLanguage(lang);
     this.closeSubmenus();
     this.menuOpen.set(false);
+    // Official `$localize` strings load at bootstrap; reload applies the new locale map.
+    location.reload();
   }
 
   onItemClick(): void {

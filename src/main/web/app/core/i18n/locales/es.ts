@@ -337,28 +337,6 @@ export const es: Translations = {
     empty: 'Las puntuaciones aparecen aquí tras evaluar.',
     requestFailed: 'Falló la solicitud de evaluación',
   },
-  asrPage: {
-    title: 'Voz a texto',
-    connectionLabel: 'Conexión:',
-    connect: 'Conectar',
-    disconnect: 'Desconectar',
-    stop: 'Detener',
-    testPayload: 'Carga de prueba',
-    transcript: 'Transcripción',
-    empty: 'Conéctate para iniciar la transcripción en vivo.',
-    lastServerMessage: 'Último mensaje del servidor',
-    connectionState: {
-      disconnected: 'desconectado',
-      connecting: 'conectando',
-      connected: 'conectado',
-      error: 'error',
-    },
-    errors: {
-      connectionFailed: 'Falló la conexión WebSocket',
-      notConnected: 'WebSocket no está conectado',
-      generic: 'Error de ASR',
-    },
-  },
   mcpPage: {
     title: 'MCP',
     subtitle: 'Model Context Protocol',

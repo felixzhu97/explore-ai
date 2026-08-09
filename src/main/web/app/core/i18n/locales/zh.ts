@@ -334,28 +334,6 @@ export const zh: Translations = {
     empty: '评估完成后分数将显示在此。',
     requestFailed: '评估请求失败',
   },
-  asrPage: {
-    title: '语音转文字',
-    connectionLabel: '连接：',
-    connect: '连接',
-    disconnect: '断开',
-    stop: '停止',
-    testPayload: '测试载荷',
-    transcript: '转写',
-    empty: '连接后开始实时转写。',
-    lastServerMessage: '最近服务器消息',
-    connectionState: {
-      disconnected: '已断开',
-      connecting: '连接中',
-      connected: '已连接',
-      error: '错误',
-    },
-    errors: {
-      connectionFailed: 'WebSocket 连接失败',
-      notConnected: 'WebSocket 未连接',
-      generic: '语音识别错误',
-    },
-  },
   mcpPage: {
     title: 'MCP',
     subtitle: 'Model Context Protocol',

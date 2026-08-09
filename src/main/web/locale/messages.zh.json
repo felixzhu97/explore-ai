@@ -1,0 +1,18 @@
+{
+  "asr.title": "语音转文字",
+  "asr.connectionLabel": "连接：",
+  "asr.connect": "连接",
+  "asr.disconnect": "断开",
+  "asr.stop": "停止",
+  "asr.testPayload": "测试载荷",
+  "asr.transcript": "转写",
+  "asr.empty": "连接后开始实时转写。",
+  "asr.lastServerMessage": "最近服务器消息",
+  "asr.state.disconnected": "已断开",
+  "asr.state.connecting": "连接中",
+  "asr.state.connected": "已连接",
+  "asr.state.error": "错误",
+  "asr.error.connectionFailed": "WebSocket 连接失败",
+  "asr.error.notConnected": "WebSocket 未连接",
+  "asr.error.generic": "语音识别错误"
+}

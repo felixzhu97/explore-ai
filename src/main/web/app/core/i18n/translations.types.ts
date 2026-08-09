@@ -339,28 +339,6 @@ export interface Translations {
     empty: string;
     requestFailed: string;
   };
-  asrPage: {
-    title: string;
-    connectionLabel: string;
-    connect: string;
-    disconnect: string;
-    stop: string;
-    testPayload: string;
-    transcript: string;
-    empty: string;
-    lastServerMessage: string;
-    connectionState: {
-      disconnected: string;
-      connecting: string;
-      connected: string;
-      error: string;
-    };
-    errors: {
-      connectionFailed: string;
-      notConnected: string;
-      generic: string;
-    };
-  };
   mcpPage: {
     title: string;
     subtitle: string;

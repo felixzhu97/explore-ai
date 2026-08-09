@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy, computed, inject, OnDestroy } from '@angular/core';
 import { AsrService } from './asr.service';
 import { ZardButtonComponent } from '../shared/components/button';
-import { I18nService } from '../core/i18n';
 import type { AsrConnectionState } from './asr.model';
 
 const ASR_ERROR_KEYS = ['connectionFailed', 'notConnected', 'generic'] as const;
@@ -16,11 +15,13 @@ type AsrErrorKey = (typeof ASR_ERROR_KEYS)[number];
 })
 export class AsrPageComponent implements OnDestroy {
   protected readonly asr = inject(AsrService);
-  protected readonly i18n = inject(I18nService);
+
+  /** Bound once; `$localize` is resolved at bootstrap after `loadTranslations`. */
+  protected readonly emptyTranscript = $localize`:@@asr.empty:Connect to start live transcription.`;
 
   readonly connectionStateLabel = computed(() => {
     const state = this.asr.connectionState() as AsrConnectionState;
-    return this.i18n.t().asrPage.connectionState[state];
+    return connectionStateLabel(state);
   });
 
   readonly errorMessage = computed(() => {
@@ -29,7 +30,7 @@ export class AsrPageComponent implements OnDestroy {
       return null;
     }
     if (isAsrErrorKey(error)) {
-      return this.i18n.t().asrPage.errors[error];
+      return asrErrorLabel(error);
     }
     return error;
   });
@@ -52,6 +53,30 @@ export class AsrPageComponent implements OnDestroy {
 
   sendStop(): void {
     this.asr.sendStop();
+  }
+}
+
+function connectionStateLabel(state: AsrConnectionState): string {
+  switch (state) {
+    case 'disconnected':
+      return $localize`:@@asr.state.disconnected:disconnected`;
+    case 'connecting':
+      return $localize`:@@asr.state.connecting:connecting`;
+    case 'connected':
+      return $localize`:@@asr.state.connected:connected`;
+    case 'error':
+      return $localize`:@@asr.state.error:error`;
+  }
+}
+
+function asrErrorLabel(key: AsrErrorKey): string {
+  switch (key) {
+    case 'connectionFailed':
+      return $localize`:@@asr.error.connectionFailed:WebSocket connection failed`;
+    case 'notConnected':
+      return $localize`:@@asr.error.notConnected:WebSocket is not connected`;
+    case 'generic':
+      return $localize`:@@asr.error.generic:ASR error`;
   }
 }
 

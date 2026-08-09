@@ -335,28 +335,6 @@ export const ja: Translations = {
     empty: '評価後にスコアがここに表示されます。',
     requestFailed: '評価リクエストに失敗しました',
   },
-  asrPage: {
-    title: '音声認識',
-    connectionLabel: '接続：',
-    connect: '接続',
-    disconnect: '切断',
-    stop: '停止',
-    testPayload: 'テストペイロード',
-    transcript: '文字起こし',
-    empty: '接続するとライブ文字起こしが始まります。',
-    lastServerMessage: '最後のサーバーメッセージ',
-    connectionState: {
-      disconnected: '切断済み',
-      connecting: '接続中',
-      connected: '接続済み',
-      error: 'エラー',
-    },
-    errors: {
-      connectionFailed: 'WebSocket 接続に失敗しました',
-      notConnected: 'WebSocket は接続されていません',
-      generic: '音声認識エラー',
-    },
-  },
   mcpPage: {
     title: 'MCP',
     subtitle: 'Model Context Protocol',

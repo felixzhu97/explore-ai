@@ -1,0 +1,18 @@
+{
+  "asr.title": "Voz a texto",
+  "asr.connectionLabel": "Conexión:",
+  "asr.connect": "Conectar",
+  "asr.disconnect": "Desconectar",
+  "asr.stop": "Detener",
+  "asr.testPayload": "Carga de prueba",
+  "asr.transcript": "Transcripción",
+  "asr.empty": "Conéctate para iniciar la transcripción en vivo.",
+  "asr.lastServerMessage": "Último mensaje del servidor",
+  "asr.state.disconnected": "desconectado",
+  "asr.state.connecting": "conectando",
+  "asr.state.connected": "conectado",
+  "asr.state.error": "error",
+  "asr.error.connectionFailed": "Falló la conexión WebSocket",
+  "asr.error.notConnected": "WebSocket no está conectado",
+  "asr.error.generic": "Error de ASR"
+}

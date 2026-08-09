@@ -44,7 +44,6 @@ describe('i18n.model', () => {
         'generate',
         'metricsPage',
         'evalPage',
-        'asrPage',
         'mcpPage',
       ] as const;
 
@@ -244,12 +243,9 @@ describe('i18n.model', () => {
         });
       });
 
-      it('should have evalPage asrPage and mcpPage for all languages', () => {
+      it('should have evalPage and mcpPage for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           expect(translations[lang].evalPage.evaluate.length).toBeGreaterThan(0);
-          expect(
-            translations[lang].asrPage.connectionState.connected.length,
-          ).toBeGreaterThan(0);
           expect(translations[lang].mcpPage.toolsCount).toContain('{count}');
         });
       });

@@ -61,7 +61,13 @@ export class LanguagePickerComponent {
   }
 
   selectLanguage(lang: Language): void {
+    if (lang === this.i18n.language()) {
+      this.dropdownMenu().close();
+      return;
+    }
     this.i18n.setLanguage(lang);
     this.dropdownMenu().close();
+    // Official `$localize` strings load at bootstrap; reload applies the new locale map.
+    location.reload();
   }
 }

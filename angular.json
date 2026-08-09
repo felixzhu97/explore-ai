@@ -39,6 +39,7 @@
             "index": "src/main/web/index.html",
             "browser": "src/main/web/main.ts",
             "polyfills": [
+              "@angular/localize/init",
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
