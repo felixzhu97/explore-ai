@@ -13,7 +13,7 @@ description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary n
 
 1. Layers: [architecture](../../rules/architecture.mdc) — `web → application → domain ← infrastructure`
 2. No `domain/port`, `adapter/in|out`, `*Port` in new code
-3. Tests: `should_expectedResult_when_condition`
+3. Tests: `should expected result when condition` (spaces; Java methods: camelCase)
 4. Names: Glossary [Preferred Term](../../../docs/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
 6. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
@@ -39,7 +39,7 @@ Detail: [testing](references/testing.md)
 
 | | Rule |
 |--|------|
-| Name | `should_expectedResult_when_condition` |
+| Name | `should expected result when condition` (Java method: camelCase) |
 | Pyramid | Unit ~70% / Integration ~20% / E2E ~10% (few critical journeys) |
 | Scope | Behavior, not implementation |
 | Doubles | Fake/Stub for repos; Mock only when verifying interaction |

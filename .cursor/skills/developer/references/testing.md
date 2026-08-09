@@ -31,9 +31,16 @@ Red (failing test) → Green (minimal code) → Refactor (keep green)
 
 ## Naming
 
+Natural language with spaces — do **not** use `should_result_when_condition` snake_case:
+
 ```
-should_expectedResult_when_condition
+should expected result when condition
 ```
+
+| Surface | Example |
+|---------|---------|
+| Vitest `it(...)` / JUnit `@DisplayName` | `should open popover below chip when space is available` |
+| Java method identifier | `shouldOpenPopoverBelowChipWhenSpaceIsAvailable` |
 
 ## Test doubles
 
