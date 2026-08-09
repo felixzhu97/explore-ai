@@ -28,7 +28,23 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
           : 'min-h-0 flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6'
       "
     >
-      @if (messages().length === 0) {
+      @if (loading()) {
+        <div
+          class="mx-auto flex w-full max-w-3xl animate-in flex-col gap-4 px-1 py-2 duration-150 fade-in-0"
+          aria-busy="true"
+          aria-live="polite"
+        >
+          <div class="flex justify-end">
+            <div class="h-10 w-2/5 max-w-xs animate-pulse rounded-2xl bg-black/6"></div>
+          </div>
+          <div class="flex justify-start">
+            <div class="h-24 w-3/4 max-w-md animate-pulse rounded-2xl bg-black/6"></div>
+          </div>
+          <div class="flex justify-start">
+            <div class="h-14 w-1/2 max-w-sm animate-pulse rounded-2xl bg-black/6"></div>
+          </div>
+        </div>
+      } @else if (messages().length === 0) {
         @if (emptyText(); as text) {
           <p class="text-xs text-text-secondary">{{ text }}</p>
         } @else {
@@ -42,18 +58,20 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
           />
         }
       } @else {
-        <app-chat-bubble-list
-          [messages]="messages()"
-          [streamingMessageId]="streamingMessageId()"
-          [streamingMessageIds]="streamingMessageIds()"
-          [thinkingLabel]="thinkingLabel()"
-          [footerLabels]="footerLabels()"
-          [collapseLongUserMessages]="collapseLongUserMessages()"
-          [expandLabel]="expandLabel()"
-          [collapseLabel]="collapseLabel()"
-          [toolStepDoneLabel]="toolStepDoneLabel()"
-          [toolStepFailedLabel]="toolStepFailedLabel()"
-        />
+        <div class="animate-in duration-150 fade-in-0">
+          <app-chat-bubble-list
+            [messages]="messages()"
+            [streamingMessageId]="streamingMessageId()"
+            [streamingMessageIds]="streamingMessageIds()"
+            [thinkingLabel]="thinkingLabel()"
+            [footerLabels]="footerLabels()"
+            [collapseLongUserMessages]="collapseLongUserMessages()"
+            [expandLabel]="expandLabel()"
+            [collapseLabel]="collapseLabel()"
+            [toolStepDoneLabel]="toolStepDoneLabel()"
+            [toolStepFailedLabel]="toolStepFailedLabel()"
+          />
+        </div>
       }
     </div>
   `,
@@ -62,6 +80,8 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
 })
 export class ChatMessagePaneComponent {
   readonly messages = input.required<ChatBubbleMessage[]>();
+  /** Session history loading — show skeleton instead of welcome flash. */
+  readonly loading = input(false);
   readonly streamingMessageId = input<string | null>(null);
   readonly streamingMessageIds = input<ReadonlySet<string>>(new Set());
   readonly thinkingLabel = input('Thinking...');

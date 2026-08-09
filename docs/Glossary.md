@@ -56,7 +56,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 | Route             | Preferred Term   | API prefix                      |
 | ----------------- | ---------------- | ------------------------------- |
-| `/chat`           | Chat             | `/api/text`, `/api/sessions`    |
+| `/chat`, `/chat/:sessionId` | Chat      | `/api/text`, `/api/sessions`    |
 | `/pipelines`      | Pipeline         | `/api/pipelines`                |
 | `/automations`    | Automation       | `/api/automations`              |
 | `/skills`         | Skill            | `/api/skills`                   |
@@ -70,6 +70,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/eval`           | Eval             | `/api/eval`                     |
 | `/metrics`        | Metrics          | `/api/metrics`                  |
 
+Empty / new Chat sessions use bare `/chat` and stay out of the sidebar until the first message. Sessions with history use `/chat/:sessionId` and appear in the sidebar. Only sessions with chat history are remembered in sessionStorage. Invalid or foreign session ids are rejected by Owner Key isolation (404) and the UI redirects to `/chat` (no toast).
 
 **Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
 

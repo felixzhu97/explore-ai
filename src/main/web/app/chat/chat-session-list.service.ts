@@ -8,12 +8,14 @@ export class ChatSessionListService implements SessionList {
   private readonly chatService = inject(ChatService);
 
   readonly sessions = computed<SidebarSession[]>(() => {
-    return this.chatService.sessions().map(session => ({
-      id: session.sessionId,
-      title: session.title,
-      timestamp: new Date(session.lastActivityAt),
-      pinned: false,
-    }));
+    return this.chatService.sessions()
+      .filter(session => session.messageCount > 0)
+      .map(session => ({
+        id: session.sessionId,
+        title: session.title,
+        timestamp: new Date(session.lastActivityAt),
+        pinned: false,
+      }));
   });
 
   readonly activeSessionId = this.chatService.activeSessionId;

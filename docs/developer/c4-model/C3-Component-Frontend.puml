@@ -14,7 +14,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(app_root, "AppComponent", "@Component", "根组件")
         Component(main_layout, "MainLayoutComponent", "@Component", "主布局 (header + sidebar + outlet)")
         Component(app_cfg, "app.config.ts", "ApplicationConfig", "providers, DatadogErrorHandler")
-        Component(app_routes, "app.routes.ts", "Routes", "/chat /privacy /legal /metrics + flag modules")
+        Component(app_routes, "app.routes.ts", "Routes", "/chat /chat/:sessionId /privacy /legal /metrics + flag modules")
         Component(main_ts, "main.ts", "Bootstrap", "initDatadogRum()")
         Component(datadog_cfg, "datadog-rum.config.ts", "Config", "RUM 初始化 + ErrorHandler")
     }
@@ -33,7 +33,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     ' PAGE COMPONENTS
     ' ============================================================
     Container_Boundary(pages, "Page Components") {
-        Component(chat_tab, "ChatPage", "@Component", "对话 (/chat) · app/chat/")
+        Component(chat_tab, "ChatPage", "@Component", "对话 (/chat/:sessionId) · app/chat/")
         Component(generate_page, "GeneratePage", "@Component", "生成 (/generate)")
         Container_Boundary(generate_tabs, "Generate Sub-Routes (app/generate/)") {
             Component(img_tab, "ImagePage", "@Component", "图像 (/generate/image)")

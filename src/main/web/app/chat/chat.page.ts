@@ -9,9 +9,12 @@ import {
   computed,
   signal,
   viewChild,
+  effect,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRefreshCw } from '@ng-icons/lucide';
 import {
@@ -76,12 +79,19 @@ export class ChatPage implements OnInit, OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly featureFlags = inject(FeatureFlagService);
   private readonly skillsApi = inject(SkillsService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly skillsPicker = viewChild<ElementRef<HTMLElement>>('skillsPicker');
 
   readonly input = model('');
   readonly skillsEnabled = signal(false);
   readonly skillsMenuOpen = signal(false);
   readonly skillsMenuStyle = signal<{ top: string; right: string } | null>(null);
+
+  private readonly routeSessionId = toSignal(
+    this.route.paramMap.pipe(map(params => params.get('sessionId'))),
+    { initialValue: this.route.snapshot.paramMap.get('sessionId') },
+  );
 
   readonly selectedSkillCount = computed(() => this.chat.selectedSkillIds().length);
 
@@ -128,7 +138,23 @@ export class ChatPage implements OnInit, OnDestroy {
     };
   });
 
+  constructor() {
+    effect(() => {
+      const sessionId = this.routeSessionId();
+      if (!sessionId || !this.chat.sessionsReady()) {
+        return;
+      }
+      // Missing session → ChatService redirects to `/chat` (no toast).
+      this.chat.selectSession(sessionId);
+    });
+  }
+
   ngOnInit() {
+    const legacySession = this.route.snapshot.queryParamMap.get('session');
+    if (legacySession) {
+      void this.router.navigate(['/chat', legacySession], { replaceUrl: true });
+    }
+
     this.chat.loadProviders();
     const skillsOn = this.featureFlags.isEnabled(FEATURE_FLAG_KEYS.MODULE_SKILLS);
     this.skillsEnabled.set(skillsOn);

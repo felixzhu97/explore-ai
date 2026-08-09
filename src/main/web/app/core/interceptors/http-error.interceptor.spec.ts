@@ -1,9 +1,16 @@
-import { HttpRequest, HttpErrorResponse, HttpHandlerFn } from '@angular/common/http';
+import {
+  HttpRequest,
+  HttpErrorResponse,
+  HttpHandlerFn,
+  HttpContext,
+  provideHttpClient,
+  withInterceptors,
+} from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { httpErrorInterceptor, AppError } from './http-error.interceptor';
+import { SKIP_ERROR_NOTIFICATION } from './http-error.context';
 import { NotificationService } from '../notification.service';
 
 describe('httpErrorInterceptor', () => {
@@ -476,6 +483,38 @@ describe('httpErrorInterceptor', () => {
           error: () => {
             try {
               expect(notificationService.showError).toHaveBeenCalledWith('A server error occurred. Please try again later.');
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          },
+        });
+      });
+    });
+
+    it('should skip error notification when context requests silence', async () => {
+      const mockErrorResponse = new HttpErrorResponse({
+        status: 404,
+        statusText: 'Not Found',
+        url: '/api/sessions/gone/messages',
+      });
+
+      const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
+      const req = new HttpRequest('GET', '/api/sessions/gone/messages', {
+        context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
+      });
+
+      const interceptor = TestBed.runInInjectionContext(() => {
+        return httpErrorInterceptor(req, mockNext as unknown as HttpHandlerFn);
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        interceptor.subscribe({
+          next: vi.fn(),
+          error: (error: AppError) => {
+            try {
+              expect(error.code).toBe('NOT_FOUND');
+              expect(notificationService.showError).not.toHaveBeenCalled();
               resolve();
             } catch (e) {
               reject(e);

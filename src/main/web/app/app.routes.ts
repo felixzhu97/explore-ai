@@ -56,6 +56,11 @@ export const routes: Routes = [
       },
       {
         path: 'chat',
+        pathMatch: 'full',
+        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
+      },
+      {
+        path: 'chat/:sessionId',
         loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
       },
       {
