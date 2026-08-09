@@ -129,6 +129,7 @@
 
 <app-chat-message-pane
   [messages]="bubbleMessages()"
+  [loading]="chat.isLoadingSession()"
   [streamingMessageId]="chat.streamingMessageId()"
   [thinkingLabel]="i18n.t().chat.thinking"
   [footerLabels]="footerLabels()"
@@ -151,6 +152,6 @@
 <app-chat-sender-bar
   [placeholder]="i18n.t().chat.inputPlaceholder"
   [(value)]="input"
-  [loading]="chat.isLoading()"
+  [loading]="chat.isLoading() || chat.isLoadingSession()"
   (submitSend)="send()"
 />

@@ -8,6 +8,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { NotificationService } from '../notification.service';
+import { SKIP_ERROR_NOTIFICATION } from './http-error.context';
 
 export interface AppError {
   code: string;
@@ -17,13 +18,17 @@ export interface AppError {
   details?: unknown;
 }
 
+export { SKIP_ERROR_NOTIFICATION };
+
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
   return next(req).pipe(
     catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
       const appError = normalizeError(error);
       logError(req, appError);
-      notifyUser(appError, notificationService);
+      if (!req.context.get(SKIP_ERROR_NOTIFICATION)) {
+        notifyUser(appError, notificationService);
+      }
       return throwError(() => appError);
     }),
   ) as Observable<HttpEvent<unknown>>;

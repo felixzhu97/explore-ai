@@ -221,7 +221,7 @@ export class MetricsDomainPage {
 
   onRowClick(event: InvocationEvent): void {
     if (event.sessionId) {
-      void this.router.navigate(['/chat'], { queryParams: { session: event.sessionId } });
+      void this.router.navigate(['/chat', event.sessionId]);
       return;
     }
     if (event.documentId || event.domain === 'rag') {

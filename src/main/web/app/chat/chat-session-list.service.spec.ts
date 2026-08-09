@@ -21,7 +21,14 @@ describe('ChatSessionListService', () => {
         {
           sessionId: 's1',
           title: 'First',
+          messageCount: 2,
           lastActivityAt: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          sessionId: 'empty',
+          title: 'New Chat',
+          messageCount: 0,
+          lastActivityAt: '2026-01-02T00:00:00.000Z',
         },
       ]),
       activeSessionId: signal('s1'),
@@ -40,7 +47,7 @@ describe('ChatSessionListService', () => {
     service = TestBed.inject(ChatSessionListService);
   });
 
-  it('should_map_sessions_to_sidebar_format', () => {
+  it('should map sessions with history to sidebar format', () => {
     expect(service.sessions()).toEqual([
       {
         id: 's1',
@@ -51,26 +58,30 @@ describe('ChatSessionListService', () => {
     ]);
   });
 
-  it('should_expose_active_session_id', () => {
+  it('should hide empty sessions from the sidebar list', () => {
+    expect(service.sessions().some(session => session.id === 'empty')).toBe(false);
+  });
+
+  it('should expose active session id', () => {
     expect(service.activeSessionId()).toBe('s1');
   });
 
-  it('should_delegate_initializeSessions', () => {
+  it('should delegate initializeSessions', () => {
     service.initializeSessions();
     expect(chatService.initializeSessions).toHaveBeenCalled();
   });
 
-  it('should_delegate_createSession', () => {
+  it('should delegate createSession', () => {
     service.createSession();
     expect(chatService.createSession).toHaveBeenCalled();
   });
 
-  it('should_delegate_selectSession', () => {
+  it('should delegate selectSession', () => {
     service.selectSession('s2');
     expect(chatService.selectSession).toHaveBeenCalledWith('s2');
   });
 
-  it('should_delegate_deleteSession', () => {
+  it('should delegate deleteSession', () => {
     service.deleteSession('s1');
     expect(chatService.deleteSession).toHaveBeenCalledWith('s1');
   });

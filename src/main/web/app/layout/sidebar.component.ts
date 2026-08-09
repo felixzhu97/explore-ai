@@ -6,7 +6,7 @@ import {
   computed,
   OnInit,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { I18nService } from '../core/i18n';
 import {
   SidebarGroupComponent,
@@ -44,7 +44,6 @@ import { FeatureFlagService } from '../core/feature-flag.service';
   },
 })
 export class SidebarComponent implements OnInit {
-  private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
@@ -149,17 +148,11 @@ export class SidebarComponent implements OnInit {
 
   newChat(): void {
     this.sessionList.createSession();
-    if (this.router.url !== '/chat') {
-      void this.router.navigate(['/chat']);
-    }
     this.sidebar.close();
   }
 
   onSessionSelect(sessionId: string): void {
     this.sessionList.selectSession(sessionId);
-    if (this.router.url !== '/chat') {
-      void this.router.navigate(['/chat']);
-    }
     this.sidebar.close();
   }
 
