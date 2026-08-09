@@ -116,7 +116,6 @@ export const zh: Translations = {
     documentDeleted: '文档已删除',
     deleteFailed: '删除失败，请重试',
     fileSelected: '已选择 {count} 个文件',
-    openPipelineWorkbench: '打开工作流',
   },
   pipelines: {
     thinking: '思考中...',
@@ -224,8 +223,7 @@ export const zh: Translations = {
     thinking: '思考中...',
     inputPlaceholder: '输入消息...',
     welcomeTitle: '今天我能帮你什么？',
-    welcomeDescription: '随便问，或打开工作流继续深入',
-    openPipelineWorkbench: '打开工作流',
+    welcomeDescription: '随便问。',
     suggestedPromptsTitle: '推荐提示',
     suggestedPrompts: [
       {

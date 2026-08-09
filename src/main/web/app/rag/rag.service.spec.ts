@@ -120,23 +120,12 @@ describe('RagService', () => {
     expect(notifications.showError).toHaveBeenCalledWith('delete failed');
   });
 
-  it('should_manage_pending_files_and_images', () => {
+  it('should_manage_pending_files_when_selected', () => {
     const file = new File(['x'], 'a.txt', { type: 'text/plain' });
     service.onFileSelect([file]);
     expect(service.pendingFiles()).toHaveLength(1);
     service.removePendingFile(0);
     expect(service.pendingFiles()).toHaveLength(0);
-    expect(service.addImage('img1')).toBe(true);
-    service.removeImage(0);
-    service.clearImages();
-    expect(service.pendingImages()).toEqual([]);
-  });
-
-  it('should_reject_images_over_max', () => {
-    for (let i = 0; i < 5; i++) {
-      service.addImage(`img${i}`);
-    }
-    expect(service.addImage('overflow')).toBe(false);
   });
 
   it('should_upload_files_and_refresh_docs', async () => {

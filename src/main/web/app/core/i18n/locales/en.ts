@@ -117,7 +117,6 @@ export const en: Translations = {
     documentDeleted: 'Document deleted',
     deleteFailed: 'Delete failed, please retry',
     fileSelected: '{count} file(s) selected',
-    openPipelineWorkbench: 'Open Workflow',
   },
   pipelines: {
     thinking: 'Thinking...',
@@ -225,8 +224,7 @@ export const en: Translations = {
     thinking: 'Thinking...',
     inputPlaceholder: 'Type your message...',
     welcomeTitle: 'How can I help you today?',
-    welcomeDescription: 'Ask anything — or open Workflow for deeper work',
-    openPipelineWorkbench: 'Open Workflow',
+    welcomeDescription: 'Ask anything.',
     suggestedPromptsTitle: 'Suggested prompts',
     suggestedPrompts: [
       {

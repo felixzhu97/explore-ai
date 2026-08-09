@@ -26,7 +26,9 @@ const EMPTY_FORM: SkillWriteRequest = {
   imports: [FormsModule, ZardButtonComponent],
   templateUrl: './skills.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
+  host: {
+    class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
+  },
 })
 export class SkillsPageComponent implements OnInit {
   private readonly skillsApi = inject(SkillsService);

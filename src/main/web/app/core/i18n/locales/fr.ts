@@ -118,7 +118,6 @@ export const fr: Translations = {
     documentDeleted: 'Document supprimé',
     deleteFailed: 'Échec de la suppression, veuillez réessayer',
     fileSelected: '{count} fichier(s) sélectionné(s)',
-    openPipelineWorkbench: 'Ouvrir le workflow',
   },
   pipelines: {
     thinking: 'Réflexion...',
@@ -227,8 +226,7 @@ export const fr: Translations = {
     thinking: 'Réflexion...',
     inputPlaceholder: 'Tapez votre message...',
     welcomeTitle: 'Comment puis-je vous aider aujourd\'hui ?',
-    welcomeDescription: 'Posez une question — ou ouvrez Agent pour un pipeline multi-étapes',
-    openPipelineWorkbench: 'Ouvrir le workflow',
+    welcomeDescription: 'Posez une question.',
     suggestedPromptsTitle: 'Suggestions',
     suggestedPrompts: [
       {

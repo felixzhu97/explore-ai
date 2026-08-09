@@ -7,10 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideImage,
   lucideListChecks,
   lucidePanelLeft,
   lucidePanelLeftClose,
@@ -35,7 +33,6 @@ import { ZardButtonComponent } from '../shared/components/button';
   selector: 'app-rag-page',
   imports: [
     FormsModule,
-    RouterLink,
     NgIcon,
     NzIconModule,
     ChatMessagePaneComponent,
@@ -49,7 +46,6 @@ import { ZardButtonComponent } from '../shared/components/button';
     provideIcons({
       lucideListChecks,
       lucideX,
-      lucideImage,
       lucideUpload,
       lucideTrash2,
       lucidePanelLeft,
@@ -80,7 +76,6 @@ export class RagPageComponent implements OnInit {
       role: message.role,
       content: message.content,
       timestamp: message.timestamp,
-      images: message.images,
       sources: message.sources,
       assistantIcon: 'document',
     }));
@@ -124,34 +119,6 @@ export class RagPageComponent implements OnInit {
 
   getUploadStatus(name: string): UploadStatus | undefined {
     return this.ragService.getUploadStatus(name);
-  }
-
-  onImageSelect(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files;
-    if (files) {
-      Array.from(files).forEach((file) => {
-        if (file.type.startsWith('image/')) {
-          this.fileToBase64(file).then((base64) => {
-            this.ragService.addImage(base64);
-          });
-        }
-      });
-    }
-    input.value = '';
-  }
-
-  removeImage(index: number): void {
-    this.ragService.removeImage(index);
-  }
-
-  private async fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   }
 
   onPromptSelect(label: string): void {

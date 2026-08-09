@@ -117,7 +117,6 @@ export const ja: Translations = {
     documentDeleted: 'ドキュメントが削除されました',
     deleteFailed: '削除に失敗しました。もう一度お試しください',
     fileSelected: '{count} ファイル選択済み',
-    openPipelineWorkbench: 'ワークフローを開く',
   },
   pipelines: {
     thinking: '考え中...',
@@ -225,8 +224,7 @@ export const ja: Translations = {
     thinking: '考え中...',
     inputPlaceholder: 'メッセージを入力...',
     welcomeTitle: '今日は何をお手伝いできますか？',
-    welcomeDescription: '何でも聞くか、Agent で多段パイプラインを開く',
-    openPipelineWorkbench: 'ワークフローを開く',
+    welcomeDescription: '何でも聞いてください。',
     suggestedPromptsTitle: 'おすすめプロンプト',
     suggestedPrompts: [
       {

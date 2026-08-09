@@ -118,7 +118,6 @@ export const es: Translations = {
     documentDeleted: 'Documento eliminado',
     deleteFailed: 'Error al eliminar, por favor inténtelo de nuevo',
     fileSelected: '{count} archivo(s) seleccionado(s)',
-    openPipelineWorkbench: 'Abrir workflow',
   },
   pipelines: {
     thinking: 'Pensando...',
@@ -227,8 +226,7 @@ export const es: Translations = {
     thinking: 'Pensando...',
     inputPlaceholder: 'Escribe tu mensaje...',
     welcomeTitle: '¿En qué puedo ayudarte hoy?',
-    welcomeDescription: 'Pregunta lo que quieras — o abre Agent para pipelines multi-paso',
-    openPipelineWorkbench: 'Abrir workflow',
+    welcomeDescription: 'Pregunta lo que quieras.',
     suggestedPromptsTitle: 'Sugerencias',
     suggestedPrompts: [
       {

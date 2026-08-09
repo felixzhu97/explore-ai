@@ -43,7 +43,6 @@ describe('Shared domain models', () => {
       sessionId: 'session-1',
       topK: 5,
       docIds: ['doc-1'],
-      images: [],
     };
 
     expect(query.docIds).toEqual(['doc-1']);

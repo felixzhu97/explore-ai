@@ -15,8 +15,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideRefreshCw } from '@ng-icons/lucide';
 import {
   ChatBubbleMessage,
   ChatMessagePaneComponent,
@@ -40,7 +38,6 @@ import { ChatService } from './chat.service';
   imports: [
     FormsModule,
     RouterLink,
-    NgIcon,
     NzIconModule,
     ChatMessagePaneComponent,
     ChatSenderBarComponent,
@@ -66,7 +63,6 @@ import { ChatService } from './chat.service';
   ],
   providers: [
     provideNzIconsPatch([ArrowUpOutline]),
-    provideIcons({ lucideRefreshCw }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -174,10 +170,6 @@ export class ChatPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.chat.abortStream();
-  }
-
-  newChat(): void {
-    this.chat.createSession();
   }
 
   toggleSkillsMenu(event: MouseEvent): void {
