@@ -34,7 +34,7 @@ export class AsrService {
           this.transcript.update(current => current + message.text);
         }
         if (message.error || message.message) {
-          this.error.set(message.error ?? message.message ?? 'ASR error');
+          this.error.set(message.error ?? message.message ?? 'generic');
         }
       } catch {
         this.transcript.update(current => current + payload);
@@ -43,7 +43,7 @@ export class AsrService {
 
     this.socket.onerror = () => {
       this.connectionState.set('error');
-      this.error.set('WebSocket connection failed');
+      this.error.set('connectionFailed');
     };
 
     this.socket.onclose = () => {
@@ -71,7 +71,7 @@ export class AsrService {
 
   private sendJson(payload: Record<string, string>): void {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      this.error.set('WebSocket is not connected');
+      this.error.set('notConnected');
       return;
     }
     this.socket.send(JSON.stringify(payload));

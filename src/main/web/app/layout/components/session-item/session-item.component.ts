@@ -16,7 +16,7 @@ import type { SidebarSession } from '../../sidebar-session.model';
       <button
         type="button"
         z-sidebar-menu-button
-        class="pr-2 group-hover/session:pr-11"
+        class="cursor-pointer pr-2 group-hover/session:pr-11"
         [zActive]="isActive()"
         [title]="session().title"
         (click)="onSelect()"
@@ -40,7 +40,7 @@ import type { SidebarSession } from '../../sidebar-session.model';
               z-button
               zType="ghost"
               zSize="icon"
-              class="size-5 border-0 bg-transparent hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
+              class="size-5 cursor-pointer border-0 bg-transparent hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
               [title]="session().pinned ? 'Unpin' : 'Pin'"
               (click)="onPin($event)"
             >
@@ -67,7 +67,7 @@ import type { SidebarSession } from '../../sidebar-session.model';
               z-button
               zType="ghost"
               zSize="icon"
-              class="size-5 border-0 bg-transparent hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
+              class="size-5 cursor-pointer border-0 bg-transparent hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
               title="Delete"
               (click)="onDelete($event)"
             >

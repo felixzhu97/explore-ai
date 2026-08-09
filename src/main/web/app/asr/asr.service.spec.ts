@@ -119,7 +119,7 @@ describe('AsrService', () => {
 
     service.sendStop();
 
-    expect(service.error()).toBe('WebSocket is not connected');
+    expect(service.error()).toBe('notConnected');
   });
 
   it('should_keep_error_state_when_socket_closes_after_transport_error', () => {
@@ -130,7 +130,7 @@ describe('AsrService', () => {
     socket.close();
 
     expect(service.connectionState()).toBe('error');
-    expect(service.error()).toBe('WebSocket connection failed');
+    expect(service.error()).toBe('connectionFailed');
   });
 });
 

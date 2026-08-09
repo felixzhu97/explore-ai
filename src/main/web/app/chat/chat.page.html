@@ -28,7 +28,7 @@
       zPlaceholder="Model"
     >
       @if (chat.isLoadingModels()) {
-        <z-select-item zValue="" [zDisabled]="true">Loading...</z-select-item>
+        <z-select-item zValue="" [zDisabled]="true">{{ i18n.t().chat.loadingModels }}</z-select-item>
       } @else {
         @for (model of chat.models(); track model.name) {
           <z-select-item [zValue]="model.name">{{ model.name }}</z-select-item>

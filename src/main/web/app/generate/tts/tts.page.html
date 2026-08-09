@@ -88,7 +88,7 @@
           z-button
           zSize="icon"
           (click)="togglePlayPause()"
-          [attr.aria-label]="isPlaying() ? 'Pause' : 'Play'"
+          [attr.aria-label]="isPlaying() ? i18n.t().generate.tts.pause : i18n.t().generate.tts.play"
         >
           <ng-icon [name]="isPlaying() ? 'lucidePause' : 'lucidePlay'" class="size-5!" />
         </button>

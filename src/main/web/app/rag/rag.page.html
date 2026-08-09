@@ -136,8 +136,8 @@
                 zSize="icon"
                 class="size-7!"
                 [disabled]="ragService.deletingDocIds().has(doc.id)"
-                title="Delete document"
-                aria-label="Delete document"
+                [attr.title]="i18n.t().ragChat.deleteDocument"
+                [attr.aria-label]="i18n.t().ragChat.deleteDocument"
                 (click)="deleteDocument(doc.id, $event)"
               >
                 <ng-icon name="lucideTrash2" class="size-3.5!" />

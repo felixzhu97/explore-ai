@@ -45,7 +45,7 @@ import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.comp
             {{ copy().processorsHeading }}
           </h2>
           <ul class="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[#0D0D0D]/80">
-            @for (item of processors; track item.name) {
+            @for (item of copy().processors; track item.name) {
               <li>
                 <span class="font-medium text-[#0D0D0D]">{{ item.name }}</span>
                 — {{ item.purpose }}
@@ -125,14 +125,6 @@ export class PrivacyPage {
 
   readonly copy = computed(() => PRIVACY_PAGE_COPY[this.i18n.language()]);
   readonly busy = signal(false);
-
-  readonly processors = [
-    { name: 'DeepSeek', purpose: 'Large language model inference for chat' },
-    { name: 'OpenAI', purpose: 'Optional image generation and text-to-speech' },
-    { name: 'Serper', purpose: 'Web search tool results' },
-    { name: 'LaunchDarkly', purpose: 'Feature flags (only with analytics consent)' },
-    { name: 'Datadog', purpose: 'Optional RUM / APM (only with analytics consent)' },
-  ];
 
   eraseSessions(): void {
     if (!confirm(this.copy().eraseConfirm)) {

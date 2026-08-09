@@ -20,7 +20,7 @@
           md:flex
         "
         (click)="toggleCollapse()"
-        aria-label="Collapse sidebar"
+        [attr.aria-label]="i18n.t().sidebar.collapse"
       >
         <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10" />
@@ -36,7 +36,7 @@
           max-md:hidden
         "
         (click)="toggleCollapse()"
-        aria-label="Collapse sidebar"
+        [attr.aria-label]="i18n.t().sidebar.collapse"
       >
         <svg class="size-5 text-sidebar-foreground" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -55,7 +55,7 @@
           md:hidden
         "
         (click)="sidebar.close()"
-        aria-label="Close menu"
+        [attr.aria-label]="i18n.t().sidebar.closeMenu"
       >
         ✕
       </button>
@@ -68,7 +68,7 @@
           hover:bg-sidebar-accent
         "
         (click)="toggleCollapse()"
-        aria-label="Expand sidebar"
+        [attr.aria-label]="i18n.t().sidebar.expand"
       >
         <svg class="size-5 text-sidebar-foreground/70" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -298,5 +298,5 @@
   (keydown.escape)="sidebar.close()"
   tabindex="-1"
   role="button"
-  aria-label="Close overlay"
+  [attr.aria-label]="i18n.t().sidebar.closeOverlay"
 ></div>

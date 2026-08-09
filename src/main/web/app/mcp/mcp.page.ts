@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { McpService } from './mcp.service';
 import type { McpClientStatusResponse, McpHealthResponse, McpTool } from './mcp.model';
 import { ZardButtonComponent } from '../shared/components/button';
+import { I18nService } from '../core/i18n';
 
 @Component({
   selector: 'app-mcp-page',
@@ -13,6 +14,7 @@ import { ZardButtonComponent } from '../shared/components/button';
 })
 export class McpPageComponent implements OnInit {
   private readonly mcp = inject(McpService);
+  protected readonly i18n = inject(I18nService);
 
   readonly health = signal<McpHealthResponse | null>(null);
   readonly clientStatus = signal<McpClientStatusResponse | null>(null);
@@ -27,18 +29,22 @@ export class McpPageComponent implements OnInit {
     this.loadDashboard();
   }
 
+  toolsCountLabel(count: number): string {
+    return this.i18n.tReplace(this.i18n.t().mcpPage.toolsCount, { count });
+  }
+
   loadDashboard(): void {
     this.loading.set(true);
     this.error.set(null);
 
     this.mcp.getHealth().subscribe({
       next: health => this.health.set(health),
-      error: () => this.error.set('Failed to load MCP health'),
+      error: () => this.error.set(this.i18n.t().mcpPage.errors.healthFailed),
     });
 
     this.mcp.getClientStatus().subscribe({
       next: status => this.clientStatus.set(status),
-      error: () => this.error.set('Failed to load MCP client status'),
+      error: () => this.error.set(this.i18n.t().mcpPage.errors.clientStatusFailed),
     });
 
     this.mcp.listTools().subscribe({
@@ -47,7 +53,7 @@ export class McpPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Failed to load MCP tools');
+        this.error.set(this.i18n.t().mcpPage.errors.toolsFailed);
         this.loading.set(false);
       },
     });
@@ -67,7 +73,7 @@ export class McpPageComponent implements OnInit {
         this.chatting.set(false);
       },
       error: () => {
-        this.error.set('MCP chat request failed');
+        this.error.set(this.i18n.t().mcpPage.errors.chatFailed);
         this.chatting.set(false);
       },
     });

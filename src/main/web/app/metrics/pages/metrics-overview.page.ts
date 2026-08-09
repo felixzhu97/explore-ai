@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { Router, RouterLink } from '@angular/router';
 import { ChartPanelComponent } from '../../shared/components/charts';
 import { API_BASE_URL } from '../../core/api.constants';
+import { I18nService } from '../../core/i18n';
 import {
   MetricsDomainHealthComponent,
   type DomainHealthItem,
@@ -35,6 +36,7 @@ import type {
 })
 export class MetricsOverviewPage {
   private readonly router = inject(Router);
+  protected readonly i18n = inject(I18nService);
 
   readonly range = signal<MetricsRange>('7d');
 
@@ -58,6 +60,7 @@ export class MetricsOverviewPage {
     if (!overview) {
       return [];
     }
+    const kpi = this.i18n.t().metricsPage.kpi;
     const chat = overview.domains['chat'] as { sessionCount?: number } | undefined;
     const rag = overview.domains['rag'] as { documentCount?: number } | undefined;
     const tokenTotal = (overview.promptTokens ?? 0) + (overview.completionTokens ?? 0);
@@ -66,17 +69,17 @@ export class MetricsOverviewPage {
     return [
       {
         key: 'requests',
-        label: 'AI requests',
+        label: kpi.aiRequests,
         value: formatNumber(overview.requestCount),
       },
       {
         key: 'errorRate',
-        label: 'Error rate',
+        label: kpi.errorRate,
         value: formatPercent(overview.errorRate),
       },
       {
         key: 'p95',
-        label: 'p95 latency',
+        label: kpi.p95Latency,
         value:
           overview.latencyP95Ms == null
             ? '—'
@@ -84,18 +87,18 @@ export class MetricsOverviewPage {
       },
       {
         key: 'tokens',
-        label: 'Tokens',
+        label: kpi.tokens,
         value: hasTokens ? formatNumber(tokenTotal) : '—',
       },
       {
         key: 'sessions',
-        label: 'Sessions',
+        label: kpi.sessions,
         value: formatNumber(Number(chat?.sessionCount ?? 0)),
         domain: 'chat',
       },
       {
         key: 'documents',
-        label: 'Documents',
+        label: kpi.documents,
         value: formatNumber(Number(rag?.documentCount ?? 0)),
         domain: 'rag',
       },
@@ -107,6 +110,7 @@ export class MetricsOverviewPage {
     if (!overview) {
       return [];
     }
+    const health = this.i18n.t().metricsPage.health;
     const agents = overview.domains['agents'] as {
       status?: string;
       agentCount?: number;
@@ -118,36 +122,48 @@ export class MetricsOverviewPage {
       connectedServers?: number;
     } | undefined;
     const system = overview.domains['system'] as { status?: string } | undefined;
+    const chatSessions = Number(
+      (overview.domains['chat'] as { sessionCount?: number })?.sessionCount ?? 0,
+    );
+    const ragDocuments = Number(
+      (overview.domains['rag'] as { documentCount?: number })?.documentCount ?? 0,
+    );
     return [
       {
         domain: 'chat',
-        label: 'Chat',
+        label: health.chat,
         status: 'UP',
-        detail: `${Number((overview.domains['chat'] as { sessionCount?: number })?.sessionCount ?? 0)} sessions`,
+        detail: this.i18n.tReplace(health.sessionsDetail, { count: chatSessions }),
       },
       {
         domain: 'rag',
-        label: 'RAG',
+        label: health.rag,
         status: 'UP',
-        detail: `${Number((overview.domains['rag'] as { documentCount?: number })?.documentCount ?? 0)} documents`,
+        detail: this.i18n.tReplace(health.documentsDetail, { count: ragDocuments }),
       },
       {
         domain: 'agents',
-        label: 'Agents',
+        label: health.agents,
         status: String(agents?.status ?? 'UP'),
-        detail: `${agents?.healthyAgentCount ?? 0}/${agents?.agentCount ?? 0} healthy`,
+        detail: this.i18n.tReplace(health.healthyDetail, {
+          healthy: agents?.healthyAgentCount ?? 0,
+          total: agents?.agentCount ?? 0,
+        }),
       },
       {
         domain: 'tools',
-        label: 'Tools / MCP',
+        label: health.toolsMcp,
         status: String(mcp?.status ?? 'UP'),
-        detail: `${mcp?.registeredTools ?? 0} tools · ${mcp?.connectedServers ?? 0} servers`,
+        detail: this.i18n.tReplace(health.toolsDetail, {
+          tools: mcp?.registeredTools ?? 0,
+          servers: mcp?.connectedServers ?? 0,
+        }),
       },
       {
         domain: 'vision',
-        label: 'Vision',
+        label: health.vision,
         status: String(system?.status ?? 'UP'),
-        detail: 'Caption · Detect · OCR',
+        detail: health.visionDetail,
       },
     ];
   });

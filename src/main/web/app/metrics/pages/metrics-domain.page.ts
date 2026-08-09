@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ChartPanelComponent, type ChartClickPayload } from '../../shared/components/charts';
 import { API_BASE_URL } from '../../core/api.constants';
+import { I18nService } from '../../core/i18n';
 import {
   MetricsKpiCardsComponent,
   type MetricsKpi,
@@ -35,6 +36,7 @@ import {
 export class MetricsDomainPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(I18nService);
 
   private readonly routeDomain = toSignal(
     this.route.paramMap.pipe(map(params => params.get('domain') ?? '')),
@@ -112,9 +114,32 @@ export class MetricsDomainPage {
   readonly title = computed(() => {
     const domain = this.domain();
     if (!domain) {
-      return 'Unknown domain';
+      return this.i18n.t().metricsPage.unknownDomainTitle;
     }
-    return domain.charAt(0).toUpperCase() + domain.slice(1);
+    const health = this.i18n.t().metricsPage.health;
+    const labels: Partial<Record<MetricsDomain, string>> = {
+      chat: health.chat,
+      rag: health.rag,
+      agents: health.agents,
+      tools: health.toolsMcp,
+      vision: health.vision,
+    };
+    return labels[domain] ?? domain.charAt(0).toUpperCase() + domain.slice(1);
+  });
+
+  readonly domainHeading = computed(() => {
+    const template = this.i18n.t().metricsPage.domainTitle;
+    return this.i18n.tReplace(template, { domain: this.title() });
+  });
+
+  readonly dayFilterLabel = computed(() => {
+    const template = this.i18n.t().metricsPage.dayFilter;
+    return this.i18n.tReplace(template, { day: this.day() ?? '' });
+  });
+
+  readonly modelFilterLabel = computed(() => {
+    const template = this.i18n.t().metricsPage.modelFilter;
+    return this.i18n.tReplace(template, { model: this.model() ?? '' });
   });
 
   readonly kpis = computed((): MetricsKpi[] => {
@@ -122,25 +147,26 @@ export class MetricsDomainPage {
     if (!snapshot) {
       return [];
     }
+    const kpi = this.i18n.t().metricsPage.kpi;
     return [
       {
         key: 'requests',
-        label: 'Requests',
+        label: kpi.requests,
         value: formatNumber(snapshot.requestCount),
       },
       {
         key: 'errors',
-        label: 'Errors',
+        label: kpi.errors,
         value: formatNumber(snapshot.errorCount),
       },
       {
         key: 'errorRate',
-        label: 'Error rate',
+        label: kpi.errorRate,
         value: formatPercent(snapshot.errorRate),
       },
       {
         key: 'p95',
-        label: 'p95 latency',
+        label: kpi.p95Latency,
         value:
           snapshot.latencyP95Ms == null
             ? '—'

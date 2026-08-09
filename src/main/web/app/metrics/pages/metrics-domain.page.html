@@ -1,30 +1,33 @@
 <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
   <nav class="text-sm text-muted-foreground">
-    <a routerLink="/metrics" class="underline">Metrics</a>
+    <a routerLink="/metrics" class="underline">{{ i18n.t().nav.metrics }}</a>
     <span class="mx-1.5">/</span>
     <span class="text-foreground">{{ title() }}</span>
   </nav>
 
   @if (!domain()) {
-    <p class="text-sm text-rose-600">Unknown domain. <a routerLink="/metrics" class="underline">Back to overview</a></p>
+    <p class="text-sm text-rose-600">
+      {{ i18n.t().metricsPage.unknownDomain }}
+      <a routerLink="/metrics" class="underline">{{ i18n.t().metricsPage.backToOverview }}</a>
+    </p>
   } @else {
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-foreground">{{ title() }} metrics</h1>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground">{{ domainHeading() }}</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          Domain-scoped KPIs, charts, and invocation drill-down
+          {{ i18n.t().metricsPage.domainSubtitle }}
           @if (day()) {
-            <span>· day {{ day() }}</span>
+            <span>{{ dayFilterLabel() }}</span>
           }
           @if (model()) {
-            <span>· model {{ model() }}</span>
+            <span>{{ modelFilterLabel() }}</span>
           }
         </p>
       </div>
       <div class="flex items-center gap-2">
         @if (day() || model()) {
           <button type="button" class="text-sm text-muted-foreground underline" (click)="clearFilters()">
-            Clear filters
+            {{ i18n.t().metricsPage.clearFilters }}
           </button>
         }
         <div class="inline-flex rounded-lg border border-border p-0.5">
@@ -34,7 +37,7 @@
             [class.bg-card]="range() === '7d'"
             (click)="setRange('7d')"
           >
-            7d
+            {{ i18n.t().metricsPage.range7d }}
           </button>
           <button
             type="button"
@@ -42,31 +45,31 @@
             [class.bg-card]="range() === '30d'"
             (click)="setRange('30d')"
           >
-            30d
+            {{ i18n.t().metricsPage.range30d }}
           </button>
         </div>
       </div>
     </header>
 
     @if (domainResource.error()) {
-      <p class="text-sm text-rose-600">Failed to load domain metrics</p>
+      <p class="text-sm text-rose-600">{{ i18n.t().metricsPage.loadDomainFailed }}</p>
     } @else if (domainResource.isLoading() && !domainResource.value()) {
-      <p class="text-sm text-muted-foreground">Loading…</p>
+      <p class="text-sm text-muted-foreground">{{ i18n.t().metricsPage.loading }}</p>
     } @else {
       <app-metrics-kpi-cards [items]="kpis()" />
 
       <div class="grid gap-6 lg:grid-cols-2">
         <app-chart-panel
           type="line"
-          heading="Requests over time"
-          emptyText="No requests in this range"
+          [heading]="i18n.t().metricsPage.charts.requestsOverTime"
+          [emptyText]="i18n.t().metricsPage.charts.requestsOverTimeEmpty"
           [data]="requestSeries()"
           (chartClick)="onRequestClick($event)"
         />
         <app-chart-panel
           type="bar"
-          heading="Calls by model"
-          emptyText="No model usage yet"
+          [heading]="i18n.t().metricsPage.charts.callsByModel"
+          [emptyText]="i18n.t().metricsPage.charts.callsByModelEmpty"
           [data]="modelSeries()"
           (chartClick)="onModelClick($event)"
         />
@@ -75,14 +78,14 @@
       @if (domain() === 'rag') {
         <app-chart-panel
           type="doughnut"
-          heading="Documents by status"
-          emptyText="No documents yet"
+          [heading]="i18n.t().metricsPage.charts.documentsByStatus"
+          [emptyText]="i18n.t().metricsPage.charts.documentsByStatusEmpty"
           [data]="docsSeries()"
         />
       }
 
       <app-metrics-drilldown-table
-        heading="Filtered invocations"
+        [heading]="i18n.t().metricsPage.drilldown.filteredHeading"
         [items]="drilldownItems()"
         [total]="drilldownTotal()"
         (rowClick)="onRowClick($event)"

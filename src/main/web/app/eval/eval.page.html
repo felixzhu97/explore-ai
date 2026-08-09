@@ -1,13 +1,13 @@
 <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
   <header>
-    <h1 class="text-xl font-semibold text-foreground">Chat Evaluation</h1>
-    <p class="mt-1 text-sm text-foreground/60">LLM-as-Judge quality and safety scoring</p>
+    <h1 class="text-xl font-semibold text-foreground">{{ i18n.t().evalPage.title }}</h1>
+    <p class="mt-1 text-sm text-foreground/60">{{ i18n.t().evalPage.subtitle }}</p>
   </header>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <section class="flex flex-col rounded-xl border border-black/8 bg-white p-4">
       <label class="block text-sm font-medium text-foreground" for="eval-user-message">
-        User Message
+        {{ i18n.t().evalPage.userMessage }}
       </label>
       <textarea
         id="eval-user-message"
@@ -18,7 +18,7 @@
       ></textarea>
 
       <label class="mt-4 block text-sm font-medium text-foreground" for="eval-assistant-response">
-        Assistant Response
+        {{ i18n.t().evalPage.assistantResponse }}
       </label>
       <textarea
         id="eval-assistant-response"
@@ -36,7 +36,7 @@
         [disabled]="loading() || !userMessage().trim() || !assistantResponse().trim()"
         (click)="submit()"
       >
-        {{ loading() ? 'Evaluating...' : 'Evaluate' }}
+        {{ loading() ? i18n.t().evalPage.evaluating : i18n.t().evalPage.evaluate }}
       </button>
 
       @if (error()) {
@@ -49,7 +49,9 @@
     <section class="flex min-h-72 flex-col rounded-xl border border-black/8 bg-white p-5">
       @if (result(); as evaluation) {
         <div class="flex items-baseline justify-between gap-3 border-b border-black/8 pb-4">
-          <h2 class="text-sm font-medium tracking-wide text-foreground/50 uppercase">Overall</h2>
+          <h2 class="text-sm font-medium tracking-wide text-foreground/50 uppercase">
+            {{ i18n.t().evalPage.overall }}
+          </h2>
           <p class="text-3xl font-semibold text-foreground tabular-nums">
             {{ evaluation.overallScore }}
           </p>
@@ -57,33 +59,33 @@
 
         <div class="mt-4 grid grid-cols-2 gap-3">
           <div class="rounded-lg bg-surface p-3">
-            <p class="text-xs text-foreground/50">Coherence</p>
+            <p class="text-xs text-foreground/50">{{ i18n.t().evalPage.coherence }}</p>
             <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.coherenceScore }}</p>
           </div>
           <div class="rounded-lg bg-surface p-3">
-            <p class="text-xs text-foreground/50">Relevance</p>
+            <p class="text-xs text-foreground/50">{{ i18n.t().evalPage.relevance }}</p>
             <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.relevanceScore }}</p>
           </div>
           <div class="rounded-lg bg-surface p-3">
-            <p class="text-xs text-foreground/50">Helpfulness</p>
+            <p class="text-xs text-foreground/50">{{ i18n.t().evalPage.helpfulness }}</p>
             <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.helpfulnessScore }}</p>
           </div>
           @if (evaluation.factualityAvailable) {
             <div class="rounded-lg bg-surface p-3">
-              <p class="text-xs text-foreground/50">Factuality</p>
+              <p class="text-xs text-foreground/50">{{ i18n.t().evalPage.factuality }}</p>
               <p class="mt-1 text-xl font-semibold tabular-nums">{{ evaluation.factualityScore }}</p>
             </div>
           }
           <div class="rounded-lg bg-surface p-3">
-            <p class="text-xs text-foreground/50">Safety Issues</p>
+            <p class="text-xs text-foreground/50">{{ i18n.t().evalPage.safetyIssues }}</p>
             <p class="mt-1 text-lg font-semibold">
-              {{ evaluation.hasSafetyIssues ? 'Yes' : 'No' }}
+              {{ evaluation.hasSafetyIssues ? i18n.t().evalPage.yes : i18n.t().evalPage.no }}
             </p>
           </div>
         </div>
 
         @if (evaluation.suggestions.length > 0) {
-          <h3 class="mt-5 text-sm font-medium text-foreground">Suggestions</h3>
+          <h3 class="mt-5 text-sm font-medium text-foreground">{{ i18n.t().evalPage.suggestions }}</h3>
           <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-foreground/80">
             @for (suggestion of evaluation.suggestions; track suggestion) {
               <li>{{ suggestion }}</li>
@@ -92,7 +94,7 @@
         }
       } @else {
         <div class="flex flex-1 flex-col items-center justify-center text-center">
-          <p class="text-sm text-foreground/50">Scores appear here after you evaluate.</p>
+          <p class="text-sm text-foreground/50">{{ i18n.t().evalPage.empty }}</p>
         </div>
       }
     </section>

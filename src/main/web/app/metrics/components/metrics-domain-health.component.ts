@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { I18nService } from '../../core/i18n';
 
 export interface DomainHealthItem {
   domain: string;
@@ -11,7 +12,9 @@ export interface DomainHealthItem {
   selector: 'app-metrics-domain-health',
   template: `
     <div class="flex flex-col gap-2">
-      <h3 class="text-sm font-medium text-foreground">{{ heading() }}</h3>
+      <h3 class="text-sm font-medium text-foreground">
+        {{ heading() || i18n.t().metricsPage.health.heading }}
+      </h3>
       <div class="overflow-hidden rounded-xl border border-black/10">
         @for (item of items(); track item.domain) {
           <button
@@ -32,7 +35,9 @@ export interface DomainHealthItem {
             </span>
           </button>
         } @empty {
-          <p class="px-4 py-6 text-center text-sm text-muted-foreground">{{ emptyText() }}</p>
+          <p class="px-4 py-6 text-center text-sm text-muted-foreground">
+            {{ emptyText() || i18n.t().metricsPage.health.empty }}
+          </p>
         }
       </div>
     </div>
@@ -40,8 +45,10 @@ export interface DomainHealthItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsDomainHealthComponent {
+  protected readonly i18n = inject(I18nService);
+
   readonly items = input<DomainHealthItem[]>([]);
-  readonly heading = input('Domain health');
-  readonly emptyText = input('No domain health data');
+  readonly heading = input('');
+  readonly emptyText = input('');
   readonly domainClick = output<string>();
 }

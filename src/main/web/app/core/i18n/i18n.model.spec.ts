@@ -35,7 +35,18 @@ describe('i18n.model', () => {
     });
 
     it('should have required top-level keys for all languages', () => {
-      const requiredKeys = ['nav', 'imageUploader', 'ragChat', 'pipelines', 'chat', 'generate'] as const;
+      const requiredKeys = [
+        'nav',
+        'imageUploader',
+        'ragChat',
+        'pipelines',
+        'chat',
+        'generate',
+        'metricsPage',
+        'evalPage',
+        'asrPage',
+        'mcpPage',
+      ] as const;
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
         const langTranslations = translations[lang];
@@ -219,6 +230,27 @@ describe('i18n.model', () => {
           expect(translations[lang].chat.welcomeDescription).toBeDefined();
           expect(translations[lang].chat.suggestedPromptsTitle).toBeDefined();
           expect(translations[lang].chat.suggestedPrompts).toHaveLength(3);
+          expect(translations[lang].chat.loadingModels).toBeDefined();
+        });
+      });
+    });
+
+    describe('lab page translations', () => {
+      it('should have metricsPage chrome for all languages', () => {
+        SUPPORTED_LANGUAGES.forEach((lang) => {
+          expect(translations[lang].metricsPage.overviewTitle.length).toBeGreaterThan(0);
+          expect(translations[lang].metricsPage.kpi.aiRequests.length).toBeGreaterThan(0);
+          expect(translations[lang].metricsPage.drilldown.eventsCount).toContain('{total}');
+        });
+      });
+
+      it('should have evalPage asrPage and mcpPage for all languages', () => {
+        SUPPORTED_LANGUAGES.forEach((lang) => {
+          expect(translations[lang].evalPage.evaluate.length).toBeGreaterThan(0);
+          expect(
+            translations[lang].asrPage.connectionState.connected.length,
+          ).toBeGreaterThan(0);
+          expect(translations[lang].mcpPage.toolsCount).toContain('{count}');
         });
       });
     });
