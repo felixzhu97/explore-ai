@@ -110,6 +110,7 @@ export const zh: Translations = {
     uploadFailed: '{name} 上传失败',
     uploading: '上传中...',
     basedOn: '基于 {count} 个来源',
+    openReference: '打开',
     documentDeleted: '文档已删除',
     deleteFailed: '删除失败，请重试',
     fileSelected: '已选择 {count} 个文件',

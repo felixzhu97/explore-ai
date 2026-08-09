@@ -211,13 +211,6 @@ describe('RagService', () => {
     expect(streamSsePostMock).not.toHaveBeenCalled();
   });
 
-  it('should_toggle_expanded_sources', () => {
-    service.toggleSources('m1');
-    expect(service.expandedSources().has('m1')).toBe(true);
-    service.toggleSources('m1');
-    expect(service.expandedSources().has('m1')).toBe(false);
-  });
-
   it('should_update_input_signal', () => {
     service.setInput('hello rag');
     expect(service.input()).toBe('hello rag');

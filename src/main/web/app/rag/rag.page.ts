@@ -82,7 +82,6 @@ export class RagPageComponent implements OnInit {
       timestamp: message.timestamp,
       images: message.images,
       sources: message.sources,
-      sourcesExpanded: this.ragService.expandedSources().has(message.id),
       assistantIcon: 'document',
     }));
   });
@@ -93,6 +92,7 @@ export class RagPageComponent implements OnInit {
       sources: t.sources,
       similarity: t.similarity,
       basedOn: t.basedOn,
+      openReference: t.openReference,
     };
   });
 
@@ -156,9 +156,5 @@ export class RagPageComponent implements OnInit {
 
   onPromptSelect(label: string): void {
     this.ragService.setInput(label);
-  }
-
-  onToggleSources(messageId: string): void {
-    this.ragService.toggleSources(messageId);
   }
 }

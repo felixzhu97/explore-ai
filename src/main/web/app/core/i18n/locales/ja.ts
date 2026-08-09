@@ -111,6 +111,7 @@ export const ja: Translations = {
     uploadFailed: '{name} アップロード失敗',
     uploading: 'アップロード中...',
     basedOn: '{count} ソースに基づく',
+    openReference: '開く',
     documentDeleted: 'ドキュメントが削除されました',
     deleteFailed: '削除に失敗しました。もう一度お試しください',
     fileSelected: '{count} ファイル選択済み',
