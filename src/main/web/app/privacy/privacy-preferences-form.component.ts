@@ -23,20 +23,27 @@ export interface PrivacyPreferencesModel {
   selector: 'app-privacy-preferences-form',
   imports: [FormField, ZardSwitchComponent, ZardInputDirective, ZardButtonComponent],
   template: `
-    <section class="rounded-xl border border-black/8 bg-background p-5">
-      <h2 class="text-base font-semibold">{{ copy().analyticsHeading }}</h2>
-      <p class="mt-2 text-sm text-muted-foreground">{{ copy().analyticsHelp }}</p>
+    <section>
+      <h2 class="text-xl leading-snug font-medium tracking-[-0.02em] text-[#0D0D0D]">
+        {{ copy().analyticsHeading }}
+      </h2>
+      <p class="mt-3 text-[15px] leading-relaxed text-[#0D0D0D]/80">
+        {{ copy().analyticsHelp }}
+      </p>
 
-      <div class="mt-4 flex items-center justify-between gap-4">
-        <span class="text-sm">{{ copy().analyticsLabel }}</span>
+      <div class="mt-5 flex items-center justify-between gap-4">
+        <span class="text-[15px] text-[#0D0D0D]">{{ copy().analyticsLabel }}</span>
         <z-switch [formField]="preferencesForm.analytics" />
       </div>
 
-      <div class="mt-6">
-        <label class="block text-sm font-medium" for="privacy-contact-email">
+      <div class="mt-8">
+        <label
+          class="block text-[15px] font-medium text-[#0D0D0D]"
+          for="privacy-contact-email"
+        >
           {{ copy().contactEmailLabel }}
         </label>
-        <p class="mt-1 text-xs text-muted-foreground">{{ copy().contactEmailHelp }}</p>
+        <p class="mt-1 text-[13px] text-[#8F8F8F]">{{ copy().contactEmailHelp }}</p>
         <input
           id="privacy-contact-email"
           type="email"
@@ -49,7 +56,7 @@ export interface PrivacyPreferencesModel {
           preferencesForm.contactEmail().invalid() && preferencesForm.contactEmail().touched()
         ) {
           @for (error of preferencesForm.contactEmail().errors(); track error.kind) {
-            <p class="mt-1 text-xs text-red-600">{{ error.message }}</p>
+            <p class="mt-1 text-[13px] text-red-600">{{ error.message }}</p>
           }
         }
       </div>
@@ -59,6 +66,7 @@ export interface PrivacyPreferencesModel {
           type="button"
           z-button
           zType="default"
+          class="rounded-full"
           [disabled]="
             saving() || preferencesForm().invalid() || !preferencesForm().dirty()
           "

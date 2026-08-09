@@ -62,8 +62,18 @@ import { SidebarService } from '../../sidebar.service';
               [attr.aria-label]="t().account.help"
             >
               <div
-                class="w-36 rounded-lg border border-sidebar-border bg-sidebar p-1 shadow-md"
+                class="w-40 rounded-lg border border-sidebar-border bg-sidebar p-1 shadow-md"
               >
+                <a
+                  z-sidebar-menu-button
+                  role="menuitem"
+                  routerLink="/policies"
+                  [class]="secondaryItemClass"
+                  (click)="onItemClick()"
+                >
+                  <span class="opacity-60" [innerHTML]="legalIcon"></span>
+                  <span>{{ t().nav.policies }}</span>
+                </a>
                 <a
                   z-sidebar-menu-button
                   role="menuitem"
@@ -73,16 +83,6 @@ import { SidebarService } from '../../sidebar.service';
                 >
                   <span class="opacity-60" [innerHTML]="privacyIcon"></span>
                   <span>{{ t().nav.privacy }}</span>
-                </a>
-                <a
-                  z-sidebar-menu-button
-                  role="menuitem"
-                  routerLink="/legal"
-                  [class]="secondaryItemClass"
-                  (click)="onItemClick()"
-                >
-                  <span class="opacity-60" [innerHTML]="legalIcon"></span>
-                  <span>{{ t().nav.legal }}</span>
                 </a>
               </div>
             </div>

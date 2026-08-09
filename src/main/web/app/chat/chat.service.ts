@@ -236,13 +236,16 @@ export class ChatService {
   }
 
   createSession(): void {
-    this.ensureEmptyDraft(true);
+    this.ensureEmptyDraft(true, { navigateToChat: true });
   }
 
-  selectSession(sessionId: string): void {
+  selectSession(sessionId: string, options?: { navigateToChat?: boolean }): void {
     if (!sessionId || this.chatRedirectInFlight) {
       return;
     }
+    const syncOpts = options?.navigateToChat
+      ? ({ navigateToChat: true } as const)
+      : undefined;
     const owned = this.sessions();
     const canValidateOwnership = this.sessionsInitialized || owned.length > 0;
     if (canValidateOwnership && !owned.some(session => session.sessionId === sessionId)) {
@@ -250,7 +253,7 @@ export class ChatService {
       return;
     }
     if (this.activeSessionId() === sessionId && this.isLoadingSession()) {
-      this.syncChatUrl(sessionId);
+      this.syncChatUrl(sessionId, syncOpts);
       return;
     }
     if (
@@ -258,7 +261,7 @@ export class ChatService {
       && !this.isLoadingSession()
       && this.sessionLoadGeneration > 0
     ) {
-      this.syncChatUrl(sessionId);
+      this.syncChatUrl(sessionId, syncOpts);
       return;
     }
     if (this.streamAbort) {
@@ -271,7 +274,7 @@ export class ChatService {
     this.error.set(null);
     this.isLoadingSession.set(true);
     this.rememberActiveSessionIfNeeded(sessionId);
-    this.syncChatUrl(sessionId);
+    this.syncChatUrl(sessionId, syncOpts);
     this.getSessionMessages(sessionId).subscribe({
       next: (history) => {
         if (this.isStaleSessionLoad(loadId, sessionId)) {
@@ -280,7 +283,7 @@ export class ChatService {
         this.messages.set(history.map(msg => this.toUiMessage(msg)));
         this.isLoadingSession.set(false);
         this.rememberActiveSessionIfNeeded(sessionId);
-        this.syncChatUrl(sessionId);
+        this.syncChatUrl(sessionId, syncOpts);
       },
       error: () => {
         if (this.isStaleSessionLoad(loadId, sessionId)) {
@@ -332,10 +335,13 @@ export class ChatService {
   }
 
   /** Reuse the newest empty draft, or create one when allowed. */
-  private ensureEmptyDraft(createIfMissing: boolean): void {
+  private ensureEmptyDraft(
+    createIfMissing: boolean,
+    options?: { navigateToChat?: boolean },
+  ): void {
     const existingEmpty = this.newestEmptySession();
     if (existingEmpty) {
-      this.selectSession(existingEmpty.sessionId);
+      this.selectSession(existingEmpty.sessionId, options);
       this.pruneExtraEmptySessions(existingEmpty.sessionId);
       return;
     }
@@ -353,7 +359,7 @@ export class ChatService {
           const withoutCurrent = list.filter(s => s.sessionId !== session.sessionId);
           return [session, ...withoutCurrent];
         });
-        this.selectSession(session.sessionId);
+        this.selectSession(session.sessionId, options);
         this.pruneExtraEmptySessions(session.sessionId);
       },
       complete: () => {
@@ -471,24 +477,25 @@ export class ChatService {
       && this.currentChatPath() === `/chat/${sessionId}`;
   }
 
-  private syncChatUrl(sessionId: string | null): void {
+  private syncChatUrl(
+    sessionId: string | null,
+    options?: { navigateToChat?: boolean },
+  ): void {
     if (this.chatRedirectInFlight) {
       return;
     }
     const currentPath = this.currentChatPath();
     const onChat = currentPath === '/chat' || currentPath.startsWith('/chat/');
-    const expose = sessionId != null && this.shouldExposeSessionInUrl(sessionId);
-    const targetUrl = expose && sessionId ? `/chat/${sessionId}` : '/chat';
-    if (!onChat) {
-      if (sessionId) {
-        void this.router.navigateByUrl(targetUrl);
-      }
+    // Passive sync (bootstrap) must not leave RAG/Policies/etc. User actions may.
+    if (!onChat && !options?.navigateToChat) {
       return;
     }
+    const expose = sessionId != null && this.shouldExposeSessionInUrl(sessionId);
+    const targetUrl = expose && sessionId ? `/chat/${sessionId}` : '/chat';
     if (currentPath === targetUrl) {
       return;
     }
-    void this.router.navigateByUrl(targetUrl, { replaceUrl: true });
+    void this.router.navigateByUrl(targetUrl, { replaceUrl: onChat });
   }
 
   /** Missing / foreign session: navigate to `/chat`, then open an empty draft. */

@@ -26,6 +26,7 @@ export const ja: Translations = {
     metrics: 'メトリクス',
     privacy: 'プライバシー',
     legal: '法的情報',
+    policies: 'ポリシー',
     generation: '生成',
     modelDev: '開発',
     modelOps: '運用',

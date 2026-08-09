@@ -95,9 +95,9 @@ describe('ChatSessionListService', () => {
     expect(chatService.createSession).toHaveBeenCalled();
   });
 
-  it('should delegate selectSession', () => {
+  it('should delegate selectSession with navigateToChat', () => {
     service.selectSession('s2');
-    expect(chatService.selectSession).toHaveBeenCalledWith('s2');
+    expect(chatService.selectSession).toHaveBeenCalledWith('s2', { navigateToChat: true });
   });
 
   it('should delegate deleteSession', () => {
