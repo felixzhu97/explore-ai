@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class VisionModelPropertiesTest {
 
     @Test
-    @DisplayName("should_expose_nested_configuration_defaults")
-    void should_expose_nested_configuration_defaults() {
+    @DisplayName("should expose nested configuration defaults")
+    void shouldExposeNestedConfigurationDefaults() {
         VisionModelProperties properties = new VisionModelProperties();
 
         assertThat(properties.getModelsDir()).isEqualTo("models");

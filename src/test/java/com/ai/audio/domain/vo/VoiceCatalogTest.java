@@ -14,7 +14,7 @@ class VoiceCatalogTest {
 
     @Test
     @DisplayName("should contain default voices and models")
-    void should_contain_default_voices_and_models() {
+    void shouldContainDefaultVoicesAndModels() {
         VoiceCatalog catalog = VoiceCatalog.defaults();
 
         assertThat(catalog.containsVoice("alloy")).isTrue();
@@ -24,7 +24,7 @@ class VoiceCatalogTest {
 
     @Test
     @DisplayName("should reject null voices")
-    void should_reject_null_voices() {
+    void shouldRejectNullVoices() {
         assertThatThrownBy(() -> new VoiceCatalog(null, List.of("tts-1")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Voices list");
@@ -32,7 +32,7 @@ class VoiceCatalogTest {
 
     @Test
     @DisplayName("should return immutable lists")
-    void should_return_immutable_lists() {
+    void shouldReturnImmutableLists() {
         List<String> mutableVoices = new ArrayList<>(List.of("alloy"));
         VoiceCatalog catalog = new VoiceCatalog(mutableVoices, List.of("tts-1"));
 
@@ -45,7 +45,7 @@ class VoiceCatalogTest {
 
     @Test
     @DisplayName("should return unknown voice info for blank voice id")
-    void should_return_unknown_voice_info_for_blank_voice_id() {
+    void shouldReturnUnknownVoiceInfoForBlankVoiceId() {
         VoiceCatalog catalog = new VoiceCatalog(List.of("alloy", ""), List.of("tts-1"));
 
         List<VoiceInfo> infos = catalog.voiceInfos();

@@ -53,7 +53,7 @@ class ChatDataRetentionJobTest {
     }
 
     @Test
-    void should_skipPurge_whenDisabled() {
+    void shouldSkipPurgeWhenDisabled() {
         properties.setEnabled(false);
 
         job.purgeExpiredData();
@@ -62,7 +62,7 @@ class ChatDataRetentionJobTest {
     }
 
     @Test
-    void should_purgeInactiveSessionsAndMetrics_whenEnabled() {
+    void shouldPurgeInactiveSessionsAndMetricsWhenEnabled() {
         ChatSession expired = ChatSession.createWithId(ChatSessionId.of("old-session"), "Old", "client-a");
         when(sessionRepository.findInactiveSince(any())).thenReturn(List.of(expired));
         when(invocationEventRepository.deleteBySessionIds(anyCollection())).thenReturn(2);

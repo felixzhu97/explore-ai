@@ -32,7 +32,7 @@ describe('ChatMessagePaneComponent', () => {
     fixture = TestBed.createComponent(ChatMessagePaneComponent);
   });
 
-  it('should_showWelcomePanel_when_messagesEmptyAndNoEmptyText', () => {
+  it('should show welcome panel when messages empty and no empty text', () => {
     fixture.componentRef.setInput('messages', []);
     fixture.componentRef.setInput('welcomeTitle', 'Welcome');
     fixture.componentRef.setInput('welcomeDescription', 'Start');
@@ -42,7 +42,7 @@ describe('ChatMessagePaneComponent', () => {
     expect(welcome).toBeTruthy();
   });
 
-  it('should_showEmptyText_when_messagesEmptyAndEmptyTextSet', () => {
+  it('should show empty text when messages empty and empty text set', () => {
     fixture.componentRef.setInput('messages', []);
     fixture.componentRef.setInput('emptyText', 'No results yet');
     fixture.detectChanges();
@@ -53,7 +53,7 @@ describe('ChatMessagePaneComponent', () => {
     ).toBeNull();
   });
 
-  it('should_showBubbleList_when_messagesPresent', () => {
+  it('should show bubble list when messages present', () => {
     const messages: ChatBubbleMessage[] = [
       { id: '1', role: 'user', content: 'Hello' },
     ];
@@ -65,7 +65,7 @@ describe('ChatMessagePaneComponent', () => {
     ).toBeTruthy();
   });
 
-  it('should_emitPromptSelect_when_welcomePromptChosen', () => {
+  it('should emit prompt select when welcome prompt chosen', () => {
     const spy = vi.fn();
     fixture.componentInstance.promptSelect.subscribe(spy);
     fixture.componentRef.setInput('messages', []);

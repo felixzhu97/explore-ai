@@ -24,7 +24,7 @@ function node(
 }
 
 describe('validatePipeline', () => {
-  it('should_accept_single_node_when_no_edges', () => {
+  it('should accept single node when no edges', () => {
     const graph: PipelineGraph = {
       nodes: [node('n1', 'k8s', { name: 'K8s', description: 'cluster' })],
       connections: [],
@@ -33,14 +33,14 @@ describe('validatePipeline', () => {
     expect(validatePipeline(graph)).toEqual({ ok: true, order: ['k8s'] });
   });
 
-  it('should_reject_empty_graph', () => {
+  it('should reject empty graph', () => {
     expect(validatePipeline({ nodes: [], connections: [] })).toEqual({
       ok: false,
       reason: 'empty',
     });
   });
 
-  it('should_reject_unconnected_nodes', () => {
+  it('should reject unconnected nodes', () => {
     const graph: PipelineGraph = {
       nodes: [node('a', 'k8s'), node('b', 'aiops', { x: 100 })],
       connections: [],
@@ -52,7 +52,7 @@ describe('validatePipeline', () => {
     });
   });
 
-  it('should_topo_sort_connected_pipeline', () => {
+  it('should topo sort connected pipeline', () => {
     const graph: PipelineGraph = {
       nodes: [node('a', 'k8s'), node('b', 'aiops', { x: 200 })],
       connections: [{ id: 'c1', sourceNodeId: 'a', targetNodeId: 'b' }],
@@ -66,7 +66,7 @@ describe('validatePipeline', () => {
 });
 
 describe('toPipelineInvokeRequest', () => {
-  it('should_include_node_snapshot_fields', () => {
+  it('should include node snapshot fields', () => {
     const graph: PipelineGraph = {
       nodes: [
         node('a', 'research', {

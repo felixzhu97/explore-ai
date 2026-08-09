@@ -46,8 +46,8 @@ class MetricsControllerTest {
     }
 
     @Test
-    @DisplayName("should_map_overview_response_from_use_case")
-    void should_map_overview_response_from_use_case() {
+    @DisplayName("should map overview response from use case")
+    void shouldMapOverviewResponseFromUseCase() {
         MetricsOverview overview = new MetricsOverview(
                 "7d",
                 100,
@@ -75,8 +75,8 @@ class MetricsControllerTest {
     }
 
     @Test
-    @DisplayName("should_map_domain_response_from_use_case")
-    void should_map_domain_response_from_use_case() {
+    @DisplayName("should map domain response from use case")
+    void shouldMapDomainResponseFromUseCase() {
         MetricsDomainSnapshot snapshot = new MetricsDomainSnapshot(
                 "chat",
                 "7d",
@@ -102,8 +102,8 @@ class MetricsControllerTest {
     }
 
     @Test
-    @DisplayName("should_map_series_response_from_use_case")
-    void should_map_series_response_from_use_case() {
+    @DisplayName("should map series response from use case")
+    void shouldMapSeriesResponseFromUseCase() {
         SeriesSnapshot snapshot = new SeriesSnapshot(
                 "requests",
                 "chat",
@@ -119,8 +119,8 @@ class MetricsControllerTest {
     }
 
     @Test
-    @DisplayName("should_map_drilldown_response_from_use_case")
-    void should_map_drilldown_response_from_use_case() {
+    @DisplayName("should map drilldown response from use case")
+    void shouldMapDrilldownResponseFromUseCase() {
         UUID id = UUID.randomUUID();
         Instant occurredAt = Instant.parse("2026-07-26T08:00:00Z");
         AiInvocationEvent event = AiInvocationEvent.builder()

@@ -15,7 +15,7 @@ class FeatureFlagServiceTest {
 
     @Test
     @DisplayName("should return repository value for module flag")
-    void should_returnRepositoryValue_when_moduleFlagRequested() {
+    void shouldReturnRepositoryValueWhenModuleFlagRequested() {
         LaunchDarklyProperties properties = new LaunchDarklyProperties();
         properties.setFallback(Map.of("module-eval", false));
 

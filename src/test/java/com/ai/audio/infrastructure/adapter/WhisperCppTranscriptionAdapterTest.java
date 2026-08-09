@@ -46,7 +46,7 @@ class WhisperCppTranscriptionAdapterTest {
 
     @Test
     @DisplayName("should send partial when transcription succeeds")
-    void should_sendPartial_when_transcriptionSucceeds() throws Exception {
+    void shouldSendPartialWhenTranscriptionSucceeds() throws Exception {
         when(session.isOpen()).thenReturn(true);
         mockServer.expect(requestTo("http://localhost:8178/v1/audio/transcriptions"))
                 .andExpect(method(POST))
@@ -69,7 +69,7 @@ class WhisperCppTranscriptionAdapterTest {
 
     @Test
     @DisplayName("should send error when whisper server returns non-200")
-    void should_sendError_when_whisperServerReturnsNon200() throws Exception {
+    void shouldSendErrorWhenWhisperServerReturnsNon200() throws Exception {
         when(session.isOpen()).thenReturn(true);
         mockServer.expect(requestTo("http://localhost:8178/v1/audio/transcriptions"))
                 .andExpect(method(POST))
@@ -90,7 +90,7 @@ class WhisperCppTranscriptionAdapterTest {
 
     @Test
     @DisplayName("should send error when message type is not audio")
-    void should_sendError_when_messageTypeIsNotAudio() throws Exception {
+    void shouldSendErrorWhenMessageTypeIsNotAudio() throws Exception {
         when(session.isOpen()).thenReturn(true);
         String payload = objectMapper.writeValueAsString(
                 java.util.Map.of("type", "stop", "data", "ignored"));
@@ -105,7 +105,7 @@ class WhisperCppTranscriptionAdapterTest {
 
     @Test
     @DisplayName("should decode data URL base64 when audio has prefix")
-    void should_decodeDataUrlBase64_when_audioHasPrefix() {
+    void shouldDecodeDataUrlBase64WhenAudioHasPrefix() {
         String encoded = java.util.Base64.getEncoder().encodeToString("wav-bytes".getBytes());
         byte[] decoded = adapter.decodeAudio("data:audio/wav;base64," + encoded);
         assertThat(decoded).isEqualTo("wav-bytes".getBytes());
@@ -113,7 +113,7 @@ class WhisperCppTranscriptionAdapterTest {
 
     @Test
     @DisplayName("should not send when session is closed")
-    void should_notSend_when_sessionIsClosed() throws Exception {
+    void shouldNotSendWhenSessionIsClosed() throws Exception {
         when(session.isOpen()).thenReturn(false);
         StringBuilder transcript = new StringBuilder("hello world");
 
@@ -124,7 +124,7 @@ class WhisperCppTranscriptionAdapterTest {
 
     @Test
     @DisplayName("should send final when session ends with transcript")
-    void should_sendFinal_when_sessionEndsWithTranscript() throws Exception {
+    void shouldSendFinalWhenSessionEndsWithTranscript() throws Exception {
         when(session.isOpen()).thenReturn(true);
         StringBuilder transcript = new StringBuilder("hello world");
 

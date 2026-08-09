@@ -17,8 +17,8 @@ class CapturedWebSourcesTest {
     private final ObjectMapper json = new ObjectMapper();
 
     @Test
-    @DisplayName("should_remember_and_take_sources_per_channel")
-    void should_remember_and_take_sources_per_channel() {
+    @DisplayName("should remember and take sources per channel")
+    void shouldRememberAndTakeSourcesPerChannel() {
         CapturedWebSources.remember(
                 "session-a",
                 "who is ceo",
@@ -33,8 +33,8 @@ class CapturedWebSourcesTest {
     }
 
     @Test
-    @DisplayName("should_parse_items_from_sources_payload")
-    void should_parse_items_from_sources_payload() {
+    @DisplayName("should parse items from sources payload")
+    void shouldParseItemsFromSourcesPayload() {
         ArrayNode items = json.createArrayNode();
         ObjectNode item = items.addObject();
         item.put("title", "T");

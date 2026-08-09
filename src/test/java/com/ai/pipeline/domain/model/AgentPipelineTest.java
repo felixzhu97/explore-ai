@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AgentPipelineTest {
 
     @Test
-    void should_order_single_node_without_edges() {
+    void shouldOrderSingleNodeWithoutEdges() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(AgentPipeline.PipelineNode.of("n1", AgentType.of("k8s"))),
                 List.of());
@@ -23,7 +23,7 @@ class AgentPipelineTest {
     }
 
     @Test
-    void should_topo_sort_connected_workers() {
+    void shouldTopoSortConnectedWorkers() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
                         AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
@@ -36,7 +36,7 @@ class AgentPipelineTest {
     }
 
     @Test
-    void should_reject_empty_pipeline() {
+    void shouldRejectEmptyPipeline() {
         AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class, pipeline::executionOrder);
@@ -44,7 +44,7 @@ class AgentPipelineTest {
     }
 
     @Test
-    void should_reject_unconnected_nodes() {
+    void shouldRejectUnconnectedNodes() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
                         AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
@@ -57,7 +57,7 @@ class AgentPipelineTest {
     }
 
     @Test
-    void should_reject_cycle() {
+    void shouldRejectCycle() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
                         AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
@@ -72,7 +72,7 @@ class AgentPipelineTest {
     }
 
     @Test
-    void should_reject_supervisor_node() {
+    void shouldRejectSupervisorNode() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(AgentPipeline.PipelineNode.of("s", AgentType.supervisor())),
                 List.of());
@@ -81,7 +81,7 @@ class AgentPipelineTest {
     }
 
     @Test
-    void should_keep_node_snapshot_fields() {
+    void shouldKeepNodeSnapshotFields() {
         AgentPipeline.PipelineNode node = new AgentPipeline.PipelineNode(
                 "n1",
                 AgentType.of("research"),

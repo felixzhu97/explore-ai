@@ -148,6 +148,23 @@ describe('ChatBubbleListComponent', () => {
     expect(items[0].loading).toBe(true);
   });
 
+  it('should not show thinking label when assistant is not streaming', () => {
+    fixture.componentRef.setInput('thinkingLabel', '思考中...');
+    fixture.componentRef.setInput('messages', [
+      {
+        id: 'assistant-empty',
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+      },
+    ]);
+    fixture.componentRef.setInput('streamingMessageId', null);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('思考中...');
+    expect(component.bubbleItems()[0].loading).toBe(false);
+  });
+
   it('should collapse long user messages when enabled', () => {
     const longContent = 'x'.repeat(200);
     fixture.componentRef.setInput('messages', [
@@ -225,7 +242,7 @@ describe('ChatBubbleListComponent', () => {
     expect(popover?.querySelector('a[aria-label]')).toBeNull();
   });
 
-  it('should show published date in popover when source has publishedAt', () => {
+  it('should show published date in popover when source has published at', () => {
     fixture.componentRef.setInput('messages', [
       {
         id: 'assistant-dated',
@@ -255,7 +272,7 @@ describe('ChatBubbleListComponent', () => {
     expect(popover.textContent).not.toMatch(/打开|Open/);
   });
 
-  it('should omit published date in popover when source has no publishedAt', () => {
+  it('should omit published date in popover when source has no published at', () => {
     fixture.detectChanges();
 
     const chip = fixture.nativeElement.querySelector('[data-source-chips] button') as HTMLButtonElement;

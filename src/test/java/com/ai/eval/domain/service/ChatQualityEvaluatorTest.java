@@ -87,7 +87,7 @@ class ChatQualityEvaluatorTest {
 
     @Test
     @DisplayName("should skip factuality when referenceDocuments is empty")
-    void should_skipFactuality_when_noReferenceDocuments() {
+    void shouldSkipFactualityWhenNoReferenceDocuments() {
         when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
             .thenReturn(new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
         stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
@@ -107,7 +107,7 @@ class ChatQualityEvaluatorTest {
 
     @Test
     @DisplayName("should evaluate factuality when referenceDocuments provided")
-    void should_evaluateFactuality_when_referenceDocumentsProvided() {
+    void shouldEvaluateFactualityWhenReferenceDocumentsProvided() {
         when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
             .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of("relevancy: PASS", "factuality: PASS"), true));
         stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
@@ -126,7 +126,7 @@ class ChatQualityEvaluatorTest {
 
     @Test
     @DisplayName("should use fallback when LLM judge returns null")
-    void should_useFallback_when_llmJudgeReturnsNull() {
+    void shouldUseFallbackWhenLlmJudgeReturnsNull() {
         when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
             .thenReturn(new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
         lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
@@ -148,7 +148,7 @@ class ChatQualityEvaluatorTest {
 
     @Test
     @DisplayName("should use default safety concern when blank")
-    void should_useDefaultSafetyConcern_when_blank() {
+    void shouldUseDefaultSafetyConcernWhenBlank() {
         when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
             .thenReturn(new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
         stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, true, "", ""));
@@ -165,7 +165,7 @@ class ChatQualityEvaluatorTest {
 
     @Test
     @DisplayName("should include factuality in overall score when available")
-    void should_includeFactualityInOverallScore_when_available() {
+    void shouldIncludeFactualityInOverallScoreWhenAvailable() {
         when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
             .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
         stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, false, "", ""));
@@ -181,7 +181,7 @@ class ChatQualityEvaluatorTest {
 
     @Test
     @DisplayName("should suggest relevance fix when relevancy fails")
-    void should_suggestRelevanceFix_when_relevancyFails() {
+    void shouldSuggestRelevanceFixWhenRelevancyFails() {
         when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
             .thenReturn(new OfficialGateResult(false, null, false, 0.0, null, List.of("relevancy: FAIL"), false));
         stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));

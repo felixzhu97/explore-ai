@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SkillTemplateCatalogTest {
 
     @Test
-    @DisplayName("should_listBuiltInTemplates_when_catalogLoaded")
-    void should_listBuiltInTemplates_when_catalogLoaded() {
+    @DisplayName("should list built in templates when catalog loaded")
+    void shouldListBuiltInTemplatesWhenCatalogLoaded() {
         assertThat(SkillTemplateCatalog.listAll())
                 .extracting(SkillTemplate::id)
                 .contains(
@@ -25,8 +25,8 @@ class SkillTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_localizeTemplates_when_languageProvided")
-    void should_localizeTemplates_when_languageProvided() {
+    @DisplayName("should localize templates when language provided")
+    void shouldLocalizeTemplatesWhenLanguageProvided() {
         assertThat(SkillTemplateCatalog.findById("data-analyst", "zh"))
                 .isPresent()
                 .get()
@@ -41,8 +41,8 @@ class SkillTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_fallbackToEnglish_when_languageUnsupported")
-    void should_fallbackToEnglish_when_languageUnsupported() {
+    @DisplayName("should fallback to english when language unsupported")
+    void shouldFallbackToEnglishWhenLanguageUnsupported() {
         assertThat(SkillTemplateCatalog.findById("brief-style", "de"))
                 .isPresent()
                 .get()
@@ -51,15 +51,15 @@ class SkillTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_collectNameAliases_when_templateExists")
-    void should_collectNameAliases_when_templateExists() {
+    @DisplayName("should collect name aliases when template exists")
+    void shouldCollectNameAliasesWhenTemplateExists() {
         assertThat(SkillTemplateCatalog.namesForTemplate("brief-style"))
                 .contains("Brief Style", "简洁风格", "簡潔スタイル", "Style concis", "Estilo breve");
     }
 
     @Test
-    @DisplayName("should_findTemplate_when_idExists")
-    void should_findTemplate_when_idExists() {
+    @DisplayName("should find template when id exists")
+    void shouldFindTemplateWhenIdExists() {
         assertThat(SkillTemplateCatalog.findById("code-review"))
                 .isPresent()
                 .get()
@@ -78,8 +78,8 @@ class SkillTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_returnEmpty_when_idUnknown")
-    void should_returnEmpty_when_idUnknown() {
+    @DisplayName("should return empty when id unknown")
+    void shouldReturnEmptyWhenIdUnknown() {
         assertThat(SkillTemplateCatalog.findById("missing")).isEmpty();
         assertThat(SkillTemplateCatalog.findById(" ")).isEmpty();
     }

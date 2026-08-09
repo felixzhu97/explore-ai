@@ -15,8 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DocumentEntityTest {
 
     @Test
-    @DisplayName("should_map_domain_document_to_entity_and_back")
-    void should_map_domain_document_to_entity_and_back() {
+    @DisplayName("should map domain document to entity and back")
+    void shouldMapDomainDocumentToEntityAndBack() {
         UUID uuid = UUID.randomUUID();
         DocumentId documentId = DocumentId.of(uuid);
         Instant createdAt = Instant.parse("2026-07-01T00:00:00Z");
@@ -46,8 +46,8 @@ class DocumentEntityTest {
     }
 
     @Test
-    @DisplayName("should_support_bean_setters_and_getters")
-    void should_support_bean_setters_and_getters() {
+    @DisplayName("should support bean setters and getters")
+    void shouldSupportBeanSettersAndGetters() {
         UUID id = UUID.randomUUID();
         Instant now = Instant.now();
         DocumentEntity entity = new DocumentEntity();
@@ -70,8 +70,8 @@ class DocumentEntityTest {
     }
 
     @Test
-    @DisplayName("should_construct_entity_with_all_fields")
-    void should_construct_entity_with_all_fields() {
+    @DisplayName("should construct entity with all fields")
+    void shouldConstructEntityWithAllFields() {
         UUID id = UUID.randomUUID();
         Instant createdAt = Instant.parse("2026-06-01T00:00:00Z");
         Instant updatedAt = Instant.parse("2026-06-02T00:00:00Z");

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class OAuthSpaRedirectsTest {
 
     @Test
-    void should_keepCallbackHost_whenConfiguredRedirectIsLoopback() {
+    void shouldKeepCallbackHostWhenConfiguredRedirectIsLoopback() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getScheme()).thenReturn("http");
         when(request.getServerName()).thenReturn("localhost");
@@ -24,7 +24,7 @@ class OAuthSpaRedirectsTest {
     }
 
     @Test
-    void should_useConfiguredAbsolute_whenHostIsNotLoopback() {
+    void shouldUseConfiguredAbsoluteWhenHostIsNotLoopback() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getScheme()).thenReturn("https");
         when(request.getServerName()).thenReturn("api.example.com");
@@ -36,7 +36,7 @@ class OAuthSpaRedirectsTest {
     }
 
     @Test
-    void should_appendLoginQuery_whenRelativePath() {
+    void shouldAppendLoginQueryWhenRelativePath() {
         assertThat(OAuthSpaRedirects.withLoginParam("/", "error")).isEqualTo("/?login=error");
     }
 }

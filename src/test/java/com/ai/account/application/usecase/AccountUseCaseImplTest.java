@@ -60,7 +60,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_returnAnonymous_whenNoAuthentication() {
+    void shouldReturnAnonymousWhenNoAuthentication() {
         var response = useCase.currentAccount("cid-1");
 
         assertThat(response.mode()).isEqualTo("anonymous");
@@ -70,7 +70,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_returnAnonymous_whenAnonymousAuthenticationToken() {
+    void shouldReturnAnonymousWhenAnonymousAuthenticationToken() {
         SecurityContextHolder.getContext()
                 .setAuthentication(new AnonymousAuthenticationToken(
                         "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
@@ -81,7 +81,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_returnAuthenticated_whenOidcUserPresent() {
+    void shouldReturnAuthenticatedWhenOidcUserPresent() {
         oauthGoogleProperties.setEnabled(true);
         oauthGoogleProperties.setClientId("cid");
         oauthGoogleProperties.setClientSecret("secret");
@@ -102,7 +102,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_returnAuthenticated_whenGithubOAuth2UserPresent() {
+    void shouldReturnAuthenticatedWhenGithubOAuth2UserPresent() {
         oauthGithubProperties.setEnabled(true);
         oauthGithubProperties.setClientId("gh-id");
         oauthGithubProperties.setClientSecret("gh-secret");
@@ -125,7 +125,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_useGithubLogin_whenEmailAttributeMissing() {
+    void shouldUseGithubLoginWhenEmailAttributeMissing() {
         oauthGithubProperties.setEnabled(true);
         oauthGithubProperties.setClientId("gh-id");
         oauthGithubProperties.setClientSecret("gh-secret");
@@ -147,7 +147,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_linkOAuthUser_whenNewSubject() {
+    void shouldLinkOAuthUserWhenNewSubject() {
         when(accountUserRepository.findByProviderAndSubject("google", "sub-9"))
                 .thenReturn(Optional.empty());
 
@@ -157,7 +157,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_returnAuthenticated_whenLinkedClientIdPresentWithoutSecurityContext() {
+    void shouldReturnAuthenticatedWhenLinkedClientIdPresentWithoutSecurityContext() {
         AccountUser linked = AccountUser.create("google", "sub-2", "u@example.com", "cid-2");
         when(accountUserRepository.findByLinkedClientId("cid-2")).thenReturn(Optional.of(linked));
 
@@ -168,7 +168,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_reportLoginAvailable_whenGoogleConfigured() {
+    void shouldReportLoginAvailableWhenGoogleConfigured() {
         oauthGoogleProperties.setEnabled(true);
         oauthGoogleProperties.setClientId("id");
         oauthGoogleProperties.setClientSecret("secret");
@@ -178,7 +178,7 @@ class AccountUseCaseImplTest {
     }
 
     @Test
-    void should_reportBothProviders_whenGoogleAndGithubConfigured() {
+    void shouldReportBothProvidersWhenGoogleAndGithubConfigured() {
         oauthGoogleProperties.setEnabled(true);
         oauthGoogleProperties.setClientId("g");
         oauthGoogleProperties.setClientSecret("gs");

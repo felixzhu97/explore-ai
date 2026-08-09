@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AutomationScheduleTest {
 
     @Test
-    void should_createEnabledSchedule_when_inputsValid() {
+    void shouldCreateEnabledScheduleWhenInputsValid() {
         Instant next = Instant.parse("2026-08-07T01:00:00Z");
         AutomationSchedule schedule = AutomationSchedule.create(
                 "client-1",
@@ -33,7 +33,7 @@ class AutomationScheduleTest {
     }
 
     @Test
-    void should_rejectInvalidEmail_when_create() {
+    void shouldRejectInvalidEmailWhenCreate() {
         assertThatThrownBy(() -> AutomationSchedule.create(
                 "client-1",
                 "Daily research",
@@ -48,7 +48,7 @@ class AutomationScheduleTest {
     }
 
     @Test
-    void should_disableSchedule_when_disableCalled() {
+    void shouldDisableScheduleWhenDisableCalled() {
         AutomationSchedule schedule = AutomationSchedule.create(
                 "client-1",
                 "Daily research",
@@ -65,7 +65,7 @@ class AutomationScheduleTest {
     }
 
     @Test
-    void should_createOnceSchedule_when_runAtInFuture() {
+    void shouldCreateOnceScheduleWhenRunAtInFuture() {
         Instant runAt = Instant.now().plus(5, ChronoUnit.MINUTES);
         AutomationSchedule schedule = AutomationSchedule.createOnce(
                 "client-1",
@@ -82,7 +82,7 @@ class AutomationScheduleTest {
     }
 
     @Test
-    void should_rejectPastRunAt_when_createOnce() {
+    void shouldRejectPastRunAtWhenCreateOnce() {
         assertThatThrownBy(() -> AutomationSchedule.createOnce(
                 "client-1",
                 "One shot",
@@ -96,7 +96,7 @@ class AutomationScheduleTest {
     }
 
     @Test
-    void should_disableAfterCompleteOnce() {
+    void shouldDisableAfterCompleteOnce() {
         AutomationSchedule schedule = AutomationSchedule.createOnce(
                 "client-1",
                 "One shot",
@@ -114,7 +114,7 @@ class AutomationScheduleTest {
     }
 
     @Test
-    void should_reenable_when_updateOnceAfterComplete() {
+    void shouldReenableWhenUpdateOnceAfterComplete() {
         AutomationSchedule schedule = AutomationSchedule.createOnce(
                 "client-1",
                 "One shot",

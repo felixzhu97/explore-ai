@@ -10,14 +10,14 @@ class McpToolDefinitionTest {
 
     @Test
     @DisplayName("should reject blank tool name")
-    void should_reject_blank_tool_name() {
+    void shouldRejectBlankToolName() {
         assertThatThrownBy(() -> McpToolDefinition.create(" ", "desc"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("should reject null via compact constructor")
-    void should_reject_null_via_compact_constructor() {
+    void shouldRejectNullViaCompactConstructor() {
         assertThatThrownBy(() -> new McpToolDefinition(null, "desc"))
                 .isInstanceOf(IllegalArgumentException.class);
     }

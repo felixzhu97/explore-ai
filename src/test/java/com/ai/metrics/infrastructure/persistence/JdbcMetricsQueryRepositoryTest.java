@@ -41,8 +41,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_count_invocations_with_optional_domain_filter")
-    void should_count_invocations_with_optional_domain_filter() {
+    @DisplayName("should count invocations with optional domain filter")
+    void shouldCountInvocationsWithOptionalDomainFilter() {
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), any(Object[].class))).thenReturn(7L);
 
         long count = repository.countInvocations(Optional.of(AiDomain.CHAT), from, to);
@@ -55,8 +55,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_count_errors_and_treat_null_as_zero")
-    void should_count_errors_and_treat_null_as_zero() {
+    @DisplayName("should count errors and treat null as zero")
+    void shouldCountErrorsAndTreatNullAsZero() {
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), any(Object[].class))).thenReturn(null);
 
         long count = repository.countErrors(Optional.empty(), from, to);
@@ -66,8 +66,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_return_null_percentiles_when_no_latency_rows")
-    void should_return_null_percentiles_when_no_latency_rows() {
+    @DisplayName("should return null percentiles when no latency rows")
+    void shouldReturnNullPercentilesWhenNoLatencyRows() {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class))).thenReturn(List.of());
 
         MetricsQueryRepository.LatencyStats stats =
@@ -78,8 +78,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_compute_latency_percentiles_from_sorted_rows")
-    void should_compute_latency_percentiles_from_sorted_rows() {
+    @DisplayName("should compute latency percentiles from sorted rows")
+    void shouldComputeLatencyPercentilesFromSortedRows() {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
                 .thenAnswer(invocation -> {
                     @SuppressWarnings("unchecked")
@@ -101,8 +101,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_sum_token_totals_from_result_set")
-    void should_sum_token_totals_from_result_set() {
+    @DisplayName("should sum token totals from result set")
+    void shouldSumTokenTotalsFromResultSet() {
         doAnswer(invocation -> {
             @SuppressWarnings("unchecked")
             ResultSetExtractor<MetricsQueryRepository.TokenTotals> extractor = invocation.getArgument(1);
@@ -121,8 +121,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_return_zero_tokens_when_result_set_empty")
-    void should_return_zero_tokens_when_result_set_empty() {
+    @DisplayName("should return zero tokens when result set empty")
+    void shouldReturnZeroTokensWhenResultSetEmpty() {
         doAnswer(invocation -> {
             @SuppressWarnings("unchecked")
             ResultSetExtractor<MetricsQueryRepository.TokenTotals> extractor = invocation.getArgument(1);
@@ -138,8 +138,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_map_named_counts_for_domain_model_and_agent_queries")
-    void should_map_named_counts_for_domain_model_and_agent_queries() {
+    @DisplayName("should map named counts for domain model and agent queries")
+    void shouldMapNamedCountsForDomainModelAndAgentQueries() {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
                 .thenAnswer(invocation -> {
                     @SuppressWarnings("unchecked")
@@ -157,8 +157,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_apply_minimum_limit_when_querying_top_tools")
-    void should_apply_minimum_limit_when_querying_top_tools() {
+    @DisplayName("should apply minimum limit when querying top tools")
+    void shouldApplyMinimumLimitWhenQueryingTopTools() {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class))).thenReturn(List.of());
 
         repository.topTools(Optional.of(AiDomain.TOOLS), from, to, 0);
@@ -167,8 +167,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_return_daily_time_points_from_events_and_related_tables")
-    void should_return_daily_time_points_from_events_and_related_tables() {
+    @DisplayName("should return daily time points from events and related tables")
+    void shouldReturnDailyTimePointsFromEventsAndRelatedTables() {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
                 .thenAnswer(invocation -> {
                     @SuppressWarnings("unchecked")
@@ -187,8 +187,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_compute_daily_p95_latency_per_bucket_day")
-    void should_compute_daily_p95_latency_per_bucket_day() {
+    @DisplayName("should compute daily p95 latency per bucket day")
+    void shouldComputeDailyP95LatencyPerBucketDay() {
         doAnswer(invocation -> {
             RowCallbackHandler handler = invocation.getArgument(1);
             ResultSet rs = mock(ResultSet.class);
@@ -211,8 +211,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_build_chat_inventory_with_null_safe_counts")
-    void should_build_chat_inventory_with_null_safe_counts() {
+    @DisplayName("should build chat inventory with null safe counts")
+    void shouldBuildChatInventoryWithNullSafeCounts() {
         when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM chat_sessions"), eq(Long.class)))
                 .thenReturn(null);
         when(jdbcTemplate.queryForObject(
@@ -234,8 +234,8 @@ class JdbcMetricsQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_build_rag_inventory_with_status_breakdown")
-    void should_build_rag_inventory_with_status_breakdown() {
+    @DisplayName("should build rag inventory with status breakdown")
+    void shouldBuildRagInventoryWithStatusBreakdown() {
         when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM documents"), eq(Long.class))).thenReturn(4L);
         when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM document_chunks"), eq(Long.class))).thenReturn(12L);
         when(jdbcTemplate.queryForObject(eq("SELECT COALESCE(SUM(file_size), 0) FROM documents"), eq(Long.class)))

@@ -13,8 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class VisionConfigTest {
 
     @Test
-    @DisplayName("should_configure_jna_library_path_without_error")
-    void should_configure_jna_library_path_without_error() {
+    @DisplayName("should configure jna library path without error")
+    void shouldConfigureJnaLibraryPathWithoutError() {
         VisionConfig config = new VisionConfig();
         config.configureNativeLibraries();
 
@@ -22,8 +22,8 @@ class VisionConfigTest {
     }
 
     @Test
-    @DisplayName("should_create_tesseract_bean_with_properties")
-    void should_create_tesseract_bean_with_properties() throws Exception {
+    @DisplayName("should create tesseract bean with properties")
+    void shouldCreateTesseractBeanWithProperties() throws Exception {
         Path tessdata = Files.createTempDirectory("tessdata-test");
         VisionModelProperties properties = new VisionModelProperties();
         properties.getOcr().setTessdataPath(tessdata.toString());

@@ -39,7 +39,7 @@ class SpringAiTextToSpeechRepositoryTest {
 
         @Test
         @DisplayName("should return audio bytes when synthesis succeeds")
-        void should_return_audio_bytes_when_synthesis_succeeds() {
+        void shouldReturnAudioBytesWhenSynthesisSucceeds() {
             byte[] expectedAudio = "fake-audio-data".getBytes();
             TextToSpeechResponse mockResponse = mock(TextToSpeechResponse.class);
             org.springframework.ai.audio.tts.Speech mockSpeech =
@@ -58,7 +58,7 @@ class SpringAiTextToSpeechRepositoryTest {
 
         @Test
         @DisplayName("should return empty audio when response is null")
-        void should_return_empty_audio_when_response_is_null() {
+        void shouldReturnEmptyAudioWhenResponseIsNull() {
             when(textToSpeechModel.call(any(TextToSpeechPrompt.class))).thenReturn(null);
 
             var audio = repository.synthesize(SpeechText.of("Hello"), VoiceSelection.of("alloy", null), null);

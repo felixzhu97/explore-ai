@@ -45,7 +45,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_handoff_message_and_done_when_supervisor_routes() {
+    void shouldEmitHandoffMessageAndDoneWhenSupervisorRoutes() {
         StepVerifier.create(useCase.invokeSupervisor("list pods in prod", null, "en"))
                 .assertNext(event -> {
                     assertEvent(event, "agent_handoff");
@@ -60,7 +60,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_invoke_worker_directly_when_agent_type_given() {
+    void shouldInvokeWorkerDirectlyWhenAgentTypeGiven() {
         StepVerifier.create(useCase.invokeAgent(AgentType.of("aiops"), "detect anomaly", null, "en"))
                 .assertNext(event -> assertEvent(event, "agent_handoff"))
                 .assertNext(event -> assertEvent(event, "message"))
@@ -71,7 +71,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_delegate_to_supervisor_when_agent_type_is_supervisor() {
+    void shouldDelegateToSupervisorWhenAgentTypeIsSupervisor() {
         StepVerifier.create(useCase.invokeAgent(AgentType.supervisor(), "scale deployment", null, "en"))
                 .assertNext(event -> assertEvent(event, "agent_handoff"))
                 .assertNext(event -> assertEvent(event, "message"))
@@ -80,7 +80,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_error_when_agent_unknown() {
+    void shouldEmitErrorWhenAgentUnknown() {
         StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hello", null, "en"))
                 .assertNext(event -> assertEvent(event, "error"))
                 .assertNext(event -> assertEvent(event, "done"))
@@ -88,7 +88,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_error_when_message_blank() {
+    void shouldEmitErrorWhenMessageBlank() {
         StepVerifier.create(useCase.invokeSupervisor("  ", null, "en"))
                 .assertNext(event -> assertEvent(event, "error"))
                 .assertNext(event -> assertEvent(event, "done"))
@@ -96,7 +96,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_error_when_message_null() {
+    void shouldEmitErrorWhenMessageNull() {
         StepVerifier.create(useCase.invokeSupervisor(null, null, "en"))
                 .assertNext(event -> assertEvent(event, "error"))
                 .assertNext(event -> assertEvent(event, "done"))
@@ -104,7 +104,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_error_when_direct_invoke_message_blank() {
+    void shouldEmitErrorWhenDirectInvokeMessageBlank() {
         StepVerifier.create(useCase.invokeAgent(AgentType.of("k8s"), " ", null, "en"))
                 .assertNext(event -> assertEvent(event, "error"))
                 .assertNext(event -> assertEvent(event, "done"))
@@ -112,7 +112,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_synthesize_subtasks_when_plan_has_multiple_workers() {
+    void shouldSynthesizeSubtasksWhenPlanHasMultipleWorkers() {
         SupervisorRouter multiRouter = (message, workers) -> new RoutingPlan(
                 AgentType.of("k8s"),
                 "needs k8s and aiops",
@@ -137,7 +137,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_error_when_router_fails() {
+    void shouldEmitErrorWhenRouterFails() {
         SupervisorRouter failing = (message, workers) -> {
             throw new IllegalStateException("router down");
         };
@@ -158,7 +158,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_escape_quotes_in_handoff_reason() {
+    void shouldEscapeQuotesInHandoffReason() {
         ServerSentEvent<String> event =
                 OrchestratorWorkersUseCase.handoffEvent("k8s", "say \"hello\" \\world");
         assertEvent(event, "agent_handoff");
@@ -166,13 +166,13 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_use_empty_reason_when_null() {
+    void shouldUseEmptyReasonWhenNull() {
         ServerSentEvent<String> event = OrchestratorWorkersUseCase.handoffEvent("k8s", null);
         assert event.data().contains("\"reason\":\"\"");
     }
 
     @Test
-    void should_run_pipeline_steps_in_order() {
+    void shouldRunPipelineStepsInOrder() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(
                         AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
@@ -201,7 +201,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_prefer_node_snapshot_prompt_when_present() {
+    void shouldPreferNodeSnapshotPromptWhenPresent() {
         AgentPipeline pipeline = AgentPipeline.create(
                 List.of(new AgentPipeline.PipelineNode(
                         "a",
@@ -225,7 +225,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_first_handoff_before_second_worker_starts() {
+    void shouldEmitFirstHandoffBeforeSecondWorkerStarts() {
         DelayedRecordingInvoker delayed = new DelayedRecordingInvoker();
         useCase = new OrchestratorWorkersUseCase(CatalogAgentRegistry.fixed(List.of(
                         AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
@@ -264,7 +264,7 @@ class OrchestratorWorkersUseCaseTest {
     }
 
     @Test
-    void should_emit_error_when_pipeline_invalid() {
+    void shouldEmitErrorWhenPipelineInvalid() {
         AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
 
         StepVerifier.create(useCase.invokePipeline("x", pipeline, null, "en"))

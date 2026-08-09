@@ -20,7 +20,7 @@ import static org.mockito.Mockito.mock;
 class ChatClientFactoryToolSearchTest {
 
     @Test
-    void should_useToolCallLoopGuardAdvisor_when_toolSearchDisabled() {
+    void shouldUseToolCallLoopGuardAdvisorWhenToolSearchDisabled() {
         ChatClientFactory factory = newFactory(false);
 
         Advisor advisor = factory.createToolCallingAdvisor();
@@ -31,7 +31,7 @@ class ChatClientFactoryToolSearchTest {
     }
 
     @Test
-    void should_useToolSearchToolCallingAdvisor_when_toolSearchEnabled() {
+    void shouldUseToolSearchToolCallingAdvisorWhenToolSearchEnabled() {
         ChatClientFactory factory = newFactory(true);
 
         Advisor advisor = factory.createToolCallingAdvisor();

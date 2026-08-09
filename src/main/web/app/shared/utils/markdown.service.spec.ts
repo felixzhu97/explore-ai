@@ -41,14 +41,14 @@ describe('MarkdownService', () => {
   });
 
   describe('render', () => {
-    it('should render GFM list after syntax repair', () => {
+    it('should render gfm list after syntax repair', () => {
       const html = service.renderToString('-**Label:** description');
       expect(html).toContain('<ul>');
       expect(html).toContain('<li>');
       expect(html).not.toContain('-**Label');
     });
 
-    it('should render GFM heading after syntax repair', () => {
+    it('should render gfm heading after syntax repair', () => {
       const html = service.renderToString('#Title\n\nBody');
       expect(html).toContain('<h1');
       expect(html).toContain('Title');

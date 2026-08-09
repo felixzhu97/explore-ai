@@ -13,7 +13,7 @@ class TextAnalysisTest {
 
     @Test
     @DisplayName("should report positive sentiment")
-    void should_report_positive_sentiment() {
+    void shouldReportPositiveSentiment() {
         TextAnalysis analysis = TextAnalysis.create(
                 "Good news", Sentiment.POSITIVE, List.of("a"), List.of(), "en");
 
@@ -23,7 +23,7 @@ class TextAnalysisTest {
 
     @Test
     @DisplayName("should detect entities presence")
-    void should_detect_entities_presence() {
+    void shouldDetectEntitiesPresence() {
         TextAnalysis analysis = TextAnalysis.create(
                 "Summary", Sentiment.NEUTRAL, List.of(), List.of("Alice"), "en");
 
@@ -32,7 +32,7 @@ class TextAnalysisTest {
 
     @Test
     @DisplayName("should truncate summary by word count")
-    void should_truncate_summary_by_word_count() {
+    void shouldTruncateSummaryByWordCount() {
         TextAnalysis analysis = TextAnalysis.create(
                 "one two three four five", Sentiment.NEUTRAL, List.of(), List.of(), "en");
 
@@ -43,7 +43,7 @@ class TextAnalysisTest {
 
     @Test
     @DisplayName("should filter null elements from key points and entities")
-    void should_filter_null_elements_from_key_points_and_entities() {
+    void shouldFilterNullElementsFromKeyPointsAndEntities() {
         TextAnalysis analysis = TextAnalysis.create(
                 "s",
                 Sentiment.NEUTRAL,
@@ -57,7 +57,7 @@ class TextAnalysisTest {
 
     @Test
     @DisplayName("should return immutable entity lists")
-    void should_return_immutable_entity_lists() {
+    void shouldReturnImmutableEntityLists() {
         TextAnalysis analysis = TextAnalysis.create(
                 "s", Sentiment.NEUTRAL, List.of("k"), List.of("e"), "en");
 

@@ -25,8 +25,8 @@ class NotifyingToolCallbackTest {
     }
 
     @Test
-    @DisplayName("should_emit_tool_call_and_result_events_when_delegate_succeeds")
-    void should_emit_tool_call_and_result_events_when_delegate_succeeds() {
+    @DisplayName("should emit tool call and result events when delegate succeeds")
+    void shouldEmitToolCallAndResultEventsWhenDelegateSucceeds() {
         var sink = ToolEventChannel.open(CHANNEL);
         ToolEventChannel.clearCurrentSessionId();
         List<String> events = new ArrayList<>();

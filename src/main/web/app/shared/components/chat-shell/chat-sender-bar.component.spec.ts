@@ -18,11 +18,11 @@ describe('ChatSenderBarComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should_renderSender_when_created', () => {
+  it('should render sender when created', () => {
     expect(fixture.nativeElement.querySelector('nx-sender')).toBeTruthy();
   });
 
-  it('should_emitSubmitSend_when_submitTriggered', () => {
+  it('should emit submit send when submit triggered', () => {
     const spy = vi.fn();
     fixture.componentInstance.submitSend.subscribe(spy);
 
@@ -31,7 +31,7 @@ describe('ChatSenderBarComponent', () => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  it('should_bindValue_when_modelUpdated', () => {
+  it('should bind value when model updated', () => {
     fixture.componentInstance.value.set('hello');
     fixture.detectChanges();
 

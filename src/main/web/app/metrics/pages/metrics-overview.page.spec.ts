@@ -78,7 +78,7 @@ describe('MetricsOverviewPage', () => {
     fixture.detectChanges();
   }
 
-  it('should_load_metrics_via_httpResource_when_mounted', async () => {
+  it('should load metrics via http resource when mounted', async () => {
     await flushOverviewPage('7d');
 
     expect(fixture.componentInstance.overviewResource.value()?.requestCount).toBe(42);
@@ -86,7 +86,7 @@ describe('MetricsOverviewPage', () => {
     expect(fixture.componentInstance.requestSeries()).toEqual([{ label: 'Mon', value: 10 }]);
   });
 
-  it('should_refetch_overview_when_range_changes', async () => {
+  it('should refetch overview when range changes', async () => {
     await flushOverviewPage('7d');
 
     fixture.componentInstance.setRange('30d');

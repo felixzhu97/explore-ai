@@ -12,20 +12,20 @@ class SpeechTextTest {
 
     @Test
     @DisplayName("should count words")
-    void should_count_words() {
+    void shouldCountWords() {
         assertThat(SpeechText.of("hello world").wordCount()).isEqualTo(2);
     }
 
     @Test
     @DisplayName("should reject blank text")
-    void should_reject_blank_text() {
+    void shouldRejectBlankText() {
         assertThatThrownBy(() -> SpeechText.of(" "))
                 .isInstanceOf(InvalidSpeechTextException.class);
     }
 
     @Test
     @DisplayName("should reject null via compact constructor")
-    void should_reject_null_via_compact_constructor() {
+    void shouldRejectNullViaCompactConstructor() {
         assertThatThrownBy(() -> new SpeechText(null))
                 .isInstanceOf(InvalidSpeechTextException.class)
                 .hasMessageContaining("blank");
@@ -33,7 +33,7 @@ class SpeechTextTest {
 
     @Test
     @DisplayName("should reject text exceeding max length")
-    void should_reject_text_exceeding_max_length() {
+    void shouldRejectTextExceedingMaxLength() {
         assertThatThrownBy(() -> SpeechText.of("a".repeat(10_001)))
                 .isInstanceOf(InvalidSpeechTextException.class)
                 .hasMessageContaining("maximum length");

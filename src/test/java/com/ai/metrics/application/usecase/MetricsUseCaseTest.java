@@ -54,8 +54,8 @@ class MetricsUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_return_zero_rates_when_no_invocations")
-    void should_return_zero_rates_when_no_invocations() {
+    @DisplayName("should return zero rates when no invocations")
+    void shouldReturnZeroRatesWhenNoInvocations() {
         MetricsOverview overview = useCase.overview("7d");
 
         assertThat(overview.requestCount()).isZero();
@@ -66,8 +66,8 @@ class MetricsUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_compute_error_rate_when_invocations_exist")
-    void should_compute_error_rate_when_invocations_exist() {
+    @DisplayName("should compute error rate when invocations exist")
+    void shouldComputeErrorRateWhenInvocationsExist() {
         queryRepository.requestCount = 10;
         queryRepository.errorCount = 2;
         queryRepository.byDomain = List.of(new MetricsQueryRepository.NamedCount("chat", 8));
@@ -82,8 +82,8 @@ class MetricsUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_filter_drilldown_by_domain_and_day")
-    void should_filter_drilldown_by_domain_and_day() {
+    @DisplayName("should filter drilldown by domain and day")
+    void shouldFilterDrilldownByDomainAndDay() {
         eventRepository.events.add(AiInvocationEvent.builder()
                 .domain(AiDomain.CHAT)
                 .operation("chat.stream")
@@ -101,16 +101,16 @@ class MetricsUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_reject_unknown_series_name")
-    void should_reject_unknown_series_name() {
+    @DisplayName("should reject unknown series name")
+    void shouldRejectUnknownSeriesName() {
         assertThatThrownBy(() -> useCase.series("unknown", "chat", "7d"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Unknown series");
     }
 
     @Test
-    @DisplayName("should_return_domain_snapshot_for_each_ai_domain")
-    void should_return_domain_snapshot_for_each_ai_domain() {
+    @DisplayName("should return domain snapshot for each ai domain")
+    void shouldReturnDomainSnapshotForEachAiDomain() {
         queryRepository.requestCount = 4;
         queryRepository.errorCount = 1;
         queryRepository.topTools = List.of(new MetricsQueryRepository.NamedCount("weather", 2));
@@ -124,8 +124,8 @@ class MetricsUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_return_named_series_when_known")
-    void should_return_named_series_when_known() {
+    @DisplayName("should return named series when known")
+    void shouldReturnNamedSeriesWhenKnown() {
         queryRepository.dailyRequests = List.of(new MetricsQueryRepository.TimePoint("2026-07-01", 3));
         queryRepository.dailyErrors = List.of(new MetricsQueryRepository.TimePoint("2026-07-01", 1));
         queryRepository.dailyLatency = List.of(new MetricsQueryRepository.TimePoint("2026-07-01", 40));
@@ -151,16 +151,16 @@ class MetricsUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_reject_unsupported_range_when_parsing")
-    void should_reject_unsupported_range_when_parsing() {
+    @DisplayName("should reject unsupported range when parsing")
+    void shouldRejectUnsupportedRangeWhenParsing() {
         assertThatThrownBy(() -> useCase.overview("90d"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Unsupported range");
     }
 
     @Test
-    @DisplayName("should_default_page_size_and_use_explicit_window_when_provided")
-    void should_default_page_size_and_use_explicit_window_when_provided() {
+    @DisplayName("should default page size and use explicit window when provided")
+    void shouldDefaultPageSizeAndUseExplicitWindowWhenProvided() {
         DrilldownPage page = useCase.drilldown(
                 "chat",
                 "2026-07-01T00:00:00Z",

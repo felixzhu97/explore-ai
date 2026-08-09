@@ -54,8 +54,8 @@ class ToolsFacadeChatTest {
     }
 
     @Test
-    @DisplayName("should_chat_with_tools_and_record_success")
-    void should_chat_with_tools_and_record_success() {
+    @DisplayName("should chat with tools and record success")
+    void shouldChatWithToolsAndRecordSuccess() {
         when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(any(String.class))).thenReturn(requestSpec);
@@ -67,15 +67,15 @@ class ToolsFacadeChatTest {
     }
 
     @Test
-    @DisplayName("should_delegate_web_search")
-    void should_delegate_web_search() {
+    @DisplayName("should delegate web search")
+    void shouldDelegateWebSearch() {
         when(webSearchTool.searchWeb("q")).thenReturn("hits");
         assertThat(toolsFacade.searchWeb("q")).isEqualTo("hits");
     }
 
     @Test
-    @DisplayName("should_list_documents_via_document_search_tool")
-    void should_list_documents_via_document_search_tool() {
+    @DisplayName("should list documents via document search tool")
+    void shouldListDocumentsViaDocumentSearchTool() {
         when(documentSearchTool.listDocuments()).thenReturn("doc-list");
         assertThat(toolsFacade.listDocuments()).isEqualTo("doc-list");
     }

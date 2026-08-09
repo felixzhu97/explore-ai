@@ -58,7 +58,7 @@ describe('ImageService', () => {
     httpMock.expectNone('/api/images/generate');
   });
 
-  it('should generate image from URL response', async () => {
+  it('should generate image from url response', async () => {
     service.setPrompt('A sunset');
     service.generate();
 

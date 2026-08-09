@@ -38,7 +38,7 @@ class ModuleAccessFilterTest {
 
     @Test
     @DisplayName("should return 404 when eval module is disabled")
-    void should_return404_when_evalModuleDisabled() throws Exception {
+    void shouldReturn404WhenEvalModuleDisabled() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/eval/chat");
         request.setServletPath("/api/eval/chat");
         when(featureFlagService.isModuleEnabled(ModuleFlag.EVAL)).thenReturn(false);
@@ -51,7 +51,7 @@ class ModuleAccessFilterTest {
 
     @Test
     @DisplayName("should continue chain when module is enabled")
-    void should_continueChain_when_moduleEnabled() throws Exception {
+    void shouldContinueChainWhenModuleEnabled() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/mcp/health");
         request.setServletPath("/api/mcp/health");
         when(featureFlagService.isModuleEnabled(ModuleFlag.MCP)).thenReturn(true);
@@ -64,7 +64,7 @@ class ModuleAccessFilterTest {
 
     @Test
     @DisplayName("should continue chain for unguarded paths")
-    void should_continueChain_when_pathNotMapped() throws Exception {
+    void shouldContinueChainWhenPathNotMapped() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/chat/providers");
         request.setServletPath("/api/chat/providers");
 

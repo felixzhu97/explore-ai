@@ -24,7 +24,7 @@ describe('AgentsPage httpResource', () => {
     http.verify();
   });
 
-  it('should_load_agents_via_httpResource_when_mounted', async () => {
+  it('should load agents via http resource when mounted', async () => {
     const agents = runInInjectionContext(injector, () => {
       const resource = httpResource<AgentInfo[]>(() => `${API_BASE_URL}/pipelines/list`);
       const agentsSignal = computed(() => resource.hasValue() ? resource.value()! : [],
@@ -49,7 +49,7 @@ describe('AgentsPage httpResource', () => {
     expect(agents.agentsSignal()[0]?.type).toBe('supervisor');
   });
 
-  it('should_exposeError_when_agentsRequestFails', async () => {
+  it('should expose error when agents request fails', async () => {
     const resource = runInInjectionContext(injector, () => httpResource<AgentInfo[]>(() => `${API_BASE_URL}/pipelines/list`),
     );
 

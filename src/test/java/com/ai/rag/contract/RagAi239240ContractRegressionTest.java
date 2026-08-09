@@ -87,16 +87,16 @@ class RagAi239240ContractRegressionTest {
     @DisplayName("single-pass retrieval + sources (AI-239)")
     class SinglePassRetrieval {
         @Test
-        @DisplayName("should_notDependOnRagApplicationService_when_ragChatUseCase")
-        void should_notDependOnRagApplicationService_when_ragChatUseCase() {
+        @DisplayName("should not depend on rag application service when rag chat use case")
+        void shouldNotDependOnRagApplicationServiceWhenRagChatUseCase() {
             ArchRuleDefinition.noClasses().that().haveSimpleName("RagChatUseCase")
                     .should().dependOnClassesThat().haveSimpleName(RagApplicationService.class.getSimpleName())
                     .check(CLASSES);
         }
 
         @Test
-        @DisplayName("should_useRetrievalAugmentationAdvisor_when_chat")
-        void should_useRetrievalAugmentationAdvisor_when_chat() {
+        @DisplayName("should use retrieval augmentation advisor when chat")
+        void shouldUseRetrievalAugmentationAdvisorWhenChat() {
             when(requestSpec.call()).thenReturn(callResponseSpec);
             when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("answer", List.of(new Document("ctx", Map.of("score", 0.8)))));
             ragChatUseCase.chat("What is AI?", null, null);
@@ -105,8 +105,8 @@ class RagAi239240ContractRegressionTest {
         }
 
         @Test
-        @DisplayName("should_returnSourcesFromDocumentContext_when_chat")
-        void should_returnSourcesFromDocumentContext_when_chat() {
+        @DisplayName("should return sources from document context when chat")
+        void shouldReturnSourcesFromDocumentContextWhenChat() {
             when(requestSpec.call()).thenReturn(callResponseSpec);
             when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("answer", List.of(new Document("retrieved chunk", Map.of("score", 0.91)))));
             var result = ragChatUseCase.chat("What is AI?", null, null);
@@ -120,8 +120,8 @@ class RagAi239240ContractRegressionTest {
     @DisplayName("topK and docIds filter (AI-240)")
     class TopKAndDocIdsFilter {
         @Test
-        @DisplayName("should_applyCustomTopKOnRetriever_when_topKProvided")
-        void should_applyCustomTopKOnRetriever_when_topKProvided() {
+        @DisplayName("should apply custom top k on retriever when top k provided")
+        void shouldApplyCustomTopKOnRetrieverWhenTopKProvided() {
             when(requestSpec.call()).thenReturn(callResponseSpec);
             when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
             ragChatUseCase.chat("q", null, 10);
@@ -129,8 +129,8 @@ class RagAi239240ContractRegressionTest {
         }
 
         @Test
-        @DisplayName("should_applyDefaultTopKOnRetriever_when_topKNull")
-        void should_applyDefaultTopKOnRetriever_when_topKNull() {
+        @DisplayName("should apply default top k on retriever when top k null")
+        void shouldApplyDefaultTopKOnRetrieverWhenTopKNull() {
             when(requestSpec.call()).thenReturn(callResponseSpec);
             when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
             ragChatUseCase.chat("q", null, null);
@@ -138,8 +138,8 @@ class RagAi239240ContractRegressionTest {
         }
 
         @Test
-        @DisplayName("should_passDocIdsViaFilterExpression_when_docIdsProvided")
-        void should_passDocIdsViaFilterExpression_when_docIdsProvided() {
+        @DisplayName("should pass doc ids via filter expression when doc ids provided")
+        void shouldPassDocIdsViaFilterExpressionWhenDocIdsProvided() {
             when(requestSpec.call()).thenReturn(callResponseSpec);
             when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
             ragChatUseCase.chat("q", List.of(UUID.randomUUID().toString()), null);
@@ -151,8 +151,8 @@ class RagAi239240ContractRegressionTest {
     @DisplayName("true stream, not fake chunking (AI-240)")
     class TrueStream {
         @Test
-        @DisplayName("should_streamViaChatClient_when_chatStream")
-        void should_streamViaChatClient_when_chatStream() {
+        @DisplayName("should stream via chat client when chat stream")
+        void shouldStreamViaChatClientWhenChatStream() {
             when(requestSpec.stream()).thenReturn(streamResponseSpec);
             Document source = new Document("source", Map.of("score", 0.7));
             when(streamResponseSpec.chatClientResponse()).thenReturn(Flux.just(

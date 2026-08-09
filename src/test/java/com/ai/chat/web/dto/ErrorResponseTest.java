@@ -17,7 +17,7 @@ class ErrorResponseTest {
 
         @Test
         @DisplayName("should create error response with message and error code")
-        void shouldCreateErrorResponse_withMessageAndErrorCode() {
+        void shouldCreateErrorResponseWithMessageAndErrorCode() {
             // Given
             String message = "Resource not found";
             String errorCode = "NOT_FOUND";
@@ -35,7 +35,7 @@ class ErrorResponseTest {
 
         @Test
         @DisplayName("should create error response with message, error code and path")
-        void shouldCreateErrorResponse_withMessageErrorCodeAndPath() {
+        void shouldCreateErrorResponseWithMessageErrorCodeAndPath() {
             // Given
             String message = "Invalid request";
             String errorCode = "BAD_REQUEST";
@@ -59,7 +59,7 @@ class ErrorResponseTest {
 
         @Test
         @DisplayName("should set error field to same value as error code")
-        void shouldSetErrorField_toSameValueAsErrorCode() {
+        void shouldSetErrorFieldToSameValueAsErrorCode() {
             // Given
             String errorCode = "VALIDATION_ERROR";
 
@@ -73,7 +73,7 @@ class ErrorResponseTest {
 
         @Test
         @DisplayName("should set timestamp to current time")
-        void shouldSetTimestamp_toCurrentTime() {
+        void shouldSetTimestampToCurrentTime() {
             // Given
             Instant before = Instant.now();
 
@@ -89,7 +89,7 @@ class ErrorResponseTest {
 
         @Test
         @DisplayName("should have null path when not provided")
-        void shouldHaveNullPath_whenNotProvided() {
+        void shouldHaveNullPathWhenNotProvided() {
             // When
             ErrorResponse response = ErrorResponse.of("Test", "TEST_ERROR");
 
@@ -99,7 +99,7 @@ class ErrorResponseTest {
 
         @Test
         @DisplayName("should preserve all fields correctly")
-        void shouldPreserveAllFields_correctly() {
+        void shouldPreserveAllFieldsCorrectly() {
             // Given
             String error = "INTERNAL_ERROR";
             String message = "An internal error occurred";

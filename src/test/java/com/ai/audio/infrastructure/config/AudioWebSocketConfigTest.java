@@ -45,7 +45,7 @@ class AudioWebSocketConfigTest {
 
         @Test
         @DisplayName("should allow configured production origins for audio transcription socket")
-        void should_allowConfiguredProductionOrigins_when_registeringAudioTranscriptionSocket() {
+        void shouldAllowConfiguredProductionOriginsWhenRegisteringAudioTranscriptionSocket() {
             corsProperties.setAllowedOriginPatterns(List.of(
                     " https://explore-ai-git-*-felixzhu97s-projects.vercel.app ",
                     "https://www.felixzhu.chat",
@@ -65,7 +65,7 @@ class AudioWebSocketConfigTest {
 
         @Test
         @DisplayName("should register no allowed origin patterns when origins are null")
-        void should_registerNoAllowedOriginPatterns_when_originsAreNull() {
+        void shouldRegisterNoAllowedOriginPatternsWhenOriginsAreNull() {
             corsProperties.setAllowedOriginPatterns(null);
             when(registry.addHandler(transcriptionHandler, "/ws/audio/transcribe"))
                     .thenReturn(registration);

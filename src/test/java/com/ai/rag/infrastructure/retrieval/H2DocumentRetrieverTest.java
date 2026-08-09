@@ -40,8 +40,8 @@ class H2DocumentRetrieverTest {
     }
 
     @Test
-    @DisplayName("should_useDefaults_when_contextEmpty")
-    void should_useDefaults_when_contextEmpty() {
+    @DisplayName("should use defaults when context empty")
+    void shouldUseDefaultsWhenContextEmpty() {
         when(documentSearchService.retrieve(eq("what is ai"), isNull(), eq(0)))
                 .thenReturn(new DocumentSearchService.RetrievalResult(
                         "ctx",
@@ -55,8 +55,8 @@ class H2DocumentRetrieverTest {
     }
 
     @Test
-    @DisplayName("should_passTopKAndDocIds_when_presentInQueryContext")
-    void should_passTopKAndDocIds_when_presentInQueryContext() {
+    @DisplayName("should pass top k and doc ids when present in query context")
+    void shouldPassTopKAndDocIdsWhenPresentInQueryContext() {
         String docId = UUID.randomUUID().toString();
         when(documentSearchService.retrieve(any(), any(), anyInt()))
                 .thenReturn(new DocumentSearchService.RetrievalResult("ctx", List.of()));

@@ -44,7 +44,7 @@ class SpringAiRoutingWorkflowTest {
     }
 
     @Test
-    void should_returnSpecializedOutput_when_routeClassified() {
+    void shouldReturnSpecializedOutputWhenRouteClassified() {
         when(callResponseSpec.entity(eq(SpringAiRoutingWorkflow.RouteClassification.class)))
                 .thenReturn(new SpringAiRoutingWorkflow.RouteClassification(
                         "billing keywords", "billing"));

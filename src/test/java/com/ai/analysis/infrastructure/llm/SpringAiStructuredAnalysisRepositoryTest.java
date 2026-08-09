@@ -50,7 +50,7 @@ class SpringAiStructuredAnalysisRepositoryTest {
 
     @Test
     @DisplayName("should throw when LLM returns null entity")
-    void should_throw_when_llm_returns_null_entity() {
+    void shouldThrowWhenLlmReturnsNullEntity() {
         when(callResponseSpec.entity(any(Class.class))).thenReturn(null);
 
         assertThatThrownBy(() -> repository.analyze(AnalysisText.of("Sample"), LanguageHint.none()))

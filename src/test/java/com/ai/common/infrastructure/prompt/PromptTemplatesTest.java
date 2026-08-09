@@ -56,8 +56,8 @@ class PromptTemplatesTest {
         }
 
         @Test
-        @DisplayName("should_keepRepliesMinimalAndForbidDecorativeEmoji_when_defaultSystemPromptBuilt")
-        void should_keepRepliesMinimalAndForbidDecorativeEmoji_when_defaultSystemPromptBuilt() {
+        @DisplayName("should keep replies minimal and forbid decorative emoji when default system prompt built")
+        void shouldKeepRepliesMinimalAndForbidDecorativeEmojiWhenDefaultSystemPromptBuilt() {
             String prompt = templates.getDefaultSystemPrompt();
 
             assertThat(prompt).contains("minimal and high-value");
@@ -66,15 +66,15 @@ class PromptTemplatesTest {
         }
 
         @Test
-        @DisplayName("should_exposeSharedStyle_when_catalogLoaded")
-        void should_exposeSharedStyle_when_catalogLoaded() {
+        @DisplayName("should expose shared style when catalog loaded")
+        void shouldExposeSharedStyleWhenCatalogLoaded() {
             assertThat(templates.getSharedStyleInstructions()).contains("minimal and high-value");
             assertThat(templates.getAfterToolsReminder()).contains("Produce your final answer now");
         }
 
         @Test
-        @DisplayName("should_keepA2uiFormatWithoutToolOrchestration_when_defaultSystemPromptBuilt")
-        void should_keepA2uiFormatWithoutToolOrchestration_when_defaultSystemPromptBuilt() {
+        @DisplayName("should keep a2ui format without tool orchestration when default system prompt built")
+        void shouldKeepA2uiFormatWithoutToolOrchestrationWhenDefaultSystemPromptBuilt() {
             String prompt = templates.getDefaultSystemPrompt();
 
             assertThat(prompt).contains("```a2ui");

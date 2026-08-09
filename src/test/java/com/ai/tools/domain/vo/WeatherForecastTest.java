@@ -11,14 +11,14 @@ class WeatherForecastTest {
 
     @Test
     @DisplayName("should reject null query")
-    void should_reject_null_query() {
+    void shouldRejectNullQuery() {
         assertThatThrownBy(() -> WeatherForecast.of(null, 3))
                 .isInstanceOf(InvalidWeatherQueryException.class);
     }
 
     @Test
     @DisplayName("should reject invalid days via compact constructor")
-    void should_reject_invalid_days_via_compact_constructor() {
+    void shouldRejectInvalidDaysViaCompactConstructor() {
         assertThatThrownBy(() -> new WeatherForecast(WeatherQuery.of("beijing"), 0))
                 .isInstanceOf(InvalidWeatherQueryException.class);
     }

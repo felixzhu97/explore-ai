@@ -38,7 +38,7 @@ describe('VisionService', () => {
     expect(service.currentState().file).toBeNull();
   });
 
-  it('should reject files larger than 50MB', () => {
+  it('should reject files larger than 50 mb', () => {
     const file = new File([new ArrayBuffer(51 * 1024 * 1024)], 'large.png', {
       type: 'image/png',
     });
@@ -68,14 +68,14 @@ describe('VisionService', () => {
     expect(service.currentState().image).toBeNull();
   });
 
-  it('should report canAnalyze when file is loaded', async () => {
+  it('should report can analyze when file is loaded', async () => {
     expect(service.canAnalyze()).toBe(false);
 
     service.processFile(new File(['data'], 'photo.png', { type: 'image/png' }));
     await vi.waitFor(() => expect(service.canAnalyze()).toBe(true));
   });
 
-  it('should call caption API for caption task', async () => {
+  it('should call caption api for caption task', async () => {
     const file = new File(['data'], 'photo.png', { type: 'image/png' });
 
     service.processFile(file);
@@ -112,7 +112,7 @@ describe('VisionService', () => {
     });
   });
 
-  it('should open zoom dialog via ImageZoomService', () => {
+  it('should open zoom dialog via image zoom service', () => {
     service.openZoom('data:image/png;base64,abc');
     expect(imageZoom.open).toHaveBeenCalledWith('data:image/png;base64,abc', expect.any(String));
   });

@@ -53,7 +53,7 @@ describe('AsrService', () => {
     vi.unstubAllGlobals();
   });
 
-  it('should_connect_to_asr_websocket_when_connect_called', () => {
+  it('should connect to asr websocket when connect called', () => {
     const service = new AsrService();
 
     service.connect();
@@ -70,7 +70,7 @@ describe('AsrService', () => {
     expect(service.lastMessage()).toBeNull();
   });
 
-  it('should_append_transcript_and_store_last_message_when_json_text_received', () => {
+  it('should append transcript and store last message when json text received', () => {
     const service = connectService();
     const socket = latestSocket();
 
@@ -82,7 +82,7 @@ describe('AsrService', () => {
     expect(service.error()).toBeNull();
   });
 
-  it('should_append_plain_text_when_message_is_not_json', () => {
+  it('should append plain text when message is not json', () => {
     const service = connectService();
 
     latestSocket().receive('partial transcript');
@@ -91,7 +91,7 @@ describe('AsrService', () => {
     expect(service.lastMessage()).toBe('partial transcript');
   });
 
-  it('should_set_error_when_server_message_reports_failure', () => {
+  it('should set error when server message reports failure', () => {
     const service = connectService();
 
     latestSocket().receive('{"message":"transcription model unavailable"}');
@@ -100,7 +100,7 @@ describe('AsrService', () => {
     expect(service.connectionState()).toBe('connected');
   });
 
-  it('should_send_commands_when_socket_is_open', () => {
+  it('should send commands when socket is open', () => {
     const service = connectService();
     const socket = latestSocket();
 
@@ -114,7 +114,7 @@ describe('AsrService', () => {
     expect(service.error()).toBeNull();
   });
 
-  it('should_set_error_when_sending_without_connected_socket', () => {
+  it('should set error when sending without connected socket', () => {
     const service = new AsrService();
 
     service.sendStop();
@@ -122,7 +122,7 @@ describe('AsrService', () => {
     expect(service.error()).toBe('notConnected');
   });
 
-  it('should_keep_error_state_when_socket_closes_after_transport_error', () => {
+  it('should keep error state when socket closes after transport error', () => {
     const service = connectService();
     const socket = latestSocket();
 

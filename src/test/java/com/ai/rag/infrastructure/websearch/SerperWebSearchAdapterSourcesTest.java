@@ -27,8 +27,8 @@ class SerperWebSearchAdapterSourcesTest {
     }
 
     @Test
-    @DisplayName("should_publish_sources_event_when_search_succeeds")
-    void should_publish_sources_event_when_search_succeeds() {
+    @DisplayName("should publish sources event when search succeeds")
+    void shouldPublishSourcesEventWhenSearchSucceeds() {
         RestClient.Builder builder = RestClient.builder().baseUrl("https://google.serper.dev");
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         server.expect(requestTo("https://google.serper.dev/search"))

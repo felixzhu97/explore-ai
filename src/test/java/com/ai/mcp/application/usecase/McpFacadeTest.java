@@ -56,8 +56,8 @@ class McpFacadeTest {
     }
 
     @Test
-    @DisplayName("should_delegate_tool_count_to_repository")
-    void should_delegate_tool_count_to_repository() {
+    @DisplayName("should delegate tool count to repository")
+    void shouldDelegateToolCountToRepository() {
         when(mcpClientRepository.toolCount()).thenReturn(7);
 
         assertThat(facade.getTotalToolCount()).isEqualTo(7);
@@ -65,8 +65,8 @@ class McpFacadeTest {
     }
 
     @Test
-    @DisplayName("should_return_connected_servers_from_repository")
-    void should_return_connected_servers_from_repository() {
+    @DisplayName("should return connected servers from repository")
+    void shouldReturnConnectedServersFromRepository() {
         Map<String, McpServerConnection> servers = Map.of(
                 "weather", McpServerConnection.connected("weather", 2));
         when(mcpClientRepository.listServers()).thenReturn(servers);
@@ -75,8 +75,8 @@ class McpFacadeTest {
     }
 
     @Test
-    @DisplayName("should_return_tool_definitions_from_repository")
-    void should_return_tool_definitions_from_repository() {
+    @DisplayName("should return tool definitions from repository")
+    void shouldReturnToolDefinitionsFromRepository() {
         List<McpToolDefinition> tools = List.of(McpToolDefinition.create("weather", "Weather lookup"));
         when(mcpClientRepository.listTools()).thenReturn(tools);
 
@@ -84,8 +84,8 @@ class McpFacadeTest {
     }
 
     @Test
-    @DisplayName("should_register_tool_callbacks_through_registry")
-    void should_register_tool_callbacks_through_registry() {
+    @DisplayName("should register tool callbacks through registry")
+    void shouldRegisterToolCallbacksThroughRegistry() {
         ToolCallback[] callbacks = new ToolCallback[] {toolCallback};
 
         facade.registerToolCallbacks(callbacks, "weather");
@@ -94,16 +94,16 @@ class McpFacadeTest {
     }
 
     @Test
-    @DisplayName("should_clear_tools_through_repository")
-    void should_clear_tools_through_repository() {
+    @DisplayName("should clear tools through repository")
+    void shouldClearToolsThroughRepository() {
         facade.clearTools();
 
         verify(mcpClientRepository).clearTools();
     }
 
     @Test
-    @DisplayName("should_chat_with_registered_tools")
-    void should_chat_with_registered_tools() {
+    @DisplayName("should chat with registered tools")
+    void shouldChatWithRegisteredTools() {
         ToolCallback[] callbacks = new ToolCallback[] {toolCallback};
         when(toolCallbackRegistry.getRegisteredToolCallbacks()).thenReturn(callbacks);
         when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);

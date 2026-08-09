@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SkillTest {
 
     @Test
-    @DisplayName("should_createEnabledSkill_when_createCalled")
-    void should_createEnabledSkill_when_createCalled() {
+    @DisplayName("should create enabled skill when create called")
+    void shouldCreateEnabledSkillWhenCreateCalled() {
         Skill skill = Skill.create(
                 "client-1",
                 "Brief Style",
@@ -35,8 +35,8 @@ class SkillTest {
     }
 
     @Test
-    @DisplayName("should_updateFields_when_updateCalled")
-    void should_updateFields_when_updateCalled() {
+    @DisplayName("should update fields when update called")
+    void shouldUpdateFieldsWhenUpdateCalled() {
         Skill skill = Skill.create("client-1", "Old", "Old desc", "Old instructions", List.of());
         Instant beforeUpdate = skill.getUpdatedAt();
 
@@ -50,8 +50,8 @@ class SkillTest {
     }
 
     @Test
-    @DisplayName("should_disableSkill_when_disableCalled")
-    void should_disableSkill_when_disableCalled() {
+    @DisplayName("should disable skill when disable called")
+    void shouldDisableSkillWhenDisableCalled() {
         Skill skill = Skill.create("client-1", "Name", "", "Instructions", List.of());
 
         skill.disable();
@@ -60,8 +60,8 @@ class SkillTest {
     }
 
     @Test
-    @DisplayName("should_restoreSkill_when_restoreCalled")
-    void should_restoreSkill_when_restoreCalled() {
+    @DisplayName("should restore skill when restore called")
+    void shouldRestoreSkillWhenRestoreCalled() {
         SkillId id = SkillId.generate();
         Instant createdAt = Instant.parse("2026-01-01T00:00:00Z");
         Instant updatedAt = Instant.parse("2026-01-02T00:00:00Z");
@@ -84,8 +84,8 @@ class SkillTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_nameBlank")
-    void should_throw_when_nameBlank() {
+    @DisplayName("should throw when name blank")
+    void shouldThrowWhenNameBlank() {
         assertThatThrownBy(() -> Skill.create("client-1", "  ", "", "Instructions", List.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("name");

@@ -64,7 +64,7 @@ describe('FeatureFlagService', () => {
     );
   }
 
-  it('should_use_environment_fallback_when_client_side_id_missing', async () => {
+  it('should use environment fallback when client side id missing', async () => {
     const { FeatureFlagService } = await import('./feature-flag.service');
     TestBed.configureTestingModule({ providers: [FeatureFlagService] });
     const service = TestBed.inject(FeatureFlagService);
@@ -75,7 +75,7 @@ describe('FeatureFlagService', () => {
     expect(mockClient.start).not.toHaveBeenCalled();
   });
 
-  it('should_skip_launchdarkly_when_analytics_consent_missing', async () => {
+  it('should skip launchdarkly when analytics consent missing', async () => {
     envState.launchDarklyClientSideId = 'client-id';
     const { createClient } = await import('@launchdarkly/js-client-sdk');
     const { FeatureFlagService } = await import('./feature-flag.service');
@@ -88,7 +88,7 @@ describe('FeatureFlagService', () => {
     expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_VISION)).toBe(true);
   });
 
-  it('should_sync_flags_after_launchdarkly_init', async () => {
+  it('should sync flags after launchdarkly init', async () => {
     allowAnalytics();
     envState.launchDarklyClientSideId = 'client-id';
     mockClient.boolVariation.mockImplementation(
@@ -106,7 +106,7 @@ describe('FeatureFlagService', () => {
     expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_VISION)).toBe(true);
   });
 
-  it('should_fallback_when_launchdarkly_init_times_out', async () => {
+  it('should fallback when launchdarkly init times out', async () => {
     allowAnalytics();
     vi.useFakeTimers();
     envState.launchDarklyClientSideId = 'client-id';
@@ -134,7 +134,7 @@ describe('FeatureFlagService', () => {
     expect(service.isEnabled(FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR)).toBe(false);
   });
 
-  it('should_return_fallback_for_unknown_flag_key', async () => {
+  it('should return fallback for unknown flag key', async () => {
     const { FeatureFlagService } = await import('./feature-flag.service');
     TestBed.configureTestingModule({ providers: [FeatureFlagService] });
     const service = TestBed.inject(FeatureFlagService);

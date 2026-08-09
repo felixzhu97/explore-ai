@@ -30,7 +30,7 @@ class WebCorsConfigTest {
 
         @Test
         @DisplayName("should allow configured production origins for api routes")
-        void should_allowConfiguredProductionOrigins_when_registeringApiCorsMappings() {
+        void shouldAllowConfiguredProductionOriginsWhenRegisteringApiCorsMappings() {
             corsProperties.setAllowedOriginPatterns(List.of(
                     " https://explore-ai-git-*-felixzhu97s-projects.vercel.app ",
                     "https://www.felixzhu.chat",
@@ -56,7 +56,7 @@ class WebCorsConfigTest {
 
         @Test
         @DisplayName("should skip api cors mapping when origins are empty")
-        void should_skipApiCorsMapping_when_originsAreEmpty() {
+        void shouldSkipApiCorsMappingWhenOriginsAreEmpty() {
             corsProperties.setAllowedOriginPatterns(List.of());
 
             assertThat(registerCorsConfigurations()).isEmpty();
@@ -64,7 +64,7 @@ class WebCorsConfigTest {
 
         @Test
         @DisplayName("should skip api cors mapping when origins are null")
-        void should_skipApiCorsMapping_when_originsAreNull() {
+        void shouldSkipApiCorsMappingWhenOriginsAreNull() {
             corsProperties.setAllowedOriginPatterns(null);
 
             assertThat(registerCorsConfigurations()).isEmpty();

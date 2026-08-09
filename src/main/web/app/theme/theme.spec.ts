@@ -95,14 +95,14 @@ describe('theme', () => {
       expect(typography).toBeDefined();
     });
 
-    it('should have fontFamily config', () => {
+    it('should have font family config', () => {
       expect(typography.fontFamily).toBeDefined();
       expect(typography.fontFamily.display).toBeDefined();
       expect(typography.fontFamily.body).toBeDefined();
       expect(typography.fontFamily.mono).toBeDefined();
     });
 
-    it('should have fontSize scale', () => {
+    it('should have font size scale', () => {
       expect(typography.fontSize).toBeDefined();
       expect(typography.fontSize.xs).toBe('11px');
       expect(typography.fontSize.sm).toBe('12px');
@@ -111,7 +111,7 @@ describe('theme', () => {
       expect(typography.fontSize.xl).toBe('20px');
     });
 
-    it('should have fontWeight scale', () => {
+    it('should have font weight scale', () => {
       expect(typography.fontWeight).toBeDefined();
       expect(typography.fontWeight.normal).toBe('400');
       expect(typography.fontWeight.medium).toBe('500');
@@ -119,7 +119,7 @@ describe('theme', () => {
       expect(typography.fontWeight.bold).toBe('700');
     });
 
-    it('should have lineHeight config', () => {
+    it('should have line height config', () => {
       expect(typography.lineHeight).toBeDefined();
       expect(typography.lineHeight.tight).toBe('1.1');
       expect(typography.lineHeight.normal).toBe('1.4');
@@ -171,7 +171,7 @@ describe('theme', () => {
       expect(theme.zIndex).toBe(zIndex);
     });
 
-    it('should have Theme type', () => {
+    it('should have theme type', () => {
       expect(theme).toBeDefined();
     });
   });

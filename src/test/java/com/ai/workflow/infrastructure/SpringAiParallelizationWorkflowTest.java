@@ -43,7 +43,7 @@ class SpringAiParallelizationWorkflowTest {
     }
 
     @Test
-    void should_returnOutputs_when_itemsProcessedInParallel() {
+    void shouldReturnOutputsWhenItemsProcessedInParallel() {
         when(callResponseSpec.content())
                 .thenReturn("fr:Hello", "fr:World");
 

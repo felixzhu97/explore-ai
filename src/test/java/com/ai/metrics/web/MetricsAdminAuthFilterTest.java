@@ -32,7 +32,7 @@ class MetricsAdminAuthFilterTest {
     }
 
     @Test
-    void should_allow_whenAdminKeyMatches() throws Exception {
+    void shouldAllowWhenAdminKeyMatches() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
         request.addHeader(MetricsAdminAuthFilter.ADMIN_KEY_HEADER, "secret-key");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -44,7 +44,7 @@ class MetricsAdminAuthFilterTest {
     }
 
     @Test
-    void should_reject_whenAdminKeyMissing() throws Exception {
+    void shouldRejectWhenAdminKeyMissing() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -56,7 +56,7 @@ class MetricsAdminAuthFilterTest {
     }
 
     @Test
-    void should_notFilter_whenAdminKeyNotConfigured() throws Exception {
+    void shouldNotFilterWhenAdminKeyNotConfigured() throws Exception {
         properties.setAdminApiKey("");
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
         MockHttpServletResponse response = new MockHttpServletResponse();

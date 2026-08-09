@@ -20,7 +20,7 @@ describe('EvalService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should_postEvaluationRequest', () => {
+  it('should post evaluation request', () => {
     service.evaluate({
       userMessage: 'hello',
       assistantResponse: 'hi',

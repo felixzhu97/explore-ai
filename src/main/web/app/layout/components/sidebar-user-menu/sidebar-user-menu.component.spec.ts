@@ -46,7 +46,7 @@ describe('SidebarUserMenuComponent', () => {
     http.verify();
   });
 
-  it('should_showEmail_when_accountLoaded', async () => {
+  it('should show email when account loaded', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
@@ -64,7 +64,7 @@ describe('SidebarUserMenuComponent', () => {
     expect(fixture.componentInstance.displayName()).toBe('user@example.com');
   });
 
-  it('should_showSignedIn_when_authenticatedWithoutEmail', async () => {
+  it('should show signed in when authenticated without email', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
@@ -85,7 +85,7 @@ describe('SidebarUserMenuComponent', () => {
     expect(fixture.componentInstance.showLogin()).toBe(false);
   });
 
-  it('should_showGuest_when_accountRequestFails', async () => {
+  it('should show guest when account request fails', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).error(new ProgressEvent('error'));
     await fixture.whenStable();
@@ -97,7 +97,7 @@ describe('SidebarUserMenuComponent', () => {
     );
   });
 
-  it('should_showLogin_when_loginAvailableAndAnonymous', async () => {
+  it('should show login when login available and anonymous', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',
@@ -115,7 +115,7 @@ describe('SidebarUserMenuComponent', () => {
     expect(fixture.componentInstance.showLogout()).toBe(false);
   });
 
-  it('should_openLoginDialog_when_loginClicked', async () => {
+  it('should open login dialog when login clicked', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',
@@ -132,7 +132,7 @@ describe('SidebarUserMenuComponent', () => {
     expect(accountDialog.openLogin).toHaveBeenCalled();
   });
 
-  it('should_openLogoutDialog_when_logoutClicked', async () => {
+  it('should open logout dialog when logout clicked', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',

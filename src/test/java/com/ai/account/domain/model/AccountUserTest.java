@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class AccountUserTest {
 
     @Test
-    void should_createUser_whenValidInputs() {
+    void shouldCreateUserWhenValidInputs() {
         AccountUser user = AccountUser.create("Google", "sub-1", " User@Example.com ", "cid-1");
 
         assertThat(user.getId()).isNotBlank();
@@ -21,7 +21,7 @@ class AccountUserTest {
     }
 
     @Test
-    void should_updateLink_whenLinkSessionCalled() {
+    void shouldUpdateLinkWhenLinkSessionCalled() {
         AccountUser user = AccountUser.create("google", "sub-1", "a@b.com", "cid-1");
 
         user.linkSession("c@d.com", "cid-2");
@@ -31,7 +31,7 @@ class AccountUserTest {
     }
 
     @Test
-    void should_rejectBlankProvider_whenCreate() {
+    void shouldRejectBlankProviderWhenCreate() {
         assertThatThrownBy(() -> AccountUser.create(" ", "sub", "a@b.com", "cid"))
                 .isInstanceOf(IllegalArgumentException.class);
     }

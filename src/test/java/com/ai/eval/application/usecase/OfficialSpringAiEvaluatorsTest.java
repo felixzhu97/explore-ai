@@ -34,8 +34,8 @@ class OfficialSpringAiEvaluatorsTest {
     private OfficialSpringAiEvaluators evaluators;
 
     @Test
-    @DisplayName("should_passWithoutFactuality_when_noContext")
-    void should_passWithoutFactuality_when_noContext() {
+    @DisplayName("should pass without factuality when no context")
+    void shouldPassWithoutFactualityWhenNoContext() {
         when(relevancyEvaluator.evaluate(any(EvaluationRequest.class)))
                 .thenReturn(new EvaluationResponse(true, 1.0f, "ok", Map.of()));
 
@@ -50,8 +50,8 @@ class OfficialSpringAiEvaluatorsTest {
     }
 
     @Test
-    @DisplayName("should_requireBothPasses_when_contextPresent")
-    void should_requireBothPasses_when_contextPresent() {
+    @DisplayName("should require both passes when context present")
+    void shouldRequireBothPassesWhenContextPresent() {
         when(relevancyEvaluator.evaluate(any(EvaluationRequest.class)))
                 .thenReturn(new EvaluationResponse(true, 1.0f, "", Map.of()));
         when(factCheckingEvaluator.evaluate(any(EvaluationRequest.class)))

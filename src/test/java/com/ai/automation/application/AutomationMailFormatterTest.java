@@ -11,7 +11,7 @@ class AutomationMailFormatterTest {
     private final AutomationMailFormatter formatter = new AutomationMailFormatter();
 
     @Test
-    void should_renderMarkdownHeadingsAndLists_when_formatHtml() {
+    void shouldRenderMarkdownHeadingsAndListsWhenFormatHtml() {
         String markdown = """
                 ## Thesis
                 **Fact:** Databricks leads.
@@ -35,7 +35,7 @@ class AutomationMailFormatterTest {
     }
 
     @Test
-    void should_stripMarkdownMarkers_when_formatPlainText() {
+    void shouldStripMarkdownMarkersWhenFormatPlainText() {
         String markdown = """
                 ## Thesis
                 **Fact:** Growing fast.
@@ -56,7 +56,7 @@ class AutomationMailFormatterTest {
     }
 
     @Test
-    void should_escapeScheduleNameInHtmlShell_when_nameHasSpecialChars() {
+    void shouldEscapeScheduleNameInHtmlShellWhenNameHasSpecialChars() {
         AutomationMailFormatter.FormattedMail mail =
                 formatter.format("A <B> & \"C\"", "brief", "ok");
 

@@ -28,7 +28,7 @@ class ChunkingDocumentTransformerTest {
 
     @Test
     @DisplayName("should create raw documents for chunks preserving metadata and source")
-    void should_create_raw_documents_for_chunks_preserving_metadata_and_source() {
+    void shouldCreateRawDocumentsForChunksPreservingMetadataAndSource() {
         Map<String, Object> metadata = Map.of("fileName", "guide.txt", "category", "docs");
         String content = "First paragraph with enough words to exceed the token limit. "
                 + "Second paragraph also needs sufficient length for another chunk boundary.";
@@ -47,7 +47,7 @@ class ChunkingDocumentTransformerTest {
 
     @Test
     @DisplayName("should return empty list when content is blank")
-    void should_return_empty_list_when_content_is_blank() {
+    void shouldReturnEmptyListWhenContentIsBlank() {
         RawDocument document = new RawDocument("   ", Map.of("fileName", "blank.txt"), "blank.txt");
 
         List<RawDocument> chunks = transformer.transform(document);
@@ -57,7 +57,7 @@ class ChunkingDocumentTransformerTest {
 
     @Test
     @DisplayName("should return single chunk when text fits token limit")
-    void should_return_single_chunk_when_text_fits_token_limit() {
+    void shouldReturnSingleChunkWhenTextFitsTokenLimit() {
         RawDocument document = new RawDocument("Short note.", Map.of("fileName", "short.txt"), "short.txt");
 
         List<RawDocument> chunks = transformer.transform(document);

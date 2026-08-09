@@ -50,7 +50,7 @@ class ClientIdentityFilterTest {
     }
 
     @Test
-    void should_issueCookieAndSetAttribute_whenCookieMissing() throws Exception {
+    void shouldIssueCookieAndSetAttributeWhenCookieMissing() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/sessions");
         when(request.getCookies()).thenReturn(null);
 
@@ -70,7 +70,7 @@ class ClientIdentityFilterTest {
     }
 
     @Test
-    void should_reuseExistingCookie_whenValidUuidPresent() throws Exception {
+    void shouldReuseExistingCookieWhenValidUuidPresent() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/sessions");
         when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("ea_cid", CLIENT_ID)});
 
@@ -82,7 +82,7 @@ class ClientIdentityFilterTest {
     }
 
     @Test
-    void should_notFilter_whenPathOutsideApi() throws Exception {
+    void shouldNotFilterWhenPathOutsideApi() throws Exception {
         when(request.getRequestURI()).thenReturn("/assets/main.js");
 
         filter.doFilter(request, response, filterChain);
@@ -101,7 +101,7 @@ class ClientIdentityFilterTest {
         }
 
         @Test
-        void should_useClientIdHeader_whenServiceKeyValid() throws Exception {
+        void shouldUseClientIdHeaderWhenServiceKeyValid() throws Exception {
             when(request.getRequestURI()).thenReturn("/api/sessions");
             when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
             when(request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER)).thenReturn(CLIENT_ID);
@@ -115,7 +115,7 @@ class ClientIdentityFilterTest {
         }
 
         @Test
-        void should_fallBackToCookie_whenServiceKeyInvalid() throws Exception {
+        void shouldFallBackToCookieWhenServiceKeyInvalid() throws Exception {
             when(request.getRequestURI()).thenReturn("/api/sessions");
             when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn("wrong-key");
             when(request.getCookies()).thenReturn(null);
@@ -130,7 +130,7 @@ class ClientIdentityFilterTest {
         }
 
         @Test
-        void should_fallBackToCookie_whenClientIdHeaderInvalid() throws Exception {
+        void shouldFallBackToCookieWhenClientIdHeaderInvalid() throws Exception {
             when(request.getRequestURI()).thenReturn("/api/sessions");
             when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
             when(request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER)).thenReturn("not-a-uuid");
@@ -143,7 +143,7 @@ class ClientIdentityFilterTest {
         }
 
         @Test
-        void should_fallBackToCookie_whenServiceKeyNotConfigured() throws Exception {
+        void shouldFallBackToCookieWhenServiceKeyNotConfigured() throws Exception {
             serviceAuthProperties.setApiKey("");
             when(request.getRequestURI()).thenReturn("/api/sessions");
             when(request.getCookies()).thenReturn(null);

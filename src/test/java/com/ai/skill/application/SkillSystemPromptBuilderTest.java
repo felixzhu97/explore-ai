@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SkillSystemPromptBuilderTest {
 
     @Test
-    @DisplayName("should_buildPrompt_when_skillsProvided")
-    void should_buildPrompt_when_skillsProvided() {
+    @DisplayName("should build prompt when skills provided")
+    void shouldBuildPromptWhenSkillsProvided() {
         Skill skill = Skill.create(
                 "client-1",
                 "Brief Style",
@@ -31,8 +31,8 @@ class SkillSystemPromptBuilderTest {
     }
 
     @Test
-    @DisplayName("should_returnNull_when_skillsEmpty")
-    void should_returnNull_when_skillsEmpty() {
+    @DisplayName("should return null when skills empty")
+    void shouldReturnNullWhenSkillsEmpty() {
         assertThat(SkillSystemPromptBuilder.build(List.of())).isNull();
         assertThat(SkillSystemPromptBuilder.build(null)).isNull();
     }

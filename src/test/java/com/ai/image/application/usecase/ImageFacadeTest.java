@@ -42,7 +42,7 @@ class ImageFacadeTest {
 
     @Test
     @DisplayName("should reject local Ollama endpoint in cloud configuration")
-    void should_reject_local_ollama_endpoint_in_cloud_configuration() {
+    void shouldRejectLocalOllamaEndpointInCloudConfiguration() {
         imageProperties.setProvider(ImageProperties.PROVIDER_OLLAMA);
         imageProperties.setBaseUrl("http://localhost:11434/v1");
 
@@ -52,7 +52,7 @@ class ImageFacadeTest {
 
     @Test
     @DisplayName("should reject OpenAI provider when API key is missing")
-    void should_reject_openai_provider_when_api_key_is_missing() {
+    void shouldRejectOpenaiProviderWhenApiKeyIsMissing() {
         imageProperties.setProvider(ImageProperties.PROVIDER_OPENAI);
         imageProperties.setApiKey("");
 
@@ -62,7 +62,7 @@ class ImageFacadeTest {
 
     @Test
     @DisplayName("should use configured model when request model is null")
-    void should_use_configured_model_when_request_model_is_null() {
+    void shouldUseConfiguredModelWhenRequestModelIsNull() {
         when(imageGenerationRepository.generate(any(ImagePrompt.class), any(ImageOptions.class)))
                 .thenReturn(GeneratedImage.fromBase64("abc", "x/z-image-turbo", "sunset"));
 
@@ -75,7 +75,7 @@ class ImageFacadeTest {
 
     @Test
     @DisplayName("should use request model when provided")
-    void should_use_request_model_when_provided() {
+    void shouldUseRequestModelWhenProvided() {
         when(imageGenerationRepository.generate(any(ImagePrompt.class), any(ImageOptions.class)))
                 .thenReturn(GeneratedImage.fromUrl("https://example.com/a.png", "dall-e-3", "sunset"));
 

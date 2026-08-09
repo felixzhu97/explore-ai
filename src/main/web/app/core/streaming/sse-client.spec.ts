@@ -3,33 +3,33 @@ import { parseSseToken, parseChatStreamEvent, SseEventAssembler } from './sse-cl
 
 describe('sse-client', () => {
   describe('parseSseToken', () => {
-    it('should_return_newline_when_data_is_empty', () => {
+    it('should return newline when data is empty', () => {
       expect(parseSseToken('')).toBe('\n');
     });
 
-    it('should_parse_json_token_object', () => {
+    it('should parse json token object', () => {
       expect(parseSseToken('{"token":"hello"}')).toBe('hello');
     });
 
-    it('should_parse_typed_message_event', () => {
+    it('should parse typed message event', () => {
       expect(parseSseToken('{"type":"message","token":"hi"}')).toBe('hi');
     });
 
-    it('should_return_null_for_tool_events', () => {
+    it('should return null for tool events', () => {
       expect(parseSseToken('{"type":"tool_call","name":"searchWeb","input":"{}"}')).toBeNull();
     });
 
-    it('should_parse_quoted_json_string', () => {
+    it('should parse quoted json string', () => {
       expect(parseSseToken('"hello"')).toBe('hello');
     });
 
-    it('should_return_plain_text_when_not_json', () => {
+    it('should return plain text when not json', () => {
       expect(parseSseToken('hello')).toBe('hello');
     });
   });
 
   describe('parseChatStreamEvent', () => {
-    it('should_parse_sources_event', () => {
+    it('should parse sources event', () => {
       const event = parseChatStreamEvent(
         '{"type":"sources","query":"q","items":[{"title":"T","url":"https://a.com","snippet":"s"}]}',
       );
@@ -40,7 +40,7 @@ describe('sse-client', () => {
       });
     });
 
-    it('should_parse_tool_call_and_result', () => {
+    it('should parse tool call and result', () => {
       expect(parseChatStreamEvent('{"type":"tool_call","name":"searchWeb","input":"{}"}')).toEqual({
         type: 'tool_call',
         name: 'searchWeb',
@@ -56,7 +56,7 @@ describe('sse-client', () => {
   });
 
   describe('SseEventAssembler', () => {
-    it('should_assemble_event_on_blank_line', () => {
+    it('should assemble event on blank line', () => {
       const assembler = new SseEventAssembler();
       assembler.pushLine('event: message');
       assembler.pushLine('data: hello');
@@ -65,7 +65,7 @@ describe('sse-client', () => {
       expect(event).toEqual({ eventType: 'message', data: 'hello' });
     });
 
-    it('should_join_multiple_data_lines', () => {
+    it('should join multiple data lines', () => {
       const assembler = new SseEventAssembler();
       assembler.pushLine('data: line1');
       assembler.pushLine('data: line2');

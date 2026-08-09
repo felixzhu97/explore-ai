@@ -11,14 +11,14 @@ class ImagePromptTest {
 
     @Test
     @DisplayName("should reject blank prompt")
-    void should_reject_blank_prompt() {
+    void shouldRejectBlankPrompt() {
         assertThatThrownBy(() -> ImagePrompt.of(" "))
                 .isInstanceOf(InvalidImagePromptException.class);
     }
 
     @Test
     @DisplayName("should reject null via compact constructor")
-    void should_reject_null_via_compact_constructor() {
+    void shouldRejectNullViaCompactConstructor() {
         assertThatThrownBy(() -> new ImagePrompt(null))
                 .isInstanceOf(InvalidImagePromptException.class)
                 .hasMessageContaining("blank");
@@ -26,7 +26,7 @@ class ImagePromptTest {
 
     @Test
     @DisplayName("should reject prompt exceeding max length")
-    void should_reject_prompt_exceeding_max_length() {
+    void shouldRejectPromptExceedingMaxLength() {
         assertThatThrownBy(() -> ImagePrompt.of("a".repeat(4_001)))
                 .isInstanceOf(InvalidImagePromptException.class)
                 .hasMessageContaining("maximum length");

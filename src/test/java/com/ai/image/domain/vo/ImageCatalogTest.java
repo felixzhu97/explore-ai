@@ -14,13 +14,13 @@ class ImageCatalogTest {
 
     @Test
     @DisplayName("should return same default instance")
-    void should_return_same_default_instance() {
+    void shouldReturnSameDefaultInstance() {
         assertThat(ImageCatalog.defaults()).isSameAs(ImageCatalog.defaults());
     }
 
     @Test
     @DisplayName("should reject null models")
-    void should_reject_null_models() {
+    void shouldRejectNullModels() {
         assertThatThrownBy(() -> new ImageCatalog(null, List.of("1024x1024"), List.of("standard")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Models list");
@@ -28,7 +28,7 @@ class ImageCatalogTest {
 
     @Test
     @DisplayName("should return immutable lists")
-    void should_return_immutable_lists() {
+    void shouldReturnImmutableLists() {
         List<String> mutableModels = new ArrayList<>(List.of("dall-e-3"));
         ImageCatalog catalog = new ImageCatalog(
                 mutableModels, List.of("1024x1024"), List.of("standard"));

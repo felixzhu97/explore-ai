@@ -10,8 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ImageModelConfigTest {
 
     @Test
-    @DisplayName("should_create_image_model_from_properties")
-    void should_create_image_model_from_properties() {
+    @DisplayName("should create image model from properties")
+    void shouldCreateImageModelFromProperties() {
         ImageModelConfig config = new ImageModelConfig();
         ImageProperties properties = new ImageProperties();
         properties.setApiKey("test-key");
@@ -24,8 +24,8 @@ class ImageModelConfigTest {
     }
 
     @Test
-    @DisplayName("should_use_default_base_url_when_blank")
-    void should_use_default_base_url_when_blank() {
+    @DisplayName("should use default base url when blank")
+    void shouldUseDefaultBaseUrlWhenBlank() {
         ImageModelConfig config = new ImageModelConfig();
         ImageProperties properties = new ImageProperties();
         properties.setApiKey("test-key");

@@ -245,7 +245,7 @@ class ChatControllerTest {
 
         @Test
         @DisplayName("should attach persisted sources to assistant messages")
-        void should_attach_persisted_sources_to_assistant_messages() {
+        void shouldAttachPersistedSourcesToAssistantMessages() {
             String reply = "Paris is the capital.";
             when(chatUseCase.getSessionHistory("session-1", CLIENT_ID)).thenReturn(List.of(
                     ChatMessage.createUserMessage("Where is Paris?"),

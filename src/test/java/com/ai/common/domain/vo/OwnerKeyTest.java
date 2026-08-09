@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class OwnerKeyTest {
 
     @Test
-    void should_buildClientKey_whenForClient() {
+    void shouldBuildClientKeyWhenForClient() {
         OwnerKey key = OwnerKey.forClient("  abc-123  ");
 
         assertThat(key.value()).isEqualTo("c:abc-123");
@@ -19,7 +19,7 @@ class OwnerKeyTest {
     }
 
     @Test
-    void should_buildAccountKey_whenForAccount() {
+    void shouldBuildAccountKeyWhenForAccount() {
         OwnerKey key = OwnerKey.forAccount("user-9");
 
         assertThat(key.value()).isEqualTo("u:user-9");
@@ -28,13 +28,13 @@ class OwnerKeyTest {
     }
 
     @Test
-    void should_parseRawValue_whenPrefixed() {
+    void shouldParseRawValueWhenPrefixed() {
         assertThat(OwnerKey.parse("c:guest").value()).isEqualTo("c:guest");
         assertThat(OwnerKey.parse("u:acct").value()).isEqualTo("u:acct");
     }
 
     @Test
-    void should_rejectBlank_whenCreating() {
+    void shouldRejectBlankWhenCreating() {
         assertThatThrownBy(() -> OwnerKey.forClient(" "))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> OwnerKey.forAccount(""))

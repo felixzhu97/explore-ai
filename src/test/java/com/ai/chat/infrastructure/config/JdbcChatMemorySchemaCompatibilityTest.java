@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class JdbcChatMemorySchemaCompatibilityTest {
 
     @Test
-    void should_fail_when_legacy_table_missing_sequence_id_column() {
+    void shouldFailWhenLegacyTableMissingSequenceIdColumn() {
         DataSource dataSource = createDataSource("legacy");
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         createLegacyTableWithoutSequenceId(jdbcTemplate);
@@ -34,7 +34,7 @@ class JdbcChatMemorySchemaCompatibilityTest {
     }
 
     @Test
-    void should_persist_when_table_matches_spring_ai_2_schema() {
+    void shouldPersistWhenTableMatchesSpringAi2Schema() {
         DataSource dataSource = createDataSource("current");
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         createCurrentTable(jdbcTemplate);

@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OllamaConfigTest {
 
     @Test
-    @DisplayName("should_create_embedding_and_vision_chat_models")
-    void should_create_embedding_and_vision_chat_models() {
+    @DisplayName("should create embedding and vision chat models")
+    void shouldCreateEmbeddingAndVisionChatModels() {
         OllamaConfig config = new OllamaConfig();
         ReflectionTestUtils.setField(config, "baseUrl", "http://localhost:11434");
         ReflectionTestUtils.setField(config, "embeddingModelName", "qwen3-embedding:0.6b");

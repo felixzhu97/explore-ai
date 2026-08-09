@@ -34,8 +34,8 @@ class JdbcChatWebSourcesRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_upsert_sources_with_content_hash")
-    void should_upsert_sources_with_content_hash() {
+    @DisplayName("should upsert sources with content hash")
+    void shouldUpsertSourcesWithContentHash() {
         List<WebSource> sources = List.of(
                 new WebSource("Title", "https://example.com", "Snippet"));
 
@@ -51,15 +51,15 @@ class JdbcChatWebSourcesRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_skip_save_when_sources_empty")
-    void should_skip_save_when_sources_empty() {
+    @DisplayName("should skip save when sources empty")
+    void shouldSkipSaveWhenSourcesEmpty() {
         repository.save("conv-1", "text", "q", List.of());
         verifyNoInteractions(jdbcTemplate);
     }
 
     @Test
-    @DisplayName("should_load_sources_by_conversation")
-    void should_load_sources_by_conversation() throws Exception {
+    @DisplayName("should load sources by conversation")
+    void shouldLoadSourcesByConversation() throws Exception {
         String hash = ContentHash.sha256("reply");
         String json = new ObjectMapper().writeValueAsString(
                 List.of(new WebSource("T", "https://a.com", "s")));
@@ -80,8 +80,8 @@ class JdbcChatWebSourcesRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_delete_by_conversation")
-    void should_delete_by_conversation() {
+    @DisplayName("should delete by conversation")
+    void shouldDeleteByConversation() {
         repository.deleteByConversationId("conv-1");
         verify(jdbcTemplate).update("DELETE FROM chat_web_sources WHERE conversation_id = ?", "conv-1");
     }

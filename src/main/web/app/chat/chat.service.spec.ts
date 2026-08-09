@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mergeHistoryWithUiState, type UiMessage } from './chat.service';
 
 describe('mergeHistoryWithUiState', () => {
-  it('should_keep_local_sources_when_api_sources_missing', () => {
+  it('should keep local sources when api sources missing', () => {
     const previous: UiMessage[] = [
       {
         id: 'assistant_1',
@@ -33,7 +33,7 @@ describe('mergeHistoryWithUiState', () => {
     expect(merged[0].sources).toEqual(previous[0].sources);
   });
 
-  it('should_prefer_api_sources_when_present', () => {
+  it('should prefer api sources when present', () => {
     const previous: UiMessage[] = [
       {
         id: 'assistant_1',

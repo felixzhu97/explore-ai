@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WorkflowTemplateCatalogTest {
 
     @Test
-    @DisplayName("should_listBuiltInTemplates_when_catalogLoaded")
-    void should_listBuiltInTemplates_when_catalogLoaded() {
+    @DisplayName("should list built in templates when catalog loaded")
+    void shouldListBuiltInTemplatesWhenCatalogLoaded() {
         assertThat(WorkflowTemplateCatalog.listAll())
                 .extracting(WorkflowTemplate::id)
                 .containsExactly(
@@ -26,8 +26,8 @@ class WorkflowTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_localizeTemplates_when_languageProvided")
-    void should_localizeTemplates_when_languageProvided() {
+    @DisplayName("should localize templates when language provided")
+    void shouldLocalizeTemplatesWhenLanguageProvided() {
         assertThat(WorkflowTemplateCatalog.findById("competitiveIntel", "zh"))
                 .isPresent()
                 .get()
@@ -48,8 +48,8 @@ class WorkflowTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_fallbackToEnglish_when_languageUnsupported")
-    void should_fallbackToEnglish_when_languageUnsupported() {
+    @DisplayName("should fallback to english when language unsupported")
+    void shouldFallbackToEnglishWhenLanguageUnsupported() {
         assertThat(WorkflowTemplateCatalog.findById("meetingPrep", "de"))
                 .isPresent()
                 .get()
@@ -58,15 +58,15 @@ class WorkflowTemplateCatalogTest {
     }
 
     @Test
-    @DisplayName("should_collectNameAliases_when_templateExists")
-    void should_collectNameAliases_when_templateExists() {
+    @DisplayName("should collect name aliases when template exists")
+    void shouldCollectNameAliasesWhenTemplateExists() {
         assertThat(WorkflowTemplateCatalog.namesForTemplate("competitiveIntel"))
                 .contains("Competitive intelligence", "竞品情报");
     }
 
     @Test
-    @DisplayName("should_returnEmpty_when_idUnknown")
-    void should_returnEmpty_when_idUnknown() {
+    @DisplayName("should return empty when id unknown")
+    void shouldReturnEmptyWhenIdUnknown() {
         assertThat(WorkflowTemplateCatalog.findById("missing")).isEmpty();
         assertThat(WorkflowTemplateCatalog.findById(" ")).isEmpty();
     }

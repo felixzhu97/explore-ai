@@ -38,7 +38,7 @@ class ToolCallLoopGuardAdvisorTest {
     class DisableToolsBeforeCall {
 
         @Test
-        void should_disableTools_when_searchWebAlreadyRan() {
+        void shouldDisableToolsWhenSearchWebAlreadyRan() {
             ChatClientRequest request = requestWithHistory(List.of(
                     new UserMessage("chart please"),
                     toolResponse("call-1", "searchWeb", "results")));
@@ -51,7 +51,7 @@ class ToolCallLoopGuardAdvisorTest {
         }
 
         @Test
-        void should_keepToolsEnabled_when_onlyGetCurrentDateTime() {
+        void shouldKeepToolsEnabledWhenOnlyGetCurrentDateTime() {
             ChatClientRequest request = requestWithHistory(List.of(
                     new UserMessage("today?"),
                     toolResponse("call-1", "getCurrentDateTime", "2026-07-26")));
@@ -68,7 +68,7 @@ class ToolCallLoopGuardAdvisorTest {
     class StageRemindersViaManager {
 
         @Test
-        void should_appendFinalReminder_when_terminalToolExecuted() {
+        void shouldAppendFinalReminderWhenTerminalToolExecuted() {
             ToolExecutionResult raw = DefaultToolExecutionResult.builder()
                     .conversationHistory(List.of(
                             new UserMessage("chart"),
@@ -85,7 +85,7 @@ class ToolCallLoopGuardAdvisorTest {
         }
 
         @Test
-        void should_appendBridgeReminder_when_onlyDateTimeExecuted() {
+        void shouldAppendBridgeReminderWhenOnlyDateTimeExecuted() {
             ToolExecutionResult raw = DefaultToolExecutionResult.builder()
                     .conversationHistory(List.of(toolResponse("call-1", "getCurrentDateTime", "now")))
                     .build();
@@ -104,7 +104,7 @@ class ToolCallLoopGuardAdvisorTest {
     class AdvisorChainParity {
 
         @Test
-        void should_passDisabledRequestToChain_when_terminalToolPresent() {
+        void shouldPassDisabledRequestToChainWhenTerminalToolPresent() {
             AtomicReference<ChatClientRequest> captured = new AtomicReference<>();
             CallAdvisorChain chain = mock(CallAdvisorChain.class);
             when(chain.copy(any())).thenReturn(chain);

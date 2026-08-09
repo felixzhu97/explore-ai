@@ -9,7 +9,7 @@ describe('moduleEnabledGuard', () => {
   const route = {} as ActivatedRouteSnapshot;
   const state = {} as RouterStateSnapshot;
 
-  it('should_allowRoute_when_flagEnabled', () => {
+  it('should allow route when flag enabled', () => {
     const featureFlags = {
       isEnabled: vi.fn().mockReturnValue(true),
     };
@@ -24,7 +24,7 @@ describe('moduleEnabledGuard', () => {
     expect(canActivate).toBe(true);
   });
 
-  it('should_redirectToChat_when_flagDisabled', () => {
+  it('should redirect to chat when flag disabled', () => {
     const featureFlags = {
       isEnabled: vi.fn().mockReturnValue(false),
     };
@@ -46,7 +46,7 @@ describe('moduleEnabledGuard', () => {
     expect(canActivate).toEqual({});
   });
 
-  it('should_supportEvalFlag', () => {
+  it('should support eval flag', () => {
     const featureFlags = {
       isEnabled: vi.fn().mockImplementation(
         (key: string) => key === FEATURE_FLAG_KEYS.MODULE_EVAL,

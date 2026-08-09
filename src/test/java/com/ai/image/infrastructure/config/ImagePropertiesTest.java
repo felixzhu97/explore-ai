@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ImagePropertiesTest {
 
     @Test
-    @DisplayName("should_expose_defaults_and_configuration_rules")
-    void should_expose_defaults_and_configuration_rules() {
+    @DisplayName("should expose defaults and configuration rules")
+    void shouldExposeDefaultsAndConfigurationRules() {
         ImageProperties properties = new ImageProperties();
 
         assertThat(properties.isEnabled()).isTrue();

@@ -18,7 +18,7 @@ describe('credentialsInterceptor', () => {
     TestBed.configureTestingModule({});
   });
 
-  it('should_setWithCredentials_whenRequestCloned', () => {
+  it('should set with credentials when request cloned', () => {
     const req = new HttpRequest('GET', '/api/sessions');
     let withCredentials = false;
     let csrfHeader = '';

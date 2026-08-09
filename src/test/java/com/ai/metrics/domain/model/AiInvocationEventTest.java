@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AiInvocationEventTest {
 
     @Test
-    @DisplayName("should_normalize_blank_optional_fields_and_clamp_latency")
-    void should_normalize_blank_optional_fields_and_clamp_latency() {
+    @DisplayName("should normalize blank optional fields and clamp latency")
+    void shouldNormalizeBlankOptionalFieldsAndClampLatency() {
         AiInvocationEvent event = AiInvocationEvent.builder()
                 .domain(AiDomain.TOOLS)
                 .operation(" tools.weather ")
@@ -32,8 +32,8 @@ class AiInvocationEventTest {
     }
 
     @Test
-    @DisplayName("should_reject_blank_operation_when_building")
-    void should_reject_blank_operation_when_building() {
+    @DisplayName("should reject blank operation when building")
+    void shouldRejectBlankOperationWhenBuilding() {
         assertThatThrownBy(() -> AiInvocationEvent.builder()
                 .domain(AiDomain.CHAT)
                 .operation(" ")

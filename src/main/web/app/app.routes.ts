@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout';
+import { chatRouteMatcher } from './chat/chat.route-matcher';
 import { FEATURE_FLAG_KEYS } from './core/config/feature-flag-keys';
 import { moduleEnabledGuard } from './core/guards/module-enabled.guard';
 
@@ -55,12 +56,7 @@ export const routes: Routes = [
         loadComponent: () => import('./skills/skills.page').then(m => m.SkillsPageComponent),
       },
       {
-        path: 'chat',
-        pathMatch: 'full',
-        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
-      },
-      {
-        path: 'chat/:sessionId',
+        matcher: chatRouteMatcher,
         loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
       },
       {

@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TextProviderCatalogTest {
 
     @Test
-    void should_list_openai_as_available_provider() {
+    void shouldListOpenaiAsAvailableProvider() {
         var catalog = new TextProviderCatalog(false, "");
 
         var providers = catalog.listProviders();
@@ -19,7 +19,7 @@ class TextProviderCatalogTest {
     }
 
     @Test
-    void should_return_deepseek_models_for_openai_provider() {
+    void shouldReturnDeepseekModelsForOpenaiProvider() {
         var catalog = new TextProviderCatalog(false, "");
 
         var models = catalog.listModels("openai");
@@ -31,7 +31,7 @@ class TextProviderCatalogTest {
     }
 
     @Test
-    void should_return_anthropic_current_and_legacy_models() {
+    void shouldReturnAnthropicCurrentAndLegacyModels() {
         var catalog = new TextProviderCatalog(false, "sk-ant-test");
 
         var models = catalog.listModels("anthropic");
@@ -47,7 +47,7 @@ class TextProviderCatalogTest {
     }
 
     @Test
-    void should_return_ollama_chat_model_tags() {
+    void shouldReturnOllamaChatModelTags() {
         var catalog = new TextProviderCatalog(true, "");
 
         var models = catalog.listModels("ollama");
@@ -57,7 +57,7 @@ class TextProviderCatalogTest {
     }
 
     @Test
-    void should_mark_ollama_unavailable_when_chat_disabled() {
+    void shouldMarkOllamaUnavailableWhenChatDisabled() {
         var catalog = new TextProviderCatalog(false, "");
 
         var providers = catalog.listProviders();
@@ -70,7 +70,7 @@ class TextProviderCatalogTest {
     }
 
     @Test
-    void should_mark_anthropic_available_when_api_key_configured() {
+    void shouldMarkAnthropicAvailableWhenApiKeyConfigured() {
         var catalog = new TextProviderCatalog(false, "sk-ant-test");
 
         var anthropic = catalog.listProviders().stream()
@@ -82,7 +82,7 @@ class TextProviderCatalogTest {
     }
 
     @Test
-    void should_default_to_openai_models_when_provider_missing() {
+    void shouldDefaultToOpenaiModelsWhenProviderMissing() {
         var catalog = new TextProviderCatalog(false, "");
 
         var models = catalog.listModels(null);

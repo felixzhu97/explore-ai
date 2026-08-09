@@ -34,7 +34,7 @@ class CurrentOwnerResolverImplTest {
     private CurrentOwnerResolverImpl resolver;
 
     @Test
-    void should_returnClientOwner_whenGuestWithoutLink() {
+    void shouldReturnClientOwnerWhenGuestWithoutLink() {
         when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.empty());
 
         OwnerKey key = resolver.resolve("cid-1", null);
@@ -43,7 +43,7 @@ class CurrentOwnerResolverImplTest {
     }
 
     @Test
-    void should_returnAccountOwner_whenLinkedClientIdPresent() {
+    void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
         AccountUser user = AccountUser.restore(
                 "acct-1", "google", "sub", "a@b.com", "cid-1", Instant.now(), Instant.now());
         when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.of(user));
@@ -57,7 +57,7 @@ class CurrentOwnerResolverImplTest {
     }
 
     @Test
-    void should_returnAccountOwner_whenOAuthAuthenticated() {
+    void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
         AccountUser user = AccountUser.restore(
                 "acct-9", "google", "sub-9", "a@b.com", "cid-9", Instant.now(), Instant.now());
         when(accountUserRepository.findByProviderAndSubject("google", "sub-9"))

@@ -25,35 +25,35 @@ class ToolCallLoopGuardTest {
     class ShouldForceFinalAnswer {
 
         @Test
-        void should_returnFalse_when_noToolResults() {
+        void shouldReturnFalseWhenNoToolResults() {
             assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
                     new UserMessage("hi"),
                     new AssistantMessage("hello")))).isFalse();
         }
 
         @Test
-        void should_returnFalse_when_onlyGetCurrentDateTime() {
+        void shouldReturnFalseWhenOnlyGetCurrentDateTime() {
             assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
                     new UserMessage("today?"),
                     toolResponse("call-1", "getCurrentDateTime", "2026-07-26")))).isFalse();
         }
 
         @Test
-        void should_returnTrue_when_searchWebPresent() {
+        void shouldReturnTrueWhenSearchWebPresent() {
             assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
                     new UserMessage("chart please"),
                     toolResponse("call-1", "searchWeb", "results")))).isTrue();
         }
 
         @Test
-        void should_returnTrue_when_datetimeThenSearchWeb() {
+        void shouldReturnTrueWhenDatetimeThenSearchWeb() {
             assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
                     toolResponse("call-1", "getCurrentDateTime", "now"),
                     toolResponse("call-2", "searchWeb", "hits")))).isTrue();
         }
 
         @Test
-        void should_returnTrue_when_twoToolResponseRounds() {
+        void shouldReturnTrueWhenTwoToolResponseRounds() {
             assertThat(ToolCallLoopGuard.shouldForceFinalAnswer(List.of(
                     toolResponse("call-1", "getCurrentDateTime", "now"),
                     toolResponse("call-2", "getCurrentDateTime", "now2")))).isTrue();
@@ -65,13 +65,13 @@ class ToolCallLoopGuardTest {
     class HasOnlyBridgeToolResults {
 
         @Test
-        void should_returnTrue_when_onlyDateTimeTool() {
+        void shouldReturnTrueWhenOnlyDateTimeTool() {
             assertThat(ToolCallLoopGuard.hasOnlyBridgeToolResults(List.of(
                     toolResponse("call-1", "getCurrentDateTime", "now")))).isTrue();
         }
 
         @Test
-        void should_returnFalse_when_searchWebPresent() {
+        void shouldReturnFalseWhenSearchWebPresent() {
             assertThat(ToolCallLoopGuard.hasOnlyBridgeToolResults(List.of(
                     toolResponse("call-1", "getCurrentDateTime", "now"),
                     toolResponse("call-2", "searchWeb", "hits")))).isFalse();
@@ -83,13 +83,13 @@ class ToolCallLoopGuardTest {
     class HasToolResults {
 
         @Test
-        void should_returnFalse_when_noMessages() {
+        void shouldReturnFalseWhenNoMessages() {
             assertThat(ToolCallLoopGuard.hasToolResults(List.of())).isFalse();
             assertThat(ToolCallLoopGuard.hasToolResults(null)).isFalse();
         }
 
         @Test
-        void should_returnTrue_when_toolResponsePresent() {
+        void shouldReturnTrueWhenToolResponsePresent() {
             assertThat(ToolCallLoopGuard.hasToolResults(List.of(
                     new UserMessage("chart please"),
                     toolResponse("call-1", "searchWeb", "results")))).isTrue();
@@ -101,7 +101,7 @@ class ToolCallLoopGuardTest {
     class DisableFurtherToolUse {
 
         @Test
-        void should_setToolChoiceNoneAndClearCallbacks_when_openAiOptions() {
+        void shouldSetToolChoiceNoneAndClearCallbacksWhenOpenAiOptions() {
             OpenAiChatOptions original = OpenAiChatOptions.builder()
                     .model("deepseek-v4-flash")
                     .toolChoice("auto")
@@ -117,7 +117,7 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_clearToolCallbacks_when_ollamaOptions() {
+        void shouldClearToolCallbacksWhenOllamaOptions() {
             OllamaChatOptions original = OllamaChatOptions.builder()
                     .model("llama3.2")
                     .build();
@@ -129,7 +129,7 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_clearToolCallbacks_when_anthropicOptions() {
+        void shouldClearToolCallbacksWhenAnthropicOptions() {
             AnthropicChatOptions original = AnthropicChatOptions.builder()
                     .model("claude-sonnet-4-5")
                     .build();
@@ -141,7 +141,7 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_returnSameInstance_when_unknownChatOptions() {
+        void shouldReturnSameInstanceWhenUnknownChatOptions() {
             ChatOptions original = ChatOptions.builder().model("custom-model").build();
             assertThat(ToolCallLoopGuard.disableFurtherToolUse(original)).isSameAs(original);
         }
@@ -152,7 +152,7 @@ class ToolCallLoopGuardTest {
     class Reminders {
 
         @Test
-        void should_appendFinalReminder_banning_furtherToolsIncludingFetch() {
+        void shouldAppendFinalReminderBanningFurtherToolsIncludingFetch() {
             List<Message> next = ToolCallLoopGuard.withFinalAnswerReminder(
                     List.of(new UserMessage("q"), new AssistantMessage("a")));
 
@@ -164,7 +164,7 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_appendContinuationReminder_allowing_searchWeb() {
+        void shouldAppendContinuationReminderAllowingSearchWeb() {
             List<Message> next = ToolCallLoopGuard.withContinuationReminder(
                     List.of(toolResponse("call-1", "getCurrentDateTime", "now")));
 
@@ -180,7 +180,7 @@ class ToolCallLoopGuardTest {
     class WithStageReminder {
 
         @Test
-        void should_appendFinalReminder_when_terminalToolPresent() {
+        void shouldAppendFinalReminderWhenTerminalToolPresent() {
             List<Message> next = ToolCallLoopGuard.withStageReminder(List.of(
                     toolResponse("call-1", "searchWeb", "hits")));
 
@@ -189,7 +189,7 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_appendBridgeReminder_when_onlyDateTimePresent() {
+        void shouldAppendBridgeReminderWhenOnlyDateTimePresent() {
             List<Message> next = ToolCallLoopGuard.withStageReminder(List.of(
                     toolResponse("call-1", "getCurrentDateTime", "now")));
 
@@ -198,7 +198,7 @@ class ToolCallLoopGuardTest {
         }
 
         @Test
-        void should_leaveHistoryUnchanged_when_noToolResults() {
+        void shouldLeaveHistoryUnchangedWhenNoToolResults() {
             List<Message> history = List.of(new UserMessage("hi"));
             assertThat(ToolCallLoopGuard.withStageReminder(history)).isSameAs(history);
         }
@@ -209,7 +209,7 @@ class ToolCallLoopGuardTest {
     class MaybeDisableToolsRequest {
 
         @Test
-        void should_disableTools_when_terminalToolPresent() {
+        void shouldDisableToolsWhenTerminalToolPresent() {
             OpenAiChatOptions options = OpenAiChatOptions.builder()
                     .model("deepseek-v4-flash")
                     .toolChoice("auto")

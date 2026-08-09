@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class AiInvocationRecorderTest {
 
     @Test
-    @DisplayName("should_persist_event_when_repository_succeeds")
-    void should_persist_event_when_repository_succeeds() {
+    @DisplayName("should persist event when repository succeeds")
+    void shouldPersistEventWhenRepositorySucceeds() {
         List<AiInvocationEvent> saved = new ArrayList<>();
         AiInvocationRecorder recorder = new AiInvocationRecorder(
                 new AiInvocationEventRepository() {
@@ -42,8 +42,8 @@ class AiInvocationRecorderTest {
     }
 
     @Test
-    @DisplayName("should_not_throw_when_repository_fails")
-    void should_not_throw_when_repository_fails() {
+    @DisplayName("should not throw when repository fails")
+    void shouldNotThrowWhenRepositoryFails() {
         AiInvocationRecorder recorder = new AiInvocationRecorder(
                 new AiInvocationEventRepository() {
                     @Override

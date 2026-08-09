@@ -43,7 +43,7 @@ class VisionControllerTest {
 
         @Test
         @DisplayName("should return caption response")
-        void should_return_caption_response() throws Exception {
+        void shouldReturnCaptionResponse() throws Exception {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "photo.jpg", "image/jpeg", "image".getBytes());
             when(visionAnalysisUseCase.caption(file))
@@ -57,7 +57,7 @@ class VisionControllerTest {
 
         @Test
         @DisplayName("should throw for empty file")
-        void should_throw_for_empty_file() {
+        void shouldThrowForEmptyFile() {
             assertThatThrownBy(() -> controller.caption(null))
                     .isInstanceOf(VisionInvalidFileException.class);
         }
@@ -69,7 +69,7 @@ class VisionControllerTest {
 
         @Test
         @DisplayName("should return detections")
-        void should_return_detections() throws Exception {
+        void shouldReturnDetections() throws Exception {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "photo.jpg", "image/jpeg", "image".getBytes());
             List<DetectionDto> detections = List.of(
@@ -90,7 +90,7 @@ class VisionControllerTest {
 
         @Test
         @DisplayName("should return extracted text")
-        void should_return_extracted_text() throws Exception {
+        void shouldReturnExtractedText() throws Exception {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "scan.png", "image/png", "image".getBytes());
             when(visionAnalysisUseCase.ocr(file))
@@ -108,7 +108,7 @@ class VisionControllerTest {
 
         @Test
         @DisplayName("should report provider availability")
-        void should_report_provider_availability() {
+        void shouldReportProviderAvailability() {
             when(visionAnalysisUseCase.health())
                     .thenReturn(new VisionHealthResponse("DEGRADED", Map.of(
                             "caption", "UP",

@@ -48,8 +48,8 @@ class VisionAnalysisUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_return_caption_from_captioner_port")
-    void should_return_caption_from_captioner_port() throws Exception {
+    @DisplayName("should return caption from captioner port")
+    void shouldReturnCaptionFromCaptionerPort() throws Exception {
         when(captioner.caption(any(BufferedImage.class)))
                 .thenReturn(new CaptionResult("A red bicycle"));
 
@@ -60,8 +60,8 @@ class VisionAnalysisUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_map_detections_from_detector_port")
-    void should_map_detections_from_detector_port() throws Exception {
+    @DisplayName("should map detections from detector port")
+    void shouldMapDetectionsFromDetectorPort() throws Exception {
         when(detector.detect(any(BufferedImage.class)))
                 .thenReturn(List.of(new Detection("cat", 0.91, 1, 2, 3, 4)));
 
@@ -73,8 +73,8 @@ class VisionAnalysisUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_return_ocr_text_from_ocr_engine_port")
-    void should_return_ocr_text_from_ocr_engine_port() throws Exception {
+    @DisplayName("should return ocr text from ocr engine port")
+    void shouldReturnOcrTextFromOcrEnginePort() throws Exception {
         when(ocrEngine.extract(any(BufferedImage.class)))
                 .thenReturn(new OcrResult("Hello World"));
 
