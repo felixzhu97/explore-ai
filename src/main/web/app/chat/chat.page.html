@@ -101,30 +101,6 @@
       }
     </div>
   }
-
-  <div class="flex shrink-0 items-center gap-0.5">
-    <a
-      routerLink="/pipelines"
-      z-button
-      zType="ghost"
-      zSize="sm"
-      class="hidden text-xs xl:inline-flex"
-      [attr.title]="i18n.t().chat.openPipelineWorkbench"
-    >
-      {{ i18n.t().chat.openPipelineWorkbench }}
-    </a>
-    <button
-      type="button"
-      z-button
-      zType="ghost"
-      zSize="icon"
-      (click)="newChat()"
-      title="New Chat"
-      aria-label="New Chat"
-    >
-      <ng-icon name="lucideRefreshCw" class="size-4!" />
-    </button>
-  </div>
 </div>
 
 <app-chat-message-pane

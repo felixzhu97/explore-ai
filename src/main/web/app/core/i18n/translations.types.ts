@@ -132,7 +132,6 @@ export interface Translations {
     documentDeleted: string;
     deleteFailed: string;
     fileSelected: string;
-    openPipelineWorkbench: string;
   };
 
   pipelines: {
@@ -242,7 +241,6 @@ export interface Translations {
     inputPlaceholder: string;
     welcomeTitle: string;
     welcomeDescription: string;
-    openPipelineWorkbench: string;
     suggestedPromptsTitle: string;
     suggestedPrompts: {
       key: string;

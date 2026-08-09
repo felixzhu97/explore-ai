@@ -1,18 +1,18 @@
-<div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-  <div
-    class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3"
-  >
-    <div class="min-w-0">
-      <h1 class="text-base font-semibold text-foreground">{{ i18n.t().automationsPage.title }}</h1>
-      <p class="text-xs text-foreground/60">{{ i18n.t().automationsPage.subtitle }}</p>
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+        {{ i18n.t().automationsPage.title }}
+      </h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().automationsPage.subtitle }}</p>
     </div>
     <button type="button" z-button zType="default" zSize="sm" (click)="startCreate()">
       {{ i18n.t().automationsPage.newSchedule }}
     </button>
-  </div>
+  </header>
 
-  <div class="min-h-0 flex-1 overflow-y-auto px-4 py-6">
-    <div class="mx-auto flex w-full max-w-4xl flex-col gap-8">
+  <div class="flex flex-col gap-6">
       @if (error()) {
         <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {{ error() }}
@@ -261,6 +261,5 @@
           </ul>
         }
       </section>
-    </div>
   </div>
 </div>

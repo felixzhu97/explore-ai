@@ -63,3 +63,34 @@ Jira: [AI-325](https://felixzhu.atlassian.net/browse/AI-325)、[AI-326](https://
 ### 状态
 
 已实现
+
+---
+
+## US-35 工作台页布局与 Metrics 一致
+
+**As a** 访客  
+**I want** Skills、Agents、自动化与工作流画廊的页壳与指标页一致  
+**So that** 标题、主操作与内容宽度在各模块间可预期
+
+### 验收标准
+
+1. **Scenario** Skills / Agents / 自动化页眉对齐指标  
+   **GIVEN** 访客打开 Skills、Agents 或自动化  
+   **WHEN** 查看首屏  
+   **THEN** 可见 ExploreAI 眉题、左对齐大标题，以及同排主 CTA  
+   **AND** 无 sticky 顶部分割栏
+
+2. **Scenario** 工作流画廊页眉对齐指标  
+   **GIVEN** 访客打开工作流画廊  
+   **WHEN** 查看画廊  
+   **THEN** 无居中的双层空状态标题  
+   **AND** Metrics 式页眉展示工作流标题，同排「添加」
+
+3. **Scenario** 控件保持安静权重  
+   **GIVEN** 访客查看 Agents 或工作流操作  
+   **WHEN** 查看主/次按钮  
+   **THEN** 仍为边框 / ghost 风格（非高饱和主色块）
+
+### 状态
+
+已实现（Jira: [AI-340](https://felixzhu.atlassian.net/browse/AI-340)）

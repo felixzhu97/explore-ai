@@ -150,7 +150,6 @@ describe('i18n.model', () => {
         'documentDeleted',
         'deleteFailed',
         'fileSelected',
-        'openPipelineWorkbench',
       ] as const;
 
       it('should have ragChat translations for all languages', () => {

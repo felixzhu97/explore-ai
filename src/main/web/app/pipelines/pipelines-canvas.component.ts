@@ -34,6 +34,7 @@ import {
 } from './pipelines.model.graph';
 import { applyPipelineTemplate } from './pipelines.templates';
 import { PipelinesService } from './pipelines.service';
+import { ZardButtonComponent } from '../shared/components/button';
 
 type WorkspaceMode = 'gallery' | 'edit' | 'use';
 
@@ -50,7 +51,7 @@ interface ApplyableTemplate {
 
 @Component({
   selector: 'app-pipelines-canvas',
-  imports: [FFlowModule, FormsModule],
+  imports: [FFlowModule, FormsModule, ZardButtonComponent],
   templateUrl: './pipelines-canvas.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex min-h-0 flex-1 overflow-hidden' },
