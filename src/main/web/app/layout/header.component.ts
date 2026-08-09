@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { ZardButtonComponent } from '../shared/components/button';
 import { LanguagePickerComponent } from './components/language-picker/language-picker.component';
+import { I18nService } from '../core/i18n';
 
 @Component({
   selector: 'app-header',
@@ -18,7 +19,7 @@ import { LanguagePickerComponent } from './components/language-picker/language-p
         zSize="icon"
         class="flex flex-col gap-1 p-2"
         (click)="openSidebar.emit()"
-        aria-label="Open menu"
+        [attr.aria-label]="i18n.t().sidebar.openMenu"
       >
         <span class="h-px w-4.5 rounded-sm bg-text"></span>
         <span class="h-px w-4.5 rounded-sm bg-text"></span>
@@ -31,5 +32,6 @@ import { LanguagePickerComponent } from './components/language-picker/language-p
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
+  protected readonly i18n = inject(I18nService);
   readonly openSidebar = output<void>();
 }

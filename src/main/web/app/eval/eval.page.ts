@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { EvalService } from './eval.service';
 import type { EvaluationResponse } from './eval.model';
 import { ZardButtonComponent } from '../shared/components/button';
+import { I18nService } from '../core/i18n';
 
 @Component({
   selector: 'app-eval-page',
@@ -13,6 +14,7 @@ import { ZardButtonComponent } from '../shared/components/button';
 })
 export class EvalPageComponent {
   private readonly evalService = inject(EvalService);
+  protected readonly i18n = inject(I18nService);
 
   readonly userMessage = signal('');
   readonly assistantResponse = signal('');
@@ -37,7 +39,7 @@ export class EvalPageComponent {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Evaluation request failed');
+        this.error.set(this.i18n.t().evalPage.requestFailed);
         this.loading.set(false);
       },
     });

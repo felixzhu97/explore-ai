@@ -3,16 +3,22 @@
     class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3"
   >
     <div class="min-w-0">
-      <h1 class="text-base font-semibold text-foreground">Speech to Text</h1>
+      <h1 class="text-base font-semibold text-foreground">{{ i18n.t().asrPage.title }}</h1>
       <p class="text-xs text-foreground/60">
-        Connection:
-        <span class="text-foreground capitalize">{{ asr.connectionState() }}</span>
+        {{ i18n.t().asrPage.connectionLabel }}
+        <span class="text-foreground capitalize">{{ connectionStateLabel() }}</span>
       </p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <button type="button" z-button zType="default" (click)="connect()">Connect</button>
-      <button type="button" z-button zType="outline" (click)="disconnect()">Disconnect</button>
-      <button type="button" z-button zType="ghost" zSize="sm" (click)="sendStop()">Stop</button>
+      <button type="button" z-button zType="default" (click)="connect()">
+        {{ i18n.t().asrPage.connect }}
+      </button>
+      <button type="button" z-button zType="outline" (click)="disconnect()">
+        {{ i18n.t().asrPage.disconnect }}
+      </button>
+      <button type="button" z-button zType="ghost" zSize="sm" (click)="sendStop()">
+        {{ i18n.t().asrPage.stop }}
+      </button>
       <button
         type="button"
         z-button
@@ -21,30 +27,32 @@
         class="text-foreground/50"
         (click)="sendTestPayload()"
       >
-        Test payload
+        {{ i18n.t().asrPage.testPayload }}
       </button>
     </div>
   </div>
 
-  @if (asr.error()) {
+  @if (errorMessage(); as message) {
     <p class="shrink-0 border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
-      {{ asr.error() }}
+      {{ message }}
     </p>
   }
 
   <div class="min-h-0 flex-1 overflow-y-auto bg-surface px-4 py-6">
     <div class="mx-auto flex min-h-full max-w-3xl flex-col gap-4">
       <section class="flex min-h-64 flex-1 flex-col rounded-xl border border-black/8 bg-white p-5">
-        <h2 class="text-xs font-medium tracking-wide text-foreground/50 uppercase">Transcript</h2>
+        <h2 class="text-xs font-medium tracking-wide text-foreground/50 uppercase">
+          {{ i18n.t().asrPage.transcript }}
+        </h2>
         <p class="mt-4 flex-1 text-base leading-relaxed whitespace-pre-wrap text-foreground">
-          {{ asr.transcript() || 'Connect to start live transcription.' }}
+          {{ asr.transcript() || i18n.t().asrPage.empty }}
         </p>
       </section>
 
       @if (asr.lastMessage()) {
         <details class="rounded-lg border border-black/8 bg-white px-4 py-3 text-xs text-foreground/70">
           <summary class="cursor-pointer font-medium text-foreground/60 select-none">
-            Last server message
+            {{ i18n.t().asrPage.lastServerMessage }}
           </summary>
           <pre class="mt-2 overflow-x-auto whitespace-pre-wrap">{{ asr.lastMessage() }}</pre>
         </details>

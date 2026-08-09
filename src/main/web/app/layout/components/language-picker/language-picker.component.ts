@@ -17,7 +17,7 @@ import { ZardDropdownImports } from '../../../shared/components/dropdown/dropdow
         z-button
         zType="ghost"
         [class]="triggerClass()"
-        aria-label="Language"
+        [attr.aria-label]="i18n.t().account.language"
       >
         <span class="font-semibold">{{ i18n.language().toUpperCase() }}</span>
         @if (showLabel()) {

@@ -82,3 +82,34 @@ QA 可在 Eval 页自动评估 AI 回答质量；管理员/运维可查看请求
 ### 状态
 
 已实现
+
+---
+
+## US-36 Lab 与隐私页跟随界面语言
+
+**As a** 访客  
+**I want** Metrics、Eval、ASR、MCP 与隐私页的界面文案跟随已选语言  
+**So that** 切换语言后 Lab 与隐私相关页面不再残留英文硬编码
+
+### 验收标准
+
+1. **Scenario** Lab 页文案随语言切换
+   **GIVEN** 访客已选择界面语言（en / zh / ja / fr / es）  
+   **WHEN** 打开 Metrics、Eval、ASR 或 MCP 页  
+   **THEN** 标题、表单、状态、错误与表格列头等 UI 文案使用该语言  
+   **AND** 品牌名 ExploreAI 保持不翻译
+
+2. **Scenario** 隐私页完整本地化
+   **GIVEN** 访客选择 ja / fr / es  
+   **WHEN** 打开隐私页  
+   **THEN** 告知、子处理方用途与控制文案为对应语言（非英文占位）  
+   **AND** 子处理方品牌名（DeepSeek、OpenAI 等）保持原样
+
+3. **Scenario** 共享 chrome 无障碍文案随语言
+   **GIVEN** 访客已选择界面语言  
+   **WHEN** 使用侧栏、顶栏菜单、语言选择器、RAG 删除文档或 TTS 播放控制  
+   **THEN** 相关 aria-label 使用当前语言
+
+### 状态
+
+已实现（Jira: [AI-341](https://felixzhu.atlassian.net/browse/AI-341)）

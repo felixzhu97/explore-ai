@@ -7,7 +7,7 @@ export const sidebarMenuButtonVariants = cva(
   mergeClasses(
     buttonVariants({ zType: 'ghost' }),
     'border-transparent hover:border-transparent focus-visible:border-transparent data-[active=true]:border-transparent',
-    'justify-start gap-1.5 rounded-lg px-2 py-1.5 text-left text-sm font-normal text-[#0D0D0D] no-underline',
+    'cursor-pointer justify-start gap-1.5 rounded-lg px-2 py-1.5 text-left text-sm font-normal text-[#0D0D0D] no-underline',
     'hover:bg-sidebar-accent hover:text-[#0D0D0D]',
     'data-[active=true]:bg-sidebar-accent data-[active=true]:font-normal data-[active=true]:text-[#0D0D0D]',
     'outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-0',

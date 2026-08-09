@@ -130,6 +130,7 @@ export interface Translations {
     basedOn: string;
     openReference: string;
     documentDeleted: string;
+    deleteDocument: string;
     deleteFailed: string;
     fileSelected: string;
   };
@@ -251,6 +252,134 @@ export interface Translations {
     skillsEmpty: string;
     skillsManage: string;
     skillsSelected: string;
+    loadingModels: string;
+  };
+  metricsPage: {
+    overviewTitle: string;
+    overviewSubtitle: string;
+    domainTitle: string;
+    domainSubtitle: string;
+    dayFilter: string;
+    modelFilter: string;
+    clearFilters: string;
+    range7d: string;
+    range30d: string;
+    loading: string;
+    loadingOverview: string;
+    loadOverviewFailed: string;
+    loadDomainFailed: string;
+    unknownDomain: string;
+    unknownDomainTitle: string;
+    backToOverview: string;
+    openDomainHint: string;
+    charts: {
+      aiRequests: string;
+      aiRequestsEmpty: string;
+      requestsByDomain: string;
+      requestsByDomainEmpty: string;
+      requestsOverTime: string;
+      requestsOverTimeEmpty: string;
+      callsByModel: string;
+      callsByModelEmpty: string;
+      documentsByStatus: string;
+      documentsByStatusEmpty: string;
+    };
+    kpi: {
+      aiRequests: string;
+      errorRate: string;
+      p95Latency: string;
+      tokens: string;
+      sessions: string;
+      documents: string;
+      requests: string;
+      errors: string;
+    };
+    health: {
+      heading: string;
+      empty: string;
+      chat: string;
+      rag: string;
+      agents: string;
+      toolsMcp: string;
+      vision: string;
+      sessionsDetail: string;
+      documentsDetail: string;
+      healthyDetail: string;
+      toolsDetail: string;
+      visionDetail: string;
+    };
+    drilldown: {
+      recentHeading: string;
+      filteredHeading: string;
+      eventsCount: string;
+      empty: string;
+      time: string;
+      operation: string;
+      outcome: string;
+      latency: string;
+      model: string;
+    };
+  };
+  evalPage: {
+    title: string;
+    subtitle: string;
+    userMessage: string;
+    assistantResponse: string;
+    evaluate: string;
+    evaluating: string;
+    overall: string;
+    coherence: string;
+    relevance: string;
+    helpfulness: string;
+    factuality: string;
+    safetyIssues: string;
+    yes: string;
+    no: string;
+    suggestions: string;
+    empty: string;
+    requestFailed: string;
+  };
+  asrPage: {
+    title: string;
+    connectionLabel: string;
+    connect: string;
+    disconnect: string;
+    stop: string;
+    testPayload: string;
+    transcript: string;
+    empty: string;
+    lastServerMessage: string;
+    connectionState: {
+      disconnected: string;
+      connecting: string;
+      connected: string;
+      error: string;
+    };
+    errors: {
+      connectionFailed: string;
+      notConnected: string;
+      generic: string;
+    };
+  };
+  mcpPage: {
+    title: string;
+    subtitle: string;
+    serverLabel: string;
+    clientLabel: string;
+    toolsCount: string;
+    loading: string;
+    tools: string;
+    noTools: string;
+    tryWithTools: string;
+    placeholder: string;
+    send: string;
+    sending: string;
+    errors: {
+      healthFailed: string;
+      clientStatusFailed: string;
+      toolsFailed: string;
+      chatFailed: string;
+    };
   };
   agentsPage: {
     title: string;
@@ -400,6 +529,8 @@ export interface Translations {
       audioReady: string;
       downloadAudio: string;
       emptyState: string;
+      pause: string;
+      play: string;
     };
   };
   sidebar: {
@@ -408,6 +539,11 @@ export interface Translations {
     pinned: string;
     recents: string;
     searchConversations: string;
+    openMenu: string;
+    collapse: string;
+    expand: string;
+    closeMenu: string;
+    closeOverlay: string;
   };
   privacy: {
     consentTitle: string;
