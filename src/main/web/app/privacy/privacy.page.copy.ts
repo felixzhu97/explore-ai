@@ -68,7 +68,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     resetSuccess: 'Browser identity reset',
     resetFailed: 'Failed to reset identity',
     backToChat: 'Back to chat',
-    legalHub: 'Legal',
+    legalHub: 'Policies',
     subprocessorsLink: 'Sub-processors',
   },
   zh: {
@@ -104,7 +104,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     resetSuccess: '浏览器身份已重置',
     resetFailed: '重置失败',
     backToChat: '返回聊天',
-    legalHub: '法律信息',
+    legalHub: '政策',
     subprocessorsLink: '子处理方',
   },
   ja: {
@@ -141,7 +141,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     resetSuccess: 'Browser identity reset',
     resetFailed: 'Failed to reset identity',
     backToChat: 'Back to chat',
-    legalHub: 'Legal',
+    legalHub: 'Policies',
     subprocessorsLink: 'Sub-processors',
   },
   fr: {
@@ -178,7 +178,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     resetSuccess: 'Browser identity reset',
     resetFailed: 'Failed to reset identity',
     backToChat: 'Back to chat',
-    legalHub: 'Legal',
+    legalHub: 'Policies',
     subprocessorsLink: 'Sub-processors',
   },
   es: {
@@ -215,7 +215,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     resetSuccess: 'Browser identity reset',
     resetFailed: 'Failed to reset identity',
     backToChat: 'Back to chat',
-    legalHub: 'Legal',
+    legalHub: 'Policies',
     subprocessorsLink: 'Sub-processors',
   },
 };

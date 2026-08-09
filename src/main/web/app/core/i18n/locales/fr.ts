@@ -26,6 +26,7 @@ export const fr: Translations = {
     metrics: 'Métriques',
     privacy: 'Confidentialité',
     legal: 'Mentions légales',
+    policies: 'Politiques',
     generation: 'Génération',
     modelDev: 'Dev',
     modelOps: 'Ops',

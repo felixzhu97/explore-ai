@@ -42,6 +42,7 @@ export interface Translations {
     metrics: string;
     privacy: string;
     legal: string;
+    policies: string;
     generation: string;
     modelDev: string;
     modelOps: string;

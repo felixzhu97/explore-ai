@@ -29,6 +29,8 @@ describe('ChatService http flows', () => {
         provideRouter([
           { path: 'chat', pathMatch: 'full', component: BlankHostComponent },
           { path: 'chat/:sessionId', component: BlankHostComponent },
+          { path: 'policies', component: BlankHostComponent },
+          { path: 'rag', component: BlankHostComponent },
         ]),
         ChatService,
       ],
@@ -126,7 +128,8 @@ describe('ChatService http flows', () => {
     expect(service.toolsEnabled()).toBe(false);
   });
 
-  it('should create session and keep bare chat url', () => {
+  it('should create session and keep bare chat url', async () => {
+    await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.createSession();
     httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
@@ -141,8 +144,8 @@ describe('ChatService http flows', () => {
     expect(service.activeSessionId()).toBe('s1');
     expect(service.sessions()[0].sessionId).toBe('s1');
     expect(service.isLoadingSession()).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith('/chat');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/s1');
+    expect(navigateSpy).not.toHaveBeenCalledWith('/chat/s1', expect.anything());
     expect(sessionStorage.getItem('explore-ai.chat.activeSessionId')).toBeNull();
   });
 
@@ -232,6 +235,70 @@ describe('ChatService http flows', () => {
     expect(sessionStorage.getItem('explore-ai.chat.activeSessionId')).toBeNull();
   });
 
+  it('should not navigate to chat when bootstrapping sessions on a non-chat route', async () => {
+    await router.navigateByUrl('/policies');
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl');
+    service.initializeSessions();
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+      {
+        sessionId: 'hist',
+        title: 'History',
+        messageCount: 2,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-03T00:00:00Z',
+      },
+    ]);
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+      sessionId: 'draft',
+      title: 'New Chat',
+      messageCount: 0,
+      createdAt: '2026-07-04T00:00:00Z',
+      lastActivityAt: '2026-07-04T00:00:00Z',
+    });
+    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    expect(service.activeSessionId()).toBe('draft');
+    expect(navigateSpy).not.toHaveBeenCalledWith('/chat');
+    expect(navigateSpy).not.toHaveBeenCalledWith('/chat', expect.anything());
+    expect(navigateSpy).not.toHaveBeenCalledWith('/chat/draft');
+    expect(navigateSpy).not.toHaveBeenCalledWith('/chat/draft', expect.anything());
+    expect(router.url.split('?')[0]).toBe('/policies');
+  });
+
+  it('should navigate to chat when selecting a session from a non-chat route', async () => {
+    await router.navigateByUrl('/policies');
+    service.sessions.set([
+      {
+        sessionId: 'hist',
+        title: 'History',
+        messageCount: 2,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-03T00:00:00Z',
+      },
+    ]);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    service.selectSession('hist', { navigateToChat: true });
+    expect(navigateSpy).toHaveBeenCalledWith('/chat/hist', { replaceUrl: false });
+    httpMock.expectOne(`${API_BASE_URL}/sessions/hist/messages`).flush([
+      { id: 'm1', role: 'user', content: 'hi', timestamp: '2026-07-02T00:00:00Z' },
+    ]);
+  });
+
+  it('should navigate to chat when creating a session from a non-chat route', async () => {
+    await router.navigateByUrl('/policies');
+    service.sessions.set([]);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    service.createSession();
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+      sessionId: 'draft',
+      title: 'New Chat',
+      messageCount: 0,
+      createdAt: '2026-07-04T00:00:00Z',
+      lastActivityAt: '2026-07-04T00:00:00Z',
+    });
+    expect(navigateSpy).toHaveBeenCalledWith('/chat', { replaceUrl: false });
+    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+  });
+
   it('should not demote deep link url while session history is loading', async () => {
     await router.navigateByUrl('/chat/s1');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
@@ -302,7 +369,8 @@ describe('ChatService http flows', () => {
     expect(service.isLoadingSession()).toBe(false);
   });
 
-  it('should ignore stale history when switching sessions quickly', () => {
+  it('should ignore stale history when switching sessions quickly', async () => {
+    await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.selectSession('s1');
     expect(service.isLoadingSession()).toBe(true);
@@ -322,10 +390,11 @@ describe('ChatService http flows', () => {
     ]);
     expect(service.messages()[0].content).toBe('fresh');
     expect(service.isLoadingSession()).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith('/chat/s2');
+    expect(navigateSpy).toHaveBeenCalledWith('/chat/s2', { replaceUrl: true });
   });
 
-  it('should keep bare url when selecting empty owned session', () => {
+  it('should keep bare url when selecting empty owned session', async () => {
+    await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.sessions.set([
       {
@@ -339,8 +408,8 @@ describe('ChatService http flows', () => {
     service.selectSession('empty');
     httpMock.expectOne(`${API_BASE_URL}/sessions/empty/messages`).flush([]);
     expect(service.activeSessionId()).toBe('empty');
-    expect(navigateSpy).toHaveBeenCalledWith('/chat');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/empty');
+    expect(navigateSpy).not.toHaveBeenCalledWith('/chat/empty', expect.anything());
     expect(service.error()).toBeNull();
   });
 
@@ -427,7 +496,8 @@ describe('ChatService http flows', () => {
     expect(service.isLoadingSession()).toBe(false);
   });
 
-  it('should promote url when first message is sent on bare chat', () => {
+  it('should promote url when first message is sent on bare chat', async () => {
+    await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.sessions.set([
       {
@@ -452,7 +522,7 @@ describe('ChatService http flows', () => {
 
     service.sendMessage('hello');
 
-    expect(navigateSpy).toHaveBeenCalledWith('/chat/s1');
+    expect(navigateSpy).toHaveBeenCalledWith('/chat/s1', { replaceUrl: true });
     expect(service.messages().some(message => message.role === 'user')).toBe(true);
   });
 

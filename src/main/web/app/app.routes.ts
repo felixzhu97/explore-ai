@@ -72,13 +72,19 @@ export const routes: Routes = [
         loadComponent: () => import('./privacy/privacy.page').then(m => m.PrivacyPage),
       },
       {
-        path: 'legal',
-        loadComponent: () => import('./legal/legal.page').then(m => m.LegalPage),
+        path: 'policies',
+        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPage),
       },
       {
-        path: 'legal/:doc',
-        loadComponent: () => import('./legal/legal.page').then(m => m.LegalPage),
+        path: 'policies/:slug',
+        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPage),
       },
+      { path: 'legal', redirectTo: 'policies', pathMatch: 'full' },
+      { path: 'legal/terms', redirectTo: 'policies/terms-of-use', pathMatch: 'full' },
+      { path: 'legal/privacy', redirectTo: 'policies/privacy-policy', pathMatch: 'full' },
+      { path: 'legal/cookies', redirectTo: 'policies/cookie-policy', pathMatch: 'full' },
+      { path: 'legal/subprocessors', redirectTo: 'policies/subprocessors', pathMatch: 'full' },
+      { path: 'legal/:doc', redirectTo: 'policies', pathMatch: 'full' },
       {
         path: 'generate',
         loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePage),

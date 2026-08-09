@@ -26,6 +26,7 @@ export const en: Translations = {
     metrics: 'Metrics',
     privacy: 'Privacy',
     legal: 'Legal',
+    policies: 'Policies',
     generation: 'Generation',
     modelDev: 'Dev',
     modelOps: 'Ops',

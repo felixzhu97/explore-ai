@@ -11,71 +11,110 @@ import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.comp
   selector: 'app-privacy-page',
   imports: [RouterLink, PrivacyPreferencesFormComponent],
   template: `
-    <div class="mx-auto flex w-full max-w-3xl flex-col gap-8">
+    <div class="mx-auto w-full max-w-(--container-2xl) px-6 py-12 md:py-16">
       <header>
-        <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
-        <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ copy().title }}</h1>
-        <p class="mt-1 text-sm text-muted-foreground">{{ copy().subtitle }}</p>
+        <h1
+          class="
+            text-[2rem] leading-tight font-medium tracking-[-0.03em] text-[#0D0D0D]
+            md:text-[2.5rem]
+          "
+        >
+          {{ copy().title }}
+        </h1>
+        <p class="mt-4 text-[15px] leading-relaxed text-[#5C5C5C]">{{ copy().subtitle }}</p>
       </header>
 
-      <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ copy().noticeHeading }}</h2>
-        <div class="mt-3 space-y-3 text-sm leading-relaxed text-muted-foreground">
-          <p>{{ copy().noticeIdentity }}</p>
-          <p>{{ copy().noticeChat }}</p>
-          <p>{{ copy().noticeRetention }}</p>
-        </div>
-      </section>
+      <div class="mt-12 space-y-10">
+        <section>
+          <h2 class="text-xl leading-snug font-medium tracking-[-0.02em] text-[#0D0D0D]">
+            {{ copy().noticeHeading }}
+          </h2>
+          <p class="mt-3 text-[15px] leading-relaxed text-[#0D0D0D]/80">
+            {{ copy().noticeIdentity }}
+          </p>
+          <p class="mt-3 text-[15px] leading-relaxed text-[#0D0D0D]/80">
+            {{ copy().noticeChat }}
+          </p>
+          <p class="mt-3 text-[15px] leading-relaxed text-[#0D0D0D]/80">
+            {{ copy().noticeRetention }}
+          </p>
+        </section>
 
-      <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ copy().processorsHeading }}</h2>
-        <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
-          @for (item of processors; track item.name) {
-            <li>
-              <span class="font-medium text-foreground">{{ item.name }}</span>
-              — {{ item.purpose }}
-            </li>
-          }
-        </ul>
-      </section>
+        <section>
+          <h2 class="text-xl leading-snug font-medium tracking-[-0.02em] text-[#0D0D0D]">
+            {{ copy().processorsHeading }}
+          </h2>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[#0D0D0D]/80">
+            @for (item of processors; track item.name) {
+              <li>
+                <span class="font-medium text-[#0D0D0D]">{{ item.name }}</span>
+                — {{ item.purpose }}
+              </li>
+            }
+          </ul>
+        </section>
 
-      <app-privacy-preferences-form [copy]="copy()" />
+        <app-privacy-preferences-form [copy]="copy()" />
 
-      <section class="rounded-xl border border-black/8 bg-background p-5">
-        <h2 class="text-base font-semibold">{{ copy().controlsHeading }}</h2>
-        <p class="mt-2 text-sm text-muted-foreground">{{ copy().controlsHelp }}</p>
-        <div class="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            class="rounded-md border border-black/10 px-4 py-2 text-sm font-medium hover:bg-black/4 disabled:opacity-50"
-            [disabled]="busy()"
-            (click)="eraseSessions()"
-          >
-            {{ copy().eraseButton }}
-          </button>
-          <button
-            type="button"
-            class="rounded-md border border-black/10 px-4 py-2 text-sm font-medium hover:bg-black/4 disabled:opacity-50"
-            [disabled]="busy()"
-            (click)="resetIdentity()"
-          >
-            {{ copy().resetButton }}
-          </button>
-        </div>
-      </section>
+        <section>
+          <h2 class="text-xl leading-snug font-medium tracking-[-0.02em] text-[#0D0D0D]">
+            {{ copy().controlsHeading }}
+          </h2>
+          <p class="mt-3 text-[15px] leading-relaxed text-[#0D0D0D]/80">
+            {{ copy().controlsHelp }}
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button
+              type="button"
+              class="
+                rounded-full border border-black/12 px-4 py-2 text-[14px] font-medium
+                text-[#0D0D0D] transition-opacity hover:opacity-70 disabled:opacity-40
+              "
+              [disabled]="busy()"
+              (click)="eraseSessions()"
+            >
+              {{ copy().eraseButton }}
+            </button>
+            <button
+              type="button"
+              class="
+                rounded-full border border-black/12 px-4 py-2 text-[14px] font-medium
+                text-[#0D0D0D] transition-opacity hover:opacity-70 disabled:opacity-40
+              "
+              [disabled]="busy()"
+              (click)="resetIdentity()"
+            >
+              {{ copy().resetButton }}
+            </button>
+          </div>
+        </section>
+      </div>
 
-      <p class="flex flex-wrap gap-4 text-xs text-muted-foreground">
-        <a routerLink="/chat" class="underline underline-offset-2">{{ copy().backToChat }}</a>
-        <a routerLink="/legal" class="underline underline-offset-2">{{ copy().legalHub }}</a>
-        <a routerLink="/legal/subprocessors" class="underline underline-offset-2">{{
-          copy().subprocessorsLink
-        }}</a>
-      </p>
+      <footer class="mt-14 flex flex-wrap gap-x-6 gap-y-2 border-t border-black/8 pt-6">
+        <a
+          routerLink="/chat"
+          class="text-[13px] text-[#8F8F8F] no-underline underline-offset-4 hover:text-[#0D0D0D] hover:underline"
+        >
+          {{ copy().backToChat }}
+        </a>
+        <a
+          routerLink="/policies"
+          class="text-[13px] text-[#8F8F8F] no-underline underline-offset-4 hover:text-[#0D0D0D] hover:underline"
+        >
+          {{ copy().legalHub }}
+        </a>
+        <a
+          routerLink="/policies/subprocessors"
+          class="text-[13px] text-[#8F8F8F] no-underline underline-offset-4 hover:text-[#0D0D0D] hover:underline"
+        >
+          {{ copy().subprocessorsLink }}
+        </a>
+      </footer>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
+    class: 'flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-white',
   },
 })
 export class PrivacyPage {

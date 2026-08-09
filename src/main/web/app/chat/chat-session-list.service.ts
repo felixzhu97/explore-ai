@@ -34,7 +34,7 @@ export class ChatSessionListService implements SessionList {
   }
 
   selectSession(sessionId: string): void {
-    this.chatService.selectSession(sessionId);
+    this.chatService.selectSession(sessionId, { navigateToChat: true });
   }
 
   deleteSession(sessionId: string): void {

@@ -26,6 +26,7 @@ export const zh: Translations = {
     metrics: '指标',
     privacy: '隐私',
     legal: '法律',
+    policies: '政策',
     generation: '生成',
     modelDev: '开发',
     modelOps: '运维',
