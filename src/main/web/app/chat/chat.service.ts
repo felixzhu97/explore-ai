@@ -30,6 +30,7 @@ export interface UiWebSource {
   title: string;
   url: string;
   snippet: string;
+  publishedAt?: string;
 }
 
 export interface UiMessage {
@@ -416,6 +417,7 @@ export class ChatService {
                 title: item.title,
                 url: item.url,
                 snippet: item.snippet,
+                publishedAt: item.publishedAt || undefined,
               })),
             };
           }
@@ -541,6 +543,7 @@ export class ChatService {
         title: source.title,
         url: source.url,
         snippet: source.snippet,
+        publishedAt: source.publishedAt || undefined,
       })),
     };
   }

@@ -105,9 +105,14 @@ public record ChatRequest(@NotBlank String message, String sessionId) {}
 
 ## Test Naming
 
+Natural language with spaces (no snake_case underscores):
+
 ```
-should_expectedResult_when_condition
+should expected result when condition
 ```
+
+- Vitest / JUnit `@DisplayName`: `should open popover below chip when space is available`
+- Java method names (identifiers cannot contain spaces): `shouldOpenPopoverBelowChipWhenSpaceIsAvailable`
 
 ## Checklist
 
@@ -129,4 +134,4 @@ When **creating a Jira ticket**, **branching**, **committing**, or **opening a P
 | Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
 | Product Owner / Jira | [Product Owner](.cursor/skills/product-owner/SKILL.md) |
 
-<!-- Generated at Wed Jul 22 22:09:43 CST 2026 -->
+<!-- Generated at Sun Aug  9 12:34:22 CST 2026 -->

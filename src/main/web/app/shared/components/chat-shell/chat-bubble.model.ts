@@ -3,6 +3,8 @@ export interface ChatBubbleSource {
   score: number;
   url?: string;
   title?: string;
+  /** Publisher date when known (e.g. Serper organic `date`). */
+  publishedAt?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -20,7 +22,6 @@ export interface ChatBubbleMessage {
   images?: string[];
   streaming?: boolean;
   sources?: ChatBubbleSource[];
-  sourcesExpanded?: boolean;
   toolSteps?: ChatBubbleToolStep[];
   assistantIcon?: 'chat' | 'document';
 }

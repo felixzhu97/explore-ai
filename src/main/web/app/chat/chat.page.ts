@@ -113,9 +113,19 @@ export class ChatPage implements OnInit, OnDestroy {
         score: 1,
         url: source.url,
         title: source.title,
+        publishedAt: source.publishedAt,
       })),
-      sourcesExpanded: Boolean(message.sources?.length),
     }));
+  });
+
+  readonly footerLabels = computed(() => {
+    const t = this.i18n.t().ragChat;
+    return {
+      sources: t.sources,
+      similarity: t.similarity,
+      basedOn: t.basedOn,
+      openReference: t.openReference,
+    };
   });
 
   ngOnInit() {

@@ -145,6 +145,7 @@ describe('i18n.model', () => {
         'uploadFailed',
         'uploading',
         'basedOn',
+        'openReference',
         'documentDeleted',
         'deleteFailed',
         'fileSelected',

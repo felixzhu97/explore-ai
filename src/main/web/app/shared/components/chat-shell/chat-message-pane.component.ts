@@ -53,7 +53,6 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
           [collapseLabel]="collapseLabel()"
           [toolStepDoneLabel]="toolStepDoneLabel()"
           [toolStepFailedLabel]="toolStepFailedLabel()"
-          (toggleSources)="toggleSources.emit($event)"
         />
       }
     </div>
@@ -70,6 +69,7 @@ export class ChatMessagePaneComponent {
     sources: 'Sources',
     similarity: 'Similarity',
     basedOn: 'Based on {count} source(s)',
+    openReference: 'Open',
   });
 
   readonly collapseLongUserMessages = input(false);
@@ -88,7 +88,6 @@ export class ChatMessagePaneComponent {
   readonly compact = input(false);
 
   readonly promptSelect = output<string>();
-  readonly toggleSources = output<string>();
 
   private readonly messageScrollEl =
     viewChild<ElementRef<HTMLElement>>('messageScroll');

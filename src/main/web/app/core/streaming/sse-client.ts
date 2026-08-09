@@ -11,6 +11,7 @@ export interface ChatStreamSourceItem {
   title: string;
   url: string;
   snippet: string;
+  publishedAt?: string;
 }
 
 export type ChatStreamEvent =
@@ -53,10 +54,12 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
         const rawItems = Array.isArray(parsed['items']) ? parsed['items'] : [];
         const items: ChatStreamSourceItem[] = rawItems.map((item) => {
           const row = (item ?? {}) as Record<string, unknown>;
+          const publishedAt = String(row['publishedAt'] ?? row['date'] ?? '').trim();
           return {
             title: String(row['title'] ?? ''),
             url: String(row['url'] ?? ''),
             snippet: String(row['snippet'] ?? ''),
+            ...(publishedAt ? { publishedAt } : {}),
           };
         });
         return {

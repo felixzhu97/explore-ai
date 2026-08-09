@@ -112,6 +112,7 @@ export const es: Translations = {
     uploadFailed: 'Error al subir {name}',
     uploading: 'Subiendo...',
     basedOn: 'Basado en {count} fuente(s)',
+    openReference: 'Abrir',
     documentDeleted: 'Documento eliminado',
     deleteFailed: 'Error al eliminar, por favor inténtelo de nuevo',
     fileSelected: '{count} archivo(s) seleccionado(s)',

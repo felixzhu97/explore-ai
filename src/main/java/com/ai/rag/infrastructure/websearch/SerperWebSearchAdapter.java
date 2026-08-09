@@ -105,6 +105,9 @@ public class SerperWebSearchAdapter implements WebSearchTool {
                 item.put("title", result.title() == null ? "" : result.title());
                 item.put("url", result.link() == null ? "" : result.link());
                 item.put("snippet", result.snippet() == null ? "" : result.snippet());
+                if (result.date() != null && !result.date().isBlank()) {
+                    item.put("publishedAt", result.date().trim());
+                }
                 items.add(item);
             }
         }
@@ -190,6 +193,7 @@ public class SerperWebSearchAdapter implements WebSearchTool {
                 String title,
                 String link,
                 String snippet,
+                String date,
                 String displayedLink,
                 List<String> snippetHighlighting
         ) {}

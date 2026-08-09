@@ -126,6 +126,7 @@ export interface Translations {
     uploadFailed: string;
     uploading: string;
     basedOn: string;
+    openReference: string;
     documentDeleted: string;
     deleteFailed: string;
     fileSelected: string;

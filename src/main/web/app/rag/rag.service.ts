@@ -54,7 +54,6 @@ export class RagService {
   readonly messages = signal<RagChatMessage[]>([]);
   readonly input = signal('');
   readonly isLoading = signal(false);
-  readonly expandedSources = signal<Set<string>>(new Set());
 
   // Streaming state
   readonly streamingMessageIds = signal<Set<string>>(new Set());
@@ -430,18 +429,6 @@ export class RagService {
       },
       onDone,
       onError,
-    });
-  }
-
-  toggleSources(messageId: string): void {
-    this.expandedSources.update((ids) => {
-      const next = new Set(ids);
-      if (next.has(messageId)) {
-        next.delete(messageId);
-      } else {
-        next.add(messageId);
-      }
-      return next;
     });
   }
 }

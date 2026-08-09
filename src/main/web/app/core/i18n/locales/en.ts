@@ -111,6 +111,7 @@ export const en: Translations = {
     uploadFailed: 'Failed to upload {name}',
     uploading: 'Uploading...',
     basedOn: 'Based on {count} source(s)',
+    openReference: 'Open',
     documentDeleted: 'Document deleted',
     deleteFailed: 'Delete failed, please retry',
     fileSelected: '{count} file(s) selected',

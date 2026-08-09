@@ -102,9 +102,14 @@ public record ChatRequest(@NotBlank String message, String sessionId) {}
 
 ## Test Naming
 
+Natural language with spaces (no snake_case underscores):
+
 ```
-should_expectedResult_when_condition
+should expected result when condition
 ```
+
+- Vitest / JUnit `@DisplayName`: `should open popover below chip when space is available`
+- Java method names (identifiers cannot contain spaces): `shouldOpenPopoverBelowChipWhenSpaceIsAvailable`
 
 ## Checklist
 

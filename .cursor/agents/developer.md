@@ -127,7 +127,7 @@ export class ChatComponent {
 
 1. **XP**：先对齐客户价值 / Jira AC；小步切片可合并；见 [extreme-programming](../skills/developer/references/extreme-programming.md)
 2. **BDD**：用 Given-When-Then 澄清行为（对齐 Jira AC）
-3. **TDD**：Red → Green → Refactor；测试名 `should_expected_when_condition`
+3. **TDD**：Red → Green → Refactor；测试名 `should expected result when condition`（空格，勿用下划线；Java 方法用 camelCase）
 4. **DDD**：规则落在 domain；use case 只编排
 5. **领域命名**：变量/方法用术语表 Preferred Term，再套 Clean Code 形式
 6. **UI/UX**：对齐 Apple HIG，极简风格（见 apple-minimal-ux）

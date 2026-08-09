@@ -112,6 +112,7 @@ export const fr: Translations = {
     uploadFailed: 'Échec du téléchargement de {name}',
     uploading: 'Téléversement...',
     basedOn: 'Basé sur {count} source(s)',
+    openReference: 'Ouvrir',
     documentDeleted: 'Document supprimé',
     deleteFailed: 'Échec de la suppression, veuillez réessayer',
     fileSelected: '{count} fichier(s) sélectionné(s)',
