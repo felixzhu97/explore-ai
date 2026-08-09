@@ -66,7 +66,7 @@ Jira: [AI-325](https://felixzhu.atlassian.net/browse/AI-325)、[AI-326](https://
 
 ---
 
-## US-32 工作台控件与 Skills 一致
+## US-35 工作台控件与 Skills 一致
 
 **As a** 访客  
 **I want** Agents 与工作流的主要操作控件与 Skills 同一套安静样式  
