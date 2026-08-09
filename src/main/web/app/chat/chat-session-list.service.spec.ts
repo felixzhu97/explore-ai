@@ -1,8 +1,10 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { ChatSessionListService } from './chat-session-list.service';
 import { ChatService } from './chat.service';
+
+const PINNED_KEY = 'explore-ai.chat.pinnedSessionIds';
 
 describe('ChatSessionListService', () => {
   let service: ChatSessionListService;
@@ -14,8 +16,20 @@ describe('ChatSessionListService', () => {
     selectSession: ReturnType<typeof vi.fn>;
     deleteSession: ReturnType<typeof vi.fn>;
   };
+  let storage: Record<string, string>;
 
   beforeEach(() => {
+    storage = {};
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storage[key] ?? null,
+      setItem: (key: string, value: string) => {
+        storage[key] = value;
+      },
+      removeItem: (key: string) => {
+        delete storage[key];
+      },
+    });
+
     chatService = {
       sessions: signal([
         {
@@ -45,6 +59,11 @@ describe('ChatSessionListService', () => {
       ],
     });
     service = TestBed.inject(ChatSessionListService);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    TestBed.resetTestingModule();
   });
 
   it('should map sessions with history to sidebar format', () => {
@@ -84,5 +103,37 @@ describe('ChatSessionListService', () => {
   it('should delegate deleteSession', () => {
     service.deleteSession('s1');
     expect(chatService.deleteSession).toHaveBeenCalledWith('s1');
+  });
+
+  it('should pin a session and persist ids in localStorage', () => {
+    service.togglePin('s1');
+    expect(service.sessions()[0]?.pinned).toBe(true);
+    expect(JSON.parse(storage[PINNED_KEY] ?? '[]')).toEqual(['s1']);
+  });
+
+  it('should unpin a session when toggled again', () => {
+    service.togglePin('s1');
+    service.togglePin('s1');
+    expect(service.sessions()[0]?.pinned).toBe(false);
+    expect(JSON.parse(storage[PINNED_KEY] ?? '[]')).toEqual([]);
+  });
+
+  it('should restore pinned state from localStorage on create', () => {
+    storage[PINNED_KEY] = JSON.stringify(['s1']);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        ChatSessionListService,
+        { provide: ChatService, useValue: chatService },
+      ],
+    });
+    const restored = TestBed.inject(ChatSessionListService);
+    expect(restored.sessions()[0]?.pinned).toBe(true);
+  });
+
+  it('should clear pin when deleting a pinned session', () => {
+    service.togglePin('s1');
+    service.deleteSession('s1');
+    expect(JSON.parse(storage[PINNED_KEY] ?? '[]')).toEqual([]);
   });
 });

@@ -65,6 +65,7 @@ describe('i18n.model', () => {
         'llmops',
         'aiops',
         'vectordb',
+        'more',
       ] as const;
 
       it('should have nav translations for all languages', () => {
@@ -76,7 +77,7 @@ describe('i18n.model', () => {
         });
       });
 
-      it('should_haveNavGroupLabels_when_allLanguagesLoaded', () => {
+      it('should have nav group labels when all languages loaded', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           expect(translations[lang].nav.groups.work).toBeDefined();
           expect(translations[lang].nav.groups.create).toBeDefined();

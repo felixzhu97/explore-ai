@@ -49,6 +49,7 @@ export interface Translations {
     llmops: string;
     aiops: string;
     vectordb: string;
+    more: string;
     groups: {
       work: string;
       create: string;

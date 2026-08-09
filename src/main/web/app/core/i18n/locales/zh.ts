@@ -33,6 +33,7 @@ export const zh: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: '向量库',
+    more: '更多',
     groups: {
       work: '工作',
       create: '创作',

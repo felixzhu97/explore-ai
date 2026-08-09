@@ -33,6 +33,7 @@ export const ja: Translations = {
     llmops: 'LLMOps',
     aiops: 'AIOps',
     vectordb: 'VectorDB',
+    more: 'その他',
     groups: {
       work: '作業',
       create: '作成',

@@ -24,7 +24,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
     ' ============================================================
     Container_Boundary(routing, "Routing & Feature Flags") {
         Component(module_guard, "moduleEnabledGuard", "CanActivateFn", "按 LaunchDarkly 开关守卫路由")
-        Component(module_nav, "module-nav.config.ts", "Config", "侧边栏模块 + flagKey 映射")
+        Component(module_nav, "module-nav.config.ts", "Config", "一级 Work + More(Create/Lab) + flagKey")
         Component(flag_svc, "FeatureFlagService", "@Injectable", "LaunchDarkly Client SDK 封装")
         Component(flag_keys, "feature-flag-keys.ts", "Constants", "MODULE_AGENTS/VISION/MCP/EVAL/AUDIO_ASR")
     }
