@@ -20,7 +20,7 @@ describe('AccountDialogService', () => {
     service = TestBed.inject(AccountDialogService);
   });
 
-  it('should_openLoginDialog_when_openLoginCalled', () => {
+  it('should open login dialog when open login called', () => {
     service.openLogin();
 
     expect(create).toHaveBeenCalledWith(
@@ -32,7 +32,7 @@ describe('AccountDialogService', () => {
     );
   });
 
-  it('should_openLogoutDialog_when_openLogoutCalled', () => {
+  it('should open logout dialog when open logout called', () => {
     service.openLogout({ email: 'a@b.com', displayName: 'A' });
 
     expect(create).toHaveBeenCalledWith(

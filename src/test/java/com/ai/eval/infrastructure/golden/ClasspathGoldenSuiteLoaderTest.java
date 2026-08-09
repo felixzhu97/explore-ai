@@ -19,8 +19,8 @@ class ClasspathGoldenSuiteLoaderTest {
     private final ClasspathGoldenSuiteLoader loader = new ClasspathGoldenSuiteLoader(new ObjectMapper());
 
     @Test
-    @DisplayName("should_parseStringInputAndIdeal_when_openaiEvalsShape")
-    void should_parseStringInputAndIdeal_when_openaiEvalsShape() throws Exception {
+    @DisplayName("should parse string input and ideal when openai evals shape")
+    void shouldParseStringInputAndIdealWhenOpenaiEvalsShape() throws Exception {
         String jsonl = """
                 {"id":"c1","input":"What is Explore AI?","ideal":"A demo platform.","metadata":{"domain":"CHAT","tools_enabled":false}}
                 """;
@@ -36,8 +36,8 @@ class ClasspathGoldenSuiteLoaderTest {
     }
 
     @Test
-    @DisplayName("should_parseChatFormatInputAndIdealArray_when_present")
-    void should_parseChatFormatInputAndIdealArray_when_present() throws Exception {
+    @DisplayName("should parse chat format input and ideal array when present")
+    void shouldParseChatFormatInputAndIdealArrayWhenPresent() throws Exception {
         String jsonl = """
                 {"id":"r1","input":[{"role":"user","content":"Which modules?"}],"ideal":["Chat","RAG"],"metadata":{"domain":"RAG","fixture_keys":["overview"],"contexts":["Chat and RAG"]}}
                 """;
@@ -53,8 +53,8 @@ class ClasspathGoldenSuiteLoaderTest {
     }
 
     @Test
-    @DisplayName("should_rejectLine_when_idealMissing")
-    void should_rejectLine_when_idealMissing() {
+    @DisplayName("should reject line when ideal missing")
+    void shouldRejectLineWhenIdealMissing() {
         String jsonl = "{\"id\":\"bad\",\"input\":\"hi\"}\n";
         assertThatThrownBy(() -> loader.readResource(resource(jsonl)))
                 .isInstanceOf(IllegalStateException.class)

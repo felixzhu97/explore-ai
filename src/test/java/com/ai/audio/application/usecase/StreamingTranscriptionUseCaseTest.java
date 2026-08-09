@@ -44,7 +44,7 @@ class StreamingTranscriptionUseCaseTest {
 
     @Test
     @DisplayName("should finalize and close when stop message received")
-    void should_finalizeAndClose_when_stopMessageReceived() throws Exception {
+    void shouldFinalizeAndCloseWhenStopMessageReceived() throws Exception {
         when(rawSession.isOpen()).thenReturn(true);
         useCase.startSession(rawSession);
 
@@ -57,7 +57,7 @@ class StreamingTranscriptionUseCaseTest {
 
     @Test
     @DisplayName("should send error when message type is unsupported")
-    void should_sendError_when_messageTypeIsUnsupported() throws Exception {
+    void shouldSendErrorWhenMessageTypeIsUnsupported() throws Exception {
         useCase.startSession(rawSession);
 
         String payload = objectMapper.writeValueAsString(java.util.Map.of("type", "ping"));
@@ -68,7 +68,7 @@ class StreamingTranscriptionUseCaseTest {
 
     @Test
     @DisplayName("should process audio chunk asynchronously")
-    void should_processAudioChunk_when_audioMessageReceived() throws Exception {
+    void shouldProcessAudioChunkWhenAudioMessageReceived() throws Exception {
         useCase.startSession(rawSession);
 
         String payload = objectMapper.writeValueAsString(
@@ -81,7 +81,7 @@ class StreamingTranscriptionUseCaseTest {
 
     @Test
     @DisplayName("should cleanup session without sending final on abrupt disconnect")
-    void should_cleanupOnly_when_connectionClosedWithoutStop() {
+    void shouldCleanupOnlyWhenConnectionClosedWithoutStop() {
         useCase.startSession(rawSession);
 
         useCase.endSession(rawSession);

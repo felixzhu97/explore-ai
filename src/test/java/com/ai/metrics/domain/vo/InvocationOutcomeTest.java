@@ -10,15 +10,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class InvocationOutcomeTest {
 
     @Test
-    @DisplayName("should_parse_success_and_error_when_valid")
-    void should_parse_success_and_error_when_valid() {
+    @DisplayName("should parse success and error when valid")
+    void shouldParseSuccessAndErrorWhenValid() {
         assertThat(InvocationOutcome.parse("SUCCESS")).isEqualTo(InvocationOutcome.SUCCESS);
         assertThat(InvocationOutcome.parse(" error ")).isEqualTo(InvocationOutcome.ERROR);
     }
 
     @Test
-    @DisplayName("should_throw_when_outcome_blank_or_unknown")
-    void should_throw_when_outcome_blank_or_unknown() {
+    @DisplayName("should throw when outcome blank or unknown")
+    void shouldThrowWhenOutcomeBlankOrUnknown() {
         assertThatThrownBy(() -> InvocationOutcome.parse(null))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> InvocationOutcome.parse(" "))

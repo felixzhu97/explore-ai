@@ -44,16 +44,16 @@ class SpringAiSupervisorRouterTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_no_workers_registered")
-    void should_throw_when_no_workers_registered() {
+    @DisplayName("should throw when no workers registered")
+    void shouldThrowWhenNoWorkersRegistered() {
         assertThatThrownBy(() -> router.plan("hello", List.of()))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("no worker agents");
     }
 
     @Test
-    @DisplayName("should_route_to_primary_worker_from_json_response")
-    void should_route_to_primary_worker_from_json_response() {
+    @DisplayName("should route to primary worker from json response")
+    void shouldRouteToPrimaryWorkerFromJsonResponse() {
         AgentDefinition researcher = AgentDefinition.create(
                 AgentType.of("researcher"),
                 "Researcher",
@@ -79,8 +79,8 @@ class SpringAiSupervisorRouterTest {
     }
 
     @Test
-    @DisplayName("should_fallback_when_primary_agent_invalid")
-    void should_fallback_when_primary_agent_invalid() {
+    @DisplayName("should fallback when primary agent invalid")
+    void shouldFallbackWhenPrimaryAgentInvalid() {
         AgentDefinition writer = AgentDefinition.create(
                 AgentType.of("writer"),
                 "Writer",
@@ -108,8 +108,8 @@ class SpringAiSupervisorRouterTest {
     }
 
     @Test
-    @DisplayName("should_fallback_when_decision_null")
-    void should_fallback_when_decision_null() {
+    @DisplayName("should fallback when decision null")
+    void shouldFallbackWhenDecisionNull() {
         AgentDefinition writer = AgentDefinition.create(
                 AgentType.of("writer"), "Writer", "Writes prose", "You write.");
         when(chatClientProvider.createBareStateless(any(TextChatOptions.class))).thenReturn(chatClient);

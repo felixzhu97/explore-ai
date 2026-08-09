@@ -124,7 +124,7 @@ class WeatherToolsTest {
 
         @Test
         @DisplayName("should clamp to minimum one day when input is zero")
-        void should_clamp_to_minimum_one_day_when_input_is_zero() {
+        void shouldClampToMinimumOneDayWhenInputIsZero() {
             String result = weatherTools.getForecast("beijing", 0);
 
             assertThat(result).contains("1");

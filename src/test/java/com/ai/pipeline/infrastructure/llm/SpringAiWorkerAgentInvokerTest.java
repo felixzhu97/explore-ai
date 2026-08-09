@@ -47,7 +47,7 @@ class SpringAiWorkerAgentInvokerTest {
     private ChatClient.CallResponseSpec callResponseSpec;
 
     @Test
-    void should_bind_weather_tool_when_weather_agent_invoked() {
+    void shouldBindWeatherToolWhenWeatherAgentInvoked() {
         SpringAiWorkerAgentInvoker invoker = newInvoker();
         stubCallChain();
 
@@ -57,7 +57,7 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     @Test
-    void should_bind_web_search_and_datetime_tools_when_research_agent_invoked() {
+    void shouldBindWebSearchAndDatetimeToolsWhenResearchAgentInvoked() {
         SpringAiWorkerAgentInvoker invoker = newInvoker();
         stubCallChain();
 
@@ -67,7 +67,7 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     @Test
-    void should_bind_document_search_tool_when_vectordb_agent_invoked() {
+    void shouldBindDocumentSearchToolWhenVectordbAgentInvoked() {
         SpringAiWorkerAgentInvoker invoker = newInvoker();
         stubCallChain();
 
@@ -77,7 +77,7 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     @Test
-    void should_skip_tools_when_analyst_agent_invoked() {
+    void shouldSkipToolsWhenAnalystAgentInvoked() {
         SpringAiWorkerAgentInvoker invoker = newInvoker();
         stubCallChainWithoutTools();
 
@@ -88,7 +88,7 @@ class SpringAiWorkerAgentInvokerTest {
     }
 
     @Test
-    void should_use_blocking_call_when_streaming_tool_agent() {
+    void shouldUseBlockingCallWhenStreamingToolAgent() {
         SpringAiWorkerAgentInvoker invoker = newInvoker();
         stubCallChain();
         when(callResponseSpec.content()).thenReturn(

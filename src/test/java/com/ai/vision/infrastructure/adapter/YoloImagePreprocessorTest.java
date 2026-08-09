@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class YoloImagePreprocessorTest {
 
     @Test
-    @DisplayName("should_preprocess_image_into_channel_first_tensor")
-    void should_preprocess_image_into_channel_first_tensor() {
+    @DisplayName("should preprocess image into channel first tensor")
+    void shouldPreprocessImageIntoChannelFirstTensor() {
         BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < 32; y++) {
             for (int x = 0; x < 32; x++) {

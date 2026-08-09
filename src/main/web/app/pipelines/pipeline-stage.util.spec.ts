@@ -5,7 +5,7 @@ import {
 } from './pipeline-stage.util';
 
 describe('pipeline-stage.util', () => {
-  it('should_markPreviousRunning_when_newHandoffAppended', () => {
+  it('should mark previous running when new handoff appended', () => {
     const first = appendPipelineStage([], 'research');
     expect(first).toEqual([
       { name: 'pipeline:research', label: 'research', status: 'running' },
@@ -18,7 +18,7 @@ describe('pipeline-stage.util', () => {
     ]);
   });
 
-  it('should_finalizeRunningStages_when_streamEnds', () => {
+  it('should finalize running stages when stream ends', () => {
     const stages = appendPipelineStage(
       appendPipelineStage([], 'weather'),
       'analyst',
@@ -30,7 +30,7 @@ describe('pipeline-stage.util', () => {
     expect(finalizePipelineStages(stages, 'error').at(-1)?.status).toBe('error');
   });
 
-  it('should_mergeStagesBeforeDsmlSteps_when_bothPresent', () => {
+  it('should merge stages before dsml steps when both present', () => {
     const stages = appendPipelineStage([], 'research');
     const dsml = [{ name: 'searchWeb', label: 'searchWeb', status: 'success' as const }];
     expect(mergeToolSteps(stages, dsml)).toEqual([...stages, ...dsml]);

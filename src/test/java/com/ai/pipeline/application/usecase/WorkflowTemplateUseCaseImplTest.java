@@ -31,8 +31,8 @@ class WorkflowTemplateUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_createTemplate_when_nameAvailable")
-    void should_createTemplate_when_nameAvailable() {
+    @DisplayName("should create template when name available")
+    void shouldCreateTemplateWhenNameAvailable() {
         SavedWorkflowTemplate created = useCase.create(
                 CLIENT_ID,
                 "My flow",
@@ -48,8 +48,8 @@ class WorkflowTemplateUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_nameConflictOnCreate")
-    void should_throw_when_nameConflictOnCreate() {
+    @DisplayName("should throw when name conflict on create")
+    void shouldThrowWhenNameConflictOnCreate() {
         repository.seed(SavedWorkflowTemplate.create(
                 CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null));
 
@@ -65,15 +65,15 @@ class WorkflowTemplateUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_getMissing")
-    void should_throw_when_getMissing() {
+    @DisplayName("should throw when get missing")
+    void shouldThrowWhenGetMissing() {
         assertThatThrownBy(() -> useCase.get(CLIENT_ID, WorkflowTemplateId.generate().value()))
                 .isInstanceOf(WorkflowTemplateNotFoundException.class);
     }
 
     @Test
-    @DisplayName("should_createFromTemplate_when_templateExists")
-    void should_createFromTemplate_when_templateExists() {
+    @DisplayName("should create from template when template exists")
+    void shouldCreateFromTemplateWhenTemplateExists() {
         SavedWorkflowTemplate created = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
 
         assertThat(created.getName()).isEqualTo("Competitive intelligence");
@@ -83,8 +83,8 @@ class WorkflowTemplateUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_createLocalizedTemplate_when_languageIsZh")
-    void should_createLocalizedTemplate_when_languageIsZh() {
+    @DisplayName("should create localized template when language is zh")
+    void shouldCreateLocalizedTemplateWhenLanguageIsZh() {
         SavedWorkflowTemplate created = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "zh");
 
         assertThat(created.getName()).isEqualTo("竞品情报");
@@ -92,8 +92,8 @@ class WorkflowTemplateUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_suffixName_when_createFromTemplateConflicts")
-    void should_suffixName_when_createFromTemplateConflicts() {
+    @DisplayName("should suffix name when create from template conflicts")
+    void shouldSuffixNameWhenCreateFromTemplateConflicts() {
         useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
 
         SavedWorkflowTemplate duplicate = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
@@ -102,8 +102,8 @@ class WorkflowTemplateUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_disableTemplate_when_setEnabledFalse")
-    void should_disableTemplate_when_setEnabledFalse() {
+    @DisplayName("should disable template when set enabled false")
+    void shouldDisableTemplateWhenSetEnabledFalse() {
         SavedWorkflowTemplate seeded = repository.seed(SavedWorkflowTemplate.create(
                 CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null));
 

@@ -12,28 +12,28 @@ class RagPropertiesTest {
     class DefaultValues {
 
         @Test
-        void should_have_default_chunk_size_when_created() {
+        void shouldHaveDefaultChunkSizeWhenCreated() {
             RagProperties properties = new RagProperties();
 
             assertEquals(500, properties.getChunk().getSize());
         }
 
         @Test
-        void should_have_default_chunk_overlap_when_created() {
+        void shouldHaveDefaultChunkOverlapWhenCreated() {
             RagProperties properties = new RagProperties();
 
             assertEquals(50, properties.getChunk().getOverlap());
         }
 
         @Test
-        void should_have_default_retrieval_topK_when_created() {
+        void shouldHaveDefaultRetrievalTopKWhenCreated() {
             RagProperties properties = new RagProperties();
 
             assertEquals(5, properties.getRetrieval().getTopK());
         }
 
         @Test
-        void should_have_default_retrieval_score_threshold_when_created() {
+        void shouldHaveDefaultRetrievalScoreThresholdWhenCreated() {
             RagProperties properties = new RagProperties();
 
             assertEquals(0.5, properties.getRetrieval().getScoreThreshold());
@@ -44,7 +44,7 @@ class RagPropertiesTest {
     class ChunkConfiguration {
 
         @Test
-        void should_update_chunk_size_via_setter() {
+        void shouldUpdateChunkSizeViaSetter() {
             RagProperties properties = new RagProperties();
 
             properties.getChunk().setSize(1000);
@@ -53,7 +53,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_update_chunk_overlap_via_setter() {
+        void shouldUpdateChunkOverlapViaSetter() {
             RagProperties properties = new RagProperties();
 
             properties.getChunk().setOverlap(100);
@@ -62,7 +62,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_update_entire_chunk_object() {
+        void shouldUpdateEntireChunkObject() {
             RagProperties properties = new RagProperties();
             RagProperties.Chunk newChunk = new RagProperties.Chunk();
             newChunk.setSize(800);
@@ -79,7 +79,7 @@ class RagPropertiesTest {
     class RetrievalConfiguration {
 
         @Test
-        void should_update_retrieval_topK_via_setter() {
+        void shouldUpdateRetrievalTopKViaSetter() {
             RagProperties properties = new RagProperties();
 
             properties.getRetrieval().setTopK(10);
@@ -88,7 +88,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_update_retrieval_score_threshold_via_setter() {
+        void shouldUpdateRetrievalScoreThresholdViaSetter() {
             RagProperties properties = new RagProperties();
 
             properties.getRetrieval().setScoreThreshold(0.8);
@@ -97,7 +97,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_update_entire_retrieval_object() {
+        void shouldUpdateEntireRetrievalObject() {
             RagProperties properties = new RagProperties();
             RagProperties.Retrieval newRetrieval = new RagProperties.Retrieval();
             newRetrieval.setTopK(15);
@@ -114,7 +114,7 @@ class RagPropertiesTest {
     class ChunkNestedClass {
 
         @Test
-        void should_have_default_values_when_chunk_created() {
+        void shouldHaveDefaultValuesWhenChunkCreated() {
             RagProperties.Chunk chunk = new RagProperties.Chunk();
 
             assertEquals(500, chunk.getSize());
@@ -122,7 +122,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_accept_zero_size() {
+        void shouldAcceptZeroSize() {
             RagProperties.Chunk chunk = new RagProperties.Chunk();
 
             chunk.setSize(0);
@@ -131,7 +131,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_accept_zero_overlap() {
+        void shouldAcceptZeroOverlap() {
             RagProperties.Chunk chunk = new RagProperties.Chunk();
 
             chunk.setOverlap(0);
@@ -144,7 +144,7 @@ class RagPropertiesTest {
     class RetrievalNestedClass {
 
         @Test
-        void should_have_default_values_when_retrieval_created() {
+        void shouldHaveDefaultValuesWhenRetrievalCreated() {
             RagProperties.Retrieval retrieval = new RagProperties.Retrieval();
 
             assertEquals(5, retrieval.getTopK());
@@ -152,7 +152,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_accept_zero_topK() {
+        void shouldAcceptZeroTopK() {
             RagProperties.Retrieval retrieval = new RagProperties.Retrieval();
 
             retrieval.setTopK(0);
@@ -161,7 +161,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_accept_zero_score_threshold() {
+        void shouldAcceptZeroScoreThreshold() {
             RagProperties.Retrieval retrieval = new RagProperties.Retrieval();
 
             retrieval.setScoreThreshold(0.0);
@@ -170,7 +170,7 @@ class RagPropertiesTest {
         }
 
         @Test
-        void should_accept_one_as_score_threshold() {
+        void shouldAcceptOneAsScoreThreshold() {
             RagProperties.Retrieval retrieval = new RagProperties.Retrieval();
 
             retrieval.setScoreThreshold(1.0);

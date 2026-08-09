@@ -49,8 +49,8 @@ class GoldenEvalUseCaseTest {
     private GoldenEvalUseCase useCase;
 
     @Test
-    @DisplayName("should_passChatCase_when_officialGatePasses")
-    void should_passChatCase_when_officialGatePasses() {
+    @DisplayName("should pass chat case when official gate passes")
+    void shouldPassChatCaseWhenOfficialGatePasses() {
         GoldenEvalCase evalCase = new GoldenEvalCase(
                 "chat-1",
                 GoldenEvalDomain.CHAT,
@@ -76,8 +76,8 @@ class GoldenEvalUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_useRagSourcesAsContext_when_ragCase")
-    void should_useRagSourcesAsContext_when_ragCase() {
+    @DisplayName("should use rag sources as context when rag case")
+    void shouldUseRagSourcesAsContextWhenRagCase() {
         GoldenEvalCase evalCase = new GoldenEvalCase(
                 "rag-1",
                 GoldenEvalDomain.RAG,
@@ -104,8 +104,8 @@ class GoldenEvalUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_markFailed_when_generationThrows")
-    void should_markFailed_when_generationThrows() {
+    @DisplayName("should mark failed when generation throws")
+    void shouldMarkFailedWhenGenerationThrows() {
         GoldenEvalCase evalCase = new GoldenEvalCase(
                 "chat-err",
                 GoldenEvalDomain.CHAT,

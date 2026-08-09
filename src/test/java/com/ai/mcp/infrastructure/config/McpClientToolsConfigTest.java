@@ -15,8 +15,8 @@ class McpClientToolsConfigTest {
     private final McpClientToolsConfig config = new McpClientToolsConfig();
 
     @Test
-    @DisplayName("should_return_empty_callbacks_when_provider_unavailable")
-    void should_return_empty_callbacks_when_provider_unavailable() {
+    @DisplayName("should return empty callbacks when provider unavailable")
+    void shouldReturnEmptyCallbacksWhenProviderUnavailable() {
         @SuppressWarnings("unchecked") ObjectProvider<ToolCallbackProvider> providers = mock(ObjectProvider.class);
         when(providers.getIfAvailable()).thenReturn(null);
         McpToolCallbackRegistry registry = mock(McpToolCallbackRegistry.class);
@@ -25,8 +25,8 @@ class McpClientToolsConfigTest {
     }
 
     @Test
-    @DisplayName("should_return_empty_callbacks_when_provider_throws")
-    void should_return_empty_callbacks_when_provider_throws() {
+    @DisplayName("should return empty callbacks when provider throws")
+    void shouldReturnEmptyCallbacksWhenProviderThrows() {
         @SuppressWarnings("unchecked") ObjectProvider<ToolCallbackProvider> providers = mock(ObjectProvider.class);
         when(providers.getIfAvailable()).thenThrow(new RuntimeException("MCP unreachable"));
         McpToolCallbackRegistry registry = mock(McpToolCallbackRegistry.class);
@@ -35,8 +35,8 @@ class McpClientToolsConfigTest {
     }
 
     @Test
-    @DisplayName("should_register_callbacks_when_provider_succeeds")
-    void should_register_callbacks_when_provider_succeeds() {
+    @DisplayName("should register callbacks when provider succeeds")
+    void shouldRegisterCallbacksWhenProviderSucceeds() {
         ToolCallback callback = mock(ToolCallback.class);
         ToolCallbackProvider provider = mock(ToolCallbackProvider.class);
         when(provider.getToolCallbacks()).thenReturn(new ToolCallback[]{callback});

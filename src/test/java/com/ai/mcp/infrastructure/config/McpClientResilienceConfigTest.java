@@ -11,8 +11,8 @@ import static org.mockito.Mockito.*;
 @DisplayName("McpClientResilienceConfig")
 class McpClientResilienceConfigTest {
     @Test
-    @DisplayName("should_apply_request_and_initialization_timeouts")
-    void should_apply_request_and_initialization_timeouts() {
+    @DisplayName("should apply request and initialization timeouts")
+    void shouldApplyRequestAndInitializationTimeouts() {
         McpClientResilienceConfig config = new McpClientResilienceConfig();
         Duration timeout = Duration.ofSeconds(15);
         var customizer = config.mcpClientTimeoutCustomizer(timeout);

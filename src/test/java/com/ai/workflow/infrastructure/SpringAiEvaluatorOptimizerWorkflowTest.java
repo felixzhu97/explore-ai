@@ -42,7 +42,7 @@ class SpringAiEvaluatorOptimizerWorkflowTest {
     }
 
     @Test
-    void should_returnSolutionAndChainOfThought_when_evaluationPasses() {
+    void shouldReturnSolutionAndChainOfThoughtWhenEvaluationPasses() {
         when(callResponseSpec.entity(eq(SpringAiEvaluatorOptimizerWorkflow.GenerationEntity.class)))
                 .thenReturn(new SpringAiEvaluatorOptimizerWorkflow.GenerationEntity(
                         "first draft", "class Solution {}"));

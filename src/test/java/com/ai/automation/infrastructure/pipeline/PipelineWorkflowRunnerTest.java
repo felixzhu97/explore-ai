@@ -20,7 +20,7 @@ class PipelineWorkflowRunnerTest {
             """;
 
     @Test
-    void should_buildLinearPipeline_when_agentTypesProvided() {
+    void shouldBuildLinearPipelineWhenAgentTypesProvided() {
         AgentPipeline pipeline = PipelineWorkflowRunner.toLinearPipeline(List.of("research", "analyst"));
 
         assertThat(pipeline.nodes()).hasSize(2);
@@ -31,7 +31,7 @@ class PipelineWorkflowRunnerTest {
     }
 
     @Test
-    void should_mergeTopicAndBriefPrompt_when_scheduleBriefIsTopic() {
+    void shouldMergeTopicAndBriefPromptWhenScheduleBriefIsTopic() {
         String message = PipelineWorkflowRunner.resolveInvokeMessage(
                 "Competitor landscape brief",
                 "Competitor landscape brief",
@@ -43,7 +43,7 @@ class PipelineWorkflowRunnerTest {
     }
 
     @Test
-    void should_useTemplateShortTopic_when_scheduleBriefIsPlaceholder() {
+    void shouldUseTemplateShortTopicWhenScheduleBriefIsPlaceholder() {
         String message = PipelineWorkflowRunner.resolveInvokeMessage(
                 PipelineWorkflowRunner.GENERIC_PLACEHOLDER,
                 "Competitor landscape brief",
@@ -54,14 +54,14 @@ class PipelineWorkflowRunnerTest {
     }
 
     @Test
-    void should_useBriefPromptAlone_when_topicAndBriefBlank() {
+    void shouldUseBriefPromptAloneWhenTopicAndBriefBlank() {
         String message = PipelineWorkflowRunner.resolveInvokeMessage("  ", "  ", BRIEF_PROMPT);
 
         assertThat(message).isEqualTo(BRIEF_PROMPT.trim());
     }
 
     @Test
-    void should_notDuplicate_when_scheduleBriefAlreadyContainsInstructions() {
+    void shouldNotDuplicateWhenScheduleBriefAlreadyContainsInstructions() {
         String full = "Custom topic\n\n" + BRIEF_PROMPT.trim();
         String message = PipelineWorkflowRunner.resolveInvokeMessage(full, "ignored", BRIEF_PROMPT);
 

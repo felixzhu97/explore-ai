@@ -38,7 +38,7 @@ class UsageQuotaFilterTest {
     }
 
     @Test
-    void should_allowRequestAndSetQuotaHeaders_whenUnderDailyLimit() throws Exception {
+    void shouldAllowRequestAndSetQuotaHeadersWhenUnderDailyLimit() throws Exception {
         MockHttpServletRequest request = postChat("client-1");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -51,7 +51,7 @@ class UsageQuotaFilterTest {
     }
 
     @Test
-    void should_rejectWithQuotaExceeded_whenDailyLimitSurpassed() throws Exception {
+    void shouldRejectWithQuotaExceededWhenDailyLimitSurpassed() throws Exception {
         MockHttpServletResponse first = new MockHttpServletResponse();
         MockHttpServletResponse second = new MockHttpServletResponse();
         MockHttpServletResponse third = new MockHttpServletResponse();
@@ -66,7 +66,7 @@ class UsageQuotaFilterTest {
     }
 
     @Test
-    void should_notFilter_whenQuotaDisabled() throws Exception {
+    void shouldNotFilterWhenQuotaDisabled() throws Exception {
         properties.setQuotaEnabled(false);
         MockHttpServletRequest request = postChat("client-3");
         MockHttpServletResponse response = new MockHttpServletResponse();

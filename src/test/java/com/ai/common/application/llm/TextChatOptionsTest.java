@@ -9,16 +9,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TextChatOptionsTest {
 
     @Test
-    @DisplayName("should_enable_tools_by_default")
-    void should_enable_tools_by_default() {
+    @DisplayName("should enable tools by default")
+    void shouldEnableToolsByDefault() {
         assertThat(TextChatOptions.defaults().toolsEnabled()).isTrue();
         assertThat(TextChatOptions.of("openai", "gpt-4o").toolsEnabled()).isTrue();
         assertThat(TextChatOptions.of("openai", "gpt-4o", null).toolsEnabled()).isTrue();
     }
 
     @Test
-    @DisplayName("should_preserveNullSkillSystemPrompt_when_notProvided")
-    void should_preserveNullSkillSystemPrompt_when_notProvided() {
+    @DisplayName("should preserve null skill system prompt when not provided")
+    void shouldPreserveNullSkillSystemPromptWhenNotProvided() {
         assertThat(TextChatOptions.of("openai", "gpt-4o").skillSystemPrompt()).isNull();
         assertThat(TextChatOptions.of("openai", "gpt-4o", false, "prompt").skillSystemPrompt())
                 .isEqualTo("prompt");

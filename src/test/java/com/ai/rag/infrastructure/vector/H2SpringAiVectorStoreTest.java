@@ -45,8 +45,8 @@ class H2SpringAiVectorStoreTest {
     }
 
     @Test
-    @DisplayName("should_returnDocumentsAboveThreshold_when_similaritySearch")
-    void should_returnDocumentsAboveThreshold_when_similaritySearch() {
+    @DisplayName("should return documents above threshold when similarity search")
+    void shouldReturnDocumentsAboveThresholdWhenSimilaritySearch() {
         float[] query = new float[]{1f, 0f};
         float[] high = new float[]{1f, 0f};
         float[] low = new float[]{0f, 1f};
@@ -69,8 +69,8 @@ class H2SpringAiVectorStoreTest {
     }
 
     @Test
-    @DisplayName("should_passDocumentIds_when_filterExpressionPresent")
-    void should_passDocumentIds_when_filterExpressionPresent() {
+    @DisplayName("should pass document ids when filter expression present")
+    void shouldPassDocumentIdsWhenFilterExpressionPresent() {
         float[] query = new float[]{1f, 0f};
         UUID docA = UUID.randomUUID();
         when(embeddingRepository.embed("q")).thenReturn(query);

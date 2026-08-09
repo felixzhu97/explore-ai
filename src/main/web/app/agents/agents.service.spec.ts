@@ -18,7 +18,7 @@ describe('AgentsService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should_list_library_from_api', () => {
+  it('should list library from api', () => {
     service.listLibrary().subscribe((agents) => {
       expect(agents).toHaveLength(1);
       expect(agents[0].typeKey).toBe('researcher');
@@ -39,7 +39,7 @@ describe('AgentsService', () => {
     ]);
   });
 
-  it('should_create_saved_agent', () => {
+  it('should create saved agent', () => {
     const body = {
       typeKey: 'custom',
       name: 'Custom',
@@ -57,7 +57,7 @@ describe('AgentsService', () => {
     req.flush({ id: '42', ...body, enabled: true });
   });
 
-  it('should_set_enabled_via_patch', () => {
+  it('should set enabled via patch', () => {
     service.setEnabled('42', false).subscribe((agent) => {
       expect(agent.enabled).toBe(false);
     });

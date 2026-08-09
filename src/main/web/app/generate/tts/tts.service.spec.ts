@@ -23,7 +23,7 @@ describe('TtsService', () => {
     httpMock.verify();
   });
 
-  it('should_return_normalized_voices_from_api', () => {
+  it('should return normalized voices from api', () => {
     service.getVoices().subscribe((voices) => {
       expect(voices[0]).toEqual(expect.objectContaining({
         id: 'alloy',
@@ -37,7 +37,7 @@ describe('TtsService', () => {
     req.flush({ voices: ['alloy', { id: 'nova', name: 'Nova', language: 'en' }] });
   });
 
-  it('should_return_default_voices_when_api_fails', () => {
+  it('should return default voices when api fails', () => {
     service.getVoices().subscribe((voices) => {
       expect(voices).toEqual(DEFAULT_VOICES);
     });
@@ -46,7 +46,7 @@ describe('TtsService', () => {
     req.error(new ProgressEvent('error'));
   });
 
-  it('should_return_default_voices_when_api_empty', () => {
+  it('should return default voices when api empty', () => {
     service.getVoices().subscribe((voices) => {
       expect(voices).toEqual(DEFAULT_VOICES);
     });
@@ -54,7 +54,7 @@ describe('TtsService', () => {
     httpMock.expectOne(`${API_BASE_URL}/audio/voices`).flush({ voices: [] });
   });
 
-  it('should_synthesize_speech', () => {
+  it('should synthesize speech', () => {
     const blob = new Blob(['audio'], { type: 'audio/mpeg' });
 
     service.synthesizeSpeech({
@@ -76,7 +76,7 @@ describe('TtsService', () => {
     req.flush(blob);
   });
 
-  it('should_delegate_download_to_downloadBlob', () => {
+  it('should delegate download to download blob', () => {
     const downloadSpy = vi.spyOn(downloadUtils, 'downloadBlob');
     const blob = new Blob(['audio']);
 

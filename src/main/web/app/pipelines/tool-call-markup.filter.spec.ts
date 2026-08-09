@@ -21,14 +21,14 @@ const FULLWIDTH = [
 ].join('\n');
 
 describe('stripToolCallMarkup', () => {
-  it('should_strip_fullwidth_and_ascii_dsml_blocks', () => {
+  it('should strip fullwidth and ascii dsml blocks', () => {
     expect(stripToolCallMarkup(FULLWIDTH)).toBe('前言\n\n后记');
     expect(
       stripToolCallMarkup('<|DSML|tool_calls>x</|DSML|tool_calls> keep'),
     ).toBe('keep');
   });
 
-  it('should_strip_spaced_dsml_like_tags', () => {
+  it('should strip spaced dsml like tags', () => {
     const spaced =
       'hi < | DSML | tool_calls>q</ | DSML | tool_calls> bye';
     const cleaned = stripToolCallMarkup(spaced);
@@ -39,7 +39,7 @@ describe('stripToolCallMarkup', () => {
 });
 
 describe('parseDsmlToolInvocations', () => {
-  it('should_parse_and_dedupe_search_queries', () => {
+  it('should parse and dedupe search queries', () => {
     const items = parseDsmlToolInvocations(FULLWIDTH);
     expect(items).toEqual([
       {
@@ -52,7 +52,7 @@ describe('parseDsmlToolInvocations', () => {
 });
 
 describe('toMinimalToolSteps', () => {
-  it('should_build_minimal_chinese_search_labels', () => {
+  it('should build minimal chinese search labels', () => {
     const steps = toMinimalToolSteps(
       parseDsmlToolInvocations(FULLWIDTH),
       'success',

@@ -87,7 +87,7 @@ describe('MetricsDomainPage', () => {
     fixture.detectChanges();
   }
 
-  it('should_load_domain_metrics_via_httpResource_when_mounted', async () => {
+  it('should load domain metrics via http resource when mounted', async () => {
     await createPage('chat');
     await flushDomainPage('chat');
 
@@ -95,14 +95,14 @@ describe('MetricsDomainPage', () => {
     expect(fixture.componentInstance.requestSeries()).toEqual([{ label: 'Mon', value: 4 }]);
   });
 
-  it('should_fetch_rag_document_series_via_httpResource', async () => {
+  it('should fetch rag document series via http resource', async () => {
     await createPage('rag');
     await flushDomainPage('rag');
 
     expect(fixture.componentInstance.docsSeries()).toEqual([{ label: 'ready', value: 3 }]);
   });
 
-  it('should_skip_domain_requests_when_domain_is_invalid', async () => {
+  it('should skip domain requests when domain is invalid', async () => {
     await createPage('unknown');
     fixture.detectChanges();
 

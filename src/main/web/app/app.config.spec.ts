@@ -3,7 +3,7 @@ import { appConfig } from './app.config';
 
 describe('appConfig', () => {
   describe('exports', () => {
-    it('should export appConfig object', () => {
+    it('should export app config object', () => {
       expect(appConfig).toBeDefined();
       expect(typeof appConfig).toBe('object');
     });

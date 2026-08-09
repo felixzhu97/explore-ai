@@ -44,7 +44,7 @@ const catalog: AgentInfo[] = [
 ];
 
 describe('applyPipelineTemplate', () => {
-  it('should_build_valid_connected_graph_when_all_agents_exist', () => {
+  it('should build valid connected graph when all agents exist', () => {
     const definition: PipelineTemplateDefinition = {
       id: 'competitiveIntel',
       agentTypes: ['research', 'analyst'],
@@ -60,7 +60,7 @@ describe('applyPipelineTemplate', () => {
     expect(result.graph.nodes.map(n => n.position.x)).toEqual([80, 300]);
   });
 
-  it('should_skip_missing_agent_types_and_reconnect_remaining', () => {
+  it('should skip missing agent types and reconnect remaining', () => {
     const definition: PipelineTemplateDefinition = {
       id: 'competitiveIntel',
       agentTypes: ['research', 'analyst'],
@@ -76,7 +76,7 @@ describe('applyPipelineTemplate', () => {
     });
   });
 
-  it('should_return_empty_graph_when_no_template_agents_available', () => {
+  it('should return empty graph when no template agents available', () => {
     const definition: PipelineTemplateDefinition = {
       id: 'policyQa',
       agentTypes: ['vectordb', 'analyst'],
@@ -94,7 +94,7 @@ describe('applyPipelineTemplate', () => {
     });
   });
 
-  it('should_build_three_node_pipeline', () => {
+  it('should build three node pipeline', () => {
     const definition: PipelineTemplateDefinition = {
       id: 'vendorDiligence',
       agentTypes: ['research', 'vectordb', 'analyst'],

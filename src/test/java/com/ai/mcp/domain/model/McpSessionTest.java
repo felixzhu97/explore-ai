@@ -12,7 +12,7 @@ class McpSessionTest {
 
     @Test
     @DisplayName("should open active session")
-    void should_open_active_session() {
+    void shouldOpenActiveSession() {
         McpSession session = McpSession.open("server-1", 3);
 
         assertThat(session.isActive()).isTrue();
@@ -21,7 +21,7 @@ class McpSessionTest {
 
     @Test
     @DisplayName("should close session")
-    void should_close_session() {
+    void shouldCloseSession() {
         McpSession session = McpSession.open("server-1", 1);
 
         session.close();
@@ -31,7 +31,7 @@ class McpSessionTest {
 
     @Test
     @DisplayName("should reject closing closed session twice")
-    void should_reject_closing_closed_session_twice() {
+    void shouldRejectClosingClosedSessionTwice() {
         McpSession session = McpSession.open("server-1", 1);
         session.close();
 

@@ -20,7 +20,7 @@ describe('MetricsService', () => {
     http.verify();
   });
 
-  it('should_request_overview_with_range', () => {
+  it('should request overview with range', () => {
     service.getOverview('30d').subscribe((result) => {
       expect(result.requestCount).toBe(0);
     });
@@ -42,7 +42,7 @@ describe('MetricsService', () => {
     });
   });
 
-  it('should_request_drilldown_with_filters', () => {
+  it('should request drilldown with filters', () => {
     service.getDrilldown({ domain: 'chat', day: '2026-07-26', page: 0, size: 20 }).subscribe((result) => {
       expect(result.total).toBe(0);
     });

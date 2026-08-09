@@ -40,8 +40,8 @@ class JdbcAiInvocationEventRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_insert_event_with_all_columns")
-    void should_insert_event_with_all_columns() {
+    @DisplayName("should insert event with all columns")
+    void shouldInsertEventWithAllColumns() {
         UUID id = UUID.randomUUID();
         Instant occurredAt = Instant.parse("2026-07-26T10:00:00Z");
         AiInvocationEvent event = AiInvocationEvent.builder()
@@ -90,8 +90,8 @@ class JdbcAiInvocationEventRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_page_drilldown_with_all_filters_and_clamped_size")
-    void should_page_drilldown_with_all_filters_and_clamped_size() {
+    @DisplayName("should page drilldown with all filters and clamped size")
+    void shouldPageDrilldownWithAllFiltersAndClampedSize() {
         when(jdbcTemplate.queryForObject(startsWith("SELECT COUNT(*)"), eq(Long.class), any(Object[].class)))
                 .thenReturn(25L);
         when(jdbcTemplate.query(startsWith("SELECT id"), any(RowMapper.class), any(Object[].class)))
@@ -151,8 +151,8 @@ class JdbcAiInvocationEventRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_return_empty_page_when_total_count_is_null")
-    void should_return_empty_page_when_total_count_is_null() {
+    @DisplayName("should return empty page when total count is null")
+    void shouldReturnEmptyPageWhenTotalCountIsNull() {
         when(jdbcTemplate.queryForObject(startsWith("SELECT COUNT(*)"), eq(Long.class), any(Object[].class)))
                 .thenReturn(null);
         when(jdbcTemplate.query(startsWith("SELECT id"), any(RowMapper.class), any(Object[].class)))
@@ -176,8 +176,8 @@ class JdbcAiInvocationEventRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_delete_events_by_session_ids")
-    void should_deleteEvents_whenSessionIdsProvided() {
+    @DisplayName("should delete events by session ids")
+    void shouldDeleteEventsWhenSessionIdsProvided() {
         when(jdbcTemplate.update(anyString(), eq("s1"), eq("s2"))).thenReturn(2);
 
         int deleted = repository.deleteBySessionIds(List.of("s1", "s2"));
@@ -186,8 +186,8 @@ class JdbcAiInvocationEventRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_delete_events_older_than_cutoff")
-    void should_deleteEvents_whenOlderThanCutoff() {
+    @DisplayName("should delete events older than cutoff")
+    void shouldDeleteEventsWhenOlderThanCutoff() {
         Instant cutoff = Instant.parse("2026-01-01T00:00:00Z");
         when(jdbcTemplate.update(anyString(), eq(Timestamp.from(cutoff)))).thenReturn(5);
 

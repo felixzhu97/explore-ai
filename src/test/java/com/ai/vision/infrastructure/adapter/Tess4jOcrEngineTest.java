@@ -40,8 +40,8 @@ class Tess4jOcrEngineTest {
     }
 
     @Test
-    @DisplayName("should_extract_text_from_image")
-    void should_extract_text_from_image() throws Exception {
+    @DisplayName("should extract text from image")
+    void shouldExtractTextFromImage() throws Exception {
         when(tesseract.doOCR(any(BufferedImage.class))).thenReturn("Hello");
 
         var result = engine.extract(helloImage());
@@ -50,9 +50,9 @@ class Tess4jOcrEngineTest {
     }
 
     @Test
-    @DisplayName("should_report_available_when_tessdata_exists")
+    @DisplayName("should report available when tessdata exists")
     @EnabledIfEnvironmentVariable(named = "VISION_MODELS_READY", matches = "true")
-    void should_report_available_when_tessdata_exists() {
+    void shouldReportAvailableWhenTessdataExists() {
         assertThat(Files.isDirectory(Path.of("models/tessdata"))).isTrue();
     }
 

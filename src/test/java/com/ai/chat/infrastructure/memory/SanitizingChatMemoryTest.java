@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SanitizingChatMemoryTest {
 
     @Test
-    void should_dropAssistantMessage_when_onlyDsmlMarkup() {
+    void shouldDropAssistantMessageWhenOnlyDsmlMarkup() {
         FakeChatMemory fake = new FakeChatMemory();
         SanitizingChatMemory memory = new SanitizingChatMemory(fake);
 
@@ -31,7 +31,7 @@ class SanitizingChatMemoryTest {
     }
 
     @Test
-    void should_keepSanitizedAssistantText_when_markupMixedWithProse() {
+    void shouldKeepSanitizedAssistantTextWhenMarkupMixedWithProse() {
         FakeChatMemory fake = new FakeChatMemory();
         SanitizingChatMemory memory = new SanitizingChatMemory(fake);
 

@@ -98,8 +98,8 @@ class RagChatUseCaseTest {
     class Chat {
 
         @Test
-        @DisplayName("should_returnChatResultWithResponseAndSources_when_questionProvided")
-        void should_returnChatResultWithResponseAndSources_when_questionProvided() {
+        @DisplayName("should return chat result with response and sources when question provided")
+        void shouldReturnChatResultWithResponseAndSourcesWhenQuestionProvided() {
             String question = "What is AI?";
             String aiResponse = "AI is Artificial Intelligence";
             Document sourceDoc = new Document("AI definition", Map.of("score", 0.95));
@@ -116,8 +116,8 @@ class RagChatUseCaseTest {
         }
 
         @Test
-        @DisplayName("should_passDocIdsViaFilterExpression_when_provided")
-        void should_passDocIdsViaFilterExpression_when_provided() {
+        @DisplayName("should pass doc ids via filter expression when provided")
+        void shouldPassDocIdsViaFilterExpressionWhenProvided() {
             String question = "What is AI?";
             String docId1 = UUID.randomUUID().toString();
             stubChatClientResponse("response", List.of());
@@ -137,8 +137,8 @@ class RagChatUseCaseTest {
         }
 
         @Test
-        @DisplayName("should_omitFilter_when_docIdsEmpty")
-        void should_omitFilter_when_docIdsEmpty() {
+        @DisplayName("should omit filter when doc ids empty")
+        void shouldOmitFilterWhenDocIdsEmpty() {
             stubChatClientResponse("response", List.of());
 
             ragChatUseCase.chat("q", Collections.emptyList(), 10);

@@ -51,7 +51,7 @@ class ToolsFacadeTest {
 
     @Test
     @DisplayName("should return weather for known city")
-    void should_return_weather_for_known_city() {
+    void shouldReturnWeatherForKnownCity() {
         when(weatherReport.lookupCurrent(any(WeatherQuery.class)))
                 .thenReturn(ToolResult.success("北京今天的天气：温度 25°C，天气 晴，湿度 65%"));
 
@@ -62,7 +62,7 @@ class ToolsFacadeTest {
 
     @Test
     @DisplayName("should delegate document search to port")
-    void should_delegate_document_search_to_port() {
+    void shouldDelegateDocumentSearchToPort() {
         when(documentSearchTool.searchDocuments("query", null)).thenReturn("docs");
 
         assertThat(toolsFacade.searchDocuments("query", null)).isEqualTo("docs");

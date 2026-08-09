@@ -30,7 +30,7 @@ class ToolEventChannelTest {
     class Isolation {
 
         @Test
-        void should_not_cross_publish_between_channels() throws Exception {
+        void shouldNotCrossPublishBetweenChannels() throws Exception {
             var sinkA = ToolEventChannel.open("a");
             ToolEventChannel.clearCurrentSessionId();
             var sinkB = ToolEventChannel.open("b");
@@ -79,7 +79,7 @@ class ToolEventChannelTest {
     class Close {
 
         @Test
-        void should_complete_flux_when_channel_closed() {
+        void shouldCompleteFluxWhenChannelClosed() {
             var sink = ToolEventChannel.open("a");
             ToolEventChannel.clearCurrentSessionId();
             Flux<String> flux = ToolEventChannel.asFlux(sink);
@@ -95,7 +95,7 @@ class ToolEventChannelTest {
         }
 
         @Test
-        void should_ignore_publish_without_current_session() {
+        void shouldIgnorePublishWithoutCurrentSession() {
             var sink = ToolEventChannel.open("a");
             ToolEventChannel.clearCurrentSessionId();
             List<String> events = new ArrayList<>();

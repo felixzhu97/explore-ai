@@ -27,7 +27,7 @@ class SpringAiMcpClientRepositoryTest {
 
         @Test
         @DisplayName("should register tools from MCP server")
-        void should_register_tools_from_mcp_server() {
+        void shouldRegisterToolsFromMcpServer() {
             repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
 
             assertThat(repository.toolCount()).isEqualTo(2);
@@ -36,7 +36,7 @@ class SpringAiMcpClientRepositoryTest {
 
         @Test
         @DisplayName("should accumulate tools from multiple servers")
-        void should_accumulate_tools_from_multiple_servers() {
+        void shouldAccumulateToolsFromMultipleServers() {
             repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
             repository.registerToolCallbacks(createMockTools("tool3", "tool4"), "server2");
 
@@ -46,7 +46,7 @@ class SpringAiMcpClientRepositoryTest {
 
         @Test
         @DisplayName("should replace tools when same server reregisters")
-        void should_replace_tools_when_same_server_reregisters() {
+        void shouldReplaceToolsWhenSameServerReregisters() {
             repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
             repository.registerToolCallbacks(createMockTools("tool3"), "test-server");
 
@@ -62,7 +62,7 @@ class SpringAiMcpClientRepositoryTest {
 
         @Test
         @DisplayName("should clear all registered tools and servers")
-        void should_clear_all_registered_tools() {
+        void shouldClearAllRegisteredTools() {
             repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
 
             repository.clearTools();

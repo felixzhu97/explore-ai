@@ -20,8 +20,8 @@ class GlobalExceptionHandlerVisionTest {
     }
 
     @Test
-    @DisplayName("should_map_vision_provider_unavailable_to_503")
-    void should_map_vision_provider_unavailable_to_503() {
+    @DisplayName("should map vision provider unavailable to 503")
+    void shouldMapVisionProviderUnavailableTo503() {
         var response = handler.handleVisionProviderUnavailable(
                 new VisionProviderUnavailableException("ocr", "OCR unavailable"));
 
@@ -30,8 +30,8 @@ class GlobalExceptionHandlerVisionTest {
     }
 
     @Test
-    @DisplayName("should_map_invalid_file_to_400")
-    void should_map_invalid_file_to_400() {
+    @DisplayName("should map invalid file to 400")
+    void shouldMapInvalidFileTo400() {
         var response = handler.handleVisionInvalidFile(
                 new VisionInvalidFileException("Image file is required"));
 

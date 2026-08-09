@@ -15,8 +15,8 @@ class LaunchDarklyEnvironmentPostProcessorTest {
     private final LaunchDarklyEnvironmentPostProcessor processor = new LaunchDarklyEnvironmentPostProcessor();
 
     @Test
-    @DisplayName("should_load_fallback_flags_when_sdk_key_missing")
-    void should_load_fallback_flags_when_sdk_key_missing() {
+    @DisplayName("should load fallback flags when sdk key missing")
+    void shouldLoadFallbackFlagsWhenSdkKeyMissing() {
         MockEnvironment environment = new MockEnvironment();
         environment.setProperty("launchdarkly.enabled", "true");
         environment.setProperty("launchdarkly.fallback.module-vision", "true");
@@ -30,8 +30,8 @@ class LaunchDarklyEnvironmentPostProcessorTest {
     }
 
     @Test
-    @DisplayName("should_use_fallback_when_launchdarkly_disabled")
-    void should_use_fallback_when_launchdarkly_disabled() {
+    @DisplayName("should use fallback when launchdarkly disabled")
+    void shouldUseFallbackWhenLaunchdarklyDisabled() {
         MockEnvironment environment = new MockEnvironment();
         environment.setProperty("launchdarkly.enabled", "false");
         environment.setProperty("launchdarkly.sdk-key", "sdk-test");
@@ -44,8 +44,8 @@ class LaunchDarklyEnvironmentPostProcessorTest {
     }
 
     @Test
-    @DisplayName("should_default_fallback_flags_to_false")
-    void should_default_fallback_flags_to_false() {
+    @DisplayName("should default fallback flags to false")
+    void shouldDefaultFallbackFlagsToFalse() {
         MockEnvironment environment = new MockEnvironment();
 
         processor.postProcessEnvironment(environment, new SpringApplication(Object.class));

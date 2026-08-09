@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class BlipVocabularyTest {
 
     @Test
-    @DisplayName("should_load_and_decode_vocabulary")
-    void should_load_and_decode_vocabulary() throws Exception {
+    @DisplayName("should load and decode vocabulary")
+    void shouldLoadAndDecodeVocabulary() throws Exception {
         Path tokenizerDir = Files.createTempDirectory("blip-tokenizer");
         Files.writeString(tokenizerDir.resolve("vocab.txt"), """
                 [PAD]
@@ -33,8 +33,8 @@ class BlipVocabularyTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_vocab_file_missing")
-    void should_throw_when_vocab_file_missing() throws Exception {
+    @DisplayName("should throw when vocab file missing")
+    void shouldThrowWhenVocabFileMissing() throws Exception {
         Path tokenizerDir = Files.createTempDirectory("missing-vocab");
 
         assertThatThrownBy(() -> BlipVocabulary.load(tokenizerDir))

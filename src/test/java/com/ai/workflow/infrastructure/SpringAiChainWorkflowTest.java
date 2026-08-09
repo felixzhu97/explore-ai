@@ -43,7 +43,7 @@ class SpringAiChainWorkflowTest {
     }
 
     @Test
-    void should_returnFinalOutput_when_chainCompletesSequentially() {
+    void shouldReturnFinalOutputWhenChainCompletesSequentially() {
         when(callResponseSpec.content())
                 .thenReturn("step-1")
                 .thenReturn("step-2");

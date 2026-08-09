@@ -37,7 +37,7 @@ class SpringAiImageGenerationRepositoryTest {
 
     @Test
     @DisplayName("should return generated image when model succeeds")
-    void should_return_generated_image_when_model_succeeds() {
+    void shouldReturnGeneratedImageWhenModelSucceeds() {
         String expectedUrl = "https://example.com/image.png";
         Image mockImage = mock(Image.class);
         ImageGeneration mockGeneration = mock(ImageGeneration.class);
@@ -58,7 +58,7 @@ class SpringAiImageGenerationRepositoryTest {
 
     @Test
     @DisplayName("should return base64 image when model returns b64 payload")
-    void should_return_base64_image_when_model_returns_b64_payload() {
+    void shouldReturnBase64ImageWhenModelReturnsB64Payload() {
         String expectedBase64 = "abc123";
         Image mockImage = mock(Image.class);
         ImageGeneration mockGeneration = mock(ImageGeneration.class);
@@ -79,7 +79,7 @@ class SpringAiImageGenerationRepositoryTest {
 
     @Test
     @DisplayName("should return empty image when response has no results")
-    void should_return_empty_image_when_response_has_no_results() {
+    void shouldReturnEmptyImageWhenResponseHasNoResults() {
         ImageResponse emptyResponse = mock(ImageResponse.class);
         when(emptyResponse.getResults()).thenReturn(List.of());
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(emptyResponse);
@@ -93,7 +93,7 @@ class SpringAiImageGenerationRepositoryTest {
 
     @Test
     @DisplayName("should return empty image when response is null")
-    void should_return_empty_image_when_response_is_null() {
+    void shouldReturnEmptyImageWhenResponseIsNull() {
         when(imageModel.call(any(ImagePrompt.class))).thenReturn(null);
 
         var result = repository.generate(
@@ -105,7 +105,7 @@ class SpringAiImageGenerationRepositoryTest {
 
     @Test
     @DisplayName("should return empty image when first result output is null")
-    void should_return_empty_image_when_first_result_output_is_null() {
+    void shouldReturnEmptyImageWhenFirstResultOutputIsNull() {
         ImageGeneration mockGeneration = mock(ImageGeneration.class);
         ImageResponse mockResponse = mock(ImageResponse.class);
 

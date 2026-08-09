@@ -22,7 +22,7 @@ class OwnerMergeUseCaseImplTest {
     private OwnerMergeUseCaseImpl useCase;
 
     @Test
-    void should_reassignOwner_whenMergingClientIntoAccount() {
+    void shouldReassignOwnerWhenMergingClientIntoAccount() {
         useCase.mergeClientIntoAccount("cid-1", "acct-9");
 
         verify(ownerPartitionRepository)

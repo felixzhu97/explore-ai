@@ -32,7 +32,7 @@ describe('PrivacyPreferencesFormComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should_hydrateForm_when_consentStored', () => {
+  it('should hydrate form when consent stored', () => {
     const stored = writePrivacyPreferences({
       analytics: true,
       contactEmail: 'user@example.com',
@@ -49,7 +49,7 @@ describe('PrivacyPreferencesFormComponent', () => {
     });
   });
 
-  it('should_markInvalid_when_contactEmailMalformed', () => {
+  it('should mark invalid when contact email malformed', () => {
     fixture.componentInstance.preferencesModel.update(model => ({
       ...model,
       contactEmail: 'not-an-email',
@@ -63,7 +63,7 @@ describe('PrivacyPreferencesFormComponent', () => {
     expect(emailField.errors()[0]?.kind).toBe('email');
   });
 
-  it('should_persistPreferences_when_saveSubmitted', async () => {
+  it('should persist preferences when save submitted', async () => {
     fixture.componentInstance.preferencesModel.set({
       analytics: false,
       contactEmail: 'privacy@example.com',

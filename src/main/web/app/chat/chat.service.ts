@@ -256,6 +256,12 @@ export class ChatService {
       this.syncChatUrl(sessionId, syncOpts);
       return;
     }
+    // Same session while a reply is streaming (e.g. URL promote `/chat` → `/chat/:id`).
+    // Must not abort SSE or reload history mid-flight.
+    if (this.activeSessionId() === sessionId && this.isLoading()) {
+      this.syncChatUrl(sessionId, syncOpts);
+      return;
+    }
     if (
       this.activeSessionId() === sessionId
       && !this.isLoadingSession()
@@ -265,8 +271,7 @@ export class ChatService {
       return;
     }
     if (this.streamAbort) {
-      this.streamAbort();
-      this.streamAbort = null;
+      this.abortStream();
     }
     const loadId = ++this.sessionLoadGeneration;
     this.activeSessionId.set(sessionId);
@@ -679,12 +684,29 @@ export class ChatService {
   }
 
   abortStream(): void {
-    if (this.streamAbort) {
-      this.streamAbort();
-      this.streamAbort = null;
-      this.isLoading.set(false);
-      this.streamingMessageId.set(null);
+    if (!this.streamAbort) {
+      return;
     }
+    this.streamAbort();
+    this.streamAbort = null;
+    const streamingId = this.streamingMessageId();
+    this.isLoading.set(false);
+    this.streamingMessageId.set(null);
+    if (!streamingId) {
+      return;
+    }
+    // Drop the empty assistant placeholder so the UI does not stay on "thinking".
+    this.messages.update((msgs) => {
+      const target = msgs.find(msg => msg.id === streamingId);
+      if (
+        target?.role === 'assistant'
+        && !target.content
+        && !(target.toolSteps?.length)
+      ) {
+        return msgs.filter(msg => msg.id !== streamingId);
+      }
+      return msgs;
+    });
   }
 
   private getProviders(): Observable<ProviderInfo[]> {

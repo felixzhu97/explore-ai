@@ -17,7 +17,7 @@ describe('PipelinesService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should_list_agents_from_api', () => {
+  it('should list agents from api', () => {
     const mockAgents = [
       {
         type: 'supervisor',
@@ -40,7 +40,7 @@ describe('PipelinesService', () => {
     req.flush(mockAgents);
   });
 
-  it('should_get_agent_health', () => {
+  it('should get agent health', () => {
     service.getHealth('k8s').subscribe((health) => {
       expect(health.status).toBe('UP');
     });

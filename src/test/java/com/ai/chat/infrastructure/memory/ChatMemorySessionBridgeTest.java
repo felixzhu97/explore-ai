@@ -29,8 +29,8 @@ class ChatMemorySessionBridgeTest {
     }
 
     @Test
-    @DisplayName("should_seed_memory_when_empty_and_existing_messages_present")
-    void should_seed_memory_when_empty_and_existing_messages_present() {
+    @DisplayName("should seed memory when empty and existing messages present")
+    void shouldSeedMemoryWhenEmptyAndExistingMessagesPresent() {
         List<ChatMessage> existing = List.of(
                 ChatMessage.createUserMessage("hello"),
                 ChatMessage.createAssistantMessage("hi there"));
@@ -43,8 +43,8 @@ class ChatMemorySessionBridgeTest {
     }
 
     @Test
-    @DisplayName("should_skip_seed_when_memory_already_has_messages")
-    void should_skip_seed_when_memory_already_has_messages() {
+    @DisplayName("should skip seed when memory already has messages")
+    void shouldSkipSeedWhenMemoryAlreadyHasMessages() {
         chatMemory.add("conv-1", List.of(new UserMessage("existing")));
 
         bridge.seedIfEmpty("conv-1", List.of(ChatMessage.createUserMessage("ignored")));
@@ -54,8 +54,8 @@ class ChatMemorySessionBridgeTest {
     }
 
     @Test
-    @DisplayName("should_skip_seed_when_existing_messages_null_or_empty")
-    void should_skip_seed_when_existing_messages_null_or_empty() {
+    @DisplayName("should skip seed when existing messages null or empty")
+    void shouldSkipSeedWhenExistingMessagesNullOrEmpty() {
         bridge.seedIfEmpty("conv-1", null);
         bridge.seedIfEmpty("conv-2", List.of());
 
@@ -64,8 +64,8 @@ class ChatMemorySessionBridgeTest {
     }
 
     @Test
-    @DisplayName("should_sync_memory_messages_into_session_and_sanitize_tool_markup")
-    void should_sync_memory_messages_into_session_and_sanitize_tool_markup() {
+    @DisplayName("should sync memory messages into session and sanitize tool markup")
+    void shouldSyncMemoryMessagesIntoSessionAndSanitizeToolMarkup() {
         chatMemory.add("conv-1", List.of(
                 new UserMessage("chart please"),
                 new AssistantMessage(
@@ -84,8 +84,8 @@ class ChatMemorySessionBridgeTest {
     }
 
     @Test
-    @DisplayName("should_skip_sync_when_memory_empty")
-    void should_skip_sync_when_memory_empty() {
+    @DisplayName("should skip sync when memory empty")
+    void shouldSkipSyncWhenMemoryEmpty() {
         ChatSession session = ChatSession.create("Title", "11111111-1111-1111-1111-111111111111");
         session.addUserMessage("keep me");
 
@@ -96,8 +96,8 @@ class ChatMemorySessionBridgeTest {
     }
 
     @Test
-    @DisplayName("should_clear_memory_for_conversation")
-    void should_clear_memory_for_conversation() {
+    @DisplayName("should clear memory for conversation")
+    void shouldClearMemoryForConversation() {
         chatMemory.add("conv-1", List.of(new UserMessage("hello")));
 
         bridge.clear("conv-1");

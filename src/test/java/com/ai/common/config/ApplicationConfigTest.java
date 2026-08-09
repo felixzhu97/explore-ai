@@ -31,7 +31,7 @@ class ApplicationConfigTest {
 
         @Test
         @DisplayName("should create single instance of LanguageDetectionService")
-        void shouldCreateSingleInstance_ofLanguageDetectionService() {
+        void shouldCreateSingleInstanceOfLanguageDetectionService() {
             LanguageDetectionService service1 = context.getBean(LanguageDetectionService.class);
             LanguageDetectionService service2 = context.getBean(LanguageDetectionService.class);
 

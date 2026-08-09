@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Test;
 class OAuthLoginFailureHandlerTest {
 
     @Test
-    void should_appendLoginQuery_whenRedirectHasNoQuery() {
+    void shouldAppendLoginQueryWhenRedirectHasNoQuery() {
         assertThat(OAuthLoginFailureHandler.withLoginParam("http://127.0.0.1:4200/", "success"))
                 .isEqualTo("http://127.0.0.1:4200/?login=success");
     }
 
     @Test
-    void should_replaceLoginQuery_whenAlreadyPresent() {
+    void shouldReplaceLoginQueryWhenAlreadyPresent() {
         assertThat(OAuthLoginFailureHandler.withLoginParam("http://127.0.0.1:4200/?login=error", "success"))
                 .isEqualTo("http://127.0.0.1:4200/?login=success");
     }

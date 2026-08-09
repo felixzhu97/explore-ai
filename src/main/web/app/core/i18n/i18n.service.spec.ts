@@ -47,7 +47,7 @@ describe('I18nService', () => {
       expect(typeof service.t).toBe('function');
     });
 
-    it('should have readonly languageName computed', () => {
+    it('should have readonly language name computed', () => {
       service = new I18nService();
       expect(service.languageName).toBeDefined();
       // eslint-disable-next-line @angular-eslint/no-uncalled-signals
@@ -161,7 +161,7 @@ describe('I18nService', () => {
       expect(zhTranslations.nav.imageAnalysis).toBe('图像分析');
     });
 
-    it('should update languageName computed', () => {
+    it('should update language name computed', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.languageName()).toBe('English');
@@ -229,14 +229,14 @@ describe('I18nService', () => {
       expect(service.t().nav.imageAnalysis).toBe('Image Analysis');
     });
 
-    it('should provide imageUploader translations', () => {
+    it('should provide image uploader translations', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.t().imageUploader).toBeDefined();
       expect(service.t().imageUploader.dropText).toBe('Drag & drop or click to upload');
     });
 
-    it('should provide ragChat translations', () => {
+    it('should provide rag chat translations', () => {
       service = new I18nService();
       service.setLanguage('zh');
       expect(service.t().ragChat).toBeDefined();

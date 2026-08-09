@@ -47,7 +47,7 @@ class PrivacyControllerTest {
     }
 
     @Test
-    void should_eraseAllOwnerData_whenDeletePrivacySessions() {
+    void shouldEraseAllOwnerDataWhenDeletePrivacySessions() {
         when(ownerContext.require(request)).thenReturn(OWNER);
 
         var result = controller.eraseAllSessions(request);
@@ -57,7 +57,7 @@ class PrivacyControllerTest {
     }
 
     @Test
-    void should_rotateCookie_whenResetIdentity() {
+    void shouldRotateCookieWhenResetIdentity() {
         var result = controller.resetIdentity(response);
 
         assertThat(result.getStatusCode().value()).isEqualTo(204);

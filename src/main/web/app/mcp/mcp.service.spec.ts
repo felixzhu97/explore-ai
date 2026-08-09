@@ -20,7 +20,7 @@ describe('McpService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should_fetchHealth', () => {
+  it('should fetch health', () => {
     service.getHealth().subscribe((response) => {
       expect(response.status).toBe('UP');
     });
@@ -35,7 +35,7 @@ describe('McpService', () => {
     });
   });
 
-  it('should_listTools', () => {
+  it('should list tools', () => {
     service.listTools().subscribe((tools) => {
       expect(tools).toHaveLength(1);
       expect(tools[0].name).toBe('get_weather');

@@ -10,8 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class YoloNonMaxSuppressionTest {
 
     @Test
-    @DisplayName("should_suppress_overlapping_boxes")
-    void should_suppress_overlapping_boxes() {
+    @DisplayName("should suppress overlapping boxes")
+    void shouldSuppressOverlappingBoxes() {
         var candidates = java.util.List.of(
                 new com.ai.vision.domain.model.Detection("person", 0.9, 10, 10, 50, 50),
                 new com.ai.vision.domain.model.Detection("person", 0.8, 12, 12, 48, 48),
@@ -25,8 +25,8 @@ class YoloNonMaxSuppressionTest {
     }
 
     @Test
-    @DisplayName("should_use_coco_class_names")
-    void should_use_coco_class_names() {
+    @DisplayName("should use coco class names")
+    void shouldUseCocoClassNames() {
         assertThat(CocoClassNames.label(0)).isEqualTo("person");
         assertThat(CocoClassNames.classCount()).isEqualTo(80);
     }

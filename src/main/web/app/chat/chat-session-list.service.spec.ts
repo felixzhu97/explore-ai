@@ -85,27 +85,27 @@ describe('ChatSessionListService', () => {
     expect(service.activeSessionId()).toBe('s1');
   });
 
-  it('should delegate initializeSessions', () => {
+  it('should delegate initialize sessions', () => {
     service.initializeSessions();
     expect(chatService.initializeSessions).toHaveBeenCalled();
   });
 
-  it('should delegate createSession', () => {
+  it('should delegate create session', () => {
     service.createSession();
     expect(chatService.createSession).toHaveBeenCalled();
   });
 
-  it('should delegate selectSession with navigateToChat', () => {
+  it('should delegate select session with navigate to chat', () => {
     service.selectSession('s2');
     expect(chatService.selectSession).toHaveBeenCalledWith('s2', { navigateToChat: true });
   });
 
-  it('should delegate deleteSession', () => {
+  it('should delegate delete session', () => {
     service.deleteSession('s1');
     expect(chatService.deleteSession).toHaveBeenCalledWith('s1');
   });
 
-  it('should pin a session and persist ids in localStorage', () => {
+  it('should pin a session and persist ids in local storage', () => {
     service.togglePin('s1');
     expect(service.sessions()[0]?.pinned).toBe(true);
     expect(JSON.parse(storage[PINNED_KEY] ?? '[]')).toEqual(['s1']);
@@ -118,7 +118,7 @@ describe('ChatSessionListService', () => {
     expect(JSON.parse(storage[PINNED_KEY] ?? '[]')).toEqual([]);
   });
 
-  it('should restore pinned state from localStorage on create', () => {
+  it('should restore pinned state from local storage on create', () => {
     storage[PINNED_KEY] = JSON.stringify(['s1']);
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({

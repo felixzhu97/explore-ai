@@ -42,7 +42,7 @@ class EmbeddingDocumentWriterTest {
 
     @Test
     @DisplayName("should embed each chunk content before saving")
-    void should_embed_each_chunk_content_before_saving() {
+    void shouldEmbedEachChunkContentBeforeSaving() {
         DocumentChunk firstChunk = createChunk("first chunk", 0);
         DocumentChunk secondChunk = createChunk("second chunk", 1);
         float[] firstEmbedding = new float[]{0.1f, 0.2f};
@@ -67,7 +67,7 @@ class EmbeddingDocumentWriterTest {
 
     @Test
     @DisplayName("should not call embedder or repository when no chunks are provided")
-    void should_not_call_embedder_or_repository_when_no_chunks_are_provided() {
+    void shouldNotCallEmbedderOrRepositoryWhenNoChunksAreProvided() {
         writer.write(List.of());
 
         verifyNoInteractions(embeddingRepository, chunkRepository);

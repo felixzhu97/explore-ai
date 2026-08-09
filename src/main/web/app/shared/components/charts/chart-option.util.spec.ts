@@ -17,12 +17,12 @@ function firstSeries(
 }
 
 describe('buildSharedChartOption', () => {
-  it('should_build_line_option_when_type_is_line', () => {
+  it('should build line option when type is line', () => {
     const option = buildSharedChartOption('line', [{ label: '2026-07-01', value: 3 }], 'Requests');
     expect(firstSeries(option)).toMatchObject({ type: 'line', data: [3] });
   });
 
-  it('should_build_doughnut_option_when_type_is_doughnut', () => {
+  it('should build doughnut option when type is doughnut', () => {
     const option = buildSharedChartOption('doughnut', [{ label: 'READY', value: 2 }]);
     expect(firstSeries(option)).toMatchObject({ type: 'pie', radius: ['42%', '68%'] });
   });

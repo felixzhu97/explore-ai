@@ -12,12 +12,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AgentSkillsPropertiesTest {
 
     @Test
-    void should_defaultSkillsOff_when_notConfigured() {
+    void shouldDefaultSkillsOffWhenNotConfigured() {
         assertThat(bind(Map.of()).getSkills().isEnabled()).isFalse();
     }
 
     @Test
-    void should_bindSkillsConfig_when_propertiesProvided() {
+    void shouldBindSkillsConfigWhenPropertiesProvided() {
         assertThat(bind(Map.of(
                 "app.pipeline.skills.enabled", "true",
                 "app.pipeline.skills.ids[0]", "brief-style"

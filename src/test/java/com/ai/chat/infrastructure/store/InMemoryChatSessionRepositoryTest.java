@@ -28,7 +28,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should find saved session by id")
-        void shouldFindSavedSession_byId() {
+        void shouldFindSavedSessionById() {
             // Given
             var session = ChatSession.create("Test Session", "client-a");
             repository.save(session);
@@ -44,7 +44,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return empty when session not found")
-        void shouldReturnEmpty_whenSessionNotFound() {
+        void shouldReturnEmptyWhenSessionNotFound() {
             // Given
             var nonExistentId = ChatSessionId.generate();
 
@@ -57,7 +57,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should update existing session when saving with same id")
-        void shouldUpdateExistingSession_whenSavingWithSameId() {
+        void shouldUpdateExistingSessionWhenSavingWithSameId() {
             // Given
             var session1 = ChatSession.create("Test Session", "client-a");
             repository.save(session1);
@@ -76,7 +76,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should remove session when deleted")
-        void shouldRemoveSession_whenDeleted() {
+        void shouldRemoveSessionWhenDeleted() {
             // Given
             var session = ChatSession.create("Test Session", "client-a");
             repository.save(session);
@@ -92,7 +92,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should not throw when deleting non-existent session")
-        void shouldNotThrow_whenDeletingNonExistentSession() {
+        void shouldNotThrowWhenDeletingNonExistentSession() {
             // Given
             var nonExistentId = ChatSessionId.generate();
 
@@ -107,7 +107,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return true for existing session")
-        void shouldReturnTrue_forExistingSession() {
+        void shouldReturnTrueForExistingSession() {
             // Given
             var session = ChatSession.create("Test Session", "client-a");
             repository.save(session);
@@ -118,7 +118,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return false for non-existing session")
-        void shouldReturnFalse_forNonExistingSession() {
+        void shouldReturnFalseForNonExistingSession() {
             // Given
             var nonExistentId = ChatSessionId.generate();
 
@@ -133,7 +133,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return empty list when no sessions exist")
-        void should_returnEmptyList_whenNoSessionsExist() {
+        void shouldReturnEmptyListWhenNoSessionsExist() {
             List<ChatSession> result = repository.findByClientId("client-a");
 
             assertThat(result).isEmpty();
@@ -141,7 +141,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return only sessions for the client")
-        void should_returnOnlyOwnedSessions_whenMultipleClientsExist() {
+        void shouldReturnOnlyOwnedSessionsWhenMultipleClientsExist() {
             var session1 = ChatSession.create("Test Session 1", "client-a");
             var session2 = ChatSession.create("Test Session 2", "client-a");
             var other = ChatSession.create("Other", "client-b");
@@ -159,7 +159,7 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return empty when looking up by other client id")
-        void should_returnEmpty_whenSessionBelongsToOtherClient() {
+        void shouldReturnEmptyWhenSessionBelongsToOtherClient() {
             var session = ChatSession.create("Owned", "client-a");
             repository.save(session);
 
@@ -197,14 +197,14 @@ class InMemoryChatSessionRepositoryTest {
 
         @Test
         @DisplayName("should return zero for empty repository")
-        void shouldReturnZero_forEmptyRepository() {
+        void shouldReturnZeroForEmptyRepository() {
             // When & Then
             assertThat(repository.size()).isZero();
         }
 
         @Test
         @DisplayName("should return correct count after saving sessions")
-        void shouldReturnCorrectCount_afterSavingSessions() {
+        void shouldReturnCorrectCountAfterSavingSessions() {
             // Given
             var session1 = ChatSession.create("Test Session 1", "client-a");
             var session2 = ChatSession.create("Test Session 2", "client-a");

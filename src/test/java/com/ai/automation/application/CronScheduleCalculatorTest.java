@@ -14,7 +14,7 @@ class CronScheduleCalculatorTest {
     private final CronScheduleCalculator calculator = new CronScheduleCalculator();
 
     @Test
-    void should_computeNextRun_when_cronValid() {
+    void shouldComputeNextRunWhenCronValid() {
         Instant after = Instant.parse("2026-08-06T00:00:00Z");
         Instant next = calculator.nextRunAt("0 0 9 * * *", "UTC", after);
 
@@ -22,7 +22,7 @@ class CronScheduleCalculatorTest {
     }
 
     @Test
-    void should_rejectInvalidCron_when_validate() {
+    void shouldRejectInvalidCronWhenValidate() {
         assertThatThrownBy(() -> calculator.validate("not-a-cron", "UTC"))
                 .isInstanceOf(IllegalArgumentException.class);
     }

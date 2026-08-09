@@ -55,7 +55,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_list_agents() {
+    void shouldListAgents() {
         when(agentFacade.listAgents(eq(CLIENT_ID), anyString())).thenReturn(List.of(
                 AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
                 AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys")));
@@ -67,7 +67,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_return_404_when_health_unknown() {
+    void shouldReturn404WhenHealthUnknown() {
         when(agentFacade.health(eq("missing"), eq(CLIENT_ID), anyString()))
                 .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
 
@@ -77,7 +77,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_return_ok_for_known_agent_health() {
+    void shouldReturnOkForKnownAgentHealth() {
         when(agentFacade.health(eq("k8s"), eq(CLIENT_ID), anyString())).thenReturn(
                 AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
 
@@ -87,7 +87,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_return_404_when_get_agent_unknown() {
+    void shouldReturn404WhenGetAgentUnknown() {
         when(agentFacade.health(eq("missing"), eq(CLIENT_ID), anyString()))
                 .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
 
@@ -97,7 +97,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_return_ok_when_get_agent_known() {
+    void shouldReturnOkWhenGetAgentKnown() {
         when(agentFacade.health(eq("k8s"), eq(CLIENT_ID), anyString())).thenReturn(
                 AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
 
@@ -107,7 +107,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_stream_supervisor_sse() {
+    void shouldStreamSupervisorSse() {
         when(agentFacade.invokeSupervisor(eq("hello"), eq(CLIENT_ID), anyString())).thenReturn(Flux.just(
                 ServerSentEvent.<String>builder().event("message").data("hi").build(),
                 ServerSentEvent.<String>builder().event("done").data("[DONE]").build()));
@@ -122,7 +122,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_emit_error_sse_when_direct_invoke_unknown() {
+    void shouldEmitErrorSseWhenDirectInvokeUnknown() {
         when(agentFacade.invokeAgent(eq("missing"), eq("hi"), eq(CLIENT_ID), anyString()))
                 .thenReturn(Flux.error(new AgentNotFoundException(AgentType.of("missing"))));
 
@@ -136,7 +136,7 @@ class PipelineControllerTest {
     }
 
     @Test
-    void should_report_module_health() {
+    void shouldReportModuleHealth() {
         when(agentFacade.builtinCount()).thenReturn(1);
 
         ResponseEntity<?> response = controller.moduleHealth();

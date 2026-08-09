@@ -15,7 +15,7 @@ class AiServiceExceptionTest {
 
         @Test
         @DisplayName("should set default error code when using simple message constructor")
-        void shouldSetDefaultErrorCode_whenUsingSimpleMessageConstructor() {
+        void shouldSetDefaultErrorCodeWhenUsingSimpleMessageConstructor() {
             // When
             var exception = new AiServiceException("Test message");
 
@@ -26,7 +26,7 @@ class AiServiceExceptionTest {
 
         @Test
         @DisplayName("should set default error code when using message and cause constructor")
-        void shouldSetDefaultErrorCode_whenUsingMessageAndCauseConstructor() {
+        void shouldSetDefaultErrorCodeWhenUsingMessageAndCauseConstructor() {
             // Given
             var cause = new RuntimeException("Original error");
 
@@ -41,7 +41,7 @@ class AiServiceExceptionTest {
 
         @Test
         @DisplayName("should set custom error code when using full constructor")
-        void shouldSetCustomErrorCode_whenUsingFullConstructor() {
+        void shouldSetCustomErrorCodeWhenUsingFullConstructor() {
             // Given
             var cause = new RuntimeException("Original error");
             var customCode = "CUSTOM_ERROR_CODE";
@@ -72,7 +72,7 @@ class AiServiceExceptionTest {
 
         @Test
         @DisplayName("should return custom error code when provided")
-        void shouldReturnCustomErrorCode_whenProvided() {
+        void shouldReturnCustomErrorCodeWhenProvided() {
             // Given
             var customCode = "MODEL_NOT_FOUND";
 
@@ -85,7 +85,7 @@ class AiServiceExceptionTest {
 
         @Test
         @DisplayName("should handle null cause with custom error code")
-        void shouldHandleNullCause_withCustomErrorCode() {
+        void shouldHandleNullCauseWithCustomErrorCode() {
             // Given
             var customCode = "NULL_POINTER";
 

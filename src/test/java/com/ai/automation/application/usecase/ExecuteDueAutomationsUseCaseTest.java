@@ -66,7 +66,7 @@ class ExecuteDueAutomationsUseCaseTest {
     }
 
     @Test
-    void should_runWorkflowAndEmail_when_scheduleDue() {
+    void shouldRunWorkflowAndEmailWhenScheduleDue() {
         Instant past = Instant.now().minusSeconds(60);
         AutomationSchedule schedule = AutomationSchedule.create(
                 "client-1",
@@ -94,7 +94,7 @@ class ExecuteDueAutomationsUseCaseTest {
     }
 
     @Test
-    void should_skipRun_when_quotaExceeded() {
+    void shouldSkipRunWhenQuotaExceeded() {
         Instant past = Instant.now().minusSeconds(60);
         AutomationSchedule schedule = AutomationSchedule.create(
                 "client-1",
@@ -118,7 +118,7 @@ class ExecuteDueAutomationsUseCaseTest {
     }
 
     @Test
-    void should_disableOnceSchedule_when_executed() {
+    void shouldDisableOnceScheduleWhenExecuted() {
         Instant past = Instant.now().minusSeconds(60);
         AutomationSchedule schedule = AutomationSchedule.createOnce(
                 "client-1",

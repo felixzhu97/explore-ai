@@ -8,7 +8,7 @@ import {
 
 describe('a2ui-fence', () => {
   describe('parseA2uiNdjson', () => {
-    it('should_parse_valid_ndjson_lines_and_skip_invalid', () => {
+    it('should parse valid ndjson lines and skip invalid', () => {
       const raw = [
         '{"version":"v0.9","createSurface":{"surfaceId":"s1","catalogId":"https://explore-ai.local/catalogs/chat-v0.9"}}',
         'not-json',
@@ -25,7 +25,7 @@ describe('a2ui-fence', () => {
   });
 
   describe('splitMarkdownAndA2ui', () => {
-    it('should_split_markdown_and_closed_a2ui_fence', () => {
+    it('should split markdown and closed a2ui fence', () => {
       const content = [
         'Here is a chart:',
         '',
@@ -45,7 +45,7 @@ describe('a2ui-fence', () => {
       }
     });
 
-    it('should_emit_pending_when_a2ui_fence_is_unclosed', () => {
+    it('should emit pending when a2ui fence is unclosed', () => {
       const content = 'Intro\n\n```a2ui\n{"version":"v0.9","createSurface":{';
 
       const segments = splitMarkdownAndA2ui(content);
@@ -53,13 +53,13 @@ describe('a2ui-fence', () => {
       expect(segments.map(s => s.type)).toEqual(['markdown', 'a2ui-pending']);
     });
 
-    it('should_return_markdown_only_when_no_fence', () => {
+    it('should return markdown only when no fence', () => {
       expect(splitMarkdownAndA2ui('plain text')).toEqual([
         { type: 'markdown', content: 'plain text' },
       ]);
     });
 
-    it('should_not_close_a2ui_with_later_typescript_fence', () => {
+    it('should not close a2ui with later typescript fence', () => {
       const content = [
         'Chart:',
         '',
@@ -85,7 +85,7 @@ describe('a2ui-fence', () => {
       }
     });
 
-    it('should_keep_pending_when_unclosed_a2ui_precedes_typescript_opener', () => {
+    it('should keep pending when unclosed a2ui precedes typescript opener', () => {
       // ```typescript does not close a2ui; without a bare closing fence, stay pending.
       const content = [
         'Intro',
@@ -104,7 +104,7 @@ describe('a2ui-fence', () => {
   });
 
   describe('remapSurfaceIds', () => {
-    it('should_rewrite_surfaceId_on_known_message_types', () => {
+    it('should rewrite surface id on known message types', () => {
       const messages = parseA2uiNdjson(
         [
           '{"version":"v0.9","createSurface":{"surfaceId":"old","catalogId":"c"}}',

@@ -12,16 +12,16 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class ClasspathPromptTemplateTest {
 
     @Test
-    @DisplayName("should_renderPlaceholder_when_singleVariable")
-    void should_renderPlaceholder_when_singleVariable() {
+    @DisplayName("should render placeholder when single variable")
+    void shouldRenderPlaceholderWhenSingleVariable() {
         String rendered = ClasspathPromptTemplate.render("Hello {name}", Map.of("name", "world"));
 
         assertThat(rendered).isEqualTo("Hello world");
     }
 
     @Test
-    @DisplayName("should_renderRagUserTemplate_when_allVariablesProvided")
-    void should_renderRagUserTemplate_when_allVariablesProvided() {
+    @DisplayName("should render rag user template when all variables provided")
+    void shouldRenderRagUserTemplateWhenAllVariablesProvided() {
         String rendered = ClasspathPromptTemplate.loadAndRender(
                 "rag/user-en.st",
                 Map.of(
@@ -38,8 +38,8 @@ class ClasspathPromptTemplateTest {
     }
 
     @Test
-    @DisplayName("should_loadStaticFragmentWithoutRendering_when_jsonBracesPresent")
-    void should_loadStaticFragmentWithoutRendering_when_jsonBracesPresent() {
+    @DisplayName("should load static fragment without rendering when json braces present")
+    void shouldLoadStaticFragmentWithoutRenderingWhenJsonBracesPresent() {
         String fragment = ClasspathPromptTemplate.load("chat/a2ui-chart.st");
 
         assertThat(fragment).contains("\"version\": \"v0.9\"");

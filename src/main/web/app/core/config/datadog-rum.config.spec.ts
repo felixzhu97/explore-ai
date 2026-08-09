@@ -36,13 +36,13 @@ describe('datadog-rum.config', () => {
     vi.restoreAllMocks();
   });
 
-  it('should_skip_init_when_credentials_missing', async () => {
+  it('should skip init when credentials missing', async () => {
     const { initDatadogRum } = await import('./datadog-rum.config');
     initDatadogRum();
     expect(datadogRum.init).not.toHaveBeenCalled();
   });
 
-  it('should_init_rum_when_credentials_present', async () => {
+  it('should init rum when credentials present', async () => {
     envState.datadog.applicationId = 'app-id';
     envState.datadog.clientToken = 'client-token';
 
@@ -55,7 +55,7 @@ describe('datadog-rum.config', () => {
     }));
   });
 
-  it('should_not_init_twice', async () => {
+  it('should not init twice', async () => {
     envState.datadog.applicationId = 'app-id';
     envState.datadog.clientToken = 'client-token';
 
@@ -66,7 +66,7 @@ describe('datadog-rum.config', () => {
     expect(datadogRum.init).toHaveBeenCalledTimes(1);
   });
 
-  it('should_log_error_without_rum_when_not_initialized', async () => {
+  it('should log error without rum when not initialized', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const { DatadogErrorHandler } = await import('./datadog-rum.config');
     const handler = new DatadogErrorHandler();
@@ -77,7 +77,7 @@ describe('datadog-rum.config', () => {
     expect(datadogRum.addError).not.toHaveBeenCalled();
   });
 
-  it('should_forward_error_to_rum_when_initialized', async () => {
+  it('should forward error to rum when initialized', async () => {
     envState.datadog.applicationId = 'app-id';
     envState.datadog.clientToken = 'client-token';
     vi.spyOn(console, 'error').mockImplementation(() => undefined);

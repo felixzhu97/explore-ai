@@ -21,8 +21,8 @@ import org.springframework.web.client.RestClient;
 class ResendEmailGatewayTest {
 
     @Test
-    @DisplayName("should_post_emails_payload_when_send_succeeds")
-    void should_post_emails_payload_when_send_succeeds() {
+    @DisplayName("should post emails payload when send succeeds")
+    void shouldPostEmailsPayloadWhenSendSucceeds() {
         MailProperties props = new MailProperties();
         props.setFrom("noreply@example.com");
         props.setResendApiKey("re_test_key");
@@ -53,8 +53,8 @@ class ResendEmailGatewayTest {
     }
 
     @Test
-    @DisplayName("should_include_html_when_htmlBodyPresent")
-    void should_include_html_when_htmlBodyPresent() {
+    @DisplayName("should include html when html body present")
+    void shouldIncludeHtmlWhenHtmlBodyPresent() {
         MailProperties props = new MailProperties();
         props.setFrom("noreply@example.com");
         props.setResendApiKey("re_test_key");
@@ -85,8 +85,8 @@ class ResendEmailGatewayTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_resend_returns_error_status")
-    void should_throw_when_resend_returns_error_status() {
+    @DisplayName("should throw when resend returns error status")
+    void shouldThrowWhenResendReturnsErrorStatus() {
         MailProperties props = new MailProperties();
         props.setFrom("noreply@example.com");
         props.setResendApiKey("re_test_key");
@@ -106,8 +106,8 @@ class ResendEmailGatewayTest {
     }
 
     @Test
-    @DisplayName("should_fail_fast_when_api_key_missing")
-    void should_fail_fast_when_api_key_missing() {
+    @DisplayName("should fail fast when api key missing")
+    void shouldFailFastWhenApiKeyMissing() {
         MailProperties props = new MailProperties();
         props.setResendApiKey("  ");
 

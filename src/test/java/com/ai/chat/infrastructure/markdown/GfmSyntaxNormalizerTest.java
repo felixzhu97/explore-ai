@@ -82,7 +82,7 @@ class GfmSyntaxNormalizerTest {
 
     @Test
     @DisplayName("should split glued HR and heading after CJK punctuation")
-    void should_splitGluedHrAndHeading_when_inlineAfterCjkPunctuation() {
+    void shouldSplitGluedHrAndHeadingWhenInlineAfterCjkPunctuation() {
         String out = normalizer.normalize("简报」。---##技术可行性");
         assertThat(out).contains("---");
         assertThat(out).contains("## 技术可行性");
@@ -91,7 +91,7 @@ class GfmSyntaxNormalizerTest {
 
     @Test
     @DisplayName("should split glued heading after punctuation without space")
-    void should_splitGluedHeading_when_afterPunctuationWithoutSpace() {
+    void shouldSplitGluedHeadingWhenAfterPunctuationWithoutSpace() {
         String out = normalizer.normalize("。###Thesis本报告");
         assertThat(out).contains("### Thesis");
         assertThat(out).contains("。\n### Thesis");
@@ -99,14 +99,14 @@ class GfmSyntaxNormalizerTest {
 
     @Test
     @DisplayName("should split year timeline list glued after punctuation")
-    void should_splitYearTimelineList_when_gluedAfterPunctuation() {
+    void shouldSplitYearTimelineListWhenGluedAfterPunctuation() {
         String out = normalizer.normalize("signals。-2025年Q2-Google:");
         assertThat(out).contains("。\n- 2025年Q2-Google:");
     }
 
     @Test
     @DisplayName("should insert space after year list marker at line start")
-    void should_insertSpaceAfterYearListMarker_when_atLineStart() {
+    void shouldInsertSpaceAfterYearListMarkerWhenAtLineStart() {
         assertThat(normalizer.normalize("-2025年Q2-OpenAI:")).isEqualTo("- 2025年Q2-OpenAI:");
     }
 }

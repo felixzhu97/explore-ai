@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ToolCallMarkupFilterTest {
 
     @Test
-    void should_strip_deepseek_fullwidth_dsml_tool_calls() {
+    void shouldStripDeepseekFullwidthDsmlToolCalls() {
         String raw = """
                 开始调研。
                 <｜DSML｜tool_calls>
@@ -31,7 +31,7 @@ class ToolCallMarkupFilterTest {
     }
 
     @Test
-    void should_strip_spaced_dsml_tags() {
+    void shouldStripSpacedDsmlTags() {
         String raw = "hi < | DSML | tool_calls>q</ | DSML | tool_calls> bye";
         String cleaned = ToolCallMarkupFilter.sanitize(raw);
         assertFalse(cleaned.toLowerCase().contains("dsml"));
@@ -40,7 +40,7 @@ class ToolCallMarkupFilterTest {
     }
 
     @Test
-    void should_strip_ascii_pipe_variant() {
+    void shouldStripAsciiPipeVariant() {
         String raw = """
                 我将进行第一轮调研。
                 <|DSML|tool_calls>
@@ -61,13 +61,13 @@ class ToolCallMarkupFilterTest {
     }
 
     @Test
-    void should_return_empty_when_only_markup() {
+    void shouldReturnEmptyWhenOnlyMarkup() {
         String raw = "<｜DSML｜tool_calls><｜DSML｜invoke name=\"searchWeb\"></｜DSML｜tool_calls>";
         assertEquals("", ToolCallMarkupFilter.sanitize(raw));
     }
 
     @Test
-    void should_strip_double_fullwidth_pipe_variant() {
+    void shouldStripDoubleFullwidthPipeVariant() {
         String raw = """
                 <｜｜DSML｜｜tool_calls>
                 <｜｜DSML｜｜invoke name="searchWeb">
@@ -80,7 +80,7 @@ class ToolCallMarkupFilterTest {
     }
 
     @Test
-    void should_detect_tool_markup() {
+    void shouldDetectToolMarkup() {
         assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup("<｜DSML｜tool_calls>"));
         assertFalse(ToolCallMarkupFilter.looksLikeToolMarkup("plain research summary"));
     }

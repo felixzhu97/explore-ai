@@ -33,7 +33,7 @@ class PdfAndTextDocumentReaderTest {
 
     @Test
     @DisplayName("should read plain text without invoking PDF extraction")
-    void should_read_plain_text_without_invoking_pdf_extraction() {
+    void shouldReadPlainTextWithoutInvokingPdfExtraction() {
         byte[] content = "plain text content".getBytes(StandardCharsets.UTF_8);
         when(pdfTextExtractor.getExtension("notes.txt")).thenReturn("txt");
 
@@ -47,7 +47,7 @@ class PdfAndTextDocumentReaderTest {
 
     @Test
     @DisplayName("should extract PDF text for PDF extension ignoring case")
-    void should_extract_pdf_text_for_pdf_extension_ignoring_case() {
+    void shouldExtractPdfTextForPdfExtensionIgnoringCase() {
         byte[] content = "%PDF-1.4".getBytes(StandardCharsets.UTF_8);
         when(pdfTextExtractor.getExtension("Manual.PDF")).thenReturn("PDF");
         when(pdfTextExtractor.extractText(content)).thenReturn(Optional.of("extracted manual text"));
@@ -62,7 +62,7 @@ class PdfAndTextDocumentReaderTest {
 
     @Test
     @DisplayName("should fail when PDF extraction returns empty")
-    void should_fail_when_pdf_extraction_returns_empty() {
+    void shouldFailWhenPdfExtractionReturnsEmpty() {
         byte[] content = "%PDF-1.4".getBytes(StandardCharsets.UTF_8);
         when(pdfTextExtractor.getExtension("empty.pdf")).thenReturn("pdf");
         when(pdfTextExtractor.extractText(content)).thenReturn(Optional.empty());

@@ -31,8 +31,8 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_createSkill_when_nameAvailable")
-    void should_createSkill_when_nameAvailable() {
+    @DisplayName("should create skill when name available")
+    void shouldCreateSkillWhenNameAvailable() {
         Skill created = useCase.create(
                 CLIENT_ID,
                 "Brief Style",
@@ -45,8 +45,8 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_nameConflictOnCreate")
-    void should_throw_when_nameConflictOnCreate() {
+    @DisplayName("should throw when name conflict on create")
+    void shouldThrowWhenNameConflictOnCreate() {
         repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
 
         assertThatThrownBy(() -> useCase.create(
@@ -59,8 +59,8 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_returnSkill_when_getExisting")
-    void should_returnSkill_when_getExisting() {
+    @DisplayName("should return skill when get existing")
+    void shouldReturnSkillWhenGetExisting() {
         Skill seeded = repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
 
         Skill found = useCase.get(CLIENT_ID, seeded.getId().value());
@@ -69,15 +69,15 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_getMissing")
-    void should_throw_when_getMissing() {
+    @DisplayName("should throw when get missing")
+    void shouldThrowWhenGetMissing() {
         assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generate().value()))
                 .isInstanceOf(SkillNotFoundException.class);
     }
 
     @Test
-    @DisplayName("should_createFromTemplate_when_templateExists")
-    void should_createFromTemplate_when_templateExists() {
+    @DisplayName("should create from template when template exists")
+    void shouldCreateFromTemplateWhenTemplateExists() {
         Skill created = useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
 
         assertThat(created.getName()).isEqualTo("Brief Style");
@@ -86,8 +86,8 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_createLocalizedSkill_when_languageIsZh")
-    void should_createLocalizedSkill_when_languageIsZh() {
+    @DisplayName("should create localized skill when language is zh")
+    void shouldCreateLocalizedSkillWhenLanguageIsZh() {
         Skill created = useCase.createFromTemplate(CLIENT_ID, "brief-style", "zh");
 
         assertThat(created.getName()).isEqualTo("简洁风格");
@@ -95,8 +95,8 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_suffixName_when_createFromTemplateConflicts")
-    void should_suffixName_when_createFromTemplateConflicts() {
+    @DisplayName("should suffix name when create from template conflicts")
+    void shouldSuffixNameWhenCreateFromTemplateConflicts() {
         useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
 
         Skill duplicate = useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
@@ -105,8 +105,8 @@ class SkillUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("should_disableSkill_when_setEnabledFalse")
-    void should_disableSkill_when_setEnabledFalse() {
+    @DisplayName("should disable skill when set enabled false")
+    void shouldDisableSkillWhenSetEnabledFalse() {
         Skill seeded = repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
 
         Skill updated = useCase.setEnabled(CLIENT_ID, seeded.getId().value(), false);

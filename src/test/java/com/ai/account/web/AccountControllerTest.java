@@ -36,7 +36,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void should_returnAnonymousAccount_whenClientIdentityPresent() {
+    void shouldReturnAnonymousAccountWhenClientIdentityPresent() {
         when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn("cid-123");
         when(accountUseCase.currentAccount("cid-123"))
                 .thenReturn(new AccountMeResponse(
@@ -55,7 +55,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void should_fail_whenClientIdentityMissing() {
+    void shouldFailWhenClientIdentityMissing() {
         when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(null);
 
         assertThatThrownBy(() -> controller.me(request))

@@ -118,7 +118,7 @@ describe('i18n.model', () => {
         'clickToEnlarge',
       ] as const;
 
-      it('should have imageUploader translations for all languages', () => {
+      it('should have image uploader translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           requiredKeys.forEach((key) => {
             expect(translations[lang].imageUploader[key]).toBeDefined();
@@ -163,7 +163,7 @@ describe('i18n.model', () => {
         'fileSelected',
       ] as const;
 
-      it('should have ragChat translations for all languages', () => {
+      it('should have rag chat translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           requiredKeys.forEach((key) => {
             expect(translations[lang].ragChat[key]).toBeDefined();
@@ -236,7 +236,7 @@ describe('i18n.model', () => {
     });
 
     describe('lab page translations', () => {
-      it('should have metricsPage chrome for all languages', () => {
+      it('should have metrics page chrome for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           expect(translations[lang].metricsPage.overviewTitle.length).toBeGreaterThan(0);
           expect(translations[lang].metricsPage.kpi.aiRequests.length).toBeGreaterThan(0);
@@ -244,7 +244,7 @@ describe('i18n.model', () => {
         });
       });
 
-      it('should have evalPage asrPage and mcpPage for all languages', () => {
+      it('should have eval page asr page and mcp page for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           expect(translations[lang].evalPage.evaluate.length).toBeGreaterThan(0);
           expect(
@@ -302,7 +302,7 @@ describe('i18n.model', () => {
   });
 
   describe('translations content consistency', () => {
-    it('should have localized imageAnalysis nav labels', () => {
+    it('should have localized image analysis nav labels', () => {
       expect(translations.en.nav.imageAnalysis).toBe('Image Analysis');
       expect(translations.zh.nav.imageAnalysis).toBe('图像分析');
       expect(translations.ja.nav.imageAnalysis).toBe('画像分析');

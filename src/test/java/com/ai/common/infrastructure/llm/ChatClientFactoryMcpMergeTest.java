@@ -26,16 +26,16 @@ import static org.mockito.Mockito.when;
 class ChatClientFactoryMcpMergeTest {
 
     @Test
-    @DisplayName("should_build_client_when_mcp_callbacks_absent")
-    void should_build_client_when_mcp_callbacks_absent() {
+    @DisplayName("should build client when mcp callbacks absent")
+    void shouldBuildClientWhenMcpCallbacksAbsent() {
         ChatClientFactory factory = factoryWithMcp(null);
         assertThatCode(() -> factory.createStateless(TextChatOptions.defaults()))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    @DisplayName("should_build_client_when_mcp_callbacks_present")
-    void should_build_client_when_mcp_callbacks_present() {
+    @DisplayName("should build client when mcp callbacks present")
+    void shouldBuildClientWhenMcpCallbacksPresent() {
         ToolCallback mcp = namedTool("fetch", "fetched");
         ChatClientFactory factory = factoryWithMcp(new ToolCallback[]{mcp});
         assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))
@@ -43,8 +43,8 @@ class ChatClientFactoryMcpMergeTest {
     }
 
     @Test
-    @DisplayName("should_prefer_local_tool_when_mcp_name_collides")
-    void should_prefer_local_tool_when_mcp_name_collides() {
+    @DisplayName("should prefer local tool when mcp name collides")
+    void shouldPreferLocalToolWhenMcpNameCollides() {
         ToolCallback duplicateWeather = namedTool("getWeather", "mcp-weather");
         ChatClientFactory factory = factoryWithMcp(new ToolCallback[]{duplicateWeather});
         assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))

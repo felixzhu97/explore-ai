@@ -17,25 +17,25 @@ describe('privacy-consent.storage', () => {
     localStorage.clear();
   });
 
-  it('should_needDecision_whenNoStoredConsent', () => {
+  it('should need decision when no stored consent', () => {
     expect(needsPrivacyConsentDecision()).toBe(true);
     expect(hasAnalyticsConsent()).toBe(false);
   });
 
-  it('should_persistAnalyticsChoice_whenUserAccepts', () => {
+  it('should persist analytics choice when user accepts', () => {
     writePrivacyConsent(true);
     expect(readPrivacyConsent()).toMatchObject({ decided: true, analytics: true });
     expect(hasAnalyticsConsent()).toBe(true);
     expect(localStorage.getItem(PRIVACY_CONSENT_STORAGE_KEY)).toContain('"analytics":true');
   });
 
-  it('should_rejectAnalytics_whenUserChoosesNecessaryOnly', () => {
+  it('should reject analytics when user chooses necessary only', () => {
     writePrivacyConsent(false);
     expect(hasAnalyticsConsent()).toBe(false);
     expect(needsPrivacyConsentDecision()).toBe(false);
   });
 
-  it('should_persistContactEmail_whenPreferencesSaved', () => {
+  it('should persist contact email when preferences saved', () => {
     writePrivacyPreferences({ analytics: true, contactEmail: 'privacy@example.com' });
     expect(readPrivacyConsent()).toMatchObject({
       analytics: true,

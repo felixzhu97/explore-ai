@@ -10,18 +10,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AgentTypeTest {
 
     @Test
-    void should_normalize_to_lowercase_when_created() {
+    void shouldNormalizeToLowercaseWhenCreated() {
         assertEquals("k8s", AgentType.of("K8S").value());
     }
 
     @Test
-    void should_identify_supervisor() {
+    void shouldIdentifySupervisor() {
         assertTrue(AgentType.supervisor().isSupervisor());
         assertFalse(AgentType.of("k8s").isSupervisor());
     }
 
     @Test
-    void should_reject_blank_type() {
+    void shouldRejectBlankType() {
         assertThrows(IllegalArgumentException.class, () -> AgentType.of("  "));
         assertThrows(NullPointerException.class, () -> AgentType.of(null));
     }

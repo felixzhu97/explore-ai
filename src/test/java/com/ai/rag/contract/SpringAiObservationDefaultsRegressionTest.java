@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SpringAiObservationDefaultsRegressionTest {
 
     @Test
-    @DisplayName("should_disablePromptAndCompletionPlaintext_when_defaultApplicationYml")
-    void should_disablePromptAndCompletionPlaintext_when_defaultApplicationYml() throws Exception {
+    @DisplayName("should disable prompt and completion plaintext when default application yml")
+    void shouldDisablePromptAndCompletionPlaintextWhenDefaultApplicationYml() throws Exception {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("application.yml")) {
             assertThat(in).isNotNull();
             @SuppressWarnings("unchecked")

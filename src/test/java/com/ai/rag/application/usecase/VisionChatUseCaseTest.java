@@ -62,8 +62,8 @@ class VisionChatUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_emitTokenStreamAndSources_when_imagesProvided")
-    void should_emitTokenStreamAndSources_when_imagesProvided() {
+    @DisplayName("should emit token stream and sources when images provided")
+    void shouldEmitTokenStreamAndSourcesWhenImagesProvided() {
         when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class)))
                 .thenReturn(new RagApplicationService.RetrievalResult(
                         "context chunk",
@@ -90,8 +90,8 @@ class VisionChatUseCaseTest {
     }
 
     @Test
-    @DisplayName("should_emitErrorEvent_when_streamFails")
-    void should_emitErrorEvent_when_streamFails() {
+    @DisplayName("should emit error event when stream fails")
+    void shouldEmitErrorEventWhenStreamFails() {
         when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class)))
                 .thenReturn(new RagApplicationService.RetrievalResult("context", List.of(), "question"));
         when(localizedRagPromptBuilder.build(anyString(), anyString())).thenReturn("prompt");

@@ -39,16 +39,16 @@ class DomainHealthGatewayTest {
     }
 
     @Test
-    @DisplayName("should_report_system_status_up")
-    void should_report_system_status_up() {
+    @DisplayName("should report system status up")
+    void shouldReportSystemStatusUp() {
         Map<String, Object> status = gateway.systemStatus();
 
         assertThat(status).containsEntry("status", "UP");
     }
 
     @Test
-    @DisplayName("should_report_agents_up_when_all_registered_agents_are_healthy")
-    void should_report_agents_up_when_all_registered_agents_are_healthy() {
+    @DisplayName("should report agents up when all registered agents are healthy")
+    void shouldReportAgentsUpWhenAllRegisteredAgentsAreHealthy() {
         when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of(
                 AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
                 AgentDefinition.create(AgentType.supervisor(), "Supervisor", "desc", "prompt")));
@@ -61,8 +61,8 @@ class DomainHealthGatewayTest {
     }
 
     @Test
-    @DisplayName("should_report_agents_degraded_when_list_empty_or_unhealthy")
-    void should_report_agents_degraded_when_list_empty_or_unhealthy() {
+    @DisplayName("should report agents degraded when list empty or unhealthy")
+    void shouldReportAgentsDegradedWhenListEmptyOrUnhealthy() {
         when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of());
 
         Map<String, Object> emptyHealth = gateway.agentsHealth();
@@ -79,8 +79,8 @@ class DomainHealthGatewayTest {
     }
 
     @Test
-    @DisplayName("should_report_mcp_health_with_tool_and_server_counts")
-    void should_report_mcp_health_with_tool_and_server_counts() {
+    @DisplayName("should report mcp health with tool and server counts")
+    void shouldReportMcpHealthWithToolAndServerCounts() {
         when(mcpFacade.getTotalToolCount()).thenReturn(5);
         when(mcpFacade.getConnectedServers()).thenReturn(Map.of(
                 "weather", McpServerConnection.connected("weather", 2),

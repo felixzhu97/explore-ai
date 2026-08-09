@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TtsPropertiesTest {
 
     @Test
-    @DisplayName("should_expose_defaults_and_setters")
-    void should_expose_defaults_and_setters() {
+    @DisplayName("should expose defaults and setters")
+    void shouldExposeDefaultsAndSetters() {
         TtsProperties properties = new TtsProperties();
 
         assertThat(properties.isEnabled()).isTrue();
@@ -31,8 +31,8 @@ class TtsPropertiesTest {
     }
 
     @Test
-    @DisplayName("should_report_not_configured_when_disabled")
-    void should_report_not_configured_when_disabled() {
+    @DisplayName("should report not configured when disabled")
+    void shouldReportNotConfiguredWhenDisabled() {
         TtsProperties properties = new TtsProperties();
         properties.setEnabled(false);
         properties.setApiKey("sk-test");

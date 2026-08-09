@@ -51,7 +51,7 @@ class CsrfProtectionFilterTest {
     }
 
     @Test
-    void should_allowPost_whenCsrfHeaderPresent() throws Exception {
+    void shouldAllowPostWhenCsrfHeaderPresent() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/sessions");
         when(request.getMethod()).thenReturn("POST");
         when(request.getHeader(CsrfProtectionFilter.HEADER_NAME))
@@ -64,7 +64,7 @@ class CsrfProtectionFilterTest {
     }
 
     @Test
-    void should_rejectPost_whenCsrfHeaderMissing() throws Exception {
+    void shouldRejectPostWhenCsrfHeaderMissing() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/sessions");
         when(request.getMethod()).thenReturn("POST");
         when(request.getHeader(CsrfProtectionFilter.HEADER_NAME)).thenReturn(null);
@@ -77,7 +77,7 @@ class CsrfProtectionFilterTest {
     }
 
     @Test
-    void should_skipGet_whenSafeMethod() throws Exception {
+    void shouldSkipGetWhenSafeMethod() throws Exception {
         when(request.getMethod()).thenReturn("GET");
 
         filter.doFilter(request, response, filterChain);

@@ -43,7 +43,7 @@ describe('AccountService', () => {
     sessionStorage.clear();
   });
 
-  it('should_loadAnonymousAccount_when_meSucceeds', () => {
+  it('should load anonymous account when me succeeds', () => {
     service.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',
@@ -60,7 +60,7 @@ describe('AccountService', () => {
     expect(service.loginProviders()).toEqual(['google', 'github']);
   });
 
-  it('should_notifySuccess_when_loginQueryIsSuccess', () => {
+  it('should notify success when login query is success', () => {
     service.consumeLoginReturn('?login=success', '/');
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
@@ -76,7 +76,7 @@ describe('AccountService', () => {
     expect(chat.resetForOwnerChange).toHaveBeenCalled();
   });
 
-  it('should_resetChatOwnerScope_when_logoutSucceeds', () => {
+  it('should reset chat owner scope when logout succeeds', () => {
     service.logout();
     http.expectOne(`${API_BASE_URL}/account/logout`).flush(null, { status: 204, statusText: 'No Content' });
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
@@ -93,7 +93,7 @@ describe('AccountService', () => {
     expect(notifications.showSuccess).toHaveBeenCalled();
   });
 
-  it('should_assignGithubAuthorization_when_startOAuthLoginGithub', () => {
+  it('should assign github authorization when start oauth login github', () => {
     const assign = vi.fn();
     service.startOAuthLogin('github', assign);
     expect(assign).toHaveBeenCalledWith('/oauth2/authorization/github');

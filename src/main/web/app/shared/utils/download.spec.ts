@@ -6,13 +6,13 @@ describe('download utils', () => {
     vi.restoreAllMocks();
   });
 
-  it('should_create_blob_from_base64', () => {
+  it('should create blob from base64', () => {
     const blob = base64ToBlob(btoa('hello'), 'text/plain');
     expect(blob.type).toBe('text/plain');
     expect(blob.size).toBe(5);
   });
 
-  it('should_download_blob_via_anchor_click', () => {
+  it('should download blob via anchor click', () => {
     const click = vi.fn();
     const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     const create = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
@@ -33,7 +33,7 @@ describe('download utils', () => {
     expect(revoke).toHaveBeenCalledWith('blob:mock');
   });
 
-  it('should_detect_jpeg_mime_when_downloading_base64_image', () => {
+  it('should detect jpeg mime when downloading base64 image', () => {
     const downloadSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:img');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     vi.spyOn(document.body, 'appendChild').mockImplementation(node => node);

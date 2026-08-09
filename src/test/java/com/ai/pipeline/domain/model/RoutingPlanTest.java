@@ -12,32 +12,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RoutingPlanTest {
 
     @Test
-    void should_create_single_worker_plan() {
+    void shouldCreateSingleWorkerPlan() {
         RoutingPlan plan = RoutingPlan.single(AgentType.of("k8s"), "pods");
         assertEquals("k8s", plan.primaryAgent().value());
         assertTrue(plan.subtasks().isEmpty());
     }
 
     @Test
-    void should_copy_null_subtasks_as_empty() {
+    void shouldCopyNullSubtasksAsEmpty() {
         RoutingPlan plan = new RoutingPlan(AgentType.of("aiops"), "reason", null);
         assertTrue(plan.subtasks().isEmpty());
     }
 
     @Test
-    void should_reject_supervisor_as_primary() {
+    void shouldRejectSupervisorAsPrimary() {
         assertThrows(IllegalArgumentException.class,
                 () -> RoutingPlan.single(AgentType.supervisor(), "bad"));
     }
 
     @Test
-    void should_reject_supervisor_subtask() {
+    void shouldRejectSupervisorSubtask() {
         assertThrows(IllegalArgumentException.class,
                 () -> new RoutingPlan.Subtask(AgentType.supervisor(), "x"));
     }
 
     @Test
-    void should_keep_subtasks() {
+    void shouldKeepSubtasks() {
         RoutingPlan plan = new RoutingPlan(
                 AgentType.of("k8s"),
                 "multi",

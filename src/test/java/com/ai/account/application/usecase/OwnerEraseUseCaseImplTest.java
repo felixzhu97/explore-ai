@@ -22,7 +22,7 @@ class OwnerEraseUseCaseImplTest {
     private OwnerEraseUseCaseImpl useCase;
 
     @Test
-    void should_deleteAllForOwner_whenEraseRequested() {
+    void shouldDeleteAllForOwnerWhenEraseRequested() {
         OwnerKey owner = OwnerKey.forAccount("acct-1");
 
         useCase.eraseAllForOwner(owner);

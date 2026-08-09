@@ -38,8 +38,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_find_session_by_id")
-    void should_find_session_by_id() {
+    @DisplayName("should find session by id")
+    void shouldFindSessionById() {
         ChatSessionId id = ChatSessionId.generate();
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), eq(id.value())))
                 .thenAnswer(invocation -> List.of(mapSession(invocation.getArgument(1), id, CLIENT_ID)));
@@ -52,16 +52,16 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_return_empty_when_session_not_found")
-    void should_return_empty_when_session_not_found() {
+    @DisplayName("should return empty when session not found")
+    void shouldReturnEmptyWhenSessionNotFound() {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any())).thenReturn(List.of());
 
         assertThat(repository.findById(ChatSessionId.generate())).isEmpty();
     }
 
     @Test
-    @DisplayName("should_find_session_by_id_and_client_id")
-    void should_find_session_by_id_and_client_id() {
+    @DisplayName("should find session by id and client id")
+    void shouldFindSessionByIdAndClientId() {
         ChatSessionId id = ChatSessionId.generate();
         when(jdbcTemplate.query(startsWith("SELECT id"), any(RowMapper.class), eq(id.value()), eq(CLIENT_ID)))
                 .thenAnswer(invocation -> List.of(mapSession(invocation.getArgument(1), id, CLIENT_ID)));
@@ -73,8 +73,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_reconstitute_orphan_when_client_id_blank")
-    void should_reconstitute_orphan_when_client_id_blank() {
+    @DisplayName("should reconstitute orphan when client id blank")
+    void shouldReconstituteOrphanWhenClientIdBlank() {
         ChatSessionId id = ChatSessionId.generate();
         when(jdbcTemplate.query(anyString(), any(RowMapper.class), any()))
                 .thenAnswer(invocation -> List.of(mapSession(invocation.getArgument(1), id, "   ")));
@@ -86,8 +86,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_merge_session_metadata_on_save")
-    void should_merge_session_metadata_on_save() {
+    @DisplayName("should merge session metadata on save")
+    void shouldMergeSessionMetadataOnSave() {
         ChatSession session = ChatSession.create("My chat", CLIENT_ID);
 
         repository.save(session);
@@ -102,8 +102,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_delete_session_by_id")
-    void should_delete_session_by_id() {
+    @DisplayName("should delete session by id")
+    void shouldDeleteSessionById() {
         ChatSessionId id = ChatSessionId.generate();
 
         repository.delete(id);
@@ -112,8 +112,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_list_sessions_by_client_id")
-    void should_list_sessions_by_client_id() {
+    @DisplayName("should list sessions by client id")
+    void shouldListSessionsByClientId() {
         ChatSessionId id = ChatSessionId.generate();
         when(jdbcTemplate.query(startsWith("SELECT id"), any(RowMapper.class), eq(CLIENT_ID)))
                 .thenAnswer(invocation -> List.of(mapSession(invocation.getArgument(1), id, CLIENT_ID)));
@@ -125,8 +125,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_report_exists_when_count_positive")
-    void should_report_exists_when_count_positive() {
+    @DisplayName("should report exists when count positive")
+    void shouldReportExistsWhenCountPositive() {
         ChatSessionId id = ChatSessionId.generate();
         when(jdbcTemplate.queryForObject(
                 eq("SELECT COUNT(*) FROM chat_sessions WHERE id = ?"),
@@ -142,8 +142,8 @@ class JdbcChatSessionMetadataRepositoryTest {
     }
 
     @Test
-    @DisplayName("should_report_not_exists_when_count_null_or_zero")
-    void should_report_not_exists_when_count_null_or_zero() {
+    @DisplayName("should report not exists when count null or zero")
+    void shouldReportNotExistsWhenCountNullOrZero() {
         ChatSessionId id = ChatSessionId.generate();
         when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any())).thenReturn(null);
 

@@ -45,7 +45,7 @@ class SpringAiOrchestratorWorkersWorkflowTest {
     }
 
     @Test
-    void should_returnAnalysisWorkersAndSynthesis_when_processCompletes() {
+    void shouldReturnAnalysisWorkersAndSynthesisWhenProcessCompletes() {
         when(callResponseSpec.entity(eq(SpringAiOrchestratorWorkersWorkflow.OrchestratorPlan.class)))
                 .thenReturn(new SpringAiOrchestratorWorkersWorkflow.OrchestratorPlan(
                         "two styles",

@@ -214,7 +214,7 @@ class RagControllerTest {
 
         @Test
         @DisplayName("should stream vision RAG when images provided")
-        void should_streamVisionRagWhenImagesProvided() {
+        void shouldStreamVisionRagWhenImagesProvided() {
             List<String> images = List.of("iVBORw0KGgo=");
             RagChatRequest request = new RagChatRequest("Describe image", null, null, 0.7, null, images);
             when(visionChatUseCase.chatStreamWithImages(
@@ -231,7 +231,7 @@ class RagControllerTest {
 
         @Test
         @DisplayName("should fallback to text stream when vision unavailable")
-        void should_fallbackToTextStreamWhenVisionUnavailable() {
+        void shouldFallbackToTextStreamWhenVisionUnavailable() {
             when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(null);
             List<String> images = List.of("iVBORw0KGgo=");
             RagChatRequest request = new RagChatRequest("Describe image", null, null, 0.7, null, images);

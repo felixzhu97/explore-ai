@@ -39,8 +39,8 @@ class AudioFacadeTest {
     }
 
     @Test
-    @DisplayName("should_synthesize_speech_when_provider_configured")
-    void should_synthesize_speech_when_provider_configured() {
+    @DisplayName("should synthesize speech when provider configured")
+    void shouldSynthesizeSpeechWhenProviderConfigured() {
         when(ttsConfiguration.isEnabled()).thenReturn(true);
         when(ttsConfiguration.isConfigured()).thenReturn(true);
         when(ttsConfiguration.getDefaultVoice()).thenReturn("alloy");
@@ -53,8 +53,8 @@ class AudioFacadeTest {
     }
 
     @Test
-    @DisplayName("should_resolve_legacy_voice_alias")
-    void should_resolve_legacy_voice_alias() {
+    @DisplayName("should resolve legacy voice alias")
+    void shouldResolveLegacyVoiceAlias() {
         when(ttsConfiguration.isEnabled()).thenReturn(true);
         when(ttsConfiguration.isConfigured()).thenReturn(true);
         when(textToSpeechRepository.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(null)))
@@ -66,8 +66,8 @@ class AudioFacadeTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_tts_disabled")
-    void should_throw_when_tts_disabled() {
+    @DisplayName("should throw when tts disabled")
+    void shouldThrowWhenTtsDisabled() {
         when(ttsConfiguration.isEnabled()).thenReturn(false);
 
         assertThatThrownBy(() -> facade.synthesize("hello", "alloy", null))
@@ -75,8 +75,8 @@ class AudioFacadeTest {
     }
 
     @Test
-    @DisplayName("should_throw_when_api_key_missing")
-    void should_throw_when_api_key_missing() {
+    @DisplayName("should throw when api key missing")
+    void shouldThrowWhenApiKeyMissing() {
         when(ttsConfiguration.isEnabled()).thenReturn(true);
         when(ttsConfiguration.isConfigured()).thenReturn(false);
 
@@ -85,8 +85,8 @@ class AudioFacadeTest {
     }
 
     @Test
-    @DisplayName("should_return_null_when_synthesized_audio_empty")
-    void should_return_null_when_synthesized_audio_empty() {
+    @DisplayName("should return null when synthesized audio empty")
+    void shouldReturnNullWhenSynthesizedAudioEmpty() {
         when(ttsConfiguration.isEnabled()).thenReturn(true);
         when(ttsConfiguration.isConfigured()).thenReturn(true);
         when(ttsConfiguration.getDefaultVoice()).thenReturn("alloy");
@@ -97,8 +97,8 @@ class AudioFacadeTest {
     }
 
     @Test
-    @DisplayName("should_return_default_voice_catalog")
-    void should_return_default_voice_catalog() {
+    @DisplayName("should return default voice catalog")
+    void shouldReturnDefaultVoiceCatalog() {
         assertThat(facade.getAvailableVoices()).isNotEmpty();
         assertThat(facade.getAvailableTtsModels()).contains("gpt-4o-mini-tts");
     }

@@ -28,14 +28,14 @@ class CatalogAgentRegistryTest {
     }
 
     @Test
-    void should_list_builtins_when_no_client_overrides() {
+    void shouldListBuiltinsWhenNoClientOverrides() {
         List<AgentDefinition> builtins = registry.listBuiltins("en");
         assertThat(builtins).isNotEmpty();
         assertThat(registry.listAll("client-a", "en")).hasSameSizeAs(builtins);
     }
 
     @Test
-    void should_override_builtin_with_enabled_client_definition() {
+    void shouldOverrideBuiltinWithEnabledClientDefinition() {
         String typeKey = registry.listWorkers("client-a", "en").getFirst().type().value();
         savedAgents.save(SavedAgentDefinition.restore(
                 SavedAgentId.generate(),
@@ -63,7 +63,7 @@ class CatalogAgentRegistryTest {
     }
 
     @Test
-    void should_ignore_disabled_client_definition() {
+    void shouldIgnoreDisabledClientDefinition() {
         String typeKey = registry.listWorkers("client-a", "en").getFirst().type().value();
         String builtinName = registry.require(AgentType.of(typeKey), "client-a", "en").name();
         savedAgents.save(SavedAgentDefinition.restore(
@@ -84,7 +84,7 @@ class CatalogAgentRegistryTest {
     }
 
     @Test
-    void should_include_custom_type_from_enabled_library() {
+    void shouldIncludeCustomTypeFromEnabledLibrary() {
         savedAgents.save(SavedAgentDefinition.create(
                 "client-a",
                 "custom_writer",

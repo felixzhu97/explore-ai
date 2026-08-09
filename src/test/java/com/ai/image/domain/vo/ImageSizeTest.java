@@ -10,7 +10,7 @@ class ImageSizeTest {
 
     @Test
     @DisplayName("should accept supported size")
-    void should_accept_supported_size() {
+    void shouldAcceptSupportedSize() {
         ImageSize size = ImageSize.of(1024, 1024);
 
         assertThat(size.isSupported()).isTrue();

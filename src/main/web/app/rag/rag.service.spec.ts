@@ -67,7 +67,7 @@ describe('RagService', () => {
     vi.useRealTimers();
   });
 
-  it('should_fetch_documents_and_select_all', () => {
+  it('should fetch documents and select all', () => {
     service.fetchAvailableDocs();
     httpMock.expectOne(`${API_BASE_URL}/rag/documents`).flush({
       documents: [{ id: 'd1', title: 'Doc 1' }],
@@ -77,14 +77,14 @@ describe('RagService', () => {
     expect(service.isLoadingDocs()).toBe(false);
   });
 
-  it('should_return_empty_docs_when_api_fails', () => {
+  it('should return empty docs when api fails', () => {
     service.fetchAvailableDocs();
     httpMock.expectOne(`${API_BASE_URL}/rag/documents`).error(new ProgressEvent('error'));
     expect(service.availableDocs()).toEqual([]);
     expect(service.isLoadingDocs()).toBe(false);
   });
 
-  it('should_toggle_clear_and_select_all_docs', () => {
+  it('should toggle clear and select all docs', () => {
     service.availableDocs.set([
       { id: 'a', title: 'A' },
       { id: 'b', title: 'B' },
@@ -98,13 +98,13 @@ describe('RagService', () => {
     expect(service.selectedDocIds().size).toBe(2);
   });
 
-  it('should_reject_invalid_document_id_on_delete', () => {
+  it('should reject invalid document id on delete', () => {
     service.deleteDocument('undefined');
     expect(notifications.showError).toHaveBeenCalled();
     httpMock.expectNone(`${API_BASE_URL}/rag/documents/undefined`);
   });
 
-  it('should_delete_document', async () => {
+  it('should delete document', async () => {
     vi.useFakeTimers();
     service.availableDocs.set([{ id: 'd1', title: 'Doc' }]);
     service.deleteDocument('d1');
@@ -114,13 +114,13 @@ describe('RagService', () => {
     expect(notifications.showSuccess).toHaveBeenCalledWith('deleted');
   });
 
-  it('should_handle_delete_document_error', () => {
+  it('should handle delete document error', () => {
     service.deleteDocument('d1');
     httpMock.expectOne(`${API_BASE_URL}/rag/documents/d1`).error(new ProgressEvent('error'));
     expect(notifications.showError).toHaveBeenCalledWith('delete failed');
   });
 
-  it('should_manage_pending_files_when_selected', () => {
+  it('should manage pending files when selected', () => {
     const file = new File(['x'], 'a.txt', { type: 'text/plain' });
     service.onFileSelect([file]);
     expect(service.pendingFiles()).toHaveLength(1);
@@ -128,7 +128,7 @@ describe('RagService', () => {
     expect(service.pendingFiles()).toHaveLength(0);
   });
 
-  it('should_upload_files_and_refresh_docs', async () => {
+  it('should upload files and refresh docs', async () => {
     vi.useFakeTimers();
     const file = new File(['data'], 'doc.pdf');
     service.pendingFiles.set([file]);
@@ -143,7 +143,7 @@ describe('RagService', () => {
     expect(service.pendingFiles()).toEqual([]);
   });
 
-  it('should_report_upload_progress_during_xhr_upload', () => {
+  it('should report upload progress during xhr upload', () => {
     vi.useFakeTimers();
     const file = new File(['data'], 'progress.pdf');
     service.pendingFiles.set([file]);
@@ -158,7 +158,7 @@ describe('RagService', () => {
     vi.useRealTimers();
   });
 
-  it('should_handle_upload_error', () => {
+  it('should handle upload error', () => {
     const file = new File(['data'], 'bad.pdf');
     service.pendingFiles.set([file]);
     service.uploadFiles();
@@ -166,7 +166,7 @@ describe('RagService', () => {
     expect(service.getUploadStatus('bad.pdf')?.status).toBe('error');
   });
 
-  it('should_send_message_via_sse_stream', async () => {
+  it('should send message via sse stream', async () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({
         eventType: 'sources',
@@ -184,7 +184,7 @@ describe('RagService', () => {
     expect(service.isLoading()).toBe(false);
   });
 
-  it('should_handle_stream_error_prefix', async () => {
+  it('should handle stream error prefix', async () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({ eventType: 'message', data: 'Error:failed' });
       return { abort: vi.fn() };
@@ -194,13 +194,13 @@ describe('RagService', () => {
     expect(service.messages()[1].content).toContain('error occurred');
   });
 
-  it('should_skip_empty_send', async () => {
+  it('should skip empty send', async () => {
     service.setInput('   ');
     await service.sendMessage();
     expect(streamSsePostMock).not.toHaveBeenCalled();
   });
 
-  it('should_update_input_signal', () => {
+  it('should update input signal', () => {
     service.setInput('hello rag');
     expect(service.input()).toBe('hello rag');
   });

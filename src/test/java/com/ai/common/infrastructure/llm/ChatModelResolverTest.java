@@ -55,7 +55,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should resolve openai provider with configured default model")
-    void should_resolveOpenAiWithDefaultModel() {
+    void shouldResolveOpenAiWithDefaultModel() {
         when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
 
         ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", null));
@@ -67,7 +67,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should reject when provider unavailable")
-    void should_rejectWhenProviderUnavailable() {
+    void shouldRejectWhenProviderUnavailable() {
         when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(false);
 
         assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("anthropic", "claude-sonnet-5")))
@@ -77,7 +77,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should reject when ollama bean unavailable")
-    void should_rejectWhenOllamaBeanUnavailable() {
+    void shouldRejectWhenOllamaBeanUnavailable() {
         when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
         when(ollamaChatModel.getIfAvailable()).thenReturn(null);
 
@@ -88,7 +88,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should reject when anthropic bean unavailable")
-    void should_rejectWhenAnthropicBeanUnavailable() {
+    void shouldRejectWhenAnthropicBeanUnavailable() {
         when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
         when(anthropicChatModel.getIfAvailable()).thenReturn(null);
 
@@ -99,7 +99,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should use requested model for openai provider")
-    void should_useRequestedModelForOpenAi() {
+    void shouldUseRequestedModelForOpenAi() {
         when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
 
         ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-pro"));
@@ -109,7 +109,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should resolve ollama with configured default model")
-    void should_resolveOllamaWithDefaultModel() {
+    void shouldResolveOllamaWithDefaultModel() {
         when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
         when(ollamaChatModel.getIfAvailable()).thenReturn(ollamaBean);
 
@@ -122,7 +122,7 @@ class ChatModelResolverTest {
 
     @Test
     @DisplayName("should resolve anthropic with configured default model")
-    void should_resolveAnthropicWithDefaultModel() {
+    void shouldResolveAnthropicWithDefaultModel() {
         when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
         when(anthropicChatModel.getIfAvailable()).thenReturn(anthropicBean);
 

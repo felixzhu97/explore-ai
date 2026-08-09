@@ -14,7 +14,7 @@ class WeatherReportTest {
 
     @Test
     @DisplayName("should lookup known city weather")
-    void should_lookup_known_city_weather() {
+    void shouldLookupKnownCityWeather() {
         var result = weatherReport.lookupCurrent(WeatherQuery.of("beijing"));
 
         assertThat(result.isSuccess()).isTrue();
@@ -23,7 +23,7 @@ class WeatherReportTest {
 
     @Test
     @DisplayName("should generate forecast for unknown city")
-    void should_generate_forecast_for_unknown_city() {
+    void shouldGenerateForecastForUnknownCity() {
         var result = weatherReport.generateForecast(
                 WeatherForecast.of(WeatherQuery.of("unknown-city"), 3));
 

@@ -12,7 +12,7 @@ class WeatherQueryTest {
 
     @Test
     @DisplayName("should normalize city name")
-    void should_normalize_city_name() {
+    void shouldNormalizeCityName() {
         WeatherQuery query = WeatherQuery.of(" Beijing ");
 
         assertThat(query.normalizedCity()).isEqualTo("beijing");
@@ -20,14 +20,14 @@ class WeatherQueryTest {
 
     @Test
     @DisplayName("should reject blank city")
-    void should_reject_blank_city() {
+    void shouldRejectBlankCity() {
         assertThatThrownBy(() -> WeatherQuery.of(" "))
                 .isInstanceOf(InvalidWeatherQueryException.class);
     }
 
     @Test
     @DisplayName("should reject blank via compact constructor")
-    void should_reject_blank_via_compact_constructor() {
+    void shouldRejectBlankViaCompactConstructor() {
         assertThatThrownBy(() -> new WeatherQuery(" ", " "))
                 .isInstanceOf(InvalidWeatherQueryException.class);
     }

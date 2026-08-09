@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BlipImagePreprocessorTest {
 
     @Test
-    @DisplayName("should_preprocess_image_into_normalized_tensor")
-    void should_preprocess_image_into_normalized_tensor() {
+    @DisplayName("should preprocess image into normalized tensor")
+    void shouldPreprocessImageIntoNormalizedTensor() {
         BufferedImage image = new BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < 64; y++) {
             for (int x = 0; x < 64; x++) {

@@ -34,7 +34,7 @@ class SecurityHeadersFilterTest {
     }
 
     @Test
-    void should_setContentSecurityPolicy_whenFiltering() throws Exception {
+    void shouldSetContentSecurityPolicyWhenFiltering() throws Exception {
         when(request.isSecure()).thenReturn(false);
 
         filter.doFilterInternal(request, response, filterChain);

@@ -155,7 +155,10 @@ interface OpenSourceRef {
           [content]="content"
           [streaming]="isStreaming(messageKey(info))"
         />
-      } @else if (!messageById(messageKey(info))?.toolSteps?.length) {
+      } @else if (
+        isStreaming(messageKey(info))
+        && !messageById(messageKey(info))?.toolSteps?.length
+      ) {
         <span class="text-text-tertiary">{{ thinkingLabel() }}</span>
       }
       @if (messageById(messageKey(info)); as message) {

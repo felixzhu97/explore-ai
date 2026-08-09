@@ -57,7 +57,7 @@ class TextControllerTest {
     }
 
     @Test
-    void should_return_providers_when_listProviders_called() {
+    void shouldReturnProvidersWhenListProvidersCalled() {
         when(providerCatalog.listProviders()).thenReturn(List.of(
                 new ProviderInfoResponse("openai", "DeepSeek", List.of("deepseek-v4-flash"), "available")
         ));
@@ -70,7 +70,7 @@ class TextControllerTest {
     }
 
     @Test
-    void should_return_models_when_listModels_called() {
+    void shouldReturnModelsWhenListModelsCalled() {
         when(providerCatalog.listModels("openai")).thenReturn(List.of(
                 new ModelInfoResponse("deepseek-v4-flash", "openai", "DeepSeek chat model")
         ));
@@ -83,7 +83,7 @@ class TextControllerTest {
     }
 
     @Test
-    void should_use_session_stream_when_session_id_provided() {
+    void shouldUseSessionStreamWhenSessionIdProvided() {
         when(chatUseCase.chatStreamWithSession(
                 "session-1",
                 "Hello",
@@ -111,7 +111,7 @@ class TextControllerTest {
     }
 
     @Test
-    void should_use_stateless_stream_when_session_id_missing() {
+    void shouldUseStatelessStreamWhenSessionIdMissing() {
         when(chatUseCase.chatStream(org.mockito.ArgumentMatchers.anyList(), any(TextChatOptions.class)))
                 .thenReturn(Flux.just("token"));
 
@@ -130,7 +130,7 @@ class TextControllerTest {
     }
 
     @Test
-    void should_attachSkillSystemPrompt_when_skillIdsProvided() {
+    void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
         com.ai.skill.domain.vo.SkillId skillId = com.ai.skill.domain.vo.SkillId.generate();
         com.ai.skill.domain.model.Skill skill = com.ai.skill.domain.model.Skill.restore(
                 skillId,

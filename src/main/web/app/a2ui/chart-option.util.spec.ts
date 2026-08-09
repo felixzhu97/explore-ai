@@ -7,7 +7,7 @@ describe('buildEchartsOption', () => {
     { label: 'B', value: 2 },
   ];
 
-  it('should_map_bar_chart_to_category_series', () => {
+  it('should map bar chart to category series', () => {
     const option = buildEchartsOption('bar', data, 'Title');
 
     expect(option).toMatchObject({
@@ -18,7 +18,7 @@ describe('buildEchartsOption', () => {
     expect((option['series'] as unknown[])[0]).not.toHaveProperty('smooth');
   });
 
-  it('should_map_line_chart_with_smooth', () => {
+  it('should map line chart with smooth', () => {
     const option = buildEchartsOption('line', data);
 
     expect(option).toMatchObject({
@@ -26,7 +26,7 @@ describe('buildEchartsOption', () => {
     });
   });
 
-  it('should_map_pie_and_doughnut_to_pie_series', () => {
+  it('should map pie and doughnut to pie series', () => {
     const pie = buildEchartsOption('pie', data, 'Share');
     const doughnut = buildEchartsOption('doughnut', data);
 
@@ -49,7 +49,7 @@ describe('buildEchartsOption', () => {
 });
 
 describe('toChartItems', () => {
-  it('should_accept_numeric_string_values', () => {
+  it('should accept numeric string values', () => {
     expect(
       toChartItems([
         { label: 'A', value: '10' },
@@ -61,7 +61,7 @@ describe('toChartItems', () => {
     ]);
   });
 
-  it('should_drop_non_finite_or_invalid_rows', () => {
+  it('should drop non-finite or invalid rows', () => {
     expect(
       toChartItems([
         { label: 'ok', value: 1 },
@@ -72,7 +72,7 @@ describe('toChartItems', () => {
     ).toEqual([{ label: 'ok', value: 1 }]);
   });
 
-  it('should_return_empty_when_not_array', () => {
+  it('should return empty when not array', () => {
     expect(toChartItems(undefined)).toEqual([]);
     expect(toChartItems({ label: 'A', value: 1 })).toEqual([]);
   });

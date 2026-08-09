@@ -5,7 +5,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
 import { API_BASE_URL } from '../core/api.constants';
+import { chatRouteMatcher } from './chat.route-matcher';
 import { ChatService } from './chat.service';
+import { streamSsePost } from '../core/streaming/sse-client';
 
 vi.mock('../core/streaming/sse-client', () => ({
   parseChatStreamEvent: vi.fn(),
@@ -22,13 +24,14 @@ describe('ChatService http flows', () => {
 
   beforeEach(() => {
     sessionStorage.clear();
+    vi.mocked(streamSsePost).mockReset();
+    vi.mocked(streamSsePost).mockImplementation(() => ({ abort: vi.fn() }));
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([
-          { path: 'chat', pathMatch: 'full', component: BlankHostComponent },
-          { path: 'chat/:sessionId', component: BlankHostComponent },
+          { matcher: chatRouteMatcher, component: BlankHostComponent },
           { path: 'policies', component: BlankHostComponent },
           { path: 'rag', component: BlankHostComponent },
         ]),
@@ -40,7 +43,7 @@ describe('ChatService http flows', () => {
     router = TestBed.inject(Router);
   });
 
-  it('should_clearActiveChatAndReloadSessions_when_resetForOwnerChange', () => {
+  it('should clear active chat and reload sessions when reset for owner change', () => {
     service.sessions.set([
       {
         sessionId: 's-old',
@@ -76,7 +79,7 @@ describe('ChatService http flows', () => {
     expect(service.sessionsReady()).toBe(true);
   });
 
-  it('should_load_providers_and_models_when_api_succeeds', () => {
+  it('should load providers and models when api succeeds', () => {
     service.loadProviders();
     httpMock.expectOne(`${API_BASE_URL}/text/providers`).flush([
       {
@@ -101,14 +104,14 @@ describe('ChatService http flows', () => {
     expect(service.models()[0].name).toBe('deepseek-v4-flash');
   });
 
-  it('should_fallback_providers_when_api_fails', () => {
+  it('should fallback providers when api fails', () => {
     service.loadProviders();
     httpMock.expectOne(`${API_BASE_URL}/text/providers`).error(new ProgressEvent('error'));
     expect(service.providers()[0].name).toBe('openai');
     expect(service.selectedModel()).toBe('deepseek-v4-flash');
   });
 
-  it('should_set_error_when_provider_unavailable', () => {
+  it('should set error when provider unavailable', () => {
     service.providers.set([
       {
         name: 'ollama',
@@ -121,7 +124,7 @@ describe('ChatService http flows', () => {
     expect(service.error()).toContain('not configured');
   });
 
-  it('should_set_model_and_tools_flags', () => {
+  it('should set model and tools flags', () => {
     service.setModel('deepseek-v4-pro');
     service.setToolsEnabled(false);
     expect(service.selectedModel()).toBe('deepseek-v4-pro');
@@ -526,7 +529,83 @@ describe('ChatService http flows', () => {
     expect(service.messages().some(message => message.role === 'user')).toBe(true);
   });
 
-  it('should_delete_active_session_and_clear_when_empty', () => {
+  it('should keep stream alive when select session runs during first message url promote', async () => {
+    await router.navigateByUrl('/chat');
+    const abort = vi.fn();
+    vi.mocked(streamSsePost).mockReturnValue({ abort });
+
+    service.sessions.set([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 0,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+    service.activeSessionId.set('s1');
+    service.providers.set([
+      {
+        name: 'openai',
+        displayName: 'DeepSeek',
+        models: ['deepseek-v4-flash'],
+        status: 'available',
+      },
+    ]);
+    service.selectedProvider.set('openai');
+    service.selectedModel.set('deepseek-v4-flash');
+
+    service.sendMessage('hello');
+    expect(service.isLoading()).toBe(true);
+    expect(streamSsePost).toHaveBeenCalled();
+
+    // Simulates ChatPage effect after `/chat` → `/chat/s1` (same session).
+    service.selectSession('s1');
+
+    expect(abort).not.toHaveBeenCalled();
+    expect(service.isLoading()).toBe(true);
+    expect(service.streamingMessageId()).toBeTruthy();
+    expect(service.messages().some(message => message.role === 'assistant' && message.content === '')).toBe(true);
+    httpMock.expectNone(`${API_BASE_URL}/sessions/s1/messages`);
+  });
+
+  it('should remove empty assistant placeholder when stream aborted', async () => {
+    const abort = vi.fn();
+    vi.mocked(streamSsePost).mockReturnValue({ abort });
+    service.sessions.set([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 0,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+    service.activeSessionId.set('s1');
+    service.providers.set([
+      {
+        name: 'openai',
+        displayName: 'DeepSeek',
+        models: ['deepseek-v4-flash'],
+        status: 'available',
+      },
+    ]);
+    service.selectedProvider.set('openai');
+    service.selectedModel.set('deepseek-v4-flash');
+
+    service.sendMessage('hello');
+    expect(service.messages()).toHaveLength(2);
+
+    service.abortStream();
+
+    expect(abort).toHaveBeenCalled();
+    expect(service.isLoading()).toBe(false);
+    expect(service.streamingMessageId()).toBeNull();
+    expect(service.messages()).toHaveLength(1);
+    expect(service.messages()[0].role).toBe('user');
+  });
+
+  it('should delete active session and clear when empty', () => {
     service.sessions.set([
       {
         sessionId: 's1',
@@ -546,12 +625,12 @@ describe('ChatService http flows', () => {
     expect(service.messages()).toHaveLength(0);
   });
 
-  it('should_not_send_message_when_no_session', () => {
+  it('should not send message when no session', () => {
     service.sendMessage('hello');
     httpMock.expectNone(`${API_BASE_URL}/text/chat/stream`);
   });
 
-  it('should_set_error_when_sending_with_unavailable_provider', () => {
+  it('should set error when sending with unavailable provider', () => {
     service.activeSessionId.set('s1');
     service.providers.set([
       {

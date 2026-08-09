@@ -90,7 +90,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should create and save session with title and client")
-        void should_createAndSaveSession_whenTitleAndClientProvided() {
+        void shouldCreateAndSaveSessionWhenTitleAndClientProvided() {
             doNothing().when(repository).save(any(ChatSession.class));
 
             ChatSession result = useCase.createSession("My Chat", CLIENT_A);
@@ -107,7 +107,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should return session when owned by client")
-        void should_returnSession_whenOwnedByClient() {
+        void shouldReturnSessionWhenOwnedByClient() {
             ChatSession session = ChatSession.create("Test", CLIENT_A);
             when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
                     .thenReturn(Optional.of(session));
@@ -120,7 +120,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should return empty when owned by another client")
-        void should_returnEmpty_whenOwnedByAnotherClient() {
+        void shouldReturnEmptyWhenOwnedByAnotherClient() {
             when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_B))
                     .thenReturn(Optional.empty());
 
@@ -136,7 +136,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should return messages for owned session")
-        void should_returnMessages_whenSessionOwned() {
+        void shouldReturnMessagesWhenSessionOwned() {
             ChatSession session = ChatSession.create("Test", CLIENT_A);
             session.addUserMessage("Hello");
             session.addAssistantMessage("Hi!");
@@ -151,7 +151,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should throw when session not owned")
-        void should_throw_whenSessionNotOwned() {
+        void shouldThrowWhenSessionNotOwned() {
             when(repository.findByIdAndClientId(ChatSessionId.of("non-existent"), CLIENT_A))
                     .thenReturn(Optional.empty());
 
@@ -166,7 +166,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should delete owned session")
-        void should_deleteSession_whenOwned() {
+        void shouldDeleteSessionWhenOwned() {
             ChatSession session = ChatSession.createWithId(
                     ChatSessionId.of("session-123"), "Test", CLIENT_A);
             when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
@@ -182,7 +182,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should throw when deleting another client's session")
-        void should_throw_whenDeletingAnotherClientsSession() {
+        void shouldThrowWhenDeletingAnotherClientsSession() {
             when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_B))
                     .thenReturn(Optional.empty());
 
@@ -193,7 +193,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should erase all sessions for client")
-        void should_eraseAllSessions_whenClientRequestsPrivacyDelete() {
+        void shouldEraseAllSessionsWhenClientRequestsPrivacyDelete() {
             ChatSession owned = ChatSession.createWithId(
                     ChatSessionId.of("session-123"), "Test", CLIENT_A);
             when(repository.findByClientId(CLIENT_A)).thenReturn(List.of(owned));
@@ -213,7 +213,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should return sessions for client")
-        void should_returnSessions_whenClientHasSessions() {
+        void shouldReturnSessionsWhenClientHasSessions() {
             List<ChatSession> sessions = List.of(
                     ChatSession.create("Session 1", CLIENT_A),
                     ChatSession.create("Session 2", CLIENT_A)
@@ -227,7 +227,7 @@ class SpringAiChatUseCaseTest {
 
         @Test
         @DisplayName("should return empty list when client has no sessions")
-        void should_returnEmptyList_whenClientHasNoSessions() {
+        void shouldReturnEmptyListWhenClientHasNoSessions() {
             when(repository.findByClientId(CLIENT_A)).thenReturn(List.of());
 
             List<ChatSession> result = useCase.getSessionsForClient(CLIENT_A);

@@ -23,8 +23,8 @@ class DateTimeToolsTest {
     }
 
     @Test
-    @DisplayName("should_return_zoned_datetime_in_user_timezone_when_called")
-    void should_return_zoned_datetime_in_user_timezone_when_called() {
+    @DisplayName("should return zoned datetime in user timezone when called")
+    void shouldReturnZonedDatetimeInUserTimezoneWhenCalled() {
         Instant fixed = Instant.parse("2026-07-26T04:40:00Z");
         ZoneId shanghai = ZoneId.of("Asia/Shanghai");
         LocaleContextHolder.setLocaleContext(new SimpleTimeZoneAwareLocaleContext(
@@ -38,8 +38,8 @@ class DateTimeToolsTest {
     }
 
     @Test
-    @DisplayName("should_use_locale_context_timezone_when_utc")
-    void should_use_locale_context_timezone_when_utc() {
+    @DisplayName("should use locale context timezone when utc")
+    void shouldUseLocaleContextTimezoneWhenUtc() {
         Instant fixed = Instant.parse("2026-07-26T04:40:00Z");
         LocaleContextHolder.setLocaleContext(new SimpleTimeZoneAwareLocaleContext(
                 Locale.US, TimeZone.getTimeZone("UTC")));
