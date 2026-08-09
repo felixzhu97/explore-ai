@@ -63,3 +63,28 @@ Jira: [AI-325](https://felixzhu.atlassian.net/browse/AI-325)、[AI-326](https://
 ### 状态
 
 已实现
+
+---
+
+## US-32 工作台控件与 Skills 一致
+
+**As a** 访客  
+**I want** Agents 与工作流的主要操作控件与 Skills 同一套安静样式  
+**So that** 切换模块时不必重新辨认哪些按钮是主操作
+
+### 验收标准
+
+1. **Scenario** Agents 控件对齐 Skills  
+   **GIVEN** 访客打开 Agents  
+   **WHEN** 查看新建、模板与库操作  
+   **THEN** 按钮为边框 / ghost 风格（非高饱和主色块）  
+   **AND** 我的 Agents 为堆叠列表
+
+2. **Scenario** 工作流画廊控件对齐 Skills  
+   **GIVEN** 访客打开工作流画廊  
+   **WHEN** 查看新建、使用与编辑  
+   **THEN** 操作按钮权重与 Skills 一致
+
+### 状态
+
+已实现（Jira: [AI-340](https://felixzhu.atlassian.net/browse/AI-340)）

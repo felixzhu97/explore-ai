@@ -12,12 +12,13 @@ import { I18nService } from '../core/i18n';
 import { AgentsService } from './agents.service';
 import type { SavedAgent, SavedAgentWriteRequest } from './agents.model';
 import type { AgentInfo } from '../pipelines/pipelines.model';
+import { ZardButtonComponent } from '../shared/components/button';
 
 const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
 
 @Component({
   selector: 'app-agents-page',
-  imports: [FormsModule],
+  imports: [FormsModule, ZardButtonComponent],
   templateUrl: './agents.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },

@@ -206,50 +206,6 @@
       [(value)]="ragService.input"
       [loading]="ragService.isLoading()"
       (submitSend)="ragService.sendMessage()"
-    >
-      @if (ragService.pendingImages().length > 0) {
-        <div chatSenderPrelude class="mb-2 flex flex-wrap gap-2">
-          @for (img of ragService.pendingImages(); track $index) {
-            <div class="group relative">
-              <img [src]="img" alt="Pending image" class="size-16 rounded-lg object-cover" />
-              <button
-                type="button"
-                z-button
-                zType="destructive"
-                zSize="icon"
-                zShape="circle"
-                class="absolute -top-1.5 -right-1.5 size-5 opacity-0 transition-opacity group-hover:opacity-100"
-                (click)="removeImage($index)"
-                title="Remove image"
-                aria-label="Remove image"
-              >
-                <ng-icon name="lucideX" class="size-3!" />
-              </button>
-            </div>
-          }
-        </div>
-      }
-      <label chatSenderActions class="cursor-pointer">
-        <input
-          #imageInput
-          type="file"
-          accept="image/*"
-          multiple
-          class="hidden"
-          (change)="onImageSelect($event)"
-        />
-        <button
-          type="button"
-          z-button
-          zType="ghost"
-          zSize="icon"
-          title="Add image"
-          aria-label="Add image"
-          (click)="imageInput.click()"
-        >
-          <ng-icon name="lucideImage" class="size-5!" />
-        </button>
-      </label>
-    </app-chat-sender-bar>
+    />
   </div>
 </div>

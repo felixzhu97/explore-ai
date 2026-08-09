@@ -7,7 +7,6 @@ export interface RagQuery {
   topK?: number;
   temperature?: number;
   docIds?: string[];
-  images?: string[];
 }
 
 /** Matches SourceDocumentDto / SSE sources event */
