@@ -16,7 +16,7 @@ description: Feature development for this repo — XP, DDD, BDD, TDD, Glossary n
 3. Tests: `should expected result when condition` (spaces; Java methods: camelCase)
 4. Names: Glossary [Preferred Term](../../../docs/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + [apple-minimal-ux](references/apple-minimal-ux.md)
-6. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
+6. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>`; References = official docs + research
 7. **XP**: follow [extreme-programming](references/extreme-programming.md) — Simple Design / YAGNI, CI green, small releases, customer / AC feedback
 8. **Living docs**: when the change hits the trigger matrix, update Glossary, C4 `.puml`, and/or User Story Map in the **same PR** — see §4 and [living-docs](references/living-docs.md)
 
@@ -106,7 +106,7 @@ Jira tickets follow [Product Owner](../product-owner/SKILL.md): business-facing,
 
 #### Branch naming
 
-**Prefix = change type** (same set as commit types). Do **not** default every branch to `feat`.
+**Prefix = change type**. Do **not** default every branch to `feat`.
 
 | Type | Pattern | Example |
 |------|---------|---------|
@@ -123,7 +123,6 @@ Allowed types: `feat` | `fix` | `refactor` | `docs` | `test` | `chore` | `perf` 
 
 Rules:
 
-- Branch prefix **must** match the primary change type
 - Always use `<type>/<slug>` with a kebab-case slug that describes the change
 - With a Jira ticket: still use `<type>/<slug>` — put the issue key only in commit/PR body (`Jira: https://…/AI-xxx`), not in the branch name
 - Do **not** use `feature/` for new branches (legacy only; CI still accepts it)
@@ -184,7 +183,7 @@ When these source types exist, include all of them in both the commit and the PR
 For framework or dependency-only changes, keep using official docs first. For AI / model changes, prefer the full reference set above over a single docs link.
 
 ```
-<type>: <short description>
+<short description>
 
 <why: brief motivation for this change>
 
@@ -192,12 +191,10 @@ References:
 - [Title](URL)
 ```
 
-Types: `feat` | `fix` | `refactor` | `docs` | `test` | `chore` | `perf` | `ci`
-
 Example:
 
 ```
- docs: add Qwen3-ASR reference guidance to PR skill
+Add Qwen3-ASR reference guidance to PR skill
 
 Contributors need a consistent citation set for model-related changes so commits and PRs point to the paper, release notes, distribution page, and upstream implementation.
 
@@ -236,7 +233,7 @@ PR **References** must match the commit References (same links). Use the same of
 - [ ] C4 `.puml` updated per trigger matrix (or N/A); `png/` refreshed or PR notes pending render
 - [ ] User Story Map updated per trigger matrix (or N/A)
 - [ ] UI (if any): HIG + minimal
-- [ ] Branch: `<type>/<slug>` (type matches commit); Chain PR base correct
+- [ ] Branch: `<type>/<slug>`; Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
 - [ ] Each References link maps to a claim in the why text (or N/A with note)
 - [ ] PR: plain body + same References + Jira link; chain base; CI green
