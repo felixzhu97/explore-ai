@@ -4,7 +4,7 @@ description: >-
   Business Analysis: ubiquitous language, domain understanding, business rules,
   bounded contexts, and bridge-style collaboration (not ferry). Use when the user
   asks for 领域分析、业务规则、统一语言、限界上下文、Analysis Patterns, or Business
-  Analysis. Not for market/GTM scanning (use market-analyst + business-tech-analysis).
+  Analysis. Not for market/GTM scanning (use market-analyst + market-tech-analysis).
 ---
 
 # Business Analysis
@@ -31,7 +31,7 @@ This skill is **Business Analysis**: building a shared understanding of how the 
 
 | Need | Go to |
 |------|--------|
-| 商业动向 / 竞品 / GTM / 定价信号 | Agent `market-analyst` + [business-tech-analysis](../business-tech-analysis/SKILL.md) |
+| 商业动向 / 竞品 / GTM / 定价信号 | Agent `market-analyst` + [market-tech-analysis](../market-tech-analysis/SKILL.md) |
 | User stories / AC / Jira | [product-owner](../product-owner/SKILL.md) |
 | Implement code / tests / PR | [developer](../developer/SKILL.md) |
 | Papers / models / HF trending | Agent `tech-analyst` |

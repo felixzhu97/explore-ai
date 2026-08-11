@@ -4,7 +4,7 @@
 
 When adding a dependency: add a row with claim + deep link — never library name alone.
 
-For lab research / open-source hubs and open models, also use [business-tech-analysis sources](../../business-tech-analysis/references/sources.md) and arXiv abs pages.
+For lab research / open-source hubs and open models, also use [market-tech-analysis sources](../../market-tech-analysis/references/sources.md) and arXiv abs pages.
 
 ## AI / Model reference set
 
@@ -26,7 +26,7 @@ Example (claims → URLs):
 | Cite official release notes | Qwen3-ASR blog | [qwen.ai blog](https://qwen.ai/blog?id=qwen3asr) |
 | Point at upstream implementation | QwenLM/Qwen3-ASR | [GitHub](https://github.com/QwenLM/Qwen3-ASR) |
 
-Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [Open models](../../business-tech-analysis/references/sources.md#open-models). Research hubs: [Open-source & research hubs](../../business-tech-analysis/references/sources.md#open-source--research-hubs-required). Speech & image: [Open-source speech & image](../../business-tech-analysis/references/sources.md#open-source-speech--image).
+Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [Open models](../../market-tech-analysis/references/sources.md#open-models). Research hubs: [Open-source & research hubs](../../market-tech-analysis/references/sources.md#open-source--research-hubs-required). Speech & image: [Open-source speech & image](../../market-tech-analysis/references/sources.md#open-source-speech--image).
 
 ## Frontend
 

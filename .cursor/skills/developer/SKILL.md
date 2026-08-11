@@ -158,7 +158,7 @@ Prefer **specific** pages, not homepages. Search the web in real time when neede
 | Priority | Source | Where to look |
 |----------|--------|----------------|
 | 1 | Project dependency official docs | [dependency-docs](references/dependency-docs.md) (**claim → URL** catalog; every row corroborates why) |
-| 2 | Vendor / lab **research** + open-source | [business-tech-analysis sources](../business-tech-analysis/references/sources.md) (research hubs + GitHub) |
+| 2 | Vendor / lab **research** + open-source | [market-tech-analysis sources](../market-tech-analysis/references/sources.md) (research hubs + GitHub) |
 | 3 | **arXiv** papers (abs page) | [arXiv](https://arxiv.org/) — when the change cites a method/paper |
 | 4 | Standards / HIG / Google ecosystem | **UI design:** [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/) only. **Google ecosystem** (eng practices, style guides, SRE, AI, Cloud Architecture — not Material UI) — [dependency-docs](references/dependency-docs.md) § Google Ecosystem |
 
@@ -253,6 +253,6 @@ PR **References** must match the commit References (same links). Use the same of
 | Angular depth | [angular-developer](../angular-developer/SKILL.md) |
 | Spring AI | [spring-ai](../spring-ai/SKILL.md) |
 | Business Analysis | [business-analysis](../business-analysis/SKILL.md) |
-| Business / tech strategy | [business-tech-analysis](../business-tech-analysis/SKILL.md) |
-| Research / OSS watchlist | [sources.md](../business-tech-analysis/references/sources.md) |
+| Market / tech strategy | [market-tech-analysis](../market-tech-analysis/SKILL.md) |
+| Research / OSS watchlist | [sources.md](../market-tech-analysis/references/sources.md) |
 | Product Owner | [Product Owner](../product-owner/SKILL.md) |
