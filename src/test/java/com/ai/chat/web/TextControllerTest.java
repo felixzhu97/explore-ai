@@ -84,10 +84,12 @@ class TextControllerTest {
 
     @Test
     void shouldUseSessionStreamWhenSessionIdProvided() {
+        TextChatOptions expectedOptions = TextChatOptions.of("openai", "deepseek-v4-flash", false)
+                .withOwnerKey(CLIENT_ID);
         when(chatUseCase.chatStreamWithSession(
                 "session-1",
                 "Hello",
-                TextChatOptions.of("openai", "deepseek-v4-flash", false),
+                expectedOptions,
                 CLIENT_ID))
                 .thenReturn(Flux.just("Hi", " there"));
 
@@ -106,7 +108,7 @@ class TextControllerTest {
         verify(chatUseCase).chatStreamWithSession(
                 "session-1",
                 "Hello",
-                TextChatOptions.of("openai", "deepseek-v4-flash", false),
+                expectedOptions,
                 CLIENT_ID);
     }
 
