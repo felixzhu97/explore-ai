@@ -58,6 +58,7 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Component(audio_facade, "AudioFacade", "@Service", "TTS 门面")
         Component(asr_usecase, "StreamingTranscriptionUseCase", "@Service", "流式 ASR [local]")
         Component(mcp_facade, "McpFacade", "@Service", "MCP Client 门面")
+        Component(plugin_usecase, "PluginUseCase", "@Service", "Plugin catalog + installations")
         Component(metrics_usecase, "MetricsUseCase", "@Service", "概览 / 域 / 时序 / 下钻")
         Component(invocation_recorder, "AiInvocationRecorder", "@Component", "旁路记录 AI 调用事件")
         Component(owner_resolver, "CurrentOwnerResolver", "@Service", "解析 c:/u: OwnerKey")
@@ -114,8 +115,11 @@ System_Boundary(backend, "AI Platform Backend (Spring Boot 4.1 / Java 25 / Sprin
         Container_Boundary(audio_domain, "Audio") {
             Component(tts_repo_iface, "TextToSpeechRepository", "Repository", "TTS 接口")
         }
-        Container_Boundary(mcp_domain, "MCP") {
-            Component(mcp_client_iface, "McpClientRepository", "Repository", "MCP Client")
+        Container_Boundary(mcp_domain, "MCP / Plugin") {
+            Component(mcp_client_iface, "McpClientRepository", "Repository", "MCP Client lab")
+            Component(plugin_catalog_iface, "PluginCatalogRepository", "Repository", "Plugin catalog")
+            Component(plugin_install_iface, "PluginInstallationRepository", "Repository", "Owner installations")
+            Component(plugin_tool_gateway, "PluginToolGateway", "Repository", "Enabled tools for Chat")
         }
         Container_Boundary(metrics_domain, "Metrics") {
             Component(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")

@@ -35,6 +35,7 @@ export interface Translations {
     automations: string;
     agents: string;
     skills: string;
+    plugins: string;
     kubernetes: string;
     monitoring: string;
     aiinfra: string;
@@ -379,6 +380,45 @@ export interface Translations {
       clientStatusFailed: string;
       toolsFailed: string;
       chatFailed: string;
+    };
+  };
+  pluginsPage: {
+    title: string;
+    subtitle: string;
+    loading: string;
+    installed: string;
+    installedEmpty: string;
+    featured: string;
+    install: string;
+    installTitle: string;
+    installHint: string;
+    endpoint: string;
+    endpointPlaceholder: string;
+    authToken: string;
+    authTokenPlaceholder: string;
+    displayName: string;
+    cancel: string;
+    enable: string;
+    disable: string;
+    disabled: string;
+    remove: string;
+    viewTools: string;
+    toolsTitle: string;
+    noTools: string;
+    inLibrary: string;
+    categories: {
+      featured: string;
+      productivity: string;
+      developer: string;
+      creativity: string;
+    };
+    errors: {
+      loadFailed: string;
+      installFailed: string;
+      updateFailed: string;
+      removeFailed: string;
+      toolsFailed: string;
+      endpointRequired: string;
     };
   };
   agentsPage: {

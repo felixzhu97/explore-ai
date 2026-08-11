@@ -46,6 +46,7 @@ describe('i18n.model', () => {
         'evalPage',
         'asrPage',
         'mcpPage',
+        'pluginsPage',
       ] as const;
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
@@ -65,6 +66,7 @@ describe('i18n.model', () => {
         'speechToText',
         'pipelines',
         'skills',
+        'plugins',
         'kubernetes',
         'monitoring',
         'aiinfra',

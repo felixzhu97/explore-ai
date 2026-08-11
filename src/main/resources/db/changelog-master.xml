@@ -27,6 +27,7 @@
   <include file="changelogs/4.6-account-users.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.7-account-users-unlink.xml" relativeToChangelogFile="true"/>
   <include file="changelogs/4.8-owner-key.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/4.9-plugin-installations.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 
 

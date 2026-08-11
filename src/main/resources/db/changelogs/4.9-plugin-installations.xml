@@ -1,0 +1,47 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="explore-ai" id="20260811-001-plugin-installations" dbms="h2">
+    <createTable tableName="plugin_installations">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="definition_id" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="display_name" type="${string.type}(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="endpoint" type="${string.type}(500)"/>
+      <column name="auth_token" type="${string.type}(500)"/>
+      <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="health_status" type="${string.type}(32)" defaultValue="UNKNOWN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_plugin_installations_owner_key" tableName="plugin_installations">
+      <column name="owner_key"/>
+    </createIndex>
+    <createIndex indexName="idx_plugin_installations_owner_definition" tableName="plugin_installations">
+      <column name="owner_key"/>
+      <column name="definition_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

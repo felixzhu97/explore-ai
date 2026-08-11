@@ -34,6 +34,9 @@ public enum ModuleFlag {
         if (requestPath == null) {
             return null;
         }
+        if (requestPath.startsWith("/api/plugins")) {
+            return MCP;
+        }
         for (ModuleFlag flag : values()) {
             if (requestPath.startsWith(flag.pathPrefix)) {
                 return flag;

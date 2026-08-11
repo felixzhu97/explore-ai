@@ -10,7 +10,7 @@ import {
 
 describe('module-nav.config', () => {
   const visionTab = MODULE_NAV_TABS.find(tab => tab.key === 'vision');
-  const mcpTab = MODULE_NAV_TABS.find(tab => tab.key === 'mcp');
+  const pluginsTab = MODULE_NAV_TABS.find(tab => tab.key === 'plugins');
   const chatTab = MODULE_NAV_TABS.find(tab => tab.key === 'chat');
   const pipelinesTab = MODULE_NAV_TABS.find(tab => tab.key === 'pipelines');
 
@@ -27,7 +27,7 @@ describe('module-nav.config', () => {
     };
 
     expect(isNavTabEnabled(visionTab!, featureFlags)).toBe(false);
-    expect(isNavTabEnabled(mcpTab!, featureFlags)).toBe(false);
+    expect(isNavTabEnabled(pluginsTab!, featureFlags)).toBe(false);
     expect(featureFlags.isEnabled).toHaveBeenCalledWith(FEATURE_FLAG_KEYS.MODULE_VISION);
     expect(featureFlags.isEnabled).toHaveBeenCalledWith(FEATURE_FLAG_KEYS.MODULE_MCP);
   });
@@ -38,7 +38,7 @@ describe('module-nav.config', () => {
     };
 
     expect(isNavTabEnabled(visionTab!, featureFlags)).toBe(true);
-    expect(isNavTabEnabled(mcpTab!, featureFlags)).toBe(true);
+    expect(isNavTabEnabled(pluginsTab!, featureFlags)).toBe(true);
   });
 
   it('should keep work tabs except chat in primary nav', () => {
@@ -49,6 +49,7 @@ describe('module-nav.config', () => {
       'automations',
       'agents',
       'skills',
+      'plugins',
     ]);
   });
 
@@ -57,7 +58,7 @@ describe('module-nav.config', () => {
 
     expect(sections.map(section => section.group)).toEqual(['create', 'lab']);
     expect(sections[0].tabs.map(tab => tab.key)).toEqual(['generate']);
-    expect(sections[1].tabs.map(tab => tab.key)).toEqual(['vision', 'asr', 'mcp', 'eval']);
+    expect(sections[1].tabs.map(tab => tab.key)).toEqual(['vision', 'asr', 'eval']);
   });
 
   it('should hide more sections when create and lab tabs are disabled', () => {

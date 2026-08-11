@@ -1,0 +1,92 @@
+[
+  {
+    "id": "explore-ai",
+    "name": "Explore AI",
+    "description": "Built-in weather, knowledge search, and chat tools from this platform.",
+    "category": "featured",
+    "iconKey": "explore-ai",
+    "featured": true,
+    "builtin": true,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "description": "Triage PRs, issues, CI, and publish flows via your Remote MCP endpoint.",
+    "category": "developer",
+    "iconKey": "github",
+    "featured": true,
+    "builtin": false,
+    "docsUrl": "https://github.com/modelcontextprotocol"
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "description": "Notion workflows for specs, research, and knowledge bases.",
+    "category": "productivity",
+    "iconKey": "notion",
+    "featured": true,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "linear",
+    "name": "Linear",
+    "description": "Plan and build products with Linear issues and projects.",
+    "category": "productivity",
+    "iconKey": "linear",
+    "featured": true,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "description": "Read and manage Slack channels through Remote MCP.",
+    "category": "featured",
+    "iconKey": "slack",
+    "featured": true,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "google-drive",
+    "name": "Google Drive",
+    "description": "Work across Drive, Docs, Sheets, and Slides via Remote MCP.",
+    "category": "featured",
+    "iconKey": "google-drive",
+    "featured": true,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "gmail",
+    "name": "Gmail",
+    "description": "Read and manage Gmail with your Streamable HTTP MCP gateway.",
+    "category": "featured",
+    "iconKey": "gmail",
+    "featured": true,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "description": "Design-to-code workflows through a Remote MCP endpoint.",
+    "category": "creativity",
+    "iconKey": "figma",
+    "featured": false,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/"
+  },
+  {
+    "id": "custom",
+    "name": "Custom Plugin",
+    "description": "Connect any Streamable HTTP MCP server with a URL and optional API key.",
+    "category": "developer",
+    "iconKey": "custom",
+    "featured": false,
+    "builtin": false,
+    "docsUrl": "https://modelcontextprotocol.io/docs/concepts/transports"
+  }
+]

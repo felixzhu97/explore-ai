@@ -80,6 +80,14 @@ class ChatClientFactoryMcpMergeTest {
         @SuppressWarnings("unchecked")
         ObjectProvider<ToolCallback[]> mcpProvider = mock(ObjectProvider.class);
         when(mcpProvider.getIfAvailable()).thenReturn(mcp);
+        @SuppressWarnings("unchecked")
+        ObjectProvider<com.ai.plugin.domain.repository.PluginToolGateway> pluginGateway =
+                mock(ObjectProvider.class);
+        when(pluginGateway.getIfAvailable()).thenReturn(null);
+        @SuppressWarnings("unchecked")
+        ObjectProvider<com.ai.plugin.infrastructure.web.RequestOwnerKeyResolver> ownerResolver =
+                mock(ObjectProvider.class);
+        when(ownerResolver.getIfAvailable()).thenReturn(null);
 
         return new ChatClientFactory(
                 resolver,
@@ -90,6 +98,8 @@ class ChatClientFactoryMcpMergeTest {
                 new StubWebSearchTool(),
                 new StubDateTimeTool(),
                 mcpProvider,
+                pluginGateway,
+                ownerResolver,
                 false,
                 false);
     }

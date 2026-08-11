@@ -32,10 +32,10 @@ export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'automations', labelKey: 'automations', path: '/automations', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_AUTOMATIONS },
   { key: 'agents', labelKey: 'agents', path: '/agents', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_PIPELINES },
   { key: 'skills', labelKey: 'skills', path: '/skills', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_SKILLS },
+  { key: 'plugins', labelKey: 'plugins', path: '/plugins', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_MCP },
   { key: 'generate', labelKey: 'generation', path: '/generate', group: 'create' },
   { key: 'vision', labelKey: 'imageAnalysis', path: '/vision', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_VISION },
   { key: 'asr', labelKey: 'speechToText', path: '/asr', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR },
-  { key: 'mcp', labelKey: 'mcp', path: '/mcp', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_MCP },
   { key: 'eval', labelKey: 'eval', path: '/eval', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_EVAL },
 ];
 

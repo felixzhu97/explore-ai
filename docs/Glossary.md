@@ -43,7 +43,8 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Image Generation | 图像生成      | `com.ai.image`    | `/generate/image`       | `/api/images`                             | —                             | UI under `app/generate/image/`        |
 | Image Analysis   | 图像分析      | `com.ai.vision`   | `/vision`               | `/api/vision`                             | `module-vision`               | Caption / Detect / OCR                |
 | Audio            | 语音        | `com.ai.audio`    | `/generate/tts`, `/asr` | `/api/audio`, `/ws/audio`                 | `module-audio-asr` (ASR only) | TTS always on                         |
-| MCP              | MCP       | `com.ai.mcp`      | `/mcp`                  | `/api/mcp`, `/api/mcp/client`             | `module-mcp`                  | Server + Client in one package        |
+| MCP              | MCP       | `com.ai.mcp`      | —                       | `/api/mcp`, `/api/mcp/client`             | `module-mcp`                  | Protocol lab APIs; product UI is Plugin |
+| Plugin           | 插件        | `com.ai.plugin`   | `/plugins`              | `/api/plugins`                            | `module-mcp`                  | Catalog + Owner installations; tools merge into Chat |
 | Workflow         | Workflow Lab 原语 | `com.ai.workflow` | —                       | `/api/workflows`                          | —                             | Educational Effective Agents APIs; ≠ product Pipeline/工作流 |
 | Generation       | 生成        | —                 | `/generate`             | —                                         | —                             | UI shell for image + TTS              |
 | Account          | 账号        | `com.ai.account`  | —                       | `/api/account`                            | —                             | Guest Client Identity + optional Google/GitHub OAuth; data partitioned by Owner Key |
@@ -66,17 +67,18 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/rag`            | RAG              | `/api/rag`                      |
 | `/vision`         | Image Analysis   | `/api/vision`                   |
 | `/asr`            | Audio (ASR)      | `/ws/audio`                     |
-| `/mcp`            | MCP              | `/api/mcp`, `/api/mcp/client`   |
+| `/plugins`        | Plugin           | `/api/plugins`                  |
+| `/mcp`            | Plugin (legacy redirect) | `/api/mcp`, `/api/mcp/client` |
 | `/eval`           | Eval             | `/api/eval`                     |
 | `/metrics`        | Metrics          | `/api/metrics`                  |
 
 Empty / new Chat sessions use bare `/chat` and stay out of the sidebar until the first message. Sessions with history use `/chat/:sessionId` and appear in the sidebar. Only sessions with chat history are remembered in sessionStorage. Client-side **Pinned** session ids live in localStorage and render above **Recents** when present. Invalid or foreign session ids are rejected by Owner Key isolation (404) and the UI redirects to `/chat` (no toast).
 
-**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
+**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`); `plugins` → **Plugin** (`/plugins`, flag `module-mcp`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
 
-**Sidebar IA (frontend):** Flat primary nav is **New Chat** plus **Work** modules except Chat (`/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills`). Chat opens via New Chat (bare `/chat`). **Create** (`/generate`) and **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated) live under a **More** hover/tap flyout.
+**Sidebar IA (frontend):** Flat primary nav is **New Chat** plus **Work** modules except Chat (`/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills` → `/plugins`). Chat opens via New Chat (bare `/chat`). **Create** (`/generate`) and **Lab** (`/vision`, `/asr`, `/eval`, flag-gated) live under a **More** hover/tap flyout. Legacy `/mcp` redirects to `/plugins`.
 
-**Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Pipeline/工作流 (canvas + task near Run + results rail; double-click node edits name/prompt/tools for that graph copy); Generation / Vision / ASR / MCP / Eval / Metrics as before.
+**Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Pipeline/工作流 (canvas + task near Run + results rail; double-click node edits name/prompt/tools for that graph copy); Generation / Vision / ASR / Plugin / Eval / Metrics as before.
 
 ```mermaid
 flowchart TB
@@ -323,20 +325,23 @@ UPLOADING → PROCESSING → READY
 
 ---
 
-## 10. MCP | MCP
+## 10. MCP / Plugin | MCP / 插件
 
-Package: `com.ai.mcp` (Server + Client).
+Protocol package: `com.ai.mcp` (Server + Client lab). Product package: `com.ai.plugin` (catalog + Owner installations). **Preferred Term in UI: Plugin.**
 
 
 | Preferred Term (English) | 中文        | Definition                                    | Type              | Code Mapping                         | Notes                          |
 | ------------------------ | --------- | --------------------------------------------- | ----------------- | ------------------------------------ | ------------------------------ |
+| Plugin                   | 插件         | User-facing installable MCP connection (builtin or remote) | Aggregate / Product | `PluginInstallation`, `/plugins` | Preferred over “MCP app” in UI |
+| Plugin Definition        | 插件定义       | Catalog entry for a featured or custom Plugin | Value Object      | `PluginDefinition`                   | Classpath `plugin-catalog.json` |
+| Plugin Installation      | 插件安装       | Owner-scoped enablement of a Plugin           | Entity            | `PluginInstallation`                 | JDBC + `owner_key`             |
 | MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `AiMcpServerService`                 | Model Context Protocol         |
-| MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Service           | `AiMcpClientService`                 | Registers external tools       |
-| MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | `AiMcpClientService.registerTools()` | —                              |
+| MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Service           | `AiMcpClientService` / Plugin gateway | Lab + dynamic Streamable HTTP |
+| MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | ToolCallbacks via Plugin / Client    | Merged into Chat per Owner     |
 | MCP Tool Definition      | MCP 工具定义  | Name and description of an MCP tool           | Value Object      | `McpToolDefinition`                  | Registered by Client           |
 | MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | Managed by `McpSessionManager` |
 | MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | —                              |
-| MCP Chat                 | MCP 对话    | AI conversation initiated via MCP Client      | Use Case Behavior | `McpClientController.chat()`         | —                              |
+| MCP Chat                 | MCP 对话    | AI conversation initiated via MCP Client      | Use Case Behavior | `McpClientController.chat()`         | Lab diagnostic path            |
 
 
 ---
@@ -625,7 +630,8 @@ References:
 | AI Hub                                       | **Chat** + **Generation**    | Split into `/chat` and `/generate/*`                                       |
 | TextController / `/api/text` as product name | **Chat** / **Chat Stream**   | Transport legacy; prefer Chat domain language                                 |
 | supervisor (module)                          | **Pipeline**                 | Canvas workbench → `/pipelines` (工作流) |
-| plugin                                       | **Tool** / **MCP Tool**      | Distinguish Tool Calling from MCP                                             |
+| plugin (as Tool Calling synonym)             | **Tool**                     | Do not use Plugin for generic tool calling                                    |
+| MCP app / MCP store (UI)                     | **Plugin**                   | Product Preferred Term for catalog + installations                            |
 | bot                                          | **Agent** / **ChatClient**   | Prefer Agent for autonomous entities                                          |
 | RAG ETL Domain                               | **RAG** (+ ETL Pipeline)     | Not a separate bounded context                                                |
 | `com.ai.mcp.server` / `.client` packages     | `**com.ai.mcp`**             | Single package in code                                                        |
@@ -652,7 +658,8 @@ Chinese equivalents to avoid in technical docs:
 | 搜索结果  | **Source Document**     |
 | 大模型   | **LLM**                 |
 | 幻觉    | **Factuality Score** 偏低 |
-| 插件    | **Tool** / **MCP Tool** |
+| 插件（泛指工具调用） | **Tool**                |
+| 插件（目录/安装） | **Plugin**                 |
 | 统计数据  | **KPI** / **Metric**    |
 | 下探    | **Drill-down**          |
 | 平均延迟  | **Latency** P50 / P95   |
