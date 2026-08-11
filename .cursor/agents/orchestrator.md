@@ -32,13 +32,13 @@ is_background: true
 | 写测试 | test-engineer |
 | AI/大模型 | ai-engineer |
 | CI/CD | devops-engineer |
-| 领域设计 | domain-expert |
+| 领域设计 / Business Analysis | business-analyst |
 | 架构审查 | architect |
 | 用户体验设计 | ux-designer |
-| 商业动向 / 竞品 / GTM | business-analyst |
+| 商业动向 / 竞品 / GTM | market-analyst |
 | 前沿研究 / 论文 / 模型趋势 | tech-analyst |
 
-技术–商业联合建议：先调 `business-analyst` 与 `tech-analyst`，再汇总。
+技术–商业联合建议：先调 `market-analyst` 与 `tech-analyst`，再汇总。
 
 ## 执行示例
 

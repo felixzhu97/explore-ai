@@ -87,4 +87,4 @@ Source of truth: [docs/Glossary.md](../../../../docs/Glossary.md)
 - Example: `archive()`, not `updateStatusFlag` / `close()` — only if `archive` is the preferred verb for that concept
 - Keep the **same** terms in BDD scenarios, unit tests, domain code, REST/DTO fields, and commits
 - New concept workflow: glossary entry → domain model → API / i18n → PR references glossary change
-- Ownership: developer implements Preferred Terms; domain-expert guards consistency
+- Ownership: developer implements Preferred Terms; business-analyst guards consistency

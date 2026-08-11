@@ -461,7 +461,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatUseCase`                           | Ollama qwen3.5 / qwen3-vl; see Appendix D **Vision Encoder** |
 | Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
-| Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. domain-expert, developer       |
+| Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. business-analyst, market-analyst, developer |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `LocalizedRagPromptBuilder`, `RagChatUseCase` | Reduces unsupported claims          |
 | Prompt Engineering                   | 提示工程    | Crafting prompts to improve LLM output quality             | Practice  | —                                             | No fine-tuning in this project      |
 
@@ -685,7 +685,8 @@ Chinese equivalents to avoid in technical docs:
 
 ### Ownership
 
-- **domain-expert**: Term consistency and aggregate boundaries
+- **business-analyst**: Business Analysis — term consistency and aggregate boundaries
+- **market-analyst**: Market / GTM commercial signals
 - **architect**: Architecture terms and layering compliance
 - **developer**: Implement using English preferred terms
 

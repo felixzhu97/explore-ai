@@ -252,6 +252,7 @@ PR **References** must match the commit References (same links). Use the same of
 | Testing core | [testing](references/testing.md) |
 | Angular depth | [angular-developer](../angular-developer/SKILL.md) |
 | Spring AI | [spring-ai](../spring-ai/SKILL.md) |
+| Business Analysis | [business-analysis](../business-analysis/SKILL.md) |
 | Business / tech strategy | [business-tech-analysis](../business-tech-analysis/SKILL.md) |
 | Research / OSS watchlist | [sources.md](../business-tech-analysis/references/sources.md) |
 | Product Owner | [Product Owner](../product-owner/SKILL.md) |
