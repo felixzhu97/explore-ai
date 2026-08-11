@@ -42,6 +42,9 @@ class ChatClientFactoryToolSearchTest {
 
     @SuppressWarnings("unchecked")
     private static ChatClientFactory newFactory(boolean toolSearchEnabled) {
+        ObjectProvider mcpProvider = mock(ObjectProvider.class);
+        ObjectProvider pluginGateway = mock(ObjectProvider.class);
+        ObjectProvider ownerResolver = mock(ObjectProvider.class);
         return new ChatClientFactory(
                 mock(ChatModelResolver.class),
                 mock(ChatMemory.class),
@@ -50,7 +53,9 @@ class ChatClientFactoryToolSearchTest {
                 new StubDocumentSearchTool(),
                 new StubWebSearchTool(),
                 new StubDateTimeTool(),
-                mock(ObjectProvider.class),
+                mcpProvider,
+                pluginGateway,
+                ownerResolver,
                 false,
                 toolSearchEnabled);
     }

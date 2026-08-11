@@ -204,7 +204,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | `module-skills` | Skills | `/skills` | `/api/skills` | `true` |
 | `module-vision` | Image Analysis | `/vision` | `/api/vision` | `false` |
 | `module-audio-asr` | ASR | `/asr` | `/ws/audio` | `false` |
-| `module-mcp` | MCP | `/mcp` | `/api/mcp` | `false` |
+| `module-mcp` | Plugin (MCP) | `/plugins` (`/mcp` → redirect) | `/api/plugins`, `/api/mcp` | `false` |
 | `module-eval` | Eval | `/eval` | `/api/eval` | `false` |
 
 ---

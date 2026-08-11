@@ -142,12 +142,15 @@ Container_Boundary(mcp_server_domain, "MCP Server Domain") {
 }
 
 ' ============================================================
-' DOMAIN 11: MCP CLIENT [flag-guarded]
+' DOMAIN 11: MCP CLIENT / PLUGIN [flag-guarded]
 ' ============================================================
-Container_Boundary(mcp_client_domain, "MCP Client Domain") {
-    Container(mcp_client_controller, "McpClientController", "@RestController", "/api/mcp/client/*")
-    Container(mcp_facade, "McpFacade", "Application Service", "MCP Client 门面")
-    Container(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client 适配器")
+Container_Boundary(mcp_client_domain, "MCP Client / Plugin Domain") {
+    Container(mcp_client_controller, "McpClientController", "@RestController", "/api/mcp/client/* (lab)")
+    Container(plugin_controller, "PluginController", "@RestController", "/api/plugins/*")
+    Container(plugin_usecase, "PluginUseCase", "Use Case", "Catalog + Owner installations")
+    Container(plugin_gateway, "SpringAiPluginToolGateway", "@Component", "Builtin + Streamable HTTP tools")
+    Container(mcp_facade, "McpFacade", "Application Service", "MCP Client 门面 (lab)")
+    Container(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client 适配器 (YAML)")
 }
 
 ' ============================================================
@@ -207,7 +210,8 @@ Rel(angular_app, image_controller, "图像生成", "HTTP")
 Rel(angular_app, vision_controller, "图像分析 [flag]", "HTTP")
 Rel(angular_app, audio_controller, "TTS + ASR [flag]", "HTTP/WebSocket")
 Rel(angular_app, mcp_controller, "MCP Server [flag]", "HTTP")
-Rel(angular_app, mcp_client_controller, "MCP Client [flag]", "HTTP")
+Rel(angular_app, mcp_client_controller, "MCP Client lab [flag]", "HTTP")
+Rel(angular_app, plugin_controller, "Plugin catalog [flag]", "HTTP")
 Rel(angular_app, metrics_controller, "AI 指标", "HTTP")
 Rel(angular_app, launchdarkly, "前端功能开关", "HTTPS")
 
@@ -296,6 +300,8 @@ Rel(tts_repo, openai_api, "TTS", "HTTPS")
 Rel(mcp_controller, mcp_server_svc, "调用")
 Rel(mcp_client_controller, mcp_facade, "调用")
 Rel(mcp_facade, mcp_client_repo, "MCP 连接")
+Rel(plugin_controller, plugin_usecase, "调用")
+Rel(plugin_usecase, plugin_gateway, "解析 Tools")
 
 Rel(module_filter, feature_flag_svc, "查询开关")
 Rel(feature_flag_svc, ld_repo, "读取")

@@ -88,9 +88,9 @@ journey
 
 ### 已交付
 
-| 对话与会话 | 隐私与隔离 | RAG 与视觉 | 媒体 | MCP | 评估与指标 | 工作流 | Skills |
+| 对话与会话 | 隐私与隔离 | RAG 与视觉 | 媒体 | MCP / Plugin | 评估与指标 | 工作流 | Skills |
 |------------|------------|------------|------|-----|------------|-------------|--------|
-| [US-01](./user-stories/E1-chat-session.md#us-01-ai-对话) AI 对话 | [US-04](./user-stories/E2-privacy-isolation.md#us-04-按浏览器隔离聊天会话) 浏览器隔离 | [US-06](./user-stories/E3-rag-vision.md#us-06-rag-知识问答) RAG | [US-09](./user-stories/E4-media.md#us-09-图像生成) 图像生成 | [US-12](./user-stories/E5-mcp-tools.md#us-12-mcp-工具调用) MCP | [US-13](./user-stories/E6-eval-metrics.md#us-13-chat-质量评估) Eval | [US-15](./user-stories/E7-multi-agent.md#us-15-multi-agent-pipeline-工作台) Pipeline | [US-30](./user-stories/E10-skills.md#us-30-管理可复用-skills) 管理 Skills |
+| [US-01](./user-stories/E1-chat-session.md#us-01-ai-对话) AI 对话 | [US-04](./user-stories/E2-privacy-isolation.md#us-04-按浏览器隔离聊天会话) 浏览器隔离 | [US-06](./user-stories/E3-rag-vision.md#us-06-rag-知识问答) RAG | [US-09](./user-stories/E4-media.md#us-09-图像生成) 图像生成 | [US-12](./user-stories/E5-mcp-tools.md#us-12-mcp-工具调用) MCP / [US-37](./user-stories/E5-mcp-tools.md#us-37-plugin-目录与安装) Plugin 目录 | [US-13](./user-stories/E6-eval-metrics.md#us-13-chat-质量评估) Eval | [US-15](./user-stories/E7-multi-agent.md#us-15-multi-agent-pipeline-工作台) Pipeline | [US-30](./user-stories/E10-skills.md#us-30-管理可复用-skills) 管理 Skills |
 | [US-02](./user-stories/E1-chat-session.md#us-02-provider--model-选择) Provider/Model | [US-05](./user-stories/E2-privacy-isolation.md#us-05-欧盟隐私告知同意与擦除控制) 隐私控制 / [US-05b](./user-stories/E2-privacy-isolation.md#us-05b-政策中转页与法律文档) 政策文档 | [US-07](./user-stories/E3-rag-vision.md#us-07-vision-多模态-rag) Vision RAG | [US-10](./user-stories/E4-media.md#us-10-语音合成-tts) TTS | | [US-14](./user-stories/E6-eval-metrics.md#us-14-ai-指标看板) Metrics / [US-36](./user-stories/E6-eval-metrics.md#us-36-lab-与隐私页跟随界面语言) 界面语言覆盖 | [US-16](./user-stories/E7-multi-agent.md#us-16-企业工作流模版内置--可自定义) 工作流模版 | [US-31](./user-stories/E10-skills.md#us-31-在聊天中应用-skills) 聊天应用 / [US-35](./user-stories/E10-skills.md#us-35-工作台页布局与-metrics-一致) 布局对齐 Metrics |
 | [US-03](./user-stories/E1-chat-session.md#us-03-多轮对话与自动标题) 多轮与标题 | | [US-08](./user-stories/E3-rag-vision.md#us-08-图像分析独立) 图像分析 | [US-11](./user-stories/E4-media.md#us-11-流式-asr-语音识别) ASR | | | [US-17](./user-stories/E7-multi-agent.md#us-17-企业研判标准化输出) 标准化输出 / [US-18](./user-stories/E7-multi-agent.md#us-18-消费-agent-模版目录) 画布 Worker 目录 | |
 | [US-03b](./user-stories/E1-chat-session.md#us-03b-会话地址与切换加载) 会话地址与切换加载 | | | | | | | |
@@ -134,7 +134,7 @@ journey
 | E2 隐私与隔离 | [E2-privacy-isolation.md](./user-stories/E2-privacy-isolation.md) | US-04 – US-05 | 已实现 |
 | E3 RAG 与视觉 | [E3-rag-vision.md](./user-stories/E3-rag-vision.md) | US-06 – US-08 | 已实现 |
 | E4 媒体 | [E4-media.md](./user-stories/E4-media.md) | US-09 – US-11 | 已实现 |
-| E5 MCP | [E5-mcp-tools.md](./user-stories/E5-mcp-tools.md) | US-12 | 已实现 |
+| E5 MCP / Plugin | [E5-mcp-tools.md](./user-stories/E5-mcp-tools.md) | US-12, US-37 | 已实现 |
 | E6 评估与指标 | [E6-eval-metrics.md](./user-stories/E6-eval-metrics.md) | US-13 – US-14, US-17, US-36 | 已实现 |
 | E7 Pipeline（工作流） | [E7-multi-agent.md](./user-stories/E7-multi-agent.md) | US-15 – US-18 | 已实现（含节点可编辑副本） |
 | E11 Deep Agent | [E11-deep-agent.md](./user-stories/E11-deep-agent.md) | US-32 – US-34 | **已退役**（并入 E7） |

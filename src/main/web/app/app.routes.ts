@@ -20,9 +20,14 @@ export const routes: Routes = [
         loadComponent: () => import('./vision/vision.page').then(m => m.VisionPageComponent),
       },
       {
-        path: 'mcp',
+        path: 'plugins',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_MCP)],
-        loadComponent: () => import('./mcp/mcp.page').then(m => m.McpPageComponent),
+        loadComponent: () => import('./plugins/plugins.page').then(m => m.PluginsPageComponent),
+      },
+      {
+        path: 'mcp',
+        redirectTo: 'plugins',
+        pathMatch: 'full',
       },
       {
         path: 'eval',

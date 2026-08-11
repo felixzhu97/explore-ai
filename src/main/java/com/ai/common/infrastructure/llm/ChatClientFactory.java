@@ -8,6 +8,8 @@ import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.common.infrastructure.prompt.PromptTemplates;
+import com.ai.plugin.domain.repository.PluginToolGateway;
+import com.ai.plugin.infrastructure.web.RequestOwnerKeyResolver;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -34,6 +36,8 @@ public class ChatClientFactory implements ChatClientProvider {
     private final ChatMemory chatMemory;
     private final PromptTemplates promptTemplates;
     private final ObjectProvider<ToolCallback[]> mcpToolCallbacks;
+    private final ObjectProvider<PluginToolGateway> pluginToolGateway;
+    private final ObjectProvider<RequestOwnerKeyResolver> requestOwnerKeyResolver;
     private final boolean loggingAdvisorEnabled;
     private final boolean toolSearchEnabled;
     private final ToolCallback[] localToolCallbacks;
@@ -48,12 +52,16 @@ public class ChatClientFactory implements ChatClientProvider {
             WebSearchTool webSearchTool,
             DateTimeTool dateTimeTool,
             ObjectProvider<ToolCallback[]> mcpToolCallbacks,
+            ObjectProvider<PluginToolGateway> pluginToolGateway,
+            ObjectProvider<RequestOwnerKeyResolver> requestOwnerKeyResolver,
             @Value("${app.ai.logging-advisor.enabled:true}") boolean loggingAdvisorEnabled,
             @Value("${app.ai.tool-search.enabled:false}") boolean toolSearchEnabled) {
         this.chatModelResolver = chatModelResolver;
         this.chatMemory = chatMemory;
         this.promptTemplates = promptTemplates;
         this.mcpToolCallbacks = mcpToolCallbacks;
+        this.pluginToolGateway = pluginToolGateway;
+        this.requestOwnerKeyResolver = requestOwnerKeyResolver;
         this.loggingAdvisorEnabled = loggingAdvisorEnabled;
         this.toolSearchEnabled = toolSearchEnabled;
         this.toolSearchIndex = new RegexToolIndex();
@@ -165,7 +173,7 @@ public class ChatClientFactory implements ChatClientProvider {
                 callbacks.add(new NotifyingToolCallback(callback, id));
             }
         }
-        // Prefer local @Tool over MCP when names collide (DeepSeek/Spring AI reject duplicates).
+        // Prefer local @Tool over MCP / Plugin when names collide (DeepSeek/Spring AI reject duplicates).
         ToolCallback[] mcp = mcpToolCallbacks.getIfAvailable();
         if (mcp != null) {
             for (ToolCallback callback : mcp) {
@@ -174,6 +182,18 @@ public class ChatClientFactory implements ChatClientProvider {
                     callbacks.add(new NotifyingToolCallback(callback, id));
                 }
             }
+        }
+        PluginToolGateway gateway = pluginToolGateway.getIfAvailable();
+        RequestOwnerKeyResolver ownerResolver = requestOwnerKeyResolver.getIfAvailable();
+        if (gateway != null && ownerResolver != null) {
+            ownerResolver.currentOwnerKey().ifPresent(ownerKey -> {
+                for (ToolCallback callback : gateway.resolveEnabledToolCallbacks(ownerKey)) {
+                    String name = callback.getToolDefinition().name();
+                    if (names.add(name)) {
+                        callbacks.add(new NotifyingToolCallback(callback, id));
+                    }
+                }
+            });
         }
         return callbacks.toArray(ToolCallback[]::new);
     }
