@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,7 +15,7 @@ import { PluginsService } from './plugins.service';
 
 @Component({
   selector: 'app-plugins-page',
-  imports: [FormsModule, ZardButtonComponent],
+  imports: [FormsModule, NgOptimizedImage, ZardButtonComponent],
   templateUrl: './plugins.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
