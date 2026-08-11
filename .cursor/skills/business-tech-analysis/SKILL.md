@@ -6,7 +6,8 @@ description: >-
   NVIDIA, Meta, OpenAI, DeepMind, Vercel, Anthropic, Cursor, Hugging Face
   trending, and arXiv papers. Use when analyzing commercial dynamics, market
   moves, competitive landscape, tech adoption, product strategy, or when the
-  user asks for 商业分析、技术分析、商业动向、技术商业建议、竞品、趋势研判.
+  user asks for 市场分析、技术分析、商业动向、技术商业建议、竞品、趋势研判.
+  Not for Business Analysis / domain modeling (use business-analysis + business-analyst).
 ---
 
 # Business & Tech Analysis
@@ -169,7 +170,8 @@ Scoring: [references/rubric.md](references/rubric.md). Sources: [references/sour
 
 | Need | Where |
 |------|-------|
-| 行业动向（子 Agent） | [business-analyst](../../agents/business-analyst.md) |
+| 行业动向（子 Agent） | [market-analyst](../../agents/market-analyst.md) |
+| Business Analysis | [business-analyst](../../agents/business-analyst.md) + [business-analysis](../business-analysis/SKILL.md) |
 | 前沿研究（子 Agent） | [tech-analyst](../../agents/tech-analyst.md) |
 | BMC / LTV / CAC deep dive | `business-model-generator` (personal skill) |
 | Implement chosen bet | [developer](../developer/SKILL.md) |

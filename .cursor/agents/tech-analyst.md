@@ -19,7 +19,8 @@ is_background: true
 
 ## 不做
 
-- 商业画布 / GTM 长文 → `business-analyst`
+- 商业画布 / GTM 长文 → `market-analyst`
+- 领域建模 / Business Analysis → `business-analyst`
 - 落地实现 → `ai-engineer` / `developer`
 
 ## 工作流
