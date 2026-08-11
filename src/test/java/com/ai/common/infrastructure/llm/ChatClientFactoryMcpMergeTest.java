@@ -69,6 +69,56 @@ class ChatClientFactoryMcpMergeTest {
         };
     }
 
+    @Test
+    @DisplayName("should merge plugin tools when owner key provided on options")
+    void shouldMergePluginToolsWhenOwnerKeyProvidedOnOptions() {
+        ToolCallback pluginTool = namedTool("search_knowledge_base", "kb");
+        com.ai.plugin.domain.repository.PluginToolGateway gateway =
+                mock(com.ai.plugin.domain.repository.PluginToolGateway.class);
+        when(gateway.resolveEnabledToolCallbacks("c:owner-1")).thenReturn(List.of(pluginTool));
+
+        ChatClientFactory factory = factoryWithPluginGateway(gateway);
+        assertThatCode(() -> factory.createStateless(
+                        TextChatOptions.of("openai", null, true).withOwnerKey("c:owner-1")))
+                .doesNotThrowAnyException();
+    }
+
+    private static ChatClientFactory factoryWithPluginGateway(
+            com.ai.plugin.domain.repository.PluginToolGateway gateway) {
+        ChatModelResolver resolver = mock(ChatModelResolver.class);
+        ChatModel chatModel = mock(ChatModel.class);
+        when(resolver.resolve(any())).thenReturn(new ResolvedChatModel(
+                chatModel,
+                OpenAiChatOptions.builder().model("test"),
+                "openai"));
+
+        @SuppressWarnings("unchecked")
+        ObjectProvider<ToolCallback[]> mcpProvider = mock(ObjectProvider.class);
+        when(mcpProvider.getIfAvailable()).thenReturn(null);
+        @SuppressWarnings("unchecked")
+        ObjectProvider<com.ai.plugin.domain.repository.PluginToolGateway> pluginGateway =
+                mock(ObjectProvider.class);
+        when(pluginGateway.getIfAvailable()).thenReturn(gateway);
+        @SuppressWarnings("unchecked")
+        ObjectProvider<com.ai.plugin.infrastructure.web.RequestOwnerKeyResolver> ownerResolver =
+                mock(ObjectProvider.class);
+        when(ownerResolver.getIfAvailable()).thenReturn(null);
+
+        return new ChatClientFactory(
+                resolver,
+                mock(org.springframework.ai.chat.memory.ChatMemory.class),
+                new PromptTemplates(),
+                new StubWeatherTool(),
+                new StubDocumentSearchTool(),
+                new StubWebSearchTool(),
+                new StubDateTimeTool(),
+                mcpProvider,
+                pluginGateway,
+                ownerResolver,
+                false,
+                false);
+    }
+
     private static ChatClientFactory factoryWithMcp(ToolCallback[] mcp) {
         ChatModelResolver resolver = mock(ChatModelResolver.class);
         ChatModel chatModel = mock(ChatModel.class);

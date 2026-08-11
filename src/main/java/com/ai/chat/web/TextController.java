@@ -88,20 +88,21 @@ public class TextController {
     }
 
     private TextChatOptions buildChatOptions(ChatStreamRequest request, HttpServletRequest httpRequest) {
+        String ownerKey = ownerContext.requireValue(httpRequest);
         TextChatOptions baseOptions = TextChatOptions.of(
-                request.provider(), request.model(), request.toolsEnabled());
+                        request.provider(), request.model(), request.toolsEnabled())
+                .withOwnerKey(ownerKey);
         List<String> skillIds = request.skillIds();
         if (skillIds == null || skillIds.isEmpty()) {
             return baseOptions;
         }
 
-        String clientId = ownerContext.requireValue(httpRequest);
         List<SkillId> parsedSkillIds = parseSkillIds(skillIds);
         if (parsedSkillIds.isEmpty()) {
             return baseOptions;
         }
 
-        List<Skill> skills = skillRepository.findEnabledByClientIdAndIds(clientId, parsedSkillIds);
+        List<Skill> skills = skillRepository.findEnabledByClientIdAndIds(ownerKey, parsedSkillIds);
         if (skills.size() < parsedSkillIds.size()) {
             log.debug(
                     "Ignored unknown or disabled skill ids: requested={}, resolved={}",

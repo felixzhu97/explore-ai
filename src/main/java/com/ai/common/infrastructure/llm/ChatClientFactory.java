@@ -131,7 +131,7 @@ public class ChatClientFactory implements ChatClientProvider {
             }
             builder.defaultSystem(systemPrompt);
             if (withTools) {
-                ToolCallback[] callbacks = notifyingCallbacks(channelId);
+                ToolCallback[] callbacks = notifyingCallbacks(channelId, options.ownerKey());
                 if (callbacks.length > 0) {
                     builder.defaultToolCallbacks(callbacks);
                 }
@@ -163,7 +163,7 @@ public class ChatClientFactory implements ChatClientProvider {
         return toolSearchEnabled;
     }
 
-    private ToolCallback[] notifyingCallbacks(String channelId) {
+    private ToolCallback[] notifyingCallbacks(String channelId, String ownerKeyOverride) {
         String id = channelId == null ? "" : channelId;
         List<ToolCallback> callbacks = new ArrayList<>();
         Set<String> names = new HashSet<>();
@@ -184,9 +184,8 @@ public class ChatClientFactory implements ChatClientProvider {
             }
         }
         PluginToolGateway gateway = pluginToolGateway.getIfAvailable();
-        RequestOwnerKeyResolver ownerResolver = requestOwnerKeyResolver.getIfAvailable();
-        if (gateway != null && ownerResolver != null) {
-            ownerResolver.currentOwnerKey().ifPresent(ownerKey -> {
+        if (gateway != null) {
+            resolveOwnerKey(ownerKeyOverride).ifPresent(ownerKey -> {
                 for (ToolCallback callback : gateway.resolveEnabledToolCallbacks(ownerKey)) {
                     String name = callback.getToolDefinition().name();
                     if (names.add(name)) {
@@ -196,5 +195,16 @@ public class ChatClientFactory implements ChatClientProvider {
             });
         }
         return callbacks.toArray(ToolCallback[]::new);
+    }
+
+    private java.util.Optional<String> resolveOwnerKey(String ownerKeyOverride) {
+        if (ownerKeyOverride != null && !ownerKeyOverride.isBlank()) {
+            return java.util.Optional.of(ownerKeyOverride.trim());
+        }
+        RequestOwnerKeyResolver ownerResolver = requestOwnerKeyResolver.getIfAvailable();
+        if (ownerResolver == null) {
+            return java.util.Optional.empty();
+        }
+        return ownerResolver.currentOwnerKey();
     }
 }
