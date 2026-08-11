@@ -1,1 +1,0 @@
-../../.cursor/skills/business-tech-analysis/SKILL.md

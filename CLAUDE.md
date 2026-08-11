@@ -122,7 +122,7 @@ should expected result when condition
 
 ## Hard constraints (delivery)
 
-When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/<slug>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/business-tech-analysis/references/sources.md), arXiv).
+When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](.cursor/skills/developer/SKILL.md) §5 (`<type>/<slug>`, Chain PRs, commit/PR templates) and [Product Owner](.cursor/skills/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](.cursor/skills/developer/references/dependency-docs.md), [sources](.cursor/skills/market-tech-analysis/references/sources.md), arXiv).
 
 ## Skills (on demand)
 
@@ -130,9 +130,9 @@ When **creating a Jira ticket**, **branching**, **committing**, or **opening a P
 |------|-------|
 | Feature / tests / commit / Apple UX | [developer](.cursor/skills/developer/SKILL.md) |
 | Business Analysis（领域 / 统一语言 / 搭桥） | [business-analysis](.cursor/skills/business-analysis/SKILL.md)（由 `business-analyst` 必读） |
-| Market + tech strategy（动向 / 竞品 / GTM） | [business-tech-analysis](.cursor/skills/business-tech-analysis/SKILL.md)（由 `market-analyst` / `tech-analyst` 按需读取） |
+| Market + tech strategy（动向 / 竞品 / GTM） | [market-tech-analysis](.cursor/skills/market-tech-analysis/SKILL.md)（由 `market-analyst` / `tech-analyst` 按需读取） |
 | Spring AI / RAG / tools | [spring-ai](.cursor/skills/spring-ai/SKILL.md) |
 | Angular depth | [angular-developer](.cursor/skills/angular-developer/SKILL.md) |
 | Product Owner / Jira | [Product Owner](.cursor/skills/product-owner/SKILL.md) |
 
-<!-- Generated at Tue Aug 11 21:46:42 CST 2026 -->
+<!-- Generated at Tue Aug 11 22:06:00 CST 2026 -->

@@ -1,5 +1,5 @@
 ---
-name: business-tech-analysis
+name: market-tech-analysis
 description: >-
   Performs business and technical analysis of market trends and recommends
   technology–business strategy. Always starts from Google, Apple, Microsoft,
@@ -10,7 +10,7 @@ description: >-
   Not for Business Analysis / domain modeling (use business-analysis + business-analyst).
 ---
 
-# Business & Tech Analysis
+# Market & Tech Analysis
 
 Combine **real-time commercial signal** with **technical feasibility** to recommend what this product (or a named domain) should do next.
 

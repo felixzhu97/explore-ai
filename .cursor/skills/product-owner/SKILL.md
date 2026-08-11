@@ -62,7 +62,7 @@ Follow the Agile Manifesto: individuals and interactions, working software, cust
 
 Detail: [agile-manifesto](references/agile-manifesto.md)
 
-When Background or Definition of Done cites external standards, APIs, or papers: use **official documentation** and **research** URLs (same priority as [developer](../developer/SKILL.md) §5 — [dependency-docs](../developer/references/dependency-docs.md), [sources.md](../business-tech-analysis/references/sources.md), arXiv abs pages).
+When Background or Definition of Done cites external standards, APIs, or papers: use **official documentation** and **research** URLs (same priority as [developer](../developer/SKILL.md) §5 — [dependency-docs](../developer/references/dependency-docs.md), [sources.md](../market-tech-analysis/references/sources.md), arXiv abs pages).
 
 ## Minimal Template
 
