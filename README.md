@@ -1,11 +1,11 @@
-# AI-Explore
+# ExploreAI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](https://spring.io/projects/spring-boot)
 [![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0-blue.svg)](https://docs.spring.io/spring-ai/reference/)
 
-Demo / learning platform for conversational AI built with **Spring AI** and **Angular**: Chat, RAG, tool calling, and quality evaluation.
+ExploreAI brings AI into everyday life. Our mission is to drive breakthroughs that benefit people, society, and the products we use every day.
 
 **Live:** [https://www.felixzhu.chat](https://www.felixzhu.chat)
 
