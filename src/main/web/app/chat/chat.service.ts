@@ -613,6 +613,18 @@ export class ChatService {
         );
       },
       () => {
+        // Drop empty placeholder before clearing streaming to avoid a blank-bubble flash.
+        this.messages.update((msgs) => {
+          const target = msgs.find(msg => msg.id === assistantId);
+          if (
+            target?.role === 'assistant'
+            && !target.content
+            && !(target.toolSteps?.length)
+          ) {
+            return msgs.filter(msg => msg.id !== assistantId);
+          }
+          return msgs;
+        });
         this.isLoading.set(false);
         this.streamingMessageId.set(null);
         this.streamAbort = null;
