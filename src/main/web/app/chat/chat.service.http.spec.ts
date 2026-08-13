@@ -7,7 +7,7 @@ import { provideRouter, Router } from '@angular/router';
 import { API_BASE_URL } from '../core/api.constants';
 import { chatRouteMatcher } from './chat.route-matcher';
 import { ChatService } from './chat.service';
-import { streamSsePost } from '../core/streaming/sse-client';
+import { streamSsePost, parseChatStreamEvent } from '../core/streaming/sse-client';
 
 vi.mock('../core/streaming/sse-client', () => ({
   parseChatStreamEvent: vi.fn(),
@@ -603,6 +603,143 @@ describe('ChatService http flows', () => {
     expect(service.streamingMessageId()).toBeNull();
     expect(service.messages()).toHaveLength(1);
     expect(service.messages()[0].role).toBe('user');
+  });
+
+  it('should remove empty assistant placeholder when stream completes with no content', async () => {
+    interface StreamHandlers {
+      onEvent: (payload: { eventType: string; data: string }) => boolean | void;
+      onDone: () => void;
+    }
+    let handlers: StreamHandlers | undefined;
+    vi.mocked(streamSsePost).mockImplementation((_url, _body, options) => {
+      handlers = options as StreamHandlers;
+      return { abort: vi.fn() };
+    });
+
+    service.sessions.set([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 0,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+    service.activeSessionId.set('s1');
+    service.providers.set([
+      {
+        name: 'openai',
+        displayName: 'DeepSeek',
+        models: ['deepseek-v4-flash'],
+        status: 'available',
+      },
+    ]);
+    service.selectedProvider.set('openai');
+    service.selectedModel.set('deepseek-v4-flash');
+
+    service.sendMessage('hello');
+    expect(service.messages().some(m => m.role === 'assistant' && m.content === '')).toBe(true);
+
+    handlers?.onDone();
+
+    expect(service.isLoading()).toBe(false);
+    expect(service.streamingMessageId()).toBeNull();
+    expect(service.messages().some(m => m.role === 'assistant' && m.content === '')).toBe(false);
+    expect(service.messages()).toHaveLength(1);
+    expect(service.messages()[0].role).toBe('user');
+
+    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'hello',
+        timestamp: Date.now(),
+      },
+    ]);
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 1,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+  });
+
+  it('should keep assistant message when stream completes with content', async () => {
+    interface StreamHandlers {
+      onEvent: (payload: { eventType: string; data: string }) => boolean | void;
+      onDone: () => void;
+    }
+    let handlers: StreamHandlers | undefined;
+    vi.mocked(streamSsePost).mockImplementation((_url, _body, options) => {
+      handlers = options as StreamHandlers;
+      return { abort: vi.fn() };
+    });
+    vi.mocked(parseChatStreamEvent).mockImplementation((data: string) => {
+      const parsed = JSON.parse(data) as { type: string; token?: string };
+      if (parsed.type === 'message') {
+        return { type: 'message', token: parsed.token ?? '' };
+      }
+      return null;
+    });
+
+    service.sessions.set([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 0,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+    service.activeSessionId.set('s1');
+    service.providers.set([
+      {
+        name: 'openai',
+        displayName: 'DeepSeek',
+        models: ['deepseek-v4-flash'],
+        status: 'available',
+      },
+    ]);
+    service.selectedProvider.set('openai');
+    service.selectedModel.set('deepseek-v4-flash');
+
+    service.sendMessage('hello');
+    handlers?.onEvent({
+      eventType: 'message',
+      data: JSON.stringify({ type: 'message', token: 'Hi there' }),
+    });
+    handlers?.onDone();
+
+    expect(service.messages()).toHaveLength(2);
+    expect(service.messages()[1]).toMatchObject({ role: 'assistant', content: 'Hi there' });
+    expect(service.streamingMessageId()).toBeNull();
+
+    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'hello',
+        timestamp: Date.now(),
+      },
+      {
+        id: 'a1',
+        role: 'assistant',
+        content: 'Hi there',
+        timestamp: Date.now(),
+      },
+    ]);
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 2,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
   });
 
   it('should delete active session and clear when empty', () => {
