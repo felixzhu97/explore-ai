@@ -12,7 +12,7 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
   imports: [NxSenderComponent],
   template: `
     <div
-      class="shrink-0 border-t border-black/8 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      class="shrink-0 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
       <ng-content select="[chatSenderPrelude]" />
       <div class="flex items-center gap-2">

@@ -73,5 +73,15 @@ describe('MarkdownService', () => {
       expect(html).not.toContain('onerror');
       expect(html).not.toBe(malicious);
     });
+
+    it('should wrap gfm tables for aligned scrollable layout', () => {
+      const html = service.renderToString(
+        '| A | B |\n| --- | --- |\n| 1 | 2 |\n',
+      );
+      expect(html).toContain('class="markdown-table-wrap"');
+      expect(html).toContain('<table>');
+      expect(html).toContain('<th>');
+      expect(html).toContain('<td>');
+    });
   });
 });
