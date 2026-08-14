@@ -12,9 +12,14 @@ export class MarkdownService {
   private readonly sanitizer = inject(DomSanitizer);
 
   constructor() {
+    const renderer = new marked.Renderer();
+    const renderTable = renderer.table.bind(renderer);
+    renderer.table = token => `<div class="markdown-table-wrap">${renderTable(token)}</div>`;
+
     marked.setOptions({
       gfm: true,
       breaks: true,
+      renderer,
     });
   }
 
