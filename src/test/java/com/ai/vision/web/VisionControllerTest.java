@@ -1,5 +1,9 @@
 package com.ai.vision.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
 import com.ai.vision.application.usecase.VisionAnalysisUseCase;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.web.dto.CaptionResponse;
@@ -7,6 +11,8 @@ import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.DetectionDto;
 import com.ai.vision.web.dto.OcrResponse;
 import com.ai.vision.web.dto.VisionHealthResponse;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,109 +22,102 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("VisionController")
 class VisionControllerTest {
 
-    @Mock
-    private VisionAnalysisUseCase visionAnalysisUseCase;
+  @Mock private VisionAnalysisUseCase visionAnalysisUseCase;
 
-    private VisionController controller;
+  private VisionController controller;
 
-    @BeforeEach
-    void setUp() {
-        controller = new VisionController(visionAnalysisUseCase);
+  @BeforeEach
+  void setUp() {
+    controller = new VisionController(visionAnalysisUseCase);
+  }
+
+  @Nested
+  @DisplayName("POST /api/vision/caption")
+  class Caption {
+
+    @Test
+    @DisplayName("should return caption response")
+    void shouldReturnCaptionResponse() throws Exception {
+      MockMultipartFile file =
+          new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
+      when(visionAnalysisUseCase.caption(file))
+          .thenReturn(new CaptionResponse("A cat on a sofa", 120L));
+
+      CaptionResponse response = controller.caption(file);
+
+      assertThat(response.caption()).isEqualTo("A cat on a sofa");
+      assertThat(response.processingTimeMs()).isEqualTo(120L);
     }
 
-    @Nested
-    @DisplayName("POST /api/vision/caption")
-    class Caption {
-
-        @Test
-        @DisplayName("should return caption response")
-        void shouldReturnCaptionResponse() throws Exception {
-            MockMultipartFile file = new MockMultipartFile(
-                    "file", "photo.jpg", "image/jpeg", "image".getBytes());
-            when(visionAnalysisUseCase.caption(file))
-                    .thenReturn(new CaptionResponse("A cat on a sofa", 120L));
-
-            CaptionResponse response = controller.caption(file);
-
-            assertThat(response.caption()).isEqualTo("A cat on a sofa");
-            assertThat(response.processingTimeMs()).isEqualTo(120L);
-        }
-
-        @Test
-        @DisplayName("should throw for empty file")
-        void shouldThrowForEmptyFile() {
-            assertThatThrownBy(() -> controller.caption(null))
-                    .isInstanceOf(VisionInvalidFileException.class);
-        }
+    @Test
+    @DisplayName("should throw for empty file")
+    void shouldThrowForEmptyFile() {
+      assertThatThrownBy(() -> controller.caption(null))
+          .isInstanceOf(VisionInvalidFileException.class);
     }
+  }
 
-    @Nested
-    @DisplayName("POST /api/vision/detect")
-    class Detect {
+  @Nested
+  @DisplayName("POST /api/vision/detect")
+  class Detect {
 
-        @Test
-        @DisplayName("should return detections")
-        void shouldReturnDetections() throws Exception {
-            MockMultipartFile file = new MockMultipartFile(
-                    "file", "photo.jpg", "image/jpeg", "image".getBytes());
-            List<DetectionDto> detections = List.of(
-                    new DetectionDto("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
-            when(visionAnalysisUseCase.detect(file))
-                    .thenReturn(new DetectResponse(detections, 150L));
+    @Test
+    @DisplayName("should return detections")
+    void shouldReturnDetections() throws Exception {
+      MockMultipartFile file =
+          new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
+      List<DetectionDto> detections =
+          List.of(new DetectionDto("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
+      when(visionAnalysisUseCase.detect(file)).thenReturn(new DetectResponse(detections, 150L));
 
-            DetectResponse response = controller.detect(file);
+      DetectResponse response = controller.detect(file);
 
-            assertThat(response.detections()).hasSize(1);
-            assertThat(response.processingTimeMs()).isEqualTo(150L);
-        }
+      assertThat(response.detections()).hasSize(1);
+      assertThat(response.processingTimeMs()).isEqualTo(150L);
     }
+  }
 
-    @Nested
-    @DisplayName("POST /api/vision/ocr")
-    class Ocr {
+  @Nested
+  @DisplayName("POST /api/vision/ocr")
+  class Ocr {
 
-        @Test
-        @DisplayName("should return extracted text")
-        void shouldReturnExtractedText() throws Exception {
-            MockMultipartFile file = new MockMultipartFile(
-                    "file", "scan.png", "image/png", "image".getBytes());
-            when(visionAnalysisUseCase.ocr(file))
-                    .thenReturn(new OcrResponse("Hello World", 90L));
+    @Test
+    @DisplayName("should return extracted text")
+    void shouldReturnExtractedText() throws Exception {
+      MockMultipartFile file =
+          new MockMultipartFile("file", "scan.png", "image/png", "image".getBytes());
+      when(visionAnalysisUseCase.ocr(file)).thenReturn(new OcrResponse("Hello World", 90L));
 
-            OcrResponse response = controller.ocr(file);
+      OcrResponse response = controller.ocr(file);
 
-            assertThat(response.fullText()).isEqualTo("Hello World");
-        }
+      assertThat(response.fullText()).isEqualTo("Hello World");
     }
+  }
 
-    @Nested
-    @DisplayName("GET /api/vision/health")
-    class Health {
+  @Nested
+  @DisplayName("GET /api/vision/health")
+  class Health {
 
-        @Test
-        @DisplayName("should report provider availability")
-        void shouldReportProviderAvailability() {
-            when(visionAnalysisUseCase.health())
-                    .thenReturn(new VisionHealthResponse("DEGRADED", Map.of(
-                            "caption", "UP",
-                            "detect", "DOWN",
-                            "ocr", "UP")));
+    @Test
+    @DisplayName("should report provider availability")
+    void shouldReportProviderAvailability() {
+      when(visionAnalysisUseCase.health())
+          .thenReturn(
+              new VisionHealthResponse(
+                  "DEGRADED",
+                  Map.of(
+                      "caption", "UP",
+                      "detect", "DOWN",
+                      "ocr", "UP")));
 
-            var response = controller.health();
+      var response = controller.health();
 
-            assertThat(response.status()).isEqualTo("DEGRADED");
-            assertThat(response.providers().get("detect")).isEqualTo("DOWN");
-        }
+      assertThat(response.status()).isEqualTo("DEGRADED");
+      assertThat(response.providers().get("detect")).isEqualTo("DOWN");
     }
+  }
 }

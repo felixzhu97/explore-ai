@@ -1,37 +1,37 @@
 package com.ai.chat.infrastructure.retention;
 
+import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.time.Duration;
-
+/** Documentation. */
 @ConfigurationProperties(prefix = "app.data-retention")
 public class DataRetentionProperties {
 
-    private boolean enabled = true;
-    private Duration sessionMaxAge = Duration.ofDays(90);
-    private String cron = "0 0 3 * * *";
+  private boolean enabled = true;
+  private Duration sessionMaxAge = Duration.ofDays(90);
+  private String cron = "0 0 3 * * *";
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 
-    public Duration getSessionMaxAge() {
-        return sessionMaxAge;
-    }
+  public Duration getSessionMaxAge() {
+    return sessionMaxAge;
+  }
 
-    public void setSessionMaxAge(Duration sessionMaxAge) {
-        this.sessionMaxAge = sessionMaxAge;
-    }
+  public void setSessionMaxAge(Duration sessionMaxAge) {
+    this.sessionMaxAge = sessionMaxAge;
+  }
 
-    public String getCron() {
-        return cron;
-    }
+  public String getCron() {
+    return cron;
+  }
 
-    public void setCron(String cron) {
-        this.cron = cron;
-    }
+  public void setCron(String cron) {
+    this.cron = cron;
+  }
 }

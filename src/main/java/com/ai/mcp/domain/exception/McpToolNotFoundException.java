@@ -1,8 +1,9 @@
 package com.ai.mcp.domain.exception;
 
+/** Documentation. */
 public class McpToolNotFoundException extends RuntimeException {
-
-    public McpToolNotFoundException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public McpToolNotFoundException(String message) {
+    super(message);
+  }
 }

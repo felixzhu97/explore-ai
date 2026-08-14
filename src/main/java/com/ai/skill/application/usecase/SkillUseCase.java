@@ -2,35 +2,42 @@ package com.ai.skill.application.usecase;
 
 import com.ai.skill.application.SkillTemplate;
 import com.ai.skill.domain.model.Skill;
-
 import java.util.List;
 
+/** Documentation. */
 public interface SkillUseCase {
+  /** Documentation. */
+  List<Skill> list(String clientId);
 
-    List<Skill> list(String clientId);
+  /** Documentation. */
+  Skill get(String clientId, String id);
 
-    Skill get(String clientId, String id);
+  /** Documentation. */
+  Skill create(
+      String clientId,
+      String name,
+      String description,
+      String instructions,
+      List<String> allowedTools);
 
-    Skill create(
-            String clientId,
-            String name,
-            String description,
-            String instructions,
-            List<String> allowedTools);
+  /** Documentation. */
+  Skill update(
+      String clientId,
+      String id,
+      String name,
+      String description,
+      String instructions,
+      List<String> allowedTools);
 
-    Skill update(
-            String clientId,
-            String id,
-            String name,
-            String description,
-            String instructions,
-            List<String> allowedTools);
+  /** Documentation. */
+  Skill setEnabled(String clientId, String id, boolean enabled);
 
-    Skill setEnabled(String clientId, String id, boolean enabled);
+  /** Documentation. */
+  void delete(String clientId, String id);
 
-    void delete(String clientId, String id);
+  /** Documentation. */
+  List<SkillTemplate> listTemplates(String language);
 
-    List<SkillTemplate> listTemplates(String language);
-
-    Skill createFromTemplate(String clientId, String templateId, String language);
+  /** Documentation. */
+  Skill createFromTemplate(String clientId, String templateId, String language);
 }

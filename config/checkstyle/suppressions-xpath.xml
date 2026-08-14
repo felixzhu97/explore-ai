@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionXpathFilter Experimental Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressionxpath_1_2.dtd">
+<!-- Intentionally empty: Google checks enforced without debt baselines. -->
+<suppressions>
+</suppressions>

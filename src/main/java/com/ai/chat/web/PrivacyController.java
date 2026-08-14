@@ -23,37 +23,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/privacy")
 public class PrivacyController {
 
-    private final OwnerContext ownerContext;
-    private final OwnerEraseUseCase ownerEraseUseCase;
-    private final ClientIdentityCookieFactory cookieFactory;
+  private final OwnerContext ownerContext;
+  private final OwnerEraseUseCase ownerEraseUseCase;
+  private final ClientIdentityCookieFactory cookieFactory;
 
-    public PrivacyController(
-            OwnerContext ownerContext,
-            OwnerEraseUseCase ownerEraseUseCase,
-            ClientIdentityCookieFactory cookieFactory) {
-        this.ownerContext = ownerContext;
-        this.ownerEraseUseCase = ownerEraseUseCase;
-        this.cookieFactory = cookieFactory;
-    }
+  /** Documentation. */
+  public PrivacyController(
+      OwnerContext ownerContext,
+      OwnerEraseUseCase ownerEraseUseCase,
+      ClientIdentityCookieFactory cookieFactory) {
+    this.ownerContext = ownerContext;
+    this.ownerEraseUseCase = ownerEraseUseCase;
+    this.cookieFactory = cookieFactory;
+  }
 
-    /**
-     * Deletes all durable data owned by the current owner key.
-     */
-    @DeleteMapping("/sessions")
-    public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
-        OwnerKey owner = ownerContext.require(request);
-        ownerEraseUseCase.eraseAllForOwner(owner);
-        return ResponseEntity.noContent().build();
-    }
+  /** Deletes all durable data owned by the current owner key. */
+  @DeleteMapping("/sessions")
+  public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
+    OwnerKey owner = ownerContext.require(request);
+    ownerEraseUseCase.eraseAllForOwner(owner);
+    return ResponseEntity.noContent().build();
+  }
 
-    /**
-     * Clears the client identity cookie and issues a new anonymous id (session fixation / privacy reset).
-     */
-    @PostMapping("/reset-identity")
-    public ResponseEntity<Void> resetIdentity(HttpServletResponse response) {
-        String nextId = cookieFactory.newClientId();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.clear().toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(nextId).toString());
-        return ResponseEntity.noContent().build();
-    }
+  /**
+   * Clears the client identity cookie and issues a new anonymous id (session fixation / privacy
+   * reset).
+   */
+  @PostMapping("/reset-identity")
+  public ResponseEntity<Void> resetIdentity(HttpServletResponse response) {
+    String nextId = cookieFactory.newClientId();
+    response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.clear().toString());
+    response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(nextId).toString());
+    return ResponseEntity.noContent().build();
+  }
 }

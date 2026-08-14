@@ -1,8 +1,9 @@
 package com.ai.tools.domain.exception;
 
+/** Documentation. */
 public class InvalidWeatherQueryException extends RuntimeException {
-
-    public InvalidWeatherQueryException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public InvalidWeatherQueryException(String message) {
+    super(message);
+  }
 }

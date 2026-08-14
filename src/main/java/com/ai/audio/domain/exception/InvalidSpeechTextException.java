@@ -1,8 +1,9 @@
 package com.ai.audio.domain.exception;
 
+/** Documentation. */
 public class InvalidSpeechTextException extends RuntimeException {
-
-    public InvalidSpeechTextException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public InvalidSpeechTextException(String message) {
+    super(message);
+  }
 }

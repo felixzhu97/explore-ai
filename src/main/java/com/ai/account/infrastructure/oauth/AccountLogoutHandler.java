@@ -12,18 +12,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountLogoutHandler implements LogoutHandler {
 
-    private final AccountUseCase accountUseCase;
+  private final AccountUseCase accountUseCase;
 
-    public AccountLogoutHandler(AccountUseCase accountUseCase) {
-        this.accountUseCase = accountUseCase;
-    }
+  /** Documentation. */
+  public AccountLogoutHandler(AccountUseCase accountUseCase) {
+    this.accountUseCase = accountUseCase;
+  }
 
-    @Override
-    public void logout(
-            HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
-        if (attribute instanceof String clientId && !clientId.isBlank()) {
-            accountUseCase.unlinkClient(clientId);
-        }
+  @Override
+  public void logout(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
+    if (attribute instanceof String clientId && !clientId.isBlank()) {
+      accountUseCase.unlinkClient(clientId);
     }
+  }
 }

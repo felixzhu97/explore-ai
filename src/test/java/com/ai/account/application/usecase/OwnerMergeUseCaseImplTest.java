@@ -15,17 +15,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("OwnerMergeUseCaseImpl")
 class OwnerMergeUseCaseImplTest {
 
-    @Mock
-    private OwnerPartitionRepository ownerPartitionRepository;
+  @Mock private OwnerPartitionRepository ownerPartitionRepository;
 
-    @InjectMocks
-    private OwnerMergeUseCaseImpl useCase;
+  @InjectMocks private OwnerMergeUseCaseImpl useCase;
 
-    @Test
-    void shouldReassignOwnerWhenMergingClientIntoAccount() {
-        useCase.mergeClientIntoAccount("cid-1", "acct-9");
+  @Test
+  void shouldReassignOwnerWhenMergingClientIntoAccount() {
+    useCase.mergeClientIntoAccount("cid-1", "acct-9");
 
-        verify(ownerPartitionRepository)
-                .reassignOwner(OwnerKey.forClient("cid-1"), OwnerKey.forAccount("acct-9"));
-    }
+    verify(ownerPartitionRepository)
+        .reassignOwner(OwnerKey.forClient("cid-1"), OwnerKey.forAccount("acct-9"));
+  }
 }

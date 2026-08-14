@@ -1,8 +1,9 @@
 package com.ai.image.domain.exception;
 
+/** Documentation. */
 public class InvalidImagePromptException extends RuntimeException {
-
-    public InvalidImagePromptException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public InvalidImagePromptException(String message) {
+    super(message);
+  }
 }

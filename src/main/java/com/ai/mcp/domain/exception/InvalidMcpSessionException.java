@@ -1,8 +1,9 @@
 package com.ai.mcp.domain.exception;
 
+/** Documentation. */
 public class InvalidMcpSessionException extends RuntimeException {
-
-    public InvalidMcpSessionException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public InvalidMcpSessionException(String message) {
+    super(message);
+  }
 }

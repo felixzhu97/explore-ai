@@ -8,4 +8,9 @@ pnpm exec lint-staged
 echo "🔍 Running TypeScript check (pnpm typecheck)..."
 pnpm typecheck
 
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '\.java$'; then
+  echo "🔍 Running Checkstyle (Google Java Style)..."
+  ./gradlew checkstyleMain checkstyleTest --quiet --no-daemon
+fi
+
 echo "✅ Pre-commit checks passed!"

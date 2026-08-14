@@ -2,17 +2,16 @@ package com.ai.chat.domain.repository;
 
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
-
 import java.util.List;
 
-/**
- * Repository for synchronizing LLM conversation memory with domain chat sessions.
- */
+/** Repository for synchronizing LLM conversation memory with domain chat sessions. */
 public interface ConversationMemoryRepository {
+  /** Documentation. */
+  void seedIfEmpty(String conversationId, List<ChatMessage> existingMessages);
 
-    void seedIfEmpty(String conversationId, List<ChatMessage> existingMessages);
+  /** Documentation. */
+  void syncToSession(String conversationId, ChatSession session);
 
-    void syncToSession(String conversationId, ChatSession session);
-
-    void clear(String conversationId);
+  /** Documentation. */
+  void clear(String conversationId);
 }

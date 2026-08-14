@@ -12,54 +12,47 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 
-/**
- * Configuration for Ollama embedding and vision chat services.
- */
+/** Configuration for Ollama embedding and vision chat services. */
 @Configuration
 public class OllamaConfig {
 
-    @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
-    private String baseUrl;
+  @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
+  private String baseUrl;
 
-    @Value("${spring.ai.ollama.embedding.model:qwen3-embedding:0.6b}")
-    private String embeddingModelName;
+  @Value("${spring.ai.ollama.embedding.model:qwen3-embedding:0.6b}")
+  private String embeddingModelName;
 
-    @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
-    private String visionModelName;
+  @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
+  private String visionModelName;
 
-    @Bean
-    @ConditionalOnProperty(name = "spring.ai.ollama.embedding.enabled", havingValue = "true", matchIfMissing = true)
-    @NonNull
-    public EmbeddingModel embeddingModel() {
-        OllamaApi api = OllamaApi.builder()
-                .baseUrl(baseUrl)
-                .build();
+  /** Documentation. */
+  @Bean
+  @ConditionalOnProperty(
+      name = "spring.ai.ollama.embedding.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  @NonNull
+  public EmbeddingModel embeddingModel() {
+    OllamaApi api = OllamaApi.builder().baseUrl(baseUrl).build();
 
-        OllamaEmbeddingOptions options = OllamaEmbeddingOptions.builder()
-                .model(embeddingModelName)
-                .build();
+    OllamaEmbeddingOptions options =
+        OllamaEmbeddingOptions.builder().model(embeddingModelName).build();
 
-        return OllamaEmbeddingModel.builder()
-                .ollamaApi(api)
-                .options(options)
-                .build();
-    }
+    return OllamaEmbeddingModel.builder().ollamaApi(api).options(options).build();
+  }
 
-    @Bean("ollamaVisionChatModel")
-    @ConditionalOnProperty(name = "spring.ai.ollama.chat.enabled", havingValue = "true", matchIfMissing = true)
-    @NonNull
-    public OllamaChatModel ollamaVisionChatModel() {
-        OllamaApi api = OllamaApi.builder()
-                .baseUrl(baseUrl)
-                .build();
+  /** Documentation. */
+  @Bean("ollamaVisionChatModel")
+  @ConditionalOnProperty(
+      name = "spring.ai.ollama.chat.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  @NonNull
+  public OllamaChatModel ollamaVisionChatModel() {
+    OllamaApi api = OllamaApi.builder().baseUrl(baseUrl).build();
 
-        OllamaChatOptions options = OllamaChatOptions.builder()
-                .model(visionModelName)
-                .build();
+    OllamaChatOptions options = OllamaChatOptions.builder().model(visionModelName).build();
 
-        return OllamaChatModel.builder()
-                .ollamaApi(api)
-                .options(options)
-                .build();
-    }
+    return OllamaChatModel.builder().ollamaApi(api).options(options).build();
+  }
 }

@@ -1,13 +1,16 @@
 package com.ai.automation.domain.vo;
 
+/** Documentation. */
 public enum AutomationActionType {
-    RUN_SAVED_WORKFLOW;
+  RUN_SAVED_WORKFLOW;
 
-    public String value() {
-        return name();
-    }
+  /** Documentation. */
+  public String value() {
+    return name();
+  }
 
-    public static AutomationActionType from(String raw) {
-        return AutomationActionType.valueOf(raw.trim().toUpperCase());
-    }
+  /** Documentation. */
+  public static AutomationActionType from(String raw) {
+    return AutomationActionType.valueOf(raw.trim().toUpperCase());
+  }
 }

@@ -7,46 +7,52 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/** Documentation. */
 public class McpSessionManager {
 
-    private final Map<UUID, McpSession> sessions = new ConcurrentHashMap<>();
+  private final Map<UUID, McpSession> sessions = new ConcurrentHashMap<>();
 
-    public McpSession registerSession(String serverName, int toolCount) {
-        McpSession session = McpSession.open(serverName, toolCount);
-        sessions.put(session.id(), session);
-        return session;
-    }
+  /** Documentation. */
+  public McpSession registerSession(String serverName, int toolCount) {
+    McpSession session = McpSession.open(serverName, toolCount);
+    sessions.put(session.id(), session);
+    return session;
+  }
 
-    public Optional<McpSession> findByServerName(String serverName) {
-        return sessions.values().stream()
-                .filter(session -> session.serverName().equals(serverName))
-                .findFirst();
-    }
+  /** Documentation. */
+  public Optional<McpSession> findByServerName(String serverName) {
+    return sessions.values().stream()
+        .filter(session -> session.serverName().equals(serverName))
+        .findFirst();
+  }
 
-    public Optional<McpSession> findActiveByServerName(String serverName) {
-        return sessions.values().stream()
-                .filter(session -> session.serverName().equals(serverName) && session.isActive())
-                .findFirst();
-    }
+  /** Documentation. */
+  public Optional<McpSession> findActiveByServerName(String serverName) {
+    return sessions.values().stream()
+        .filter(session -> session.serverName().equals(serverName) && session.isActive())
+        .findFirst();
+  }
 
-    public void closeSession(UUID sessionId) {
-        McpSession session = sessions.get(sessionId);
-        if (session != null) {
-            session.close();
-        }
+  /** Documentation. */
+  public void closeSession(UUID sessionId) {
+    McpSession session = sessions.get(sessionId);
+    if (session != null) {
+      session.close();
     }
+  }
 
-    public List<McpSession> activeSessions() {
-        return sessions.values().stream().filter(McpSession::isActive).toList();
-    }
+  /** Documentation. */
+  public List<McpSession> activeSessions() {
+    return sessions.values().stream().filter(McpSession::isActive).toList();
+  }
 
-    public int activeSessionCount() {
-        return (int) sessions.values().stream()
-                .filter(McpSession::isActive)
-                .count();
-    }
+  /** Documentation. */
+  public int activeSessionCount() {
+    return (int) sessions.values().stream().filter(McpSession::isActive).count();
+  }
 
-    public void clear() {
-        sessions.clear();
-    }
+  /** Documentation. */
+  public void clear() {
+    sessions.clear();
+  }
 }

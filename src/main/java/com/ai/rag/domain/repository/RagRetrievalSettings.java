@@ -1,8 +1,10 @@
 package com.ai.rag.domain.repository;
 
+/** Documentation. */
 public interface RagRetrievalSettings {
+  /** Documentation. */
+  int getTopK();
 
-    int getTopK();
-
-    double getScoreThreshold();
+  /** Documentation. */
+  double getScoreThreshold();
 }

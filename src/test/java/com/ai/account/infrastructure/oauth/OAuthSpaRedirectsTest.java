@@ -11,32 +11,32 @@ import org.junit.jupiter.api.Test;
 @DisplayName("OAuthSpaRedirects")
 class OAuthSpaRedirectsTest {
 
-    @Test
-    void shouldKeepCallbackHostWhenConfiguredRedirectIsLoopback() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getScheme()).thenReturn("http");
-        when(request.getServerName()).thenReturn("localhost");
-        when(request.getServerPort()).thenReturn(4200);
+  @Test
+  void shouldKeepCallbackHostWhenConfiguredRedirectIsLoopback() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getScheme()).thenReturn("http");
+    when(request.getServerName()).thenReturn("localhost");
+    when(request.getServerPort()).thenReturn(4200);
 
-        String target = OAuthSpaRedirects.afterLogin(request, "http://127.0.0.1:4200/", "success");
+    String target = OAuthSpaRedirects.afterLogin(request, "http://127.0.0.1:4200/", "success");
 
-        assertThat(target).isEqualTo("http://localhost:4200/?login=success");
-    }
+    assertThat(target).isEqualTo("http://localhost:4200/?login=success");
+  }
 
-    @Test
-    void shouldUseConfiguredAbsoluteWhenHostIsNotLoopback() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getScheme()).thenReturn("https");
-        when(request.getServerName()).thenReturn("api.example.com");
-        when(request.getServerPort()).thenReturn(443);
+  @Test
+  void shouldUseConfiguredAbsoluteWhenHostIsNotLoopback() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getScheme()).thenReturn("https");
+    when(request.getServerName()).thenReturn("api.example.com");
+    when(request.getServerPort()).thenReturn(443);
 
-        String target = OAuthSpaRedirects.afterLogin(request, "https://www.felixzhu.chat/", "success");
+    String target = OAuthSpaRedirects.afterLogin(request, "https://www.felixzhu.chat/", "success");
 
-        assertThat(target).isEqualTo("https://www.felixzhu.chat/?login=success");
-    }
+    assertThat(target).isEqualTo("https://www.felixzhu.chat/?login=success");
+  }
 
-    @Test
-    void shouldAppendLoginQueryWhenRelativePath() {
-        assertThat(OAuthSpaRedirects.withLoginParam("/", "error")).isEqualTo("/?login=error");
-    }
+  @Test
+  void shouldAppendLoginQueryWhenRelativePath() {
+    assertThat(OAuthSpaRedirects.withLoginParam("/", "error")).isEqualTo("/?login=error");
+  }
 }

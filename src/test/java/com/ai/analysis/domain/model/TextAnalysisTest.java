@@ -1,67 +1,64 @@
 package com.ai.analysis.domain.model;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("TextAnalysis")
 class TextAnalysisTest {
 
-    @Test
-    @DisplayName("should report positive sentiment")
-    void shouldReportPositiveSentiment() {
-        TextAnalysis analysis = TextAnalysis.create(
-                "Good news", Sentiment.POSITIVE, List.of("a"), List.of(), "en");
+  @Test
+  @DisplayName("should report positive sentiment")
+  void shouldReportPositiveSentiment() {
+    TextAnalysis analysis =
+        TextAnalysis.create("Good news", Sentiment.POSITIVE, List.of("a"), List.of(), "en");
 
-        assertThat(analysis.isPositive()).isTrue();
-        assertThat(analysis.hasEntities()).isFalse();
-    }
+    assertThat(analysis.isPositive()).isTrue();
+    assertThat(analysis.hasEntities()).isFalse();
+  }
 
-    @Test
-    @DisplayName("should detect entities presence")
-    void shouldDetectEntitiesPresence() {
-        TextAnalysis analysis = TextAnalysis.create(
-                "Summary", Sentiment.NEUTRAL, List.of(), List.of("Alice"), "en");
+  @Test
+  @DisplayName("should detect entities presence")
+  void shouldDetectEntitiesPresence() {
+    TextAnalysis analysis =
+        TextAnalysis.create("Summary", Sentiment.NEUTRAL, List.of(), List.of("Alice"), "en");
 
-        assertThat(analysis.hasEntities()).isTrue();
-    }
+    assertThat(analysis.hasEntities()).isTrue();
+  }
 
-    @Test
-    @DisplayName("should truncate summary by word count")
-    void shouldTruncateSummaryByWordCount() {
-        TextAnalysis analysis = TextAnalysis.create(
-                "one two three four five", Sentiment.NEUTRAL, List.of(), List.of(), "en");
+  @Test
+  @DisplayName("should truncate summary by word count")
+  void shouldTruncateSummaryByWordCount() {
+    TextAnalysis analysis =
+        TextAnalysis.create(
+            "one two three four five", Sentiment.NEUTRAL, List.of(), List.of(), "en");
 
-        TextAnalysis truncated = analysis.truncateSummary(3);
+    TextAnalysis truncated = analysis.truncateSummary(3);
 
-        assertThat(truncated.summary()).isEqualTo("one two three");
-    }
+    assertThat(truncated.summary()).isEqualTo("one two three");
+  }
 
-    @Test
-    @DisplayName("should filter null elements from key points and entities")
-    void shouldFilterNullElementsFromKeyPointsAndEntities() {
-        TextAnalysis analysis = TextAnalysis.create(
-                "s",
-                Sentiment.NEUTRAL,
-                Arrays.asList("a", null, "b"),
-                Arrays.asList(null, "e"),
-                "en");
+  @Test
+  @DisplayName("should filter null elements from key points and entities")
+  void shouldFilterNullElementsFromKeyPointsAndEntities() {
+    TextAnalysis analysis =
+        TextAnalysis.create(
+            "s", Sentiment.NEUTRAL, Arrays.asList("a", null, "b"), Arrays.asList(null, "e"), "en");
 
-        assertThat(analysis.keyPoints()).containsExactly("a", "b");
-        assertThat(analysis.entities()).containsExactly("e");
-    }
+    assertThat(analysis.keyPoints()).containsExactly("a", "b");
+    assertThat(analysis.entities()).containsExactly("e");
+  }
 
-    @Test
-    @DisplayName("should return immutable entity lists")
-    void shouldReturnImmutableEntityLists() {
-        TextAnalysis analysis = TextAnalysis.create(
-                "s", Sentiment.NEUTRAL, List.of("k"), List.of("e"), "en");
+  @Test
+  @DisplayName("should return immutable entity lists")
+  void shouldReturnImmutableEntityLists() {
+    TextAnalysis analysis =
+        TextAnalysis.create("s", Sentiment.NEUTRAL, List.of("k"), List.of("e"), "en");
 
-        assertThat(analysis.keyPoints()).containsExactly("k");
-        assertThat(analysis.entities()).containsExactly("e");
-    }
+    assertThat(analysis.keyPoints()).containsExactly("k");
+    assertThat(analysis.entities()).containsExactly("e");
+  }
 }

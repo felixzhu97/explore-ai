@@ -2,11 +2,14 @@ package com.ai.metrics.domain.repository;
 
 import java.util.Map;
 
+/** Documentation. */
 public interface MetricsHealthGateway {
+  /** Documentation. */
+  Map<String, Object> systemStatus();
 
-    Map<String, Object> systemStatus();
+  /** Documentation. */
+  Map<String, Object> agentsHealth();
 
-    Map<String, Object> agentsHealth();
-
-    Map<String, Object> mcpHealth();
+  /** Documentation. */
+  Map<String, Object> mcpHealth();
 }

@@ -9,21 +9,24 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Documentation. */
 @Configuration
 public class EvalConfig {
+  /** Documentation. */
+  @Bean
+  public ChatClient evaluationChatClient(ChatClientProvider chatClientProvider) {
+    return chatClientProvider.createBareStateless(TextChatOptions.withoutTools());
+  }
 
-    @Bean
-    public ChatClient evaluationChatClient(ChatClientProvider chatClientProvider) {
-        return chatClientProvider.createBareStateless(TextChatOptions.withoutTools());
-    }
+  /** Documentation. */
+  @Bean
+  public RelevancyEvaluator relevancyEvaluator(ChatModel chatModel) {
+    return new RelevancyEvaluator(ChatClient.builder(chatModel));
+  }
 
-    @Bean
-    public RelevancyEvaluator relevancyEvaluator(ChatModel chatModel) {
-        return new RelevancyEvaluator(ChatClient.builder(chatModel));
-    }
-
-    @Bean
-    public FactCheckingEvaluator factCheckingEvaluator(ChatModel chatModel) {
-        return FactCheckingEvaluator.builder(ChatClient.builder(chatModel)).build();
-    }
+  /** Documentation. */
+  @Bean
+  public FactCheckingEvaluator factCheckingEvaluator(ChatModel chatModel) {
+    return FactCheckingEvaluator.builder(ChatClient.builder(chatModel)).build();
+  }
 }

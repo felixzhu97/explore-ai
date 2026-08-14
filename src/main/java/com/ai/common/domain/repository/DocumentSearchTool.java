@@ -2,12 +2,11 @@ package com.ai.common.domain.repository;
 
 import java.util.List;
 
-/**
- * Document search capabilities for tool calling and MCP.
- */
+/** Document search capabilities for tool calling and MCP. */
 public interface DocumentSearchTool {
+  /** Documentation. */
+  String searchDocuments(String query, List<String> docIds);
 
-    String searchDocuments(String query, List<String> docIds);
-
-    String listDocuments();
+  /** Documentation. */
+  String listDocuments();
 }

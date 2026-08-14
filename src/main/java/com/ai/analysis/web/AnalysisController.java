@@ -11,25 +11,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/** Documentation. */
 @RestController
 @RequestMapping("/api")
 public class AnalysisController {
 
-    private final AnalysisFacade analysisFacade;
+  private final AnalysisFacade analysisFacade;
 
-    public AnalysisController(AnalysisFacade analysisFacade) {
-        this.analysisFacade = analysisFacade;
-    }
+  /** Documentation. */
+  public AnalysisController(AnalysisFacade analysisFacade) {
+    this.analysisFacade = analysisFacade;
+  }
 
-    @PostMapping("/chat/analyze")
-    public ResponseEntity<TextAnalysisResult> analyzeText(@Valid @RequestBody TextAnalysisRequest request) {
-        try {
-            var result = request.language() != null && !request.language().isBlank()
-                    ? analysisFacade.analyzeTextWithLanguage(request.text(), request.language())
-                    : analysisFacade.analyzeText(request.text());
-            return ResponseEntity.ok(TextAnalysisResult.fromDomain(result));
-        } catch (InvalidAnalysisTextException e) {
-            return ResponseEntity.badRequest().build();
-        }
+  /** Documentation. */
+  @PostMapping("/chat/analyze")
+  public ResponseEntity<TextAnalysisResult> analyzeText(
+      @Valid @RequestBody TextAnalysisRequest request) {
+    try {
+      var result =
+          request.language() != null && !request.language().isBlank()
+              ? analysisFacade.analyzeTextWithLanguage(request.text(), request.language())
+              : analysisFacade.analyzeText(request.text());
+      return ResponseEntity.ok(TextAnalysisResult.fromDomain(result));
+    } catch (InvalidAnalysisTextException e) {
+      return ResponseEntity.badRequest().build();
     }
+  }
 }

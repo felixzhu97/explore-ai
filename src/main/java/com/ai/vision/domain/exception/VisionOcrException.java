@@ -1,8 +1,9 @@
 package com.ai.vision.domain.exception;
 
+/** Documentation. */
 public class VisionOcrException extends RuntimeException {
-
-    public VisionOcrException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  /** Documentation. */
+  public VisionOcrException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

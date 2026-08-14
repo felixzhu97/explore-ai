@@ -1,8 +1,9 @@
 package com.ai.automation.domain.exception;
 
+/** Documentation. */
 public class AutomationLimitExceededException extends RuntimeException {
-
-    public AutomationLimitExceededException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public AutomationLimitExceededException(String message) {
+    super(message);
+  }
 }

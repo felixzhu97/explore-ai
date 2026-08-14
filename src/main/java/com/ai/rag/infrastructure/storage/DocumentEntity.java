@@ -3,105 +3,148 @@ package com.ai.rag.infrastructure.storage;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.vo.DocumentId;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * JPA entity for Document aggregate.
- * Maps to the documents table managed by Liquibase.
- */
+/** JPA entity for Document aggregate. Maps to the documents table managed by Liquibase. */
 @Entity
 @Table(name = "documents")
 public class DocumentEntity {
 
-    @Id
-    @Column(name = "id")
-    private UUID id;
+  @Id
+  @Column(name = "id")
+  private UUID id;
 
-    @Column(name = "title", nullable = false)
-    private String title;
+  @Column(name = "title", nullable = false)
+  private String title;
 
-    @Column(name = "file_name")
-    private String fileName;
+  @Column(name = "file_name")
+  private String fileName;
 
-    @Column(name = "file_size")
-    private Long fileSize;
+  @Column(name = "file_size")
+  private Long fileSize;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private DocumentStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private DocumentStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+  @Column(name = "created_at", nullable = false)
+  private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+  @Column(name = "updated_at", nullable = false)
+  private Instant updatedAt;
 
-    @Column(name = "owner_key", nullable = false, length = 80)
-    private String ownerKey;
+  @Column(name = "owner_key", nullable = false, length = 80)
+  private String ownerKey;
 
-    public DocumentEntity() {
-    }
+  /** Documentation. */
+  public DocumentEntity() {}
 
-    public DocumentEntity(UUID id, String title, String fileName, Long fileSize,
-                          DocumentStatus status, Instant createdAt, Instant updatedAt, String ownerKey) {
-        this.id = id;
-        this.title = title;
-        this.fileName = fileName;
-        this.fileSize = fileSize;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.ownerKey = ownerKey;
-    }
+  /** Documentation. */
+  public DocumentEntity(
+      UUID id,
+      String title,
+      String fileName,
+      Long fileSize,
+      DocumentStatus status,
+      Instant createdAt,
+      Instant updatedAt,
+      String ownerKey) {
+    this.id = id;
+    this.title = title;
+    this.fileName = fileName;
+    this.fileSize = fileSize;
+    this.status = status;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+    this.ownerKey = ownerKey;
+  }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+  public UUID getId() {
+    return id;
+  }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+  public void setId(UUID id) {
+    this.id = id;
+  }
 
-    public String getFileName() { return fileName; }
-    public void setFileName(String fileName) { this.fileName = fileName; }
+  public String getTitle() {
+    return title;
+  }
 
-    public Long getFileSize() { return fileSize; }
-    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public DocumentStatus getStatus() { return status; }
-    public void setStatus(DocumentStatus status) { this.status = status; }
+  public String getFileName() {
+    return fileName;
+  }
 
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+  public Long getFileSize() {
+    return fileSize;
+  }
 
-    public String getOwnerKey() { return ownerKey; }
-    public void setOwnerKey(String ownerKey) { this.ownerKey = ownerKey; }
+  public void setFileSize(Long fileSize) {
+    this.fileSize = fileSize;
+  }
 
-    public static DocumentEntity fromDomain(Document document, String ownerKey) {
-        return new DocumentEntity(
-            document.getId().value(),
-            document.getTitle(),
-            document.getFileName(),
-            document.getFileSize(),
-            document.getStatus(),
-            document.getCreatedAt(),
-            document.getUpdatedAt(),
-            ownerKey
-        );
-    }
+  public DocumentStatus getStatus() {
+    return status;
+  }
 
-    public Document toDomain() {
-        return new Document(
-            DocumentId.of(id),
-            title,
-            fileName,
-            fileSize,
-            status,
-            createdAt,
-            updatedAt
-        );
-    }
+  public void setStatus(DocumentStatus status) {
+    this.status = status;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public String getOwnerKey() {
+    return ownerKey;
+  }
+
+  public void setOwnerKey(String ownerKey) {
+    this.ownerKey = ownerKey;
+  }
+
+  /** Documentation. */
+  public static DocumentEntity fromDomain(Document document, String ownerKey) {
+    return new DocumentEntity(
+        document.getId().value(),
+        document.getTitle(),
+        document.getFileName(),
+        document.getFileSize(),
+        document.getStatus(),
+        document.getCreatedAt(),
+        document.getUpdatedAt(),
+        ownerKey);
+  }
+
+  /** Documentation. */
+  public Document toDomain() {
+    return new Document(DocumentId.of(id), title, fileName, fileSize, status, createdAt, updatedAt);
+  }
 }

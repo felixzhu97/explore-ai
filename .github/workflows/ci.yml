@@ -28,6 +28,9 @@ jobs:
 
       - run: chmod +x gradlew
 
+      - id: style
+        run: ./gradlew spotlessCheck checkstyleMain checkstyleTest --no-daemon
+
       - id: gradle
         run: ./gradlew test jacocoTestCoverageVerification --no-daemon
 

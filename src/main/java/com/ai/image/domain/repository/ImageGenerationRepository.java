@@ -4,7 +4,8 @@ import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.vo.ImageOptions;
 import com.ai.image.domain.vo.ImagePrompt;
 
+/** Documentation. */
 public interface ImageGenerationRepository {
-
-    GeneratedImage generate(ImagePrompt prompt, ImageOptions options);
+  /** Documentation. */
+  GeneratedImage generate(ImagePrompt prompt, ImageOptions options);
 }
