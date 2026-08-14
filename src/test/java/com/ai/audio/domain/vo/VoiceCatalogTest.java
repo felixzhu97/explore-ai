@@ -1,56 +1,55 @@
 package com.ai.audio.domain.vo;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("VoiceCatalog")
 class VoiceCatalogTest {
 
-    @Test
-    @DisplayName("should contain default voices and models")
-    void shouldContainDefaultVoicesAndModels() {
-        VoiceCatalog catalog = VoiceCatalog.defaults();
+  @Test
+  @DisplayName("should contain default voices and models")
+  void shouldContainDefaultVoicesAndModels() {
+    VoiceCatalog catalog = VoiceCatalog.defaults();
 
-        assertThat(catalog.containsVoice("alloy")).isTrue();
-        assertThat(catalog.containsModel("tts-1")).isTrue();
-        assertThat(catalog.defaultVoice()).isEqualTo("alloy");
-    }
+    assertThat(catalog.containsVoice("alloy")).isTrue();
+    assertThat(catalog.containsModel("tts-1")).isTrue();
+    assertThat(catalog.defaultVoice()).isEqualTo("alloy");
+  }
 
-    @Test
-    @DisplayName("should reject null voices")
-    void shouldRejectNullVoices() {
-        assertThatThrownBy(() -> new VoiceCatalog(null, List.of("tts-1")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Voices list");
-    }
+  @Test
+  @DisplayName("should reject null voices")
+  void shouldRejectNullVoices() {
+    assertThatThrownBy(() -> new VoiceCatalog(null, List.of("tts-1")))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Voices list");
+  }
 
-    @Test
-    @DisplayName("should return immutable lists")
-    void shouldReturnImmutableLists() {
-        List<String> mutableVoices = new ArrayList<>(List.of("alloy"));
-        VoiceCatalog catalog = new VoiceCatalog(mutableVoices, List.of("tts-1"));
+  @Test
+  @DisplayName("should return immutable lists")
+  void shouldReturnImmutableLists() {
+    List<String> mutableVoices = new ArrayList<>(List.of("alloy"));
+    VoiceCatalog catalog = new VoiceCatalog(mutableVoices, List.of("tts-1"));
 
-        mutableVoices.add("echo");
+    mutableVoices.add("echo");
 
-        assertThat(catalog.voices()).containsExactly("alloy");
-        assertThatThrownBy(() -> catalog.voices().add("nova"))
-                .isInstanceOf(UnsupportedOperationException.class);
-    }
+    assertThat(catalog.voices()).containsExactly("alloy");
+    assertThatThrownBy(() -> catalog.voices().add("nova"))
+        .isInstanceOf(UnsupportedOperationException.class);
+  }
 
-    @Test
-    @DisplayName("should return unknown voice info for blank voice id")
-    void shouldReturnUnknownVoiceInfoForBlankVoiceId() {
-        VoiceCatalog catalog = new VoiceCatalog(List.of("alloy", ""), List.of("tts-1"));
+  @Test
+  @DisplayName("should return unknown voice info for blank voice id")
+  void shouldReturnUnknownVoiceInfoForBlankVoiceId() {
+    VoiceCatalog catalog = new VoiceCatalog(List.of("alloy", ""), List.of("tts-1"));
 
-        List<VoiceInfo> infos = catalog.voiceInfos();
+    List<VoiceInfo> infos = catalog.voiceInfos();
 
-        assertThat(infos.get(1).id()).isEqualTo("unknown");
-        assertThat(infos.get(1).name()).isEqualTo("Unknown");
-    }
+    assertThat(infos.get(1).id()).isEqualTo("unknown");
+    assertThat(infos.get(1).name()).isEqualTo("Unknown");
+  }
 }

@@ -15,18 +15,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("OwnerEraseUseCaseImpl")
 class OwnerEraseUseCaseImplTest {
 
-    @Mock
-    private OwnerPartitionRepository ownerPartitionRepository;
+  @Mock private OwnerPartitionRepository ownerPartitionRepository;
 
-    @InjectMocks
-    private OwnerEraseUseCaseImpl useCase;
+  @InjectMocks private OwnerEraseUseCaseImpl useCase;
 
-    @Test
-    void shouldDeleteAllForOwnerWhenEraseRequested() {
-        OwnerKey owner = OwnerKey.forAccount("acct-1");
+  @Test
+  void shouldDeleteAllForOwnerWhenEraseRequested() {
+    OwnerKey owner = OwnerKey.forAccount("acct-1");
 
-        useCase.eraseAllForOwner(owner);
+    useCase.eraseAllForOwner(owner);
 
-        verify(ownerPartitionRepository).deleteAllForOwner(owner);
-    }
+    verify(ownerPartitionRepository).deleteAllForOwner(owner);
+  }
 }

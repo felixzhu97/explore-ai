@@ -11,36 +11,41 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Hydrates the in-app MCP registry from Spring AI MCP client tool callbacks (e.g. Fetch)
- * and exposes them for {@link com.ai.common.infrastructure.llm.ChatClientFactory}.
+ * Hydrates the in-app MCP registry from Spring AI MCP client tool callbacks (e.g. Fetch) and
+ * exposes them for {@link com.ai.common.infrastructure.llm.ChatClientFactory}.
  */
 @Configuration
 public class McpClientToolsConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(McpClientToolsConfig.class);
+  private static final Logger log = LoggerFactory.getLogger(McpClientToolsConfig.class);
 
-    @Bean
-    @ConditionalOnProperty(prefix = "spring.ai.mcp.client", name = "enabled", havingValue = "true", matchIfMissing = true)
-    public ToolCallback[] mcpToolCallbacks(
-            ObjectProvider<ToolCallbackProvider> toolCallbackProviders,
-            McpToolCallbackRegistry registry) {
-        try {
-            ToolCallbackProvider provider = toolCallbackProviders.getIfAvailable();
-            if (provider == null) {
-                log.debug("No MCP ToolCallbackProvider; chat will use local tools only");
-                return new ToolCallback[0];
-            }
-            ToolCallback[] callbacks = provider.getToolCallbacks();
-            if (callbacks == null || callbacks.length == 0) {
-                log.debug("MCP client has no external tools registered");
-                return new ToolCallback[0];
-            }
-            registry.registerToolCallbacks(callbacks, "external-mcp");
-            log.info("Merged {} MCP tool callback(s) into chat", callbacks.length);
-            return callbacks;
-        } catch (RuntimeException ex) {
-            log.warn("MCP tool registration failed; chat will use local tools only: {}", ex.getMessage());
-            return new ToolCallback[0];
-        }
+  /** Documentation. */
+  @Bean
+  @ConditionalOnProperty(
+      prefix = "spring.ai.mcp.client",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public ToolCallback[] mcpToolCallbacks(
+      ObjectProvider<ToolCallbackProvider> toolCallbackProviders,
+      McpToolCallbackRegistry registry) {
+    try {
+      ToolCallbackProvider provider = toolCallbackProviders.getIfAvailable();
+      if (provider == null) {
+        log.debug("No MCP ToolCallbackProvider; chat will use local tools only");
+        return new ToolCallback[0];
+      }
+      ToolCallback[] callbacks = provider.getToolCallbacks();
+      if (callbacks == null || callbacks.length == 0) {
+        log.debug("MCP client has no external tools registered");
+        return new ToolCallback[0];
+      }
+      registry.registerToolCallbacks(callbacks, "external-mcp");
+      log.info("Merged {} MCP tool callback(s) into chat", callbacks.length);
+      return callbacks;
+    } catch (RuntimeException ex) {
+      log.warn("MCP tool registration failed; chat will use local tools only: {}", ex.getMessage());
+      return new ToolCallback[0];
     }
+  }
 }

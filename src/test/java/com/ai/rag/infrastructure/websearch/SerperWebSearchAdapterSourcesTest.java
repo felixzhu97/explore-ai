@@ -1,6 +1,12 @@
 package com.ai.rag.infrastructure.websearch;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import com.ai.common.infrastructure.llm.ToolEventChannel;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,31 +14,27 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-
 @DisplayName("SerperWebSearchAdapter")
 class SerperWebSearchAdapterSourcesTest {
 
-    private static final String CHANNEL = "serper-sources-test";
+  private static final String CHANNEL = "serper-sources-test";
 
-    @AfterEach
-    void tearDown() {
-        ToolEventChannel.close(CHANNEL);
-        ToolEventChannel.clearCurrentSessionId();
-    }
+  @AfterEach
+  void tearDown() {
+    ToolEventChannel.close(CHANNEL);
+    ToolEventChannel.clearCurrentSessionId();
+  }
 
-    @Test
-    @DisplayName("should publish sources event when search succeeds")
-    void shouldPublishSourcesEventWhenSearchSucceeds() {
-        RestClient.Builder builder = RestClient.builder().baseUrl("https://google.serper.dev");
-        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
-        server.expect(requestTo("https://google.serper.dev/search"))
-                .andRespond(withSuccess("""
+  @Test
+  @DisplayName("should publish sources event when search succeeds")
+  void shouldPublishSourcesEventWhenSearchSucceeds() {
+    RestClient.Builder builder = RestClient.builder().baseUrl("https://google.serper.dev");
+    MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+    server
+        .expect(requestTo("https://google.serper.dev/search"))
+        .andRespond(
+            withSuccess(
+                """
                         {
                           "organic": [
                             {
@@ -42,22 +44,25 @@ class SerperWebSearchAdapterSourcesTest {
                             }
                           ]
                         }
-                        """, MediaType.APPLICATION_JSON));
+                        """,
+                MediaType.APPLICATION_JSON));
 
-        var sink = ToolEventChannel.open(CHANNEL);
-        List<String> events = new ArrayList<>();
-        sink.asFlux().subscribe(events::add);
+    var sink = ToolEventChannel.open(CHANNEL);
+    List<String> events = new ArrayList<>();
+    sink.asFlux().subscribe(events::add);
 
-        SerperWebSearchAdapter adapter = new SerperWebSearchAdapter("test-key", builder.build());
-        String result = adapter.searchWeb("weather beijing");
+    SerperWebSearchAdapter adapter = new SerperWebSearchAdapter("test-key", builder.build());
+    String result = adapter.searchWeb("weather beijing");
 
-        assertThat(result).contains("Example").contains("https://example.com");
-        assertThat(events).anySatisfy(event ->
+    assertThat(result).contains("Example").contains("https://example.com");
+    assertThat(events)
+        .anySatisfy(
+            event ->
                 assertThat(event)
-                        .contains("\"type\":\"sources\"")
-                        .contains("weather beijing")
-                        .contains("https://example.com"));
-        server.verify();
-        ToolEventChannel.close(CHANNEL);
-    }
+                    .contains("\"type\":\"sources\"")
+                    .contains("weather beijing")
+                    .contains("https://example.com"));
+    server.verify();
+    ToolEventChannel.close(CHANNEL);
+  }
 }

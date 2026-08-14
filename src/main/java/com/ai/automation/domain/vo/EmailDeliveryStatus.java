@@ -1,16 +1,19 @@
 package com.ai.automation.domain.vo;
 
+/** Documentation. */
 public enum EmailDeliveryStatus {
-    PENDING,
-    SENT,
-    SKIPPED,
-    FAILED;
+  PENDING,
+  SENT,
+  SKIPPED,
+  FAILED;
 
-    public String value() {
-        return name();
-    }
+  /** Documentation. */
+  public String value() {
+    return name();
+  }
 
-    public static EmailDeliveryStatus from(String raw) {
-        return EmailDeliveryStatus.valueOf(raw.trim().toUpperCase());
-    }
+  /** Documentation. */
+  public static EmailDeliveryStatus from(String raw) {
+    return EmailDeliveryStatus.valueOf(raw.trim().toUpperCase());
+  }
 }

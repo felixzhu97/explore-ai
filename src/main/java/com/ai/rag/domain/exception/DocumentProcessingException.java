@@ -1,15 +1,14 @@
 package com.ai.rag.domain.exception;
 
-/**
- * Exception thrown when document processing fails.
- */
+/** Exception thrown when document processing fails. */
 public class DocumentProcessingException extends RuntimeException {
+  /** Documentation. */
+  public DocumentProcessingException(String message) {
+    super(message);
+  }
 
-    public DocumentProcessingException(String message) {
-        super(message);
-    }
-
-    public DocumentProcessingException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  /** Documentation. */
+  public DocumentProcessingException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

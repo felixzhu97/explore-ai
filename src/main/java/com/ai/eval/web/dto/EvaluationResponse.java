@@ -1,12 +1,9 @@
 package com.ai.eval.web.dto;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
-
 import java.util.List;
 
-/**
- * Response DTO for chat evaluation.
- */
+/** Response DTO for chat evaluation. */
 public record EvaluationResponse(
     double coherenceScore,
     double relevanceScore,
@@ -19,27 +16,25 @@ public record EvaluationResponse(
     List<String> suggestions,
     boolean relevancyPass,
     Boolean factualityPass,
-    List<String> evaluatorFeedback
-) {
+    List<String> evaluatorFeedback) {
+  /** Documentation. */
+  public static EvaluationResponse from(ChatEvaluationResult result) {
+    return new EvaluationResponse(
+        round(result.coherenceScore()),
+        round(result.relevanceScore()),
+        round(result.helpfulnessScore()),
+        result.factualityAvailable() ? round(result.factualityScore()) : null,
+        result.factualityAvailable(),
+        round(result.overallScore()),
+        result.hasSafetyIssues(),
+        result.safetyFlags(),
+        result.suggestions(),
+        result.relevancyPass(),
+        result.factualityPass(),
+        result.evaluatorFeedback());
+  }
 
-    public static EvaluationResponse from(ChatEvaluationResult result) {
-        return new EvaluationResponse(
-            round(result.coherenceScore()),
-            round(result.relevanceScore()),
-            round(result.helpfulnessScore()),
-            result.factualityAvailable() ? round(result.factualityScore()) : null,
-            result.factualityAvailable(),
-            round(result.overallScore()),
-            result.hasSafetyIssues(),
-            result.safetyFlags(),
-            result.suggestions(),
-            result.relevancyPass(),
-            result.factualityPass(),
-            result.evaluatorFeedback()
-        );
-    }
-
-    private static double round(double score) {
-        return Math.round(score * 100.0) / 100.0;
-    }
+  private static double round(double score) {
+    return Math.round(score * 100.0) / 100.0;
+  }
 }

@@ -1,6 +1,7 @@
 package com.ai.common.domain.repository;
 
+/** Documentation. */
 public interface FeatureFlagRepository {
-
-    boolean isEnabled(String flagKey, boolean defaultValue);
+  /** Documentation. */
+  boolean isEnabled(String flagKey, boolean defaultValue);
 }

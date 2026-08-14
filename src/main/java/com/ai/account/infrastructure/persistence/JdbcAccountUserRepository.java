@@ -10,67 +10,73 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Documentation. */
 @Repository
 public class JdbcAccountUserRepository implements AccountUserRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<AccountUser> rowMapper = (rs, rowNum) -> AccountUser.restore(
-            rs.getString("id"),
-            rs.getString("provider"),
-            rs.getString("subject"),
-            rs.getString("email"),
-            rs.getString("linked_client_id"),
-            rs.getTimestamp("created_at").toInstant(),
-            rs.getTimestamp("updated_at").toInstant());
+  private final JdbcTemplate jdbcTemplate;
+  private final RowMapper<AccountUser> rowMapper =
+      (rs, rowNum) ->
+          AccountUser.restore(
+              rs.getString("id"),
+              rs.getString("provider"),
+              rs.getString("subject"),
+              rs.getString("email"),
+              rs.getString("linked_client_id"),
+              rs.getTimestamp("created_at").toInstant(),
+              rs.getTimestamp("updated_at").toInstant());
 
-    public JdbcAccountUserRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+  /** Documentation. */
+  public JdbcAccountUserRepository(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
+  }
 
-    @Override
-    @Transactional
-    public AccountUser save(AccountUser user) {
-        jdbcTemplate.update(
-                """
+  @Override
+  @Transactional
+  public AccountUser save(AccountUser user) {
+    jdbcTemplate.update(
+        """
                 MERGE INTO account_users (
                     id, provider, subject, email, linked_client_id, created_at, updated_at
                 )
                 KEY (id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                user.getId(),
-                user.getProvider(),
-                user.getSubject(),
-                user.getEmail(),
-                user.getLinkedClientId(),
-                Timestamp.from(user.getCreatedAt()),
-                Timestamp.from(user.getUpdatedAt()));
-        return user;
-    }
+        user.getId(),
+        user.getProvider(),
+        user.getSubject(),
+        user.getEmail(),
+        user.getLinkedClientId(),
+        Timestamp.from(user.getCreatedAt()),
+        Timestamp.from(user.getUpdatedAt()));
+    return user;
+  }
 
-    @Override
-    public Optional<AccountUser> findByProviderAndSubject(String provider, String subject) {
-        List<AccountUser> rows = jdbcTemplate.query(
-                """
+  @Override
+  public Optional<AccountUser> findByProviderAndSubject(String provider, String subject) {
+    List<AccountUser> rows =
+        jdbcTemplate.query(
+            """
                 SELECT * FROM account_users WHERE provider = ? AND subject = ?
                 """,
-                rowMapper,
-                provider,
-                subject);
-        return rows.isEmpty() ? Optional.empty() : Optional.of(rows.getFirst());
-    }
+            rowMapper,
+            provider,
+            subject);
+    return rows.isEmpty() ? Optional.empty() : Optional.of(rows.getFirst());
+  }
 
-    @Override
-    public Optional<AccountUser> findByLinkedClientId(String linkedClientId) {
-        if (linkedClientId == null || linkedClientId.isBlank()) {
-            return Optional.empty();
-        }
-        List<AccountUser> rows = jdbcTemplate.query(
-                """
+  @Override
+  public Optional<AccountUser> findByLinkedClientId(String linkedClientId) {
+    if (linkedClientId == null || linkedClientId.isBlank()) {
+      return Optional.empty();
+    }
+    List<AccountUser> rows =
+        jdbcTemplate.query(
+            """
                 SELECT * FROM account_users WHERE linked_client_id = ?
                 """,
-                rowMapper,
-                linkedClientId);
-        return rows.isEmpty() ? Optional.empty() : Optional.of(rows.getFirst());
-    }
+            rowMapper,
+            linkedClientId);
+    return rows.isEmpty() ? Optional.empty() : Optional.of(rows.getFirst());
+  }
 }

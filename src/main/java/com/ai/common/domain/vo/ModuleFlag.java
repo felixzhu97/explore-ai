@@ -1,44 +1,48 @@
 package com.ai.common.domain.vo;
 
+/** Documentation. */
 public enum ModuleFlag {
+  VISION("module-vision", "/api/vision"),
+  AUDIO_ASR("module-audio-asr", "/ws/audio"),
+  MCP("module-mcp", "/api/mcp"),
+  EVAL("module-eval", "/api/eval"),
+  PIPELINES("module-pipelines", "/api/pipelines"),
+  AUTOMATIONS("module-automations", "/api/automations"),
+  SKILLS("module-skills", "/api/skills");
 
-    VISION("module-vision", "/api/vision"),
-    AUDIO_ASR("module-audio-asr", "/ws/audio"),
-    MCP("module-mcp", "/api/mcp"),
-    EVAL("module-eval", "/api/eval"),
-    PIPELINES("module-pipelines", "/api/pipelines"),
-    AUTOMATIONS("module-automations", "/api/automations"),
-    SKILLS("module-skills", "/api/skills");
+  private final String key;
+  private final String pathPrefix;
 
-    private final String key;
-    private final String pathPrefix;
+  ModuleFlag(String key, String pathPrefix) {
+    this.key = key;
+    this.pathPrefix = pathPrefix;
+  }
 
-    ModuleFlag(String key, String pathPrefix) {
-        this.key = key;
-        this.pathPrefix = pathPrefix;
+  /** Documentation. */
+  public String key() {
+    return key;
+  }
+
+  /** Documentation. */
+  public String pathPrefix() {
+    return pathPrefix;
+  }
+
+  /** Documentation. */
+  public String bootstrapProperty() {
+    return "launchdarkly.bootstrap." + key;
+  }
+
+  /** Documentation. */
+  public static ModuleFlag fromPath(String requestPath) {
+    if (requestPath == null) {
+      return null;
     }
-
-    public String key() {
-        return key;
+    for (ModuleFlag flag : values()) {
+      if (requestPath.startsWith(flag.pathPrefix)) {
+        return flag;
+      }
     }
-
-    public String pathPrefix() {
-        return pathPrefix;
-    }
-
-    public String bootstrapProperty() {
-        return "launchdarkly.bootstrap." + key;
-    }
-
-    public static ModuleFlag fromPath(String requestPath) {
-        if (requestPath == null) {
-            return null;
-        }
-        for (ModuleFlag flag : values()) {
-            if (requestPath.startsWith(flag.pathPrefix)) {
-                return flag;
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

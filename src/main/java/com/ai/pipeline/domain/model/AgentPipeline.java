@@ -1,7 +1,6 @@
 package com.ai.pipeline.domain.model;
 
 import com.ai.pipeline.domain.vo.AgentType;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,179 +13,176 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * User-authored multi-agent pipeline graph (nodes + directed edges).
- * Each node carries an editable agent snapshot used at invoke time.
+ * User-authored multi-agent pipeline graph (nodes + directed edges). Each node carries an editable
+ * agent snapshot used at invoke time.
  */
 public final class AgentPipeline {
 
-    private final List<PipelineNode> nodes;
-    private final List<PipelineEdge> edges;
+  private final List<PipelineNode> nodes;
+  private final List<PipelineEdge> edges;
 
-    private AgentPipeline(List<PipelineNode> nodes, List<PipelineEdge> edges) {
-        this.nodes = List.copyOf(nodes);
-        this.edges = List.copyOf(edges);
+  private AgentPipeline(List<PipelineNode> nodes, List<PipelineEdge> edges) {
+    this.nodes = List.copyOf(nodes);
+    this.edges = List.copyOf(edges);
+  }
+
+  /** Documentation. */
+  public static AgentPipeline create(List<PipelineNode> nodes, List<PipelineEdge> edges) {
+    Objects.requireNonNull(nodes, "nodes");
+    Objects.requireNonNull(edges, "edges");
+    return new AgentPipeline(nodes, edges);
+  }
+
+  /** Documentation. */
+  public List<PipelineNode> nodes() {
+    return nodes;
+  }
+
+  /** Documentation. */
+  public List<PipelineEdge> edges() {
+    return edges;
+  }
+
+  /** Validates the graph and returns worker nodes in topological order. */
+  public List<PipelineNode> executionOrder() {
+    if (nodes.isEmpty()) {
+      throw new IllegalArgumentException("pipeline must contain at least one agent node");
     }
 
-    public static AgentPipeline create(List<PipelineNode> nodes, List<PipelineEdge> edges) {
-        Objects.requireNonNull(nodes, "nodes");
-        Objects.requireNonNull(edges, "edges");
-        return new AgentPipeline(nodes, edges);
+    Map<String, PipelineNode> byId = new LinkedHashMap<>();
+    for (PipelineNode node : nodes) {
+      if (byId.put(node.id(), node) != null) {
+        throw new IllegalArgumentException("duplicate node id: " + node.id());
+      }
+      if (node.agentType().isSupervisor()) {
+        throw new IllegalArgumentException("pipeline nodes must be worker agents, not supervisor");
+      }
     }
 
-    public List<PipelineNode> nodes() {
-        return nodes;
+    Map<String, Set<String>> outgoing = new HashMap<>();
+    Map<String, Integer> indegree = new HashMap<>();
+    for (String id : byId.keySet()) {
+      outgoing.put(id, new HashSet<>());
+      indegree.put(id, 0);
     }
 
-    public List<PipelineEdge> edges() {
-        return edges;
+    for (PipelineEdge edge : edges) {
+      if (!byId.containsKey(edge.sourceId()) || !byId.containsKey(edge.targetId())) {
+        throw new IllegalArgumentException("edge references unknown node");
+      }
+      if (edge.sourceId().equals(edge.targetId())) {
+        throw new IllegalArgumentException("self-loop edges are not allowed");
+      }
+      if (outgoing.get(edge.sourceId()).add(edge.targetId())) {
+        indegree.merge(edge.targetId(), 1, Integer::sum);
+      }
     }
 
-    /**
-     * Validates the graph and returns worker nodes in topological order.
-     */
-    public List<PipelineNode> executionOrder() {
-        if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("pipeline must contain at least one agent node");
-        }
-
-        Map<String, PipelineNode> byId = new LinkedHashMap<>();
-        for (PipelineNode node : nodes) {
-            if (byId.put(node.id(), node) != null) {
-                throw new IllegalArgumentException("duplicate node id: " + node.id());
-            }
-            if (node.agentType().isSupervisor()) {
-                throw new IllegalArgumentException("pipeline nodes must be worker agents, not supervisor");
-            }
-        }
-
-        Map<String, Set<String>> outgoing = new HashMap<>();
-        Map<String, Integer> indegree = new HashMap<>();
-        for (String id : byId.keySet()) {
-            outgoing.put(id, new HashSet<>());
-            indegree.put(id, 0);
-        }
-
-        for (PipelineEdge edge : edges) {
-            if (!byId.containsKey(edge.sourceId()) || !byId.containsKey(edge.targetId())) {
-                throw new IllegalArgumentException("edge references unknown node");
-            }
-            if (edge.sourceId().equals(edge.targetId())) {
-                throw new IllegalArgumentException("self-loop edges are not allowed");
-            }
-            if (outgoing.get(edge.sourceId()).add(edge.targetId())) {
-                indegree.merge(edge.targetId(), 1, Integer::sum);
-            }
-        }
-
-        if (nodes.size() > 1 && edges.isEmpty()) {
-            throw new IllegalArgumentException("connect agent nodes before running the pipeline");
-        }
-
-        if (nodes.size() > 1 && hasOrphan(byId.keySet(), outgoing)) {
-            throw new IllegalArgumentException("all agent nodes must be connected in one pipeline");
-        }
-
-        Queue<String> ready = new ArrayDeque<>();
-        for (Map.Entry<String, Integer> entry : indegree.entrySet()) {
-            if (entry.getValue() == 0) {
-                ready.add(entry.getKey());
-            }
-        }
-
-        List<PipelineNode> order = new ArrayList<>();
-        Map<String, Integer> remaining = new HashMap<>(indegree);
-        while (!ready.isEmpty()) {
-            String id = ready.poll();
-            order.add(byId.get(id));
-            for (String next : outgoing.get(id)) {
-                int nextDegree = remaining.merge(next, -1, Integer::sum);
-                if (nextDegree == 0) {
-                    ready.add(next);
-                }
-            }
-        }
-
-        if (order.size() != nodes.size()) {
-            throw new IllegalArgumentException("pipeline contains a cycle");
-        }
-        return List.copyOf(order);
+    if (nodes.size() > 1 && edges.isEmpty()) {
+      throw new IllegalArgumentException("connect agent nodes before running the pipeline");
     }
 
-    private static boolean hasOrphan(Set<String> ids, Map<String, Set<String>> outgoing) {
-        Map<String, Set<String>> undirected = new HashMap<>();
-        for (String id : ids) {
-            undirected.put(id, new HashSet<>());
-        }
-        for (Map.Entry<String, Set<String>> entry : outgoing.entrySet()) {
-            for (String target : entry.getValue()) {
-                undirected.get(entry.getKey()).add(target);
-                undirected.get(target).add(entry.getKey());
-            }
-        }
-        String start = ids.iterator().next();
-        Set<String> visited = new HashSet<>();
-        Queue<String> queue = new ArrayDeque<>();
-        queue.add(start);
-        visited.add(start);
-        while (!queue.isEmpty()) {
-            String current = queue.poll();
-            for (String next : undirected.get(current)) {
-                if (visited.add(next)) {
-                    queue.add(next);
-                }
-            }
-        }
-        return visited.size() != ids.size();
+    if (nodes.size() > 1 && hasOrphan(byId.keySet(), outgoing)) {
+      throw new IllegalArgumentException("all agent nodes must be connected in one pipeline");
     }
 
-    /**
-     * Graph node with an editable agent snapshot (double-click edit on canvas).
-     */
-    public record PipelineNode(
-            String id,
-            AgentType agentType,
-            String name,
-            String description,
-            String systemPrompt,
-            List<String> toolKeys) {
-
-        public PipelineNode {
-            Objects.requireNonNull(id, "id");
-            Objects.requireNonNull(agentType, "agentType");
-            if (id.isBlank()) {
-                throw new IllegalArgumentException("node id must not be blank");
-            }
-            name = name == null || name.isBlank() ? agentType.value() : name.trim();
-            description = description == null ? "" : description.trim();
-            systemPrompt = systemPrompt == null ? "" : systemPrompt.trim();
-            toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
-        }
-
-        public static PipelineNode of(String id, AgentType agentType) {
-            return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
-        }
-
-        public AgentDefinition toDefinition() {
-            String prompt = systemPrompt.isBlank()
-                    ? "You are agent " + agentType.value() + "."
-                    : systemPrompt;
-            return AgentDefinition.create(
-                    agentType,
-                    name,
-                    description,
-                    prompt,
-                    toolKeys,
-                    AgentDefinition.RUNTIME_SINGLE);
-        }
+    Queue<String> ready = new ArrayDeque<>();
+    for (Map.Entry<String, Integer> entry : indegree.entrySet()) {
+      if (entry.getValue() == 0) {
+        ready.add(entry.getKey());
+      }
     }
 
-    public record PipelineEdge(String sourceId, String targetId) {
-        public PipelineEdge {
-            Objects.requireNonNull(sourceId, "sourceId");
-            Objects.requireNonNull(targetId, "targetId");
-            if (sourceId.isBlank() || targetId.isBlank()) {
-                throw new IllegalArgumentException("edge endpoints must not be blank");
-            }
+    List<PipelineNode> order = new ArrayList<>();
+    Map<String, Integer> remaining = new HashMap<>(indegree);
+    while (!ready.isEmpty()) {
+      String id = ready.poll();
+      order.add(byId.get(id));
+      for (String next : outgoing.get(id)) {
+        int nextDegree = remaining.merge(next, -1, Integer::sum);
+        if (nextDegree == 0) {
+          ready.add(next);
         }
+      }
     }
+
+    if (order.size() != nodes.size()) {
+      throw new IllegalArgumentException("pipeline contains a cycle");
+    }
+    return List.copyOf(order);
+  }
+
+  private static boolean hasOrphan(Set<String> ids, Map<String, Set<String>> outgoing) {
+    Map<String, Set<String>> undirected = new HashMap<>();
+    for (String id : ids) {
+      undirected.put(id, new HashSet<>());
+    }
+    for (Map.Entry<String, Set<String>> entry : outgoing.entrySet()) {
+      for (String target : entry.getValue()) {
+        undirected.get(entry.getKey()).add(target);
+        undirected.get(target).add(entry.getKey());
+      }
+    }
+    String start = ids.iterator().next();
+    Set<String> visited = new HashSet<>();
+    Queue<String> queue = new ArrayDeque<>();
+    queue.add(start);
+    visited.add(start);
+    while (!queue.isEmpty()) {
+      String current = queue.poll();
+      for (String next : undirected.get(current)) {
+        if (visited.add(next)) {
+          queue.add(next);
+        }
+      }
+    }
+    return visited.size() != ids.size();
+  }
+
+  /** Graph node with an editable agent snapshot (double-click edit on canvas). */
+  public record PipelineNode(
+      String id,
+      AgentType agentType,
+      String name,
+      String description,
+      String systemPrompt,
+      List<String> toolKeys) {
+    /** Documentation. */
+    public PipelineNode {
+      Objects.requireNonNull(id, "id");
+      Objects.requireNonNull(agentType, "agentType");
+      if (id.isBlank()) {
+        throw new IllegalArgumentException("node id must not be blank");
+      }
+      name = name == null || name.isBlank() ? agentType.value() : name.trim();
+      description = description == null ? "" : description.trim();
+      systemPrompt = systemPrompt == null ? "" : systemPrompt.trim();
+      toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
+    }
+
+    /** Documentation. */
+    public static PipelineNode of(String id, AgentType agentType) {
+      return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
+    }
+
+    /** Documentation. */
+    public AgentDefinition toDefinition() {
+      String prompt =
+          systemPrompt.isBlank() ? "You are agent " + agentType.value() + "." : systemPrompt;
+      return AgentDefinition.create(
+          agentType, name, description, prompt, toolKeys, AgentDefinition.RUNTIME_SINGLE);
+    }
+  }
+
+  /** Documentation. */
+  public record PipelineEdge(String sourceId, String targetId) {
+    /** Documentation. */
+    public PipelineEdge {
+      Objects.requireNonNull(sourceId, "sourceId");
+      Objects.requireNonNull(targetId, "targetId");
+      if (sourceId.isBlank() || targetId.isBlank()) {
+        throw new IllegalArgumentException("edge endpoints must not be blank");
+      }
+    }
+  }
 }

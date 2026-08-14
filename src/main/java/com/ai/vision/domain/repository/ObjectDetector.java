@@ -4,9 +4,11 @@ import com.ai.vision.domain.model.Detection;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+/** Documentation. */
 public interface ObjectDetector {
+  /** Documentation. */
+  List<Detection> detect(BufferedImage image);
 
-    List<Detection> detect(BufferedImage image);
-
-    boolean isAvailable();
+  /** Documentation. */
+  boolean isAvailable();
 }

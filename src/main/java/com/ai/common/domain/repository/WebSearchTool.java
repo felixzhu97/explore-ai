@@ -1,9 +1,7 @@
 package com.ai.common.domain.repository;
 
-/**
- * Web search capabilities for tool calling.
- */
+/** Web search capabilities for tool calling. */
 public interface WebSearchTool {
-
-    String searchWeb(String query);
+  /** Documentation. */
+  String searchWeb(String query);
 }

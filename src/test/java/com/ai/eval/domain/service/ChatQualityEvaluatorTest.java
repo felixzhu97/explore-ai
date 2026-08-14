@@ -1,8 +1,18 @@
 package com.ai.eval.application.usecase;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.LlmEvaluationResponse;
 import com.ai.eval.domain.model.OfficialGateResult;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,58 +23,43 @@ import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ChatQualityEvaluator")
 class ChatQualityEvaluatorTest {
 
-    @Mock
-    private OfficialSpringAiEvaluators officialEvaluators;
+  @Mock private OfficialSpringAiEvaluators officialEvaluators;
 
-    @Mock
-    private ChatClient evaluationChatClient;
+  @Mock private ChatClient evaluationChatClient;
 
-    @Mock
-    private ChatClient.ChatClientRequestSpec requestSpec;
+  @Mock private ChatClient.ChatClientRequestSpec requestSpec;
 
-    @Mock
-    private ChatClient.CallResponseSpec callResponseSpec;
+  @Mock private ChatClient.CallResponseSpec callResponseSpec;
 
-    private ChatQualityEvaluator evaluator;
+  private ChatQualityEvaluator evaluator;
 
-    @BeforeEach
-    void setUp() {
-        evaluator = new ChatQualityEvaluator(officialEvaluators, evaluationChatClient);
-    }
+  @BeforeEach
+  void setUp() {
+    evaluator = new ChatQualityEvaluator(officialEvaluators, evaluationChatClient);
+  }
 
-    @Test
-    @DisplayName("LlmEvaluationResponse should hold values correctly")
-    void shouldHoldValuesCorrectly() {
-        LlmEvaluationResponse response = new LlmEvaluationResponse(
-            0.9, 0.85, true, "Harmful content", "Avoid such content"
-        );
+  @Test
+  @DisplayName("LlmEvaluationResponse should hold values correctly")
+  void shouldHoldValuesCorrectly() {
+    LlmEvaluationResponse response =
+        new LlmEvaluationResponse(0.9, 0.85, true, "Harmful content", "Avoid such content");
 
-        assertThat(response.coherenceScore()).isEqualTo(0.9);
-        assertThat(response.helpfulnessScore()).isEqualTo(0.85);
-        assertThat(response.hasSafetyIssues()).isTrue();
-        assertThat(response.safetyConcern()).isEqualTo("Harmful content");
-        assertThat(response.suggestion()).isEqualTo("Avoid such content");
-    }
+    assertThat(response.coherenceScore()).isEqualTo(0.9);
+    assertThat(response.helpfulnessScore()).isEqualTo(0.85);
+    assertThat(response.hasSafetyIssues()).isTrue();
+    assertThat(response.safetyConcern()).isEqualTo("Harmful content");
+    assertThat(response.suggestion()).isEqualTo("Avoid such content");
+  }
 
-    @Test
-    @DisplayName("ChatEvaluationResult builder should work correctly with all fields")
-    void shouldBuildCorrectlyWithAllFields() {
-        ChatEvaluationResult result = ChatEvaluationResult.builder()
+  @Test
+  @DisplayName("ChatEvaluationResult builder should work correctly with all fields")
+  void shouldBuildCorrectlyWithAllFields() {
+    ChatEvaluationResult result =
+        ChatEvaluationResult.builder()
             .coherenceScore(0.9)
             .relevanceScore(0.85)
             .helpfulnessScore(0.8)
@@ -79,124 +74,123 @@ class ChatQualityEvaluatorTest {
             .evaluatorFeedback(List.of("relevancy: PASS"))
             .build();
 
-        assertThat(result.coherenceScore()).isEqualTo(0.9);
-        assertThat(result.relevancyPass()).isTrue();
-        assertThat(result.factualityPass()).isTrue();
-        assertThat(result.evaluatorFeedback()).containsExactly("relevancy: PASS");
-    }
+    assertThat(result.coherenceScore()).isEqualTo(0.9);
+    assertThat(result.relevancyPass()).isTrue();
+    assertThat(result.factualityPass()).isTrue();
+    assertThat(result.evaluatorFeedback()).containsExactly("relevancy: PASS");
+  }
 
-    @Test
-    @DisplayName("should skip factuality when referenceDocuments is empty")
-    void shouldSkipFactualityWhenNoReferenceDocuments() {
-        when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
-            .thenReturn(new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
-        stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
+  @Test
+  @DisplayName("should skip factuality when referenceDocuments is empty")
+  void shouldSkipFactualityWhenNoReferenceDocuments() {
+    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+        .thenReturn(
+            new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
+    stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
-        ChatEvaluationResult result = evaluator.evaluate(
+    ChatEvaluationResult result =
+        evaluator.evaluate(
+            "What is the capital of France?", "Paris is the capital of France.", List.of());
+
+    assertThat(result.factualityAvailable()).isFalse();
+    assertThat(result.factualityScore()).isNull();
+    assertThat(result.relevancyPass()).isTrue();
+    assertThat(result.factualityPass()).isNull();
+    verify(officialEvaluators).evaluate(anyString(), anyString(), anyList());
+  }
+
+  @Test
+  @DisplayName("should evaluate factuality when referenceDocuments provided")
+  void shouldEvaluateFactualityWhenReferenceDocumentsProvided() {
+    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+        .thenReturn(
+            new OfficialGateResult(
+                true, true, true, 1.0, 1.0, List.of("relevancy: PASS", "factuality: PASS"), true));
+    stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
+
+    ChatEvaluationResult result =
+        evaluator.evaluate(
             "What is the capital of France?",
             "Paris is the capital of France.",
-            List.of()
-        );
+            List.of("France is a country in Europe. Its capital is Paris."));
 
-        assertThat(result.factualityAvailable()).isFalse();
-        assertThat(result.factualityScore()).isNull();
-        assertThat(result.relevancyPass()).isTrue();
-        assertThat(result.factualityPass()).isNull();
-        verify(officialEvaluators).evaluate(anyString(), anyString(), anyList());
-    }
+    assertThat(result.factualityAvailable()).isTrue();
+    assertThat(result.factualityScore()).isEqualTo(1.0);
+    assertThat(result.factualityPass()).isTrue();
+    assertThat(result.evaluatorFeedback()).isNotEmpty();
+  }
 
-    @Test
-    @DisplayName("should evaluate factuality when referenceDocuments provided")
-    void shouldEvaluateFactualityWhenReferenceDocumentsProvided() {
-        when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
-            .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of("relevancy: PASS", "factuality: PASS"), true));
-        stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
+  @Test
+  @DisplayName("should use fallback when LLM judge returns null")
+  void shouldUseFallbackWhenLlmJudgeReturnsNull() {
+    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+        .thenReturn(
+            new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
+    lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
+    lenient()
+        .when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT))
+        .thenReturn(requestSpec);
+    lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
+    lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
+    when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(null);
 
-        ChatEvaluationResult result = evaluator.evaluate(
-            "What is the capital of France?",
-            "Paris is the capital of France.",
-            List.of("France is a country in Europe. Its capital is Paris.")
-        );
+    ChatEvaluationResult result = evaluator.evaluate("Hello", "Hi there", List.of());
 
-        assertThat(result.factualityAvailable()).isTrue();
-        assertThat(result.factualityScore()).isEqualTo(1.0);
-        assertThat(result.factualityPass()).isTrue();
-        assertThat(result.evaluatorFeedback()).isNotEmpty();
-    }
+    assertThat(result.coherenceScore()).isZero();
+    assertThat(result.helpfulnessScore()).isZero();
+    assertThat(result.suggestions()).contains("Evaluation failed to process");
+  }
 
-    @Test
-    @DisplayName("should use fallback when LLM judge returns null")
-    void shouldUseFallbackWhenLlmJudgeReturnsNull() {
-        when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
-            .thenReturn(new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
-        lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
-        lenient().when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)).thenReturn(requestSpec);
-        lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
-        lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(null);
+  @Test
+  @DisplayName("should use default safety concern when blank")
+  void shouldUseDefaultSafetyConcernWhenBlank() {
+    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+        .thenReturn(
+            new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
+    stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, true, "", ""));
 
-        ChatEvaluationResult result = evaluator.evaluate(
-            "Hello",
-            "Hi there",
-            List.of()
-        );
+    ChatEvaluationResult result = evaluator.evaluate("Hello", "Harmful reply", List.of());
 
-        assertThat(result.coherenceScore()).isZero();
-        assertThat(result.helpfulnessScore()).isZero();
-        assertThat(result.suggestions()).contains("Evaluation failed to process");
-    }
+    assertThat(result.hasSafetyIssues()).isTrue();
+    assertThat(result.safetyFlags()).containsExactly("Safety issue detected");
+  }
 
-    @Test
-    @DisplayName("should use default safety concern when blank")
-    void shouldUseDefaultSafetyConcernWhenBlank() {
-        when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
-            .thenReturn(new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
-        stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, true, "", ""));
+  @Test
+  @DisplayName("should include factuality in overall score when available")
+  void shouldIncludeFactualityInOverallScoreWhenAvailable() {
+    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+        .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
+    stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, false, "", ""));
 
-        ChatEvaluationResult result = evaluator.evaluate(
-            "Hello",
-            "Harmful reply",
-            List.of()
-        );
+    ChatEvaluationResult result =
+        evaluator.evaluate("Question", "Answer", List.of("Reference context"));
 
-        assertThat(result.hasSafetyIssues()).isTrue();
-        assertThat(result.safetyFlags()).containsExactly("Safety issue detected");
-    }
+    assertThat(result.overallScore()).isEqualTo(0.9);
+  }
 
-    @Test
-    @DisplayName("should include factuality in overall score when available")
-    void shouldIncludeFactualityInOverallScoreWhenAvailable() {
-        when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
-            .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
-        stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, false, "", ""));
+  @Test
+  @DisplayName("should suggest relevance fix when relevancy fails")
+  void shouldSuggestRelevanceFixWhenRelevancyFails() {
+    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+        .thenReturn(
+            new OfficialGateResult(
+                false, null, false, 0.0, null, List.of("relevancy: FAIL"), false));
+    stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
-        ChatEvaluationResult result = evaluator.evaluate(
-            "Question",
-            "Answer",
-            List.of("Reference context")
-        );
+    ChatEvaluationResult result = evaluator.evaluate("Q", "unrelated", List.of());
 
-        assertThat(result.overallScore()).isEqualTo(0.9);
-    }
+    assertThat(result.relevancyPass()).isFalse();
+    assertThat(result.suggestions())
+        .contains("Response does not fully address the user's question");
+  }
 
-    @Test
-    @DisplayName("should suggest relevance fix when relevancy fails")
-    void shouldSuggestRelevanceFixWhenRelevancyFails() {
-        when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
-            .thenReturn(new OfficialGateResult(false, null, false, 0.0, null, List.of("relevancy: FAIL"), false));
-        stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
-
-        ChatEvaluationResult result = evaluator.evaluate("Q", "unrelated", List.of());
-
-        assertThat(result.relevancyPass()).isFalse();
-        assertThat(result.suggestions()).contains("Response does not fully address the user's question");
-    }
-
-    private void stubLlmJudge(LlmEvaluationResponse response) {
-        lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
-        lenient().when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)).thenReturn(requestSpec);
-        lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
-        lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(response);
-    }
+  private void stubLlmJudge(LlmEvaluationResponse response) {
+    lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
+    lenient()
+        .when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT))
+        .thenReturn(requestSpec);
+    lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
+    lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
+    when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(response);
+  }
 }

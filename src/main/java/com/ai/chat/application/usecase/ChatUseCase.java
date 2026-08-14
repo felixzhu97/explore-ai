@@ -3,38 +3,52 @@ package com.ai.chat.application.usecase;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.common.application.llm.TextChatOptions;
-import reactor.core.publisher.Flux;
-
 import java.util.List;
 import java.util.Optional;
+import reactor.core.publisher.Flux;
 
+/** Documentation. */
 public interface ChatUseCase {
-    String chat(String userMessage);
+  /** Documentation. */
+  String chat(String userMessage);
 
-    String chat(String userMessage, TextChatOptions options);
+  /** Documentation. */
+  String chat(String userMessage, TextChatOptions options);
 
-    Flux<String> chatStream(List<ChatMessage> messages);
+  /** Documentation. */
+  Flux<String> chatStream(List<ChatMessage> messages);
 
-    Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options);
+  /** Documentation. */
+  Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options);
 
-    Flux<String> chatStreamWithSession(String sessionId, String userMessage, String clientId);
+  /** Documentation. */
+  Flux<String> chatStreamWithSession(String sessionId, String userMessage, String clientId);
 
-    Flux<String> chatStreamWithSession(
-            String sessionId, String userMessage, TextChatOptions options, String clientId);
+  /** Documentation. */
+  Flux<String> chatStreamWithSession(
+      String sessionId, String userMessage, TextChatOptions options, String clientId);
 
-    String chatWithSession(String sessionId, String userMessage, String clientId);
+  /** Documentation. */
+  String chatWithSession(String sessionId, String userMessage, String clientId);
 
-    String chatWithSession(String userMessage, String clientId);
+  /** Documentation. */
+  String chatWithSession(String userMessage, String clientId);
 
-    ChatSession createSession(String title, String clientId);
+  /** Documentation. */
+  ChatSession createSession(String title, String clientId);
 
-    Optional<ChatSession> getSession(String sessionId, String clientId);
+  /** Documentation. */
+  Optional<ChatSession> getSession(String sessionId, String clientId);
 
-    List<ChatMessage> getSessionHistory(String sessionId, String clientId);
+  /** Documentation. */
+  List<ChatMessage> getSessionHistory(String sessionId, String clientId);
 
-    void deleteSession(String sessionId, String clientId);
+  /** Documentation. */
+  void deleteSession(String sessionId, String clientId);
 
-    void deleteAllSessionsForClient(String clientId);
+  /** Documentation. */
+  void deleteAllSessionsForClient(String clientId);
 
-    List<ChatSession> getSessionsForClient(String clientId);
+  /** Documentation. */
+  List<ChatSession> getSessionsForClient(String clientId);
 }

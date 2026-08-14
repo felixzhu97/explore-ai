@@ -2,27 +2,30 @@ package com.ai.chat.domain.repository;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Chat session repository interface.
- */
+/** Chat session repository interface. */
 public interface ChatSessionRepository {
+  /** Documentation. */
+  Optional<ChatSession> findById(ChatSessionId id);
 
-    Optional<ChatSession> findById(ChatSessionId id);
+  /** Documentation. */
+  Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId);
 
-    Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId);
+  /** Documentation. */
+  void save(ChatSession session);
 
-    void save(ChatSession session);
+  /** Documentation. */
+  void delete(ChatSessionId id);
 
-    void delete(ChatSessionId id);
+  /** Documentation. */
+  List<ChatSession> findByClientId(String clientId);
 
-    List<ChatSession> findByClientId(String clientId);
+  /** Documentation. */
+  List<ChatSession> findInactiveSince(Instant cutoff);
 
-    List<ChatSession> findInactiveSince(Instant cutoff);
-
-    boolean exists(ChatSessionId id);
+  /** Documentation. */
+  boolean exists(ChatSessionId id);
 }

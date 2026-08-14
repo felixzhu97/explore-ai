@@ -1,8 +1,9 @@
 package com.ai.pipeline.domain.exception;
 
+/** Documentation. */
 public class SavedAgentTypeConflictException extends RuntimeException {
-
-    public SavedAgentTypeConflictException(String typeKey) {
-        super("Agent type key already exists: " + typeKey);
-    }
+  /** Documentation. */
+  public SavedAgentTypeConflictException(String typeKey) {
+    super("Agent type key already exists: " + typeKey);
+  }
 }

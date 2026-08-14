@@ -9,25 +9,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/** Documentation. */
 @Service
 public class AnalysisFacade {
 
-    private static final Logger log = LoggerFactory.getLogger(AnalysisFacade.class);
+  private static final Logger log = LoggerFactory.getLogger(AnalysisFacade.class);
 
-    private final StructuredAnalysisRepository structuredAnalysisRepository;
+  private final StructuredAnalysisRepository structuredAnalysisRepository;
 
-    public AnalysisFacade(StructuredAnalysisRepository structuredAnalysisRepository) {
-        this.structuredAnalysisRepository = structuredAnalysisRepository;
-    }
+  /** Documentation. */
+  public AnalysisFacade(StructuredAnalysisRepository structuredAnalysisRepository) {
+    this.structuredAnalysisRepository = structuredAnalysisRepository;
+  }
 
-    public TextAnalysis analyzeText(String text) {
-        log.info("AnalysisFacade.analyzeText: {}", LogSanitizer.truncate(text));
-        return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.none());
-    }
+  /** Documentation. */
+  public TextAnalysis analyzeText(String text) {
+    log.info("AnalysisFacade.analyzeText: {}", LogSanitizer.truncate(text));
+    return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.none());
+  }
 
-    public TextAnalysis analyzeTextWithLanguage(String text, String language) {
-        log.info("AnalysisFacade.analyzeTextWithLanguage: {} lang={}", LogSanitizer.truncate(text), language);
-        return structuredAnalysisRepository.analyze(
-                AnalysisText.of(text), LanguageHint.of(language));
-    }
+  /** Documentation. */
+  public TextAnalysis analyzeTextWithLanguage(String text, String language) {
+    log.info(
+        "AnalysisFacade.analyzeTextWithLanguage: {} lang={}",
+        LogSanitizer.truncate(text),
+        language);
+    return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.of(language));
+  }
 }

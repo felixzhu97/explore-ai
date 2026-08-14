@@ -1,16 +1,17 @@
 package com.ai.common.infrastructure.llm;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
+
 class ToolCallMarkupFilterTest {
 
-    @Test
-    void shouldStripDeepseekFullwidthDsmlToolCalls() {
-        String raw = """
+  @Test
+  void shouldStripDeepseekFullwidthDsmlToolCalls() {
+    String raw =
+        """
                 开始调研。
                 <｜DSML｜tool_calls>
                 <｜DSML｜invoke name="searchWeb">
@@ -21,27 +22,28 @@ class ToolCallMarkupFilterTest {
                 结论如下。
                 """;
 
-        String cleaned = ToolCallMarkupFilter.sanitize(raw);
+    String cleaned = ToolCallMarkupFilter.sanitize(raw);
 
-        assertFalse(cleaned.contains("DSML"));
-        assertFalse(cleaned.contains("searchWeb"));
-        assertFalse(cleaned.contains("NVIDIA"));
-        assertTrue(cleaned.contains("开始调研。"));
-        assertTrue(cleaned.contains("结论如下。"));
-    }
+    assertFalse(cleaned.contains("DSML"));
+    assertFalse(cleaned.contains("searchWeb"));
+    assertFalse(cleaned.contains("NVIDIA"));
+    assertTrue(cleaned.contains("开始调研。"));
+    assertTrue(cleaned.contains("结论如下。"));
+  }
 
-    @Test
-    void shouldStripSpacedDsmlTags() {
-        String raw = "hi < | DSML | tool_calls>q</ | DSML | tool_calls> bye";
-        String cleaned = ToolCallMarkupFilter.sanitize(raw);
-        assertFalse(cleaned.toLowerCase().contains("dsml"));
-        assertTrue(cleaned.contains("hi"));
-        assertTrue(cleaned.contains("bye"));
-    }
+  @Test
+  void shouldStripSpacedDsmlTags() {
+    String raw = "hi < | DSML | tool_calls>q</ | DSML | tool_calls> bye";
+    String cleaned = ToolCallMarkupFilter.sanitize(raw);
+    assertFalse(cleaned.toLowerCase().contains("dsml"));
+    assertTrue(cleaned.contains("hi"));
+    assertTrue(cleaned.contains("bye"));
+  }
 
-    @Test
-    void shouldStripAsciiPipeVariant() {
-        String raw = """
+  @Test
+  void shouldStripAsciiPipeVariant() {
+    String raw =
+        """
                 我将进行第一轮调研。
                 <|DSML|tool_calls>
                 <|DSML|invoke name="searchWeb">
@@ -52,36 +54,37 @@ class ToolCallMarkupFilterTest {
                 以下是关键信号摘要。
                 """;
 
-        String cleaned = ToolCallMarkupFilter.sanitize(raw);
+    String cleaned = ToolCallMarkupFilter.sanitize(raw);
 
-        assertFalse(cleaned.contains("DSML"));
-        assertFalse(cleaned.contains("2025 AI RAG trends"));
-        assertTrue(cleaned.contains("我将进行第一轮调研。"));
-        assertTrue(cleaned.contains("以下是关键信号摘要。"));
-    }
+    assertFalse(cleaned.contains("DSML"));
+    assertFalse(cleaned.contains("2025 AI RAG trends"));
+    assertTrue(cleaned.contains("我将进行第一轮调研。"));
+    assertTrue(cleaned.contains("以下是关键信号摘要。"));
+  }
 
-    @Test
-    void shouldReturnEmptyWhenOnlyMarkup() {
-        String raw = "<｜DSML｜tool_calls><｜DSML｜invoke name=\"searchWeb\"></｜DSML｜tool_calls>";
-        assertEquals("", ToolCallMarkupFilter.sanitize(raw));
-    }
+  @Test
+  void shouldReturnEmptyWhenOnlyMarkup() {
+    String raw = "<｜DSML｜tool_calls><｜DSML｜invoke name=\"searchWeb\"></｜DSML｜tool_calls>";
+    assertEquals("", ToolCallMarkupFilter.sanitize(raw));
+  }
 
-    @Test
-    void shouldStripDoubleFullwidthPipeVariant() {
-        String raw = """
+  @Test
+  void shouldStripDoubleFullwidthPipeVariant() {
+    String raw =
+        """
                 <｜｜DSML｜｜tool_calls>
                 <｜｜DSML｜｜invoke name="searchWeb">
                 <｜｜DSML｜｜parameter name="query" string="true">2025 global EV</｜｜DSML｜｜parameter>
                 </｜｜DSML｜｜invoke>
                 </｜｜DSML｜｜tool_calls>
                 """;
-        assertEquals("", ToolCallMarkupFilter.sanitize(raw));
-        assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup(raw));
-    }
+    assertEquals("", ToolCallMarkupFilter.sanitize(raw));
+    assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup(raw));
+  }
 
-    @Test
-    void shouldDetectToolMarkup() {
-        assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup("<｜DSML｜tool_calls>"));
-        assertFalse(ToolCallMarkupFilter.looksLikeToolMarkup("plain research summary"));
-    }
+  @Test
+  void shouldDetectToolMarkup() {
+    assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup("<｜DSML｜tool_calls>"));
+    assertFalse(ToolCallMarkupFilter.looksLikeToolMarkup("plain research summary"));
+  }
 }

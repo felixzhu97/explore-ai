@@ -1,4 +1,4 @@
 package com.ai.metrics.application.model;
 
-public record NamedCount(String name, long count) {
-}
+/** Documentation. */
+public record NamedCount(String name, long count) {}

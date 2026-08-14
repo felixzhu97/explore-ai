@@ -1,8 +1,10 @@
 plugins {
     java
+    checkstyle
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
+    id("com.diffplug.spotless") version "8.9.0"
 }
 
 group = "com.ai"
@@ -142,4 +144,28 @@ tasks.bootJar {
 // Disable plain jar to prevent conflicts
 tasks.named<Jar>("jar") {
     enabled = false
+}
+
+checkstyle {
+    toolVersion = "10.21.4"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+    configProperties = mapOf(
+        "org.checkstyle.google.severity" to "error",
+        "org.checkstyle.google.suppressionfilter.config" to
+            rootProject.file("config/checkstyle/suppressions.xml").absolutePath,
+        "org.checkstyle.google.suppressionxpathfilter.config" to
+            rootProject.file("config/checkstyle/suppressions-xpath.xml").absolutePath,
+    )
+}
+
+spotless {
+    java {
+        target("src/*/java/**/*.java")
+        googleJavaFormat("1.28.0")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

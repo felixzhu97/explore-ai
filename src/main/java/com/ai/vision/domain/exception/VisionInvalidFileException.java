@@ -1,8 +1,9 @@
 package com.ai.vision.domain.exception;
 
+/** Documentation. */
 public class VisionInvalidFileException extends RuntimeException {
-
-    public VisionInvalidFileException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public VisionInvalidFileException(String message) {
+    super(message);
+  }
 }

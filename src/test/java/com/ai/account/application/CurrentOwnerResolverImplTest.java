@@ -27,50 +27,52 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 @DisplayName("CurrentOwnerResolverImpl")
 class CurrentOwnerResolverImplTest {
 
-    @Mock
-    private AccountUserRepository accountUserRepository;
+  @Mock private AccountUserRepository accountUserRepository;
 
-    @InjectMocks
-    private CurrentOwnerResolverImpl resolver;
+  @InjectMocks private CurrentOwnerResolverImpl resolver;
 
-    @Test
-    void shouldReturnClientOwnerWhenGuestWithoutLink() {
-        when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.empty());
+  @Test
+  void shouldReturnClientOwnerWhenGuestWithoutLink() {
+    when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.empty());
 
-        OwnerKey key = resolver.resolve("cid-1", null);
+    OwnerKey key = resolver.resolve("cid-1", null);
 
-        assertThat(key).isEqualTo(OwnerKey.forClient("cid-1"));
-    }
+    assertThat(key).isEqualTo(OwnerKey.forClient("cid-1"));
+  }
 
-    @Test
-    void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
-        AccountUser user = AccountUser.restore(
-                "acct-1", "google", "sub", "a@b.com", "cid-1", Instant.now(), Instant.now());
-        when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.of(user));
+  @Test
+  void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
+    AccountUser user =
+        AccountUser.restore(
+            "acct-1", "google", "sub", "a@b.com", "cid-1", Instant.now(), Instant.now());
+    when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.of(user));
 
-        OwnerKey key = resolver.resolve(
-                "cid-1",
-                new AnonymousAuthenticationToken(
-                        "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+    OwnerKey key =
+        resolver.resolve(
+            "cid-1",
+            new AnonymousAuthenticationToken(
+                "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-        assertThat(key).isEqualTo(OwnerKey.forAccount("acct-1"));
-    }
+    assertThat(key).isEqualTo(OwnerKey.forAccount("acct-1"));
+  }
 
-    @Test
-    void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
-        AccountUser user = AccountUser.restore(
-                "acct-9", "google", "sub-9", "a@b.com", "cid-9", Instant.now(), Instant.now());
-        when(accountUserRepository.findByProviderAndSubject("google", "sub-9"))
-                .thenReturn(Optional.of(user));
+  @Test
+  void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
+    AccountUser user =
+        AccountUser.restore(
+            "acct-9", "google", "sub-9", "a@b.com", "cid-9", Instant.now(), Instant.now());
+    when(accountUserRepository.findByProviderAndSubject("google", "sub-9"))
+        .thenReturn(Optional.of(user));
 
-        OidcIdToken idToken = new OidcIdToken(
-                "token", Instant.now(), Instant.now().plusSeconds(60), Map.of("sub", "sub-9"));
-        OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), idToken);
-        OAuth2AuthenticationToken auth =
-                new OAuth2AuthenticationToken(oidcUser, List.of(), "google");
+    OidcIdToken idToken =
+        new OidcIdToken(
+            "token", Instant.now(), Instant.now().plusSeconds(60), Map.of("sub", "sub-9"));
+    OidcUser oidcUser =
+        new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), idToken);
+    OAuth2AuthenticationToken auth = new OAuth2AuthenticationToken(oidcUser, List.of(), "google");
 
-        OwnerKey key = resolver.resolve("cid-other", auth);
+    OwnerKey key = resolver.resolve("cid-other", auth);
 
-        assertThat(key).isEqualTo(OwnerKey.forAccount("acct-9"));
-    }
+    assertThat(key).isEqualTo(OwnerKey.forAccount("acct-9"));
+  }
 }

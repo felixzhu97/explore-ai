@@ -1,8 +1,9 @@
 package com.ai.pipeline.domain.exception;
 
+/** Documentation. */
 public class WorkflowTemplateNotFoundException extends RuntimeException {
-
-    public WorkflowTemplateNotFoundException(String id) {
-        super("Workflow template not found: " + id);
-    }
+  /** Documentation. */
+  public WorkflowTemplateNotFoundException(String id) {
+    super("Workflow template not found: " + id);
+  }
 }

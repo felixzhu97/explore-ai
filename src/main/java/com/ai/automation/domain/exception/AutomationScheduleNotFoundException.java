@@ -1,8 +1,9 @@
 package com.ai.automation.domain.exception;
 
+/** Documentation. */
 public class AutomationScheduleNotFoundException extends RuntimeException {
-
-    public AutomationScheduleNotFoundException(String scheduleId) {
-        super("Automation schedule not found: " + scheduleId);
-    }
+  /** Documentation. */
+  public AutomationScheduleNotFoundException(String scheduleId) {
+    super("Automation schedule not found: " + scheduleId);
+  }
 }

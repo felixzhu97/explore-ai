@@ -2,51 +2,55 @@ package com.ai.billing.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/** Documentation. */
 @ConfigurationProperties(prefix = "app.billing")
 public class BillingProperties {
 
-    private boolean quotaEnabled = true;
-    /** free | pro */
-    private String plan = "free";
-    private int freeDailyRequests = 50;
-    private int proDailyRequests = 2000;
+  private boolean quotaEnabled = true;
 
-    public boolean isQuotaEnabled() {
-        return quotaEnabled;
-    }
+  /** Billing plan: free or pro. */
+  private String plan = "free";
 
-    public void setQuotaEnabled(boolean quotaEnabled) {
-        this.quotaEnabled = quotaEnabled;
-    }
+  private int freeDailyRequests = 50;
+  private int proDailyRequests = 2000;
 
-    public String getPlan() {
-        return plan;
-    }
+  public boolean isQuotaEnabled() {
+    return quotaEnabled;
+  }
 
-    public void setPlan(String plan) {
-        this.plan = plan;
-    }
+  public void setQuotaEnabled(boolean quotaEnabled) {
+    this.quotaEnabled = quotaEnabled;
+  }
 
-    public int getFreeDailyRequests() {
-        return freeDailyRequests;
-    }
+  public String getPlan() {
+    return plan;
+  }
 
-    public void setFreeDailyRequests(int freeDailyRequests) {
-        this.freeDailyRequests = freeDailyRequests;
-    }
+  public void setPlan(String plan) {
+    this.plan = plan;
+  }
 
-    public int getProDailyRequests() {
-        return proDailyRequests;
-    }
+  public int getFreeDailyRequests() {
+    return freeDailyRequests;
+  }
 
-    public void setProDailyRequests(int proDailyRequests) {
-        this.proDailyRequests = proDailyRequests;
-    }
+  public void setFreeDailyRequests(int freeDailyRequests) {
+    this.freeDailyRequests = freeDailyRequests;
+  }
 
-    public int dailyLimit() {
-        if ("pro".equalsIgnoreCase(plan)) {
-            return proDailyRequests;
-        }
-        return freeDailyRequests;
+  public int getProDailyRequests() {
+    return proDailyRequests;
+  }
+
+  public void setProDailyRequests(int proDailyRequests) {
+    this.proDailyRequests = proDailyRequests;
+  }
+
+  /** Documentation. */
+  public int dailyLimit() {
+    if ("pro".equalsIgnoreCase(plan)) {
+      return proDailyRequests;
     }
+    return freeDailyRequests;
+  }
 }

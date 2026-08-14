@@ -1,8 +1,9 @@
 package com.ai.analysis.domain.exception;
 
+/** Documentation. */
 public class InvalidAnalysisTextException extends RuntimeException {
-
-    public InvalidAnalysisTextException(String message) {
-        super(message);
-    }
+  /** Documentation. */
+  public InvalidAnalysisTextException(String message) {
+    super(message);
+  }
 }

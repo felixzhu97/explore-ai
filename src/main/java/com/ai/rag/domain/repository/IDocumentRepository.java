@@ -1,42 +1,37 @@
 package com.ai.rag.domain.repository;
 
 import com.ai.rag.domain.model.Document;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Document repository port - defines the contract for document persistence.
- * This interface belongs to the domain layer and is implemented by adapters.
+ * Document repository port - defines the contract for document persistence. This interface belongs
+ * to the domain layer and is implemented by adapters.
  */
 public interface IDocumentRepository {
 
-    /**
-     * Saves a document and returns the saved entity.
-     */
-    Document save(Document document);
+  /** Saves a document and returns the saved entity. */
+  Document save(Document document);
 
-    /**
-     * Finds a document by its ID.
-     */
-    Optional<Document> findById(UUID id);
+  /** Documentation. */
+  Document save(Document document, String ownerKey);
 
-    /**
-     * Retrieves all documents.
-     */
-    List<Document> findAll();
+  /** Finds a document by its ID. */
+  Optional<Document> findById(UUID id);
 
-    List<Document> findAllByOwnerKey(String ownerKey);
+  /** Retrieves all documents. */
+  List<Document> findAll();
 
-    Optional<Document> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+  /** Documentation. */
+  List<Document> findAllByOwnerKey(String ownerKey);
 
-    void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+  /** Documentation. */
+  Optional<Document> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
-    Document save(Document document, String ownerKey);
+  /** Documentation. */
+  void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
-    /**
-     * Deletes a document by its ID.
-     */
-    void delete(UUID id);
+  /** Deletes a document by its ID. */
+  void delete(UUID id);
 }

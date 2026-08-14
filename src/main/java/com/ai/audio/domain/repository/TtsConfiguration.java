@@ -1,10 +1,13 @@
 package com.ai.audio.domain.repository;
 
+/** Documentation. */
 public interface TtsConfiguration {
+  /** Documentation. */
+  boolean isEnabled();
 
-    boolean isEnabled();
+  /** Documentation. */
+  boolean isConfigured();
 
-    boolean isConfigured();
-
-    String getDefaultVoice();
+  /** Documentation. */
+  String getDefaultVoice();
 }

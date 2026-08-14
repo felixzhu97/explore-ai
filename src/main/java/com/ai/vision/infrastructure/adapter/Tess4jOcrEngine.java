@@ -5,67 +5,72 @@ import com.ai.vision.domain.exception.VisionProviderUnavailableException;
 import com.ai.vision.domain.model.OcrResult;
 import com.ai.vision.domain.repository.OcrEngine;
 import com.ai.vision.infrastructure.config.VisionModelProperties;
+import java.awt.image.BufferedImage;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import java.awt.image.BufferedImage;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
+/** Documentation. */
 @Service
-@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-vision",
+    havingValue = "true",
+    matchIfMissing = true)
 public class Tess4jOcrEngine implements OcrEngine {
 
-    private final ITesseract tesseract;
-    private final VisionModelProperties properties;
-    private final boolean available;
+  private final ITesseract tesseract;
+  private final VisionModelProperties properties;
+  private final boolean available;
 
-    public Tess4jOcrEngine(ITesseract tesseract, VisionModelProperties properties) {
-        this.tesseract = tesseract;
-        this.properties = properties;
-        this.available = isTessdataAvailable();
-    }
+  /** Documentation. */
+  public Tess4jOcrEngine(ITesseract tesseract, VisionModelProperties properties) {
+    this.tesseract = tesseract;
+    this.properties = properties;
+    this.available = isTessdataAvailable();
+  }
 
-    @Override
-    public OcrResult extract(BufferedImage image) {
-        ensureAvailable();
-        try {
-            String text = tesseract.doOCR(image);
-            return new OcrResult(text == null ? "" : text.trim());
-        } catch (TesseractException ex) {
-            throw new VisionOcrException("OCR extraction failed", ex);
-        }
+  @Override
+  public OcrResult extract(BufferedImage image) {
+    ensureAvailable();
+    try {
+      String text = tesseract.doOCR(image);
+      return new OcrResult(text == null ? "" : text.trim());
+    } catch (TesseractException ex) {
+      throw new VisionOcrException("OCR extraction failed", ex);
     }
+  }
 
-    @Override
-    public boolean isAvailable() {
-        return available;
-    }
+  @Override
+  public boolean isAvailable() {
+    return available;
+  }
 
-    private void ensureAvailable() {
-        if (!available) {
-            throw new VisionProviderUnavailableException(
-                    "ocr",
-                    "Tesseract OCR is not available. Install tesseract and provide tessdata at "
-                            + properties.getOcr().getTessdataPath());
-        }
+  private void ensureAvailable() {
+    if (!available) {
+      throw new VisionProviderUnavailableException(
+          "ocr",
+          "Tesseract OCR is not available. Install tesseract and provide tessdata at "
+              + properties.getOcr().getTessdataPath());
     }
+  }
 
-    private boolean isTessdataAvailable() {
-        Path tessdataPath = Path.of(properties.getOcr().getTessdataPath());
-        if (!Files.isDirectory(tessdataPath)) {
-            return false;
-        }
-        if (!Files.exists(tessdataPath.resolve("eng.traineddata"))) {
-            return false;
-        }
-        try {
-            Class.forName("net.sourceforge.tess4j.TessAPI");
-            return true;
-        } catch (Throwable ex) {
-            return false;
-        }
+  private boolean isTessdataAvailable() {
+    Path tessdataPath = Path.of(properties.getOcr().getTessdataPath());
+    if (!Files.isDirectory(tessdataPath)) {
+      return false;
     }
+    if (!Files.exists(tessdataPath.resolve("eng.traineddata"))) {
+      return false;
+    }
+    try {
+      Class.forName("net.sourceforge.tess4j.TessAPI");
+      return true;
+    } catch (Throwable ex) {
+      return false;
+    }
+  }
 }

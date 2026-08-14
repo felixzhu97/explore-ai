@@ -14,40 +14,38 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.util.StringUtils;
 
+/** Documentation. */
 @Configuration
 @EnableConfigurationProperties(ImageProperties.class)
 public class ImageModelConfig {
+  /** Documentation. */
+  @Bean
+  @Primary
+  @ConditionalOnProperty(name = "app.ai.image.enabled", havingValue = "true", matchIfMissing = true)
+  public ImageModel imageModel(ImageProperties properties) {
+    ClientOptions clientOptions =
+        ClientOptions.builder()
+            .apiKey(properties.getApiKey())
+            .baseUrl(normalizeBaseUrl(properties.getBaseUrl()))
+            .httpClient(SpringAiOpenAiHttpClient.builder().build())
+            .build();
 
-    @Bean
-    @Primary
-    @ConditionalOnProperty(name = "app.ai.image.enabled", havingValue = "true", matchIfMissing = true)
-    public ImageModel imageModel(ImageProperties properties) {
-        ClientOptions clientOptions = ClientOptions.builder()
-                .apiKey(properties.getApiKey())
-                .baseUrl(normalizeBaseUrl(properties.getBaseUrl()))
-                .httpClient(SpringAiOpenAiHttpClient.builder().build())
-                .build();
+    OpenAIClient openAiClient = new OpenAIClientImpl(clientOptions);
 
-        OpenAIClient openAiClient = new OpenAIClientImpl(clientOptions);
+    OpenAiImageOptions defaultOptions =
+        OpenAiImageOptions.builder().model(properties.getModel()).build();
 
-        OpenAiImageOptions defaultOptions = OpenAiImageOptions.builder()
-                .model(properties.getModel())
-                .build();
+    return OpenAiImageModel.builder().openAiClient(openAiClient).options(defaultOptions).build();
+  }
 
-        return OpenAiImageModel.builder()
-                .openAiClient(openAiClient)
-                .options(defaultOptions)
-                .build();
+  private String normalizeBaseUrl(String baseUrl) {
+    if (!StringUtils.hasText(baseUrl)) {
+      return "http://localhost:11434/v1";
     }
-
-    private String normalizeBaseUrl(String baseUrl) {
-        if (!StringUtils.hasText(baseUrl)) {
-            return "http://localhost:11434/v1";
-        }
-        String normalized = baseUrl.trim();
-        while (normalized.endsWith("/")) {
-            normalized = normalized.substring(0, normalized.length() - 1);
-        }
-        return normalized;
+    String normalized = baseUrl.trim();
+    while (normalized.endsWith("/")) {
+      normalized = normalized.substring(0, normalized.length() - 1);
     }
+    return normalized;
+  }
 }

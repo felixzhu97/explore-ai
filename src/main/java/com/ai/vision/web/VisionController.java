@@ -6,6 +6,7 @@ import com.ai.vision.web.dto.CaptionResponse;
 import com.ai.vision.web.dto.DetectResponse;
 import com.ai.vision.web.dto.OcrResponse;
 import com.ai.vision.web.dto.VisionHealthResponse;
+import java.io.IOException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,45 +15,56 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
+/** Documentation. */
 @RestController
 @RequestMapping("/api/vision")
-@ConditionalOnProperty(prefix = "launchdarkly.bootstrap", name = "module-vision", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-vision",
+    havingValue = "true",
+    matchIfMissing = true)
 public class VisionController {
 
-    private final VisionAnalysisUseCase visionAnalysisUseCase;
+  private final VisionAnalysisUseCase visionAnalysisUseCase;
 
-    public VisionController(VisionAnalysisUseCase visionAnalysisUseCase) {
-        this.visionAnalysisUseCase = visionAnalysisUseCase;
-    }
+  /** Documentation. */
+  public VisionController(VisionAnalysisUseCase visionAnalysisUseCase) {
+    this.visionAnalysisUseCase = visionAnalysisUseCase;
+  }
 
-    @PostMapping("/caption")
-    public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-        validateFile(file);
-        return visionAnalysisUseCase.caption(file);
-    }
+  /** Documentation. */
+  @PostMapping("/caption")
+  public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file)
+      throws IOException {
+    validateFile(file);
+    return visionAnalysisUseCase.caption(file);
+  }
 
-    @PostMapping("/detect")
-    public DetectResponse detect(@RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-        validateFile(file);
-        return visionAnalysisUseCase.detect(file);
-    }
+  /** Documentation. */
+  @PostMapping("/detect")
+  public DetectResponse detect(@RequestParam(value = "file", required = false) MultipartFile file)
+      throws IOException {
+    validateFile(file);
+    return visionAnalysisUseCase.detect(file);
+  }
 
-    @PostMapping("/ocr")
-    public OcrResponse ocr(@RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-        validateFile(file);
-        return visionAnalysisUseCase.ocr(file);
-    }
+  /** Documentation. */
+  @PostMapping("/ocr")
+  public OcrResponse ocr(@RequestParam(value = "file", required = false) MultipartFile file)
+      throws IOException {
+    validateFile(file);
+    return visionAnalysisUseCase.ocr(file);
+  }
 
-    @GetMapping("/health")
-    public VisionHealthResponse health() {
-        return visionAnalysisUseCase.health();
-    }
+  /** Documentation. */
+  @GetMapping("/health")
+  public VisionHealthResponse health() {
+    return visionAnalysisUseCase.health();
+  }
 
-    private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new VisionInvalidFileException("Image file is required");
-        }
+  private void validateFile(MultipartFile file) {
+    if (file == null || file.isEmpty()) {
+      throw new VisionInvalidFileException("Image file is required");
     }
+  }
 }
