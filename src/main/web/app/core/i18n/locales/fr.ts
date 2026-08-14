@@ -59,6 +59,7 @@ export const fr: Translations = {
       'Connectez-vous pour conserver votre compte. Le mode invité reste disponible.',
     continueWithGoogle: 'Continuer avec Google',
     continueWithGithub: 'Continuer avec GitHub',
+    continueWithExploreIam: 'Continuer avec Explore IAM',
     logoutDialogTitle: 'Voulez-vous vraiment vous déconnecter ?',
     logoutConfirm: 'Se déconnecter',
     logoutCancel: 'Annuler',

@@ -2,6 +2,7 @@ package com.ai.account.application.usecase;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.infrastructure.config.OAuthExploreIamProperties;
 import com.ai.account.infrastructure.config.OAuthGithubProperties;
 import com.ai.account.infrastructure.config.OAuthGoogleProperties;
 import com.ai.account.web.dto.AccountMeResponse;
@@ -23,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableConfigurationProperties({
     BillingProperties.class,
     OAuthGoogleProperties.class,
-    OAuthGithubProperties.class
+    OAuthGithubProperties.class,
+    OAuthExploreIamProperties.class
 })
 public class AccountUseCaseImpl implements AccountUseCase {
 
@@ -31,16 +33,19 @@ public class AccountUseCaseImpl implements AccountUseCase {
     private final BillingProperties billingProperties;
     private final OAuthGoogleProperties oauthGoogleProperties;
     private final OAuthGithubProperties oauthGithubProperties;
+    private final OAuthExploreIamProperties oauthExploreIamProperties;
 
     public AccountUseCaseImpl(
             AccountUserRepository accountUserRepository,
             BillingProperties billingProperties,
             OAuthGoogleProperties oauthGoogleProperties,
-            OAuthGithubProperties oauthGithubProperties) {
+            OAuthGithubProperties oauthGithubProperties,
+            OAuthExploreIamProperties oauthExploreIamProperties) {
         this.accountUserRepository = accountUserRepository;
         this.billingProperties = billingProperties;
         this.oauthGoogleProperties = oauthGoogleProperties;
         this.oauthGithubProperties = oauthGithubProperties;
+        this.oauthExploreIamProperties = oauthExploreIamProperties;
     }
 
     @Override
@@ -101,12 +106,15 @@ public class AccountUseCaseImpl implements AccountUseCase {
 
     @Override
     public List<String> loginProviders() {
-        List<String> providers = new ArrayList<>(2);
+        List<String> providers = new ArrayList<>(3);
         if (oauthGoogleProperties.isReady()) {
             providers.add("google");
         }
         if (oauthGithubProperties.isReady()) {
             providers.add("github");
+        }
+        if (oauthExploreIamProperties.isReady()) {
+            providers.add("explore-iam");
         }
         return List.copyOf(providers);
     }

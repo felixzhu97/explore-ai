@@ -59,6 +59,7 @@ export const en: Translations = {
       'Sign in to keep your account across devices. Guest mode stays available.',
     continueWithGoogle: 'Continue with Google',
     continueWithGithub: 'Continue with GitHub',
+    continueWithExploreIam: 'Continue with Explore IAM',
     logoutDialogTitle: 'Are you sure you want to log out?',
     logoutConfirm: 'Log out',
     logoutCancel: 'Cancel',

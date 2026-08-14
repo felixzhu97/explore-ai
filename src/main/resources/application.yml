@@ -205,6 +205,12 @@ app:
       client-id: ${GITHUB_CLIENT_ID:}
       client-secret: ${GITHUB_CLIENT_SECRET:}
       redirect-uri: ${APP_OAUTH_GITHUB_REDIRECT_URI:}
+    explore-iam:
+      enabled: ${APP_OAUTH_EXPLORE_IAM_ENABLED:false}
+      client-id: ${EXPLORE_IAM_CLIENT_ID:}
+      client-secret: ${EXPLORE_IAM_CLIENT_SECRET:}
+      issuer-uri: ${APP_OAUTH_EXPLORE_IAM_ISSUER_URI:}
+      redirect-uri: ${APP_OAUTH_EXPLORE_IAM_REDIRECT_URI:}
   service-auth:
     api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:

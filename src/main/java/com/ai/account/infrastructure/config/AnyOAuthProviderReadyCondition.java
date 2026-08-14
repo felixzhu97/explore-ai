@@ -7,14 +7,16 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.StringUtils;
 
 /**
- * True when Google and/or GitHub OAuth is enabled with non-blank client credentials.
+ * True when Google, GitHub, and/or Explore IAM OAuth is enabled with non-blank credentials.
  */
 public class AnyOAuthProviderReadyCondition implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         Environment env = context.getEnvironment();
-        return isReady(env, "app.oauth.google") || isReady(env, "app.oauth.github");
+        return isReady(env, "app.oauth.google")
+                || isReady(env, "app.oauth.github")
+                || isExploreIamReady(env);
     }
 
     private static boolean isReady(Environment env, String prefix) {
@@ -23,5 +25,12 @@ public class AnyOAuthProviderReadyCondition implements Condition {
         }
         return StringUtils.hasText(env.getProperty(prefix + ".client-id"))
                 && StringUtils.hasText(env.getProperty(prefix + ".client-secret"));
+    }
+
+    private static boolean isExploreIamReady(Environment env) {
+        if (!isReady(env, "app.oauth.explore-iam")) {
+            return false;
+        }
+        return StringUtils.hasText(env.getProperty("app.oauth.explore-iam.issuer-uri"));
     }
 }

@@ -74,6 +74,7 @@ export interface Translations {
     loginDialogDescription: string;
     continueWithGoogle: string;
     continueWithGithub: string;
+    continueWithExploreIam: string;
     logoutDialogTitle: string;
     logoutConfirm: string;
     logoutCancel: string;

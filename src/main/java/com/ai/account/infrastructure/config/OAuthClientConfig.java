@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -24,6 +25,7 @@ import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 @EnableConfigurationProperties({
     OAuthGoogleProperties.class,
     OAuthGithubProperties.class,
+    OAuthExploreIamProperties.class,
     OAuthSpaProperties.class
 })
 public class OAuthClientConfig {
@@ -34,7 +36,9 @@ public class OAuthClientConfig {
     @Bean
     @Conditional(AnyOAuthProviderReadyCondition.class)
     ClientRegistrationRepository oauthClientRegistrationRepository(
-            OAuthGoogleProperties googleProperties, OAuthGithubProperties githubProperties) {
+            OAuthGoogleProperties googleProperties,
+            OAuthGithubProperties githubProperties,
+            OAuthExploreIamProperties exploreIamProperties) {
         List<ClientRegistration> registrations = new ArrayList<>();
         if (googleProperties.isReady()) {
             registrations.add(googleRegistration(googleProperties));
@@ -42,9 +46,12 @@ public class OAuthClientConfig {
         if (githubProperties.isReady()) {
             registrations.add(githubRegistration(githubProperties));
         }
+        if (exploreIamProperties.isReady()) {
+            registrations.add(exploreIamRegistration(exploreIamProperties));
+        }
         if (registrations.isEmpty()) {
             throw new IllegalStateException(
-                    "OAuth enabled but no provider has GOOGLE_/GITHUB_CLIENT_ID and CLIENT_SECRET");
+                    "OAuth enabled but no provider has client credentials ready");
         }
         return new InMemoryClientRegistrationRepository(registrations);
     }
@@ -73,6 +80,20 @@ public class OAuthClientConfig {
                 .clientSecret(properties.getClientSecret())
                 .redirectUri(redirectOrDefault(properties.getRedirectUri()))
                 .scope("read:user", "user:email")
+                .build();
+    }
+
+    private static ClientRegistration exploreIamRegistration(OAuthExploreIamProperties properties) {
+        return ClientRegistrations.fromIssuerLocation(properties.getIssuerUri())
+                .registrationId("explore-iam")
+                .clientId(properties.getClientId())
+                .clientSecret(properties.getClientSecret())
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri(redirectOrDefault(properties.getRedirectUri()))
+                .scope("openid", "profile", "email")
+                .userNameAttributeName(IdTokenClaimNames.SUB)
+                .clientName("Explore IAM")
                 .build();
     }
 
