@@ -58,6 +58,7 @@ export const zh: Translations = {
     loginDialogDescription: '登录后可跨设备保留账号；仍可继续以访客使用。',
     continueWithGoogle: '使用 Google 继续',
     continueWithGithub: '使用 GitHub 继续',
+    continueWithExploreIam: '使用 Explore IAM 继续',
     logoutDialogTitle: '确定要退出登录吗？',
     logoutConfirm: '退出登录',
     logoutCancel: '取消',

@@ -59,6 +59,7 @@ export const es: Translations = {
       'Inicia sesión para conservar tu cuenta. El modo invitado sigue disponible.',
     continueWithGoogle: 'Continuar con Google',
     continueWithGithub: 'Continuar con GitHub',
+    continueWithExploreIam: 'Continuar con Explore IAM',
     logoutDialogTitle: '¿Seguro que quieres cerrar sesión?',
     logoutConfirm: 'Cerrar sesión',
     logoutCancel: 'Cancelar',

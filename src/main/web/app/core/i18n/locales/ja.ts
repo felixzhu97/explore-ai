@@ -59,6 +59,7 @@ export const ja: Translations = {
       'ログインするとアカウントを端末間で保持できます。ゲストのままも利用できます。',
     continueWithGoogle: 'Googleで続行',
     continueWithGithub: 'GitHubで続行',
+    continueWithExploreIam: 'Explore IAMで続行',
     logoutDialogTitle: 'ログアウトしますか？',
     logoutConfirm: 'ログアウト',
     logoutCancel: 'キャンセル',

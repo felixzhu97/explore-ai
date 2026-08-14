@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.infrastructure.config.OAuthExploreIamProperties;
 import com.ai.account.infrastructure.config.OAuthGithubProperties;
 import com.ai.account.infrastructure.config.OAuthGoogleProperties;
 import com.ai.billing.infrastructure.config.BillingProperties;
@@ -40,6 +41,7 @@ class AccountUseCaseImplTest {
     private AccountUseCaseImpl useCase;
     private OAuthGoogleProperties oauthGoogleProperties;
     private OAuthGithubProperties oauthGithubProperties;
+    private OAuthExploreIamProperties oauthExploreIamProperties;
 
     @BeforeEach
     void setUp() {
@@ -49,8 +51,14 @@ class AccountUseCaseImplTest {
         oauthGoogleProperties.setEnabled(false);
         oauthGithubProperties = new OAuthGithubProperties();
         oauthGithubProperties.setEnabled(false);
+        oauthExploreIamProperties = new OAuthExploreIamProperties();
+        oauthExploreIamProperties.setEnabled(false);
         useCase = new AccountUseCaseImpl(
-                accountUserRepository, billing, oauthGoogleProperties, oauthGithubProperties);
+                accountUserRepository,
+                billing,
+                oauthGoogleProperties,
+                oauthGithubProperties,
+                oauthExploreIamProperties);
         SecurityContextHolder.clearContext();
     }
 
@@ -187,6 +195,17 @@ class AccountUseCaseImplTest {
         oauthGithubProperties.setClientSecret("hs");
 
         assertThat(useCase.loginProviders()).containsExactly("google", "github");
+    }
+
+    @Test
+    void shouldIncludeExploreIamWhenExploreIamConfigured() {
+        oauthExploreIamProperties.setEnabled(true);
+        oauthExploreIamProperties.setClientId("explore-ai");
+        oauthExploreIamProperties.setClientSecret("secret");
+        oauthExploreIamProperties.setIssuerUri("http://localhost:9100");
+
+        assertThat(useCase.isLoginAvailable()).isTrue();
+        assertThat(useCase.loginProviders()).containsExactly("explore-iam");
     }
 
     private static OidcUser oidcUser(String subject, String email) {

@@ -46,6 +46,19 @@ import { ZardDialogRef } from '../shared/components/dialog';
             <span>{{ t().account.continueWithGithub }}</span>
           </button>
         }
+        @if (showExploreIam()) {
+          <button
+            type="button"
+            z-button
+            zType="outline"
+            zSize="lg"
+            class="h-11 w-full justify-center gap-3 rounded-xl border-border bg-background text-sm font-medium"
+            (click)="continueWith('explore-iam')"
+          >
+            <span class="inline-flex size-5 shrink-0" [innerHTML]="exploreIamIcon"></span>
+            <span>{{ t().account.continueWithExploreIam }}</span>
+          </button>
+        }
       </div>
     </div>
   `,
@@ -59,6 +72,7 @@ export class AccountLoginDialogComponent {
 
   readonly showGoogle = computed(() => this.account.loginProviders().includes('google'));
   readonly showGithub = computed(() => this.account.loginProviders().includes('github'));
+  readonly showExploreIam = computed(() => this.account.loginProviders().includes('explore-iam'));
 
   readonly googleIcon = this.sanitizer.bypassSecurityTrustHtml(
     `<svg viewBox="0 0 24 24" class="size-5" aria-hidden="true">
@@ -73,11 +87,18 @@ export class AccountLoginDialogComponent {
     `<svg viewBox="0 0 24 24" class="size-5" aria-hidden="true" fill="currentColor"><path d="M12 .5C5.73.5.75 5.48.75 11.76c0 4.97 3.22 9.18 7.69 10.66.56.1.77-.24.77-.54 0-.27-.01-1.16-.02-2.1-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-.1-.82.62-.82.62-.82 1.13.08 1.72 1.16 1.72 1.16 1.11 1.9 2.91 1.35 3.62 1.03.11-.81.43-1.35.78-1.66-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.42.11-2.96 0 0 .95-.3 3.11 1.15a10.7 10.7 0 0 1 2.83-.38c.96 0 1.93.13 2.83.38 2.16-1.45 3.11-1.15 3.11-1.15.61 1.54.23 2.68.11 2.96.72.79 1.16 1.79 1.16 3.02 0 4.32-2.64 5.27-5.15 5.55.44.38.83 1.12.83 2.26 0 1.63-.01 2.95-.01 3.35 0 .3.2.65.78.54 4.46-1.49 7.67-5.7 7.67-10.66C23.25 5.48 18.27.5 12 .5z"/></svg>`,
   );
 
+  readonly exploreIamIcon = this.sanitizer.bypassSecurityTrustHtml(
+    `<svg viewBox="0 0 24 24" class="size-5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12.5l1.75 1.75L14.75 10.5"/>
+    </svg>`,
+  );
+
   get t() {
     return this.i18n.t;
   }
 
-  continueWith(provider: 'google' | 'github'): void {
+  continueWith(provider: 'google' | 'github' | 'explore-iam'): void {
     this.dialogRef.close();
     this.account.startOAuthLogin(provider);
   }

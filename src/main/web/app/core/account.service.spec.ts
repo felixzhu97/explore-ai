@@ -98,4 +98,10 @@ describe('AccountService', () => {
     service.startOAuthLogin('github', assign);
     expect(assign).toHaveBeenCalledWith('/oauth2/authorization/github');
   });
+
+  it('should assign explore iam authorization when start oauth login explore iam', () => {
+    const assign = vi.fn();
+    service.startOAuthLogin('explore-iam', assign);
+    expect(assign).toHaveBeenCalledWith('/oauth2/authorization/explore-iam');
+  });
 });

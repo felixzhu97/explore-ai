@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from './api.constants';
 
-export type OAuthProviderId = 'google' | 'github';
+export type OAuthProviderId = 'google' | 'github' | 'explore-iam';
 
 export interface AccountMe {
   mode: string;
