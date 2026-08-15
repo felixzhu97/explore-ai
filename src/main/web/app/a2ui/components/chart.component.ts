@@ -4,12 +4,21 @@ import { NgxEchartsDirective } from 'ngx-echarts';
 import { ChartApi, CHART_TYPES, type ChartType } from '../chart.api';
 import {
   buildChartOption,
+  toBoxes,
+  toCalendarCells,
+  toCandles,
   toChartItems,
+  toChartLinks,
+  toChartRange,
   toChartSeries,
+  toGraphLayout,
   toHeatmapCells,
+  toNumberRows,
   toRadarIndicators,
+  toRiverData,
   toScatterPoints,
   toStringList,
+  toTreeNodes,
 } from '../chart-option.util';
 
 @Component({
@@ -40,6 +49,8 @@ export class ChartComponent extends CatalogComponent<typeof ChartApi> {
 
   readonly chartData = computed(() => toChartItems(this.props()['chartData']?.value()));
 
+  readonly chartDataRaw = computed(() => this.props()['chartData']?.value());
+
   readonly categories = computed(() => toStringList(this.props()['categories']?.value()));
 
   readonly series = computed(() => toChartSeries(this.props()['series']?.value()));
@@ -64,6 +75,32 @@ export class ChartComponent extends CatalogComponent<typeof ChartApi> {
     return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
   });
 
+  readonly nodes = computed(() => toTreeNodes(this.props()['nodes']?.value()));
+
+  readonly links = computed(() => toChartLinks(this.props()['links']?.value()));
+
+  readonly boxes = computed(() => toBoxes(this.props()['boxes']?.value()));
+
+  readonly candles = computed(() => {
+    const direct = toCandles(this.props()['candles']?.value());
+    if (direct.length) {
+      return direct;
+    }
+    return toCandles(this.props()['ohlc']?.value());
+  });
+
+  readonly dimensions = computed(() => toStringList(this.props()['dimensions']?.value()));
+
+  readonly rows = computed(() => toNumberRows(this.props()['rows']?.value()));
+
+  readonly riverData = computed(() => toRiverData(this.props()['riverData']?.value()));
+
+  readonly calendarCells = computed(() => toCalendarCells(this.props()['calendarCells']?.value()));
+
+  readonly layout = computed(() => toGraphLayout(this.props()['layout']?.value()));
+
+  readonly range = computed(() => toChartRange(this.props()['range']?.value()));
+
   readonly chartOption = computed(() => {
     const type = this.chartType();
     if (!type) {
@@ -73,6 +110,7 @@ export class ChartComponent extends CatalogComponent<typeof ChartApi> {
       type,
       title: this.titleText() || undefined,
       chartData: this.chartData(),
+      chartDataRaw: this.chartDataRaw(),
       categories: this.categories(),
       series: this.series(),
       points: this.points(),
@@ -82,6 +120,16 @@ export class ChartComponent extends CatalogComponent<typeof ChartApi> {
       cells: this.cells(),
       value: this.gaugeValue(),
       max: this.gaugeMax(),
+      nodes: this.nodes(),
+      links: this.links(),
+      boxes: this.boxes(),
+      candles: this.candles(),
+      dimensions: this.dimensions(),
+      rows: this.rows(),
+      riverData: this.riverData(),
+      calendarCells: this.calendarCells(),
+      layout: this.layout(),
+      range: this.range(),
     });
   });
 

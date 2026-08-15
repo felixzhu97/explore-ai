@@ -1,6 +1,6 @@
 {
   "catalogId": "https://explore-ai.local/catalogs/chat-v0.9",
-  "instructions": "When the user needs a chart or data visualization, emit an ```a2ui fenced block with A2UI v0.9 NDJSON messages (one JSON object per line): createSurface, updateComponents (include root), and optional updateDataModel. Use component Chart with type bar|line|pie|doughnut|scatter|radar|heatmap|funnel|gauge|combo. Simple charts use chartData [{label,value}]. Multi-series bar/line and combo use categories + series[{name,values,kind?}]. Scatter uses points[{x,y,label?}]. Radar uses indicators[{name,max}] + series. Heatmap uses xLabels, yLabels, cells[{x,y,value}]. Gauge uses value (and optional max) or one chartData row. Do not emit executable JavaScript or raw ECharts option objects.",
+  "instructions": "When the user needs a chart or data visualization, emit an ```a2ui fenced block with A2UI v0.9 NDJSON messages (one JSON object per line): createSurface, updateComponents (include root), and optional updateDataModel. Use component Chart with type bar|line|pie|doughnut|scatter|radar|heatmap|funnel|gauge|combo|treemap|sunburst|tree|sankey|graph|boxplot|candlestick|parallel|themeRiver|calendar. Simple charts use chartData [{label,value}]. Multi-series bar/line and combo use categories + series[{name,values,kind?}]. Scatter uses points[{x,y,label?}]. Radar uses indicators[{name,max}] + series. Heatmap uses xLabels, yLabels, cells[{x,y,value}]. Gauge uses value (and optional max) or one chartData row. Hierarchy charts (treemap|sunburst|tree) use nodes[{name,value?,children?}]. Flow/relation (sankey|graph) use nodes[{name}] + links[{source,target,value}] (graph may set layout force|circular). Boxplot uses categories + boxes[{min,q1,median,q3,max}|[min,q1,median,q3,max]] (or series with five values). Candlestick uses categories + candles/ohlc[{open,close,low,high}|[open,close,low,high]]. Parallel uses dimensions + rows (or series values as rows). ThemeRiver uses riverData[{time,value,name}] or categories+series. Calendar uses range + calendarCells[{date,value}]. Do not emit executable JavaScript or raw ECharts option objects. UML/flowchart/sequence stay Mermaid, not Chart.",
   "components": {
     "Chart": {
       "type": "object",
@@ -18,7 +18,17 @@
             "heatmap",
             "funnel",
             "gauge",
-            "combo"
+            "combo",
+            "treemap",
+            "sunburst",
+            "tree",
+            "sankey",
+            "graph",
+            "boxplot",
+            "candlestick",
+            "parallel",
+            "themeRiver",
+            "calendar"
           ]
         },
         "title": {
@@ -41,9 +51,14 @@
                 "type": "object",
                 "properties": {
                   "label": { "type": "string" },
-                  "value": { "type": "number" }
+                  "value": { "type": "number" },
+                  "values": { "type": "array", "items": { "type": "number" } },
+                  "open": { "type": "number" },
+                  "close": { "type": "number" },
+                  "low": { "type": "number" },
+                  "high": { "type": "number" }
                 },
-                "required": ["label", "value"]
+                "required": ["label"]
               }
             },
             {
@@ -56,7 +71,7 @@
         "categories": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Shared category axis for multi-series bar/line/combo"
+          "description": "Shared category axis for multi-series bar/line/combo/boxplot/candlestick"
         },
         "series": {
           "type": "array",
@@ -124,6 +139,181 @@
         "max": {
           "type": "number",
           "description": "Gauge max (default 100)"
+        },
+        "nodes": {
+          "type": "array",
+          "description": "Hierarchy nodes (treemap/sunburst/tree) or named nodes (sankey/graph)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "value": { "type": "number" },
+              "children": { "type": "array" }
+            },
+            "required": ["name"]
+          }
+        },
+        "links": {
+          "type": "array",
+          "description": "Edges for sankey/graph",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": { "type": "string" },
+              "target": { "type": "string" },
+              "value": { "type": "number" }
+            },
+            "required": ["source", "target", "value"]
+          }
+        },
+        "boxes": {
+          "type": "array",
+          "description": "Boxplot five-number summaries (objects or [min,q1,median,q3,max]); or use series values of length 5",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "min": { "type": "number" },
+                  "q1": { "type": "number" },
+                  "median": { "type": "number" },
+                  "q3": { "type": "number" },
+                  "max": { "type": "number" }
+                },
+                "required": ["min", "q1", "median", "q3", "max"]
+              },
+              {
+                "type": "array",
+                "items": { "type": "number" },
+                "minItems": 5,
+                "maxItems": 5
+              }
+            ]
+          }
+        },
+        "candles": {
+          "type": "array",
+          "description": "OHLC candles (objects or [open,close,low,high]); alias ohlc also accepted",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "open": { "type": "number" },
+                  "close": { "type": "number" },
+                  "low": { "type": "number" },
+                  "high": { "type": "number" }
+                },
+                "required": ["open", "close", "low", "high"]
+              },
+              {
+                "type": "array",
+                "items": { "type": "number" },
+                "minItems": 4,
+                "maxItems": 4
+              }
+            ]
+          }
+        },
+        "ohlc": {
+          "type": "array",
+          "description": "Alias for candles",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "open": { "type": "number" },
+                  "close": { "type": "number" },
+                  "low": { "type": "number" },
+                  "high": { "type": "number" }
+                },
+                "required": ["open", "close", "low", "high"]
+              },
+              {
+                "type": "array",
+                "items": { "type": "number" },
+                "minItems": 4,
+                "maxItems": 4
+              }
+            ]
+          }
+        },
+        "dimensions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Parallel coordinate axis names"
+        },
+        "rows": {
+          "type": "array",
+          "description": "Parallel rows as number[] or {values:number[]}; series values also accepted",
+          "items": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": { "type": "number" }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "values": { "type": "array", "items": { "type": "number" } }
+                },
+                "required": ["values"]
+              }
+            ]
+          }
+        },
+        "riverData": {
+          "type": "array",
+          "description": "Theme river samples; or use categories+series",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "time": { "type": "string" },
+                  "value": { "type": "number" },
+                  "name": { "type": "string" }
+                },
+                "required": ["time", "value", "name"]
+              },
+              {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3
+              }
+            ]
+          }
+        },
+        "calendarCells": {
+          "type": "array",
+          "description": "Calendar heatmap cells",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string" },
+              "value": { "type": "number" }
+            },
+            "required": ["date", "value"]
+          }
+        },
+        "layout": {
+          "type": "string",
+          "enum": ["force", "circular"],
+          "description": "Graph layout (default force)"
+        },
+        "range": {
+          "description": "Calendar range as year string or [start,end]",
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
         }
       },
       "required": ["type"]
