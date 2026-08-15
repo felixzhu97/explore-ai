@@ -74,6 +74,7 @@
     "dompurify": "^3.4.12",
     "echarts": "^6.1.0",
     "marked": "^18.0.7",
+    "mermaid": "^11.16.1",
     "nanoid": "^5.1.11",
     "ng-zorro-antd": "^21.3.3",
     "ng-zorro-x": "^0.3.0",

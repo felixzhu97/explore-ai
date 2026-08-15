@@ -93,6 +93,7 @@ System_Boundary(frontend, "Angular 22 Web Application") {
         Component(citation_comp, "CitationComponent", "@Component", "RAG 来源引用")
         Component(chart_panels, "shared/components/charts", "@Component", "ECharts KPI / series panels")
         Component(markdown_svc, "MarkdownService", "@Injectable", "Markdown 渲染")
+        Component(mermaid_diagram, "MermaidDiagramComponent", "@Component", "Structure Diagram（Mermaid 围栏）")
     }
 }
 
@@ -138,6 +139,7 @@ Rel(module_nav, flag_svc, "isEnabled")
 
 Rel(chat_tab, chat_svc, "聊天")
 Rel(chat_tab, chat_shell, "对话壳")
+Rel(chat_shell, mermaid_diagram, "Structure Diagram")
 Rel(chat_svc, api_chat, "REST/SSE")
 Rel(api_chat, sse_client, "流式解析")
 Rel(rag_page, rag_svc, "RAG")

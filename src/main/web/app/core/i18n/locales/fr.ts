@@ -252,6 +252,13 @@ export const fr: Translations = {
     skillsManage: 'Gérer les skills',
     skillsSelected: '{count} sélectionné(s)',
     loadingModels: 'Chargement...',
+    a2uiPending: 'Génération de l’interface…',
+    diagramLabel: 'Diagramme de structure',
+    diagramPending: 'Tracé du diagramme…',
+    diagramRendering: 'Tracé du diagramme…',
+    diagramRenderFailed: 'Impossible de tracer le diagramme. La source est affichée ci-dessous.',
+    diagramExpand: 'Afficher le diagramme en plein écran',
+    diagramDownload: 'Télécharger le diagramme',
   },
   metricsPage: {
     overviewTitle: 'Métriques IA',

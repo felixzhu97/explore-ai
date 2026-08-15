@@ -36,6 +36,7 @@ Open models (Qwen / DeepSeek / 智谱 GLM / Intern / Llama / Gemma / Mistral): [
 | Analog meta-framework for Vite/Angular apps | AnalogJS ^2.6 | [AnalogJS](https://analogjs.org/docs) |
 | Use PrimeNG components for complex widgets | PrimeNG | [PrimeNG installation](https://primeng.org/installation) |
 | Render charts via ECharts in Angular | ngx-echarts | [ngx-echarts API](https://xieziyu.github.io/ngx-echarts/api-doc/) |
+| Render structure diagrams from Mermaid fences with strict security | Mermaid | [Mermaid usage](https://mermaid.js.org/config/usage.html) / [securityLevel](https://github.com/mermaid-js/mermaid/blob/develop/packages/mermaid/src/docs/config/security.md) |
 | Render LLM Markdown in the UI | ngx-markdown | [ngx-markdown README](https://github.com/jfcere/ngx-markdown#readme) |
 | Utility-first CSS without a second design system | Tailwind CSS ^4.3 | [Tailwind CSS docs](https://tailwindcss.com/docs) |
 | PostCSS pipeline for Tailwind / CSS transforms | PostCSS ^8.5 | [PostCSS docs](https://postcss.org/docs/) |

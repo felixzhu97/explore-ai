@@ -10,12 +10,37 @@ import {
 } from '@angular/core';
 import { A2uiRendererService, SurfaceComponent } from '@a2ui/angular/v0_9';
 import { MarkdownContentComponent } from './markdown-content.component';
+import { MermaidDiagramComponent } from './mermaid-diagram.component';
 import { splitMarkdownAndA2ui, type ContentSegment } from '../utils/a2ui-fence';
+import {
+  splitMarkdownAndMermaid,
+  type MermaidSegment,
+} from '../utils/mermaid-fence';
 import { EXPLORE_CHAT_CATALOG_ID } from '../../a2ui/catalog.constants';
+import { I18nService } from '../../core/i18n';
+
+export type DisplaySegment =
+  | { type: 'markdown'; content: string }
+  | Extract<ContentSegment, { type: 'a2ui' | 'a2ui-pending' }>
+  | Extract<MermaidSegment, { type: 'mermaid' | 'mermaid-pending' }>;
+
+function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
+  const out: DisplaySegment[] = [];
+  for (const segment of segments) {
+    if (segment.type !== 'markdown') {
+      out.push(segment);
+      continue;
+    }
+    for (const part of splitMarkdownAndMermaid(segment.content)) {
+      out.push(part);
+    }
+  }
+  return out;
+}
 
 @Component({
   selector: 'app-markdown-with-a2ui',
-  imports: [MarkdownContentComponent, SurfaceComponent],
+  imports: [MarkdownContentComponent, SurfaceComponent, MermaidDiagramComponent],
   template: `
     @for (segment of segments(); track trackSegment($index, segment)) {
       @switch (segment.type) {
@@ -32,7 +57,13 @@ import { EXPLORE_CHAT_CATALOG_ID } from '../../a2ui/catalog.constants';
           }
         }
         @case ('a2ui-pending') {
-          <p class="my-2 text-sm text-text-tertiary">Generating interface…</p>
+          <p class="my-2 text-sm text-text-tertiary">{{ i18n.t().chat.a2uiPending }}</p>
+        }
+        @case ('mermaid') {
+          <app-mermaid-diagram [source]="segment.source" [diagramId]="segment.diagramId" />
+        }
+        @case ('mermaid-pending') {
+          <p class="my-2 text-sm text-text-tertiary">{{ i18n.t().chat.diagramPending }}</p>
         }
       }
     }
@@ -41,11 +72,15 @@ import { EXPLORE_CHAT_CATALOG_ID } from '../../a2ui/catalog.constants';
 })
 export class MarkdownWithA2uiComponent {
   private readonly a2ui = inject(A2uiRendererService);
+  protected readonly i18n = inject(I18nService);
 
   readonly content = input.required<string>();
   readonly streaming = input(false);
 
-  readonly segments = computed(() => splitMarkdownAndA2ui(this.content()));
+  readonly segments = computed(() => {
+    return expandMermaidInMarkdown(splitMarkdownAndA2ui(this.content()));
+  });
+
   readonly ingestError = signal<string | null>(null);
 
   private readonly processedFences = new Set<string>();
@@ -91,12 +126,15 @@ export class MarkdownWithA2uiComponent {
     });
   }
 
-  trackSegment(index: number, segment: ContentSegment): string {
+  trackSegment(index: number, segment: DisplaySegment): string {
     if (segment.type === 'a2ui') {
       return segment.surfaceId;
     }
-    if (segment.type === 'a2ui-pending') {
-      return `pending-${index}`;
+    if (segment.type === 'mermaid') {
+      return segment.diagramId;
+    }
+    if (segment.type === 'a2ui-pending' || segment.type === 'mermaid-pending') {
+      return `${segment.type}-${index}`;
     }
     return `md-${index}-${segment.content.length}`;
   }

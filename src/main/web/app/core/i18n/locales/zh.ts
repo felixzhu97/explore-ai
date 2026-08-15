@@ -249,6 +249,13 @@ export const zh: Translations = {
     skillsManage: '管理 Skills',
     skillsSelected: '已选 {count} 个',
     loadingModels: '加载中...',
+    a2uiPending: '界面生成中…',
+    diagramLabel: '结构图',
+    diagramPending: '正在绘制结构图…',
+    diagramRendering: '正在绘制结构图…',
+    diagramRenderFailed: '无法绘制结构图，下方保留源码。',
+    diagramExpand: '全屏查看结构图',
+    diagramDownload: '下载结构图',
   },
   metricsPage: {
     overviewTitle: 'AI 指标',

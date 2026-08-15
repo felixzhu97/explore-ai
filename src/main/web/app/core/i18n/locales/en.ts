@@ -250,6 +250,13 @@ export const en: Translations = {
     skillsManage: 'Manage skills',
     skillsSelected: '{count} selected',
     loadingModels: 'Loading...',
+    a2uiPending: 'Generating interface…',
+    diagramLabel: 'Structure diagram',
+    diagramPending: 'Drawing diagram…',
+    diagramRendering: 'Drawing diagram…',
+    diagramRenderFailed: 'The diagram could not be drawn. Source is shown below.',
+    diagramExpand: 'View diagram full screen',
+    diagramDownload: 'Download diagram',
   },
   metricsPage: {
     overviewTitle: 'AI Metrics',

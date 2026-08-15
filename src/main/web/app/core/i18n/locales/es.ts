@@ -252,6 +252,13 @@ export const es: Translations = {
     skillsManage: 'Gestionar skills',
     skillsSelected: '{count} seleccionados',
     loadingModels: 'Cargando...',
+    a2uiPending: 'Generando interfaz…',
+    diagramLabel: 'Diagrama de estructura',
+    diagramPending: 'Dibujando diagrama…',
+    diagramRendering: 'Dibujando diagrama…',
+    diagramRenderFailed: 'No se pudo dibujar el diagrama. Se muestra el código fuente abajo.',
+    diagramExpand: 'Ver diagrama a pantalla completa',
+    diagramDownload: 'Descargar diagrama',
   },
   metricsPage: {
     overviewTitle: 'Métricas de IA',

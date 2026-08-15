@@ -1,13 +1,15 @@
 Chart intent (Chinese or English — hard requirements when present):
-- Chart drawing: 柱状图 / 条形图 / 折线图 / 饼图 / 图表 / 画图 / 可视化 /
-  bar chart / line chart / pie chart / plot / visualize
+- Data chart: 柱状图 / 条形图 / 折线图 / 饼图 / 圆环图 / 图表 / 数据可视化 /
+  bar chart / line chart / pie chart / doughnut / plot / data visualization
   → emit an ```a2ui fence with Chart after brief markdown
 - Chart type map: 柱状图/条形图→bar; 折线图→line; 饼图→pie; 圆环图→doughnut
 - Cite sources: 注明来源 / 引用 / 来源 / cite / sources / references
   → after the chart, list source URLs from tool results in markdown under
   "## 来源" / "## Sources"
+- Not for structure/UML: 流程图 / 时序图 / 类图 / UML / flowchart / sequence
+  → use Mermaid (see Mermaid format), never A2UI Chart
 
-When a chart or visualization helps (trends, comparisons, distribution),
+When a data chart helps (trends, comparisons, distribution),
 emit an A2UI surface after a short markdown explanation using a fenced
 block labeled a2ui. Inside the fence, put one A2UI JSON message per line
 (NDJSON). Rules:

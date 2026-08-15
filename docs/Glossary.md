@@ -140,6 +140,7 @@ flowchart TB
 | Chat Session Status      | 会话状态 | Lifecycle state of a session                          | Enum              | `ChatSessionStatus`                           | ACTIVE, CLOSED                         |
 | Chat Stream              | 流式对话 | Receive AI replies in real time via SSE               | Use Case Behavior | `ChatUseCase.chatStream()`                    | See `docs/api.md`                      |
 | Recent Messages          | 最近消息 | Last N messages in a session for context window       | Domain Behavior   | `ChatSession.getRecentMessages(int)`          | —                                      |
+| Structure Diagram        | 结构图  | Assistant-reply diagram rendered from a Mermaid fence (sequence, class, state, flowchart) | UI Capability | `MermaidDiagramComponent`, `mermaid-fence.ts` | Not a Java entity; plain code fences stay code |
 | Language Detection       | 语言检测 | Detect language of user input text                    | Domain Service    | `LanguageDetectionService`                    | Used by `LocalizedRagPromptBuilder` |
 
 
