@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { base64ToBlob, downloadBase64Image, downloadBlob } from './download';
+import { base64ToBlob, downloadBase64Image, downloadBlob, downloadSvgMarkup } from './download';
 
 describe('download utils', () => {
   afterEach(() => {
@@ -47,5 +47,22 @@ describe('download utils', () => {
     downloadBase64Image('/9j/' + btoa('jpeg-bytes'), 'photo.jpg');
 
     expect(downloadSpy).toHaveBeenCalled();
+  });
+
+  it('should download svg markup as svg file', () => {
+    const click = vi.fn();
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:svg');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    vi.spyOn(document.body, 'appendChild').mockImplementation(node => node);
+    vi.spyOn(document.body, 'removeChild').mockImplementation(node => node);
+    vi.spyOn(document, 'createElement').mockReturnValue({
+      href: '',
+      download: '',
+      click,
+    } as unknown as HTMLAnchorElement);
+
+    downloadSvgMarkup('<svg xmlns="http://www.w3.org/2000/svg"></svg>', 'diagram.svg');
+
+    expect(click).toHaveBeenCalled();
   });
 });

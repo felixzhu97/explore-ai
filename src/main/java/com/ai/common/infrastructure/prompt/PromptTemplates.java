@@ -32,13 +32,15 @@ public class PromptTemplates {
             ClasspathPromptLoader.load("chat/system-role.st"),
             ClasspathPromptLoader.load("chat/tools-policy.st"),
             formatting,
-            ClasspathPromptLoader.load("chat/a2ui-chart.st"));
+            ClasspathPromptLoader.load("chat/a2ui-chart.st"),
+            ClasspathPromptLoader.load("chat/mermaid-diagram.st"));
 
     this.ragSystemPrompt =
         ClasspathPromptLoader.joinSections(
             ClasspathPromptLoader.load("rag/system-role.st"),
             formatting,
-            ClasspathPromptLoader.load("chat/a2ui-chart.st"));
+            ClasspathPromptLoader.load("chat/a2ui-chart.st"),
+            ClasspathPromptLoader.load("chat/mermaid-diagram.st"));
 
     this.summarizationTemplate =
         new PromptTemplate(ClasspathPromptLoader.load("task/summarization.st"));

@@ -254,6 +254,13 @@ export interface Translations {
     skillsManage: string;
     skillsSelected: string;
     loadingModels: string;
+    a2uiPending: string;
+    diagramLabel: string;
+    diagramPending: string;
+    diagramRendering: string;
+    diagramRenderFailed: string;
+    diagramExpand: string;
+    diagramDownload: string;
   };
   metricsPage: {
     overviewTitle: string;

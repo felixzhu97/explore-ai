@@ -96,6 +96,23 @@ class PromptTemplatesTest {
       assertThat(prompt).doesNotContain("进行在线搜索，最新一季度全球电动汽车市场各品牌份额");
       assertThat(prompt).doesNotContain("Web search: current events, live facts, weather");
     }
+
+    @Test
+    @DisplayName(
+        "should prefer mermaid fences for structure diagrams when default system prompt built")
+    void shouldPreferMermaidFencesForStructureDiagramsWhenDefaultSystemPromptBuilt() {
+      String prompt = templates.getDefaultSystemPrompt();
+
+      assertThat(prompt).contains("```mermaid");
+      assertThat(prompt).contains("flowchart TD");
+      assertThat(prompt).contains("sequenceDiagram");
+      assertThat(prompt).contains("流程图");
+      assertThat(prompt).contains("This chat renders closed Mermaid fences");
+      assertThat(prompt).contains("Do NOT use PlantUML");
+      assertThat(prompt).contains("Do NOT tell the user to paste into mermaid.live");
+      assertThat(prompt).contains("structure diagram");
+      assertThat(templates.getAfterToolsReminder()).contains("```mermaid");
+    }
   }
 
   @Nested
@@ -151,6 +168,15 @@ class PromptTemplatesTest {
       assertThat(prompt).contains("```a2ui");
       assertThat(prompt).contains("https://explore-ai.local/catalogs/chat-v0.9");
       assertThat(prompt).contains("createSurface");
+    }
+
+    @Test
+    @DisplayName("should include Mermaid structure diagram instructions like default prompt")
+    void shouldIncludeMermaidStructureDiagramInstructionsLikeDefaultPrompt() {
+      String prompt = templates.getRagSystemPrompt();
+
+      assertThat(prompt).contains("```mermaid");
+      assertThat(prompt).contains("Do NOT use PlantUML");
     }
   }
 

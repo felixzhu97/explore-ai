@@ -250,6 +250,13 @@ export const ja: Translations = {
     skillsManage: 'Skills を管理',
     skillsSelected: '{count} 件選択中',
     loadingModels: '読み込み中...',
+    a2uiPending: 'インターフェースを生成中…',
+    diagramLabel: '構造図',
+    diagramPending: '図を描画中…',
+    diagramRendering: '図を描画中…',
+    diagramRenderFailed: '図を描けませんでした。下にソースを表示します。',
+    diagramExpand: '図を全画面で表示',
+    diagramDownload: '図をダウンロード',
   },
   metricsPage: {
     overviewTitle: 'AI メトリクス',

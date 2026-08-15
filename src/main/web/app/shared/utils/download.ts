@@ -23,3 +23,12 @@ export function downloadBase64Image(base64: string, filename = 'image.png'): voi
   const mimeType = base64.startsWith('/9j/') ? 'image/jpeg' : 'image/png';
   downloadBlob(base64ToBlob(base64, mimeType), filename);
 }
+
+/** Download an SVG markup string as a `.svg` file. */
+export function downloadSvgMarkup(svgMarkup: string, filename = 'diagram.svg'): void {
+  const trimmed = svgMarkup.trim();
+  if (!trimmed) {
+    return;
+  }
+  downloadBlob(new Blob([trimmed], { type: 'image/svg+xml;charset=utf-8' }), filename);
+}
