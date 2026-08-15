@@ -16,7 +16,7 @@ title: AI Chat & Agent Platform - 用户故事地图
 | QA 工程师 | 在 Eval 页评估回答质量 |
 | 管理员 / 运维 | 查看 AI 指标与域健康 |
 | 业务分析师 / 产品经理 / 业务或技术负责人 | 使用 Multi-Agent 工作台与研判输出 |
-| 平台工程师 / 开发者 | 平台管道、领域建模与 Lab 编排（进行中/规划） |
+| 平台工程师 / 开发者 | 平台管道、领域建模与 Lab 编排；C4 Code 领域模型已对齐当前系统 |
 | 企业员工 / 知识工作者 / 合规与平台管理员 | 企业场景（规划） |
 
 ## 旅程总览
@@ -102,6 +102,7 @@ journey
 | 故事 |
 |------|
 | [US-18b](./user-stories/E8-commercial-platform.md#us-18b-可选-oauth-登录与访客模式) 可选 Google/GitHub 登录 + 访客模式 |
+| [C4 Code 领域模型](../developer/c4-model/README.md#code---领域模型) 对齐 `com.ai.*.domain` 的 Entity / VO / Repository 总览（[EXP-356](https://felixzhu.atlassian.net/browse/EXP-356)） |
 
 ### 进行中
 
