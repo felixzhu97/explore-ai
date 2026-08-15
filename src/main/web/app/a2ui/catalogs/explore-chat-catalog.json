@@ -1,6 +1,6 @@
 {
   "catalogId": "https://explore-ai.local/catalogs/chat-v0.9",
-  "instructions": "When the user needs a chart or data visualization, emit an ```a2ui fenced block with A2UI v0.9 NDJSON messages (one JSON object per line): createSurface, updateComponents (include root), and optional updateDataModel. Use component Chart with type bar|line|pie|doughnut and chartData as [{label, value}]. Do not emit executable JavaScript or raw ECharts option objects.",
+  "instructions": "When the user needs a chart or data visualization, emit an ```a2ui fenced block with A2UI v0.9 NDJSON messages (one JSON object per line): createSurface, updateComponents (include root), and optional updateDataModel. Use component Chart with type bar|line|pie|doughnut|scatter|radar|heatmap|funnel|gauge|combo. Simple charts use chartData [{label,value}]. Multi-series bar/line and combo use categories + series[{name,values,kind?}]. Scatter uses points[{x,y,label?}]. Radar uses indicators[{name,max}] + series. Heatmap uses xLabels, yLabels, cells[{x,y,value}]. Gauge uses value (and optional max) or one chartData row. Do not emit executable JavaScript or raw ECharts option objects.",
   "components": {
     "Chart": {
       "type": "object",
@@ -8,17 +8,32 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["bar", "line", "pie", "doughnut"]
+          "enum": [
+            "bar",
+            "line",
+            "pie",
+            "doughnut",
+            "scatter",
+            "radar",
+            "heatmap",
+            "funnel",
+            "gauge",
+            "combo"
+          ]
         },
         "title": {
           "description": "Chart title (literal string or {path})",
           "oneOf": [
             { "type": "string" },
-            { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"] }
+            {
+              "type": "object",
+              "properties": { "path": { "type": "string" } },
+              "required": ["path"]
+            }
           ]
         },
         "chartData": {
-          "description": "Series points or a data-model path",
+          "description": "Simple series points or a data-model path",
           "oneOf": [
             {
               "type": "array",
@@ -31,11 +46,87 @@
                 "required": ["label", "value"]
               }
             },
-            { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"] }
+            {
+              "type": "object",
+              "properties": { "path": { "type": "string" } },
+              "required": ["path"]
+            }
           ]
+        },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Shared category axis for multi-series bar/line/combo"
+        },
+        "series": {
+          "type": "array",
+          "description": "Named series for bar/line/combo/radar",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "values": { "type": "array", "items": { "type": "number" } },
+              "kind": { "type": "string", "enum": ["bar", "line"] }
+            },
+            "required": ["name", "values"]
+          }
+        },
+        "points": {
+          "type": "array",
+          "description": "Scatter points",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "label": { "type": "string" }
+            },
+            "required": ["x", "y"]
+          }
+        },
+        "indicators": {
+          "type": "array",
+          "description": "Radar axes",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "max": { "type": "number" }
+            },
+            "required": ["name", "max"]
+          }
+        },
+        "xLabels": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "yLabels": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "cells": {
+          "type": "array",
+          "description": "Heatmap cells as category indices",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "value": { "type": "number" }
+            },
+            "required": ["x", "y", "value"]
+          }
+        },
+        "value": {
+          "type": "number",
+          "description": "Gauge value"
+        },
+        "max": {
+          "type": "number",
+          "description": "Gauge max (default 100)"
         }
       },
-      "required": ["type", "chartData"]
+      "required": ["type"]
     }
   }
 }

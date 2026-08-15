@@ -51,8 +51,10 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
           @if (ingestError()) {
             <p class="my-2 text-sm text-text-secondary">{{ ingestError() }}</p>
           } @else {
-            <div class="my-2 w-full overflow-hidden rounded-lg border border-border-light bg-surface-secondary/40 p-2">
-              <a2ui-v09-surface [surfaceId]="segment.surfaceId" />
+            <div
+              class="my-2 w-full min-w-80 overflow-hidden rounded-lg border border-border-light bg-surface-secondary/40 p-2"
+            >
+              <a2ui-v09-surface [surfaceId]="segment.surfaceId" class="block w-full min-w-0" />
             </div>
           }
         }
@@ -68,7 +70,17 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
       }
     }
   `,
+  styles: `
+    :host ::ng-deep a2ui-v09-column {
+      width: 100%;
+      max-width: 100%;
+      align-self: stretch;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Custom elements default to inline; charts/mermaid need a block box so
+  // ECharts can resolve width against the bubble (not shrink-wrap to ~90px).
+  host: { class: 'block w-full min-w-0' },
 })
 export class MarkdownWithA2uiComponent {
   private readonly a2ui = inject(A2uiRendererService);
