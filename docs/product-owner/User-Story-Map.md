@@ -30,6 +30,7 @@ journey
         流式对话: 5: 最终用户
         选择 Provider 与 Model: 5: 最终用户
         结构图展示: 5: 最终用户
+        丰富数据图: 3: 最终用户
     section 会话
         多轮与自动标题: 5: 最终用户
         侧边栏一级入口与更多: 4: 最终用户
@@ -106,14 +107,14 @@ journey
 
 ### 进行中
 
-| 商业化与平台 | 企业自动化 |
-|--------------|------------|
-| [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
-| [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ |
-| [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | |
-| [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | |
-| [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | |
-| [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor | |
+| 对话与会话 | 商业化与平台 | 企业自动化 |
+|------------|--------------|------------|
+| [US-03d](./user-stories/E1-chat-session.md#us-03d-聊天中的丰富数据图) 丰富数据图 ([EXP-357](https://felixzhu.atlassian.net/browse/EXP-357)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
+| | [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ |
+| | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | |
+| | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | |
+| | [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | |
+| | [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor | |
 
 ### 未来（规划中）
 
@@ -133,7 +134,7 @@ journey
 
 | Epic | 文件 | 故事 | 状态 |
 |------|------|------|------|
-| E1 对话与会话 | [E1-chat-session.md](./user-stories/E1-chat-session.md) | US-01 – US-03c | 已实现 |
+| E1 对话与会话 | [E1-chat-session.md](./user-stories/E1-chat-session.md) | US-01 – US-03d | 已实现（US-03d 进行中） |
 | E2 隐私与隔离 | [E2-privacy-isolation.md](./user-stories/E2-privacy-isolation.md) | US-04 – US-05 | 已实现 |
 | E3 RAG 与视觉 | [E3-rag-vision.md](./user-stories/E3-rag-vision.md) | US-06 – US-08 | 已实现 |
 | E4 媒体 | [E4-media.md](./user-stories/E4-media.md) | US-09 – US-11 | 已实现 |

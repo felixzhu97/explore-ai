@@ -213,10 +213,20 @@ interface OpenSourceRef {
       }
     </ng-template>
   `,
+  styles: `
+    /* ng-zorro-x bubble content is a flex item that shrink-wraps text.
+       Charts/diagrams need the content box to stretch to the wrapper width. */
+    :host ::ng-deep .ant-bubble-content:has(app-a2ui-chart),
+    :host ::ng-deep .ant-bubble-content:has(app-mermaid-diagram) {
+      width: 100%;
+      max-width: 100%;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:pointerdown)': 'onDocumentPointerDown($event)',
     '(document:keydown.escape)': 'onEscape()',
+    class: 'block w-full',
   },
 })
 export class ChatBubbleListComponent implements OnDestroy {

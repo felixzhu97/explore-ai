@@ -87,6 +87,9 @@ class PromptTemplatesTest {
       assertThat(prompt).contains("do NOT invent or guess");
       assertThat(prompt).contains("柱状图");
       assertThat(prompt).contains("柱状图/条形图→bar");
+      assertThat(prompt).contains("散点图→scatter");
+      assertThat(prompt).contains("组合图/双轴趋势量→combo");
+      assertThat(prompt).contains("categories");
       assertThat(prompt).contains("注明来源");
       assertThat(prompt).contains("getWeather");
       assertThat(prompt).contains("not web search");
