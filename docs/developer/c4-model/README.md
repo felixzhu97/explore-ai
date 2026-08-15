@@ -10,8 +10,11 @@
 | `C2-Container.puml` | C2 | 容器图（13 个子域 + 功能开关横切） |
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
-| `C4-Deployment.puml` | C4 | 本地开发环境部署图（:4200 → :9000） |
-| `C4-Deployment-Production.puml` | C4 | 生产部署图（Vercel + Render Starter + Datadog RUM + LaunchDarkly） |
+| `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity / VO / Repository；对齐 `com.ai.*.domain`） |
+| `C4-Deployment.puml` | Deployment | 本地开发环境部署图（:4200 → :9000） |
+| `C4-Deployment-Production.puml` | Deployment | 生产部署图（Vercel + Render Starter + Datadog RUM + LaunchDarkly） |
+
+> **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment*.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
 
 ---
 
@@ -36,6 +39,14 @@
 ## C3 - 前端组件图
 
 ![C3-Component-Frontend](png/C3-Component-Frontend.png)
+
+---
+
+## Code - 领域模型
+
+![C4-Code-Domain-Model](png/C4-Code-Domain-Model.png)
+
+按 `com.ai.*.domain` 分包，类型名与当前代码一致。术语见 [Glossary](../../Glossary.md) Appendix A。
 
 ---
 
