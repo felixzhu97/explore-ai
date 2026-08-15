@@ -89,6 +89,9 @@ class PromptTemplatesTest {
       assertThat(prompt).contains("柱状图/条形图→bar");
       assertThat(prompt).contains("散点图→scatter");
       assertThat(prompt).contains("组合图/双轴趋势量→combo");
+      assertThat(prompt).contains("矩形树图→treemap");
+      assertThat(prompt).contains("桑基图→sankey");
+      assertThat(prompt).contains("K线图/蜡烛图→candlestick");
       assertThat(prompt).contains("categories");
       assertThat(prompt).contains("注明来源");
       assertThat(prompt).contains("getWeather");

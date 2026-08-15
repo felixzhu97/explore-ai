@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { ChartBox, ChartCandle } from './chart.api';
 import {
   buildChartOption,
   buildEchartsOption,
@@ -197,6 +198,288 @@ describe('buildChartOption specialized types', () => {
         series: [{ name: 'Only', values: [1], kind: 'bar' }],
       }),
     ).toBeNull();
+  });
+
+  it('should map treemap from hierarchical nodes', () => {
+    const option = buildChartOption({
+      type: 'treemap',
+      nodes: [{ name: 'EV', value: 18, children: [{ name: 'BYD', value: 10 }] }],
+    });
+    expect(option?.['series']).toMatchObject([{ type: 'treemap' }]);
+  });
+
+  it('should map treemap from chartData when nodes missing', () => {
+    expect(
+      buildChartOption({
+        type: 'treemap',
+        chartData: [
+          { label: '研发', value: 120 },
+          { label: '产品', value: 80 },
+        ],
+      })?.['series'],
+    ).toMatchObject([
+      {
+        type: 'treemap',
+        data: [
+          { name: '研发', value: 120 },
+          { name: '产品', value: 80 },
+        ],
+      },
+    ]);
+  });
+
+  it('should map sunburst from nodes', () => {
+    expect(
+      buildChartOption({
+        type: 'sunburst',
+        nodes: [{ name: 'Root', children: [{ name: 'A', value: 1 }] }],
+      })?.['series'],
+    ).toMatchObject([{ type: 'sunburst' }]);
+  });
+
+  it('should map tree from nodes', () => {
+    expect(
+      buildChartOption({
+        type: 'tree',
+        nodes: [{ name: 'Org', children: [{ name: 'Eng' }] }],
+      })?.['series'],
+    ).toMatchObject([{ type: 'tree', orient: 'LR' }]);
+  });
+
+  it('should map sankey from nodes and links', () => {
+    const option = buildChartOption({
+      type: 'sankey',
+      nodes: [{ name: 'A' }, { name: 'B' }],
+      links: [{ source: 'A', target: 'B', value: 5 }],
+    });
+    expect(option?.['series']).toMatchObject([
+      {
+        type: 'sankey',
+        data: [{ name: 'A' }, { name: 'B' }],
+        links: [{ source: 'A', target: 'B', value: 5 }],
+      },
+    ]);
+  });
+
+  it('should map graph with force layout by default', () => {
+    expect(
+      buildChartOption({
+        type: 'graph',
+        nodes: [{ name: 'A' }, { name: 'B' }],
+        links: [{ source: 'A', target: 'B', value: 2 }],
+      })?.['series'],
+    ).toMatchObject([{ type: 'graph', layout: 'force' }]);
+  });
+
+  it('should map boxplot from categories and boxes', () => {
+    const option = buildChartOption({
+      type: 'boxplot',
+      categories: ['Q1'],
+      boxes: [{ min: 1, q1: 2, median: 3, q3: 4, max: 5 }],
+    });
+    expect(option?.['series']).toMatchObject([
+      { type: 'boxplot', data: [[1, 2, 3, 4, 5]] },
+    ]);
+  });
+
+  it('should map boxplot from series five-number values', () => {
+    expect(
+      buildChartOption({
+        type: 'boxplot',
+        series: [
+          { name: 'Q1', values: [10, 15, 20, 28, 35] },
+          { name: 'Q2', values: [12, 18, 22, 30, 40] },
+        ],
+      })?.['series'],
+    ).toMatchObject([{ type: 'boxplot', data: [[10, 15, 20, 28, 35], [12, 18, 22, 30, 40]] }]);
+  });
+
+  it('should map boxplot from tuple boxes', () => {
+    const tupleBoxes = [[1, 2, 3, 4, 5]] as unknown as ChartBox[];
+    expect(
+      buildChartOption({
+        type: 'boxplot',
+        categories: ['Q1'],
+        boxes: tupleBoxes,
+      })?.['series'],
+    ).toMatchObject([{ type: 'boxplot', data: [[1, 2, 3, 4, 5]] }]);
+  });
+
+  it('should map candlestick from categories and candles', () => {
+    const option = buildChartOption({
+      type: 'candlestick',
+      categories: ['Mon'],
+      candles: [{ open: 10, close: 12, low: 9, high: 13 }],
+    });
+    expect(option?.['series']).toMatchObject([
+      { type: 'candlestick', data: [[10, 12, 9, 13]] },
+    ]);
+  });
+
+  it('should map candlestick from ohlc tuples', () => {
+    const ohlc = [
+      [100, 103, 99, 104],
+      [103, 106, 102, 107],
+    ] as unknown as ChartCandle[];
+    expect(
+      buildChartOption({
+        type: 'candlestick',
+        categories: ['06-01', '06-02'],
+        ohlc,
+      })?.['series'],
+    ).toMatchObject([
+      {
+        type: 'candlestick',
+        data: [
+          [100, 103, 99, 104],
+          [103, 106, 102, 107],
+        ],
+      },
+    ]);
+  });
+
+  it('should map parallel from dimensions and rows', () => {
+    const option = buildChartOption({
+      type: 'parallel',
+      dimensions: ['Speed', 'Power'],
+      rows: [
+        [1, 2],
+        [3, 4],
+      ],
+    });
+    expect(option).toMatchObject({
+      parallelAxis: [
+        { dim: 0, name: 'Speed' },
+        { dim: 1, name: 'Power' },
+      ],
+      series: [{ type: 'parallel', data: [[1, 2], [3, 4]] }],
+    });
+  });
+
+  it('should map parallel from chartData label/values rows', () => {
+    expect(
+      buildChartOption({
+        type: 'parallel',
+        dimensions: ['续航', '价格', '加速'],
+        chartDataRaw: [
+          { label: 'A', values: [600, 30, 5] },
+          { label: 'B', values: [500, 22, 6.5] },
+        ],
+      })?.['series'],
+    ).toMatchObject([
+      { type: 'parallel', data: [[600, 30, 5], [500, 22, 6.5]] },
+    ]);
+  });
+
+  it('should map boxplot from chartData label/values rows', () => {
+    expect(
+      buildChartOption({
+        type: 'boxplot',
+        chartDataRaw: [
+          { label: 'Q1', values: [10, 15, 20, 28, 35] },
+          { label: 'Q2', values: [12, 18, 22, 30, 40] },
+        ],
+      })?.['series'],
+    ).toMatchObject([
+      { type: 'boxplot', data: [[10, 15, 20, 28, 35], [12, 18, 22, 30, 40]] },
+    ]);
+  });
+
+  it('should map candlestick from chartData OHLC objects', () => {
+    expect(
+      buildChartOption({
+        type: 'candlestick',
+        chartDataRaw: [
+          { label: '06-01', open: 100, close: 103, low: 99, high: 104 },
+          { label: '06-02', open: 103, close: 106, low: 102, high: 107 },
+        ],
+      })?.['series'],
+    ).toMatchObject([
+      {
+        type: 'candlestick',
+        data: [
+          [100, 103, 99, 104],
+          [103, 106, 102, 107],
+        ],
+      },
+    ]);
+  });
+
+  it('should map themeRiver from riverData', () => {
+    expect(
+      buildChartOption({
+        type: 'themeRiver',
+        riverData: [{ time: '2024-01', value: 10, name: 'A' }],
+      })?.['series'],
+    ).toMatchObject([{ type: 'themeRiver', data: [['2024-01-01', 10, 'A']] }]);
+  });
+
+  it('should map Chinese month labels onto a time singleAxis', () => {
+    const option = buildChartOption({
+      type: 'themeRiver',
+      categories: ['1月', '2月'],
+      series: [
+        { name: '话题 X', values: [10, 12] },
+        { name: '话题 Y', values: [8, 9] },
+      ],
+    });
+    expect(option?.['singleAxis']).toMatchObject({ type: 'time' });
+    expect(option?.['legend']).toMatchObject({ data: ['话题 X', '话题 Y'] });
+    expect(option?.['series']).toMatchObject([
+      {
+        type: 'themeRiver',
+        label: { show: false },
+        data: [
+          ['2024-01-01', 10, '话题 X'],
+          ['2024-02-01', 12, '话题 X'],
+          ['2024-01-01', 8, '话题 Y'],
+          ['2024-02-01', 9, '话题 Y'],
+        ],
+      },
+    ]);
+  });
+
+  it('should map themeRiver from categories and series', () => {
+    expect(
+      buildChartOption({
+        type: 'themeRiver',
+        categories: ['2024-01', '2024-02'],
+        series: [
+          { name: '科技', values: [10, 12] },
+          { name: '娱乐', values: [8, 9] },
+        ],
+      })?.['series'],
+    ).toMatchObject([
+      {
+        type: 'themeRiver',
+        data: [
+          ['2024-01-01', 10, '科技'],
+          ['2024-02-01', 12, '科技'],
+          ['2024-01-01', 8, '娱乐'],
+          ['2024-02-01', 9, '娱乐'],
+        ],
+      },
+    ]);
+  });
+
+  it('should map calendar heatmap from range and cells', () => {
+    const option = buildChartOption({
+      type: 'calendar',
+      range: '2024',
+      calendarCells: [{ date: '2024-01-01', value: 3 }],
+    });
+    expect(option).toMatchObject({
+      calendar: { range: '2024' },
+      series: [{ type: 'heatmap', coordinateSystem: 'calendar' }],
+    });
+  });
+
+  it('should return null for empty advanced chart payloads', () => {
+    expect(buildChartOption({ type: 'treemap', nodes: [] })).toBeNull();
+    expect(buildChartOption({ type: 'sankey', nodes: [{ name: 'A' }], links: [] })).toBeNull();
+    expect(buildChartOption({ type: 'boxplot', categories: ['A'], boxes: [] })).toBeNull();
+    expect(buildChartOption({ type: 'parallel', dimensions: [], rows: [] })).toBeNull();
+    expect(buildChartOption({ type: 'calendar', range: '2024', calendarCells: [] })).toBeNull();
   });
 });
 

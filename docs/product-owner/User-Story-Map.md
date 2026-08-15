@@ -97,6 +97,7 @@ journey
 | [US-03](./user-stories/E1-chat-session.md#us-03-多轮对话与自动标题) 多轮与标题 | | [US-08](./user-stories/E3-rag-vision.md#us-08-图像分析独立) 图像分析 | [US-11](./user-stories/E4-media.md#us-11-流式-asr-语音识别) ASR | | | [US-17](./user-stories/E7-multi-agent.md#us-17-企业研判标准化输出) 标准化输出 / [US-18](./user-stories/E7-multi-agent.md#us-18-消费-agent-模版目录) 画布 Worker 目录 | |
 | [US-03b](./user-stories/E1-chat-session.md#us-03b-会话地址与切换加载) 会话地址与切换加载 | | | | | | | |
 | [US-03c](./user-stories/E1-chat-session.md#us-03c-聊天中的结构图) 聊天结构图 | | | | | | | |
+| [US-03d](./user-stories/E1-chat-session.md#us-03d-聊天中的丰富数据图) 丰富数据图 | | | | | | | |
 
 ### 已实现（商业化增量）
 
@@ -109,7 +110,7 @@ journey
 
 | 对话与会话 | 商业化与平台 | 企业自动化 |
 |------------|--------------|------------|
-| [US-03d](./user-stories/E1-chat-session.md#us-03d-聊天中的丰富数据图) 丰富数据图 ([EXP-357](https://felixzhu.atlassian.net/browse/EXP-357)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
+| [US-03e](./user-stories/E1-chat-session.md#us-03e-聊天中的高级数据图布局) 高级数据图布局 ([EXP-358](https://felixzhu.atlassian.net/browse/EXP-358)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
 | | [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ |
 | | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | |
 | | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | |
