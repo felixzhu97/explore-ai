@@ -1,399 +1,244 @@
 @startuml C4-Code-Domain-Model
-!theme plain
-title Code diagram (C4) - Domain model (aligned to com.ai.*)
+!include style-zinc.puml
 
-hide empty members
-
-<style>
-  document {
-    BackgroundColor #FAFAFA
-    FontColor #18181B
-  }
-  title {
-    FontColor #09090B
-    FontSize 18
-    FontStyle bold
-    Margin 20
-  }
-  legend {
-    BackgroundColor #FFFFFF
-    BorderColor #E4E4E7
-    FontColor #3F3F46
-    FontSize 11
-    RoundCorner 12
-    Padding 10
-  }
-  note {
-    BackgroundColor #F8FAFC
-    BorderColor #CBD5E1
-    FontColor #334155
-    FontSize 11
-    RoundCorner 10
-    Padding 10
-    Shadowing 0
-  }
-  classDiagram {
-    LineColor #A1A1AA
-    LineThickness 1.2
-    FontColor #52525B
-    FontSize 11
-    Padding 8
-    Margin 10
-    RoundCorner 12
-    Shadowing 0
-
-    class {
-      BackgroundColor #FFFFFF
-      BorderColor #D4D4D8
-      FontColor #18181B
-      FontSize 12
-      RoundCorner 12
-      Padding 8
-      Shadowing 0
-    }
-    interface {
-      BackgroundColor #F4F4F5
-      BorderColor #A1A1AA
-      FontColor #3F3F46
-      FontStyle italic
-      RoundCorner 12
-      Padding 8
-    }
-    enum {
-      BackgroundColor #FFFBEB
-      BorderColor #F59E0B
-      FontColor #78350F
-      RoundCorner 12
-      Padding 8
-    }
-    package {
-      BackgroundColor #FFFFFF
-      BorderColor #E4E4E7
-      FontColor #3F3F46
-      FontSize 13
-      FontStyle bold
-      RoundCorner 16
-      Padding 14
-      Margin 12
-    }
-    arrow {
-      LineColor #71717A
-      LineThickness 1.25
-      FontColor #52525B
-      FontSize 11
-    }
-
-    ' Stereotype accents (calm, modern; not decorative)
-    .AggregateRoot {
-      BackgroundColor #ECFDF5
-      BorderColor #10B981
-      FontColor #064E3B
-      BorderThickness 1.5
-    }
-    .Entity {
-      BackgroundColor #EFF6FF
-      BorderColor #3B82F6
-      FontColor #1E3A8A
-      BorderThickness 1.5
-    }
-    .ValueObject {
-      BackgroundColor #FFF7ED
-      BorderColor #FB923C
-      FontColor #7C2D12
-    }
-    .DomainService {
-      BackgroundColor #EEF2FF
-      BorderColor #6366F1
-      FontColor #312E81
-      FontStyle italic
-    }
-    .Repository {
-      BackgroundColor #F4F4F5
-      BorderColor #71717A
-      FontColor #27272A
-      FontStyle italic
-    }
-  }
-</style>
+title Code diagram (C4) — AI Platform domain model (DDD + behavior)
+' Show fields and behavior methods on aggregates/entities; hide empty VOs/repos
 
 legend right
-  |= Stereotype |= Meaning in this codebase |
-  | <<AggregateRoot>> | Transaction boundary; external access via root |
-  | <<Entity>> | Identity + lifecycle; private ctor + factory |
-  | <<ValueObject>> | Immutable; usually Java record / enum |
-  | <<DomainService>> | Stateless domain logic not owned by one entity |
-  | <<Repository>> | Domain outbound port (interface in domain/) |
+  |= Stereotype |= Meaning |
+  | <<AggregateRoot>> | Consistency boundary; rich behavior on root |
+  | <<Entity>> | Identity + lifecycle; factory + domain methods |
+  | <<ValueObject>> | Immutable; equality by value |
+  | <<DomainService>> | Stateless domain logic |
+  | <<Repository>> | Outbound port (interface in domain/) |
   | | |
-  | **No shared Java base** | There is no Entity / AggregateRoot class in com.ai.common |
+  | **Behavior** | Methods reflect live com.ai.*.domain.model |
   | **Preferred Terms** | See docs/Glossary.md |
 endlegend
 
-note as N_CONVENTION
-  Architecture: web → application → domain ← infrastructure
-  Domain has no framework annotations.
-  Ports live under domain/repository/ (not domain/port/).
+note as N_LAYERS
+  controller → service → domain ← infra
+  Aggregates encapsulate invariants; application orchestrates use cases.
+  ChatMessage bodies persist via Spring AI ChatMemory bridge.
 end note
 
-' ============================================================
-' common — shared VOs and tool/feature ports
-' ============================================================
-package "com.ai.common.domain" as pkg_common {
-  class OwnerKey <<ValueObject>>
-  class AgentSkill <<ValueObject>>
-  enum ModuleFlag <<ValueObject>>
-  interface FeatureFlagRepository <<Repository>>
-  interface WebSearchTool <<Repository>>
-  interface DocumentSearchTool <<Repository>>
-  interface WeatherTool <<Repository>>
-  interface DateTimeTool <<Repository>>
-}
-
-' ============================================================
-' account
-' ============================================================
-package "com.ai.account.domain" as pkg_account {
-  class AccountUser <<Entity>>
-  interface AccountUserRepository <<Repository>>
-  interface OwnerPartitionRepository <<Repository>>
-}
-
-AccountUserRepository ..> AccountUser
-OwnerPartitionRepository ..> OwnerKey
-
-' ============================================================
-' chat
-' ============================================================
+' ── chat ───────────────────────────────────────────────────
 package "com.ai.chat.domain" as pkg_chat {
-  class ChatSession <<AggregateRoot>>
-  class ChatMessage <<Entity>>
-  enum ChatSessionStatus <<ValueObject>>
-  enum ChatMessageType <<ValueObject>>
-  class ChatSessionId <<ValueObject>>
-  class MessageId <<ValueObject>>
-  class ContentHash <<ValueObject>>
-  class WebSource <<ValueObject>>
-  interface ChatSessionRepository <<Repository>>
-  interface ConversationMemoryRepository <<Repository>>
-  interface ChatWebSourcesRepository <<Repository>>
-  class LanguageDetectionService <<DomainService>>
+  class ChatSession <<AggregateRoot>> {
+    ChatSessionId id
+    String clientId
+    String title
+    --
+    {static} create(title, clientId)
+    {static} reconstitute(...)
+    rename(newTitle)
+    addUserMessage(text)
+    addAssistantMessage(text)
+    getRecentMessages(count)
+    clearMessages()
+    replaceMessages(messages)
+    belongsTo(clientId)
+    isEmpty()
+  }
+  class ChatMessage <<Entity>> {
+    MessageId id
+    String text
+    ChatMessageType messageType
+    --
+    {static} createUserMessage(text)
+    {static} createAssistantMessage(text)
+    isFromUser()
+    isFromAssistant()
+    withText(newText)
+  }
+  enum ChatMessageType <<ValueObject>> {
+    USER
+    ASSISTANT
+  }
+  class WebSource <<ValueObject>> {
+    String url
+    String title
+  }
+  interface ChatSessionRepository <<Repository>> {
+    save(session)
+    findById(id)
+  }
+  interface ChatWebSourcesRepository <<Repository>> {
+    findByContentHash(hash)
+  }
 }
 
 ChatSession "1" *-- "0..*" ChatMessage
-ChatSession --> ChatSessionId
-ChatSession --> ChatSessionStatus
-ChatMessage --> MessageId
 ChatMessage --> ChatMessageType
-ChatMessage --> ContentHash
-ChatSessionRepository ..> ChatSession
-ChatWebSourcesRepository ..> WebSource
-ChatSession ..> OwnerKey : owned by
 
-' ============================================================
-' rag
-' ============================================================
+' ── rag ────────────────────────────────────────────────────
 package "com.ai.rag.domain" as pkg_rag {
-  class Document <<AggregateRoot>>
-  class DocumentChunk <<Entity>>
-  class DocumentId <<ValueObject>>
-  enum DocumentStatus <<ValueObject>>
-  class RawDocument <<ValueObject>>
-  class SourceDocument <<ValueObject>>
-  interface IDocumentRepository <<Repository>>
-  interface IDocumentChunkRepository <<Repository>>
-  interface DocumentChunkSearchRepository <<Repository>>
-  interface DocumentReader <<Repository>>
-  interface DocumentWriter <<Repository>>
-  interface DocumentTransformer <<Repository>>
-  interface TextEmbeddingRepository <<Repository>>
-  interface RagRetrievalSettings <<Repository>>
+  class Document <<AggregateRoot>> {
+    DocumentId id
+    String title
+    DocumentStatus status
+    --
+    markProcessing()
+    markReady()
+    markFailed()
+    updateTitle(newTitle)
+  }
+  class DocumentChunk <<Entity>> {
+    ChunkId id
+    DocumentId documentId
+    String content
+    --
+    {static} create(...)
+    withEmbedding(vector)
+  }
+  enum DocumentStatus <<ValueObject>> {
+    UPLOADING
+    PROCESSING
+    READY
+    FAILED
+  }
+  class SourceDocument <<ValueObject>> {
+    String text
+    double score
+  }
+  interface IDocumentRepository <<Repository>> {
+    save(document)
+    findById(id)
+  }
 }
 
 Document "1" *-- "0..*" DocumentChunk
-Document --> DocumentId
 Document --> DocumentStatus
-IDocumentRepository ..> Document
-IDocumentChunkRepository ..> DocumentChunk
 
-' ============================================================
-' pipeline
-' ============================================================
+' ── pipeline + skill ───────────────────────────────────────
 package "com.ai.pipeline.domain" as pkg_pipeline {
-  class AgentDefinition <<Entity>>
-  class AgentPipeline <<AggregateRoot>>
-  class SavedAgentDefinition <<Entity>>
-  class SavedWorkflowTemplate <<Entity>>
-  class AgentType <<ValueObject>>
-  class SavedAgentId <<ValueObject>>
-  class WorkflowTemplateId <<ValueObject>>
-  class RoutingPlan <<ValueObject>>
-  interface AgentRegistry <<Repository>>
-  interface SavedAgentRepository <<Repository>>
-  interface WorkflowTemplateRepository <<Repository>>
+  class AgentPipeline <<AggregateRoot>> {
+    List nodes
+    List edges
+    --
+    {static} create(nodes, edges)
+    executionOrder()
+  }
+  class AgentDefinition <<Entity>> {
+    AgentType type
+    String systemPrompt
+  }
+  class SavedWorkflowTemplate <<Entity>> {
+    WorkflowTemplateId id
+    String name
+  }
+  interface AgentRegistry <<Repository>> {
+    findByType(type)
+  }
 }
 
-AgentDefinition --> AgentType
-SavedAgentDefinition --> SavedAgentId
-SavedWorkflowTemplate --> WorkflowTemplateId
-AgentRegistry ..> AgentDefinition
-SavedAgentRepository ..> SavedAgentDefinition
-WorkflowTemplateRepository ..> SavedWorkflowTemplate
-
-' ============================================================
-' skill
-' ============================================================
 package "com.ai.skill.domain" as pkg_skill {
-  class Skill <<Entity>>
-  class SkillId <<ValueObject>>
-  interface SkillRepository <<Repository>>
+  class Skill <<AggregateRoot>> {
+    SkillId id
+    String name
+    boolean enabled
+    --
+    {static} create(...)
+    update(name, instructions, tools)
+    enable()
+    disable()
+  }
 }
 
-Skill --> SkillId
-SkillRepository ..> Skill
-
-' ============================================================
-' automation
-' ============================================================
+' ── automation ─────────────────────────────────────────────
 package "com.ai.automation.domain" as pkg_automation {
-  class AutomationSchedule <<AggregateRoot>>
-  class AutomationRun <<Entity>>
-  class ScheduleId <<ValueObject>>
-  class RunId <<ValueObject>>
-  enum ScheduleKind <<ValueObject>>
-  enum RunStatus <<ValueObject>>
-  interface AutomationScheduleRepository <<Repository>>
-  interface AutomationRunRepository <<Repository>>
-  interface EmailGateway <<Repository>>
-  interface WorkflowRunner <<Repository>>
+  class AutomationSchedule <<AggregateRoot>> {
+    ScheduleId id
+    ScheduleKind kind
+    boolean enabled
+    --
+    {static} create(...)
+    {static} createOnce(...)
+    update(...)
+    enable(nextRunAt)
+    disable()
+    markExecuted(finishedAt, nextRunAt)
+    completeOnce(finishedAt)
+    isOnce()
+  }
+  class AutomationRun <<Entity>> {
+    RunId id
+    RunStatus status
+  }
+  enum RunStatus <<ValueObject>> {
+    RUNNING
+    SUCCEEDED
+    FAILED
+  }
 }
 
 AutomationSchedule "1" o-- "0..*" AutomationRun
-AutomationSchedule --> ScheduleId
-AutomationSchedule --> ScheduleKind
-AutomationRun --> RunId
-AutomationRun --> RunStatus
-AutomationScheduleRepository ..> AutomationSchedule
-AutomationRunRepository ..> AutomationRun
 
-' ============================================================
-' metrics
-' ============================================================
-package "com.ai.metrics.domain" as pkg_metrics {
-  class AiInvocationEvent <<Entity>>
-  enum AiDomain <<ValueObject>>
-  enum InvocationOutcome <<ValueObject>>
-  interface AiInvocationEventRepository <<Repository>>
-  interface MetricsQueryRepository <<Repository>>
-  interface MetricsHealthGateway <<Repository>>
+' ── account ────────────────────────────────────────────────
+package "com.ai.account.domain" as pkg_account {
+  class AccountUser <<Entity>> {
+    String provider
+    String linkedClientId
+    --
+    {static} create(provider, subject, email, clientId)
+    linkSession(email, clientId)
+    unlinkBrowser()
+  }
 }
 
-AiInvocationEvent --> AiDomain
-AiInvocationEvent --> InvocationOutcome
-AiInvocationEventRepository ..> AiInvocationEvent
-
-' ============================================================
-' mcp
-' ============================================================
+' ── mcp ────────────────────────────────────────────────────
 package "com.ai.mcp.domain" as pkg_mcp {
-  class McpSession <<AggregateRoot>>
-  class McpToolDefinition <<ValueObject>>
-  class McpServerConnection <<ValueObject>>
-  enum McpSessionStatus <<ValueObject>>
-  interface McpClientRepository <<Repository>>
-  class McpSessionManager <<DomainService>>
+  class McpSession <<AggregateRoot>> {
+    UUID id
+    McpSessionStatus status
+    --
+    {static} open(serverName, toolCount)
+    activate()
+    close()
+    isActive()
+  }
+  class McpSessionManager <<DomainService>> {
+    register(session)
+    close(sessionId)
+  }
 }
 
-McpSession --> McpSessionStatus
-McpSession --> McpServerConnection
-McpClientRepository ..> McpSession
-McpSessionManager ..> McpSession
+' ── metrics ────────────────────────────────────────────────
+package "com.ai.metrics.domain" as pkg_metrics {
+  class AiInvocationEvent <<Entity>> {
+    AiDomain domain
+    InvocationOutcome outcome
+    long latencyMs
+    --
+    {static} builder()
+  }
+  enum AiDomain <<ValueObject>> {
+    CHAT
+    RAG
+    AGENTS
+    TOOLS
+    VISION
+  }
+}
 
-' ============================================================
-' tools
-' ============================================================
+' ── tools (sample) ─────────────────────────────────────────
 package "com.ai.tools.domain" as pkg_tools {
-  class ToolResult <<ValueObject>>
-  class WeatherReport <<Entity>>
-  class WeatherInfo <<ValueObject>>
-  class WeatherQuery <<ValueObject>>
-  class WeatherForecast <<ValueObject>>
+  class WeatherReport <<Entity>> {
+    String location
+    WeatherInfo current
+  }
 }
 
-WeatherReport --> WeatherInfo
-
-' ============================================================
-' image / audio / vision / analysis / eval / workflow (core)
-' ============================================================
-package "com.ai.image.domain" as pkg_image {
-  class GeneratedImage <<ValueObject>>
-  class ImagePrompt <<ValueObject>>
-  class ImageOptions <<ValueObject>>
-  class ImageSize <<ValueObject>>
-  class ImageCatalog <<ValueObject>>
-  interface ImageGenerationRepository <<Repository>>
+' ── cross-cutting VOs ──────────────────────────────────────
+package "com.ai.common.domain" as pkg_common {
+  class OwnerKey <<ValueObject>> {
+    String value
+  }
 }
 
-ImageGenerationRepository ..> GeneratedImage
+ChatSession ..> OwnerKey : owned by
+AccountUser ..> OwnerKey : links browser
 
-package "com.ai.audio.domain" as pkg_audio {
-  class SynthesizedAudio <<Entity>>
-  class SpeechText <<ValueObject>>
-  class VoiceCatalog <<ValueObject>>
-  class VoiceInfo <<ValueObject>>
-  class VoiceSelection <<ValueObject>>
-  interface TextToSpeechRepository <<Repository>>
-}
-
-TextToSpeechRepository ..> SynthesizedAudio
-
-package "com.ai.vision.domain" as pkg_vision {
-  class OcrResult <<ValueObject>>
-  class CaptionResult <<ValueObject>>
-  class Detection <<ValueObject>>
-  interface OcrEngine <<Repository>>
-  interface ImageCaptioner <<Repository>>
-  interface ObjectDetector <<Repository>>
-}
-
-OcrEngine ..> OcrResult
-ImageCaptioner ..> CaptionResult
-ObjectDetector ..> Detection
-
-package "com.ai.analysis.domain" as pkg_analysis {
-  class TextAnalysis <<Entity>>
-  enum Sentiment <<ValueObject>>
-  class AnalysisText <<ValueObject>>
-  class LanguageHint <<ValueObject>>
-  interface StructuredAnalysisRepository <<Repository>>
-}
-
-TextAnalysis --> Sentiment
-StructuredAnalysisRepository ..> TextAnalysis
-
-package "com.ai.eval.domain" as pkg_eval {
-  class GoldenEvalCase <<ValueObject>>
-  class ChatEvaluationResult <<ValueObject>>
-  class OfficialGateResult <<ValueObject>>
-  enum GoldenEvalDomain <<ValueObject>>
-  interface GoldenSuiteRepository <<Repository>>
-}
-
-GoldenSuiteRepository ..> GoldenEvalCase
-
-package "com.ai.workflow.domain" as pkg_workflow {
-  class ChainResult <<ValueObject>>
-  class RoutingResult <<ValueObject>>
-  class OrchestratorWorkersResult <<ValueObject>>
-  interface ChainWorkflow <<DomainService>>
-  interface RoutingWorkflow <<DomainService>>
-  interface OrchestratorWorkersWorkflow <<DomainService>>
-  interface ParallelizationWorkflow <<DomainService>>
-  interface EvaluatorOptimizerWorkflow <<DomainService>>
-}
-
-ChainWorkflow ..> ChainResult
-RoutingWorkflow ..> RoutingResult
-OrchestratorWorkersWorkflow ..> OrchestratorWorkersResult
-
-N_CONVENTION .. pkg_common
+N_LAYERS .. pkg_chat
 
 @enduml

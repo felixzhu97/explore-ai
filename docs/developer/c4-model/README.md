@@ -20,7 +20,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | `C1-Context.puml` | C1 | 系统上下文图（含 LaunchDarkly、Datadog、cloud-minimal prod） |
 | `C2-Container.puml` | C2 | 容器图（13 个子域 + 功能开关横切） |
 | `C3-Component.puml` | C3 | **单图**：前后端组件 + Clean Architecture 四层 |
-| `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity / VO / Repository；对齐 `com.ai.*.domain`） |
+| `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；对齐 `com.ai.*.domain`） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地 dev + 生产（Vercel + Render） |
 | `style-zinc.puml` | Shared | Code + Dynamics 共用 zinc 样式 |
 | `C4-Dynamic-Document-Upload.puml` | Dynamic | 文档上传 ETL |
@@ -64,7 +64,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 
 ![C4-Code-Domain-Model](png/C4-Code-Domain-Model.png)
 
-按 `com.ai.*.domain` 分包，类型名与当前代码一致。术语见 [Glossary](../../Glossary.md) Appendix A。
+按 `com.ai.*.domain` 分包；Aggregate / Entity 展示领域行为（factory、状态转换、聚合内操作）。术语见 [Glossary](../../Glossary.md) Appendix A。
 
 ---
 
@@ -269,13 +269,13 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 - 重新生成 PNG：
 
 ```bash
-cd docs/c4-model && mkdir -p png && plantuml -o png *.puml
+cd docs/developer/c4-model && mkdir -p png && plantuml -tpng -o png *.puml
 ```
 
 若本机无 `plantuml` CLI：
 
 ```bash
-cd docs/c4-model && docker run --rm -v "$PWD":/data plantuml/plantuml -o png '*.puml'
+cd docs/developer/c4-model && docker run --rm -v "$PWD":/data plantuml/plantuml -tpng -o png /data/*.puml
 ```
 
 ## 相关文档
