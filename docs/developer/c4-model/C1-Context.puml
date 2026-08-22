@@ -1,7 +1,7 @@
 @startuml C1-Context
+' Theme before C4 includes; do not combine with !NEW_C4_STYLE=1
+!theme C4_blue_new from https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/themes
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-
-LAYOUT_WITH_LEGEND()
 
 title 系统上下文图 (C1) - AI Chat & Agent Platform
 
