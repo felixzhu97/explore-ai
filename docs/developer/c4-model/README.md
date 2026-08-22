@@ -19,8 +19,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | --- | --- | --- |
 | `C1-Context.puml` | C1 | 系统上下文图（含 LaunchDarkly、Datadog、cloud-minimal prod） |
 | `C2-Container.puml` | C2 | 容器图（13 个子域 + 功能开关横切） |
-| `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
-| `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
+| `C3-Component.puml` | C3 | **单图**：前后端组件 + Clean Architecture 四层 |
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity / VO / Repository；对齐 `com.ai.*.domain`） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地 dev + 生产（Vercel + Render） |
 | `style-zinc.puml` | Shared | Code + Dynamics 共用 zinc 样式 |
@@ -53,15 +52,11 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 
 ---
 
-## C3 - 后端组件图
+## C3 - 组件图
 
-![C3-Component-Backend](png/C3-Component-Backend.png)
+![C3-Component](png/C3-Component.png)
 
----
-
-## C3 - 前端组件图
-
-![C3-Component-Frontend](png/C3-Component-Frontend.png)
+前后端合并在单图中（参照 Academic C3 结构）；Web App 边界 + Backend 四层分组。
 
 ---
 
