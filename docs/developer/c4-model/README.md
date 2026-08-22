@@ -22,11 +22,10 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | `C3-Component-Backend.puml` | C3 | 后端组件图（Clean Architecture 四层） |
 | `C3-Component-Frontend.puml` | C3 | 前端组件图（路由守卫、chat-shell、分解 API 服务、RUM） |
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity / VO / Repository；对齐 `com.ai.*.domain`） |
-| `C4-Deployment.puml` | Deployment | 本地开发环境部署图（:4200 → :9000） |
-| `C4-Deployment-Production.puml` | Deployment | 生产部署图（Vercel + Render Starter + Datadog RUM + LaunchDarkly） |
+| `C4-Deployment.puml` | Deployment | **单图**：本地 dev + 生产（Vercel + Render） |
 | `style-zinc.puml` | Shared | Code + Dynamics 共用 zinc 样式 |
 
-> **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment*.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
+> **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
 
 ---
 
@@ -64,13 +63,9 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 
 ## C4 - 部署图
 
-### 本地开发
-
 ![C4-Deployment](png/C4-Deployment.png)
 
-### 生产环境
-
-![C4-Deployment-Production](png/C4-Deployment-Production.png)
+本地 dev（`:4200` → `:9000`）与生产（Vercel + Render Starter）合并在单图中；详见图内 `cloud-minimal prod` 注释。
 
 ---
 
