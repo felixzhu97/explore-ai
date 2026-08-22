@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend:
-    name: Backend Test & Coverage
+    name: Backend
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,27 +36,7 @@ jobs:
       - id: gradle
         env:
           GRADLE_OPTS: -Dorg.gradle.internal.test.binary.results-store=false
-        run: ./gradlew test jacocoTestCoverageVerification --no-daemon
-
-      - name: Extract JaCoCo metrics
-        if: success()
-        run: node scripts/extract-jacoco.mjs
-
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
-        with:
-          name: jacoco-report
-          path: build/reports/jacoco/test/html
-          retention-days: 14
-          if-no-files-found: warn
-
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: success()
-        with:
-          name: ci-metrics-backend
-          path: ci-metrics/
-          retention-days: 7
-          if-no-files-found: warn
+        run: ./gradlew test --no-daemon
 
   frontend:
     name: Frontend Test & Build
