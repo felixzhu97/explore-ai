@@ -70,6 +70,68 @@ Prefer **Fake** for repositories over heavy mocking.
 | Code under test | Prefer |
 |-----------------|--------|
 | `domain/` | Unit + TDD |
-| `application/` | Unit with Fake repos; light integration |
-| `infrastructure/` / `web/` | Integration |
+| `service/` | Unit with Fake repos; light integration |
+| `infra/` / `controller/` | Slice integration (`@DataJpaTest`, `@WebMvcTest`) |
 | Critical UI flows | Few E2E |
+
+## Spring Boot 4 slice tests
+
+Use modular test starters already on the classpath (`spring-boot-webmvc-test`,
+`spring-boot-data-jpa-test`). Default `./gradlew test` excludes `@Tag("integration")`;
+run `./gradlew integrationTest` for full-context ITs.
+
+### Controller — `@WebMvcTest`
+
+Do **not** instantiate controllers with `new` for HTTP contract tests. Prefer
+`MockMvcTester` + `@MockitoBean` collaborators:
+
+```java
+@WebMvcTest(controllers = ChatController.class)
+@ActiveProfiles("test")
+class ChatControllerTest {
+
+  @Autowired MockMvcTester mvc;
+  @MockitoBean ChatUseCase chatUseCase;
+  @MockitoBean OwnerContext ownerContext;
+
+  @Test
+  @DisplayName("should return 400 when chat message is null")
+  void shouldReturn400WhenChatMessageIsNull() {
+    when(ownerContext.requireValue(any())).thenReturn("c:client-1");
+    assertThat(mvc.post().uri("/api/chat")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"message\":null}"))
+        .hasStatus(HttpStatus.BAD_REQUEST);
+  }
+}
+```
+
+Attach client identity when needed: `.with(ClientIdentityRequestPostProcessor.withClientId(...))`.
+
+Prefer `@SliceWebMvcTest` (in `com.ai.testsupport`) over raw `@WebMvcTest` — it excludes
+application servlet filters (quota, CSRF, client identity) so controller slices start
+without the full filter dependency graph.
+
+References:
+- [Spring Boot Testing](https://docs.spring.io/spring-boot/reference/testing/index.html)
+- [Test modules](https://docs.spring.io/spring-boot/reference/testing/test-modules.html)
+
+### JPA — `@DataJpaTest`
+
+Extend `AbstractDataJpaTest`, add `@EntityScan` for the aggregate under test, and assert
+round-trip persistence (mapping, converters, custom queries):
+
+```java
+@DataJpaTest
+@EntityScan(basePackageClasses = ChatSession.class)
+@Import(SpringDataChatSessionRepository.class)
+class ChatSessionJpaTest extends AbstractDataJpaTest {
+
+  @Autowired TestEntityManager em;
+  @Autowired SpringDataChatSessionRepository repository;
+
+  @Test
+  @DisplayName("should round-trip session when persisted")
+  void shouldRoundTripSessionWhenPersisted() { /* ... */ }
+}
+```

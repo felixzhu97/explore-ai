@@ -80,6 +80,7 @@ dependencies {
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.ai:spring-ai-test")
@@ -90,6 +91,28 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("org.gradle.internal.test.binary.results-store", "false")
+    doFirst {
+        file("${layout.buildDirectory.get()}/jacoco").mkdirs()
+        file("${layout.buildDirectory.get()}/test-results/test/binary").mkdirs()
+    }
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    description = "Runs integration-tagged tests (@Tag(\"integration\"))."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    shouldRunAfter(tasks.named("test"))
 }
 
 jacoco {
