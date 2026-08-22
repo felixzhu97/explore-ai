@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.ai.base.domain.vo.AbstractUuidId;
-import com.ai.common.domain.vo.OwnerKeys;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,14 +24,7 @@ class AbstractEnableableDescribedOwnerEntityTest {
   static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<TestId> {
 
     TestEntity(boolean enabled) {
-      super(
-          TestId.generate(),
-          "client-1",
-          "name",
-          "desc",
-          enabled,
-          Instant.now(),
-          Instant.now());
+      super(TestId.generate(), "client-1", "name", "desc", enabled, Instant.now(), Instant.now());
     }
   }
 

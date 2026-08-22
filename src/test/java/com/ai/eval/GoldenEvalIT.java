@@ -2,9 +2,9 @@ package com.ai.eval;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.eval.application.usecase.GoldenEvalUseCase;
 import com.ai.eval.domain.model.GoldenSuiteReport;
 import com.ai.eval.domain.vo.GoldenEvalDomain;
+import com.ai.eval.service.usecase.GoldenEvalUseCase;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

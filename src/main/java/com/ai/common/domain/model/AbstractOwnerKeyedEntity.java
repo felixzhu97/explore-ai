@@ -4,7 +4,6 @@ import com.ai.base.domain.model.AbstractEntity;
 import com.ai.base.domain.vo.AbstractUuidId;
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
-import com.ai.common.domain.vo.OwnerKeys;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
@@ -34,8 +33,8 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
 
   /** Documentation. */
   protected AbstractOwnerKeyedEntity(
-      IdT id, String clientId, Instant createdAt, Instant updatedAt) {
-    this(id, OwnerKeys.requireClient(clientId), createdAt, updatedAt);
+      IdT id, String ownerKeyValue, Instant createdAt, Instant updatedAt) {
+    this(id, OwnerKey.parse(ownerKeyValue), createdAt, updatedAt);
   }
 
   /** Documentation. */
@@ -44,12 +43,12 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
   }
 
   /** Documentation. */
-  public boolean belongsToClient(String clientId) {
-    return ownerKey.equals(OwnerKeys.requireClient(clientId));
+  public boolean belongsToClient(String ownerKeyValue) {
+    return ownerKey.value().equals(ownerKeyValue);
   }
 
-  /** Documentation. */
+  /** Returns the persisted owner_key value (c:… or u:…). */
   public String getClientId() {
-    return OwnerKeys.parseClientId(ownerKey);
+    return ownerKey.value();
   }
 }

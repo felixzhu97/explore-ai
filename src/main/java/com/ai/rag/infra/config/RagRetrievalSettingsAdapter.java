@@ -1,0 +1,26 @@
+package com.ai.rag.infra.config;
+
+import com.ai.rag.domain.repository.RagRetrievalSettings;
+import org.springframework.stereotype.Component;
+
+/** Documentation. */
+@Component
+public class RagRetrievalSettingsAdapter implements RagRetrievalSettings {
+
+  private final RagProperties ragProperties;
+
+  /** Documentation. */
+  public RagRetrievalSettingsAdapter(RagProperties ragProperties) {
+    this.ragProperties = ragProperties;
+  }
+
+  @Override
+  public int getTopK() {
+    return ragProperties.getRetrieval().getTopK();
+  }
+
+  @Override
+  public double getScoreThreshold() {
+    return ragProperties.getRetrieval().getScoreThreshold();
+  }
+}
