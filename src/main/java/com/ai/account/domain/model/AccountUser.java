@@ -1,43 +1,67 @@
 package com.ai.account.domain.model;
 
+import com.ai.account.domain.vo.AccountUserId;
+import com.ai.base.domain.model.AbstractEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /** Linked OAuth identity for a browser Client Identity partition. */
-public final class AccountUser {
+@Entity
+@Table(name = "account_users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class AccountUser extends AbstractEntity<AccountUserId> {
 
-  private final String id;
-  private final String provider;
-  private final String subject;
+  @Column(name = "provider", nullable = false, length = 32)
+  private String provider;
+
+  @Column(name = "subject", nullable = false, length = 255)
+  private String subject;
+
+  @Column(name = "email", length = 320)
   private String email;
-  private String linkedClientId;
-  private final Instant createdAt;
-  private Instant updatedAt;
 
-  private AccountUser(
-      String id,
+  @Column(name = "linked_client_id", length = 64)
+  private String linkedClientId;
+
+  /** Documentation. */
+  public static AccountUser create(
+      String provider, String subject, String email, String linkedClientId) {
+    AccountUser user = new AccountUser();
+    user.id = AccountUserId.generate();
+    user.provider = requireProvider(provider);
+    user.subject = requireSubject(subject);
+    user.email = normalizeEmail(email);
+    user.linkedClientId = normalizeClientId(linkedClientId);
+    Instant now = Instant.now();
+    user.createdAt = now;
+    user.updatedAt = now;
+    return user;
+  }
+
+  /** Documentation. */
+  public static AccountUser restore(
+      AccountUserId id,
       String provider,
       String subject,
       String email,
       String linkedClientId,
       Instant createdAt,
       Instant updatedAt) {
-    this.id = Objects.requireNonNull(id, "id");
-    this.provider = requireProvider(provider);
-    this.subject = requireSubject(subject);
-    this.email = normalizeEmail(email);
-    this.linkedClientId = normalizeClientId(linkedClientId);
-    this.createdAt = Objects.requireNonNull(createdAt, "createdAt");
-    this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt");
-  }
-
-  /** Documentation. */
-  public static AccountUser create(
-      String provider, String subject, String email, String linkedClientId) {
-    Instant now = Instant.now();
-    return new AccountUser(
-        UUID.randomUUID().toString(), provider, subject, email, linkedClientId, now, now);
+    AccountUser user = new AccountUser();
+    user.id = id;
+    user.provider = requireProvider(provider);
+    user.subject = requireSubject(subject);
+    user.email = normalizeEmail(email);
+    user.linkedClientId = normalizeClientId(linkedClientId);
+    user.createdAt = createdAt;
+    user.updatedAt = updatedAt;
+    return user;
   }
 
   /** Documentation. */
@@ -49,48 +73,21 @@ public final class AccountUser {
       String linkedClientId,
       Instant createdAt,
       Instant updatedAt) {
-    return new AccountUser(id, provider, subject, email, linkedClientId, createdAt, updatedAt);
+    return restore(
+        AccountUserId.of(id), provider, subject, email, linkedClientId, createdAt, updatedAt);
   }
 
   /** Documentation. */
   public void linkSession(String email, String linkedClientId) {
     this.email = normalizeEmail(email);
     this.linkedClientId = requireClientId(linkedClientId);
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Clears the browser partition link so logout returns to guest mode. */
   public void unlinkBrowser() {
     this.linkedClientId = null;
-    this.updatedAt = Instant.now();
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public String getProvider() {
-    return provider;
-  }
-
-  public String getSubject() {
-    return subject;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public String getLinkedClientId() {
-    return linkedClientId;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
+    touchUpdatedAt();
   }
 
   private static String requireProvider(String provider) {

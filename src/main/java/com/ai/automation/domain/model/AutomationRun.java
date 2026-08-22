@@ -4,39 +4,69 @@ import com.ai.automation.domain.vo.EmailDeliveryStatus;
 import com.ai.automation.domain.vo.RunId;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.common.domain.model.AbstractTimedRunEntity;
+import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public class AutomationRun {
+/** Automation execution run record partitioned by owner_key. */
+@Entity
+@Table(name = "automation_runs")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class AutomationRun extends AbstractTimedRunEntity<RunId> {
 
   public static final int MAX_RESULT_EXCERPT = 16_384;
 
-  private final RunId id;
-  private final ScheduleId scheduleId;
-  private final String clientId;
-  private final Instant startedAt;
-  private Instant finishedAt;
+  @Embedded
+  @AttributeOverride(
+      name = "value",
+      column = @Column(name = "schedule_id", nullable = false, length = 36))
+  private ScheduleId scheduleId;
+
+  @Convert(converter = OwnerKeyAttributeConverter.class)
+  @Column(name = "owner_key", nullable = false, length = 80)
+  private OwnerKey ownerKey;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false, length = 20)
   private RunStatus status;
+
+  @Column(name = "error_message", length = 1000)
   private String errorMessage;
+
+  @Column(name = "result_excerpt", columnDefinition = "clob")
   private String resultExcerpt;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "email_status", nullable = false, length = 20)
   private EmailDeliveryStatus emailStatus;
 
   private AutomationRun(
       RunId id,
       ScheduleId scheduleId,
-      String clientId,
+      String ownerKey,
       Instant startedAt,
       Instant finishedAt,
       RunStatus status,
       String errorMessage,
       String resultExcerpt,
       EmailDeliveryStatus emailStatus) {
-    this.id = Objects.requireNonNull(id, "RunId");
-    this.scheduleId = Objects.requireNonNull(scheduleId, "ScheduleId");
-    this.clientId = Objects.requireNonNull(clientId, "clientId");
-    this.startedAt = Objects.requireNonNull(startedAt, "startedAt");
-    this.finishedAt = finishedAt;
+    super(id, startedAt, finishedAt);
+    this.scheduleId = Objects.requireNonNull(scheduleId, "scheduleId");
+    this.ownerKey = OwnerKey.parse(ownerKey);
     this.status = Objects.requireNonNull(status, "status");
     this.errorMessage = errorMessage;
     this.resultExcerpt = resultExcerpt;
@@ -44,11 +74,11 @@ public class AutomationRun {
   }
 
   /** Documentation. */
-  public static AutomationRun start(ScheduleId scheduleId, String clientId) {
+  public static AutomationRun start(ScheduleId scheduleId, String ownerKey) {
     return new AutomationRun(
         RunId.generate(),
         scheduleId,
-        clientId,
+        ownerKey,
         Instant.now(),
         null,
         RunStatus.FAILED,
@@ -61,7 +91,7 @@ public class AutomationRun {
   public static AutomationRun restore(
       RunId id,
       ScheduleId scheduleId,
-      String clientId,
+      String ownerKey,
       Instant startedAt,
       Instant finishedAt,
       RunStatus status,
@@ -71,7 +101,7 @@ public class AutomationRun {
     return new AutomationRun(
         id,
         scheduleId,
-        clientId,
+        ownerKey,
         startedAt,
         finishedAt,
         status,
@@ -85,7 +115,7 @@ public class AutomationRun {
     this.status = RunStatus.SUCCESS;
     this.resultExcerpt = truncate(resultExcerpt);
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
-    this.finishedAt = Instant.now();
+    markFinished(Instant.now());
     this.errorMessage = null;
   }
 
@@ -94,7 +124,7 @@ public class AutomationRun {
     this.status = RunStatus.FAILED;
     this.errorMessage = truncateMessage(errorMessage);
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
-    this.finishedAt = Instant.now();
+    markFinished(Instant.now());
   }
 
   /** Documentation. */
@@ -102,43 +132,12 @@ public class AutomationRun {
     this.status = RunStatus.SKIPPED;
     this.errorMessage = truncateMessage(reason);
     this.emailStatus = EmailDeliveryStatus.SKIPPED;
-    this.finishedAt = Instant.now();
+    markFinished(Instant.now());
   }
 
-  public RunId getId() {
-    return id;
-  }
-
-  public ScheduleId getScheduleId() {
-    return scheduleId;
-  }
-
+  /** Returns the persisted owner_key value (c:… or u:…). */
   public String getClientId() {
-    return clientId;
-  }
-
-  public Instant getStartedAt() {
-    return startedAt;
-  }
-
-  public Instant getFinishedAt() {
-    return finishedAt;
-  }
-
-  public RunStatus getStatus() {
-    return status;
-  }
-
-  public String getErrorMessage() {
-    return errorMessage;
-  }
-
-  public String getResultExcerpt() {
-    return resultExcerpt;
-  }
-
-  public EmailDeliveryStatus getEmailStatus() {
-    return emailStatus;
+    return ownerKey.value();
   }
 
   private static String truncate(String value) {

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
@@ -95,7 +96,7 @@ class H2VectorAdapterTest {
     @DisplayName("should save chunk with embedding via MERGE")
     void shouldSaveChunk() {
       DocumentChunk chunk =
-          DocumentChunk.create(DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of())
+          DocumentChunk.create(ChunkId.generate(), DocumentId.generate(), "content", 0, Map.of())
               .withEmbedding(new float[] {0.1f, 0.2f});
       when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
       vectorAdapter.saveChunk(chunk);
@@ -106,7 +107,7 @@ class H2VectorAdapterTest {
     @DisplayName("should handle null metadata")
     void shouldHandleNullMetadata() {
       DocumentChunk chunk =
-          DocumentChunk.create(DocumentId.generate(), DocumentId.generate(), "content", 0, null)
+          DocumentChunk.create(ChunkId.generate(), DocumentId.generate(), "content", 0, null)
               .withEmbedding(new float[] {0.1f});
       when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
       vectorAdapter.saveChunk(chunk);
@@ -118,11 +119,7 @@ class H2VectorAdapterTest {
     void shouldSerializeMetadataWhenPresent() {
       DocumentChunk chunk =
           DocumentChunk.create(
-                  DocumentId.generate(),
-                  DocumentId.generate(),
-                  "content",
-                  0,
-                  Map.of("key", "value"))
+                  ChunkId.generate(), DocumentId.generate(), "content", 0, Map.of("key", "value"))
               .withEmbedding(new float[] {0.1f});
       when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
       vectorAdapter.saveChunk(chunk);
@@ -162,8 +159,8 @@ class H2VectorAdapterTest {
 
       DocumentChunk result = rowMapper.mapRow(rs, 0);
 
-      assertThat(result.getId().value()).isEqualTo(chunkId);
-      assertThat(result.getDocumentId().value()).isEqualTo(docId);
+      assertThat(result.getId().value()).isEqualTo(chunkId.toString());
+      assertThat(result.getDocumentId().value()).isEqualTo(docId.toString());
       assertThat(result.getContent()).isEqualTo(content);
       assertThat(result.getChunkIndex()).isEqualTo(1);
       assertThat(result.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
@@ -250,8 +247,7 @@ class H2VectorAdapterTest {
   }
 
   private DocumentChunk createChunk(float[] embedding) {
-    return DocumentChunk.create(
-            DocumentId.generate(), DocumentId.generate(), "content", 0, Map.of())
+    return DocumentChunk.create(ChunkId.generate(), DocumentId.generate(), "content", 0, Map.of())
         .withEmbedding(embedding);
   }
 }

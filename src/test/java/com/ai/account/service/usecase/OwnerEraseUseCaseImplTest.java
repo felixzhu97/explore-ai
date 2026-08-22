@@ -21,7 +21,7 @@ class OwnerEraseUseCaseImplTest {
 
   @Test
   void shouldDeleteAllForOwnerWhenEraseRequested() {
-    OwnerKey owner = OwnerKey.forAccount("acct-1");
+    OwnerKey owner = OwnerKey.forAccount("22222222-2222-2222-2222-222222222222");
 
     useCase.eraseAllForOwner(owner);
 

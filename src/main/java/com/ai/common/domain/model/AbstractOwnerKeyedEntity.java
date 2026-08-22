@@ -51,4 +51,14 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
   public String getClientId() {
     return ownerKey.value();
   }
+
+  /** Documentation. */
+  protected void rebindOwnerKey(OwnerKey nextOwnerKey) {
+    this.ownerKey = Objects.requireNonNull(nextOwnerKey, "ownerKey");
+  }
+
+  /** Documentation. */
+  public void rebindOwnerKey(String ownerKeyValue) {
+    rebindOwnerKey(OwnerKey.parse(ownerKeyValue));
+  }
 }

@@ -21,9 +21,11 @@ class OwnerMergeUseCaseImplTest {
 
   @Test
   void shouldReassignOwnerWhenMergingClientIntoAccount() {
-    useCase.mergeClientIntoAccount("cid-1", "acct-9");
+    useCase.mergeClientIntoAccount("cid-1", "11111111-1111-1111-1111-111111111111");
 
     verify(ownerPartitionRepository)
-        .reassignOwner(OwnerKey.forClient("cid-1"), OwnerKey.forAccount("acct-9"));
+        .reassignOwner(
+            OwnerKey.forClient("cid-1"),
+            OwnerKey.forAccount("11111111-1111-1111-1111-111111111111"));
   }
 }

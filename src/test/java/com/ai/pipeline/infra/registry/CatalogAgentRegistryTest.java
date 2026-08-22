@@ -30,16 +30,16 @@ class CatalogAgentRegistryTest {
   void shouldListBuiltinsWhenNoClientOverrides() {
     List<AgentDefinition> builtins = registry.listBuiltins("en");
     assertThat(builtins).isNotEmpty();
-    assertThat(registry.listAll("client-a", "en")).hasSameSizeAs(builtins);
+    assertThat(registry.listAll("c:client-a", "en")).hasSameSizeAs(builtins);
   }
 
   @Test
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
-    String typeKey = registry.listWorkers("client-a", "en").getFirst().type().value();
+    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     savedAgents.save(
         SavedAgentDefinition.restore(
             SavedAgentId.generate(),
-            "client-a",
+            "c:client-a",
             typeKey,
             "Override Name",
             "override desc",
@@ -49,12 +49,13 @@ class CatalogAgentRegistryTest {
             Instant.now(),
             Instant.now()));
 
-    Optional<AgentDefinition> found = registry.findByType(AgentType.of(typeKey), "client-a", "en");
+    Optional<AgentDefinition> found =
+        registry.findByType(AgentType.of(typeKey), "c:client-a", "en");
     assertThat(found).isPresent();
     assertThat(found.get().name()).isEqualTo("Override Name");
     assertThat(found.get().systemPrompt()).isEqualTo("You are an override.");
 
-    assertThat(registry.listAll("client-a", "en"))
+    assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
               if (agent.type().value().equals(typeKey)) {
@@ -65,12 +66,12 @@ class CatalogAgentRegistryTest {
 
   @Test
   void shouldIgnoreDisabledClientDefinition() {
-    String typeKey = registry.listWorkers("client-a", "en").getFirst().type().value();
-    String builtinName = registry.require(AgentType.of(typeKey), "client-a", "en").name();
+    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
+    String builtinName = registry.require(AgentType.of(typeKey), "c:client-a", "en").name();
     savedAgents.save(
         SavedAgentDefinition.restore(
             SavedAgentId.generate(),
-            "client-a",
+            "c:client-a",
             typeKey,
             "Disabled Override",
             "d",
@@ -80,7 +81,7 @@ class CatalogAgentRegistryTest {
             Instant.now(),
             Instant.now()));
 
-    AgentDefinition effective = registry.require(AgentType.of(typeKey), "client-a", "en");
+    AgentDefinition effective = registry.require(AgentType.of(typeKey), "c:client-a", "en");
     assertThat(effective.name()).isEqualTo(builtinName);
     assertThat(effective.name()).isNotEqualTo("Disabled Override");
   }
@@ -89,9 +90,9 @@ class CatalogAgentRegistryTest {
   void shouldIncludeCustomTypeFromEnabledLibrary() {
     savedAgents.save(
         SavedAgentDefinition.create(
-            "client-a", "custom_writer", "Writer", "writes", "You write.", List.of("document")));
+            "c:client-a", "custom_writer", "Writer", "writes", "You write.", List.of("document")));
 
-    assertThat(registry.listAll("client-a", "en"))
+    assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
               assertThat(agent.type().value()).isEqualTo("custom_writer");

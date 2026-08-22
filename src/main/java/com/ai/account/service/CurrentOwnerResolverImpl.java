@@ -30,12 +30,12 @@ public class CurrentOwnerResolverImpl implements CurrentOwnerResolver {
 
     Optional<AccountUser> fromAuth = resolveLinkedUser(authentication);
     if (fromAuth.isPresent()) {
-      return OwnerKey.forAccount(fromAuth.get().getId());
+      return OwnerKey.forAccount(fromAuth.get().getId().value());
     }
 
     return accountUserRepository
         .findByLinkedClientId(clientId.trim())
-        .map(user -> OwnerKey.forAccount(user.getId()))
+        .map(user -> OwnerKey.forAccount(user.getId().value()))
         .orElseGet(() -> OwnerKey.forClient(clientId));
   }
 

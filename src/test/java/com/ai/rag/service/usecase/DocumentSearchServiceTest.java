@@ -11,6 +11,7 @@ import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
 import java.util.List;
@@ -78,13 +79,13 @@ class DocumentSearchServiceTest {
       List<DocumentChunk> chunks = List.of(createChunk("filtered content", 0));
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, List.of(docId.value())))
+      when(chunkSearchRepository.search(queryEmbedding, 5, List.of(docId.uuidValue())))
           .thenReturn(chunks);
 
       DocumentSearchService.RetrievalResult result = service.retrieve(query, List.of(docId), 5);
 
       assertThat(result.sources()).hasSize(1);
-      verify(chunkSearchRepository).search(queryEmbedding, 5, List.of(docId.value()));
+      verify(chunkSearchRepository).search(queryEmbedding, 5, List.of(docId.uuidValue()));
     }
 
     @Test
@@ -126,7 +127,7 @@ class DocumentSearchServiceTest {
 
       DocumentChunk highSimChunk =
           DocumentChunk.reconstitute(
-              DocumentId.generate(),
+              ChunkId.generate(),
               DocumentId.generate(),
               "high similarity content",
               0,
@@ -135,7 +136,7 @@ class DocumentSearchServiceTest {
               Instant.now());
       DocumentChunk medSimChunk =
           DocumentChunk.reconstitute(
-              DocumentId.generate(),
+              ChunkId.generate(),
               DocumentId.generate(),
               "medium similarity content",
               1,
@@ -144,7 +145,7 @@ class DocumentSearchServiceTest {
               Instant.now());
       DocumentChunk lowSimChunk =
           DocumentChunk.reconstitute(
-              DocumentId.generate(),
+              ChunkId.generate(),
               DocumentId.generate(),
               "low similarity content",
               2,
@@ -238,7 +239,7 @@ class DocumentSearchServiceTest {
       Map<String, Object> metadata = Map.of("title", "Test Doc", "fileName", "test.txt");
       DocumentChunk chunk =
           DocumentChunk.reconstitute(
-              DocumentId.generate(),
+              ChunkId.generate(),
               DocumentId.generate(),
               "Content",
               0,
@@ -278,7 +279,7 @@ class DocumentSearchServiceTest {
       DocumentChunk chunk = createChunkWithEmbedding("content", 0, 1.0f);
       DocumentChunk chunkWithEmbedding =
           DocumentChunk.reconstitute(
-              DocumentId.generate(),
+              ChunkId.generate(),
               DocumentId.generate(),
               "content",
               0,
@@ -307,7 +308,7 @@ class DocumentSearchServiceTest {
             ? new float[] {(float) (similarity * 0.7), (float) (similarity * 0.7)}
             : new float[] {0.1f, 0.1f};
     return DocumentChunk.reconstitute(
-        DocumentId.generate(),
+        ChunkId.generate(),
         DocumentId.generate(),
         content,
         index,

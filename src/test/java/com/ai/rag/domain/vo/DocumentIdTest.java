@@ -32,7 +32,7 @@ class DocumentIdTest {
       DocumentId documentId = DocumentId.of(TEST_UUID);
 
       // Assert
-      assertThat(documentId.value()).isEqualTo(TEST_UUID);
+      assertThat(documentId.uuidValue()).isEqualTo(TEST_UUID);
     }
 
     @Test
@@ -42,7 +42,7 @@ class DocumentIdTest {
       DocumentId documentId = DocumentId.of(TEST_UUID_STRING);
 
       // Assert
-      assertThat(documentId.value()).isEqualTo(TEST_UUID);
+      assertThat(documentId.uuidValue()).isEqualTo(TEST_UUID);
     }
 
     @Test
@@ -73,7 +73,7 @@ class DocumentIdTest {
       // Act & Assert
       assertThatThrownBy(() -> DocumentId.of((String) null))
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("UUID string cannot be null or blank");
+          .hasMessageContaining("Id value cannot be null or blank");
     }
 
     @Test
@@ -82,7 +82,7 @@ class DocumentIdTest {
       // Act & Assert
       assertThatThrownBy(() -> DocumentId.of("   "))
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("UUID string cannot be null or blank");
+          .hasMessageContaining("Id value cannot be null or blank");
     }
 
     @Test
@@ -225,8 +225,8 @@ class DocumentIdTest {
       DocumentId id = DocumentId.of(TEST_UUID);
 
       // Assert
-      assertThat(id.value()).isEqualTo(TEST_UUID);
-      assertThat(id.value()).isInstanceOf(UUID.class);
+      assertThat(id.uuidValue()).isEqualTo(TEST_UUID);
+      assertThat(id.uuidValue()).isInstanceOf(UUID.class);
     }
 
     @Test
@@ -260,10 +260,10 @@ class DocumentIdTest {
     void shouldNotAllowModificationOfUnderlyingUUID() {
       // Arrange
       DocumentId id = DocumentId.of(TEST_UUID);
-      UUID originalValue = id.value();
+      UUID originalValue = id.uuidValue();
 
       // Assert - the value should be the same reference (immutable UUID)
-      assertThat(id.value()).isEqualTo(originalValue);
+      assertThat(id.uuidValue()).isEqualTo(originalValue);
     }
   }
 }

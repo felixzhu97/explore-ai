@@ -1,31 +1,46 @@
 package com.ai.pipeline.domain.model;
 
+import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.vo.DomainStrings;
+import com.ai.common.domain.vo.StringListJsonAttributeConverter;
 import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public class SavedWorkflowTemplate {
+/** Saved multi-agent workflow template partitioned by owner_key. */
+@Entity
+@Table(name = "workflow_templates")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class SavedWorkflowTemplate
+    extends AbstractEnableableDescribedOwnerEntity<WorkflowTemplateId> {
 
-  private final WorkflowTemplateId id;
-  private final String clientId;
-  private String name;
-  private String description;
-  private List<String> agentTypes;
+  @Convert(converter = StringListJsonAttributeConverter.class)
+  @Column(name = "agent_types", nullable = false, columnDefinition = "clob")
+  private List<String> agentTypes = new ArrayList<>();
+
+  @Column(name = "short_topic", length = 200)
   private String shortTopic;
+
+  @Column(name = "brief_prompt", nullable = false, columnDefinition = "clob")
   private String briefPrompt;
+
+  @Column(name = "source_template_id", length = 64)
   private String sourceTemplateId;
-  private boolean enabled;
-  private final Instant createdAt;
-  private Instant updatedAt;
 
   private SavedWorkflowTemplate(
       WorkflowTemplateId id,
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       List<String> agentTypes,
@@ -35,22 +50,16 @@ public class SavedWorkflowTemplate {
       boolean enabled,
       Instant createdAt,
       Instant updatedAt) {
-    this.id = Objects.requireNonNull(id, "WorkflowTemplateId cannot be null");
-    this.clientId = requireClientId(clientId);
-    this.name = requireName(name);
-    this.description = normalizeDescription(description);
+    super(id, ownerKey, name, description, enabled, createdAt, updatedAt);
     this.agentTypes = copyAgentTypes(agentTypes);
     this.shortTopic = normalizeShortTopic(shortTopic);
-    this.briefPrompt = requireBriefPrompt(briefPrompt);
+    this.briefPrompt = DomainStrings.requireNonBlank(briefPrompt, "briefPrompt");
     this.sourceTemplateId = normalizeSourceTemplateId(sourceTemplateId);
-    this.enabled = enabled;
-    this.createdAt = Objects.requireNonNull(createdAt, "CreatedAt cannot be null");
-    this.updatedAt = Objects.requireNonNull(updatedAt, "UpdatedAt cannot be null");
   }
 
   /** Documentation. */
   public static SavedWorkflowTemplate create(
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       List<String> agentTypes,
@@ -60,7 +69,7 @@ public class SavedWorkflowTemplate {
     Instant now = Instant.now();
     return new SavedWorkflowTemplate(
         WorkflowTemplateId.generate(),
-        clientId,
+        ownerKey,
         name,
         description,
         agentTypes,
@@ -75,7 +84,7 @@ public class SavedWorkflowTemplate {
   /** Documentation. */
   public static SavedWorkflowTemplate restore(
       WorkflowTemplateId id,
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       List<String> agentTypes,
@@ -87,7 +96,7 @@ public class SavedWorkflowTemplate {
       Instant updatedAt) {
     return new SavedWorkflowTemplate(
         id,
-        clientId,
+        ownerKey,
         name,
         description,
         agentTypes,
@@ -106,110 +115,22 @@ public class SavedWorkflowTemplate {
       List<String> agentTypes,
       String shortTopic,
       String briefPrompt) {
-    this.name = requireName(name);
-    this.description = normalizeDescription(description);
+    rename(name);
+    updateDescription(description);
     this.agentTypes = copyAgentTypes(agentTypes);
     this.shortTopic = normalizeShortTopic(shortTopic);
-    this.briefPrompt = requireBriefPrompt(briefPrompt);
-    this.updatedAt = Instant.now();
+    this.briefPrompt = DomainStrings.requireNonBlank(briefPrompt, "briefPrompt");
+    touchUpdatedAt();
     return this;
   }
 
   /** Documentation. */
-  public void enable() {
-    this.enabled = true;
-    this.updatedAt = Instant.now();
-  }
-
-  /** Documentation. */
-  public void disable() {
-    this.enabled = false;
-    this.updatedAt = Instant.now();
-  }
-
-  public WorkflowTemplateId getId() {
-    return id;
-  }
-
-  public String getClientId() {
-    return clientId;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
   public List<String> getAgentTypes() {
-    return Collections.unmodifiableList(agentTypes);
-  }
-
-  public String getShortTopic() {
-    return shortTopic;
-  }
-
-  public String getBriefPrompt() {
-    return briefPrompt;
-  }
-
-  public String getSourceTemplateId() {
-    return sourceTemplateId;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  private static String requireClientId(String clientId) {
-    if (clientId == null || clientId.isBlank()) {
-      throw new IllegalArgumentException("ClientId cannot be null or blank");
-    }
-    return clientId.trim();
-  }
-
-  private static String requireName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Workflow template name cannot be null or blank");
-    }
-    String trimmed = name.trim();
-    if (trimmed.length() > 120) {
-      throw new IllegalArgumentException("Workflow template name cannot exceed 120 characters");
-    }
-    return trimmed;
-  }
-
-  private static String normalizeDescription(String description) {
-    if (description == null || description.isBlank()) {
-      return "";
-    }
-    String trimmed = description.trim();
-    return trimmed.length() > 500 ? trimmed.substring(0, 500) : trimmed;
+    return Collections.unmodifiableList(agentTypes == null ? List.of() : agentTypes);
   }
 
   private static String normalizeShortTopic(String shortTopic) {
-    if (shortTopic == null || shortTopic.isBlank()) {
-      return "";
-    }
-    String trimmed = shortTopic.trim();
-    return trimmed.length() > 200 ? trimmed.substring(0, 200) : trimmed;
-  }
-
-  private static String requireBriefPrompt(String briefPrompt) {
-    if (briefPrompt == null || briefPrompt.isBlank()) {
-      throw new IllegalArgumentException("Brief prompt cannot be null or blank");
-    }
-    return briefPrompt.trim();
+    return DomainStrings.normalizeDescription(shortTopic, 200);
   }
 
   private static String normalizeSourceTemplateId(String sourceTemplateId) {
@@ -233,6 +154,6 @@ public class SavedWorkflowTemplate {
     if (normalized.isEmpty()) {
       throw new IllegalArgumentException("Agent types cannot be empty");
     }
-    return Collections.unmodifiableList(normalized);
+    return normalized;
   }
 }

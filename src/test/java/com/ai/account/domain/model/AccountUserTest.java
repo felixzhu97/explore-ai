@@ -13,7 +13,7 @@ class AccountUserTest {
   void shouldCreateUserWhenValidInputs() {
     AccountUser user = AccountUser.create("Google", "sub-1", " User@Example.com ", "cid-1");
 
-    assertThat(user.getId()).isNotBlank();
+    assertThat(user.getId().value()).isNotBlank();
     assertThat(user.getProvider()).isEqualTo("google");
     assertThat(user.getSubject()).isEqualTo("sub-1");
     assertThat(user.getEmail()).isEqualTo("User@Example.com");

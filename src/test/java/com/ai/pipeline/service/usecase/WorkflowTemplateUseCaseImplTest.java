@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("WorkflowTemplateUseCaseImpl")
 class WorkflowTemplateUseCaseImplTest {
 
-  private static final String CLIENT_ID = "client-1";
+  private static final String CLIENT_ID = "c:client-1";
 
   private FakeWorkflowTemplateRepository repository;
   private WorkflowTemplateUseCaseImpl useCase;

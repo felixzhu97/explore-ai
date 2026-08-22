@@ -1,17 +1,19 @@
 package com.ai.rag.domain.vo;
 
-import java.io.Serializable;
-import java.util.Objects;
+import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.Embeddable;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-/** DocumentId Value Object - immutable identifier backed by UUID. */
-public final class DocumentId implements Serializable {
-  private static final long serialVersionUID = 1L;
+/** DocumentId value object backed by UUID. */
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public final class DocumentId extends AbstractUuidId {
 
-  private final UUID value;
-
-  private DocumentId(UUID value) {
-    this.value = value;
+  /** Documentation. */
+  public DocumentId(String value) {
+    super(value);
   }
 
   /** Documentation. */
@@ -19,46 +21,21 @@ public final class DocumentId implements Serializable {
     if (uuid == null) {
       throw new IllegalArgumentException("UUID cannot be null");
     }
-    return new DocumentId(uuid);
+    return new DocumentId(uuid.toString());
   }
 
   /** Documentation. */
   public static DocumentId of(String uuidString) {
-    if (uuidString == null || uuidString.isBlank()) {
-      throw new IllegalArgumentException("UUID string cannot be null or blank");
-    }
-    return new DocumentId(UUID.fromString(uuidString));
+    return new DocumentId(uuidString);
   }
 
   /** Documentation. */
   public static DocumentId generate() {
-    return new DocumentId(UUID.randomUUID());
+    return new DocumentId(newUuidString());
   }
 
   /** Documentation. */
-  public UUID value() {
-    return value;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DocumentId that = (DocumentId) o;
-    return Objects.equals(value, that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(value);
-  }
-
-  @Override
-  public String toString() {
-    return value.toString();
+  public UUID uuidValue() {
+    return asUuid();
   }
 }

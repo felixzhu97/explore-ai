@@ -16,10 +16,10 @@ class SkillTest {
   @DisplayName("should create enabled skill when create called")
   void shouldCreateEnabledSkillWhenCreateCalled() {
     Skill skill =
-        Skill.create("client-1", "Brief Style", "Short answers", "Be concise.", List.of("Read"));
+        Skill.create("c:client-1", "Brief Style", "Short answers", "Be concise.", List.of("Read"));
 
     assertThat(skill.getId()).isNotNull();
-    assertThat(skill.getClientId()).isEqualTo("client-1");
+    assertThat(skill.getClientId()).isEqualTo("c:client-1");
     assertThat(skill.getName()).isEqualTo("Brief Style");
     assertThat(skill.getDescription()).isEqualTo("Short answers");
     assertThat(skill.getInstructions()).isEqualTo("Be concise.");
@@ -32,7 +32,7 @@ class SkillTest {
   @Test
   @DisplayName("should update fields when update called")
   void shouldUpdateFieldsWhenUpdateCalled() {
-    Skill skill = Skill.create("client-1", "Old", "Old desc", "Old instructions", List.of());
+    Skill skill = Skill.create("c:client-1", "Old", "Old desc", "Old instructions", List.of());
     final Instant beforeUpdate = skill.getUpdatedAt();
 
     skill.update("New", "New desc", "New instructions", List.of("Search"));
@@ -47,7 +47,7 @@ class SkillTest {
   @Test
   @DisplayName("should disable skill when disable called")
   void shouldDisableSkillWhenDisableCalled() {
-    Skill skill = Skill.create("client-1", "Name", "", "Instructions", List.of());
+    Skill skill = Skill.create("c:client-1", "Name", "", "Instructions", List.of());
 
     skill.disable();
 
@@ -64,7 +64,7 @@ class SkillTest {
     Skill skill =
         Skill.restore(
             id,
-            "client-1",
+            "c:client-1",
             "Name",
             "Description",
             "Instructions",
@@ -82,7 +82,7 @@ class SkillTest {
   @Test
   @DisplayName("should throw when name blank")
   void shouldThrowWhenNameBlank() {
-    assertThatThrownBy(() -> Skill.create("client-1", "  ", "", "Instructions", List.of()))
+    assertThatThrownBy(() -> Skill.create("c:client-1", "  ", "", "Instructions", List.of()))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("name");
   }

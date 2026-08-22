@@ -3,41 +3,70 @@ package com.ai.automation.domain.model;
 import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.common.domain.model.AbstractNamedOwnerEntity;
+import com.ai.common.domain.vo.DomainStrings;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public class AutomationSchedule {
+/** Automation schedule aggregate with custom enable semantics. */
+@Entity
+@Table(name = "automation_schedules")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
 
   /** Provisional / terminal next_run_at for one-shot schedules after claim or completion. */
   public static final Instant ONCE_TERMINAL_NEXT = Instant.parse("9999-12-31T23:59:59Z");
 
   private static final Pattern EMAIL_PATTERN =
       Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
-  private static final int MAX_NAME = 120;
   private static final int MAX_BRIEF = 4000;
 
-  private final ScheduleId id;
-  private final String clientId;
-  private String name;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "schedule_kind", nullable = false, length = 20)
   private ScheduleKind scheduleKind;
+
+  @Column(name = "cron_expression", length = 80)
   private String cronExpression;
+
+  @Column(name = "timezone", nullable = false, length = 64)
   private String timezone;
+
+  @Column(name = "enabled", nullable = false)
   private boolean enabled;
-  private final AutomationActionType actionType;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "action_type", nullable = false, length = 40, updatable = false)
+  private AutomationActionType actionType;
+
+  @Column(name = "workflow_template_id", nullable = false, length = 36)
   private String workflowTemplateId;
+
+  @Column(name = "recipient_email", nullable = false, length = 320)
   private String recipientEmail;
+
+  @Column(name = "brief", nullable = false, columnDefinition = "clob")
   private String brief;
+
+  @Column(name = "next_run_at", nullable = false)
   private Instant nextRunAt;
+
+  @Column(name = "last_run_at")
   private Instant lastRunAt;
-  private final Instant createdAt;
-  private Instant updatedAt;
 
   private AutomationSchedule(
       ScheduleId id,
-      String clientId,
+      String ownerKey,
       String name,
       ScheduleKind scheduleKind,
       String cronExpression,
@@ -51,26 +80,23 @@ public class AutomationSchedule {
       Instant lastRunAt,
       Instant createdAt,
       Instant updatedAt) {
-    this.id = Objects.requireNonNull(id, "ScheduleId cannot be null");
-    this.clientId = requireClientId(clientId);
-    this.name = requireName(name);
+    super(id, ownerKey, name, createdAt, updatedAt);
     this.scheduleKind = Objects.requireNonNull(scheduleKind, "scheduleKind");
     this.cronExpression = normalizeCron(scheduleKind, cronExpression);
-    this.timezone = requireTimezone(timezone);
+    this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
     this.enabled = enabled;
     this.actionType = Objects.requireNonNull(actionType, "actionType");
-    this.workflowTemplateId = requireWorkflowTemplateId(workflowTemplateId);
+    this.workflowTemplateId =
+        DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId");
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
     this.lastRunAt = lastRunAt;
-    this.createdAt = Objects.requireNonNull(createdAt, "createdAt");
-    this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt");
   }
 
   /** Documentation. */
   public static AutomationSchedule create(
-      String clientId,
+      String ownerKey,
       String name,
       String cronExpression,
       String timezone,
@@ -81,7 +107,7 @@ public class AutomationSchedule {
     Instant now = Instant.now();
     return new AutomationSchedule(
         ScheduleId.generate(),
-        clientId,
+        ownerKey,
         name,
         ScheduleKind.CRON,
         cronExpression,
@@ -99,7 +125,7 @@ public class AutomationSchedule {
 
   /** Documentation. */
   public static AutomationSchedule createOnce(
-      String clientId,
+      String ownerKey,
       String name,
       String timezone,
       String workflowTemplateId,
@@ -113,7 +139,7 @@ public class AutomationSchedule {
     }
     return new AutomationSchedule(
         ScheduleId.generate(),
-        clientId,
+        ownerKey,
         name,
         ScheduleKind.ONCE,
         null,
@@ -132,7 +158,7 @@ public class AutomationSchedule {
   /** Documentation. */
   public static AutomationSchedule restore(
       ScheduleId id,
-      String clientId,
+      String ownerKey,
       String name,
       ScheduleKind scheduleKind,
       String cronExpression,
@@ -148,7 +174,7 @@ public class AutomationSchedule {
       Instant updatedAt) {
     return new AutomationSchedule(
         id,
-        clientId,
+        ownerKey,
         name,
         scheduleKind,
         cronExpression,
@@ -174,39 +200,39 @@ public class AutomationSchedule {
       String recipientEmail,
       String brief,
       Instant nextRunAt) {
-    this.name = requireName(name);
+    rename(name);
     this.scheduleKind = Objects.requireNonNull(scheduleKind, "scheduleKind");
     this.cronExpression = normalizeCron(scheduleKind, cronExpression);
-    this.timezone = requireTimezone(timezone);
-    this.workflowTemplateId = requireWorkflowTemplateId(workflowTemplateId);
+    this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
+    this.workflowTemplateId =
+        DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId");
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
-    // Completed one-shot schedules stay disabled until a new future runAt is saved.
     if (this.scheduleKind == ScheduleKind.ONCE && !ONCE_TERMINAL_NEXT.equals(this.nextRunAt)) {
       this.enabled = true;
     }
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
   public void enable(Instant nextRunAt) {
     this.enabled = true;
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
   public void disable() {
     this.enabled = false;
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
   public void markExecuted(Instant finishedAt, Instant nextRunAt) {
     this.lastRunAt = Objects.requireNonNull(finishedAt, "finishedAt");
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
@@ -215,110 +241,16 @@ public class AutomationSchedule {
     disable();
   }
 
+  /** Documentation. */
   public boolean isOnce() {
     return scheduleKind == ScheduleKind.ONCE;
-  }
-
-  public ScheduleId getId() {
-    return id;
-  }
-
-  public String getClientId() {
-    return clientId;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public ScheduleKind getScheduleKind() {
-    return scheduleKind;
-  }
-
-  public String getCronExpression() {
-    return cronExpression;
-  }
-
-  public String getTimezone() {
-    return timezone;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public AutomationActionType getActionType() {
-    return actionType;
-  }
-
-  public String getWorkflowTemplateId() {
-    return workflowTemplateId;
-  }
-
-  public String getRecipientEmail() {
-    return recipientEmail;
-  }
-
-  public String getBrief() {
-    return brief;
-  }
-
-  public Instant getNextRunAt() {
-    return nextRunAt;
-  }
-
-  public Instant getLastRunAt() {
-    return lastRunAt;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  private static String requireClientId(String clientId) {
-    if (clientId == null || clientId.isBlank()) {
-      throw new IllegalArgumentException("ClientId cannot be null or blank");
-    }
-    return clientId.trim();
-  }
-
-  private static String requireName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Schedule name cannot be null or blank");
-    }
-    String trimmed = name.trim();
-    if (trimmed.length() > MAX_NAME) {
-      throw new IllegalArgumentException("Schedule name cannot exceed " + MAX_NAME + " characters");
-    }
-    return trimmed;
   }
 
   private static String normalizeCron(ScheduleKind kind, String cronExpression) {
     if (kind == ScheduleKind.ONCE) {
       return null;
     }
-    if (cronExpression == null || cronExpression.isBlank()) {
-      throw new IllegalArgumentException("Cron expression cannot be null or blank");
-    }
-    return cronExpression.trim();
-  }
-
-  private static String requireTimezone(String timezone) {
-    if (timezone == null || timezone.isBlank()) {
-      throw new IllegalArgumentException("Timezone cannot be null or blank");
-    }
-    return timezone.trim();
-  }
-
-  private static String requireWorkflowTemplateId(String workflowTemplateId) {
-    if (workflowTemplateId == null || workflowTemplateId.isBlank()) {
-      throw new IllegalArgumentException("Workflow template id cannot be null or blank");
-    }
-    return workflowTemplateId.trim();
+    return DomainStrings.requireNonBlank(cronExpression, "cronExpression");
   }
 
   private static String requireEmail(String email) {
@@ -333,13 +265,6 @@ public class AutomationSchedule {
   }
 
   private static String requireBrief(String brief) {
-    if (brief == null || brief.isBlank()) {
-      throw new IllegalArgumentException("Brief cannot be null or blank");
-    }
-    String trimmed = brief.trim();
-    if (trimmed.length() > MAX_BRIEF) {
-      return trimmed.substring(0, MAX_BRIEF);
-    }
-    return trimmed;
+    return DomainStrings.truncate(DomainStrings.requireNonBlank(brief, "brief"), MAX_BRIEF);
   }
 }
