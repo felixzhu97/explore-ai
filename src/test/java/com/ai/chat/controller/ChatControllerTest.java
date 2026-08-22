@@ -4,55 +4,50 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.chat.controller.dto.ChatRequest;
-import com.ai.chat.controller.dto.CreateSessionRequest;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
+import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.service.usecase.ChatUseCase;
-import com.ai.common.controller.ClientIdentity;
-import jakarta.servlet.http.HttpServletRequest;
+import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = ChatController.class)
 @DisplayName("ChatController")
 class ChatControllerTest {
-  private OwnerContext ownerContext;
 
   private static final String CLIENT_ID = "c:11111111-1111-1111-1111-111111111111";
 
-  @Mock private ChatUseCase chatUseCase;
+  @Autowired private MockMvcTester mvc;
 
-  @Mock private ChatWebSourcesRepository chatWebSourcesRepository;
+  @MockitoBean private ChatUseCase chatUseCase;
 
-  @Mock private HttpServletRequest httpRequest;
+  @MockitoBean private ChatWebSourcesRepository chatWebSourcesRepository;
 
-  private ChatController controller;
+  @MockitoBean private OwnerContext ownerContext;
 
   @BeforeEach
   void setUp() {
-    ownerContext = mock(OwnerContext.class);
     lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
-    controller = new ChatController(chatUseCase, chatWebSourcesRepository, ownerContext);
-    lenient()
-        .when(httpRequest.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE))
-        .thenReturn(CLIENT_ID);
   }
 
   @Nested
@@ -62,10 +57,12 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return UP status")
     void shouldReturnUpStatus() {
-      var response = controller.health();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().status()).isEqualTo("UP");
+      assertThat(mvc.get().uri("/api/health"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.status")
+          .asString()
+          .isEqualTo("UP");
     }
   }
 
@@ -78,28 +75,44 @@ class ChatControllerTest {
     void shouldReturnResponseForValidMessage() {
       when(chatUseCase.chatWithSession("Hello", CLIENT_ID)).thenReturn("Hi there!");
 
-      var response = controller.chat(new ChatRequest("Hello", null), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().response()).isEqualTo("Hi there!");
+      assertThat(
+              mvc.post()
+                  .uri("/api/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"message\":\"Hello\"}")
+                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.response")
+          .asString()
+          .isEqualTo("Hi there!");
       verify(chatUseCase).chatWithSession("Hello", CLIENT_ID);
     }
 
     @Test
     @DisplayName("should return 400 for null message")
     void shouldReturn400ForNullMessage() {
-      var response = controller.chat(new ChatRequest(null, null), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody().response()).isEqualTo("Please provide a message.");
+      assertThat(
+              mvc.post()
+                  .uri("/api/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"message\":null}"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyJson()
+          .extractingPath("$.response")
+          .asString()
+          .isEqualTo("Please provide a message.");
     }
 
     @Test
     @DisplayName("should return 400 for blank message")
     void shouldReturn400ForBlankMessage() {
-      var response = controller.chat(new ChatRequest("   ", null), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(
+              mvc.post()
+                  .uri("/api/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"message\":\"   \"}"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -108,12 +121,17 @@ class ChatControllerTest {
       when(chatUseCase.chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", CLIENT_ID))
           .thenReturn("Response with context");
 
-      var response =
-          controller.chat(
-              new ChatRequest("Hello", "22222222-2222-2222-2222-222222222222"), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().response()).isEqualTo("Response with context");
+      String sessionId = "22222222-2222-2222-2222-222222222222";
+      assertThat(
+              mvc.post()
+                  .uri("/api/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"message\":\"Hello\",\"sessionId\":\"" + sessionId + "\"}"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.response")
+          .asString()
+          .isEqualTo("Response with context");
       verify(chatUseCase)
           .chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", CLIENT_ID);
     }
@@ -125,9 +143,12 @@ class ChatControllerTest {
       when(chatUseCase.chatWithSession(longMessage, CLIENT_ID))
           .thenReturn("Response to long message");
 
-      var response = controller.chat(new ChatRequest(longMessage, null), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
+      assertThat(
+              mvc.post()
+                  .uri("/api/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"message\":\"" + longMessage + "\"}"))
+          .hasStatusOk();
     }
   }
 
@@ -142,11 +163,16 @@ class ChatControllerTest {
           createTestSession("33333333-3333-3333-3333-333333333333", "Custom Title");
       when(chatUseCase.createSession("Custom Title", CLIENT_ID)).thenReturn(session);
 
-      var response =
-          controller.createSession(new CreateSessionRequest("Custom Title"), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().title()).isEqualTo("Custom Title");
+      assertThat(
+              mvc.post()
+                  .uri("/api/sessions")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"title\":\"Custom Title\"}"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.title")
+          .asString()
+          .isEqualTo("Custom Title");
     }
 
     @Test
@@ -155,10 +181,13 @@ class ChatControllerTest {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
       when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
 
-      var response = controller.createSession(new CreateSessionRequest(null), httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().title()).isEqualTo("New Chat");
+      assertThat(
+              mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON).content("{}"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.title")
+          .asString()
+          .isEqualTo("New Chat");
     }
 
     @Test
@@ -167,9 +196,8 @@ class ChatControllerTest {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
       when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
 
-      var response = controller.createSession(null, httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
+      assertThat(mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON))
+          .hasStatusOk();
     }
   }
 
@@ -186,10 +214,12 @@ class ChatControllerTest {
               createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
       when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(sessions);
 
-      var response = controller.getAllSessions(httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).hasSize(2);
+      assertThat(mvc.get().uri("/api/sessions"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$")
+          .asArray()
+          .hasSize(2);
     }
 
     @Test
@@ -197,10 +227,12 @@ class ChatControllerTest {
     void shouldReturnEmptyListWhenNoSessions() {
       when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(List.of());
 
-      var response = controller.getAllSessions(httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEmpty();
+      assertThat(mvc.get().uri("/api/sessions"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$")
+          .asArray()
+          .isEmpty();
     }
   }
 
@@ -213,22 +245,22 @@ class ChatControllerTest {
     void shouldReturnSessionWhenFound() {
       ChatSession session = createTestSession("22222222-2222-2222-2222-222222222222", "My Chat");
       when(chatUseCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_ID))
-          .thenReturn(java.util.Optional.of(session));
+          .thenReturn(Optional.of(session));
 
-      var response = controller.getSession("22222222-2222-2222-2222-222222222222", httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().title()).isEqualTo("My Chat");
+      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.title")
+          .asString()
+          .isEqualTo("My Chat");
     }
 
     @Test
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
-      when(chatUseCase.getSession("missing", CLIENT_ID)).thenReturn(java.util.Optional.empty());
+      when(chatUseCase.getSession("missing", CLIENT_ID)).thenReturn(Optional.empty());
 
-      var response = controller.getSession("missing", httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(404);
+      assertThat(mvc.get().uri("/api/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
     }
   }
 
@@ -247,12 +279,19 @@ class ChatControllerTest {
       when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
           .thenReturn(Map.of());
 
-      var response =
-          controller.getSessionMessages("22222222-2222-2222-2222-222222222222", httpRequest);
+      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$")
+          .asArray()
+          .hasSize(2);
 
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).hasSize(2);
-      assertThat(response.getBody().getFirst().role()).isEqualTo("user");
+      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$[0].role")
+          .asString()
+          .isEqualTo("user");
     }
 
     @Test
@@ -271,12 +310,18 @@ class ChatControllerTest {
                   List.of(
                       new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))));
 
-      var response =
-          controller.getSessionMessages("22222222-2222-2222-2222-222222222222", httpRequest);
+      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$[1].sources")
+          .asArray()
+          .hasSize(1);
 
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().get(1).sources()).hasSize(1);
-      assertThat(response.getBody().get(1).sources().getFirst().url())
+      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$[1].sources[0].url")
+          .asString()
           .isEqualTo("https://en.wikipedia.org/wiki/Paris");
     }
 
@@ -286,9 +331,7 @@ class ChatControllerTest {
       when(chatUseCase.getSessionHistory("missing", CLIENT_ID))
           .thenThrow(new ChatSessionNotFoundException("missing"));
 
-      var response = controller.getSessionMessages("missing", httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(404);
+      assertThat(mvc.get().uri("/api/sessions/missing/messages")).hasStatus(HttpStatus.NOT_FOUND);
     }
   }
 
@@ -301,14 +344,13 @@ class ChatControllerTest {
     void shouldDeleteSessionAndReturn204() {
       doNothing().when(chatUseCase).deleteSession("session-to-delete", CLIENT_ID);
 
-      var response = controller.deleteSession("session-to-delete", httpRequest);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(204);
+      assertThat(mvc.delete().uri("/api/sessions/session-to-delete"))
+          .hasStatus(HttpStatus.NO_CONTENT);
       verify(chatUseCase).deleteSession("session-to-delete", CLIENT_ID);
     }
   }
 
-  private ChatSession createTestSession(String id, String title) {
-    return ChatSession.createWithId(com.ai.chat.domain.vo.ChatSessionId.of(id), title, CLIENT_ID);
+  private static ChatSession createTestSession(String id, String title) {
+    return ChatSession.createWithId(ChatSessionId.of(id), title, CLIENT_ID);
   }
 }

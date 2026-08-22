@@ -1,9 +1,7 @@
 package com.ai.chat.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,56 +10,81 @@ import com.ai.account.service.usecase.OwnerEraseUseCase;
 import com.ai.common.controller.ClientIdentityCookieFactory;
 import com.ai.common.controller.ClientIdentityProperties;
 import com.ai.common.domain.vo.OwnerKey;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
+import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.SliceWebMvcTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = PrivacyController.class)
+@Import(PrivacyControllerTest.CookieTestConfig.class)
+@DisplayName("PrivacyController")
 class PrivacyControllerTest {
 
   private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-1111-1111-111111111111");
 
-  @Mock private OwnerContext ownerContext;
+  @Autowired private MockMvcTester mvc;
 
-  @Mock private OwnerEraseUseCase ownerEraseUseCase;
+  @MockitoBean private OwnerContext ownerContext;
 
-  @Mock private HttpServletRequest request;
+  @MockitoBean private OwnerEraseUseCase ownerEraseUseCase;
 
-  @Mock private HttpServletResponse response;
+  @Nested
+  @DisplayName("DELETE /api/privacy/sessions")
+  class EraseAllSessions {
 
-  private PrivacyController controller;
+    @Test
+    @DisplayName("should erase all owner data")
+    void shouldEraseAllOwnerDataWhenDeletePrivacySessions() {
+      when(ownerContext.require(any())).thenReturn(OWNER);
 
-  @BeforeEach
-  void setUp() {
-    ClientIdentityProperties properties = new ClientIdentityProperties();
-    properties.setCookieName("ea_cid");
-    properties.setSecure(false);
-    properties.setSameSite("Lax");
-    controller =
-        new PrivacyController(
-            ownerContext, ownerEraseUseCase, new ClientIdentityCookieFactory(properties));
+      assertThat(
+              mvc.delete()
+                  .uri("/api/privacy/sessions")
+                  .with(
+                      ClientIdentityRequestPostProcessor.withClientId(
+                          "c:11111111-1111-1111-1111-111111111111")))
+          .hasStatus(HttpStatus.NO_CONTENT);
+      verify(ownerEraseUseCase).eraseAllForOwner(OWNER);
+    }
   }
 
-  @Test
-  void shouldEraseAllOwnerDataWhenDeletePrivacySessions() {
-    when(ownerContext.require(request)).thenReturn(OWNER);
+  @Nested
+  @DisplayName("POST /api/privacy/reset-identity")
+  class ResetIdentity {
 
-    var result = controller.eraseAllSessions(request);
-
-    assertThat(result.getStatusCode().value()).isEqualTo(204);
-    verify(ownerEraseUseCase).eraseAllForOwner(OWNER);
+    @Test
+    @DisplayName("should rotate cookie when reset identity")
+    void shouldRotateCookieWhenResetIdentity() {
+      assertThat(mvc.post().uri("/api/privacy/reset-identity"))
+          .hasStatus(HttpStatus.NO_CONTENT)
+          .cookies()
+          .containsCookie("ea_cid");
+    }
   }
 
-  @Test
-  void shouldRotateCookieWhenResetIdentity() {
-    var result = controller.resetIdentity(response);
+  @TestConfiguration
+  static class CookieTestConfig {
 
-    assertThat(result.getStatusCode().value()).isEqualTo(204);
-    verify(response, times(2)).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
+    @Bean
+    ClientIdentityProperties clientIdentityProperties() {
+      ClientIdentityProperties properties = new ClientIdentityProperties();
+      properties.setCookieName("ea_cid");
+      properties.setSecure(false);
+      properties.setSameSite("Lax");
+      return properties;
+    }
+
+    @Bean
+    ClientIdentityCookieFactory clientIdentityCookieFactory(ClientIdentityProperties properties) {
+      return new ClientIdentityCookieFactory(properties);
+    }
   }
 }
