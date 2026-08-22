@@ -115,6 +115,29 @@ flowchart TB
 
 ---
 
+## 2.5 Domain Kernel | 领域内核
+
+Shared persistence and aggregate bases. Feature modules inherit these types instead of duplicating JPA mapping.
+
+| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
+| ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
+| Entity ID | 实体标识 | Typed UUID wrapper for `@EmbeddedId` | Value Object | `EntityId`, `AbstractUuidId` | Package `com.ai.base.domain.vo` |
+| Abstract Entity | 可变实体基类 | JPA `@MappedSuperclass` with id, audit timestamps, optimistic `@Version` | Mapped Superclass | `AbstractEntity<IdT>` | Subclasses call `touchUpdatedAt()` on mutation |
+| Abstract Immutable | 不可变记录基类 | Append-only rows: id + `created_at` only | Mapped Superclass | `AbstractImmutable<IdT>` | Used for event streams |
+| Base JPA Config | JPA 内核配置 | `@EnableJpaAuditing`, repository scan | Configuration | `BaseJpaConfig` | Replaces per-module duplicate JPA config |
+| Owner-Keyed Entity | 归属键实体基类 | Rows partitioned by `owner_key` | Mapped Superclass | `AbstractOwnerKeyedEntity<IdT>` | `belongsToClient`, `rebindOwnerKey` |
+| Named Owner Entity | 命名归属实体 | Owner-keyed row with validated `name` | Mapped Superclass | `AbstractNamedOwnerEntity<IdT>` | Max 120 chars via `DomainStrings` |
+| Enableable Entity | 可启用实体 | Named + described + `enabled` flag | Mapped Superclass | `AbstractEnableableDescribedOwnerEntity<IdT>` | `enable()` / `disable()` |
+| Timed Run Entity | 定时运行记录 | `started_at` / `finished_at` without `updated_at` | Mapped Superclass | `AbstractTimedRunEntity<IdT>` | Automation runs |
+| Append-Only Event | 追加事件 | Immutable AI invocation / audit event | Mapped Superclass | `AbstractAppendOnlyEvent<IdT>` | Maps `createdAt` → `occurred_at` |
+| Client-Owned Repository | 归属仓储契约 | Owner-scoped CRUD port | Repository | `ClientOwnedRepository<E, IdT>` | `findByIdAndOwnerKey`, etc. |
+| Domain Strings | 域字符串校验 | Shared name/description normalization | Utility | `DomainStrings` | Replaces per-module copy-paste |
+| Owner Keys | 归属键工具 | Parse and build `c:` / `u:` keys | Utility | `OwnerKeys` | Replaces duplicated `requireClientId` |
+
+**Layer packages (per feature module):** `controller` → `service` → `domain` ← `infra` (+ `mapper` when needed). Legacy names `web`, `application`, `infrastructure` are forbidden in new code.
+
+---
+
 ## 3. Chat | 对话
 
 
@@ -693,4 +716,4 @@ Chinese equivalents to avoid in technical docs:
 
 ---
 
-*Last updated: 2026-08-05*
+*Last updated: 2026-08-22*
