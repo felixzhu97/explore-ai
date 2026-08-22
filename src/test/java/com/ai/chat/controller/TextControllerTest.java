@@ -14,6 +14,7 @@ import com.ai.common.service.llm.TextChatOptions;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -147,7 +148,7 @@ class TextControllerTest {
                       }
                       """)
                   .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID))
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk()
           .bodyText()
           .asString()
@@ -178,7 +179,7 @@ class TextControllerTest {
                         "toolsEnabled": false
                       }
                       """)
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk()
           .bodyText()
           .asString()
@@ -220,7 +221,7 @@ class TextControllerTest {
                       """
                           .formatted(skillId.value()))
                   .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID))
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk();
 
       verify(chatUseCase)
