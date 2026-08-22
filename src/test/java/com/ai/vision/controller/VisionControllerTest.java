@@ -1,39 +1,45 @@
 package com.ai.vision.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.controller.GlobalExceptionHandler;
+import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.DetectionDto;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
-import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.service.usecase.VisionAnalysisUseCase;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = VisionController.class)
+@Import(GlobalExceptionHandler.class)
 @DisplayName("VisionController")
 class VisionControllerTest {
 
-  @Mock private VisionAnalysisUseCase visionAnalysisUseCase;
-
-  private VisionController controller;
-
-  @BeforeEach
-  void setUp() {
-    controller = new VisionController(visionAnalysisUseCase);
+  @DynamicPropertySource
+  static void enableVisionModule(DynamicPropertyRegistry registry) {
+    registry.add("launchdarkly.bootstrap.module-vision", () -> "true");
   }
+
+  @Autowired private MockMvcTester mvc;
+
+  @MockitoBean private VisionAnalysisUseCase visionAnalysisUseCase;
 
   @Nested
   @DisplayName("POST /api/vision/caption")
@@ -44,20 +50,34 @@ class VisionControllerTest {
     void shouldReturnCaptionResponse() throws Exception {
       MockMultipartFile file =
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
-      when(visionAnalysisUseCase.caption(file))
-          .thenReturn(new CaptionResponse("A cat on a sofa", 120L));
+      doReturn(new CaptionResponse("A cat on a sofa", 120L))
+          .when(visionAnalysisUseCase)
+          .caption(any());
 
-      CaptionResponse response = controller.caption(file);
+      assertThat(mvc.post().multipart().uri("/api/vision/caption").file(file))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.caption")
+          .asString()
+          .isEqualTo("A cat on a sofa");
 
-      assertThat(response.caption()).isEqualTo("A cat on a sofa");
-      assertThat(response.processingTimeMs()).isEqualTo(120L);
+      assertThat(mvc.post().multipart().uri("/api/vision/caption").file(file))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.processingTimeMs")
+          .convertTo(Long.class)
+          .isEqualTo(120L);
     }
 
     @Test
-    @DisplayName("should throw for empty file")
-    void shouldThrowForEmptyFile() {
-      assertThatThrownBy(() -> controller.caption(null))
-          .isInstanceOf(VisionInvalidFileException.class);
+    @DisplayName("should return 400 for empty file")
+    void shouldReturn400ForEmptyFile() {
+      assertThat(mvc.post().multipart().uri("/api/vision/caption"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyJson()
+          .extractingPath("$.errorCode")
+          .asString()
+          .isEqualTo("INVALID_FILE");
     }
   }
 
@@ -72,12 +92,21 @@ class VisionControllerTest {
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
       List<DetectionDto> detections =
           List.of(new DetectionDto("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
-      when(visionAnalysisUseCase.detect(file)).thenReturn(new DetectResponse(detections, 150L));
+      doReturn(new DetectResponse(detections, 150L)).when(visionAnalysisUseCase).detect(any());
 
-      DetectResponse response = controller.detect(file);
+      assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.detections")
+          .asArray()
+          .hasSize(1);
 
-      assertThat(response.detections()).hasSize(1);
-      assertThat(response.processingTimeMs()).isEqualTo(150L);
+      assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.processingTimeMs")
+          .convertTo(Long.class)
+          .isEqualTo(150L);
     }
   }
 
@@ -90,11 +119,14 @@ class VisionControllerTest {
     void shouldReturnExtractedText() throws Exception {
       MockMultipartFile file =
           new MockMultipartFile("file", "scan.png", "image/png", "image".getBytes());
-      when(visionAnalysisUseCase.ocr(file)).thenReturn(new OcrResponse("Hello World", 90L));
+      doReturn(new OcrResponse("Hello World", 90L)).when(visionAnalysisUseCase).ocr(any());
 
-      OcrResponse response = controller.ocr(file);
-
-      assertThat(response.fullText()).isEqualTo("Hello World");
+      assertThat(mvc.post().multipart().uri("/api/vision/ocr").file(file))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.fullText")
+          .asString()
+          .isEqualTo("Hello World");
     }
   }
 
@@ -114,10 +146,19 @@ class VisionControllerTest {
                       "detect", "DOWN",
                       "ocr", "UP")));
 
-      var response = controller.health();
+      assertThat(mvc.get().uri("/api/vision/health"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.status")
+          .asString()
+          .isEqualTo("DEGRADED");
 
-      assertThat(response.status()).isEqualTo("DEGRADED");
-      assertThat(response.providers().get("detect")).isEqualTo("DOWN");
+      assertThat(mvc.get().uri("/api/vision/health"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.providers.detect")
+          .asString()
+          .isEqualTo("DOWN");
     }
   }
 }

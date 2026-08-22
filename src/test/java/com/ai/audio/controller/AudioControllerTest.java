@@ -7,30 +7,25 @@ import static org.mockito.Mockito.when;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.service.usecase.AudioFacade;
+import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
-import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = AudioController.class)
 @DisplayName("AudioController")
 class AudioControllerTest {
 
-  @Mock private AudioFacade audioFacade;
+  @Autowired private MockMvcTester mvc;
 
-  private AudioController controller;
-
-  @BeforeEach
-  void setUp() {
-    controller = new AudioController(audioFacade);
-  }
+  @MockitoBean private AudioFacade audioFacade;
 
   @Nested
   @DisplayName("POST /api/audio/speak")
@@ -43,50 +38,100 @@ class AudioControllerTest {
       byte[] audioData = new byte[] {1, 2, 3, 4};
       when(audioFacade.synthesize(text, "alloy", 1.0)).thenReturn(audioData);
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest(text, "alloy", 1.0, "mp3"));
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "text": "Hello, world!",
+                        "voice": "alloy",
+                        "speed": 1.0,
+                        "format": "mp3"
+                      }
+                      """))
+          .hasStatusOk()
+          .body()
+          .isEqualTo(audioData);
 
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(audioData);
-      assertThat(response.getHeaders().getContentType().toString()).contains("audio/mpeg");
-      assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))
-          .isEqualTo("attachment; filename=\"speech.mp3\"");
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "text": "Hello, world!",
+                        "voice": "alloy",
+                        "speed": 1.0,
+                        "format": "mp3"
+                      }
+                      """))
+          .hasStatusOk()
+          .headers()
+          .hasValue(HttpHeaders.CONTENT_TYPE, "audio/mpeg");
+
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "text": "Hello, world!",
+                        "voice": "alloy",
+                        "speed": 1.0,
+                        "format": "mp3"
+                      }
+                      """))
+          .hasStatusOk()
+          .headers()
+          .hasValue(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"speech.mp3\"");
     }
 
     @Test
-    @DisplayName("should return 400 for null request")
-    void shouldReturn400ForNullRequest() {
-      ResponseEntity<byte[]> response = controller.speak(null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody()).isNull();
+    @DisplayName("should return 400 for empty request body")
+    void shouldReturn400ForEmptyRequestBody() {
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{}"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     @DisplayName("should return 400 for null text")
     void shouldReturn400ForNullText() {
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest(null, null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{}"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     @DisplayName("should return 400 for blank text")
     void shouldReturn400ForBlankText() {
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("   ", null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"   \"}"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     @DisplayName("should return 400 for empty text")
     void shouldReturn400ForEmptyText() {
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("", null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"\"}"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -94,10 +139,12 @@ class AudioControllerTest {
     void shouldReturn500WhenAudioDataIsNull() {
       when(audioFacade.synthesize(any(), any(), any())).thenReturn(null);
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("Test", null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"Test\"}"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test
@@ -105,10 +152,12 @@ class AudioControllerTest {
     void shouldReturn500WhenAudioDataIsEmpty() {
       when(audioFacade.synthesize(any(), any(), any())).thenReturn(new byte[] {});
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("Test", null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"Test\"}"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test
@@ -117,10 +166,12 @@ class AudioControllerTest {
       when(audioFacade.synthesize(any(), any(), any()))
           .thenThrow(TtsProviderNotConfiguredException.apiKeyMissing());
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("Test", null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(503);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"Test\"}"))
+          .hasStatus(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @Test
@@ -129,10 +180,12 @@ class AudioControllerTest {
       when(audioFacade.synthesize(any(), any(), any()))
           .thenThrow(new RuntimeException("TTS error"));
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("Test", null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"Test\"}"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test
@@ -142,10 +195,12 @@ class AudioControllerTest {
       byte[] audioData = new byte[100];
       when(audioFacade.synthesize(longText, null, null)).thenReturn(audioData);
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest(longText, null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"" + longText + "\"}"))
+          .hasStatusOk();
     }
 
     @Test
@@ -155,10 +210,12 @@ class AudioControllerTest {
       byte[] audioData = new byte[] {1, 2, 3};
       when(audioFacade.synthesize(chineseText, null, null)).thenReturn(audioData);
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest(chineseText, null, null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"你好，世界！\"}"))
+          .hasStatusOk();
     }
 
     @Test
@@ -167,10 +224,14 @@ class AudioControllerTest {
       byte[] audioData = new byte[] {1, 2, 3};
       when(audioFacade.synthesize(any(), any(), any())).thenReturn(audioData);
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("Test", null, null, null));
-
-      assertThat(response.getHeaders().getContentType().toString()).isEqualTo("audio/mpeg");
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"Test\"}"))
+          .hasStatusOk()
+          .headers()
+          .hasValue(HttpHeaders.CONTENT_TYPE, "audio/mpeg");
     }
 
     @Test
@@ -179,13 +240,14 @@ class AudioControllerTest {
       byte[] audioData = new byte[] {1, 2, 3};
       when(audioFacade.synthesize(any(), any(), any())).thenReturn(audioData);
 
-      ResponseEntity<byte[]> response =
-          controller.speak(new AudioController.TtsRequest("Test", null, null, null));
-
-      assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))
-          .contains("attachment");
-      assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))
-          .contains("speech.mp3");
+      assertThat(
+              mvc.post()
+                  .uri("/api/audio/speak")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"text\":\"Test\"}"))
+          .hasStatusOk()
+          .headers()
+          .hasValue(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"speech.mp3\"");
     }
   }
 
@@ -199,10 +261,12 @@ class AudioControllerTest {
       List<VoiceInfo> voices = List.of(new VoiceInfo("alloy", "Alloy", "en", "neutral"));
       when(audioFacade.getAvailableVoices()).thenReturn(voices);
 
-      ResponseEntity<Map<String, Object>> response = controller.getVoices();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsKey("voices");
+      assertThat(mvc.get().uri("/api/audio/voices"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.voices.length()")
+          .convertTo(Integer.class)
+          .isEqualTo(1);
     }
 
     @Test
@@ -210,10 +274,12 @@ class AudioControllerTest {
     void shouldReturnEmptyListWhenNoVoicesAvailable() {
       when(audioFacade.getAvailableVoices()).thenReturn(List.of());
 
-      ResponseEntity<Map<String, Object>> response = controller.getVoices();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("voices", List.of());
+      assertThat(mvc.get().uri("/api/audio/voices"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.voices.length()")
+          .convertTo(Integer.class)
+          .isEqualTo(0);
     }
   }
 
@@ -227,10 +293,12 @@ class AudioControllerTest {
       List<String> models = List.of("tts-1", "tts-1-hd");
       when(audioFacade.getAvailableTtsModels()).thenReturn(models);
 
-      ResponseEntity<Map<String, Object>> response = controller.getTtsModels();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("models", models);
+      assertThat(mvc.get().uri("/api/audio/models"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.models")
+          .asArray()
+          .containsExactly("tts-1", "tts-1-hd");
     }
 
     @Test
@@ -238,10 +306,12 @@ class AudioControllerTest {
     void shouldReturnEmptyListWhenNoModelsAvailable() {
       when(audioFacade.getAvailableTtsModels()).thenReturn(List.of());
 
-      ResponseEntity<Map<String, Object>> response = controller.getTtsModels();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("models", List.of());
+      assertThat(mvc.get().uri("/api/audio/models"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.models.length()")
+          .convertTo(Integer.class)
+          .isEqualTo(0);
     }
   }
 }
