@@ -14,6 +14,7 @@ import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.service.usecase.PipelineFacade;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -150,12 +151,12 @@ class PipelineControllerTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"message\":\"hello\"}")
                   .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID))
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk()
           .bodyText()
           .asString()
-          .contains("event:message")
-          .contains("event:done");
+          .contains("hi")
+          .contains("[DONE]");
     }
   }
 
@@ -175,12 +176,12 @@ class PipelineControllerTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"message\":\"hi\"}")
                   .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID))
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk()
           .bodyText()
           .asString()
-          .contains("event:error")
-          .contains("event:done");
+          .contains("Unknown agent type: missing")
+          .contains("[DONE]");
     }
   }
 
