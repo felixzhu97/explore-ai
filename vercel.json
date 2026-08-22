@@ -1,8 +1,24 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm run build",
   "outputDirectory": "dist/web/browser",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "*": false,
+      "feat/**": false,
+      "feature/**": false,
+      "fix/**": false,
+      "ci/**": false,
+      "test/**": false,
+      "chore/**": false,
+      "docs/**": false,
+      "refactor/**": false,
+      "perf/**": false
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
