@@ -1,63 +1,68 @@
 package com.ai.account.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.dto.AccountMeResponse;
 import com.ai.account.service.usecase.AccountUseCase;
-import com.ai.common.controller.ClientIdentity;
-import com.ai.common.controller.ClientIdentityRequiredException;
-import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeEach;
+import com.ai.common.controller.GlobalExceptionHandler;
+import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.SliceWebMvcTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = AccountController.class)
+@Import(GlobalExceptionHandler.class)
 @DisplayName("AccountController")
 class AccountControllerTest {
 
-  @Mock private HttpServletRequest request;
+  @Autowired private MockMvcTester mvc;
 
-  @Mock private AccountUseCase accountUseCase;
+  @MockitoBean private AccountUseCase accountUseCase;
 
-  private AccountController controller;
+  @Nested
+  @DisplayName("GET /api/account/me")
+  class Me {
 
-  @BeforeEach
-  void setUp() {
-    controller = new AccountController(accountUseCase);
-  }
+    @Test
+    @DisplayName("should return anonymous account when client identity present")
+    void shouldReturnAnonymousAccountWhenClientIdentityPresent() {
+      when(accountUseCase.currentAccount("cid-123"))
+          .thenReturn(
+              new AccountMeResponse(
+                  "anonymous", "cid-123", null, null, "free", false, java.util.List.of()));
 
-  @Test
-  void shouldReturnAnonymousAccountWhenClientIdentityPresent() {
-    when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn("cid-123");
-    when(accountUseCase.currentAccount("cid-123"))
-        .thenReturn(
-            new AccountMeResponse(
-                "anonymous", "cid-123", null, null, "free", false, java.util.List.of()));
+      var result =
+          mvc.get()
+              .uri("/api/account/me")
+              .with(ClientIdentityRequestPostProcessor.withClientId("cid-123"))
+              .exchange();
 
-    var response = controller.me(request);
+      assertThat(result).hasStatusOk();
+      assertThat(result).bodyJson().extractingPath("$.mode").asString().isEqualTo("anonymous");
+      assertThat(result).bodyJson().extractingPath("$.clientId").asString().isEqualTo("cid-123");
+      assertThat(result).bodyJson().extractingPath("$.plan").asString().isEqualTo("free");
+      assertThat(result).bodyJson().extractingPath("$.loginAvailable").asBoolean().isFalse();
+      assertThat(result).bodyJson().extractingPath("$.userId").isNull();
+      verify(accountUseCase).currentAccount("cid-123");
+    }
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().mode()).isEqualTo("anonymous");
-    assertThat(response.getBody().clientId()).isEqualTo("cid-123");
-    assertThat(response.getBody().plan()).isEqualTo("free");
-    assertThat(response.getBody().loginAvailable()).isFalse();
-    assertThat(response.getBody().userId()).isNull();
-    verify(accountUseCase).currentAccount("cid-123");
-  }
-
-  @Test
-  void shouldFailWhenClientIdentityMissing() {
-    when(request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE)).thenReturn(null);
-
-    assertThatThrownBy(() -> controller.me(request))
-        .isInstanceOf(ClientIdentityRequiredException.class);
+    @Test
+    @DisplayName("should fail when client identity missing")
+    void shouldFailWhenClientIdentityMissing() {
+      assertThat(mvc.get().uri("/api/account/me"))
+          .hasStatus(HttpStatus.UNAUTHORIZED)
+          .bodyJson()
+          .extractingPath("$.errorCode")
+          .asString()
+          .isEqualTo("CLIENT_IDENTITY_REQUIRED");
+    }
   }
 }

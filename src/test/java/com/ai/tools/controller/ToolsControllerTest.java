@@ -4,29 +4,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.tools.service.usecase.ToolsFacade;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = ToolsController.class)
 @DisplayName("ToolsController")
 class ToolsControllerTest {
 
-  @Mock private ToolsFacade toolsFacade;
+  @Autowired private MockMvcTester mvc;
 
-  private ToolsController controller;
-
-  @BeforeEach
-  void setUp() {
-    controller = new ToolsController(toolsFacade);
-  }
+  @MockitoBean private ToolsFacade toolsFacade;
 
   @Nested
   @DisplayName("GET /api/tools/weather")
@@ -39,29 +35,30 @@ class ToolsControllerTest {
       String weather = "Sunny, 25°C";
       when(toolsFacade.getWeather(city)).thenReturn(weather);
 
-      ResponseEntity<String> response = controller.getWeather(city);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(weather);
+      assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
+          .hasStatusOk()
+          .hasBodyTextEqualTo(weather);
       verify(toolsFacade).getWeather(city);
     }
 
     @Test
     @DisplayName("should return 400 for null city")
     void shouldReturn400ForNullCity() {
-      ResponseEntity<String> response = controller.getWeather(null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody()).contains("城市参数不能为空");
+      assertThat(mvc.get().uri("/api/tools/weather"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyText()
+          .asString()
+          .contains("城市参数不能为空");
     }
 
     @Test
     @DisplayName("should return 400 for blank city")
     void shouldReturn400ForBlankCity() {
-      ResponseEntity<String> response = controller.getWeather("   ");
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody()).contains("城市参数不能为空");
+      assertThat(mvc.get().uri("/api/tools/weather").param("city", "   "))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyText()
+          .asString()
+          .contains("城市参数不能为空");
     }
 
     @Test
@@ -70,10 +67,11 @@ class ToolsControllerTest {
       String city = "Unknown";
       when(toolsFacade.getWeather(city)).thenThrow(new RuntimeException("API error"));
 
-      ResponseEntity<String> response = controller.getWeather(city);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody()).contains("获取天气信息失败");
+      assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyText()
+          .asString()
+          .contains("获取天气信息失败");
     }
   }
 
@@ -88,10 +86,10 @@ class ToolsControllerTest {
       String forecast = "Rainy for 3 days";
       when(toolsFacade.getForecast(city, 5)).thenReturn(forecast);
 
-      ResponseEntity<String> response = controller.getForecast(city, 5);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(forecast);
+      assertThat(
+              mvc.get().uri("/api/tools/weather/forecast").param("city", city).param("days", "5"))
+          .hasStatusOk()
+          .hasBodyTextEqualTo(forecast);
     }
 
     @Test
@@ -101,27 +99,26 @@ class ToolsControllerTest {
       String forecast = "Cloudy forecast";
       when(toolsFacade.getForecast(city, null)).thenReturn(forecast);
 
-      ResponseEntity<String> response = controller.getForecast(city, null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(forecast);
+      assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", city))
+          .hasStatusOk()
+          .hasBodyTextEqualTo(forecast);
     }
 
     @Test
     @DisplayName("should return 400 for null city")
     void shouldReturn400ForNullCity() {
-      ResponseEntity<String> response = controller.getForecast(null, 3);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody()).contains("城市参数不能为空");
+      assertThat(mvc.get().uri("/api/tools/weather/forecast").param("days", "3"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyText()
+          .asString()
+          .contains("城市参数不能为空");
     }
 
     @Test
     @DisplayName("should return 400 for blank city")
     void shouldReturn400ForBlankCity() {
-      ResponseEntity<String> response = controller.getForecast("", 3);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", "").param("days", "3"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -129,10 +126,11 @@ class ToolsControllerTest {
     void shouldReturn500WhenFacadeThrowsException() {
       when(toolsFacade.getForecast("ErrorCity", null)).thenThrow(new RuntimeException("API error"));
 
-      ResponseEntity<String> response = controller.getForecast("ErrorCity", null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody()).contains("获取天气预报失败");
+      assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", "ErrorCity"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyText()
+          .asString()
+          .contains("获取天气预报失败");
     }
   }
 
@@ -147,10 +145,9 @@ class ToolsControllerTest {
       String result = "[{\"title\": \"ML Guide\"}]";
       when(toolsFacade.searchDocuments(query, null)).thenReturn(result);
 
-      ResponseEntity<String> response = controller.searchDocuments(query, null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(result);
+      assertThat(mvc.get().uri("/api/tools/documents/search").param("query", query))
+          .hasStatusOk()
+          .hasBodyTextEqualTo(result);
     }
 
     @Test
@@ -161,28 +158,31 @@ class ToolsControllerTest {
       String result = "[{\"id\": \"doc1\"}]";
       when(toolsFacade.searchDocuments(query, List.of("doc1", "doc2", "doc3"))).thenReturn(result);
 
-      ResponseEntity<String> response = controller.searchDocuments(query, docIds);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(result);
+      assertThat(
+              mvc.get()
+                  .uri("/api/tools/documents/search")
+                  .param("query", query)
+                  .param("docIds", docIds))
+          .hasStatusOk()
+          .hasBodyTextEqualTo(result);
       verify(toolsFacade).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
     }
 
     @Test
     @DisplayName("should return 400 for null query")
     void shouldReturn400ForNullQuery() {
-      ResponseEntity<String> response = controller.searchDocuments(null, null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody()).contains("搜索关键词不能为空");
+      assertThat(mvc.get().uri("/api/tools/documents/search"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyText()
+          .asString()
+          .contains("搜索关键词不能为空");
     }
 
     @Test
     @DisplayName("should return 400 for blank query")
     void shouldReturn400ForBlankQuery() {
-      ResponseEntity<String> response = controller.searchDocuments("   ", null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(mvc.get().uri("/api/tools/documents/search").param("query", "   "))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -191,10 +191,11 @@ class ToolsControllerTest {
       when(toolsFacade.searchDocuments("error", null))
           .thenThrow(new RuntimeException("Search error"));
 
-      ResponseEntity<String> response = controller.searchDocuments("error", null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody()).contains("搜索文档失败");
+      assertThat(mvc.get().uri("/api/tools/documents/search").param("query", "error"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyText()
+          .asString()
+          .contains("搜索文档失败");
     }
   }
 
@@ -208,10 +209,9 @@ class ToolsControllerTest {
       String documents = "[{\"title\": \"Doc1\"}, {\"title\": \"Doc2\"}]";
       when(toolsFacade.listDocuments()).thenReturn(documents);
 
-      ResponseEntity<String> response = controller.listDocuments();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isEqualTo(documents);
+      assertThat(mvc.get().uri("/api/tools/documents/list"))
+          .hasStatusOk()
+          .hasBodyTextEqualTo(documents);
     }
 
     @Test
@@ -219,10 +219,11 @@ class ToolsControllerTest {
     void shouldReturn500WhenFacadeThrowsException() {
       when(toolsFacade.listDocuments()).thenThrow(new RuntimeException("List error"));
 
-      ResponseEntity<String> response = controller.listDocuments();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody()).contains("获取文档列表失败");
+      assertThat(mvc.get().uri("/api/tools/documents/list"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyText()
+          .asString()
+          .contains("获取文档列表失败");
     }
   }
 
@@ -237,52 +238,73 @@ class ToolsControllerTest {
       String answer = "It's sunny today!";
       when(toolsFacade.chatWithTools(question)).thenReturn(answer);
 
-      ResponseEntity<ToolsController.ToolChatResponse> response =
-          controller.chatWithTools(new ToolsController.ToolChatRequest(question, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().answer()).isEqualTo(answer);
-      assertThat(response.getBody().toolCalls()).isNull();
+      assertThat(
+              mvc.post()
+                  .uri("/api/tools/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"" + question + "\"}"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.answer")
+          .asString()
+          .isEqualTo(answer);
     }
 
     @Test
     @DisplayName("should pass docIds to facade")
     void shouldPassDocIdsToFacade() {
       String question = "Search in docs";
-      List<String> docIds = List.of("doc1", "doc2");
       when(toolsFacade.chatWithTools(question)).thenReturn("Result");
 
-      controller.chatWithTools(new ToolsController.ToolChatRequest(question, docIds));
+      assertThat(
+              mvc.post()
+                  .uri("/api/tools/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"Search in docs\",\"docIds\":[\"doc1\",\"doc2\"]}"))
+          .hasStatusOk();
 
       verify(toolsFacade).chatWithTools(question);
     }
 
     @Test
-    @DisplayName("should return 400 for null request")
-    void shouldReturn400ForNullRequest() {
-      ResponseEntity<ToolsController.ToolChatResponse> response = controller.chatWithTools(null);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody().answer()).contains("问题不能为空");
+    @DisplayName("should return 400 for empty request body")
+    void shouldReturn400ForEmptyRequestBody() {
+      assertThat(
+              mvc.post()
+                  .uri("/api/tools/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{}"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyJson()
+          .extractingPath("$.answer")
+          .asString()
+          .contains("问题不能为空");
     }
 
     @Test
     @DisplayName("should return 400 for null question")
     void shouldReturn400ForNullQuestion() {
-      ResponseEntity<ToolsController.ToolChatResponse> response =
-          controller.chatWithTools(new ToolsController.ToolChatRequest(null, null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
-      assertThat(response.getBody().answer()).contains("问题不能为空");
+      assertThat(
+              mvc.post()
+                  .uri("/api/tools/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":null}"))
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyJson()
+          .extractingPath("$.answer")
+          .asString()
+          .contains("问题不能为空");
     }
 
     @Test
     @DisplayName("should return 400 for blank question")
     void shouldReturn400ForBlankQuestion() {
-      ResponseEntity<ToolsController.ToolChatResponse> response =
-          controller.chatWithTools(new ToolsController.ToolChatRequest("   ", null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(400);
+      assertThat(
+              mvc.post()
+                  .uri("/api/tools/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"   \"}"))
+          .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -291,11 +313,16 @@ class ToolsControllerTest {
       when(toolsFacade.chatWithTools("error question"))
           .thenThrow(new RuntimeException("Chat error"));
 
-      ResponseEntity<ToolsController.ToolChatResponse> response =
-          controller.chatWithTools(new ToolsController.ToolChatRequest("error question", null));
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody().answer()).contains("抱歉");
+      assertThat(
+              mvc.post()
+                  .uri("/api/tools/chat")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"error question\"}"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyJson()
+          .extractingPath("$.answer")
+          .asString()
+          .contains("抱歉");
     }
   }
 }

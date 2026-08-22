@@ -6,33 +6,26 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.image.controller.dto.ImageGenerationRequest;
-import com.ai.image.controller.dto.ImageGenerationResponse;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.service.usecase.ImageFacade;
+import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
-import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@ExtendWith(MockitoExtension.class)
+@SliceWebMvcTest(controllers = ImageController.class)
 @DisplayName("ImageController")
 class ImageControllerTest {
 
-  @Mock private ImageFacade imageFacade;
+  @Autowired private MockMvcTester mvc;
 
-  private ImageController controller;
-
-  @BeforeEach
-  void setUp() {
-    controller = new ImageController(imageFacade);
-  }
+  @MockitoBean private ImageFacade imageFacade;
 
   @Nested
   @DisplayName("POST /api/images/generate")
@@ -46,14 +39,47 @@ class ImageControllerTest {
       when(imageFacade.generateImage("A cat", "dall-e-3", "standard", 1024, 1024, 1))
           .thenReturn(image);
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("A cat", "dall-e-3", "standard", 1024, 1024, 1);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "prompt": "A cat",
+                        "model": "dall-e-3",
+                        "quality": "standard",
+                        "width": 1024,
+                        "height": 1024,
+                        "n": 1
+                      }
+                      """))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.imageUrl")
+          .asString()
+          .isEqualTo("https://example.com/image.png");
 
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().imageUrl()).isEqualTo("https://example.com/image.png");
-      assertThat(response.getBody().model()).isEqualTo("dall-e-3");
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "prompt": "A cat",
+                        "model": "dall-e-3",
+                        "quality": "standard",
+                        "width": 1024,
+                        "height": 1024,
+                        "n": 1
+                      }
+                      """))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.model")
+          .asString()
+          .isEqualTo("dall-e-3");
     }
 
     @Test
@@ -63,12 +89,16 @@ class ImageControllerTest {
           GeneratedImage.fromUrl("https://example.com/default.png", "dall-e-3", "Sunset");
       when(imageFacade.generateImage("Sunset", null, null, 1024, 1024, 1)).thenReturn(image);
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("Sunset", null, null, null, null, null);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().imageUrl()).isEqualTo("https://example.com/default.png");
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"prompt\":\"Sunset\"}"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.imageUrl")
+          .asString()
+          .isEqualTo("https://example.com/default.png");
       verify(imageFacade).generateImage("Sunset", null, null, 1024, 1024, 1);
     }
 
@@ -79,12 +109,25 @@ class ImageControllerTest {
           GeneratedImage.fromUrl("https://example.com/image.png", "dall-e-3", "Mountain");
       when(imageFacade.generateImage("Mountain", null, "hd", 512, 512, 2)).thenReturn(image);
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("Mountain", null, "hd", 512, 512, 2);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().model()).isEqualTo("dall-e-3");
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "prompt": "Mountain",
+                        "quality": "hd",
+                        "width": 512,
+                        "height": 512,
+                        "n": 2
+                      }
+                      """))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.model")
+          .asString()
+          .isEqualTo("dall-e-3");
     }
 
     @Test
@@ -93,12 +136,16 @@ class ImageControllerTest {
       GeneratedImage image = GeneratedImage.fromBase64("abc123", "dall-e-3", "Test");
       when(imageFacade.generateImage("Test", null, null, 1024, 1024, 1)).thenReturn(image);
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("Test", null, null, null, null, null);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody().imageBase64()).isEqualTo("abc123");
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"prompt\":\"Test\"}"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.imageBase64")
+          .asString()
+          .isEqualTo("abc123");
     }
 
     @Test
@@ -107,12 +154,16 @@ class ImageControllerTest {
       when(imageFacade.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
           .thenReturn(GeneratedImage.empty());
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("Test", null, null, null, null, null);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody().status()).contains("Failed to generate image");
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"prompt\":\"Test\"}"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyJson()
+          .extractingPath("$.status")
+          .asString()
+          .contains("Failed to generate image");
     }
 
     @Test
@@ -121,12 +172,16 @@ class ImageControllerTest {
       when(imageFacade.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
           .thenThrow(new RuntimeException("API error"));
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("Test", null, null, null, null, null);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(500);
-      assertThat(response.getBody().status()).contains("ERROR");
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"prompt\":\"Test\"}"))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .bodyJson()
+          .extractingPath("$.status")
+          .asString()
+          .contains("ERROR");
     }
 
     @Test
@@ -137,11 +192,21 @@ class ImageControllerTest {
       when(imageFacade.generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1))
           .thenReturn(image);
 
-      ImageGenerationRequest request =
-          new ImageGenerationRequest("Landscape", "dall-e-2", null, 1920, 1080, 1);
-      ResponseEntity<ImageGenerationResponse> response = controller.generateImage(request);
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
+      assertThat(
+              mvc.post()
+                  .uri("/api/images/generate")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "prompt": "Landscape",
+                        "model": "dall-e-2",
+                        "width": 1920,
+                        "height": 1080,
+                        "n": 1
+                      }
+                      """))
+          .hasStatusOk();
       verify(imageFacade).generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1);
     }
   }
@@ -156,10 +221,12 @@ class ImageControllerTest {
       List<String> models = List.of("dall-e-2", "dall-e-3", "dall-e-3-hd");
       when(imageFacade.getAvailableImageModels()).thenReturn(models);
 
-      ResponseEntity<Map<String, List<String>>> response = controller.getImageModels();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("models", models);
+      assertThat(mvc.get().uri("/api/images/models"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.models")
+          .asArray()
+          .containsExactly("dall-e-2", "dall-e-3", "dall-e-3-hd");
     }
 
     @Test
@@ -167,10 +234,12 @@ class ImageControllerTest {
     void shouldReturnEmptyListWhenNoModelsAvailable() {
       when(imageFacade.getAvailableImageModels()).thenReturn(List.of());
 
-      ResponseEntity<Map<String, List<String>>> response = controller.getImageModels();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("models", List.of());
+      assertThat(mvc.get().uri("/api/images/models"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.models.length()")
+          .convertTo(Integer.class)
+          .isEqualTo(0);
     }
   }
 
@@ -184,10 +253,12 @@ class ImageControllerTest {
       List<String> sizes = List.of("256x256", "512x512", "1024x1024");
       when(imageFacade.getAvailableImageSizes()).thenReturn(sizes);
 
-      ResponseEntity<Map<String, List<String>>> response = controller.getImageSizes();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("sizes", sizes);
+      assertThat(mvc.get().uri("/api/images/sizes"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.sizes")
+          .asArray()
+          .containsExactly("256x256", "512x512", "1024x1024");
     }
   }
 
@@ -201,10 +272,12 @@ class ImageControllerTest {
       List<String> qualities = List.of("standard", "hd");
       when(imageFacade.getAvailableImageQualities()).thenReturn(qualities);
 
-      ResponseEntity<Map<String, List<String>>> response = controller.getImageQualities();
-
-      assertThat(response.getStatusCode().value()).isEqualTo(200);
-      assertThat(response.getBody()).containsEntry("qualities", qualities);
+      assertThat(mvc.get().uri("/api/images/qualities"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.qualities")
+          .asArray()
+          .containsExactly("standard", "hd");
     }
   }
 }
