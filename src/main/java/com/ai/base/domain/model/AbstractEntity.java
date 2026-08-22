@@ -24,12 +24,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractEntity<IdT extends AbstractUuidId> {
 
-  @EqualsAndHashCode.Include
-  @EmbeddedId
-  protected IdT id;
+  @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
 
-  @Version
-  protected Long version;
+  @Version protected Long version;
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)

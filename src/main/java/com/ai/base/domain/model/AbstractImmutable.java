@@ -22,9 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractImmutable<IdT extends AbstractUuidId> {
 
-  @EqualsAndHashCode.Include
-  @EmbeddedId
-  protected IdT id;
+  @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
