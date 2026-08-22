@@ -1,13 +1,13 @@
 package com.ai.common.domain.model;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.base.domain.vo.AbstractUuidId;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("AbstractEnableableDescribedOwnerEntity")
 class AbstractEnableableDescribedOwnerEntityTest {
 
   static final class TestId extends AbstractUuidId {
@@ -33,7 +33,7 @@ class AbstractEnableableDescribedOwnerEntityTest {
   void shouldDisableEntityWhenDisableIsCalled() {
     TestEntity entity = new TestEntity(true);
     entity.disable();
-    assertFalse(entity.isEnabled());
+    assertThat(entity.isEnabled()).isFalse();
   }
 
   @Test
@@ -41,14 +41,14 @@ class AbstractEnableableDescribedOwnerEntityTest {
   void shouldEnableEntityWhenEnableIsCalled() {
     TestEntity entity = new TestEntity(false);
     entity.enable();
-    assertTrue(entity.isEnabled());
+    assertThat(entity.isEnabled()).isTrue();
   }
 
   @Test
   @DisplayName("should match client partition when belongsToClient is called")
   void shouldMatchClientPartitionWhenBelongsToClientIsCalled() {
     TestEntity entity = new TestEntity(true);
-    assertTrue(entity.belongsToClient("c:client-1"));
-    assertFalse(entity.belongsToClient("c:other"));
+    assertThat(entity.belongsToClient("c:client-1")).isTrue();
+    assertThat(entity.belongsToClient("c:other")).isFalse();
   }
 }

@@ -12,11 +12,13 @@ import com.ai.pipeline.service.WorkerAgentInvoker;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+@DisplayName("OrchestratorWorkersUseCase")
 class OrchestratorWorkersUseCaseTest {
 
   private OrchestratorWorkersUseCase useCase;

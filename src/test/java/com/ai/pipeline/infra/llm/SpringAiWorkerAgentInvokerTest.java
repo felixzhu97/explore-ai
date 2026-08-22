@@ -16,6 +16,7 @@ import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.vo.AgentType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,6 +25,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("SpringAiWorkerAgentInvoker")
 class SpringAiWorkerAgentInvokerTest {
 
   @Mock private ChatClientProvider chatClientProvider;

@@ -9,6 +9,7 @@ import com.ai.common.domain.repository.WeatherTool;
 import com.ai.common.domain.repository.WebSearchTool;
 import com.ai.common.infra.prompt.PromptTemplates;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.toolsearch.ToolSearchToolCallingAdvisor;
@@ -16,6 +17,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.ObjectProvider;
 
+@DisplayName("ChatClientFactoryToolSearch")
 class ChatClientFactoryToolSearchTest {
 
   @Test

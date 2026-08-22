@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.ai.pipeline.domain.vo.AgentType;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("RoutingPlan")
 class RoutingPlanTest {
 
   @Test

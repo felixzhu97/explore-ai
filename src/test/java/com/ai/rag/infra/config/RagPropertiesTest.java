@@ -2,9 +2,11 @@ package com.ai.rag.infra.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("RagProperties")
 class RagPropertiesTest {
 
   @Nested

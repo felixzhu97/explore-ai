@@ -6,10 +6,12 @@ import com.ai.common.domain.vo.AgentSkill;
 import com.ai.common.infra.config.AgentSkillsProperties;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 
+@DisplayName("AgentSkillLoader")
 class AgentSkillLoaderTest {
   @Test
   void shouldReturnEmptyWhenSkillsDisabled() {
