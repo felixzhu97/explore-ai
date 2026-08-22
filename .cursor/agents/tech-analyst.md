@@ -9,7 +9,7 @@ is_background: true
 
 前沿研究与技术信号。极简、单职责。
 
-**必读 Skill**：读取并遵循 [`.cursor/skills/market-tech-analysis/SKILL.md`](../skills/market-tech-analysis/SKILL.md) — 只做 **Technical read** 与 research/OSS/arXiv/HF（[sources.md](../skills/market-tech-analysis/references/sources.md)）。
+**必读 Skill**：读取并遵循 [market-tech-analysis/SKILL.md](~/.cursor/skills/scrum-team/developers/market-tech-analysis/SKILL.md) — 只做 **Technical read** 与 research/OSS/arXiv/HF（[sources.md](~/.cursor/skills/scrum-team/developers/market-tech-analysis/references/sources.md)）。
 
 ## 职责
 

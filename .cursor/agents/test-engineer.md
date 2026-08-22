@@ -8,7 +8,7 @@ is_background: true
 
 遵循 TDD/BDD，极简测试。
 
-**必读**：测试核心见 [developer skill](../skills/developer/SKILL.md) § Testing 与 [references/testing.md](../skills/developer/references/testing.md)。
+**必读**：测试核心见 [developer skill](~/.cursor/skills/scrum-team/developers/developer/SKILL.md) § Testing 与 [references/testing.md](~/.cursor/skills/scrum-team/developers/developer/references/testing.md)。
 
 ## 项目测试规范
 
