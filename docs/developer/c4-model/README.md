@@ -24,8 +24,20 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity / VO / Repository；对齐 `com.ai.*.domain`） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地 dev + 生产（Vercel + Render） |
 | `style-zinc.puml` | Shared | Code + Dynamics 共用 zinc 样式 |
+| `C4-Dynamic-Document-Upload.puml` | Dynamic | 文档上传 ETL |
+| `C4-Dynamic-Rag-Ask.puml` | Dynamic | RAG SSE 问答 |
+| `C4-Dynamic-Chat-Tools.puml` | Dynamic | Chat 工具 SSE + A2UI 图表 |
 
 > **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
+
+
+### When to open which track
+
+- 边界 / 部署拓扑 → Structural C4（`C4_blue_new`）
+- 统一语言 / 聚合行为与 VO → Code domain model
+- 运行时主链路（上传、RAG、Chat 工具）→ `C4-Dynamic-*`
+
+---
 
 ---
 
@@ -66,6 +78,18 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 ![C4-Deployment](png/C4-Deployment.png)
 
 本地 dev（`:4200` → `:9000`）与生产（Vercel + Render Starter）合并在单图中；详见图内 `cloud-minimal prod` 注释。
+
+---
+
+## Dynamic - 运行时序列
+
+| 图 | 链路 |
+| --- | --- |
+| [C4-Dynamic-Document-Upload.puml](C4-Dynamic-Document-Upload.puml) | 文档上传 → 分块 → 嵌入 → H2 |
+| [C4-Dynamic-Rag-Ask.puml](C4-Dynamic-Rag-Ask.puml) | RAG 提问 → 检索 → SSE 流式回答 |
+| [C4-Dynamic-Chat-Tools.puml](C4-Dynamic-Chat-Tools.puml) | Chat 工具调用 → SSE → A2UI 图表 |
+
+![C4-Dynamic-Rag-Ask](png/C4-Dynamic-Rag-Ask.png)
 
 ---
 

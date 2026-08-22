@@ -1,0 +1,38 @@
+@startuml C4-Dynamic-Rag-Ask
+!include style-zinc.puml
+
+title Dynamic — RAG ask (SSE)
+
+actor User as user
+participant "RAG page\n/rag" as ui <<ui>>
+participant "Java API\nrag module :9000" as api <<java>>
+participant "Ollama\nembed :11434" as ollama <<external>>
+participant "DeepSeek API" as llm <<external>>
+database "H2" as db <<db>>
+
+user -> ui: 1. Submit question
+ui -> api: 2. POST /api/rag/chat/stream
+api -> db: 3. Vector retrieve (Top-K)
+api -> ollama: 4. Embed query (if needed)
+ollama --> api: 5. Query vector
+api -> db: 6. Fetch DocumentChunk passages
+api -> llm: 7. Grounded generation
+llm --> api: 8. Tokens
+api --> ui: 9. SSE words + sources
+ui --> user: 10. Answer with citations
+
+legend right
+  |= Role |= Color |
+  | Actor | Emerald |
+  | <<ui>> | Slate |
+  | <<java>> | Blue |
+  | <<db>> | Amber |
+  | <<external>> | Zinc gray |
+endlegend
+
+note right of api
+  Empty READY corpus:
+  refuse ungrounded citations
+end note
+
+@enduml

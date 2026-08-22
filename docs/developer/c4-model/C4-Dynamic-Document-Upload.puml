@@ -1,0 +1,38 @@
+@startuml C4-Dynamic-Document-Upload
+!include style-zinc.puml
+
+title Dynamic — Document upload ETL
+
+actor User as user
+participant "RAG page\n/rag" as ui <<ui>>
+participant "Java API\nrag module :9000" as api <<java>>
+participant "Ollama\nembed :11434" as ollama <<external>>
+database "H2" as db <<db>>
+
+user -> ui: 1. Choose PDF/text file
+ui -> api: 2. POST /api/rag/documents/upload
+api -> db: 3. Persist Document UPLOADING
+api -> api: 4. Read, chunk, mark PROCESSING
+api -> ollama: 5. Embed chunks
+ollama --> api: 6. Vectors
+api -> db: 7. MERGE DocumentChunk + embeddings
+api -> db: 8. Graph index (optional)
+api -> db: 9. markReady() or FAILED
+api --> ui: 10. 201 UploadDocumentResponse
+ui --> user: 11. Document appears in rail
+
+legend right
+  |= Role |= Color |
+  | Actor | Emerald |
+  | <<ui>> | Slate |
+  | <<java>> | Blue |
+  | <<db>> | Amber |
+  | <<external>> | Zinc gray |
+endlegend
+
+note right of api
+  Mutations require
+  X-Requested-With: XMLHttpRequest
+end note
+
+@enduml

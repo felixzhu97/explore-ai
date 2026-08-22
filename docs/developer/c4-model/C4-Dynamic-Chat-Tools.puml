@@ -1,0 +1,41 @@
+@startuml C4-Dynamic-Chat-Tools
+!include style-zinc.puml
+
+title Dynamic — Chat tools SSE
+
+actor User as user
+participant "Chat page\n/chat" as ui <<ui>>
+participant "Java API\nchat + tools :9000" as api <<java>>
+participant "DeepSeek API" as llm <<external>>
+participant "Serper.dev" as serper <<external>>
+database "H2" as db <<db>>
+
+user -> ui: 1. Send message (tools on)
+ui -> api: 2. POST /api/text/chat/stream
+api -> db: 3. Load ChatSession + memory
+api -> llm: 4. Chat + tool schemas
+llm --> api: 5. Tool call (optional)
+api -> serper: 6. searchWeb (if enabled)
+serper --> api: 7. Web results (optional)
+api --> ui: 8. SSE tool_call / tool_result
+api -> llm: 9. Continue with tool output
+llm --> api: 10. Assistant tokens
+api -> db: 11. Persist ChatMessage / WebSource
+api --> ui: 12. SSE text + optional A2UI fence
+ui --> user: 13. Streamed reply (+ chart)
+
+legend right
+  |= Role |= Color |
+  | Actor | Emerald |
+  | <<ui>> | Slate |
+  | <<java>> | Blue |
+  | <<db>> | Amber |
+  | <<external>> | Zinc gray |
+endlegend
+
+note right of ui
+  A2UI chart fence in assistant
+  text when tools return chartable data
+end note
+
+@enduml
