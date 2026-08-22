@@ -6,15 +6,13 @@ GitHub Actions 工作流相关的架构图。
 
 | 文件 | 工作流 | 说明 |
 | ---- | ------ | ---- |
-| `cicd-workflow.puml` | 总览 | 门禁 CI、CodeQL、E2E nightly 的触发与高层流程 |
-| `cicd-codeql.puml` | codeql | Java/Kotlin 与 JavaScript/TypeScript 矩阵扫描 |
+| `cicd-workflow.puml` | 总览 | 门禁 CI 与 E2E nightly 的触发与高层流程 |
 
 ## 工作流（源文件）
 
 | 工作流 | 说明 |
 | ------ | ---- |
-| `.github/workflows/ci.yml` | 唯一 PR/push 门禁：Backend + Frontend；Summary job 用 `$GITHUB_STEP_SUMMARY` 输出数字/Mermaid 报告（`scripts/write-ci-summary.mjs`） |
-| `.github/workflows/codeql.yml` | 安全扫描 |
+| `.github/workflows/ci.yml` | PR/push 门禁：Backend（spotless、checkstyle、test）+ Frontend（typecheck、lint、test、build） |
 | `.github/workflows/e2e-nightly.yml` | Playwright 视觉回归（cron + 手动） |
 
 ## 查看
