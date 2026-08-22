@@ -2,6 +2,17 @@
 
 使用 PlantUML 绘制的 C4 架构模型，描述 AI Chat & Agent Platform 的完整架构。
 
+Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库: [C4-PlantUML](https://github.com/plantuml-stdlib/C4-PlantUML)。
+
+## Visual tracks
+
+| Track | Files | Style |
+| ----- | ----- | ----- |
+| **Structural C4** | C1–C3, Deployment | Official **`C4_blue_new`** theme（线框；勿与 zinc 混用） |
+| **Domain + Dynamics** | Code domain model, `C4-Dynamic-*` | Shared zinc look via [`style-zinc.puml`](style-zinc.puml) |
+
+Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc.puml` 用于 structural C4）。
+
 ## 文件
 
 | 文件 | 层级 | 说明 |

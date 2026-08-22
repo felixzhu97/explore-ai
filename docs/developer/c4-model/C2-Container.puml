@@ -1,7 +1,7 @@
 @startuml C2-Container
+' Theme before C4 includes; do not combine with !NEW_C4_STYLE=1
+!theme C4_blue_new from https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/themes
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
-LAYOUT_WITH_LEGEND()
 
 title 容器图 (C2) - AI Platform Backend (12 子域)
 
