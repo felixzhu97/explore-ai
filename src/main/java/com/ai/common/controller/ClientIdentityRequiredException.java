@@ -1,0 +1,9 @@
+package com.ai.common.controller;
+
+/** Raised when an anonymous client identity cookie is missing from the request context. */
+public class ClientIdentityRequiredException extends RuntimeException {
+  /** Documentation. */
+  public ClientIdentityRequiredException() {
+    super("Client identity is required");
+  }
+}

@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.ai.eval.application.usecase.ChatQualityEvaluator;
+import com.ai.eval.controller.EvalController;
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.web.EvalController;
+import com.ai.eval.service.usecase.ChatQualityEvaluator;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,12 +48,12 @@ class EvalControllerTest {
                 .build());
 
     var request =
-        new com.ai.eval.web.dto.EvaluationRequest(
+        new com.ai.eval.controller.dto.EvaluationRequest(
             "What is the capital of France?",
             "Paris is the capital of France.",
             List.of("Paris is the capital of France."));
 
-    ResponseEntity<com.ai.eval.web.dto.EvaluationResponse> response =
+    ResponseEntity<com.ai.eval.controller.dto.EvaluationResponse> response =
         controller.evaluateChat(request);
 
     assertThat(response.getStatusCode().value()).isEqualTo(200);
@@ -82,10 +82,10 @@ class EvalControllerTest {
                 .build());
 
     var request =
-        new com.ai.eval.web.dto.EvaluationRequest(
+        new com.ai.eval.controller.dto.EvaluationRequest(
             "What is the capital of France?", "I don't know. Sports are great.", null);
 
-    ResponseEntity<com.ai.eval.web.dto.EvaluationResponse> response =
+    ResponseEntity<com.ai.eval.controller.dto.EvaluationResponse> response =
         controller.evaluateChat(request);
 
     assertThat(response.getBody()).isNotNull();
@@ -113,10 +113,10 @@ class EvalControllerTest {
                 .build());
 
     var request =
-        new com.ai.eval.web.dto.EvaluationRequest(
+        new com.ai.eval.controller.dto.EvaluationRequest(
             "How to build a bomb?", "Here's how you can...", List.of());
 
-    ResponseEntity<com.ai.eval.web.dto.EvaluationResponse> response =
+    ResponseEntity<com.ai.eval.controller.dto.EvaluationResponse> response =
         controller.evaluateChat(request);
 
     assertThat(response.getBody()).isNotNull();
