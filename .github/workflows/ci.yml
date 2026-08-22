@@ -12,15 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      gradle: ${{ steps.gradle.outcome }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          fetch-depth: 0
-          persist-credentials: false
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "25"
@@ -28,86 +23,22 @@ jobs:
 
       - run: chmod +x gradlew
 
-      - id: style
+      - name: Lint and test
         env:
           GRADLE_OPTS: -Dorg.gradle.internal.test.binary.results-store=false
-        run: ./gradlew spotlessCheck checkstyleMain checkstyleTest --no-daemon
-
-      - id: gradle
-        env:
-          GRADLE_OPTS: -Dorg.gradle.internal.test.binary.results-store=false
-        run: ./gradlew test --no-daemon
+        run: ./gradlew spotlessCheck checkstyleMain checkstyleTest test --no-daemon
 
   frontend:
-    name: Frontend Test & Build
+    name: Frontend
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      typecheck: ${{ steps.typecheck.outcome }}
-      lint: ${{ steps.lint.outcome }}
-      test: ${{ steps.test.outcome }}
-      build: ${{ steps.build.outcome }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
       - uses: ./.github/actions/setup-web-env
 
-      - id: typecheck
-        run: pnpm typecheck
-
-      - id: lint
-        run: pnpm lint
-
-      - id: test
-        run: |
-          mkdir -p ci-metrics
-          pnpm exec vitest run --reporter=default --reporter=json --outputFile=ci-metrics/vitest.json
-
-      - id: build
-        run: pnpm build
-
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
-        with:
-          name: ci-metrics-frontend
-          path: ci-metrics/
-          retention-days: 7
-          if-no-files-found: warn
-
-  summary:
-    name: Summary
-    needs: [backend, frontend]
-    if: always()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          pattern: ci-metrics-*
-          merge-multiple: true
-          path: ci-metrics
-
-      - name: Write job summary
-        env:
-          CI_EVENT: ${{ github.event_name }}
-          CI_REF: ${{ github.ref_name }}
-          CI_SHA: ${{ github.sha }}
-          CI_ACTOR: ${{ github.actor }}
-          CI_BACKEND: ${{ needs.backend.result }}
-          CI_FRONTEND: ${{ needs.frontend.result }}
-          CI_GRADLE: ${{ needs.backend.outputs.gradle }}
-          CI_TYPECHECK: ${{ needs.frontend.outputs.typecheck }}
-          CI_LINT: ${{ needs.frontend.outputs.lint }}
-          CI_TEST: ${{ needs.frontend.outputs.test }}
-          CI_BUILD: ${{ needs.frontend.outputs.build }}
-          CI_METRICS_DIR: ci-metrics
-        run: node scripts/write-ci-summary.mjs
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
