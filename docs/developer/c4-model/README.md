@@ -13,6 +13,7 @@
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity / VO / Repository；对齐 `com.ai.*.domain`） |
 | `C4-Deployment.puml` | Deployment | 本地开发环境部署图（:4200 → :9000） |
 | `C4-Deployment-Production.puml` | Deployment | 生产部署图（Vercel + Render Starter + Datadog RUM + LaunchDarkly） |
+| `style-zinc.puml` | Shared | Code + Dynamics 共用 zinc 样式 |
 
 > **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment*.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
 
