@@ -2,15 +2,15 @@ package com.ai.base.domain.vo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.MappedSuperclass;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Embeddable String UUID identifier; feature-module IDs extend this type. */
-@Embeddable
+/** Shared UUID id field for {@code @Embeddable} feature-module ID types. */
+@MappedSuperclass
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
