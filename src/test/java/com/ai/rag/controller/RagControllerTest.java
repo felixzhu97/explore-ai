@@ -22,6 +22,7 @@ import com.ai.rag.service.usecase.RagChatUseCase;
 import com.ai.rag.service.usecase.VisionChatUseCase;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -203,7 +204,7 @@ class RagControllerTest {
                   .uri("/api/rag/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"question\":\"What is AI?\"}")
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk()
           .bodyText()
           .asString()
@@ -231,7 +232,7 @@ class RagControllerTest {
                       }
                       """
                           .formatted(docIds.getFirst()))
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk();
       verify(ragChatUseCase).chatStream(eq("Question"), eq(docIds), eq(5), isNull());
     }
@@ -247,7 +248,7 @@ class RagControllerTest {
                   .uri("/api/rag/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"question\":\"Question\",\"top_k\":10}")
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk();
       verify(ragChatUseCase).chatStream(eq("Question"), isNull(), eq(10), isNull());
     }
@@ -271,7 +272,7 @@ class RagControllerTest {
                         "images": ["iVBORw0KGgo="]
                       }
                       """)
-                  .asyncExchange())
+                  .exchange(Duration.ofSeconds(5)))
           .hasStatusOk();
       verify(visionChatUseCase)
           .chatStreamWithImages(eq("Describe image"), isNull(), eq(images), eq(5));
@@ -289,8 +290,8 @@ class RagControllerTest {
                   .uri("/api/rag/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"question\":\"Question\"}")
-                  .asyncExchange())
-          .hasStatusOk();
+                  .exchange(Duration.ofSeconds(5)))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
       verify(ragChatUseCase).chatStream(eq("Question"), isNull(), eq(5), isNull());
     }
   }
