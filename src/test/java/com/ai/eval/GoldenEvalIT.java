@@ -7,6 +7,7 @@ import com.ai.eval.domain.vo.GoldenEvalDomain;
 import com.ai.eval.service.usecase.GoldenEvalUseCase;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @see <a href="https://docs.spring.io/spring-ai/reference/api/testing.html">Evaluation Testing</a>
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Tag("integration")
 @EnabledIfEnvironmentVariable(named = "GOLDEN_EVAL_IT", matches = "true")
 @DisplayName("GoldenEvalIT")
 class GoldenEvalIT {

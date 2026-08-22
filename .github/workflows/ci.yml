@@ -29,9 +29,13 @@ jobs:
       - run: chmod +x gradlew
 
       - id: style
+        env:
+          GRADLE_OPTS: -Dorg.gradle.internal.test.binary.results-store=false
         run: ./gradlew spotlessCheck checkstyleMain checkstyleTest --no-daemon
 
       - id: gradle
+        env:
+          GRADLE_OPTS: -Dorg.gradle.internal.test.binary.results-store=false
         run: ./gradlew test jacocoTestCoverageVerification --no-daemon
 
       - name: Extract JaCoCo metrics
