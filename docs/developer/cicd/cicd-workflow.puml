@@ -19,20 +19,8 @@ note right
 **Jobs:** backend + frontend (always)
 end note
 :**CI**
-(backend: Gradle test + JaCoCo
+(backend: spotless + checkstyle + test
  frontend: typecheck → lint → test → build);
-stop
-
-|#orange|**Workflow: codeql.yml**|
-start
-note right
-**Trigger:** push | pull_request + cron (weekly)
-**Branches:** main, java-angular, feat/**, feature/**, fix/**, refactor/**, docs/**, test/**, chore/**, perf/**, ci/**
-**Schedule:** cron: '20 5 * * 3' (Wed 05:20 UTC)
-end note
-:**codeql**
-(trigger: push | pull_request + cron
- + matrix: java-kotlin + javascript-typescript);
 stop
 
 |#lightskyblue|**Workflow: e2e-nightly.yml**|
@@ -48,7 +36,6 @@ stop
 legend right
 | Workflow | Trigger | Color |
 | ci | push / pull_request | #palegreen |
-| codeql | push / pull_request / cron | #orange |
 | e2e-nightly | cron / dispatch | #lightskyblue |
 endlegend
 @enduml
