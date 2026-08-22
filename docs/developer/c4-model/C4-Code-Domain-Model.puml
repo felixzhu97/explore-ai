@@ -20,13 +20,99 @@ note as N_LAYERS
   controller → service → domain ← infra
   Aggregates encapsulate invariants; application orchestrates use cases.
   ChatMessage bodies persist via Spring AI ChatMemory bridge.
+  Kernel: com.ai.base + com.ai.common.domain (see packages below).
 end note
+
+' ── domain kernel (com.ai.base) ─────────────────────────────
+package "com.ai.base" as pkg_base {
+  interface EntityId <<ValueObject>> {
+    value()
+  }
+  class AbstractUuidId <<ValueObject>> {
+    String value
+    --
+    {static} generate()
+    {static} of(uuid)
+  }
+  class AbstractEntity <<MappedSuperclass>> {
+    IdT id
+    Instant createdAt
+    Instant updatedAt
+    Long version
+    --
+    touchUpdatedAt()
+  }
+  class AbstractImmutable <<MappedSuperclass>> {
+    IdT id
+    Instant createdAt
+  }
+  class BaseJpaConfig <<Configuration>> {
+    EnableJpaAuditing
+    EnableJpaRepositories
+  }
+}
+
+EntityId <|.. AbstractUuidId
+AbstractUuidId --> AbstractEntity : embedded id
+AbstractUuidId --> AbstractImmutable : embedded id
+
+' ── aggregate bases (com.ai.common.domain.model) ───────────
+package "com.ai.common.domain" as pkg_common_kernel {
+  class AbstractOwnerKeyedEntity <<MappedSuperclass>> {
+    OwnerKey ownerKey
+    --
+    belongsTo(ownerKey)
+    belongsToClient(value)
+    rebindOwnerKey(ownerKey)
+  }
+  class AbstractNamedOwnerEntity <<MappedSuperclass>> {
+    String name
+    --
+    rename(name)
+  }
+  class AbstractDescribedOwnerEntity <<MappedSuperclass>> {
+    String description
+  }
+  class AbstractEnableableDescribedOwnerEntity <<MappedSuperclass>> {
+    boolean enabled
+    --
+    enable()
+    disable()
+  }
+  class AbstractTimedRunEntity <<MappedSuperclass>> {
+    Instant startedAt
+    Instant finishedAt
+    --
+    markFinished(at)
+  }
+  class AbstractAppendOnlyEvent <<MappedSuperclass>> {
+    Instant occurredAt
+  }
+  class OwnerKey <<ValueObject>> {
+    String value
+    --
+    {static} forClient(id)
+    {static} forAccount(id)
+  }
+  interface ClientOwnedRepository <<Repository>> {
+    findByIdAndOwnerKey(id, ownerKey)
+    findAllByOwnerKey(ownerKey)
+    deleteByIdAndOwnerKey(id, ownerKey)
+  }
+}
+
+AbstractEntity <|-- AbstractOwnerKeyedEntity
+AbstractOwnerKeyedEntity <|-- AbstractNamedOwnerEntity
+AbstractNamedOwnerEntity <|-- AbstractDescribedOwnerEntity
+AbstractDescribedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
+AbstractImmutable <|-- AbstractAppendOnlyEvent
+AbstractOwnerKeyedEntity --> OwnerKey
 
 ' ── chat ───────────────────────────────────────────────────
 package "com.ai.chat.domain" as pkg_chat {
   class ChatSession <<AggregateRoot>> {
     ChatSessionId id
-    String clientId
+    OwnerKey ownerKey
     String title
     --
     {static} create(title, clientId)
@@ -75,6 +161,7 @@ ChatMessage --> ChatMessageType
 package "com.ai.rag.domain" as pkg_rag {
   class Document <<AggregateRoot>> {
     DocumentId id
+    OwnerKey ownerKey
     String title
     DocumentStatus status
     --
@@ -229,16 +316,29 @@ package "com.ai.tools.domain" as pkg_tools {
   }
 }
 
-' ── cross-cutting VOs ──────────────────────────────────────
-package "com.ai.common.domain" as pkg_common {
-  class OwnerKey <<ValueObject>> {
-    String value
-  }
-}
+' ── cross-cutting (kernel note) ─────────────────────────────
+note as KERNEL_NOTE
+  OwnerKey and aggregate bases are defined in
+  **com.ai.common.domain** (pkg_common_kernel above).
+end note
+
+AbstractEntity <|-- ChatSession : metadata only
+AbstractOwnerKeyedEntity <|-- Document
+AbstractEnableableDescribedOwnerEntity <|-- Skill
+AbstractEnableableDescribedOwnerEntity <|-- SavedWorkflowTemplate
+AbstractNamedOwnerEntity <|-- AutomationSchedule
+AbstractTimedRunEntity <|-- AutomationRun
+AbstractEntity <|-- AccountUser
+AbstractAppendOnlyEvent <|-- AiInvocationEvent
 
 ChatSession ..> OwnerKey : owned by
+Document ..> OwnerKey : owned by
+Skill ..> OwnerKey : owned by
 AccountUser ..> OwnerKey : links browser
 
 N_LAYERS .. pkg_chat
+N_LAYERS .. pkg_base
+N_LAYERS .. pkg_common_kernel
+KERNEL_NOTE .. pkg_common_kernel
 
 @enduml
