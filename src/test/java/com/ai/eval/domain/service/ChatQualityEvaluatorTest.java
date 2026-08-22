@@ -1,4 +1,4 @@
-package com.ai.eval.application.usecase;
+package com.ai.eval.service.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

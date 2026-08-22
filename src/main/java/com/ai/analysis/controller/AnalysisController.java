@@ -1,0 +1,40 @@
+package com.ai.analysis.controller;
+
+import com.ai.analysis.controller.dto.TextAnalysisRequest;
+import com.ai.analysis.controller.dto.TextAnalysisResult;
+import com.ai.analysis.domain.exception.InvalidAnalysisTextException;
+import com.ai.analysis.service.usecase.AnalysisFacade;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/** Documentation. */
+@RestController
+@RequestMapping("/api")
+public class AnalysisController {
+
+  private final AnalysisFacade analysisFacade;
+
+  /** Documentation. */
+  public AnalysisController(AnalysisFacade analysisFacade) {
+    this.analysisFacade = analysisFacade;
+  }
+
+  /** Documentation. */
+  @PostMapping("/chat/analyze")
+  public ResponseEntity<TextAnalysisResult> analyzeText(
+      @Valid @RequestBody TextAnalysisRequest request) {
+    try {
+      var result =
+          request.language() != null && !request.language().isBlank()
+              ? analysisFacade.analyzeTextWithLanguage(request.text(), request.language())
+              : analysisFacade.analyzeText(request.text());
+      return ResponseEntity.ok(TextAnalysisResult.fromDomain(result));
+    } catch (InvalidAnalysisTextException e) {
+      return ResponseEntity.badRequest().build();
+    }
+  }
+}

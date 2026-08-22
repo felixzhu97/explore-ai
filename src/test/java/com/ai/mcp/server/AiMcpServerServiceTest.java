@@ -1,13 +1,13 @@
-package com.ai.mcp.infrastructure.server;
+package com.ai.mcp.infra.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.application.usecase.ChatUseCase;
+import com.ai.chat.service.usecase.ChatUseCase;
 import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.rag.infrastructure.config.RagProperties;
-import com.ai.tools.infrastructure.tools.WeatherTools;
+import com.ai.rag.infra.config.RagProperties;
+import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

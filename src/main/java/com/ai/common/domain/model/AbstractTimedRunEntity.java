@@ -18,9 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId> {
 
-  @EqualsAndHashCode.Include
-  @EmbeddedId
-  protected IdT id;
+  @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
 
   @Column(name = "started_at", nullable = false)
   protected Instant startedAt;
