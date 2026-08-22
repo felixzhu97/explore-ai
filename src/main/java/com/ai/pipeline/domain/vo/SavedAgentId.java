@@ -1,14 +1,18 @@
 package com.ai.pipeline.domain.vo;
 
-import java.util.UUID;
+import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public record SavedAgentId(String value) {
+/** Strongly-typed ID for {@link com.ai.pipeline.domain.model.SavedAgentDefinition}. */
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public final class SavedAgentId extends AbstractUuidId {
+
   /** Documentation. */
-  public SavedAgentId {
-    if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("SavedAgentId cannot be null or blank");
-    }
+  public SavedAgentId(String value) {
+    super(value);
   }
 
   /** Documentation. */
@@ -18,6 +22,6 @@ public record SavedAgentId(String value) {
 
   /** Documentation. */
   public static SavedAgentId generate() {
-    return new SavedAgentId(UUID.randomUUID().toString());
+    return new SavedAgentId(newUuidString());
   }
 }

@@ -15,7 +15,7 @@ class SkillSystemPromptBuilderTest {
   void shouldBuildPromptWhenSkillsProvided() {
     Skill skill =
         Skill.create(
-            "client-1", "Brief Style", "Short answers only.", "Lead with the answer.", List.of());
+            "c:client-1", "Brief Style", "Short answers only.", "Lead with the answer.", List.of());
 
     String prompt = SkillSystemPromptBuilder.build(List.of(skill));
 

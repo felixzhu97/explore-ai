@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
 import java.util.List;
@@ -86,7 +87,7 @@ class H2SpringAiVectorStoreTest {
 
   private static DocumentChunk chunk(UUID documentId, String content, float[] embedding) {
     return DocumentChunk.reconstitute(
-        DocumentId.generate(),
+        ChunkId.generate(),
         DocumentId.of(documentId),
         content,
         0,

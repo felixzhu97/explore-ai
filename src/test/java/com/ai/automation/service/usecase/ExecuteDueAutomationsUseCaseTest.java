@@ -65,7 +65,7 @@ class ExecuteDueAutomationsUseCaseTest {
     Instant past = Instant.now().minusSeconds(60);
     AutomationSchedule schedule =
         AutomationSchedule.create(
-            "client-1",
+            "c:client-1",
             "Daily",
             "0 0 9 * * *",
             "UTC",
@@ -75,7 +75,7 @@ class ExecuteDueAutomationsUseCaseTest {
             past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume("client-1")).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
     when(workflowRunner.runSavedWorkflow(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("workflow result");
 
@@ -94,7 +94,7 @@ class ExecuteDueAutomationsUseCaseTest {
     Instant past = Instant.now().minusSeconds(60);
     AutomationSchedule schedule =
         AutomationSchedule.create(
-            "client-1",
+            "c:client-1",
             "Daily",
             "0 0 9 * * *",
             "UTC",
@@ -104,7 +104,7 @@ class ExecuteDueAutomationsUseCaseTest {
             past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(any(ScheduleId.class), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume("client-1")).thenReturn(false);
+    when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(false);
 
     useCase.executeDue();
 
@@ -120,7 +120,7 @@ class ExecuteDueAutomationsUseCaseTest {
     Instant past = Instant.now().minusSeconds(60);
     AutomationSchedule schedule =
         AutomationSchedule.createOnce(
-            "client-1",
+            "c:client-1",
             "Once",
             "UTC",
             "11111111-1111-1111-1111-111111111111",
@@ -149,7 +149,7 @@ class ExecuteDueAutomationsUseCaseTest {
     when(scheduleRepository.claim(
             eq(schedule.getId()), eq(past), eq(AutomationSchedule.ONCE_TERMINAL_NEXT)))
         .thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume("client-1")).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
     when(workflowRunner.runSavedWorkflow(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("once result");
 

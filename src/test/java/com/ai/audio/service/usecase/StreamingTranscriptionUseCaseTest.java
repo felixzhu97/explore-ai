@@ -37,7 +37,7 @@ class StreamingTranscriptionUseCaseTest {
     useCase =
         new StreamingTranscriptionUseCase(
             whisperCppTranscriptionAdapter, new SyncTaskExecutor(), objectMapper);
-    when(rawSession.getId()).thenReturn("session-1");
+    when(rawSession.getId()).thenReturn("22222222-2222-2222-2222-222222222222");
   }
 
   @Test

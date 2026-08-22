@@ -1,6 +1,7 @@
 package com.ai.rag.infra.vector;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -9,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 import org.springframework.jdbc.core.RowMapper;
 
 /** Maps database rows to DocumentChunk domain objects. */
@@ -24,8 +24,8 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
 
   @Override
   public DocumentChunk mapRow(ResultSet rs, int rowNum) throws SQLException {
-    DocumentId id = DocumentId.of(UUID.fromString(rs.getString("id")));
-    DocumentId documentId = DocumentId.of(UUID.fromString(rs.getString("document_id")));
+    ChunkId id = ChunkId.of(rs.getString("id"));
+    DocumentId documentId = DocumentId.of(rs.getString("document_id"));
     String content = rs.getString("content");
     int chunkIndex = rs.getInt("chunk_index");
     float[] embedding = parsePostgresVector(rs.getString("embedding"));

@@ -1,28 +1,38 @@
 package com.ai.skill.domain.model;
 
+import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.vo.DomainStrings;
+import com.ai.common.domain.vo.StringListJsonAttributeConverter;
 import com.ai.skill.domain.vo.SkillId;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public class Skill {
+/** User-defined skill aggregate partitioned by owner_key. */
+@Entity
+@Table(name = "skills")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
 
-  private final SkillId id;
-  private final String clientId;
-  private String name;
-  private String description;
+  @Column(name = "instructions", nullable = false, columnDefinition = "clob")
   private String instructions;
-  private List<String> allowedTools;
-  private boolean enabled;
-  private final Instant createdAt;
-  private Instant updatedAt;
+
+  @Convert(converter = StringListJsonAttributeConverter.class)
+  @Column(name = "allowed_tools", columnDefinition = "clob")
+  private List<String> allowedTools = new ArrayList<>();
 
   private Skill(
       SkillId id,
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       String instructions,
@@ -30,20 +40,14 @@ public class Skill {
       boolean enabled,
       Instant createdAt,
       Instant updatedAt) {
-    this.id = Objects.requireNonNull(id, "SkillId cannot be null");
-    this.clientId = requireClientId(clientId);
-    this.name = requireName(name);
-    this.description = normalizeDescription(description);
-    this.instructions = requireInstructions(instructions);
+    super(id, ownerKey, name, description, enabled, createdAt, updatedAt);
+    this.instructions = DomainStrings.requireNonBlank(instructions, "instructions");
     this.allowedTools = copyAllowedTools(allowedTools);
-    this.enabled = enabled;
-    this.createdAt = Objects.requireNonNull(createdAt, "CreatedAt cannot be null");
-    this.updatedAt = Objects.requireNonNull(updatedAt, "UpdatedAt cannot be null");
   }
 
   /** Documentation. */
   public static Skill create(
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       String instructions,
@@ -51,7 +55,7 @@ public class Skill {
     Instant now = Instant.now();
     return new Skill(
         SkillId.generate(),
-        clientId,
+        ownerKey,
         name,
         description,
         instructions,
@@ -64,7 +68,7 @@ public class Skill {
   /** Documentation. */
   public static Skill restore(
       SkillId id,
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       String instructions,
@@ -73,105 +77,29 @@ public class Skill {
       Instant createdAt,
       Instant updatedAt) {
     return new Skill(
-        id, clientId, name, description, instructions, allowedTools, enabled, createdAt, updatedAt);
+        id, ownerKey, name, description, instructions, allowedTools, enabled, createdAt, updatedAt);
   }
 
   /** Documentation. */
   public Skill update(
       String name, String description, String instructions, List<String> allowedTools) {
-    this.name = requireName(name);
-    this.description = normalizeDescription(description);
-    this.instructions = requireInstructions(instructions);
+    rename(name);
+    updateDescription(description);
+    this.instructions = DomainStrings.requireNonBlank(instructions, "instructions");
     this.allowedTools = copyAllowedTools(allowedTools);
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
     return this;
   }
 
   /** Documentation. */
-  public void enable() {
-    this.enabled = true;
-    this.updatedAt = Instant.now();
-  }
-
-  /** Documentation. */
-  public void disable() {
-    this.enabled = false;
-    this.updatedAt = Instant.now();
-  }
-
-  public SkillId getId() {
-    return id;
-  }
-
-  public String getClientId() {
-    return clientId;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public String getInstructions() {
-    return instructions;
-  }
-
   public List<String> getAllowedTools() {
-    return Collections.unmodifiableList(allowedTools);
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  private static String requireClientId(String clientId) {
-    if (clientId == null || clientId.isBlank()) {
-      throw new IllegalArgumentException("ClientId cannot be null or blank");
-    }
-    return clientId.trim();
-  }
-
-  private static String requireName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Skill name cannot be null or blank");
-    }
-    String trimmed = name.trim();
-    if (trimmed.length() > 120) {
-      throw new IllegalArgumentException("Skill name cannot exceed 120 characters");
-    }
-    return trimmed;
-  }
-
-  private static String normalizeDescription(String description) {
-    if (description == null || description.isBlank()) {
-      return "";
-    }
-    String trimmed = description.trim();
-    return trimmed.length() > 500 ? trimmed.substring(0, 500) : trimmed;
-  }
-
-  private static String requireInstructions(String instructions) {
-    if (instructions == null || instructions.isBlank()) {
-      throw new IllegalArgumentException("Skill instructions cannot be null or blank");
-    }
-    return instructions.trim();
+    return Collections.unmodifiableList(allowedTools == null ? List.of() : allowedTools);
   }
 
   private static List<String> copyAllowedTools(List<String> allowedTools) {
     if (allowedTools == null || allowedTools.isEmpty()) {
-      return List.of();
+      return new ArrayList<>();
     }
-    return Collections.unmodifiableList(new ArrayList<>(allowedTools));
+    return new ArrayList<>(allowedTools);
   }
 }

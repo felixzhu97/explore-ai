@@ -1,14 +1,18 @@
 package com.ai.pipeline.domain.vo;
 
-import java.util.UUID;
+import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public record WorkflowTemplateId(String value) {
+/** Strongly-typed ID for {@link com.ai.pipeline.domain.model.SavedWorkflowTemplate}. */
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public final class WorkflowTemplateId extends AbstractUuidId {
+
   /** Documentation. */
-  public WorkflowTemplateId {
-    if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("WorkflowTemplateId cannot be null or blank");
-    }
+  public WorkflowTemplateId(String value) {
+    super(value);
   }
 
   /** Documentation. */
@@ -18,11 +22,6 @@ public record WorkflowTemplateId(String value) {
 
   /** Documentation. */
   public static WorkflowTemplateId generate() {
-    return new WorkflowTemplateId(UUID.randomUUID().toString());
-  }
-
-  @Override
-  public String toString() {
-    return value;
+    return new WorkflowTemplateId(newUuidString());
   }
 }

@@ -36,7 +36,7 @@ import org.springframework.retry.support.RetryTemplate;
 @DisplayName("SpringAiChatUseCase")
 class SpringAiChatUseCaseTest {
 
-  private static final String CLIENT_A = "11111111-1111-1111-1111-111111111111";
+  private static final String CLIENT_A = "c:11111111-1111-1111-1111-111111111111";
   private static final String CLIENT_B = "22222222-2222-2222-2222-222222222222";
 
   @Mock private ChatClientProvider chatClientProvider;
@@ -101,22 +101,27 @@ class SpringAiChatUseCaseTest {
     @DisplayName("should return session when owned by client")
     void shouldReturnSessionWhenOwnedByClient() {
       ChatSession session = ChatSession.create("Test", CLIENT_A);
-      when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
+      when(repository.findByIdAndClientId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
 
-      Optional<ChatSession> result = useCase.getSession("session-123", CLIENT_A);
+      Optional<ChatSession> result =
+          useCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
       assertThat(result).isPresent().contains(session);
-      verify(conversationMemoryRepository).syncToSession(eq("session-123"), eq(session));
+      verify(conversationMemoryRepository)
+          .syncToSession(eq("22222222-2222-2222-2222-222222222222"), eq(session));
     }
 
     @Test
     @DisplayName("should return empty when owned by another client")
     void shouldReturnEmptyWhenOwnedByAnotherClient() {
-      when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_B))
+      when(repository.findByIdAndClientId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_B))
           .thenReturn(Optional.empty());
 
-      Optional<ChatSession> result = useCase.getSession("session-123", CLIENT_B);
+      Optional<ChatSession> result =
+          useCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_B);
 
       assertThat(result).isEmpty();
     }
@@ -132,22 +137,27 @@ class SpringAiChatUseCaseTest {
       ChatSession session = ChatSession.create("Test", CLIENT_A);
       session.addUserMessage("Hello");
       session.addAssistantMessage("Hi!");
-      when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
+      when(repository.findByIdAndClientId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
 
-      List<ChatMessage> history = useCase.getSessionHistory("session-123", CLIENT_A);
+      List<ChatMessage> history =
+          useCase.getSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
       assertThat(history).hasSize(2);
-      verify(conversationMemoryRepository).syncToSession(eq("session-123"), eq(session));
+      verify(conversationMemoryRepository)
+          .syncToSession(eq("22222222-2222-2222-2222-222222222222"), eq(session));
     }
 
     @Test
     @DisplayName("should throw when session not owned")
     void shouldThrowWhenSessionNotOwned() {
-      when(repository.findByIdAndClientId(ChatSessionId.of("non-existent"), CLIENT_A))
+      when(repository.findByIdAndClientId(
+              ChatSessionId.of("44444444-4444-4444-4444-444444444444"), CLIENT_A))
           .thenReturn(Optional.empty());
 
-      assertThatThrownBy(() -> useCase.getSessionHistory("non-existent", CLIENT_A))
+      assertThatThrownBy(
+              () -> useCase.getSessionHistory("44444444-4444-4444-4444-444444444444", CLIENT_A))
           .isInstanceOf(ChatSessionNotFoundException.class);
     }
   }
@@ -160,25 +170,30 @@ class SpringAiChatUseCaseTest {
     @DisplayName("should delete owned session")
     void shouldDeleteSessionWhenOwned() {
       ChatSession session =
-          ChatSession.createWithId(ChatSessionId.of("session-123"), "Test", CLIENT_A);
-      when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_A))
+          ChatSession.createWithId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), "Test", CLIENT_A);
+      when(repository.findByIdAndClientId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
-      doNothing().when(repository).delete(ChatSessionId.of("session-123"));
+      doNothing().when(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
 
-      useCase.deleteSession("session-123", CLIENT_A);
+      useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
-      verify(conversationMemoryRepository).clear("session-123");
-      verify(chatWebSourcesRepository).deleteByConversationId("session-123");
-      verify(repository).delete(ChatSessionId.of("session-123"));
+      verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
+      verify(chatWebSourcesRepository)
+          .deleteByConversationId("22222222-2222-2222-2222-222222222222");
+      verify(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
     }
 
     @Test
     @DisplayName("should throw when deleting another client's session")
     void shouldThrowWhenDeletingAnotherClientsSession() {
-      when(repository.findByIdAndClientId(ChatSessionId.of("session-123"), CLIENT_B))
+      when(repository.findByIdAndClientId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_B))
           .thenReturn(Optional.empty());
 
-      assertThatThrownBy(() -> useCase.deleteSession("session-123", CLIENT_B))
+      assertThatThrownBy(
+              () -> useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_B))
           .isInstanceOf(ChatSessionNotFoundException.class);
       verify(repository, never()).delete(any());
     }
@@ -187,15 +202,18 @@ class SpringAiChatUseCaseTest {
     @DisplayName("should erase all sessions for client")
     void shouldEraseAllSessionsWhenClientRequestsPrivacyDelete() {
       ChatSession owned =
-          ChatSession.createWithId(ChatSessionId.of("session-123"), "Test", CLIENT_A);
+          ChatSession.createWithId(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), "Test", CLIENT_A);
       when(repository.findByClientId(CLIENT_A)).thenReturn(List.of(owned));
 
       useCase.deleteAllSessionsForClient(CLIENT_A);
 
-      verify(conversationMemoryRepository).clear("session-123");
-      verify(chatWebSourcesRepository).deleteByConversationId("session-123");
-      verify(repository).delete(ChatSessionId.of("session-123"));
-      verify(invocationEventRepository).deleteBySessionIds(List.of("session-123"));
+      verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
+      verify(chatWebSourcesRepository)
+          .deleteByConversationId("22222222-2222-2222-2222-222222222222");
+      verify(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
+      verify(invocationEventRepository)
+          .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
     }
   }
 

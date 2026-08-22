@@ -1,37 +1,80 @@
 package com.ai.metrics.domain.model;
 
+import com.ai.common.domain.model.AbstractAppendOnlyEvent;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationEventId;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /** Append-only record of a single AI invocation for metrics and drill-down. */
-public final class AiInvocationEvent {
+@Entity
+@Table(name = "ai_invocation_events")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId> {
 
-  private final UUID id;
-  private final Instant occurredAt;
-  private final AiDomain domain;
-  private final String operation;
-  private final InvocationOutcome outcome;
-  private final long latencyMs;
-  private final String provider;
-  private final String model;
-  private final String sessionId;
-  private final String documentId;
-  private final String agentType;
-  private final String toolName;
-  private final Integer promptTokens;
-  private final Integer completionTokens;
-  private final String errorCode;
-  private final String errorMessage;
+  @Column(name = "domain", nullable = false, length = 32)
+  private String domainValue;
+
+  @Column(name = "operation", nullable = false, length = 64)
+  private String operation;
+
+  @Column(name = "outcome", nullable = false, length = 16)
+  private String outcomeValue;
+
+  @Column(name = "latency_ms", nullable = false)
+  private long latencyMs;
+
+  @Column(name = "provider", length = 64)
+  private String provider;
+
+  @Column(name = "model", length = 128)
+  private String model;
+
+  @Column(name = "session_id", length = 36)
+  private String sessionId;
+
+  @Column(name = "document_id", length = 36)
+  private String documentId;
+
+  @Column(name = "agent_type", length = 64)
+  private String agentType;
+
+  @Column(name = "tool_name", length = 128)
+  private String toolName;
+
+  @Column(name = "prompt_tokens")
+  private Integer promptTokens;
+
+  @Column(name = "completion_tokens")
+  private Integer completionTokens;
+
+  @Column(name = "error_code", length = 64)
+  private String errorCode;
+
+  @Column(name = "error_message", length = 512)
+  private String errorMessage;
+
+  @Column(name = "owner_key", nullable = false, length = 80)
+  private String ownerKey;
 
   private AiInvocationEvent(Builder builder) {
-    this.id = Objects.requireNonNullElseGet(builder.id, UUID::randomUUID);
-    this.occurredAt = Objects.requireNonNullElseGet(builder.occurredAt, Instant::now);
-    this.domain = Objects.requireNonNull(builder.domain, "domain");
+    super(
+        builder.id != null
+            ? InvocationEventId.of(builder.id.toString())
+            : InvocationEventId.generate(),
+        Objects.requireNonNullElseGet(builder.occurredAt, Instant::now));
+    this.domainValue = Objects.requireNonNull(builder.domain, "domain").value();
     this.operation = requireNonBlank(builder.operation, "operation");
-    this.outcome = Objects.requireNonNull(builder.outcome, "outcome");
+    this.outcomeValue = Objects.requireNonNull(builder.outcome, "outcome").value();
     this.latencyMs = Math.max(0L, builder.latencyMs);
     this.provider = blankToNull(builder.provider);
     this.model = blankToNull(builder.model);
@@ -43,6 +86,10 @@ public final class AiInvocationEvent {
     this.completionTokens = builder.completionTokens;
     this.errorCode = blankToNull(builder.errorCode);
     this.errorMessage = truncate(blankToNull(builder.errorMessage), 512);
+    this.ownerKey =
+        builder.ownerKey != null
+            ? builder.ownerKey
+            : com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
   }
 
   /** Documentation. */
@@ -50,68 +97,20 @@ public final class AiInvocationEvent {
     return new Builder();
   }
 
-  public UUID getId() {
-    return id;
-  }
-
-  public Instant getOccurredAt() {
-    return occurredAt;
-  }
-
   public AiDomain getDomain() {
-    return domain;
-  }
-
-  public String getOperation() {
-    return operation;
+    return AiDomain.require(domainValue);
   }
 
   public InvocationOutcome getOutcome() {
-    return outcome;
+    return InvocationOutcome.parse(outcomeValue);
   }
 
-  public long getLatencyMs() {
-    return latencyMs;
-  }
-
-  public String getProvider() {
-    return provider;
-  }
-
-  public String getModel() {
-    return model;
-  }
-
-  public String getSessionId() {
-    return sessionId;
-  }
-
-  public String getDocumentId() {
-    return documentId;
-  }
-
-  public String getAgentType() {
-    return agentType;
-  }
-
-  public String getToolName() {
-    return toolName;
-  }
-
-  public Integer getPromptTokens() {
-    return promptTokens;
-  }
-
-  public Integer getCompletionTokens() {
-    return completionTokens;
-  }
-
-  public String getErrorCode() {
-    return errorCode;
-  }
-
-  public String getErrorMessage() {
-    return errorMessage;
+  /** Sets owner partition key before persistence. */
+  public void assignOwnerKey(String ownerKey) {
+    this.ownerKey =
+        ownerKey != null && !ownerKey.isBlank()
+            ? ownerKey.trim()
+            : com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
   }
 
   private static String requireNonBlank(String value, String name) {
@@ -150,6 +149,7 @@ public final class AiInvocationEvent {
     private Integer completionTokens;
     private String errorCode;
     private String errorMessage;
+    private String ownerKey;
 
     /** Documentation. */
     public Builder id(UUID id) {
@@ -244,6 +244,12 @@ public final class AiInvocationEvent {
     /** Documentation. */
     public Builder errorMessage(String errorMessage) {
       this.errorMessage = errorMessage;
+      return this;
+    }
+
+    /** Documentation. */
+    public Builder ownerKey(String ownerKey) {
+      this.ownerKey = ownerKey;
       return this;
     }
 

@@ -32,7 +32,7 @@ import reactor.test.StepVerifier;
 class PipelineControllerTest {
   private OwnerContext ownerContext;
 
-  private static final String CLIENT_ID = "client-1";
+  private static final String CLIENT_ID = "c:client-1";
 
   @Mock private PipelineFacade agentFacade;
 

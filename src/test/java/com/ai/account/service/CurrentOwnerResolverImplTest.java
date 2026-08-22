@@ -44,7 +44,13 @@ class CurrentOwnerResolverImplTest {
   void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
     AccountUser user =
         AccountUser.restore(
-            "acct-1", "google", "sub", "a@b.com", "cid-1", Instant.now(), Instant.now());
+            "22222222-2222-2222-2222-222222222222",
+            "google",
+            "sub",
+            "a@b.com",
+            "cid-1",
+            Instant.now(),
+            Instant.now());
     when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.of(user));
 
     OwnerKey key =
@@ -53,14 +59,20 @@ class CurrentOwnerResolverImplTest {
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-    assertThat(key).isEqualTo(OwnerKey.forAccount("acct-1"));
+    assertThat(key).isEqualTo(OwnerKey.forAccount("22222222-2222-2222-2222-222222222222"));
   }
 
   @Test
   void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
     AccountUser user =
         AccountUser.restore(
-            "acct-9", "google", "sub-9", "a@b.com", "cid-9", Instant.now(), Instant.now());
+            "11111111-1111-1111-1111-111111111111",
+            "google",
+            "sub-9",
+            "a@b.com",
+            "cid-9",
+            Instant.now(),
+            Instant.now());
     when(accountUserRepository.findByProviderAndSubject("google", "sub-9"))
         .thenReturn(Optional.of(user));
 
@@ -73,6 +85,6 @@ class CurrentOwnerResolverImplTest {
 
     OwnerKey key = resolver.resolve("cid-other", auth);
 
-    assertThat(key).isEqualTo(OwnerKey.forAccount("acct-9"));
+    assertThat(key).isEqualTo(OwnerKey.forAccount("11111111-1111-1111-1111-111111111111"));
   }
 }

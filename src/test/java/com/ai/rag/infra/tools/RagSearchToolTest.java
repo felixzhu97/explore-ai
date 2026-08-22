@@ -150,7 +150,7 @@ class RagSearchToolTest {
     @DisplayName("should return document list")
     void shouldReturnDocumentList() {
       DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
-      Document doc = new Document(docId, TEST_DOC_TITLE, "test.pdf", 1024L);
+      Document doc = new Document(docId, TEST_DOC_TITLE, "test.pdf", 1024L, "c:test-owner");
       when(ragApplicationService.listDocuments(anyString())).thenReturn(List.of(doc));
 
       String result = ragSearchTool.listDocuments();

@@ -30,23 +30,25 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("JdbcAiInvocationEventRepository")
-class JdbcAiInvocationEventRepositoryTest {
+@DisplayName("JpaAiInvocationEventRepository")
+class JpaAiInvocationEventRepositoryTest {
 
+  @Mock private SpringDataAiInvocationEventRepository springData;
   @Mock private JdbcTemplate jdbcTemplate;
 
-  private JdbcAiInvocationEventRepository repository;
+  private JpaAiInvocationEventRepository repository;
 
   @BeforeEach
   void setUp() {
-    repository = new JdbcAiInvocationEventRepository(jdbcTemplate);
+    repository = new JpaAiInvocationEventRepository(springData, jdbcTemplate);
   }
 
   @Test
-  @DisplayName("should insert event with all columns")
-  void shouldInsertEventWithAllColumns() {
+  @DisplayName("should persist event with resolved owner key")
+  void shouldPersistEventWithResolvedOwnerKey() {
     UUID id = UUID.randomUUID();
     Instant occurredAt = Instant.parse("2026-07-26T10:00:00Z");
+    String sessionId = "22222222-2222-2222-2222-222222222222";
     AiInvocationEvent event =
         AiInvocationEvent.builder()
             .id(id)
@@ -57,7 +59,7 @@ class JdbcAiInvocationEventRepositoryTest {
             .latencyMs(42)
             .provider("openai")
             .model("gpt-4")
-            .sessionId("session-1")
+            .sessionId(sessionId)
             .documentId("doc-1")
             .agentType("researcher")
             .toolName("weather")
@@ -68,33 +70,15 @@ class JdbcAiInvocationEventRepositoryTest {
             .build();
 
     when(jdbcTemplate.query(
-            startsWith("SELECT owner_key FROM chat_sessions"),
-            any(RowMapper.class),
-            eq("session-1")))
+            startsWith("SELECT owner_key FROM chat_sessions"), any(RowMapper.class), eq(sessionId)))
         .thenReturn(List.of("c:owner-1"));
 
     repository.save(event);
 
-    verify(jdbcTemplate)
-        .update(
-            startsWith("INSERT INTO ai_invocation_events"),
-            eq(id.toString()),
-            eq(Timestamp.from(occurredAt)),
-            eq("chat"),
-            eq("chat.stream"),
-            eq("success"),
-            eq(42L),
-            eq("openai"),
-            eq("gpt-4"),
-            eq("session-1"),
-            eq("doc-1"),
-            eq("researcher"),
-            eq("weather"),
-            eq(10),
-            eq(20),
-            eq("E1"),
-            eq("failed"),
-            eq("c:owner-1"));
+    ArgumentCaptor<AiInvocationEvent> saved = ArgumentCaptor.forClass(AiInvocationEvent.class);
+    verify(springData).saveAndFlush(saved.capture());
+    assertThat(saved.getValue().getOwnerKey()).isEqualTo("c:owner-1");
+    assertThat(saved.getValue().getId().value()).isEqualTo(id.toString());
   }
 
   @Test

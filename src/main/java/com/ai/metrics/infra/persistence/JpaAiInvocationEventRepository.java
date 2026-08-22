@@ -12,20 +12,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** JPA insert adapter with JDBC-backed drill-down and retention deletes. */
 @Repository
-public class JdbcAiInvocationEventRepository implements AiInvocationEventRepository {
+public class JpaAiInvocationEventRepository implements AiInvocationEventRepository {
 
   private static final RowMapper<AiInvocationEvent> ROW_MAPPER =
       (rs, rowNum) ->
           AiInvocationEvent.builder()
-              .id(UUID.fromString(rs.getString("id")))
+              .id(java.util.UUID.fromString(rs.getString("id")))
               .occurredAt(rs.getTimestamp("occurred_at").toInstant())
               .domain(AiDomain.require(rs.getString("domain")))
               .operation(rs.getString("operation"))
@@ -43,56 +42,21 @@ public class JdbcAiInvocationEventRepository implements AiInvocationEventReposit
               .errorMessage(rs.getString("error_message"))
               .build();
 
+  private final SpringDataAiInvocationEventRepository springData;
   private final JdbcTemplate jdbcTemplate;
 
   /** Documentation. */
-  public JdbcAiInvocationEventRepository(JdbcTemplate jdbcTemplate) {
+  public JpaAiInvocationEventRepository(
+      SpringDataAiInvocationEventRepository springData, JdbcTemplate jdbcTemplate) {
+    this.springData = springData;
     this.jdbcTemplate = jdbcTemplate;
   }
 
   @Override
   @Transactional
   public void save(AiInvocationEvent event) {
-    jdbcTemplate.update(
-        """
-                INSERT INTO ai_invocation_events (
-                    id, occurred_at, domain, operation, outcome, latency_ms,
-                    provider, model, session_id, document_id, agent_type, tool_name,
-                    prompt_tokens, completion_tokens, error_code, error_message, owner_key
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-        event.getId().toString(),
-        Timestamp.from(event.getOccurredAt()),
-        event.getDomain().value(),
-        event.getOperation(),
-        event.getOutcome().value(),
-        event.getLatencyMs(),
-        event.getProvider(),
-        event.getModel(),
-        event.getSessionId(),
-        event.getDocumentId(),
-        event.getAgentType(),
-        event.getToolName(),
-        event.getPromptTokens(),
-        event.getCompletionTokens(),
-        event.getErrorCode(),
-        event.getErrorMessage(),
-        resolveOwnerKey(event.getSessionId()));
-  }
-
-  private String resolveOwnerKey(String sessionId) {
-    if (sessionId == null || sessionId.isBlank()) {
-      return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
-    }
-    List<String> keys =
-        jdbcTemplate.query(
-            "SELECT owner_key FROM chat_sessions WHERE CAST(id AS VARCHAR) = ?",
-            (rs, rowNum) -> rs.getString(1),
-            sessionId.trim());
-    if (!keys.isEmpty() && keys.getFirst() != null && !keys.getFirst().isBlank()) {
-      return keys.getFirst();
-    }
-    return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    event.assignOwnerKey(resolveOwnerKey(event.getSessionId()));
+    springData.saveAndFlush(event);
   }
 
   @Override
@@ -212,5 +176,20 @@ public class JdbcAiInvocationEventRepository implements AiInvocationEventReposit
             pageArgs.toArray());
 
     return new PageResult(items, totalCount);
+  }
+
+  private String resolveOwnerKey(String sessionId) {
+    if (sessionId == null || sessionId.isBlank()) {
+      return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    }
+    List<String> keys =
+        jdbcTemplate.query(
+            "SELECT owner_key FROM chat_sessions WHERE CAST(id AS VARCHAR) = ?",
+            (rs, rowNum) -> rs.getString(1),
+            sessionId.trim());
+    if (!keys.isEmpty() && keys.getFirst() != null && !keys.getFirst().isBlank()) {
+      return keys.getFirst();
+    }
+    return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
   }
 }

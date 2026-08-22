@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("SkillUseCaseImpl")
 class SkillUseCaseImplTest {
 
-  private static final String CLIENT_ID = "client-1";
+  private static final String CLIENT_ID = "c:client-1";
 
   private FakeSkillRepository repository;
   private SkillUseCaseImpl useCase;

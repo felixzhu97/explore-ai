@@ -9,6 +9,7 @@ import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.repository.IDocumentRepository;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public class DocumentUploadService {
 
   private UploadResult processUpload(
       String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
-    Document document = new Document(DocumentId.generate(), title, fileName, fileSize);
+    Document document = new Document(DocumentId.generate(), title, fileName, fileSize, ownerKey);
     document.markProcessing();
     document = documentRepository.save(document, ownerKey);
 
@@ -121,7 +122,7 @@ public class DocumentUploadService {
 
         chunks.add(
             DocumentChunk.create(
-                DocumentId.generate(), document.getId(), chunkDoc.content(), i, metadata));
+                ChunkId.generate(), document.getId(), chunkDoc.content(), i, metadata));
       }
 
       writer.write(chunks);
