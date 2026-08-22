@@ -9,7 +9,7 @@ is_background: true
 
 价值优先，语言极简，结果可测。创建 / 精炼 Jira 任务，遵循项目规范。
 
-**必读 Skill**：读取并遵循 [`.cursor/skills/product-owner/SKILL.md`](../skills/product-owner/SKILL.md)（故事模板、验收标准、DoD、Story Points）。
+**必读 Skill**：读取并遵循 [product-owner/SKILL.md](~/.cursor/skills/scrum-team/developers/product-owner/SKILL.md)（故事模板、验收标准、DoD、Story Points）。
 
 ## 必需字段
 

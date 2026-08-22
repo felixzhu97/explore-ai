@@ -8,9 +8,9 @@ is_background: true
 
 遵循项目既有风格，极简实现。
 
-**必读 Skill**：实现功能时读取并遵循 [`.cursor/skills/developer/SKILL.md`](../skills/developer/SKILL.md)（XP + DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。功能/架构代码变更须按 developer skill Living Docs 同步 [Glossary](../../docs/Glossary.md)、[C4](../../docs/developer/c4-model/)、[User-Story-Map](../../docs/product-owner/User-Story-Map.md)（触发表见 [living-docs](../skills/developer/references/living-docs.md)）。
+**必读 Skill**：实现功能时读取并遵循 [developer/SKILL.md](~/.cursor/skills/scrum-team/developers/developer/SKILL.md)（XP + DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。功能/架构代码变更须按 developer skill Living Docs 同步 [Glossary](../../docs/Glossary.md)、[C4](../../docs/developer/c4-model/)、[User-Story-Map](../../docs/product-owner/User-Story-Map.md)（触发表见 [living-docs](~/.cursor/skills/scrum-team/developers/developer/references/living-docs.md)）。
 
-硬约束见 [architecture rule](../rules/architecture.mdc)。XP 实践映射见 [extreme-programming](../skills/developer/references/extreme-programming.md)。UX 细则见 [apple-minimal-ux](../skills/developer/references/apple-minimal-ux.md)；官方文档：[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)。
+硬约束见 [architecture rule](~/.cursor/rules/architecture.mdc)。XP 实践映射见 [extreme-programming](~/.cursor/skills/scrum-team/developers/developer/references/extreme-programming.md)。UX 细则见 [apple-minimal-ux](~/.cursor/skills/scrum-team/developers/developer/references/apple-minimal-ux.md)；官方文档：[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)。
 
 ## 项目代码风格
 
@@ -125,18 +125,18 @@ export class ChatComponent {
 
 ## 实现流程
 
-1. **XP**：先对齐客户价值 / Jira AC；小步切片可合并；见 [extreme-programming](../skills/developer/references/extreme-programming.md)
+1. **XP**：先对齐客户价值 / Jira AC；小步切片可合并；见 [extreme-programming](~/.cursor/skills/scrum-team/developers/developer/references/extreme-programming.md)
 2. **BDD**：用 Given-When-Then 澄清行为（对齐 Jira AC）
 3. **TDD**：Red → Green → Refactor；测试名 `should expected result when condition`（空格，勿用下划线；Java 方法用 camelCase）
 4. **DDD**：规则落在 domain；use case 只编排
 5. **领域命名**：变量/方法用术语表 Preferred Term，再套 Clean Code 形式
 6. **UI/UX**：对齐 Apple HIG，极简风格（见 apple-minimal-ux）
-7. **分支 / Commit / PR / Jira**：`<type>/<slug>`（Jira key 仅写在 commit/PR）+ Chain PR；沿用 [developer](../skills/developer/SKILL.md) §6 与 [Product Owner](../skills/product-owner/SKILL.md)；References 优先官方文档与 research
+7. **分支 / Commit / PR / Jira**：`<type>/<slug>`（Jira key 仅写在 commit/PR）+ Chain PR；沿用 [developer](~/.cursor/skills/scrum-team/developers/developer/SKILL.md) §6 与 [Product Owner](~/.cursor/skills/scrum-team/developers/product-owner/SKILL.md)；References 优先官方文档与 research
 8. **运行测试 / CI 绿** → 再按上述规范提交
 
 ## 极简原则
 
 - 每次改动最小化（Small Releases）
-- YAGNI / Simple Design：不添加无关功能或投机抽象（见 [extreme-programming](../skills/developer/references/extreme-programming.md)）
+- YAGNI / Simple Design：不添加无关功能或投机抽象（见 [extreme-programming](~/.cursor/skills/scrum-team/developers/developer/references/extreme-programming.md)）
 - 不写冗余注释
 - 保持代码简洁；绿后持续 Refactor

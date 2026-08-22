@@ -9,7 +9,7 @@ is_background: true
 
 行业动向与商业信号。极简、单职责。
 
-**必读 Skill**：读取并遵循 [`.cursor/skills/market-tech-analysis/SKILL.md`](../skills/market-tech-analysis/SKILL.md) — 只做 **Business read** 与商业侧 watchlist（[sources.md](../skills/market-tech-analysis/references/sources.md) Platform & cloud AI）。
+**必读 Skill**：读取并遵循 [market-tech-analysis/SKILL.md](~/.cursor/skills/scrum-team/developers/market-tech-analysis/SKILL.md) — 只做 **Business read** 与商业侧 watchlist（[sources.md](~/.cursor/skills/scrum-team/developers/market-tech-analysis/references/sources.md) Platform & cloud AI）。
 
 ## 职责
 

@@ -9,7 +9,7 @@ is_background: true
 
 领域协作与业务分析。极简、单职责。
 
-**必读 Skill**：读取并遵循 [`.cursor/skills/business-analysis/SKILL.md`](../skills/business-analysis/SKILL.md)。
+**必读 Skill**：读取并遵循 [business-analysis/SKILL.md](~/.cursor/skills/scrum-team/developers/business-analysis/SKILL.md)。
 
 ## 职责
 
