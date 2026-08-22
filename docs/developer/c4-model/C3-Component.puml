@@ -1,0 +1,116 @@
+@startuml C3-Component
+' Theme before C4 includes; do not combine with !NEW_C4_STYLE=1
+!theme C4_blue_new from https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/themes
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram (C3) — AI Platform (backend + frontend)
+
+Container_Boundary(web_app, "Web App (Angular 22)") {
+    Component(layout, "MainLayout + app.routes", "Angular", "/chat /generate /rag /metrics + flag modules")
+    Component(chat_page, "ChatPage", "Angular", "/chat/:sessionId · sessions + tools")
+    Component(rag_page, "RagPage", "Angular", "/rag · document rail + grounded SSE")
+    Component(generate_page, "GeneratePage", "Angular", "/generate/image /generate/tts")
+    Component(metrics_page, "Metrics pages", "Angular", "/metrics overview + domain drilldown")
+    Component(lab_pages, "Lab pages [flag]", "Angular", "/pipelines /automations /vision /mcp /eval /asr")
+    Component(chat_shell, "chat-shell", "Angular", "message-pane / sender-bar / bubble-list / A2UI")
+    Component(shared_ui, "shared UI", "Angular", "charts · mermaid · citations · zard")
+    Component(api_layer, "API services", "Angular", "ApiChat / ApiRag / ApiMedia / Metrics / Agents")
+    Component(sse_client, "sse-client", "Utility", "streamSsePost / parseSseToken")
+    Component(flags, "FeatureFlagService + guards", "Angular", "LaunchDarkly Client SDK")
+    Component(rum, "datadog-rum.config", "Config", "RUM + ErrorHandler")
+}
+
+Container_Boundary(backend, "AI Platform Backend (Spring Boot)") {
+    Component(chat_web, "Chat + Text", "controller", "/api/chat /api/sessions /api/text/* SSE")
+    Component(rag_web, "RagController", "controller", "/api/rag/*")
+    Component(pipeline_web, "Pipeline + Automation", "controller", "/api/pipelines /api/automations")
+    Component(tools_web, "Tools + Analysis + Eval", "controller", "/api/tools /api/chat/analyze /api/eval")
+    Component(media_web, "Image + Vision + Audio", "controller", "/api/images /api/vision /ws/audio")
+    Component(mcp_web, "MCP", "controller", "/api/mcp /api/mcp/client")
+    Component(metrics_web, "Metrics + Account + Privacy", "controller", "/api/metrics /api/account /api/privacy")
+    Component(security, "Filters + OwnerContext", "web", "CSRF · quota · module flags · OwnerKey")
+
+    Component(chat_app, "Chat + RAG use cases", "service", "SpringAiChat / RagChat / DocumentUpload / Search")
+    Component(pipeline_app, "Pipeline + Automation", "service", "PipelineFacade / OrchestratorWorkers / Automation")
+    Component(media_app, "Media + Tools + MCP", "service", "Image / Vision / Audio / Tools / Mcp facades")
+    Component(platform_app, "Platform cross-cut", "service", "FeatureFlag / Metrics / Account / Owner merge")
+
+    Component(chat_dom, "chat domain", "domain", "ChatSession · ChatMessage · repositories")
+    Component(rag_dom, "rag domain", "domain", "Document · DocumentChunk · ETL ports")
+    Component(pipeline_dom, "pipeline + skill", "domain", "AgentPipeline · AgentDefinition · Skill")
+    Component(platform_dom, "metrics + automation + mcp + account", "domain", "AiInvocationEvent · AutomationSchedule · McpSession")
+
+    Component(chat_infra, "chat infra", "infra", "Jdbc session + ChatMemory")
+    Component(rag_infra, "rag infra", "infra", "H2 vector · ETL · Ollama embed")
+    Component(pipeline_infra, "pipeline infra", "infra", "Agent registry · Supervisor · Worker invoker")
+    Component(platform_infra, "platform infra", "infra", "LaunchDarkly · Resend · JDBC metrics · prompts")
+}
+
+System_Ext(deepseek, "DeepSeek API", "LLM")
+System_Ext(openai, "OpenAI API", "DALL-E + TTS")
+System_Ext(h2, "H2 Embedded", "JDBC + vectors")
+System_Ext(ollama, "Ollama [local]", ":11434")
+System_Ext(serper, "Serper.dev", "Web search")
+System_Ext(launchdarkly, "LaunchDarkly", "Feature flags")
+
+Rel(layout, chat_page, "/chat")
+Rel(layout, rag_page, "/rag")
+Rel(layout, generate_page, "/generate")
+Rel(layout, metrics_page, "/metrics")
+Rel(layout, lab_pages, "flag routes")
+Rel(chat_page, chat_shell, "Embeds")
+Rel(rag_page, chat_shell, "Embeds")
+Rel(chat_page, api_layer, "Calls")
+Rel(rag_page, api_layer, "Calls")
+Rel(generate_page, api_layer, "Calls")
+Rel(metrics_page, api_layer, "Calls")
+Rel(lab_pages, api_layer, "Calls")
+Rel(api_layer, sse_client, "SSE")
+Rel(layout, flags, "moduleEnabledGuard")
+Rel(api_layer, rum, "errors")
+
+Rel(api_layer, chat_web, "REST / SSE", "/api/text /api/chat /api/sessions")
+Rel(api_layer, rag_web, "REST / SSE", "/api/rag")
+Rel(api_layer, pipeline_web, "REST / SSE", "/api/pipelines /api/automations")
+Rel(api_layer, tools_web, "HTTP", "/api/tools /api/eval")
+Rel(api_layer, media_web, "HTTP / WS", "/api/images /api/vision /ws/audio")
+Rel(api_layer, mcp_web, "HTTP", "/api/mcp")
+Rel(api_layer, metrics_web, "HTTP", "/api/metrics /api/account")
+Rel(flags, launchdarkly, "Client SDK", "HTTPS")
+
+Rel(chat_web, security, "Filters")
+Rel(chat_web, chat_app, "Delegates")
+Rel(rag_web, chat_app, "Delegates")
+Rel(pipeline_web, pipeline_app, "Delegates")
+Rel(tools_web, media_app, "Delegates")
+Rel(media_web, media_app, "Delegates")
+Rel(mcp_web, media_app, "Delegates")
+Rel(metrics_web, platform_app, "Delegates")
+
+Rel(chat_app, chat_dom, "Uses")
+Rel(chat_app, rag_dom, "Uses")
+Rel(pipeline_app, pipeline_dom, "Uses")
+Rel(pipeline_app, platform_dom, "Uses")
+Rel(media_app, platform_dom, "Uses")
+Rel(platform_app, platform_dom, "Uses")
+
+Rel(chat_app, chat_infra, "Ports")
+Rel(chat_app, rag_infra, "Ports")
+Rel(pipeline_app, pipeline_infra, "Ports")
+Rel(platform_app, platform_infra, "Ports")
+Rel(media_app, chat_infra, "Ports")
+Rel(media_app, rag_infra, "Ports")
+Rel(media_app, platform_infra, "Ports")
+
+Rel(chat_infra, h2, "JDBC")
+Rel(rag_infra, h2, "JDBC + vector")
+Rel(rag_infra, ollama, "Embed / vision", "HTTP")
+Rel(platform_infra, h2, "JDBC metrics")
+Rel(platform_infra, launchdarkly, "Server SDK", "HTTPS")
+Rel(chat_app, deepseek, "LLM", "HTTPS")
+Rel(pipeline_infra, deepseek, "Worker / Supervisor", "HTTPS")
+Rel(media_app, openai, "Image + TTS", "HTTPS")
+Rel(media_app, serper, "searchWeb", "HTTPS")
+
+SHOW_LEGEND()
+@enduml
