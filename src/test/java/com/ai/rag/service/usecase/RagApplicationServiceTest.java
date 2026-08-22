@@ -78,8 +78,8 @@ class RagApplicationServiceTest {
     @Test
     @DisplayName("should delegate to uploadService")
     void shouldDelegateToUploadService() {
-      Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L);
-      Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L);
+      Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
+      Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
       when(uploadService.listAll("c:test-owner")).thenReturn(List.of(doc1, doc2));
 
       List<Document> result = service.listDocuments("c:test-owner");

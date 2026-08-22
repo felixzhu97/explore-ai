@@ -1,14 +1,18 @@
 package com.ai.chat.domain.vo;
 
-import java.util.UUID;
+import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /** Message ID value object ensuring type safety for message identifiers. */
-public record MessageId(String value) {
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public final class MessageId extends AbstractUuidId {
+
   /** Documentation. */
-  public MessageId {
-    if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("MessageId cannot be null or blank");
-    }
+  public MessageId(String value) {
+    super(value);
   }
 
   /** Documentation. */
@@ -18,11 +22,6 @@ public record MessageId(String value) {
 
   /** Documentation. */
   public static MessageId generate() {
-    return new MessageId(UUID.randomUUID().toString());
-  }
-
-  @Override
-  public String toString() {
-    return value;
+    return new MessageId(newUuidString());
   }
 }

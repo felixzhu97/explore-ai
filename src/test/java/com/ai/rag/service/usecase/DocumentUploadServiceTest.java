@@ -20,6 +20,7 @@ import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.repository.IDocumentRepository;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
 import java.time.Instant;
@@ -273,8 +274,8 @@ class DocumentUploadServiceTest {
     @Test
     @DisplayName("should return all documents")
     void shouldReturnAllDocuments() {
-      Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L);
-      Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L);
+      Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
+      Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
       when(documentRepository.findAllByOwnerKey("c:test-owner")).thenReturn(List.of(doc1, doc2));
 
       List<Document> result = service.listAll("c:test-owner");
@@ -303,7 +304,7 @@ class DocumentUploadServiceTest {
     void shouldDeleteDocumentAndItsChunks() {
       UUID documentId = UUID.randomUUID();
       DocumentId docId = DocumentId.of(documentId);
-      Document document = new Document(docId, "Test Doc", "test.txt", 100L);
+      Document document = new Document(docId, "Test Doc", "test.txt", 100L, "c:test");
 
       when(documentRepository.findByIdAndOwnerKey(documentId, "c:test-owner"))
           .thenReturn(Optional.of(document));
@@ -332,7 +333,7 @@ class DocumentUploadServiceTest {
     void shouldDeleteChunksEvenWhenDocumentHasNoChunks() {
       UUID documentId = UUID.randomUUID();
       DocumentId docId = DocumentId.of(documentId);
-      Document document = new Document(docId, "Test Doc", "test.txt", 100L);
+      Document document = new Document(docId, "Test Doc", "test.txt", 100L, "c:test");
 
       when(documentRepository.findByIdAndOwnerKey(documentId, "c:test-owner"))
           .thenReturn(Optional.of(document));
@@ -346,7 +347,7 @@ class DocumentUploadServiceTest {
 
     private DocumentChunk createChunk(DocumentId docId, int index) {
       return DocumentChunk.reconstitute(
-          DocumentId.generate(),
+          ChunkId.generate(),
           docId,
           "chunk " + index,
           index,

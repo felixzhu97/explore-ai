@@ -106,7 +106,7 @@ class AccountUseCaseImplTest {
 
     assertThat(response.mode()).isEqualTo("authenticated");
     assertThat(response.email()).isEqualTo("user@example.com");
-    assertThat(response.userId()).isEqualTo(linked.getId());
+    assertThat(response.userId()).isEqualTo(linked.getId().value());
     assertThat(response.loginAvailable()).isTrue();
     assertThat(response.loginProviders()).containsExactly("google");
   }

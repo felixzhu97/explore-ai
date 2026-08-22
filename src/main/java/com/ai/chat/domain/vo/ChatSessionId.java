@@ -1,14 +1,18 @@
 package com.ai.chat.domain.vo;
 
-import java.util.UUID;
+import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /** Strongly-typed ID for ChatSession. */
-public record ChatSessionId(String value) {
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public final class ChatSessionId extends AbstractUuidId {
+
   /** Documentation. */
-  public ChatSessionId {
-    if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("ChatSessionId cannot be null or blank");
-    }
+  public ChatSessionId(String value) {
+    super(value);
   }
 
   /** Documentation. */
@@ -18,11 +22,6 @@ public record ChatSessionId(String value) {
 
   /** Documentation. */
   public static ChatSessionId generate() {
-    return new ChatSessionId(UUID.randomUUID().toString());
-  }
-
-  @Override
-  public String toString() {
-    return value;
+    return new ChatSessionId(newUuidString());
   }
 }

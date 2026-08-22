@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ChatControllerTest {
   private OwnerContext ownerContext;
 
-  private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
+  private static final String CLIENT_ID = "c:11111111-1111-1111-1111-111111111111";
 
   @Mock private ChatUseCase chatUseCase;
 
@@ -105,14 +105,17 @@ class ChatControllerTest {
     @Test
     @DisplayName("should use session when sessionId provided")
     void shouldUseSessionWhenSessionIdProvided() {
-      when(chatUseCase.chatWithSession("session-123", "Hello", CLIENT_ID))
+      when(chatUseCase.chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", CLIENT_ID))
           .thenReturn("Response with context");
 
-      var response = controller.chat(new ChatRequest("Hello", "session-123"), httpRequest);
+      var response =
+          controller.chat(
+              new ChatRequest("Hello", "22222222-2222-2222-2222-222222222222"), httpRequest);
 
       assertThat(response.getStatusCode().value()).isEqualTo(200);
       assertThat(response.getBody().response()).isEqualTo("Response with context");
-      verify(chatUseCase).chatWithSession("session-123", "Hello", CLIENT_ID);
+      verify(chatUseCase)
+          .chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", CLIENT_ID);
     }
 
     @Test
@@ -135,7 +138,8 @@ class ChatControllerTest {
     @Test
     @DisplayName("should create session with custom title")
     void shouldCreateSessionWithCustomTitle() {
-      ChatSession session = createTestSession("new-session", "Custom Title");
+      ChatSession session =
+          createTestSession("33333333-3333-3333-3333-333333333333", "Custom Title");
       when(chatUseCase.createSession("Custom Title", CLIENT_ID)).thenReturn(session);
 
       var response =
@@ -148,7 +152,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("should create session with default title when not provided")
     void shouldCreateSessionWithDefaultTitleWhenNotProvided() {
-      ChatSession session = createTestSession("new-session", "New Chat");
+      ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
       when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
 
       var response = controller.createSession(new CreateSessionRequest(null), httpRequest);
@@ -160,7 +164,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("should create session with default title when body is null")
     void shouldCreateSessionWithDefaultTitleWhenBodyIsNull() {
-      ChatSession session = createTestSession("new-session", "New Chat");
+      ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
       when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
 
       var response = controller.createSession(null, httpRequest);
@@ -178,7 +182,8 @@ class ChatControllerTest {
     void shouldReturnClientSessions() {
       List<ChatSession> sessions =
           List.of(
-              createTestSession("session-1", "Chat 1"), createTestSession("session-2", "Chat 2"));
+              createTestSession("22222222-2222-2222-2222-222222222222", "Chat 1"),
+              createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
       when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(sessions);
 
       var response = controller.getAllSessions(httpRequest);
@@ -206,11 +211,11 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return session when found")
     void shouldReturnSessionWhenFound() {
-      ChatSession session = createTestSession("session-1", "My Chat");
-      when(chatUseCase.getSession("session-1", CLIENT_ID))
+      ChatSession session = createTestSession("22222222-2222-2222-2222-222222222222", "My Chat");
+      when(chatUseCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_ID))
           .thenReturn(java.util.Optional.of(session));
 
-      var response = controller.getSession("session-1", httpRequest);
+      var response = controller.getSession("22222222-2222-2222-2222-222222222222", httpRequest);
 
       assertThat(response.getStatusCode().value()).isEqualTo(200);
       assertThat(response.getBody().title()).isEqualTo("My Chat");
@@ -234,14 +239,16 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return messages for session")
     void shouldReturnMessagesForSession() {
-      when(chatUseCase.getSessionHistory("session-1", CLIENT_ID))
+      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_ID))
           .thenReturn(
               List.of(
                   ChatMessage.createUserMessage("Hello"),
                   ChatMessage.createAssistantMessage("Hi")));
-      when(chatWebSourcesRepository.findByConversationId("session-1")).thenReturn(Map.of());
+      when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
+          .thenReturn(Map.of());
 
-      var response = controller.getSessionMessages("session-1", httpRequest);
+      var response =
+          controller.getSessionMessages("22222222-2222-2222-2222-222222222222", httpRequest);
 
       assertThat(response.getStatusCode().value()).isEqualTo(200);
       assertThat(response.getBody()).hasSize(2);
@@ -252,19 +259,20 @@ class ChatControllerTest {
     @DisplayName("should attach persisted sources to assistant messages")
     void shouldAttachPersistedSourcesToAssistantMessages() {
       String reply = "Paris is the capital.";
-      when(chatUseCase.getSessionHistory("session-1", CLIENT_ID))
+      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_ID))
           .thenReturn(
               List.of(
                   ChatMessage.createUserMessage("Where is Paris?"),
                   ChatMessage.createAssistantMessage(reply)));
-      when(chatWebSourcesRepository.findByConversationId("session-1"))
+      when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
           .thenReturn(
               Map.of(
                   ContentHash.sha256(reply),
                   List.of(
                       new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))));
 
-      var response = controller.getSessionMessages("session-1", httpRequest);
+      var response =
+          controller.getSessionMessages("22222222-2222-2222-2222-222222222222", httpRequest);
 
       assertThat(response.getStatusCode().value()).isEqualTo(200);
       assertThat(response.getBody().get(1).sources()).hasSize(1);

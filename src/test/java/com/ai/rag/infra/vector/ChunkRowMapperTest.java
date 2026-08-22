@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -72,7 +73,7 @@ class ChunkRowMapperTest {
           DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, "low", 0, Map.of())
               .withEmbedding(new float[] {0.0f, 1.0f});
       DocumentChunk highScore =
-          DocumentChunk.create(DocumentId.generate(), TEST_DOCUMENT_ID, "high", 1, Map.of())
+          DocumentChunk.create(ChunkId.generate(), TEST_DOCUMENT_ID, "high", 1, Map.of())
               .withEmbedding(new float[] {1.0f, 0.0f});
       when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
           .thenReturn(List.of(lowScore, highScore));

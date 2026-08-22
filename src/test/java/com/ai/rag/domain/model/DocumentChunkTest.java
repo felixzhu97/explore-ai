@@ -3,6 +3,7 @@ package com.ai.rag.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
 import java.util.HashMap;
@@ -135,15 +136,18 @@ class DocumentChunkTest {
       assertThatThrownBy(
               () ->
                   DocumentChunk.create(
-                      null, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()))
+                      (ChunkId) null, TEST_DOCUMENT_ID, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()))
           .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     @DisplayName("should throw exception for null documentId")
     void shouldThrowExceptionForNullDocumentId() {
+      DocumentId nullDocumentId = null;
       assertThatThrownBy(
-              () -> DocumentChunk.create(TEST_ID, null, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()))
+              () ->
+                  DocumentChunk.create(
+                      TEST_ID, nullDocumentId, TEST_CONTENT, TEST_CHUNK_INDEX, Map.of()))
           .isInstanceOf(NullPointerException.class);
     }
 

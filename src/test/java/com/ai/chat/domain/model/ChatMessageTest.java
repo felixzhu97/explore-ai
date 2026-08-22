@@ -181,7 +181,7 @@ class ChatMessageTest {
     @Test
     @DisplayName("should be equal when id is same")
     void shouldBeEqualWhenIdIsSame() {
-      MessageId id = MessageId.of("same-id");
+      MessageId id = MessageId.of("11111111-1111-1111-1111-111111111111");
       Instant now = Instant.now();
       ChatMessage msg1 = ChatMessage.of(id, "Text 1", "user", now);
       ChatMessage msg2 = ChatMessage.of(id, "Text 2", "assistant", now);
@@ -194,8 +194,10 @@ class ChatMessageTest {
     @DisplayName("should not be equal when id is different")
     void shouldNotBeEqualWhenIdIsDifferent() {
       Instant now = Instant.now();
-      ChatMessage msg1 = ChatMessage.of(MessageId.of("id-1"), "Text", "user", now);
-      ChatMessage msg2 = ChatMessage.of(MessageId.of("id-2"), "Text", "user", now);
+      ChatMessage msg1 =
+          ChatMessage.of(MessageId.of("11111111-1111-1111-1111-111111111111"), "Text", "user", now);
+      ChatMessage msg2 =
+          ChatMessage.of(MessageId.of("22222222-2222-2222-2222-222222222222"), "Text", "user", now);
 
       assertThat(msg1).isNotEqualTo(msg2);
     }

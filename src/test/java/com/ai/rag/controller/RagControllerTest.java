@@ -269,7 +269,7 @@ class RagControllerTest {
   }
 
   private Document createTestDocument(String title, DocumentStatus status) {
-    Document doc = new Document(DocumentId.generate(), title, title, 1024L);
+    Document doc = new Document(DocumentId.generate(), title, title, 1024L, "c:test");
     return doc;
   }
 }

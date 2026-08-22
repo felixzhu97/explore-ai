@@ -60,17 +60,19 @@ class ChatDataRetentionJobTest {
   @Test
   void shouldPurgeInactiveSessionsAndMetricsWhenEnabled() {
     ChatSession expired =
-        ChatSession.createWithId(ChatSessionId.of("old-session"), "Old", "client-a");
+        ChatSession.createWithId(
+            ChatSessionId.of("33333333-3333-3333-3333-333333333333"), "Old", "c:client-a");
     when(sessionRepository.findInactiveSince(any())).thenReturn(List.of(expired));
     when(invocationEventRepository.deleteBySessionIds(anyCollection())).thenReturn(2);
     when(invocationEventRepository.deleteOlderThan(any())).thenReturn(1);
 
     job.purgeExpiredData();
 
-    verify(conversationMemoryRepository).clear("old-session");
-    verify(chatWebSourcesRepository).deleteByConversationId("old-session");
-    verify(sessionRepository).delete(ChatSessionId.of("old-session"));
-    verify(invocationEventRepository).deleteBySessionIds(List.of("old-session"));
+    verify(conversationMemoryRepository).clear("33333333-3333-3333-3333-333333333333");
+    verify(chatWebSourcesRepository).deleteByConversationId("33333333-3333-3333-3333-333333333333");
+    verify(sessionRepository).delete(ChatSessionId.of("33333333-3333-3333-3333-333333333333"));
+    verify(invocationEventRepository)
+        .deleteBySessionIds(List.of("33333333-3333-3333-3333-333333333333"));
     verify(invocationEventRepository).deleteOlderThan(any());
   }
 }

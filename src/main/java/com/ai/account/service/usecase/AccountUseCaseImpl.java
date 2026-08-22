@@ -59,7 +59,7 @@ public class AccountUseCaseImpl implements AccountUseCase {
         Optional<AccountUser> linked =
             accountUserRepository.findByProviderAndSubject(identity.provider(), identity.subject());
         String email = linked.map(AccountUser::getEmail).orElse(identity.email());
-        String userId = linked.map(AccountUser::getId).orElse(identity.subject());
+        String userId = linked.map(user -> user.getId().value()).orElse(identity.subject());
         return authenticated(clientId, userId, email);
       }
     }
@@ -68,7 +68,7 @@ public class AccountUseCaseImpl implements AccountUseCase {
     Optional<AccountUser> byClient = accountUserRepository.findByLinkedClientId(clientId);
     if (byClient.isPresent()) {
       AccountUser user = byClient.get();
-      return authenticated(clientId, user.getId(), user.getEmail());
+      return authenticated(clientId, user.getId().value(), user.getEmail());
     }
 
     return new AccountMeResponse(
@@ -90,7 +90,7 @@ public class AccountUseCaseImpl implements AccountUseCase {
             .orElseGet(() -> AccountUser.create(provider, subject, email, clientId));
     user.linkSession(email, clientId);
     accountUserRepository.save(user);
-    return user.getId();
+    return user.getId().value();
   }
 
   @Override

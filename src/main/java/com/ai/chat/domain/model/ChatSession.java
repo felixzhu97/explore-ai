@@ -1,39 +1,84 @@
 package com.ai.chat.domain.model;
 
+import com.ai.base.domain.model.AbstractEntity;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public class ChatSession {
+/**
+ * Chat session aggregate root with JPA mapping on chat_sessions metadata. Messages are transient
+ * and synchronized from Spring AI ChatMemory.
+ */
+@Entity
+@Table(name = "chat_sessions")
+@AttributeOverride(
+    name = "updatedAt",
+    column = @Column(name = "last_activity_at", nullable = false))
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class ChatSession extends AbstractEntity<ChatSessionId> {
 
   public static final String DEFAULT_TITLE = "New Chat";
+  static final String ORPHAN_CLIENT_ID = "__orphan__";
 
-  private final ChatSessionId id;
-  private final String clientId;
+  @Convert(converter = OwnerKeyAttributeConverter.class)
+  @Column(name = "owner_key", length = 80)
+  private OwnerKey ownerKey;
+
+  @Column(name = "title", nullable = false, length = 100)
   private String title;
-  private final List<ChatMessage> messages;
-  private final Instant createdAt;
-  private Instant lastActivityAt;
 
-  ChatSession(ChatSessionId id, String title, Instant createdAt, String clientId) {
-    this.id = Objects.requireNonNull(id, "ChatSessionId cannot be null");
+  @Transient private List<ChatMessage> messages = new ArrayList<>();
+
+  private ChatSession(
+      ChatSessionId id, String title, Instant createdAt, OwnerKey ownerKey, boolean orphan) {
+    super(id, createdAt, createdAt);
     this.title = validateTitle(title);
-    this.messages = new ArrayList<>();
-    this.createdAt = Objects.requireNonNull(createdAt, "CreatedAt cannot be null");
-    this.lastActivityAt = createdAt;
-    this.clientId = requireClientId(clientId);
+    this.ownerKey = orphan ? null : requireOwnerKey(ownerKey);
   }
 
-  private static String requireClientId(String clientId) {
+  private ChatSession(
+      ChatSessionId id,
+      String title,
+      Instant createdAt,
+      Instant lastActivityAt,
+      OwnerKey ownerKey,
+      boolean orphan) {
+    super(id, createdAt, lastActivityAt != null ? lastActivityAt : createdAt);
+    this.title = validateTitle(title);
+    this.ownerKey = orphan ? null : requireOwnerKey(ownerKey);
+  }
+
+  private static OwnerKey requireOwnerKey(OwnerKey ownerKey) {
+    if (ownerKey == null) {
+      throw new IllegalArgumentException("ClientId cannot be null or blank");
+    }
+    return ownerKey;
+  }
+
+  private static OwnerKey parseOwnerKey(String clientId) {
     if (clientId == null || clientId.isBlank()) {
       throw new IllegalArgumentException("ClientId cannot be null or blank");
     }
-    return clientId.trim();
+    String trimmed = clientId.trim();
+    if (trimmed.startsWith(OwnerKey.CLIENT_PREFIX) || trimmed.startsWith(OwnerKey.ACCOUNT_PREFIX)) {
+      return OwnerKey.parse(trimmed);
+    }
+    return OwnerKey.forClient(trimmed);
   }
 
   private static String validateTitle(String title) {
@@ -48,17 +93,18 @@ public class ChatSession {
 
   /** Documentation. */
   public static ChatSession create(String title, String clientId) {
-    return new ChatSession(ChatSessionId.generate(), title, Instant.now(), clientId);
+    return new ChatSession(
+        ChatSessionId.generate(), title, Instant.now(), parseOwnerKey(clientId), false);
   }
 
   /** Documentation. */
   public static ChatSession createWithId(ChatSessionId id, String title, String clientId) {
-    return new ChatSession(id, title, Instant.now(), clientId);
+    return new ChatSession(id, title, Instant.now(), parseOwnerKey(clientId), false);
   }
 
   /** Documentation. */
   public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String clientId) {
-    return new ChatSession(id, title, createdAt, clientId);
+    return new ChatSession(id, title, createdAt, parseOwnerKey(clientId), false);
   }
 
   /** Documentation. */
@@ -69,9 +115,11 @@ public class ChatSession {
       Instant lastActivityAt,
       List<ChatMessage> messages,
       String clientId) {
-    ChatSession session = new ChatSession(id, title, createdAt, clientId);
-    session.lastActivityAt = lastActivityAt != null ? lastActivityAt : createdAt;
-    session.messages.addAll(messages);
+    ChatSession session =
+        new ChatSession(id, title, createdAt, lastActivityAt, parseOwnerKey(clientId), false);
+    if (messages != null) {
+      session.messages.addAll(messages);
+    }
     return session;
   }
 
@@ -82,29 +130,26 @@ public class ChatSession {
       Instant createdAt,
       Instant lastActivityAt,
       List<ChatMessage> messages) {
-    ChatSession session = new ChatSession(id, title, createdAt, "__orphan__");
-    session.lastActivityAt = lastActivityAt != null ? lastActivityAt : createdAt;
+    ChatSession session = new ChatSession(id, title, createdAt, lastActivityAt, null, true);
     if (messages != null) {
       session.messages.addAll(messages);
     }
     return session;
   }
 
-  public ChatSessionId getId() {
-    return id;
+  /** Returns the persisted owner_key value (c:… or u:…) or {@link #ORPHAN_CLIENT_ID}. */
+  public String getClientId() {
+    return ownerKey == null ? ORPHAN_CLIENT_ID : ownerKey.value();
   }
 
-  public String getClientId() {
-    return clientId;
+  /** Documentation. */
+  public Instant getLastActivityAt() {
+    return getUpdatedAt();
   }
 
   /** Documentation. */
   public boolean belongsTo(String otherClientId) {
-    return clientId.equals(otherClientId);
-  }
-
-  public String getTitle() {
-    return title;
+    return getClientId().equals(otherClientId);
   }
 
   /** Documentation. */
@@ -119,14 +164,6 @@ public class ChatSession {
     }
     this.title = validateTitle(newTitle);
     updateLastActivity();
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getLastActivityAt() {
-    return lastActivityAt;
   }
 
   /** Documentation. */
@@ -145,26 +182,32 @@ public class ChatSession {
     return message;
   }
 
+  /** Documentation. */
   public List<ChatMessage> getMessages() {
     return Collections.unmodifiableList(messages);
   }
 
+  /** Documentation. */
   public int getMessageCount() {
     return messages.size();
   }
 
+  /** Documentation. */
   public int getUserMessageCount() {
     return (int) messages.stream().filter(ChatMessage::isFromUser).count();
   }
 
+  /** Documentation. */
   public int getAssistantMessageCount() {
     return (int) messages.stream().filter(ChatMessage::isFromAssistant).count();
   }
 
+  /** Documentation. */
   public ChatMessage getLastUserMessage() {
     return getLastMessageByRole(ChatMessage::isFromUser);
   }
 
+  /** Documentation. */
   public ChatMessage getLastAssistantMessage() {
     return getLastMessageByRole(ChatMessage::isFromAssistant);
   }
@@ -183,6 +226,7 @@ public class ChatSession {
     return Collections.unmodifiableList(messages.subList(start, size));
   }
 
+  /** Documentation. */
   public boolean isEmpty() {
     return messages.isEmpty();
   }
@@ -203,28 +247,12 @@ public class ChatSession {
   }
 
   private void updateLastActivity() {
-    this.lastActivityAt = Instant.now();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ChatSession that = (ChatSession) o;
-    return Objects.equals(id, that.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
+    touchUpdatedAt();
   }
 
   @Override
   public String toString() {
-    return "ChatSession{id=%s, title='%s', messageCount=%d}".formatted(id, title, messages.size());
+    return "ChatSession{id=%s, title='%s', messageCount=%d}"
+        .formatted(getId(), title, messages.size());
   }
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.IDocumentChunkRepository;
 import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,6 @@ class EmbeddingDocumentWriterTest {
 
   private DocumentChunk createChunk(String content, int chunkIndex) {
     return DocumentChunk.create(
-        DocumentId.generate(), DOCUMENT_ID, content, chunkIndex, Map.of("source", "guide.txt"));
+        ChunkId.generate(), DOCUMENT_ID, content, chunkIndex, Map.of("source", "guide.txt"));
   }
 }

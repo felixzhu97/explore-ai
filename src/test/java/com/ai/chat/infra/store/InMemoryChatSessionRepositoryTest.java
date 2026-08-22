@@ -29,7 +29,7 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should find saved session by id")
     void shouldFindSavedSessionById() {
       // Given
-      var session = ChatSession.create("Test Session", "client-a");
+      var session = ChatSession.create("Test Session", "c:client-a");
       repository.save(session);
 
       // When
@@ -58,7 +58,7 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should update existing session when saving with same id")
     void shouldUpdateExistingSessionWhenSavingWithSameId() {
       // Given
-      var session1 = ChatSession.create("Test Session", "client-a");
+      var session1 = ChatSession.create("Test Session", "c:client-a");
       repository.save(session1);
 
       // When - Save another session (would need to simulate update scenario)
@@ -77,7 +77,7 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should remove session when deleted")
     void shouldRemoveSessionWhenDeleted() {
       // Given
-      var session = ChatSession.create("Test Session", "client-a");
+      var session = ChatSession.create("Test Session", "c:client-a");
       repository.save(session);
       assertThat(repository.exists(session.getId())).isTrue();
 
@@ -108,7 +108,7 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should return true for existing session")
     void shouldReturnTrueForExistingSession() {
       // Given
-      var session = ChatSession.create("Test Session", "client-a");
+      var session = ChatSession.create("Test Session", "c:client-a");
       repository.save(session);
 
       // When & Then
@@ -133,7 +133,7 @@ class InMemoryChatSessionRepositoryTest {
     @Test
     @DisplayName("should return empty list when no sessions exist")
     void shouldReturnEmptyListWhenNoSessionsExist() {
-      List<ChatSession> result = repository.findByClientId("client-a");
+      List<ChatSession> result = repository.findByClientId("c:client-a");
 
       assertThat(result).isEmpty();
     }
@@ -141,14 +141,14 @@ class InMemoryChatSessionRepositoryTest {
     @Test
     @DisplayName("should return only sessions for the client")
     void shouldReturnOnlyOwnedSessionsWhenMultipleClientsExist() {
-      var session1 = ChatSession.create("Test Session 1", "client-a");
-      var session2 = ChatSession.create("Test Session 2", "client-a");
-      var other = ChatSession.create("Other", "client-b");
+      var session1 = ChatSession.create("Test Session 1", "c:client-a");
+      var session2 = ChatSession.create("Test Session 2", "c:client-a");
+      var other = ChatSession.create("Other", "c:client-b");
       repository.save(session1);
       repository.save(session2);
       repository.save(other);
 
-      List<ChatSession> result = repository.findByClientId("client-a");
+      List<ChatSession> result = repository.findByClientId("c:client-a");
 
       assertThat(result)
           .hasSize(2)
@@ -159,11 +159,11 @@ class InMemoryChatSessionRepositoryTest {
     @Test
     @DisplayName("should return empty when looking up by other client id")
     void shouldReturnEmptyWhenSessionBelongsToOtherClient() {
-      var session = ChatSession.create("Owned", "client-a");
+      var session = ChatSession.create("Owned", "c:client-a");
       repository.save(session);
 
-      assertThat(repository.findByIdAndClientId(session.getId(), "client-b")).isEmpty();
-      assertThat(repository.findByIdAndClientId(session.getId(), "client-a")).isPresent();
+      assertThat(repository.findByIdAndClientId(session.getId(), "c:client-b")).isEmpty();
+      assertThat(repository.findByIdAndClientId(session.getId(), "c:client-a")).isPresent();
     }
   }
 
@@ -175,8 +175,8 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should clear all sessions")
     void shouldClearAllSessions() {
       // Given
-      var session1 = ChatSession.create("Test Session 1", "client-a");
-      var session2 = ChatSession.create("Test Session 2", "client-a");
+      var session1 = ChatSession.create("Test Session 1", "c:client-a");
+      var session2 = ChatSession.create("Test Session 2", "c:client-a");
       repository.save(session1);
       repository.save(session2);
       assertThat(repository.size()).isEqualTo(2);
@@ -186,7 +186,7 @@ class InMemoryChatSessionRepositoryTest {
 
       // Then
       assertThat(repository.size()).isZero();
-      assertThat(repository.findByClientId("client-a")).isEmpty();
+      assertThat(repository.findByClientId("c:client-a")).isEmpty();
     }
   }
 
@@ -205,8 +205,8 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should return correct count after saving sessions")
     void shouldReturnCorrectCountAfterSavingSessions() {
       // Given
-      var session1 = ChatSession.create("Test Session 1", "client-a");
-      var session2 = ChatSession.create("Test Session 2", "client-a");
+      var session1 = ChatSession.create("Test Session 1", "c:client-a");
+      var session2 = ChatSession.create("Test Session 2", "c:client-a");
 
       // When
       repository.save(session1);

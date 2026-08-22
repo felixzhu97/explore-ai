@@ -1,25 +1,27 @@
 package com.ai.automation.domain.vo;
 
-import java.util.Objects;
-import java.util.UUID;
+import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-/** Documentation. */
-public record ScheduleId(String value) {
-  /** Documentation. */
-  public ScheduleId {
-    Objects.requireNonNull(value, "ScheduleId cannot be null");
-    if (value.isBlank()) {
-      throw new IllegalArgumentException("ScheduleId cannot be blank");
-    }
-  }
+/** Strongly-typed ID for {@link com.ai.automation.domain.model.AutomationSchedule}. */
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public final class ScheduleId extends AbstractUuidId {
 
   /** Documentation. */
-  public static ScheduleId generate() {
-    return new ScheduleId(UUID.randomUUID().toString());
+  public ScheduleId(String value) {
+    super(value);
   }
 
   /** Documentation. */
   public static ScheduleId of(String value) {
     return new ScheduleId(value);
+  }
+
+  /** Documentation. */
+  public static ScheduleId generate() {
+    return new ScheduleId(newUuidString());
   }
 }

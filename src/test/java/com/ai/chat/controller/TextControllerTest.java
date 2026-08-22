@@ -29,7 +29,7 @@ import reactor.test.StepVerifier;
 class TextControllerTest {
   private OwnerContext ownerContext;
 
-  private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
+  private static final String CLIENT_ID = "c:11111111-1111-1111-1111-111111111111";
 
   @Mock private ChatUseCase chatUseCase;
 
@@ -82,7 +82,7 @@ class TextControllerTest {
   @Test
   void shouldUseSessionStreamWhenSessionIdProvided() {
     when(chatUseCase.chatStreamWithSession(
-            "session-1",
+            "22222222-2222-2222-2222-222222222222",
             "Hello",
             TextChatOptions.of("openai", "deepseek-v4-flash", false),
             CLIENT_ID))
@@ -92,7 +92,7 @@ class TextControllerTest {
         controller.chatStream(
             new ChatStreamRequest(
                 List.of(new ChatStreamRequest.ChatMessageDto("user", "Hello")),
-                "session-1",
+                "22222222-2222-2222-2222-222222222222",
                 "openai",
                 "deepseek-v4-flash",
                 false,
@@ -102,7 +102,7 @@ class TextControllerTest {
     StepVerifier.create(result).expectNext("Hi", " there").verifyComplete();
     verify(chatUseCase)
         .chatStreamWithSession(
-            "session-1",
+            "22222222-2222-2222-2222-222222222222",
             "Hello",
             TextChatOptions.of("openai", "deepseek-v4-flash", false),
             CLIENT_ID);

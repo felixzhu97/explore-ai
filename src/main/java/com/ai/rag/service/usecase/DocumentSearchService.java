@@ -48,7 +48,7 @@ public class DocumentSearchService {
 
     List<DocumentChunk> chunks;
     if (docIds != null && !docIds.isEmpty()) {
-      List<UUID> uuids = docIds.stream().map(DocumentId::value).toList();
+      List<UUID> uuids = docIds.stream().map(DocumentId::uuidValue).toList();
       chunks = chunkSearchRepository.search(queryEmbedding, effectiveTopK, uuids);
     } else {
       chunks = chunkSearchRepository.search(queryEmbedding, effectiveTopK);

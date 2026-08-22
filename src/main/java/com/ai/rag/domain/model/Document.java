@@ -1,29 +1,49 @@
 package com.ai.rag.domain.model;
 
+import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
 import com.ai.rag.domain.vo.DocumentId;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** Document entity - rich domain model with state management. */
-public class Document {
+/** Document aggregate root with JPA mapping on the documents table. */
+@Entity
+@Table(name = "documents")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
 
-  private final DocumentId id;
+  @Column(name = "title", nullable = false)
   private String title;
+
+  @Column(name = "file_name")
   private String fileName;
+
+  @Column(name = "file_size")
   private Long fileSize;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
   private DocumentStatus status;
-  private final Instant createdAt;
-  private Instant updatedAt;
 
   /** Documentation. */
   public Document(DocumentId id, String title, String fileName, Long fileSize) {
-    this.id = Objects.requireNonNull(id, "DocumentId cannot be null");
+    this(id, title, fileName, fileSize, com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
+  }
+
+  /** Documentation. */
+  public Document(DocumentId id, String title, String fileName, Long fileSize, String ownerKey) {
+    super(id, ownerKey, Instant.now(), Instant.now());
     this.title = validateTitle(title);
     this.fileName = fileName;
     this.fileSize = fileSize;
     this.status = DocumentStatus.UPLOADING;
-    this.createdAt = Instant.now();
-    this.updatedAt = Instant.now();
   }
 
   /** Documentation. */
@@ -35,13 +55,32 @@ public class Document {
       DocumentStatus status,
       Instant createdAt,
       Instant updatedAt) {
-    this.id = Objects.requireNonNull(id, "DocumentId cannot be null");
+    this(
+        id,
+        title,
+        fileName,
+        fileSize,
+        status,
+        createdAt,
+        updatedAt,
+        com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
+  }
+
+  /** Documentation. */
+  public Document(
+      DocumentId id,
+      String title,
+      String fileName,
+      Long fileSize,
+      DocumentStatus status,
+      Instant createdAt,
+      Instant updatedAt,
+      String ownerKey) {
+    super(id, ownerKey, createdAt, updatedAt);
     this.title = validateTitle(title);
     this.fileName = fileName;
     this.fileSize = fileSize;
     this.status = status;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 
   private static String validateTitle(String title) {
@@ -55,21 +94,21 @@ public class Document {
   public void markProcessing() {
     validateTransitionTo(DocumentStatus.PROCESSING);
     this.status = DocumentStatus.PROCESSING;
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
   public void markReady() {
     validateTransitionTo(DocumentStatus.READY);
     this.status = DocumentStatus.READY;
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
   public void markFailed() {
     validateTransitionTo(DocumentStatus.FAILED);
     this.status = DocumentStatus.FAILED;
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   /** Documentation. */
@@ -78,7 +117,7 @@ public class Document {
       throw new IllegalStateException("Cannot update title of ready document");
     }
     this.title = validateTitle(newTitle);
-    this.updatedAt = Instant.now();
+    touchUpdatedAt();
   }
 
   private void validateTransitionTo(DocumentStatus target) {
@@ -106,53 +145,8 @@ public class Document {
     };
   }
 
-  public DocumentId getId() {
-    return id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public Long getFileSize() {
-    return fileSize;
-  }
-
-  public DocumentStatus getStatus() {
-    return status;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Document document = (Document) o;
-    return Objects.equals(id, document.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
-  }
-
   @Override
   public String toString() {
-    return "Document{id=%s, title='%s', status=%s}".formatted(id, title, status);
+    return "Document{id=%s, title='%s', status=%s}".formatted(getId(), title, status);
   }
 }

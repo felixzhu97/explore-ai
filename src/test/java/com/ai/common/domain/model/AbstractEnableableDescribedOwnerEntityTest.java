@@ -24,7 +24,7 @@ class AbstractEnableableDescribedOwnerEntityTest {
   static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<TestId> {
 
     TestEntity(boolean enabled) {
-      super(TestId.generate(), "client-1", "name", "desc", enabled, Instant.now(), Instant.now());
+      super(TestId.generate(), "c:client-1", "name", "desc", enabled, Instant.now(), Instant.now());
     }
   }
 
@@ -48,7 +48,7 @@ class AbstractEnableableDescribedOwnerEntityTest {
   @DisplayName("should match client partition when belongsToClient is called")
   void shouldMatchClientPartitionWhenBelongsToClientIsCalled() {
     TestEntity entity = new TestEntity(true);
-    assertTrue(entity.belongsToClient("client-1"));
-    assertFalse(entity.belongsToClient("other"));
+    assertTrue(entity.belongsToClient("c:client-1"));
+    assertFalse(entity.belongsToClient("c:other"));
   }
 }

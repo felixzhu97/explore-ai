@@ -17,7 +17,7 @@ class AutomationScheduleTest {
     Instant next = Instant.parse("2026-08-07T01:00:00Z");
     AutomationSchedule schedule =
         AutomationSchedule.create(
-            "client-1",
+            "c:client-1",
             "Daily research",
             "0 0 9 * * *",
             "Asia/Shanghai",
@@ -37,7 +37,7 @@ class AutomationScheduleTest {
     assertThatThrownBy(
             () ->
                 AutomationSchedule.create(
-                    "client-1",
+                    "c:client-1",
                     "Daily research",
                     "0 0 9 * * *",
                     "Asia/Shanghai",
@@ -53,7 +53,7 @@ class AutomationScheduleTest {
   void shouldDisableScheduleWhenDisableCalled() {
     AutomationSchedule schedule =
         AutomationSchedule.create(
-            "client-1",
+            "c:client-1",
             "Daily research",
             "0 0 9 * * *",
             "Asia/Shanghai",
@@ -72,7 +72,7 @@ class AutomationScheduleTest {
     Instant runAt = Instant.now().plus(5, ChronoUnit.MINUTES);
     AutomationSchedule schedule =
         AutomationSchedule.createOnce(
-            "client-1",
+            "c:client-1",
             "One shot",
             "Asia/Shanghai",
             "11111111-1111-1111-1111-111111111111",
@@ -90,7 +90,7 @@ class AutomationScheduleTest {
     assertThatThrownBy(
             () ->
                 AutomationSchedule.createOnce(
-                    "client-1",
+                    "c:client-1",
                     "One shot",
                     "Asia/Shanghai",
                     "11111111-1111-1111-1111-111111111111",
@@ -105,7 +105,7 @@ class AutomationScheduleTest {
   void shouldDisableAfterCompleteOnce() {
     AutomationSchedule schedule =
         AutomationSchedule.createOnce(
-            "client-1",
+            "c:client-1",
             "One shot",
             "UTC",
             "11111111-1111-1111-1111-111111111111",
@@ -124,7 +124,7 @@ class AutomationScheduleTest {
   void shouldReenableWhenUpdateOnceAfterComplete() {
     AutomationSchedule schedule =
         AutomationSchedule.createOnce(
-            "client-1",
+            "c:client-1",
             "One shot",
             "UTC",
             "11111111-1111-1111-1111-111111111111",

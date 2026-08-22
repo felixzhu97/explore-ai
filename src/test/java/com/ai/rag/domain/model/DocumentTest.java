@@ -18,6 +18,7 @@ class DocumentTest {
   private static final String TEST_TITLE = "Test Document";
   private static final String TEST_FILE_NAME = "test.pdf";
   private static final Long TEST_FILE_SIZE = 1024L;
+  private static final String TEST_OWNER_KEY = "c:test";
 
   @Nested
   @DisplayName("Creation")
@@ -26,7 +27,8 @@ class DocumentTest {
     @Test
     @DisplayName("should create document with UPLOADING status")
     void shouldCreateWithUploadingStatus() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.UPLOADING);
     }
 
@@ -34,7 +36,8 @@ class DocumentTest {
     @DisplayName("should initialize timestamps")
     void shouldInitializeTimestamps() {
       Instant before = Instant.now();
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc.getCreatedAt()).isAfterOrEqualTo(before);
       assertThat(doc.getUpdatedAt()).isAfterOrEqualTo(before);
     }
@@ -42,7 +45,7 @@ class DocumentTest {
     @Test
     @DisplayName("should allow null title")
     void shouldAllowNullTitle() {
-      Document doc = new Document(TEST_ID, null, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc = new Document(TEST_ID, null, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc.getTitle()).isNull();
     }
 
@@ -50,14 +53,16 @@ class DocumentTest {
     @DisplayName("should truncate long title")
     void shouldTruncateLongTitle() {
       String longTitle = "A".repeat(300);
-      Document doc = new Document(TEST_ID, longTitle, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, longTitle, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc.getTitle()).hasSize(255);
     }
 
     @Test
     @DisplayName("should trim title whitespace")
     void shouldTrimTitle() {
-      Document doc = new Document(TEST_ID, "  Test  ", TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, "  Test  ", TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc.getTitle()).isEqualTo("Test");
     }
   }
@@ -69,7 +74,8 @@ class DocumentTest {
     @Test
     @DisplayName("should transition UPLOADING -> PROCESSING")
     void shouldTransitionUploadingToProcessing() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.UPLOADING);
       doc.markProcessing();
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.PROCESSING);
@@ -78,7 +84,8 @@ class DocumentTest {
     @Test
     @DisplayName("should transition PROCESSING -> READY")
     void shouldTransitionProcessingToReady() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       doc.markProcessing();
       doc.markReady();
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.READY);
@@ -87,7 +94,8 @@ class DocumentTest {
     @Test
     @DisplayName("should transition PROCESSING -> FAILED")
     void shouldTransitionProcessingToFailed() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       doc.markProcessing();
       doc.markFailed();
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
@@ -96,7 +104,8 @@ class DocumentTest {
     @Test
     @DisplayName("should transition FAILED -> PROCESSING")
     void shouldTransitionFailedToProcessing() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       doc.markProcessing();
       doc.markFailed();
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
@@ -107,7 +116,8 @@ class DocumentTest {
     @Test
     @DisplayName("should not allow READY -> FAILED transition")
     void shouldNotAllowReadyToFailed() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       doc.markProcessing();
       doc.markReady();
       assertThatThrownBy(doc::markFailed)
@@ -118,7 +128,8 @@ class DocumentTest {
     @Test
     @DisplayName("should update updatedAt on status change")
     void shouldUpdateUpdatedAt() throws InterruptedException {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       Instant original = doc.getUpdatedAt();
       Thread.sleep(10);
       doc.markProcessing();
@@ -133,7 +144,8 @@ class DocumentTest {
     @Test
     @DisplayName("should update title when not READY")
     void shouldUpdateTitleWhenNotReady() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       doc.updateTitle("New Title");
       assertThat(doc.getTitle()).isEqualTo("New Title");
     }
@@ -141,7 +153,8 @@ class DocumentTest {
     @Test
     @DisplayName("should throw when updating READY document")
     void shouldThrowWhenUpdatingReadyDocument() {
-      Document doc = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       doc.markProcessing();
       doc.markReady();
       assertThatThrownBy(() -> doc.updateTitle("New Title"))
@@ -156,8 +169,8 @@ class DocumentTest {
     @Test
     @DisplayName("should be equal when same ID")
     void shouldEqualWhenSameId() {
-      Document doc1 = new Document(TEST_ID, "A", "a.pdf", 100L);
-      Document doc2 = new Document(TEST_ID, "B", "b.pdf", 200L);
+      Document doc1 = new Document(TEST_ID, "A", "a.pdf", 100L, TEST_OWNER_KEY);
+      Document doc2 = new Document(TEST_ID, "B", "b.pdf", 200L, TEST_OWNER_KEY);
       assertThat(doc1).isEqualTo(doc2);
       assertThat(doc1.hashCode()).isEqualTo(doc2.hashCode());
     }
@@ -166,8 +179,10 @@ class DocumentTest {
     @DisplayName("should not equal different ID")
     void shouldNotEqualDifferentId() {
       DocumentId other = DocumentId.of(UUID.randomUUID());
-      Document doc1 = new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
-      Document doc2 = new Document(other, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE);
+      Document doc1 =
+          new Document(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
+      Document doc2 =
+          new Document(other, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
       assertThat(doc1).isNotEqualTo(doc2);
     }
   }
@@ -189,7 +204,8 @@ class DocumentTest {
               TEST_FILE_SIZE,
               DocumentStatus.READY,
               created,
-              updated);
+              updated,
+              TEST_OWNER_KEY);
       assertThat(doc.getId()).isEqualTo(TEST_ID);
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.READY);
       assertThat(doc.getCreatedAt()).isEqualTo(created);
@@ -209,7 +225,8 @@ class DocumentTest {
               TEST_FILE_SIZE,
               DocumentStatus.FAILED,
               created,
-              updated);
+              updated,
+              TEST_OWNER_KEY);
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
     }
   }
