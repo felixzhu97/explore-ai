@@ -12,22 +12,5 @@
   <property name="clob.type" value="CLOB" dbms="h2" />
   <property name="date.time.type" value="TIMESTAMP(6)" dbms="h2" />
 
-  <include file="changelogs/1.0.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/2.0-chat-memory.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/2.1-chat-memory-repair.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/2.2-chat-web-sources.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/2.3-chat-session-client-id.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/3.0-ai-invocation-events.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.0-skills.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.1-workflow-templates.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.2-chat-memory-conversation-id.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.3-pipeline-agent-library.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.4-automation-schedules.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.5-automation-once.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.6-account-users.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.7-account-users-unlink.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.8-owner-key.xml" relativeToChangelogFile="true"/>
-  <include file="changelogs/4.9-optimistic-version.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/0.1.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
-
-
