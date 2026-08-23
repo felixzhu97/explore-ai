@@ -1,5 +1,6 @@
 package com.ai.pipeline.controller;
 
+import static com.ai.testsupport.MvcStreamTestSupport.exchangeStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,7 +14,6 @@ import com.ai.pipeline.service.usecase.PipelineFacade;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
-import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -131,12 +131,12 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
                   ServerSentEvent.<String>builder().event("done").data("[DONE]").build()));
 
       assertThat(
-              mvc.post()
-                  .uri("/api/pipelines/supervisor/invoke/sse")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"message\":\"hello\"}")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
-                  .exchange(Duration.ofSeconds(5)))
+              exchangeStream(
+                  mvc.post()
+                      .uri("/api/pipelines/supervisor/invoke/sse")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content("{\"message\":\"hello\"}")
+                      .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))))
           .hasStatusOk()
           .bodyText()
           .asString()
@@ -156,12 +156,12 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
           .thenReturn(Flux.error(new AgentNotFoundException(AgentType.of("missing"))));
 
       assertThat(
-              mvc.post()
-                  .uri("/api/pipelines/missing/invoke/sse")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"message\":\"hi\"}")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
-                  .exchange(Duration.ofSeconds(5)))
+              exchangeStream(
+                  mvc.post()
+                      .uri("/api/pipelines/missing/invoke/sse")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content("{\"message\":\"hi\"}")
+                      .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))))
           .hasStatusOk()
           .bodyText()
           .asString()
