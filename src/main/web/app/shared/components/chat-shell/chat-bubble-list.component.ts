@@ -295,25 +295,42 @@ export class ChatBubbleListComponent implements OnDestroy {
       return [];
     }
 
-    return this.messages().map((message) => {
-      const isAssistant = message.role === 'assistant';
-      const isStreaming = this.isStreaming(message.id);
-      const hasToolSteps = Boolean(message.toolSteps?.length);
+    return this.messages()
+      .filter((message) => {
+        if (this.isStreaming(message.id)) {
+          return true;
+        }
+        if (message.content.trim()) {
+          return true;
+        }
+        if (
+          message.toolSteps?.length
+          || message.sources?.length
+          || message.images?.length
+        ) {
+          return true;
+        }
+        return false;
+      })
+      .map((message) => {
+        const isAssistant = message.role === 'assistant';
+        const isStreaming = this.isStreaming(message.id);
+        const hasToolSteps = Boolean(message.toolSteps?.length);
 
-      const item: NxBubbleListItem = {
-        key: message.id,
-        role: message.role,
-        content: message.content,
-        loading: isAssistant && isStreaming && !message.content && !hasToolSteps,
-        messageRender: isAssistant ? assistantTpl : userTpl,
-      };
+        const item: NxBubbleListItem = {
+          key: message.id,
+          role: message.role,
+          content: message.content,
+          loading: isAssistant && isStreaming && !message.content && !hasToolSteps,
+          messageRender: isAssistant ? assistantTpl : userTpl,
+        };
 
-      if (isAssistant && message.timestamp) {
-        item.footerRender = footerTpl;
-      }
+        if (isAssistant && message.timestamp) {
+          item.footerRender = footerTpl;
+        }
 
-      return item;
-    });
+        return item;
+      });
   });
 
   readonly bubbleRoles = {
