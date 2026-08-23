@@ -9,6 +9,7 @@ import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(
-    basePackages = {"com.ai.automation.domain", "com.ai.base.domain", "com.ai.common.domain"})
+    basePackages = {"com.ai.automation.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(
     basePackageClasses = {
       SpringDataAutomationScheduleRepository.class,

@@ -6,6 +6,7 @@ import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +16,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.metrics.domain", "com.ai.base.domain", "com.ai.common.domain"})
+@EntityScan(basePackages = {"com.ai.metrics.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataAiInvocationEventRepository.class)
 class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
