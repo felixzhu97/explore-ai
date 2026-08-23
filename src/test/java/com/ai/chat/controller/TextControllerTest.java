@@ -1,5 +1,6 @@
 package com.ai.chat.controller;
 
+import static com.ai.testsupport.MvcStreamTestSupport.STREAM_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -13,7 +14,6 @@ import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
-import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -133,7 +133,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                       }
                       """)
                   .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
-                  .exchange(Duration.ofSeconds(5)))
+                  .exchange(STREAM_TIMEOUT))
           .hasStatusOk()
           .bodyText()
           .asString()
@@ -164,7 +164,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                         "toolsEnabled": false
                       }
                       """)
-                  .exchange(Duration.ofSeconds(5)))
+                  .exchange(STREAM_TIMEOUT))
           .hasStatusOk()
           .bodyText()
           .asString()
@@ -206,7 +206,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                       """
                           .formatted(skillId.value()))
                   .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
-                  .exchange(Duration.ofSeconds(5)))
+                  .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
 
       verify(chatUseCase)
