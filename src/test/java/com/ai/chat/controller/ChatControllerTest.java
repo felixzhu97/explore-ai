@@ -3,11 +3,9 @@ package com.ai.chat.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.account.controller.OwnerContext;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
@@ -16,39 +14,27 @@ import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.service.usecase.ChatUseCase;
+import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.OwnerKeyFixtures;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @SliceWebMvcTest(controllers = ChatController.class)
 @DisplayName("ChatController")
-class ChatControllerTest {
-
-  private static final String CLIENT_ID = "c:11111111-1111-1111-1111-111111111111";
-
-  @Autowired private MockMvcTester mvc;
+class ChatControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private ChatUseCase chatUseCase;
 
   @MockitoBean private ChatWebSourcesRepository chatWebSourcesRepository;
-
-  @MockitoBean private OwnerContext ownerContext;
-
-  @BeforeEach
-  void setUp() {
-    lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
-  }
 
   @Nested
   @DisplayName("GET /api/health")
@@ -73,20 +59,20 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return response for valid message")
     void shouldReturnResponseForValidMessage() {
-      when(chatUseCase.chatWithSession("Hello", CLIENT_ID)).thenReturn("Hi there!");
+      when(chatUseCase.chatWithSession("Hello", ownerClientId())).thenReturn("Hi there!");
 
       assertThat(
               mvc.post()
                   .uri("/api/chat")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"message\":\"Hello\"}")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.response")
           .asString()
           .isEqualTo("Hi there!");
-      verify(chatUseCase).chatWithSession("Hello", CLIENT_ID);
+      verify(chatUseCase).chatWithSession("Hello", ownerClientId());
     }
 
     @Test
@@ -118,7 +104,8 @@ class ChatControllerTest {
     @Test
     @DisplayName("should use session when sessionId provided")
     void shouldUseSessionWhenSessionIdProvided() {
-      when(chatUseCase.chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", CLIENT_ID))
+      when(chatUseCase.chatWithSession(
+              "22222222-2222-2222-2222-222222222222", "Hello", ownerClientId()))
           .thenReturn("Response with context");
 
       String sessionId = "22222222-2222-2222-2222-222222222222";
@@ -133,14 +120,14 @@ class ChatControllerTest {
           .asString()
           .isEqualTo("Response with context");
       verify(chatUseCase)
-          .chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", CLIENT_ID);
+          .chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", ownerClientId());
     }
 
     @Test
     @DisplayName("should handle long message without error")
     void shouldHandleLongMessageWithoutError() {
       String longMessage = "A".repeat(100);
-      when(chatUseCase.chatWithSession(longMessage, CLIENT_ID))
+      when(chatUseCase.chatWithSession(longMessage, ownerClientId()))
           .thenReturn("Response to long message");
 
       assertThat(
@@ -161,7 +148,7 @@ class ChatControllerTest {
     void shouldCreateSessionWithCustomTitle() {
       ChatSession session =
           createTestSession("33333333-3333-3333-3333-333333333333", "Custom Title");
-      when(chatUseCase.createSession("Custom Title", CLIENT_ID)).thenReturn(session);
+      when(chatUseCase.createSession("Custom Title", ownerClientId())).thenReturn(session);
 
       assertThat(
               mvc.post()
@@ -179,7 +166,7 @@ class ChatControllerTest {
     @DisplayName("should create session with default title when not provided")
     void shouldCreateSessionWithDefaultTitleWhenNotProvided() {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
-      when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
+      when(chatUseCase.createSession("New Chat", ownerClientId())).thenReturn(session);
 
       assertThat(
               mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON).content("{}"))
@@ -194,7 +181,7 @@ class ChatControllerTest {
     @DisplayName("should create session with default title when body is null")
     void shouldCreateSessionWithDefaultTitleWhenBodyIsNull() {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
-      when(chatUseCase.createSession("New Chat", CLIENT_ID)).thenReturn(session);
+      when(chatUseCase.createSession("New Chat", ownerClientId())).thenReturn(session);
 
       assertThat(mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON))
           .hasStatusOk();
@@ -212,7 +199,7 @@ class ChatControllerTest {
           List.of(
               createTestSession("22222222-2222-2222-2222-222222222222", "Chat 1"),
               createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
-      when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(sessions);
+      when(chatUseCase.getSessionsForClient(ownerClientId())).thenReturn(sessions);
 
       assertThat(mvc.get().uri("/api/sessions"))
           .hasStatusOk()
@@ -225,7 +212,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return empty list when no sessions")
     void shouldReturnEmptyListWhenNoSessions() {
-      when(chatUseCase.getSessionsForClient(CLIENT_ID)).thenReturn(List.of());
+      when(chatUseCase.getSessionsForClient(ownerClientId())).thenReturn(List.of());
 
       assertThat(mvc.get().uri("/api/sessions"))
           .hasStatusOk()
@@ -244,7 +231,7 @@ class ChatControllerTest {
     @DisplayName("should return session when found")
     void shouldReturnSessionWhenFound() {
       ChatSession session = createTestSession("22222222-2222-2222-2222-222222222222", "My Chat");
-      when(chatUseCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_ID))
+      when(chatUseCase.getSession("22222222-2222-2222-2222-222222222222", ownerClientId()))
           .thenReturn(Optional.of(session));
 
       assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222"))
@@ -258,7 +245,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
-      when(chatUseCase.getSession("missing", CLIENT_ID)).thenReturn(Optional.empty());
+      when(chatUseCase.getSession("missing", ownerClientId())).thenReturn(Optional.empty());
 
       assertThat(mvc.get().uri("/api/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
     }
@@ -271,7 +258,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return messages for session")
     void shouldReturnMessagesForSession() {
-      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_ID))
+      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", ownerClientId()))
           .thenReturn(
               List.of(
                   ChatMessage.createUserMessage("Hello"),
@@ -298,7 +285,7 @@ class ChatControllerTest {
     @DisplayName("should attach persisted sources to assistant messages")
     void shouldAttachPersistedSourcesToAssistantMessages() {
       String reply = "Paris is the capital.";
-      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_ID))
+      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", ownerClientId()))
           .thenReturn(
               List.of(
                   ChatMessage.createUserMessage("Where is Paris?"),
@@ -328,7 +315,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
-      when(chatUseCase.getSessionHistory("missing", CLIENT_ID))
+      when(chatUseCase.getSessionHistory("missing", ownerClientId()))
           .thenThrow(new ChatSessionNotFoundException("missing"));
 
       assertThat(mvc.get().uri("/api/sessions/missing/messages")).hasStatus(HttpStatus.NOT_FOUND);
@@ -342,15 +329,15 @@ class ChatControllerTest {
     @Test
     @DisplayName("should delete session and return 204")
     void shouldDeleteSessionAndReturn204() {
-      doNothing().when(chatUseCase).deleteSession("session-to-delete", CLIENT_ID);
+      doNothing().when(chatUseCase).deleteSession("session-to-delete", ownerClientId());
 
       assertThat(mvc.delete().uri("/api/sessions/session-to-delete"))
           .hasStatus(HttpStatus.NO_CONTENT);
-      verify(chatUseCase).deleteSession("session-to-delete", CLIENT_ID);
+      verify(chatUseCase).deleteSession("session-to-delete", ownerClientId());
     }
   }
 
   private static ChatSession createTestSession(String id, String title) {
-    return ChatSession.createWithId(ChatSessionId.of(id), title, CLIENT_ID);
+    return ChatSession.createWithId(ChatSessionId.of(id), title, OwnerKeyFixtures.CLIENT_FULL_KEY);
   }
 }

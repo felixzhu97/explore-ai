@@ -3,49 +3,34 @@ package com.ai.chat.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.account.controller.OwnerContext;
 import com.ai.chat.service.usecase.ChatUseCase;
 import com.ai.chat.service.usecase.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.skill.domain.repository.SkillRepository;
+import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.time.Duration;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import reactor.core.publisher.Flux;
 
 @SliceWebMvcTest(controllers = TextController.class)
 @DisplayName("TextController")
-class TextControllerTest {
-
-  private static final String CLIENT_ID = "c:11111111-1111-1111-1111-111111111111";
-
-  @Autowired private MockMvcTester mvc;
+class TextControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private ChatUseCase chatUseCase;
 
   @MockitoBean private TextProviderCatalog providerCatalog;
 
   @MockitoBean private SkillRepository skillRepository;
-
-  @MockitoBean private OwnerContext ownerContext;
-
-  @BeforeEach
-  void setUp() {
-    lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
-  }
 
   @Nested
   @DisplayName("GET /api/text/providers")
@@ -130,7 +115,7 @@ class TextControllerTest {
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
-              CLIENT_ID))
+              ownerClientId()))
           .thenReturn(Flux.just("Hi", " there"));
 
       assertThat(
@@ -147,7 +132,7 @@ class TextControllerTest {
                         "toolsEnabled": false
                       }
                       """)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
                   .exchange(Duration.ofSeconds(5)))
           .hasStatusOk()
           .bodyText()
@@ -159,7 +144,7 @@ class TextControllerTest {
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
-              CLIENT_ID);
+              ownerClientId());
     }
 
     @Test
@@ -193,7 +178,7 @@ class TextControllerTest {
       com.ai.skill.domain.model.Skill skill =
           com.ai.skill.domain.model.Skill.restore(
               skillId,
-              CLIENT_ID,
+              ownerClientId(),
               "Brief Style",
               "Short answers.",
               "Be concise.",
@@ -201,7 +186,7 @@ class TextControllerTest {
               true,
               java.time.Instant.now(),
               java.time.Instant.now());
-      when(skillRepository.findEnabledByClientIdAndIds(eq(CLIENT_ID), any()))
+      when(skillRepository.findEnabledByClientIdAndIds(eq(ownerClientId()), any()))
           .thenReturn(List.of(skill));
       when(chatUseCase.chatStream(any(), any(TextChatOptions.class))).thenReturn(Flux.just("ok"));
 
@@ -220,7 +205,7 @@ class TextControllerTest {
                       }
                       """
                           .formatted(skillId.value()))
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
                   .exchange(Duration.ofSeconds(5)))
           .hasStatusOk();
 
