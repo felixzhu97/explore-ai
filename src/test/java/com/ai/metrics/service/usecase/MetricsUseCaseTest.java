@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
@@ -12,12 +11,10 @@ import com.ai.metrics.domain.vo.InvocationOutcome;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.ai.metrics.test.fixture.FakeAiInvocationEventRepository;
+import com.ai.metrics.test.fixture.FakeMetricsQueryRepository;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,14 +22,14 @@ import org.junit.jupiter.api.Test;
 @DisplayName("MetricsUseCase")
 class MetricsUseCaseTest {
 
-  private FakeQueryRepository queryRepository;
-  private FakeEventRepository eventRepository;
+  private FakeMetricsQueryRepository queryRepository;
+  private FakeAiInvocationEventRepository eventRepository;
   private MetricsUseCase useCase;
 
   @BeforeEach
   void setUp() {
-    queryRepository = new FakeQueryRepository();
-    eventRepository = new FakeEventRepository();
+    queryRepository = new FakeMetricsQueryRepository();
+    eventRepository = new FakeAiInvocationEventRepository();
     MetricsHealthGateway healthGateway =
         new MetricsHealthGateway() {
           @Override
@@ -183,115 +180,5 @@ class MetricsUseCaseTest {
     assertThat(eventRepository.lastQuery.to()).isPresent();
     assertThat(eventRepository.lastQuery.outcome()).contains(InvocationOutcome.SUCCESS);
     assertThat(eventRepository.lastQuery.model()).contains("gpt");
-  }
-
-  private static final class FakeQueryRepository implements MetricsQueryRepository {
-    long requestCount;
-    long errorCount;
-    List<NamedCount> byDomain = List.of();
-    List<NamedCount> topTools = List.of();
-    List<NamedCount> byModel = List.of();
-    List<NamedCount> byAgent = List.of();
-    List<TimePoint> dailyRequests = List.of();
-    List<TimePoint> dailyErrors = List.of();
-    List<TimePoint> dailyLatency = List.of();
-    final LinkedHashMap<String, Long> documentsByStatus = new LinkedHashMap<>();
-
-    @Override
-    public long countInvocations(Optional<AiDomain> domain, Instant from, Instant to) {
-      return requestCount;
-    }
-
-    @Override
-    public long countErrors(Optional<AiDomain> domain, Instant from, Instant to) {
-      return errorCount;
-    }
-
-    @Override
-    public LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to) {
-      return new LatencyStats(10.0, 40.0);
-    }
-
-    @Override
-    public TokenTotals tokenTotals(Optional<AiDomain> domain, Instant from, Instant to) {
-      return new TokenTotals(11L, 22L);
-    }
-
-    @Override
-    public List<NamedCount> countByDomain(Instant from, Instant to) {
-      return byDomain;
-    }
-
-    @Override
-    public List<NamedCount> countByModel(Optional<AiDomain> domain, Instant from, Instant to) {
-      return byModel;
-    }
-
-    @Override
-    public List<NamedCount> countByAgentType(Instant from, Instant to) {
-      return byAgent;
-    }
-
-    @Override
-    public List<NamedCount> topTools(
-        Optional<AiDomain> domain, Instant from, Instant to, int limit) {
-      return topTools;
-    }
-
-    @Override
-    public List<TimePoint> dailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
-      return dailyRequests;
-    }
-
-    @Override
-    public List<TimePoint> dailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
-      return dailyErrors;
-    }
-
-    @Override
-    public List<TimePoint> dailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to) {
-      return dailyLatency;
-    }
-
-    @Override
-    public List<TimePoint> dailySessionsCreated(Instant from, Instant to) {
-      return List.of();
-    }
-
-    @Override
-    public List<TimePoint> dailyMessagesCreated(Instant from, Instant to) {
-      return List.of();
-    }
-
-    @Override
-    public List<TimePoint> dailyDocumentsUploaded(Instant from, Instant to) {
-      return List.of();
-    }
-
-    @Override
-    public ChatInventory chatInventory(Instant activeSince) {
-      return new ChatInventory(0, 0, 0, 0);
-    }
-
-    @Override
-    public RagInventory ragInventory() {
-      return new RagInventory(0, documentsByStatus, 0, 0);
-    }
-  }
-
-  private static final class FakeEventRepository implements AiInvocationEventRepository {
-    final List<AiInvocationEvent> events = new ArrayList<>();
-    DrilldownQuery lastQuery;
-
-    @Override
-    public void save(AiInvocationEvent event) {
-      events.add(event);
-    }
-
-    @Override
-    public PageResult findDrilldown(DrilldownQuery query) {
-      lastQuery = query;
-      return new PageResult(events, events.size());
-    }
   }
 }
