@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.account.controller.OwnerContext;
 import com.ai.common.controller.GlobalExceptionHandler;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
@@ -20,6 +19,7 @@ import com.ai.rag.service.usecase.DocumentUploadService;
 import com.ai.rag.service.usecase.RagApplicationService;
 import com.ai.rag.service.usecase.RagChatUseCase;
 import com.ai.rag.service.usecase.VisionChatUseCase;
+import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.time.Duration;
@@ -30,24 +30,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import reactor.core.publisher.Flux;
 
 @SliceWebMvcTest(controllers = RagController.class)
 @Import(GlobalExceptionHandler.class)
 @DisplayName("RagController")
-class RagControllerTest {
-
-  private static final String CLIENT_ID = "c:test-owner";
-
-  @Autowired private MockMvcTester mvc;
+class RagControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private RagApplicationService ragApplicationService;
 
@@ -57,11 +51,8 @@ class RagControllerTest {
 
   @MockitoBean private ObjectProvider<VisionChatUseCase> visionChatUseCaseProvider;
 
-  @MockitoBean private OwnerContext ownerContext;
-
   @BeforeEach
-  void setUp() {
-    lenient().when(ownerContext.requireValue(any())).thenReturn(CLIENT_ID);
+  void setUpVisionProvider() {
     lenient().when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(visionChatUseCase);
   }
 
@@ -73,29 +64,29 @@ class RagControllerTest {
     @DisplayName("should return list of documents")
     void shouldReturnListOfDocuments() {
       Document doc = createTestDocument("Test Doc", DocumentStatus.READY);
-      when(ragApplicationService.listDocuments(CLIENT_ID)).thenReturn(List.of(doc));
+      when(ragApplicationService.listDocuments(ownerClientId())).thenReturn(List.of(doc));
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
           .convertTo(Integer.class)
           .isEqualTo(1);
-      verify(ragApplicationService).listDocuments(CLIENT_ID);
+      verify(ragApplicationService).listDocuments(ownerClientId());
     }
 
     @Test
     @DisplayName("should return empty list when no documents")
     void shouldReturnEmptyListWhenNoDocuments() {
-      when(ragApplicationService.listDocuments(CLIENT_ID)).thenReturn(List.of());
+      when(ragApplicationService.listDocuments(ownerClientId())).thenReturn(List.of());
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
@@ -116,7 +107,7 @@ class RagControllerTest {
       Document doc = createTestDocument("test.txt", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
           new DocumentUploadService.UploadResult(doc.getId(), "test.txt", "READY", 0);
-      when(ragApplicationService.uploadDocument(any(), isNull(), eq(CLIENT_ID)))
+      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerClientId())))
           .thenReturn(uploadResult);
 
       assertThat(
@@ -124,9 +115,9 @@ class RagControllerTest {
                   .multipart()
                   .uri("/api/rag/documents/upload")
                   .file(file)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatus(HttpStatus.CREATED);
-      verify(ragApplicationService).uploadDocument(any(), isNull(), eq(CLIENT_ID));
+      verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerClientId()));
     }
 
     @Test
@@ -137,7 +128,7 @@ class RagControllerTest {
       Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
           new DocumentUploadService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
-      when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(CLIENT_ID)))
+      when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerClientId())))
           .thenReturn(uploadResult);
 
       assertThat(
@@ -146,9 +137,9 @@ class RagControllerTest {
                   .uri("/api/rag/documents/upload")
                   .file(file)
                   .param("title", "Custom Title")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatus(HttpStatus.CREATED);
-      verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(CLIENT_ID));
+      verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerClientId()));
     }
 
     @Test
@@ -157,7 +148,7 @@ class RagControllerTest {
       MockMultipartFile file =
           new MockMultipartFile(
               "file", "document.pdf", "application/pdf", "PDF content".getBytes());
-      when(ragApplicationService.uploadDocument(any(), isNull(), eq(CLIENT_ID)))
+      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerClientId())))
           .thenThrow(new RuntimeException("Upload failed"));
 
       assertThat(
@@ -165,7 +156,7 @@ class RagControllerTest {
                   .multipart()
                   .uri("/api/rag/documents/upload")
                   .file(file)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -178,14 +169,14 @@ class RagControllerTest {
     @DisplayName("should delete document and return 204")
     void shouldDeleteDocumentAndReturn204() {
       UUID docId = UUID.randomUUID();
-      doNothing().when(ragApplicationService).deleteDocument(docId, CLIENT_ID);
+      doNothing().when(ragApplicationService).deleteDocument(docId, ownerClientId());
 
       assertThat(
               mvc.delete()
                   .uri("/api/rag/documents/" + docId)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(CLIENT_ID)))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
           .hasStatus(HttpStatus.NO_CONTENT);
-      verify(ragApplicationService).deleteDocument(docId, CLIENT_ID);
+      verify(ragApplicationService).deleteDocument(docId, ownerClientId());
     }
   }
 
