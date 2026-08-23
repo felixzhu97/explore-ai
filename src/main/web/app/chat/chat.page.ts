@@ -108,20 +108,30 @@ export class ChatPage implements OnInit, OnDestroy {
   });
 
   readonly bubbleMessages = computed((): ChatBubbleMessage[] => {
-    return this.chat.messages().map(message => ({
-      id: message.id,
-      role: message.role,
-      content: message.content,
-      timestamp: message.timestamp,
-      toolSteps: message.toolSteps,
-      sources: message.sources?.map(source => ({
-        text: source.snippet,
-        score: 1,
-        url: source.url,
-        title: source.title,
-        publishedAt: source.publishedAt,
-      })),
-    }));
+    const streamingId = this.chat.streamingMessageId();
+    return this.chat.messages()
+      .filter(
+        message => message.id === streamingId
+          || Boolean(
+            message.content?.trim()
+            || message.toolSteps?.length
+            || message.sources?.length,
+          ),
+      )
+      .map(message => ({
+        id: message.id,
+        role: message.role,
+        content: message.content,
+        timestamp: message.timestamp,
+        toolSteps: message.toolSteps,
+        sources: message.sources?.map(source => ({
+          text: source.snippet,
+          score: 1,
+          url: source.url,
+          title: source.title,
+          publishedAt: source.publishedAt,
+        })),
+      }));
   });
 
   readonly footerLabels = computed(() => {
