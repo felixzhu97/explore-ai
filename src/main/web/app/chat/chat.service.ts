@@ -285,7 +285,9 @@ export class ChatService {
         if (this.isStaleSessionLoad(loadId, sessionId)) {
           return;
         }
-        this.messages.set(history.map(msg => this.toUiMessage(msg)));
+        this.messages.set(withoutEmptyBodies(
+          history.map(msg => this.toUiMessage(msg)),
+        ));
         this.isLoadingSession.set(false);
         this.rememberActiveSessionIfNeeded(sessionId);
         this.syncChatUrl(sessionId, syncOpts);
@@ -536,11 +538,22 @@ export class ChatService {
     this.getSessionMessages(sessionId).subscribe({
       next: (history) => {
         if (this.activeSessionId() === sessionId && !this.isLoading()) {
-          this.messages.update(previous => mergeHistoryWithUiState(
-            history.map(msg => this.toUiMessage(msg)),
-            previous,
-          ),
-          );
+          this.messages.update((previous) => {
+            const fromApi = withoutEmptyBodies(mergeHistoryWithUiState(
+              history.map(msg => this.toUiMessage(msg)),
+              previous,
+            ));
+            const apiIds = new Set(fromApi.map(msg => msg.id));
+            const apiHasAssistant = fromApi.some(msg => msg.role === 'assistant');
+            const localOnly = apiHasAssistant
+              ? []
+              : previous.filter(
+                  msg => msg.role === 'assistant'
+                    && !apiIds.has(msg.id)
+                    && hasRenderableBody(msg),
+                );
+            return withoutEmptyBodies([...fromApi, ...localOnly]);
+          });
         }
       },
     });
@@ -616,11 +629,7 @@ export class ChatService {
         // Drop empty placeholder before clearing streaming to avoid a blank-bubble flash.
         this.messages.update((msgs) => {
           const target = msgs.find(msg => msg.id === assistantId);
-          if (
-            target?.role === 'assistant'
-            && !target.content
-            && !(target.toolSteps?.length)
-          ) {
+          if (target && !hasRenderableBody(target)) {
             return msgs.filter(msg => msg.id !== assistantId);
           }
           return msgs;
@@ -710,11 +719,7 @@ export class ChatService {
     // Drop the empty assistant placeholder so the UI does not stay on "thinking".
     this.messages.update((msgs) => {
       const target = msgs.find(msg => msg.id === streamingId);
-      if (
-        target?.role === 'assistant'
-        && !target.content
-        && !(target.toolSteps?.length)
-      ) {
+      if (target && !hasRenderableBody(target)) {
         return msgs.filter(msg => msg.id !== streamingId);
       }
       return msgs;
@@ -862,6 +867,18 @@ export function mergeHistoryWithUiState(
       ?? previousSources.get(stripToolCallMarkup(ui.content));
     return local?.length ? { ...ui, sources: local } : ui;
   });
+}
+
+function hasRenderableBody(message: UiMessage): boolean {
+  return Boolean(
+    message.content?.trim()
+    || message.toolSteps?.length
+    || message.sources?.length,
+  );
+}
+
+function withoutEmptyBodies(messages: UiMessage[]): UiMessage[] {
+  return messages.filter(hasRenderableBody);
 }
 
 function toolLabel(name: string): string {

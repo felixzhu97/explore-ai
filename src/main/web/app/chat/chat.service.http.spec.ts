@@ -396,6 +396,57 @@ describe('ChatService http flows', () => {
     expect(navigateSpy).toHaveBeenCalledWith('/chat/s2', { replaceUrl: true });
   });
 
+  it('should drop empty history messages when loading session', () => {
+    service.sessions.set([
+      {
+        sessionId: 's1',
+        title: 'Chat',
+        messageCount: 4,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-02T00:00:00Z',
+      },
+    ]);
+    service.selectSession('s1');
+    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'hello',
+        timestamp: '2026-07-01T00:00:00Z',
+      },
+      {
+        id: 'a-empty',
+        role: 'assistant',
+        content: '',
+        timestamp: '2026-07-01T00:00:01Z',
+      },
+      {
+        id: 'a-sources',
+        role: 'assistant',
+        content: '',
+        timestamp: '2026-07-01T00:00:02Z',
+        sources: [
+          {
+            title: 'Example',
+            url: 'https://example.com',
+            snippet: 'snippet',
+          },
+        ],
+      },
+      {
+        id: 'u-empty',
+        role: 'user',
+        content: '   ',
+        timestamp: '2026-07-01T00:00:03Z',
+      },
+    ]);
+
+    expect(service.messages()).toHaveLength(2);
+    expect(service.messages()[0].id).toBe('u1');
+    expect(service.messages()[1].id).toBe('a-sources');
+    expect(service.messages()[1].sources?.length).toBe(1);
+  });
+
   it('should keep bare url when selecting empty owned session', async () => {
     await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
@@ -740,6 +791,76 @@ describe('ChatService http flows', () => {
         lastActivityAt: '2026-07-01T00:00:00Z',
       },
     ]);
+    expect(service.messages()).toHaveLength(2);
+    expect(service.messages()[1]).toMatchObject({ role: 'assistant', content: 'Hi there' });
+  });
+
+  it('should keep local assistant when history sync returns before persistence', async () => {
+    interface StreamHandlers {
+      onEvent: (payload: { eventType: string; data: string }) => boolean | void;
+      onDone: () => void;
+    }
+    let handlers: StreamHandlers | undefined;
+    vi.mocked(streamSsePost).mockImplementation((_url, _body, options) => {
+      handlers = options as StreamHandlers;
+      return { abort: vi.fn() };
+    });
+    vi.mocked(parseChatStreamEvent).mockImplementation((data: string) => {
+      const parsed = JSON.parse(data) as { type: string; token?: string };
+      if (parsed.type === 'message') {
+        return { type: 'message', token: parsed.token ?? '' };
+      }
+      return null;
+    });
+
+    service.sessions.set([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 0,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+    service.activeSessionId.set('s1');
+    service.providers.set([
+      {
+        name: 'openai',
+        displayName: 'DeepSeek',
+        models: ['deepseek-v4-flash'],
+        status: 'available',
+      },
+    ]);
+    service.selectedProvider.set('openai');
+    service.selectedModel.set('deepseek-v4-flash');
+
+    service.sendMessage('hello');
+    handlers?.onEvent({
+      eventType: 'message',
+      data: JSON.stringify({ type: 'message', token: 'Hi there' }),
+    });
+    handlers?.onDone();
+
+    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'hello',
+        timestamp: Date.now(),
+      },
+    ]);
+    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+      {
+        sessionId: 's1',
+        title: 'New Chat',
+        messageCount: 1,
+        createdAt: '2026-07-01T00:00:00Z',
+        lastActivityAt: '2026-07-01T00:00:00Z',
+      },
+    ]);
+
+    expect(service.messages()).toHaveLength(2);
+    expect(service.messages()[1]).toMatchObject({ role: 'assistant', content: 'Hi there' });
   });
 
   it('should delete active session and clear when empty', () => {
