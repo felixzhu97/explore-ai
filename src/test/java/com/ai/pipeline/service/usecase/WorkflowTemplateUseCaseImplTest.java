@@ -6,11 +6,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
 import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
 import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
-import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
 import com.ai.pipeline.domain.vo.WorkflowTemplateId;
-import java.util.ArrayList;
+import com.ai.pipeline.test.fixture.FakeWorkflowTemplateRepository;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -102,57 +100,5 @@ class WorkflowTemplateUseCaseImplTest {
     SavedWorkflowTemplate updated = useCase.setEnabled(CLIENT_ID, seeded.getId().value(), false);
 
     assertThat(updated.isEnabled()).isFalse();
-  }
-
-  private static final class FakeWorkflowTemplateRepository implements WorkflowTemplateRepository {
-
-    private final List<SavedWorkflowTemplate> templates = new ArrayList<>();
-    private int saveCount;
-
-    SavedWorkflowTemplate seed(SavedWorkflowTemplate template) {
-      templates.add(template);
-      return template;
-    }
-
-    int saveCount() {
-      return saveCount;
-    }
-
-    @Override
-    public SavedWorkflowTemplate save(SavedWorkflowTemplate template) {
-      saveCount++;
-      templates.removeIf(existing -> existing.getId().equals(template.getId()));
-      templates.add(template);
-      return template;
-    }
-
-    @Override
-    public Optional<SavedWorkflowTemplate> findByIdAndClientId(
-        WorkflowTemplateId id, String clientId) {
-      return templates.stream()
-          .filter(t -> t.getId().equals(id) && t.getClientId().equals(clientId))
-          .findFirst();
-    }
-
-    @Override
-    public List<SavedWorkflowTemplate> findAllByClientId(String clientId) {
-      return templates.stream().filter(t -> t.getClientId().equals(clientId)).toList();
-    }
-
-    @Override
-    public void deleteByIdAndClientId(WorkflowTemplateId id, String clientId) {
-      templates.removeIf(t -> t.getId().equals(id) && t.getClientId().equals(clientId));
-    }
-
-    @Override
-    public boolean existsByClientIdAndNameIgnoringId(
-        String clientId, String name, WorkflowTemplateId excludeId) {
-      return templates.stream()
-          .anyMatch(
-              t ->
-                  t.getClientId().equals(clientId)
-                      && t.getName().equals(name)
-                      && (excludeId == null || !t.getId().equals(excludeId)));
-    }
   }
 }
