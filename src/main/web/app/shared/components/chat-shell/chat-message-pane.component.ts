@@ -30,19 +30,14 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
     >
       @if (loading()) {
         <div
-          class="mx-auto flex w-full max-w-3xl animate-in flex-col gap-4 px-1 py-2 duration-150 fade-in-0"
+          class="mx-auto flex w-full max-w-3xl justify-center py-12"
           aria-busy="true"
           aria-live="polite"
         >
-          <div class="flex justify-end">
-            <div class="h-10 w-2/5 max-w-xs animate-pulse rounded-2xl bg-black/6"></div>
-          </div>
-          <div class="flex justify-start">
-            <div class="h-24 w-3/4 max-w-md animate-pulse rounded-2xl bg-black/6"></div>
-          </div>
-          <div class="flex justify-start">
-            <div class="h-14 w-1/2 max-w-sm animate-pulse rounded-2xl bg-black/6"></div>
-          </div>
+          <div
+            class="size-6 animate-spin rounded-full border-2 border-black/10 border-t-foreground"
+            aria-hidden="true"
+          ></div>
         </div>
       } @else if (messages().length === 0) {
         @if (emptyText(); as text) {
