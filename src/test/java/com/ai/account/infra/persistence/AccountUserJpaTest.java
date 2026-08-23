@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.ai.testsupport.JpaTestPackages;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.account.domain", "com.ai.base.domain", "com.ai.common.domain"})
+@EntityScan(basePackages = {"com.ai.account.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataAccountUserRepository.class)
 class AccountUserJpaTest extends AbstractDataJpaTest {
 

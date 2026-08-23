@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.chat.domain", "com.ai.base.domain", "com.ai.common.domain"})
+@EntityScan(basePackages = {"com.ai.chat.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataChatSessionRepository.class)
 @Import(JpaChatSessionRepository.class)
 class ChatSessionJpaTest extends AbstractDataJpaTest {

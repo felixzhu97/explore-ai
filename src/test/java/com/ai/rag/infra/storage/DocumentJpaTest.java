@@ -6,6 +6,7 @@ import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.rag.domain", "com.ai.base.domain", "com.ai.common.domain"})
+@EntityScan(basePackages = {"com.ai.rag.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataDocumentRepository.class)
 class DocumentJpaTest extends AbstractDataJpaTest {
 

@@ -6,6 +6,7 @@ import com.ai.common.domain.vo.OwnerKey;
 import com.ai.pipeline.domain.model.SavedAgentDefinition;
 import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.ai.testsupport.JpaTestPackages;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +16,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.pipeline.domain", "com.ai.base.domain", "com.ai.common.domain"})
+@EntityScan(basePackages = {"com.ai.pipeline.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(
     basePackageClasses = {
       SpringDataSavedAgentRepository.class,
