@@ -99,6 +99,12 @@ package "com.ai.common.domain" as pkg_common_kernel {
     findAllByOwnerKey(ownerKey)
     deleteByIdAndOwnerKey(id, ownerKey)
   }
+  interface ClientIdOwnedNamedRepository <<Repository>> {
+    findByIdAndClientId(id, clientId)
+    findAllByClientId(clientId)
+    deleteByIdAndClientId(id, clientId)
+    existsByClientIdAndNameIgnoringId(clientId, name, excludeId)
+  }
 }
 
 AbstractEntity <|-- AbstractOwnerKeyedEntity
@@ -214,6 +220,8 @@ package "com.ai.pipeline.domain" as pkg_pipeline {
     WorkflowTemplateId id
     String name
   }
+  interface WorkflowTemplateRepository <<Repository>> {
+  }
   interface AgentRegistry <<Repository>> {
     findByType(type)
   }
@@ -229,6 +237,9 @@ package "com.ai.skill.domain" as pkg_skill {
     update(name, instructions, tools)
     enable()
     disable()
+  }
+  interface SkillRepository <<Repository>> {
+    findEnabledByClientIdAndIds(clientId, ids)
   }
 }
 
@@ -330,6 +341,9 @@ AbstractNamedOwnerEntity <|-- AutomationSchedule
 AbstractTimedRunEntity <|-- AutomationRun
 AbstractEntity <|-- AccountUser
 AbstractAppendOnlyEvent <|-- AiInvocationEvent
+
+ClientIdOwnedNamedRepository <|-- SkillRepository
+ClientIdOwnedNamedRepository <|-- WorkflowTemplateRepository
 
 ChatSession ..> OwnerKey : owned by
 Document ..> OwnerKey : owned by
