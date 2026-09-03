@@ -1,19 +1,18 @@
 @startuml C4-Code-Domain-Model
 !include style-zinc.puml
 
-title Code diagram (C4) — AI Platform domain model (DDD + behavior)
-' Show fields and behavior methods on aggregates/entities; hide empty VOs/repos
+title Code diagram (C4) — Domain model (aligned to com.ai.*.domain)
 
 legend right
-  |= Stereotype |= Meaning |
-  | <<AggregateRoot>> | Consistency boundary; rich behavior on root |
-  | <<Entity>> | Identity + lifecycle; factory + domain methods |
-  | <<ValueObject>> | Immutable; equality by value |
-  | <<DomainService>> | Stateless domain logic |
-  | <<Repository>> | Outbound port (interface in domain/) |
-  | | |
-  | **Behavior** | Methods reflect live com.ai.*.domain.model |
-  | **Preferred Terms** | See docs/Glossary.md |
+  |= 标题色 |= Type |
+  | <color:#334155>Abstract</color> | 抽象基类 |
+  | <color:#064E3B>AggregateRoot</color> | 聚合根 |
+  | <color:#1E3A8A>Entity</color> | 实体 |
+  | <color:#9A3412>ValueObject</color> | 值对象 |
+  | <color:#78350F>Enum</color> | 枚举 |
+  | <color:#581C87>DomainEvent</color> | 领域事件 |
+  | <color:#3730A3>DomainService</color> | 领域服务 |
+  | <color:#52525B>Repository</color> | 仓储端口 |
 endlegend
 
 note as N_LAYERS
@@ -26,25 +25,25 @@ end note
 ' ── domain kernel (com.ai.base) ─────────────────────────────
 package "com.ai.base" as pkg_base {
   interface EntityId <<ValueObject>> {
-    value()
+    +value()
   }
   class AbstractUuidId <<ValueObject>> {
-    String value
+    +value: String
     --
-    {static} generate()
-    {static} of(uuid)
+    +{static} generate()
+    +{static} of(uuid)
   }
-  class AbstractEntity <<MappedSuperclass>> {
-    IdT id
-    Instant createdAt
-    Instant updatedAt
-    Long version
+  class AbstractEntity <<Abstract>> {
+    +id: IdT
+    +createdAt: Instant
+    +updatedAt: Instant
+    +version: Long
     --
-    touchUpdatedAt()
+    +touchUpdatedAt()
   }
-  class AbstractImmutable <<MappedSuperclass>> {
-    IdT id
-    Instant createdAt
+  class AbstractImmutable <<Abstract>> {
+    +id: IdT
+    +createdAt: Instant
   }
   class BaseJpaConfig <<Configuration>> {
     EnableJpaAuditing
@@ -58,52 +57,52 @@ AbstractUuidId --> AbstractImmutable : embedded id
 
 ' ── aggregate bases (com.ai.common.domain.model) ───────────
 package "com.ai.common.domain" as pkg_common_kernel {
-  class AbstractOwnerKeyedEntity <<MappedSuperclass>> {
-    OwnerKey ownerKey
+  class AbstractOwnerKeyedEntity <<Abstract>> {
+    +ownerKey: OwnerKey
     --
-    belongsTo(ownerKey)
-    belongsToClient(value)
-    rebindOwnerKey(ownerKey)
+    +belongsTo(ownerKey)
+    +belongsToClient(value)
+    +rebindOwnerKey(ownerKey)
   }
-  class AbstractNamedOwnerEntity <<MappedSuperclass>> {
-    String name
+  class AbstractNamedOwnerEntity <<Abstract>> {
+    +name: String
     --
-    rename(name)
+    +rename(name)
   }
-  class AbstractDescribedOwnerEntity <<MappedSuperclass>> {
-    String description
+  class AbstractDescribedOwnerEntity <<Abstract>> {
+    +description: String
   }
-  class AbstractEnableableDescribedOwnerEntity <<MappedSuperclass>> {
-    boolean enabled
+  class AbstractEnableableDescribedOwnerEntity <<Abstract>> {
+    +enabled: boolean
     --
-    enable()
-    disable()
+    +enable()
+    +disable()
   }
-  class AbstractTimedRunEntity <<MappedSuperclass>> {
-    Instant startedAt
-    Instant finishedAt
+  class AbstractTimedRunEntity <<Abstract>> {
+    +startedAt: Instant
+    +finishedAt: Instant
     --
-    markFinished(at)
+    +markFinished(at)
   }
-  class AbstractAppendOnlyEvent <<MappedSuperclass>> {
-    Instant occurredAt
+  class AbstractAppendOnlyEvent <<Abstract>> {
+    +occurredAt: Instant
   }
   class OwnerKey <<ValueObject>> {
-    String value
+    +value: String
     --
-    {static} forClient(id)
-    {static} forAccount(id)
+    +{static} forClient(id)
+    +{static} forAccount(id)
   }
   interface ClientOwnedRepository <<Repository>> {
-    findByIdAndOwnerKey(id, ownerKey)
-    findAllByOwnerKey(ownerKey)
-    deleteByIdAndOwnerKey(id, ownerKey)
+    +findByIdAndOwnerKey(id, ownerKey)
+    +findAllByOwnerKey(ownerKey)
+    +deleteByIdAndOwnerKey(id, ownerKey)
   }
   interface ClientIdOwnedNamedRepository <<Repository>> {
-    findByIdAndClientId(id, clientId)
-    findAllByClientId(clientId)
-    deleteByIdAndClientId(id, clientId)
-    existsByClientIdAndNameIgnoringId(clientId, name, excludeId)
+    +findByIdAndClientId(id, clientId)
+    +findAllByClientId(clientId)
+    +deleteByIdAndClientId(id, clientId)
+    +existsByClientIdAndNameIgnoringId(clientId, name, excludeId)
   }
 }
 
@@ -117,46 +116,46 @@ AbstractOwnerKeyedEntity --> OwnerKey
 ' ── chat ───────────────────────────────────────────────────
 package "com.ai.chat.domain" as pkg_chat {
   class ChatSession <<AggregateRoot>> {
-    ChatSessionId id
-    OwnerKey ownerKey
-    String title
+    +id: ChatSessionId
+    +ownerKey: OwnerKey
+    +title: String
     --
-    {static} create(title, clientId)
-    {static} reconstitute(...)
-    rename(newTitle)
-    addUserMessage(text)
-    addAssistantMessage(text)
-    getRecentMessages(count)
-    clearMessages()
-    replaceMessages(messages)
-    belongsTo(clientId)
-    isEmpty()
+    +{static} create(title, clientId)
+    +{static} reconstitute(...)
+    +rename(newTitle)
+    +addUserMessage(text)
+    +addAssistantMessage(text)
+    +getRecentMessages(count)
+    +clearMessages()
+    +replaceMessages(messages)
+    +belongsTo(clientId)
+    +isEmpty()
   }
   class ChatMessage <<Entity>> {
-    MessageId id
-    String text
-    ChatMessageType messageType
+    +id: MessageId
+    +text: String
+    +messageType: ChatMessageType
     --
-    {static} createUserMessage(text)
-    {static} createAssistantMessage(text)
-    isFromUser()
-    isFromAssistant()
-    withText(newText)
+    +{static} createUserMessage(text)
+    +{static} createAssistantMessage(text)
+    +isFromUser()
+    +isFromAssistant()
+    +withText(newText)
   }
-  enum ChatMessageType <<ValueObject>> {
+  enum ChatMessageType <<Enum>> {
     USER
     ASSISTANT
   }
   class WebSource <<ValueObject>> {
-    String url
-    String title
+    +url: String
+    +title: String
   }
   interface ChatSessionRepository <<Repository>> {
-    save(session)
-    findById(id)
+    +save(session)
+    +findById(id)
   }
   interface ChatWebSourcesRepository <<Repository>> {
-    findByContentHash(hash)
+    +findByContentHash(hash)
   }
 }
 
@@ -166,37 +165,37 @@ ChatMessage --> ChatMessageType
 ' ── rag ────────────────────────────────────────────────────
 package "com.ai.rag.domain" as pkg_rag {
   class Document <<AggregateRoot>> {
-    DocumentId id
-    OwnerKey ownerKey
-    String title
-    DocumentStatus status
+    +id: DocumentId
+    +ownerKey: OwnerKey
+    +title: String
+    +status: DocumentStatus
     --
-    markProcessing()
-    markReady()
-    markFailed()
-    updateTitle(newTitle)
+    +markProcessing()
+    +markReady()
+    +markFailed()
+    +updateTitle(newTitle)
   }
   class DocumentChunk <<Entity>> {
-    ChunkId id
-    DocumentId documentId
-    String content
+    +id: ChunkId
+    +documentId: DocumentId
+    +content: String
     --
-    {static} create(...)
-    withEmbedding(vector)
+    +{static} create(...)
+    +withEmbedding(vector)
   }
-  enum DocumentStatus <<ValueObject>> {
+  enum DocumentStatus <<Enum>> {
     UPLOADING
     PROCESSING
     READY
     FAILED
   }
   class SourceDocument <<ValueObject>> {
-    String text
-    double score
+    +text: String
+    +score: double
   }
   interface IDocumentRepository <<Repository>> {
-    save(document)
-    findById(id)
+    +save(document)
+    +findById(id)
   }
 }
 
@@ -206,64 +205,64 @@ Document --> DocumentStatus
 ' ── pipeline + skill ───────────────────────────────────────
 package "com.ai.pipeline.domain" as pkg_pipeline {
   class AgentPipeline <<AggregateRoot>> {
-    List nodes
-    List edges
+    +nodes: List
+    +edges: List
     --
-    {static} create(nodes, edges)
-    executionOrder()
+    +{static} create(nodes, edges)
+    +executionOrder()
   }
   class AgentDefinition <<Entity>> {
-    AgentType type
-    String systemPrompt
+    +type: AgentType
+    +systemPrompt: String
   }
   class SavedWorkflowTemplate <<Entity>> {
-    WorkflowTemplateId id
-    String name
+    +id: WorkflowTemplateId
+    +name: String
   }
   interface WorkflowTemplateRepository <<Repository>> {
   }
   interface AgentRegistry <<Repository>> {
-    findByType(type)
+    +findByType(type)
   }
 }
 
 package "com.ai.skill.domain" as pkg_skill {
   class Skill <<AggregateRoot>> {
-    SkillId id
-    String name
-    boolean enabled
+    +id: SkillId
+    +name: String
+    +enabled: boolean
     --
-    {static} create(...)
-    update(name, instructions, tools)
-    enable()
-    disable()
+    +{static} create(...)
+    +update(name, instructions, tools)
+    +enable()
+    +disable()
   }
   interface SkillRepository <<Repository>> {
-    findEnabledByClientIdAndIds(clientId, ids)
+    +findEnabledByClientIdAndIds(clientId, ids)
   }
 }
 
 ' ── automation ─────────────────────────────────────────────
 package "com.ai.automation.domain" as pkg_automation {
   class AutomationSchedule <<AggregateRoot>> {
-    ScheduleId id
-    ScheduleKind kind
-    boolean enabled
+    +id: ScheduleId
+    +kind: ScheduleKind
+    +enabled: boolean
     --
-    {static} create(...)
-    {static} createOnce(...)
-    update(...)
-    enable(nextRunAt)
-    disable()
-    markExecuted(finishedAt, nextRunAt)
-    completeOnce(finishedAt)
-    isOnce()
+    +{static} create(...)
+    +{static} createOnce(...)
+    +update(...)
+    +enable(nextRunAt)
+    +disable()
+    +markExecuted(finishedAt, nextRunAt)
+    +completeOnce(finishedAt)
+    +isOnce()
   }
   class AutomationRun <<Entity>> {
-    RunId id
-    RunStatus status
+    +id: RunId
+    +status: RunStatus
   }
-  enum RunStatus <<ValueObject>> {
+  enum RunStatus <<Enum>> {
     RUNNING
     SUCCEEDED
     FAILED
@@ -275,42 +274,42 @@ AutomationSchedule "1" o-- "0..*" AutomationRun
 ' ── account ────────────────────────────────────────────────
 package "com.ai.account.domain" as pkg_account {
   class AccountUser <<Entity>> {
-    String provider
-    String linkedClientId
+    +provider: String
+    +linkedClientId: String
     --
-    {static} create(provider, subject, email, clientId)
-    linkSession(email, clientId)
-    unlinkBrowser()
+    +{static} create(provider, subject, email, clientId)
+    +linkSession(email, clientId)
+    +unlinkBrowser()
   }
 }
 
 ' ── mcp ────────────────────────────────────────────────────
 package "com.ai.mcp.domain" as pkg_mcp {
   class McpSession <<AggregateRoot>> {
-    UUID id
-    McpSessionStatus status
+    +id: UUID
+    +status: McpSessionStatus
     --
-    {static} open(serverName, toolCount)
-    activate()
-    close()
-    isActive()
+    +{static} open(serverName, toolCount)
+    +activate()
+    +close()
+    +isActive()
   }
   class McpSessionManager <<DomainService>> {
-    register(session)
-    close(sessionId)
+    +register(session)
+    +close(sessionId)
   }
 }
 
 ' ── metrics ────────────────────────────────────────────────
 package "com.ai.metrics.domain" as pkg_metrics {
-  class AiInvocationEvent <<Entity>> {
-    AiDomain domain
-    InvocationOutcome outcome
-    long latencyMs
+  class AiInvocationEvent <<DomainEvent>> {
+    +domain: AiDomain
+    +outcome: InvocationOutcome
+    +latencyMs: long
     --
-    {static} builder()
+    +{static} builder()
   }
-  enum AiDomain <<ValueObject>> {
+  enum AiDomain <<Enum>> {
     CHAT
     RAG
     AGENTS
@@ -322,8 +321,8 @@ package "com.ai.metrics.domain" as pkg_metrics {
 ' ── tools (sample) ─────────────────────────────────────────
 package "com.ai.tools.domain" as pkg_tools {
   class WeatherReport <<Entity>> {
-    String location
-    WeatherInfo current
+    +location: String
+    +current: WeatherInfo
   }
 }
 
