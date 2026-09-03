@@ -17,19 +17,21 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
     maven { url = uri("https://maven.aliyun.com/repository/public") }
     maven { url = uri("https://maven.aliyun.com/repository/spring") }
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.ai:spring-ai-bom:2.0.0")
         mavenBom("me.paulschwarz:spring-dotenv-bom:5.1.0")
     }
 }
 
 dependencies {
+    implementation(platform("com.explore:explore-bom:0.1.0"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

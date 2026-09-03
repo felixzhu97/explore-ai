@@ -518,18 +518,18 @@ should expected result when condition
 
 ## Hard constraints (delivery)
 
-When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](../skills/scrum-team/developers/developer/SKILL.md) §6 (`<type>/<slug>`, Chain PRs, commit/PR templates, prose ≤72 cols) and [Product Owner](../skills/scrum-team/developers/product-owner/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](../skills/scrum-team/developers/developer/references/dependency-docs.md), [sources](../skills/scrum-team/developers/market-tech-analysis/references/sources.md), arXiv).
+When **creating a Jira ticket**, **branching**, **committing**, or **opening a PR**: always follow [developer](../skills/developers/developer/SKILL.md) §6 (`<type>/<slug>`, Chain PRs, commit/PR templates, prose ≤72 cols) and [Product Owner](../skills/developers/jira-delivery/SKILL.md). **References** must prefer official documentation and research links ([dependency-docs](../skills/developers/developer/references/dependency-docs.md), [sources](../skills/developers/market-tech-analysis/references/sources.md), arXiv).
 
 ## Skills (on demand)
 
 | Task | Skill |
 |------|-------|
-| Feature / tests / commit / Apple UX | [developer](../skills/scrum-team/developers/developer/SKILL.md) |
-| Business Analysis（领域 / 统一语言 / 搭桥） | [business-analysis](../skills/scrum-team/developers/business-analysis/SKILL.md)（由 `business-analyst` 必读） |
-| Market + tech strategy（动向 / 竞品 / GTM） | [market-tech-analysis](../skills/scrum-team/developers/market-tech-analysis/SKILL.md)（由 `market-analyst` / `tech-analyst` 按需读取） |
-| Spring AI / RAG / tools | [spring-ai](../skills/scrum-team/developers/spring-ai/SKILL.md) |
-| Angular depth | [angular-developer](../skills/scrum-team/developers/angular-developer/SKILL.md) |
-| Product Owner / Jira | [Product Owner](../skills/scrum-team/developers/product-owner/SKILL.md) |
+| Feature / tests / commit / Apple UX | [developer](../skills/developers/developer/SKILL.md) |
+| Business Analysis（领域 / 统一语言 / 搭桥） | [business-analysis](../skills/developers/business-analysis/SKILL.md)（由 `business-analyst` 必读） |
+| Market + tech strategy（动向 / 竞品 / GTM） | [market-tech-analysis](../skills/developers/market-tech-analysis/SKILL.md)（由 `market-analyst` / `tech-analyst` 按需读取） |
+| Spring AI / RAG / tools | [spring-ai](../skills/developers/spring-ai/SKILL.md) |
+| Angular depth | [angular-developer](../skills/developers/angular-developer/SKILL.md) |
+| Product Owner / Jira | [Product Owner](../skills/developers/jira-delivery/SKILL.md) |
 
 <!-- source: ~/.cursor/rules/java-standards.mdc -->
 

@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CorsProperties {
 
   private List<String> allowedOriginPatterns =
-      new ArrayList<>(List.of("http://localhost:4200", "http://localhost:3000"));
+      new ArrayList<>(List.of("http://localhost:4200"));
 
   public List<String> getAllowedOriginPatterns() {
     return allowedOriginPatterns;

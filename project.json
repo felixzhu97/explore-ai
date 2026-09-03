@@ -1,0 +1,31 @@
+{
+  "name": "explore-ai",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "explore-ai",
+  "projectType": "application",
+  "tags": ["type:app", "scope:explore", "lang:java"],
+  "implicitDependencies": ["explore-bom", "contracts-ai"],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test -f build.gradle.kts && test -f package.json && echo explore-ai nx project ok",
+        "cwd": "{projectRoot}"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test -f gradlew && echo explore-ai test stub ok — run ./gradlew test locally",
+        "cwd": "{projectRoot}"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test -f gradlew && echo explore-ai build stub ok — run ./gradlew build locally",
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}
