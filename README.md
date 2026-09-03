@@ -1,81 +1,36 @@
-# ExploreAI
+# explore-ai
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](https://spring.io/projects/spring-boot)
-[![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0-blue.svg)](https://docs.spring.io/spring-ai/reference/)
+`explore-ai` is a full-stack platform for conversational AI. You can chat with multiple LLM providers, upload documents for RAG retrieval, call tools (weather, web search, datetime), and run Golden Eval regression checks against chat and RAG quality.
 
-ExploreAI brings AI into everyday life. Our mission is to drive breakthroughs that benefit people, society, and the products we use every day.
+The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. Architecture follows `web → application → domain ← infrastructure`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
+
+Optional modules—agents, MCP, vision, audio, image generation, metrics, and more—are tracked in the [User Story Map](docs/product-owner/User-Story-Map.md).
 
 **Live:** [https://www.felixzhu.chat](https://www.felixzhu.chat)
 
-## Table of Contents
+## Get started
 
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Deployment](#deployment)
-- [License](#license)
+### Requirements
 
-## Features
+You need JDK 25+, Node.js 20+, pnpm 8+, and Git. For local RAG embeddings, install [Ollama](https://ollama.com/) and run `ollama pull qwen3-embedding:0.6b` (re-ingest documents after changing embedding models).
 
-| Area | Capability |
-|------|------------|
-| **Chat** | Multi-provider LLM, SSE streaming, session-friendly UX |
-| **RAG** | Document upload, vector retrieval (local Ollama embeddings) |
-| **Tool Calling** | Weather, web search (Serper), datetime, and related tools |
-| **Eval** | LLM-as-a-Judge; Golden Suite regression (Chat + RAG, test-only) |
+### Initial install
 
-Optional modules (vision, audio, image generation, MCP, agents, metrics, and more) are documented in the [User Story Map](docs/product-owner/User-Story-Map.md) and [Quick Start](docs/developer/QUICKSTART.md).
-
-## Tech Stack
-
-| Layer | Choice |
-|-------|--------|
-| Backend | Java 25, Spring Boot 4.1, Spring AI 2.0 |
-| Frontend | Angular 22, TypeScript, pnpm |
-| Data | H2 (embedded) + Liquibase |
-| Local AI | Ollama (`qwen3-embedding:0.6b` for RAG) |
-
-Architecture: `web → application → domain ← infrastructure`. See [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md).
-
-## Prerequisites
-
-| Tool | Version |
-|------|---------|
-| JDK | 25+ |
-| Node.js | 20+ |
-| pnpm | 8+ |
-| Git | latest |
-
-Optional for RAG: [Ollama](https://ollama.com/) and `ollama pull qwen3-embedding:0.6b` (re-ingest documents after changing embedding models).
-
-## Getting Started
+Clone the repository, create your environment file, and load variables:
 
 ```bash
 git clone https://github.com/felixzhu97/explore-ai.git
 cd explore-ai
-```
-
-### 1. Environment
-
-```bash
-cat > .env << EOF
-DEEPSEEK_API_KEY=your-deepseek-key
-OPENAI_API_KEY=your-openai-key      # optional
-SERPER_API_KEY=your-serper-key      # optional (web search)
-EOF
-```
-
-```bash
+cp .env.example .env
+# Edit .env — at minimum set DEEPSEEK_API_KEY
 set -a && source .env && set +a
 ```
 
-### 2. Backend
+For a full walkthrough (API keys, Ollama, troubleshooting), see [Quick Start](docs/developer/QUICKSTART.md).
+
+### Backend
+
+Start the Spring Boot API:
 
 ```bash
 ./gradlew bootRun
@@ -83,15 +38,9 @@ set -a && source .env && set +a
 curl -s http://localhost:9000/actuator/health
 ```
 
-Smoke check:
+### Frontend
 
-```bash
-curl -X POST http://localhost:9000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "你好"}'
-```
-
-### 3. Frontend
+In a second terminal:
 
 ```bash
 cd src/main/web
@@ -100,49 +49,52 @@ pnpm start
 # → http://localhost:4200
 ```
 
-More detail: [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
+### Run your first chat
+
+With the backend running:
+
+```bash
+curl -X POST http://localhost:9000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello"}'
+```
+
+Open [http://localhost:4200](http://localhost:4200) for the full UI. See [Quick Start](docs/developer/QUICKSTART.md) for session flows, RAG upload, and tool calling.
+
+### Stop local services
+
+Press `Ctrl+C` in each terminal running `bootRun` and `pnpm start`. To reset local H2 data, remove the directory configured by `H2_URL` (default under `./data/explore-ai`).
 
 ## Configuration
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `DEEPSEEK_API_KEY` | Yes (default path) | Primary chat / eval models |
-| `OPENAI_API_KEY` | No | OpenAI-compatible features |
-| `SERPER_API_KEY` | No | Web search tool |
-| `H2_URL` | No | Override DB URL (default `./data/explore-ai`) |
-| `GOLDEN_EVAL_IT` | No | Set `true` for live Golden Eval IT ([guide](docs/developer/golden-eval.md)) |
+Environment variables override defaults in `src/main/resources/application.yml`. Do not commit real secrets.
 
-Defaults live in `src/main/resources/application.yml`. Do not commit real secrets.
+- **`DEEPSEEK_API_KEY`** — required for the default chat and eval path
+- **`OPENAI_API_KEY`** — optional OpenAI-compatible features
+- **`SERPER_API_KEY`** — optional web search tool
+- **`H2_URL`** — optional database URL override
+- **`GOLDEN_EVAL_IT`** — set `true` to enable live Golden Eval integration tests ([guide](docs/developer/golden-eval.md))
 
-## Testing
+See [`.env.example`](.env.example) for the full list.
 
-```bash
-./gradlew test
-```
+## Next steps
 
-Live Golden Eval (paid/local LLM calls): see [docs/developer/golden-eval.md](docs/developer/golden-eval.md).
+- Take a guided setup in [Quick Start](docs/developer/QUICKSTART.md)
+- Read the [API reference](docs/developer/api.md)
+- Run [Golden Eval](docs/developer/golden-eval.md) (LLM-as-a-Judge regression)
+- Browse the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md)
+- Explore capabilities on the [User Story Map](docs/product-owner/User-Story-Map.md)
+- Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](vercel.json) (proxies `/api/*` to Render)
 
-## Documentation
+Run unit tests with `./gradlew test`.
 
-| Doc | Link |
-|-----|------|
-| Quick start | [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md) |
-| Golden Eval | [docs/developer/golden-eval.md](docs/developer/golden-eval.md) |
-| API | [docs/developer/api.md](docs/developer/api.md) |
-| C4 model | [docs/developer/c4-model/](docs/developer/c4-model/) |
-| Glossary | [docs/Glossary.md](docs/Glossary.md) |
-| User story map | [docs/product-owner/User-Story-Map.md](docs/product-owner/User-Story-Map.md) |
+## Contributing
 
-![C1 Context](docs/developer/c4-model/png/C1-Context.png)
+Contributions are welcome. Open an issue or pull request on [GitHub](https://github.com/felixzhu97/explore-ai). Keep domain and API names aligned with the [Glossary](docs/Glossary.md) when changing behavior or docs.
 
-## Deployment
+## Project status
 
-| Target | Role |
-|--------|------|
-| [Render Starter](https://render.com/docs/compute-plans) | Backend via [`render.yaml`](render.yaml); health: `/actuator/health` (always-on) |
-| [Vercel](https://vercel.com) | Frontend; [`vercel.json`](vercel.json) rewrites `/api/*` to Render |
-
-Starter notes: always-on (no Free idle spin-down), still 512MB RAM — keep Datadog javaagent off. Optional RUM on Vercel: `DD_APPLICATION_ID`, `DD_CLIENT_TOKEN`.
+`explore-ai` is under active development. Modules, APIs, and configuration may change before a 1.0 release.
 
 ## License
 
