@@ -83,6 +83,7 @@ See [`.env.example`](.env.example) for the full list.
 - Read the [API reference](docs/developer/api.md)
 - Run [Golden Eval](docs/developer/golden-eval.md) (LLM-as-a-Judge regression)
 - Browse the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md)
+- Browse the AI [Guideline](docs/Guideline.md)
 - Explore capabilities on the [User Story Map](docs/product-owner/User-Story-Map.md)
 - Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](vercel.json) (proxies `/api/*` to Render)
 
