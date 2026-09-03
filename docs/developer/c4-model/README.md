@@ -9,7 +9,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | Track | Files | Style |
 | ----- | ----- | ----- |
 | **Structural C4** | C1–C3, Deployment | Official **`C4_blue_new`** theme（线框；勿与 zinc 混用） |
-| **Domain + Dynamics** | Code domain model, `C4-Dynamic-*` | Shared zinc look via [`style-zinc.puml`](style-zinc.puml) |
+| **Domain + Dynamics** | Code domain model, `C4-Dynamic-*` | [`style-zinc.puml`](style-zinc.puml)（白底 + 彩色边框，IAM 风格） |
 
 Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc.puml` 用于 structural C4）。
 
@@ -22,7 +22,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | `C3-Component.puml` | C3 | **单图**：前后端组件 + Clean Architecture 四层 |
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；对齐 `com.ai.*.domain`） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地 dev + 生产（Vercel + Render） |
-| `style-zinc.puml` | Shared | Code + Dynamics 共用 zinc 样式 |
+| `style-zinc.puml` | Shared | Code + Dynamic 共用样式（白底、标题色区分 stereotype） |
 | `C4-Dynamic-Document-Upload.puml` | Dynamic | 文档上传 ETL |
 | `C4-Dynamic-Rag-Ask.puml` | Dynamic | RAG SSE 问答 |
 | `C4-Dynamic-Chat-Tools.puml` | Dynamic | Chat 工具 SSE + A2UI 图表 |
@@ -64,7 +64,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 
 ![C4-Code-Domain-Model](png/C4-Code-Domain-Model.png)
 
-按 `com.ai.*.domain` 分包；Aggregate / Entity 展示领域行为（factory、状态转换、聚合内操作）。术语见 [Glossary](../../Glossary.md) Appendix A。
+按 `com.ai.*.domain` 分包；**AggregateRoot** 绿 · **Entity** 蓝 · **ValueObject** 橙 · **Enum** 琥珀 · **DomainEvent** 紫（白底 + 彩色边框/标题，与 IAM authorization 图一致）。成员使用 UML `+field: Type` / `+method()`。术语见 [Glossary](../../Glossary.md) Appendix A。
 
 ---
 
