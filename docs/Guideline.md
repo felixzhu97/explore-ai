@@ -182,42 +182,68 @@ Keep Spring AI, Ollama, and provider labels out of end-user chrome unless the pe
 
 ## Related
 
-| Topic | URL |
-| ----- | --- |
-| Apple HIG — Generative AI | https://developer.apple.com/design/human-interface-guidelines/generative-ai |
-| Attention Is All You Need | https://arxiv.org/abs/1706.03762 |
-| Retrieval-Augmented Generation | https://arxiv.org/abs/2005.11401 |
-| ReAct | https://arxiv.org/abs/2210.03629 |
-| Toolformer | https://arxiv.org/abs/2302.04761 |
-| Judging LLM-as-a-Judge | https://arxiv.org/abs/2306.05685 |
-| Whisper | https://arxiv.org/abs/2212.04356 |
-| Latent Diffusion Models | https://arxiv.org/abs/2112.10752 |
-| DeepSeek-V3 | https://arxiv.org/abs/2412.19437 |
-| Model Context Protocol | https://modelcontextprotocol.io/ |
-| MCP specification | https://spec.modelcontextprotocol.io/ |
-| Server-Sent Events (WHATWG) | https://html.spec.whatwg.org/multipage/server-sent-events.html |
-| Hugging Face | https://huggingface.co/ |
-| arXiv cs.AI | https://arxiv.org/list/cs.AI/recent |
-| Qwen | https://qwen.ai/ |
-| Qwen3 Embedding | https://qwenlm.github.io/blog/qwen3-embedding/ |
-| GGUF | https://huggingface.co/docs/hub/en/gguf |
-| ONNX Runtime | https://onnxruntime.ai/ |
-| DeepSeek | https://github.com/deepseek-ai |
-| OpenAI Evals | https://github.com/openai/evals |
+[Apple HIG — Generative AI](https://developer.apple.com/design/human-interface-guidelines/generative-ai)
+
+[Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+
+[Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401)
+
+[ReAct](https://arxiv.org/abs/2210.03629)
+
+[Toolformer](https://arxiv.org/abs/2302.04761)
+
+[Judging LLM-as-a-Judge](https://arxiv.org/abs/2306.05685)
+
+[Whisper](https://arxiv.org/abs/2212.04356)
+
+[Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
+
+[DeepSeek-V3](https://arxiv.org/abs/2412.19437)
+
+[Model Context Protocol](https://modelcontextprotocol.io/)
+
+[MCP specification](https://spec.modelcontextprotocol.io/)
+
+[Hugging Face](https://huggingface.co/)
+
+[arXiv cs.AI](https://arxiv.org/list/cs.AI/recent)
+
+[Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/)
+
+[OpenAI Evals](https://github.com/openai/evals)
 
 ## Developer documentation
 
-| Topic | URL |
-| ----- | --- |
-| Spring AI reference | https://docs.spring.io/spring-ai/reference/ |
-| Spring AI evaluation testing | https://docs.spring.io/spring-ai/reference/api/testing.html |
-| DeepSeek API | https://api-docs.deepseek.com/ |
-| OpenAI platform docs | https://platform.openai.com/docs |
-| Anthropic docs | https://docs.anthropic.com/ |
-| Ollama | https://github.com/ollama/ollama |
-| Glossary | [Glossary.md](Glossary.md) |
-| Quick Start | [developer/QUICKSTART.md](developer/QUICKSTART.md) |
-| API | [developer/api.md](developer/api.md) |
-| Golden Eval | [developer/golden-eval.md](developer/golden-eval.md) |
-| C4 model | [developer/c4-model/](developer/c4-model/) |
-| User Story Map | [product-owner/User-Story-Map.md](product-owner/User-Story-Map.md) |
+[Spring AI reference](https://docs.spring.io/spring-ai/reference/)
+
+[Spring AI ChatClient](https://docs.spring.io/spring-ai/reference/api/chatclient.html)
+
+[Spring AI Advisors](https://docs.spring.io/spring-ai/reference/api/advisors.html)
+
+[Spring AI Retrieval Augmented Generation](https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html)
+
+[Spring AI Tool Calling](https://docs.spring.io/spring-ai/reference/api/tools.html)
+
+[Spring AI Chat Memory](https://docs.spring.io/spring-ai/reference/api/chat-memory.html)
+
+[Spring AI MCP](https://docs.spring.io/spring-ai/reference/guides/getting-started-mcp.html)
+
+[Spring AI MCP Client](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html)
+
+[Spring AI evaluation testing](https://docs.spring.io/spring-ai/reference/api/testing.html)
+
+[DeepSeek API](https://api-docs.deepseek.com/)
+
+[Ollama](https://github.com/ollama/ollama)
+
+[OpenAI platform docs](https://platform.openai.com/docs)
+
+[Anthropic docs](https://docs.anthropic.com/)
+
+[Glossary](Glossary.md)
+
+[Quick Start](developer/QUICKSTART.md)
+
+[API](developer/api.md)
+
+[Golden Eval](developer/golden-eval.md)
