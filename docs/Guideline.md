@@ -1,145 +1,190 @@
-# 指南
+# Guideline
 
-`explore-ai` 中 Chat、RAG、Tools、MCP、Agents、Eval、Metrics 与本地模型的构建与集成准则。
+Generative AI in `explore-ai` helps people chat, retrieve knowledge, call tools, run agents, evaluate quality, and work with local models. Use it to offer features that save time, improve communication, and unlock creativity—when those outcomes are clear and specific.
 
-## 协议与平台 API
+## Introduction
 
-**以 Spring AI 作为对话、工具、RAG、MCP 与评估器的集成面。**
+This guideline describes how to design and integrate Chat, RAG, Tools, MCP, Agents, Eval, Metrics, and local models in `explore-ai`. Prefer official documentation and primary research when changing AI behavior. Product vocabulary lives in the [Glossary](Glossary.md); architecture boundaries live in the [C4 model](developer/c4-model/).
 
-在其能力范围内基于官方参考实现，不自行对接各厂商 HTTP 客户端。详见 [Spring AI reference](https://docs.spring.io/spring-ai/reference/)。
+## Best practices
 
-**跨进程边界时，通过 MCP 暴露与消费工具。**
+**Design your experience responsibly.**
 
-服务端与客户端工具契约遵循 Model Context Protocol。详见 [MCP](https://modelcontextprotocol.io/) 与 [规范](https://spec.modelcontextprotocol.io/)。
+Responsible AI considers direct and indirect impacts on people, systems, and society. It is often easy to prototype an exciting AI feature, yet harder to create a robust experience that works in real situations. Small changes to inputs—or the same input given more than once—can produce very different outcomes. Orient design around experiences that are inclusive, crafted with care, and protective of privacy.
 
-**助手输出使用 Server-Sent Events 流式返回。**
+**Keep people in control.**
 
-Chat 与 RAG 回复采用 SSE，让用户无需等待整段完成。事件形状保持稳定，并在 [API](developer/api.md) 中文档化。规范见 [WHATWG SSE](https://html.spec.whatwg.org/multipage/server-sent-events.html)。
+Respect people’s agency. Honor in-scope requests when the expected output is clear, handle sensitive content carefully, and let people dismiss, retry, or revert results they do not want. Clearly identify when and where the product uses AI. In Chat and Pipeline, prefer visible actions—send, stop, retry, apply Skill—over silent automation.
 
-**通过已文档化的 API 配置模型提供方。**
+**Offer generative features only where they provide clear value.**
 
-默认对话与评估使用 [DeepSeek](https://api-docs.deepseek.com/)。启用 OpenAI 兼容或 Anthropic 路径时遵循其官方文档。本地运行时使用 [Ollama](https://github.com/ollama/ollama)。
+Generative AI is powerful, but it is not the right solution for every situation. Prefer Chat, RAG, tools, and agents when they deliver time savings, grounded answers, or creative leverage. Avoid adding AI because it is new or expected.
 
-## Chat 与会话
+**Ensure a useful experience when generative features are unavailable.**
 
-**每个 Chat Session 归属明确的 Owner Key。**
+People may lack API keys, opt out of a provider, or run without a local model. Keep non-AI paths usable where reasonable—document browsing, empty states, and clear setup guidance—so the product does not feel broken when generation cannot run.
 
-会话与消息按浏览器或账号边界隔离；跨 Owner 访问返回未找到，界面回到新建对话。术语见 [Glossary](Glossary.md)。
+**Score quality with evaluators, not anecdotes.**
 
-**空会话不进入历史列表。**
+Golden Eval uses Spring AI evaluators and versioned cases so quality stays measurable as prompts and models change. See [Judging LLM-as-a-Judge](https://arxiv.org/abs/2306.05685) and [Spring AI evaluation testing](https://docs.spring.io/spring-ai/reference/api/testing.html).
 
-仅有用户或助手实质内容后才持久化到侧栏 Recents；空消息体不展示为气泡。
+## Transparency
 
-**流式与记忆职责分离。**
+**Communicate where the product uses AI.**
 
-流式传输负责呈现；会话记忆由 ChatMemory / 仓储边界持久化，不在 UI 层拼装权威历史。
+Letting people know when AI is involved sets expectations and lets them choose knowingly. Never present model output as if it were authored by a human without disclosure.
 
-## RAG
+**Set clear expectations about what a feature can and cannot do.**
 
-**在 RAG 中保持检索与生成分离。**
+Clarify capabilities and limits so people build an accurate mental model—for example, RAG answers depend on uploaded documents; tools only run when registered and permitted.
 
-先检索文档分块，再基于上下文生成。经典框架：[Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401)。
+**Surface sources for grounded answers.**
 
-**上传链路完成分块与嵌入后再标记就绪。**
+When RAG retrieves context, show Source Document hits or equivalent citations. Avoid ungrounded “knowledge base” claims.
 
-Document 状态机（上传中 → 处理中 → 就绪 / 失败）对用户可见；失败可重试，不假装已可问答。
+## Privacy
 
-**不要混用嵌入空间。**
+**Isolate every Chat Session with an Owner Key.**
 
-更换嵌入模型后须重新入库文档。向量维度与模型标识必须与存储 schema 一致。默认嵌入见 [Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/)。
+Sessions and messages stay within browser or account boundaries. Cross-owner access returns not found; the UI returns to a new chat. Terms: [Glossary](Glossary.md).
 
-**问答回答须可追溯到 Source Document。**
+**Ask only for the data a feature needs.**
 
-展示检索命中或等价引用线索，避免无出处的“知识库”空话。
+Provider keys, documents, and optional account linking stay purpose-bound. Offer clear ways to revoke access or erase data where the product supports privacy controls.
 
-## 工具、MCP 与 Agent
+**Disclose how models and providers use shared information.**
 
-**工具型 Agent 围绕明确的推理—行动循环设计。**
+People are more comfortable when they understand where prompts and documents go—local Ollama versus a remote provider—before they commit sensitive content.
 
-工具契约清晰、步骤可观测。基础读物：[ReAct](https://arxiv.org/abs/2210.03629)、[Toolformer](https://arxiv.org/abs/2302.04761)。
+## Protocols and platform APIs
 
-**内置工具与 MCP 工具使用同一套可调用约定。**
+**Use Spring AI as the integration surface for chat, tools, RAG, MCP, and evaluators.**
 
-天气、检索、日期时间等与 MCP 注册工具在命名、描述与错误返回上保持一致，便于 Chat 与 Pipeline 复用。
+Stay within documented APIs instead of custom provider HTTP clients. See the [Spring AI reference](https://docs.spring.io/spring-ai/reference/).
 
-**Pipeline 画布表达的是有向执行图，而非自由闲聊。**
+**Follow Model Context Protocol for cross-process tools.**
 
-节点为可编辑的 Agent 副本（提示词与工具）；边表达依赖顺序。模版与运行结果分开展示。
+Server and client tool contracts follow MCP. See [MCP](https://modelcontextprotocol.io/) and the [specification](https://spec.modelcontextprotocol.io/).
 
-**Skill 是可复用指令包，在 Chat 中显式应用。**
+**Stream assistant output with Server-Sent Events.**
 
-Skill 变更不隐式改写历史会话；应用范围对用户可见。
+Chat and RAG replies use SSE so people see progress without waiting for a full completion. Keep event shapes stable and documented in the [API](developer/api.md). See [WHATWG SSE](https://html.spec.whatwg.org/multipage/server-sent-events.html).
 
-## Eval 与 Metrics
+**Configure providers through documented APIs.**
 
-**用评估器衡量质量，而不是凭轶事判断。**
+Default chat and eval use [DeepSeek](https://api-docs.deepseek.com/). OpenAI-compatible and Anthropic paths follow their official docs when enabled. Local runtimes use [Ollama](https://github.com/ollama/ollama).
 
-Golden Eval 使用 Spring AI 评估器与约定用例格式。评判可靠性：[Judging LLM-as-a-Judge](https://arxiv.org/abs/2306.05685)；实现参考：[Spring AI evaluation testing](https://docs.spring.io/spring-ai/reference/api/testing.html)、[OpenAI Evals](https://github.com/openai/evals)。
+## Chat and sessions
 
-**用例以可版本化的输入与期望为主。**
+**Persist history for non-empty sessions only.**
 
-扩展套件时追加结构化用例（如 JSONL：`id`、`input`、`ideal`、`metadata`），避免只靠手工截图验收。
+Add sessions to Recents only after substantive user or assistant content. Empty message bodies do not render as bubbles.
 
-**Metrics 记录可聚合的调用事实。**
+**Separate streaming from memory.**
 
-按 domain、outcome、latency、token 等维度观测；看板与下钻对齐 Glossary 中的指标用语。
+Streaming is presentation. Session memory persists through ChatMemory and repository boundaries—not as authoritative history assembled in the UI.
 
-## 语音与图像
+**Make it easy to refine or retry generated replies.**
 
-**语音与图像链路对齐各自领域的成熟方法。**
+Prefer stop, regenerate, and edit flows near assistant content so people stay in charge of the conversation.
 
-ASR 代表性路径：[Whisper](https://arxiv.org/abs/2212.04356)。图像生成代表性路径：[Latent Diffusion Models](https://arxiv.org/abs/2112.10752)。不混用不兼容的模型契约。
+## Retrieval-augmented generation
 
-**TTS、ASR、图像生成与图像分析分路由呈现。**
+**Keep retrieval and generation separate.**
 
-Generation 壳层组织图像与 TTS；Vision / ASR 保持独立入口，避免把多模态能力塞进单一「AI 杂项」页。
+Retrieve document chunks, then generate with grounded context. Classic framing: [Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401).
 
-## 模型与本地运行时
+**Mark documents ready only after chunking and embedding.**
 
-**将基于 Transformer 的解码视为对话与本地模型的基础。**
+The Document state machine (uploading → processing → ready / failed) stays visible. Failures are retryable; do not pretend Q&A is available early.
 
-共享词汇（token、采样、上下文长度）见 [Attention Is All You Need](https://arxiv.org/abs/1706.03762) 与 Glossary Appendix D。
+**Do not mix embedding spaces.**
 
-**优先选用有文档的开源模型与稳定打包格式。**
+After changing an embedding model, re-ingest documents. Vector dimensions and model identity must match the store schema. Default embeddings: [Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/).
 
-对话默认跟随 DeepSeek（[DeepSeek-V3](https://arxiv.org/abs/2412.19437)、[deepseek-ai](https://github.com/deepseek-ai)）。嵌入与多模态跟随 [Qwen](https://qwen.ai/)。发现与比较模型：[Hugging Face](https://huggingface.co/)；跟踪新工作：[arXiv cs.AI](https://arxiv.org/list/cs.AI/recent)。
+## Tools, MCP, and agents
 
-**按用途使用 GGUF 与 ONNX。**
+**Design tool-using agents around clear reason–act loops.**
 
-本地 LLM 权重：[GGUF](https://huggingface.co/docs/hub/en/gguf)。本地视觉引擎：[ONNX Runtime](https://onnxruntime.ai/)。
+Tool contracts stay explicit and steps observable. Readings: [ReAct](https://arxiv.org/abs/2210.03629), [Toolformer](https://arxiv.org/abs/2302.04761).
 
-**冷启动与上下文长度对用户可感知。**
+**Share callable conventions across built-in and MCP tools.**
 
-首次加载本地模型可能较慢；请求不得超过运行时声明的 context length。
+Weather, search, datetime, and MCP-registered tools share naming, description, and error shape so Chat and Pipeline can reuse them.
 
-## 文案约定
+**Treat the Pipeline canvas as a directed execution graph.**
 
-**产品语言使用 Chat、RAG、Tool Calling、MCP、Eval、Metrics。**
+Nodes are editable Agent copies (prompt and tools); edges express dependency order. Templates and run results stay separate.
 
-界面中若已有 Preferred Term，避免使用厂商品牌名（见 Glossary *Terms to Avoid*）。
+**Apply Skills as reusable instruction packs.**
 
-**Spring AI、Ollama 与提供方名称仅出现在面向开发者的文档中。**
+Skills are explicit in Chat. Edits do not silently rewrite history; scope stays visible to people.
 
-除非用户正在选择提供方，否则不把框架或厂商名放进终端界面。
+**Confirm before irreversible or high-impact tool actions.**
 
-**链接到活文档，而不是复制内容。**
+When a tool can send mail, delete data, or trigger automation, prefer clear confirmation over silent side effects.
 
-上手：[Quick Start](developer/QUICKSTART.md)。契约：[API](developer/api.md)。回归：[Golden Eval](developer/golden-eval.md)。旅程：[User Story Map](product-owner/User-Story-Map.md)。术语：[Glossary](Glossary.md)。架构：[C4 模型](developer/c4-model/)。
+## Evaluation and metrics
 
-## 相关资源
+**Prefer versioned inputs and expected outputs.**
 
-| 资源 | URL |
-| ---- | --- |
-| Spring AI 参考 | https://docs.spring.io/spring-ai/reference/ |
-| Spring AI 评估测试 | https://docs.spring.io/spring-ai/reference/api/testing.html |
-| MCP | https://modelcontextprotocol.io/ |
-| MCP 规范 | https://spec.modelcontextprotocol.io/ |
-| OpenAI 平台文档 | https://platform.openai.com/docs |
-| OpenAI Evals | https://github.com/openai/evals |
-| DeepSeek API | https://api-docs.deepseek.com/ |
-| Anthropic 文档 | https://docs.anthropic.com/ |
-| Ollama | https://github.com/ollama/ollama |
-| SSE（WHATWG） | https://html.spec.whatwg.org/multipage/server-sent-events.html |
+Extend suites with structured cases (for example JSONL: `id`, `input`, `ideal`, `metadata`). Do not rely on screenshots alone. Case format: [OpenAI Evals](https://github.com/openai/evals).
+
+**Record aggregatable invocation facts in Metrics.**
+
+Observe domain, outcome, latency, and tokens. Dashboards and drill-down use Glossary metric language.
+
+**Let people and developers improve quality over time.**
+
+Eval regressions and Metrics trends guide prompt, model, and tool changes—treat them as continuous improvement signals, not one-off demos.
+
+## Speech and imagery
+
+**Align each modality with mature methods.**
+
+ASR lineage: [Whisper](https://arxiv.org/abs/2212.04356). Image generation lineage: [Latent Diffusion Models](https://arxiv.org/abs/2112.10752). Do not mix incompatible model contracts.
+
+**Keep separate routes for TTS, ASR, image generation, and image analysis.**
+
+The Generation shell organizes image and TTS. Vision and ASR keep their own entries—avoid a single catch-all multimodal page.
+
+**Factor processing time into the experience.**
+
+Generative work can take longer than ordinary UI actions. Prefer specific status (for example summarizing or embedding) over a vague “Processing…” label, and allow cancel where streaming supports it.
+
+## Models and local runtimes
+
+**Treat Transformer decoding as the foundation for chat and local models.**
+
+Shared vocabulary (tokens, sampling, context length): [Attention Is All You Need](https://arxiv.org/abs/1706.03762) and Glossary Appendix D.
+
+**Prefer documented open models and stable packaging.**
+
+Chat defaults follow DeepSeek ([DeepSeek-V3](https://arxiv.org/abs/2412.19437), [deepseek-ai](https://github.com/deepseek-ai)). Embeddings and multimodal families follow [Qwen](https://qwen.ai/). Discover models on [Hugging Face](https://huggingface.co/); scan new work on [arXiv cs.AI](https://arxiv.org/list/cs.AI/recent).
+
+**Use GGUF for local LLM weights and ONNX for local vision.**
+
+See [GGUF](https://huggingface.co/docs/hub/en/gguf) and [ONNX Runtime](https://onnxruntime.ai/).
+
+**Make cold start and context length visible.**
+
+First load of a local model may be slow. Requests must not exceed the runtime’s declared context length.
+
+## Product language
+
+**Use Preferred Terms in product UI: Chat, RAG, Tool Calling, MCP, Eval, Metrics.**
+
+Avoid vendor brand names in the UI when a Preferred Term exists (Glossary *Terms to Avoid*).
+
+**Keep framework and provider names in developer documentation.**
+
+Keep Spring AI, Ollama, and provider labels out of end-user chrome unless the person is choosing a provider.
+
+## Related
+
+| Topic | URL |
+| ----- | --- |
+| Apple HIG — Generative AI | https://developer.apple.com/design/human-interface-guidelines/generative-ai |
 | Attention Is All You Need | https://arxiv.org/abs/1706.03762 |
 | Retrieval-Augmented Generation | https://arxiv.org/abs/2005.11401 |
 | ReAct | https://arxiv.org/abs/2210.03629 |
@@ -148,9 +193,31 @@ Generation 壳层组织图像与 TTS；Vision / ASR 保持独立入口，避免�
 | Whisper | https://arxiv.org/abs/2212.04356 |
 | Latent Diffusion Models | https://arxiv.org/abs/2112.10752 |
 | DeepSeek-V3 | https://arxiv.org/abs/2412.19437 |
+| Model Context Protocol | https://modelcontextprotocol.io/ |
+| MCP specification | https://spec.modelcontextprotocol.io/ |
+| Server-Sent Events (WHATWG) | https://html.spec.whatwg.org/multipage/server-sent-events.html |
+| Hugging Face | https://huggingface.co/ |
+| arXiv cs.AI | https://arxiv.org/list/cs.AI/recent |
 | Qwen | https://qwen.ai/ |
 | Qwen3 Embedding | https://qwenlm.github.io/blog/qwen3-embedding/ |
-| Hugging Face | https://huggingface.co/ |
 | GGUF | https://huggingface.co/docs/hub/en/gguf |
 | ONNX Runtime | https://onnxruntime.ai/ |
-| arXiv cs.AI | https://arxiv.org/list/cs.AI/recent |
+| DeepSeek | https://github.com/deepseek-ai |
+| OpenAI Evals | https://github.com/openai/evals |
+
+## Developer documentation
+
+| Topic | URL |
+| ----- | --- |
+| Spring AI reference | https://docs.spring.io/spring-ai/reference/ |
+| Spring AI evaluation testing | https://docs.spring.io/spring-ai/reference/api/testing.html |
+| DeepSeek API | https://api-docs.deepseek.com/ |
+| OpenAI platform docs | https://platform.openai.com/docs |
+| Anthropic docs | https://docs.anthropic.com/ |
+| Ollama | https://github.com/ollama/ollama |
+| Glossary | [Glossary.md](Glossary.md) |
+| Quick Start | [developer/QUICKSTART.md](developer/QUICKSTART.md) |
+| API | [developer/api.md](developer/api.md) |
+| Golden Eval | [developer/golden-eval.md](developer/golden-eval.md) |
+| C4 model | [developer/c4-model/](developer/c4-model/) |
+| User Story Map | [product-owner/User-Story-Map.md](product-owner/User-Story-Map.md) |
