@@ -162,7 +162,7 @@ describe('ChatBubbleListComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).not.toContain('思考中...');
-    expect(component.bubbleItems()[0].loading).toBe(false);
+    expect(component.bubbleItems()).toEqual([]);
   });
 
   it('should collapse long user messages when enabled', () => {
