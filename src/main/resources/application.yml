@@ -209,8 +209,11 @@ app:
       enabled: ${APP_OAUTH_EXPLORE_IAM_ENABLED:false}
       client-id: ${EXPLORE_IAM_CLIENT_ID:}
       client-secret: ${EXPLORE_IAM_CLIENT_SECRET:}
-      issuer-uri: ${APP_OAUTH_EXPLORE_IAM_ISSUER_URI:}
+      # Issuer for OAuth2 Login and JWT resource server (native Bearer tokens).
+      issuer-uri: ${APP_OAUTH_EXPLORE_IAM_ISSUER_URI:http://localhost:9100}
       redirect-uri: ${APP_OAUTH_EXPLORE_IAM_REDIRECT_URI:}
+      # Validate Authorization: Bearer access tokens from Explore IAM (iOS / APIs).
+      resource-server-enabled: ${APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER:true}
   service-auth:
     api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:

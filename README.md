@@ -74,6 +74,8 @@ Environment variables override defaults in `src/main/resources/application.yml`.
 - **`SERPER_API_KEY`** — optional web search tool
 - **`H2_URL`** — optional database URL override
 - **`GOLDEN_EVAL_IT`** — set `true` to enable live Golden Eval integration tests ([guide](docs/developer/golden-eval.md))
+- **`APP_OAUTH_EXPLORE_IAM_ISSUER_URI`** — Explore IAM issuer (default `http://localhost:9100`) for OAuth Login and JWT resource server
+- **`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER`** — accept IAM `Authorization: Bearer` tokens (default `true`)
 
 See [`.env.example`](.env.example) for the full list.
 

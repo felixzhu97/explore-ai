@@ -57,6 +57,7 @@ class CsrfProtectionFilterTest {
   void shouldAllowPostWhenCsrfHeaderPresent() throws Exception {
     when(request.getRequestURI()).thenReturn("/api/sessions");
     when(request.getMethod()).thenReturn("POST");
+    when(request.getHeader("Authorization")).thenReturn(null);
     when(request.getHeader(CsrfProtectionFilter.HEADER_NAME))
         .thenReturn(CsrfProtectionFilter.HEADER_VALUE);
 
@@ -70,6 +71,7 @@ class CsrfProtectionFilterTest {
   void shouldRejectPostWhenCsrfHeaderMissing() throws Exception {
     when(request.getRequestURI()).thenReturn("/api/sessions");
     when(request.getMethod()).thenReturn("POST");
+    when(request.getHeader("Authorization")).thenReturn(null);
     when(request.getHeader(CsrfProtectionFilter.HEADER_NAME)).thenReturn(null);
 
     filter.doFilter(request, response, filterChain);
@@ -77,6 +79,17 @@ class CsrfProtectionFilterTest {
     verify(response).setStatus(403);
     verify(filterChain, never()).doFilter(request, response);
     assertThat(body.toString()).contains("CSRF_REJECTED");
+  }
+
+  @Test
+  void shouldSkipPostWhenBearerAuthorizationPresent() throws Exception {
+    when(request.getMethod()).thenReturn("POST");
+    when(request.getHeader("Authorization")).thenReturn("Bearer iam-access-token");
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    verify(response, never()).setStatus(403);
   }
 
   @Test

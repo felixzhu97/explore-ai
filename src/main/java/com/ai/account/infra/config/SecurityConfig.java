@@ -4,6 +4,7 @@ import com.ai.account.infra.oauth.AccountLogoutHandler;
 import com.ai.account.infra.oauth.OAuthLoginFailureHandler;
 import com.ai.account.infra.oauth.OAuthLoginSuccessHandler;
 import com.ai.common.controller.CsrfProtectionFilter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -15,25 +16,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
- * Optional OAuth2 Login (Google and/or GitHub) on top of anonymous Client Identity (guest mode).
- *
- * <p>API routes stay permitAll. Spring Security CSRF is intentionally disabled for the SPA;
- * state-changing {@code /api/**} calls are protected by {@link CsrfProtectionFilter} ({@code
- * X-Requested-With: XMLHttpRequest}).
+ * Optional OAuth2 Login (Google / GitHub / Explore IAM) plus optional JWT resource server for
+ * native Bearer tokens. API routes stay permitAll; ownership is enforced in application code.
  *
  * @see CsrfProtectionFilter
  * @see <a
- *     href="https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html">OAuth2
- *     Login</a>
- * @see <a
- *     href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html">OWASP
- *     CSRF</a>
+ *     href="https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html">JWT
+ *     Resource Server</a>
  */
 @Configuration
 @EnableWebSecurity
@@ -52,7 +48,8 @@ public class SecurityConfig {
       OAuthLoginSuccessHandler successHandler,
       OAuthLoginFailureHandler failureHandler,
       AccountLogoutHandler accountLogoutHandler,
-      SecurityContextRepository securityContextRepository)
+      SecurityContextRepository securityContextRepository,
+      ObjectProvider<JwtDecoder> jwtDecoder)
       throws Exception {
     http.securityMatcher("/**")
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
@@ -79,6 +76,7 @@ public class SecurityConfig {
                     .deleteCookies("JSESSIONID"))
         .exceptionHandling(
             ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+    applyJwtResourceServer(http, jwtDecoder);
     return http.build();
   }
 
@@ -88,7 +86,8 @@ public class SecurityConfig {
   SecurityFilterChain guestOnlySecurityFilterChain(
       HttpSecurity http,
       AccountLogoutHandler accountLogoutHandler,
-      SecurityContextRepository securityContextRepository)
+      SecurityContextRepository securityContextRepository,
+      ObjectProvider<JwtDecoder> jwtDecoder)
       throws Exception {
     http.securityMatcher("/**")
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
@@ -108,6 +107,14 @@ public class SecurityConfig {
                     .invalidateHttpSession(true)
                     .clearAuthentication(true)
                     .deleteCookies("JSESSIONID"));
+    applyJwtResourceServer(http, jwtDecoder);
     return http.build();
+  }
+
+  private static void applyJwtResourceServer(
+      HttpSecurity http, ObjectProvider<JwtDecoder> jwtDecoder) throws Exception {
+    if (jwtDecoder.getIfAvailable() != null) {
+      http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+    }
   }
 }

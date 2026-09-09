@@ -42,6 +42,10 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
     if (method != null && SAFE_METHODS.contains(method)) {
       return true;
     }
+    if (hasBearerAuthorization(request)) {
+      // Native / API clients authenticate with Bearer JWT; cookie CSRF does not apply.
+      return true;
+    }
     String path = request.getRequestURI();
     return path == null || !path.startsWith("/api/");
   }
@@ -64,5 +68,10 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
             .strip()
             .getBytes(StandardCharsets.UTF_8);
     response.getOutputStream().write(body);
+  }
+
+  private static boolean hasBearerAuthorization(HttpServletRequest request) {
+    String authorization = request.getHeader("Authorization");
+    return authorization != null && authorization.regionMatches(true, 0, "Bearer ", 0, 7);
   }
 }

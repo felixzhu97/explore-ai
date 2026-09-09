@@ -22,6 +22,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CurrentOwnerResolverImpl")
@@ -86,5 +88,35 @@ class CurrentOwnerResolverImplTest {
     OwnerKey key = resolver.resolve("cid-other", auth);
 
     assertThat(key).isEqualTo(OwnerKey.forAccount("11111111-1111-1111-1111-111111111111"));
+  }
+
+  @Test
+  void shouldReturnAccountOwnerWhenIamJwtAuthenticated() {
+    AccountUser user =
+        AccountUser.restore(
+            "33333333-3333-3333-3333-333333333333",
+            "explore-iam",
+            "iam-sub",
+            "iam@example.com",
+            null,
+            Instant.now(),
+            Instant.now());
+    when(accountUserRepository.findByProviderAndSubject("explore-iam", "iam-sub"))
+        .thenReturn(Optional.of(user));
+
+    Jwt jwt =
+        Jwt.withTokenValue("t")
+            .header("alg", "none")
+            .subject("iam-sub")
+            .claim("email", "iam@example.com")
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(60))
+            .build();
+    JwtAuthenticationToken auth =
+        new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER"));
+
+    OwnerKey key = resolver.resolve("unused-cid", auth);
+
+    assertThat(key).isEqualTo(OwnerKey.forAccount("33333333-3333-3333-3333-333333333333"));
   }
 }
