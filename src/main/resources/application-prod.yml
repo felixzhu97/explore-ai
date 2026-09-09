@@ -32,9 +32,6 @@ spring:
         enabled: false
       embedding:
         enabled: false
-    # Spring AI 2.x: disable Ollama embedding autoconfig on Render (no local Ollama).
-    model:
-      embedding: none
 
   autoconfigure:
     exclude:
@@ -51,6 +48,13 @@ launchdarkly:
     module-eval: false
 
 app:
+  rag:
+    embedding:
+      provider: openai
+      dimensions: 1536
+      model: text-embedding-3-small
+      openai-api-key: ${OPENAI_API_KEY:}
+      openai-base-url: https://api.openai.com
   client-identity:
     cookie-name: __Host-ea_cid
     secure: true
