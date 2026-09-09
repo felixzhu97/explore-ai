@@ -37,6 +37,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.latencyutils:LatencyUtils:2.0.3")
     implementation("org.springframework.ai:spring-ai-starter-model-openai")

@@ -29,6 +29,10 @@ launchdarkly:
 app:
   billing:
     quota-enabled: false
+  oauth:
+    explore-iam:
+      # Avoid issuer discovery against a live IAM during unit/IT context loads.
+      resource-server-enabled: false
   automation:
     scan-enabled: false
   mail:
