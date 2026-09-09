@@ -62,6 +62,17 @@ public class OAuthExploreIamProperties {
     this.redirectUri = redirectUri;
   }
 
+  /** When true and issuer-uri is set, accept IAM JWT Bearer tokens. */
+  private boolean resourceServerEnabled = true;
+
+  public boolean isResourceServerEnabled() {
+    return resourceServerEnabled;
+  }
+
+  public void setResourceServerEnabled(boolean resourceServerEnabled) {
+    this.resourceServerEnabled = resourceServerEnabled;
+  }
+
   public boolean isReady() {
     return enabled
         && clientId != null
@@ -70,5 +81,10 @@ public class OAuthExploreIamProperties {
         && !clientSecret.isBlank()
         && issuerUri != null
         && !issuerUri.isBlank();
+  }
+
+  /** Resource server needs only a non-blank issuer. */
+  public boolean isResourceServerReady() {
+    return resourceServerEnabled && issuerUri != null && !issuerUri.isBlank();
   }
 }

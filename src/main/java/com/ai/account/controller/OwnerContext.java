@@ -4,10 +4,12 @@ import com.ai.account.service.CurrentOwnerResolver;
 import com.ai.common.controller.ClientIdentity;
 import com.ai.common.domain.vo.OwnerKey;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-/** Web helper: cookie Client Identity + security context → data {@link OwnerKey}. */
+/** Web helper: cookie Client Identity and/or IAM JWT → data {@link OwnerKey}. */
 @Component
 public class OwnerContext {
 
@@ -20,9 +22,12 @@ public class OwnerContext {
 
   /** Documentation. */
   public OwnerKey require(HttpServletRequest request) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+      return currentOwnerResolver.resolveFromJwt(jwtAuth.getToken());
+    }
     String clientId = ClientIdentity.require(request);
-    return currentOwnerResolver.resolve(
-        clientId, SecurityContextHolder.getContext().getAuthentication());
+    return currentOwnerResolver.resolve(clientId, authentication);
   }
 
   /** Documentation. */

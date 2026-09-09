@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,8 +53,13 @@ public class AccountUseCaseImpl implements AccountUseCase {
   }
 
   @Override
+  @Transactional
   public AccountMeResponse currentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+      AccountUser user = ensureIamUser(jwtAuth.getToken());
+      return authenticated(clientId, user.getId().value(), user.getEmail());
+    }
     if (isAuthenticated(authentication)) {
       OAuthIdentity identity = extractIdentity(authentication);
       if (identity != null) {
@@ -65,10 +72,12 @@ public class AccountUseCaseImpl implements AccountUseCase {
     }
 
     // Session may be missing after a host mismatch; Client Identity link still proves login.
-    Optional<AccountUser> byClient = accountUserRepository.findByLinkedClientId(clientId);
-    if (byClient.isPresent()) {
-      AccountUser user = byClient.get();
-      return authenticated(clientId, user.getId().value(), user.getEmail());
+    if (clientId != null && !clientId.isBlank()) {
+      Optional<AccountUser> byClient = accountUserRepository.findByLinkedClientId(clientId);
+      if (byClient.isPresent()) {
+        AccountUser user = byClient.get();
+        return authenticated(clientId, user.getId().value(), user.getEmail());
+      }
     }
 
     return new AccountMeResponse(
@@ -79,6 +88,20 @@ public class AccountUseCaseImpl implements AccountUseCase {
         billingProperties.getPlan(),
         isLoginAvailable(),
         loginProviders());
+  }
+
+  private AccountUser ensureIamUser(Jwt jwt) {
+    String subject = jwt.getSubject();
+    if (subject == null || subject.isBlank()) {
+      throw new IllegalArgumentException("IAM JWT subject is required");
+    }
+    String email = jwt.getClaimAsString("email");
+    return accountUserRepository
+        .findByProviderAndSubject("explore-iam", subject)
+        .orElseGet(
+            () ->
+                accountUserRepository.save(
+                    AccountUser.create("explore-iam", subject, email, null)));
   }
 
   @Override

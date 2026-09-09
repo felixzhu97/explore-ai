@@ -30,6 +30,8 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AccountUseCaseImpl")
@@ -210,6 +212,56 @@ class AccountUseCaseImplTest {
 
     assertThat(useCase.isLoginAvailable()).isTrue();
     assertThat(useCase.loginProviders()).containsExactly("explore-iam");
+  }
+
+  @Test
+  void shouldReturnAuthenticatedWhenIamJwtPresent() {
+    Jwt jwt =
+        Jwt.withTokenValue("iam-token")
+            .header("alg", "none")
+            .subject("iam-sub-1")
+            .claim("email", "iam@example.com")
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(3600))
+            .build();
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
+    AccountUser linked = AccountUser.create("explore-iam", "iam-sub-1", "iam@example.com", null);
+    when(accountUserRepository.findByProviderAndSubject("explore-iam", "iam-sub-1"))
+        .thenReturn(Optional.of(linked));
+
+    var response = useCase.currentAccount(null);
+
+    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.email()).isEqualTo("iam@example.com");
+    assertThat(response.userId()).isEqualTo(linked.getId().value());
+    assertThat(response.clientId()).isNull();
+  }
+
+  @Test
+  void shouldCreateAccountUserWhenIamJwtSubjectIsNew() {
+    Jwt jwt =
+        Jwt.withTokenValue("iam-token")
+            .header("alg", "none")
+            .subject("iam-new")
+            .claim("email", "new@example.com")
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(3600))
+            .build();
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
+    when(accountUserRepository.findByProviderAndSubject("explore-iam", "iam-new"))
+        .thenReturn(Optional.empty());
+    when(accountUserRepository.save(org.mockito.ArgumentMatchers.any(AccountUser.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    var response = useCase.currentAccount(null);
+
+    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.email()).isEqualTo("new@example.com");
+    verify(accountUserRepository).save(org.mockito.ArgumentMatchers.any(AccountUser.class));
   }
 
   private static OidcUser oidcUser(String subject, String email) {
