@@ -8,15 +8,19 @@ import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingOptions;
 import org.springframework.ai.openai.http.okhttp.SpringAiOpenAiHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
-import org.springframework.util.StringUtils;
 
 /** Cloud embedding via OpenAI API (Render has no local Ollama). */
 @Configuration
 @ConditionalOnProperty(name = "app.rag.embedding.provider", havingValue = "openai")
+@ConditionalOnExpression(
+    "T(org.springframework.util.StringUtils).hasText('${OPENAI_API_KEY:}')"
+        + " or T(org.springframework.util.StringUtils).hasText('${IMAGE_API_KEY:}')"
+        + " or T(org.springframework.util.StringUtils).hasText('${app.rag.embedding.openai-api-key:}')")
 public class OpenAiEmbeddingConfig {
 
   @Value("${app.rag.embedding.openai-api-key:${OPENAI_API_KEY:}}")
@@ -32,11 +36,6 @@ public class OpenAiEmbeddingConfig {
   @Bean
   @NonNull
   public EmbeddingModel embeddingModel() {
-    if (!StringUtils.hasText(apiKey)) {
-      throw new IllegalStateException(
-          "app.rag.embedding.provider=openai requires OPENAI_API_KEY or"
-              + " app.rag.embedding.openai-api-key");
-    }
     String normalized = baseUrl.trim();
     while (normalized.endsWith("/")) {
       normalized = normalized.substring(0, normalized.length() - 1);

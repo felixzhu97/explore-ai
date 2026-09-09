@@ -53,7 +53,7 @@ app:
       provider: openai
       dimensions: 1536
       model: text-embedding-3-small
-      openai-api-key: ${OPENAI_API_KEY:}
+      openai-api-key: ${OPENAI_API_KEY:${IMAGE_API_KEY:}}
       openai-base-url: https://api.openai.com
   client-identity:
     cookie-name: __Host-ea_cid
