@@ -8,18 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 /**
- * Ollama embedding adapter using Spring AI. Generates embeddings using local Ollama models
- * (default: qwen3-embedding:0.6b).
+ * Spring AI embedding adapter. Works with Ollama (local) or OpenAI (cloud) EmbeddingModel beans.
  */
 @Component
-@ConditionalOnProperty(
-    name = "spring.ai.ollama.embedding.enabled",
-    havingValue = "true",
-    matchIfMissing = true)
+@ConditionalOnBean(EmbeddingModel.class)
 public class OllamaEmbeddingAdapter implements TextEmbeddingRepository {
 
   private static final Logger log = LoggerFactory.getLogger(OllamaEmbeddingAdapter.class);
@@ -30,7 +26,8 @@ public class OllamaEmbeddingAdapter implements TextEmbeddingRepository {
   /** Documentation. */
   public OllamaEmbeddingAdapter(
       EmbeddingModel embeddingModel,
-      @Value("${spring.ai.ollama.embedding.dimensions:1024}") int dimensions) {
+      @Value("${app.rag.embedding.dimensions:${spring.ai.ollama.embedding.dimensions:1024}}")
+          int dimensions) {
     this.embeddingModel = embeddingModel;
     this.dimensions = dimensions;
   }
