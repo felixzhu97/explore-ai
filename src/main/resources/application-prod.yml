@@ -50,8 +50,9 @@ launchdarkly:
 app:
   rag:
     embedding:
-      provider: openai
-      dimensions: 1536
+      # hash: boots without OPENAI_API_KEY. openai: real vectors when key is set.
+      provider: ${RAG_EMBEDDING_PROVIDER:hash}
+      dimensions: ${RAG_EMBEDDING_DIMENSIONS:1024}
       model: text-embedding-3-small
       openai-api-key: ${OPENAI_API_KEY:${IMAGE_API_KEY:}}
       openai-base-url: https://api.openai.com
