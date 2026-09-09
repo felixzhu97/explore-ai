@@ -106,7 +106,11 @@ struct ContentView: View {
     do {
       let me = try await APIClient.accountMe(accessToken: token)
       account = me
-      status = "Authenticated as \(me.mode)"
+      if me.mode == "authenticated" {
+        status = me.email.map { "Signed in as \($0)" } ?? "Signed in"
+      } else {
+        status = me.mode
+      }
     } catch {
       errorMessage = error.localizedDescription
       status = "Could not load /api/account/me"
