@@ -2,7 +2,7 @@
 
 `explore-ai` is a full-stack platform for conversational AI. You can chat with multiple LLM providers, upload documents for RAG retrieval, call tools (weather, web search, datetime), and run Golden Eval regression checks against chat and RAG quality.
 
-The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. Architecture follows `web → application → domain ← infrastructure`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
+The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. A native SwiftUI hello-world app (**AI**) lives under `src/main/ios`. Architecture follows `web → application → domain ← infrastructure`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
 
 Optional modules—agents, MCP, vision, audio, image generation, metrics, and more—are tracked in the [User Story Map](docs/product-owner/User-Story-Map.md).
 
@@ -84,6 +84,7 @@ See [`.env.example`](.env.example) for the full list.
 - Run [Golden Eval](docs/developer/golden-eval.md) (LLM-as-a-Judge regression)
 - Browse the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md)
 - Browse the AI [Guideline](docs/Guideline.md)
+- Open the native iOS skeleton: [`src/main/ios`](src/main/ios) (scheme **AI**)
 - Explore capabilities on the [User Story Map](docs/product-owner/User-Story-Map.md)
 - Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](vercel.json) (proxies `/api/*` to Render)
 
