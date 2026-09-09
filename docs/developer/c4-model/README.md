@@ -17,15 +17,16 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 
 | 文件 | 层级 | 说明 |
 | --- | --- | --- |
-| `C1-Context.puml` | C1 | 系统上下文图（含 LaunchDarkly、Datadog、cloud-minimal prod） |
-| `C2-Container.puml` | C2 | 容器图（13 个子域 + 功能开关横切） |
-| `C3-Component.puml` | C3 | **单图**：前后端组件 + Clean Architecture 四层 |
+| `C1-Context.puml` | C1 | 系统上下文（含 Explore IAM、AI iOS、LaunchDarkly、Datadog） |
+| `C2-Container.puml` | C2 | 容器图（13 子域 + AI iOS + IAM） |
+| `C3-Component.puml` | C3 | **单图**：Web + iOS + Backend；`IamResourceServerConfig` |
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；对齐 `com.ai.*.domain`） |
-| `C4-Deployment.puml` | Deployment | **单图**：本地 dev + 生产（Vercel + Render） |
+| `C4-Deployment.puml` | Deployment | **单图**：本地（IAM :9100 / AI :9000 / Simulator）+ 生产 |
 | `style-zinc.puml` | Shared | Code + Dynamic 共用样式（白底、标题色区分 stereotype） |
 | `C4-Dynamic-Document-Upload.puml` | Dynamic | 文档上传 ETL |
 | `C4-Dynamic-Rag-Ask.puml` | Dynamic | RAG SSE 问答 |
 | `C4-Dynamic-Chat-Tools.puml` | Dynamic | Chat 工具 SSE + A2UI 图表 |
+| `C4-Dynamic-IamNativeSignIn.puml` | Dynamic | AI iOS PKCE → IAM → Bearer `/api/account/me` → Home |
 
 > **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
 
@@ -83,6 +84,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | [C4-Dynamic-Document-Upload.puml](C4-Dynamic-Document-Upload.puml) | 文档上传 → 分块 → 嵌入 → H2 |
 | [C4-Dynamic-Rag-Ask.puml](C4-Dynamic-Rag-Ask.puml) | RAG 提问 → 检索 → SSE 流式回答 |
 | [C4-Dynamic-Chat-Tools.puml](C4-Dynamic-Chat-Tools.puml) | Chat 工具调用 → SSE → A2UI 图表 |
+| [C4-Dynamic-IamNativeSignIn.puml](C4-Dynamic-IamNativeSignIn.puml) | AI iOS IAM PKCE 登录 → Bearer me → Home |
 
 ![C4-Dynamic-Rag-Ask](png/C4-Dynamic-Rag-Ask.png)
 

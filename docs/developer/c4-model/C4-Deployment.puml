@@ -5,15 +5,19 @@
 
 title Deployment (C4) — local/dev + production (single view)
 
-Person_Ext(user, "User / Developer", "Browser access to Web UI")
+Person_Ext(user, "User / Developer", "Browser or iOS Simulator")
 
 ' ── Local / dev ─────────────────────────────────────────────
 Deployment_Node(dev, "Developer workstation", "local/dev") {
     Deployment_Node(browser, "Browser", "Chrome / Safari") {
         Container(angular_dev, "Web Frontend", "Angular ng serve", ":4200; proxy /api → :9000")
     }
+    Deployment_Node(sim, "iOS Simulator", "Xcode") {
+        Container(ios_dev, "AI iOS", "SwiftUI", "PKCE → IAM; Bearer → :9000")
+    }
     Deployment_Node(jvm, "JVM", "JDK 25 / Gradle") {
-        Container(backend_dev, "AI Platform Backend", "Spring Boot 4.1", ":9000")
+        Container(backend_dev, "AI Platform Backend", "Spring Boot 4.1", ":9000 · IAM JWT RS")
+        Container(iam_dev, "Explore IAM", "Spring Boot", ":9100 · OIDC Provider")
         ContainerDb(h2_dev, "H2 Embedded", "file DB", "./data/explore-ai")
         ContainerDb(vision_models, "Image Analysis Models", "ONNX + tessdata", "models/")
     }
@@ -46,7 +50,11 @@ Deployment_Node(cloud, "External services", "HTTPS") {
 }
 
 Rel(user, angular_dev, "Uses UI", "HTTP :4200")
+Rel(user, ios_dev, "Uses app", "Simulator")
 Rel(angular_dev, backend_dev, "REST / SSE / WS", "HTTP :9000")
+Rel(ios_dev, iam_dev, "OIDC + PKCE", "HTTP :9100")
+Rel(ios_dev, backend_dev, "Bearer API", "HTTP :9000")
+Rel(backend_dev, iam_dev, "JWKS validate", "HTTP :9100")
 Rel(backend_dev, h2_dev, "JDBC")
 Rel(backend_dev, vision_models, "Load models", "file I/O")
 Rel(backend_dev, ollama, "Embed / vision RAG", "HTTP :11434")
