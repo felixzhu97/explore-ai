@@ -3,9 +3,11 @@ package com.ai.automation.domain.model;
 import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.base.domain.vo.UuidStringAttributeConverter;
 import com.ai.common.domain.model.AbstractNamedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -49,6 +51,8 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
   @Column(name = "action_type", nullable = false, length = 40, updatable = false)
   private AutomationActionType actionType;
 
+  /** FK to workflow_templates.id (UUID column); stored as domain UUID string. */
+  @Convert(converter = UuidStringAttributeConverter.class)
   @Column(name = "workflow_template_id", nullable = false, length = 36)
   private String workflowTemplateId;
 
