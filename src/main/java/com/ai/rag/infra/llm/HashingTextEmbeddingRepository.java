@@ -9,15 +9,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Deterministic local embedding used when no remote EmbeddingModel is configured (e.g. missing
- * OPENAI_API_KEY on Render). Quality is poor; keeps RAG wiring bootable.
+ * Deterministic local embedding for cloud-minimal when no remote embedding API key is set. Quality
+ * is limited; set {@code app.rag.embedding.provider=openai} with {@code OPENAI_API_KEY} for real
+ * vectors.
  */
 @Component
-@ConditionalOnMissingBean(TextEmbeddingRepository.class)
+@ConditionalOnProperty(name = "app.rag.embedding.provider", havingValue = "hash")
 public class HashingTextEmbeddingRepository implements TextEmbeddingRepository {
 
   private static final Logger log = LoggerFactory.getLogger(HashingTextEmbeddingRepository.class);
@@ -29,8 +30,8 @@ public class HashingTextEmbeddingRepository implements TextEmbeddingRepository {
       @Value("${app.rag.embedding.dimensions:1024}") int dimensions) {
     this.dimensions = dimensions;
     log.warn(
-        "Using HashingTextEmbeddingRepository (dimensions={}); configure"
-            + " app.rag.embedding.provider=openai with OPENAI_API_KEY for real embeddings",
+        "Using HashingTextEmbeddingRepository (dimensions={}); set"
+            + " app.rag.embedding.provider=openai and OPENAI_API_KEY for real embeddings",
         dimensions);
   }
 
