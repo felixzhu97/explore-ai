@@ -13,6 +13,7 @@ import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,6 +21,11 @@ import org.springframework.stereotype.Service;
  * RelevancyEvaluator and FactCheckingEvaluator for RAG-style evaluation.
  */
 @Service
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-eval",
+    havingValue = "true",
+    matchIfMissing = false)
 public class ChatQualityEvaluator {
 
   private static final Logger log = LoggerFactory.getLogger(ChatQualityEvaluator.class);

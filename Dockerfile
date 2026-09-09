@@ -7,7 +7,8 @@ RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon
 
 COPY src src
-RUN ./gradlew bootJar --no-daemon
+# cloudMinimal: omit ONNX / Tess4J / MCP from the fat JAR (Render Starter).
+RUN ./gradlew bootJar -PcloudMinimal --no-daemon
 
 # Runtime stage
 FROM eclipse-temurin:25-jre-alpine

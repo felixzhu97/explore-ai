@@ -10,10 +10,15 @@ import org.springframework.context.annotation.Configuration;
 
 /** Documentation. */
 @Configuration
-@ConditionalOnProperty(prefix = "spring.ai.mcp.client", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
 public class McpClientResilienceConfig {
 
   @Bean
+  @ConditionalOnProperty(prefix = "spring.ai.mcp.client", name = "enabled", havingValue = "true")
   McpClientCustomizer<McpClient.SyncSpec> mcpClientTimeoutCustomizer(
       @Value("${spring.ai.mcp.client.request-timeout:20s}") Duration requestTimeout) {
     return (serverConfigurationName, spec) -> {

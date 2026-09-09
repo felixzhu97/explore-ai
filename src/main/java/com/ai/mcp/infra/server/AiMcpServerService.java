@@ -11,10 +11,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpResource;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /** Documentation. */
 @Component
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
 public class AiMcpServerService {
 
   private static final Logger log = LoggerFactory.getLogger(AiMcpServerService.class);

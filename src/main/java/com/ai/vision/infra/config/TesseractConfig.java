@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class TesseractConfig {
 
   /** Documentation. */

@@ -15,12 +15,19 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @SliceWebMvcTest(controllers = EvalController.class)
 @DisplayName("EvalController")
 class EvalControllerTest {
+
+  @DynamicPropertySource
+  static void enableEvalModule(DynamicPropertyRegistry registry) {
+    registry.add("launchdarkly.bootstrap.module-eval", () -> "true");
+  }
 
   @Autowired private MockMvcTester mvc;
 

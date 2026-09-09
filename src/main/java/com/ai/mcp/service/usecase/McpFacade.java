@@ -9,10 +9,16 @@ import com.ai.mcp.service.McpToolCallbackRegistry;
 import java.util.List;
 import java.util.Map;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /** Documentation. */
 @Service
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
 public class McpFacade {
 
   private final McpClientRepository mcpClientRepository;

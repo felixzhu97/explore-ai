@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class VisionController {
 
   private final VisionAnalysisUseCase visionAnalysisUseCase;

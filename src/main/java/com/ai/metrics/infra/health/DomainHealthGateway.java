@@ -7,6 +7,7 @@ import com.ai.pipeline.service.usecase.PipelineFacade;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 /** Documentation. */
@@ -14,10 +15,10 @@ import org.springframework.stereotype.Component;
 public class DomainHealthGateway implements MetricsHealthGateway {
 
   private final PipelineFacade pipelineFacade;
-  private final McpFacade mcpFacade;
+  private final ObjectProvider<McpFacade> mcpFacade;
 
   /** Documentation. */
-  public DomainHealthGateway(PipelineFacade pipelineFacade, McpFacade mcpFacade) {
+  public DomainHealthGateway(PipelineFacade pipelineFacade, ObjectProvider<McpFacade> mcpFacade) {
     this.pipelineFacade = pipelineFacade;
     this.mcpFacade = mcpFacade;
   }
@@ -41,9 +42,16 @@ public class DomainHealthGateway implements MetricsHealthGateway {
   @Override
   public Map<String, Object> mcpHealth() {
     Map<String, Object> result = new LinkedHashMap<>();
+    McpFacade facade = mcpFacade.getIfAvailable();
+    if (facade == null) {
+      result.put("status", "DISABLED");
+      result.put("registeredTools", 0);
+      result.put("connectedServers", 0);
+      return result;
+    }
     result.put("status", "UP");
-    result.put("registeredTools", mcpFacade.getTotalToolCount());
-    result.put("connectedServers", mcpFacade.getConnectedServers().size());
+    result.put("registeredTools", facade.getTotalToolCount());
+    result.put("connectedServers", facade.getConnectedServers().size());
     return result;
   }
 }

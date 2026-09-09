@@ -13,10 +13,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 /** Documentation. */
 @Repository
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
 public class SpringAiMcpClientRepository implements McpClientRepository, McpToolCallbackRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(SpringAiMcpClientRepository.class);

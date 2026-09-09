@@ -6,11 +6,17 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /** Documentation. */
 @Configuration
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-eval",
+    havingValue = "true",
+    matchIfMissing = false)
 public class EvalConfig {
   /** Documentation. */
   @Bean

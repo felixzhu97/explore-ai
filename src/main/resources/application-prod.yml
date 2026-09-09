@@ -30,6 +30,16 @@ spring:
     ollama:
       chat:
         enabled: false
+      embedding:
+        enabled: false
+    # Spring AI 2.x: disable Ollama embedding autoconfig on Render (no local Ollama).
+    model:
+      embedding: none
+
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
 
 launchdarkly:
   enabled: ${LAUNCHDARKLY_ENABLED:true}
@@ -77,7 +87,8 @@ app:
       client-secret: ${GITHUB_CLIENT_SECRET:}
       redirect-uri: ${APP_OAUTH_GITHUB_REDIRECT_URI:https://www.felixzhu.chat/login/oauth2/code/github}
   automation:
-    scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:true}
+    # cloud-minimal: skip 60s due-scan unless explicitly re-enabled
+    scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:false}
   mail:
     enabled: ${APP_MAIL_ENABLED:false}
     provider: ${APP_MAIL_PROVIDER:resend}

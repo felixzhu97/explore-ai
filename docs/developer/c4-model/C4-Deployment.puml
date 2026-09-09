@@ -82,6 +82,8 @@ note right of prod
   · Render: explore-ai :8080 (512MB, no javaagent)
   · **On**: module-pipelines / module-skills
   · **Off**: Vision / ASR / MCP / Eval / Ollama
+  · Docker bootJar -PcloudMinimal (no ONNX/Tess4J/MCP jars)
+  · Automations due-scan off by default
   · H2 ephemeral — restart clears data
 end note
 

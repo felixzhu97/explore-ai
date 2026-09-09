@@ -3,6 +3,7 @@ package com.ai.metrics.infra.health;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DomainHealthGateway")
@@ -28,11 +30,14 @@ class DomainHealthGatewayTest {
 
   @Mock private McpFacade mcpFacade;
 
+  @Mock private ObjectProvider<McpFacade> mcpFacadeProvider;
+
   private DomainHealthGateway gateway;
 
   @BeforeEach
   void setUp() {
-    gateway = new DomainHealthGateway(pipelineFacade, mcpFacade);
+    lenient().when(mcpFacadeProvider.getIfAvailable()).thenReturn(mcpFacade);
+    gateway = new DomainHealthGateway(pipelineFacade, mcpFacadeProvider);
   }
 
   @Test
@@ -92,5 +97,18 @@ class DomainHealthGatewayTest {
     assertThat(health).containsEntry("status", "UP");
     assertThat(health).containsEntry("registeredTools", 5);
     assertThat(health).containsEntry("connectedServers", 2);
+  }
+
+  @Test
+  @DisplayName("should report mcp disabled when facade bean is absent")
+  void shouldReportMcpDisabledWhenFacadeBeanIsAbsent() {
+    when(mcpFacadeProvider.getIfAvailable()).thenReturn(null);
+    gateway = new DomainHealthGateway(pipelineFacade, mcpFacadeProvider);
+
+    Map<String, Object> health = gateway.mcpHealth();
+
+    assertThat(health).containsEntry("status", "DISABLED");
+    assertThat(health).containsEntry("registeredTools", 0);
+    assertThat(health).containsEntry("connectedServers", 0);
   }
 }
