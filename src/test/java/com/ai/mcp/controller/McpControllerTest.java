@@ -7,11 +7,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @SliceWebMvcTest(controllers = McpController.class)
 @DisplayName("McpController")
 class McpControllerTest {
+
+  @DynamicPropertySource
+  static void enableMcpModule(DynamicPropertyRegistry registry) {
+    registry.add("launchdarkly.bootstrap.module-mcp", () -> "true");
+  }
 
   @Autowired private MockMvcTester mvc;
 

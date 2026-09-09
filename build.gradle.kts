@@ -29,6 +29,9 @@ dependencyManagement {
     }
 }
 
+// Local / CI: full Vision + MCP. Render Docker: -PcloudMinimal (smaller fat JAR).
+val cloudMinimal = project.hasProperty("cloudMinimal")
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
@@ -50,8 +53,6 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-rag")
     implementation("org.springframework.ai:spring-ai-vector-store-advisor")
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
-    implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
-    implementation("org.springframework.ai:spring-ai-starter-mcp-client")
     implementation("org.springaicommunity:spring-ai-agent-utils:0.10.0")
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.14.0")
@@ -62,10 +63,6 @@ dependencies {
 
     // PDF Processing
     implementation("org.apache.pdfbox:pdfbox:3.0.3")
-
-    // Vision: ONNX Runtime + Tess4J
-    implementation("com.microsoft.onnxruntime:onnxruntime:1.20.0")
-    implementation("net.sourceforge.tess4j:tess4j:5.13.0")
 
     // dotenv support
     developmentOnly("me.paulschwarz:springboot4-dotenv")
@@ -88,6 +85,23 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("com.tngtech.archunit:archunit-junit5:1.4.1")
+}
+
+if (!cloudMinimal) {
+    dependencies {
+        implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+        implementation("org.springframework.ai:spring-ai-starter-mcp-client")
+        implementation("com.microsoft.onnxruntime:onnxruntime:1.20.0")
+        implementation("net.sourceforge.tess4j:tess4j:5.13.0")
+    }
+} else {
+    // Compile against APIs; omit from runtime fat JAR (plus bootJar class excludes).
+    dependencies {
+        compileOnly("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
+        compileOnly("org.springframework.ai:spring-ai-starter-mcp-client")
+        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.20.0")
+        compileOnly("net.sourceforge.tess4j:tess4j:5.13.0")
+    }
 }
 
 tasks.withType<Test> {
@@ -164,6 +178,16 @@ tasks.jacocoTestCoverageVerification {
 // Docker / Render deployment: ensure bootJar produces app.jar
 tasks.bootJar {
     archiveFileName.set("app.jar")
+    if (cloudMinimal) {
+        // Drop classes that hard-reference ONNX / Tess4J / Spring AI MCP so
+        // component scanning does not NoClassDefFoundError without those jars.
+        exclude(
+            "com/ai/vision/infra/adapter/**",
+            "com/ai/vision/infra/config/TesseractConfig.class",
+            "com/ai/vision/infra/config/TesseractConfig\$*.class",
+            "com/ai/mcp/**",
+        )
+    }
 }
 
 // Disable plain jar to prevent conflicts

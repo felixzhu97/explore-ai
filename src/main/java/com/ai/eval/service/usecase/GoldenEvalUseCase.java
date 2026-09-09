@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +28,11 @@ import org.springframework.stereotype.Service;
  * AI official evaluators. Intended for tests (no REST).
  */
 @Service
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-eval",
+    havingValue = "true",
+    matchIfMissing = false)
 public class GoldenEvalUseCase {
 
   private static final Logger log = LoggerFactory.getLogger(GoldenEvalUseCase.class);

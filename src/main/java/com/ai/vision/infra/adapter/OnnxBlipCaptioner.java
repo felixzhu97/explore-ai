@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class OnnxBlipCaptioner implements ImageCaptioner {
 
   private static final Logger log = LoggerFactory.getLogger(OnnxBlipCaptioner.class);

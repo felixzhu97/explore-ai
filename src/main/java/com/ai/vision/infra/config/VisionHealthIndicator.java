@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class VisionHealthIndicator implements HealthIndicator {
 
   private final ImageCaptioner captioner;

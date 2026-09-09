@@ -212,7 +212,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 **GitHub OAuth redirect URI**: `https://www.felixzhu.chat/login/oauth2/code/github`
 
 
-**cloud-minimal**: `module-pipelines` / `module-skills` **开启**；Vision / ASR / MCP / Eval / Ollama **关闭**
+**cloud-minimal**: `module-pipelines` / `module-skills` **开启**；Vision / ASR / MCP / Eval / Ollama **关闭**；Docker `bootJar -PcloudMinimal`（不含 ONNX/Tess4J/MCP jars）；Automations due-scan 默认关闭
 
 ---
 

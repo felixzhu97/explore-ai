@@ -8,6 +8,7 @@ import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,6 +17,11 @@ import org.springframework.stereotype.Service;
  * @see <a href="https://docs.spring.io/spring-ai/reference/api/testing.html">Evaluation Testing</a>
  */
 @Service
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-eval",
+    havingValue = "true",
+    matchIfMissing = false)
 public class OfficialSpringAiEvaluators {
 
   private final RelevancyEvaluator relevancyEvaluator;

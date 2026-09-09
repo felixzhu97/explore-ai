@@ -18,7 +18,7 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
     prefix = "launchdarkly.bootstrap",
     name = "module-audio-asr",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class AudioWebSocketConfig implements WebSocketConfigurer {
 
   private final AudioTranscriptionWebSocketHandler transcriptionHandler;

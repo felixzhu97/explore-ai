@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/mcp/client")
 @Tag(name = "MCP Client", description = "Connect to external MCP servers and use their tools")
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
 public class McpClientController {
 
   private static final Logger log = LoggerFactory.getLogger(McpClientController.class);

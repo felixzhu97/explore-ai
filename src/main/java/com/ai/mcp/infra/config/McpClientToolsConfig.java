@@ -15,6 +15,11 @@ import org.springframework.context.annotation.Configuration;
  * exposes them for {@link com.ai.common.infra.llm.ChatClientFactory}.
  */
 @Configuration
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
 public class McpClientToolsConfig {
 
   private static final Logger log = LoggerFactory.getLogger(McpClientToolsConfig.class);
@@ -25,7 +30,7 @@ public class McpClientToolsConfig {
       prefix = "spring.ai.mcp.client",
       name = "enabled",
       havingValue = "true",
-      matchIfMissing = true)
+      matchIfMissing = false)
   public ToolCallback[] mcpToolCallbacks(
       ObjectProvider<ToolCallbackProvider> toolCallbackProviders,
       McpToolCallbackRegistry registry) {

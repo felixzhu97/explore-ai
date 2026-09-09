@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class Tess4jOcrEngine implements OcrEngine {
 
   private final ITesseract tesseract;

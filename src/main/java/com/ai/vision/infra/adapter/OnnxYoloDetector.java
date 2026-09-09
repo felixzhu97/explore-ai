@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class OnnxYoloDetector implements ObjectDetector {
 
   private static final Logger log = LoggerFactory.getLogger(OnnxYoloDetector.class);
