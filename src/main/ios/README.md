@@ -28,10 +28,10 @@ open AI.xcodeproj
 3. Tap **Sign in with IAM** — a **system sign-in sheet** opens over the app
    (client `explore-ai-ios`, redirect `com.explore.ai://oauth/callback`).
 4. Demo user: `demo` / `demo-password`.
-5. After the sheet dismisses, the app stores the access token in Keychain and
-   calls `GET /api/account/me` with `Authorization: Bearer`.
-6. Cancel the sheet — the app stays signed out with no crash.
-7. Tap **Sign out**, then sign in again — SSO cookies should reduce re-entry
+5. After the sheet dismisses, the app stores the access token, loads
+   `/api/account/me`, and **navigates to Home** (welcome + Sign out).
+6. Cancel the sheet — the app stays on the login screen with no crash.
+7. Sign out returns to login; sign in again may reuse IAM SSO cookies
    (`prefersEphemeralWebBrowserSession = false`).
 
 ## Test
