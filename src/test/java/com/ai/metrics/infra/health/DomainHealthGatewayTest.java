@@ -7,8 +7,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.ai.mcp.domain.vo.McpServerConnection;
-import com.ai.mcp.service.usecase.McpFacade;
+import com.ai.metrics.domain.repository.McpHealthProbe;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.service.usecase.PipelineFacade;
@@ -28,16 +27,16 @@ class DomainHealthGatewayTest {
 
   @Mock private PipelineFacade pipelineFacade;
 
-  @Mock private McpFacade mcpFacade;
+  @Mock private McpHealthProbe mcpHealthProbe;
 
-  @Mock private ObjectProvider<McpFacade> mcpFacadeProvider;
+  @Mock private ObjectProvider<McpHealthProbe> mcpHealthProbeProvider;
 
   private DomainHealthGateway gateway;
 
   @BeforeEach
   void setUp() {
-    lenient().when(mcpFacadeProvider.getIfAvailable()).thenReturn(mcpFacade);
-    gateway = new DomainHealthGateway(pipelineFacade, mcpFacadeProvider);
+    lenient().when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(mcpHealthProbe);
+    gateway = new DomainHealthGateway(pipelineFacade, mcpHealthProbeProvider);
   }
 
   @Test
@@ -85,12 +84,8 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report mcp health with tool and server counts")
   void shouldReportMcpHealthWithToolAndServerCounts() {
-    when(mcpFacade.getTotalToolCount()).thenReturn(5);
-    when(mcpFacade.getConnectedServers())
-        .thenReturn(
-            Map.of(
-                "weather", McpServerConnection.connected("weather", 2),
-                "rag", McpServerConnection.connected("rag", 3)));
+    when(mcpHealthProbe.registeredToolCount()).thenReturn(5);
+    when(mcpHealthProbe.connectedServerCount()).thenReturn(2);
 
     Map<String, Object> health = gateway.mcpHealth();
 
@@ -102,8 +97,8 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report mcp disabled when facade bean is absent")
   void shouldReportMcpDisabledWhenFacadeBeanIsAbsent() {
-    when(mcpFacadeProvider.getIfAvailable()).thenReturn(null);
-    gateway = new DomainHealthGateway(pipelineFacade, mcpFacadeProvider);
+    when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(null);
+    gateway = new DomainHealthGateway(pipelineFacade, mcpHealthProbeProvider);
 
     Map<String, Object> health = gateway.mcpHealth();
 
