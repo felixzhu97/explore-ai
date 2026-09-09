@@ -1,6 +1,6 @@
 package com.ai.metrics.infra.health;
 
-import com.ai.mcp.service.usecase.McpFacade;
+import com.ai.metrics.domain.repository.McpHealthProbe;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.service.usecase.PipelineFacade;
@@ -15,12 +15,13 @@ import org.springframework.stereotype.Component;
 public class DomainHealthGateway implements MetricsHealthGateway {
 
   private final PipelineFacade pipelineFacade;
-  private final ObjectProvider<McpFacade> mcpFacade;
+  private final ObjectProvider<McpHealthProbe> mcpHealthProbe;
 
   /** Documentation. */
-  public DomainHealthGateway(PipelineFacade pipelineFacade, ObjectProvider<McpFacade> mcpFacade) {
+  public DomainHealthGateway(
+      PipelineFacade pipelineFacade, ObjectProvider<McpHealthProbe> mcpHealthProbe) {
     this.pipelineFacade = pipelineFacade;
-    this.mcpFacade = mcpFacade;
+    this.mcpHealthProbe = mcpHealthProbe;
   }
 
   @Override
@@ -42,16 +43,16 @@ public class DomainHealthGateway implements MetricsHealthGateway {
   @Override
   public Map<String, Object> mcpHealth() {
     Map<String, Object> result = new LinkedHashMap<>();
-    McpFacade facade = mcpFacade.getIfAvailable();
-    if (facade == null) {
+    McpHealthProbe probe = mcpHealthProbe.getIfAvailable();
+    if (probe == null) {
       result.put("status", "DISABLED");
       result.put("registeredTools", 0);
       result.put("connectedServers", 0);
       return result;
     }
     result.put("status", "UP");
-    result.put("registeredTools", facade.getTotalToolCount());
-    result.put("connectedServers", facade.getConnectedServers().size());
+    result.put("registeredTools", probe.registeredToolCount());
+    result.put("connectedServers", probe.connectedServerCount());
     return result;
   }
 }
