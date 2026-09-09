@@ -12,14 +12,15 @@ Person(user, "用户", "对话、文档、Agent / 工作流、工具、图像分
 Person(admin, "管理员/开发者", "评估、文本分析、AI 指标看板、功能开关")
 
 ' ============================================================
-' FRONTEND
+' FRONTEND / NATIVE
 ' ============================================================
 Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag /metrics + flag: /agents /skills /vision /mcp /eval /asr\nLaunchDarkly + Datadog RUM")
+Container(ios_app, "AI iOS", "SwiftUI", "src/main/ios · PKCE · explore-ai-ios · API :9000")
 
 ' ============================================================
 ' BACKEND
 ' ============================================================
-Container(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Clean Architecture，dev :9000 / prod :8080")
+Container(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Clean Architecture，dev :9000 / prod :8080\nIamResourceServerConfig · JWT → AccountUser")
 
 ' ============================================================
 ' DOMAIN 1: CHAT
@@ -187,14 +188,20 @@ Container_Ext(whisper_cpp_svc, "whisper.cpp [local]", "REST/WebSocket", "流式 
 Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 Container_Ext(launchdarkly, "LaunchDarkly", "SaaS", "功能开关", "HTTPS")
 Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent → Agent)", "HTTPS")
+Container_Ext(explore_iam, "Explore IAM", "OIDC Provider", "authorize / token / JWKS :9100", "HTTPS")
 
 ' ============================================================
 ' RELATIONSHIPS
 ' ============================================================
 Rel(user, angular_app, "使用 Web UI", "HTTP/SSE/WebSocket")
+Rel(user, ios_app, "使用 iOS", "SwiftUI")
 Rel(admin, eval_controller, "质量评估", "HTTP")
 Rel(admin, analysis_controller, "文本分析", "HTTP")
 Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
+
+Rel(ios_app, explore_iam, "OIDC + PKCE", "HTTPS :9100")
+Rel(ios_app, backend, "Bearer access_token", "HTTPS :9000")
+Rel(backend, explore_iam, "JWKS / issuer validate", "HTTPS")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, text_controller, "流式对话", "SSE")

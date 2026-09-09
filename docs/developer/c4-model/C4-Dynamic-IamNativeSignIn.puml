@@ -1,0 +1,32 @@
+@startuml C4-Dynamic-IamNativeSignIn
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+
+title Dynamic — AI iOS Sign in with Explore IAM (PKCE)
+
+actor "User" as user
+participant "AI iOS\nLoginView / AuthService" as ios <<ui>>
+participant "Explore IAM\n:9100" as iam <<java>>
+participant "AI Backend\n:9000" as api <<java>>
+
+user -> ios: 1. Tap Sign in with IAM
+ios -> ios: 2. PKCE verifier / challenge / state
+ios -> iam: 3. ASWebAuthenticationSession\nGET /oauth2/authorize\nclient_id=explore-ai-ios
+iam --> ios: 4. /login SPA → credentials
+user -> iam: 5. demo / demo-password
+iam --> ios: 6. com.explore.ai://oauth/callback?code=
+ios -> iam: 7. POST /oauth2/token + code_verifier
+iam --> ios: 8. access_token (email/profile claims)
+ios -> api: 9. GET /api/account/me\nAuthorization: Bearer
+api -> iam: 10. JWKS / issuer validate
+api -> api: 11. JWT → AccountUser / OwnerKey
+api --> ios: 12. 200 me payload
+ios --> user: 13. Navigate HomeView
+
+note over ios, api
+  Bearer requests skip CSRF.
+  Resource server: IamResourceServerConfig.
+end note
+
+@enduml

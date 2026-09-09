@@ -28,7 +28,8 @@ Container_Boundary(backend, "AI Platform Backend (Spring Boot)") {
     Component(media_web, "Image + Vision + Audio", "controller", "/api/images /api/vision /ws/audio")
     Component(mcp_web, "MCP", "controller", "/api/mcp /api/mcp/client")
     Component(metrics_web, "Metrics + Account + Privacy", "controller", "/api/metrics /api/account /api/privacy")
-    Component(security, "Filters + OwnerContext", "web", "CSRF · quota · module flags · OwnerKey")
+    Component(security, "Filters + OwnerContext", "web", "CSRF · Bearer CSRF skip · quota · module flags · OwnerKey")
+    Component(iam_rs, "IamResourceServerConfig", "security", "oauth2-resource-server · SupplierJwtDecoder · JWT→AccountUser")
 
     Component(chat_app, "Chat + RAG use cases", "service", "SpringAiChat / RagChat / DocumentUpload / Search")
     Component(pipeline_app, "Pipeline + Automation", "service", "PipelineFacade / OrchestratorWorkers / Automation")
@@ -38,12 +39,18 @@ Container_Boundary(backend, "AI Platform Backend (Spring Boot)") {
     Component(chat_dom, "chat domain", "domain", "ChatSession · ChatMessage · repositories")
     Component(rag_dom, "rag domain", "domain", "Document · DocumentChunk · ETL ports")
     Component(pipeline_dom, "pipeline + skill", "domain", "AgentPipeline · AgentDefinition · Skill")
-    Component(platform_dom, "metrics + automation + mcp + account", "domain", "AiInvocationEvent · AutomationSchedule · McpSession")
+    Component(platform_dom, "metrics + automation + mcp + account", "domain", "AiInvocationEvent · AutomationSchedule · McpSession · AccountUser")
 
     Component(chat_infra, "chat infra", "infra", "Jdbc session + ChatMemory")
     Component(rag_infra, "rag infra", "infra", "H2 vector · ETL · Ollama embed")
     Component(pipeline_infra, "pipeline infra", "infra", "Agent registry · Supervisor · Worker invoker")
     Component(platform_infra, "platform infra", "infra", "LaunchDarkly · Resend · JDBC metrics · prompts")
+}
+
+Container_Boundary(ios_native, "AI iOS (src/main/ios)") {
+    Component(ios_auth, "AuthService + Keychain", "Swift", "PKCE · ASWebAuthenticationSession · tokens")
+    Component(ios_ui, "LoginView / HomeView", "SwiftUI", "Sign in → GET /api/account/me → Home")
+    Component(ios_api, "APIClient", "URLSession", "Authorization: Bearer")
 }
 
 System_Ext(deepseek, "DeepSeek API", "LLM")
@@ -52,6 +59,7 @@ System_Ext(h2, "H2 Embedded", "JDBC + vectors")
 System_Ext(ollama, "Ollama [local]", ":11434")
 System_Ext(serper, "Serper.dev", "Web search")
 System_Ext(launchdarkly, "LaunchDarkly", "Feature flags")
+System_Ext(explore_iam, "Explore IAM", "OIDC / JWKS :9100")
 
 Rel(layout, chat_page, "/chat")
 Rel(layout, rag_page, "/rag")
@@ -78,7 +86,15 @@ Rel(api_layer, mcp_web, "HTTP", "/api/mcp")
 Rel(api_layer, metrics_web, "HTTP", "/api/metrics /api/account")
 Rel(flags, launchdarkly, "Client SDK", "HTTPS")
 
+Rel(ios_ui, ios_auth, "Sign in")
+Rel(ios_auth, explore_iam, "authorize + token PKCE", "HTTPS")
+Rel(ios_ui, ios_api, "Authenticated calls")
+Rel(ios_api, metrics_web, "Bearer GET /api/account/me", "HTTPS")
+Rel(ios_api, chat_web, "Bearer API", "HTTPS")
+
 Rel(chat_web, security, "Filters")
+Rel(security, iam_rs, "JWT resource server")
+Rel(iam_rs, explore_iam, "JWKS", "HTTPS")
 Rel(chat_web, chat_app, "Delegates")
 Rel(rag_web, chat_app, "Delegates")
 Rel(pipeline_web, pipeline_app, "Delegates")
