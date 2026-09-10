@@ -7,9 +7,21 @@ struct Config: Sendable {
   let iamRedirectURI: String
   let iamCallbackScheme: String
 
+  /// Mac LAN IP for physical-device → host loopback services.
+  /// Simulator can use localhost; a real iPhone cannot.
+  private static let developmentHost: String = {
+    #if targetEnvironment(simulator)
+    return "localhost"
+    #else
+    // Override with EXPLORE_DEV_HOST if you change networks.
+    return ProcessInfo.processInfo.environment["EXPLORE_DEV_HOST"]
+      ?? "192.168.3.100"
+    #endif
+  }()
+
   static let local = Config(
-    apiBaseURL: URL(string: "http://localhost:9000")!,
-    iamIssuerURL: URL(string: "http://localhost:9100")!,
+    apiBaseURL: URL(string: "http://\(developmentHost):9000")!,
+    iamIssuerURL: URL(string: "http://\(developmentHost):9100")!,
     iamClientId: "explore-ai-ios",
     iamRedirectURI: "com.explore.ai://oauth/callback",
     iamCallbackScheme: "com.explore.ai"

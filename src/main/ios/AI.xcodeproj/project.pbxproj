@@ -21,8 +21,10 @@
 		A11A00000000000000000013 /* AsrWebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000012 /* AsrWebSocketClient.swift */; };
 		A11A00000000000000000015 /* ChatStreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000014 /* ChatStreamClient.swift */; };
 		A11A00000000000000000017 /* TtsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000016 /* TtsClient.swift */; };
-		A11A00000000000000000019 /* VoiceConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000018 /* VoiceConversationViewModel.swift */; };
-		A11A0000000000000000001B /* VoiceConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001A /* VoiceConversationView.swift */; };
+		A11A00000000000000000019 /* ChatConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000018 /* ChatConversationViewModel.swift */; };
+		A11A0000000000000000001B /* ChatConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001A /* ChatConversationView.swift */; };
+		A11A0000000000000000001D /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001C /* AppTheme.swift */; };
+		A11A0000000000000000001F /* ChatTurn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001E /* ChatTurn.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,8 +55,10 @@
 		A11A00000000000000000012 /* AsrWebSocketClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsrWebSocketClient.swift; sourceTree = "<group>"; };
 		A11A00000000000000000014 /* ChatStreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStreamClient.swift; sourceTree = "<group>"; };
 		A11A00000000000000000016 /* TtsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TtsClient.swift; sourceTree = "<group>"; };
-		A11A00000000000000000018 /* VoiceConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceConversationViewModel.swift; sourceTree = "<group>"; };
-		A11A0000000000000000001A /* VoiceConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceConversationView.swift; sourceTree = "<group>"; };
+		A11A00000000000000000018 /* ChatConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatConversationViewModel.swift; sourceTree = "<group>"; };
+		A11A0000000000000000001A /* ChatConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatConversationView.swift; sourceTree = "<group>"; };
+		A11A0000000000000000001C /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		A11A0000000000000000001E /* ChatTurn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTurn.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -72,8 +76,10 @@
 				A11A00000000000000000012 /* AsrWebSocketClient.swift */,
 				A11A00000000000000000014 /* ChatStreamClient.swift */,
 				A11A00000000000000000016 /* TtsClient.swift */,
-				A11A00000000000000000018 /* VoiceConversationViewModel.swift */,
-				A11A0000000000000000001A /* VoiceConversationView.swift */,
+				A11A00000000000000000018 /* ChatConversationViewModel.swift */,
+				A11A0000000000000000001A /* ChatConversationView.swift */,
+				A11A0000000000000000001C /* AppTheme.swift */,
+				A11A0000000000000000001E /* ChatTurn.swift */,
 				A11A00000000000000000009 /* Info.plist */,
 				A11A00000000000000000005 /* KeychainStore.swift */,
 				A11A0000000000000000000A /* LoginView.swift */,
@@ -204,8 +210,10 @@
 				A11A00000000000000000013 /* AsrWebSocketClient.swift in Sources */,
 				A11A00000000000000000015 /* ChatStreamClient.swift in Sources */,
 				A11A00000000000000000017 /* TtsClient.swift in Sources */,
-				A11A00000000000000000019 /* VoiceConversationViewModel.swift in Sources */,
-				A11A0000000000000000001B /* VoiceConversationView.swift in Sources */,
+				A11A00000000000000000019 /* ChatConversationViewModel.swift in Sources */,
+				A11A0000000000000000001B /* ChatConversationView.swift in Sources */,
+				A11A0000000000000000001D /* AppTheme.swift in Sources */,
+				A11A0000000000000000001F /* ChatTurn.swift in Sources */,
 				A11A0000000000000000000B /* LoginView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -316,10 +324,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PVXT4ZZ49P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AI;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Explore AI needs the microphone for realtime voice conversation.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Explore AI needs the microphone for voice chat with Qwen ASR.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -416,10 +426,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PVXT4ZZ49P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AI;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Explore AI needs the microphone for realtime voice conversation.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Explore AI needs the microphone for voice chat with Qwen ASR.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

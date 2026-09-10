@@ -827,6 +827,9 @@ curl -X GET "${BASE_URL}/api/images/qualities"
 
 ## Audio/TTS API
 
+Default provider is **explore-ml media-gen** (local Qwen3-TTS → WAV). Set
+`TTS_PROVIDER=openai` for OpenAI TTS (MP3).
+
 ### Text to Speech
 
 Convert text to speech and receive audio file.
@@ -837,7 +840,7 @@ curl -X POST "${BASE_URL}/api/audio/speak" \
   -d '{
     "text": "Hello, welcome to our AI service!"
   }' \
-  --output audio.mp3
+  --output speech.wav
 ```
 
 **Request Body**
@@ -852,7 +855,7 @@ curl -X POST "${BASE_URL}/api/audio/speak" \
 
 **Response**
 
-Binary audio file (audio/mpeg format, .mp3).
+Binary audio (`audio/wav` for media-gen / Qwen3-TTS; `audio/mpeg` for OpenAI).
 
 ---
 

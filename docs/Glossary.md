@@ -344,7 +344,7 @@ UPLOADING → PROCESSING → READY
 | Automatic Speech Recognition (ASR) | 自动语音识别 | Convert spoken audio to text               | Capability          | `StreamingTranscriptionUseCase`      | explore-ml Qwen3-ASR via media-gen; flag `module-audio-asr` |
 | Streaming Transcription            | 流式转写   | Real-time ASR over WebSocket               | Use Case Behavior   | `AudioTranscriptionWebSocketHandler` | Product `WS /ws/audio/transcribe` → media-gen `/ws/v1/audios:transcribe` |
 | Transcription                      | 转写     | Single ASR result converting audio to text | Application Concept | `StreamingTranscriptionGateway`      | `MediaGenStreamingTranscriptionAdapter` |
-| Voice Conversation                 | 语音对话   | Duplex mic → ASR → chat → TTS loop on native clients | Capability     | AI iOS Voice Conversation            | Orchestrated on client via explore-ai APIs |
+| Voice Conversation                 | 语音对话   | Duplex mic → ASR → chat → TTS on native clients | Capability     | AI iOS Chat (Qwen)                   | ChatGPT-style UI; Qwen3 ASR/TTS via media-gen |
 
 
 ---

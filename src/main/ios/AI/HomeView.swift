@@ -12,30 +12,32 @@ struct HomeView: View {
         Spacer(minLength: 40)
         Image(systemName: "sparkles")
           .font(.system(size: 44))
-          .foregroundStyle(.tint)
+          .foregroundStyle(AppTheme.primary)
         Text("Home")
           .font(.largeTitle.weight(.semibold))
+          .foregroundStyle(AppTheme.ink)
         Text(welcomeLine)
           .font(.body)
           .multilineTextAlignment(.center)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(AppTheme.muted)
           .padding(.horizontal)
 
         NavigationLink {
-          VoiceConversationView(accessToken: accessToken)
+          ChatConversationView(accessToken: accessToken)
         } label: {
-          Label("Voice conversation", systemImage: "waveform")
+          Label("Chat", systemImage: "bubble.left.and.bubble.right")
             .font(.body.weight(.semibold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .foregroundStyle(.white)
-            .background(Color(red: 0, green: 0.4, blue: 0.8), in: Capsule())
+            .background(AppTheme.primary, in: Capsule())
         }
         .padding(.horizontal)
 
         Spacer()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .background(AppTheme.canvas)
       .padding()
       .navigationTitle("AI")
       .navigationBarTitleDisplayMode(.inline)
