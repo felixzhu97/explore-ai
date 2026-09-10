@@ -10,11 +10,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class MediaGenTextToSpeechRepositoryTest {
+class SpeechTextToSpeechRepositoryTest {
 
-  private final MediaGenTextToSpeechRepository repository =
-      new MediaGenTextToSpeechRepository(
-          "http://localhost:8003", Duration.ofSeconds(1), Duration.ofSeconds(1), new ObjectMapper());
+  private final SpeechTextToSpeechRepository repository =
+      new SpeechTextToSpeechRepository(
+          "http://localhost:8004", Duration.ofSeconds(1), Duration.ofSeconds(1), new ObjectMapper());
 
   @Nested
   @DisplayName("qwenSpeakerOrNull()")
@@ -23,7 +23,7 @@ class MediaGenTextToSpeechRepositoryTest {
     @Test
     @DisplayName("should omit OpenAI catalog voices for Qwen TTS")
     void shouldOmitOpenAiCatalogVoicesForQwenTts() {
-      assertThat(MediaGenTextToSpeechRepository.qwenSpeakerOrNull(VoiceSelection.of("alloy", null)))
+      assertThat(SpeechTextToSpeechRepository.qwenSpeakerOrNull(VoiceSelection.of("alloy", null)))
           .isNull();
     }
 
@@ -32,7 +32,7 @@ class MediaGenTextToSpeechRepositoryTest {
     void shouldKeepCustomQwenSpeakerName() {
       // VoiceSelection validates against OpenAI catalog; use raw record for Qwen speakers.
       assertThat(
-              MediaGenTextToSpeechRepository.qwenSpeakerOrNull(
+              SpeechTextToSpeechRepository.qwenSpeakerOrNull(
                   new VoiceSelection("vivian", "gpt-4o-mini-tts")))
           .isEqualTo("vivian");
     }
@@ -43,17 +43,17 @@ class MediaGenTextToSpeechRepositoryTest {
   class ResolveAudioUri {
 
     @Test
-    @DisplayName("should keep absolute media-gen audio urls")
-    void shouldKeepAbsoluteMediaGenAudioUrls() {
-      URI uri = repository.resolveAudioUri("http://localhost:8003/output/voice/job.wav");
-      assertThat(uri.toString()).isEqualTo("http://localhost:8003/output/voice/job.wav");
+    @DisplayName("should keep absolute speech audio urls")
+    void shouldKeepAbsoluteSpeechAudioUrls() {
+      URI uri = repository.resolveAudioUri("http://localhost:8004/output/voice/job.wav");
+      assertThat(uri.toString()).isEqualTo("http://localhost:8004/output/voice/job.wav");
     }
 
     @Test
-    @DisplayName("should resolve relative audio paths against media-gen base")
-    void shouldResolveRelativeAudioPathsAgainstMediaGenBase() {
+    @DisplayName("should resolve relative audio paths against speech base")
+    void shouldResolveRelativeAudioPathsAgainstSpeechBase() {
       URI uri = repository.resolveAudioUri("/output/voice/job.wav");
-      assertThat(uri.toString()).isEqualTo("http://localhost:8003/output/voice/job.wav");
+      assertThat(uri.toString()).isEqualTo("http://localhost:8004/output/voice/job.wav");
     }
   }
 }

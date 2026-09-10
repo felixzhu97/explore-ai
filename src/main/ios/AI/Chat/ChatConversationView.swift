@@ -4,9 +4,11 @@ import SwiftUI
 struct ChatConversationView: View {
   @StateObject private var model: ChatConversationViewModel
   @FocusState private var composerFocused: Bool
+  var onSignOut: () -> Void
 
-  init(accessToken: String) {
+  init(accessToken: String, onSignOut: @escaping () -> Void = {}) {
     _model = StateObject(wrappedValue: ChatConversationViewModel(accessToken: accessToken))
+    self.onSignOut = onSignOut
   }
 
   var body: some View {
@@ -73,6 +75,9 @@ struct ChatConversationView: View {
         Menu {
           Button("New chat", systemImage: "square.and.pencil") {
             model.startNewChat()
+          }
+          Button("Sign out", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
+            onSignOut()
           }
         } label: {
           Image(systemName: "ellipsis")

@@ -7,24 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02A325D63FCB3DFF8065582F /* ChatConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD28E5D3F6941EAA6F79086C /* ChatConversationView.swift */; };
+		2145C5480E8541BC7C687CC5 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3C28008EFA73EA49C0ABBE /* LoginView.swift */; };
 		2BA68F6EA9A220A94623BDC8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9DDB77A4F132E5EDBD70A9DC /* Assets.xcassets */; };
 		47C0258A49CA38BB45DC4DBB /* AIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC2B38FB09175260336186C /* AIApp.swift */; };
-		56D26110CED10FD2B0C64A2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900C397928A5034F70322163 /* ContentView.swift */; };
-		A11A00000000000000000002 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000001 /* Config.swift */; };
-		A11A00000000000000000004 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000003 /* AuthService.swift */; };
-		A11A00000000000000000006 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000005 /* KeychainStore.swift */; };
-		A11A00000000000000000008 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000007 /* APIClient.swift */; };
-		A11A0000000000000000000B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000000A /* LoginView.swift */; };
-		A11A0000000000000000000D /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000000C /* HomeView.swift */; };
+		4E618D51FA496445C13EAB0F /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E76F7A558E938B7B5054DE2 /* AudioSessionManager.swift */; };
+		5A40DE0391AAF3828698F67B /* ChatStreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B997619C15B00985CA100DB /* ChatStreamClient.swift */; };
+		623C19A6B01B807B555A570C /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FAFE74F624D879BAC9BFCA /* AppTheme.swift */; };
+		65E814CBACA52E20288D40BB /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8D1D481A7786BCD927A620 /* AuthService.swift */; };
+		8554F474FEE5F5525CA6B27F /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669CAFA6E5115023A9BFF494 /* KeychainStore.swift */; };
+		8D167A4825CB0E645AD2A893 /* ChatTurn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BA469F7EAAA0988A102F10E /* ChatTurn.swift */; };
+		91C71312FA97DCAB403C5738 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F86A76B15F0B63AC905392 /* APIClient.swift */; };
+		B5A3E4043458AFDCC717E3F5 /* TtsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64852BBBE60A8029CF20BFA0 /* TtsClient.swift */; };
+		C3120102FDADC6E1D8EC5F35 /* AsrWebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26AC3D6BF002E0940494DA03 /* AsrWebSocketClient.swift */; };
+		CF590EEC47041270C7BAFD79 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE85F42614776C4296FC625 /* Config.swift */; };
+		E82E4BCEB88810F325B389C6 /* ChatConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389962698BC2DB0A33BE2651 /* ChatConversationViewModel.swift */; };
 		F477F58967429014BC36F1AB /* AITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5D6CCCFE6516C3E9C70C04 /* AITests.swift */; };
-		A11A00000000000000000011 /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000010 /* AudioSessionManager.swift */; };
-		A11A00000000000000000013 /* AsrWebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000012 /* AsrWebSocketClient.swift */; };
-		A11A00000000000000000015 /* ChatStreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000014 /* ChatStreamClient.swift */; };
-		A11A00000000000000000017 /* TtsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000016 /* TtsClient.swift */; };
-		A11A00000000000000000019 /* ChatConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000018 /* ChatConversationViewModel.swift */; };
-		A11A0000000000000000001B /* ChatConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001A /* ChatConversationView.swift */; };
-		A11A0000000000000000001D /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001C /* AppTheme.swift */; };
-		A11A0000000000000000001F /* ChatTurn.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001E /* ChatTurn.swift */; };
+		F7859F4753BB6722DFB35738 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56F0F2C2EC80ACD4DCE40BF /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,51 +37,51 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1BA469F7EAAA0988A102F10E /* ChatTurn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTurn.swift; sourceTree = "<group>"; };
 		2548B5D89C3F7333DF34E6AD /* AI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		26AC3D6BF002E0940494DA03 /* AsrWebSocketClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsrWebSocketClient.swift; sourceTree = "<group>"; };
 		36294B170C1F3168E70E15F0 /* AITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		389962698BC2DB0A33BE2651 /* ChatConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatConversationViewModel.swift; sourceTree = "<group>"; };
 		3F5D6CCCFE6516C3E9C70C04 /* AITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITests.swift; sourceTree = "<group>"; };
-		900C397928A5034F70322163 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4B997619C15B00985CA100DB /* ChatStreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStreamClient.swift; sourceTree = "<group>"; };
+		64852BBBE60A8029CF20BFA0 /* TtsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TtsClient.swift; sourceTree = "<group>"; };
+		669CAFA6E5115023A9BFF494 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		71F86A76B15F0B63AC905392 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		7AE85F42614776C4296FC625 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		7C3C28008EFA73EA49C0ABBE /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		9DDB77A4F132E5EDBD70A9DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A11A00000000000000000001 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		A11A00000000000000000003 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
-		A11A00000000000000000005 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
-		A11A00000000000000000007 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		A11A00000000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A11A0000000000000000000A /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		A11A0000000000000000000C /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		9E76F7A558E938B7B5054DE2 /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
+		BD28E5D3F6941EAA6F79086C /* ChatConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatConversationView.swift; sourceTree = "<group>"; };
+		C56F0F2C2EC80ACD4DCE40BF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CF8D1D481A7786BCD927A620 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		CFC2B38FB09175260336186C /* AIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIApp.swift; sourceTree = "<group>"; };
-		A11A00000000000000000010 /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
-		A11A00000000000000000012 /* AsrWebSocketClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsrWebSocketClient.swift; sourceTree = "<group>"; };
-		A11A00000000000000000014 /* ChatStreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStreamClient.swift; sourceTree = "<group>"; };
-		A11A00000000000000000016 /* TtsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TtsClient.swift; sourceTree = "<group>"; };
-		A11A00000000000000000018 /* ChatConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatConversationViewModel.swift; sourceTree = "<group>"; };
-		A11A0000000000000000001A /* ChatConversationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatConversationView.swift; sourceTree = "<group>"; };
-		A11A0000000000000000001C /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		A11A0000000000000000001E /* ChatTurn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTurn.swift; sourceTree = "<group>"; };
+		E1FAFE74F624D879BAC9BFCA /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		F1D4F30D6C97F08962C866AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		3FD06F03C5E05E7F1EE90F16 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				BD28E5D3F6941EAA6F79086C /* ChatConversationView.swift */,
+				389962698BC2DB0A33BE2651 /* ChatConversationViewModel.swift */,
+				4B997619C15B00985CA100DB /* ChatStreamClient.swift */,
+				1BA469F7EAAA0988A102F10E /* ChatTurn.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
 		58159A27F2745130F9BA5096 /* AI */ = {
 			isa = PBXGroup;
 			children = (
+				E1E8FAD5AFC1BFFE32A0A933 /* Account */,
+				A9E062FDBCA9394E0A67027F /* Brand */,
+				3FD06F03C5E05E7F1EE90F16 /* Chat */,
+				C126000FB5EB8416BF5293EC /* General */,
+				E85D661FE5F4D04D97A63F16 /* Navigation */,
 				CFC2B38FB09175260336186C /* AIApp.swift */,
-				A11A00000000000000000007 /* APIClient.swift */,
 				9DDB77A4F132E5EDBD70A9DC /* Assets.xcassets */,
-				A11A00000000000000000003 /* AuthService.swift */,
-				A11A00000000000000000001 /* Config.swift */,
-				900C397928A5034F70322163 /* ContentView.swift */,
-				A11A0000000000000000000C /* HomeView.swift */,
-				A11A00000000000000000010 /* AudioSessionManager.swift */,
-				A11A00000000000000000012 /* AsrWebSocketClient.swift */,
-				A11A00000000000000000014 /* ChatStreamClient.swift */,
-				A11A00000000000000000016 /* TtsClient.swift */,
-				A11A00000000000000000018 /* ChatConversationViewModel.swift */,
-				A11A0000000000000000001A /* ChatConversationView.swift */,
-				A11A0000000000000000001C /* AppTheme.swift */,
-				A11A0000000000000000001E /* ChatTurn.swift */,
-				A11A00000000000000000009 /* Info.plist */,
-				A11A00000000000000000005 /* KeychainStore.swift */,
-				A11A0000000000000000000A /* LoginView.swift */,
+				F1D4F30D6C97F08962C866AE /* Info.plist */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -104,6 +103,14 @@
 			);
 			sourceTree = "<group>";
 		};
+		A9E062FDBCA9394E0A67027F /* Brand */ = {
+			isa = PBXGroup;
+			children = (
+				E1FAFE74F624D879BAC9BFCA /* AppTheme.swift */,
+			);
+			path = Brand;
+			sourceTree = "<group>";
+		};
 		B20A78DB477814DCCB520B61 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -111,6 +118,36 @@
 				36294B170C1F3168E70E15F0 /* AITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C126000FB5EB8416BF5293EC /* General */ = {
+			isa = PBXGroup;
+			children = (
+				71F86A76B15F0B63AC905392 /* APIClient.swift */,
+				26AC3D6BF002E0940494DA03 /* AsrWebSocketClient.swift */,
+				9E76F7A558E938B7B5054DE2 /* AudioSessionManager.swift */,
+				7AE85F42614776C4296FC625 /* Config.swift */,
+				64852BBBE60A8029CF20BFA0 /* TtsClient.swift */,
+			);
+			path = General;
+			sourceTree = "<group>";
+		};
+		E1E8FAD5AFC1BFFE32A0A933 /* Account */ = {
+			isa = PBXGroup;
+			children = (
+				CF8D1D481A7786BCD927A620 /* AuthService.swift */,
+				669CAFA6E5115023A9BFF494 /* KeychainStore.swift */,
+				7C3C28008EFA73EA49C0ABBE /* LoginView.swift */,
+			);
+			path = Account;
+			sourceTree = "<group>";
+		};
+		E85D661FE5F4D04D97A63F16 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				C56F0F2C2EC80ACD4DCE40BF /* ContentView.swift */,
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -161,6 +198,13 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					36DAA53FCF00C28E6C5ED555 = {
+						DevelopmentTeam = PVXT4ZZ49P;
+						ProvisioningStyle = Automatic;
+					};
+					A9B43694A70CACFFA0F76F24 = {
+						DevelopmentTeam = PVXT4ZZ49P;
+					};
 				};
 			};
 			buildConfigurationList = FB93C40041CEC4549C9040A1 /* Build configuration list for PBXProject "AI" */;
@@ -199,22 +243,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A11A00000000000000000008 /* APIClient.swift in Sources */,
 				47C0258A49CA38BB45DC4DBB /* AIApp.swift in Sources */,
-				A11A00000000000000000004 /* AuthService.swift in Sources */,
-				A11A00000000000000000002 /* Config.swift in Sources */,
-				56D26110CED10FD2B0C64A2B /* ContentView.swift in Sources */,
-				A11A0000000000000000000D /* HomeView.swift in Sources */,
-				A11A00000000000000000006 /* KeychainStore.swift in Sources */,
-				A11A00000000000000000011 /* AudioSessionManager.swift in Sources */,
-				A11A00000000000000000013 /* AsrWebSocketClient.swift in Sources */,
-				A11A00000000000000000015 /* ChatStreamClient.swift in Sources */,
-				A11A00000000000000000017 /* TtsClient.swift in Sources */,
-				A11A00000000000000000019 /* ChatConversationViewModel.swift in Sources */,
-				A11A0000000000000000001B /* ChatConversationView.swift in Sources */,
-				A11A0000000000000000001D /* AppTheme.swift in Sources */,
-				A11A0000000000000000001F /* ChatTurn.swift in Sources */,
-				A11A0000000000000000000B /* LoginView.swift in Sources */,
+				91C71312FA97DCAB403C5738 /* APIClient.swift in Sources */,
+				623C19A6B01B807B555A570C /* AppTheme.swift in Sources */,
+				C3120102FDADC6E1D8EC5F35 /* AsrWebSocketClient.swift in Sources */,
+				4E618D51FA496445C13EAB0F /* AudioSessionManager.swift in Sources */,
+				65E814CBACA52E20288D40BB /* AuthService.swift in Sources */,
+				02A325D63FCB3DFF8065582F /* ChatConversationView.swift in Sources */,
+				E82E4BCEB88810F325B389C6 /* ChatConversationViewModel.swift in Sources */,
+				5A40DE0391AAF3828698F67B /* ChatStreamClient.swift in Sources */,
+				8D167A4825CB0E645AD2A893 /* ChatTurn.swift in Sources */,
+				CF590EEC47041270C7BAFD79 /* Config.swift in Sources */,
+				F7859F4753BB6722DFB35738 /* ContentView.swift in Sources */,
+				8554F474FEE5F5525CA6B27F /* KeychainStore.swift in Sources */,
+				2145C5480E8541BC7C687CC5 /* LoginView.swift in Sources */,
+				B5A3E4043458AFDCC717E3F5 /* TtsClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,6 +284,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = PVXT4ZZ49P;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -328,17 +372,11 @@
 				DEVELOPMENT_TEAM = PVXT4ZZ49P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AI/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = AI;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Explore AI needs the microphone for voice chat with Qwen ASR.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.explore.ai;
-				PRODUCT_NAME = AI;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -408,6 +446,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = PVXT4ZZ49P;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -430,17 +469,11 @@
 				DEVELOPMENT_TEAM = PVXT4ZZ49P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AI/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = AI;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Explore AI needs the microphone for voice chat with Qwen ASR.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.explore.ai;
-				PRODUCT_NAME = AI;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

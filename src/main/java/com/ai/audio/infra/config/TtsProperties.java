@@ -8,13 +8,13 @@ import org.springframework.util.StringUtils;
 public class TtsProperties {
 
   private boolean enabled = true;
-  /** media-gen (explore-ml Qwen3-TTS) or openai (Spring AI). */
-  private String provider = "media-gen";
+  /** speech (explore-ml Qwen3-TTS) or openai (Spring AI). */
+  private String provider = "speech";
   private String model = "gpt-4o-mini-tts";
   private String voice = "alloy";
   private String apiKey = "";
   private String baseUrl = "https://api.openai.com/v1";
-  private String mediaGenBaseUrl = "http://localhost:8003";
+  private String speechBaseUrl = "http://localhost:8004";
 
   public boolean isEnabled() {
     return enabled;
@@ -64,20 +64,20 @@ public class TtsProperties {
     this.baseUrl = baseUrl;
   }
 
-  public String getMediaGenBaseUrl() {
-    return mediaGenBaseUrl;
+  public String getSpeechBaseUrl() {
+    return speechBaseUrl;
   }
 
-  public void setMediaGenBaseUrl(String mediaGenBaseUrl) {
-    this.mediaGenBaseUrl = mediaGenBaseUrl;
+  public void setSpeechBaseUrl(String speechBaseUrl) {
+    this.speechBaseUrl = speechBaseUrl;
   }
 
   public boolean isConfigured() {
     if (!enabled) {
       return false;
     }
-    if ("media-gen".equalsIgnoreCase(provider)) {
-      return StringUtils.hasText(mediaGenBaseUrl);
+    if ("speech".equalsIgnoreCase(provider)) {
+      return StringUtils.hasText(speechBaseUrl);
     }
     return apiKey != null && !apiKey.isBlank();
   }
