@@ -94,7 +94,7 @@ journey
 |------------|------------|------------|------|-----|------------|-------------|--------|
 | [US-01](./user-stories/E1-chat-session.md#us-01-ai-对话) AI 对话 | [US-04](./user-stories/E2-privacy-isolation.md#us-04-按浏览器隔离聊天会话) 浏览器隔离 | [US-06](./user-stories/E3-rag-vision.md#us-06-rag-知识问答) RAG | [US-09](./user-stories/E4-media.md#us-09-图像生成) 图像生成 | [US-12](./user-stories/E5-mcp-tools.md#us-12-mcp-工具调用) MCP | [US-13](./user-stories/E6-eval-metrics.md#us-13-chat-质量评估) Eval | [US-15](./user-stories/E7-multi-agent.md#us-15-multi-agent-pipeline-工作台) Pipeline | [US-30](./user-stories/E10-skills.md#us-30-管理可复用-skills) 管理 Skills |
 | [US-02](./user-stories/E1-chat-session.md#us-02-provider--model-选择) Provider/Model | [US-05](./user-stories/E2-privacy-isolation.md#us-05-欧盟隐私告知同意与擦除控制) 隐私控制 / [US-05b](./user-stories/E2-privacy-isolation.md#us-05b-政策中转页与法律文档) 政策文档 | [US-07](./user-stories/E3-rag-vision.md#us-07-vision-多模态-rag) Vision RAG | [US-10](./user-stories/E4-media.md#us-10-语音合成-tts) TTS | | [US-14](./user-stories/E6-eval-metrics.md#us-14-ai-指标看板) Metrics / [US-36](./user-stories/E6-eval-metrics.md#us-36-lab-与隐私页跟随界面语言) 界面语言覆盖 | [US-16](./user-stories/E7-multi-agent.md#us-16-企业工作流模版内置--可自定义) 工作流模版 | [US-31](./user-stories/E10-skills.md#us-31-在聊天中应用-skills) 聊天应用 / [US-35](./user-stories/E10-skills.md#us-35-工作台页布局与-metrics-一致) 布局对齐 Metrics |
-| [US-03](./user-stories/E1-chat-session.md#us-03-多轮对话与自动标题) 多轮与标题 | | [US-08](./user-stories/E3-rag-vision.md#us-08-图像分析独立) 图像分析 | [US-11](./user-stories/E4-media.md#us-11-流式-asr-语音识别) ASR | | | [US-17](./user-stories/E7-multi-agent.md#us-17-企业研判标准化输出) 标准化输出 / [US-18](./user-stories/E7-multi-agent.md#us-18-消费-agent-模版目录) 画布 Worker 目录 | |
+| [US-03](./user-stories/E1-chat-session.md#us-03-多轮对话与自动标题) 多轮与标题 | | [US-08](./user-stories/E3-rag-vision.md#us-08-图像分析独立) 图像分析 | [US-11](./user-stories/E4-media.md#us-11-流式-asr-语音识别) ASR / [US-11b](./user-stories/E4-media.md#us-11b-原生-voice-conversationios) Voice Conversation iOS | | | [US-17](./user-stories/E7-multi-agent.md#us-17-企业研判标准化输出) 标准化输出 / [US-18](./user-stories/E7-multi-agent.md#us-18-消费-agent-模版目录) 画布 Worker 目录 | |
 | [US-03b](./user-stories/E1-chat-session.md#us-03b-会话地址与切换加载) 会话地址与切换加载 | | | | | | | |
 | [US-03c](./user-stories/E1-chat-session.md#us-03c-聊天中的结构图) 聊天结构图 | | | | | | | |
 | [US-03d](./user-stories/E1-chat-session.md#us-03d-聊天中的丰富数据图) 丰富数据图 | | | | | | | |
@@ -108,14 +108,14 @@ journey
 
 ### 进行中
 
-| 对话与会话 | 商业化与平台 | 企业自动化 | 媒体 |
-|------------|--------------|------------|------|
-| [US-03e](./user-stories/E1-chat-session.md#us-03e-聊天中的高级数据图布局) 高级数据图布局 ([EXP-358](https://felixzhu.atlassian.net/browse/EXP-358)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 | [US-11b](./user-stories/E4-media.md#us-11b-原生-voice-conversationios) Voice Conversation iOS |
-| | [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ | |
-| | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | | |
-| | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | | |
-| | [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | | |
-| | [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor | | |
+| 对话与会话 | 商业化与平台 | 企业自动化 |
+|------------|--------------|------------|
+| [US-03e](./user-stories/E1-chat-session.md#us-03e-聊天中的高级数据图布局) 高级数据图布局 ([EXP-358](https://felixzhu.atlassian.net/browse/EXP-358)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
+| | [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ |
+| | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | |
+| | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | |
+| | [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | |
+| | [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor | |
 
 ### 未来（规划中）
 

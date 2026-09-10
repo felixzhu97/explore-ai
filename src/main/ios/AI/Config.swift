@@ -14,4 +14,11 @@ struct Config: Sendable {
     iamRedirectURI: "com.explore.ai://oauth/callback",
     iamCallbackScheme: "com.explore.ai"
   )
+
+  var asrWebSocketURL: URL {
+    var components = URLComponents(url: apiBaseURL, resolvingAgainstBaseURL: false)!
+    components.scheme = (components.scheme == "https") ? "wss" : "ws"
+    components.path = "/ws/audio/transcribe"
+    return components.url!
+  }
 }

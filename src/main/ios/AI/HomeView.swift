@@ -3,6 +3,7 @@ import SwiftUI
 /// Post-login home for Explore AI.
 struct HomeView: View {
   let account: AccountMe?
+  let accessToken: String
   var onSignOut: () -> Void
 
   var body: some View {
@@ -19,6 +20,19 @@ struct HomeView: View {
           .multilineTextAlignment(.center)
           .foregroundStyle(.secondary)
           .padding(.horizontal)
+
+        NavigationLink {
+          VoiceConversationView(accessToken: accessToken)
+        } label: {
+          Label("Voice conversation", systemImage: "waveform")
+            .font(.body.weight(.semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .foregroundStyle(.white)
+            .background(Color(red: 0, green: 0.4, blue: 0.8), in: Capsule())
+        }
+        .padding(.horizontal)
+
         Spacer()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -45,5 +59,8 @@ struct HomeView: View {
 }
 
 #Preview {
-  HomeView(account: AccountMe(mode: "authenticated", userId: "u1", email: "demo@explore-iam.local", plan: "free")) {}
+  HomeView(
+    account: AccountMe(mode: "authenticated", userId: "u1", email: "demo@explore-iam.local", plan: "free"),
+    accessToken: "preview"
+  ) {}
 }
