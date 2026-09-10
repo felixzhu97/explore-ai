@@ -46,6 +46,14 @@ public class AudioFacade {
     return audio.isEmpty() ? null : audio.data();
   }
 
+  /** Documentation. */
+  public SynthesizedAudio synthesizeAudio(String text, String voice, Double speed) {
+    ensureProviderConfigured();
+    log.info("AudioFacade.synthesize: {}", LogSanitizer.truncate(text));
+    VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
+    return textToSpeechRepository.synthesize(SpeechText.of(text), selection, speed);
+  }
+
   public List<VoiceInfo> getAvailableVoices() {
     return VoiceCatalog.defaults().voiceInfos();
   }

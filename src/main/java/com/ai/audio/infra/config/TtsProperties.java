@@ -1,16 +1,20 @@
 package com.ai.audio.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
 
 /** Documentation. */
 @ConfigurationProperties(prefix = "app.ai.tts")
 public class TtsProperties {
 
   private boolean enabled = true;
+  /** openai (Spring AI) or media-gen (explore-ml loopback). */
+  private String provider = "openai";
   private String model = "gpt-4o-mini-tts";
   private String voice = "alloy";
   private String apiKey = "";
   private String baseUrl = "https://api.openai.com/v1";
+  private String mediaGenBaseUrl = "http://localhost:8003";
 
   public boolean isEnabled() {
     return enabled;
@@ -18,6 +22,14 @@ public class TtsProperties {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public String getProvider() {
+    return provider;
+  }
+
+  public void setProvider(String provider) {
+    this.provider = provider;
   }
 
   public String getModel() {
@@ -52,7 +64,21 @@ public class TtsProperties {
     this.baseUrl = baseUrl;
   }
 
+  public String getMediaGenBaseUrl() {
+    return mediaGenBaseUrl;
+  }
+
+  public void setMediaGenBaseUrl(String mediaGenBaseUrl) {
+    this.mediaGenBaseUrl = mediaGenBaseUrl;
+  }
+
   public boolean isConfigured() {
-    return enabled && apiKey != null && !apiKey.isBlank();
+    if (!enabled) {
+      return false;
+    }
+    if ("media-gen".equalsIgnoreCase(provider)) {
+      return StringUtils.hasText(mediaGenBaseUrl);
+    }
+    return apiKey != null && !apiKey.isBlank();
   }
 }

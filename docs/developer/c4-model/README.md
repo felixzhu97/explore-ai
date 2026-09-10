@@ -224,7 +224,8 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Spring Boot Backend (prod) | **8080** |
 | H2 Embedded | 内嵌 (dev `./data` / prod `/app/data` volume) |
 | Ollama (Embedding/RAG Vision) | 11434 [local] |
-| whisper.cpp (ASR) | 8178 [local] |
+| whisper.cpp (ASR optional) | 8178 [local] |
+| explore-ml media-gen (Qwen3 ASR/TTS) | 8003 [local] |
 | Tesseract OCR | 系统安装 (JNA) [local] |
 | Image Analysis ONNX Models | `models/` 本地文件 [local] |
 | Angular Dev Server | 4200 |

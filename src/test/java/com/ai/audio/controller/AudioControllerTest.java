@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
+import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.service.usecase.AudioFacade;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -36,7 +37,7 @@ class AudioControllerTest {
     void shouldSynthesizeSpeechWithValidRequest() {
       String text = "Hello, world!";
       byte[] audioData = new byte[] {1, 2, 3, 4};
-      when(audioFacade.synthesize(text, "alloy", 1.0)).thenReturn(audioData);
+      when(audioFacade.synthesizeAudio(text, "alloy", 1.0)).thenReturn(SynthesizedAudio.create(audioData));
 
       assertThat(
               mvc.post()
@@ -137,7 +138,7 @@ class AudioControllerTest {
     @Test
     @DisplayName("should return 500 when audio data is null")
     void shouldReturn500WhenAudioDataIsNull() {
-      when(audioFacade.synthesize(any(), any(), any())).thenReturn(null);
+      when(audioFacade.synthesizeAudio(any(), any(), any())).thenReturn(null);
 
       assertThat(
               mvc.post()
@@ -150,7 +151,7 @@ class AudioControllerTest {
     @Test
     @DisplayName("should return 500 when audio data is empty")
     void shouldReturn500WhenAudioDataIsEmpty() {
-      when(audioFacade.synthesize(any(), any(), any())).thenReturn(new byte[] {});
+      when(audioFacade.synthesizeAudio(any(), any(), any())).thenReturn(SynthesizedAudio.empty());
 
       assertThat(
               mvc.post()
@@ -163,7 +164,7 @@ class AudioControllerTest {
     @Test
     @DisplayName("should return 503 when provider is not configured")
     void shouldReturn503WhenProviderIsNotConfigured() {
-      when(audioFacade.synthesize(any(), any(), any()))
+      when(audioFacade.synthesizeAudio(any(), any(), any()))
           .thenThrow(TtsProviderNotConfiguredException.apiKeyMissing());
 
       assertThat(
@@ -177,7 +178,7 @@ class AudioControllerTest {
     @Test
     @DisplayName("should return 500 when facade throws exception")
     void shouldReturn500WhenFacadeThrowsException() {
-      when(audioFacade.synthesize(any(), any(), any()))
+      when(audioFacade.synthesizeAudio(any(), any(), any()))
           .thenThrow(new RuntimeException("TTS error"));
 
       assertThat(
@@ -193,7 +194,7 @@ class AudioControllerTest {
     void shouldHandleLongTextWithoutError() {
       String longText = "A".repeat(10000);
       byte[] audioData = new byte[100];
-      when(audioFacade.synthesize(longText, null, null)).thenReturn(audioData);
+      when(audioFacade.synthesizeAudio(longText, null, null)).thenReturn(SynthesizedAudio.create(audioData));
 
       assertThat(
               mvc.post()
@@ -208,7 +209,7 @@ class AudioControllerTest {
     void shouldHandleChineseText() {
       String chineseText = "你好，世界！";
       byte[] audioData = new byte[] {1, 2, 3};
-      when(audioFacade.synthesize(chineseText, null, null)).thenReturn(audioData);
+      when(audioFacade.synthesizeAudio(chineseText, null, null)).thenReturn(SynthesizedAudio.create(audioData));
 
       assertThat(
               mvc.post()
@@ -222,7 +223,7 @@ class AudioControllerTest {
     @DisplayName("should set correct content type header")
     void shouldSetCorrectContentTypeHeader() {
       byte[] audioData = new byte[] {1, 2, 3};
-      when(audioFacade.synthesize(any(), any(), any())).thenReturn(audioData);
+      when(audioFacade.synthesizeAudio(any(), any(), any())).thenReturn(SynthesizedAudio.create(audioData));
 
       assertThat(
               mvc.post()
@@ -238,7 +239,7 @@ class AudioControllerTest {
     @DisplayName("should set correct content disposition header")
     void shouldSetCorrectContentDispositionHeader() {
       byte[] audioData = new byte[] {1, 2, 3};
-      when(audioFacade.synthesize(any(), any(), any())).thenReturn(audioData);
+      when(audioFacade.synthesizeAudio(any(), any(), any())).thenReturn(SynthesizedAudio.create(audioData));
 
       assertThat(
               mvc.post()

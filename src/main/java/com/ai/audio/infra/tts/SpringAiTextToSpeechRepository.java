@@ -8,11 +8,16 @@ import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.audio.tts.TextToSpeechResponse;
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 /** Documentation. */
 @Repository
+@ConditionalOnProperty(
+    name = "app.ai.tts.provider",
+    havingValue = "openai",
+    matchIfMissing = true)
 public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
 
   private final TextToSpeechModel textToSpeechModel;

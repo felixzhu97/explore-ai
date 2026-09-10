@@ -82,3 +82,28 @@
 ### 状态
 
 已实现
+
+---
+
+## US-11b 原生 Voice Conversation（iOS）
+
+**As a** 最终用户  
+**I want** 在 AI iOS 上用实时语音与助手对话  
+**So that** 我可以边说边听，无需打字
+
+### 验收标准
+
+1. **Scenario** 语音对话闭环
+   **GIVEN** 已登录 IAM 且 explore-ai / media-gen 可用  
+   **WHEN** 用户打开 Voice Conversation 并允许麦克风  
+   **THEN** 说话内容经流式 ASR 转写  
+   **AND** 助手回复经 TTS 播报
+
+2. **Scenario** 打断播报
+   **GIVEN** 助手正在播报  
+   **WHEN** 用户再次说话  
+   **THEN** 播报停止并继续听取
+
+### 状态
+
+实现中
