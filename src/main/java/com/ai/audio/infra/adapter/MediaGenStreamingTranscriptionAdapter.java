@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -23,10 +22,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
  * /ws/v1/audios:transcribe} (Qwen3-ASR).
  */
 @Component
-@ConditionalOnProperty(
-    name = "app.asr.provider",
-    havingValue = "media-gen",
-    matchIfMissing = true)
 public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscriptionGateway {
 
   private static final Logger log =

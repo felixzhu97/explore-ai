@@ -38,7 +38,7 @@ open AI.xcodeproj
 
 ## Voice conversation (self-test)
 
-1. Start media-gen (`:8003`), AI (`:9000` with `ASR_PROVIDER=media-gen`), IAM.
+1. Start media-gen (`:8003`), AI (`:9000`), IAM.
 2. Sign in, then tap **Voice conversation**.
 3. Allow microphone access.
 4. Tap the mic → speak → tap again to commit the turn.

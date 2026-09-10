@@ -968,9 +968,8 @@ curl -X GET "${BASE_URL}/api/audio/models"
 
 ### WebSocket Streaming Transcription
 
-Real-time speech-to-text. Default upstream is **explore-ml media-gen**
-(Qwen3-ASR) via `MEDIA_GENERATION_API_URL` / `app.asr.provider=media-gen`.
-Set `ASR_PROVIDER=whisper-cpp` to use local whisper.cpp on `:8178`.
+Real-time speech-to-text via **explore-ml media-gen** (Qwen3-ASR). Set
+`MEDIA_GENERATION_API_URL` (default `http://localhost:8003`).
 
 **Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
 
@@ -1001,34 +1000,19 @@ Set `ASR_PROVIDER=whisper-cpp` to use local whisper.cpp on `:8178`.
 1. Client sends one or more `audio` chunks and receives `partial` responses.
 2. Client may send `commit` to finalize the current utterance (voice turns).
 3. Client sends `stop` when finished; server may emit `final` then close.
+
 **Requirements:**
 
-- whisper.cpp server running locally (OpenAI-compatible API on port 8178)
-- Audio format: WAV, 16kHz, mono, base64-encoded
+- explore-ml media-gen running locally (`:8003`) with Qwen3-ASR
+- Audio: PCM or WAV, 16 kHz mono, base64-encoded
 
-**Local setup:**
-
-```bash
-# Install whisper.cpp (macOS)
-brew install whisper-cpp
-
-# Download tiny.en model (~75MB, free)
-curl -L -o ggml-tiny.en.bin \
-  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin
-
-# Start whisper.cpp server (OpenAI-compatible endpoint)
-whisper-server -m ggml-tiny.en.bin --host 127.0.0.1 --port 8178 \
-  --request-path /v1/audio/transcriptions --inference-path ""
-```
-
-Configure the backend URL in `application.yml`:
+Configure the upstream in `application.yml`:
 
 ```yaml
 app:
   asr:
-    whisper-cpp:
-      base-url: http://localhost:8178
-      model: whisper-base
+    media-gen:
+      base-url: http://localhost:8003
 ```
 
 ---

@@ -171,15 +171,9 @@ app:
       base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
       media-gen-base-url: ${MEDIA_GENERATION_API_URL:http://localhost:8003}
   asr:
-    provider: ${ASR_PROVIDER:media-gen}
     media-gen:
       base-url: ${MEDIA_GENERATION_API_URL:http://localhost:8003}
       connect-timeout: 5s
-    whisper-cpp:
-      base-url: http://localhost:8178
-      model: whisper-base
-      connect-timeout: 5s
-      read-timeout: 60s
   cors:
     allowed-origin-patterns:
       - http://localhost:4200
