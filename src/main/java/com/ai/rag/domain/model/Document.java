@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
 
   @Column private Long fileSize;
 
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private DocumentStatus status;
