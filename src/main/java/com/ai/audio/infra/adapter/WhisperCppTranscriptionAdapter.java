@@ -1,5 +1,6 @@
 package com.ai.audio.infra.adapter;
 
+import com.ai.audio.domain.repository.StreamingTranscriptionGateway;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -22,7 +24,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 /** Adapter for whisper.cpp streaming transcription via OpenAI-compatible API. */
 @Component
-public class WhisperCppTranscriptionAdapter {
+@ConditionalOnProperty(name = "app.asr.provider", havingValue = "whisper-cpp")
+public class WhisperCppTranscriptionAdapter implements StreamingTranscriptionGateway {
 
   private static final Logger log = LoggerFactory.getLogger(WhisperCppTranscriptionAdapter.class);
 
@@ -54,6 +57,7 @@ public class WhisperCppTranscriptionAdapter {
   }
 
   /** Transcribe audio chunk and send partial results via WebSocket. */
+  @Override
   public void streamAudioChunk(WebSocketSession session, StringBuilder transcript, String payload) {
     try {
       Map<String, String> message = objectMapper.readValue(payload, new TypeReference<>() {});
@@ -87,6 +91,7 @@ public class WhisperCppTranscriptionAdapter {
   }
 
   /** Finalize transcription session. */
+  @Override
   public void finalizeSession(WebSocketSession session, StringBuilder transcript) {
     String result;
     synchronized (transcript) {
@@ -98,6 +103,7 @@ public class WhisperCppTranscriptionAdapter {
   }
 
   /** Documentation. */
+  @Override
   public void sendError(WebSocketSession session, String text) {
     sendMessage(session, "error", text);
   }

@@ -19,8 +19,10 @@ import org.springframework.lang.NonNull;
 @ConditionalOnProperty(name = "app.rag.embedding.provider", havingValue = "openai")
 @ConditionalOnExpression(
     "T(org.springframework.util.StringUtils).hasText('${OPENAI_API_KEY:}')"
-        + " or T(org.springframework.util.StringUtils).hasText('${IMAGE_API_KEY:}')"
-        + " or T(org.springframework.util.StringUtils).hasText('${app.rag.embedding.openai-api-key:}')")
+        + " or T(org.springframework.util.StringUtils)"
+        + ".hasText('${IMAGE_API_KEY:}')"
+        + " or T(org.springframework.util.StringUtils)"
+        + ".hasText('${app.rag.embedding.openai-api-key:}')")
 public class OpenAiEmbeddingConfig {
 
   @Value("${app.rag.embedding.openai-api-key:${OPENAI_API_KEY:}}")

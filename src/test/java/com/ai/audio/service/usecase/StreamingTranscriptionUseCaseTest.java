@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.audio.infra.adapter.WhisperCppTranscriptionAdapter;
+import com.ai.audio.domain.repository.StreamingTranscriptionGateway;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,11 +22,9 @@ import org.springframework.web.socket.WebSocketSession;
 @DisplayName("StreamingTranscriptionUseCase Tests")
 class StreamingTranscriptionUseCaseTest {
 
-  @Mock private WhisperCppTranscriptionAdapter whisperCppTranscriptionAdapter;
+  @Mock private StreamingTranscriptionGateway transcriptionGateway;
 
   @Mock private WebSocketSession rawSession;
-
-  @Mock private WebSocketSession decoratedSession;
 
   private StreamingTranscriptionUseCase useCase;
   private ObjectMapper objectMapper;
@@ -36,7 +34,7 @@ class StreamingTranscriptionUseCaseTest {
     objectMapper = new ObjectMapper();
     useCase =
         new StreamingTranscriptionUseCase(
-            whisperCppTranscriptionAdapter, new SyncTaskExecutor(), objectMapper);
+            transcriptionGateway, new SyncTaskExecutor(), objectMapper);
     when(rawSession.getId()).thenReturn("22222222-2222-2222-2222-222222222222");
   }
 
@@ -49,7 +47,7 @@ class StreamingTranscriptionUseCaseTest {
     String payload = objectMapper.writeValueAsString(java.util.Map.of("type", "stop"));
     useCase.handleMessage(rawSession, payload);
 
-    verify(whisperCppTranscriptionAdapter)
+    verify(transcriptionGateway)
         .finalizeSession(any(WebSocketSession.class), any(StringBuilder.class));
     verify(rawSession).close(CloseStatus.NORMAL);
   }
@@ -62,7 +60,7 @@ class StreamingTranscriptionUseCaseTest {
     String payload = objectMapper.writeValueAsString(java.util.Map.of("type", "ping"));
     useCase.handleMessage(rawSession, payload);
 
-    verify(whisperCppTranscriptionAdapter)
+    verify(transcriptionGateway)
         .sendError(any(WebSocketSession.class), eq("Unsupported message type: ping"));
   }
 
@@ -75,8 +73,19 @@ class StreamingTranscriptionUseCaseTest {
         objectMapper.writeValueAsString(java.util.Map.of("type", "audio", "data", "d2F2"));
     useCase.handleMessage(rawSession, payload);
 
-    verify(whisperCppTranscriptionAdapter)
+    verify(transcriptionGateway)
         .streamAudioChunk(any(WebSocketSession.class), any(StringBuilder.class), eq(payload));
+  }
+
+  @Test
+  @DisplayName("should commit turn when commit message received")
+  void shouldCommitTurnWhenCommitMessageReceived() throws Exception {
+    useCase.startSession(rawSession);
+
+    String payload = objectMapper.writeValueAsString(java.util.Map.of("type", "commit"));
+    useCase.handleMessage(rawSession, payload);
+
+    verify(transcriptionGateway).commitTurn(any(WebSocketSession.class), any(StringBuilder.class));
   }
 
   @Test
@@ -86,6 +95,6 @@ class StreamingTranscriptionUseCaseTest {
 
     useCase.endSession(rawSession);
 
-    verify(whisperCppTranscriptionAdapter, never()).finalizeSession(any(), any());
+    verify(transcriptionGateway, never()).finalizeSession(any(), any());
   }
 }

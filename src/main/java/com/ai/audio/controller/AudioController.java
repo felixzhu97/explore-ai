@@ -41,16 +41,18 @@ public class AudioController {
       return ResponseEntity.badRequest().build();
     }
     try {
-      byte[] audio = audioFacade.synthesize(request.text(), request.voice(), request.speed());
+      var audio = audioFacade.synthesizeAudio(request.text(), request.voice(), request.speed());
 
-      if (audio == null || audio.length == 0) {
+      if (audio == null || audio.isEmpty()) {
         return ResponseEntity.internalServerError().build();
       }
 
+      String mediaType = audio.mediaType();
+      String filename = mediaType.contains("wav") ? "speech.wav" : "speech.mp3";
       return ResponseEntity.ok()
-          .contentType(MediaType.parseMediaType("audio/mpeg"))
-          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"speech.mp3\"")
-          .body(audio);
+          .contentType(MediaType.parseMediaType(mediaType))
+          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+          .body(audio.data());
     } catch (InvalidSpeechTextException e) {
       return ResponseEntity.badRequest().build();
     } catch (TtsProviderNotConfiguredException e) {

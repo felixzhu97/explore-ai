@@ -968,7 +968,9 @@ curl -X GET "${BASE_URL}/api/audio/models"
 
 ### WebSocket Streaming Transcription
 
-Real-time speech-to-text using whisper.cpp via WebSocket.
+Real-time speech-to-text. Default upstream is **explore-ml media-gen**
+(Qwen3-ASR) via `MEDIA_GENERATION_API_URL` / `app.asr.provider=media-gen`.
+Set `ASR_PROVIDER=whisper-cpp` to use local whisper.cpp on `:8178`.
 
 **Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
 
@@ -976,7 +978,10 @@ Real-time speech-to-text using whisper.cpp via WebSocket.
 
 ```json
 // Client -> Server (audio chunk)
-{"type": "audio", "data": "base64_wav_data"}
+{"type": "audio", "data": "base64_pcm_or_wav", "sample_rate": 16000}
+
+// Client -> Server (end current utterance; media-gen)
+{"type": "commit"}
 
 // Client -> Server (end stream)
 {"type": "stop"}
@@ -984,7 +989,7 @@ Real-time speech-to-text using whisper.cpp via WebSocket.
 // Server -> Client (partial result)
 {"type": "partial", "text": "正在识别..."}
 
-// Server -> Client (final result, sent before connection close)
+// Server -> Client (final result)
 {"type": "final", "text": "识别完成的文字"}
 
 // Server -> Client (error)
@@ -994,9 +999,8 @@ Real-time speech-to-text using whisper.cpp via WebSocket.
 **Flow:**
 
 1. Client sends one or more `audio` chunks and receives `partial` responses.
-2. Client sends `stop` when finished recording.
-3. Server sends `final` with the accumulated transcript, then closes the connection.
-
+2. Client may send `commit` to finalize the current utterance (voice turns).
+3. Client sends `stop` when finished; server may emit `final` then close.
 **Requirements:**
 
 - whisper.cpp server running locally (OpenAI-compatible API on port 8178)

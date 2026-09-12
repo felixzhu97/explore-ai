@@ -1,6 +1,6 @@
 package com.ai.audio.service.usecase;
 
-import com.ai.audio.infra.adapter.WhisperCppTranscriptionAdapter;
+import com.ai.audio.domain.repository.StreamingTranscriptionGateway;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class StreamingTranscriptionUseCase {
   private static final int SEND_TIME_LIMIT_MS = 5_000;
   private static final int BUFFER_SIZE_LIMIT = 512 * 1024;
 
-  private final WhisperCppTranscriptionAdapter whisperCppTranscriptionAdapter;
+  private final StreamingTranscriptionGateway transcriptionGateway;
   private final TaskExecutor transcriptionExecutor;
   private final ObjectMapper objectMapper;
 
@@ -31,10 +31,10 @@ public class StreamingTranscriptionUseCase {
 
   /** Documentation. */
   public StreamingTranscriptionUseCase(
-      WhisperCppTranscriptionAdapter whisperCppTranscriptionAdapter,
+      StreamingTranscriptionGateway transcriptionGateway,
       @Qualifier("asrTranscriptionExecutor") TaskExecutor transcriptionExecutor,
       ObjectMapper objectMapper) {
-    this.whisperCppTranscriptionAdapter = whisperCppTranscriptionAdapter;
+    this.transcriptionGateway = transcriptionGateway;
     this.transcriptionExecutor = transcriptionExecutor;
     this.objectMapper = objectMapper;
   }
@@ -60,11 +60,11 @@ public class StreamingTranscriptionUseCase {
       case "audio" ->
           transcriptionExecutor.execute(
               () -> processAudioChunk(rawSession.getId(), state, payload));
+      case "commit" -> transcriptionExecutor.execute(() -> commitTurn(rawSession.getId(), state));
       case "stop" ->
           transcriptionExecutor.execute(() -> finalizeAndClose(rawSession.getId(), state));
       default ->
-          whisperCppTranscriptionAdapter.sendError(
-              state.session, "Unsupported message type: " + messageType);
+          transcriptionGateway.sendError(state.session, "Unsupported message type: " + messageType);
     }
   }
 
@@ -79,7 +79,16 @@ public class StreamingTranscriptionUseCase {
       if (!sessions.containsKey(sessionId)) {
         return;
       }
-      whisperCppTranscriptionAdapter.streamAudioChunk(state.session, state.transcript, payload);
+      transcriptionGateway.streamAudioChunk(state.session, state.transcript, payload);
+    }
+  }
+
+  private void commitTurn(String sessionId, SessionState state) {
+    synchronized (state) {
+      if (!sessions.containsKey(sessionId)) {
+        return;
+      }
+      transcriptionGateway.commitTurn(state.session, state.transcript);
     }
   }
 
@@ -88,7 +97,7 @@ public class StreamingTranscriptionUseCase {
       if (sessions.remove(sessionId) == null) {
         return;
       }
-      whisperCppTranscriptionAdapter.finalizeSession(state.session, state.transcript);
+      transcriptionGateway.finalizeSession(state.session, state.transcript);
       closeQuietly(state.session);
     }
   }
