@@ -35,8 +35,8 @@ package "com.ai.base" as pkg_base {
   }
   class AbstractEntity <<Abstract>> {
     +id: IdT
-    +createdAt: Instant
-    +updatedAt: Instant
+    +createdAt: Instant @CreationTimestamp
+    +updatedAt: Instant @UpdateTimestamp
     +version: Long
     --
     +touchUpdatedAt()
@@ -46,7 +46,6 @@ package "com.ai.base" as pkg_base {
     +createdAt: Instant
   }
   class BaseJpaConfig <<Configuration>> {
-    EnableJpaAuditing
     EnableJpaRepositories
   }
 }
@@ -233,6 +232,7 @@ package "com.ai.skill.domain" as pkg_skill {
     +enabled: boolean
     --
     +{static} create(...)
+    +{static} reconstitute(...)
     +update(name, instructions, tools)
     +enable()
     +disable()
@@ -330,6 +330,8 @@ package "com.ai.tools.domain" as pkg_tools {
 note as KERNEL_NOTE
   OwnerKey and aggregate bases are defined in
   **com.ai.common.domain** (pkg_common_kernel above).
+  JSON list columns: StringListJsonAttributeConverter in infra.
+  Default JPA snake_case naming; no @Table/@Column(name=) in domain.
 end note
 
 AbstractEntity <|-- ChatSession : metadata only
