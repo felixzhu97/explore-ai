@@ -18,7 +18,7 @@ public interface SpringDataChatSessionRepository extends JpaRepository<ChatSessi
   @Query(
       value =
           """
-          SELECT * FROM chat_sessions
+          SELECT * FROM chat_session
           WHERE owner_key = :ownerKeyValue
           ORDER BY last_activity_at DESC
           """,
@@ -30,7 +30,7 @@ public interface SpringDataChatSessionRepository extends JpaRepository<ChatSessi
   @Query(
       value =
           """
-          SELECT * FROM chat_sessions
+          SELECT * FROM chat_session
           WHERE id = :id AND owner_key = :ownerKeyValue
           """,
       nativeQuery = true)

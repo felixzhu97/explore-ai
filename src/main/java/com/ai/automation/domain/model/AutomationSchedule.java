@@ -11,7 +11,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import lombok.NoArgsConstructor;
 
 /** Automation schedule aggregate with custom enable semantics. */
 @Entity
-@Table(name = "automation_schedules")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
@@ -35,38 +33,37 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
   private static final int MAX_BRIEF = 4000;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "schedule_kind", nullable = false, length = 20)
+  @Column(nullable = false, length = 20)
   private ScheduleKind scheduleKind;
 
-  @Column(name = "cron_expression", length = 80)
+  @Column(length = 80)
   private String cronExpression;
 
-  @Column(name = "timezone", nullable = false, length = 64)
+  @Column(nullable = false, length = 64)
   private String timezone;
 
-  @Column(name = "enabled", nullable = false)
+  @Column(nullable = false)
   private boolean enabled;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "action_type", nullable = false, length = 40, updatable = false)
+  @Column(nullable = false, length = 40, updatable = false)
   private AutomationActionType actionType;
 
   /** FK to workflow_templates.id (UUID column); stored as domain UUID string. */
   @Convert(converter = UuidStringAttributeConverter.class)
-  @Column(name = "workflow_template_id", nullable = false, length = 36)
+  @Column(nullable = false, length = 36)
   private String workflowTemplateId;
 
-  @Column(name = "recipient_email", nullable = false, length = 320)
+  @Column(nullable = false, length = 320)
   private String recipientEmail;
 
-  @Column(name = "brief", nullable = false, columnDefinition = "clob")
+  @Column(nullable = false, columnDefinition = "clob")
   private String brief;
 
-  @Column(name = "next_run_at", nullable = false)
+  @Column(nullable = false)
   private Instant nextRunAt;
 
-  @Column(name = "last_run_at")
-  private Instant lastRunAt;
+  @Column private Instant lastRunAt;
 
   private AutomationSchedule(
       ScheduleId id,
@@ -160,7 +157,7 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
   }
 
   /** Documentation. */
-  public static AutomationSchedule restore(
+  public static AutomationSchedule reconstitute(
       ScheduleId id,
       String ownerKey,
       String name,
