@@ -13,6 +13,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Explore AI needs the microphone for voice chat with Qwen ASR.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Explore AI talks to your Mac’s local explore-ai and explore-iam services on the LAN.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

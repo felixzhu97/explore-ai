@@ -102,7 +102,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索) / Resend (Automations 邮件)
-- **本地服务 (dev / prod 默认关闭)**: Ollama / whisper.cpp / Tesseract / ONNX Image Analysis
+- **本地服务 (dev / prod 默认关闭)**: Ollama / explore-ml media-gen / Tesseract / ONNX Image Analysis
 
 ### Pipeline（工作流）子域
 
@@ -191,7 +191,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 ```
 Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
                                               ↘ H2 ./data/explore-ai
-                                              ↘ Ollama :11434 / whisper :8178 / Tesseract
+                                              ↘ Ollama :11434 / media-gen :8003 / Tesseract
                                               ↘ DeepSeek / OpenAI / Serper / Resend
 ```
 
@@ -224,7 +224,6 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Spring Boot Backend (prod) | **8080** |
 | H2 Embedded | 内嵌 (dev `./data` / prod `/app/data` volume) |
 | Ollama (Embedding/RAG Vision) | 11434 [local] |
-| whisper.cpp (ASR optional) | 8178 [local] |
 | explore-ml media-gen (Qwen3 ASR/TTS) | 8003 [local] |
 | Tesseract OCR | 系统安装 (JNA) [local] |
 | Image Analysis ONNX Models | `models/` 本地文件 [local] |
@@ -259,7 +258,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Caption | BLIP base ONNX | ONNX Runtime 本地 |
 | Detect | YOLOv8n ONNX | COCO 80 类 |
 | OCR | eng + chi_sim | Tesseract tessdata |
-| ASR | whisper-base | whisper.cpp 本地 |
+| ASR | Qwen3-ASR-1.7B | explore-ml media-gen `:8003` |
 | Image Gen | dall-e-3 | OpenAI API |
 | TTS | gpt-4o-mini-tts | OpenAI API |
 

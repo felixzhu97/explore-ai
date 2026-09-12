@@ -23,7 +23,7 @@ Deployment_Node(dev, "Developer workstation", "local/dev") {
     }
     Deployment_Node(local_ai, "Local AI (dev)", "optional") {
         Container_Ext(ollama, "Ollama", "embed + vision", ":11434")
-        Container_Ext(whisper, "whisper.cpp", "ASR", ":8178")
+        Container_Ext(media_gen, "explore-ml media-gen", "Qwen3-ASR + TTS", ":8003")
         Container_Ext(tesseract, "Tesseract", "OCR", "native")
     }
 }
@@ -58,7 +58,7 @@ Rel(backend_dev, iam_dev, "JWKS validate", "HTTP :9100")
 Rel(backend_dev, h2_dev, "JDBC")
 Rel(backend_dev, vision_models, "Load models", "file I/O")
 Rel(backend_dev, ollama, "Embed / vision RAG", "HTTP :11434")
-Rel(backend_dev, whisper, "Streaming ASR", "HTTP/WS :8178")
+Rel(backend_dev, media_gen, "Streaming ASR / TTS", "HTTP/WS :8003")
 Rel(backend_dev, tesseract, "OCR", "JNA")
 
 Rel(user, angular_static, "Uses UI", "HTTPS")

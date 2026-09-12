@@ -3,6 +3,7 @@ import SwiftUI
 /// Post-login home for Explore AI.
 struct HomeView: View {
   let account: AccountMe?
+  let accessToken: String
   var onSignOut: () -> Void
 
   var body: some View {
@@ -11,17 +12,32 @@ struct HomeView: View {
         Spacer(minLength: 40)
         Image(systemName: "sparkles")
           .font(.system(size: 44))
-          .foregroundStyle(.tint)
+          .foregroundStyle(AppTheme.primary)
         Text("Home")
           .font(.largeTitle.weight(.semibold))
+          .foregroundStyle(AppTheme.ink)
         Text(welcomeLine)
           .font(.body)
           .multilineTextAlignment(.center)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(AppTheme.muted)
           .padding(.horizontal)
+
+        NavigationLink {
+          ChatConversationView(accessToken: accessToken)
+        } label: {
+          Label("Chat", systemImage: "bubble.left.and.bubble.right")
+            .font(.body.weight(.semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .foregroundStyle(.white)
+            .background(AppTheme.primary, in: Capsule())
+        }
+        .padding(.horizontal)
+
         Spacer()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .background(AppTheme.canvas)
       .padding()
       .navigationTitle("AI")
       .navigationBarTitleDisplayMode(.inline)
@@ -45,5 +61,8 @@ struct HomeView: View {
 }
 
 #Preview {
-  HomeView(account: AccountMe(mode: "authenticated", userId: "u1", email: "demo@explore-iam.local", plan: "free")) {}
+  HomeView(
+    account: AccountMe(mode: "authenticated", userId: "u1", email: "demo@explore-iam.local", plan: "free"),
+    accessToken: "preview"
+  ) {}
 }

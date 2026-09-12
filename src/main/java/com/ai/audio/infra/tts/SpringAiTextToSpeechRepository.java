@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 
 /** Documentation. */
 @Repository
-@ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "openai", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "openai")
 public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
 
   private final TextToSpeechModel textToSpeechModel;

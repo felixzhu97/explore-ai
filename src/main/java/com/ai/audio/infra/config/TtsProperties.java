@@ -9,8 +9,8 @@ public class TtsProperties {
 
   private boolean enabled = true;
 
-  /** openai (Spring AI) or media-gen (explore-ml loopback). */
-  private String provider = "openai";
+  /** media-gen (explore-ml Qwen3-TTS) or openai (Spring AI). */
+  private String provider = "media-gen";
 
   private String model = "gpt-4o-mini-tts";
   private String voice = "alloy";

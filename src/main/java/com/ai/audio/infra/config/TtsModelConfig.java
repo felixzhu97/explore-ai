@@ -23,7 +23,7 @@ public class TtsModelConfig {
   @Primary
   @ConditionalOnExpression(
       "'${app.ai.tts.enabled:true}'.equalsIgnoreCase('true')"
-          + " && '${app.ai.tts.provider:openai}'.equalsIgnoreCase('openai')")
+          + " && '${app.ai.tts.provider:media-gen}'.equalsIgnoreCase('openai')")
   public TextToSpeechModel textToSpeechModel(TtsProperties properties) {
     String apiKey = properties.getApiKey();
     if (!StringUtils.hasText(apiKey)) {

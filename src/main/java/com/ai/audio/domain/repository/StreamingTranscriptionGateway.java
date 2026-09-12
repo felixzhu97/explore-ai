@@ -3,8 +3,8 @@ package com.ai.audio.domain.repository;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * Outbound gateway for streaming speech recognition. Implementations call whisper.cpp or explore-ml
- * media-gen.
+ * Outbound gateway for streaming speech recognition. Implementation loopbacks to explore-ml
+ * media-gen (Qwen3-ASR).
  */
 public interface StreamingTranscriptionGateway {
 
