@@ -7,6 +7,7 @@ import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     extends AbstractEntity<IdT> {
 
+  @NotNull
   @Convert(converter = OwnerKeyAttributeConverter.class)
   @Column(nullable = false, length = 80)
   protected OwnerKey ownerKey;

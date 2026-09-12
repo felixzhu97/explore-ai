@@ -4,6 +4,8 @@ import com.ai.account.domain.vo.AccountUserId;
 import com.ai.base.domain.model.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,15 +17,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AccountUser extends AbstractEntity<AccountUserId> {
 
+  @NotBlank
+  @Size(max = 32)
   @Column(nullable = false, length = 32)
   private String provider;
 
+  @NotBlank
+  @Size(max = 255)
   @Column(nullable = false, length = 255)
   private String subject;
 
+  @Size(max = 320)
   @Column(length = 320)
   private String email;
 
+  @Size(max = 64)
   @Column(length = 64)
   private String linkedClientId;
 
