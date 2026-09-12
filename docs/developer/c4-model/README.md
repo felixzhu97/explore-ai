@@ -102,7 +102,7 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索) / Resend (Automations 邮件)
-- **本地服务 (dev / prod 默认关闭)**: Ollama / explore-ml media-gen / Tesseract / ONNX Image Analysis
+- **本地服务 (dev / prod 默认关闭)**: Ollama / explore-ml speech / Tesseract / ONNX Image Analysis
 
 ### Pipeline（工作流）子域
 
@@ -191,7 +191,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 ```
 Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
                                               ↘ H2 ./data/explore-ai
-                                              ↘ Ollama :11434 / media-gen :8003 / Tesseract
+                                              ↘ Ollama :11434 / speech :8004 / Tesseract
                                               ↘ DeepSeek / OpenAI / Serper / Resend
 ```
 
@@ -224,7 +224,8 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Spring Boot Backend (prod) | **8080** |
 | H2 Embedded | 内嵌 (dev `./data` / prod `/app/data` volume) |
 | Ollama (Embedding/RAG Vision) | 11434 [local] |
-| explore-ml media-gen (Qwen3 ASR/TTS) | 8003 [local] |
+| explore-ml speech (Qwen3 ASR/TTS) | 8004 [local] |
+| explore-ml image-playground | 8003 [local] |
 | Tesseract OCR | 系统安装 (JNA) [local] |
 | Image Analysis ONNX Models | `models/` 本地文件 [local] |
 | Angular Dev Server | 4200 |
@@ -258,9 +259,9 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Caption | BLIP base ONNX | ONNX Runtime 本地 |
 | Detect | YOLOv8n ONNX | COCO 80 类 |
 | OCR | eng + chi_sim | Tesseract tessdata |
-| ASR | Qwen3-ASR-1.7B | explore-ml media-gen `:8003` |
+| ASR | Qwen3-ASR-1.7B | explore-ml speech `:8004` |
 | Image Gen | dall-e-3 | OpenAI API |
-| TTS | gpt-4o-mini-tts | OpenAI API |
+| TTS | Qwen3-TTS (default) / gpt-4o-mini-tts | explore-ml speech `:8004` / OpenAI |
 
 ---
 

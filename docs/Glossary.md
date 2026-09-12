@@ -341,10 +341,10 @@ UPLOADING → PROCESSING → READY
 | Speech Text                        | 语音文本   | Validated text input for TTS               | Value Object        | `SpeechText`                         | —                                                     |
 | Synthesized Audio                  | 合成音频   | Domain result of TTS conversion            | Value Object        | `SynthesizedAudio`                   | Audio bytes                                           |
 | Synthesize                         | 合成     | Execute text-to-speech conversion          | Use Case Behavior   | `AudioFacade.synthesize()`           | POST `/api/audio/speak` (alias `/api/tts/synthesize`) |
-| Automatic Speech Recognition (ASR) | 自动语音识别 | Convert spoken audio to text               | Capability          | `StreamingTranscriptionUseCase`      | explore-ml Qwen3-ASR via media-gen; flag `module-audio-asr` |
-| Streaming Transcription            | 流式转写   | Real-time ASR over WebSocket               | Use Case Behavior   | `AudioTranscriptionWebSocketHandler` | Product `WS /ws/audio/transcribe` → media-gen `/ws/v1/audios:transcribe` |
-| Transcription                      | 转写     | Single ASR result converting audio to text | Application Concept | `StreamingTranscriptionGateway`      | `MediaGenStreamingTranscriptionAdapter` |
-| Voice Conversation                 | 语音对话   | Duplex mic → ASR → chat → TTS on native clients | Capability     | AI iOS Chat (Qwen)                   | ChatGPT-style UI; Qwen3 ASR/TTS via media-gen |
+| Automatic Speech Recognition (ASR) | 自动语音识别 | Convert spoken audio to text               | Capability          | `StreamingTranscriptionUseCase`      | explore-ml Qwen3-ASR via speech (`:8004`); flag `module-audio-asr` |
+| Streaming Transcription            | 流式转写   | Real-time ASR over WebSocket               | Use Case Behavior   | `AudioTranscriptionWebSocketHandler` | Product `WS /ws/audio/transcribe` → speech `/ws/v1/audios:transcribe` |
+| Transcription                      | 转写     | Single ASR result converting audio to text | Application Concept | `StreamingTranscriptionGateway`      | `SpeechStreamingTranscriptionAdapter` |
+| Voice Conversation                 | 语音对话   | Duplex mic → ASR → chat → TTS on native clients | Capability     | AI iOS Chat (Qwen)                   | ChatGPT-style UI; Qwen3 ASR/TTS via speech `:8004` |
 
 
 ---

@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -19,15 +18,14 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 /**
- * Proxies product {@code /ws/audio/transcribe} frames to explore-ml media-gen {@code
+ * Proxies product {@code /ws/audio/transcribe} frames to explore-ml speech {@code
  * /ws/v1/audios:transcribe} (Qwen3-ASR).
  */
 @Component
-@ConditionalOnProperty(name = "app.asr.provider", havingValue = "media-gen", matchIfMissing = true)
-public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscriptionGateway {
+public class SpeechStreamingTranscriptionAdapter implements StreamingTranscriptionGateway {
 
   private static final Logger log =
-      LoggerFactory.getLogger(MediaGenStreamingTranscriptionAdapter.class);
+      LoggerFactory.getLogger(SpeechStreamingTranscriptionAdapter.class);
 
   private final String wsUri;
   private final Duration connectTimeout;
@@ -35,10 +33,9 @@ public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscrip
   private final Map<String, WebSocketSession> upstreamByClient = new ConcurrentHashMap<>();
 
   /** Documentation. */
-  public MediaGenStreamingTranscriptionAdapter(
-      @Value("${app.asr.media-gen.base-url:${MEDIA_GENERATION_API_URL:http://localhost:8003}}")
-          String baseUrl,
-      @Value("${app.asr.media-gen.connect-timeout:5s}") Duration connectTimeout,
+  public SpeechStreamingTranscriptionAdapter(
+      @Value("${app.asr.speech.base-url:${SPEECH_API_URL:http://localhost:8004}}") String baseUrl,
+      @Value("${app.asr.speech.connect-timeout:5s}") Duration connectTimeout,
       ObjectMapper objectMapper) {
     this.wsUri = toWsUri(baseUrl) + "/ws/v1/audios:transcribe";
     this.connectTimeout = connectTimeout;
@@ -50,12 +47,12 @@ public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscrip
     try {
       WebSocketSession upstream = ensureUpstream(session, transcript);
       if (upstream == null || !upstream.isOpen()) {
-        sendError(session, "media-gen ASR upstream unavailable");
+        sendError(session, "speech ASR upstream unavailable");
         return;
       }
       upstream.sendMessage(new TextMessage(payload));
     } catch (Exception e) {
-      log.error("Failed to forward audio chunk to media-gen", e);
+      log.error("Failed to forward audio chunk to speech", e);
       sendError(session, "Transcription failed: " + e.getMessage());
     }
   }
@@ -84,7 +81,7 @@ public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscrip
         upstream.sendMessage(new TextMessage(controlJson));
       }
     } catch (Exception e) {
-      log.warn("Failed to forward control frame to media-gen", e);
+      log.warn("Failed to forward control frame to speech", e);
     }
   }
 
@@ -134,7 +131,7 @@ public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscrip
         client.sendMessage(new TextMessage(payload));
       }
     } catch (Exception e) {
-      log.warn("Failed to relay media-gen ASR frame", e);
+      log.warn("Failed to relay speech ASR frame", e);
       sendError(client, "Transcription relay failed");
     }
   }
@@ -163,7 +160,7 @@ public class MediaGenStreamingTranscriptionAdapter implements StreamingTranscrip
   }
 
   static String toWsUri(String httpBase) {
-    String base = httpBase == null ? "http://localhost:8003" : httpBase.trim();
+    String base = httpBase == null ? "http://localhost:8004" : httpBase.trim();
     while (base.endsWith("/")) {
       base = base.substring(0, base.length() - 1);
     }
