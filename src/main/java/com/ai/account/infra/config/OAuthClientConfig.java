@@ -93,7 +93,16 @@ public class OAuthClientConfig {
         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
         .redirectUri(redirectOrDefault(properties.getRedirectUri()))
-        .scope("openid", "profile", "email")
+        .scope(
+            "openid",
+            "profile",
+            "email",
+            "write:ai_chat",
+            "write:ai_audio",
+            "write:ai_rag",
+            "write:ai_media",
+            "write:ai_agent",
+            "write:ai_tools")
         .userNameAttributeName(IdTokenClaimNames.SUB)
         .clientName("Explore IAM")
         .build();

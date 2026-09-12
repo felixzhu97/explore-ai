@@ -63,7 +63,11 @@ final class AuthService: NSObject {
       URLQueryItem(name: "response_type", value: "code"),
       URLQueryItem(name: "client_id", value: config.iamClientId),
       URLQueryItem(name: "redirect_uri", value: config.iamRedirectURI),
-      URLQueryItem(name: "scope", value: "openid profile email"),
+      URLQueryItem(
+        name: "scope",
+        value:
+          "openid profile email write:ai_chat write:ai_audio write:ai_rag write:ai_media write:ai_agent write:ai_tools"
+      ),
       URLQueryItem(name: "code_challenge", value: challenge),
       URLQueryItem(name: "code_challenge_method", value: "S256"),
       URLQueryItem(name: "state", value: state),
