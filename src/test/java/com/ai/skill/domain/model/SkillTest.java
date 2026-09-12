@@ -62,7 +62,7 @@ class SkillTest {
     Instant updatedAt = Instant.parse("2026-01-02T00:00:00Z");
 
     Skill skill =
-        Skill.restore(
+        Skill.reconstitute(
             id,
             "c:client-1",
             "Name",
