@@ -55,7 +55,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     String rawOwnerKey =
         (String)
             em.getEntityManager()
-                .createNativeQuery("SELECT owner_key FROM chat_sessions WHERE id = ?")
+                .createNativeQuery("SELECT owner_key FROM chat_session WHERE id = ?")
                 .setParameter(1, session.getId().value())
                 .getSingleResult();
 
