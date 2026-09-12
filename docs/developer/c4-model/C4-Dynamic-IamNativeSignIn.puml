@@ -14,7 +14,7 @@ user -> ios: 1. Tap Sign in with IAM
 ios -> ios: 2. PKCE verifier / challenge / state
 ios -> iam: 3. ASWebAuthenticationSession\nGET /oauth2/authorize\nclient_id=explore-ai-ios
 iam --> ios: 4. /login SPA → credentials
-user -> iam: 5. demo / demo-password
+user -> iam: 5. demo / demo
 iam --> ios: 6. com.explore.ai://oauth/callback?code=
 ios -> iam: 7. POST /oauth2/token + code_verifier
 iam --> ios: 8. access_token (email/profile claims)

@@ -73,7 +73,7 @@ public class SecurityConfig {
                             response.setStatus(HttpStatus.NO_CONTENT.value()))
                     .invalidateHttpSession(true)
                     .clearAuthentication(true)
-                    .deleteCookies("JSESSIONID"))
+                    .deleteCookies("EASESSIONID", "JSESSIONID"))
         .exceptionHandling(
             ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
     applyJwtResourceServer(http, jwtDecoder);
@@ -106,7 +106,7 @@ public class SecurityConfig {
                             response.setStatus(HttpStatus.NO_CONTENT.value()))
                     .invalidateHttpSession(true)
                     .clearAuthentication(true)
-                    .deleteCookies("JSESSIONID"));
+                    .deleteCookies("EASESSIONID", "JSESSIONID"));
     applyJwtResourceServer(http, jwtDecoder);
     return http.build();
   }

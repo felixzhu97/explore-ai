@@ -33,7 +33,7 @@ open AI.xcodeproj
 1. Start IAM (`:9100`) and AI (`:9000`).
 2. Run the AI scheme on the Simulator.
 3. Tap **Sign in with IAM** — system sheet (client `explore-ai-ios`).
-4. Demo user: `demo` / `demo-password`.
+4. Demo user: `demo` / `demo`.
 5. Land on **Chat** (pill composer).
 
 ## Chat (self-test)
