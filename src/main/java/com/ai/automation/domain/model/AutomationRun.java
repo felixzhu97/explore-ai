@@ -31,7 +31,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
 
   @Embedded
   @AttributeOverride(
-      name = "id",
+      name = "value",
       column = @Column(name = "schedule_id", nullable = false, length = 36))
   private ScheduleId scheduleId;
 
