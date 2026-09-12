@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 /** Immutable entity base with embedded typed ID and creation timestamp. */
 @MappedSuperclass
 @Getter
