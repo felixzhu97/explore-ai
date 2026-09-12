@@ -14,12 +14,13 @@ class TtsPropertiesTest {
     TtsProperties properties = new TtsProperties();
 
     assertThat(properties.isEnabled()).isTrue();
+    assertThat(properties.getProvider()).isEqualTo("media-gen");
     assertThat(properties.getModel()).isEqualTo("gpt-4o-mini-tts");
     assertThat(properties.getVoice()).isEqualTo("alloy");
     assertThat(properties.getBaseUrl()).isEqualTo("https://api.openai.com/v1");
-    assertThat(properties.isConfigured()).isFalse();
+    assertThat(properties.isConfigured()).isTrue();
 
-    properties.setEnabled(true);
+    properties.setProvider("openai");
     properties.setApiKey("sk-test");
     properties.setModel("tts-1");
     properties.setVoice("nova");
@@ -36,6 +37,15 @@ class TtsPropertiesTest {
     TtsProperties properties = new TtsProperties();
     properties.setEnabled(false);
     properties.setApiKey("sk-test");
+
+    assertThat(properties.isConfigured()).isFalse();
+  }
+
+  @Test
+  @DisplayName("should report not configured when media-gen base URL is blank")
+  void shouldReportNotConfiguredWhenMediaGenBaseUrlIsBlank() {
+    TtsProperties properties = new TtsProperties();
+    properties.setMediaGenBaseUrl(" ");
 
     assertThat(properties.isConfigured()).isFalse();
   }

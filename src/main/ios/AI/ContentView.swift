@@ -10,8 +10,8 @@ struct ContentView: View {
     Group {
       if isHydrating {
         ProgressView("Loading…")
-      } else if accessToken != nil {
-        HomeView(account: account, onSignOut: signOut)
+      } else if let token = accessToken {
+        HomeView(account: account, accessToken: token, onSignOut: signOut)
       } else {
         LoginView(onSignedIn: applySession)
       }

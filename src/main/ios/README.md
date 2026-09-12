@@ -1,11 +1,8 @@
 # AI iOS (SwiftUI)
 
 Native iOS app for Explore AI with **in-app** Explore IAM Sign in
-(Authorization Code + PKCE via `ASWebAuthenticationSession`).
-
-This is the same system auth-sheet pattern as Sign in with Google / Apple
-OAuth: login stays attached to the app and does **not** hand off to external
-Safari.
+(Authorization Code + PKCE via `ASWebAuthenticationSession`) and a
+**ChatGPT-style chat** surface (text + Qwen ASR/TTS voice).
 
 ## Requirements
 
@@ -13,6 +10,8 @@ Safari.
 - iOS 17+ simulator or device
 - Local Explore IAM (`http://localhost:9100`) and Explore AI API (`http://localhost:9000`)
   with JWT resource server enabled (`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER=true`)
+- Voice / dictation: explore-ml **media-gen** on `:8003` (Qwen3-ASR + Qwen3-TTS)
+- Physical device uses Mac LAN host `192.168.3.100` (not `localhost`) for API + IAM
 
 ## Open
 
@@ -25,21 +24,31 @@ open AI.xcodeproj
 
 1. Start IAM (`:9100`) and AI (`:9000`).
 2. Run the AI scheme on the Simulator.
-3. Tap **Sign in with IAM** — a **system sign-in sheet** opens over the app
-   (client `explore-ai-ios`, redirect `com.explore.ai://oauth/callback`).
+3. Tap **Sign in with IAM** — system sheet (client `explore-ai-ios`).
 4. Demo user: `demo` / `demo-password`.
-5. After the sheet dismisses, the app stores the access token, loads
-   `/api/account/me`, and **navigates to Home** (welcome + Sign out).
-6. Cancel the sheet — the app stays on the login screen with no crash.
-7. Sign out returns to login; sign in again may reuse IAM SSO cookies
-   (`prefersEphemeralWebBrowserSession = false`).
+5. Home → **Chat**.
+
+## Chat (self-test)
+
+1. Start media-gen (`:8003`), AI (`:9000`), IAM.
+2. Type in the pill composer and send (↑), or:
+   - **Mic** — dictate into the draft (Qwen ASR)
+   - **Waveform** — full voice turn (ASR → chat → TTS)
+3. Toolbar **New chat** clears the session.
+4. Assistant replies stream in place (no bubble); user messages use soft pills.
+
+## Physical device
+
+1. Unlock iPhone, trust this Mac, Connected in Xcode.
+2. Same Wi‑Fi as Mac; allow Local Network.
+3. If Mac IP ≠ `192.168.3.100`, edit `Config.developmentHost`.
 
 ## Test
 
 ```bash
 cd src/main/ios
 xcodebuild test -scheme AI \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   CODE_SIGNING_ALLOWED=NO
 ```
 
