@@ -106,6 +106,12 @@ spring:
 
 server:
   port: 9000
+  servlet:
+    session:
+      cookie:
+        # Distinct from explore-iam JSESSIONID — browsers ignore port on localhost.
+        name: EASESSIONID
+        same-site: lax
   tomcat:
     max-http-form-post-size: 50MB
     max-swallow-size: 50MB

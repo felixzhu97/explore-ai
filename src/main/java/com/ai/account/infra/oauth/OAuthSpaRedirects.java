@@ -8,8 +8,9 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Builds SPA return URLs after Google OAuth.
  *
  * <p>Locally the Angular proxy makes the OAuth callback share the SPA origin. An absolute redirect
- * from {@code localhost} → {@code 127.0.0.1} (or the reverse) drops {@code JSESSIONID} because
- * browsers treat those as different cookie hosts.
+ * from {@code localhost} → {@code 127.0.0.1} (or the reverse) drops the session cookie because
+ * browsers treat those as different cookie hosts. Session cookie is {@code EASESSIONID} so it does
+ * not collide with explore-iam {@code JSESSIONID} on the same localhost host.
  */
 final class OAuthSpaRedirects {
 
