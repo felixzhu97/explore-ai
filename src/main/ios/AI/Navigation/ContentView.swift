@@ -1,9 +1,8 @@
 import SwiftUI
 
-/// Root: login sheet flow when signed out; home when an IAM token is present.
+/// Root: login when signed out; Chat when an IAM token is present.
 struct ContentView: View {
   @State private var accessToken = KeychainStore.accessToken
-  @State private var account: AccountMe?
   @State private var isHydrating = true
 
   var body: some View {
@@ -11,7 +10,9 @@ struct ContentView: View {
       if isHydrating {
         ProgressView("Loading…")
       } else if let token = accessToken {
-        HomeView(account: account, accessToken: token, onSignOut: signOut)
+        NavigationStack {
+          ChatConversationView(accessToken: token, onSignOut: signOut)
+        }
       } else {
         LoginView(onSignedIn: applySession)
       }
@@ -23,24 +24,22 @@ struct ContentView: View {
     defer { isHydrating = false }
     guard let token = accessToken else { return }
     do {
-      account = try await APIClient.accountMe(accessToken: token)
+      _ = try await APIClient.accountMe(accessToken: token)
     } catch {
       KeychainStore.accessToken = nil
       accessToken = nil
-      account = nil
     }
   }
 
   private func applySession(token: String, account: AccountMe) {
+    _ = account
     KeychainStore.accessToken = token
     accessToken = token
-    self.account = account
   }
 
   private func signOut() {
     KeychainStore.accessToken = nil
     accessToken = nil
-    account = nil
   }
 }
 
