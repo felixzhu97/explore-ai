@@ -18,12 +18,12 @@ public abstract class AbstractUuidId implements EntityId {
 
   @EqualsAndHashCode.Include
   @Convert(converter = UuidStringAttributeConverter.class)
-  @Column(name = "id", nullable = false, length = 36)
-  protected String value;
+  @Column(nullable = false, length = 36)
+  protected String id;
 
   /** Documentation. */
   protected AbstractUuidId(String value) {
-    this.value = requireUuid(value);
+    this.id = requireUuid(value);
   }
 
   /** Documentation. */
@@ -43,16 +43,16 @@ public abstract class AbstractUuidId implements EntityId {
 
   /** Documentation. */
   public UUID asUuid() {
-    return UUID.fromString(value);
+    return UUID.fromString(id);
   }
 
   @Override
   public String value() {
-    return value;
+    return id;
   }
 
   @Override
   public String toString() {
-    return value;
+    return id;
   }
 }
