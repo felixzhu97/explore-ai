@@ -1,4 +1,4 @@
-package com.ai.common.domain.vo;
+package com.ai.common.infra.persistence.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
