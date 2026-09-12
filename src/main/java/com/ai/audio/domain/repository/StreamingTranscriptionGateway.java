@@ -3,8 +3,8 @@ package com.ai.audio.domain.repository;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * Outbound gateway for streaming speech recognition. Implementation loopbacks to explore-ml
- * media-gen (Qwen3-ASR).
+ * Outbound gateway for streaming speech recognition. Implementation loopbacks to explore-ml speech
+ * (Qwen3-ASR).
  */
 public interface StreamingTranscriptionGateway {
 
@@ -17,7 +17,7 @@ public interface StreamingTranscriptionGateway {
   /** Send a protocol error frame to the client. */
   void sendError(WebSocketSession session, String text);
 
-  /** Optional: forward an explicit commit turn (media-gen). Default no-op. */
+  /** Optional: forward an explicit commit turn (speech). Default no-op. */
   default void commitTurn(WebSocketSession session, StringBuilder transcript) {
     finalizeSession(session, transcript);
   }

@@ -827,8 +827,8 @@ curl -X GET "${BASE_URL}/api/images/qualities"
 
 ## Audio/TTS API
 
-Default provider is **explore-ml media-gen** (local Qwen3-TTS → WAV). Set
-`TTS_PROVIDER=openai` for OpenAI TTS (MP3).
+Default provider is **explore-ml speech** (local Qwen3-TTS → WAV on `:8004`).
+Set `TTS_PROVIDER=openai` for OpenAI TTS (MP3).
 
 ### Text to Speech
 
@@ -855,7 +855,7 @@ curl -X POST "${BASE_URL}/api/audio/speak" \
 
 **Response**
 
-Binary audio (`audio/wav` for media-gen / Qwen3-TTS; `audio/mpeg` for OpenAI).
+Binary audio (`audio/wav` for speech / Qwen3-TTS; `audio/mpeg` for OpenAI).
 
 ---
 
@@ -971,8 +971,8 @@ curl -X GET "${BASE_URL}/api/audio/models"
 
 ### WebSocket Streaming Transcription
 
-Real-time speech-to-text via **explore-ml media-gen** (Qwen3-ASR). Set
-`MEDIA_GENERATION_API_URL` (default `http://localhost:8003`).
+Real-time speech-to-text via **explore-ml speech** (Qwen3-ASR). Set
+`SPEECH_API_URL` (default `http://localhost:8004`).
 
 **Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
 
@@ -982,7 +982,7 @@ Real-time speech-to-text via **explore-ml media-gen** (Qwen3-ASR). Set
 // Client -> Server (audio chunk)
 {"type": "audio", "data": "base64_pcm_or_wav", "sample_rate": 16000}
 
-// Client -> Server (end current utterance; media-gen)
+// Client -> Server (end current utterance; speech)
 {"type": "commit"}
 
 // Client -> Server (end stream)
@@ -1006,7 +1006,7 @@ Real-time speech-to-text via **explore-ml media-gen** (Qwen3-ASR). Set
 
 **Requirements:**
 
-- explore-ml media-gen running locally (`:8003`) with Qwen3-ASR
+- explore-ml speech running locally (`:8004`) with Qwen3-ASR
 - Audio: PCM or WAV, 16 kHz mono, base64-encoded
 
 Configure the upstream in `application.yml`:
@@ -1014,8 +1014,8 @@ Configure the upstream in `application.yml`:
 ```yaml
 app:
   asr:
-    media-gen:
-      base-url: http://localhost:8003
+    speech:
+      base-url: http://localhost:8004
 ```
 
 ---

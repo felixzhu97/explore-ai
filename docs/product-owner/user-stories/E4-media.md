@@ -94,7 +94,7 @@
 ### 验收标准
 
 1. **Scenario** 语音对话闭环
-   **GIVEN** 已登录 IAM 且 explore-ai / media-gen 可用  
+   **GIVEN** 已登录 IAM 且 explore-ai / speech 可用  
    **WHEN** 用户打开 Voice Conversation 并允许麦克风  
    **THEN** 说话内容经流式 ASR 转写  
    **AND** 助手回复经 TTS 播报

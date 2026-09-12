@@ -164,16 +164,19 @@ app:
       enabled: ${AI_TOOL_SEARCH_ENABLED:false}
     tts:
       enabled: ${TTS_ENABLED:true}
-      # Default: explore-ml media-gen (local Qwen3-TTS). Set TTS_PROVIDER=openai for OpenAI.
-      provider: ${TTS_PROVIDER:media-gen}
+      # Default: explore-ml speech (local Qwen3-TTS). Set TTS_PROVIDER=openai for OpenAI.
+      provider: ${TTS_PROVIDER:speech}
       model: ${TTS_MODEL:gpt-4o-mini-tts}
       voice: ${TTS_VOICE:alloy}
       api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
       base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
-      media-gen-base-url: ${MEDIA_GENERATION_API_URL:http://localhost:8003}
+      speech-base-url: ${SPEECH_API_URL:http://localhost:8004}
+      speech:
+        connect-timeout: 5s
+        read-timeout: 120s
   asr:
-    media-gen:
-      base-url: ${MEDIA_GENERATION_API_URL:http://localhost:8003}
+    speech:
+      base-url: ${SPEECH_API_URL:http://localhost:8004}
       connect-timeout: 5s
   cors:
     allowed-origin-patterns:

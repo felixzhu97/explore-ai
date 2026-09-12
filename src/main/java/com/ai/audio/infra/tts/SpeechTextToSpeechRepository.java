@@ -20,15 +20,12 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
-/** Loopback TTS to explore-ml media-gen (local Qwen3-TTS by default). */
+/** Loopback TTS to explore-ml speech (local Qwen3-TTS by default). */
 @Repository
-@ConditionalOnProperty(
-    name = "app.ai.tts.provider",
-    havingValue = "media-gen",
-    matchIfMissing = true)
-public class MediaGenTextToSpeechRepository implements TextToSpeechRepository {
+@ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "speech", matchIfMissing = true)
+public class SpeechTextToSpeechRepository implements TextToSpeechRepository {
 
-  private static final Logger log = LoggerFactory.getLogger(MediaGenTextToSpeechRepository.class);
+  private static final Logger log = LoggerFactory.getLogger(SpeechTextToSpeechRepository.class);
 
   /** OpenAI TTS catalog voices — not valid Qwen3-TTS speakers. */
   private static final Set<String> OPENAI_VOICES =
@@ -39,11 +36,11 @@ public class MediaGenTextToSpeechRepository implements TextToSpeechRepository {
   private final String baseUrl;
 
   /** Documentation. */
-  public MediaGenTextToSpeechRepository(
-      @Value("${app.ai.tts.media-gen-base-url:${MEDIA_GENERATION_API_URL:http://localhost:8003}}")
+  public SpeechTextToSpeechRepository(
+      @Value("${app.ai.tts.speech-base-url:${SPEECH_API_URL:http://localhost:8004}}")
           String baseUrl,
-      @Value("${app.ai.tts.media-gen.connect-timeout:5s}") Duration connectTimeout,
-      @Value("${app.ai.tts.media-gen.read-timeout:120s}") Duration readTimeout,
+      @Value("${app.ai.tts.speech.connect-timeout:5s}") Duration connectTimeout,
+      @Value("${app.ai.tts.speech.read-timeout:120s}") Duration readTimeout,
       ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
     this.baseUrl = trimSlash(baseUrl);
@@ -73,24 +70,24 @@ public class MediaGenTextToSpeechRepository implements TextToSpeechRepository {
       JsonNode node = objectMapper.readTree(json == null ? "{}" : json);
       String audioUrl = node.path("audio_url").asText("");
       if (audioUrl.isBlank()) {
-        log.warn("media-gen TTS returned empty audio_url");
+        log.warn("speech TTS returned empty audio_url");
         return SynthesizedAudio.empty();
       }
       URI uri = resolveAudioUri(audioUrl);
       byte[] audio = RestClient.create().get().uri(uri).retrieve().body(byte[].class);
       if (audio == null || audio.length == 0) {
-        log.warn("media-gen TTS audio download empty: {}", uri);
+        log.warn("speech TTS audio download empty: {}", uri);
         return SynthesizedAudio.empty();
       }
       String mediaType = audioUrl.endsWith(".wav") ? "audio/wav" : "audio/mpeg";
       return SynthesizedAudio.create(audio, mediaType);
     } catch (Exception e) {
-      log.error("media-gen TTS failed", e);
+      log.error("speech TTS failed", e);
       return SynthesizedAudio.empty();
     }
   }
 
-  /** Prefer Qwen speakers; omit OpenAI aliases so media-gen picks TTS_SPEAKER. */
+  /** Prefer Qwen speakers; omit OpenAI aliases so speech picks TTS_SPEAKER. */
   static String qwenSpeakerOrNull(VoiceSelection voiceSelection) {
     if (voiceSelection == null
         || voiceSelection.voice() == null
@@ -115,7 +112,7 @@ public class MediaGenTextToSpeechRepository implements TextToSpeechRepository {
   }
 
   private static String trimSlash(String baseUrl) {
-    String base = baseUrl == null ? "http://localhost:8003" : baseUrl.trim();
+    String base = baseUrl == null ? "http://localhost:8004" : baseUrl.trim();
     while (base.endsWith("/")) {
       base = base.substring(0, base.length() - 1);
     }
