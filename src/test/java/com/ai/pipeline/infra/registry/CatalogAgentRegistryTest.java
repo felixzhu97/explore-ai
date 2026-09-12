@@ -39,7 +39,7 @@ class CatalogAgentRegistryTest {
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     savedAgents.save(
-        SavedAgentDefinition.restore(
+        SavedAgentDefinition.reconstitute(
             SavedAgentId.generate(),
             "c:client-a",
             typeKey,
@@ -71,7 +71,7 @@ class CatalogAgentRegistryTest {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     String builtinName = registry.require(AgentType.of(typeKey), "c:client-a", "en").name();
     savedAgents.save(
-        SavedAgentDefinition.restore(
+        SavedAgentDefinition.reconstitute(
             SavedAgentId.generate(),
             "c:client-a",
             typeKey,

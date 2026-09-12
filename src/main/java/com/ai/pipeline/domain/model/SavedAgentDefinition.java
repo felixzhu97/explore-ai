@@ -2,13 +2,14 @@ package com.ai.pipeline.domain.model;
 
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.domain.vo.StringListJsonAttributeConverter;
+import com.ai.common.infra.persistence.converter.StringListJsonAttributeConverter;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.domain.vo.SavedAgentId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,21 +22,23 @@ import lombok.NoArgsConstructor;
 
 /** Saved pipeline agent definition partitioned by owner_key. */
 @Entity
-@Table(name = "pipeline_agents")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity<SavedAgentId> {
 
   private static final Pattern TYPE_KEY_PATTERN = Pattern.compile("^[a-z][a-z0-9_-]{0,63}$");
 
-  @Column(name = "type_key", nullable = false, length = 64, updatable = false)
+  @NotBlank
+  @Size(max = 64)
+  @Column(nullable = false, length = 64, updatable = false)
   private String typeKey;
 
-  @Column(name = "system_prompt", nullable = false, columnDefinition = "clob")
+  @NotBlank
+  @Column(nullable = false, columnDefinition = "clob")
   private String systemPrompt;
 
   @Convert(converter = StringListJsonAttributeConverter.class)
-  @Column(name = "tool_keys", nullable = false, columnDefinition = "clob")
+  @Column(nullable = false, columnDefinition = "clob")
   private List<String> toolKeys = new ArrayList<>();
 
   private SavedAgentDefinition(
@@ -78,7 +81,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
   }
 
   /** Documentation. */
-  public static SavedAgentDefinition restore(
+  public static SavedAgentDefinition reconstitute(
       SavedAgentId id,
       String ownerKey,
       String typeKey,
