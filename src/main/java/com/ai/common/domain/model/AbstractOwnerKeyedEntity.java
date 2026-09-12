@@ -21,7 +21,7 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     extends AbstractEntity<IdT> {
 
   @Convert(converter = OwnerKeyAttributeConverter.class)
-  @Column(name = "owner_key", nullable = false, length = 80)
+  @Column(nullable = false, length = 80)
   protected OwnerKey ownerKey;
 
   /** Documentation. */

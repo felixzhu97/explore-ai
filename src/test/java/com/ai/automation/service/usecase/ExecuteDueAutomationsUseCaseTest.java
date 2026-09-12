@@ -129,7 +129,7 @@ class ExecuteDueAutomationsUseCaseTest {
             Instant.now().plusSeconds(120));
     // Force due by restoring with past nextRunAt
     schedule =
-        AutomationSchedule.restore(
+        AutomationSchedule.reconstitute(
             schedule.getId(),
             schedule.getClientId(),
             schedule.getName(),

@@ -4,7 +4,6 @@ import com.ai.account.domain.vo.AccountUserId;
 import com.ai.base.domain.model.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,21 +11,20 @@ import lombok.NoArgsConstructor;
 
 /** Linked OAuth identity for a browser Client Identity partition. */
 @Entity
-@Table(name = "account_users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AccountUser extends AbstractEntity<AccountUserId> {
 
-  @Column(name = "provider", nullable = false, length = 32)
+  @Column(nullable = false, length = 32)
   private String provider;
 
-  @Column(name = "subject", nullable = false, length = 255)
+  @Column(nullable = false, length = 255)
   private String subject;
 
-  @Column(name = "email", length = 320)
+  @Column(length = 320)
   private String email;
 
-  @Column(name = "linked_client_id", length = 64)
+  @Column(length = 64)
   private String linkedClientId;
 
   /** Documentation. */
@@ -45,7 +43,7 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   }
 
   /** Documentation. */
-  public static AccountUser restore(
+  public static AccountUser reconstitute(
       AccountUserId id,
       String provider,
       String subject,
@@ -65,7 +63,7 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   }
 
   /** Documentation. */
-  public static AccountUser restore(
+  public static AccountUser reconstitute(
       String id,
       String provider,
       String subject,
@@ -73,7 +71,7 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
       String linkedClientId,
       Instant createdAt,
       Instant updatedAt) {
-    return restore(
+    return reconstitute(
         AccountUserId.of(id), provider, subject, email, linkedClientId, createdAt, updatedAt);
   }
 

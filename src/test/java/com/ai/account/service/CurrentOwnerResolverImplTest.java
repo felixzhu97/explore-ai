@@ -45,7 +45,7 @@ class CurrentOwnerResolverImplTest {
   @Test
   void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
     AccountUser user =
-        AccountUser.restore(
+        AccountUser.reconstitute(
             "22222222-2222-2222-2222-222222222222",
             "google",
             "sub",
@@ -67,7 +67,7 @@ class CurrentOwnerResolverImplTest {
   @Test
   void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
     AccountUser user =
-        AccountUser.restore(
+        AccountUser.reconstitute(
             "11111111-1111-1111-1111-111111111111",
             "google",
             "sub-9",
@@ -93,7 +93,7 @@ class CurrentOwnerResolverImplTest {
   @Test
   void shouldReturnAccountOwnerWhenIamJwtAuthenticated() {
     AccountUser user =
-        AccountUser.restore(
+        AccountUser.reconstitute(
             "33333333-3333-3333-3333-333333333333",
             "explore-iam",
             "iam-sub",

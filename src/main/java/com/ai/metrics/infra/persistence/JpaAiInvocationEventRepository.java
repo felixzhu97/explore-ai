@@ -72,7 +72,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
     }
     String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
     return jdbcTemplate.update(
-        "DELETE FROM ai_invocation_events WHERE session_id IN (" + placeholders + ")",
+        "DELETE FROM ai_invocation_event WHERE session_id IN (" + placeholders + ")",
         ids.toArray());
   }
 
@@ -80,7 +80,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   @Transactional
   public int deleteOlderThan(Instant cutoff) {
     return jdbcTemplate.update(
-        "DELETE FROM ai_invocation_events WHERE occurred_at < ?", Timestamp.from(cutoff));
+        "DELETE FROM ai_invocation_event WHERE occurred_at < ?", Timestamp.from(cutoff));
   }
 
   @Override
@@ -151,7 +151,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
 
     Long total =
         jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM ai_invocation_events" + where, Long.class, args.toArray());
+            "SELECT COUNT(*) FROM ai_invocation_event" + where, Long.class, args.toArray());
     long totalCount = total == null ? 0L : total;
 
     int size = Math.max(1, Math.min(query.size(), 100));
@@ -168,7 +168,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
                 SELECT id, occurred_at, domain, operation, outcome, latency_ms,
                        provider, model, session_id, document_id, agent_type, tool_name,
                        prompt_tokens, completion_tokens, error_code, error_message
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 """
                 + where
                 + " ORDER BY occurred_at DESC LIMIT ? OFFSET ?",
@@ -184,7 +184,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
     }
     List<String> keys =
         jdbcTemplate.query(
-            "SELECT owner_key FROM chat_sessions WHERE CAST(id AS VARCHAR) = ?",
+            "SELECT owner_key FROM chat_session WHERE CAST(id AS VARCHAR) = ?",
             (rs, rowNum) -> rs.getString(1),
             sessionId.trim());
     if (!keys.isEmpty() && keys.getFirst() != null && !keys.getFirst().isBlank()) {

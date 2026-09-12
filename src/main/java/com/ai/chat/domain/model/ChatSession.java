@@ -8,7 +8,6 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import lombok.NoArgsConstructor;
  * and synchronized from Spring AI ChatMemory.
  */
 @Entity
-@Table(name = "chat_sessions")
 @AttributeOverride(
     name = "updatedAt",
     column = @Column(name = "last_activity_at", nullable = false))
@@ -36,10 +34,10 @@ public class ChatSession extends AbstractEntity<ChatSessionId> {
   static final String ORPHAN_CLIENT_ID = "__orphan__";
 
   @Convert(converter = OwnerKeyAttributeConverter.class)
-  @Column(name = "owner_key", length = 80)
+  @Column(length = 80)
   private OwnerKey ownerKey;
 
-  @Column(name = "title", nullable = false, length = 100)
+  @Column(nullable = false, length = 100)
   private String title;
 
   @Transient private List<ChatMessage> messages = new ArrayList<>();

@@ -14,7 +14,6 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -23,7 +22,6 @@ import lombok.NoArgsConstructor;
 
 /** Automation execution run record partitioned by owner_key. */
 @Entity
-@Table(name = "automation_runs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AutomationRun extends AbstractTimedRunEntity<RunId> {
@@ -37,21 +35,21 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
   private ScheduleId scheduleId;
 
   @Convert(converter = OwnerKeyAttributeConverter.class)
-  @Column(name = "owner_key", nullable = false, length = 80)
+  @Column(nullable = false, length = 80)
   private OwnerKey ownerKey;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false, length = 20)
+  @Column(nullable = false, length = 20)
   private RunStatus status;
 
-  @Column(name = "error_message", length = 1000)
+  @Column(length = 1000)
   private String errorMessage;
 
-  @Column(name = "result_excerpt", columnDefinition = "clob")
+  @Column(columnDefinition = "clob")
   private String resultExcerpt;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "email_status", nullable = false, length = 20)
+  @Column(nullable = false, length = 20)
   private EmailDeliveryStatus emailStatus;
 
   private AutomationRun(
@@ -88,7 +86,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
   }
 
   /** Documentation. */
-  public static AutomationRun restore(
+  public static AutomationRun reconstitute(
       RunId id,
       ScheduleId scheduleId,
       String ownerKey,
