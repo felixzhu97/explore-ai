@@ -21,11 +21,9 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
   @Column(nullable = false)
   private String title;
 
-  @Column
-  private String fileName;
+  @Column private String fileName;
 
-  @Column
-  private Long fileSize;
+  @Column private Long fileSize;
 
   @NotNull
   @Enumerated(EnumType.STRING)

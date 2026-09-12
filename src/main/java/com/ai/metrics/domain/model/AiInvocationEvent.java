@@ -7,7 +7,6 @@ import com.ai.metrics.domain.vo.InvocationOutcome;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
@@ -66,11 +65,9 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   @Column(length = 128)
   private String toolName;
 
-  @Column
-  private Integer promptTokens;
+  @Column private Integer promptTokens;
 
-  @Column
-  private Integer completionTokens;
+  @Column private Integer completionTokens;
 
   @Size(max = 64)
   @Column(length = 64)

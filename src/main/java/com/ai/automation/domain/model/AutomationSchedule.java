@@ -76,8 +76,7 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
   @Column(nullable = false)
   private Instant nextRunAt;
 
-  @Column
-  private Instant lastRunAt;
+  @Column private Instant lastRunAt;
 
   private AutomationSchedule(
       ScheduleId id,

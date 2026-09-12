@@ -25,8 +25,7 @@ public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId> {
   @Column(nullable = false)
   protected Instant startedAt;
 
-  @Column
-  protected Instant finishedAt;
+  @Column protected Instant finishedAt;
 
   /** Documentation. */
   protected AbstractTimedRunEntity(IdT id, Instant startedAt, Instant finishedAt) {

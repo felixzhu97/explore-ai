@@ -31,11 +31,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   @Override
   public long countErrors(Optional<AiDomain> domain, Instant from, Instant to) {
     return countWhere(
-        "SELECT COUNT(*) FROM ai_invocation_event WHERE outcome = 'error'",
-        domain,
-        from,
-        to,
-        true);
+        "SELECT COUNT(*) FROM ai_invocation_event WHERE outcome = 'error'", domain, from, to, true);
   }
 
   @Override
@@ -243,8 +239,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document", Long.class);
     Long chunks = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document_chunks", Long.class);
     Long bytes =
-        jdbcTemplate.queryForObject(
-            "SELECT COALESCE(SUM(file_size), 0) FROM document", Long.class);
+        jdbcTemplate.queryForObject("SELECT COALESCE(SUM(file_size), 0) FROM document", Long.class);
     Map<String, Long> byStatus = new LinkedHashMap<>();
     jdbcTemplate.query(
         "SELECT status, COUNT(*) AS cnt FROM document GROUP BY status",
