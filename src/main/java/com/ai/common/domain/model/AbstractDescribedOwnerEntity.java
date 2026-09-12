@@ -5,6 +5,8 @@ import com.ai.common.domain.vo.DomainStrings;
 import com.ai.common.domain.vo.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +19,9 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractDescribedOwnerEntity<IdT extends AbstractUuidId>
     extends AbstractNamedOwnerEntity<IdT> {
 
-  @Column(name = "description", nullable = false, length = 500)
+  @NotBlank
+  @Size(max = 500)
+  @Column(nullable = false, length = 500)
   protected String description;
 
   /** Documentation. */

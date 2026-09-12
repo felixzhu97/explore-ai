@@ -6,7 +6,9 @@ import com.ai.metrics.domain.vo.InvocationEventId;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -16,54 +18,71 @@ import lombok.NoArgsConstructor;
 
 /** Append-only record of a single AI invocation for metrics and drill-down. */
 @Entity
-@Table(name = "ai_invocation_events")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId> {
 
-  @Column(name = "domain", nullable = false, length = 32)
-  private String domainValue;
+  @NotBlank
+  @Size(max = 32)
+  @Getter(AccessLevel.NONE)
+  @Column(nullable = false, length = 32)
+  private String domain;
 
-  @Column(name = "operation", nullable = false, length = 64)
+  @NotBlank
+  @Size(max = 64)
+  @Column(nullable = false, length = 64)
   private String operation;
 
-  @Column(name = "outcome", nullable = false, length = 16)
-  private String outcomeValue;
+  @NotBlank
+  @Size(max = 16)
+  @Getter(AccessLevel.NONE)
+  @Column(nullable = false, length = 16)
+  private String outcome;
 
-  @Column(name = "latency_ms", nullable = false)
+  @Column(nullable = false)
   private long latencyMs;
 
-  @Column(name = "provider", length = 64)
+  @Size(max = 64)
+  @Column(length = 64)
   private String provider;
 
-  @Column(name = "model", length = 128)
+  @Size(max = 128)
+  @Column(length = 128)
   private String model;
 
-  @Column(name = "session_id", length = 36)
+  @Size(max = 36)
+  @Column(length = 36)
   private String sessionId;
 
-  @Column(name = "document_id", length = 36)
+  @Size(max = 36)
+  @Column(length = 36)
   private String documentId;
 
-  @Column(name = "agent_type", length = 64)
+  @Size(max = 64)
+  @Column(length = 64)
   private String agentType;
 
-  @Column(name = "tool_name", length = 128)
+  @Size(max = 128)
+  @Column(length = 128)
   private String toolName;
 
-  @Column(name = "prompt_tokens")
+  @Column
   private Integer promptTokens;
 
-  @Column(name = "completion_tokens")
+  @Column
   private Integer completionTokens;
 
-  @Column(name = "error_code", length = 64)
+  @Size(max = 64)
+  @Column(length = 64)
   private String errorCode;
 
-  @Column(name = "error_message", length = 512)
+  @Size(max = 512)
+  @Column(length = 512)
   private String errorMessage;
 
-  @Column(name = "owner_key", nullable = false, length = 80)
+  @NotBlank
+  @Size(max = 80)
+  @Column(nullable = false, length = 80)
   private String ownerKey;
 
   private AiInvocationEvent(Builder builder) {
@@ -72,9 +91,9 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
             ? InvocationEventId.of(builder.id.toString())
             : InvocationEventId.generate(),
         Objects.requireNonNullElseGet(builder.occurredAt, Instant::now));
-    this.domainValue = Objects.requireNonNull(builder.domain, "domain").value();
+    this.domain = Objects.requireNonNull(builder.domain, "domain").value();
     this.operation = requireNonBlank(builder.operation, "operation");
-    this.outcomeValue = Objects.requireNonNull(builder.outcome, "outcome").value();
+    this.outcome = Objects.requireNonNull(builder.outcome, "outcome").value();
     this.latencyMs = Math.max(0L, builder.latencyMs);
     this.provider = blankToNull(builder.provider);
     this.model = blankToNull(builder.model);
@@ -98,11 +117,11 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   }
 
   public AiDomain getDomain() {
-    return AiDomain.require(domainValue);
+    return AiDomain.require(domain);
   }
 
   public InvocationOutcome getOutcome() {
-    return InvocationOutcome.parse(outcomeValue);
+    return InvocationOutcome.parse(outcome);
   }
 
   /** Sets owner partition key before persistence. */

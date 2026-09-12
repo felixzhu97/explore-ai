@@ -25,13 +25,13 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public long countInvocations(Optional<AiDomain> domain, Instant from, Instant to) {
-    return countWhere("SELECT COUNT(*) FROM ai_invocation_events", domain, from, to);
+    return countWhere("SELECT COUNT(*) FROM ai_invocation_event", domain, from, to);
   }
 
   @Override
   public long countErrors(Optional<AiDomain> domain, Instant from, Instant to) {
     return countWhere(
-        "SELECT COUNT(*) FROM ai_invocation_events WHERE outcome = 'error'",
+        "SELECT COUNT(*) FROM ai_invocation_event WHERE outcome = 'error'",
         domain,
         from,
         to,
@@ -40,7 +40,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to) {
-    StringBuilder sql = new StringBuilder("SELECT latency_ms FROM ai_invocation_events WHERE 1=1");
+    StringBuilder sql = new StringBuilder("SELECT latency_ms FROM ai_invocation_event WHERE 1=1");
     List<Object> args = new ArrayList<>();
     appendDomainAndRange(sql, args, domain, from, to, true);
     sql.append(" ORDER BY latency_ms");
@@ -60,7 +60,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
             """
                 SELECT COALESCE(SUM(prompt_tokens), 0) AS prompt_tokens,
                        COALESCE(SUM(completion_tokens), 0) AS completion_tokens
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
@@ -81,7 +81,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     return namedCounts(
         """
                 SELECT domain AS name, COUNT(*) AS cnt
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 WHERE occurred_at >= ? AND occurred_at < ?
                 GROUP BY domain
                 ORDER BY cnt DESC
@@ -96,7 +96,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         new StringBuilder(
             """
                 SELECT COALESCE(model, 'unknown') AS name, COUNT(*) AS cnt
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
@@ -113,7 +113,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     return namedCounts(
         """
                 SELECT COALESCE(agent_type, 'unknown') AS name, COUNT(*) AS cnt
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 WHERE domain = 'agents' AND occurred_at >= ? AND occurred_at < ?
                 GROUP BY COALESCE(agent_type, 'unknown')
                 ORDER BY cnt DESC
@@ -128,7 +128,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         new StringBuilder(
             """
                 SELECT COALESCE(tool_name, 'unknown') AS name, COUNT(*) AS cnt
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 WHERE tool_name IS NOT NULL
                 """);
     List<Object> args = new ArrayList<>();
@@ -157,7 +157,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         new StringBuilder(
             """
                 SELECT CAST(occurred_at AS DATE) AS bucket_day, latency_ms
-                FROM ai_invocation_events
+                FROM ai_invocation_event
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
@@ -182,7 +182,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     return jdbcTemplate.query(
         """
                 SELECT CAST(created_at AS DATE) AS bucket_day, COUNT(*) AS metric_value
-                FROM chat_sessions
+                FROM chat_session
                 WHERE created_at >= ? AND created_at < ?
                 GROUP BY CAST(created_at AS DATE)
                 ORDER BY bucket_day
@@ -212,7 +212,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     return jdbcTemplate.query(
         """
                 SELECT CAST(created_at AS DATE) AS bucket_day, COUNT(*) AS metric_value
-                FROM documents
+                FROM document
                 WHERE created_at >= ? AND created_at < ?
                 GROUP BY CAST(created_at AS DATE)
                 ORDER BY bucket_day
@@ -224,10 +224,10 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public ChatInventory chatInventory(Instant activeSince) {
-    Long sessions = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM chat_sessions", Long.class);
+    Long sessions = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM chat_session", Long.class);
     Long active =
         jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM chat_sessions WHERE last_activity_at >= ?",
+            "SELECT COUNT(*) FROM chat_session WHERE last_activity_at >= ?",
             Long.class,
             Timestamp.from(activeSince));
     Long messages =
@@ -240,14 +240,14 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public RagInventory ragInventory() {
-    Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM documents", Long.class);
+    Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document", Long.class);
     Long chunks = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document_chunks", Long.class);
     Long bytes =
         jdbcTemplate.queryForObject(
-            "SELECT COALESCE(SUM(file_size), 0) FROM documents", Long.class);
+            "SELECT COALESCE(SUM(file_size), 0) FROM document", Long.class);
     Map<String, Long> byStatus = new LinkedHashMap<>();
     jdbcTemplate.query(
-        "SELECT status, COUNT(*) AS cnt FROM documents GROUP BY status",
+        "SELECT status, COUNT(*) AS cnt FROM document GROUP BY status",
         rs -> {
           byStatus.put(rs.getString("status"), rs.getLong("cnt"));
         });
@@ -260,7 +260,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         new StringBuilder(
             "SELECT CAST(occurred_at AS DATE) AS bucket_day, "
                 + valueExpr
-                + " AS metric_value FROM ai_invocation_events WHERE 1=1");
+                + " AS metric_value FROM ai_invocation_event WHERE 1=1");
     List<Object> args = new ArrayList<>();
     if (extraWhere != null && !extraWhere.isBlank()) {
       sql.append(" AND ").append(extraWhere);

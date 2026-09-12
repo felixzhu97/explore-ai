@@ -8,7 +8,7 @@
   "
 >
   <changeSet author="explore-ai" id="0.1-001-documents" dbms="h2">
-    <createTable tableName="documents">
+    <createTable tableName="document">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -33,10 +33,10 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <createIndex indexName="idx_documents_status" tableName="documents">
+    <createIndex indexName="idx_document_status" tableName="document">
       <column name="status"/>
     </createIndex>
-    <createIndex indexName="idx_documents_owner_key" tableName="documents">
+    <createIndex indexName="idx_document_owner_key" tableName="document">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
@@ -68,7 +68,7 @@
       baseTableName="document_chunks"
       baseColumnNames="document_id"
       constraintName="fk_document_chunks_document_id"
-      referencedTableName="documents"
+      referencedTableName="document"
       referencedColumnNames="id"
       onDelete="CASCADE"/>
     <createIndex indexName="idx_document_chunks_document_id" tableName="document_chunks">
@@ -80,7 +80,7 @@
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-003-chat-sessions" dbms="h2">
-    <createTable tableName="chat_sessions">
+    <createTable tableName="chat_session">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -98,10 +98,10 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <createIndex indexName="idx_chat_sessions_last_activity" tableName="chat_sessions">
+    <createIndex indexName="idx_chat_session_last_activity" tableName="chat_session">
       <column name="last_activity_at"/>
     </createIndex>
-    <createIndex indexName="idx_chat_sessions_owner_key" tableName="chat_sessions">
+    <createIndex indexName="idx_chat_session_owner_key" tableName="chat_session">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
@@ -149,7 +149,7 @@
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-006-ai-invocation-events" dbms="h2">
-    <createTable tableName="ai_invocation_events">
+    <createTable tableName="ai_invocation_event">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -182,27 +182,27 @@
       <column name="error_code" type="${string.type}(64)"/>
       <column name="error_message" type="${string.type}(512)"/>
     </createTable>
-    <createIndex indexName="idx_ai_inv_occurred_at" tableName="ai_invocation_events">
+    <createIndex indexName="idx_ai_inv_occurred_at" tableName="ai_invocation_event">
       <column name="occurred_at"/>
     </createIndex>
-    <createIndex indexName="idx_ai_inv_domain_occurred" tableName="ai_invocation_events">
+    <createIndex indexName="idx_ai_inv_domain_occurred" tableName="ai_invocation_event">
       <column name="domain"/>
       <column name="occurred_at"/>
     </createIndex>
-    <createIndex indexName="idx_ai_inv_session" tableName="ai_invocation_events">
+    <createIndex indexName="idx_ai_inv_session" tableName="ai_invocation_event">
       <column name="session_id"/>
     </createIndex>
-    <createIndex indexName="idx_ai_inv_model_occurred" tableName="ai_invocation_events">
+    <createIndex indexName="idx_ai_inv_model_occurred" tableName="ai_invocation_event">
       <column name="model"/>
       <column name="occurred_at"/>
     </createIndex>
-    <createIndex indexName="idx_ai_invocation_events_owner_key" tableName="ai_invocation_events">
+    <createIndex indexName="idx_ai_invocation_event_owner_key" tableName="ai_invocation_event">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-007-skills" dbms="h2">
-    <createTable tableName="skills">
+    <createTable tableName="skill">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -231,16 +231,16 @@
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="skills"
+      tableName="skill"
       columnNames="owner_key, name"
-      constraintName="uk_skills_owner_key_name"/>
-    <createIndex indexName="idx_skills_owner_key" tableName="skills">
+      constraintName="uk_skill_owner_key_name"/>
+    <createIndex indexName="idx_skill_owner_key" tableName="skill">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-008-workflow-templates" dbms="h2">
-    <createTable tableName="workflow_templates">
+    <createTable tableName="saved_workflow_template">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -273,16 +273,16 @@
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="workflow_templates"
+      tableName="saved_workflow_template"
       columnNames="owner_key, name"
-      constraintName="uk_workflow_templates_owner_key_name"/>
-    <createIndex indexName="idx_workflow_templates_owner_key" tableName="workflow_templates">
+      constraintName="uk_saved_workflow_template_owner_key_name"/>
+    <createIndex indexName="idx_saved_workflow_template_owner_key" tableName="saved_workflow_template">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-009-pipeline-agents" dbms="h2">
-    <createTable tableName="pipeline_agents">
+    <createTable tableName="saved_agent_definition">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -316,16 +316,16 @@
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="pipeline_agents"
+      tableName="saved_agent_definition"
       columnNames="owner_key, type_key"
-      constraintName="uk_pipeline_agents_owner_key_type_key"/>
-    <createIndex indexName="idx_pipeline_agents_owner_key" tableName="pipeline_agents">
+      constraintName="uk_saved_agent_definition_owner_key_type_key"/>
+    <createIndex indexName="idx_saved_agent_definition_owner_key" tableName="saved_agent_definition">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-010-automation" dbms="h2">
-    <createTable tableName="automation_schedules">
+    <createTable tableName="automation_schedule">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -371,15 +371,15 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <createIndex indexName="idx_automation_schedules_owner_key" tableName="automation_schedules">
+    <createIndex indexName="idx_automation_schedule_owner_key" tableName="automation_schedule">
       <column name="owner_key"/>
     </createIndex>
-    <createIndex indexName="idx_automation_schedules_due" tableName="automation_schedules">
+    <createIndex indexName="idx_automation_schedule_due" tableName="automation_schedule">
       <column name="enabled"/>
       <column name="next_run_at"/>
     </createIndex>
 
-    <createTable tableName="automation_runs">
+    <createTable tableName="automation_run">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -402,16 +402,16 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <createIndex indexName="idx_automation_runs_schedule_id" tableName="automation_runs">
+    <createIndex indexName="idx_automation_run_schedule_id" tableName="automation_run">
       <column name="schedule_id"/>
     </createIndex>
-    <createIndex indexName="idx_automation_runs_owner_key" tableName="automation_runs">
+    <createIndex indexName="idx_automation_run_owner_key" tableName="automation_run">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-011-account-users" dbms="h2">
-    <createTable tableName="account_users">
+    <createTable tableName="account_user">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -434,10 +434,10 @@
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="account_users"
+      tableName="account_user"
       columnNames="provider, subject"
-      constraintName="uk_account_users_provider_subject"/>
-    <createIndex indexName="idx_account_users_linked_client_id" tableName="account_users">
+      constraintName="uk_account_user_provider_subject"/>
+    <createIndex indexName="idx_account_user_linked_client_id" tableName="account_user">
       <column name="linked_client_id"/>
     </createIndex>
   </changeSet>

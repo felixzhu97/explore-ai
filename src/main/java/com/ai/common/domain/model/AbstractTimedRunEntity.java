@@ -4,6 +4,7 @@ import com.ai.base.domain.vo.AbstractUuidId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -20,10 +21,11 @@ public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId> {
 
   @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
 
-  @Column(name = "started_at", nullable = false)
+  @NotNull
+  @Column(nullable = false)
   protected Instant startedAt;
 
-  @Column(name = "finished_at")
+  @Column
   protected Instant finishedAt;
 
   /** Documentation. */
