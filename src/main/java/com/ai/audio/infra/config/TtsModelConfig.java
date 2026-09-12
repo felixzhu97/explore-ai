@@ -7,7 +7,7 @@ import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.openai.OpenAiAudioSpeechModel;
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.ai.openai.http.okhttp.SpringAiOpenAiHttpClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,9 @@ public class TtsModelConfig {
   /** Documentation. */
   @Bean
   @Primary
-  @ConditionalOnProperty(name = "app.ai.tts.enabled", havingValue = "true", matchIfMissing = true)
+  @ConditionalOnExpression(
+      "'${app.ai.tts.enabled:true}'.equalsIgnoreCase('true')"
+          + " && '${app.ai.tts.provider:openai}'.equalsIgnoreCase('openai')")
   public TextToSpeechModel textToSpeechModel(TtsProperties properties) {
     String apiKey = properties.getApiKey();
     if (!StringUtils.hasText(apiKey)) {

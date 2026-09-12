@@ -108,14 +108,14 @@ journey
 
 ### 进行中
 
-| 对话与会话 | 商业化与平台 | 企业自动化 |
-|------------|--------------|------------|
-| [US-03e](./user-stories/E1-chat-session.md#us-03e-聊天中的高级数据图布局) 高级数据图布局 ([EXP-358](https://felixzhu.atlassian.net/browse/EXP-358)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 |
-| | [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ |
-| | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | |
-| | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | |
-| | [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | |
-| | [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor | |
+| 对话与会话 | 商业化与平台 | 企业自动化 | 媒体 |
+|------------|--------------|------------|------|
+| [US-03e](./user-stories/E1-chat-session.md#us-03e-聊天中的高级数据图布局) 高级数据图布局 ([EXP-358](https://felixzhu.atlassian.net/browse/EXP-358)) | [US-18](./user-stories/E8-commercial-platform.md#us-18-商业化底座配额法务页与账号雏形) 商业化底座 | [US-27a](./user-stories/E9-enterprise-future.md#us-27a-工作流定时任务与邮件结果) 工作流定时 + 邮件 | [US-11b](./user-stories/E4-media.md#us-11b-原生-voice-conversationios) Voice Conversation iOS |
+| | [US-18c](./user-stories/E8-commercial-platform.md#us-18c-account-data-isolation-via-owner-key) Owner Key 数据隔离 | ✅ | |
+| | [US-19](./user-stories/E8-commercial-platform.md#us-19-rag-etl-管道) RAG ETL | | |
+| | [US-20](./user-stories/E8-commercial-platform.md#us-20-文本分析) 文本分析 | | |
+| | [US-21](./user-stories/E8-commercial-platform.md#us-21-tools-天气查询) Tools 天气 | | |
+| | [US-22](./user-stories/E8-commercial-platform.md#us-22-supervisor-自动路由) Supervisor | | |
 
 ### 未来（规划中）
 

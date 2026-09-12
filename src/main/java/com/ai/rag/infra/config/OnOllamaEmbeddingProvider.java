@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 /** Both Ollama embedding flag and provider=ollama (default). */
 public class OnOllamaEmbeddingProvider extends AllNestedConditions {
 
+  /** Nested condition phase for bean registration. */
   public OnOllamaEmbeddingProvider() {
     super(ConfigurationPhase.REGISTER_BEAN);
   }

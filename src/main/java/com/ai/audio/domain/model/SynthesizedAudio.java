@@ -1,24 +1,32 @@
 package com.ai.audio.domain.model;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /** Documentation. */
 public class SynthesizedAudio {
 
   private final byte[] data;
+  private final String mediaType;
 
-  private SynthesizedAudio(byte[] data) {
+  private SynthesizedAudio(byte[] data, String mediaType) {
     this.data = data != null ? Arrays.copyOf(data, data.length) : new byte[0];
+    this.mediaType = mediaType == null || mediaType.isBlank() ? "audio/mpeg" : mediaType;
   }
 
   /** Documentation. */
   public static SynthesizedAudio create(byte[] data) {
-    return new SynthesizedAudio(data);
+    return new SynthesizedAudio(data, "audio/mpeg");
+  }
+
+  /** Documentation. */
+  public static SynthesizedAudio create(byte[] data, String mediaType) {
+    return new SynthesizedAudio(data, mediaType);
   }
 
   /** Documentation. */
   public static SynthesizedAudio empty() {
-    return new SynthesizedAudio(new byte[0]);
+    return new SynthesizedAudio(new byte[0], "audio/mpeg");
   }
 
   public boolean isEmpty() {
@@ -35,6 +43,11 @@ public class SynthesizedAudio {
     return Arrays.copyOf(data, data.length);
   }
 
+  /** Documentation. */
+  public String mediaType() {
+    return mediaType;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -43,11 +56,11 @@ public class SynthesizedAudio {
     if (!(o instanceof SynthesizedAudio that)) {
       return false;
     }
-    return Arrays.equals(data, that.data);
+    return Arrays.equals(data, that.data) && Objects.equals(mediaType, that.mediaType);
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(data);
+    return 31 * Arrays.hashCode(data) + Objects.hashCode(mediaType);
   }
 }

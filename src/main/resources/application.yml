@@ -164,11 +164,17 @@ app:
       enabled: ${AI_TOOL_SEARCH_ENABLED:false}
     tts:
       enabled: ${TTS_ENABLED:true}
+      provider: ${TTS_PROVIDER:openai}
       model: ${TTS_MODEL:gpt-4o-mini-tts}
       voice: ${TTS_VOICE:alloy}
       api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
       base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
+      media-gen-base-url: ${MEDIA_GENERATION_API_URL:http://localhost:8003}
   asr:
+    provider: ${ASR_PROVIDER:media-gen}
+    media-gen:
+      base-url: ${MEDIA_GENERATION_API_URL:http://localhost:8003}
+      connect-timeout: 5s
     whisper-cpp:
       base-url: http://localhost:8178
       model: whisper-base
