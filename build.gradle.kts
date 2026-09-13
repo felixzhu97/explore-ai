@@ -1,10 +1,10 @@
 plugins {
     java
     checkstyle
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
-    id("com.diffplug.spotless") version "8.9.0"
+    id("com.diffplug.spotless") version "8.10.2"
 }
 
 group = "com.ai"
@@ -24,7 +24,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.ai:spring-ai-bom:2.0.0")
+        mavenBom("org.springframework.ai:spring-ai-bom:2.0.1")
         mavenBom("me.paulschwarz:spring-dotenv-bom:5.1.0")
     }
 }
@@ -46,23 +46,23 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-openai")
     implementation("org.springframework.ai:spring-ai-starter-model-ollama")
     implementation("org.springframework.ai:spring-ai-client-chat")
-    implementation("org.springframework.retry:spring-retry:2.0.10")
+    implementation("org.springframework.retry:spring-retry:2.0.13")
     implementation("org.springframework.ai:spring-ai-starter-model-chat-memory")
     implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
     implementation("org.springframework.ai:spring-ai-vector-store")
     implementation("org.springframework.ai:spring-ai-rag")
     implementation("org.springframework.ai:spring-ai-vector-store-advisor")
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
-    implementation("org.springaicommunity:spring-ai-agent-utils:0.10.0")
+    implementation("org.springaicommunity:spring-ai-agent-utils:0.12.0")
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
-    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.14.0")
+    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.16.0")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
     // PDF Processing
-    implementation("org.apache.pdfbox:pdfbox:3.0.3")
+    implementation("org.apache.pdfbox:pdfbox:3.0.8")
 
     // dotenv support
     developmentOnly("me.paulschwarz:springboot4-dotenv")
@@ -73,7 +73,7 @@ dependencies {
     runtimeOnly("com.h2database:h2")
 
     // Automation result emails: Markdown → HTML
-    implementation("org.commonmark:commonmark:0.24.0")
+    implementation("org.commonmark:commonmark:0.30.0")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -82,25 +82,25 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.ai:spring-ai-test")
-    testImplementation("org.hamcrest:hamcrest:2.2")
+    testImplementation("org.hamcrest:hamcrest:3.0")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.1")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
 }
 
 if (!cloudMinimal) {
     dependencies {
         implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
         implementation("org.springframework.ai:spring-ai-starter-mcp-client")
-        implementation("com.microsoft.onnxruntime:onnxruntime:1.20.0")
-        implementation("net.sourceforge.tess4j:tess4j:5.13.0")
+        implementation("com.microsoft.onnxruntime:onnxruntime:1.29.0")
+        implementation("net.sourceforge.tess4j:tess4j:5.20.0")
     }
 } else {
     // Compile against APIs; omit from runtime fat JAR (plus bootJar class excludes).
     dependencies {
         compileOnly("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
         compileOnly("org.springframework.ai:spring-ai-starter-mcp-client")
-        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.20.0")
-        compileOnly("net.sourceforge.tess4j:tess4j:5.13.0")
+        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.29.0")
+        compileOnly("net.sourceforge.tess4j:tess4j:5.20.0")
     }
 }
 
