@@ -212,7 +212,8 @@ checkstyle {
 spotless {
     java {
         target("src/*/java/**/*.java")
-        googleJavaFormat("1.28.0")
+        // JVM 25 requires google-java-format >= 1.30.0 (Spotless fingerprint check).
+        googleJavaFormat("1.30.0")
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
