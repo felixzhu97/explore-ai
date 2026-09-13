@@ -6,3 +6,8 @@ allowBuilds:
 
 # https://pnpm.io/settings#minimumreleaseage
 minimumReleaseAge: 2880
+
+# Mermaid → chevrotain still pulls lodash-es@4.17.23 (GHSA-r5fr-rjxr-66jc / GHSA-f23m-r3pf-42rh).
+# https://pnpm.io/settings/dependency-resolution#overrides
+overrides:
+  lodash-es: '>=4.17.24'
