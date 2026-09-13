@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   input,
+  model,
   output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -37,7 +38,7 @@ import type { ImageSize } from '../../../generate/image/image.model';
             z-input
             class="min-h-24 resize-y"
             [ngModel]="prompt()"
-            (ngModelChange)="promptChange.emit($event)"
+            (ngModelChange)="prompt.set($event)"
             [placeholder]="promptPlaceholder()"
             rows="4"
           ></textarea>
@@ -84,12 +85,11 @@ export class ImageGenFormComponent {
   readonly sizeLabel = input.required<string>();
   readonly generateLabel = input.required<string>();
   readonly generatingLabel = input.required<string>();
-  readonly prompt = input.required<string>();
+  readonly prompt = model.required<string>();
   readonly sizes = input.required<ImageSize[]>();
   readonly selectedSize = input.required<ImageSize>();
   readonly generating = input(false);
 
-  readonly promptChange = output<string>();
   readonly sizeSelected = output<ImageSize>();
   readonly generateRequested = output<void>();
 
