@@ -176,7 +176,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
       com.ai.skill.domain.vo.SkillId skillId = com.ai.skill.domain.vo.SkillId.generate();
       com.ai.skill.domain.model.Skill skill =
-          com.ai.skill.domain.model.Skill.restore(
+          com.ai.skill.domain.model.Skill.reconstitute(
               skillId,
               ownerClientId(),
               "Brief Style",
