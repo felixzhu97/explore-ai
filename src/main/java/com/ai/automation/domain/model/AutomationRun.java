@@ -14,6 +14,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -34,10 +35,12 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
       column = @Column(name = "schedule_id", nullable = false, length = 36))
   private ScheduleId scheduleId;
 
+  @NotNull
   @Convert(converter = OwnerKeyAttributeConverter.class)
   @Column(nullable = false, length = 80)
   private OwnerKey ownerKey;
 
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private RunStatus status;
@@ -48,6 +51,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
   @Column(columnDefinition = "clob")
   private String resultExcerpt;
 
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private EmailDeliveryStatus emailStatus;
