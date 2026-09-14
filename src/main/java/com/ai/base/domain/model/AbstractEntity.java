@@ -3,7 +3,6 @@ package com.ai.base.domain.model;
 import com.ai.base.domain.vo.AbstractUuidId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 import java.time.Instant;
@@ -12,13 +11,11 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 /** Mutable aggregate root base with embedded typed ID, optimistic lock, and audit timestamps. */
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -28,12 +25,12 @@ public abstract class AbstractEntity<IdT extends AbstractUuidId> {
 
   @Version protected Long version;
 
-  @CreatedDate
-  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  @Column(nullable = false, updatable = false)
   protected Instant createdAt;
 
-  @LastModifiedDate
-  @Column(name = "updated_at", nullable = false)
+  @UpdateTimestamp
+  @Column(nullable = false)
   protected Instant updatedAt;
 
   /** Documentation. */
