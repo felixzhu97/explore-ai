@@ -90,7 +90,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     String rawOwnerKey =
         (String)
             em.getEntityManager()
-                .createNativeQuery("SELECT owner_key FROM ai_invocation_events WHERE id = ?")
+                .createNativeQuery("SELECT owner_key FROM ai_invocation_event WHERE id = ?")
                 .setParameter(1, event.getId().value())
                 .getSingleResult();
 

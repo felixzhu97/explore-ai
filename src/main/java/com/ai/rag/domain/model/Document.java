@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,22 +13,19 @@ import lombok.NoArgsConstructor;
 
 /** Document aggregate root with JPA mapping on the documents table. */
 @Entity
-@Table(name = "documents")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
 
-  @Column(name = "title", nullable = false)
+  @Column(nullable = false)
   private String title;
 
-  @Column(name = "file_name")
-  private String fileName;
+  @Column private String fileName;
 
-  @Column(name = "file_size")
-  private Long fileSize;
+  @Column private Long fileSize;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false)
+  @Column(nullable = false)
   private DocumentStatus status;
 
   /** Documentation. */

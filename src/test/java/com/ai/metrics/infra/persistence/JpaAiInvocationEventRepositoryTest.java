@@ -70,7 +70,7 @@ class JpaAiInvocationEventRepositoryTest {
             .build();
 
     when(jdbcTemplate.query(
-            startsWith("SELECT owner_key FROM chat_sessions"), any(RowMapper.class), eq(sessionId)))
+            startsWith("SELECT owner_key FROM chat_session"), any(RowMapper.class), eq(sessionId)))
         .thenReturn(List.of("c:owner-1"));
 
     repository.save(event);
