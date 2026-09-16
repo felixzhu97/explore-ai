@@ -1,13 +1,11 @@
 package com.ai.base.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/** Global JPA auditing and repository scanning. Schema is managed by Liquibase on startup. */
+/** Global JPA repository scanning. Schema is managed by Liquibase on startup. */
 @Configuration
-@EnableJpaAuditing
 @EnableJpaRepositories(
     basePackages = {
       "com.ai.adapter.out.persistence",
