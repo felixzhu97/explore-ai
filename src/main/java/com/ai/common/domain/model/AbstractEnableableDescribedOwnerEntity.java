@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends AbstractUuidId>
     extends AbstractDescribedOwnerEntity<IdT> {
 
-  @Column(name = "enabled", nullable = false)
+  @Column(nullable = false)
   protected boolean enabled;
 
   /** Documentation. */

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractNamedOwnerEntity<IdT extends AbstractUuidId>
     extends AbstractOwnerKeyedEntity<IdT> {
 
-  @Column(name = "name", nullable = false, length = 120)
+  @Column(nullable = false, length = 120)
   protected String name;
 
   /** Documentation. */

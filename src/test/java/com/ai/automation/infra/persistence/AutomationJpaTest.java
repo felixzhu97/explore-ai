@@ -90,7 +90,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     String rawOwnerKey =
         (String)
             em.getEntityManager()
-                .createNativeQuery("SELECT owner_key FROM automation_runs WHERE id = ?")
+                .createNativeQuery("SELECT owner_key FROM automation_run WHERE id = ?")
                 .setParameter(1, run.getId().value())
                 .getSingleResult();
 
@@ -140,7 +140,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     Instant earlier = Instant.parse("2026-01-01T10:00:00Z");
     Instant later = Instant.parse("2026-01-02T10:00:00Z");
     AutomationRun olderRun =
-        AutomationRun.restore(
+        AutomationRun.reconstitute(
             com.ai.automation.domain.vo.RunId.generate(),
             scheduleId,
             OWNER_KEY,
@@ -151,7 +151,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
             "older",
             EmailDeliveryStatus.SENT);
     AutomationRun newerRun =
-        AutomationRun.restore(
+        AutomationRun.reconstitute(
             com.ai.automation.domain.vo.RunId.generate(),
             scheduleId,
             OWNER_KEY,

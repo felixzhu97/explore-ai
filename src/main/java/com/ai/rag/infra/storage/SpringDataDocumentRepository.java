@@ -18,7 +18,7 @@ public interface SpringDataDocumentRepository extends JpaRepository<Document, Do
   @Query(
       value =
           """
-          SELECT * FROM documents
+          SELECT * FROM document
           WHERE owner_key = :ownerKeyValue
           ORDER BY created_at DESC
           """,
@@ -30,7 +30,7 @@ public interface SpringDataDocumentRepository extends JpaRepository<Document, Do
   @Query(
       value =
           """
-          SELECT * FROM documents
+          SELECT * FROM document
           WHERE id = :id AND owner_key = :ownerKeyValue
           """,
       nativeQuery = true)
@@ -40,7 +40,7 @@ public interface SpringDataDocumentRepository extends JpaRepository<Document, Do
   /** Documentation. */
   @Modifying
   @Query(
-      value = "DELETE FROM documents WHERE id = :id AND owner_key = :ownerKeyValue",
+      value = "DELETE FROM document WHERE id = :id AND owner_key = :ownerKeyValue",
       nativeQuery = true)
   void deleteByIdAndOwnerKeyValue(
       @Param("id") String id, @Param("ownerKeyValue") String ownerKeyValue);

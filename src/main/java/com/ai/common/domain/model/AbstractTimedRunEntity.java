@@ -20,11 +20,10 @@ public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId> {
 
   @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
 
-  @Column(name = "started_at", nullable = false)
+  @Column(nullable = false)
   protected Instant startedAt;
 
-  @Column(name = "finished_at")
-  protected Instant finishedAt;
+  @Column protected Instant finishedAt;
 
   /** Documentation. */
   protected AbstractTimedRunEntity(IdT id, Instant startedAt, Instant finishedAt) {
