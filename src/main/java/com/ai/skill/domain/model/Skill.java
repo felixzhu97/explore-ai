@@ -2,12 +2,12 @@ package com.ai.skill.domain.model;
 
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.domain.vo.StringListJsonAttributeConverter;
+import com.ai.common.infra.persistence.converter.StringListJsonAttributeConverter;
 import com.ai.skill.domain.vo.SkillId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,16 +18,16 @@ import lombok.NoArgsConstructor;
 
 /** User-defined skill aggregate partitioned by owner_key. */
 @Entity
-@Table(name = "skills")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
 
-  @Column(name = "instructions", nullable = false, columnDefinition = "clob")
+  @NotBlank
+  @Column(nullable = false, columnDefinition = "clob")
   private String instructions;
 
   @Convert(converter = StringListJsonAttributeConverter.class)
-  @Column(name = "allowed_tools", columnDefinition = "clob")
+  @Column(columnDefinition = "clob")
   private List<String> allowedTools = new ArrayList<>();
 
   private Skill(
@@ -66,7 +66,7 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
   }
 
   /** Documentation. */
-  public static Skill restore(
+  public static Skill reconstitute(
       SkillId id,
       String ownerKey,
       String name,
