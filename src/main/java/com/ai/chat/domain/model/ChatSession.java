@@ -9,6 +9,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +39,8 @@ public class ChatSession extends AbstractEntity<ChatSessionId> {
   @Column(length = 80)
   private OwnerKey ownerKey;
 
+  @NotBlank
+  @Size(max = 100)
   @Column(nullable = false, length = 100)
   private String title;
 

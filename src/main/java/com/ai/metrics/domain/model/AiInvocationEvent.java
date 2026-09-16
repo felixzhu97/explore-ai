@@ -6,6 +6,8 @@ import com.ai.metrics.domain.vo.InvocationEventId;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,13 +21,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId> {
 
+  @NotBlank
+  @Size(max = 32)
   @Getter(AccessLevel.NONE)
   @Column(nullable = false, length = 32)
   private String domain;
 
+  @NotBlank
+  @Size(max = 64)
   @Column(nullable = false, length = 64)
   private String operation;
 
+  @NotBlank
+  @Size(max = 16)
   @Getter(AccessLevel.NONE)
   @Column(nullable = false, length = 16)
   private String outcome;
@@ -33,21 +41,27 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   @Column(nullable = false)
   private long latencyMs;
 
+  @Size(max = 64)
   @Column(length = 64)
   private String provider;
 
+  @Size(max = 128)
   @Column(length = 128)
   private String model;
 
+  @Size(max = 36)
   @Column(length = 36)
   private String sessionId;
 
+  @Size(max = 36)
   @Column(length = 36)
   private String documentId;
 
+  @Size(max = 64)
   @Column(length = 64)
   private String agentType;
 
+  @Size(max = 128)
   @Column(length = 128)
   private String toolName;
 
@@ -55,12 +69,16 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
 
   @Column private Integer completionTokens;
 
+  @Size(max = 64)
   @Column(length = 64)
   private String errorCode;
 
+  @Size(max = 512)
   @Column(length = 512)
   private String errorMessage;
 
+  @NotBlank
+  @Size(max = 80)
   @Column(nullable = false, length = 80)
   private String ownerKey;
 

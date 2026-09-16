@@ -11,6 +11,9 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
@@ -32,34 +35,44 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
       Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
   private static final int MAX_BRIEF = 4000;
 
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private ScheduleKind scheduleKind;
 
+  @Size(max = 80)
   @Column(length = 80)
   private String cronExpression;
 
+  @NotBlank
+  @Size(max = 64)
   @Column(nullable = false, length = 64)
   private String timezone;
 
   @Column(nullable = false)
   private boolean enabled;
 
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 40, updatable = false)
   private AutomationActionType actionType;
 
   /** FK to workflow_templates.id (UUID column); stored as domain UUID string. */
+  @NotBlank
   @Convert(converter = UuidStringAttributeConverter.class)
   @Column(nullable = false, length = 36)
   private String workflowTemplateId;
 
+  @NotBlank
+  @Size(max = 320)
   @Column(nullable = false, length = 320)
   private String recipientEmail;
 
+  @NotBlank
   @Column(nullable = false, columnDefinition = "clob")
   private String brief;
 
+  @NotNull
   @Column(nullable = false)
   private Instant nextRunAt;
 
