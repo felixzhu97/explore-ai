@@ -55,7 +55,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
     implementation("org.springaicommunity:spring-ai-agent-utils:0.12.0")
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
-    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.16.0")
+    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.0")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compileOnly("org.projectlombok:lombok")
@@ -91,7 +91,7 @@ if (!cloudMinimal) {
     dependencies {
         implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
         implementation("org.springframework.ai:spring-ai-starter-mcp-client")
-        implementation("com.microsoft.onnxruntime:onnxruntime:1.29.0")
+        implementation("com.microsoft.onnxruntime:onnxruntime:1.30.0")
         implementation("net.sourceforge.tess4j:tess4j:5.20.0")
     }
 } else {
@@ -99,7 +99,7 @@ if (!cloudMinimal) {
     dependencies {
         compileOnly("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
         compileOnly("org.springframework.ai:spring-ai-starter-mcp-client")
-        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.29.0")
+        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.30.0")
         compileOnly("net.sourceforge.tess4j:tess4j:5.20.0")
     }
 }
