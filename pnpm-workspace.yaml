@@ -11,3 +11,5 @@ minimumReleaseAge: 2880
 # https://pnpm.io/settings/dependency-resolution#overrides
 overrides:
   lodash-es: '>=4.17.24'
+  # @a2ui/* depends on zod ^3; Zod 4 breaks ZodTypeAny / ComponentApi types.
+  zod: '^3.25.76'
