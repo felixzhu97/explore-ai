@@ -55,7 +55,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
     implementation("org.springaicommunity:spring-ai-agent-utils:0.12.0")
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
-    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.0")
+    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.1")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compileOnly("org.projectlombok:lombok")
