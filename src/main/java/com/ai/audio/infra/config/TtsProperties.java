@@ -16,7 +16,7 @@ public class TtsProperties {
   private String voice = "alloy";
   private String apiKey = "";
   private String baseUrl = "https://api.openai.com/v1";
-  private String speechBaseUrl = "http://localhost:8004";
+  private String speechBaseUrl = "http://localhost:8000";
 
   public boolean isEnabled() {
     return enabled;

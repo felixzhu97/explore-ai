@@ -37,7 +37,7 @@ public class SpeechTextToSpeechRepository implements TextToSpeechRepository {
 
   /** Documentation. */
   public SpeechTextToSpeechRepository(
-      @Value("${app.ai.tts.speech-base-url:${SPEECH_API_URL:http://localhost:8004}}")
+      @Value("${app.ai.tts.speech-base-url:${EXPLORE_ML_API_URL:http://localhost:8000}}")
           String baseUrl,
       @Value("${app.ai.tts.speech.connect-timeout:5s}") Duration connectTimeout,
       @Value("${app.ai.tts.speech.read-timeout:120s}") Duration readTimeout,
@@ -112,7 +112,7 @@ public class SpeechTextToSpeechRepository implements TextToSpeechRepository {
   }
 
   private static String trimSlash(String baseUrl) {
-    String base = baseUrl == null ? "http://localhost:8004" : baseUrl.trim();
+    String base = baseUrl == null ? "http://localhost:8000" : baseUrl.trim();
     while (base.endsWith("/")) {
       base = base.substring(0, base.length() - 1);
     }

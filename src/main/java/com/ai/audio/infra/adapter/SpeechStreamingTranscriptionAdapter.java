@@ -34,7 +34,8 @@ public class SpeechStreamingTranscriptionAdapter implements StreamingTranscripti
 
   /** Documentation. */
   public SpeechStreamingTranscriptionAdapter(
-      @Value("${app.asr.speech.base-url:${SPEECH_API_URL:http://localhost:8004}}") String baseUrl,
+      @Value("${app.asr.speech.base-url:${EXPLORE_ML_API_URL:http://localhost:8000}}")
+          String baseUrl,
       @Value("${app.asr.speech.connect-timeout:5s}") Duration connectTimeout,
       ObjectMapper objectMapper) {
     this.wsUri = toWsUri(baseUrl) + "/ws/v1/audios:transcribe";
@@ -160,7 +161,7 @@ public class SpeechStreamingTranscriptionAdapter implements StreamingTranscripti
   }
 
   static String toWsUri(String httpBase) {
-    String base = httpBase == null ? "http://localhost:8004" : httpBase.trim();
+    String base = httpBase == null ? "http://localhost:8000" : httpBase.trim();
     while (base.endsWith("/")) {
       base = base.substring(0, base.length() - 1);
     }
