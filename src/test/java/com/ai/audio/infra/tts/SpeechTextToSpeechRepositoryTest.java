@@ -14,7 +14,7 @@ class SpeechTextToSpeechRepositoryTest {
 
   private final SpeechTextToSpeechRepository repository =
       new SpeechTextToSpeechRepository(
-          "http://localhost:8004",
+          "http://localhost:8000",
           Duration.ofSeconds(1),
           Duration.ofSeconds(1),
           new ObjectMapper());
@@ -48,15 +48,15 @@ class SpeechTextToSpeechRepositoryTest {
     @Test
     @DisplayName("should keep absolute speech audio urls")
     void shouldKeepAbsoluteSpeechAudioUrls() {
-      URI uri = repository.resolveAudioUri("http://localhost:8004/output/voice/job.wav");
-      assertThat(uri.toString()).isEqualTo("http://localhost:8004/output/voice/job.wav");
+      URI uri = repository.resolveAudioUri("http://localhost:8000/output/voice/job.wav");
+      assertThat(uri.toString()).isEqualTo("http://localhost:8000/output/voice/job.wav");
     }
 
     @Test
     @DisplayName("should resolve relative audio paths against speech base")
     void shouldResolveRelativeAudioPathsAgainstSpeechBase() {
       URI uri = repository.resolveAudioUri("/output/voice/job.wav");
-      assertThat(uri.toString()).isEqualTo("http://localhost:8004/output/voice/job.wav");
+      assertThat(uri.toString()).isEqualTo("http://localhost:8000/output/voice/job.wav");
     }
   }
 }

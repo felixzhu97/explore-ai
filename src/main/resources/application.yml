@@ -178,13 +178,13 @@ app:
       voice: ${TTS_VOICE:alloy}
       api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
       base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
-      speech-base-url: ${SPEECH_API_URL:http://localhost:8004}
+      speech-base-url: ${EXPLORE_ML_API_URL:http://localhost:8000}
       speech:
         connect-timeout: 5s
         read-timeout: 120s
   asr:
     speech:
-      base-url: ${SPEECH_API_URL:http://localhost:8004}
+      base-url: ${EXPLORE_ML_API_URL:http://localhost:8000}
       connect-timeout: 5s
   cors:
     allowed-origin-patterns:
