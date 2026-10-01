@@ -827,7 +827,7 @@ curl -X GET "${BASE_URL}/api/images/qualities"
 
 ## Audio/TTS API
 
-Default provider is **explore-ml speech** (local Qwen3-TTS → WAV on `:8004`).
+Default provider is **explore-ml speech** (local Qwen3-TTS → WAV, Explore ML app on `:8000`).
 Set `TTS_PROVIDER=openai` for OpenAI TTS (MP3).
 
 ### Text to Speech
@@ -972,7 +972,7 @@ curl -X GET "${BASE_URL}/api/audio/models"
 ### WebSocket Streaming Transcription
 
 Real-time speech-to-text via **explore-ml speech** (Qwen3-ASR). Set
-`SPEECH_API_URL` (default `http://localhost:8004`).
+`EXPLORE_ML_API_URL` (default `http://localhost:8000`).
 
 **Endpoint:** `ws://localhost:9000/ws/audio/transcribe`
 
@@ -1006,7 +1006,7 @@ Real-time speech-to-text via **explore-ml speech** (Qwen3-ASR). Set
 
 **Requirements:**
 
-- explore-ml speech running locally (`:8004`) with Qwen3-ASR
+- Explore ML running locally (`:8000`) with the speech module (Qwen3-ASR)
 - Audio: PCM or WAV, 16 kHz mono, base64-encoded
 
 Configure the upstream in `application.yml`:
@@ -1015,7 +1015,7 @@ Configure the upstream in `application.yml`:
 app:
   asr:
     speech:
-      base-url: http://localhost:8004
+      base-url: http://localhost:8000
 ```
 
 ---
