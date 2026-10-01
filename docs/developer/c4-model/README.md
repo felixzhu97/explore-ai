@@ -191,7 +191,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 ```
 Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
                                               ↘ H2 ./data/explore-ai
-                                              ↘ Ollama :11434 / speech :8004 / Tesseract
+                                              ↘ Ollama :11434 / explore-ml :8000 / Tesseract
                                               ↘ DeepSeek / OpenAI / Serper / Resend
 ```
 
@@ -224,8 +224,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Spring Boot Backend (prod) | **8080** |
 | H2 Embedded | 内嵌 (dev `./data` / prod `/app/data` volume) |
 | Ollama (Embedding/RAG Vision) | 11434 [local] |
-| explore-ml speech (Qwen3 ASR/TTS) | 8004 [local] |
-| explore-ml image-playground | 8003 [local] |
+| explore-ml (speech: Qwen3 ASR/TTS) | 8000 [local] |
 | Tesseract OCR | 系统安装 (JNA) [local] |
 | Image Analysis ONNX Models | `models/` 本地文件 [local] |
 | Angular Dev Server | 4200 |
@@ -259,9 +258,9 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 | Caption | BLIP base ONNX | ONNX Runtime 本地 |
 | Detect | YOLOv8n ONNX | COCO 80 类 |
 | OCR | eng + chi_sim | Tesseract tessdata |
-| ASR | Qwen3-ASR-1.7B | explore-ml speech `:8004` |
+| ASR | Qwen3-ASR-1.7B | explore-ml speech `:8000` |
 | Image Gen | dall-e-3 | OpenAI API |
-| TTS | Qwen3-TTS (default) / gpt-4o-mini-tts | explore-ml speech `:8004` / OpenAI |
+| TTS | Qwen3-TTS (default) / gpt-4o-mini-tts | explore-ml speech `:8000` / OpenAI |
 
 ---
 

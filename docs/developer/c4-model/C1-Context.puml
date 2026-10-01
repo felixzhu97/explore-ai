@@ -60,7 +60,7 @@ Rel(backend, resend_api, "Automations mail", "HTTPS")
 Rel(backend, h2_db, "JDBC", "embedded")
 Rel_Back(backend, ollama, "Embedding + vision RAG [dev]", "HTTP")
 Rel_Back(backend, tesseract, "OCR [dev]", "JNA")
-Rel_Back(backend, speech, "ASR / TTS [dev]", "HTTP/WS :8004")
+Rel_Back(backend, speech, "ASR / TTS [dev]", "HTTP/WS :8000")
 Rel_Back(backend, onnx_vision, "Caption / Detect [dev]", "file I/O")
 
 SHOW_LEGEND()

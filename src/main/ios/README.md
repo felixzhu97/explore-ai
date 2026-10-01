@@ -17,7 +17,7 @@ After sign-in the root shows **Chat** (no Home).
 - iOS 17+ simulator or device
 - Local Explore IAM (`http://localhost:9100`) and Explore AI API (`http://localhost:9000`)
   with JWT resource server enabled (`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER=true`)
-- Voice / dictation: explore-ml **Speech** on `:8004` (Qwen3-ASR + Qwen3-TTS)
+- Voice / dictation: explore-ml **Speech** on `:8000` (Qwen3-ASR + Qwen3-TTS)
 - Physical device uses Mac LAN host `192.168.3.100` (not `localhost`) for API + IAM
 
 ## Open
@@ -38,7 +38,7 @@ open AI.xcodeproj
 
 ## Chat (self-test)
 
-1. Start Speech (`:8004`), AI (`:9000`), IAM.
+1. Start Explore ML (`:8000`), AI (`:9000`), IAM.
 2. Type in the pill composer and send (↑), or:
    - **Mic** — dictate into the draft (Qwen ASR)
    - **Waveform** — full voice turn (ASR → chat → TTS)
