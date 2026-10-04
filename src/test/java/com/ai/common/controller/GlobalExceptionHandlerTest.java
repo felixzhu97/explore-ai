@@ -9,6 +9,8 @@ import com.ai.common.controller.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.RagServiceException;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,10 +18,17 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -303,6 +312,74 @@ class GlobalExceptionHandlerTest {
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
       assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
+    }
+  }
+
+  @Nested
+  @DisplayName("Unsupported requests")
+  class HandleUnsupportedRequests {
+
+    @Test
+    @DisplayName("should return 405 with allow header when method is not supported")
+    void shouldReturn405WithAllowHeaderWhenMethodIsNotSupported() {
+      HttpRequestMethodNotSupportedException exception =
+          new HttpRequestMethodNotSupportedException("GET", Set.of("POST"));
+
+      ResponseEntity<ErrorResponse> response = handler.handleMethodNotSupported(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+      assertThat(response.getHeaders().getAllow()).containsExactly(HttpMethod.POST);
+      assertThat(response.getBody().errorCode()).isEqualTo("METHOD_NOT_ALLOWED");
+    }
+
+    @Test
+    @DisplayName("should return 415 when content type is not supported")
+    void shouldReturn415WhenContentTypeIsNotSupported() {
+      HttpMediaTypeNotSupportedException exception =
+          new HttpMediaTypeNotSupportedException(
+              MediaType.TEXT_PLAIN, List.of(MediaType.APPLICATION_JSON));
+
+      ResponseEntity<ErrorResponse> response = handler.handleMediaTypeNotSupported(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+      assertThat(response.getBody().errorCode()).isEqualTo("UNSUPPORTED_MEDIA_TYPE");
+    }
+
+    @Test
+    @DisplayName("should return 400 when request body is malformed")
+    void shouldReturn400WhenRequestBodyIsMalformed() {
+      HttpMessageNotReadableException exception =
+          new HttpMessageNotReadableException(
+              "JSON parse error", new MockHttpInputMessage(new byte[0]));
+
+      ResponseEntity<ErrorResponse> response = handler.handleMessageNotReadable(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
+    }
+
+    @Test
+    @DisplayName("should return 400 naming the parameter when it is missing")
+    void shouldReturn400NamingTheParameterWhenItIsMissing() {
+      MissingServletRequestParameterException exception =
+          new MissingServletRequestParameterException("file", "MultipartFile");
+
+      ResponseEntity<ErrorResponse> response = handler.handleMissingParameter(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(response.getBody().message()).contains("file");
+    }
+
+    @Test
+    @DisplayName("should return 400 naming the parameter when its type does not match")
+    void shouldReturn400NamingTheParameterWhenItsTypeDoesNotMatch() {
+      MethodArgumentTypeMismatchException exception =
+          new MethodArgumentTypeMismatchException("abc", UUID.class, "id", null, null);
+
+      ResponseEntity<ErrorResponse> response = handler.handleArgumentTypeMismatch(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(response.getBody().message()).contains("id");
     }
   }
 
