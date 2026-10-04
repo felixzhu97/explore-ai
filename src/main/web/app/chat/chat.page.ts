@@ -46,20 +46,18 @@ import { ChatService } from './chat.service';
     ...ZardSelectImports,
   ],
   templateUrl: './chat.page.html',
-  styles: [
-    `
-      @keyframes fade-in {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+  styles: `
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
       }
-    `,
-  ],
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `,
   providers: [
     provideNzIconsPatch([ArrowUpOutline]),
   ],

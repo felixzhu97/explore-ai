@@ -5,6 +5,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { UpperCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
@@ -20,7 +21,7 @@ import { SidebarService } from './sidebar.service';
 
 @Component({
   selector: 'app-sidebar-user-menu',
-  imports: [RouterLink, ZardSidebarMenuButtonDirective],
+  imports: [RouterLink, UpperCasePipe, ZardSidebarMenuButtonDirective],
   template: `
     <div class="relative overflow-visible">
       @if (isMenuOpen()) {
@@ -100,7 +101,7 @@ import { SidebarService } from './sidebar.service';
               <span class="opacity-60" [innerHTML]="languageIcon"></span>
               <span class="min-w-0 flex-1 truncate text-left">{{ t().account.language }}</span>
               <span class="shrink-0 text-[11px] text-muted-foreground">
-                {{ i18n.language().toUpperCase() }}
+                {{ i18n.language() | uppercase }}
               </span>
               <span class="shrink-0 opacity-50" aria-hidden="true" [innerHTML]="chevronIcon"></span>
             </button>
@@ -130,7 +131,7 @@ import { SidebarService } from './sidebar.service';
                     (click)="selectLanguage(lang)"
                   >
                     <span class="w-5 text-[11px] font-semibold opacity-70">
-                      {{ lang.toUpperCase() }}
+                      {{ lang | uppercase }}
                     </span>
                     <span>{{ languageNames[lang] }}</span>
                   </button>

@@ -1,4 +1,5 @@
 import { Component, inject, input, viewChild } from '@angular/core';
+import { UpperCasePipe } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown } from '@ng-icons/lucide';
 import { I18nService, languageNames, SUPPORTED_LANGUAGES, type Language } from '../i18n';
@@ -8,7 +9,7 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
 
 @Component({
   selector: 'app-language-picker',
-  imports: [NgIcon, ZardButtonComponent, ...ZardDropdownImports],
+  imports: [NgIcon, UpperCasePipe, ZardButtonComponent, ...ZardDropdownImports],
   template: `
     <z-dropdown-menu dropdownMenu="zDropdownMenu">
       <button
@@ -19,7 +20,7 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
         [class]="triggerClass()"
         [attr.aria-label]="i18n.t().account.language"
       >
-        <span class="font-semibold">{{ i18n.language().toUpperCase() }}</span>
+        <span class="font-semibold">{{ i18n.language() | uppercase }}</span>
         @if (showLabel()) {
           <span class="flex-1 truncate text-left">{{ i18n.languageName() }}</span>
         }

@@ -73,8 +73,8 @@
       }
     </button>
 
-    @if (error()) {
-      <z-alert zType="destructive" [zDescription]="error()!" />
+    @if (error(); as errorText) {
+      <z-alert zType="destructive" [zDescription]="errorText" />
     }
   </div>
 

@@ -33,7 +33,7 @@ import { ZardSkeletonComponent } from '../ui/skeleton';
             </span>
           </div>
         }
-        @if (imageSrc()) {
+        @if (imageSrc(); as src) {
           <img
             class="
               max-h-112 max-w-full animate-fade-in cursor-zoom-in rounded-xl
@@ -41,11 +41,11 @@ import { ZardSkeletonComponent } from '../ui/skeleton';
             "
             tabindex="0"
             role="button"
-            [src]="imageSrc()"
+            [src]="src"
             [alt]="imageAlt()"
             [attr.aria-label]="zoomLabel()"
-            (click)="zoomRequested.emit(imageSrc()!)"
-            (keydown.enter)="zoomRequested.emit(imageSrc()!)"
+            (click)="zoomRequested.emit(src)"
+            (keydown.enter)="zoomRequested.emit(src)"
           />
         } @else {
           <div class="flex w-full flex-col items-center justify-center gap-2 px-6 py-8 text-center">

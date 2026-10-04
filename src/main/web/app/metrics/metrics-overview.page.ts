@@ -31,11 +31,10 @@ import {
 })
 export class MetricsOverviewPageComponent {
   readonly #router = inject(Router);
+  readonly #metrics = inject(MetricsService);
   protected readonly i18n = inject(I18nService);
 
   readonly range = signal<MetricsRange>('7d');
-
-  readonly #metrics = inject(MetricsService);
 
   readonly overviewResource = this.#metrics.overview(this.range);
 

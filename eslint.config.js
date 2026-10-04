@@ -100,8 +100,10 @@ export default defineConfig([
     rules: {
       '@angular-eslint/component-class-suffix': 'error',
       '@angular-eslint/computed-must-return': 'error',
+      '@angular-eslint/consistent-component-styles': 'error',
       '@angular-eslint/contextual-decorator': 'error',
       '@angular-eslint/directive-class-suffix': 'error',
+      '@angular-eslint/inject-at-top': 'error',
       '@angular-eslint/no-async-lifecycle-method': 'error',
       '@angular-eslint/no-attribute-decorator': 'error',
       '@angular-eslint/no-duplicates-in-metadata-arrays': 'error',
@@ -116,6 +118,7 @@ export default defineConfig([
       '@angular-eslint/relative-url-prefix': 'error',
       '@angular-eslint/require-lifecycle-on-prototype': 'error',
       '@angular-eslint/use-component-selector': 'error',
+      '@angular-eslint/use-component-view-encapsulation': 'error',
       'no-restricted-syntax': [
         'error',
         {
@@ -215,10 +218,13 @@ export default defineConfig([
       '@angular-eslint/template/no-inline-styles': ['error', { allowBindToStyle: true }],
       '@angular-eslint/template/conditional-complexity': 'error',
       '@angular-eslint/template/no-any': 'error',
+      '@angular-eslint/template/no-non-null-assertion': 'error',
       '@angular-eslint/template/no-nested-tags': 'error',
       '@angular-eslint/template/no-outerhtml': 'error',
+      '@angular-eslint/template/prefer-built-in-pipes': 'error',
       '@angular-eslint/template/prefer-at-else': 'error',
       '@angular-eslint/template/prefer-style-binding': 'error',
+      '@angular-eslint/template/require-switch-default': 'error',
     },
   },
   {
