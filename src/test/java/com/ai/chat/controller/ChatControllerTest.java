@@ -12,7 +12,7 @@ import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
-import com.ai.chat.service.usecase.ChatUseCase;
+import com.ai.chat.service.ChatService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.OwnerKeyFixtures;
@@ -31,7 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DisplayName("ChatController")
 class ChatControllerTest extends AbstractOwnerScopedControllerTest {
 
-  @MockitoBean private ChatUseCase chatUseCase;
+  @MockitoBean private ChatService chatService;
 
   @MockitoBean private ChatWebSourcesRepository chatWebSourcesRepository;
 
@@ -58,7 +58,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return response for valid message")
     void shouldReturnResponseForValidMessage() {
-      when(chatUseCase.chatWithSession("Hello", ownerClientId())).thenReturn("Hi there!");
+      when(chatService.chatWithSession("Hello", ownerClientId())).thenReturn("Hi there!");
 
       assertThat(
               mvc.post()
@@ -71,7 +71,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
           .extractingPath("$.response")
           .asString()
           .isEqualTo("Hi there!");
-      verify(chatUseCase).chatWithSession("Hello", ownerClientId());
+      verify(chatService).chatWithSession("Hello", ownerClientId());
     }
 
     @Test
@@ -103,7 +103,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use session when sessionId provided")
     void shouldUseSessionWhenSessionIdProvided() {
-      when(chatUseCase.chatWithSession(
+      when(chatService.chatWithSession(
               "22222222-2222-2222-2222-222222222222", "Hello", ownerClientId()))
           .thenReturn("Response with context");
 
@@ -118,7 +118,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
           .extractingPath("$.response")
           .asString()
           .isEqualTo("Response with context");
-      verify(chatUseCase)
+      verify(chatService)
           .chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", ownerClientId());
     }
 
@@ -126,7 +126,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should handle long message without error")
     void shouldHandleLongMessageWithoutError() {
       String longMessage = "A".repeat(100);
-      when(chatUseCase.chatWithSession(longMessage, ownerClientId()))
+      when(chatService.chatWithSession(longMessage, ownerClientId()))
           .thenReturn("Response to long message");
 
       assertThat(
@@ -147,7 +147,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldCreateSessionWithCustomTitle() {
       ChatSession session =
           createTestSession("33333333-3333-3333-3333-333333333333", "Custom Title");
-      when(chatUseCase.createSession("Custom Title", ownerClientId())).thenReturn(session);
+      when(chatService.createSession("Custom Title", ownerClientId())).thenReturn(session);
 
       assertThat(
               mvc.post()
@@ -165,7 +165,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should create session with default title when not provided")
     void shouldCreateSessionWithDefaultTitleWhenNotProvided() {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
-      when(chatUseCase.createSession("New Chat", ownerClientId())).thenReturn(session);
+      when(chatService.createSession("New Chat", ownerClientId())).thenReturn(session);
 
       assertThat(
               mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON).content("{}"))
@@ -180,7 +180,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should create session with default title when body is null")
     void shouldCreateSessionWithDefaultTitleWhenBodyIsNull() {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
-      when(chatUseCase.createSession("New Chat", ownerClientId())).thenReturn(session);
+      when(chatService.createSession("New Chat", ownerClientId())).thenReturn(session);
 
       assertThat(mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON))
           .hasStatusOk();
@@ -198,7 +198,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
           List.of(
               createTestSession("22222222-2222-2222-2222-222222222222", "Chat 1"),
               createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
-      when(chatUseCase.getSessionsForClient(ownerClientId())).thenReturn(sessions);
+      when(chatService.getSessionsForClient(ownerClientId())).thenReturn(sessions);
 
       assertThat(mvc.get().uri("/api/sessions"))
           .hasStatusOk()
@@ -211,7 +211,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return empty list when no sessions")
     void shouldReturnEmptyListWhenNoSessions() {
-      when(chatUseCase.getSessionsForClient(ownerClientId())).thenReturn(List.of());
+      when(chatService.getSessionsForClient(ownerClientId())).thenReturn(List.of());
 
       assertThat(mvc.get().uri("/api/sessions"))
           .hasStatusOk()
@@ -230,7 +230,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return session when found")
     void shouldReturnSessionWhenFound() {
       ChatSession session = createTestSession("22222222-2222-2222-2222-222222222222", "My Chat");
-      when(chatUseCase.getSession("22222222-2222-2222-2222-222222222222", ownerClientId()))
+      when(chatService.getSession("22222222-2222-2222-2222-222222222222", ownerClientId()))
           .thenReturn(Optional.of(session));
 
       assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222"))
@@ -244,7 +244,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
-      when(chatUseCase.getSession("missing", ownerClientId())).thenReturn(Optional.empty());
+      when(chatService.getSession("missing", ownerClientId())).thenReturn(Optional.empty());
 
       assertThat(mvc.get().uri("/api/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
     }
@@ -257,7 +257,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return messages for session")
     void shouldReturnMessagesForSession() {
-      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", ownerClientId()))
+      when(chatService.getSessionHistory("22222222-2222-2222-2222-222222222222", ownerClientId()))
           .thenReturn(
               List.of(
                   ChatMessage.createUserMessage("Hello"),
@@ -284,7 +284,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should attach persisted sources to assistant messages")
     void shouldAttachPersistedSourcesToAssistantMessages() {
       String reply = "Paris is the capital.";
-      when(chatUseCase.getSessionHistory("22222222-2222-2222-2222-222222222222", ownerClientId()))
+      when(chatService.getSessionHistory("22222222-2222-2222-2222-222222222222", ownerClientId()))
           .thenReturn(
               List.of(
                   ChatMessage.createUserMessage("Where is Paris?"),
@@ -314,7 +314,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
-      when(chatUseCase.getSessionHistory("missing", ownerClientId()))
+      when(chatService.getSessionHistory("missing", ownerClientId()))
           .thenThrow(new ChatSessionNotFoundException("missing"));
 
       assertThat(mvc.get().uri("/api/sessions/missing/messages")).hasStatus(HttpStatus.NOT_FOUND);
@@ -328,11 +328,11 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should delete session and return 204")
     void shouldDeleteSessionAndReturn204() {
-      doNothing().when(chatUseCase).deleteSession("session-to-delete", ownerClientId());
+      doNothing().when(chatService).deleteSession("session-to-delete", ownerClientId());
 
       assertThat(mvc.delete().uri("/api/sessions/session-to-delete"))
           .hasStatus(HttpStatus.NO_CONTENT);
-      verify(chatUseCase).deleteSession("session-to-delete", ownerClientId());
+      verify(chatService).deleteSession("session-to-delete", ownerClientId());
     }
   }
 

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.eval.controller.EvalController;
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.service.usecase.ChatQualityEvaluator;
+import com.ai.eval.service.ChatQualityEvaluator;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;

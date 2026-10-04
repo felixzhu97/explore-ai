@@ -1,6 +1,6 @@
 package com.ai.tools.controller;
 
-import com.ai.tools.service.usecase.ToolsFacade;
+import com.ai.tools.service.ToolService;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +19,10 @@ public class ToolsController {
 
   private static final Logger log = LoggerFactory.getLogger(ToolsController.class);
 
-  private final ToolsFacade toolsFacade;
+  private final ToolService toolService;
 
-  public ToolsController(ToolsFacade toolsFacade) {
-    this.toolsFacade = toolsFacade;
+  public ToolsController(ToolService toolService) {
+    this.toolService = toolService;
   }
 
   /** Get weather for a city. */
@@ -32,7 +32,7 @@ public class ToolsController {
       return ResponseEntity.badRequest().body("城市参数不能为空");
     }
     try {
-      return ResponseEntity.ok(toolsFacade.getWeather(city));
+      return ResponseEntity.ok(toolService.getWeather(city));
     } catch (Exception e) {
       log.error("Error fetching weather for {}", city, e);
       return ResponseEntity.internalServerError().body("获取天气信息失败");
@@ -47,7 +47,7 @@ public class ToolsController {
       return ResponseEntity.badRequest().body("城市参数不能为空");
     }
     try {
-      return ResponseEntity.ok(toolsFacade.getForecast(city, days));
+      return ResponseEntity.ok(toolService.getForecast(city, days));
     } catch (Exception e) {
       log.error("Error fetching forecast for {}", city, e);
       return ResponseEntity.internalServerError().body("获取天气预报失败");
@@ -66,7 +66,7 @@ public class ToolsController {
       if (docIds != null && !docIds.isBlank()) {
         docIdList = List.of(docIds.split(","));
       }
-      return ResponseEntity.ok(toolsFacade.searchDocuments(query, docIdList));
+      return ResponseEntity.ok(toolService.searchDocuments(query, docIdList));
     } catch (Exception e) {
       log.error("Error searching documents", e);
       return ResponseEntity.internalServerError().body("搜索文档失败");
@@ -77,7 +77,7 @@ public class ToolsController {
   @GetMapping("/tools/documents/list")
   public ResponseEntity<String> listDocuments() {
     try {
-      return ResponseEntity.ok(toolsFacade.listDocuments());
+      return ResponseEntity.ok(toolService.listDocuments());
     } catch (Exception e) {
       log.error("Error listing documents", e);
       return ResponseEntity.internalServerError().body("获取文档列表失败");
@@ -91,7 +91,7 @@ public class ToolsController {
       return ResponseEntity.badRequest().body(new ToolChatResponse("问题不能为空", null));
     }
     try {
-      String response = toolsFacade.chatWithTools(request.question());
+      String response = toolService.chatWithTools(request.question());
       return ResponseEntity.ok(new ToolChatResponse(response, null));
     } catch (Exception e) {
       log.error("Error in chat with tools", e);

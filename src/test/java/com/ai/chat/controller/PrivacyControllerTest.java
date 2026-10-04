@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.account.service.usecase.OwnerEraseUseCase;
+import com.ai.account.service.OwnerErasureService;
 import com.ai.common.controller.ClientIdentityCookieFactory;
 import com.ai.common.controller.ClientIdentityProperties;
 import com.ai.common.domain.vo.OwnerKey;
@@ -34,7 +34,7 @@ class PrivacyControllerTest {
 
   @MockitoBean private OwnerContext ownerContext;
 
-  @MockitoBean private OwnerEraseUseCase ownerEraseUseCase;
+  @MockitoBean private OwnerErasureService ownerErasureService;
 
   @Nested
   @DisplayName("DELETE /api/privacy/sessions")
@@ -52,7 +52,7 @@ class PrivacyControllerTest {
                       ClientIdentityRequestPostProcessor.withClientId(
                           "c:11111111-1111-1111-1111-111111111111")))
           .hasStatus(HttpStatus.NO_CONTENT);
-      verify(ownerEraseUseCase).eraseAllForOwner(OWNER);
+      verify(ownerErasureService).eraseAllForOwner(OWNER);
     }
   }
 

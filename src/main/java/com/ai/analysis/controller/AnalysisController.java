@@ -3,7 +3,7 @@ package com.ai.analysis.controller;
 import com.ai.analysis.controller.dto.TextAnalysisRequest;
 import com.ai.analysis.controller.dto.TextAnalysisResult;
 import com.ai.analysis.domain.exception.InvalidAnalysisTextException;
-import com.ai.analysis.service.usecase.AnalysisFacade;
+import com.ai.analysis.service.TextAnalysisService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class AnalysisController {
 
-  private final AnalysisFacade analysisFacade;
+  private final TextAnalysisService textAnalysisService;
 
-  public AnalysisController(AnalysisFacade analysisFacade) {
-    this.analysisFacade = analysisFacade;
+  public AnalysisController(TextAnalysisService textAnalysisService) {
+    this.textAnalysisService = textAnalysisService;
   }
 
   @PostMapping("/chat/analyze")
@@ -27,8 +27,8 @@ public class AnalysisController {
     try {
       var result =
           request.language() != null && !request.language().isBlank()
-              ? analysisFacade.analyzeTextWithLanguage(request.text(), request.language())
-              : analysisFacade.analyzeText(request.text());
+              ? textAnalysisService.analyzeTextWithLanguage(request.text(), request.language())
+              : textAnalysisService.analyzeText(request.text());
       return ResponseEntity.ok(TextAnalysisResult.fromDomain(result));
     } catch (InvalidAnalysisTextException e) {
       return ResponseEntity.badRequest().build();

@@ -7,7 +7,7 @@ import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
 import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.domain.vo.WorkflowTemplateId;
-import com.ai.pipeline.service.usecase.PipelineFacade;
+import com.ai.pipeline.service.PipelineService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,12 +22,12 @@ public class PipelineWorkflowRunner implements WorkflowRunner {
       "Follow the configured agent pipeline for the user task.";
 
   private final WorkflowTemplateRepository workflowTemplateRepository;
-  private final PipelineFacade pipelineFacade;
+  private final PipelineService pipelineService;
 
   public PipelineWorkflowRunner(
-      WorkflowTemplateRepository workflowTemplateRepository, PipelineFacade pipelineFacade) {
+      WorkflowTemplateRepository workflowTemplateRepository, PipelineService pipelineService) {
     this.workflowTemplateRepository = workflowTemplateRepository;
-    this.pipelineFacade = pipelineFacade;
+    this.pipelineService = pipelineService;
   }
 
   @Override
@@ -41,7 +41,7 @@ public class PipelineWorkflowRunner implements WorkflowRunner {
     AgentPipeline pipeline = toLinearPipeline(template.getAgentTypes());
     String message =
         resolveInvokeMessage(brief, template.getShortTopic(), template.getBriefPrompt());
-    return pipelineFacade.invokePipelineSync(message, pipeline, clientId, language);
+    return pipelineService.invokePipelineSync(message, pipeline, clientId, language);
   }
 
   /**

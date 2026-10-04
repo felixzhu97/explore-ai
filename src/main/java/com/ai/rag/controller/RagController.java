@@ -6,10 +6,10 @@ import com.ai.rag.controller.dto.DocumentSummaryDto;
 import com.ai.rag.controller.dto.RagChatRequest;
 import com.ai.rag.controller.dto.UploadDocumentResponse;
 import com.ai.rag.domain.model.Document;
-import com.ai.rag.service.usecase.DocumentUploadService;
-import com.ai.rag.service.usecase.RagApplicationService;
-import com.ai.rag.service.usecase.RagChatUseCase;
-import com.ai.rag.service.usecase.VisionChatUseCase;
+import com.ai.rag.service.DocumentUploadService;
+import com.ai.rag.service.RagApplicationService;
+import com.ai.rag.service.RagChatService;
+import com.ai.vision.service.VisionChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,18 +41,18 @@ public class RagController {
   private final OwnerContext ownerContext;
 
   private final RagApplicationService ragApplicationService;
-  private final RagChatUseCase ragChatUseCase;
-  private final ObjectProvider<VisionChatUseCase> visionChatUseCase;
+  private final RagChatService ragChatService;
+  private final ObjectProvider<VisionChatService> visionChatService;
 
   public RagController(
       RagApplicationService ragApplicationService,
-      RagChatUseCase ragChatUseCase,
-      ObjectProvider<VisionChatUseCase> visionChatUseCase,
+      RagChatService ragChatService,
+      ObjectProvider<VisionChatService> visionChatService,
       OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.ragApplicationService = ragApplicationService;
-    this.ragChatUseCase = ragChatUseCase;
-    this.visionChatUseCase = visionChatUseCase;
+    this.ragChatService = ragChatService;
+    this.visionChatService = visionChatService;
   }
 
   @GetMapping("/documents")
@@ -94,15 +94,15 @@ public class RagController {
   @Operation(summary = "RAG streaming chat")
   public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
     if (hasImages(request.images())) {
-      VisionChatUseCase visionChat = visionChatUseCase.getIfAvailable();
+      VisionChatService visionChat = visionChatService.getIfAvailable();
       if (visionChat == null) {
-        return ragChatUseCase.chatStream(
+        return ragChatService.chatStream(
             request.question(), request.docIds(), request.topK(), request.sessionId());
       }
       return visionChat.chatStreamWithImages(
           request.question(), request.docIds(), request.images(), request.topK());
     }
-    return ragChatUseCase.chatStream(
+    return ragChatService.chatStream(
         request.question(), request.docIds(), request.topK(), request.sessionId());
   }
 

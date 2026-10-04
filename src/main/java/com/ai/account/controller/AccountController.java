@@ -1,7 +1,7 @@
 package com.ai.account.controller;
 
 import com.ai.account.controller.dto.AccountMeResponse;
-import com.ai.account.service.usecase.AccountUseCase;
+import com.ai.account.service.AccountService;
 import com.ai.common.controller.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +23,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/account")
 public class AccountController {
 
-  private final AccountUseCase accountUseCase;
+  private final AccountService accountService;
 
-  public AccountController(AccountUseCase accountUseCase) {
-    this.accountUseCase = accountUseCase;
+  public AccountController(AccountService accountService) {
+    this.accountService = accountService;
   }
 
   @GetMapping("/me")
   public ResponseEntity<AccountMeResponse> me(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken) {
-      return ResponseEntity.ok(accountUseCase.currentAccount(null));
+      return ResponseEntity.ok(accountService.currentAccount(null));
     }
     String clientId = ClientIdentity.require(request);
-    return ResponseEntity.ok(accountUseCase.currentAccount(clientId));
+    return ResponseEntity.ok(accountService.currentAccount(clientId));
   }
 }

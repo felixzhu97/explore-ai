@@ -7,7 +7,7 @@ import com.ai.pipeline.controller.dto.SavedWorkflowTemplateResponse;
 import com.ai.pipeline.controller.dto.SetWorkflowTemplateEnabledRequest;
 import com.ai.pipeline.controller.dto.UpdateWorkflowTemplateRequest;
 import com.ai.pipeline.controller.dto.WorkflowTemplateResponse;
-import com.ai.pipeline.service.usecase.WorkflowTemplateUseCase;
+import com.ai.pipeline.service.PipelineTemplateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -31,19 +31,19 @@ public class WorkflowTemplateController {
 
   private final OwnerContext ownerContext;
 
-  private final WorkflowTemplateUseCase workflowTemplateUseCase;
+  private final PipelineTemplateService pipelineTemplateService;
 
   public WorkflowTemplateController(
-      WorkflowTemplateUseCase workflowTemplateUseCase, OwnerContext ownerContext) {
+      PipelineTemplateService pipelineTemplateService, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
-    this.workflowTemplateUseCase = workflowTemplateUseCase;
+    this.pipelineTemplateService = pipelineTemplateService;
   }
 
   @GetMapping
   public List<WorkflowTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String language = resolveLanguage(lang, request);
-    return workflowTemplateUseCase.listTemplates(language).stream()
+    return pipelineTemplateService.listTemplates(language).stream()
         .map(WorkflowTemplateResponse::from)
         .toList();
   }
@@ -51,7 +51,7 @@ public class WorkflowTemplateController {
   @GetMapping("/library")
   public List<SavedWorkflowTemplateResponse> listLibrary(HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    return workflowTemplateUseCase.listLibrary(clientId).stream()
+    return pipelineTemplateService.listLibrary(clientId).stream()
         .map(SavedWorkflowTemplateResponse::from)
         .toList();
   }
@@ -66,7 +66,7 @@ public class WorkflowTemplateController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SavedWorkflowTemplateResponse.from(
-                workflowTemplateUseCase.createFromTemplate(clientId, body.templateId(), language)));
+                pipelineTemplateService.createFromTemplate(clientId, body.templateId(), language)));
   }
 
   @PostMapping("/library")
@@ -76,7 +76,7 @@ public class WorkflowTemplateController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SavedWorkflowTemplateResponse.from(
-                workflowTemplateUseCase.create(
+                pipelineTemplateService.create(
                     clientId,
                     body.name(),
                     body.description(),
@@ -93,7 +93,7 @@ public class WorkflowTemplateController {
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return SavedWorkflowTemplateResponse.from(
-        workflowTemplateUseCase.update(
+        pipelineTemplateService.update(
             clientId,
             id,
             body.name(),
@@ -110,13 +110,13 @@ public class WorkflowTemplateController {
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return SavedWorkflowTemplateResponse.from(
-        workflowTemplateUseCase.setEnabled(clientId, id, body.enabled()));
+        pipelineTemplateService.setEnabled(clientId, id, body.enabled()));
   }
 
   @DeleteMapping("/library/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    workflowTemplateUseCase.delete(clientId, id);
+    pipelineTemplateService.delete(clientId, id);
     return ResponseEntity.noContent().build();
   }
 

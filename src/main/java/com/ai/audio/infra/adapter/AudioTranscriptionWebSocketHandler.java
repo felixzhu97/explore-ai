@@ -1,6 +1,6 @@
 package com.ai.audio.infra.adapter;
 
-import com.ai.audio.service.usecase.StreamingTranscriptionUseCase;
+import com.ai.audio.service.StreamingTranscriptionService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -11,25 +11,25 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class AudioTranscriptionWebSocketHandler extends TextWebSocketHandler {
 
-  private final StreamingTranscriptionUseCase streamingTranscriptionUseCase;
+  private final StreamingTranscriptionService streamingTranscriptionService;
 
   public AudioTranscriptionWebSocketHandler(
-      StreamingTranscriptionUseCase streamingTranscriptionUseCase) {
-    this.streamingTranscriptionUseCase = streamingTranscriptionUseCase;
+      StreamingTranscriptionService streamingTranscriptionService) {
+    this.streamingTranscriptionService = streamingTranscriptionService;
   }
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
-    streamingTranscriptionUseCase.startSession(session);
+    streamingTranscriptionService.startSession(session);
   }
 
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-    streamingTranscriptionUseCase.handleMessage(session, message.getPayload());
+    streamingTranscriptionService.handleMessage(session, message.getPayload());
   }
 
   @Override
   public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-    streamingTranscriptionUseCase.endSession(session);
+    streamingTranscriptionService.endSession(session);
   }
 }

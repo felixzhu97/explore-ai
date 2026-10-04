@@ -1,6 +1,6 @@
 package com.ai.mcp.controller;
 
-import com.ai.mcp.service.usecase.McpFacade;
+import com.ai.mcp.service.McpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -27,10 +27,10 @@ public class McpClientController {
 
   private static final Logger log = LoggerFactory.getLogger(McpClientController.class);
 
-  private final McpFacade mcpFacade;
+  private final McpService mcpService;
 
-  public McpClientController(McpFacade mcpFacade) {
-    this.mcpFacade = mcpFacade;
+  public McpClientController(McpService mcpService) {
+    this.mcpService = mcpService;
   }
 
   @GetMapping("/status")
@@ -39,15 +39,15 @@ public class McpClientController {
     return ResponseEntity.ok(
         Map.of(
             "status", "READY",
-            "registeredTools", mcpFacade.getTotalToolCount(),
-            "connectedServers", mcpFacade.getConnectedServers().keySet().stream().toList()));
+            "registeredTools", mcpService.getTotalToolCount(),
+            "connectedServers", mcpService.getConnectedServers().keySet().stream().toList()));
   }
 
   @GetMapping("/tools")
   @Operation(summary = "List all registered MCP tools")
   public ResponseEntity<List<Map<String, String>>> listTools() {
     List<Map<String, String>> tools =
-        mcpFacade.getToolDefinitions().stream()
+        mcpService.getToolDefinitions().stream()
             .map(def -> Map.of("name", def.name(), "description", def.description()))
             .toList();
     return ResponseEntity.ok(tools);
@@ -57,7 +57,7 @@ public class McpClientController {
   @Operation(summary = "List connected MCP servers")
   public ResponseEntity<List<Map<String, Object>>> listServers() {
     List<Map<String, Object>> servers =
-        mcpFacade.getConnectedServers().values().stream()
+        mcpService.getConnectedServers().values().stream()
             .map(
                 info ->
                     Map.<String, Object>of(
@@ -75,7 +75,7 @@ public class McpClientController {
       return ResponseEntity.badRequest().body(Map.of("error", "提问内容不能为空"));
     }
     try {
-      String response = mcpFacade.chatWithTools(request.question());
+      String response = mcpService.chatWithTools(request.question());
       return ResponseEntity.ok(Map.of("response", response));
     } catch (Exception e) {
       log.error("Error in MCP chat", e);

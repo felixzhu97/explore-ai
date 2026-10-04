@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.eval.domain.model.GoldenSuiteReport;
 import com.ai.eval.domain.vo.GoldenEvalDomain;
-import com.ai.eval.service.usecase.GoldenEvalUseCase;
+import com.ai.eval.service.GoldenEvalService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -25,12 +25,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 @DisplayName("GoldenEvalIT")
 class GoldenEvalIT {
 
-  @Autowired private GoldenEvalUseCase goldenEvalUseCase;
+  @Autowired private GoldenEvalService goldenEvalService;
 
   @Test
   @DisplayName("should_reportPassRate_when_chatGoldenSuiteRuns")
   void should_reportPassRate_when_chatGoldenSuiteRuns() {
-    GoldenSuiteReport report = goldenEvalUseCase.run(List.of(GoldenEvalDomain.CHAT), List.of());
+    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalDomain.CHAT), List.of());
     logReport("CHAT", report);
 
     assertThat(report.total()).isGreaterThan(0);
@@ -42,7 +42,7 @@ class GoldenEvalIT {
   @Test
   @DisplayName("should_reportPassRate_when_ragGoldenSuiteRuns")
   void should_reportPassRate_when_ragGoldenSuiteRuns() {
-    GoldenSuiteReport report = goldenEvalUseCase.run(List.of(GoldenEvalDomain.RAG), List.of());
+    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalDomain.RAG), List.of());
     logReport("RAG", report);
 
     assertThat(report.total()).isGreaterThan(0);

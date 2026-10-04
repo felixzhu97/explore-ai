@@ -1,7 +1,7 @@
 package com.ai.chat.controller;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.account.service.usecase.OwnerEraseUseCase;
+import com.ai.account.service.OwnerErasureService;
 import com.ai.common.controller.ClientIdentityCookieFactory;
 import com.ai.common.domain.vo.OwnerKey;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,15 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class PrivacyController {
 
   private final OwnerContext ownerContext;
-  private final OwnerEraseUseCase ownerEraseUseCase;
+  private final OwnerErasureService ownerErasureService;
   private final ClientIdentityCookieFactory cookieFactory;
 
   public PrivacyController(
       OwnerContext ownerContext,
-      OwnerEraseUseCase ownerEraseUseCase,
+      OwnerErasureService ownerErasureService,
       ClientIdentityCookieFactory cookieFactory) {
     this.ownerContext = ownerContext;
-    this.ownerEraseUseCase = ownerEraseUseCase;
+    this.ownerErasureService = ownerErasureService;
     this.cookieFactory = cookieFactory;
   }
 
@@ -40,7 +40,7 @@ public class PrivacyController {
   @DeleteMapping("/sessions")
   public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
     OwnerKey owner = ownerContext.require(request);
-    ownerEraseUseCase.eraseAllForOwner(owner);
+    ownerErasureService.eraseAllForOwner(owner);
     return ResponseEntity.noContent().build();
   }
 

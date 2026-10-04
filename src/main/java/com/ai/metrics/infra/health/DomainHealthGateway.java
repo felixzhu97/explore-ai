@@ -3,7 +3,7 @@ package com.ai.metrics.infra.health;
 import com.ai.metrics.domain.repository.McpHealthProbe;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.service.usecase.PipelineFacade;
+import com.ai.pipeline.service.PipelineService;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class DomainHealthGateway implements MetricsHealthGateway {
 
-  private final PipelineFacade pipelineFacade;
+  private final PipelineService pipelineService;
   private final ObjectProvider<McpHealthProbe> mcpHealthProbe;
 
   public DomainHealthGateway(
-      PipelineFacade pipelineFacade, ObjectProvider<McpHealthProbe> mcpHealthProbe) {
-    this.pipelineFacade = pipelineFacade;
+      PipelineService pipelineService, ObjectProvider<McpHealthProbe> mcpHealthProbe) {
+    this.pipelineService = pipelineService;
     this.mcpHealthProbe = mcpHealthProbe;
   }
 
@@ -30,7 +30,7 @@ public class DomainHealthGateway implements MetricsHealthGateway {
 
   @Override
   public Map<String, Object> agentsHealth() {
-    List<AgentDefinition> agents = pipelineFacade.listAgents(null, "en");
+    List<AgentDefinition> agents = pipelineService.listAgents(null, "en");
     long healthy = agents.stream().filter(AgentDefinition::healthy).count();
     Map<String, Object> result = new LinkedHashMap<>();
     result.put("status", healthy == agents.size() && !agents.isEmpty() ? "UP" : "DEGRADED");

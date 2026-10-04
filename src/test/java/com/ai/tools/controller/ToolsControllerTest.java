@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.testsupport.SliceWebMvcTest;
-import com.ai.tools.service.usecase.ToolsFacade;
+import com.ai.tools.service.ToolService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +22,7 @@ class ToolsControllerTest {
 
   @Autowired private MockMvcTester mvc;
 
-  @MockitoBean private ToolsFacade toolsFacade;
+  @MockitoBean private ToolService toolService;
 
   @Nested
   @DisplayName("GET /api/tools/weather")
@@ -33,12 +33,12 @@ class ToolsControllerTest {
     void shouldReturnWeatherForValidCity() {
       String city = "Beijing";
       String weather = "Sunny, 25°C";
-      when(toolsFacade.getWeather(city)).thenReturn(weather);
+      when(toolService.getWeather(city)).thenReturn(weather);
 
       assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
           .hasStatusOk()
           .hasBodyTextEqualTo(weather);
-      verify(toolsFacade).getWeather(city);
+      verify(toolService).getWeather(city);
     }
 
     @Test
@@ -62,10 +62,10 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade throws exception")
-    void shouldReturn500WhenFacadeThrowsException() {
+    @DisplayName("should return 500 when service throws exception")
+    void shouldReturn500WhenServiceThrowsException() {
       String city = "Unknown";
-      when(toolsFacade.getWeather(city)).thenThrow(new RuntimeException("API error"));
+      when(toolService.getWeather(city)).thenThrow(new RuntimeException("API error"));
 
       assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -84,7 +84,7 @@ class ToolsControllerTest {
     void shouldReturnForecastForValidCity() {
       String city = "Shanghai";
       String forecast = "Rainy for 3 days";
-      when(toolsFacade.getForecast(city, 5)).thenReturn(forecast);
+      when(toolService.getForecast(city, 5)).thenReturn(forecast);
 
       assertThat(
               mvc.get().uri("/api/tools/weather/forecast").param("city", city).param("days", "5"))
@@ -97,7 +97,7 @@ class ToolsControllerTest {
     void shouldReturnForecastWithNullDays() {
       String city = "Guangzhou";
       String forecast = "Cloudy forecast";
-      when(toolsFacade.getForecast(city, null)).thenReturn(forecast);
+      when(toolService.getForecast(city, null)).thenReturn(forecast);
 
       assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", city))
           .hasStatusOk()
@@ -122,9 +122,9 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade throws exception")
-    void shouldReturn500WhenFacadeThrowsException() {
-      when(toolsFacade.getForecast("ErrorCity", null)).thenThrow(new RuntimeException("API error"));
+    @DisplayName("should return 500 when service throws exception")
+    void shouldReturn500WhenServiceThrowsException() {
+      when(toolService.getForecast("ErrorCity", null)).thenThrow(new RuntimeException("API error"));
 
       assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", "ErrorCity"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -143,7 +143,7 @@ class ToolsControllerTest {
     void shouldSearchDocumentsWithQuery() {
       String query = "machine learning";
       String result = "[{\"title\": \"ML Guide\"}]";
-      when(toolsFacade.searchDocuments(query, null)).thenReturn(result);
+      when(toolService.searchDocuments(query, null)).thenReturn(result);
 
       assertThat(mvc.get().uri("/api/tools/documents/search").param("query", query))
           .hasStatusOk()
@@ -156,7 +156,7 @@ class ToolsControllerTest {
       String query = "AI";
       String docIds = "doc1,doc2,doc3";
       String result = "[{\"id\": \"doc1\"}]";
-      when(toolsFacade.searchDocuments(query, List.of("doc1", "doc2", "doc3"))).thenReturn(result);
+      when(toolService.searchDocuments(query, List.of("doc1", "doc2", "doc3"))).thenReturn(result);
 
       assertThat(
               mvc.get()
@@ -165,7 +165,7 @@ class ToolsControllerTest {
                   .param("docIds", docIds))
           .hasStatusOk()
           .hasBodyTextEqualTo(result);
-      verify(toolsFacade).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
+      verify(toolService).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
     }
 
     @Test
@@ -186,9 +186,9 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade throws exception")
-    void shouldReturn500WhenFacadeThrowsException() {
-      when(toolsFacade.searchDocuments("error", null))
+    @DisplayName("should return 500 when service throws exception")
+    void shouldReturn500WhenServiceThrowsException() {
+      when(toolService.searchDocuments("error", null))
           .thenThrow(new RuntimeException("Search error"));
 
       assertThat(mvc.get().uri("/api/tools/documents/search").param("query", "error"))
@@ -207,7 +207,7 @@ class ToolsControllerTest {
     @DisplayName("should list all documents")
     void shouldListAllDocuments() {
       String documents = "[{\"title\": \"Doc1\"}, {\"title\": \"Doc2\"}]";
-      when(toolsFacade.listDocuments()).thenReturn(documents);
+      when(toolService.listDocuments()).thenReturn(documents);
 
       assertThat(mvc.get().uri("/api/tools/documents/list"))
           .hasStatusOk()
@@ -215,9 +215,9 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade throws exception")
-    void shouldReturn500WhenFacadeThrowsException() {
-      when(toolsFacade.listDocuments()).thenThrow(new RuntimeException("List error"));
+    @DisplayName("should return 500 when service throws exception")
+    void shouldReturn500WhenServiceThrowsException() {
+      when(toolService.listDocuments()).thenThrow(new RuntimeException("List error"));
 
       assertThat(mvc.get().uri("/api/tools/documents/list"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -236,7 +236,7 @@ class ToolsControllerTest {
     void shouldReturnResponseForValidQuestion() {
       String question = "What's the weather in Beijing?";
       String answer = "It's sunny today!";
-      when(toolsFacade.chatWithTools(question)).thenReturn(answer);
+      when(toolService.chatWithTools(question)).thenReturn(answer);
 
       assertThat(
               mvc.post()
@@ -251,10 +251,10 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should pass docIds to facade")
-    void shouldPassDocIdsToFacade() {
+    @DisplayName("should pass docIds to service")
+    void shouldPassDocIdsToService() {
       String question = "Search in docs";
-      when(toolsFacade.chatWithTools(question)).thenReturn("Result");
+      when(toolService.chatWithTools(question)).thenReturn("Result");
 
       assertThat(
               mvc.post()
@@ -263,7 +263,7 @@ class ToolsControllerTest {
                   .content("{\"question\":\"Search in docs\",\"docIds\":[\"doc1\",\"doc2\"]}"))
           .hasStatusOk();
 
-      verify(toolsFacade).chatWithTools(question);
+      verify(toolService).chatWithTools(question);
     }
 
     @Test
@@ -308,9 +308,9 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade throws exception")
-    void shouldReturn500WhenFacadeThrowsException() {
-      when(toolsFacade.chatWithTools("error question"))
+    @DisplayName("should return 500 when service throws exception")
+    void shouldReturn500WhenServiceThrowsException() {
+      when(toolService.chatWithTools("error question"))
           .thenThrow(new RuntimeException("Chat error"));
 
       assertThat(

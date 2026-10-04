@@ -1,6 +1,6 @@
 package com.ai.account.infra.oauth;
 
-import com.ai.account.service.usecase.AccountUseCase;
+import com.ai.account.service.AccountService;
 import com.ai.common.controller.ClientIdentity;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountLogoutHandler implements LogoutHandler {
 
-  private final AccountUseCase accountUseCase;
+  private final AccountService accountService;
 
-  public AccountLogoutHandler(AccountUseCase accountUseCase) {
-    this.accountUseCase = accountUseCase;
+  public AccountLogoutHandler(AccountService accountService) {
+    this.accountService = accountService;
   }
 
   @Override
@@ -23,7 +23,7 @@ public class AccountLogoutHandler implements LogoutHandler {
       HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
     Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
     if (attribute instanceof String clientId && !clientId.isBlank()) {
-      accountUseCase.unlinkClient(clientId);
+      accountService.unlinkClient(clientId);
     }
   }
 }

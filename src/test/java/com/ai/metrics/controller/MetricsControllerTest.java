@@ -7,13 +7,13 @@ import static org.mockito.Mockito.when;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.service.MetricsService;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsDomainSnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
 import com.ai.metrics.service.model.SeriesPoint;
 import com.ai.metrics.service.model.SeriesSnapshot;
-import com.ai.metrics.service.usecase.MetricsUseCase;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.time.Instant;
 import java.util.List;
@@ -32,7 +32,7 @@ class MetricsControllerTest {
 
   @Autowired private MockMvcTester mvc;
 
-  @MockitoBean private MetricsUseCase metricsUseCase;
+  @MockitoBean private MetricsService metricsService;
 
   @Nested
   @DisplayName("GET /api/metrics/overview")
@@ -40,7 +40,7 @@ class MetricsControllerTest {
 
     @Test
     @DisplayName("should map overview response from use case")
-    void shouldMapOverviewResponseFromUseCase() {
+    void shouldMapOverviewResponseFromService() {
       MetricsOverview overview =
           new MetricsOverview(
               "7d",
@@ -54,7 +54,7 @@ class MetricsControllerTest {
               500L,
               List.of(new NamedCount("chat", 80)),
               Map.of("chat", Map.of("status", "UP")));
-      when(metricsUseCase.overview("7d")).thenReturn(overview);
+      when(metricsService.overview("7d")).thenReturn(overview);
 
       var result = mvc.get().uri("/api/metrics/overview").param("range", "7d").exchange();
 
@@ -70,7 +70,7 @@ class MetricsControllerTest {
           .extractingPath("$.requestsByDomain[0].name")
           .asString()
           .isEqualTo("chat");
-      verify(metricsUseCase).overview("7d");
+      verify(metricsService).overview("7d");
     }
   }
 
@@ -80,7 +80,7 @@ class MetricsControllerTest {
 
     @Test
     @DisplayName("should map domain response from use case")
-    void shouldMapDomainResponseFromUseCase() {
+    void shouldMapDomainResponseFromService() {
       MetricsDomainSnapshot snapshot =
           new MetricsDomainSnapshot(
               "chat",
@@ -95,7 +95,7 @@ class MetricsControllerTest {
               Map.of("sessionCount", 3),
               List.of(new SeriesPoint("2026-07-01", 5)),
               List.of(new SeriesPoint("gpt", 4)));
-      when(metricsUseCase.domain("chat", "7d")).thenReturn(snapshot);
+      when(metricsService.domain("chat", "7d")).thenReturn(snapshot);
 
       assertThat(mvc.get().uri("/api/metrics/domains/chat").param("range", "7d"))
           .hasStatusOk()
@@ -126,10 +126,10 @@ class MetricsControllerTest {
 
     @Test
     @DisplayName("should map series response from use case")
-    void shouldMapSeriesResponseFromUseCase() {
+    void shouldMapSeriesResponseFromService() {
       SeriesSnapshot snapshot =
           new SeriesSnapshot("requests", "chat", "7d", List.of(new SeriesPoint("2026-07-01", 9)));
-      when(metricsUseCase.series("requests", "chat", "7d")).thenReturn(snapshot);
+      when(metricsService.series("requests", "chat", "7d")).thenReturn(snapshot);
 
       assertThat(
               mvc.get()
@@ -163,7 +163,7 @@ class MetricsControllerTest {
 
     @Test
     @DisplayName("should map drilldown response from use case")
-    void shouldMapDrilldownResponseFromUseCase() {
+    void shouldMapDrilldownResponseFromService() {
       UUID id = UUID.randomUUID();
       Instant occurredAt = Instant.parse("2026-07-26T08:00:00Z");
       AiInvocationEvent event =
@@ -181,7 +181,7 @@ class MetricsControllerTest {
               .promptTokens(11)
               .completionTokens(22)
               .build();
-      when(metricsUseCase.drilldown("tools", null, null, null, null, null, null, null, 0, 20, "7d"))
+      when(metricsService.drilldown("tools", null, null, null, null, null, null, null, 0, 20, "7d"))
           .thenReturn(new DrilldownPage(List.of(event), 1, 0, 20));
 
       assertThat(

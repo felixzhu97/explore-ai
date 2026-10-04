@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.dto.AccountMeResponse;
-import com.ai.account.service.usecase.AccountUseCase;
+import com.ai.account.service.AccountService;
 import com.ai.common.controller.GlobalExceptionHandler;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -31,7 +31,7 @@ class AccountControllerTest {
 
   @Autowired private MockMvcTester mvc;
 
-  @MockitoBean private AccountUseCase accountUseCase;
+  @MockitoBean private AccountService accountService;
 
   @AfterEach
   void clearSecurityContext() {
@@ -45,7 +45,7 @@ class AccountControllerTest {
     @Test
     @DisplayName("should return anonymous account when client identity present")
     void shouldReturnAnonymousAccountWhenClientIdentityPresent() {
-      when(accountUseCase.currentAccount("cid-123"))
+      when(accountService.currentAccount("cid-123"))
           .thenReturn(
               new AccountMeResponse(
                   "anonymous", "cid-123", null, null, "free", false, java.util.List.of()));
@@ -62,13 +62,13 @@ class AccountControllerTest {
       assertThat(result).bodyJson().extractingPath("$.plan").asString().isEqualTo("free");
       assertThat(result).bodyJson().extractingPath("$.loginAvailable").asBoolean().isFalse();
       assertThat(result).bodyJson().extractingPath("$.userId").isNull();
-      verify(accountUseCase).currentAccount("cid-123");
+      verify(accountService).currentAccount("cid-123");
     }
 
     @Test
     @DisplayName("should return account when IAM JWT present without client cookie")
     void shouldReturnAccountWhenIamJwtPresentWithoutClientCookie() {
-      when(accountUseCase.currentAccount(null))
+      when(accountService.currentAccount(null))
           .thenReturn(
               new AccountMeResponse(
                   "authenticated",
@@ -95,7 +95,7 @@ class AccountControllerTest {
 
       assertThat(result).hasStatusOk();
       assertThat(result).bodyJson().extractingPath("$.mode").asString().isEqualTo("authenticated");
-      verify(accountUseCase).currentAccount(null);
+      verify(accountService).currentAccount(null);
     }
 
     @Test

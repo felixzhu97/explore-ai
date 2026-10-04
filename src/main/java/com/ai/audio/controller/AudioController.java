@@ -3,7 +3,7 @@ package com.ai.audio.controller;
 import com.ai.audio.controller.dto.VoiceResponse;
 import com.ai.audio.domain.exception.InvalidSpeechTextException;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
-import com.ai.audio.service.usecase.AudioFacade;
+import com.ai.audio.service.AudioService;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -25,10 +25,10 @@ public class AudioController {
 
   private static final Logger log = LoggerFactory.getLogger(AudioController.class);
 
-  private final AudioFacade audioFacade;
+  private final AudioService audioService;
 
-  public AudioController(AudioFacade audioFacade) {
-    this.audioFacade = audioFacade;
+  public AudioController(AudioService audioService) {
+    this.audioService = audioService;
   }
 
   /** Convert text to speech. */
@@ -40,7 +40,7 @@ public class AudioController {
       return ResponseEntity.badRequest().build();
     }
     try {
-      var audio = audioFacade.synthesizeAudio(request.text(), request.voice(), request.speed());
+      var audio = audioService.synthesizeAudio(request.text(), request.voice(), request.speed());
 
       if (audio == null || audio.isEmpty()) {
         return ResponseEntity.internalServerError().build();
@@ -66,14 +66,14 @@ public class AudioController {
   @GetMapping({"/audio/voices", "/tts/voices"})
   public ResponseEntity<Map<String, Object>> getVoices() {
     List<VoiceResponse> voices =
-        audioFacade.getAvailableVoices().stream().map(VoiceResponse::from).toList();
+        audioService.getAvailableVoices().stream().map(VoiceResponse::from).toList();
     return ResponseEntity.ok(Map.of("voices", voices));
   }
 
   /** Get available TTS models. */
   @GetMapping("/audio/models")
   public ResponseEntity<Map<String, Object>> getTtsModels() {
-    return ResponseEntity.ok(Map.of("models", audioFacade.getAvailableTtsModels()));
+    return ResponseEntity.ok(Map.of("models", audioService.getAvailableTtsModels()));
   }
 
   public record TtsRequest(

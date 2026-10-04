@@ -8,11 +8,11 @@ import com.ai.metrics.controller.dto.NamedCountResponse;
 import com.ai.metrics.controller.dto.SeriesPointResponse;
 import com.ai.metrics.controller.dto.SeriesResponse;
 import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.service.MetricsService;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsDomainSnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.SeriesSnapshot;
-import com.ai.metrics.service.usecase.MetricsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -27,24 +27,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Metrics", description = "AI metrics overview and drill-down")
 public class MetricsController {
 
-  private final MetricsUseCase metricsUseCase;
+  private final MetricsService metricsService;
 
-  public MetricsController(MetricsUseCase metricsUseCase) {
-    this.metricsUseCase = metricsUseCase;
+  public MetricsController(MetricsService metricsService) {
+    this.metricsService = metricsService;
   }
 
   @GetMapping("/overview")
   @Operation(summary = "AI metrics overview")
   public ResponseEntity<MetricsOverviewResponse> overview(
       @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toOverview(metricsUseCase.overview(range)));
+    return ResponseEntity.ok(toOverview(metricsService.overview(range)));
   }
 
   @GetMapping("/domains/{domain}")
   @Operation(summary = "Domain-scoped AI metrics")
   public ResponseEntity<MetricsDomainResponse> domain(
       @PathVariable String domain, @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toDomain(metricsUseCase.domain(domain, range)));
+    return ResponseEntity.ok(toDomain(metricsService.domain(domain, range)));
   }
 
   @GetMapping("/series")
@@ -53,7 +53,7 @@ public class MetricsController {
       @RequestParam String name,
       @RequestParam(required = false) String domain,
       @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toSeries(metricsUseCase.series(name, domain, range)));
+    return ResponseEntity.ok(toSeries(metricsService.series(name, domain, range)));
   }
 
   @GetMapping("/drilldown")
@@ -72,7 +72,7 @@ public class MetricsController {
       @RequestParam(defaultValue = "7d") String range) {
     return ResponseEntity.ok(
         toDrilldown(
-            metricsUseCase.drilldown(
+            metricsService.drilldown(
                 domain, from, to, day, outcome, model, agentType, toolName, page, size, range)));
   }
 

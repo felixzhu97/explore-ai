@@ -7,7 +7,7 @@ import com.ai.automation.controller.dto.CreateAutomationScheduleRequest;
 import com.ai.automation.controller.dto.SetAutomationEnabledRequest;
 import com.ai.automation.controller.dto.UpdateAutomationScheduleRequest;
 import com.ai.automation.domain.vo.ScheduleKind;
-import com.ai.automation.service.usecase.AutomationUseCase;
+import com.ai.automation.service.AutomationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -30,17 +30,17 @@ public class AutomationController {
 
   private final OwnerContext ownerContext;
 
-  private final AutomationUseCase automationUseCase;
+  private final AutomationService automationService;
 
-  public AutomationController(AutomationUseCase automationUseCase, OwnerContext ownerContext) {
+  public AutomationController(AutomationService automationService, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
-    this.automationUseCase = automationUseCase;
+    this.automationService = automationService;
   }
 
   @GetMapping
   public List<AutomationScheduleResponse> list(HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    return automationUseCase.list(clientId).stream().map(AutomationScheduleResponse::from).toList();
+    return automationService.list(clientId).stream().map(AutomationScheduleResponse::from).toList();
   }
 
   @PostMapping
@@ -50,7 +50,7 @@ public class AutomationController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             AutomationScheduleResponse.from(
-                automationUseCase.create(
+                automationService.create(
                     clientId,
                     body.name(),
                     ScheduleKind.from(body.scheduleKind()),
@@ -69,7 +69,7 @@ public class AutomationController {
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return AutomationScheduleResponse.from(
-        automationUseCase.update(
+        automationService.update(
             clientId,
             id,
             body.name(),
@@ -89,13 +89,13 @@ public class AutomationController {
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return AutomationScheduleResponse.from(
-        automationUseCase.setEnabled(clientId, id, body.enabled()));
+        automationService.setEnabled(clientId, id, body.enabled()));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    automationUseCase.delete(clientId, id);
+    automationService.delete(clientId, id);
     return ResponseEntity.noContent().build();
   }
 
@@ -105,7 +105,7 @@ public class AutomationController {
       @RequestParam(value = "limit", defaultValue = "20") int limit,
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    return automationUseCase.listRuns(clientId, id, limit).stream()
+    return automationService.listRuns(clientId, id, limit).stream()
         .map(AutomationRunResponse::from)
         .toList();
   }
