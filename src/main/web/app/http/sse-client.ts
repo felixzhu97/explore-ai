@@ -236,9 +236,10 @@ export function streamSsePost(
     }
   });
 
-  readerPromise.catch((error) => {
-    if ((error as Error).name !== 'AbortError') {
-      handlers.onError(error as Error);
+  readerPromise.catch((error: unknown) => {
+    const failure = error instanceof Error ? error : new Error(String(error));
+    if (failure.name !== 'AbortError') {
+      handlers.onError(failure);
     }
   });
 

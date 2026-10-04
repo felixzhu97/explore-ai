@@ -181,10 +181,8 @@ function logError(req: HttpRequest<unknown>, error: AppError): void {
 
   if (error.status >= 500) {
     console.error('[httpErrorInterceptor]', logEntry);
-  } else if (error.status >= 400) {
-    console.warn('[httpErrorInterceptor]', logEntry);
   } else {
-    console.debug('[httpErrorInterceptor]', logEntry);
+    console.warn('[httpErrorInterceptor]', logEntry);
   }
 }
 

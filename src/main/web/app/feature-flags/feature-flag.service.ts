@@ -34,7 +34,6 @@ export class FeatureFlagService {
     });
 
     client.on('change', () => this.#syncFlags(client));
-    client.start();
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -42,7 +41,7 @@ export class FeatureFlagService {
     });
 
     try {
-      await Promise.race([client.waitForInitialization(), timeoutPromise]);
+      await Promise.race([client.start(), timeoutPromise]);
     } catch {
       this.#flags.set(environment.featureFlagFallback);
       return;
