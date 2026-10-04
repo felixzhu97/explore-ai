@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, model, output } from '@angular/core';
+import { Component, inject, input, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { I18nService } from '../i18n';
 import { ZardButtonComponent } from '../ui/button';
@@ -7,7 +7,6 @@ import { ZardButtonComponent } from '../ui/button';
   selector: 'app-pipelines-toolbar',
   imports: [FormsModule, ZardButtonComponent],
   templateUrl: './pipelines-toolbar.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex shrink-0 flex-col gap-2 border-b border-black/8 bg-white px-3 py-2' },
 })
 export class PipelinesToolbarComponent {

@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   input,
   output,
@@ -68,7 +67,6 @@ import { ZardSkeletonComponent } from '../ui/skeleton';
     </z-card>
   `,
   providers: [provideIcons({ lucideImage })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MediaPreviewPanelComponent {
   readonly imageSrc = input<string | null>(null);

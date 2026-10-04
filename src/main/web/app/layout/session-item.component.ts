@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -88,7 +87,6 @@ import type { SidebarSession } from './session-list.token';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'block',
   },

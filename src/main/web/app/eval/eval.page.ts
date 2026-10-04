@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EvalService, type EvaluationResponse } from './eval.service';
 import { ZardButtonComponent } from '../ui/button';
@@ -8,7 +8,6 @@ import { I18nService } from '../i18n';
   selector: 'app-eval-page',
   imports: [FormsModule, ZardButtonComponent],
   templateUrl: './eval.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
 export class EvalPageComponent {

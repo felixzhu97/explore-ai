@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   input,
   output,
@@ -89,7 +88,6 @@ import type { VisionResult, VisionTaskType } from './vision.service';
       }
     </z-card>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MediaResultPanelComponent {
   readonly title = input.required<string>();

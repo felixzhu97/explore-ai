@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   input,
   output,
@@ -37,7 +36,6 @@ import { NxWelcomeComponent } from 'ng-zorro-x/welcome';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block h-full min-h-0 w-full' },
 })
 export class ChatWelcomePanelComponent {

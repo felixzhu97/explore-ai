@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 export interface MetricsKpi {
   key: string;
@@ -23,7 +23,6 @@ export interface MetricsKpi {
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsKpiCardsComponent {
   readonly items = input<MetricsKpi[]>([]);

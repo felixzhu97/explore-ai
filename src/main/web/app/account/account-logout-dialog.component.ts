@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AccountService } from './account.service';
 import { I18nService } from '../i18n';
 import { ZardButtonComponent } from '../ui/button';
@@ -71,7 +71,6 @@ export interface AccountLogoutDialogData {
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountLogoutDialogComponent {
   readonly data = inject<AccountLogoutDialogData>(Z_MODAL_DATA);

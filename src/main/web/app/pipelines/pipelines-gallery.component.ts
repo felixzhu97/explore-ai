@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
 import { ZardButtonComponent } from '../ui/button';
 import type { PipelineTemplate, PipelineTemplateDefinition } from './pipelines.service';
@@ -7,7 +7,6 @@ import type { PipelineTemplate, PipelineTemplateDefinition } from './pipelines.s
   selector: 'app-pipelines-gallery',
   imports: [ZardButtonComponent],
   templateUrl: './pipelines-gallery.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'absolute inset-0 z-10 overflow-y-auto px-4 py-6' },
 })
 export class PipelinesGalleryComponent {

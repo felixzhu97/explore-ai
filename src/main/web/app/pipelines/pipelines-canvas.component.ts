@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   computed,
@@ -63,7 +62,6 @@ const DEFAULT_BRIEF = 'Follow the configured agent pipeline for the user task.';
     ZardButtonComponent,
   ],
   templateUrl: './pipelines-canvas.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex min-h-0 flex-1 overflow-hidden' },
 })
 export class PipelinesCanvasComponent implements OnInit {

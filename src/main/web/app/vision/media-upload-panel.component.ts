@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   input,
   output,
@@ -118,7 +117,6 @@ import { DetectionOverlayComponent, type Detection } from './detection-overlay.c
     </z-card>
   `,
   providers: [provideIcons({ lucideImage })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MediaUploadPanelComponent {
   readonly title = input.required<string>();

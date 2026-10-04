@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -77,7 +76,6 @@ export interface PrivacyPreferencesModel {
       </div>
     </section>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivacyPreferencesFormComponent implements OnInit {
   readonly #consent = inject(PrivacyConsentService);

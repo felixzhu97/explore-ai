@@ -2,7 +2,6 @@ import {
   Component,
   inject,
   type OnInit,
-  ChangeDetectionStrategy,
   computed,
   signal,
 } from '@angular/core';
@@ -52,7 +51,6 @@ import { ZardButtonComponent } from '../ui/button';
       lucidePanelLeftClose,
     }),
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'relative flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
 export class RagPageComponent implements OnInit {

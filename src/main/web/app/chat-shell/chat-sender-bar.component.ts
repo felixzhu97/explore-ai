@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   input,
   model,
@@ -27,7 +26,6 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block shrink-0' },
 })
 export class ChatSenderBarComponent {

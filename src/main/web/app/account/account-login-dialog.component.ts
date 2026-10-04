@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AccountService } from './account.service';
 import { I18nService } from '../i18n';
@@ -62,7 +62,6 @@ import { ZardDialogRef } from '../ui/dialog';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountLoginDialogComponent {
   readonly #account = inject(AccountService);
