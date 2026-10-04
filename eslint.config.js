@@ -194,6 +194,8 @@ export default defineConfig([
     ignores: ['src/main/web/app/ui/**', '**/index.html'],
     rules: {
       '@angular-eslint/template/attributes-order': 'error',
+      '@angular-eslint/template/cyclomatic-complexity': ['error', { maxComplexity: 12 }],
+      '@angular-eslint/template/no-inline-styles': ['error', { allowBindToStyle: true }],
     },
   },
   {

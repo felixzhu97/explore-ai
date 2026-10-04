@@ -35,6 +35,8 @@ import {
 } from './pipeline-graph';
 import { applyPipelineTemplate } from './pipelines.templates';
 import { ZardButtonComponent } from '../ui/button';
+import { PipelinesGalleryComponent } from './pipelines-gallery.component';
+import { PipelinesToolbarComponent } from './pipelines-toolbar.component';
 
 type WorkspaceMode = 'gallery' | 'edit' | 'use';
 
@@ -53,7 +55,13 @@ const DEFAULT_BRIEF = 'Follow the configured agent pipeline for the user task.';
 
 @Component({
   selector: 'app-pipelines-canvas',
-  imports: [FFlowModule, FormsModule, ZardButtonComponent],
+  imports: [
+    FFlowModule,
+    FormsModule,
+    PipelinesGalleryComponent,
+    PipelinesToolbarComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './pipelines-canvas.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex min-h-0 flex-1 overflow-hidden' },
@@ -412,10 +420,6 @@ export class PipelinesCanvasComponent implements OnInit {
     }
     this.workspaceMode.set('edit');
     this.#cdr.markForCheck();
-  }
-
-  templateOrder(agentTypes: readonly string[]): string {
-    return agentTypes.join(' → ');
   }
 
   run(): void {

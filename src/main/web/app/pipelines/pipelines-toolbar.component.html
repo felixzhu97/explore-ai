@@ -1,0 +1,89 @@
+<div class="flex items-center justify-between gap-2">
+  <div class="min-w-0">
+    <div class="flex flex-wrap items-center gap-2">
+      <span
+        class="rounded-md px-2 py-0.5 text-[11px] font-medium"
+        [class.bg-black/6]="editing()"
+        [class.text-foreground]="editing()"
+        [class.bg-primary/10]="!editing()"
+        [class.text-primary]="!editing()"
+      >
+        {{
+          editing()
+            ? i18n.t().pipelines.templates.editMode
+            : i18n.t().pipelines.templates.useMode
+        }}
+      </span>
+      @if (templateName()) {
+        <span class="truncate text-xs font-medium text-foreground">{{ templateName() }}</span>
+      }
+      <p class="text-xs text-foreground/60">
+        {{
+          editing()
+            ? i18n.t().pipelines.templates.editModeHint
+            : i18n.t().pipelines.templates.useModeHint
+        }}
+      </p>
+    </div>
+  </div>
+  <div class="flex shrink-0 items-center gap-2">
+    <button
+      type="button"
+      z-button
+      zType="ghost"
+      zSize="sm"
+      (click)="back.emit()"
+    >
+      {{ i18n.t().pipelines.templates.backToTemplates }}
+    </button>
+    @if (editing()) {
+      <button
+        type="button"
+        z-button
+        zType="ghost"
+        zSize="sm"
+        (click)="addAgent.emit()"
+      >
+        {{ i18n.t().pipelines.addAgent }}
+      </button>
+      <button
+        type="button"
+        z-button
+        zType="default"
+        zSize="sm"
+        [zDisabled]="isSaving()"
+        (click)="useGraph.emit()"
+      >
+        {{
+          isSaving()
+            ? i18n.t().common.saving
+            : i18n.t().pipelines.templates.useThisGraph
+        }}
+      </button>
+    } @else {
+      <button
+        type="button"
+        z-button
+        zType="ghost"
+        zSize="sm"
+        (click)="editGraph.emit()"
+      >
+        {{ i18n.t().pipelines.templates.editThisGraph }}
+      </button>
+    }
+  </div>
+</div>
+@if (!editing()) {
+  <div class="flex items-center gap-2">
+    <input
+      class="min-w-0 flex-1 rounded-md border border-black/10 bg-surface px-3 py-1.5 text-sm text-foreground outline-none focus:border-black/25"
+      [placeholder]="i18n.t().pipelines.taskPlaceholder"
+      [ngModel]="task()"
+      (ngModelChange)="task.set($event)"
+      (keydown.enter)="run.emit()"
+    />
+    <button type="button" z-button zType="default" zSize="sm" (click)="run.emit()">
+      {{ i18n.t().pipelines.run }}
+    </button>
+  </div>
+}
