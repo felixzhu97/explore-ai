@@ -6,7 +6,12 @@ import {
   ChangeDetectionStrategy,
   ElementRef,
 } from '@angular/core';
-import type { Detection } from '../vision.model';
+
+export interface Detection {
+  className: string;
+  confidence: number;
+  bbox: [number, number, number, number];
+}
 
 @Component({
   selector: 'app-detection-overlay',

@@ -10,14 +10,13 @@ import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePause, lucidePlay } from '@ng-icons/lucide';
 import { I18nService } from '../../../../core/i18n';
-import { TtsService } from '../services/tts.service';
+import { TtsService, type Voice } from '../services/tts.service';
 import { ZardAlertComponent } from '../../../../shared/components/alert';
 import { ZardButtonComponent } from '../../../../shared/components/button';
 import { ZardInputDirective } from '../../../../shared/components/input';
 import { ZardProgressBarComponent } from '../../../../shared/components/progress-bar';
 import { ZardSelectImports } from '../../../../shared/components/select/select.imports';
 import { ZardSliderComponent } from '../../../../shared/components/slider';
-import type { Voice } from '../tts.model';
 
 @Component({
   selector: 'app-tts-page',

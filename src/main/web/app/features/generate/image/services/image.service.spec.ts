@@ -2,8 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ImageZoomService } from '../../../../shared/services/image-zoom.service';
-import { DEFAULT_IMAGE_SIZES } from '../image.model';
-import { ImageService } from './image.service';
+import { DEFAULT_IMAGE_SIZES, ImageService } from './image.service';
 
 describe('ImageService', () => {
   let service: ImageService;

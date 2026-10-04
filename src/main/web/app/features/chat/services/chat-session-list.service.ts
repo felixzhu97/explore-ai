@@ -1,7 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { STORAGE_KEYS } from '../../../core/config/storage-keys';
-import type { SessionList } from '../../../core/layout/services/session-list.token';
-import type { SidebarSession } from '../../../core/layout/sidebar-session.model';
+import type {
+  SessionList,
+  SidebarSession,
+} from '../../../core/layout/services/session-list.token';
 import { ChatService } from './chat.service';
 
 @Injectable()

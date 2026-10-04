@@ -4,7 +4,24 @@ import { Observable, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../../../../core/api.constants';
 import { downloadBlob } from '../../../../shared/utils/download';
 import { DEFAULT_VOICES } from '../tts.constants';
-import type { TtsRequest, Voice } from '../tts.model';
+
+export interface Voice {
+  id: string;
+  name: string;
+  language: string;
+  languageName?: string;
+  gender?: string;
+  provider?: string;
+  isDefault?: boolean;
+}
+
+/** POST /api/audio/speech */
+export interface TtsRequest {
+  text: string;
+  voice?: string;
+  speed?: number;
+  outputFormat?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TtsService {

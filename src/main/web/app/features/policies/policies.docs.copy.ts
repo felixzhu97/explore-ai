@@ -1,4 +1,4 @@
-import type { Language } from '../../core/i18n/translations.types';
+import type { Language } from '../../core/i18n/translations';
 import type { PolicyDocCopy, PolicySlug } from './pages/policies.page.copy';
 
 const EN: Record<PolicySlug, PolicyDocCopy> = {

@@ -1,7 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { McpService } from '../services/mcp.service';
-import type { McpClientStatusResponse, McpHealthResponse, McpTool } from '../mcp.model';
+import {
+  McpService,
+  type McpClientStatusResponse,
+  type McpHealthResponse,
+  type McpTool,
+} from '../services/mcp.service';
 import { ZardButtonComponent } from '../../../shared/components/button';
 import { I18nService } from '../../../core/i18n';
 

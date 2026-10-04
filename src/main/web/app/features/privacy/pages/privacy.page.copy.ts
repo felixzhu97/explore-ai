@@ -1,4 +1,4 @@
-import type { Language } from '../../../core/i18n/translations.types';
+import type { Language } from '../../../core/i18n/translations';
 
 /** Page-only copy — kept out of the global i18n bundle (lazy with /privacy). */
 export interface PrivacyPageCopy {

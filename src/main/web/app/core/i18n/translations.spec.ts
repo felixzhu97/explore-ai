@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { Language, SUPPORTED_LANGUAGES, translations, languageNames } from './i18n.model';
+import { Language, SUPPORTED_LANGUAGES, translations, languageNames } from './translations';
 
-describe('i18n.model', () => {
+describe('translations', () => {
   describe('Language type', () => {
     it('should be a union of valid language codes', () => {
       const validLanguages: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];

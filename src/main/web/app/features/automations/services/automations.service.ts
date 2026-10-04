@@ -2,11 +2,48 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../core/api.constants';
-import type {
-  AutomationRun,
-  AutomationSchedule,
-  AutomationScheduleWriteRequest,
-} from '../automations.model';
+
+export type ScheduleKind = 'CRON' | 'ONCE';
+
+export interface AutomationSchedule {
+  id: string;
+  name: string;
+  scheduleKind: ScheduleKind;
+  cronExpression: string | null;
+  runAt: string | null;
+  timezone: string;
+  enabled: boolean;
+  actionType: string;
+  pipelineTemplateId: string;
+  recipientEmail: string;
+  brief: string;
+  nextRunAt: string;
+  lastRunAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AutomationRun {
+  id: string;
+  scheduleId: string;
+  startedAt: string;
+  finishedAt: string | null;
+  status: string;
+  errorMessage: string | null;
+  resultExcerpt: string | null;
+  emailStatus: string;
+}
+
+export interface AutomationScheduleWriteRequest {
+  name: string;
+  scheduleKind: ScheduleKind;
+  cronExpression?: string | null;
+  runAt?: string | null;
+  timezone: string;
+  pipelineTemplateId: string;
+  recipientEmail: string;
+  brief: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AutomationsService {

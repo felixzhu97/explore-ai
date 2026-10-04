@@ -1,4 +1,4 @@
-import type { Translations } from '../i18n/translations.types';
+import type { Translations } from '../i18n/translations';
 import { FEATURE_FLAG_KEYS, type FeatureFlagKey } from './feature-flag-keys';
 import type { FeatureFlagService } from '../services/feature-flag.service';
 

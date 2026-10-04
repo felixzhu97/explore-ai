@@ -3,7 +3,33 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../../../core/api.constants';
 import { I18nService } from '../../../core/i18n';
-import type { Skill, SkillTemplate, SkillWriteRequest } from '../skills.model';
+
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  allowedTools: string[];
+  enabled: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SkillTemplate {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  allowedTools: string[];
+  nameAliases?: string[];
+}
+
+export interface SkillWriteRequest {
+  name: string;
+  description: string;
+  instructions: string;
+  allowedTools: string[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class SkillsService {

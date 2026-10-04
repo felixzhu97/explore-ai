@@ -12,8 +12,8 @@ import { NxPrompt } from 'ng-zorro-x/prompts';
 import {
   ChatBubbleFooterLabels,
   ChatBubbleListComponent,
+  ChatMessageView,
 } from './chat-bubble-list.component';
-import { ChatMessageView } from './chat-bubble.model';
 import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
 
 @Component({

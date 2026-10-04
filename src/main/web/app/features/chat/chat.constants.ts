@@ -1,4 +1,4 @@
-import type { ChatModel, ChatProvider } from './chat.model';
+import type { ChatModel, ChatProvider } from './services/chat.service';
 
 export const DEFAULT_PROVIDERS: ChatProvider[] = [
   {

@@ -17,8 +17,7 @@ import { SessionItemComponent } from './components/session-item/session-item.com
 import { SidebarUserMenuComponent } from './components/sidebar-user-menu/sidebar-user-menu.component';
 import { SidebarMoreMenuComponent } from './components/sidebar-more-menu/sidebar-more-menu.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { SESSION_LIST } from './services/session-list.token';
-import type { SidebarSession } from './sidebar-session.model';
+import { SESSION_LIST, type SidebarSession } from './services/session-list.token';
 import {
   isNavTabEnabled,
   MODULE_NAV_TABS,

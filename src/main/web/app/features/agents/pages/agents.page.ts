@@ -9,9 +9,12 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
 import { I18nService } from '../../../core/i18n';
-import { AgentsService } from '../services/agents.service';
-import type { SavedAgent, SavedAgentWriteRequest } from '../agents.model';
-import type { AgentType } from '../../pipelines/pipelines.model';
+import {
+  AgentsService,
+  type SavedAgent,
+  type SavedAgentWriteRequest,
+} from '../services/agents.service';
+import type { AgentType } from '../../pipelines/services/pipelines.service';
 import { ZardButtonComponent } from '../../../shared/components/button';
 
 const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;

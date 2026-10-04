@@ -11,8 +11,11 @@ import {
   type MetricsKpi,
 } from '../components/metrics-kpi-cards.component';
 import { MetricsDrilldownTableComponent } from '../components/metrics-drilldown-table.component';
-import type { InvocationEvent, MetricsRange } from '../metrics.model';
-import { MetricsService } from '../services/metrics.service';
+import {
+  MetricsService,
+  type InvocationEvent,
+  type MetricsRange,
+} from '../services/metrics.service';
 
 @Component({
   selector: 'app-metrics-overview-page',

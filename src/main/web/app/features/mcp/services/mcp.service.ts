@@ -2,12 +2,28 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../core/api.constants';
-import type {
-  McpChatResponse,
-  McpClientStatusResponse,
-  McpHealthResponse,
-  McpTool,
-} from '../mcp.model';
+
+export interface McpHealthResponse {
+  status: string;
+  server: string;
+  version: string;
+  protocol: string;
+}
+
+export interface McpClientStatusResponse {
+  status: string;
+  registeredTools: number;
+  connectedServers: string[];
+}
+
+export interface McpTool {
+  name: string;
+  description: string;
+}
+
+export interface McpChatResponse {
+  response: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class McpService {

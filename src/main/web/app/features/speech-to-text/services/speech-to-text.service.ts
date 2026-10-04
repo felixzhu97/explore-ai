@@ -1,6 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import type { SpeechToTextConnectionState, TranscriptionMessage } from '../speech-to-text.model';
+
+export type SpeechToTextConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
+
+export interface TranscriptionMessage {
+  type?: string;
+  text?: string;
+  error?: string;
+  message?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class SpeechToTextService {
