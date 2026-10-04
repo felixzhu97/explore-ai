@@ -142,9 +142,9 @@ export class ChatService {
     this.#getModels(provider).subscribe({
       next: (data) => {
         this.models.set(data);
-        if (data.length > 0) {
-          const defaultModel =
-            data.find(m => m.name.includes('mini') || m.name.includes('flash')) || data[0];
+        const defaultModel =
+          data.find(m => m.name.includes('mini') || m.name.includes('flash')) ?? data[0];
+        if (defaultModel) {
           this.selectedModel.set(defaultModel.name);
         }
       },
@@ -340,9 +340,9 @@ export class ChatService {
       next: () => {
         this.sessions.update(list => list.filter(s => s.sessionId !== sessionId));
         if (this.activeSessionId() === sessionId) {
-          const remaining = this.sessions();
-          if (remaining.length > 0) {
-            this.selectSession(remaining[0].sessionId);
+          const [next] = this.sessions();
+          if (next) {
+            this.selectSession(next.sessionId);
           } else {
             this.#clearActiveChat();
           }
@@ -494,7 +494,7 @@ export class ChatService {
   }
 
   #currentChatPath(): string {
-    return this.#router.url.split('?')[0];
+    return this.#router.url.split('?')[0] ?? '';
   }
 
   #shouldExposeSessionInUrl(sessionId: string): boolean {

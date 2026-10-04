@@ -138,7 +138,7 @@ export class SidebarMoreMenuComponent {
   });
 
   isTabActive(path: string): boolean {
-    const url = this.#currentUrl().split('?')[0];
+    const [url = ''] = this.#currentUrl().split('?');
     return url === path || url.startsWith(`${path}/`);
   }
 

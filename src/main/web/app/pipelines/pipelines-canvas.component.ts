@@ -577,15 +577,9 @@ export class PipelinesCanvasComponent implements OnInit {
 
   #findChainTailId(): string | null {
     const nodes = this.nodes();
-    if (nodes.length === 0) {
-      return null;
-    }
     const sources = new Set(this.connections().map(edge => edge.sourceNodeId));
-    const tails = nodes.filter(node => !sources.has(node.id));
-    if (tails.length > 0) {
-      return tails[tails.length - 1].id;
-    }
-    return nodes[nodes.length - 1].id;
+    const tail = nodes.filter(node => !sources.has(node.id)).at(-1) ?? nodes.at(-1);
+    return tail?.id ?? null;
   }
 
   #emitGraph(): void {

@@ -253,8 +253,8 @@ export class ZardDropdownComponent implements OnDestroy {
 
   private selectFocusedItem(items: HTMLElement[]) {
     const currentIndex = this.focusedIndex();
-    if (currentIndex >= 0 && currentIndex < items.length) {
-      const item = items[currentIndex];
+    const item = items[currentIndex];
+    if (item) {
       item.click();
     }
   }

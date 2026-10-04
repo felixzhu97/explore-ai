@@ -8,17 +8,11 @@ import { type UrlMatchResult, type UrlMatcher, type UrlSegment } from '@angular/
 export const chatRouteMatcher: UrlMatcher = (
   segments: UrlSegment[],
 ): UrlMatchResult | null => {
-  if (segments.length === 0 || segments[0].path !== 'chat') {
+  const [first, sessionId, ...rest] = segments;
+  if (first?.path !== 'chat' || rest.length > 0) {
     return null;
   }
-  if (segments.length === 1) {
-    return { consumed: segments };
-  }
-  if (segments.length === 2) {
-    return {
-      consumed: segments,
-      posParams: { sessionId: segments[1] },
-    };
-  }
-  return null;
+  return sessionId
+    ? { consumed: segments, posParams: { sessionId } }
+    : { consumed: segments };
 };

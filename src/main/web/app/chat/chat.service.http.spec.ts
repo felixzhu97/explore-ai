@@ -101,13 +101,13 @@ describe('ChatService http flows', () => {
 
     expect(service.providers()).toHaveLength(1);
     expect(service.selectedProvider()).toBe('openai');
-    expect(service.models()[0].name).toBe('deepseek-v4-flash');
+    expect(service.models()[0]?.name).toBe('deepseek-v4-flash');
   });
 
   it('should fallback providers when api fails', () => {
     service.loadProviders();
     httpMock.expectOne(`${API_BASE_URL}/chat/providers`).error(new ProgressEvent('error'));
-    expect(service.providers()[0].name).toBe('openai');
+    expect(service.providers()[0]?.name).toBe('openai');
     expect(service.selectedModel()).toBe('deepseek-v4-flash');
   });
 
@@ -145,7 +145,7 @@ describe('ChatService http flows', () => {
     expect(service.isLoadingSession()).toBe(true);
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([]);
     expect(service.activeSessionId()).toBe('s1');
-    expect(service.sessions()[0].sessionId).toBe('s1');
+    expect(service.sessions()[0]?.sessionId).toBe('s1');
     expect(service.isLoadingSession()).toBe(false);
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/s1');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/s1', expect.anything());
@@ -368,7 +368,7 @@ describe('ChatService http flows', () => {
       { id: 'm2', role: 'user', content: 'url', timestamp: '2026-07-01T00:00:00Z' },
     ]);
     expect(service.activeSessionId()).toBe('s2');
-    expect(service.messages()[0].content).toBe('url');
+    expect(service.messages()[0]?.content).toBe('url');
     expect(service.isLoadingSession()).toBe(false);
   });
 
@@ -391,7 +391,7 @@ describe('ChatService http flows', () => {
     second.flush([
       { id: 'new', role: 'user', content: 'fresh', timestamp: '2026-07-02T00:00:00Z' },
     ]);
-    expect(service.messages()[0].content).toBe('fresh');
+    expect(service.messages()[0]?.content).toBe('fresh');
     expect(service.isLoadingSession()).toBe(false);
     expect(navigateSpy).toHaveBeenCalledWith('/chat/s2', { replaceUrl: true });
   });
@@ -442,9 +442,9 @@ describe('ChatService http flows', () => {
     ]);
 
     expect(service.messages()).toHaveLength(2);
-    expect(service.messages()[0].id).toBe('u1');
-    expect(service.messages()[1].id).toBe('a-sources');
-    expect(service.messages()[1].sources?.length).toBe(1);
+    expect(service.messages()[0]?.id).toBe('u1');
+    expect(service.messages()[1]?.id).toBe('a-sources');
+    expect(service.messages()[1]?.sources?.length).toBe(1);
   });
 
   it('should keep bare url when selecting empty owned session', async () => {
@@ -653,7 +653,7 @@ describe('ChatService http flows', () => {
     expect(service.isLoading()).toBe(false);
     expect(service.streamingMessageId()).toBeNull();
     expect(service.messages()).toHaveLength(1);
-    expect(service.messages()[0].role).toBe('user');
+    expect(service.messages()[0]?.role).toBe('user');
   });
 
   it('should remove empty assistant placeholder when stream completes with no content', () => {
@@ -697,7 +697,7 @@ describe('ChatService http flows', () => {
     expect(service.streamingMessageId()).toBeNull();
     expect(service.messages().some(m => m.role === 'assistant' && m.content === '')).toBe(false);
     expect(service.messages()).toHaveLength(1);
-    expect(service.messages()[0].role).toBe('user');
+    expect(service.messages()[0]?.role).toBe('user');
 
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([
       {

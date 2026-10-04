@@ -21,7 +21,7 @@ describe('AgentsService', () => {
   it('should list saved agents from api', () => {
     service.listSavedAgents().subscribe((agents) => {
       expect(agents).toHaveLength(1);
-      expect(agents[0].typeKey).toBe('researcher');
+      expect(agents[0]?.typeKey).toBe('researcher');
     });
 
     const req = httpMock.expectOne(savedAgentsBase);

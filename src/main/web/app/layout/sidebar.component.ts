@@ -117,7 +117,7 @@ export class AppSidebarComponent implements OnInit {
   readonly navIconFn = (key: string): SafeHtml => this.getIcon(key);
 
   isNavActive(path: string): boolean {
-    const url = this.#currentUrl().split('?')[0];
+    const [url = ''] = this.#currentUrl().split('?');
     return url === path || url.startsWith(`${path}/`);
   }
 

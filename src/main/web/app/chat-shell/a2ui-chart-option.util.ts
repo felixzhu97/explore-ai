@@ -128,7 +128,7 @@ function valueAxis(extra: Record<string, unknown> = {}) {
 }
 
 function seriesColor(index: number): string {
-  return COLOR.series[index % COLOR.series.length];
+  return COLOR.series[index % COLOR.series.length] ?? COLOR.series[0];
 }
 
 function simpleCategoryOption(
@@ -1007,8 +1007,9 @@ function resolveCandles(
     return { categories, candles: fromCandles };
   }
   // One series with flat OHLC groups, or one candle per series values[0..3]
-  if (input.series?.length === 1 && input.series[0].values.length >= 4) {
-    const values = input.series[0].values;
+  const onlySeries = input.series?.length === 1 ? input.series[0] : undefined;
+  if (onlySeries && onlySeries.values.length >= 4) {
+    const values = onlySeries.values;
     const categoryCount = input.categories?.length ?? 0;
     if (values.length % 4 === 0 && categoryCount === values.length / 4) {
       const candles: ChartCandle[] = [];
@@ -1138,9 +1139,9 @@ function normalizeRiverTime(time: string): string {
     return `${trimmed}-01`;
   }
   // 2024年1月 → YYYY-MM-01; bare 1月 stays category
-  const cn = trimmed.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月$/);
-  if (cn) {
-    return `${cn[1]}-${cn[2].padStart(2, '0')}-01`;
+  const [, year, month] = trimmed.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月$/) ?? [];
+  if (year && month) {
+    return `${year}-${month.padStart(2, '0')}-01`;
   }
   return trimmed;
 }
@@ -1152,13 +1153,13 @@ function monthIndexFromLabel(time: string): number | null {
     const month = Number(bare[1]);
     return month >= 1 && month <= 12 ? month : null;
   }
-  const en = trimmed.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*$/i);
-  if (en) {
+  const [, monthName] = trimmed.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*$/i) ?? [];
+  if (monthName) {
     const map: Record<string, number> = {
       jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
       jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
     };
-    return map[en[1].slice(0, 3).toLowerCase()] ?? null;
+    return map[monthName.slice(0, 3).toLowerCase()] ?? null;
   }
   return null;
 }

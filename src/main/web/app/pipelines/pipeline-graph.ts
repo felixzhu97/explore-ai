@@ -119,7 +119,10 @@ function hasOrphan(ids: string[], outgoing: Map<string, Set<string>>): boolean {
       undirected.get(target)!.add(source);
     }
   }
-  const start = ids[0];
+  const [start] = ids;
+  if (start === undefined) {
+    return false;
+  }
   const visited = new Set<string>([start]);
   const queue = [start];
   while (queue.length > 0) {

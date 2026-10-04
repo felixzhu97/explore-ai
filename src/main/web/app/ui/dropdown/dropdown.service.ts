@@ -235,15 +235,14 @@ export class ZardDropdownService {
 
   private selectFocusedItem(items: HTMLElement[]) {
     const currentIndex = this.focusedIndex();
-    if (currentIndex >= 0 && currentIndex < items.length) {
-      const item = items[currentIndex];
+    const item = items[currentIndex];
+    if (item) {
       item.click();
     }
   }
 
   private updateItemFocus(items: HTMLElement[], focusedIndex: number) {
-    for (let index = 0; index < items.length; index++) {
-      const item = items[index];
+    for (const [index, item] of items.entries()) {
       if (index === focusedIndex) {
         item.focus();
         item.dataset['highlighted'] = '';

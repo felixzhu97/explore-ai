@@ -55,12 +55,16 @@ export function applyPipelineTemplate(
   }));
 
   const connections: PipelineConnection[] = [];
-  for (let i = 0; i < nodes.length - 1; i += 1) {
-    connections.push({
-      id: `edge-${idSeed + i}`,
-      sourceNodeId: nodes[i].id,
-      targetNodeId: nodes[i + 1].id,
-    });
+  let sourceNodeId: string | undefined;
+  for (const node of nodes) {
+    if (sourceNodeId) {
+      connections.push({
+        id: `edge-${idSeed + connections.length}`,
+        sourceNodeId,
+        targetNodeId: node.id,
+      });
+    }
+    sourceNodeId = node.id;
   }
 
   return {

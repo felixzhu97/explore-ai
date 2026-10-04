@@ -94,7 +94,7 @@ describe('buildChartOption specialized types', () => {
     expect(option).toMatchObject({
       series: [{ type: 'scatter' }],
     });
-    expect((option!['series'] as { data: unknown[] }[])[0].data).toHaveLength(2);
+    expect((option!['series'] as { data: unknown[] }[])[0]?.data).toHaveLength(2);
   });
 
   it('should map radar with indicators and series', () => {

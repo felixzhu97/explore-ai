@@ -38,7 +38,7 @@ describe('McpService', () => {
   it('should list tools', () => {
     service.listTools().subscribe((tools) => {
       expect(tools).toHaveLength(1);
-      expect(tools[0].name).toBe('get_weather');
+      expect(tools[0]?.name).toBe('get_weather');
     });
 
     const req = httpMock.expectOne('/api/mcp/client/tools');

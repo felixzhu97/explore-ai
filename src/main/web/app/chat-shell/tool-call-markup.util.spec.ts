@@ -57,8 +57,8 @@ describe('toMinimalToolSteps', () => {
       parseDsmlToolInvocations(FULLWIDTH),
       'success',
     );
-    expect(steps[0].label).toMatch(/^搜索 · Anthropic/);
-    expect(steps[0].label.length).toBeLessThanOrEqual(3 + 3 + 42 + 1);
-    expect(steps[0].status).toBe('success');
+    expect(steps[0]?.label).toMatch(/^搜索 · Anthropic/);
+    expect(steps[0]?.label.length).toBeLessThanOrEqual(3 + 3 + 42 + 1);
+    expect(steps[0]?.status).toBe('success');
   });
 });

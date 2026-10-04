@@ -559,8 +559,8 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
 
   private selectFocusedItem(items: HTMLElement[]) {
     const currentIndex = this.focusedIndex();
-    if (currentIndex >= 0 && currentIndex < items.length) {
-      const item = items[currentIndex];
+    const item = items[currentIndex];
+    if (item) {
       const value = item.getAttribute('value');
       const label = item.textContent?.trim() ?? '';
 
@@ -589,8 +589,7 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
   }
 
   private updateItemFocus(items: HTMLElement[], focusedIndex: number) {
-    for (let index = 0; index < items.length; index++) {
-      const item = items[index];
+    for (const [index, item] of items.entries()) {
       if (index === focusedIndex) {
         item.focus();
         item.setAttribute('aria-selected', 'true');

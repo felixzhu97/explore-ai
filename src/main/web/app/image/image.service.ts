@@ -38,21 +38,23 @@ export interface ImageCatalogResponse {
 }
 
 export function parseImageSizeLabel(label: string): ImageSize | null {
-  const match = /^(\d+)x(\d+)$/.exec(label.trim());
-  if (!match) {
+  const [, width, height] = /^(\d+)x(\d+)$/.exec(label.trim()) ?? [];
+  if (!width || !height) {
     return null;
   }
   return {
     label,
-    width: Number.parseInt(match[1], 10),
-    height: Number.parseInt(match[2], 10),
+    width: Number.parseInt(width, 10),
+    height: Number.parseInt(height, 10),
   };
 }
+
+const DEFAULT_IMAGE_SIZE: ImageSize = { label: '1024x1024', width: 1024, height: 1024 };
 
 export const DEFAULT_IMAGE_SIZES: ImageSize[] = [
   { label: '512x512', width: 512, height: 512 },
   { label: '768x768', width: 768, height: 768 },
-  { label: '1024x1024', width: 1024, height: 1024 },
+  DEFAULT_IMAGE_SIZE,
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -69,7 +71,7 @@ export class ImageService {
   readonly sizes = signal<ImageSize[]>(DEFAULT_IMAGE_SIZES);
   readonly selectedModel = signal<string | undefined>(undefined);
   readonly selectedQuality = signal<string | undefined>(undefined);
-  readonly selectedSize = signal<ImageSize>(DEFAULT_IMAGE_SIZES[2]);
+  readonly selectedSize = signal<ImageSize>(DEFAULT_IMAGE_SIZE);
 
   readonly #imageSource = signal<'url' | 'base64' | null>(null);
 
@@ -93,9 +95,10 @@ export class ImageService {
         const parsedSizes = catalog.sizes
           .map(parseImageSizeLabel)
           .filter((size): size is ImageSize => size !== null);
-        if (parsedSizes.length > 0) {
+        const largest = parsedSizes.at(-1);
+        if (largest) {
           this.sizes.set(parsedSizes);
-          this.selectedSize.set(parsedSizes[parsedSizes.length - 1]);
+          this.selectedSize.set(largest);
         }
       },
     });
