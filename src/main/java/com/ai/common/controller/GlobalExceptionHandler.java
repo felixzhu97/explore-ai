@@ -6,7 +6,7 @@ import com.ai.automation.domain.exception.AutomationScheduleNotFoundException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.controller.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;

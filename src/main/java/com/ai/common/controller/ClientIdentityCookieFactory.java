@@ -1,5 +1,6 @@
 package com.ai.common.controller;
 
+import com.ai.common.infra.config.ClientIdentityProperties;
 import java.time.Duration;
 import java.util.UUID;
 import org.springframework.http.ResponseCookie;

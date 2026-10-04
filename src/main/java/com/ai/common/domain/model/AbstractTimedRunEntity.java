@@ -1,7 +1,6 @@
 package com.ai.common.domain.model;
 
-import com.ai.base.domain.model.AbstractImmutable;
-import com.ai.base.domain.vo.AbstractUuidId;
+import com.ai.common.domain.vo.AbstractUuidId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -19,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId>
-    extends AbstractImmutable<IdT> {
+    extends AbstractImmutableEntity<IdT> {
 
   @Column protected Instant finishedAt;
 

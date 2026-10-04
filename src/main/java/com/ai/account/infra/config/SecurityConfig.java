@@ -3,7 +3,7 @@ package com.ai.account.infra.config;
 import com.ai.account.infra.oauth.AccountLogoutHandler;
 import com.ai.account.infra.oauth.OAuthLoginFailureHandler;
 import com.ai.account.infra.oauth.OAuthLoginSuccessHandler;
-import com.ai.common.controller.CsrfProtectionFilter;
+import com.ai.common.controller.filter.CsrfProtectionFilter;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

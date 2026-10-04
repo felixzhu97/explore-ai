@@ -1,7 +1,6 @@
 package com.ai.common.domain.model;
 
-import com.ai.base.domain.model.AbstractEntity;
-import com.ai.base.domain.vo.AbstractUuidId;
+import com.ai.common.domain.vo.AbstractUuidId;
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import jakarta.persistence.Column;

@@ -1,6 +1,6 @@
 package com.ai.common.domain.repository;
 
-import com.ai.base.domain.vo.AbstractUuidId;
+import com.ai.common.domain.vo.AbstractUuidId;
 import java.util.List;
 import java.util.Optional;
 

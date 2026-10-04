@@ -1,0 +1,21 @@
+package com.ai.common.infra.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+/** Global JPA repository scanning. Schema is managed by Liquibase on startup. */
+@Configuration
+@EnableJpaRepositories(
+    basePackages = {
+      "com.ai.rag.domain.repository",
+      "com.ai.rag.infra.storage",
+      "com.ai.chat.infra.persistence",
+      "com.ai.skill.infra.persistence",
+      "com.ai.pipeline.infra.persistence",
+      "com.ai.automation.infra.persistence",
+      "com.ai.account.infra.persistence",
+      "com.ai.metrics.infra.persistence"
+    })
+@EnableTransactionManagement
+public class JpaRepositoriesConfig {}

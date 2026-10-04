@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AiMcpServerService Tests")
+@DisplayName("McpServerToolsProvider Tests")
 class AiMcpServerServiceTest {
 
   @Mock private WeatherTools weatherTools;
@@ -28,11 +28,12 @@ class AiMcpServerServiceTest {
   @Mock private ChatService chatService;
 
   private final RagProperties ragProperties = new RagProperties();
-  private AiMcpServerService service;
+  private McpServerToolsProvider service;
 
   @BeforeEach
   void setUp() {
-    service = new AiMcpServerService(weatherTools, documentSearchTool, chatService, ragProperties);
+    service =
+        new McpServerToolsProvider(weatherTools, documentSearchTool, chatService, ragProperties);
   }
 
   @Nested

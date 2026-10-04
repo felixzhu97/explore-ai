@@ -1,7 +1,6 @@
 package com.ai.common.domain.model;
 
-import com.ai.base.domain.model.AbstractImmutable;
-import com.ai.base.domain.vo.AbstractUuidId;
+import com.ai.common.domain.vo.AbstractUuidId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -16,7 +15,7 @@ import lombok.NoArgsConstructor;
     column = @Column(name = "occurred_at", nullable = false, updatable = false))
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractAppendOnlyEvent<IdT extends AbstractUuidId>
-    extends AbstractImmutable<IdT> {
+    extends AbstractImmutableEntity<IdT> {
 
   protected AbstractAppendOnlyEvent(IdT id, Instant occurredAt) {
     super(id, occurredAt);

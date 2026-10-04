@@ -23,8 +23,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@EntityScan(
-    basePackages = {"com.ai.automation.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
+@EntityScan(basePackages = {"com.ai.automation.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(
     basePackageClasses = {
       SpringDataAutomationScheduleRepository.class,

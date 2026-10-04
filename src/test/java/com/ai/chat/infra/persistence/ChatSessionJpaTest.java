@@ -18,7 +18,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.chat.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
+@EntityScan(basePackages = {"com.ai.chat.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataChatSessionRepository.class)
 @Import({JpaChatSessionRepository.class, OwnerPartitionScope.class})
 class ChatSessionJpaTest extends AbstractDataJpaTest {

@@ -121,10 +121,10 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
-| Entity ID | 实体标识 | Typed UUID wrapper for `@EmbeddedId` | Value Object | `EntityId`, `AbstractUuidId` | Package `com.ai.base.domain.vo` |
+| Entity ID | 实体标识 | Typed UUID wrapper for `@EmbeddedId` | Value Object | `EntityId`, `AbstractUuidId` | Package `com.ai.common.domain.vo` |
 | Abstract Entity | 可变实体基类 | JPA `@MappedSuperclass` with id, audit timestamps, optimistic `@Version` | Mapped Superclass | `AbstractEntity<IdT>` | Subclasses call `touchUpdatedAt()` on mutation |
-| Abstract Immutable | 不可变记录基类 | Append-only rows: id + `created_at` only | Mapped Superclass | `AbstractImmutable<IdT>` | Used for event streams |
-| Base JPA Config | JPA 内核配置 | `@EnableJpaAuditing`, repository scan | Configuration | `BaseJpaConfig` | Replaces per-module duplicate JPA config |
+| Abstract Immutable | 不可变记录基类 | Append-only rows: id + `created_at` only | Mapped Superclass | `AbstractImmutableEntity<IdT>` | Used for event streams |
+| Base JPA Config | JPA 内核配置 | `@EnableJpaAuditing`, repository scan | Configuration | `JpaRepositoriesConfig` | Replaces per-module duplicate JPA config |
 | Owner-Keyed Entity | 归属键实体基类 | Rows partitioned by `owner_key` | Mapped Superclass | `AbstractOwnerKeyedEntity<IdT>` | `belongsToClient`, `rebindOwnerKey` |
 | Owner Partition Filter | 归属分区过滤器 | Hibernate filter limiting queries and loads by id to one Owner Key | Persistence | `ownerPartition` (`OwnerPartition`), `OwnerPartitionScope` | Enabled per adapter call inside a transaction; background jobs stay unfiltered |
 | Named Owner Entity | 命名归属实体 | Owner-keyed row with validated `name` | Mapped Superclass | `AbstractNamedOwnerEntity<IdT>` | Max 120 chars via `DomainStrings` |
@@ -360,11 +360,11 @@ Package: `com.ai.mcp` (Server + Client).
 
 | Preferred Term (English) | 中文        | Definition                                    | Type              | Code Mapping                         | Notes                          |
 | ------------------------ | --------- | --------------------------------------------- | ----------------- | ------------------------------------ | ------------------------------ |
-| MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `AiMcpServerService`                 | Model Context Protocol         |
+| MCP Server               | MCP 服务端   | Expose AI platform capabilities externally    | Service           | `McpServerToolsProvider`                 | Model Context Protocol         |
 | MCP Client               | MCP 客户端   | Connect to and invoke external MCP services   | Service           | `AiMcpClientService`                 | Registers external tools       |
 | MCP Tool                 | MCP 工具    | Callable tool under MCP protocol              | Technical         | `AiMcpClientService.registerTools()` | —                              |
 | MCP Tool Definition      | MCP 工具定义  | Name and description of an MCP tool           | Value Object      | `McpToolDefinition`                  | Registered by Client           |
-| MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | Managed by `McpSessionManager` |
+| MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | Managed by `McpSessionRegistry` |
 | MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | —                              |
 | MCP Chat                 | MCP 对话    | AI conversation initiated via MCP Client      | Use Case Behavior | `McpClientController.chat()`         | —                              |
 
@@ -488,7 +488,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Tool Callback                        | 工具回调    | Spring AI mechanism for LLM-initiated tool invocation      | Technical | `ToolCallback`, `McpToolCallbackRegistry`     | Bridges LLM and Tools               |
 | Advisor                              | 顾问      | Interceptor/enhancer in the ChatClient call chain          | Technical | Spring AI Advisors                            | e.g. structured output              |
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatService`                           | Ollama qwen3.5 / qwen3-vl; see Appendix D **Vision Encoder** |
-| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `AiMcpServerService`                          | Anthropic-initiated standard        |
+| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `McpServerToolsProvider`                          | Anthropic-initiated standard        |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. business-analyst, market-analyst, developer |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `LocalizedRagPromptBuilder`, `RagChatService` | Reduces unsupported claims          |

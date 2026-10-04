@@ -8,7 +8,7 @@ import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceCatalog;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.domain.vo.VoiceSelection;
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;

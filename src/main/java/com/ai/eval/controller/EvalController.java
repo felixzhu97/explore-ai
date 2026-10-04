@@ -1,6 +1,6 @@
 package com.ai.eval.controller;
 
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.eval.controller.dto.EvaluationRequest;
 import com.ai.eval.controller.dto.EvaluationResponse;
 import com.ai.eval.domain.model.ChatEvaluationResult;

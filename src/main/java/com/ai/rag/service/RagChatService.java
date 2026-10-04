@@ -1,10 +1,10 @@
 package com.ai.rag.service;
 
 import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.common.util.LogSanitizer;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;

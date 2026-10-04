@@ -3,7 +3,7 @@ package com.ai.rag.infra.vector;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
-import com.ai.rag.domain.util.VectorSimilarity;
+import com.ai.rag.domain.service.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package com.ai.automation.infra.schedule;
 
-import com.ai.automation.service.AutomationProperties;
+import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.automation.service.DueAutomationRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

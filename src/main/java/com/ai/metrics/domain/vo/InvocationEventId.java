@@ -1,6 +1,6 @@
 package com.ai.metrics.domain.vo;
 
-import com.ai.base.domain.vo.AbstractUuidId;
+import com.ai.common.domain.vo.AbstractUuidId;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

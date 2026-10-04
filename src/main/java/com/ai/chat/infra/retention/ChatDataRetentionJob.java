@@ -4,7 +4,7 @@ import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Instant;
 import java.util.List;
