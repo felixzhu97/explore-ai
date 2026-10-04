@@ -167,8 +167,12 @@ public class RagChatService {
     var advisorBuilder =
         RetrievalAugmentationAdvisor.builder().documentRetriever(documentRetriever);
     if (withMemory) {
+      // The memory advisor rejects calls without a conversation id, which this call never has.
+      ChatClient compressionClient = chatClientProvider.createBareStateless(options);
       advisorBuilder.queryTransformers(
-          CompressionQueryTransformer.builder().chatClientBuilder(chatClient.mutate()).build());
+          CompressionQueryTransformer.builder()
+              .chatClientBuilder(compressionClient.mutate())
+              .build());
     }
 
     var promptSpec =
