@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,6 +98,52 @@ class H2SpringAiVectorStoreTest {
   }
 
   @Test
+  @DisplayName("should fall back to opening chunks when no selected chunk passes the threshold")
+  void shouldFallBackToOpeningChunksWhenNoSelectedChunkPassesTheThreshold() {
+    float[] query = new float[] {1f, 0f};
+    float[] unrelated = new float[] {0f, 1f};
+    UUID docId = UUID.randomUUID();
+    when(embeddingRepository.embed("What is this about?")).thenReturn(query);
+    when(chunkSearchRepository.search(query, 3, OWNER, List.of(docId)))
+        .thenReturn(List.of(chunk(docId, "middle", unrelated)));
+    when(chunkSearchRepository.findLeadingChunks(OWNER, List.of(docId), 3))
+        .thenReturn(List.of(chunk(docId, "abstract", unrelated)));
+
+    List<Document> docs =
+        vectorStore.similaritySearch(
+            SearchRequest.builder()
+                .query("What is this about?")
+                .topK(3)
+                .similarityThreshold(0.5)
+                .filterExpression(ownerAndDocumentFilter(docId))
+                .build());
+
+    assertThat(docs).extracting(Document::getText).containsExactly("abstract");
+    assertThat(docs.getFirst().getScore()).isEqualTo(0.0);
+  }
+
+  @Test
+  @DisplayName("should not fall back when no documents are selected")
+  void shouldNotFallBackWhenNoDocumentsAreSelected() {
+    float[] query = new float[] {1f, 0f};
+    when(embeddingRepository.embed("What is this about?")).thenReturn(query);
+    when(chunkSearchRepository.search(query, 3, OWNER, List.of()))
+        .thenReturn(List.of(chunk(UUID.randomUUID(), "middle", new float[] {0f, 1f})));
+
+    List<Document> docs =
+        vectorStore.similaritySearch(
+            SearchRequest.builder()
+                .query("What is this about?")
+                .topK(3)
+                .similarityThreshold(0.5)
+                .filterExpression(ownerFilter().build())
+                .build());
+
+    assertThat(docs).isEmpty();
+    verify(chunkSearchRepository, never()).findLeadingChunks(any(), any(), anyInt());
+  }
+
+  @Test
   @DisplayName("should return nothing without searching when the filter has no owner")
   void shouldReturnNothingWithoutSearchingWhenTheFilterHasNoOwner() {
     var documentOnly =
@@ -115,6 +163,14 @@ class H2SpringAiVectorStoreTest {
 
   private static FilterExpressionBuilder.Op ownerFilter() {
     return new FilterExpressionBuilder().eq(H2SpringAiVectorStore.OWNER_KEY_METADATA_KEY, OWNER);
+  }
+
+  private static Filter.Expression ownerAndDocumentFilter(UUID documentId) {
+    FilterExpressionBuilder b = new FilterExpressionBuilder();
+    return b.and(
+            ownerFilter(),
+            b.in(H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY, List.of(documentId.toString())))
+        .build();
   }
 
   private static DocumentChunk chunk(UUID documentId, String content, float[] embedding) {
