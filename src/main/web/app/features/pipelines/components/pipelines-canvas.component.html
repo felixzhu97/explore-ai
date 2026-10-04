@@ -13,8 +13,8 @@
             >
               {{
                 isEditMode()
-                  ? i18n.t().pipelines.pipeline.templates.editMode
-                  : i18n.t().pipelines.pipeline.templates.useMode
+                  ? i18n.t().pipelines.templates.editMode
+                  : i18n.t().pipelines.templates.useMode
               }}
             </span>
             @if (activeTemplateName()) {
@@ -23,8 +23,8 @@
             <p class="text-xs text-foreground/60">
               {{
                 isEditMode()
-                  ? i18n.t().pipelines.pipeline.templates.editModeHint
-                  : i18n.t().pipelines.pipeline.templates.useModeHint
+                  ? i18n.t().pipelines.templates.editModeHint
+                  : i18n.t().pipelines.templates.useModeHint
               }}
             </p>
           </div>
@@ -37,7 +37,7 @@
             zSize="sm"
             (click)="backToGallery()"
           >
-            {{ i18n.t().pipelines.pipeline.templates.backToTemplates }}
+            {{ i18n.t().pipelines.templates.backToTemplates }}
           </button>
           @if (isEditMode()) {
             <button
@@ -47,7 +47,7 @@
               zSize="sm"
               (click)="openAgentPicker()"
             >
-              {{ i18n.t().pipelines.pipeline.addAgent }}
+              {{ i18n.t().pipelines.addAgent }}
             </button>
             <button
               type="button"
@@ -59,8 +59,8 @@
             >
               {{
                 isSaving()
-                  ? i18n.t().pipelines.pipeline.templates.saving
-                  : i18n.t().pipelines.pipeline.templates.useThisGraph
+                  ? i18n.t().common.saving
+                  : i18n.t().pipelines.templates.useThisGraph
               }}
             </button>
           }
@@ -72,7 +72,7 @@
               zSize="sm"
               (click)="switchToEdit()"
             >
-              {{ i18n.t().pipelines.pipeline.templates.editThisGraph }}
+              {{ i18n.t().pipelines.templates.editThisGraph }}
             </button>
           }
         </div>
@@ -81,13 +81,13 @@
         <div class="flex items-center gap-2">
           <input
             class="min-w-0 flex-1 rounded-md border border-black/10 bg-surface px-3 py-1.5 text-sm text-foreground outline-none focus:border-black/25"
-            [placeholder]="i18n.t().pipelines.pipeline.taskPlaceholder"
+            [placeholder]="i18n.t().pipelines.taskPlaceholder"
             [ngModel]="task()"
             (ngModelChange)="task.set($event)"
             (keydown.enter)="run()"
           />
           <button type="button" z-button zType="default" zSize="sm" (click)="run()">
-            {{ i18n.t().pipelines.pipeline.run }}
+            {{ i18n.t().pipelines.run }}
           </button>
         </div>
       }
@@ -104,16 +104,16 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
       <div class="shrink-0 border-b border-black/8 px-4 py-3">
         <p class="text-sm font-medium text-foreground">
-          {{ i18n.t().pipelines.pipeline.nodeEditor.title }}
+          {{ i18n.t().pipelines.nodeEditor.title }}
         </p>
         <p class="mt-0.5 text-xs text-foreground/60">
-          {{ i18n.t().pipelines.pipeline.nodeEditor.hint }}
+          {{ i18n.t().pipelines.nodeEditor.hint }}
         </p>
       </div>
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div class="mx-auto grid max-w-2xl gap-3">
           <label class="flex flex-col gap-1 text-xs text-foreground/60">
-            {{ i18n.t().pipelines.pipeline.nodeEditor.name }}
+            {{ i18n.t().common.name }}
             <input
               class="rounded-md border border-black/10 bg-surface px-3 py-2 text-sm text-foreground"
               [ngModel]="editName()"
@@ -121,8 +121,8 @@
             />
           </label>
           <div class="flex flex-col gap-1.5">
-            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.pipeline.nodeEditor.toolKeys }}</p>
-            <p class="text-[10px] text-foreground/60">{{ i18n.t().pipelines.pipeline.nodeEditor.toolKeysHint }}</p>
+            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.nodeEditor.toolKeys }}</p>
+            <p class="text-[10px] text-foreground/60">{{ i18n.t().pipelines.nodeEditor.toolKeysHint }}</p>
             <div class="flex flex-wrap gap-1.5">
               @for (toolKey of availableToolKeys; track toolKey) {
                 <button
@@ -141,7 +141,7 @@
             </div>
           </div>
           <label class="flex flex-col gap-1 text-xs text-foreground/60">
-            {{ i18n.t().pipelines.pipeline.nodeEditor.description }}
+            {{ i18n.t().pipelines.nodeEditor.description }}
             <input
               class="rounded-md border border-black/10 bg-surface px-3 py-2 text-sm text-foreground"
               [ngModel]="editDescription()"
@@ -149,7 +149,7 @@
             />
           </label>
           <label class="flex flex-col gap-1 text-xs text-foreground/60">
-            {{ i18n.t().pipelines.pipeline.nodeEditor.systemPrompt }}
+            {{ i18n.t().pipelines.nodeEditor.systemPrompt }}
             <textarea
               rows="12"
               class="min-h-48 rounded-md border border-black/10 bg-surface px-3 py-2 font-mono text-sm text-foreground"
@@ -161,10 +161,10 @@
       </div>
       <div class="flex shrink-0 gap-2 border-t border-black/8 px-4 py-3">
         <button type="button" z-button zType="default" (click)="saveNodeEdit()">
-          {{ i18n.t().pipelines.pipeline.nodeEditor.save }}
+          {{ i18n.t().common.save }}
         </button>
         <button type="button" z-button zType="ghost" (click)="cancelNodeEdit()">
-          {{ i18n.t().pipelines.pipeline.nodeEditor.cancel }}
+          {{ i18n.t().common.cancel }}
         </button>
       </div>
     </div>
@@ -172,11 +172,11 @@
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
       <div class="flex shrink-0 items-center justify-between border-b border-black/8 px-4 py-3">
         <div>
-          <p class="text-sm font-medium text-foreground">{{ i18n.t().pipelines.pipeline.addAgentTitle }}</p>
-          <p class="mt-0.5 text-xs text-foreground/60">{{ i18n.t().pipelines.pipeline.addAgentHint }}</p>
+          <p class="text-sm font-medium text-foreground">{{ i18n.t().pipelines.addAgentTitle }}</p>
+          <p class="mt-0.5 text-xs text-foreground/60">{{ i18n.t().pipelines.addAgentHint }}</p>
         </div>
         <button type="button" z-button zType="ghost" zSize="sm" (click)="closeAgentPicker()">
-          {{ i18n.t().pipelines.pipeline.templates.cancel }}
+          {{ i18n.t().common.cancel }}
         </button>
       </div>
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
@@ -191,7 +191,7 @@
               <div class="mt-0.5 text-xs text-foreground/60">{{ agent.description }}</div>
             </button>
           } @empty {
-            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.pipeline.paletteEmpty }}</p>
+            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.paletteEmpty }}</p>
           }
         </div>
       </div>
@@ -205,10 +205,10 @@
               <div>
                 <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-                  {{ i18n.t().pipelines.pipeline.templates.title }}
+                  {{ i18n.t().pipelines.templates.title }}
                 </h1>
                 <p class="mt-1 text-sm text-muted-foreground">
-                  {{ i18n.t().pipelines.pipeline.templates.templatesHint }}
+                  {{ i18n.t().pipelines.templates.hint }}
                 </p>
               </div>
               <button
@@ -218,7 +218,7 @@
                 zSize="sm"
                 (click)="addWorkflow()"
               >
-                {{ i18n.t().pipelines.pipeline.templates.addWorkflow }}
+                {{ i18n.t().pipelines.templates.addTemplate }}
               </button>
             </header>
 
@@ -241,7 +241,7 @@
                         zSize="sm"
                         (click)="useTemplate(template)"
                       >
-                        {{ i18n.t().pipelines.pipeline.templates.use }}
+                        {{ i18n.t().pipelines.templates.use }}
                       </button>
                       <button
                         type="button"
@@ -250,7 +250,7 @@
                         zSize="sm"
                         (click)="editTemplate(template)"
                       >
-                        {{ i18n.t().pipelines.pipeline.templates.edit }}
+                        {{ i18n.t().common.edit }}
                       </button>
                       <button
                         type="button"
@@ -262,10 +262,10 @@
                       >
                         {{
                           isSaved(template)
-                            ? i18n.t().pipelines.pipeline.templates.inLibrary
+                            ? i18n.t().pipelines.templates.inLibrary
                             : addingTemplateId() === template.id
-                              ? i18n.t().pipelines.pipeline.templates.adding
-                              : i18n.t().pipelines.pipeline.templates.add
+                              ? i18n.t().common.adding
+                              : i18n.t().common.add
                         }}
                       </button>
                     </div>
@@ -279,7 +279,7 @@
                       <div class="text-sm font-medium text-foreground">{{ template.name }}</div>
                       @if (!template.enabled) {
                         <span class="text-[11px] text-foreground/60">
-                          {{ i18n.t().pipelines.pipeline.templates.statusDisabled }}
+                          {{ i18n.t().pipelines.templates.statusDisabled }}
                         </span>
                       }
                     </div>
@@ -295,7 +295,7 @@
                         zSize="sm"
                         (click)="useSavedTemplate(template)"
                       >
-                        {{ i18n.t().pipelines.pipeline.templates.use }}
+                        {{ i18n.t().pipelines.templates.use }}
                       </button>
                       <button
                         type="button"
@@ -304,7 +304,7 @@
                         zSize="sm"
                         (click)="editSavedTemplate(template)"
                       >
-                        {{ i18n.t().pipelines.pipeline.templates.edit }}
+                        {{ i18n.t().common.edit }}
                       </button>
                       <button
                         type="button"
@@ -313,7 +313,7 @@
                         zSize="sm"
                         (click)="deleteSavedTemplate(template)"
                       >
-                        {{ i18n.t().pipelines.pipeline.templates.delete }}
+                        {{ i18n.t().common.delete }}
                       </button>
                     </div>
                   </div>
@@ -365,7 +365,7 @@
                     <div class="pr-4 text-sm font-medium text-foreground">{{ node.name }}</div>
                     <div class="mt-1 line-clamp-2 text-xs text-foreground/60">{{ node.description }}</div>
                     <p class="mt-1 text-[10px] text-foreground/60">
-                      {{ i18n.t().pipelines.pipeline.nodeEditor.dblclickHint }}
+                      {{ i18n.t().pipelines.nodeEditor.dblclickHint }}
                     </p>
                     <div
                       class="absolute top-1/2 -left-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
@@ -390,7 +390,7 @@
                     <div class="pr-4 text-sm font-medium text-foreground">{{ node.name }}</div>
                     <div class="mt-1 line-clamp-2 text-xs text-foreground/60">{{ node.description }}</div>
                     <p class="mt-1 text-[10px] text-foreground/60">
-                      {{ i18n.t().pipelines.pipeline.templates.previewHint }}
+                      {{ i18n.t().pipelines.templates.previewHint }}
                     </p>
                     <div
                       class="absolute top-1/2 -left-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500/70"

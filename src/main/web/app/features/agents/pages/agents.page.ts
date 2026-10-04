@@ -62,7 +62,7 @@ export class AgentsPageComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set(this.i18n.t().agentsPage.loadFailed);
+        this.error.set(this.i18n.t().agents.errors.loadFailed);
         this.isLoading.set(false);
       },
     });
@@ -138,7 +138,7 @@ export class AgentsPageComponent implements OnInit {
     const systemPrompt = this.formSystemPrompt().trim();
     const typeKey = this.formTypeKey().trim().toLowerCase();
     if (!name || !systemPrompt || (!this.editingId() && !typeKey)) {
-      this.error.set(this.i18n.t().agentsPage.nameRequired);
+      this.error.set(this.i18n.t().agents.errors.nameRequired);
       return;
     }
     const request: SavedAgentWriteRequest = {
@@ -161,7 +161,7 @@ export class AgentsPageComponent implements OnInit {
         this.reload();
       },
       error: () => {
-        this.error.set(this.i18n.t().agentsPage.saveFailed);
+        this.error.set(this.i18n.t().agents.errors.saveFailed);
         this.isSaving.set(false);
       },
     });
@@ -170,18 +170,18 @@ export class AgentsPageComponent implements OnInit {
   toggleEnabled(agent: SavedAgent): void {
     this.agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
       next: () => this.reload(),
-      error: () => this.error.set(this.i18n.t().agentsPage.updateFailed),
+      error: () => this.error.set(this.i18n.t().agents.errors.updateFailed),
     });
   }
 
   delete(agent: SavedAgent): void {
-    const message = this.i18n.t().agentsPage.deleteConfirm.replace('{name}', agent.name);
+    const message = this.i18n.t().agents.deleteConfirm.replace('{name}', agent.name);
     if (!globalThis.confirm(message)) {
       return;
     }
     this.agentsApi.delete(agent.id).subscribe({
       next: () => this.reload(),
-      error: () => this.error.set(this.i18n.t().agentsPage.deleteFailed),
+      error: () => this.error.set(this.i18n.t().agents.errors.deleteFailed),
     });
   }
 }

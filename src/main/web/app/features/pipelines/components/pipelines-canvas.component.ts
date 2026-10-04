@@ -287,7 +287,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.editingTemplateId.set(null);
     this.isDraft.set(true);
     this.activeTemplateName.set(
-      this.i18n.t().pipelines.pipeline.templates.newWorkflowName,
+      this.i18n.t().pipelines.templates.newTemplateName,
     );
     this.activeBrief = PipelinesCanvasComponent.DEFAULT_BRIEF;
     this.task.set('');
@@ -333,14 +333,14 @@ export class PipelinesCanvasComponent implements OnInit {
       next: () => {
         this.addingTemplateId.set(null);
         this.notifications.showSuccess(
-          this.i18n.t().pipelines.pipeline.templates.added,
+          this.i18n.t().pipelines.templates.added,
         );
         this.reloadSavedTemplates();
       },
       error: () => {
         this.addingTemplateId.set(null);
         this.notifications.showError(
-          this.i18n.t().pipelines.pipeline.templates.saveFailed,
+          this.i18n.t().pipelines.templates.errors.saveFailed,
         );
       },
     });
@@ -371,7 +371,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   deleteSavedTemplate(template: PipelineTemplate): void {
-    const message = this.i18n.t().pipelines.pipeline.templates.deleteConfirm.replace(
+    const message = this.i18n.t().pipelines.templates.deleteConfirm.replace(
       '{name}',
       template.name,
     );
@@ -382,7 +382,7 @@ export class PipelinesCanvasComponent implements OnInit {
       next: () => this.reloadSavedTemplates(),
       error: () => {
         this.notifications.showError(
-          this.i18n.t().pipelines.pipeline.templates.deleteFailed,
+          this.i18n.t().pipelines.templates.errors.deleteFailed,
         );
       },
     });
@@ -391,7 +391,7 @@ export class PipelinesCanvasComponent implements OnInit {
   switchToUse(): void {
     if (this.nodes().length === 0) {
       this.notifications.showWarning(
-        this.i18n.t().pipelines.pipeline.templates.canvasEmpty,
+        this.i18n.t().pipelines.templates.canvasEmpty,
       );
       return;
     }
@@ -463,7 +463,7 @@ export class PipelinesCanvasComponent implements OnInit {
       brief: this.activeBrief,
     });
     if (result.skippedAgentTypes.length > 0) {
-      const hint = this.i18n.t().pipelines.pipeline.templates.skipped.replace(
+      const hint = this.i18n.t().pipelines.templates.skipped.replace(
         '{types}',
         result.skippedAgentTypes.join(', '),
       );
@@ -483,7 +483,7 @@ export class PipelinesCanvasComponent implements OnInit {
     const request = this.buildTemplateWriteRequest();
     if (!request) {
       this.notifications.showWarning(
-        this.i18n.t().pipelines.pipeline.templates.canvasEmpty,
+        this.i18n.t().pipelines.templates.canvasEmpty,
       );
       return;
     }
@@ -504,7 +504,7 @@ export class PipelinesCanvasComponent implements OnInit {
       error: () => {
         this.isSaving.set(false);
         this.notifications.showError(
-          this.i18n.t().pipelines.pipeline.templates.saveFailed,
+          this.i18n.t().pipelines.templates.errors.saveFailed,
         );
       },
     });
@@ -516,7 +516,7 @@ export class PipelinesCanvasComponent implements OnInit {
       return null;
     }
     const name = this.activeTemplateName().trim()
-      || this.i18n.t().pipelines.pipeline.templates.newWorkflowName;
+      || this.i18n.t().pipelines.templates.newTemplateName;
     return {
       name,
       description: '',

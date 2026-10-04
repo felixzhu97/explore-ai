@@ -62,7 +62,7 @@ export class RagPageComponent implements OnInit {
   readonly isDocumentPanelOpen = signal(false);
 
   readonly ragPrompts = computed((): NxPrompt[] => {
-    const t = this.i18n.t().ragChat;
+    const t = this.i18n.t().rag;
     return [
       { key: 'what', label: t.whatIsThis, description: t.askQuestion },
       { key: 'summarize', label: t.summarize, description: t.explain },
@@ -86,7 +86,7 @@ export class RagPageComponent implements OnInit {
   });
 
   readonly footerLabels = computed(() => {
-    const t = this.i18n.t().ragChat;
+    const t = this.i18n.t().rag;
     return {
       sources: t.sources,
       similarity: t.similarity,

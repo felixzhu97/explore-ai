@@ -91,7 +91,7 @@ export class PipelinesPageComponent implements OnDestroy {
   constructor() {
     effect(() => {
       if (this.agentsResource.error() && !this.agentsResource.hasValue()) {
-        this.error.set(this.i18n.t().pipelines.errorMessage);
+        this.error.set(this.i18n.t().pipelines.errors.generic);
       }
     });
   }
@@ -178,7 +178,7 @@ export class PipelinesPageComponent implements OnDestroy {
     }
 
     const topic =
-      task.trim() || this.i18n.t().pipelines.pipeline.defaultMessage;
+      task.trim() || this.i18n.t().pipelines.defaultMessage;
     const brief = this.activeBriefPrompt?.trim();
     const invokeMessage = brief ? `${topic}\n\n${brief}` : topic;
 
@@ -231,7 +231,7 @@ export class PipelinesPageComponent implements OnDestroy {
       this.isLoading.set(false);
       this.streamAbort = null;
       if (error) {
-        this.error.set(error.message || this.i18n.t().pipelines.errorMessage);
+        this.error.set(error.message || this.i18n.t().pipelines.errors.generic);
       }
     };
 
@@ -260,14 +260,14 @@ export class PipelinesPageComponent implements OnDestroy {
       request,
       onChunk,
       onHandoff,
-      () => finish(rawContent || this.i18n.t().pipelines.thinking),
-      error => finish(rawContent || this.i18n.t().pipelines.errorMessage, error),
+      () => finish(rawContent || this.i18n.t().common.thinking),
+      error => finish(rawContent || this.i18n.t().pipelines.errors.generic, error),
     );
     this.streamAbort = abort;
   }
 
   private pipelineReasonMessage(reason: string): string {
-    const hints = this.i18n.t().pipelines.pipeline.hints;
+    const hints = this.i18n.t().pipelines.hints;
     switch (reason) {
       case 'empty':
         return hints.empty;

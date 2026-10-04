@@ -20,7 +20,7 @@ export class AsrPageComponent implements OnDestroy {
 
   readonly connectionStateLabel = computed(() => {
     const state = this.asr.connectionState() as AsrConnectionState;
-    return this.i18n.t().asrPage.connectionState[state];
+    return this.i18n.t().speechToText.connectionState[state];
   });
 
   readonly errorMessage = computed(() => {
@@ -29,7 +29,7 @@ export class AsrPageComponent implements OnDestroy {
       return null;
     }
     if (isAsrErrorKey(error)) {
-      return this.i18n.t().asrPage.errors[error];
+      return this.i18n.t().speechToText.errors[error];
     }
     return error;
   });

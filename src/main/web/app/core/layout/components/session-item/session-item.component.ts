@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   output,
 } from '@angular/core';
+import { I18nService } from '../../../i18n/i18n.service';
 import { ZardButtonComponent } from '../../../../shared/components/button';
 import { ZardSidebarMenuButtonDirective } from '../../../../shared/components/layout/sidebar-menu-button.directive';
 import type { SidebarSession } from '../../sidebar-session.model';
@@ -41,7 +43,7 @@ import type { SidebarSession } from '../../sidebar-session.model';
               zType="ghost"
               zSize="icon"
               class="size-5 cursor-pointer border-0 bg-transparent hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
-              [title]="session().pinned ? 'Unpin' : 'Pin'"
+              [title]="session().pinned ? i18n.t().sidebar.unpinChat : i18n.t().sidebar.pinChat"
               (click)="onPin($event)"
             >
               <svg
@@ -68,7 +70,7 @@ import type { SidebarSession } from '../../sidebar-session.model';
               zType="ghost"
               zSize="icon"
               class="size-5 cursor-pointer border-0 bg-transparent hover:border-transparent hover:bg-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
-              title="Delete"
+              [title]="i18n.t().sidebar.deleteChat"
               (click)="onDelete($event)"
             >
               <svg
@@ -92,6 +94,8 @@ import type { SidebarSession } from '../../sidebar-session.model';
   },
 })
 export class SessionItemComponent {
+  protected readonly i18n = inject(I18nService);
+
   readonly session = input.required<SidebarSession>();
   readonly isActive = input(false);
   readonly isCollapsed = input(false);

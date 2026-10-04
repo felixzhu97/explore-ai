@@ -7,27 +7,38 @@ export const SUPPORTED_LANGUAGES: Language[] = ['en', 'zh', 'ja', 'fr', 'es'];
 export const PLANNED_NAV_KEYS = [
   'kubernetes',
   'monitoring',
-  'aiinfra',
+  'aiInfra',
   'modelDev',
   'modelOps',
   'model',
-  'llmops',
-  'aiops',
-  'vectordb',
+  'llmOps',
+  'aiOps',
+  'vectorDb',
 ] as const satisfies readonly (keyof Translations['nav'])[];
 
 export interface Translations {
   common: {
-    loadFailed: string;
-    saveFailed: string;
-    deleteFailed: string;
-    operationFailed: string;
     success: string;
-    error: string;
+    save: string;
+    saving: string;
+    cancel: string;
+    delete: string;
+    edit: string;
+    add: string;
+    adding: string;
+    name: string;
+    thinking: string;
+    errors: {
+      generic: string;
+      loadFailed: string;
+      saveFailed: string;
+      deleteFailed: string;
+      operationFailed: string;
+    };
   };
   nav: {
-    imageAnalysis: string;
-    documentQA: string;
+    vision: string;
+    rag: string;
     mcp: string;
     eval: string;
     speechToText: string;
@@ -37,19 +48,19 @@ export interface Translations {
     skills: string;
     kubernetes: string;
     monitoring: string;
-    aiinfra: string;
+    aiInfra: string;
     chat: string;
     metrics: string;
     privacy: string;
     legal: string;
     policies: string;
-    generation: string;
+    generate: string;
     modelDev: string;
     modelOps: string;
     model: string;
-    llmops: string;
-    aiops: string;
-    vectordb: string;
+    llmOps: string;
+    aiOps: string;
+    vectorDb: string;
     more: string;
     groups: {
       work: string;
@@ -67,9 +78,7 @@ export interface Translations {
     login: string;
     logout: string;
     loginSuccess: string;
-    loginFailed: string;
     logoutSuccess: string;
-    logoutFailed: string;
     loginDialogTitle: string;
     loginDialogDescription: string;
     continueWithGoogle: string;
@@ -78,8 +87,12 @@ export interface Translations {
     logoutDialogTitle: string;
     logoutConfirm: string;
     logoutCancel: string;
+    errors: {
+      loginFailed: string;
+      logoutFailed: string;
+    };
   };
-  imageUploader: {
+  vision: {
     imageLabel: string;
     resultLabel: string;
     dropText: string;
@@ -87,10 +100,6 @@ export interface Translations {
     analyzing: string;
     startAnalyze: string;
     uploadToAnalyze: string;
-    selectImageError: string;
-    fileTooLarge: string;
-    requestFailed: string;
-    processingFailed: string;
     clearImage: string;
     caption: string;
     detect: string;
@@ -98,18 +107,22 @@ export interface Translations {
     noImageYet: string;
     noDetections: string;
     processingTime: string;
-    providerUnavailable: string;
     clickToEnlarge: string;
+    errors: {
+      invalidImage: string;
+      fileTooLarge: string;
+      requestFailed: string;
+      processingFailed: string;
+      providerUnavailable: string;
+    };
   };
-  ragChat: {
+  rag: {
     title: string;
     modelBadge: string;
-    uploadDocs: string;
+    uploadDocuments: string;
     upload: string;
     askQuestion: string;
     inputPlaceholder: string;
-    thinking: string;
-    errorMessage: string;
     sources: string;
     similarity: string;
     whatIsThis: string;
@@ -126,120 +139,109 @@ export interface Translations {
     clearSelection: string;
     filesSelected: string;
     uploadSuccess: string;
-    uploadFailed: string;
     uploading: string;
     basedOn: string;
     openReference: string;
     documentDeleted: string;
     deleteDocument: string;
-    deleteFailed: string;
     fileSelected: string;
+    errors: {
+      generic: string;
+      uploadFailed: string;
+      deleteFailed: string;
+    };
   };
-
   pipelines: {
-    thinking: string;
-    errorMessage: string;
-    pipeline: {
-      inputPlaceholder: string;
-      taskPlaceholder: string;
-      defaultMessage: string;
-      paletteTitle: string;
-      paletteHint: string;
-      paletteEmpty: string;
-      paletteShow: string;
-      paletteHide: string;
-      addAgent: string;
-      addAgentTitle: string;
-      addAgentHint: string;
-      canvasHint: string;
-      clear: string;
-      run: string;
-      emptyState: {
-        title: string;
-        description: string;
-      };
-      hints: {
-        empty: string;
-        needConnections: string;
-        orphan: string;
-        cycle: string;
-        invalid: string;
-      };
-      nodeEditor: {
-        title: string;
-        hint: string;
-        dblclickHint: string;
-        name: string;
-        description: string;
-        systemPrompt: string;
-        toolKeys: string;
-        toolKeysHint: string;
-        save: string;
-        cancel: string;
-      };
-      templates: {
-        title: string;
-        use: string;
-        edit: string;
-        skipped: string;
-        templatesHint: string;
-        addWorkflow: string;
-        newWorkflowName: string;
-        editMode: string;
-        useMode: string;
-        editModeHint: string;
-        useModeHint: string;
-        backToTemplates: string;
-        useThisGraph: string;
-        editThisGraph: string;
-        previewHint: string;
-        cancel: string;
-        /** @deprecated unused in UI; kept for locale parity */
-        myTemplates: string;
-        emptyLibrary: string;
-        saveCanvas: string;
-        newTemplate: string;
-        add: string;
-        adding: string;
-        customize: string;
-        inLibrary: string;
-        createTitle: string;
-        editTitle: string;
-        name: string;
-        description: string;
-        agentTypes: string;
-        agentTypesHint: string;
-        useCanvas: string;
-        canvasEmpty: string;
-        shortTopic: string;
-        shortTopicHint: string;
-        briefPrompt: string;
-        briefPromptHint: string;
-        save: string;
-        saving: string;
-        enable: string;
-        disable: string;
-        statusDisabled: string;
-        delete: string;
-        deleteConfirm: string;
-        added: string;
+    results: {
+      title: string;
+      collapse: string;
+      expand: string;
+      emptyState: string;
+      expandMessage: string;
+      collapseMessage: string;
+    };
+    inputPlaceholder: string;
+    taskPlaceholder: string;
+    defaultMessage: string;
+    paletteTitle: string;
+    paletteHint: string;
+    paletteEmpty: string;
+    paletteShow: string;
+    paletteHide: string;
+    addAgent: string;
+    addAgentTitle: string;
+    addAgentHint: string;
+    canvasHint: string;
+    clear: string;
+    run: string;
+    emptyState: {
+      title: string;
+      description: string;
+    };
+    hints: {
+      empty: string;
+      needConnections: string;
+      orphan: string;
+      cycle: string;
+      invalid: string;
+    };
+    nodeEditor: {
+      title: string;
+      hint: string;
+      dblclickHint: string;
+      description: string;
+      systemPrompt: string;
+      toolKeys: string;
+      toolKeysHint: string;
+    };
+    templates: {
+      title: string;
+      use: string;
+      skipped: string;
+      hint: string;
+      addTemplate: string;
+      newTemplateName: string;
+      editMode: string;
+      useMode: string;
+      editModeHint: string;
+      useModeHint: string;
+      backToTemplates: string;
+      useThisGraph: string;
+      editThisGraph: string;
+      previewHint: string;
+      emptyState: string;
+      saveCanvas: string;
+      newTemplate: string;
+      customize: string;
+      inLibrary: string;
+      createTitle: string;
+      editTitle: string;
+      description: string;
+      agentTypes: string;
+      agentTypesHint: string;
+      useCanvas: string;
+      canvasEmpty: string;
+      shortTopic: string;
+      shortTopicHint: string;
+      briefPrompt: string;
+      briefPromptHint: string;
+      enable: string;
+      disable: string;
+      statusDisabled: string;
+      deleteConfirm: string;
+      added: string;
+      errors: {
         saveFailed: string;
         updateFailed: string;
         deleteFailed: string;
         nameRequired: string;
       };
     };
-    results: {
-      title: string;
-      collapse: string;
-      expand: string;
-      empty: string;
-      expandMessage: string;
-      collapseMessage: string;
+    errors: {
+      generic: string;
     };
   };
   chat: {
-    thinking: string;
     inputPlaceholder: string;
     welcomeTitle: string;
     welcomeDescription: string;
@@ -262,7 +264,7 @@ export interface Translations {
     diagramExpand: string;
     diagramDownload: string;
   };
-  metricsPage: {
+  metrics: {
     overviewTitle: string;
     overviewSubtitle: string;
     domainTitle: string;
@@ -274,8 +276,6 @@ export interface Translations {
     range30d: string;
     loading: string;
     loadingOverview: string;
-    loadOverviewFailed: string;
-    loadDomainFailed: string;
     unknownDomain: string;
     unknownDomainTitle: string;
     backToOverview: string;
@@ -304,7 +304,7 @@ export interface Translations {
     };
     health: {
       heading: string;
-      empty: string;
+      emptyState: string;
       chat: string;
       rag: string;
       agents: string;
@@ -320,15 +320,19 @@ export interface Translations {
       recentHeading: string;
       filteredHeading: string;
       eventsCount: string;
-      empty: string;
+      emptyState: string;
       time: string;
       operation: string;
       outcome: string;
       latency: string;
       model: string;
     };
+    errors: {
+      loadOverviewFailed: string;
+      loadDomainFailed: string;
+    };
   };
-  evalPage: {
+  eval: {
     title: string;
     subtitle: string;
     userMessage: string;
@@ -344,10 +348,12 @@ export interface Translations {
     yes: string;
     no: string;
     suggestions: string;
-    empty: string;
-    requestFailed: string;
+    emptyState: string;
+    errors: {
+      requestFailed: string;
+    };
   };
-  asrPage: {
+  speechToText: {
     title: string;
     connectionLabel: string;
     connect: string;
@@ -355,7 +361,7 @@ export interface Translations {
     stop: string;
     testPayload: string;
     transcript: string;
-    empty: string;
+    emptyState: string;
     lastServerMessage: string;
     connectionState: {
       disconnected: string;
@@ -369,7 +375,7 @@ export interface Translations {
       generic: string;
     };
   };
-  mcpPage: {
+  mcp: {
     title: string;
     subtitle: string;
     serverLabel: string;
@@ -377,7 +383,7 @@ export interface Translations {
     toolsCount: string;
     loading: string;
     tools: string;
-    noTools: string;
+    emptyState: string;
     tryWithTools: string;
     placeholder: string;
     send: string;
@@ -389,49 +395,44 @@ export interface Translations {
       chatFailed: string;
     };
   };
-  agentsPage: {
+  agents: {
     title: string;
     subtitle: string;
     newAgent: string;
     builtins: string;
     builtinsHint: string;
     myAgents: string;
-    emptyLibrary: string;
+    emptyState: string;
     loading: string;
     typeKey: string;
-    name: string;
     description: string;
     systemPrompt: string;
     toolKeys: string;
-    save: string;
-    saving: string;
-    cancel: string;
-    edit: string;
     enable: string;
     disable: string;
     statusDisabled: string;
-    delete: string;
     deleteConfirm: string;
     customize: string;
     editOverride: string;
     createTitle: string;
     editTitle: string;
-    loadFailed: string;
-    saveFailed: string;
-    deleteFailed: string;
-    updateFailed: string;
-    nameRequired: string;
+    errors: {
+      loadFailed: string;
+      saveFailed: string;
+      deleteFailed: string;
+      updateFailed: string;
+      nameRequired: string;
+    };
   };
-  automationsPage: {
+  automations: {
     title: string;
     subtitle: string;
     newSchedule: string;
-    empty: string;
-    emptyHint: string;
-    name: string;
-    workflow: string;
-    workflowPlaceholder: string;
-    noWorkflows: string;
+    emptyState: string;
+    emptyStateHint: string;
+    pipelineTemplate: string;
+    pipelineTemplatePlaceholder: string;
+    noPipelineTemplates: string;
     email: string;
     timezone: string;
     frequency: string;
@@ -441,18 +442,11 @@ export interface Translations {
     runAt: string;
     runAtPlaceholder: string;
     runAtHint: string;
-    runAtRequired: string;
-    runAtPast: string;
     brief: string;
     briefPlaceholder: string;
-    save: string;
-    saving: string;
-    cancel: string;
-    edit: string;
     enable: string;
     disable: string;
     reschedule: string;
-    delete: string;
     deleteConfirm: string;
     history: string;
     nextRun: string;
@@ -464,46 +458,44 @@ export interface Translations {
     onceCompletedHint: string;
     runStatus: string;
     emailStatus: string;
-    loadFailed: string;
-    saveFailed: string;
-    deleteFailed: string;
-    nameRequired: string;
-    emailRequired: string;
-    workflowRequired: string;
-    briefRequired: string;
+    errors: {
+      pipelineTemplateRequired: string;
+      loadFailed: string;
+      saveFailed: string;
+      deleteFailed: string;
+      nameRequired: string;
+      emailRequired: string;
+      briefRequired: string;
+      runAtRequired: string;
+      runAtPast: string;
+    };
   };
-  skillsPage: {
+  skills: {
     title: string;
     subtitle: string;
     newSkill: string;
     templates: string;
     templatesHint: string;
     yourSkills: string;
-    empty: string;
-    name: string;
+    emptyState: string;
     description: string;
     instructions: string;
-    save: string;
-    saving: string;
-    cancel: string;
-    edit: string;
     enable: string;
     disable: string;
     statusDisabled: string;
-    delete: string;
     deleteConfirm: string;
-    add: string;
-    adding: string;
     customize: string;
     inLibrary: string;
     createTitle: string;
     editTitle: string;
-    loadFailed: string;
-    saveFailed: string;
-    deleteFailed: string;
-    updateFailed: string;
-    nameRequired: string;
     added: string;
+    errors: {
+      loadFailed: string;
+      saveFailed: string;
+      deleteFailed: string;
+      updateFailed: string;
+      nameRequired: string;
+    };
   };
   generate: {
     tabs: {
@@ -518,7 +510,7 @@ export interface Translations {
       negativePromptLabel: string;
       negativePromptPlaceholder: string;
       sizeLabel: string;
-      generateButton: string;
+      generate: string;
       generating: string;
       preview: string;
       download: string;
@@ -532,7 +524,7 @@ export interface Translations {
       textPlaceholder: string;
       voiceLabel: string;
       speedLabel: string;
-      synthesizeButton: string;
+      synthesize: string;
       synthesizing: string;
       audioReady: string;
       downloadAudio: string;
@@ -552,6 +544,9 @@ export interface Translations {
     expand: string;
     closeMenu: string;
     closeOverlay: string;
+    deleteChat: string;
+    pinChat: string;
+    unpinChat: string;
   };
   privacy: {
     consentTitle: string;

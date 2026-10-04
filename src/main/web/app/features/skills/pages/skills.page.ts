@@ -84,7 +84,7 @@ export class SkillsPageComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set(this.i18n.t().skillsPage.loadFailed);
+        this.error.set(this.i18n.t().skills.errors.loadFailed);
         this.isLoading.set(false);
       },
     });
@@ -135,12 +135,12 @@ export class SkillsPageComponent implements OnInit {
     this.skillsApi.createFromTemplate(template.id).subscribe({
       next: () => {
         this.addingTemplateId.set(null);
-        this.notifications.showSuccess(this.i18n.t().skillsPage.added);
+        this.notifications.showSuccess(this.i18n.t().skills.added);
         this.reload();
       },
       error: () => {
         this.addingTemplateId.set(null);
-        this.error.set(this.i18n.t().skillsPage.saveFailed);
+        this.error.set(this.i18n.t().skills.errors.saveFailed);
       },
     });
   }
@@ -153,7 +153,7 @@ export class SkillsPageComponent implements OnInit {
   save(): void {
     const request = this.readForm();
     if (!request.name.trim() || !request.instructions.trim()) {
-      this.error.set(this.i18n.t().skillsPage.nameRequired);
+      this.error.set(this.i18n.t().skills.errors.nameRequired);
       return;
     }
     this.isSaving.set(true);
@@ -170,7 +170,7 @@ export class SkillsPageComponent implements OnInit {
         this.reload();
       },
       error: () => {
-        this.error.set(this.i18n.t().skillsPage.saveFailed);
+        this.error.set(this.i18n.t().skills.errors.saveFailed);
         this.isSaving.set(false);
       },
     });
@@ -179,12 +179,12 @@ export class SkillsPageComponent implements OnInit {
   toggleEnabled(skill: Skill): void {
     this.skillsApi.setEnabled(skill.id, !skill.enabled).subscribe({
       next: () => this.reload(),
-      error: () => this.error.set(this.i18n.t().skillsPage.updateFailed),
+      error: () => this.error.set(this.i18n.t().skills.errors.updateFailed),
     });
   }
 
   remove(skill: Skill): void {
-    const message = this.i18n.tReplace(this.i18n.t().skillsPage.deleteConfirm, {
+    const message = this.i18n.tReplace(this.i18n.t().skills.deleteConfirm, {
       name: skill.name,
     });
     if (!confirm(message)) {
@@ -192,7 +192,7 @@ export class SkillsPageComponent implements OnInit {
     }
     this.skillsApi.delete(skill.id).subscribe({
       next: () => this.reload(),
-      error: () => this.error.set(this.i18n.t().skillsPage.deleteFailed),
+      error: () => this.error.set(this.i18n.t().skills.errors.deleteFailed),
     });
   }
 

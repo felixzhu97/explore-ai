@@ -15,13 +15,13 @@ describe('SidebarMoreMenuComponent', () => {
     {
       group: 'create',
       tabs: [
-        { key: 'generate', labelKey: 'generation', path: '/generate', group: 'create' },
+        { key: 'generate', labelKey: 'generate', path: '/generate', group: 'create' },
       ],
     },
     {
       group: 'lab',
       tabs: [
-        { key: 'vision', labelKey: 'imageAnalysis', path: '/vision', group: 'lab' },
+        { key: 'vision', labelKey: 'vision', path: '/vision', group: 'lab' },
       ],
     },
   ];

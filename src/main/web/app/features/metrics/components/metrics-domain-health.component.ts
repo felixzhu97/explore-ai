@@ -13,7 +13,7 @@ export interface DomainHealthItem {
   template: `
     <div class="flex flex-col gap-2">
       <h3 class="text-sm font-medium text-foreground">
-        {{ heading() || i18n.t().metricsPage.health.heading }}
+        {{ heading() || i18n.t().metrics.health.heading }}
       </h3>
       <div class="overflow-hidden rounded-xl border border-black/10">
         @for (item of items(); track item.domain) {
@@ -36,7 +36,7 @@ export interface DomainHealthItem {
           </button>
         } @empty {
           <p class="px-4 py-6 text-center text-sm text-muted-foreground">
-            {{ emptyText() || i18n.t().metricsPage.health.empty }}
+            {{ emptyText() || i18n.t().metrics.health.emptyState }}
           </p>
         }
       </div>

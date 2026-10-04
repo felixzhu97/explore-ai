@@ -135,7 +135,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   });
 
   readonly footerLabels = computed(() => {
-    const t = this.i18n.t().ragChat;
+    const t = this.i18n.t().rag;
     return {
       sources: t.sources,
       similarity: t.similarity,

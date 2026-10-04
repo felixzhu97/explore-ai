@@ -3,12 +3,12 @@
     <div>
       <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-        {{ i18n.t().skillsPage.title }}
+        {{ i18n.t().skills.title }}
       </h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().skillsPage.subtitle }}</p>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().skills.subtitle }}</p>
     </div>
     <button type="button" z-button zType="default" zSize="sm" (click)="startCreate()">
-      {{ i18n.t().skillsPage.newSkill }}
+      {{ i18n.t().skills.newSkill }}
     </button>
   </header>
 
@@ -22,8 +22,8 @@
       @if (templates().length > 0) {
         <section>
           <div class="flex flex-wrap items-end justify-between gap-2">
-            <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().skillsPage.templates }}</h2>
-            <p class="text-xs text-foreground/50">{{ i18n.t().skillsPage.templatesHint }}</p>
+            <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().skills.templates }}</h2>
+            <p class="text-xs text-foreground/50">{{ i18n.t().skills.templatesHint }}</p>
           </div>
           <ul class="mt-3 grid gap-3 sm:grid-cols-2">
             @for (template of templates(); track template.id) {
@@ -32,7 +32,7 @@
                   <div class="flex items-center gap-2">
                     <p class="text-sm font-medium text-foreground">{{ template.name }}</p>
                     @if (isInLibrary(template)) {
-                      <span class="text-[11px] text-foreground/45">{{ i18n.t().skillsPage.inLibrary }}</span>
+                      <span class="text-[11px] text-foreground/45">{{ i18n.t().skills.inLibrary }}</span>
                     }
                   </div>
                   <p class="mt-1 text-sm leading-relaxed text-foreground/60">
@@ -50,8 +50,8 @@
                   >
                     {{
                       addingTemplateId() === template.id
-                        ? i18n.t().skillsPage.adding
-                        : i18n.t().skillsPage.add
+                        ? i18n.t().common.adding
+                        : i18n.t().common.add
                     }}
                   </button>
                   <button
@@ -61,7 +61,7 @@
                     zSize="sm"
                     (click)="customizeTemplate(template)"
                   >
-                    {{ i18n.t().skillsPage.customize }}
+                    {{ i18n.t().skills.customize }}
                   </button>
                 </div>
               </li>
@@ -73,11 +73,11 @@
       @if (showForm()) {
         <section class="rounded-xl border border-black/8 bg-white p-4">
           <h2 class="text-sm font-semibold text-foreground">
-            {{ editingId() ? i18n.t().skillsPage.editTitle : i18n.t().skillsPage.createTitle }}
+            {{ editingId() ? i18n.t().skills.editTitle : i18n.t().skills.createTitle }}
           </h2>
           <div class="mt-3 flex flex-col gap-3">
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().skillsPage.name }}
+              {{ i18n.t().common.name }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
                 [ngModel]="formName()"
@@ -85,7 +85,7 @@
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().skillsPage.description }}
+              {{ i18n.t().skills.description }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
                 [ngModel]="formDescription()"
@@ -93,7 +93,7 @@
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().skillsPage.instructions }}
+              {{ i18n.t().skills.instructions }}
               <textarea
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
                 rows="8"
@@ -109,10 +109,10 @@
                 [disabled]="isSaving()"
                 (click)="save()"
               >
-                {{ isSaving() ? i18n.t().skillsPage.saving : i18n.t().skillsPage.save }}
+                {{ isSaving() ? i18n.t().common.saving : i18n.t().common.save }}
               </button>
               <button type="button" z-button zType="ghost" (click)="cancelForm()">
-                {{ i18n.t().skillsPage.cancel }}
+                {{ i18n.t().common.cancel }}
               </button>
             </div>
           </div>
@@ -120,7 +120,7 @@
       }
 
       <section>
-        <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().skillsPage.yourSkills }}</h2>
+        <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().skills.yourSkills }}</h2>
         @if (isLoading()) {
           <p class="mt-3 text-sm text-foreground/60">…</p>
         } @else {
@@ -134,7 +134,7 @@
                     {{ skill.name }}
                     @if (!skill.enabled) {
                       <span class="ml-2 text-xs font-normal text-foreground/50">
-                        {{ i18n.t().skillsPage.statusDisabled }}
+                        {{ i18n.t().skills.statusDisabled }}
                       </span>
                     }
                   </p>
@@ -142,7 +142,7 @@
                 </div>
                 <div class="flex shrink-0 flex-wrap gap-1">
                   <button type="button" z-button zType="ghost" zSize="sm" (click)="startEdit(skill)">
-                    {{ i18n.t().skillsPage.edit }}
+                    {{ i18n.t().common.edit }}
                   </button>
                   <button
                     type="button"
@@ -151,15 +151,15 @@
                     zSize="sm"
                     (click)="toggleEnabled(skill)"
                   >
-                    {{ skill.enabled ? i18n.t().skillsPage.disable : i18n.t().skillsPage.enable }}
+                    {{ skill.enabled ? i18n.t().skills.disable : i18n.t().skills.enable }}
                   </button>
                   <button type="button" z-button zType="ghost" zSize="sm" (click)="remove(skill)">
-                    {{ i18n.t().skillsPage.delete }}
+                    {{ i18n.t().common.delete }}
                   </button>
                 </div>
               </li>
             } @empty {
-              <li class="px-4 py-6 text-sm text-foreground/60">{{ i18n.t().skillsPage.empty }}</li>
+              <li class="px-4 py-6 text-sm text-foreground/60">{{ i18n.t().skills.emptyState }}</li>
             }
           </ul>
         }

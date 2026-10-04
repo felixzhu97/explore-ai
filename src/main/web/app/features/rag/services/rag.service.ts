@@ -71,7 +71,7 @@ export class RagService {
         this.selectedDocumentIds.set(ids);
       },
       error: () => {
-        this.notifications.showError(this.i18n.t().common.loadFailed);
+        this.notifications.showError(this.i18n.t().common.errors.loadFailed);
         this.availableDocuments.set([]);
       },
       complete: () => {
@@ -129,7 +129,7 @@ export class RagService {
             next.delete(documentId);
             return next;
           });
-          this.notifications.showSuccess(this.i18n.t().ragChat.documentDeleted);
+          this.notifications.showSuccess(this.i18n.t().rag.documentDeleted);
         }, 200);
       },
       error: () => {
@@ -138,7 +138,7 @@ export class RagService {
           next.delete(documentId);
           return next;
         });
-        this.notifications.showError(this.i18n.t().ragChat.deleteFailed);
+        this.notifications.showError(this.i18n.t().rag.errors.deleteFailed);
       },
     });
   }
@@ -149,7 +149,7 @@ export class RagService {
     );
     this.pendingFiles.update(prev => [...prev, ...newFiles]);
     this.notifications.showInfo(
-      this.i18n.t().ragChat.fileSelected.replace('{count}', newFiles.length.toString()),
+      this.i18n.t().rag.fileSelected.replace('{count}', newFiles.length.toString()),
     );
   }
 
@@ -209,7 +209,7 @@ export class RagService {
             return next;
           });
           this.notifications.showSuccess(
-            this.i18n.t().ragChat.uploadSuccess.replace('{name}', file.name),
+            this.i18n.t().rag.uploadSuccess.replace('{name}', file.name),
           );
 
           if (index === this.pendingFiles().length - 1) {
@@ -227,12 +227,12 @@ export class RagService {
               id: documentId,
               title: file.name,
               status: 'error',
-              error: this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name),
+              error: this.i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
             });
             return next;
           });
           this.notifications.showError(
-            this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name),
+            this.i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
           );
         },
         complete: () => {

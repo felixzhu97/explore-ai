@@ -23,7 +23,7 @@ export class VisionPageComponent {
   protected readonly i18n = inject(I18nService);
 
   readonly taskOptions = computed(() => {
-    const t = this.i18n.t().imageUploader;
+    const t = this.i18n.t().vision;
     return [
       { value: 'caption' as VisionTaskType, label: t.caption },
       { value: 'detect' as VisionTaskType, label: t.detect },

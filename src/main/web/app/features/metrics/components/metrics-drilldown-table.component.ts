@@ -14,18 +14,18 @@ import type { InvocationEvent } from '../metrics.model';
       </div>
       @if (items().length === 0) {
         <p class="rounded-xl border border-border px-4 py-10 text-center text-sm text-muted-foreground">
-          {{ emptyText() || i18n.t().metricsPage.drilldown.empty }}
+          {{ emptyText() || i18n.t().metrics.drilldown.emptyState }}
         </p>
       } @else {
         <div class="overflow-x-auto rounded-xl border border-border">
           <table class="min-w-full text-left text-sm">
             <thead class="bg-card text-xs tracking-wide text-muted-foreground uppercase">
               <tr>
-                <th class="px-3 py-2 font-medium">{{ i18n.t().metricsPage.drilldown.time }}</th>
-                <th class="px-3 py-2 font-medium">{{ i18n.t().metricsPage.drilldown.operation }}</th>
-                <th class="px-3 py-2 font-medium">{{ i18n.t().metricsPage.drilldown.outcome }}</th>
-                <th class="px-3 py-2 font-medium">{{ i18n.t().metricsPage.drilldown.latency }}</th>
-                <th class="px-3 py-2 font-medium">{{ i18n.t().metricsPage.drilldown.model }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.time }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.operation }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.outcome }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.latency }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.model }}</th>
               </tr>
             </thead>
             <tbody>
@@ -71,7 +71,7 @@ export class MetricsDrilldownTableComponent {
   readonly rowSelected = output<InvocationEvent>();
 
   readonly eventsCountLabel = computed(() => {
-    const template = this.i18n.t().metricsPage.drilldown.eventsCount;
+    const template = this.i18n.t().metrics.drilldown.eventsCount;
     return this.i18n.tReplace(template, { total: this.total() });
   });
 }

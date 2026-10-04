@@ -26,14 +26,14 @@ export const MODULE_NAV_GROUP_ORDER: readonly ModuleNavGroup[] = ['work', 'creat
 
 export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'chat', labelKey: 'chat', path: '/chat', group: 'work' },
-  { key: 'rag', labelKey: 'documentQA', path: '/rag', group: 'work' },
+  { key: 'rag', labelKey: 'rag', path: '/rag', group: 'work' },
   { key: 'metrics', labelKey: 'metrics', path: '/metrics', group: 'work' },
   { key: 'pipelines', labelKey: 'pipelines', path: '/pipelines', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_PIPELINES },
   { key: 'automations', labelKey: 'automations', path: '/automations', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_AUTOMATIONS },
   { key: 'agents', labelKey: 'agents', path: '/agents', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_PIPELINES },
   { key: 'skills', labelKey: 'skills', path: '/skills', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_SKILLS },
-  { key: 'generate', labelKey: 'generation', path: '/generate', group: 'create' },
-  { key: 'vision', labelKey: 'imageAnalysis', path: '/vision', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_VISION },
+  { key: 'generate', labelKey: 'generate', path: '/generate', group: 'create' },
+  { key: 'vision', labelKey: 'vision', path: '/vision', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_VISION },
   { key: 'asr', labelKey: 'speechToText', path: '/asr', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR },
   { key: 'mcp', labelKey: 'mcp', path: '/mcp', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_MCP },
   { key: 'eval', labelKey: 'eval', path: '/eval', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_EVAL },
