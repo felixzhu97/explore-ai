@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.audio.infra.websocket.AudioTranscriptionWebSocketHandler;
-import com.ai.common.config.CorsProperties;
+import com.ai.common.infra.config.CorsProperties;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

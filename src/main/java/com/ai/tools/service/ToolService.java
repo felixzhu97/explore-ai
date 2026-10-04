@@ -2,9 +2,9 @@ package com.ai.tools.service;
 
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.domain.tool.WebSearchTool;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.common.util.LogSanitizer;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.tools.domain.model.WeatherReport;

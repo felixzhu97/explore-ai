@@ -25,12 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @EntityScan(
-    basePackages = {
-      "com.ai.skill.domain",
-      "com.ai.automation.domain",
-      JpaTestPackages.BASE,
-      JpaTestPackages.COMMON
-    })
+    basePackages = {"com.ai.skill.domain", "com.ai.automation.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(
     basePackageClasses = {SpringDataSkillRepository.class, SpringDataAutomationRunRepository.class})
 @Import({OwnerPartitionScope.class, JpaSkillRepository.class, JpaAutomationRunRepository.class})

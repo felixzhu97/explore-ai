@@ -8,6 +8,7 @@ import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.domain.repository.WorkflowRunner;
 import com.ai.automation.domain.vo.EmailDeliveryStatus;
+import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
 import java.time.Instant;
 import java.util.List;

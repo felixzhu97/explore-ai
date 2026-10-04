@@ -1,7 +1,7 @@
 package com.ai.account.domain.model;
 
 import com.ai.account.domain.vo.AccountUserId;
-import com.ai.base.domain.model.AbstractEntity;
+import com.ai.common.domain.model.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;

@@ -2,7 +2,7 @@ package com.ai.mcp.infra.client;
 
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientGateway;
-import com.ai.mcp.domain.service.McpSessionManager;
+import com.ai.mcp.domain.service.McpSessionRegistry;
 import com.ai.mcp.domain.vo.McpServerConnection;
 import com.ai.mcp.service.McpToolCallbackRegistry;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
 
   private static final Logger log = LoggerFactory.getLogger(SpringAiMcpClientGateway.class);
 
-  private final McpSessionManager sessionManager = new McpSessionManager();
+  private final McpSessionRegistry sessionRegistry = new McpSessionRegistry();
   private final Map<String, List<ToolCallback>> serverCallbacks = new ConcurrentHashMap<>();
   private final Map<String, List<McpToolDefinition>> serverTools = new ConcurrentHashMap<>();
 
@@ -46,14 +46,14 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
 
   @Override
   public void registerTools(List<McpToolDefinition> tools, String serverName) {
-    sessionManager
+    sessionRegistry
         .findActiveByServerName(serverName)
         .ifPresent(
             session -> {
-              sessionManager.closeSession(session.id());
+              sessionRegistry.closeSession(session.id());
             });
     serverTools.put(serverName, List.copyOf(tools));
-    sessionManager.registerSession(serverName, tools.size());
+    sessionRegistry.registerSession(serverName, tools.size());
   }
 
   @Override
@@ -64,7 +64,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
   @Override
   public Map<String, McpServerConnection> listServers() {
     Map<String, McpServerConnection> servers = new LinkedHashMap<>();
-    sessionManager
+    sessionRegistry
         .activeSessions()
         .forEach(
             session ->
@@ -83,7 +83,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
   public void clearTools() {
     serverCallbacks.clear();
     serverTools.clear();
-    sessionManager.clear();
+    sessionRegistry.clear();
     log.info("Cleared all registered MCP tools");
   }
 

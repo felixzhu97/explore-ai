@@ -29,9 +29,7 @@ class LayerPackageNamingRulesTest {
 
   private static boolean isFeatureModuleClass(JavaClass javaClass) {
     String packageName = javaClass.getPackageName();
-    return packageName.startsWith("com.ai.")
-        && !packageName.startsWith("com.ai.base")
-        && !packageName.startsWith("com.ai.common");
+    return packageName.startsWith("com.ai.") && !packageName.startsWith("com.ai.common");
   }
 
   private static boolean usesLegacyLayerPackage(JavaClass javaClass) {

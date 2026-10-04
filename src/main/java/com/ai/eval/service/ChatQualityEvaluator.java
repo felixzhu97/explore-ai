@@ -1,7 +1,7 @@
 package com.ai.eval.service;
 
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
-import com.ai.common.util.LogSanitizer;
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.LlmEvaluationResponse;
 import com.ai.eval.domain.model.OfficialGateResult;

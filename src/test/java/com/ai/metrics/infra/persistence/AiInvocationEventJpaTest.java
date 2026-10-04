@@ -15,7 +15,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.metrics.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
+@EntityScan(basePackages = {"com.ai.metrics.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = JpaAiInvocationEventRepository.class)
 class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 

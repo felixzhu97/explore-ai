@@ -45,7 +45,7 @@ public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProc
     Map<String, Object> bootstrap = new HashMap<>();
     LDClient client = new LDClient(sdkKey);
     try {
-      LaunchDarklyClientSupport.waitForInitialization(client, Duration.ofSeconds(5));
+      LaunchDarklyInitializationWaiter.waitForInitialization(client, Duration.ofSeconds(5));
       for (ModuleFlag flag : ModuleFlag.values()) {
         boolean fallback = readFallback(environment, flag.key());
         boolean value = client.boolVariation(flag.key(), SERVER_CONTEXT, fallback);

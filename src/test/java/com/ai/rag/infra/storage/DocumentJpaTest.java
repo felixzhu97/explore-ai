@@ -20,7 +20,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.rag.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
+@EntityScan(basePackages = {"com.ai.rag.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataDocumentRepository.class)
 @Import({JpaDocumentRepository.class, OwnerPartitionScope.class})
 class DocumentJpaTest extends AbstractDataJpaTest {

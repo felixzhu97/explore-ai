@@ -14,7 +14,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EntityScan(basePackages = {"com.ai.account.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
+@EntityScan(basePackages = {"com.ai.account.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataAccountUserRepository.class)
 @Import(JpaAccountUserRepository.class)
 class AccountUserJpaTest extends AbstractDataJpaTest {

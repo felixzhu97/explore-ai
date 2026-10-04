@@ -1,7 +1,7 @@
 package com.ai.common.infra.featureflag;
 
-import com.ai.common.config.LaunchDarklyProperties;
 import com.ai.common.domain.repository.FeatureFlagRepository;
+import com.ai.common.infra.config.LaunchDarklyProperties;
 import com.launchdarkly.sdk.server.LDClient;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class LaunchDarklyConfig {
   @ConditionalOnExpression("'${launchdarkly.sdk-key:}'.length() > 0")
   public LDClient ldClient(LaunchDarklyProperties properties) {
     ldClient = new LDClient(properties.getSdkKey());
-    LaunchDarklyClientSupport.waitForInitialization(ldClient, Duration.ofSeconds(5));
+    LaunchDarklyInitializationWaiter.waitForInitialization(ldClient, Duration.ofSeconds(5));
     return ldClient;
   }
 

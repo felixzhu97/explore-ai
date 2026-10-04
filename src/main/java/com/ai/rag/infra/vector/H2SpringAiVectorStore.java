@@ -1,10 +1,10 @@
 package com.ai.rag.infra.vector;
 
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
-import com.ai.rag.domain.util.VectorSimilarity;
+import com.ai.rag.domain.service.VectorSimilarity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

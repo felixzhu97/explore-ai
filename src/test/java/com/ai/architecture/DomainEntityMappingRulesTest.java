@@ -45,7 +45,6 @@ class DomainEntityMappingRulesTest {
   private static boolean isFeatureDomainModel(JavaClass javaClass) {
     String packageName = javaClass.getPackageName();
     return packageName.contains(".domain.model")
-        && !packageName.startsWith("com.ai.base")
         && !packageName.startsWith("com.ai.common.domain.model");
   }
 }

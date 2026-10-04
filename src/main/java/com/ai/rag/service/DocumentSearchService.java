@@ -1,12 +1,12 @@
 package com.ai.rag.service;
 
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
-import com.ai.rag.domain.util.VectorSimilarity;
+import com.ai.rag.domain.service.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.Comparator;
 import java.util.List;

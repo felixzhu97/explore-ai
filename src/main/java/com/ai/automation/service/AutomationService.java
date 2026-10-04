@@ -8,6 +8,7 @@ import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
 import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
 import com.ai.pipeline.domain.vo.WorkflowTemplateId;

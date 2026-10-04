@@ -1,6 +1,6 @@
 package com.ai.image.service;
 
-import com.ai.common.util.LogSanitizer;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.repository.ImageGenerationGateway;
