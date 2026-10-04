@@ -3,7 +3,7 @@ export interface WebSource {
   title: string;
   url: string;
   snippet: string;
-  publishedAt?: string;
+  publishedAt?: string | undefined;
 }
 
 /** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */

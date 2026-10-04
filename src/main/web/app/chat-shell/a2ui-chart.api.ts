@@ -38,8 +38,8 @@ const HeatmapCellSchema = z.object({
 
 export interface ChartTreeNode {
   name: string;
-  value?: number;
-  children?: ChartTreeNode[];
+  value?: number | undefined;
+  children?: ChartTreeNode[] | undefined;
 }
 
 const TreeNodeSchema: z.ZodType<ChartTreeNode> = z.lazy(() => z.object({

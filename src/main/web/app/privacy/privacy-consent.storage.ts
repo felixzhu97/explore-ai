@@ -4,7 +4,7 @@ export interface PrivacyConsentState {
   decided: boolean;
   analytics: boolean;
   contactEmail: string;
-  decidedAt?: string;
+  decidedAt?: string | undefined;
 }
 
 export function readPrivacyConsent(): PrivacyConsentState {

@@ -17,7 +17,7 @@ import type {
 
 export interface ChartBuildInput {
   type: ChartType;
-  title?: string;
+  title?: string | undefined;
   chartData?: ChartItem[];
   /** Raw chartData rows before simple {label,value} coercion (LLM multi-value shapes). */
   chartDataRaw?: unknown;
@@ -28,8 +28,8 @@ export interface ChartBuildInput {
   xLabels?: string[];
   yLabels?: string[];
   cells?: ChartHeatmapCell[];
-  value?: number;
-  max?: number;
+  value?: number | undefined;
+  max?: number | undefined;
   nodes?: ChartTreeNode[];
   links?: ChartLink[];
   boxes?: ChartBox[];
@@ -40,8 +40,8 @@ export interface ChartBuildInput {
   rows?: number[][];
   riverData?: ChartRiverDatum[];
   calendarCells?: ChartCalendarCell[];
-  layout?: 'force' | 'circular';
-  range?: string | [string, string];
+  layout?: 'force' | 'circular' | undefined;
+  range?: string | [string, string] | undefined;
 }
 
 /** Align with `styles.css` tokens (SF Pro / Apple HIG). */
@@ -1330,7 +1330,7 @@ export function toScatterPoints(value: unknown): ChartScatterPoint[] {
     return [];
   }
   return value
-    .map((item) => {
+    .map((item): ChartScatterPoint | null => {
       if (!item || typeof item !== 'object') {
         return null;
       }

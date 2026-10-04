@@ -15,8 +15,8 @@ export interface ImageSize {
 /** POST /api/images/generate */
 export interface ImageGenerateParams {
   prompt: string;
-  model?: string;
-  quality?: string;
+  model?: string | undefined;
+  quality?: string | undefined;
   width?: number;
   height?: number;
   n?: number;

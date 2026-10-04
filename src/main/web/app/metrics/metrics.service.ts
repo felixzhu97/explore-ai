@@ -80,9 +80,9 @@ export interface DrilldownPage {
 
 export interface DrilldownQuery {
   domain?: string;
-  day?: string;
+  day?: string | undefined;
   outcome?: string;
-  model?: string;
+  model?: string | undefined;
   agentType?: string;
   toolName?: string;
   page?: number;

@@ -26,9 +26,9 @@ export class ZardDropdownService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly rendererFactory = inject(RendererFactory2);
 
-  private overlayRef?: OverlayRef;
+  private overlayRef?: OverlayRef | undefined;
   private portal?: TemplatePortal;
-  private triggerElement?: ElementRef;
+  private triggerElement?: ElementRef | undefined;
   private renderer!: Renderer2;
   private readonly focusedIndex = signal<number>(-1);
   private outsideClickSubscription!: Subscription;
