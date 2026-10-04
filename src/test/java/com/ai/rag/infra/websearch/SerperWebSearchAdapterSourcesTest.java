@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-@DisplayName("SerperWebSearchAdapter")
+@DisplayName("SerperWebSearchTool")
 class SerperWebSearchAdapterSourcesTest {
 
   private static final String CHANNEL = "serper-sources-test";
@@ -51,7 +51,7 @@ class SerperWebSearchAdapterSourcesTest {
     List<String> events = new ArrayList<>();
     sink.asFlux().subscribe(events::add);
 
-    SerperWebSearchAdapter adapter = new SerperWebSearchAdapter("test-key", builder.build());
+    SerperWebSearchTool adapter = new SerperWebSearchTool("test-key", builder.build());
     String result = adapter.searchWeb("weather beijing");
 
     assertThat(result).contains("Example").contains("https://example.com");

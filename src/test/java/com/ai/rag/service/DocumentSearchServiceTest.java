@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
-import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
@@ -28,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("DocumentSearchService")
 class DocumentSearchServiceTest {
 
-  @Mock private TextEmbeddingRepository embeddingRepository;
+  @Mock private TextEmbeddingGateway embeddingRepository;
 
   @Mock private DocumentChunkSearchRepository chunkSearchRepository;
 
@@ -258,7 +258,7 @@ class DocumentSearchServiceTest {
 
     @Test
     @DisplayName("should pass empty docIds list to vector adapter")
-    void shouldPassEmptyDocIdsListToVectorAdapter() {
+    void shouldPassEmptyDocIdsListToChunkRepository() {
       String query = "test";
       float[] queryEmbedding = new float[] {0.1f, 0.2f};
 

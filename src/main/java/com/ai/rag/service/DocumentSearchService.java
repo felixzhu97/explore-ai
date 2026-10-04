@@ -5,7 +5,7 @@ import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
-import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.util.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.Comparator;
@@ -24,12 +24,12 @@ public class DocumentSearchService {
 
   public record RetrievalResult(String context, List<SourceDocument> sources) {}
 
-  private final TextEmbeddingRepository embeddingRepository;
+  private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
   private final RagRetrievalSettings retrievalSettings;
 
   public DocumentSearchService(
-      TextEmbeddingRepository embeddingRepository,
+      TextEmbeddingGateway embeddingRepository,
       DocumentChunkSearchRepository chunkSearchRepository,
       RagRetrievalSettings retrievalSettings) {
     this.embeddingRepository = embeddingRepository;

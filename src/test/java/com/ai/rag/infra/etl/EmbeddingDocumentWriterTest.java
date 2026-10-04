@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.DocumentChunk;
-import com.ai.rag.domain.repository.IDocumentChunkRepository;
-import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.repository.DocumentChunkRepository;
+import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
@@ -28,9 +28,9 @@ class EmbeddingDocumentWriterTest {
   private static final DocumentId DOCUMENT_ID =
       DocumentId.of("123e4567-e89b-12d3-a456-426614174000");
 
-  @Mock private TextEmbeddingRepository embeddingRepository;
+  @Mock private TextEmbeddingGateway embeddingRepository;
 
-  @Mock private IDocumentChunkRepository chunkRepository;
+  @Mock private DocumentChunkRepository chunkRepository;
 
   private EmbeddingDocumentWriter writer;
 

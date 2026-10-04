@@ -2,7 +2,7 @@ package com.ai.audio.service;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.model.SynthesizedAudio;
-import com.ai.audio.domain.repository.TextToSpeechRepository;
+import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
 import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceCatalog;
@@ -26,12 +26,11 @@ public class AudioService {
           "en-US", "alloy",
           "zh-CN", "alloy");
 
-  private final TextToSpeechRepository textToSpeechRepository;
+  private final TextToSpeechGateway textToSpeechGateway;
   private final TtsConfiguration ttsConfiguration;
 
-  public AudioService(
-      TextToSpeechRepository textToSpeechRepository, TtsConfiguration ttsConfiguration) {
-    this.textToSpeechRepository = textToSpeechRepository;
+  public AudioService(TextToSpeechGateway textToSpeechGateway, TtsConfiguration ttsConfiguration) {
+    this.textToSpeechGateway = textToSpeechGateway;
     this.ttsConfiguration = ttsConfiguration;
   }
 
@@ -40,8 +39,7 @@ public class AudioService {
     ensureProviderConfigured();
     log.info("AudioService.synthesize: {}", LogSanitizer.truncate(text));
     VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
-    SynthesizedAudio audio =
-        textToSpeechRepository.synthesize(SpeechText.of(text), selection, speed);
+    SynthesizedAudio audio = textToSpeechGateway.synthesize(SpeechText.of(text), selection, speed);
     return audio.isEmpty() ? null : audio.data();
   }
 
@@ -50,7 +48,7 @@ public class AudioService {
     ensureProviderConfigured();
     log.info("AudioService.synthesize: {}", LogSanitizer.truncate(text));
     VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
-    return textToSpeechRepository.synthesize(SpeechText.of(text), selection, speed);
+    return textToSpeechGateway.synthesize(SpeechText.of(text), selection, speed);
   }
 
   public List<VoiceInfo> getAvailableVoices() {

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.tools.domain.model.ToolResult;

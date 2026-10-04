@@ -15,11 +15,11 @@ import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.RawDocument;
+import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
+import com.ai.rag.domain.repository.DocumentRepository;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
-import com.ai.rag.domain.repository.IDocumentChunkRepository;
-import com.ai.rag.domain.repository.IDocumentRepository;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
@@ -47,9 +47,9 @@ class DocumentUploadServiceTest {
 
   @Mock private DocumentWriter writer;
 
-  @Mock private IDocumentRepository documentRepository;
+  @Mock private DocumentRepository documentRepository;
 
-  @Mock private IDocumentChunkRepository chunkRepository;
+  @Mock private DocumentChunkRepository chunkRepository;
 
   @Mock private MultipartFile multipartFile;
 

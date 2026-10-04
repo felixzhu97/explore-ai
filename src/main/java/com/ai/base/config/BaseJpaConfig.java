@@ -8,11 +8,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableJpaRepositories(
     basePackages = {
-      "com.ai.adapter.out.persistence",
       "com.ai.rag.domain.repository",
       "com.ai.rag.infra.storage",
       "com.ai.chat.infra.persistence",
-      "com.ai.rag.infra.persistence",
       "com.ai.skill.infra.persistence",
       "com.ai.pipeline.infra.persistence",
       "com.ai.automation.infra.persistence",

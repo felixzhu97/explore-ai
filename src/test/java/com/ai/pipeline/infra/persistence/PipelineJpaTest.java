@@ -35,8 +35,8 @@ class PipelineJpaTest extends AbstractDataJpaTest {
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataSavedAgentRepository agentRepository;
   @Autowired private SpringDataWorkflowTemplateRepository workflowRepository;
-  @Autowired private JpaSavedAgentRepository agentAdapter;
-  @Autowired private JpaWorkflowTemplateRepository workflowAdapter;
+  @Autowired private JpaSavedAgentRepository jpaAgentRepository;
+  @Autowired private JpaWorkflowTemplateRepository jpaWorkflowRepository;
 
   @Test
   @DisplayName("should persist and reload saved agent definition when round tripping")
@@ -114,7 +114,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     agentRepository.saveAndFlush(alpha);
     em.clear();
 
-    List<SavedAgentDefinition> agents = agentAdapter.findAllByClientId(OWNER_KEY);
+    List<SavedAgentDefinition> agents = jpaAgentRepository.findAllByClientId(OWNER_KEY);
 
     assertThat(agents)
         .extracting(SavedAgentDefinition::getName)
@@ -131,7 +131,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     Optional<SavedWorkflowTemplate> found =
-        workflowAdapter.findByIdAndClientId(workflow.getId(), OWNER_KEY);
+        jpaWorkflowRepository.findByIdAndClientId(workflow.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Scoped flow");

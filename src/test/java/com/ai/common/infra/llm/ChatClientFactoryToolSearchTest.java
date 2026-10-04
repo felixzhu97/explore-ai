@@ -3,10 +3,10 @@ package com.ai.common.infra.llm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.ai.common.domain.repository.DateTimeTool;
-import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WeatherTool;
-import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.domain.tool.DateTimeTool;
+import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.domain.tool.WeatherTool;
+import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.prompt.PromptTemplates;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;

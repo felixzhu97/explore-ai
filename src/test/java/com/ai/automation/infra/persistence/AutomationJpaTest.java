@@ -43,8 +43,8 @@ class AutomationJpaTest extends AbstractDataJpaTest {
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataAutomationScheduleRepository scheduleRepository;
   @Autowired private SpringDataAutomationRunRepository runRepository;
-  @Autowired private JpaAutomationRunRepository runAdapter;
-  @Autowired private JpaAutomationScheduleRepository scheduleAdapter;
+  @Autowired private JpaAutomationRunRepository jpaRunRepository;
+  @Autowired private JpaAutomationScheduleRepository jpaScheduleRepository;
 
   @Test
   @DisplayName("should bump version and win only once when claiming the next run")
@@ -84,7 +84,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER_KEY);
     run.skip("quota");
 
-    AutomationRun saved = runAdapter.save(run);
+    AutomationRun saved = jpaRunRepository.save(run);
 
     assertThat(saved).isSameAs(run);
     assertThat(em.getEntityManager().contains(run)).isTrue();
@@ -182,7 +182,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     scheduleRepository.saveAndFlush(second);
     em.clear();
 
-    List<AutomationSchedule> schedules = scheduleAdapter.findAllByClientId(OWNER_KEY);
+    List<AutomationSchedule> schedules = jpaScheduleRepository.findAllByClientId(OWNER_KEY);
 
     assertThat(schedules).hasSize(2);
     assertThat(schedules.getFirst().getCreatedAt())
@@ -201,7 +201,8 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     runRepository.saveAndFlush(newerRun);
     em.clear();
 
-    List<AutomationRun> runs = runAdapter.findByScheduleIdAndClientId(scheduleId, OWNER_KEY, 10);
+    List<AutomationRun> runs =
+        jpaRunRepository.findByScheduleIdAndClientId(scheduleId, OWNER_KEY, 10);
 
     assertThat(runs).extracting(AutomationRun::getResultExcerpt).containsExactly("newer", "older");
   }

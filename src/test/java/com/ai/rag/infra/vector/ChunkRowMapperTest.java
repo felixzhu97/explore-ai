@@ -25,12 +25,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("ChunkRowMapper via H2VectorAdapter")
+@DisplayName("ChunkRowMapper via H2DocumentChunkRepository")
 class ChunkRowMapperTest {
 
   @Mock private JdbcTemplate jdbcTemplate;
 
-  private H2VectorAdapter adapter;
+  private H2DocumentChunkRepository adapter;
 
   private static final DocumentId TEST_DOCUMENT_ID =
       DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
@@ -40,7 +40,7 @@ class ChunkRowMapperTest {
   @BeforeEach
   void setUp() {
     ObjectMapper objectMapper = new ObjectMapper();
-    adapter = new H2VectorAdapter(jdbcTemplate, objectMapper);
+    adapter = new H2DocumentChunkRepository(jdbcTemplate, objectMapper);
   }
 
   @Nested

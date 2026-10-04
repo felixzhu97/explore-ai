@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.mcp.domain.model.McpToolDefinition;
-import com.ai.mcp.domain.repository.McpClientRepository;
+import com.ai.mcp.domain.repository.McpClientGateway;
 import com.ai.mcp.domain.vo.McpServerConnection;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ import org.springframework.ai.tool.ToolCallback;
 @DisplayName("McpService")
 class McpServiceTest {
 
-  @Mock private McpClientRepository mcpClientRepository;
+  @Mock private McpClientGateway mcpClientGateway;
 
   @Mock private McpToolCallbackRegistry toolCallbackRegistry;
 
@@ -43,16 +43,16 @@ class McpServiceTest {
 
   @BeforeEach
   void setUp() {
-    service = new McpService(mcpClientRepository, toolCallbackRegistry, chatClientProvider);
+    service = new McpService(mcpClientGateway, toolCallbackRegistry, chatClientProvider);
   }
 
   @Test
   @DisplayName("should delegate tool count to repository")
   void shouldDelegateToolCountToRepository() {
-    when(mcpClientRepository.toolCount()).thenReturn(7);
+    when(mcpClientGateway.toolCount()).thenReturn(7);
 
     assertThat(service.getTotalToolCount()).isEqualTo(7);
-    verify(mcpClientRepository).toolCount();
+    verify(mcpClientGateway).toolCount();
   }
 
   @Test
@@ -60,7 +60,7 @@ class McpServiceTest {
   void shouldReturnConnectedServersFromRepository() {
     Map<String, McpServerConnection> servers =
         Map.of("weather", McpServerConnection.connected("weather", 2));
-    when(mcpClientRepository.listServers()).thenReturn(servers);
+    when(mcpClientGateway.listServers()).thenReturn(servers);
 
     assertThat(service.getConnectedServers()).isEqualTo(servers);
   }
@@ -69,7 +69,7 @@ class McpServiceTest {
   @DisplayName("should return tool definitions from repository")
   void shouldReturnToolDefinitionsFromRepository() {
     List<McpToolDefinition> tools = List.of(McpToolDefinition.create("weather", "Weather lookup"));
-    when(mcpClientRepository.listTools()).thenReturn(tools);
+    when(mcpClientGateway.listTools()).thenReturn(tools);
 
     assertThat(service.getToolDefinitions()).isEqualTo(tools);
   }
@@ -89,7 +89,7 @@ class McpServiceTest {
   void shouldClearToolsThroughRepository() {
     service.clearTools();
 
-    verify(mcpClientRepository).clearTools();
+    verify(mcpClientGateway).clearTools();
   }
 
   @Test
