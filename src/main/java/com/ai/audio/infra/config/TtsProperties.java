@@ -3,7 +3,7 @@ package com.ai.audio.infra.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
+/** Configuration properties under {@code app.ai.tts} for the speech or OpenAI TTS provider. */
 @ConfigurationProperties(prefix = "app.ai.tts")
 public class TtsProperties {
 

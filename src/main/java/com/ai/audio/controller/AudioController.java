@@ -27,7 +27,6 @@ public class AudioController {
 
   private final AudioFacade audioFacade;
 
-  /** Documentation. */
   public AudioController(AudioFacade audioFacade) {
     this.audioFacade = audioFacade;
   }
@@ -77,7 +76,6 @@ public class AudioController {
     return ResponseEntity.ok(Map.of("models", audioFacade.getAvailableTtsModels()));
   }
 
-  /** Documentation. */
   public record TtsRequest(
       String text,
       String voice,

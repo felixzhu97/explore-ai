@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Documentation. */
 @Configuration
 @ConditionalOnProperty(name = "launchdarkly.enabled", havingValue = "true", matchIfMissing = true)
 public class LaunchDarklyConfig {
@@ -23,7 +22,6 @@ public class LaunchDarklyConfig {
 
   private LDClient ldClient;
 
-  /** Documentation. */
   @Bean
   @ConditionalOnExpression("'${launchdarkly.sdk-key:}'.length() > 0")
   public LDClient ldClient(LaunchDarklyProperties properties) {
@@ -32,14 +30,12 @@ public class LaunchDarklyConfig {
     return ldClient;
   }
 
-  /** Documentation. */
   @Bean
   @ConditionalOnBean(LDClient.class)
   public FeatureFlagRepository launchDarklyFeatureFlagRepository(LDClient client) {
     return new LaunchDarklyFeatureFlagRepository(client);
   }
 
-  /** Documentation. */
   @PreDestroy
   public void shutdown() throws IOException {
     if (ldClient != null) {

@@ -25,7 +25,6 @@ public class HashingTextEmbeddingRepository implements TextEmbeddingRepository {
 
   private final int dimensions;
 
-  /** Documentation. */
   public HashingTextEmbeddingRepository(
       @Value("${app.rag.embedding.dimensions:1024}") int dimensions) {
     this.dimensions = dimensions;

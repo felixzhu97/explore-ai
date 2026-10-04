@@ -21,7 +21,6 @@ public class ToolsController {
 
   private final ToolsFacade toolsFacade;
 
-  /** Documentation. */
   public ToolsController(ToolsFacade toolsFacade) {
     this.toolsFacade = toolsFacade;
   }
@@ -101,9 +100,7 @@ public class ToolsController {
     }
   }
 
-  /** Documentation. */
   public record ToolChatRequest(String question, List<String> docIds) {}
 
-  /** Documentation. */
   public record ToolChatResponse(String answer, List<String> toolCalls) {}
 }

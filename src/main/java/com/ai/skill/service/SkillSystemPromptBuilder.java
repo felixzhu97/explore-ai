@@ -3,7 +3,7 @@ package com.ai.skill.service;
 import com.ai.skill.domain.model.Skill;
 import java.util.List;
 
-/** Documentation. */
+/** Renders active skills into the "Active Skills" section of the chat system prompt. */
 public final class SkillSystemPromptBuilder {
 
   private static final String HEADER =
@@ -17,7 +17,7 @@ public final class SkillSystemPromptBuilder {
 
   private SkillSystemPromptBuilder() {}
 
-  /** Documentation. */
+  /** Builds the skills prompt section, or returns {@code null} when there are no skills. */
   public static String build(List<Skill> skills) {
     if (skills == null || skills.isEmpty()) {
       return null;

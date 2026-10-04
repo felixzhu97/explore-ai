@@ -10,6 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataAccountUserRepository extends JpaRepository<AccountUser, AccountUserId> {
 
-  /** Documentation. */
   Optional<AccountUser> findByLinkedClientId(String linkedClientId);
 }

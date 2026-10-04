@@ -2,14 +2,11 @@ package com.ai.metrics.domain.repository;
 
 import java.util.Map;
 
-/** Documentation. */
+/** Gateway supplying system, agent, and MCP health maps to the metrics dashboard. */
 public interface MetricsHealthGateway {
-  /** Documentation. */
   Map<String, Object> systemStatus();
 
-  /** Documentation. */
   Map<String, Object> agentsHealth();
 
-  /** Documentation. */
   Map<String, Object> mcpHealth();
 }

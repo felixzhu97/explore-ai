@@ -29,12 +29,10 @@ public class EvalController {
 
   private final ChatQualityEvaluator evaluator;
 
-  /** Documentation. */
   public EvalController(ChatQualityEvaluator evaluator) {
     this.evaluator = evaluator;
   }
 
-  /** Documentation. */
   @PostMapping("/chat")
   public ResponseEntity<EvaluationResponse> evaluateChat(
       @Valid @RequestBody EvaluationRequest request) {

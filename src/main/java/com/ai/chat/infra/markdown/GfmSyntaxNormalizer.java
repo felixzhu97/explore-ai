@@ -19,7 +19,7 @@ public class GfmSyntaxNormalizer {
   private static final Pattern HORIZONTAL_RULE = Pattern.compile("(?m)^([-*_]){3,}\\s*$");
   private static final Pattern CODE_BLOCK = Pattern.compile("(?s)```.*?```|~~~.*?~~~");
 
-  /** Documentation. */
+  /** Fixes list, heading, and rule spacing in Markdown while leaving code blocks untouched. */
   public String normalize(String content) {
     if (content == null || content.isBlank()) {
       return content;

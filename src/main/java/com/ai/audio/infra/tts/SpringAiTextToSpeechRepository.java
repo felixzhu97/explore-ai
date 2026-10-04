@@ -12,14 +12,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
+/** OpenAI text-to-speech repository via Spring AI, active when the TTS provider is openai. */
 @Repository
 @ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "openai")
 public class SpringAiTextToSpeechRepository implements TextToSpeechRepository {
 
   private final TextToSpeechModel textToSpeechModel;
 
-  /** Documentation. */
   public SpringAiTextToSpeechRepository(TextToSpeechModel textToSpeechModel) {
     this.textToSpeechModel = textToSpeechModel;
   }

@@ -10,7 +10,7 @@ import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Generates chat session titles of at most 50 characters in the user's language. */
 @Service
 public class SessionTitleGenerator {
 
@@ -25,12 +25,11 @@ public class SessionTitleGenerator {
 
   private final ChatClientProvider chatClientProvider;
 
-  /** Documentation. */
   public SessionTitleGenerator(ChatClientProvider chatClientProvider) {
     this.chatClientProvider = chatClientProvider;
   }
 
-  /** Documentation. */
+  /** Asks the LLM for a short title from the first exchange, falling back to the user message. */
   public String generate(String userMessage, String assistantReply) {
     if (userMessage == null
         || userMessage.isBlank()

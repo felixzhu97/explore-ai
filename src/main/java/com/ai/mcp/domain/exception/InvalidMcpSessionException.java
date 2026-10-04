@@ -1,8 +1,7 @@
 package com.ai.mcp.domain.exception;
 
-/** Documentation. */
+/** Thrown when an MCP session has a blank server name or an invalid status transition. */
 public class InvalidMcpSessionException extends RuntimeException {
-  /** Documentation. */
   public InvalidMcpSessionException(String message) {
     super(message);
   }

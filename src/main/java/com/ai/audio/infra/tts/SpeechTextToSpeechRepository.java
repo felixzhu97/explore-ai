@@ -35,7 +35,6 @@ public class SpeechTextToSpeechRepository implements TextToSpeechRepository {
   private final ObjectMapper objectMapper;
   private final String baseUrl;
 
-  /** Documentation. */
   public SpeechTextToSpeechRepository(
       @Value("${app.ai.tts.speech-base-url:${EXPLORE_ML_API_URL:http://localhost:8000}}")
           String baseUrl,

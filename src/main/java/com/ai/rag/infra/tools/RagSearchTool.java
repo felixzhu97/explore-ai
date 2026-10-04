@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/** Documentation. */
+/** LLM tools that search the knowledge base and list the current owner's documents. */
 @Component
 public class RagSearchTool implements DocumentSearchTool {
 
@@ -28,7 +28,6 @@ public class RagSearchTool implements DocumentSearchTool {
   private final RagApplicationService ragApplicationService;
   private final OwnerContext ownerContext;
 
-  /** Documentation. */
   public RagSearchTool(RagApplicationService ragApplicationService, OwnerContext ownerContext) {
     this.ragApplicationService = ragApplicationService;
     this.ownerContext = ownerContext;

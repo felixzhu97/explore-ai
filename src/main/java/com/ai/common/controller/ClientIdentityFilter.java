@@ -39,7 +39,6 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
   private final ClientIdentityCookieFactory cookieFactory;
   private final ServiceAuthProperties serviceAuthProperties;
 
-  /** Documentation. */
   public ClientIdentityFilter(
       ClientIdentityCookieFactory cookieFactory, ServiceAuthProperties serviceAuthProperties) {
     this.cookieFactory = cookieFactory;

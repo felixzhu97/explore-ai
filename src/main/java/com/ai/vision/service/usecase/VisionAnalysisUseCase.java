@@ -25,7 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Documentation. */
+/** Runs captioning, OCR, and object detection on uploaded images with timing metrics. */
 @Service
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -42,7 +42,6 @@ public class VisionAnalysisUseCase {
   private final Timer ocrTimer;
   private final AiInvocationRecorder invocationRecorder;
 
-  /** Documentation. */
   public VisionAnalysisUseCase(
       ImageCaptioner captioner,
       ObjectDetector detector,
@@ -58,7 +57,7 @@ public class VisionAnalysisUseCase {
     this.invocationRecorder = invocationRecorder;
   }
 
-  /** Documentation. */
+  /** Captions the uploaded image, recording latency and the invocation outcome. */
   public CaptionResponse caption(MultipartFile file) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
@@ -83,7 +82,7 @@ public class VisionAnalysisUseCase {
     }
   }
 
-  /** Documentation. */
+  /** Extracts text from the uploaded image, recording latency and the invocation outcome. */
   public OcrResponse ocr(MultipartFile file) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
@@ -108,7 +107,7 @@ public class VisionAnalysisUseCase {
     }
   }
 
-  /** Documentation. */
+  /** Detects objects in the uploaded image, recording latency and the invocation outcome. */
   public DetectResponse detect(MultipartFile file) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
@@ -133,7 +132,7 @@ public class VisionAnalysisUseCase {
     }
   }
 
-  /** Documentation. */
+  /** Reports each vision provider's status, overall UP only when all three are available. */
   public VisionHealthResponse health() {
     Map<String, String> providers = new LinkedHashMap<>();
     providers.put("caption", captioner.isAvailable() ? "UP" : "DOWN");

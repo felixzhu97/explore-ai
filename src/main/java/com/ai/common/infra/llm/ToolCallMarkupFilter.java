@@ -26,7 +26,7 @@ public final class ToolCallMarkupFilter {
 
   private ToolCallMarkupFilter() {}
 
-  /** Documentation. */
+  /** Removes DSML tool-call markup repeatedly until stable and collapses leftover blank lines. */
   public static String sanitize(String content) {
     if (content == null || content.isEmpty()) {
       return "";
@@ -43,7 +43,7 @@ public final class ToolCallMarkupFilter {
     return cleaned.replaceAll("[ \\t]+\\n", "\n").replaceAll("\\n{3,}", "\n\n").strip();
   }
 
-  /** Documentation. */
+  /** Reports whether the text mentions {@code dsml} or {@code tool_calls}, ignoring case. */
   public static boolean looksLikeToolMarkup(String content) {
     if (content == null || content.isEmpty()) {
       return false;

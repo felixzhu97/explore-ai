@@ -15,12 +15,11 @@ public class OwnerContext {
 
   private final CurrentOwnerResolver currentOwnerResolver;
 
-  /** Documentation. */
   public OwnerContext(CurrentOwnerResolver currentOwnerResolver) {
     this.currentOwnerResolver = currentOwnerResolver;
   }
 
-  /** Documentation. */
+  /** Resolves the request's owner key from an IAM JWT, else from the Client Identity cookie. */
   public OwnerKey require(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
@@ -30,7 +29,6 @@ public class OwnerContext {
     return currentOwnerResolver.resolve(clientId, authentication);
   }
 
-  /** Documentation. */
   public String requireValue(HttpServletRequest request) {
     return require(request).value();
   }

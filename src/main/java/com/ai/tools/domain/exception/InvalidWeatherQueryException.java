@@ -1,8 +1,7 @@
 package com.ai.tools.domain.exception;
 
-/** Documentation. */
+/** Thrown when a weather query has an invalid or missing city. */
 public class InvalidWeatherQueryException extends RuntimeException {
-  /** Documentation. */
   public InvalidWeatherQueryException(String message) {
     super(message);
   }

@@ -65,7 +65,6 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
   private final String workerPrompt;
   private final String synthesizerPrompt;
 
-  /** Documentation. */
   @org.springframework.beans.factory.annotation.Autowired
   public SpringAiOrchestratorWorkersWorkflow(ChatClientProvider chatClientProvider) {
     this(

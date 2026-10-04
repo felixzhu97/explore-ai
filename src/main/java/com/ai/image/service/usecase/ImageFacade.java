@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
+/** Entry point for image generation and the catalog of supported models, sizes, and qualities. */
 @Service
 public class ImageFacade {
 
@@ -23,14 +23,13 @@ public class ImageFacade {
   private final ImageGenerationRepository imageGenerationRepository;
   private final ImageProperties imageProperties;
 
-  /** Documentation. */
   public ImageFacade(
       ImageGenerationRepository imageGenerationRepository, ImageProperties imageProperties) {
     this.imageGenerationRepository = imageGenerationRepository;
     this.imageProperties = imageProperties;
   }
 
-  /** Documentation. */
+  /** Generates an image after checking the provider is configured, or returns an empty image. */
   public GeneratedImage generateImage(
       String prompt, String model, String quality, int width, int height, int n) {
     ensureProviderConfigured();

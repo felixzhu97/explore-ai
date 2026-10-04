@@ -8,7 +8,6 @@ public record EvaluationRequest(
     @NotBlank String userMessage,
     @NotBlank String assistantResponse,
     List<String> referenceDocuments) {
-  /** Documentation. */
   public EvaluationRequest {
     referenceDocuments = referenceDocuments == null ? List.of() : List.copyOf(referenceDocuments);
   }

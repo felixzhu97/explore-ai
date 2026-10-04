@@ -1,13 +1,11 @@
 package com.ai.rag.domain.exception;
 
-/** Documentation. */
+/** Base failure of the RAG pipeline, such as embedding errors or missing documents. */
 public class RagServiceException extends RuntimeException {
-  /** Documentation. */
   public RagServiceException(String message) {
     super(message);
   }
 
-  /** Documentation. */
   public RagServiceException(String message, Throwable cause) {
     super(message, cause);
   }

@@ -28,7 +28,6 @@ public class CatalogAgentRegistry implements AgentRegistry {
   private final PromptTemplates promptTemplates;
   private final SavedAgentRepository savedAgentRepository;
 
-  /** Documentation. */
   public CatalogAgentRegistry(
       PromptTemplates promptTemplates, SavedAgentRepository savedAgentRepository) {
     this.promptTemplates = promptTemplates;

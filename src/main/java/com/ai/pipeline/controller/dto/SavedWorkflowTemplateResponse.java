@@ -4,7 +4,6 @@ import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
 import java.time.Instant;
 import java.util.List;
 
-/** Documentation. */
 public record SavedWorkflowTemplateResponse(
     String id,
     String name,
@@ -16,7 +15,7 @@ public record SavedWorkflowTemplateResponse(
     boolean enabled,
     Instant createdAt,
     Instant updatedAt) {
-  /** Documentation. */
+  /** Builds a response from a user-saved workflow template. */
   public static SavedWorkflowTemplateResponse from(SavedWorkflowTemplate template) {
     return new SavedWorkflowTemplateResponse(
         template.getId().value(),

@@ -5,9 +5,8 @@ import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.vo.SkillId;
 import java.util.List;
 
-/** Documentation. */
+/** Owner-scoped repository for skills, including lookup of enabled skills by id. */
 public interface SkillRepository extends ClientIdOwnedNamedRepository<Skill, SkillId> {
 
-  /** Documentation. */
   List<Skill> findEnabledByClientIdAndIds(String clientId, List<SkillId> ids);
 }

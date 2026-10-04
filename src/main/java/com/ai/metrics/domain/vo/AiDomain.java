@@ -18,12 +18,11 @@ public enum AiDomain {
     this.value = value;
   }
 
-  /** Documentation. */
   public String value() {
     return value;
   }
 
-  /** Documentation. */
+  /** Resolves a case-insensitive domain value, returning empty when blank or unknown. */
   public static Optional<AiDomain> parse(String raw) {
     if (raw == null || raw.isBlank()) {
       return Optional.empty();
@@ -37,7 +36,6 @@ public enum AiDomain {
     return Optional.empty();
   }
 
-  /** Documentation. */
   public static AiDomain require(String raw) {
     return parse(raw).orElseThrow(() -> new IllegalArgumentException("Unknown AI domain: " + raw));
   }

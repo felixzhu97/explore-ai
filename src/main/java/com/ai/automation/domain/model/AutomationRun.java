@@ -78,7 +78,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
   }
 
-  /** Documentation. */
+  /** Starts a run for the schedule now, provisionally failed with its email pending. */
   public static AutomationRun start(ScheduleId scheduleId, String ownerKey) {
     return new AutomationRun(
         RunId.generate(),
@@ -92,7 +92,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
         EmailDeliveryStatus.PENDING);
   }
 
-  /** Documentation. */
+  /** Marks the run successful with a truncated result excerpt and stamps its finish time. */
   public void succeed(String resultExcerpt, EmailDeliveryStatus emailStatus) {
     this.status = RunStatus.SUCCESS;
     this.resultExcerpt = truncate(resultExcerpt);
@@ -101,7 +101,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
     this.errorMessage = null;
   }
 
-  /** Documentation. */
+  /** Marks the run failed with a truncated error message and stamps its finish time. */
   public void fail(String errorMessage, EmailDeliveryStatus emailStatus) {
     this.status = RunStatus.FAILED;
     this.errorMessage = truncateMessage(errorMessage);
@@ -109,7 +109,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
     markFinished(Instant.now());
   }
 
-  /** Documentation. */
+  /** Marks the run skipped with the given reason and no email, and stamps its finish time. */
   public void skip(String reason) {
     this.status = RunStatus.SKIPPED;
     this.errorMessage = truncateMessage(reason);

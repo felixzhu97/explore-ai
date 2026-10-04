@@ -4,7 +4,6 @@ import com.ai.pipeline.domain.model.SavedAgentDefinition;
 import java.time.Instant;
 import java.util.List;
 
-/** Documentation. */
 public record SavedAgentResponse(
     String id,
     String typeKey,
@@ -15,7 +14,7 @@ public record SavedAgentResponse(
     boolean enabled,
     Instant createdAt,
     Instant updatedAt) {
-  /** Documentation. */
+  /** Builds a response from a saved library agent definition. */
   public static SavedAgentResponse from(SavedAgentDefinition agent) {
     return new SavedAgentResponse(
         agent.getId().value(),

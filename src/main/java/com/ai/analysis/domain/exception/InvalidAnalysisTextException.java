@@ -1,8 +1,7 @@
 package com.ai.analysis.domain.exception;
 
-/** Documentation. */
+/** Thrown when analysis input text is blank or exceeds the maximum length. */
 public class InvalidAnalysisTextException extends RuntimeException {
-  /** Documentation. */
   public InvalidAnalysisTextException(String message) {
     super(message);
   }

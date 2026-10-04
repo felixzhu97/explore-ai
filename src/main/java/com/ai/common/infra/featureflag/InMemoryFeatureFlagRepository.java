@@ -3,12 +3,11 @@ package com.ai.common.infra.featureflag;
 import com.ai.common.config.LaunchDarklyProperties;
 import com.ai.common.domain.repository.FeatureFlagRepository;
 
-/** Documentation. */
+/** Feature flag repository backed by the configured LaunchDarkly fallback values. */
 public class InMemoryFeatureFlagRepository implements FeatureFlagRepository {
 
   private final LaunchDarklyProperties properties;
 
-  /** Documentation. */
   public InMemoryFeatureFlagRepository(LaunchDarklyProperties properties) {
     this.properties = properties;
   }

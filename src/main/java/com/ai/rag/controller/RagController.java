@@ -44,7 +44,6 @@ public class RagController {
   private final RagChatUseCase ragChatUseCase;
   private final ObjectProvider<VisionChatUseCase> visionChatUseCase;
 
-  /** Documentation. */
   public RagController(
       RagApplicationService ragApplicationService,
       RagChatUseCase ragChatUseCase,
@@ -56,7 +55,6 @@ public class RagController {
     this.visionChatUseCase = visionChatUseCase;
   }
 
-  /** Documentation. */
   @GetMapping("/documents")
   @Operation(summary = "List documents for the current owner")
   public ResponseEntity<DocumentListResponse> listDocuments(HttpServletRequest request) {
@@ -66,7 +64,6 @@ public class RagController {
             ragApplicationService.listDocuments(ownerKey).stream().map(this::toSummary).toList()));
   }
 
-  /** Documentation. */
   @PostMapping("/documents/upload")
   @Operation(summary = "Upload a document")
   public ResponseEntity<UploadDocumentResponse> uploadDocument(
@@ -86,7 +83,6 @@ public class RagController {
                 null));
   }
 
-  /** Documentation. */
   @DeleteMapping("/documents/{id}")
   @Operation(summary = "Delete a document")
   public ResponseEntity<Void> deleteDocument(@PathVariable UUID id, HttpServletRequest request) {
@@ -94,7 +90,6 @@ public class RagController {
     return ResponseEntity.noContent().build();
   }
 
-  /** Documentation. */
   @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "RAG streaming chat")
   public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {

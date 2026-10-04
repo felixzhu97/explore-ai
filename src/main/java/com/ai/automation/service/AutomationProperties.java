@@ -2,7 +2,7 @@ package com.ai.automation.service;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Automation settings bound from {@code app.automation}: due-scan cadence and schedule limits. */
 @ConfigurationProperties(prefix = "app.automation")
 public class AutomationProperties {
 

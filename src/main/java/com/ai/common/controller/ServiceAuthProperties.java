@@ -2,7 +2,7 @@ package com.ai.common.controller;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Service-to-service auth settings holding the shared {@code X-Service-Key} secret. */
 @ConfigurationProperties(prefix = "app.service-auth")
 public class ServiceAuthProperties {
 

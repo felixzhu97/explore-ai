@@ -1,13 +1,10 @@
 package com.ai.audio.domain.repository;
 
-/** Documentation. */
+/** Read-only view of TTS enablement, provider readiness, and the default voice. */
 public interface TtsConfiguration {
-  /** Documentation. */
   boolean isEnabled();
 
-  /** Documentation. */
   boolean isConfigured();
 
-  /** Documentation. */
   String getDefaultVoice();
 }

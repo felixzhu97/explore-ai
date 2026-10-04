@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Object detector running a YOLOv8 ONNX model through ONNX Runtime. */
 @Service
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -38,7 +38,6 @@ public class OnnxYoloDetector implements ObjectDetector {
   private final OrtSession session;
   private final boolean available;
 
-  /** Documentation. */
   public OnnxYoloDetector(VisionModelProperties properties) {
     this.properties = properties;
     OrtEnvironment loadedEnvironment = null;

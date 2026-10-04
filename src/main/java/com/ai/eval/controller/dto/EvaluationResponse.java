@@ -17,7 +17,7 @@ public record EvaluationResponse(
     boolean relevancyPass,
     Boolean factualityPass,
     List<String> evaluatorFeedback) {
-  /** Documentation. */
+  /** Maps a domain evaluation result to the response, rounding scores to two decimals. */
   public static EvaluationResponse from(ChatEvaluationResult result) {
     return new EvaluationResponse(
         round(result.coherenceScore()),

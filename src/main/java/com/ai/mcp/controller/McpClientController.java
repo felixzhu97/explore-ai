@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/mcp/client")
 @Tag(name = "MCP Client", description = "Connect to external MCP servers and use their tools")
@@ -30,7 +29,6 @@ public class McpClientController {
 
   private final McpFacade mcpFacade;
 
-  /** Documentation. */
   public McpClientController(McpFacade mcpFacade) {
     this.mcpFacade = mcpFacade;
   }
@@ -45,7 +43,6 @@ public class McpClientController {
             "connectedServers", mcpFacade.getConnectedServers().keySet().stream().toList()));
   }
 
-  /** Documentation. */
   @GetMapping("/tools")
   @Operation(summary = "List all registered MCP tools")
   public ResponseEntity<List<Map<String, String>>> listTools() {
@@ -56,7 +53,6 @@ public class McpClientController {
     return ResponseEntity.ok(tools);
   }
 
-  /** Documentation. */
   @GetMapping("/servers")
   @Operation(summary = "List connected MCP servers")
   public ResponseEntity<List<Map<String, Object>>> listServers() {
@@ -72,7 +68,6 @@ public class McpClientController {
     return ResponseEntity.ok(servers);
   }
 
-  /** Documentation. */
   @PostMapping("/chat")
   @Operation(summary = "Chat with AI using MCP tools")
   public ResponseEntity<Map<String, String>> chat(@RequestBody McpChatRequest request) {
@@ -88,6 +83,5 @@ public class McpClientController {
     }
   }
 
-  /** Documentation. */
   public record McpChatRequest(String question, List<String> docIds) {}
 }

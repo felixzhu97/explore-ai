@@ -4,8 +4,7 @@ import com.ai.analysis.domain.model.TextAnalysis;
 import com.ai.analysis.domain.vo.AnalysisText;
 import com.ai.analysis.domain.vo.LanguageHint;
 
-/** Documentation. */
+/** Repository that turns input text into a structured {@code TextAnalysis} via an AI model. */
 public interface StructuredAnalysisRepository {
-  /** Documentation. */
   TextAnalysis analyze(AnalysisText text, LanguageHint hint);
 }

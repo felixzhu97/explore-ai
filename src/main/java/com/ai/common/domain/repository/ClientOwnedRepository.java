@@ -8,15 +8,11 @@ import java.util.Optional;
 /** Shared contract for aggregates partitioned by owner_key. */
 public interface ClientOwnedRepository<EntityT, IdT extends AbstractUuidId> {
 
-  /** Documentation. */
   EntityT save(EntityT entity);
 
-  /** Documentation. */
   Optional<EntityT> findByIdAndOwnerKey(IdT id, OwnerKey ownerKey);
 
-  /** Documentation. */
   List<EntityT> findAllByOwnerKey(OwnerKey ownerKey);
 
-  /** Documentation. */
   void deleteByIdAndOwnerKey(IdT id, OwnerKey ownerKey);
 }

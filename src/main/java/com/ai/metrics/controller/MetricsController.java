@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/metrics")
 @Tag(name = "Metrics", description = "AI metrics overview and drill-down")
@@ -30,12 +29,10 @@ public class MetricsController {
 
   private final MetricsUseCase metricsUseCase;
 
-  /** Documentation. */
   public MetricsController(MetricsUseCase metricsUseCase) {
     this.metricsUseCase = metricsUseCase;
   }
 
-  /** Documentation. */
   @GetMapping("/overview")
   @Operation(summary = "AI metrics overview")
   public ResponseEntity<MetricsOverviewResponse> overview(
@@ -43,7 +40,6 @@ public class MetricsController {
     return ResponseEntity.ok(toOverview(metricsUseCase.overview(range)));
   }
 
-  /** Documentation. */
   @GetMapping("/domains/{domain}")
   @Operation(summary = "Domain-scoped AI metrics")
   public ResponseEntity<MetricsDomainResponse> domain(
@@ -51,7 +47,6 @@ public class MetricsController {
     return ResponseEntity.ok(toDomain(metricsUseCase.domain(domain, range)));
   }
 
-  /** Documentation. */
   @GetMapping("/series")
   @Operation(summary = "Metrics time series or categorical series")
   public ResponseEntity<SeriesResponse> series(
@@ -61,7 +56,6 @@ public class MetricsController {
     return ResponseEntity.ok(toSeries(metricsUseCase.series(name, domain, range)));
   }
 
-  /** Documentation. */
   @GetMapping("/drilldown")
   @Operation(summary = "Paged AI invocation events for drill-down")
   public ResponseEntity<DrilldownPageResponse> drilldown(

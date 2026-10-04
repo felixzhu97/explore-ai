@@ -19,7 +19,6 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractUui
   @Column(nullable = false)
   protected boolean enabled;
 
-  /** Documentation. */
   protected AbstractEnableableNamedOwnerEntity(
       IdT id,
       OwnerKey ownerKey,
@@ -31,26 +30,22 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractUui
     this.enabled = enabled;
   }
 
-  /** Documentation. */
   protected AbstractEnableableNamedOwnerEntity(
       IdT id, String clientId, String name, boolean enabled, Instant createdAt, Instant updatedAt) {
     super(id, clientId, name, createdAt, updatedAt);
     this.enabled = enabled;
   }
 
-  /** Documentation. */
   public void enable() {
     this.enabled = true;
     touchUpdatedAt();
   }
 
-  /** Documentation. */
   public void disable() {
     this.enabled = false;
     touchUpdatedAt();
   }
 
-  /** Documentation. */
   public boolean isEnabled() {
     return enabled;
   }

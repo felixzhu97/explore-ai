@@ -16,7 +16,6 @@ public final class SanitizingChatMemory implements ChatMemory {
 
   private final ChatMemory delegate;
 
-  /** Documentation. */
   public SanitizingChatMemory(ChatMemory delegate) {
     this.delegate = delegate;
   }

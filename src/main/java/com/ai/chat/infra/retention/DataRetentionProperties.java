@@ -3,7 +3,7 @@ package com.ai.chat.infra.retention;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Settings under {@code app.data-retention}: purge toggle, max session age, and cron. */
 @ConfigurationProperties(prefix = "app.data-retention")
 public class DataRetentionProperties {
 

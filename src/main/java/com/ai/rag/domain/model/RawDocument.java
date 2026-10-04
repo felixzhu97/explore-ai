@@ -7,7 +7,6 @@ import java.util.Map;
  * identity without framework annotations.
  */
 public record RawDocument(String content, Map<String, Object> metadata, String source) {
-  /** Documentation. */
   public RawDocument {
     if (content == null) {
       content = "";

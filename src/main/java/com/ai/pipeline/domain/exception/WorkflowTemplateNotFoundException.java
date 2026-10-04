@@ -1,8 +1,7 @@
 package com.ai.pipeline.domain.exception;
 
-/** Documentation. */
+/** Thrown when a saved workflow template id does not exist for the requesting client. */
 public class WorkflowTemplateNotFoundException extends RuntimeException {
-  /** Documentation. */
   public WorkflowTemplateNotFoundException(String id) {
     super("Workflow template not found: " + id);
   }

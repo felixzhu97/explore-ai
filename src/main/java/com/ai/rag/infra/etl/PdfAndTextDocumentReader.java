@@ -12,7 +12,6 @@ public class PdfAndTextDocumentReader implements DocumentReader {
 
   private final PdfTextExtractor pdfTextExtractor;
 
-  /** Documentation. */
   public PdfAndTextDocumentReader(PdfTextExtractor pdfTextExtractor) {
     this.pdfTextExtractor = pdfTextExtractor;
   }

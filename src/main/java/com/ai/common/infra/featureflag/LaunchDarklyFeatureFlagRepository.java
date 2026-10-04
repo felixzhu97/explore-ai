@@ -4,14 +4,13 @@ import com.ai.common.domain.repository.FeatureFlagRepository;
 import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.server.LDClient;
 
-/** Documentation. */
+/** Feature flag repository that evaluates boolean flags via the LaunchDarkly server SDK. */
 public class LaunchDarklyFeatureFlagRepository implements FeatureFlagRepository {
 
   private static final LDContext SERVER_CONTEXT = LDContext.builder("explore-ai-server").build();
 
   private final LDClient client;
 
-  /** Documentation. */
   public LaunchDarklyFeatureFlagRepository(LDClient client) {
     this.client = client;
   }

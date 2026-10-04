@@ -1,8 +1,7 @@
 package com.ai.pipeline.domain.exception;
 
-/** Documentation. */
+/** Thrown when a saved agent id does not exist for the requesting client. */
 public class SavedAgentNotFoundException extends RuntimeException {
-  /** Documentation. */
   public SavedAgentNotFoundException(String id) {
     super("Saved agent not found: " + id);
   }

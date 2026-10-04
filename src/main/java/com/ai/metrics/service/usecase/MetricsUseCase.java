@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Builds metrics overviews, per-domain snapshots, daily series, and event drilldowns. */
 @Service
 public class MetricsUseCase {
 
@@ -28,7 +28,6 @@ public class MetricsUseCase {
   private final AiInvocationEventRepository eventRepository;
   private final MetricsHealthGateway healthGateway;
 
-  /** Documentation. */
   public MetricsUseCase(
       MetricsQueryRepository queryRepository,
       AiInvocationEventRepository eventRepository,
@@ -38,7 +37,7 @@ public class MetricsUseCase {
     this.healthGateway = healthGateway;
   }
 
-  /** Documentation. */
+  /** Returns cross-domain request, error, latency, token, and inventory totals for the range. */
   public MetricsOverview overview(String range) {
     RangeWindow window = parseRange(range);
     Instant activeSince = Instant.now().minus(24, ChronoUnit.HOURS);
@@ -94,7 +93,7 @@ public class MetricsUseCase {
         domains);
   }
 
-  /** Documentation. */
+  /** Returns request stats, domain-specific inventory, and trend series for one AI domain. */
   public MetricsDomainSnapshot domain(String domainRaw, String range) {
     AiDomain domain = AiDomain.require(domainRaw);
     RangeWindow window = parseRange(range);
@@ -149,7 +148,7 @@ public class MetricsUseCase {
         series("calls_by_model", domain.value(), window.range()).points());
   }
 
-  /** Documentation. */
+  /** Returns the named chart series, optionally filtered by domain, over the given range. */
   public SeriesSnapshot series(String name, String domainRaw, String range) {
     RangeWindow window = parseRange(range);
     Optional<AiDomain> domain = AiDomain.parse(domainRaw);
@@ -200,7 +199,7 @@ public class MetricsUseCase {
         seriesName, domain.map(AiDomain::value).orElse(null), window.range(), points);
   }
 
-  /** Documentation. */
+  /** Returns a page of invocation events matching the filters, defaulting to the last 7 days. */
   public DrilldownPage drilldown(
       String domainRaw,
       String from,

@@ -1,8 +1,7 @@
 package com.ai.mcp.domain.exception;
 
-/** Documentation. */
+/** Thrown when a requested MCP tool is not registered. */
 public class McpToolNotFoundException extends RuntimeException {
-  /** Documentation. */
   public McpToolNotFoundException(String message) {
     super(message);
   }

@@ -2,7 +2,7 @@ package com.ai.billing.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Billing settings: quota toggle, active plan, and daily request limits per plan. */
 @ConfigurationProperties(prefix = "app.billing")
 public class BillingProperties {
 
@@ -46,7 +46,7 @@ public class BillingProperties {
     this.proDailyRequests = proDailyRequests;
   }
 
-  /** Documentation. */
+  /** Returns the daily request limit for the active plan, using the free limit unless pro. */
   public int dailyLimit() {
     if ("pro".equalsIgnoreCase(plan)) {
       return proDailyRequests;

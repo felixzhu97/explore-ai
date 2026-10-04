@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/pipelines")
 public class PipelineController {
@@ -35,13 +34,11 @@ public class PipelineController {
 
   private final PipelineFacade agentFacade;
 
-  /** Documentation. */
   public PipelineController(PipelineFacade agentFacade, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.agentFacade = agentFacade;
   }
 
-  /** Documentation. */
   @GetMapping("/list")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
@@ -52,7 +49,6 @@ public class PipelineController {
     return ResponseEntity.ok(agents);
   }
 
-  /** Documentation. */
   @GetMapping("/{agentType}/health")
   public ResponseEntity<?> health(
       @PathVariable String agentType,
@@ -68,7 +64,6 @@ public class PipelineController {
     }
   }
 
-  /** Documentation. */
   @GetMapping("/{agentType}")
   public ResponseEntity<?> getAgent(
       @PathVariable String agentType,
@@ -84,7 +79,6 @@ public class PipelineController {
     }
   }
 
-  /** Documentation. */
   @PostMapping(value = "/supervisor/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       @Valid @RequestBody AgentInvokeRequest request,
@@ -95,7 +89,6 @@ public class PipelineController {
         request.message(), clientId, resolveLanguage(lang, httpRequest));
   }
 
-  /** Documentation. */
   @PostMapping(value = "/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokePipeline(
       @Valid @RequestBody PipelineInvokeRequest request,
@@ -125,7 +118,6 @@ public class PipelineController {
         resolveLanguage(lang, httpRequest));
   }
 
-  /** Documentation. */
   @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeAgent(
       @PathVariable String agentType,
@@ -143,7 +135,6 @@ public class PipelineController {
                     ServerSentEvent.<String>builder().event("done").data("[DONE]").build()));
   }
 
-  /** Documentation. */
   @GetMapping("/health")
   public ResponseEntity<Map<String, Object>> moduleHealth() {
     return ResponseEntity.ok(Map.of("status", "UP", "agents", agentFacade.builtinCount()));

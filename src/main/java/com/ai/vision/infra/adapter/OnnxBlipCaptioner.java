@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Image captioner running BLIP vision encoder and text decoder ONNX models. */
 @Service
 @DependsOn("onnxYoloDetector")
 @ConditionalOnProperty(
@@ -48,7 +48,6 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
   private final BlipVocabulary vocabulary;
   private final boolean available;
 
-  /** Documentation. */
   public OnnxBlipCaptioner(VisionModelProperties properties) {
     this.properties = properties;
 

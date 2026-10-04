@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api")
 public class ChatController {
@@ -41,7 +40,6 @@ public class ChatController {
   private final ChatUseCase chatUseCase;
   private final ChatWebSourcesRepository chatWebSourcesRepository;
 
-  /** Documentation. */
   public ChatController(
       ChatUseCase chatUseCase,
       ChatWebSourcesRepository chatWebSourcesRepository,
@@ -51,13 +49,11 @@ public class ChatController {
     this.chatWebSourcesRepository = chatWebSourcesRepository;
   }
 
-  /** Documentation. */
   @GetMapping("/health")
   public ResponseEntity<HealthResponse> health() {
     return ResponseEntity.ok(HealthResponse.up());
   }
 
-  /** Documentation. */
   @PostMapping("/chat")
   public ResponseEntity<ChatResponse> chat(
       @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
@@ -76,7 +72,6 @@ public class ChatController {
     return ResponseEntity.ok(ChatResponse.of(response));
   }
 
-  /** Documentation. */
   @PostMapping("/sessions")
   public ResponseEntity<SessionInfo> createSession(
       @Valid @RequestBody(required = false) CreateSessionRequest body,
@@ -86,7 +81,6 @@ public class ChatController {
     return ResponseEntity.ok(SessionInfo.from(session));
   }
 
-  /** Documentation. */
   @GetMapping("/sessions")
   public ResponseEntity<List<SessionInfo>> getAllSessions(HttpServletRequest httpRequest) {
     List<SessionInfo> sessions =
@@ -96,7 +90,6 @@ public class ChatController {
     return ResponseEntity.ok(sessions);
   }
 
-  /** Documentation. */
   @GetMapping("/sessions/{sessionId}")
   public ResponseEntity<SessionInfo> getSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
@@ -106,7 +99,6 @@ public class ChatController {
         .orElse(ResponseEntity.notFound().build());
   }
 
-  /** Documentation. */
   @GetMapping("/sessions/{sessionId}/messages")
   public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
@@ -136,7 +128,6 @@ public class ChatController {
     return MessageInfoResponse.from(message, sources.stream().map(WebSourceDto::from).toList());
   }
 
-  /** Documentation. */
   @DeleteMapping("/sessions/{sessionId}")
   public ResponseEntity<Void> deleteSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {

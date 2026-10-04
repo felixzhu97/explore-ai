@@ -1,16 +1,15 @@
 package com.ai.automation.domain.vo;
 
-/** Documentation. */
+/** Whether an automation schedule recurs on a cron expression or runs once at a set time. */
 public enum ScheduleKind {
   CRON,
   ONCE;
 
-  /** Documentation. */
   public String value() {
     return name();
   }
 
-  /** Documentation. */
+  /** Parses a schedule kind case-insensitively, defaulting to {@code CRON} when blank. */
   public static ScheduleKind from(String raw) {
     if (raw == null || raw.isBlank()) {
       return CRON;

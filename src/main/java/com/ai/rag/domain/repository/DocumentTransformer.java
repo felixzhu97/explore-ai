@@ -5,6 +5,5 @@ import java.util.List;
 
 /** Transforms raw documents into processed chunks. */
 public interface DocumentTransformer {
-  /** Documentation. */
   List<RawDocument> transform(RawDocument document);
 }

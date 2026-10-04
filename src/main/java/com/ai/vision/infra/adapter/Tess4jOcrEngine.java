@@ -13,7 +13,7 @@ import net.sourceforge.tess4j.TesseractException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Tess4J OCR engine, available only when tessdata holds {@code eng.traineddata}. */
 @Service
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -26,7 +26,6 @@ public class Tess4jOcrEngine implements OcrEngine {
   private final VisionModelProperties properties;
   private final boolean available;
 
-  /** Documentation. */
   public Tess4jOcrEngine(ITesseract tesseract, VisionModelProperties properties) {
     this.tesseract = tesseract;
     this.properties = properties;

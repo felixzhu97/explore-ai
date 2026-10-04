@@ -18,7 +18,7 @@ public final class ToolEventChannel {
 
   private ToolEventChannel() {}
 
-  /** Documentation. */
+  /** Opens a buffered sink for the channel id and binds it to the current thread. */
   public static Sinks.Many<String> open(String channelId) {
     Objects.requireNonNull(channelId, "channelId");
     Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
@@ -27,12 +27,10 @@ public final class ToolEventChannel {
     return sink;
   }
 
-  /** Documentation. */
   public static void setCurrentSessionId(String channelId) {
     CURRENT_ID.set(channelId);
   }
 
-  /** Documentation. */
   public static void clearCurrentSessionId() {
     CURRENT_ID.remove();
   }
@@ -41,7 +39,7 @@ public final class ToolEventChannel {
     return CURRENT_ID.get();
   }
 
-  /** Documentation. */
+  /** Emits the JSON event to the current thread's channel; no-op when no channel is open. */
   public static void publish(String jsonPayload) {
     String id = CURRENT_ID.get();
     if (id == null) {
@@ -54,12 +52,11 @@ public final class ToolEventChannel {
     sink.tryEmitNext(jsonPayload);
   }
 
-  /** Documentation. */
   public static Flux<String> asFlux(Sinks.Many<String> sink) {
     return sink.asFlux();
   }
 
-  /** Documentation. */
+  /** Completes and removes the channel's sink, unbinding it from the current thread if bound. */
   public static void close(String channelId) {
     if (channelId == null) {
       return;

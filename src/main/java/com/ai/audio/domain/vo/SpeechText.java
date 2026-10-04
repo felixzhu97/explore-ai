@@ -2,12 +2,10 @@ package com.ai.audio.domain.vo;
 
 import com.ai.audio.domain.exception.InvalidSpeechTextException;
 
-/** Documentation. */
 public record SpeechText(String value) {
 
   private static final int MAX_LENGTH = 10_000;
 
-  /** Documentation. */
   public SpeechText {
     if (value == null || value.isBlank()) {
       throw new InvalidSpeechTextException("Speech text must not be blank");
@@ -18,12 +16,11 @@ public record SpeechText(String value) {
     }
   }
 
-  /** Documentation. */
   public static SpeechText of(String text) {
     return new SpeechText(text);
   }
 
-  /** Documentation. */
+  /** Returns the number of whitespace-separated words in the text. */
   public int wordCount() {
     if (value.isBlank()) {
       return 0;

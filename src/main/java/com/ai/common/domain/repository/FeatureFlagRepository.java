@@ -1,7 +1,6 @@
 package com.ai.common.domain.repository;
 
-/** Documentation. */
+/** Evaluates boolean feature flags by key, returning the default when unresolved. */
 public interface FeatureFlagRepository {
-  /** Documentation. */
   boolean isEnabled(String flagKey, boolean defaultValue);
 }

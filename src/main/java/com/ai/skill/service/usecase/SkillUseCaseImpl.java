@@ -10,13 +10,12 @@ import com.ai.skill.service.SkillTemplateCatalog;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Skill use case that enforces per-owner unique names and derives names from templates. */
 @Service
 public class SkillUseCaseImpl implements SkillUseCase {
 
   private final SkillRepository skillRepository;
 
-  /** Documentation. */
   public SkillUseCaseImpl(SkillRepository skillRepository) {
     this.skillRepository = skillRepository;
   }

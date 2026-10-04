@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Entry point for text-to-speech synthesis and the catalog of available voices and models. */
 @Service
 public class AudioFacade {
 
@@ -29,14 +29,13 @@ public class AudioFacade {
   private final TextToSpeechRepository textToSpeechRepository;
   private final TtsConfiguration ttsConfiguration;
 
-  /** Documentation. */
   public AudioFacade(
       TextToSpeechRepository textToSpeechRepository, TtsConfiguration ttsConfiguration) {
     this.textToSpeechRepository = textToSpeechRepository;
     this.ttsConfiguration = ttsConfiguration;
   }
 
-  /** Documentation. */
+  /** Synthesizes speech and returns the raw audio bytes, or {@code null} when nothing came back. */
   public byte[] synthesize(String text, String voice, Double speed) {
     ensureProviderConfigured();
     log.info("AudioFacade.synthesize: {}", LogSanitizer.truncate(text));
@@ -46,7 +45,7 @@ public class AudioFacade {
     return audio.isEmpty() ? null : audio.data();
   }
 
-  /** Documentation. */
+  /** Synthesizes speech and returns the audio with its media type, possibly empty. */
   public SynthesizedAudio synthesizeAudio(String text, String voice, Double speed) {
     ensureProviderConfigured();
     log.info("AudioFacade.synthesize: {}", LogSanitizer.truncate(text));

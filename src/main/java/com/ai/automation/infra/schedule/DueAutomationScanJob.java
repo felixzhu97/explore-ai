@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Scheduled job that periodically executes automation schedules whose next run is due. */
 @Component
 @EnableConfigurationProperties(AutomationProperties.class)
 public class DueAutomationScanJob {
@@ -18,14 +18,12 @@ public class DueAutomationScanJob {
   private final ExecuteDueAutomationsUseCase executeDueAutomationsUseCase;
   private final AutomationProperties properties;
 
-  /** Documentation. */
   public DueAutomationScanJob(
       ExecuteDueAutomationsUseCase executeDueAutomationsUseCase, AutomationProperties properties) {
     this.executeDueAutomationsUseCase = executeDueAutomationsUseCase;
     this.properties = properties;
   }
 
-  /** Documentation. */
   @Scheduled(fixedDelayString = "${app.automation.scan-fixed-delay-ms:60000}")
   public void scan() {
     if (!properties.isScanEnabled()) {

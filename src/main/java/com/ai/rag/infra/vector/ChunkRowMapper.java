@@ -17,7 +17,6 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
 
   private final ObjectMapper objectMapper;
 
-  /** Documentation. */
   public ChunkRowMapper(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }

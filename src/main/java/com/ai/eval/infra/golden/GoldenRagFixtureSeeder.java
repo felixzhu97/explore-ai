@@ -35,7 +35,6 @@ public class GoldenRagFixtureSeeder {
   private final PathMatchingResourcePatternResolver resolver =
       new PathMatchingResourcePatternResolver();
 
-  /** Documentation. */
   public GoldenRagFixtureSeeder(DocumentUploadService documentUploadService) {
     this.documentUploadService = documentUploadService;
   }

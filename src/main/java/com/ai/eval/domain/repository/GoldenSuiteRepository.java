@@ -6,9 +6,7 @@ import java.util.List;
 
 /** Loads OpenAI Evals JSONL golden cases from classpath. */
 public interface GoldenSuiteRepository {
-  /** Documentation. */
   List<GoldenEvalCase> loadAll();
 
-  /** Documentation. */
   List<GoldenEvalCase> loadByDomains(List<GoldenEvalDomain> domains);
 }

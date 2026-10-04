@@ -17,7 +17,6 @@ public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
 
   private final OAuthSpaProperties spaProperties;
 
-  /** Documentation. */
   public OAuthLoginFailureHandler(OAuthSpaProperties spaProperties) {
     this.spaProperties = spaProperties;
   }

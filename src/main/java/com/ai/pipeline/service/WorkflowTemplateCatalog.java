@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/** Documentation. */
+/** Built-in workflow templates loaded per language from {@code pipeline-templates/*.json}. */
 public final class WorkflowTemplateCatalog {
 
   private static final String DEFAULT_LANGUAGE = "en";
@@ -22,22 +22,19 @@ public final class WorkflowTemplateCatalog {
 
   private WorkflowTemplateCatalog() {}
 
-  /** Documentation. */
   public static List<WorkflowTemplate> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
-  /** Documentation. */
   public static List<WorkflowTemplate> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
-  /** Documentation. */
   public static Optional<WorkflowTemplate> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }
 
-  /** Documentation. */
+  /** Finds a template by id in the given language, falling back to the English catalog. */
   public static Optional<WorkflowTemplate> findById(String templateId, String language) {
     if (templateId == null || templateId.isBlank()) {
       return Optional.empty();
@@ -52,7 +49,7 @@ public final class WorkflowTemplateCatalog {
         .findFirst();
   }
 
-  /** Documentation. */
+  /** Returns the template's localized names across all supported languages. */
   public static Set<String> namesForTemplate(String templateId) {
     Set<String> names = new LinkedHashSet<>();
     if (templateId == null || templateId.isBlank()) {
@@ -68,7 +65,7 @@ public final class WorkflowTemplateCatalog {
     return names;
   }
 
-  /** Documentation. */
+  /** Reduces a locale or Accept-Language value to a supported language code, else English. */
   public static String normalizeLanguage(String language) {
     if (language == null || language.isBlank()) {
       return DEFAULT_LANGUAGE;

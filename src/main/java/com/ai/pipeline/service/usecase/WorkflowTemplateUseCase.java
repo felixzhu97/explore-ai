@@ -4,15 +4,12 @@ import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
 import com.ai.pipeline.service.WorkflowTemplate;
 import java.util.List;
 
-/** Documentation. */
+/** Manages a client's workflow template library and instantiates built-in templates into it. */
 public interface WorkflowTemplateUseCase {
-  /** Documentation. */
   List<SavedWorkflowTemplate> listLibrary(String clientId);
 
-  /** Documentation. */
   SavedWorkflowTemplate get(String clientId, String id);
 
-  /** Documentation. */
   SavedWorkflowTemplate create(
       String clientId,
       String name,
@@ -22,7 +19,6 @@ public interface WorkflowTemplateUseCase {
       String briefPrompt,
       String sourceTemplateId);
 
-  /** Documentation. */
   SavedWorkflowTemplate update(
       String clientId,
       String id,
@@ -32,15 +28,11 @@ public interface WorkflowTemplateUseCase {
       String shortTopic,
       String briefPrompt);
 
-  /** Documentation. */
   SavedWorkflowTemplate setEnabled(String clientId, String id, boolean enabled);
 
-  /** Documentation. */
   void delete(String clientId, String id);
 
-  /** Documentation. */
   List<WorkflowTemplate> listTemplates(String language);
 
-  /** Documentation. */
   SavedWorkflowTemplate createFromTemplate(String clientId, String templateId, String language);
 }

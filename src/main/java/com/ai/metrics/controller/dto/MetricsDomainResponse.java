@@ -3,7 +3,6 @@ package com.ai.metrics.controller.dto;
 import java.util.List;
 import java.util.Map;
 
-/** Documentation. */
 public record MetricsDomainResponse(
     String domain,
     String range,

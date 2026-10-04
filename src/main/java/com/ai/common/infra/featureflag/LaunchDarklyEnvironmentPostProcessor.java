@@ -15,7 +15,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
+/** Seeds module flag bootstrap properties from LaunchDarkly or fallbacks before context startup. */
 public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
   private static final Logger log =

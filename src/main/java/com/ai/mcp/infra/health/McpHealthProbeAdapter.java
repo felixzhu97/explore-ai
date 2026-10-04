@@ -16,7 +16,6 @@ public class McpHealthProbeAdapter implements McpHealthProbe {
 
   private final McpFacade mcpFacade;
 
-  /** Documentation. */
   public McpHealthProbeAdapter(McpFacade mcpFacade) {
     this.mcpFacade = mcpFacade;
   }

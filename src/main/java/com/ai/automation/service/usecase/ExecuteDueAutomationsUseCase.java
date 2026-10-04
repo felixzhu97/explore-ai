@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** Runs due automation schedules under daily quota, emails results and records each run. */
 @Service
 public class ExecuteDueAutomationsUseCase {
 
@@ -34,7 +34,6 @@ public class ExecuteDueAutomationsUseCase {
   private final DailyUsageQuotaService dailyUsageQuotaService;
   private final AutomationProperties properties;
 
-  /** Documentation. */
   public ExecuteDueAutomationsUseCase(
       AutomationScheduleRepository scheduleRepository,
       AutomationRunRepository runRepository,
@@ -54,7 +53,7 @@ public class ExecuteDueAutomationsUseCase {
     this.properties = properties;
   }
 
-  /** Documentation. */
+  /** Claims and runs a batch of due schedules, returning how many this instance executed. */
   @Transactional
   public int executeDue() {
     Instant now = Instant.now();

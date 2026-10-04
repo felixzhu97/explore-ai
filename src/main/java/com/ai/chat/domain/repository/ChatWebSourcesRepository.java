@@ -6,7 +6,6 @@ import java.util.Map;
 
 /** Persists web citation payloads keyed by conversation and assistant content hash. */
 public interface ChatWebSourcesRepository {
-  /** Documentation. */
   void save(String conversationId, String assistantContent, String query, List<WebSource> sources);
 
   /**
@@ -16,6 +15,5 @@ public interface ChatWebSourcesRepository {
    */
   Map<String, List<WebSource>> findByConversationId(String conversationId);
 
-  /** Documentation. */
   void deleteByConversationId(String conversationId);
 }

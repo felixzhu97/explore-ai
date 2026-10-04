@@ -14,17 +14,15 @@ public class StreamingService {
   private static final Duration DEFAULT_WORD_DELAY = Duration.ofMillis(30);
   private final ObjectMapper objectMapper;
 
-  /** Documentation. */
   public StreamingService(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
-  /** Documentation. */
   public Flux<ServerSentEvent<String>> streamWords(String text) {
     return streamWords(text, DEFAULT_WORD_DELAY);
   }
 
-  /** Documentation. */
+  /** Emits the text word by word as SSE events, pausing {@code delayPerWord} between words. */
   public Flux<ServerSentEvent<String>> streamWords(String text, Duration delayPerWord) {
     if (text == null || text.isEmpty()) {
       return Flux.just(ServerSentEvent.<String>builder().data("").build());
@@ -35,7 +33,7 @@ public class StreamingService {
         .map(word -> ServerSentEvent.<String>builder().data(word + " ").build());
   }
 
-  /** Documentation. */
+  /** Streams the text word by word, then a {@code sources} event when JSON is present. */
   public Flux<ServerSentEvent<String>> streamWithSources(String text, String sourcesJson) {
     Flux<ServerSentEvent<String>> wordStream = streamWords(text);
     Flux<ServerSentEvent<String>> sourceEvent =
@@ -50,7 +48,7 @@ public class StreamingService {
     return wordStream.concatWith(sourceEvent);
   }
 
-  /** Documentation. */
+  /** Serializes the sources to JSON and streams them after the text; omits them on failure. */
   public <T> Flux<ServerSentEvent<String>> streamWithSources(String text, T sources) {
     try {
       return streamWithSources(text, objectMapper.writeValueAsString(sources));
@@ -59,7 +57,7 @@ public class StreamingService {
     }
   }
 
-  /** Documentation. */
+  /** Streams the text followed by the serializer's sources JSON; omits sources on failure. */
   public Flux<ServerSentEvent<String>> streamWithSources(
       String text, SourcesSerializer sourcesSerializer) {
     try {
@@ -69,10 +67,9 @@ public class StreamingService {
     }
   }
 
-  /** Documentation. */
+  /** Callback that produces the sources JSON payload, possibly failing with a Jackson error. */
   @FunctionalInterface
   public interface SourcesSerializer {
-    /** Documentation. */
     String serialize() throws JsonProcessingException;
   }
 }

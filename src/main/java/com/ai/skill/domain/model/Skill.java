@@ -45,7 +45,7 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
     this.allowedTools = copyAllowedTools(allowedTools);
   }
 
-  /** Documentation. */
+  /** Creates a new enabled skill for the owner with a generated id. */
   public static Skill create(
       String ownerKey,
       String name,
@@ -65,7 +65,7 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
         now);
   }
 
-  /** Documentation. */
+  /** Replaces name, description, instructions, and allowed tools, then bumps the update time. */
   public Skill update(
       String name, String description, String instructions, List<String> allowedTools) {
     rename(name);
@@ -76,7 +76,6 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
     return this;
   }
 
-  /** Documentation. */
   public List<String> getAllowedTools() {
     return Collections.unmodifiableList(allowedTools == null ? List.of() : allowedTools);
   }

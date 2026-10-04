@@ -4,7 +4,6 @@ import com.ai.pipeline.service.WorkflowTemplate;
 import com.ai.pipeline.service.WorkflowTemplateCatalog;
 import java.util.List;
 
-/** Documentation. */
 public record WorkflowTemplateResponse(
     String id,
     String name,
@@ -13,7 +12,7 @@ public record WorkflowTemplateResponse(
     String shortTopic,
     String briefPrompt,
     List<String> nameAliases) {
-  /** Documentation. */
+  /** Builds a response from a built-in template, adding its names across all languages. */
   public static WorkflowTemplateResponse from(WorkflowTemplate template) {
     return new WorkflowTemplateResponse(
         template.id(),

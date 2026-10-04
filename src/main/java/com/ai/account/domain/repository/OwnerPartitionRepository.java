@@ -2,11 +2,9 @@ package com.ai.account.domain.repository;
 
 import com.ai.common.domain.vo.OwnerKey;
 
-/** Documentation. */
+/** Repository that reassigns or erases every row belonging to an owner partition. */
 public interface OwnerPartitionRepository {
-  /** Documentation. */
   void reassignOwner(OwnerKey from, OwnerKey to);
 
-  /** Documentation. */
   void deleteAllForOwner(OwnerKey owner);
 }

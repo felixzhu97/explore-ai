@@ -24,7 +24,6 @@ public class WorkflowUseCase {
   private final OrchestratorWorkersWorkflow orchestratorWorkersWorkflow;
   private final EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow;
 
-  /** Documentation. */
   public WorkflowUseCase(
       ChainWorkflow chainWorkflow,
       ParallelizationWorkflow parallelizationWorkflow,
@@ -38,27 +37,22 @@ public class WorkflowUseCase {
     this.evaluatorOptimizerWorkflow = evaluatorOptimizerWorkflow;
   }
 
-  /** Documentation. */
   public ChainResult chain(String userInput, String[] systemPrompts) {
     return chainWorkflow.chain(userInput, systemPrompts);
   }
 
-  /** Documentation. */
   public ParallelizationResult parallel(String prompt, List<String> items, int parallelism) {
     return parallelizationWorkflow.parallel(prompt, items, parallelism);
   }
 
-  /** Documentation. */
   public RoutingResult route(String input, Map<String, String> routes) {
     return routingWorkflow.route(input, routes);
   }
 
-  /** Documentation. */
   public OrchestratorWorkersResult orchestratorWorkers(String task) {
     return orchestratorWorkersWorkflow.process(task);
   }
 
-  /** Documentation. */
   public EvaluatorOptimizerResult evaluatorOptimizer(String task) {
     return evaluatorOptimizerWorkflow.loop(task);
   }

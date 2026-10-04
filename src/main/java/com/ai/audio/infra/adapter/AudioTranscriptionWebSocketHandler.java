@@ -13,7 +13,6 @@ public class AudioTranscriptionWebSocketHandler extends TextWebSocketHandler {
 
   private final StreamingTranscriptionUseCase streamingTranscriptionUseCase;
 
-  /** Documentation. */
   public AudioTranscriptionWebSocketHandler(
       StreamingTranscriptionUseCase streamingTranscriptionUseCase) {
     this.streamingTranscriptionUseCase = streamingTranscriptionUseCase;

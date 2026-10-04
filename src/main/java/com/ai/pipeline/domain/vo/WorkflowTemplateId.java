@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class WorkflowTemplateId extends AbstractUuidId {
 
-  /** Documentation. */
   public WorkflowTemplateId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static WorkflowTemplateId of(String value) {
     return new WorkflowTemplateId(value);
   }
 
-  /** Documentation. */
   public static WorkflowTemplateId generate() {
     return new WorkflowTemplateId(newUuidString());
   }

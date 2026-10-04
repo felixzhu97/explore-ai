@@ -30,12 +30,10 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
   @Column(nullable = false)
   private DocumentStatus status;
 
-  /** Documentation. */
   public Document(DocumentId id, String title, String fileName, Long fileSize) {
     this(id, title, fileName, fileSize, com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
   }
 
-  /** Documentation. */
   public Document(DocumentId id, String title, String fileName, Long fileSize, String ownerKey) {
     super(id, ownerKey, Instant.now(), Instant.now());
     this.title = validateTitle(title);
@@ -44,7 +42,6 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
     this.status = DocumentStatus.UPLOADING;
   }
 
-  /** Documentation. */
   public Document(
       DocumentId id,
       String title,
@@ -64,7 +61,6 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
         com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
   }
 
-  /** Documentation. */
   public Document(
       DocumentId id,
       String title,
@@ -88,28 +84,25 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
     return title.length() > 255 ? title.substring(0, 255) : title.trim();
   }
 
-  /** Documentation. */
   public void markProcessing() {
     validateTransitionTo(DocumentStatus.PROCESSING);
     this.status = DocumentStatus.PROCESSING;
     touchUpdatedAt();
   }
 
-  /** Documentation. */
   public void markReady() {
     validateTransitionTo(DocumentStatus.READY);
     this.status = DocumentStatus.READY;
     touchUpdatedAt();
   }
 
-  /** Documentation. */
   public void markFailed() {
     validateTransitionTo(DocumentStatus.FAILED);
     this.status = DocumentStatus.FAILED;
     touchUpdatedAt();
   }
 
-  /** Documentation. */
+  /** Changes the title unless the document is already READY. */
   public void updateTitle(String newTitle) {
     if (status == DocumentStatus.READY) {
       throw new IllegalStateException("Cannot update title of ready document");

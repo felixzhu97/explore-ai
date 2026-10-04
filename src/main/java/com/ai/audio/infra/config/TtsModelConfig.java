@@ -14,11 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
 @Configuration
 @EnableConfigurationProperties(TtsProperties.class)
 public class TtsModelConfig {
-  /** Documentation. */
   @Bean
   @Primary
   @ConditionalOnExpression(

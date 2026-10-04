@@ -12,7 +12,7 @@ import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
+/** Spring AI repository that generates images through an OpenAI-compatible image model. */
 @Repository
 public class SpringAiImageGenerationRepository implements ImageGenerationRepository {
 
@@ -21,7 +21,6 @@ public class SpringAiImageGenerationRepository implements ImageGenerationReposit
 
   private final ImageModel imageModel;
 
-  /** Documentation. */
   public SpringAiImageGenerationRepository(ImageModel imageModel) {
     this.imageModel = imageModel;
   }

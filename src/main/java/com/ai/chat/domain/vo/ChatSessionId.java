@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class ChatSessionId extends AbstractUuidId {
 
-  /** Documentation. */
   public ChatSessionId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static ChatSessionId of(String value) {
     return new ChatSessionId(value);
   }
 
-  /** Documentation. */
   public static ChatSessionId generate() {
     return new ChatSessionId(newUuidString());
   }

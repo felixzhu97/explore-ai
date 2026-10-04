@@ -3,7 +3,7 @@ package com.ai.audio.domain.model;
 import java.util.Arrays;
 import java.util.Objects;
 
-/** Documentation. */
+/** Immutable synthesized speech audio bytes with their media type, defaulting to MP3. */
 public class SynthesizedAudio {
 
   private final byte[] data;
@@ -14,17 +14,14 @@ public class SynthesizedAudio {
     this.mediaType = mediaType == null || mediaType.isBlank() ? "audio/mpeg" : mediaType;
   }
 
-  /** Documentation. */
   public static SynthesizedAudio create(byte[] data) {
     return new SynthesizedAudio(data, "audio/mpeg");
   }
 
-  /** Documentation. */
   public static SynthesizedAudio create(byte[] data, String mediaType) {
     return new SynthesizedAudio(data, mediaType);
   }
 
-  /** Documentation. */
   public static SynthesizedAudio empty() {
     return new SynthesizedAudio(new byte[0], "audio/mpeg");
   }
@@ -33,17 +30,14 @@ public class SynthesizedAudio {
     return data.length == 0;
   }
 
-  /** Documentation. */
   public int sizeInBytes() {
     return data.length;
   }
 
-  /** Documentation. */
   public byte[] data() {
     return Arrays.copyOf(data, data.length);
   }
 
-  /** Documentation. */
   public String mediaType() {
     return mediaType;
   }

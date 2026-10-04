@@ -40,7 +40,6 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
   private final String evaluatorPrompt;
   private final int maxIterations;
 
-  /** Documentation. */
   @org.springframework.beans.factory.annotation.Autowired
   public SpringAiEvaluatorOptimizerWorkflow(ChatClientProvider chatClientProvider) {
     this(

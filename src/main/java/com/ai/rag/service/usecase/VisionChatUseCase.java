@@ -28,7 +28,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-/** Documentation. */
+/** Multimodal RAG chat that sends images plus retrieved context to the Ollama vision model. */
 @Service
 @ConditionalOnProperty(
     name = "spring.ai.ollama.chat.enabled",
@@ -49,7 +49,6 @@ public class VisionChatUseCase {
   private final HttpClient httpClient =
       HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
-  /** Documentation. */
   public VisionChatUseCase(
       RagApplicationService ragApplicationService,
       ChatClientProvider chatClientProvider,
@@ -61,7 +60,7 @@ public class VisionChatUseCase {
     this.objectMapper = objectMapper;
   }
 
-  /** Documentation. */
+  /** Answers a question about the images using retrieved document context and the vision model. */
   public RagChatResult chatWithImages(
       String question, List<String> docIds, List<String> images, Integer topK) {
     log.info(

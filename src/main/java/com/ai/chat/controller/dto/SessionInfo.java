@@ -6,7 +6,7 @@ import java.time.Instant;
 /** Session info DTO. */
 public record SessionInfo(
     String sessionId, String title, int messageCount, Instant createdAt, Instant lastActivityAt) {
-  /** Documentation. */
+  /** Creates a summary of the session's id, title, message count, and timestamps. */
   public static SessionInfo from(ChatSession session) {
     return new SessionInfo(
         session.getId().toString(),

@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Configuration;
     matchIfMissing = false)
 public class TesseractConfig {
 
-  /** Documentation. */
   @Bean
   ITesseract tesseract(VisionModelProperties properties) {
     Tesseract tesseract = new Tesseract();

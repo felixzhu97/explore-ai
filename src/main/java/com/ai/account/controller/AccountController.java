@@ -25,12 +25,10 @@ public class AccountController {
 
   private final AccountUseCase accountUseCase;
 
-  /** Documentation. */
   public AccountController(AccountUseCase accountUseCase) {
     this.accountUseCase = accountUseCase;
   }
 
-  /** Documentation. */
   @GetMapping("/me")
   public ResponseEntity<AccountMeResponse> me(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

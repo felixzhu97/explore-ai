@@ -21,12 +21,11 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
   private final ChatMemory chatMemory;
 
-  /** Documentation. */
   public ChatMemorySessionBridge(ChatMemory chatMemory) {
     this.chatMemory = chatMemory;
   }
 
-  /** Documentation. */
+  /** Seeds chat memory with the session's existing messages when the memory is still empty. */
   public void seedIfEmpty(String conversationId, List<ChatMessage> existingMessages) {
     if (existingMessages == null || existingMessages.isEmpty()) {
       return;
@@ -39,7 +38,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     chatMemory.add(conversationId, toSeed);
   }
 
-  /** Documentation. */
+  /** Replaces the session's messages with the conversation's current chat memory contents. */
   public void syncToSession(String conversationId, ChatSession session) {
     List<Message> memoryMessages = chatMemory.get(conversationId);
     if (memoryMessages.isEmpty()) {
@@ -52,7 +51,6 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     session.replaceMessages(domainMessages);
   }
 
-  /** Documentation. */
   public void clear(String conversationId) {
     chatMemory.clear(conversationId);
   }

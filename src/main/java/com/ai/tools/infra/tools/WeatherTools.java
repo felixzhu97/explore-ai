@@ -9,18 +9,16 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Spring AI tool callbacks exposing current weather and multi-day forecasts to the model. */
 @Component
 public class WeatherTools implements WeatherTool {
 
   private final WeatherReport weatherReport;
 
-  /** Documentation. */
   public WeatherTools(WeatherReport weatherReport) {
     this.weatherReport = weatherReport;
   }
 
-  /** Documentation. */
   @Tool(
       description =
           """
@@ -35,7 +33,6 @@ public class WeatherTools implements WeatherTool {
     }
   }
 
-  /** Documentation. */
   @Tool(
       description =
           """

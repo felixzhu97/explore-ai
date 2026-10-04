@@ -2,7 +2,6 @@ package com.ai.metrics.controller.dto;
 
 import java.time.Instant;
 
-/** Documentation. */
 public record InvocationEventResponse(
     String id,
     Instant occurredAt,

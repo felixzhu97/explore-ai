@@ -1,17 +1,15 @@
 package com.ai.automation.domain.vo;
 
-/** Documentation. */
+/** Outcome of an automation run: succeeded, failed, or skipped (e.g. quota exceeded). */
 public enum RunStatus {
   SUCCESS,
   FAILED,
   SKIPPED;
 
-  /** Documentation. */
   public String value() {
     return name();
   }
 
-  /** Documentation. */
   public static RunStatus from(String raw) {
     return RunStatus.valueOf(raw.trim().toUpperCase());
   }

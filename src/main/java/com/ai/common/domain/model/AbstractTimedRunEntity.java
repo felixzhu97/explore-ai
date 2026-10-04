@@ -23,7 +23,6 @@ public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId>
 
   @Column protected Instant finishedAt;
 
-  /** Documentation. */
   protected AbstractTimedRunEntity(IdT id, Instant startedAt, Instant finishedAt) {
     super(id, Objects.requireNonNull(startedAt, "startedAt"));
     this.finishedAt = finishedAt;
@@ -33,12 +32,10 @@ public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId>
     return createdAt;
   }
 
-  /** Documentation. */
   protected void markFinished(Instant finishedAt) {
     this.finishedAt = Objects.requireNonNull(finishedAt, "finishedAt");
   }
 
-  /** Documentation. */
   public boolean isFinished() {
     return finishedAt != null;
   }

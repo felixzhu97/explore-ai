@@ -27,14 +27,13 @@ public class OfficialSpringAiEvaluators {
   private final RelevancyEvaluator relevancyEvaluator;
   private final FactCheckingEvaluator factCheckingEvaluator;
 
-  /** Documentation. */
   public OfficialSpringAiEvaluators(
       RelevancyEvaluator relevancyEvaluator, FactCheckingEvaluator factCheckingEvaluator) {
     this.relevancyEvaluator = relevancyEvaluator;
     this.factCheckingEvaluator = factCheckingEvaluator;
   }
 
-  /** Documentation. */
+  /** Checks relevancy, plus fact-checking when context is given, and combines a pass gate. */
   public OfficialGateResult evaluate(
       String userText, String responseContent, List<String> contextTexts) {
     List<Document> documents = toDocuments(contextTexts);

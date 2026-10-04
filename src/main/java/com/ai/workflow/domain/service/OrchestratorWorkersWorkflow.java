@@ -4,6 +4,5 @@ import com.ai.workflow.domain.model.OrchestratorWorkersResult;
 
 /** Orchestrator plans subtasks; workers run in parallel; synthesizer combines outputs. */
 public interface OrchestratorWorkersWorkflow {
-  /** Documentation. */
   OrchestratorWorkersResult process(String task);
 }

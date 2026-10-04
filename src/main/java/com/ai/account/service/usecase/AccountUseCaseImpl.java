@@ -22,7 +22,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** Resolves the current account from IAM JWT, OAuth session, or linked Client Identity. */
 @Service
 @EnableConfigurationProperties({
   BillingProperties.class,
@@ -38,7 +38,6 @@ public class AccountUseCaseImpl implements AccountUseCase {
   private final OAuthGithubProperties oauthGithubProperties;
   private final OAuthExploreIamProperties oauthExploreIamProperties;
 
-  /** Documentation. */
   public AccountUseCaseImpl(
       AccountUserRepository accountUserRepository,
       BillingProperties billingProperties,

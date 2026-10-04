@@ -36,7 +36,6 @@ public class DocumentChunk {
     this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
   }
 
-  /** Documentation. */
   public static DocumentChunk create(
       DocumentId chunkId,
       DocumentId documentId,
@@ -46,7 +45,6 @@ public class DocumentChunk {
     return create(ChunkId.of(chunkId.value()), documentId, content, chunkIndex, metadata);
   }
 
-  /** Documentation. */
   public static DocumentChunk create(
       ChunkId id,
       DocumentId documentId,
@@ -56,7 +54,7 @@ public class DocumentChunk {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, null, Instant.now());
   }
 
-  /** Documentation. */
+  /** Rebuilds a persisted chunk with its embedding, converting the legacy id to a chunk id. */
   public static DocumentChunk reconstitute(
       DocumentId chunkId,
       DocumentId documentId,
@@ -75,7 +73,6 @@ public class DocumentChunk {
         createdAt);
   }
 
-  /** Documentation. */
   public static DocumentChunk reconstitute(
       ChunkId id,
       DocumentId documentId,
@@ -87,7 +84,6 @@ public class DocumentChunk {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
   }
 
-  /** Documentation. */
   public DocumentChunk withEmbedding(float[] embedding) {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
   }

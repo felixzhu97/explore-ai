@@ -30,7 +30,7 @@ public class RagProperties {
     this.retrieval = retrieval;
   }
 
-  /** Documentation. */
+  /** Document chunking settings: token chunk size and legacy character overlap. */
   public static class Chunk {
     /**
      * Target chunk size in tokens ({@link
@@ -58,7 +58,7 @@ public class RagProperties {
     }
   }
 
-  /** Documentation. */
+  /** Retrieval settings: number of chunks to return and minimum similarity score. */
   public static class Retrieval {
     private int topK = 5;
     private double scoreThreshold = 0.5;

@@ -16,11 +16,9 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataAutomationScheduleRepository
     extends JpaRepository<AutomationSchedule, ScheduleId> {
 
-  /** Documentation. */
   List<AutomationSchedule> findByEnabledTrueAndNextRunAtLessThanEqualOrderByNextRunAtAsc(
       Instant asOf, Pageable pageable);
 
-  /** Documentation. */
   @Modifying
   @Query(
       """

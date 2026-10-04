@@ -1,8 +1,7 @@
 package com.ai.image.domain.exception;
 
-/** Documentation. */
+/** Thrown when an image prompt or its options (model, quality, size, count) are invalid. */
 public class InvalidImagePromptException extends RuntimeException {
-  /** Documentation. */
   public InvalidImagePromptException(String message) {
     super(message);
   }

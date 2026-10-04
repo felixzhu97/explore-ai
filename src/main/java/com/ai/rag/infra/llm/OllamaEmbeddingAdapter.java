@@ -23,7 +23,6 @@ public class OllamaEmbeddingAdapter implements TextEmbeddingRepository {
   private final EmbeddingModel embeddingModel;
   private final int dimensions;
 
-  /** Documentation. */
   public OllamaEmbeddingAdapter(
       EmbeddingModel embeddingModel,
       @Value("${app.rag.embedding.dimensions:${spring.ai.ollama.embedding.dimensions:1024}}")

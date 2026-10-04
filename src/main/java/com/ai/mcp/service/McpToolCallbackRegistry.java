@@ -2,11 +2,9 @@ package com.ai.mcp.service;
 
 import org.springframework.ai.tool.ToolCallback;
 
-/** Documentation. */
+/** Registry of Spring AI tool callbacks contributed by MCP servers. */
 public interface McpToolCallbackRegistry {
-  /** Documentation. */
   void registerToolCallbacks(ToolCallback[] tools, String serverName);
 
-  /** Documentation. */
   ToolCallback[] getRegisteredToolCallbacks();
 }

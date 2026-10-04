@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class SavedAgentId extends AbstractUuidId {
 
-  /** Documentation. */
   public SavedAgentId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static SavedAgentId of(String value) {
     return new SavedAgentId(value);
   }
 
-  /** Documentation. */
   public static SavedAgentId generate() {
     return new SavedAgentId(newUuidString());
   }

@@ -19,19 +19,18 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Discovers {@code SKILL.md} files and parses their frontmatter into agent skills. */
 @Component
 public class AgentSkillLoader {
   private static final Logger log = LoggerFactory.getLogger(AgentSkillLoader.class);
   private static final Pattern SKILL_NAME = Pattern.compile("^[a-z0-9-]{1,64}$");
   private final AgentSkillsProperties agentProperties;
 
-  /** Documentation. */
   public AgentSkillLoader(AgentSkillsProperties agentProperties) {
     this.agentProperties = agentProperties;
   }
 
-  /** Documentation. */
+  /** Loads the configured skill ids from the resource location, skipping invalid or duplicates. */
   public List<AgentSkill> loadEnabledSkills() {
     AgentSkillsProperties.Skills config = agentProperties.getSkills();
     if (!config.isEnabled()) {

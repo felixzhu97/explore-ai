@@ -18,12 +18,10 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractAppendOnlyEvent<IdT extends AbstractUuidId>
     extends AbstractImmutable<IdT> {
 
-  /** Documentation. */
   protected AbstractAppendOnlyEvent(IdT id, Instant occurredAt) {
     super(id, occurredAt);
   }
 
-  /** Documentation. */
   public Instant getOccurredAt() {
     return createdAt;
   }

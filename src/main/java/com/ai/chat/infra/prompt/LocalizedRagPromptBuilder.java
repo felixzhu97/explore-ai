@@ -16,20 +16,18 @@ public class LocalizedRagPromptBuilder {
   private final LanguageDetectionService languageDetectionService;
   private final PromptTemplates promptTemplates;
 
-  /** Documentation. */
   public LocalizedRagPromptBuilder(
       LanguageDetectionService languageDetectionService, PromptTemplates promptTemplates) {
     this.languageDetectionService = languageDetectionService;
     this.promptTemplates = promptTemplates;
   }
 
-  /** Documentation. */
   public String build(String question, String context) {
     String languageCode = languageDetectionService.detect(question);
     return build(question, context, languageCode);
   }
 
-  /** Documentation. */
+  /** Renders the user prompt for the language, or its no-context message when context is blank. */
   public String build(String question, String context, String languageCode) {
     if (context == null || context.isBlank()) {
       return noContextMessage(languageCode);

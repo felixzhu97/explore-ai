@@ -13,7 +13,6 @@ public record GoldenEvalCase(
     List<String> contexts,
     List<String> documentIds,
     List<String> fixtureKeys) {
-  /** Documentation. */
   public GoldenEvalCase {
     if (id == null || id.isBlank()) {
       throw new IllegalArgumentException("id is required");

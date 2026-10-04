@@ -10,7 +10,6 @@ public record ImageGenerationRequest(
     Integer width,
     Integer height,
     Integer n) {
-  /** Documentation. */
   public ImageGenerationRequest {
     if (n == null) {
       n = 1;

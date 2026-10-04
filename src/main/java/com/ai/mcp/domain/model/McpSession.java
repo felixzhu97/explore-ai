@@ -4,7 +4,7 @@ import com.ai.mcp.domain.exception.InvalidMcpSessionException;
 import java.util.Objects;
 import java.util.UUID;
 
-/** Documentation. */
+/** Connection session to an MCP server, tracking its tool count and active or closed status. */
 public class McpSession {
 
   private final UUID id;
@@ -19,12 +19,10 @@ public class McpSession {
     this.status = McpSessionStatus.ACTIVE;
   }
 
-  /** Documentation. */
   public static McpSession open(String serverName, int toolCount) {
     return new McpSession(UUID.randomUUID(), serverName, toolCount);
   }
 
-  /** Documentation. */
   public static McpSession reconstitute(
       UUID id, String serverName, int toolCount, McpSessionStatus status) {
     McpSession session = new McpSession(id, serverName, toolCount);
@@ -32,13 +30,12 @@ public class McpSession {
     return session;
   }
 
-  /** Documentation. */
   public void activate() {
     ensureNotClosed();
     status = McpSessionStatus.ACTIVE;
   }
 
-  /** Documentation. */
+  /** Marks the session closed, rejecting a second close. */
   public void close() {
     if (status == McpSessionStatus.CLOSED) {
       throw new InvalidMcpSessionException("Session already closed: " + id);
@@ -50,22 +47,18 @@ public class McpSession {
     return status == McpSessionStatus.ACTIVE;
   }
 
-  /** Documentation. */
   public UUID id() {
     return id;
   }
 
-  /** Documentation. */
   public String serverName() {
     return serverName;
   }
 
-  /** Documentation. */
   public int toolCount() {
     return toolCount;
   }
 
-  /** Documentation. */
   public McpSessionStatus status() {
     return status;
   }

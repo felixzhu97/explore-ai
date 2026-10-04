@@ -2,12 +2,10 @@ package com.ai.image.domain.vo;
 
 import com.ai.image.domain.exception.InvalidImagePromptException;
 
-/** Documentation. */
 public record ImagePrompt(String value) {
 
   private static final int MAX_LENGTH = 4_000;
 
-  /** Documentation. */
   public ImagePrompt {
     if (value == null || value.isBlank()) {
       throw new InvalidImagePromptException("Image prompt must not be blank");
@@ -18,7 +16,6 @@ public record ImagePrompt(String value) {
     }
   }
 
-  /** Documentation. */
   public static ImagePrompt of(String prompt) {
     return new ImagePrompt(prompt);
   }

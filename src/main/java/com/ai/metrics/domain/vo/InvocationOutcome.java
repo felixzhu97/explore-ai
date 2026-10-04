@@ -2,7 +2,7 @@ package com.ai.metrics.domain.vo;
 
 import java.util.Locale;
 
-/** Documentation. */
+/** Result of an AI invocation, persisted as {@code success} or {@code error}. */
 public enum InvocationOutcome {
   SUCCESS("success"),
   ERROR("error");
@@ -13,12 +13,11 @@ public enum InvocationOutcome {
     this.value = value;
   }
 
-  /** Documentation. */
   public String value() {
     return value;
   }
 
-  /** Documentation. */
+  /** Parses a case-insensitive outcome value, rejecting blank or unknown input. */
   public static InvocationOutcome parse(String raw) {
     if (raw == null || raw.isBlank()) {
       throw new IllegalArgumentException("outcome must not be blank");

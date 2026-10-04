@@ -2,7 +2,6 @@ package com.ai.analysis.domain.vo;
 
 import com.ai.analysis.domain.exception.InvalidAnalysisTextException;
 
-/** Documentation. */
 public record AnalysisText(String value) {
 
   private static final int MAX_LENGTH = 50_000;
@@ -23,7 +22,6 @@ public record AnalysisText(String value) {
             Be concise and accurate in your analysis.
             """;
 
-  /** Documentation. */
   public AnalysisText {
     if (value == null || value.isBlank()) {
       throw new InvalidAnalysisTextException("Analysis text must not be blank");
@@ -35,12 +33,11 @@ public record AnalysisText(String value) {
     }
   }
 
-  /** Documentation. */
   public static AnalysisText of(String text) {
     return new AnalysisText(text);
   }
 
-  /** Documentation. */
+  /** Builds the structured-analysis prompt, appending a response-language instruction if set. */
   public String buildAnalysisPrompt(LanguageHint hint) {
     String prompt = ANALYSIS_PROMPT_TEMPLATE.replace("{text}", value);
     if (hint != null && hint.isSpecified()) {

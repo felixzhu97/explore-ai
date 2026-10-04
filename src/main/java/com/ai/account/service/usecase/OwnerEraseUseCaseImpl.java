@@ -6,13 +6,12 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** Deletes all data stored under an owner key in a single transaction. */
 @Service
 public class OwnerEraseUseCaseImpl implements OwnerEraseUseCase {
 
   private final OwnerPartitionRepository ownerPartitionRepository;
 
-  /** Documentation. */
   public OwnerEraseUseCaseImpl(OwnerPartitionRepository ownerPartitionRepository) {
     this.ownerPartitionRepository = ownerPartitionRepository;
   }

@@ -24,21 +24,18 @@ public abstract class AbstractNamedOwnerEntity<IdT extends AbstractUuidId>
   @Column(nullable = false, length = 120)
   protected String name;
 
-  /** Documentation. */
   protected AbstractNamedOwnerEntity(
       IdT id, OwnerKey ownerKey, String name, Instant createdAt, Instant updatedAt) {
     super(id, ownerKey, createdAt, updatedAt);
     this.name = DomainStrings.requireName(name);
   }
 
-  /** Documentation. */
   protected AbstractNamedOwnerEntity(
       IdT id, String clientId, String name, Instant createdAt, Instant updatedAt) {
     super(id, clientId, createdAt, updatedAt);
     this.name = DomainStrings.requireName(name);
   }
 
-  /** Documentation. */
   protected void rename(String nextName) {
     this.name = DomainStrings.requireName(nextName);
     touchUpdatedAt();

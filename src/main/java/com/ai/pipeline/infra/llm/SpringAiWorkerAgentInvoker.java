@@ -19,7 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-/** Documentation. */
+/** Spring AI worker invoker that prompts an agent with its system prompt and allowed tools. */
 @Component
 public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
@@ -30,7 +30,6 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   private final DateTimeTool dateTimeTool;
   private final AgentSkillsRuntime agentSkillsRuntime;
 
-  /** Documentation. */
   public SpringAiWorkerAgentInvoker(
       ChatClientProvider chatClientProvider,
       DocumentSearchTool documentSearchTool,

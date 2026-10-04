@@ -8,11 +8,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Documentation. */
 @Configuration
 @EnableConfigurationProperties(LaunchDarklyProperties.class)
 public class FeatureFlagConfiguration {
-  /** Documentation. */
   @Bean
   @ConditionalOnMissingBean(FeatureFlagRepository.class)
   @ConditionalOnExpression("'${launchdarkly.sdk-key:}'.length() == 0")

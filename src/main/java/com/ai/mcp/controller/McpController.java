@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
     havingValue = "true",
     matchIfMissing = false)
 public class McpController {
-  /** Documentation. */
   @GetMapping("/health")
   @Operation(summary = "MCP Server health check")
   public ResponseEntity<Map<String, Object>> health() {
@@ -31,7 +30,6 @@ public class McpController {
             "protocol", "MCP 1.0"));
   }
 
-  /** Documentation. */
   @GetMapping("/info")
   @Operation(summary = "Get MCP Server information")
   public ResponseEntity<Map<String, Object>> info() {

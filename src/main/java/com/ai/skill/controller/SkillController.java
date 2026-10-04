@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/skills")
 public class SkillController {
@@ -34,20 +33,17 @@ public class SkillController {
 
   private final SkillUseCase skillUseCase;
 
-  /** Documentation. */
   public SkillController(SkillUseCase skillUseCase, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.skillUseCase = skillUseCase;
   }
 
-  /** Documentation. */
   @GetMapping
   public List<SkillResponse> list(HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return skillUseCase.list(clientId).stream().map(SkillResponse::from).toList();
   }
 
-  /** Documentation. */
   @GetMapping("/templates")
   public List<SkillTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
@@ -55,7 +51,6 @@ public class SkillController {
     return skillUseCase.listTemplates(language).stream().map(SkillTemplateResponse::from).toList();
   }
 
-  /** Documentation. */
   @PostMapping("/from-template")
   public ResponseEntity<SkillResponse> createFromTemplate(
       @Valid @RequestBody CreateSkillFromTemplateRequest body,
@@ -69,14 +64,12 @@ public class SkillController {
                 skillUseCase.createFromTemplate(clientId, body.templateId(), language)));
   }
 
-  /** Documentation. */
   @GetMapping("/{id}")
   public SkillResponse get(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return SkillResponse.from(skillUseCase.get(clientId, id));
   }
 
-  /** Documentation. */
   @PostMapping
   public ResponseEntity<SkillResponse> create(
       @Valid @RequestBody CreateSkillRequest body, HttpServletRequest request) {
@@ -92,7 +85,6 @@ public class SkillController {
                     body.allowedTools())));
   }
 
-  /** Documentation. */
   @PutMapping("/{id}")
   public SkillResponse update(
       @PathVariable String id,
@@ -109,7 +101,6 @@ public class SkillController {
             body.allowedTools()));
   }
 
-  /** Documentation. */
   @PatchMapping("/{id}/enabled")
   public SkillResponse setEnabled(
       @PathVariable String id,
@@ -119,7 +110,6 @@ public class SkillController {
     return SkillResponse.from(skillUseCase.setEnabled(clientId, id, body.enabled()));
   }
 
-  /** Documentation. */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);

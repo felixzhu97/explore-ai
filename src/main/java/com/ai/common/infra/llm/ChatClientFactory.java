@@ -26,7 +26,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Builds chat clients per profile with memory, logging, system prompt, and tool advisors. */
 @Component
 public class ChatClientFactory implements ChatClientProvider {
 
@@ -39,7 +39,6 @@ public class ChatClientFactory implements ChatClientProvider {
   private final ToolCallback[] localToolCallbacks;
   private final RegexToolIndex toolSearchIndex;
 
-  /** Documentation. */
   public ChatClientFactory(
       ChatModelResolver chatModelResolver,
       ChatMemory chatMemory,

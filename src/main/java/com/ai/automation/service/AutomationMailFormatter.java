@@ -23,7 +23,7 @@ public class AutomationMailFormatter {
   private final Parser markdownParser = Parser.builder().build();
   private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().escapeHtml(true).build();
 
-  /** Documentation. */
+  /** Renders the schedule name, brief and truncated Markdown result as text and HTML bodies. */
   public FormattedMail format(String scheduleName, String brief, String resultMarkdown) {
     Objects.requireNonNull(scheduleName, "scheduleName");
     String safeBrief = brief == null ? "" : brief.trim();
@@ -34,7 +34,6 @@ public class AutomationMailFormatter {
     return new FormattedMail(textBody, htmlBody);
   }
 
-  /** Documentation. */
   public record FormattedMail(String textBody, String htmlBody) {}
 
   private String buildText(String scheduleName, String brief, String result) {

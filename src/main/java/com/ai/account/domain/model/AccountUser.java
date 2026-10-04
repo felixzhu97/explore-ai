@@ -38,7 +38,7 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   @Column(length = 64)
   private String linkedClientId;
 
-  /** Documentation. */
+  /** Creates an account user for the provider and subject, optionally linked to a client id. */
   public static AccountUser create(
       String provider, String subject, String email, String linkedClientId) {
     AccountUser user = new AccountUser();
@@ -53,7 +53,6 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
     return user;
   }
 
-  /** Documentation. */
   public void linkSession(String email, String linkedClientId) {
     this.email = normalizeEmail(email);
     this.linkedClientId = requireClientId(linkedClientId);

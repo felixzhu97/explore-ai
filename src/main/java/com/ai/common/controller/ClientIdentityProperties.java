@@ -3,7 +3,7 @@ package com.ai.common.controller;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Client identity cookie settings: name, Secure flag, SameSite policy, and max age. */
 @ConfigurationProperties(prefix = "app.client-identity")
 public class ClientIdentityProperties {
 

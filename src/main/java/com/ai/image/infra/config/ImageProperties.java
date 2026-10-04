@@ -2,7 +2,7 @@ package com.ai.image.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Configuration properties under {@code app.ai.image} selecting the Ollama or OpenAI provider. */
 @ConfigurationProperties(prefix = "app.ai.image")
 public class ImageProperties {
 
@@ -63,7 +63,7 @@ public class ImageProperties {
     return PROVIDER_OPENAI.equalsIgnoreCase(provider);
   }
 
-  /** Documentation. */
+  /** Reports whether generation is enabled and has an OpenAI key or an Ollama base URL. */
   public boolean isConfigured() {
     if (!enabled) {
       return false;

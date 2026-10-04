@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class SkillId extends AbstractUuidId {
 
-  /** Documentation. */
   public SkillId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static SkillId of(String value) {
     return new SkillId(value);
   }
 
-  /** Documentation. */
   public static SkillId generate() {
     return new SkillId(newUuidString());
   }

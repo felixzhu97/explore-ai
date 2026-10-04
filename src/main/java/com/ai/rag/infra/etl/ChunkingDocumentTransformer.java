@@ -13,7 +13,6 @@ public class ChunkingDocumentTransformer implements DocumentTransformer {
 
   private final TokenTextSplitter textSplitter;
 
-  /** Documentation. */
   public ChunkingDocumentTransformer(TokenTextSplitter textSplitter) {
     this.textSplitter = textSplitter;
   }

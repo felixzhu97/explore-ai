@@ -22,14 +22,12 @@ public class DocumentSearchService {
   private static final Logger log = LoggerFactory.getLogger(DocumentSearchService.class);
   private static final int MAX_CONTENT_LENGTH = 500;
 
-  /** Documentation. */
   public record RetrievalResult(String context, List<SourceDocument> sources) {}
 
   private final TextEmbeddingRepository embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
   private final RagRetrievalSettings retrievalSettings;
 
-  /** Documentation. */
   public DocumentSearchService(
       TextEmbeddingRepository embeddingRepository,
       DocumentChunkSearchRepository chunkSearchRepository,
@@ -39,7 +37,7 @@ public class DocumentSearchService {
     this.retrievalSettings = retrievalSettings;
   }
 
-  /** Documentation. */
+  /** Embeds the query and returns chunks above the score threshold as context and sources. */
   public RetrievalResult retrieve(String query, List<DocumentId> docIds, int topK) {
     log.info("RAG retrieval for query: {}", query);
     float[] queryEmbedding = embeddingRepository.embed(query);

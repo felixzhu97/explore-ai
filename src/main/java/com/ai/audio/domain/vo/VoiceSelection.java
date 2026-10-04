@@ -2,9 +2,8 @@ package com.ai.audio.domain.vo;
 
 import com.ai.audio.domain.exception.InvalidSpeechTextException;
 
-/** Documentation. */
 public record VoiceSelection(String voice, String model) {
-  /** Documentation. */
+  /** Creates a selection with catalog defaults, rejecting unknown voices or models. */
   public static VoiceSelection of(String voice, String model) {
     VoiceCatalog catalog = VoiceCatalog.defaults();
     String effectiveVoice =
@@ -20,7 +19,6 @@ public record VoiceSelection(String voice, String model) {
     return new VoiceSelection(effectiveVoice, effectiveModel);
   }
 
-  /** Documentation. */
   public boolean isDefault() {
     VoiceCatalog catalog = VoiceCatalog.defaults();
     return catalog.defaultVoice().equals(voice) && catalog.defaultModel().equals(model);

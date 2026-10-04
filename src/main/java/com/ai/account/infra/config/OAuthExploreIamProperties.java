@@ -2,7 +2,7 @@ package com.ai.account.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Configuration properties for Explore IAM OIDC login and JWT resource-server validation. */
 @ConfigurationProperties(prefix = "app.oauth.explore-iam")
 public class OAuthExploreIamProperties {
 

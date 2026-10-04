@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Configuration properties under {@code app.cors} listing allowed CORS origin patterns. */
 @ConfigurationProperties(prefix = "app.cors")
 public class CorsProperties {
 

@@ -16,12 +16,11 @@ public record ChatEvaluationResult(
     boolean relevancyPass,
     Boolean factualityPass,
     List<String> evaluatorFeedback) {
-  /** Documentation. */
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Documentation. */
+  /** Fluent builder that clamps scores to the 0–1 range and copies list fields. */
   public static class Builder {
     private double coherenceScore;
     private double relevanceScore;
@@ -36,79 +35,67 @@ public record ChatEvaluationResult(
     private Boolean factualityPass;
     private List<String> evaluatorFeedback = List.of();
 
-    /** Documentation. */
     public Builder coherenceScore(double score) {
       this.coherenceScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
-    /** Documentation. */
     public Builder relevanceScore(double score) {
       this.relevanceScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
-    /** Documentation. */
     public Builder helpfulnessScore(double score) {
       this.helpfulnessScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
-    /** Documentation. */
     public Builder factualityScore(Double score) {
       this.factualityScore = score == null ? null : Math.max(0, Math.min(1, score));
       return this;
     }
 
-    /** Documentation. */
     public Builder factualityAvailable(boolean available) {
       this.factualityAvailable = available;
       return this;
     }
 
-    /** Documentation. */
     public Builder overallScore(double score) {
       this.overallScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
-    /** Documentation. */
     public Builder hasSafetyIssues(boolean hasIssues) {
       this.hasSafetyIssues = hasIssues;
       return this;
     }
 
-    /** Documentation. */
     public Builder safetyFlags(List<String> flags) {
       this.safetyFlags = List.copyOf(flags);
       return this;
     }
 
-    /** Documentation. */
     public Builder suggestions(List<String> suggestions) {
       this.suggestions = List.copyOf(suggestions);
       return this;
     }
 
-    /** Documentation. */
     public Builder relevancyPass(boolean pass) {
       this.relevancyPass = pass;
       return this;
     }
 
-    /** Documentation. */
     public Builder factualityPass(Boolean pass) {
       this.factualityPass = pass;
       return this;
     }
 
-    /** Documentation. */
     public Builder evaluatorFeedback(List<String> feedback) {
       this.evaluatorFeedback = feedback == null ? List.of() : List.copyOf(feedback);
       return this;
     }
 
-    /** Documentation. */
+    /** Creates the evaluation result from the collected values. */
     public ChatEvaluationResult build() {
       return new ChatEvaluationResult(
           coherenceScore,

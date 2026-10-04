@@ -43,17 +43,14 @@ public final class ChatMessage {
     return normalized;
   }
 
-  /** Documentation. */
   public static ChatMessage createUserMessage(String text) {
     return new ChatMessage(MessageId.generate(), text, ROLE_USER, Instant.now());
   }
 
-  /** Documentation. */
   public static ChatMessage createAssistantMessage(String text) {
     return new ChatMessage(MessageId.generate(), text, ROLE_ASSISTANT, Instant.now());
   }
 
-  /** Documentation. */
   public static ChatMessage of(MessageId id, String text, String role, Instant timestamp) {
     return new ChatMessage(id, text, role, timestamp);
   }
@@ -66,7 +63,6 @@ public final class ChatMessage {
     return text;
   }
 
-  /** Documentation. */
   public String role() {
     return role;
   }
@@ -83,7 +79,6 @@ public final class ChatMessage {
     return ROLE_ASSISTANT.equals(role);
   }
 
-  /** Documentation. */
   public ChatMessage withText(String newText) {
     return new ChatMessage(this.id, newText, this.role, this.timestamp);
   }

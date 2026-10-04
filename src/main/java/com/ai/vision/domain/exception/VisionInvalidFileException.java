@@ -1,8 +1,7 @@
 package com.ai.vision.domain.exception;
 
-/** Documentation. */
+/** Thrown when an uploaded file cannot be decoded as a supported image. */
 public class VisionInvalidFileException extends RuntimeException {
-  /** Documentation. */
   public VisionInvalidFileException(String message) {
     super(message);
   }

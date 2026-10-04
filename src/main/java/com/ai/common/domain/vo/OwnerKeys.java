@@ -5,12 +5,11 @@ public final class OwnerKeys {
 
   private OwnerKeys() {}
 
-  /** Documentation. */
   public static OwnerKey requireClient(String clientId) {
     return OwnerKey.forClient(clientId);
   }
 
-  /** Documentation. */
+  /** Extracts the client id from a guest owner key, rejecting null or account keys. */
   public static String parseClientId(OwnerKey ownerKey) {
     if (ownerKey == null) {
       throw new IllegalArgumentException("ownerKey is required");
@@ -21,7 +20,6 @@ public final class OwnerKeys {
     return ownerKey.value().substring(OwnerKey.CLIENT_PREFIX.length());
   }
 
-  /** Documentation. */
   public static String toStorageValue(OwnerKey ownerKey) {
     return ownerKey == null ? null : ownerKey.value();
   }

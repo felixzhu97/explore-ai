@@ -5,20 +5,15 @@ import com.ai.mcp.domain.vo.McpServerConnection;
 import java.util.List;
 import java.util.Map;
 
-/** Documentation. */
+/** Repository of tool definitions and connections for MCP servers this app consumes. */
 public interface McpClientRepository {
-  /** Documentation. */
   void registerTools(List<McpToolDefinition> tools, String serverName);
 
-  /** Documentation. */
   List<McpToolDefinition> listTools();
 
-  /** Documentation. */
   Map<String, McpServerConnection> listServers();
 
-  /** Documentation. */
   int toolCount();
 
-  /** Documentation. */
   void clearTools();
 }

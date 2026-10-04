@@ -6,24 +6,18 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/** Documentation. */
+/** Persists automation schedules and finds and claims those due for execution. */
 public interface AutomationScheduleRepository {
-  /** Documentation. */
   AutomationSchedule save(AutomationSchedule schedule);
 
-  /** Documentation. */
   Optional<AutomationSchedule> findByIdAndClientId(ScheduleId id, String clientId);
 
-  /** Documentation. */
   List<AutomationSchedule> findAllByClientId(String clientId);
 
-  /** Documentation. */
   int countByClientId(String clientId);
 
-  /** Documentation. */
   void deleteByIdAndClientId(ScheduleId id, String clientId);
 
-  /** Documentation. */
   List<AutomationSchedule> findDue(Instant asOf, int limit);
 
   /**

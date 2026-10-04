@@ -1,12 +1,12 @@
 package com.ai.analysis.domain.model;
 
-/** Documentation. */
+/** Overall sentiment of analyzed text. */
 public enum Sentiment {
   POSITIVE,
   NEUTRAL,
   NEGATIVE;
 
-  /** Documentation. */
+  /** Parses a case-insensitive sentiment name, falling back to {@code NEUTRAL}. */
   public static Sentiment fromString(String value) {
     if (value == null || value.isBlank()) {
       return NEUTRAL;

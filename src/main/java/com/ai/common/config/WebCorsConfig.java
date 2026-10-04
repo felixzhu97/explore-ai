@@ -18,7 +18,6 @@ public class WebCorsConfig implements WebMvcConfigurer {
 
   private final CorsProperties corsProperties;
 
-  /** Documentation. */
   public WebCorsConfig(CorsProperties corsProperties) {
     this.corsProperties = corsProperties;
   }

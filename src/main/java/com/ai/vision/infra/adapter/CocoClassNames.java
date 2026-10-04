@@ -1,6 +1,6 @@
 package com.ai.vision.infra.adapter;
 
-/** Documentation. */
+/** The 80 COCO class labels indexed by YOLO class id. */
 public final class CocoClassNames {
 
   private static final String[] CLASSES = {
@@ -88,7 +88,7 @@ public final class CocoClassNames {
 
   private CocoClassNames() {}
 
-  /** Documentation. */
+  /** Returns the COCO label for the class id, or {@code "unknown"} when out of range. */
   public static String label(int classId) {
     if (classId < 0 || classId >= CLASSES.length) {
       return "unknown";
@@ -96,7 +96,6 @@ public final class CocoClassNames {
     return CLASSES[classId];
   }
 
-  /** Documentation. */
   public static int classCount() {
     return CLASSES.length;
   }

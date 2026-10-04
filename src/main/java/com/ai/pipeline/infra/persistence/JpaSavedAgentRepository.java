@@ -20,7 +20,6 @@ public class JpaSavedAgentRepository implements SavedAgentRepository {
 
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public JpaSavedAgentRepository(
       SpringDataSavedAgentRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;

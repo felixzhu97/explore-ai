@@ -14,7 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Email gateway that sends automation emails over SMTP, as multipart when HTML is present. */
 @Component
 @ConditionalOnProperty(prefix = "app.mail", name = "enabled", havingValue = "true")
 @ConditionalOnProperty(prefix = "app.mail", name = "provider", havingValue = "smtp")
@@ -26,7 +26,6 @@ public class SmtpEmailGateway implements EmailGateway {
   private final JavaMailSender mailSender;
   private final MailProperties mailProperties;
 
-  /** Documentation. */
   public SmtpEmailGateway(JavaMailSender mailSender, MailProperties mailProperties) {
     this.mailSender = mailSender;
     this.mailProperties = mailProperties;

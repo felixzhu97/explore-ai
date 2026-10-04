@@ -13,14 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Documentation. */
+/** Servlet filter that returns 404 for requests to modules disabled by feature flags. */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 public class ModuleAccessFilter extends OncePerRequestFilter {
 
   private final FeatureFlagService featureFlagService;
 
-  /** Documentation. */
   public ModuleAccessFilter(FeatureFlagService featureFlagService) {
     this.featureFlagService = featureFlagService;
   }
