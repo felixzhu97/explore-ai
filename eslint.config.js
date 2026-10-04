@@ -229,7 +229,6 @@ export default defineConfig([
       'src/main/web/app/ui/**',
       'src/main/web/app/time/native-date.ts',
       'src/main/web/app/time/instant-picker.component.ts',
-      'src/main/web/app/chat-shell/a2ui-chart-option.util.ts',
     ],
     rules: {
       'no-restricted-globals': [

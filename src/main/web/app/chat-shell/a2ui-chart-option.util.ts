@@ -14,6 +14,7 @@ import type {
   ChartTreeNode,
   ChartType,
 } from './a2ui-chart.api';
+import { buildRiverTimeline } from './river-timeline.util';
 
 export interface ChartBuildInput {
   type: ChartType;
@@ -1119,101 +1120,6 @@ function resolveParallel(
     }
   }
   return null;
-}
-
-function normalizeRiverTime(time: string): string {
-  const trimmed = time.trim();
-  // YYYY-MM → YYYY-MM-01 so Date.parse is reliable across engines
-  if (/^\d{4}-\d{2}$/.test(trimmed)) {
-    return `${trimmed}-01`;
-  }
-  // 2024年1月 → YYYY-MM-01; bare 1月 stays category
-  const [, year, month] = trimmed.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月$/) ?? [];
-  if (year && month) {
-    return `${year}-${month.padStart(2, '0')}-01`;
-  }
-  return trimmed;
-}
-
-function monthIndexFromLabel(time: string): number | null {
-  const trimmed = time.trim();
-  const bare = trimmed.match(/^(\d{1,2})\s*月$/);
-  if (bare) {
-    const month = Number(bare[1]);
-    return month >= 1 && month <= 12 ? month : null;
-  }
-  const [, monthName] = trimmed.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*$/i) ?? [];
-  if (monthName) {
-    const map: Record<string, number> = {
-      jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-      jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
-    };
-    return map[monthName.slice(0, 3).toLowerCase()] ?? null;
-  }
-  return null;
-}
-
-/**
- * ThemeRiver sorts/layouts by numeric time. Map category labels (1月…) to
- * real dates and keep a reverse formatter for axis ticks.
- */
-function buildRiverTimeline(times: string[]): {
-  toAxisTime: (original: string) => string;
-  formatLabel: (axisValue: string | number) => string;
-} {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const toDay = (date: Date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-
-  let yearHint = 2024;
-  for (const time of times) {
-    const normalized = normalizeRiverTime(time);
-    const parsed = Date.parse(normalized);
-    if (Number.isFinite(parsed)) {
-      yearHint = new Date(parsed).getFullYear();
-      break;
-    }
-  }
-
-  const originalToAxis = new Map<string, string>();
-  const axisToOriginal = new Map<string, string>();
-
-  times.forEach((time, index) => {
-    const normalized = normalizeRiverTime(time);
-    const parsed = Date.parse(normalized);
-    let axisTime: string;
-    if (Number.isFinite(parsed)) {
-      axisTime = toDay(new Date(parsed));
-    } else {
-      const month = monthIndexFromLabel(time);
-      if (month !== null) {
-        axisTime = `${yearHint}-${pad(month)}-01`;
-      } else {
-        const monthNum = (index % 12) + 1;
-        const year = yearHint + Math.floor(index / 12);
-        axisTime = `${year}-${pad(monthNum)}-01`;
-      }
-    }
-    originalToAxis.set(time, axisTime);
-    axisToOriginal.set(axisTime, time);
-  });
-
-  return {
-    toAxisTime: (original: string) => {
-      const mapped = originalToAxis.get(original);
-      if (mapped) {
-        return mapped;
-      }
-      return toDay(new Date(normalizeRiverTime(original)));
-    },
-    formatLabel: (axisValue: string | number) => {
-      const date = new Date(axisValue);
-      if (!Number.isFinite(date.getTime())) {
-        return String(axisValue);
-      }
-      const key = toDay(date);
-      return axisToOriginal.get(key) ?? `${date.getMonth() + 1}月`;
-    },
-  };
 }
 
 function resolveRiverData(input: ChartBuildInput): ChartRiverDatum[] {
