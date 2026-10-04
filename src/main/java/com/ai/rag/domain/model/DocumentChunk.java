@@ -37,40 +37,12 @@ public class DocumentChunk {
   }
 
   public static DocumentChunk create(
-      DocumentId chunkId,
-      DocumentId documentId,
-      String content,
-      int chunkIndex,
-      Map<String, Object> metadata) {
-    return create(ChunkId.of(chunkId.value()), documentId, content, chunkIndex, metadata);
-  }
-
-  public static DocumentChunk create(
       ChunkId id,
       DocumentId documentId,
       String content,
       int chunkIndex,
       Map<String, Object> metadata) {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, null, Instant.now());
-  }
-
-  /** Rebuilds a persisted chunk with its embedding, converting the legacy id to a chunk id. */
-  public static DocumentChunk reconstitute(
-      DocumentId chunkId,
-      DocumentId documentId,
-      String content,
-      int chunkIndex,
-      Map<String, Object> metadata,
-      float[] embedding,
-      Instant createdAt) {
-    return reconstitute(
-        ChunkId.of(chunkId.value()),
-        documentId,
-        content,
-        chunkIndex,
-        metadata,
-        embedding,
-        createdAt);
   }
 
   public static DocumentChunk reconstitute(

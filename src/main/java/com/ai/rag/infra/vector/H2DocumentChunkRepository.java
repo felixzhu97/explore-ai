@@ -156,14 +156,10 @@ public class H2DocumentChunkRepository
   }
 
   private static String resolveOwnerKey(Map<String, Object> metadata) {
-    if (metadata == null) {
-      return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    if (metadata.get("ownerKey") instanceof String ownerKey && !ownerKey.isBlank()) {
+      return ownerKey.trim();
     }
-    Object value = metadata.get("ownerKey");
-    if (value instanceof String s && !s.isBlank()) {
-      return s.trim();
-    }
-    return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    throw new IllegalArgumentException("Chunk metadata must carry an ownerKey");
   }
 
   private String arrayToJsonString(float[] array) {

@@ -2,12 +2,12 @@ package com.ai.rag.infra.tools;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +70,12 @@ public class RagSearchTool implements DocumentSearchTool {
   @Override
   @Tool(name = "list_documents", description = "List all documents in the knowledge base")
   public String listDocuments() {
+    Optional<String> ownerKey = currentOwnerKey();
+    if (ownerKey.isEmpty()) {
+      return "当前上下文无法识别用户，暂时无法列出文档。";
+    }
     try {
-      var documents = ragApplicationService.listDocuments(currentOwnerKey());
+      var documents = ragApplicationService.listDocuments(ownerKey.get());
 
       if (documents.isEmpty()) {
         return "知识库中暂无文档，请先上传文档。";
@@ -95,13 +99,15 @@ public class RagSearchTool implements DocumentSearchTool {
     }
   }
 
-  private String currentOwnerKey() {
-    var attrs = RequestContextHolder.getRequestAttributes();
-    if (attrs instanceof ServletRequestAttributes servletAttrs) {
-      HttpServletRequest request = servletAttrs.getRequest();
-      return ownerContext.requireValue(request);
+  private Optional<String> currentOwnerKey() {
+    Optional<String> bound = ToolEventChannel.currentOwnerKey();
+    if (bound.isPresent()) {
+      return bound;
     }
-    return OwnerKey.LEGACY_ORPHAN.value();
+    if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs) {
+      return Optional.of(ownerContext.requireValue(attrs.getRequest()));
+    }
+    return Optional.empty();
   }
 
   private String formatSources(List<com.ai.rag.domain.model.SourceDocument> sources) {

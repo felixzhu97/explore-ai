@@ -1,5 +1,6 @@
 package com.ai.metrics.infra.persistence;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
@@ -180,16 +181,13 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
 
   private String resolveOwnerKey(String sessionId) {
     if (sessionId == null || sessionId.isBlank()) {
-      return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+      return OwnerKey.UNOWNED.value();
     }
     List<String> keys =
         jdbcTemplate.query(
             "SELECT owner_key FROM chat_session WHERE CAST(id AS VARCHAR) = ?",
             (rs, rowNum) -> rs.getString(1),
             sessionId.trim());
-    if (!keys.isEmpty() && keys.getFirst() != null && !keys.getFirst().isBlank()) {
-      return keys.getFirst();
-    }
-    return com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    return keys.isEmpty() ? OwnerKey.UNOWNED.value() : keys.getFirst();
   }
 }

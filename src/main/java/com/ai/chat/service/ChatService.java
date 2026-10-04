@@ -130,10 +130,6 @@ public class ChatService {
     }
   }
 
-  public Flux<String> chatStreamWithSession(String sessionId, String userMessage, String ownerKey) {
-    return chatStreamWithSession(sessionId, userMessage, TextChatOptions.defaults(), ownerKey);
-  }
-
   /** Streams a reply within a session, persisting both turns after completion. */
   public Flux<String> chatStreamWithSession(
       String sessionId, String userMessage, TextChatOptions options, String ownerKey) {
@@ -164,6 +160,7 @@ public class ChatService {
                                   }
                                 }),
                         sessionId,
+                        ownerKey,
                         options.toolsEnabled());
                 Flux<String> repaired =
                     Flux.defer(
@@ -282,12 +279,13 @@ public class ChatService {
   }
 
   private Flux<String> mergeToolEvents(
-      Flux<String> content, String channelId, boolean toolsEnabled) {
+      Flux<String> content, String channelId, String ownerKey, boolean toolsEnabled) {
     Flux<String> textTokens = content.map(this::sanitizeStreamToken);
     if (!toolsEnabled) {
       return textTokens.filter(token -> !token.isEmpty()).map(this::messageEvent);
     }
     Sinks.Many<String> sink = ToolEventChannel.open(channelId);
+    ToolEventChannel.bindOwnerKey(channelId, ownerKey);
     Flux<String> toolEvents =
         ToolEventChannel.asFlux(sink).doOnNext(json -> captureSourcesEvent(channelId, json));
     Flux<String> textEvents =
@@ -406,12 +404,9 @@ public class ChatService {
     return aiResponse;
   }
 
-  public Flux<String> chatStream(List<ChatMessage> messages) {
-    return chatStream(messages, TextChatOptions.defaults());
-  }
-
   /** Streams a reply for an ad-hoc message list without a session. */
-  public Flux<String> chatStream(List<ChatMessage> messages, TextChatOptions options) {
+  public Flux<String> chatStream(
+      List<ChatMessage> messages, TextChatOptions options, String ownerKey) {
     String requestId = java.util.UUID.randomUUID().toString();
     ToolEventChannel.setCurrentSessionId(requestId);
     try {
@@ -423,6 +418,7 @@ public class ChatService {
               .stream()
               .content(),
           requestId,
+          ownerKey,
           options.toolsEnabled());
     } finally {
       ToolEventChannel.clearCurrentSessionId();

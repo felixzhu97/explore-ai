@@ -150,7 +150,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use stateless stream when sessionId missing")
     void shouldUseStatelessStreamWhenSessionIdMissing() {
-      when(chatService.chatStream(any(), any(TextChatOptions.class)))
+      when(chatService.chatStream(any(), any(TextChatOptions.class), eq(ownerKey())))
           .thenReturn(Flux.just("token"));
 
       assertThat(
@@ -180,7 +180,8 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
       com.ai.skill.domain.vo.SkillId skillId = skill.getId();
       when(skillRepository.findEnabledByOwnerKeyAndIds(eq(ownerKey()), any()))
           .thenReturn(List.of(skill));
-      when(chatService.chatStream(any(), any(TextChatOptions.class))).thenReturn(Flux.just("ok"));
+      when(chatService.chatStream(any(), any(TextChatOptions.class), eq(ownerKey())))
+          .thenReturn(Flux.just("ok"));
 
       assertThat(
               mvc.post()
@@ -208,7 +209,8 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                   options ->
                       options.skillSystemPrompt() != null
                           && options.skillSystemPrompt().contains("## Active Skills")
-                          && options.skillSystemPrompt().contains("Brief Style")));
+                          && options.skillSystemPrompt().contains("Brief Style")),
+              eq(ownerKey()));
     }
   }
 }

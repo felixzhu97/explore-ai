@@ -11,8 +11,8 @@ public record OwnerKey(String value) {
   public static final String CLIENT_PREFIX = "c:";
   public static final String ACCOUNT_PREFIX = "u:";
 
-  /** Pre-isolation rows that must never match a live visitor. */
-  public static final OwnerKey LEGACY_ORPHAN = new OwnerKey("c:legacy-orphan");
+  /** Rows without a visitor, such as session-less metrics; never matches a live visitor. */
+  public static final OwnerKey UNOWNED = new OwnerKey("c:legacy-orphan");
 
   public OwnerKey {
     Objects.requireNonNull(value, "value");

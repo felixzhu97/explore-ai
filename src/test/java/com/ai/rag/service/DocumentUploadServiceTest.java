@@ -3,7 +3,6 @@ package com.ai.rag.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -73,7 +72,7 @@ class DocumentUploadServiceTest {
       Long fileSize = 1024L;
       String content = "This is test content";
 
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(fileName)))
           .thenReturn(new RawDocument(content, Map.of("fileName", fileName), fileName));
@@ -98,7 +97,7 @@ class DocumentUploadServiceTest {
     void shouldMarkDocumentAsUploadingThenReady() {
       String content = "Test content";
 
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
           .thenReturn(new RawDocument(content, Map.of(), "test"));
@@ -108,7 +107,7 @@ class DocumentUploadServiceTest {
 
       service.upload("Title", "file.txt", 100L, content, "c:test-owner");
 
-      verify(documentRepository, times(2)).save(any(RagDocument.class), eq("c:test-owner"));
+      verify(documentRepository, times(2)).save(any(RagDocument.class));
     }
   }
 
@@ -123,7 +122,7 @@ class DocumentUploadServiceTest {
       String fileName = "test.txt";
       byte[] content = "Test content".getBytes();
 
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(content), eq(fileName)))
           .thenReturn(new RawDocument("processed", Map.of("fileName", fileName), fileName));
@@ -144,7 +143,7 @@ class DocumentUploadServiceTest {
       String fileName = "document.pdf";
       byte[] pdfContent = new byte[] {1, 2, 3};
 
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(pdfContent), eq(fileName)))
           .thenThrow(new IllegalStateException("PDF text extraction returned empty"));
@@ -168,7 +167,7 @@ class DocumentUploadServiceTest {
       when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
       when(multipartFile.getSize()).thenReturn(100L);
       when(multipartFile.getBytes()).thenReturn("content".getBytes());
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(originalFileName)))
           .thenReturn(
@@ -194,7 +193,7 @@ class DocumentUploadServiceTest {
       when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
       when(multipartFile.getSize()).thenReturn(50L);
       when(multipartFile.getBytes()).thenReturn("content".getBytes());
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(originalFileName)))
           .thenReturn(
@@ -233,7 +232,7 @@ class DocumentUploadServiceTest {
     @DisplayName("should mark document as FAILED when transformer fails")
     void shouldMarkDocumentAsFailedWhenTransformerFails() {
       String content = "Test content";
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
           .thenReturn(new RawDocument(content, Map.of(), "test"));
@@ -244,14 +243,14 @@ class DocumentUploadServiceTest {
           .isInstanceOf(RuntimeException.class)
           .hasMessageContaining("Failed to process document");
 
-      verify(documentRepository, times(2)).save(any(RagDocument.class), eq("c:test-owner"));
+      verify(documentRepository, times(2)).save(any(RagDocument.class));
     }
 
     @Test
     @DisplayName("should mark document as FAILED when writer fails")
     void shouldMarkDocumentAsFailedWhenWriterFails() {
       String content = "Test content";
-      when(documentRepository.save(any(RagDocument.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
           .thenReturn(new RawDocument(content, Map.of(), "test"));
@@ -263,7 +262,7 @@ class DocumentUploadServiceTest {
           .isInstanceOf(RuntimeException.class)
           .hasMessageContaining("Embedding failed");
 
-      verify(documentRepository, times(2)).save(any(RagDocument.class), eq("c:test-owner"));
+      verify(documentRepository, times(2)).save(any(RagDocument.class));
     }
   }
 

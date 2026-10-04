@@ -34,8 +34,7 @@ class ChunkRowMapperTest {
 
   private static final DocumentId TEST_DOCUMENT_ID =
       DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-  private static final DocumentId TEST_CHUNK_ID =
-      DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
+  private static final ChunkId TEST_CHUNK_ID = ChunkId.of("223e4567-e89b-12d3-a456-426614174001");
 
   @BeforeEach
   void setUp() {
@@ -112,7 +111,7 @@ class ChunkRowMapperTest {
     }
   }
 
-  private DocumentChunk createMockChunk(DocumentId id, DocumentId documentId) {
+  private DocumentChunk createMockChunk(ChunkId id, DocumentId documentId) {
     Map<String, Object> metadata = Map.of("source", "test", "page", 1);
     return DocumentChunk.create(id, documentId, "Test content " + id, 0, metadata)
         .withEmbedding(new float[] {1.0f, 2.0f, 3.0f, 4.0f});

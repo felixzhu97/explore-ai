@@ -121,9 +121,7 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   }
 
   private static OwnerKey toOwnerKey(String ownerKey) {
-    return ownerKey == null || ownerKey.isBlank()
-        ? OwnerKey.LEGACY_ORPHAN
-        : OwnerKey.parse(ownerKey);
+    return ownerKey == null || ownerKey.isBlank() ? OwnerKey.UNOWNED : OwnerKey.parse(ownerKey);
   }
 
   private static String requireNonBlank(String value, String name) {
