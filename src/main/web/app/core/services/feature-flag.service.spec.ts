@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { FEATURE_FLAG_KEYS } from '../config/feature-flag-keys';
-import { PRIVACY_CONSENT_STORAGE_KEY } from '../../features/privacy/services/privacy-consent.storage';
+import { STORAGE_KEYS } from '../config/storage-keys';
 
 const mockClient = {
   on: vi.fn(),
@@ -59,7 +59,7 @@ describe('FeatureFlagService', () => {
 
   function allowAnalytics(): void {
     localStorage.setItem(
-      PRIVACY_CONSENT_STORAGE_KEY,
+      STORAGE_KEYS.PRIVACY_CONSENT,
       JSON.stringify({ decided: true, analytics: true }),
     );
   }

@@ -3,6 +3,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../../../core/api.constants';
+import { STORAGE_KEYS } from '../../../core/config/storage-keys';
 import { SKIP_ERROR_NOTIFICATION } from '../../../core/interceptors/http-error.context';
 import {
   parseChatStreamEvent,
@@ -23,8 +24,6 @@ import type {
 } from '../chat.model';
 
 type ChatStreamEventHandler = (event: ChatStreamEvent) => void;
-
-const ACTIVE_SESSION_STORAGE_KEY = 'explore-ai.chat.activeSessionId';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -414,9 +413,9 @@ export class ChatService {
   private persistActiveSessionId(sessionId: string | null): void {
     try {
       if (sessionId) {
-        sessionStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, sessionId);
+        sessionStorage.setItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION_ID, sessionId);
       } else {
-        sessionStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION_ID);
       }
     } catch {
       // Ignore private-mode / storage quota failures.
@@ -425,7 +424,7 @@ export class ChatService {
 
   private readPersistedActiveSessionId(): string | null {
     try {
-      return sessionStorage.getItem(ACTIVE_SESSION_STORAGE_KEY);
+      return sessionStorage.getItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION_ID);
     } catch {
       return null;
     }

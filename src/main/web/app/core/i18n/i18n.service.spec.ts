@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { STORAGE_KEYS } from '../config/storage-keys';
 import { I18nService } from './i18n.service';
 
 describe('I18nService', () => {
@@ -57,37 +58,37 @@ describe('I18nService', () => {
 
   describe('when getting initial language', () => {
     it('should return stored language if valid', () => {
-      storage['language'] = 'en';
+      storage[STORAGE_KEYS.LANGUAGE] = 'en';
       const newService = new I18nService();
       expect(newService.language()).toBe('en');
     });
 
     it('should return stored zh language', () => {
-      storage['language'] = 'zh';
+      storage[STORAGE_KEYS.LANGUAGE] = 'zh';
       const newService = new I18nService();
       expect(newService.language()).toBe('zh');
     });
 
     it('should return stored ja language', () => {
-      storage['language'] = 'ja';
+      storage[STORAGE_KEYS.LANGUAGE] = 'ja';
       const newService = new I18nService();
       expect(newService.language()).toBe('ja');
     });
 
     it('should return stored fr language', () => {
-      storage['language'] = 'fr';
+      storage[STORAGE_KEYS.LANGUAGE] = 'fr';
       const newService = new I18nService();
       expect(newService.language()).toBe('fr');
     });
 
     it('should return stored es language', () => {
-      storage['language'] = 'es';
+      storage[STORAGE_KEYS.LANGUAGE] = 'es';
       const newService = new I18nService();
       expect(newService.language()).toBe('es');
     });
 
     it('should return navigator language if stored is invalid', () => {
-      storage['language'] = 'invalid-lang';
+      storage[STORAGE_KEYS.LANGUAGE] = 'invalid-lang';
       Object.defineProperty(navigator, 'language', {
         value: 'en',
         writable: true,
@@ -97,7 +98,7 @@ describe('I18nService', () => {
     });
 
     it('should return zh as default when both stored and navigator are invalid', () => {
-      storage['language'] = 'invalid-lang';
+      storage[STORAGE_KEYS.LANGUAGE] = 'invalid-lang';
       Object.defineProperty(navigator, 'language', {
         value: 'invalid',
         writable: true,
@@ -121,29 +122,29 @@ describe('I18nService', () => {
       service = new I18nService();
       service.setLanguage('ja');
       expect(service.language()).toBe('ja');
-      expect(storage['language']).toBe('ja');
+      expect(storage[STORAGE_KEYS.LANGUAGE]).toBe('ja');
     });
 
     it('should switch from zh to en correctly', () => {
       service = new I18nService();
       service.setLanguage('en');
       expect(service.language()).toBe('en');
-      expect(storage['language']).toBe('en');
+      expect(storage[STORAGE_KEYS.LANGUAGE]).toBe('en');
     });
 
     it('should switch from en to fr correctly', () => {
-      storage['language'] = 'en';
+      storage[STORAGE_KEYS.LANGUAGE] = 'en';
       service = new I18nService();
       service.setLanguage('fr');
       expect(service.language()).toBe('fr');
-      expect(storage['language']).toBe('fr');
+      expect(storage[STORAGE_KEYS.LANGUAGE]).toBe('fr');
     });
 
     it('should switch to es correctly', () => {
       service = new I18nService();
       service.setLanguage('es');
       expect(service.language()).toBe('es');
-      expect(storage['language']).toBe('es');
+      expect(storage[STORAGE_KEYS.LANGUAGE]).toBe('es');
     });
   });
 

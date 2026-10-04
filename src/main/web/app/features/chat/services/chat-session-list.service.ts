@@ -1,9 +1,8 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { STORAGE_KEYS } from '../../../core/config/storage-keys';
 import type { SessionList } from '../../../core/layout/services/session-list.token';
 import type { SidebarSession } from '../../../core/layout/sidebar-session.model';
 import { ChatService } from './chat.service';
-
-const PINNED_SESSION_IDS_KEY = 'explore-ai.chat.pinnedSessionIds';
 
 @Injectable()
 export class ChatSessionListService implements SessionList {
@@ -62,7 +61,7 @@ export class ChatSessionListService implements SessionList {
   private writePinnedIds(ids: string[]): void {
     this.pinnedIds.set(ids);
     try {
-      localStorage.setItem(PINNED_SESSION_IDS_KEY, JSON.stringify(ids));
+      localStorage.setItem(STORAGE_KEYS.CHAT_PINNED_SESSION_IDS, JSON.stringify(ids));
     } catch {
       // Ignore quota / private-mode failures; in-memory pin state still works.
     }
@@ -71,7 +70,7 @@ export class ChatSessionListService implements SessionList {
 
 function readPinnedIds(): string[] {
   try {
-    const raw = localStorage.getItem(PINNED_SESSION_IDS_KEY);
+    const raw = localStorage.getItem(STORAGE_KEYS.CHAT_PINNED_SESSION_IDS);
     if (!raw) {
       return [];
     }

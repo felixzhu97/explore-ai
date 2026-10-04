@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { STORAGE_KEYS } from '../config/storage-keys';
 import { Language, Translations, translations, languageNames } from './i18n.model';
 
 @Injectable({
@@ -12,7 +13,7 @@ export class I18nService {
   readonly languageName = computed(() => languageNames[this.languageState()]);
 
   private getInitialLanguage(): Language {
-    const stored = localStorage.getItem('language');
+    const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
     if (stored && this.isValidLanguage(stored)) {
       return stored as Language;
     }
@@ -31,7 +32,7 @@ export class I18nService {
 
   setLanguage(lang: Language): void {
     this.languageState.set(lang);
-    localStorage.setItem('language', lang);
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
   }
 
   tReplace(template: string, values: Record<string, string | number>): string {

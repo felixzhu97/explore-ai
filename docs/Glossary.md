@@ -65,16 +65,16 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | `/generate/tts`   | Text-to-Speech   | `/api/audio` |
 | `/rag`            | RAG              | `/api/rag`                      |
 | `/vision`         | Image Analysis   | `/api/vision`                   |
-| `/asr`            | Audio (ASR)      | `/ws/audio`                     |
+| `/speech-to-text` | Speech-to-Text (ASR) | `/ws/audio`                 |
 | `/mcp`            | MCP              | `/api/mcp`, `/api/mcp/client`   |
 | `/eval`           | Eval             | `/api/eval`                     |
 | `/metrics`        | Metrics          | `/api/metrics`                  |
 
 Empty / new Chat sessions use bare `/chat` and stay out of the sidebar until the first message. Sessions with history use `/chat/:sessionId` and appear in the sidebar. Only sessions with chat history are remembered in sessionStorage. Client-side **Pinned** session ids live in localStorage and render above **Recents** when present. Invalid or foreign session ids are rejected by Owner Key isolation (404) and the UI redirects to `/chat` (no toast).
 
-**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiinfra`, `modelDev`, `modelOps`, `model`, `llmops`, `aiops`, `vectordb`.
+**Sidebar:** nav key `pipelines` → **Pipeline / 工作流** (`/pipelines`); `automations` → **Automations / 自动化** (`/automations`); `skills` → **Skills** (`/skills`). Planned labels (no route yet): `kubernetes`, `monitoring`, `aiInfra`, `modelDev`, `modelOps`, `model`, `llmOps`, `aiOps`, `vectorDb`.
 
-**Sidebar IA (frontend):** Flat primary nav is **New Chat** plus **Work** modules except Chat (`/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills`). Chat opens via New Chat (bare `/chat`). **Create** (`/generate`) and **Lab** (`/vision`, `/asr`, `/mcp`, `/eval`, flag-gated) live under a **More** hover/tap flyout.
+**Sidebar IA (frontend):** Flat primary nav is **New Chat** plus **Work** modules except Chat (`/rag` → `/metrics` → `/pipelines` → `/automations` → `/agents` → `/skills`). Chat opens via New Chat (bare `/chat`). **Create** (`/generate`) and **Lab** (`/vision`, `/speech-to-text`, `/mcp`, `/eval`, flag-gated) live under a **More** hover/tap flyout.
 
 **Page layout by scenario (frontend):** Chat (conversation); RAG (document rail + Q&A); Pipeline/工作流 (canvas + task near Run + results rail; double-click node edits name/prompt/tools for that graph copy); Generation / Vision / ASR / MCP / Eval / Metrics as before.
 
@@ -149,7 +149,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Owner Key                | 数据归属键 | Hybrid partition key: guest `c:{clientId}` or account `u:{accountUserId}` | Value Object      | `OwnerKey`, column `owner_key` | Resolved by `CurrentOwnerResolver`; merged on OAuth login |
 | Legacy Orphan            | 遗留无主数据 | Owner Key `c:legacy-orphan` assigned to rows written before owner isolation | Value Object      | `OwnerKey.LEGACY_ORPHAN` | Never matches a live visitor (cookie client ids are UUIDs); `owner_key` is NOT NULL everywhere |
 | Privacy Erasure          | 隐私清除 | Delete all durable rows for current Owner Key / rotate identity cookie | Use Case          | `OwnerErasureService`, `PrivacyController` | GDPR-style right to erasure across owner-scoped stores |
-| Privacy Consent          | 隐私同意 | Browser preference for optional analytics (RUM / LaunchDarkly) | Technical         | `PrivacyConsentService`, `explore-ai-privacy-consent` | Stored in localStorage; necessary Client Identity cookie is separate |
+| Privacy Consent          | 隐私同意 | Browser preference for optional analytics (RUM / LaunchDarkly) | Technical         | `PrivacyConsentService`, `explore-ai.privacy.consent` | Stored in localStorage; necessary Client Identity cookie is separate |
 | Data Retention           | 数据留存 | Timed purge of inactive sessions and aged metrics events | Job               | `ChatDataRetentionJob`, `app.data-retention` | Default 90d aligned with Client Identity cookie |
 | Plan Quota               | 套餐配额 | Daily hard limit on billable AI API calls for Free/Pro plan | Technical         | `billing.web.UsageQuotaFilter`, `app.billing` | Returns `429` / `QUOTA_EXCEEDED`; distinct from short-window rate limit |
 | Metrics Admin Key        | Metrics 管理密钥 | Shared secret protecting `/api/metrics/**` when configured | Technical         | `MetricsAdminAuthFilter`, `METRICS_ADMIN_API_KEY` | Header `X-Admin-Key`; empty key keeps local Metrics UI open |

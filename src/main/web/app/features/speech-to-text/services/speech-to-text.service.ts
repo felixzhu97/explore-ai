@@ -1,12 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import type { AsrConnectionState, AsrServerMessage } from '../asr.model';
+import type { SpeechToTextConnectionState, TranscriptionMessage } from '../speech-to-text.model';
 
 @Injectable({ providedIn: 'root' })
-export class AsrService {
+export class SpeechToTextService {
   private socket: WebSocket | null = null;
 
-  readonly connectionState = signal<AsrConnectionState>('disconnected');
+  readonly connectionState = signal<SpeechToTextConnectionState>('disconnected');
   readonly transcript = signal('');
   readonly lastMessage = signal<string | null>(null);
   readonly error = signal<string | null>(null);
@@ -29,7 +29,7 @@ export class AsrService {
       const payload = String(event.data);
       this.lastMessage.set(payload);
       try {
-        const message = JSON.parse(payload) as AsrServerMessage;
+        const message = JSON.parse(payload) as TranscriptionMessage;
         if (message.text) {
           this.transcript.update(current => current + message.text);
         }

@@ -30,9 +30,9 @@ export const routes: Routes = [
         loadChildren: () => import('./features/eval/eval.routes').then(m => m.EVAL_ROUTES),
       },
       {
-        path: 'asr',
+        path: 'speech-to-text',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR)],
-        loadChildren: () => import('./features/asr/asr.routes').then(m => m.ASR_ROUTES),
+        loadChildren: () => import('./features/speech-to-text/speech-to-text.routes').then(m => m.SPEECH_TO_TEXT_ROUTES),
       },
       {
         path: 'pipelines',
@@ -67,6 +67,7 @@ export const routes: Routes = [
         path: 'policies',
         loadChildren: () => import('./features/policies/policies.routes').then(m => m.POLICIES_ROUTES),
       },
+      { path: 'asr', redirectTo: 'speech-to-text', pathMatch: 'full' },
       { path: 'legal', redirectTo: 'policies', pathMatch: 'full' },
       { path: 'legal/terms', redirectTo: 'policies/terms-of-use', pathMatch: 'full' },
       { path: 'legal/privacy', redirectTo: 'policies/privacy-policy', pathMatch: 'full' },
