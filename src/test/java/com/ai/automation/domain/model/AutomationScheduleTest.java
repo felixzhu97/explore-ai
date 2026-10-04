@@ -3,6 +3,7 @@ package com.ai.automation.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleKind;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +29,7 @@ class AutomationScheduleTest {
 
     assertThat(schedule.isEnabled()).isTrue();
     assertThat(schedule.getScheduleKind()).isEqualTo(ScheduleKind.CRON);
+    assertThat(schedule.getActionType()).isEqualTo(AutomationActionType.RUN_PIPELINE_TEMPLATE);
     assertThat(schedule.getRecipientEmail()).isEqualTo("user@example.com");
     assertThat(schedule.getNextRunAt()).isEqualTo(next);
   }
@@ -103,6 +105,7 @@ class AutomationScheduleTest {
             runAt);
 
     assertThat(schedule.isOnce()).isTrue();
+    assertThat(schedule.getActionType()).isEqualTo(AutomationActionType.RUN_PIPELINE_TEMPLATE);
     assertThat(schedule.getCronExpression()).isNull();
     assertThat(schedule.getNextRunAt()).isEqualTo(runAt);
   }
