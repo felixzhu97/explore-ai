@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +88,12 @@ class GoldenEvalServiceTest {
     when(suiteRepository.loadByDomains(List.of(GoldenEvalDomain.RAG)))
         .thenReturn(List.of(evalCase));
     when(fixtureSeeder.ensureFixtures()).thenReturn(Map.of("overview", "doc-1"));
-    when(ragChatService.chat(eq("What modules?"), eq(List.of("doc-1")), eq(5)))
+    when(ragChatService.chat(
+            eq("What modules?"),
+            eq(List.of("doc-1")),
+            eq(5),
+            isNull(),
+            eq(GoldenRagFixtureSeeder.OWNER_KEY)))
         .thenReturn(
             new RagChatResult(
                 "Chat and RAG",
@@ -99,7 +105,8 @@ class GoldenEvalServiceTest {
 
     assertThat(report.passed()).isEqualTo(1);
     verify(fixtureSeeder).ensureFixtures();
-    verify(ragChatService).chat("What modules?", List.of("doc-1"), 5);
+    verify(ragChatService)
+        .chat("What modules?", List.of("doc-1"), 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
   }
 
   @Test

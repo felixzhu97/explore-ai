@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class H2SpringAiVectorStore implements VectorStore {
 
   public static final String DOCUMENT_ID_METADATA_KEY = "document_id";
+  public static final String OWNER_KEY_METADATA_KEY = "ownerKey";
   private static final Logger log = LoggerFactory.getLogger(H2SpringAiVectorStore.class);
   private static final int MAX_CONTENT_LENGTH = 500;
 
@@ -72,14 +73,21 @@ public class H2SpringAiVectorStore implements VectorStore {
     }
     log.info("RAG retrieval for query: {}", LogSanitizer.truncate(query));
 
+    Filter.Expression filter = request.getFilterExpression();
+    Optional<String> ownerKey =
+        Optional.ofNullable(filter)
+            .flatMap(f -> findValue(f, Filter.ExpressionType.EQ, OWNER_KEY_METADATA_KEY))
+            .map(Object::toString);
+    if (ownerKey.isEmpty()) {
+      log.warn("Rejected RAG retrieval without an {} filter", OWNER_KEY_METADATA_KEY);
+      return List.of();
+    }
+
     float[] queryEmbedding = embeddingRepository.embed(query);
     int topK = Math.max(request.getTopK(), 1);
-    List<UUID> documentIds = extractDocumentIds(request.getFilterExpression());
-
     List<DocumentChunk> chunks =
-        documentIds == null
-            ? chunkSearchRepository.search(queryEmbedding, topK)
-            : chunkSearchRepository.search(queryEmbedding, topK, documentIds);
+        chunkSearchRepository.search(
+            queryEmbedding, topK, ownerKey.get(), extractDocumentIds(filter));
     double threshold = request.getSimilarityThreshold();
 
     List<Document> results = new ArrayList<>();
@@ -107,28 +115,28 @@ public class H2SpringAiVectorStore implements VectorStore {
   }
 
   static List<UUID> extractDocumentIds(Filter.Expression expression) {
-    if (expression == null) {
-      return null;
-    }
-    return findDocumentIdIn(expression).orElse(null);
+    return findValue(expression, Filter.ExpressionType.IN, DOCUMENT_ID_METADATA_KEY)
+        .map(H2SpringAiVectorStore::toUuids)
+        .orElse(List.of());
   }
 
-  private static Optional<List<UUID>> findDocumentIdIn(Filter.Expression expression) {
-    if (expression.type() == Filter.ExpressionType.IN
+  private static Optional<Object> findValue(
+      Filter.Expression expression, Filter.ExpressionType type, String metadataKey) {
+    if (expression.type() == type
         && expression.left() instanceof Filter.Key key
-        && DOCUMENT_ID_METADATA_KEY.equals(key.key())
+        && metadataKey.equals(key.key())
         && expression.right() instanceof Filter.Value value) {
-      return Optional.ofNullable(toUuids(value.value()));
+      return Optional.ofNullable(value.value());
     }
     if (expression.type() == Filter.ExpressionType.AND) {
       if (expression.left() instanceof Filter.Expression left) {
-        Optional<List<UUID>> fromLeft = findDocumentIdIn(left);
+        Optional<Object> fromLeft = findValue(left, type, metadataKey);
         if (fromLeft.isPresent()) {
           return fromLeft;
         }
       }
       if (expression.right() instanceof Filter.Expression right) {
-        return findDocumentIdIn(right);
+        return findValue(right, type, metadataKey);
       }
     }
     return Optional.empty();
@@ -138,13 +146,11 @@ public class H2SpringAiVectorStore implements VectorStore {
     List<UUID> ids = new ArrayList<>();
     if (raw instanceof List<?> list) {
       for (Object item : list) {
-        if (item != null) {
-          ids.add(UUID.fromString(item.toString()));
-        }
+        ids.add(UUID.fromString(item.toString()));
       }
-    } else if (raw != null) {
+    } else {
       ids.add(UUID.fromString(raw.toString()));
     }
-    return ids.isEmpty() ? null : ids;
+    return ids;
   }
 }

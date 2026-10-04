@@ -48,6 +48,13 @@ class RagSearchToolTest {
   @BeforeEach
   void setUp() {
     ragSearchTool = new RagSearchTool(ragApplicationService, ownerContext);
+    ToolEventChannel.open(CHANNEL);
+    ToolEventChannel.bindOwnerKey(CHANNEL, OWNER_KEY);
+  }
+
+  @AfterEach
+  void closeChannel() {
+    ToolEventChannel.close(CHANNEL);
   }
 
   @Nested
@@ -63,7 +70,7 @@ class RagSearchToolTest {
               new SourceDocument("Test content 2", 0.85, Map.of("title", TEST_DOC_TITLE)));
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("context", sources, "query");
-      when(ragApplicationService.retrieveContext(eq("test query"), isNull(), eq(5)))
+      when(ragApplicationService.retrieveContext(eq("test query"), isNull(), eq(5), eq(OWNER_KEY)))
           .thenReturn(retrievalResult);
 
       String result = ragSearchTool.searchDocuments("test query", null);
@@ -81,13 +88,14 @@ class RagSearchToolTest {
           List.of(new SourceDocument("Test content", 0.95, Map.of("title", TEST_DOC_TITLE)));
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("context", sources, "query");
-      when(ragApplicationService.retrieveContext(eq("test query"), anyList(), eq(5)))
+      when(ragApplicationService.retrieveContext(eq("test query"), anyList(), eq(5), eq(OWNER_KEY)))
           .thenReturn(retrievalResult);
 
       String result = ragSearchTool.searchDocuments("test query", List.of(TEST_DOC_ID));
 
       assertThat(result).contains("找到以下相关文档片段");
-      verify(ragApplicationService).retrieveContext(eq("test query"), anyList(), eq(5));
+      verify(ragApplicationService)
+          .retrieveContext(eq("test query"), anyList(), eq(5), eq(OWNER_KEY));
     }
 
     @Test
@@ -95,7 +103,7 @@ class RagSearchToolTest {
     void shouldReturnMessageWhenNoResultsFound() {
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("", Collections.emptyList(), "query");
-      when(ragApplicationService.retrieveContext(anyString(), any(), anyInt()))
+      when(ragApplicationService.retrieveContext(anyString(), any(), anyInt(), anyString()))
           .thenReturn(retrievalResult);
 
       String result = ragSearchTool.searchDocuments("nonexistent", null);
@@ -129,13 +137,24 @@ class RagSearchToolTest {
           List.of(new SourceDocument(longContent, 0.95, Map.of("title", TEST_DOC_TITLE)));
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("context", sources, "query");
-      when(ragApplicationService.retrieveContext(anyString(), any(), anyInt()))
+      when(ragApplicationService.retrieveContext(anyString(), any(), anyInt(), anyString()))
           .thenReturn(retrievalResult);
 
       String result = ragSearchTool.searchDocuments("test", null);
 
       assertThat(result).contains("...");
       assertThat(result.length()).isLessThan(1000);
+    }
+
+    @Test
+    @DisplayName("should refuse to search documents when owner is unknown")
+    void shouldRefuseToSearchDocumentsWhenOwnerIsUnknown() {
+      ToolEventChannel.close(CHANNEL);
+
+      String result = ragSearchTool.searchDocuments("test", null);
+
+      assertThat(result).contains("无法识别用户");
+      verifyNoInteractions(ragApplicationService);
     }
 
     @Test
@@ -150,17 +169,6 @@ class RagSearchToolTest {
   @Nested
   @DisplayName("listDocuments")
   class ListDocuments {
-
-    @BeforeEach
-    void bindOwner() {
-      ToolEventChannel.open(CHANNEL);
-      ToolEventChannel.bindOwnerKey(CHANNEL, OWNER_KEY);
-    }
-
-    @AfterEach
-    void closeChannel() {
-      ToolEventChannel.close(CHANNEL);
-    }
 
     @Test
     @DisplayName("should list documents of owner bound to tool channel")

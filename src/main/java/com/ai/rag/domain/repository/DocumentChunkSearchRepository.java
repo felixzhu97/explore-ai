@@ -6,7 +6,10 @@ import java.util.UUID;
 
 /** Repository for vector similarity search over persisted document chunks. */
 public interface DocumentChunkSearchRepository {
-  List<DocumentChunk> search(float[] queryEmbedding, int topK);
-
-  List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> documentIds);
+  /**
+   * Returns the owner's top-K chunks by cosine similarity, limited to {@code documentIds} when it
+   * is not empty.
+   */
+  List<DocumentChunk> search(
+      float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds);
 }

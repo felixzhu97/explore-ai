@@ -31,6 +31,9 @@ public class GoldenRagFixtureSeeder {
   private static final String PATTERN = "classpath:eval/golden/fixtures/*";
   private static final String TITLE_PREFIX = "golden-fixture-";
 
+  /** Owner Key that holds the seeded fixture documents. */
+  public static final String OWNER_KEY = "c:eval-golden";
+
   private final DocumentUploadService documentUploadService;
   private final PathMatchingResourcePatternResolver resolver =
       new PathMatchingResourcePatternResolver();
@@ -68,7 +71,7 @@ public class GoldenRagFixtureSeeder {
                 filename,
                 (long) content.getBytes(StandardCharsets.UTF_8).length,
                 content,
-                "c:eval-golden");
+                OWNER_KEY);
         String id = uploaded.documentId().value().toString();
         resolved.put(key, id);
         byTitle.put(title, id);
@@ -81,7 +84,7 @@ public class GoldenRagFixtureSeeder {
   }
 
   private Map<String, String> indexExistingByTitle() {
-    List<RagDocument> documents = documentUploadService.listAll("c:eval-golden");
+    List<RagDocument> documents = documentUploadService.listAll(OWNER_KEY);
     Map<String, String> byTitle = new HashMap<>();
     for (RagDocument document : documents) {
       if (document.getTitle() != null && document.getTitle().startsWith(TITLE_PREFIX)) {

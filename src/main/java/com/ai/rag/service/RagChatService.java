@@ -31,6 +31,7 @@ import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.transformation.CompressionQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,9 @@ public class RagChatService {
 
   /** Must match {@code H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY}. */
   private static final String DOCUMENT_ID_METADATA_KEY = "document_id";
+
+  /** Must match {@code H2SpringAiVectorStore.OWNER_KEY_METADATA_KEY}. */
+  private static final String OWNER_KEY_METADATA_KEY = "ownerKey";
 
   private final ChatClientProvider chatClientProvider;
   private final LanguageDetectionService languageDetectionService;
@@ -67,19 +71,19 @@ public class RagChatService {
     this.objectMapper = objectMapper;
   }
 
-  public RagChatResult chat(String question, List<String> documentIds, int topK) {
-    return chat(question, documentIds, topK, null);
-  }
-
-  /** Answers the question with retrieval-augmented context and records the invocation. */
-  public RagChatResult chat(String question, List<String> documentIds, int topK, String sessionId) {
+  /**
+   * Answers the question with context retrieved from the owner's documents and records the
+   * invocation.
+   */
+  public RagChatResult chat(
+      String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
         documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
     try {
       ChatClient.ChatClientRequestSpec promptSpec =
-          buildPrompt(question, documentIds, topK, sessionId, options);
+          buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
       ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
       String aiResponse = extractContent(clientResponse);
       List<SourceDocument> sources = extractSources(clientResponse);
@@ -93,7 +97,7 @@ public class RagChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStream(
-      String question, List<String> documentIds, int topK, String sessionId) {
+      String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
@@ -102,7 +106,7 @@ public class RagChatService {
 
     ChatClient.ChatClientRequestSpec promptSpec;
     try {
-      promptSpec = buildPrompt(question, documentIds, topK, sessionId, options);
+      promptSpec = buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
     } catch (RuntimeException ex) {
       recordError(sessionId, startedAt, ex);
       return Flux.error(ex);
@@ -132,10 +136,10 @@ public class RagChatService {
       List<String> documentIds,
       int topK,
       String sessionId,
+      String ownerKey,
       TextChatOptions options) {
     log.info("RAG chat request: {}", LogSanitizer.truncate(question));
-    List<Object> filterDocIds =
-        documentIds != null && !documentIds.isEmpty() ? List.copyOf(documentIds) : null;
+    Filter.Expression filter = retrievalFilter(ownerKey, documentIds);
 
     String languageCode = languageDetectionService.detect(question);
     String languageHint =
@@ -169,13 +173,7 @@ public class RagChatService {
             .advisors(advisorBuilder.build())
             .advisors(
                 a -> {
-                  if (filterDocIds != null) {
-                    a.param(
-                        VectorStoreDocumentRetriever.FILTER_EXPRESSION,
-                        new FilterExpressionBuilder()
-                            .in(DOCUMENT_ID_METADATA_KEY, filterDocIds)
-                            .build());
-                  }
+                  a.param(VectorStoreDocumentRetriever.FILTER_EXPRESSION, filter);
                   if (withMemory) {
                     a.param(ChatMemory.CONVERSATION_ID, sessionId);
                   }
@@ -183,6 +181,16 @@ public class RagChatService {
             .system(languageHint)
             .user(question);
     return promptSpec;
+  }
+
+  private static Filter.Expression retrievalFilter(String ownerKey, List<String> documentIds) {
+    FilterExpressionBuilder builder = new FilterExpressionBuilder();
+    FilterExpressionBuilder.Op ownedByCaller = builder.eq(OWNER_KEY_METADATA_KEY, ownerKey);
+    if (documentIds == null || documentIds.isEmpty()) {
+      return ownedByCaller.build();
+    }
+    List<Object> ids = List.copyOf(documentIds);
+    return builder.and(ownedByCaller, builder.in(DOCUMENT_ID_METADATA_KEY, ids)).build();
   }
 
   private void recordSuccess(

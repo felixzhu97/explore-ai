@@ -28,6 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("DocumentSearchService")
 class DocumentSearchServiceTest {
 
+  private static final String OWNER = "c:owner";
+
   @Mock private TextEmbeddingGateway embeddingRepository;
 
   @Mock private DocumentChunkSearchRepository chunkSearchRepository;
@@ -60,14 +62,14 @@ class DocumentSearchServiceTest {
               createChunk("Machine learning is a subset of AI", 1));
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(chunks);
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(chunks);
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.context()).contains("AI stands for Artificial Intelligence");
       assertThat(result.context()).contains("Machine learning is a subset of AI");
       assertThat(result.sources()).hasSize(2);
-      verify(chunkSearchRepository).search(queryEmbedding, 5);
+      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of());
     }
 
     @Test
@@ -79,13 +81,14 @@ class DocumentSearchServiceTest {
       List<DocumentChunk> chunks = List.of(createChunk("filtered content", 0));
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, List.of(docId.uuidValue())))
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of(docId.uuidValue())))
           .thenReturn(chunks);
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, List.of(docId), 5);
+      DocumentSearchService.RetrievalResult result =
+          service.retrieve(query, List.of(docId), 5, OWNER);
 
       assertThat(result.sources()).hasSize(1);
-      verify(chunkSearchRepository).search(queryEmbedding, 5, List.of(docId.uuidValue()));
+      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of(docId.uuidValue()));
     }
 
     @Test
@@ -95,11 +98,11 @@ class DocumentSearchServiceTest {
       float[] queryEmbedding = new float[] {0.1f, 0.2f};
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of());
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(List.of());
 
-      service.retrieve(query, null, 0);
+      service.retrieve(query, null, 0, OWNER);
 
-      verify(chunkSearchRepository).search(queryEmbedding, 5);
+      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of());
     }
 
     @Test
@@ -109,11 +112,12 @@ class DocumentSearchServiceTest {
       float[] queryEmbedding = new float[] {0.1f, 0.2f};
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 10)).thenReturn(List.of());
+      when(chunkSearchRepository.search(queryEmbedding, 10, OWNER, List.of()))
+          .thenReturn(List.of());
 
-      service.retrieve(query, null, 10);
+      service.retrieve(query, null, 10, OWNER);
 
-      verify(chunkSearchRepository).search(queryEmbedding, 10);
+      verify(chunkSearchRepository).search(queryEmbedding, 10, OWNER, List.of());
     }
 
     @Test
@@ -154,10 +158,10 @@ class DocumentSearchServiceTest {
               Instant.now());
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(any(), anyInt()))
+      when(chunkSearchRepository.search(any(), anyInt(), any(), any()))
           .thenReturn(List.of(lowSimChunk, highSimChunk, medSimChunk));
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.sources()).hasSize(3);
       assertThat(result.sources().get(0).score()).isGreaterThan(result.sources().get(1).score());
@@ -171,9 +175,9 @@ class DocumentSearchServiceTest {
       float[] queryEmbedding = new float[] {0.1f, 0.2f};
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of());
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(List.of());
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.context()).isEmpty();
       assertThat(result.sources()).isEmpty();
@@ -191,9 +195,9 @@ class DocumentSearchServiceTest {
               createChunk("Third chunk", 2));
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(chunks);
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(chunks);
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.context()).isEqualTo("First chunk\n\nSecond chunk\n\nThird chunk");
     }
@@ -207,9 +211,10 @@ class DocumentSearchServiceTest {
       DocumentChunk chunk = createChunk(longContent, 0);
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
+          .thenReturn(List.of(chunk));
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.sources().get(0).content()).hasSize(503); // 500 + "..."
       assertThat(result.sources().get(0).content()).endsWith("...");
@@ -224,9 +229,10 @@ class DocumentSearchServiceTest {
       DocumentChunk chunk = createChunk(shortContent, 0);
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
+          .thenReturn(List.of(chunk));
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.sources().get(0).content()).isEqualTo(shortContent);
     }
@@ -248,9 +254,10 @@ class DocumentSearchServiceTest {
               Instant.now());
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunk));
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
+          .thenReturn(List.of(chunk));
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.sources().get(0).metadata()).containsEntry("title", "Test Doc");
       assertThat(result.sources().get(0).metadata()).containsEntry("fileName", "test.txt");
@@ -263,11 +270,11 @@ class DocumentSearchServiceTest {
       float[] queryEmbedding = new float[] {0.1f, 0.2f};
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of());
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(List.of());
 
-      service.retrieve(query, List.of(), 5);
+      service.retrieve(query, List.of(), 5, OWNER);
 
-      verify(chunkSearchRepository).search(queryEmbedding, 5);
+      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of());
     }
 
     @Test
@@ -288,9 +295,10 @@ class DocumentSearchServiceTest {
               Instant.now());
 
       when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5)).thenReturn(List.of(chunkWithEmbedding));
+      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
+          .thenReturn(List.of(chunkWithEmbedding));
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
+      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
 
       assertThat(result.sources().get(0).score())
           .isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.01));

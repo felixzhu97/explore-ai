@@ -207,7 +207,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should handle RAG chat request")
     void shouldHandleRagChatRequest() {
-      when(ragChatService.chatStream(eq("What is AI?"), isNull(), eq(5), isNull()))
+      when(ragChatService.chatStream(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerKey())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response ").build()));
 
       assertThat(
@@ -220,7 +220,8 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           .bodyText()
           .asString()
           .contains("AI response");
-      verify(ragChatService).chatStream(eq("What is AI?"), isNull(), eq(5), isNull());
+      verify(ragChatService)
+          .chatStream(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerKey()));
       verifyNoInteractions(visionChatService);
     }
 
@@ -228,7 +229,8 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should use documentIds when provided")
     void shouldUseDocIdsWhenProvided() {
       List<String> documentIds = List.of(UUID.randomUUID().toString());
-      when(ragChatService.chatStream(eq("Question"), eq(documentIds), eq(5), isNull()))
+      when(ragChatService.chatStream(
+              eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerKey())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -245,13 +247,14 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                           .formatted(documentIds.getFirst()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(ragChatService).chatStream(eq("Question"), eq(documentIds), eq(5), isNull());
+      verify(ragChatService)
+          .chatStream(eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerKey()));
     }
 
     @Test
     @DisplayName("should use custom topK when provided")
     void shouldUseCustomTopKWhenProvided() {
-      when(ragChatService.chatStream(eq("Question"), isNull(), eq(10), isNull()))
+      when(ragChatService.chatStream(eq("Question"), isNull(), eq(10), isNull(), eq(ownerKey())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -261,7 +264,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"question\":\"Question\",\"topK\":10}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(ragChatService).chatStream(eq("Question"), isNull(), eq(10), isNull());
+      verify(ragChatService).chatStream(eq("Question"), isNull(), eq(10), isNull(), eq(ownerKey()));
     }
 
     @Test
@@ -269,7 +272,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldStreamVisionRagWhenImagesProvided() {
       List<String> images = List.of("iVBORw0KGgo=");
       when(visionChatService.chatStreamWithImages(
-              eq("Describe image"), isNull(), eq(images), eq(5)))
+              eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerKey())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("token").build()));
 
       assertThat(
@@ -286,14 +289,14 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
       verify(visionChatService)
-          .chatStreamWithImages(eq("Describe image"), isNull(), eq(images), eq(5));
-      verify(ragChatService, never()).chatStream(any(), any(), anyInt(), any());
+          .chatStreamWithImages(eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerKey()));
+      verify(ragChatService, never()).chatStream(any(), any(), anyInt(), any(), any());
     }
 
     @Test
     @DisplayName("should propagate stream error from service")
     void shouldPropagateStreamErrorFromService() {
-      when(ragChatService.chatStream(any(), any(), anyInt(), any()))
+      when(ragChatService.chatStream(any(), any(), anyInt(), any(), any()))
           .thenReturn(Flux.error(new RuntimeException("Service error")));
 
       assertThat(
@@ -303,7 +306,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"question\":\"Question\"}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-      verify(ragChatService).chatStream(eq("Question"), isNull(), eq(5), isNull());
+      verify(ragChatService).chatStream(eq("Question"), isNull(), eq(5), isNull(), eq(ownerKey()));
     }
   }
 

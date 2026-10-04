@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.DocumentChunk;
@@ -31,6 +32,8 @@ import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 @DisplayName("H2SpringAiVectorStore")
 class H2SpringAiVectorStoreTest {
 
+  private static final String OWNER = "c:owner";
+
   @Mock private TextEmbeddingGateway embeddingRepository;
 
   @Mock private DocumentChunkSearchRepository chunkSearchRepository;
@@ -50,12 +53,17 @@ class H2SpringAiVectorStoreTest {
     float[] low = new float[] {0f, 1f};
     UUID docId = UUID.randomUUID();
     when(embeddingRepository.embed("apples")).thenReturn(query);
-    when(chunkSearchRepository.search(eq(query), eq(2)))
+    when(chunkSearchRepository.search(eq(query), eq(2), eq(OWNER), eq(List.of())))
         .thenReturn(List.of(chunk(docId, "high", high), chunk(docId, "low", low)));
 
     List<Document> docs =
         vectorStore.similaritySearch(
-            SearchRequest.builder().query("apples").topK(2).similarityThreshold(0.9).build());
+            SearchRequest.builder()
+                .query("apples")
+                .topK(2)
+                .similarityThreshold(0.9)
+                .filterExpression(ownerFilter().build())
+                .build());
 
     assertThat(docs).hasSize(1);
     assertThat(docs.getFirst().getText()).isEqualTo("high");
@@ -64,16 +72,18 @@ class H2SpringAiVectorStoreTest {
   }
 
   @Test
-  @DisplayName("should pass document ids when filter expression present")
-  void shouldPassDocumentIdsWhenFilterExpressionPresent() {
+  @DisplayName("should pass owner and document ids when filter expression has both")
+  void shouldPassOwnerAndDocumentIdsWhenFilterExpressionHasBoth() {
     float[] query = new float[] {1f, 0f};
     UUID docA = UUID.randomUUID();
     when(embeddingRepository.embed("q")).thenReturn(query);
-    when(chunkSearchRepository.search(any(), anyInt(), any())).thenReturn(List.of());
+    when(chunkSearchRepository.search(any(), anyInt(), any(), any())).thenReturn(List.of());
 
+    FilterExpressionBuilder b = new FilterExpressionBuilder();
     var filter =
-        new FilterExpressionBuilder()
-            .in(H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY, List.of(docA.toString()))
+        b.and(
+                ownerFilter(),
+                b.in(H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY, List.of(docA.toString())))
             .build();
 
     vectorStore.similaritySearch(
@@ -81,8 +91,30 @@ class H2SpringAiVectorStoreTest {
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<UUID>> captor = ArgumentCaptor.forClass(List.class);
-    verify(chunkSearchRepository).search(eq(query), eq(5), captor.capture());
+    verify(chunkSearchRepository).search(eq(query), eq(5), eq(OWNER), captor.capture());
     assertThat(captor.getValue()).containsExactly(docA);
+  }
+
+  @Test
+  @DisplayName("should return nothing without searching when the filter has no owner")
+  void shouldReturnNothingWithoutSearchingWhenTheFilterHasNoOwner() {
+    var documentOnly =
+        new FilterExpressionBuilder()
+            .in(
+                H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY,
+                List.of(UUID.randomUUID().toString()))
+            .build();
+
+    assertThat(vectorStore.similaritySearch(SearchRequest.builder().query("q").build())).isEmpty();
+    assertThat(
+            vectorStore.similaritySearch(
+                SearchRequest.builder().query("q").filterExpression(documentOnly).build()))
+        .isEmpty();
+    verifyNoInteractions(embeddingRepository, chunkSearchRepository);
+  }
+
+  private static FilterExpressionBuilder.Op ownerFilter() {
+    return new FilterExpressionBuilder().eq(H2SpringAiVectorStore.OWNER_KEY_METADATA_KEY, OWNER);
   }
 
   private static DocumentChunk chunk(UUID documentId, String content, float[] embedding) {

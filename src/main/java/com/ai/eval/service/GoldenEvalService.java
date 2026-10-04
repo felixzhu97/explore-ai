@@ -111,7 +111,9 @@ public class GoldenEvalService {
   private GeneratedAnswer generate(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
     if (evalCase.domain() == GoldenEvalDomain.RAG) {
       List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
-      RagChatResult result = ragChatService.chat(evalCase.userText(), documentIds, 5);
+      RagChatResult result =
+          ragChatService.chat(
+              evalCase.userText(), documentIds, 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
       List<String> sources =
           result.sources().stream()
               .map(SourceDocument::content)

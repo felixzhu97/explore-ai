@@ -366,7 +366,7 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
 | Field         | Type    | Required | Description                                        |
 | ------------- | ------- | -------- | -------------------------------------------------- |
 | `question`    | string  | Yes      | Question text                                      |
-| `documentIds` | array   | No       | Document IDs to search (empty = all)               |
+| `documentIds` | array   | No       | Your document IDs to search (empty = all of yours) |
 | `topK`        | integer | No       | Number of document chunks to retrieve (default: 5) |
 | `temperature` | number  | No       | AI temperature parameter (default: 0.7)            |
 | `sessionId`   | string  | No       | Session ID                                         |
