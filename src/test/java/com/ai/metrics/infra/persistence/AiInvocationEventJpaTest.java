@@ -8,7 +8,6 @@ import com.ai.metrics.domain.vo.InvocationOutcome;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +16,12 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.metrics.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
-@EnableJpaRepositories(basePackageClasses = SpringDataAiInvocationEventRepository.class)
+@EnableJpaRepositories(basePackageClasses = JpaAiInvocationEventRepository.class)
 class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:77777777-7777-7777-7777-777777777777";
 
   @Autowired private TestEntityManager em;
-  @Autowired private SpringDataAiInvocationEventRepository repository;
 
   @Test
   @DisplayName("should persist and reload invocation event when round tripping")
@@ -39,14 +37,15 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
             .ownerKey(OWNER_KEY)
             .build();
 
-    repository.saveAndFlush(event);
+    em.persistAndFlush(event);
     em.clear();
 
-    Optional<AiInvocationEvent> reloaded = repository.findById(event.getId());
+    AiInvocationEvent reloaded = em.find(AiInvocationEvent.class, event.getId());
 
-    assertThat(reloaded).isPresent();
-    assertThat(reloaded.get().getOperation()).isEqualTo("completion");
-    assertThat(reloaded.get().getLatencyMs()).isEqualTo(250);
+    assertThat(reloaded).isNotNull();
+    assertThat(reloaded.getOperation()).isEqualTo("completion");
+    assertThat(reloaded.getLatencyMs()).isEqualTo(250);
+    assertThat(reloaded.getOwnerKey().value()).isEqualTo(OWNER_KEY);
   }
 
   @Test
@@ -62,10 +61,10 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
             .ownerKey(OWNER_KEY)
             .build();
 
-    repository.saveAndFlush(event);
+    em.persistAndFlush(event);
     em.clear();
 
-    AiInvocationEvent reloaded = repository.findById(event.getId()).orElseThrow();
+    AiInvocationEvent reloaded = em.find(AiInvocationEvent.class, event.getId());
 
     assertThat(reloaded.getDomain()).isEqualTo(AiDomain.RAG);
     assertThat(reloaded.getOutcome()).isEqualTo(InvocationOutcome.ERROR);
@@ -84,17 +83,49 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
             .build();
     event.assignOwnerKey(OWNER_KEY);
 
-    repository.saveAndFlush(event);
+    em.persistAndFlush(event);
     em.clear();
 
-    String rawOwnerKey =
-        (String)
-            em.getEntityManager()
-                .createNativeQuery("SELECT owner_key FROM ai_invocation_event WHERE id = ?")
-                .setParameter(1, event.getId().value())
-                .getSingleResult();
+    assertThat(rawColumn(event, "owner_key")).isEqualTo(OWNER_KEY);
+  }
 
-    assertThat(rawOwnerKey).isEqualTo(OWNER_KEY);
+  @Test
+  @DisplayName("should store lowercase domain and outcome when persisting event")
+  void shouldStoreLowercaseDomainAndOutcomeWhenPersistingEvent() {
+    AiInvocationEvent event =
+        AiInvocationEvent.builder()
+            .domain(AiDomain.VISION)
+            .operation("describe")
+            .outcome(InvocationOutcome.ERROR)
+            .latencyMs(5)
+            .ownerKey(OWNER_KEY)
+            .build();
+
+    em.persistAndFlush(event);
+    em.clear();
+
+    assertThat(rawColumn(event, "domain")).isEqualTo("vision");
+    assertThat(rawColumn(event, "outcome")).isEqualTo("error");
+  }
+
+  @Test
+  @DisplayName("should ignore changes when immutable event is modified after persist")
+  void shouldIgnoreChangesWhenImmutableEventIsModifiedAfterPersist() {
+    AiInvocationEvent event =
+        AiInvocationEvent.builder()
+            .domain(AiDomain.TOOLS)
+            .operation("call")
+            .outcome(InvocationOutcome.SUCCESS)
+            .latencyMs(1)
+            .ownerKey(OWNER_KEY)
+            .build();
+    em.persistAndFlush(event);
+
+    event.assignOwnerKey("c:someone-else");
+    em.flush();
+    em.clear();
+
+    assertThat(rawColumn(event, "owner_key")).isEqualTo(OWNER_KEY);
   }
 
   @Test
@@ -111,11 +142,19 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
             .ownerKey(OWNER_KEY)
             .build();
 
-    repository.saveAndFlush(event);
+    em.persistAndFlush(event);
     em.clear();
 
-    AiInvocationEvent reloaded = repository.findById(event.getId()).orElseThrow();
+    AiInvocationEvent reloaded = em.find(AiInvocationEvent.class, event.getId());
 
     assertThat(reloaded.getOccurredAt()).isEqualTo(occurredAt);
+  }
+
+  private String rawColumn(AiInvocationEvent event, String column) {
+    return (String)
+        em.getEntityManager()
+            .createNativeQuery("SELECT " + column + " FROM ai_invocation_event WHERE id = ?")
+            .setParameter(1, event.getId().value())
+            .getSingleResult();
   }
 }

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,7 @@ import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import jakarta.persistence.EntityManager;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -33,14 +35,14 @@ import org.springframework.jdbc.core.RowMapper;
 @DisplayName("JpaAiInvocationEventRepository")
 class JpaAiInvocationEventRepositoryTest {
 
-  @Mock private SpringDataAiInvocationEventRepository springData;
+  @Mock private EntityManager entityManager;
   @Mock private JdbcTemplate jdbcTemplate;
 
   private JpaAiInvocationEventRepository repository;
 
   @BeforeEach
   void setUp() {
-    repository = new JpaAiInvocationEventRepository(springData, jdbcTemplate);
+    repository = new JpaAiInvocationEventRepository(entityManager, jdbcTemplate);
   }
 
   @Test
@@ -76,8 +78,9 @@ class JpaAiInvocationEventRepositoryTest {
     repository.save(event);
 
     ArgumentCaptor<AiInvocationEvent> saved = ArgumentCaptor.forClass(AiInvocationEvent.class);
-    verify(springData).saveAndFlush(saved.capture());
-    assertThat(saved.getValue().getOwnerKey()).isEqualTo("c:owner-1");
+    verify(entityManager).persist(saved.capture());
+    verify(entityManager, never()).merge(any());
+    assertThat(saved.getValue().getOwnerKey().value()).isEqualTo("c:owner-1");
     assertThat(saved.getValue().getId().value()).isEqualTo(id.toString());
   }
 
