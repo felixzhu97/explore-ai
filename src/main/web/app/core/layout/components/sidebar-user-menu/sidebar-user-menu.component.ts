@@ -349,8 +349,7 @@ export class SidebarUserMenuComponent {
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
-    const target = event.target as Element | null;
-    if (!target?.closest?.('app-sidebar-user-menu')) {
+    if (!(event.target as Element).closest('app-sidebar-user-menu')) {
       this.isMenuOpen.set(false);
       this.closeSubmenus();
     }

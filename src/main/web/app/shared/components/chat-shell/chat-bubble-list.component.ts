@@ -412,7 +412,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     if (singleId === messageId) {
       return true;
     }
-    return this.streamingMessageIds()?.has(messageId) ?? false;
+    return this.streamingMessageIds().has(messageId);
   }
 
   formatTime(timestamp: number): string {

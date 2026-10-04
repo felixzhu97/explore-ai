@@ -8,7 +8,7 @@ export class SidebarService {
   private mobileResizeHandler: (() => void) | null = null;
 
   open() {
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    if (window.innerWidth < 768) {
       this.collapsed.set(false);
       this.lockBodyScroll();
     }
@@ -21,7 +21,7 @@ export class SidebarService {
   }
 
   toggle() {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobile = window.innerWidth < 768;
     this.mobileOpen.update((open) => {
       const next = !open;
       if (isMobile) {
@@ -37,7 +37,6 @@ export class SidebarService {
   }
 
   private lockBodyScroll(): void {
-    if (typeof document === 'undefined') return;
     document.body.classList.add('overflow-hidden');
     this.removeMobileResizeListener();
     this.mobileResizeHandler = () => {
@@ -49,7 +48,6 @@ export class SidebarService {
   }
 
   private unlockBodyScroll(): void {
-    if (typeof document === 'undefined') return;
     document.body.classList.remove('overflow-hidden');
     this.removeMobileResizeListener();
   }

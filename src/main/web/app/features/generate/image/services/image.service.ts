@@ -30,13 +30,6 @@ export interface ImageGenerationApiResponse {
   status: string;
 }
 
-export interface ImageGenerationResult {
-  imageUrl?: string;
-  imageBase64?: string;
-  model?: string;
-  prompt?: string;
-}
-
 export interface ImageCatalogResponse {
   models: string[];
   sizes: string[];
@@ -73,8 +66,8 @@ export class ImageService {
   readonly models = signal<string[]>([]);
   readonly qualities = signal<string[]>([]);
   readonly sizes = signal<ImageSize[]>(DEFAULT_IMAGE_SIZES);
-  readonly selectedModel = signal<string | null>(null);
-  readonly selectedQuality = signal<string | null>(null);
+  readonly selectedModel = signal<string | undefined>(undefined);
+  readonly selectedQuality = signal<string | undefined>(undefined);
   readonly selectedSize = signal<ImageSize>(DEFAULT_IMAGE_SIZES[2]);
 
   private readonly imageSource = signal<'url' | 'base64' | null>(null);
@@ -135,8 +128,8 @@ export class ImageService {
     const size = this.selectedSize();
     this.generateImage({
       prompt: this.prompt(),
-      model: this.selectedModel() ?? undefined,
-      quality: this.selectedQuality() ?? undefined,
+      model: this.selectedModel(),
+      quality: this.selectedQuality(),
       width: size.width,
       height: size.height,
       n: 1,
@@ -181,7 +174,9 @@ export class ImageService {
       .catch(() => this.error.set('Failed to download image'));
   }
 
-  private generateImage(params: ImageGenerateParams): Observable<ImageGenerationResult> {
+  private generateImage(
+    params: ImageGenerateParams,
+  ): Observable<ImageGenerationApiResponse> {
     return this.http.post<ImageGenerationApiResponse>(
       `${API_BASE_URL}/images/generate`,
       {
@@ -192,32 +187,25 @@ export class ImageService {
         height: params.height,
         n: params.n ?? 1,
       },
-    ).pipe(
-      map(response => ({
-        imageUrl: response.imageUrl ?? undefined,
-        imageBase64: response.imageBase64 ?? undefined,
-        model: response.model,
-        prompt: response.prompt,
-      })),
     );
   }
 
   private getImageModels(): Observable<string[]> {
     return this.http
       .get<{ models: string[] }>(`${API_BASE_URL}/images/models`)
-      .pipe(map(response => response.models ?? []));
+      .pipe(map(response => response.models));
   }
 
   private getImageSizes(): Observable<string[]> {
     return this.http
       .get<{ sizes: string[] }>(`${API_BASE_URL}/images/sizes`)
-      .pipe(map(response => response.sizes ?? []));
+      .pipe(map(response => response.sizes));
   }
 
   private getImageQualities(): Observable<string[]> {
     return this.http
       .get<{ qualities: string[] }>(`${API_BASE_URL}/images/qualities`)
-      .pipe(map(response => response.qualities ?? []));
+      .pipe(map(response => response.qualities));
   }
 
   private getImageCatalog(): Observable<ImageCatalogResponse> {

@@ -193,9 +193,7 @@ export class AppSidebarComponent implements OnInit {
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
-    const target = event.target as Element;
-    const isOutsideSidebar =
-      !target || typeof target.closest !== 'function' || !target.closest('[data-sidebar-panel]');
+    const isOutsideSidebar = !(event.target as Element).closest('[data-sidebar-panel]');
 
     if (this.sidebar.mobileOpen() && isOutsideSidebar) {
       this.sidebar.close();

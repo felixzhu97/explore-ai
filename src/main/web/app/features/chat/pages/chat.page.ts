@@ -113,7 +113,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
       .filter(
         message => message.id === streamingId
           || Boolean(
-            message.content?.trim()
+            message.content.trim()
             || message.toolSteps?.length
             || message.sources?.length,
           ),

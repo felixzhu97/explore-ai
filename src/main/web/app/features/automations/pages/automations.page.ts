@@ -305,11 +305,11 @@ export class AutomationsPageComponent implements OnInit {
     if (!template) {
       return '';
     }
-    const topic = template.shortTopic?.trim();
+    const topic = template.shortTopic.trim();
     if (topic) {
       return topic;
     }
-    return template.briefPrompt?.trim() ?? '';
+    return template.briefPrompt.trim();
   }
 
   private isGenericPlaceholder(brief: string): boolean {
@@ -358,14 +358,10 @@ export class AutomationsPageComponent implements OnInit {
     if (!value) {
       return '—';
     }
-    try {
-      const ms = Date.parse(value);
-      if (Number.isFinite(ms) && ms >= Date.parse('9999-01-01T00:00:00Z')) {
-        return this.i18n.t().automations.nextRunNone;
-      }
-      return new Date(value).toLocaleString();
-    } catch {
-      return value;
+    const ms = Date.parse(value);
+    if (Number.isFinite(ms) && ms >= Date.parse('9999-01-01T00:00:00Z')) {
+      return this.i18n.t().automations.nextRunNone;
     }
+    return new Date(value).toLocaleString();
   }
 }

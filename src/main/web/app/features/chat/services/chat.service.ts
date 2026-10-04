@@ -772,7 +772,7 @@ export class ChatService {
         params: { provider },
       })
       .pipe(
-        map(res => res.models ?? []),
+        map(res => res.models),
         catchError(() => of(DEFAULT_MODELS[provider] ?? DEFAULT_MODELS['openai'] ?? [])),
       );
   }
@@ -857,8 +857,8 @@ export class ChatService {
         ? message.timestamp
         : new Date(message.timestamp).getTime();
     const content = message.role === 'assistant'
-      ? stripToolCallMarkup(message.content ?? '')
-      : (message.content ?? '');
+      ? stripToolCallMarkup(message.content)
+      : message.content;
     return {
       id: message.id ?? `${message.role}_${timestamp}`,
       role: message.role === 'assistant' ? 'assistant' : 'user',
@@ -905,7 +905,7 @@ export function mergeHistoryWithLocalMessages(
 
 function hasRenderableBody(message: ChatMessage): boolean {
   return Boolean(
-    message.content?.trim()
+    message.content.trim()
     || message.toolSteps?.length
     || message.sources?.length,
   );

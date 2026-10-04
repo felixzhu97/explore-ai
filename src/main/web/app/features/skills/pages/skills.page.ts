@@ -114,7 +114,7 @@ export class SkillsPageComponent implements OnInit {
       name: skill.name,
       description: skill.description,
       instructions: skill.instructions,
-      allowedTools: skill.allowedTools ?? [],
+      allowedTools: skill.allowedTools,
     });
     this.showForm.set(true);
   }
@@ -125,7 +125,7 @@ export class SkillsPageComponent implements OnInit {
       name: template.name,
       description: template.description,
       instructions: template.instructions,
-      allowedTools: template.allowedTools ?? [],
+      allowedTools: template.allowedTools,
     });
     this.showForm.set(true);
   }
