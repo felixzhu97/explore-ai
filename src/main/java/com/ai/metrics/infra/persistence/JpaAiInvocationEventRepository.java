@@ -4,6 +4,7 @@ import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import jakarta.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -42,13 +43,12 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
               .errorMessage(rs.getString("error_message"))
               .build();
 
-  private final SpringDataAiInvocationEventRepository springData;
+  private final EntityManager entityManager;
   private final JdbcTemplate jdbcTemplate;
 
   /** Documentation. */
-  public JpaAiInvocationEventRepository(
-      SpringDataAiInvocationEventRepository springData, JdbcTemplate jdbcTemplate) {
-    this.springData = springData;
+  public JpaAiInvocationEventRepository(EntityManager entityManager, JdbcTemplate jdbcTemplate) {
+    this.entityManager = entityManager;
     this.jdbcTemplate = jdbcTemplate;
   }
 
@@ -56,7 +56,8 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   @Transactional
   public void save(AiInvocationEvent event) {
     event.assignOwnerKey(resolveOwnerKey(event.getSessionId()));
-    springData.saveAndFlush(event);
+    entityManager.persist(event);
+    entityManager.flush();
   }
 
   @Override

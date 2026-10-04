@@ -1,12 +1,18 @@
 package com.ai.metrics.domain.model;
 
 import com.ai.common.domain.model.AbstractAppendOnlyEvent;
+import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.AiDomainAttributeConverter;
 import com.ai.metrics.domain.vo.InvocationEventId;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.InvocationOutcomeAttributeConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
@@ -14,29 +20,29 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Immutable;
 
 /** Append-only record of a single AI invocation for metrics and drill-down. */
 @Entity
+@Immutable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId> {
 
-  @NotBlank
-  @Size(max = 32)
-  @Getter(AccessLevel.NONE)
+  @NotNull
+  @Convert(converter = AiDomainAttributeConverter.class)
   @Column(nullable = false, length = 32)
-  private String domain;
+  private AiDomain domain;
 
   @NotBlank
   @Size(max = 64)
   @Column(nullable = false, length = 64)
   private String operation;
 
-  @NotBlank
-  @Size(max = 16)
-  @Getter(AccessLevel.NONE)
+  @NotNull
+  @Convert(converter = InvocationOutcomeAttributeConverter.class)
   @Column(nullable = false, length = 16)
-  private String outcome;
+  private InvocationOutcome outcome;
 
   @Column(nullable = false)
   private long latencyMs;
@@ -77,10 +83,10 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   @Column(length = 512)
   private String errorMessage;
 
-  @NotBlank
-  @Size(max = 80)
+  @NotNull
+  @Convert(converter = OwnerKeyAttributeConverter.class)
   @Column(nullable = false, length = 80)
-  private String ownerKey;
+  private OwnerKey ownerKey;
 
   private AiInvocationEvent(Builder builder) {
     super(
@@ -88,9 +94,9 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
             ? InvocationEventId.of(builder.id.toString())
             : InvocationEventId.generate(),
         Objects.requireNonNullElseGet(builder.occurredAt, Instant::now));
-    this.domain = Objects.requireNonNull(builder.domain, "domain").value();
+    this.domain = Objects.requireNonNull(builder.domain, "domain");
     this.operation = requireNonBlank(builder.operation, "operation");
-    this.outcome = Objects.requireNonNull(builder.outcome, "outcome").value();
+    this.outcome = Objects.requireNonNull(builder.outcome, "outcome");
     this.latencyMs = Math.max(0L, builder.latencyMs);
     this.provider = blankToNull(builder.provider);
     this.model = blankToNull(builder.model);
@@ -102,10 +108,7 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     this.completionTokens = builder.completionTokens;
     this.errorCode = blankToNull(builder.errorCode);
     this.errorMessage = truncate(blankToNull(builder.errorMessage), 512);
-    this.ownerKey =
-        builder.ownerKey != null
-            ? builder.ownerKey
-            : com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    this.ownerKey = toOwnerKey(builder.ownerKey);
   }
 
   /** Documentation. */
@@ -113,20 +116,15 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     return new Builder();
   }
 
-  public AiDomain getDomain() {
-    return AiDomain.require(domain);
-  }
-
-  public InvocationOutcome getOutcome() {
-    return InvocationOutcome.parse(outcome);
-  }
-
   /** Sets owner partition key before persistence. */
   public void assignOwnerKey(String ownerKey) {
-    this.ownerKey =
-        ownerKey != null && !ownerKey.isBlank()
-            ? ownerKey.trim()
-            : com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value();
+    this.ownerKey = toOwnerKey(ownerKey);
+  }
+
+  private static OwnerKey toOwnerKey(String ownerKey) {
+    return ownerKey == null || ownerKey.isBlank()
+        ? OwnerKey.LEGACY_ORPHAN
+        : OwnerKey.parse(ownerKey);
   }
 
   private static String requireNonBlank(String value, String name) {
