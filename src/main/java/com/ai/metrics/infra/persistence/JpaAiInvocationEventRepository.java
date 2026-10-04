@@ -46,7 +46,6 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   private final EntityManager entityManager;
   private final JdbcTemplate jdbcTemplate;
 
-  /** Documentation. */
   public JpaAiInvocationEventRepository(EntityManager entityManager, JdbcTemplate jdbcTemplate) {
     this.entityManager = entityManager;
     this.jdbcTemplate = jdbcTemplate;

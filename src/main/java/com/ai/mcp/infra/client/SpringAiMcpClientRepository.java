@@ -16,7 +16,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-/** Documentation. */
+/** In-memory registry of tools and sessions for connected MCP servers. */
 @Repository
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",

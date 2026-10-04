@@ -23,7 +23,6 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
 
   private final ChatClientProvider chatClientProvider;
 
-  /** Documentation. */
   public SpringAiSupervisorRouter(ChatClientProvider chatClientProvider) {
     this.chatClientProvider = chatClientProvider;
   }
@@ -116,10 +115,8 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
     return AgentType.of(normalized);
   }
 
-  /** Documentation. */
   public record RoutingDecisionResponse(
       String primaryAgent, String reason, List<SubtaskResponse> subtasks) {}
 
-  /** Documentation. */
   public record SubtaskResponse(String agentType, String instruction) {}
 }

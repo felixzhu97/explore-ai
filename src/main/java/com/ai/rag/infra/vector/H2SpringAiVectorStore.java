@@ -34,7 +34,6 @@ public class H2SpringAiVectorStore implements VectorStore {
   private final TextEmbeddingRepository embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
 
-  /** Documentation. */
   public H2SpringAiVectorStore(
       TextEmbeddingRepository embeddingRepository,
       DocumentChunkSearchRepository chunkSearchRepository) {

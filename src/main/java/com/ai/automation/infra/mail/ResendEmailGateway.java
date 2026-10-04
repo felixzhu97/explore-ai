@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
-/** Documentation. */
+/** Email gateway that delivers automation emails through the Resend HTTP API. */
 @Component
 @ConditionalOnProperty(prefix = "app.mail", name = "enabled", havingValue = "true")
 @ConditionalOnProperty(
@@ -32,7 +32,6 @@ public class ResendEmailGateway implements EmailGateway {
   private final RestClient restClient;
   private final MailProperties mailProperties;
 
-  /** Documentation. */
   @Autowired
   public ResendEmailGateway(MailProperties mailProperties) {
     String apiKey = mailProperties.getResendApiKey();

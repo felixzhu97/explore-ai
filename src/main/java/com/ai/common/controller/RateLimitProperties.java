@@ -2,7 +2,7 @@ package com.ai.common.controller;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Rate limit settings: enabled flag and maximum requests per time window. */
 @ConfigurationProperties(prefix = "app.rate-limit")
 public class RateLimitProperties {
 

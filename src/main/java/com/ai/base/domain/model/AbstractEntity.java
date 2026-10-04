@@ -33,14 +33,12 @@ public abstract class AbstractEntity<IdT extends AbstractUuidId> {
   @Column(nullable = false)
   protected Instant updatedAt;
 
-  /** Documentation. */
   protected AbstractEntity(IdT id, Instant createdAt, Instant updatedAt) {
     this.id = Objects.requireNonNull(id, "id cannot be null");
     this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
     this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt cannot be null");
   }
 
-  /** Documentation. */
   protected void touchUpdatedAt() {
     this.updatedAt = Instant.now();
   }

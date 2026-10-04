@@ -24,7 +24,6 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
   @Column(nullable = false, length = 500)
   protected String description;
 
-  /** Documentation. */
   protected AbstractEnableableDescribedOwnerEntity(
       IdT id,
       OwnerKey ownerKey,
@@ -37,7 +36,6 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
     this.description = DomainStrings.normalizeDescription(description);
   }
 
-  /** Documentation. */
   protected AbstractEnableableDescribedOwnerEntity(
       IdT id,
       String clientId,
@@ -50,7 +48,6 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
     this.description = DomainStrings.normalizeDescription(description);
   }
 
-  /** Documentation. */
   protected void updateDescription(String nextDescription) {
     this.description = DomainStrings.normalizeDescription(nextDescription);
     touchUpdatedAt();

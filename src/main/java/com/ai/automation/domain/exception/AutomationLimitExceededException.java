@@ -1,8 +1,7 @@
 package com.ai.automation.domain.exception;
 
-/** Documentation. */
+/** Thrown when a client tries to create more automation schedules than allowed. */
 public class AutomationLimitExceededException extends RuntimeException {
-  /** Documentation. */
   public AutomationLimitExceededException(String message) {
     super(message);
   }

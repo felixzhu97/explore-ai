@@ -1,11 +1,10 @@
 package com.ai.skill.domain.exception;
 
-/** Documentation. */
+/** Thrown when a skill id does not exist for the requesting owner. */
 public class SkillNotFoundException extends RuntimeException {
 
   private final String skillId;
 
-  /** Documentation. */
   public SkillNotFoundException(String skillId) {
     super("Skill not found: " + skillId);
     this.skillId = skillId;

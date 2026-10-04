@@ -14,7 +14,6 @@ public class AccountLogoutHandler implements LogoutHandler {
 
   private final AccountUseCase accountUseCase;
 
-  /** Documentation. */
   public AccountLogoutHandler(AccountUseCase accountUseCase) {
     this.accountUseCase = accountUseCase;
   }

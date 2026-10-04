@@ -5,6 +5,5 @@ import java.util.List;
 
 /** Writes processed chunks to persistent storage. */
 public interface DocumentWriter {
-  /** Documentation. */
   void write(List<DocumentChunk> chunks);
 }

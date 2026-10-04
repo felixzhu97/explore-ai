@@ -31,7 +31,6 @@ public class SerperWebSearchAdapter implements WebSearchTool {
   private final RestClient restClient;
   private final String apiKey;
 
-  /** Documentation. */
   @Autowired
   public SerperWebSearchAdapter(@Value("${serper.api-key:}") String apiKey) {
     this.apiKey = apiKey;

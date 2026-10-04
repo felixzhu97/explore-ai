@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Documentation. */
 @Configuration
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -18,19 +17,16 @@ import org.springframework.context.annotation.Configuration;
     havingValue = "true",
     matchIfMissing = false)
 public class EvalConfig {
-  /** Documentation. */
   @Bean
   public ChatClient evaluationChatClient(ChatClientProvider chatClientProvider) {
     return chatClientProvider.createBareStateless(TextChatOptions.withoutTools());
   }
 
-  /** Documentation. */
   @Bean
   public RelevancyEvaluator relevancyEvaluator(ChatModel chatModel) {
     return new RelevancyEvaluator(ChatClient.builder(chatModel));
   }
 
-  /** Documentation. */
   @Bean
   public FactCheckingEvaluator factCheckingEvaluator(ChatModel chatModel) {
     return FactCheckingEvaluator.builder(ChatClient.builder(chatModel)).build();

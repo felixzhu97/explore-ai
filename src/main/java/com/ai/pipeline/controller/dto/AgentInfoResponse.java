@@ -3,7 +3,6 @@ package com.ai.pipeline.controller.dto;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import java.util.List;
 
-/** Documentation. */
 public record AgentInfoResponse(
     String type,
     String name,
@@ -13,7 +12,7 @@ public record AgentInfoResponse(
     String runtime,
     List<String> toolKeys,
     String systemPrompt) {
-  /** Documentation. */
+  /** Builds a response from an agent definition, flagging whether it is the supervisor. */
   public static AgentInfoResponse from(AgentDefinition definition) {
     return new AgentInfoResponse(
         definition.type().value(),

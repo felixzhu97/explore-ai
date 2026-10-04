@@ -14,13 +14,12 @@ import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Repository;
 
-/** Documentation. */
+/** Spring AI repository that asks the chat model for structured JSON text analysis. */
 @Repository
 public class SpringAiStructuredAnalysisRepository implements StructuredAnalysisRepository {
 
   private final ChatClientProvider chatClientProvider;
 
-  /** Documentation. */
   public SpringAiStructuredAnalysisRepository(ChatClientProvider chatClientProvider) {
     this.chatClientProvider = chatClientProvider;
   }

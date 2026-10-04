@@ -20,7 +20,6 @@ public class JpaSkillRepository implements SkillRepository {
 
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public JpaSkillRepository(
       SpringDataSkillRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;

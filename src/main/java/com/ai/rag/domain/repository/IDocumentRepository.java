@@ -14,7 +14,6 @@ public interface IDocumentRepository {
   /** Saves a document and returns the saved entity. */
   Document save(Document document);
 
-  /** Documentation. */
   Document save(Document document, String ownerKey);
 
   /** Finds a document by its ID. */
@@ -23,13 +22,10 @@ public interface IDocumentRepository {
   /** Retrieves all documents. */
   List<Document> findAll();
 
-  /** Documentation. */
   List<Document> findAllByOwnerKey(String ownerKey);
 
-  /** Documentation. */
   Optional<Document> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
-  /** Documentation. */
   void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
   /** Deletes a document by its ID. */

@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class ScheduleId extends AbstractUuidId {
 
-  /** Documentation. */
   public ScheduleId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static ScheduleId of(String value) {
     return new ScheduleId(value);
   }
 
-  /** Documentation. */
   public static ScheduleId generate() {
     return new ScheduleId(newUuidString());
   }

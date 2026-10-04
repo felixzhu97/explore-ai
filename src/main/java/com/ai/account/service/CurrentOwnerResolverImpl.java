@@ -22,7 +22,6 @@ public class CurrentOwnerResolverImpl implements CurrentOwnerResolver {
 
   private final AccountUserRepository accountUserRepository;
 
-  /** Documentation. */
   public CurrentOwnerResolverImpl(AccountUserRepository accountUserRepository) {
     this.accountUserRepository = accountUserRepository;
   }

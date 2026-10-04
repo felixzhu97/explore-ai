@@ -10,14 +10,13 @@ import java.util.Map;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Health gateway that reports system, agent pipeline, and MCP status for the metrics views. */
 @Component
 public class DomainHealthGateway implements MetricsHealthGateway {
 
   private final PipelineFacade pipelineFacade;
   private final ObjectProvider<McpHealthProbe> mcpHealthProbe;
 
-  /** Documentation. */
   public DomainHealthGateway(
       PipelineFacade pipelineFacade, ObjectProvider<McpHealthProbe> mcpHealthProbe) {
     this.pipelineFacade = pipelineFacade;

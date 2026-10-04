@@ -23,7 +23,6 @@ public class OwnerPartitionScope {
 
   private final EntityManager entityManager;
 
-  /** Documentation. */
   public OwnerPartitionScope(EntityManager entityManager) {
     this.entityManager = entityManager;
   }

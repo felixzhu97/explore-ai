@@ -14,7 +14,7 @@ import org.springframework.ai.mcp.annotation.McpToolParam;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** MCP server endpoint exposing weather, knowledge-base, chat tools, and a RAG config resource. */
 @Component
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -30,7 +30,6 @@ public class AiMcpServerService {
   private final ChatUseCase aiChatUseCase;
   private final RagProperties ragProperties;
 
-  /** Documentation. */
   public AiMcpServerService(
       WeatherTools weatherTools,
       DocumentSearchTool documentSearchTool,
@@ -42,7 +41,6 @@ public class AiMcpServerService {
     this.ragProperties = ragProperties;
   }
 
-  /** Documentation. */
   @McpTool(
       name = "get_weather",
       description = "Get current weather information for a specified city")
@@ -53,7 +51,6 @@ public class AiMcpServerService {
     return weatherTools.getWeather(city);
   }
 
-  /** Documentation. */
   @McpTool(name = "get_forecast", description = "Get weather forecast for a specified city")
   public String getForecast(
       @McpToolParam(description = "The city name", required = true) String city,
@@ -63,7 +60,6 @@ public class AiMcpServerService {
     return weatherTools.getForecast(city, days);
   }
 
-  /** Documentation. */
   @McpTool(
       name = "search_knowledge_base",
       description = "Search documents in the knowledge base using semantic search")
@@ -83,7 +79,6 @@ public class AiMcpServerService {
     return documentSearchTool.searchDocuments(query, docIdList);
   }
 
-  /** Documentation. */
   @McpTool(
       name = "list_documents",
       description = "List all documents available in the knowledge base")
@@ -92,7 +87,6 @@ public class AiMcpServerService {
     return documentSearchTool.listDocuments();
   }
 
-  /** Documentation. */
   @McpTool(name = "ai_chat", description = "Chat with AI assistant")
   public String aiChat(
       @McpToolParam(description = "The message to send to the AI", required = true)
@@ -101,7 +95,7 @@ public class AiMcpServerService {
     return aiChatUseCase.chat(message);
   }
 
-  /** Documentation. */
+  /** Returns the value of a supported RAG chunking or retrieval setting by property key. */
   @McpResource(
       uri = "config:///{key}",
       name = "Configuration Resource",

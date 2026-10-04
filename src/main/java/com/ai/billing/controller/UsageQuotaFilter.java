@@ -30,7 +30,6 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
 
   private final DailyUsageQuotaService dailyUsageQuotaService;
 
-  /** Documentation. */
   public UsageQuotaFilter(DailyUsageQuotaService dailyUsageQuotaService) {
     this.dailyUsageQuotaService = dailyUsageQuotaService;
   }

@@ -3,7 +3,7 @@ package com.ai.analysis.domain.model;
 import java.util.List;
 import java.util.Objects;
 
-/** Documentation. */
+/** Structured analysis result: summary, sentiment, key points, named entities, and language. */
 public class TextAnalysis {
 
   private final String summary;
@@ -27,7 +27,6 @@ public class TextAnalysis {
     this.language = language;
   }
 
-  /** Documentation. */
   public static TextAnalysis create(
       String summary,
       Sentiment sentiment,
@@ -41,12 +40,11 @@ public class TextAnalysis {
     return sentiment.isPositive();
   }
 
-  /** Documentation. */
   public boolean hasEntities() {
     return !entities.isEmpty();
   }
 
-  /** Documentation. */
+  /** Returns a copy whose summary is cut to at most {@code maxWords} words. */
   public TextAnalysis truncateSummary(int maxWords) {
     if (summary == null || summary.isBlank() || maxWords <= 0) {
       return this;
@@ -59,27 +57,22 @@ public class TextAnalysis {
     return create(truncated, sentiment, keyPoints, entities, language);
   }
 
-  /** Documentation. */
   public String summary() {
     return summary;
   }
 
-  /** Documentation. */
   public Sentiment sentiment() {
     return sentiment;
   }
 
-  /** Documentation. */
   public List<String> keyPoints() {
     return keyPoints;
   }
 
-  /** Documentation. */
   public List<String> entities() {
     return entities;
   }
 
-  /** Documentation. */
   public String language() {
     return language;
   }

@@ -22,7 +22,6 @@ public class JpaAutomationScheduleRepository implements AutomationScheduleReposi
 
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public JpaAutomationScheduleRepository(
       SpringDataAutomationScheduleRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;

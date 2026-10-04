@@ -5,7 +5,7 @@ import com.ai.common.domain.vo.OwnerKey;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-/** Documentation. */
+/** JDBC repository that reassigns or deletes all owner-partitioned rows across data tables. */
 @Repository
 public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
 
@@ -23,7 +23,6 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
 
   private final JdbcTemplate jdbcTemplate;
 
-  /** Documentation. */
   public JdbcOwnerPartitionRepository(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }

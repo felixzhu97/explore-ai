@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/text")
 public class TextController {
@@ -40,7 +39,6 @@ public class TextController {
   private final TextProviderCatalog providerCatalog;
   private final SkillRepository skillRepository;
 
-  /** Documentation. */
   public TextController(
       ChatUseCase chatUseCase,
       TextProviderCatalog providerCatalog,
@@ -52,13 +50,11 @@ public class TextController {
     this.skillRepository = skillRepository;
   }
 
-  /** Documentation. */
   @GetMapping("/providers")
   public List<ProviderInfoResponse> listProviders() {
     return providerCatalog.listProviders();
   }
 
-  /** Documentation. */
   @GetMapping("/models")
   public ModelsListResponse listModels(@RequestParam(required = false) String provider) {
     var models = providerCatalog.listModels(provider);
@@ -67,7 +63,6 @@ public class TextController {
     return ModelsListResponse.of(resolvedProvider, models);
   }
 
-  /** Documentation. */
   @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<String> chatStream(
       @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {

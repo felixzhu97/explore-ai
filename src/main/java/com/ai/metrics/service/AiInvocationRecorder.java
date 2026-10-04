@@ -18,14 +18,13 @@ public class AiInvocationRecorder {
   private final AiInvocationEventRepository eventRepository;
   private final MeterRegistry meterRegistry;
 
-  /** Documentation. */
   public AiInvocationRecorder(
       AiInvocationEventRepository eventRepository, MeterRegistry meterRegistry) {
     this.eventRepository = eventRepository;
     this.meterRegistry = meterRegistry;
   }
 
-  /** Documentation. */
+  /** Persists the event and updates Micrometer meters; failures are logged, never thrown. */
   public void record(AiInvocationEvent event) {
     try {
       eventRepository.save(event);
@@ -56,7 +55,7 @@ public class AiInvocationRecorder {
     }
   }
 
-  /** Documentation. */
+  /** Records a successful invocation with its latency, provider, model, and session. */
   public void recordSuccess(
       AiDomain domain,
       String operation,
@@ -76,7 +75,7 @@ public class AiInvocationRecorder {
             .build());
   }
 
-  /** Documentation. */
+  /** Records a failed invocation together with its error code and message. */
   public void recordError(
       AiDomain domain,
       String operation,

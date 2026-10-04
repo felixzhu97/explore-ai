@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Configuration properties under {@code app.pipeline} controlling agent skill loading. */
 @ConfigurationProperties(prefix = "app.pipeline")
 public class AgentSkillsProperties {
 
@@ -18,7 +18,7 @@ public class AgentSkillsProperties {
     this.skills = skills;
   }
 
-  /** Documentation. */
+  /** Skill settings: enabled flag, skill ids to load, and their resource location. */
   public static class Skills {
     private boolean enabled = false;
     private List<String> ids = new ArrayList<>();

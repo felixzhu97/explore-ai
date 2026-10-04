@@ -2,14 +2,11 @@ package com.ai.automation.domain.model;
 
 import java.util.Objects;
 
-/** Documentation. */
 public record EmailMessage(String to, String subject, String textBody, String htmlBody) {
-  /** Documentation. */
   public EmailMessage(String to, String subject, String textBody) {
     this(to, subject, textBody, null);
   }
 
-  /** Documentation. */
   public EmailMessage {
     Objects.requireNonNull(to, "to");
     Objects.requireNonNull(subject, "subject");
@@ -25,7 +22,6 @@ public record EmailMessage(String to, String subject, String textBody, String ht
     }
   }
 
-  /** Documentation. */
   public boolean hasHtmlBody() {
     return htmlBody != null && !htmlBody.isBlank();
   }

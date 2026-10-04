@@ -4,7 +4,6 @@ import com.ai.skill.service.SkillTemplate;
 import com.ai.skill.service.SkillTemplateCatalog;
 import java.util.List;
 
-/** Documentation. */
 public record SkillTemplateResponse(
     String id,
     String name,
@@ -12,7 +11,7 @@ public record SkillTemplateResponse(
     String instructions,
     List<String> allowedTools,
     List<String> nameAliases) {
-  /** Documentation. */
+  /** Maps a template to its response, including its localized names across all languages. */
   public static SkillTemplateResponse from(SkillTemplate template) {
     return new SkillTemplateResponse(
         template.id(),

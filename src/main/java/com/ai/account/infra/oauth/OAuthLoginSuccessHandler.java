@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Links the OAuth user to an account, merges the client's data, and redirects to the SPA. */
 @Component
 @ConditionalOnBean(ClientRegistrationRepository.class)
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -35,7 +35,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
   private final OAuthSpaProperties spaProperties;
   private final SecurityContextRepository securityContextRepository;
 
-  /** Documentation. */
   public OAuthLoginSuccessHandler(
       AccountUseCase accountUseCase,
       OwnerMergeUseCase ownerMergeUseCase,

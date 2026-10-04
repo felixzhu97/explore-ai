@@ -14,7 +14,6 @@ public record OwnerKey(String value) {
   /** Pre-isolation rows that must never match a live visitor. */
   public static final OwnerKey LEGACY_ORPHAN = new OwnerKey("c:legacy-orphan");
 
-  /** Documentation. */
   public OwnerKey {
     Objects.requireNonNull(value, "value");
     String trimmed = value.trim();
@@ -30,7 +29,7 @@ public record OwnerKey(String value) {
     value = trimmed;
   }
 
-  /** Documentation. */
+  /** Creates a guest owner key prefixed with {@code c:} for the given client id. */
   public static OwnerKey forClient(String clientId) {
     if (clientId == null || clientId.isBlank()) {
       throw new IllegalArgumentException("clientId is required");
@@ -38,7 +37,7 @@ public record OwnerKey(String value) {
     return new OwnerKey(CLIENT_PREFIX + clientId.trim());
   }
 
-  /** Documentation. */
+  /** Creates a signed-in owner key prefixed with {@code u:} for the given account user id. */
   public static OwnerKey forAccount(String accountUserId) {
     if (accountUserId == null || accountUserId.isBlank()) {
       throw new IllegalArgumentException("accountUserId is required");
@@ -46,7 +45,6 @@ public record OwnerKey(String value) {
     return new OwnerKey(ACCOUNT_PREFIX + accountUserId.trim());
   }
 
-  /** Documentation. */
   public static OwnerKey parse(String raw) {
     return new OwnerKey(raw);
   }

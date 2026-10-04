@@ -24,7 +24,6 @@ public class AudioWebSocketConfig implements WebSocketConfigurer {
   private final AudioTranscriptionWebSocketHandler transcriptionHandler;
   private final CorsProperties corsProperties;
 
-  /** Documentation. */
   public AudioWebSocketConfig(
       AudioTranscriptionWebSocketHandler transcriptionHandler, CorsProperties corsProperties) {
     this.transcriptionHandler = transcriptionHandler;
@@ -44,7 +43,6 @@ public class AudioWebSocketConfig implements WebSocketConfigurer {
         .setAllowedOriginPatterns(allowedOriginPatterns);
   }
 
-  /** Documentation. */
   @Bean
   public ServletServerContainerFactoryBean createWebSocketContainer() {
     var container = new ServletServerContainerFactoryBean();

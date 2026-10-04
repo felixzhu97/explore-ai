@@ -17,7 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** JDBC store of web search sources keyed by conversation and assistant reply content hash. */
 @Repository
 public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
 
@@ -27,7 +27,6 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
   private final JdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
 
-  /** Documentation. */
   public JdbcChatWebSourcesRepository(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
     this.jdbcTemplate = jdbcTemplate;
     this.objectMapper = objectMapper;

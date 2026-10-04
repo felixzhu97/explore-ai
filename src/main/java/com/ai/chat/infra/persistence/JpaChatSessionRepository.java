@@ -21,7 +21,6 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
 
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public JpaChatSessionRepository(
       SpringDataChatSessionRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;

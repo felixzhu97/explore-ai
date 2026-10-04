@@ -17,7 +17,7 @@ public final class ClasspathPromptLoader {
 
   private ClasspathPromptLoader() {}
 
-  /** Documentation. */
+  /** Reads the stripped UTF-8 prompt text under {@code prompts/}, failing if it is missing. */
   public static String load(String relativePath) {
     Objects.requireNonNull(relativePath, "relativePath");
     String path = relativePath.startsWith(ROOT) ? relativePath : ROOT + relativePath;
@@ -35,7 +35,7 @@ public final class ClasspathPromptLoader {
     }
   }
 
-  /** Documentation. */
+  /** Joins non-blank sections, each stripped, separated by a blank line. */
   public static String joinSections(String... sections) {
     StringBuilder sb = new StringBuilder();
     for (String section : sections) {

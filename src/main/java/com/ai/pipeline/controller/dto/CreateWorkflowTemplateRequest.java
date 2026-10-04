@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
-/** Documentation. */
 public record CreateWorkflowTemplateRequest(
     @NotBlank @Size(max = 120) String name,
     @Size(max = 500) String description,

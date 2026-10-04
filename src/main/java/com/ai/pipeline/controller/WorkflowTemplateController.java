@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/pipelines/templates")
 public class WorkflowTemplateController {
@@ -34,14 +33,12 @@ public class WorkflowTemplateController {
 
   private final WorkflowTemplateUseCase workflowTemplateUseCase;
 
-  /** Documentation. */
   public WorkflowTemplateController(
       WorkflowTemplateUseCase workflowTemplateUseCase, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.workflowTemplateUseCase = workflowTemplateUseCase;
   }
 
-  /** Documentation. */
   @GetMapping
   public List<WorkflowTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
@@ -51,7 +48,6 @@ public class WorkflowTemplateController {
         .toList();
   }
 
-  /** Documentation. */
   @GetMapping("/library")
   public List<SavedWorkflowTemplateResponse> listLibrary(HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
@@ -60,7 +56,6 @@ public class WorkflowTemplateController {
         .toList();
   }
 
-  /** Documentation. */
   @PostMapping("/from-template")
   public ResponseEntity<SavedWorkflowTemplateResponse> createFromTemplate(
       @Valid @RequestBody CreateWorkflowTemplateFromTemplateRequest body,
@@ -74,7 +69,6 @@ public class WorkflowTemplateController {
                 workflowTemplateUseCase.createFromTemplate(clientId, body.templateId(), language)));
   }
 
-  /** Documentation. */
   @PostMapping("/library")
   public ResponseEntity<SavedWorkflowTemplateResponse> create(
       @Valid @RequestBody CreateWorkflowTemplateRequest body, HttpServletRequest request) {
@@ -92,7 +86,6 @@ public class WorkflowTemplateController {
                     null)));
   }
 
-  /** Documentation. */
   @PutMapping("/library/{id}")
   public SavedWorkflowTemplateResponse update(
       @PathVariable String id,
@@ -110,7 +103,6 @@ public class WorkflowTemplateController {
             body.briefPrompt()));
   }
 
-  /** Documentation. */
   @PatchMapping("/library/{id}/enabled")
   public SavedWorkflowTemplateResponse setEnabled(
       @PathVariable String id,
@@ -121,7 +113,6 @@ public class WorkflowTemplateController {
         workflowTemplateUseCase.setEnabled(clientId, id, body.enabled()));
   }
 
-  /** Documentation. */
   @DeleteMapping("/library/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);

@@ -1,6 +1,6 @@
 package com.ai.tools.domain.model;
 
-/** Documentation. */
+/** Outcome of a tool invocation: a success flag plus the content or failure message. */
 public class ToolResult {
 
   private final boolean success;
@@ -11,12 +11,10 @@ public class ToolResult {
     this.content = content;
   }
 
-  /** Documentation. */
   public static ToolResult success(String content) {
     return new ToolResult(true, content);
   }
 
-  /** Documentation. */
   public static ToolResult failure(String message) {
     return new ToolResult(false, message);
   }
@@ -25,7 +23,6 @@ public class ToolResult {
     return success;
   }
 
-  /** Documentation. */
   public String content() {
     return content;
   }

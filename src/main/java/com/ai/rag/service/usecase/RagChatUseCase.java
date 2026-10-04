@@ -38,7 +38,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-/** Documentation. */
+/** RAG chat over uploaded documents via Spring AI's retrieval augmentation advisor. */
 @Service
 public class RagChatUseCase {
 
@@ -55,7 +55,6 @@ public class RagChatUseCase {
   private final AiInvocationRecorder invocationRecorder;
   private final ObjectMapper objectMapper;
 
-  /** Documentation. */
   public RagChatUseCase(
       ChatClientProvider chatClientProvider,
       LanguageDetectionService languageDetectionService,
@@ -71,12 +70,11 @@ public class RagChatUseCase {
     this.objectMapper = objectMapper;
   }
 
-  /** Documentation. */
   public RagChatResult chat(String question, List<String> docIds, Integer topK) {
     return chat(question, docIds, topK, null);
   }
 
-  /** Documentation. */
+  /** Answers the question with retrieval-augmented context and records the invocation. */
   public RagChatResult chat(String question, List<String> docIds, Integer topK, String sessionId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();

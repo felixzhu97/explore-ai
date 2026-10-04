@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Entry point for tool-augmented chat and direct weather, document, and web search calls. */
 @Service
 public class ToolsFacade {
 
@@ -30,7 +30,6 @@ public class ToolsFacade {
   private final WebSearchTool webSearchTool;
   private final AiInvocationRecorder invocationRecorder;
 
-  /** Documentation. */
   public ToolsFacade(
       ChatClientProvider chatClientProvider,
       WeatherTools weatherTools,
@@ -46,7 +45,7 @@ public class ToolsFacade {
     this.invocationRecorder = invocationRecorder;
   }
 
-  /** Documentation. */
+  /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
   public String chatWithTools(String question) {
     log.info("ToolsFacade.chatWithTools: {}", LogSanitizer.truncate(question));
     long startedAt = System.nanoTime();
@@ -76,13 +75,12 @@ public class ToolsFacade {
     }
   }
 
-  /** Documentation. */
   public String getWeather(String city) {
     log.info("ToolsFacade.getWeather: {}", city);
     return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
   }
 
-  /** Documentation. */
+  /** Returns a formatted weather forecast for the city over the requested number of days. */
   public String getForecast(String city, Integer days) {
     log.info("ToolsFacade.getForecast: {} days={}", city, days);
     return weatherReport
@@ -90,19 +88,16 @@ public class ToolsFacade {
         .content();
   }
 
-  /** Documentation. */
   public String searchDocuments(String query, List<String> docIds) {
     log.info("ToolsFacade.searchDocuments: {}", LogSanitizer.truncate(query));
     return documentSearchTool.searchDocuments(query, docIds);
   }
 
-  /** Documentation. */
   public String listDocuments() {
     log.info("ToolsFacade.listDocuments");
     return documentSearchTool.listDocuments();
   }
 
-  /** Documentation. */
   public String searchWeb(String query) {
     log.info("ToolsFacade.searchWeb: {}", LogSanitizer.truncate(query));
     return webSearchTool.searchWeb(query);

@@ -19,7 +19,7 @@ public class PdfTextExtractor {
 
   private static final Logger log = LoggerFactory.getLogger(PdfTextExtractor.class);
 
-  /** Documentation. */
+  /** Extracts position-sorted text from the PDF, or empty if unreadable or textless. */
   public Optional<String> extractText(byte[] bytes) {
     if (bytes == null || bytes.length == 0) {
       log.warn("Cannot extract text from empty PDF bytes");
@@ -47,7 +47,7 @@ public class PdfTextExtractor {
     }
   }
 
-  /** Documentation. */
+  /** Checks whether the bytes start with the {@code %PDF} magic number. */
   public boolean isPdf(byte[] content) {
     if (content == null || content.length < 4) {
       return false;
@@ -55,7 +55,7 @@ public class PdfTextExtractor {
     return content[0] == 0x25 && content[1] == 0x50 && content[2] == 0x44 && content[3] == 0x46;
   }
 
-  /** Documentation. */
+  /** Returns the lowercase file extension without the dot, or an empty string if none. */
   public String getExtension(String filename) {
     if (filename == null || !filename.contains(".")) {
       return "";

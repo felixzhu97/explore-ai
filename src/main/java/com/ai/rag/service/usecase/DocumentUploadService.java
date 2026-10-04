@@ -32,7 +32,6 @@ public class DocumentUploadService {
 
   private static final Logger log = LoggerFactory.getLogger(DocumentUploadService.class);
 
-  /** Documentation. */
   public record UploadResult(DocumentId documentId, String title, String status, int chunkCount) {}
 
   private final DocumentReader reader;
@@ -41,7 +40,6 @@ public class DocumentUploadService {
   private final IDocumentRepository documentRepository;
   private final IDocumentChunkRepository chunkRepository;
 
-  /** Documentation. */
   public DocumentUploadService(
       DocumentReader reader,
       DocumentTransformer transformer,
@@ -55,21 +53,19 @@ public class DocumentUploadService {
     this.chunkRepository = chunkRepository;
   }
 
-  /** Documentation. */
   @Transactional
   public UploadResult upload(
       String title, String fileName, Long fileSize, String content, String ownerKey) {
     return processUpload(title, fileName, fileSize, content.getBytes(), ownerKey);
   }
 
-  /** Documentation. */
   @Transactional
   public UploadResult upload(
       String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
     return processUpload(title, fileName, fileSize, fileContent, ownerKey);
   }
 
-  /** Documentation. */
+  /** Ingests the uploaded file, using its file name as the title when none is given. */
   @Transactional
   public UploadResult upload(MultipartFile file, String title, String ownerKey) {
     String fileName = file.getOriginalFilename();
@@ -81,13 +77,12 @@ public class DocumentUploadService {
     }
   }
 
-  /** Documentation. */
   @Transactional(readOnly = true)
   public List<Document> listAll(String ownerKey) {
     return documentRepository.findAllByOwnerKey(ownerKey);
   }
 
-  /** Documentation. */
+  /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
   public void delete(UUID documentId, String ownerKey) {
     DocumentId docId = DocumentId.of(documentId);

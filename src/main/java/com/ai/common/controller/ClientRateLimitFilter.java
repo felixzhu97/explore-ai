@@ -32,7 +32,6 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
   private final RateLimitProperties properties;
   private final Map<String, Window> windows = new ConcurrentHashMap<>();
 
-  /** Documentation. */
   public ClientRateLimitFilter(RateLimitProperties properties) {
     this.properties = properties;
   }

@@ -5,7 +5,7 @@ import com.ai.tools.domain.vo.WeatherQuery;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Documentation. */
+/** Produces simulated weather reports from built-in city data, falling back to random values. */
 public class WeatherReport {
 
   private static final Map<String, WeatherInfo> WEATHER_DATA =
@@ -24,7 +24,7 @@ public class WeatherReport {
   private static final String[] CONDITIONS = {"晴", "多云", "阴", "小雨", "晴转多云"};
   private static final int[] TEMPS = {18, 20, 22, 25, 28, 30, 32};
 
-  /** Documentation. */
+  /** Returns current weather for a known city, or randomly generated readings for others. */
   public ToolResult lookupCurrent(WeatherQuery query) {
     WeatherInfo known = WEATHER_DATA.get(query.normalizedCity());
     if (known != null) {
@@ -33,7 +33,7 @@ public class WeatherReport {
     return ToolResult.success(buildRandomCurrent(query.city()));
   }
 
-  /** Documentation. */
+  /** Builds a day-by-day forecast with randomly chosen conditions and temperature ranges. */
   public ToolResult generateForecast(WeatherForecast forecast) {
     StringBuilder builder = new StringBuilder();
     builder.append(forecast.query().city()).append("未来").append(forecast.days()).append("天天气预报：\n");

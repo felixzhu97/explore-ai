@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class AccountUserId extends AbstractUuidId {
 
-  /** Documentation. */
   public AccountUserId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static AccountUserId of(String value) {
     return new AccountUserId(value);
   }
 
-  /** Documentation. */
   public static AccountUserId generate() {
     return new AccountUserId(newUuidString());
   }

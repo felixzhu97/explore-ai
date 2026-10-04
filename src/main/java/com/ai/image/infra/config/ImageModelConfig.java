@@ -14,11 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.util.StringUtils;
 
-/** Documentation. */
 @Configuration
 @EnableConfigurationProperties(ImageProperties.class)
 public class ImageModelConfig {
-  /** Documentation. */
   @Bean
   @Primary
   @ConditionalOnProperty(name = "app.ai.image.enabled", havingValue = "true", matchIfMissing = true)

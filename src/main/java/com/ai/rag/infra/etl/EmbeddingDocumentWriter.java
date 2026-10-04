@@ -14,7 +14,6 @@ public class EmbeddingDocumentWriter implements DocumentWriter {
   private final TextEmbeddingRepository embeddingRepository;
   private final IDocumentChunkRepository chunkRepository;
 
-  /** Documentation. */
   public EmbeddingDocumentWriter(
       TextEmbeddingRepository embeddingRepository, IDocumentChunkRepository chunkRepository) {
     this.embeddingRepository = embeddingRepository;

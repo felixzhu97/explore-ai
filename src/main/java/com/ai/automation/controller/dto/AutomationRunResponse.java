@@ -3,7 +3,6 @@ package com.ai.automation.controller.dto;
 import com.ai.automation.domain.model.AutomationRun;
 import java.time.Instant;
 
-/** Documentation. */
 public record AutomationRunResponse(
     String id,
     String scheduleId,
@@ -13,7 +12,7 @@ public record AutomationRunResponse(
     String errorMessage,
     String resultExcerpt,
     String emailStatus) {
-  /** Documentation. */
+  /** Builds a response from an automation run record. */
   public static AutomationRunResponse from(AutomationRun run) {
     return new AutomationRunResponse(
         run.getId().value(),

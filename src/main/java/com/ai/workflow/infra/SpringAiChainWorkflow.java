@@ -42,7 +42,6 @@ public class SpringAiChainWorkflow implements ChainWorkflow {
 
   private final ChatClientProvider chatClientProvider;
 
-  /** Documentation. */
   public SpringAiChainWorkflow(ChatClientProvider chatClientProvider) {
     this.chatClientProvider = Objects.requireNonNull(chatClientProvider);
   }

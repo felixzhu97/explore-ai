@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/vision")
 @ConditionalOnProperty(
@@ -27,12 +26,10 @@ public class VisionController {
 
   private final VisionAnalysisUseCase visionAnalysisUseCase;
 
-  /** Documentation. */
   public VisionController(VisionAnalysisUseCase visionAnalysisUseCase) {
     this.visionAnalysisUseCase = visionAnalysisUseCase;
   }
 
-  /** Documentation. */
   @PostMapping("/caption")
   public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
@@ -40,7 +37,6 @@ public class VisionController {
     return visionAnalysisUseCase.caption(file);
   }
 
-  /** Documentation. */
   @PostMapping("/detect")
   public DetectResponse detect(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
@@ -48,7 +44,6 @@ public class VisionController {
     return visionAnalysisUseCase.detect(file);
   }
 
-  /** Documentation. */
   @PostMapping("/ocr")
   public OcrResponse ocr(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
@@ -56,7 +51,6 @@ public class VisionController {
     return visionAnalysisUseCase.ocr(file);
   }
 
-  /** Documentation. */
   @GetMapping("/health")
   public VisionHealthResponse health() {
     return visionAnalysisUseCase.health();

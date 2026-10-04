@@ -110,7 +110,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     this.lastRunAt = lastRunAt;
   }
 
-  /** Documentation. */
+  /** Creates an enabled cron schedule that runs a saved workflow starting at {@code nextRunAt}. */
   public static AutomationSchedule create(
       String ownerKey,
       String name,
@@ -139,7 +139,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         now);
   }
 
-  /** Documentation. */
+  /** Creates an enabled one-off schedule that runs a saved workflow at a future instant. */
   public static AutomationSchedule createOnce(
       String ownerKey,
       String name,
@@ -171,7 +171,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         now);
   }
 
-  /** Documentation. */
+  /** Replaces the schedule settings and next run, re-enabling a one-off with a pending run. */
   public void update(
       String name,
       ScheduleKind scheduleKind,
@@ -197,26 +197,22 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     touchUpdatedAt();
   }
 
-  /** Documentation. */
   public void enable(Instant nextRunAt) {
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
     enable();
   }
 
-  /** Documentation. */
   public void markExecuted(Instant finishedAt, Instant nextRunAt) {
     this.lastRunAt = Objects.requireNonNull(finishedAt, "finishedAt");
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
     touchUpdatedAt();
   }
 
-  /** Documentation. */
   public void completeOnce(Instant finishedAt) {
     markExecuted(finishedAt, ONCE_TERMINAL_NEXT);
     disable();
   }
 
-  /** Documentation. */
   public boolean isOnce() {
     return scheduleKind == ScheduleKind.ONCE;
   }

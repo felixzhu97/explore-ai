@@ -1,16 +1,14 @@
 package com.ai.analysis.domain.vo;
 
-/** Documentation. */
 public record LanguageHint(String language) {
 
   private static final String DEFAULT = "English";
 
-  /** Documentation. */
   public static LanguageHint none() {
     return new LanguageHint(null);
   }
 
-  /** Documentation. */
+  /** Creates a trimmed hint, or an unspecified hint when the language is blank. */
   public static LanguageHint of(String language) {
     if (language == null || language.isBlank()) {
       return none();
@@ -22,7 +20,6 @@ public record LanguageHint(String language) {
     return language != null && !language.isBlank();
   }
 
-  /** Documentation. */
   public String responseLanguage() {
     return isSpecified() ? language : DEFAULT;
   }

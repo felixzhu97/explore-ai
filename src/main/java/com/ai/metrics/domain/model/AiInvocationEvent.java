@@ -111,7 +111,6 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     this.ownerKey = toOwnerKey(builder.ownerKey);
   }
 
-  /** Documentation. */
   public static Builder builder() {
     return new Builder();
   }
@@ -145,7 +144,7 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     return value.substring(0, max);
   }
 
-  /** Documentation. */
+  /** Fluent builder whose {@code build()} validates and normalizes the collected event fields. */
   public static final class Builder {
     private UUID id;
     private Instant occurredAt;
@@ -165,109 +164,91 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     private String errorMessage;
     private String ownerKey;
 
-    /** Documentation. */
     public Builder id(UUID id) {
       this.id = id;
       return this;
     }
 
-    /** Documentation. */
     public Builder occurredAt(Instant occurredAt) {
       this.occurredAt = occurredAt;
       return this;
     }
 
-    /** Documentation. */
     public Builder domain(AiDomain domain) {
       this.domain = domain;
       return this;
     }
 
-    /** Documentation. */
     public Builder operation(String operation) {
       this.operation = operation;
       return this;
     }
 
-    /** Documentation. */
     public Builder outcome(InvocationOutcome outcome) {
       this.outcome = outcome;
       return this;
     }
 
-    /** Documentation. */
     public Builder latencyMs(long latencyMs) {
       this.latencyMs = latencyMs;
       return this;
     }
 
-    /** Documentation. */
     public Builder provider(String provider) {
       this.provider = provider;
       return this;
     }
 
-    /** Documentation. */
     public Builder model(String model) {
       this.model = model;
       return this;
     }
 
-    /** Documentation. */
     public Builder sessionId(String sessionId) {
       this.sessionId = sessionId;
       return this;
     }
 
-    /** Documentation. */
     public Builder documentId(String documentId) {
       this.documentId = documentId;
       return this;
     }
 
-    /** Documentation. */
     public Builder agentType(String agentType) {
       this.agentType = agentType;
       return this;
     }
 
-    /** Documentation. */
     public Builder toolName(String toolName) {
       this.toolName = toolName;
       return this;
     }
 
-    /** Documentation. */
     public Builder promptTokens(Integer promptTokens) {
       this.promptTokens = promptTokens;
       return this;
     }
 
-    /** Documentation. */
     public Builder completionTokens(Integer completionTokens) {
       this.completionTokens = completionTokens;
       return this;
     }
 
-    /** Documentation. */
     public Builder errorCode(String errorCode) {
       this.errorCode = errorCode;
       return this;
     }
 
-    /** Documentation. */
     public Builder errorMessage(String errorMessage) {
       this.errorMessage = errorMessage;
       return this;
     }
 
-    /** Documentation. */
     public Builder ownerKey(String ownerKey) {
       this.ownerKey = ownerKey;
       return this;
     }
 
-    /** Documentation. */
     public AiInvocationEvent build() {
       return new AiInvocationEvent(this);
     }

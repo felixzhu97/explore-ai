@@ -2,7 +2,7 @@ package com.ai.metrics.controller;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Configuration properties under {@code app.metrics} holding the optional admin API key. */
 @ConfigurationProperties(prefix = "app.metrics")
 public class MetricsAdminProperties {
 

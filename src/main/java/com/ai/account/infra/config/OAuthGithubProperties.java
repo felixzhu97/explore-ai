@@ -2,7 +2,7 @@ package com.ai.account.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Configuration properties under {@code app.oauth.github} for GitHub OAuth login. */
 @ConfigurationProperties(prefix = "app.oauth.github")
 public class OAuthGithubProperties {
 

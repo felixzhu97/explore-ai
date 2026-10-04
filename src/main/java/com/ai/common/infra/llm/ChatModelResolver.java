@@ -14,7 +14,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Maps a requested provider and model to the matching Spring AI chat model and options. */
 @Component
 public class ChatModelResolver {
 
@@ -26,7 +26,6 @@ public class ChatModelResolver {
   private final String defaultOllamaModel;
   private final String defaultAnthropicModel;
 
-  /** Documentation. */
   public ChatModelResolver(
       ChatModel defaultChatModel,
       ObjectProvider<OllamaChatModel> ollamaChatModel,
@@ -45,7 +44,7 @@ public class ChatModelResolver {
     this.defaultAnthropicModel = defaultAnthropicModel;
   }
 
-  /** Documentation. */
+  /** Resolves the chat model for the options, rejecting providers that are not configured. */
   public ResolvedChatModel resolve(TextChatOptions options) {
     String provider = options.provider();
     if (!providerCatalog.isProviderAvailable(provider)) {

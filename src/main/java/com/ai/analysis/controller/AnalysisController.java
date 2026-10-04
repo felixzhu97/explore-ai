@@ -11,19 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api")
 public class AnalysisController {
 
   private final AnalysisFacade analysisFacade;
 
-  /** Documentation. */
   public AnalysisController(AnalysisFacade analysisFacade) {
     this.analysisFacade = analysisFacade;
   }
 
-  /** Documentation. */
   @PostMapping("/chat/analyze")
   public ResponseEntity<TextAnalysisResult> analyzeText(
       @Valid @RequestBody TextAnalysisRequest request) {

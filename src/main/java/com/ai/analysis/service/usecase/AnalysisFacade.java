@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Entry point for structured text analysis: summary, sentiment, key points, and entities. */
 @Service
 public class AnalysisFacade {
 
@@ -17,18 +17,16 @@ public class AnalysisFacade {
 
   private final StructuredAnalysisRepository structuredAnalysisRepository;
 
-  /** Documentation. */
   public AnalysisFacade(StructuredAnalysisRepository structuredAnalysisRepository) {
     this.structuredAnalysisRepository = structuredAnalysisRepository;
   }
 
-  /** Documentation. */
   public TextAnalysis analyzeText(String text) {
     log.info("AnalysisFacade.analyzeText: {}", LogSanitizer.truncate(text));
     return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.none());
   }
 
-  /** Documentation. */
+  /** Analyzes the text and asks the model to respond in the given language. */
   public TextAnalysis analyzeTextWithLanguage(String text, String language) {
     log.info(
         "AnalysisFacade.analyzeTextWithLanguage: {} lang={}",

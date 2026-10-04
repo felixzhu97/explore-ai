@@ -24,7 +24,6 @@ public class McpClientToolsConfig {
 
   private static final Logger log = LoggerFactory.getLogger(McpClientToolsConfig.class);
 
-  /** Documentation. */
   @Bean
   @ConditionalOnProperty(
       prefix = "spring.ai.mcp.client",

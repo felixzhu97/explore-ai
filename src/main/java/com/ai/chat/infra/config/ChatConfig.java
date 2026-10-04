@@ -20,20 +20,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 @Configuration
 public class ChatConfig {
-  /** Documentation. */
   @Bean
   @Primary
   public ChatModel primaryChatModel(@Qualifier("openAiChatModel") ChatModel openAiChatModel) {
     return openAiChatModel;
   }
 
-  /** Documentation. */
   @Bean
   public ChatMemoryRepository chatMemoryRepository(JdbcTemplate jdbcTemplate) {
     return JdbcChatMemoryRepository.builder().jdbcTemplate(jdbcTemplate).build();
   }
 
-  /** Documentation. */
   @Bean
   @Primary
   public ChatMemory chatMemory(
@@ -47,7 +44,6 @@ public class ChatConfig {
     return new SanitizingChatMemory(window);
   }
 
-  /** Documentation. */
   @Bean
   public PromptTemplates promptTemplates() {
     return new PromptTemplates();

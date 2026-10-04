@@ -6,12 +6,10 @@ import com.ai.automation.domain.vo.ScheduleKind;
 import java.time.Instant;
 import java.util.List;
 
-/** Documentation. */
+/** Manages a client's automation schedules and lists their run history. */
 public interface AutomationUseCase {
-  /** Documentation. */
   List<AutomationSchedule> list(String clientId);
 
-  /** Documentation. */
   AutomationSchedule create(
       String clientId,
       String name,
@@ -23,7 +21,6 @@ public interface AutomationUseCase {
       String recipientEmail,
       String brief);
 
-  /** Documentation. */
   AutomationSchedule update(
       String clientId,
       String scheduleId,
@@ -36,12 +33,9 @@ public interface AutomationUseCase {
       String recipientEmail,
       String brief);
 
-  /** Documentation. */
   AutomationSchedule setEnabled(String clientId, String scheduleId, boolean enabled);
 
-  /** Documentation. */
   void delete(String clientId, String scheduleId);
 
-  /** Documentation. */
   List<AutomationRun> listRuns(String clientId, String scheduleId, int limit);
 }

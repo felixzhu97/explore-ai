@@ -6,19 +6,16 @@ import jakarta.validation.constraints.Size;
 public record ChatRequest(
     @Size(max = 10000, message = "Message cannot exceed 10000 characters") String message,
     String sessionId) {
-  /** Documentation. */
   public ChatRequest {
     if (message != null) {
       message = message.trim();
     }
   }
 
-  /** Documentation. */
   public static ChatRequest of(String message) {
     return new ChatRequest(message, null);
   }
 
-  /** Documentation. */
   public static ChatRequest of(String message, String sessionId) {
     return new ChatRequest(message, sessionId);
   }

@@ -31,7 +31,6 @@ public class ChatDataRetentionJob {
   private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final AiInvocationEventRepository invocationEventRepository;
 
-  /** Documentation. */
   public ChatDataRetentionJob(
       DataRetentionProperties properties,
       ChatSessionRepository sessionRepository,
@@ -45,7 +44,6 @@ public class ChatDataRetentionJob {
     this.invocationEventRepository = invocationEventRepository;
   }
 
-  /** Documentation. */
   @Scheduled(cron = "${app.data-retention.cron:0 0 3 * * *}")
   public void purgeExpiredData() {
     if (!properties.isEnabled()) {

@@ -16,7 +16,6 @@ public class JpaAccountUserRepository implements AccountUserRepository {
   private final SpringDataAccountUserRepository delegate;
   private final EntityManager entityManager;
 
-  /** Documentation. */
   public JpaAccountUserRepository(
       SpringDataAccountUserRepository delegate, EntityManager entityManager) {
     this.delegate = delegate;

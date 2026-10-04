@@ -27,7 +27,6 @@ public class PrivacyController {
   private final OwnerEraseUseCase ownerEraseUseCase;
   private final ClientIdentityCookieFactory cookieFactory;
 
-  /** Documentation. */
   public PrivacyController(
       OwnerContext ownerContext,
       OwnerEraseUseCase ownerEraseUseCase,

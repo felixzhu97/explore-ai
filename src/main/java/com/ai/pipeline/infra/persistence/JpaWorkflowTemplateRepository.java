@@ -20,7 +20,6 @@ public class JpaWorkflowTemplateRepository implements WorkflowTemplateRepository
 
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public JpaWorkflowTemplateRepository(
       SpringDataWorkflowTemplateRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;

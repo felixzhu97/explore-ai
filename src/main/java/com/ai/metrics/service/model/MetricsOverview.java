@@ -3,7 +3,6 @@ package com.ai.metrics.service.model;
 import java.util.List;
 import java.util.Map;
 
-/** Documentation. */
 public record MetricsOverview(
     String range,
     long requestCount,

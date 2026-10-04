@@ -2,9 +2,7 @@ package com.ai.tools.domain.vo;
 
 import com.ai.tools.domain.exception.InvalidWeatherQueryException;
 
-/** Documentation. */
 public record WeatherForecast(WeatherQuery query, int days) {
-  /** Documentation. */
   public WeatherForecast {
     if (query == null) {
       throw new InvalidWeatherQueryException("Query must not be null");
@@ -14,7 +12,6 @@ public record WeatherForecast(WeatherQuery query, int days) {
     }
   }
 
-  /** Documentation. */
   public static WeatherForecast of(WeatherQuery query, Integer days) {
     return new WeatherForecast(query, days != null ? days : 3);
   }

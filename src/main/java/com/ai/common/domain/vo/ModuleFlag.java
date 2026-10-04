@@ -1,6 +1,6 @@
 package com.ai.common.domain.vo;
 
-/** Documentation. */
+/** Feature-flagged application modules, each with a flag key and the API path prefix it gates. */
 public enum ModuleFlag {
   VISION("module-vision", "/api/vision"),
   AUDIO_ASR("module-audio-asr", "/ws/audio"),
@@ -18,22 +18,19 @@ public enum ModuleFlag {
     this.pathPrefix = pathPrefix;
   }
 
-  /** Documentation. */
   public String key() {
     return key;
   }
 
-  /** Documentation. */
   public String pathPrefix() {
     return pathPrefix;
   }
 
-  /** Documentation. */
   public String bootstrapProperty() {
     return "launchdarkly.bootstrap." + key;
   }
 
-  /** Documentation. */
+  /** Returns the module whose path prefix matches the request path, or null if none does. */
   public static ModuleFlag fromPath(String requestPath) {
     if (requestPath == null) {
       return null;

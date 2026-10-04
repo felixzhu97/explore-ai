@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** LaunchDarkly settings: enabled flag, SDK key, and per-flag fallback values. */
 @ConfigurationProperties(prefix = "launchdarkly")
 public class LaunchDarklyProperties {
 
@@ -36,7 +36,6 @@ public class LaunchDarklyProperties {
     this.fallback = fallback;
   }
 
-  /** Documentation. */
   public boolean fallbackFor(String flagKey) {
     return fallback.getOrDefault(flagKey, false);
   }

@@ -2,8 +2,7 @@ package com.ai.automation.domain.repository;
 
 import com.ai.automation.domain.model.EmailMessage;
 
-/** Documentation. */
+/** Outbound gateway that delivers automation result emails. */
 public interface EmailGateway {
-  /** Documentation. */
   void send(EmailMessage message);
 }

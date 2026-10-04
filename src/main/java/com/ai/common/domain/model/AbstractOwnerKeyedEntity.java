@@ -28,25 +28,21 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
   @Column(nullable = false, length = 80)
   protected OwnerKey ownerKey;
 
-  /** Documentation. */
   protected AbstractOwnerKeyedEntity(
       IdT id, OwnerKey ownerKey, Instant createdAt, Instant updatedAt) {
     super(id, createdAt, updatedAt);
     this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");
   }
 
-  /** Documentation. */
   protected AbstractOwnerKeyedEntity(
       IdT id, String ownerKeyValue, Instant createdAt, Instant updatedAt) {
     this(id, OwnerKey.parse(ownerKeyValue), createdAt, updatedAt);
   }
 
-  /** Documentation. */
   public boolean belongsTo(OwnerKey candidate) {
     return ownerKey.equals(candidate);
   }
 
-  /** Documentation. */
   public boolean belongsToClient(String ownerKeyValue) {
     return ownerKey.value().equals(ownerKeyValue);
   }
@@ -56,12 +52,10 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     return ownerKey.value();
   }
 
-  /** Documentation. */
   protected void rebindOwnerKey(OwnerKey nextOwnerKey) {
     this.ownerKey = Objects.requireNonNull(nextOwnerKey, "ownerKey");
   }
 
-  /** Documentation. */
   public void rebindOwnerKey(String ownerKeyValue) {
     rebindOwnerKey(OwnerKey.parse(ownerKeyValue));
   }

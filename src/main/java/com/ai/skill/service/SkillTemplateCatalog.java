@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/** Documentation. */
+/** Built-in skill templates loaded per language from {@code skill-templates/<lang>.json}. */
 public final class SkillTemplateCatalog {
 
   private static final String DEFAULT_LANGUAGE = "en";
@@ -22,22 +22,19 @@ public final class SkillTemplateCatalog {
 
   private SkillTemplateCatalog() {}
 
-  /** Documentation. */
   public static List<SkillTemplate> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
-  /** Documentation. */
   public static List<SkillTemplate> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
-  /** Documentation. */
   public static Optional<SkillTemplate> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }
 
-  /** Documentation. */
+  /** Finds a template in the given language, falling back to the English template. */
   public static Optional<SkillTemplate> findById(String templateId, String language) {
     if (templateId == null || templateId.isBlank()) {
       return Optional.empty();
@@ -52,7 +49,7 @@ public final class SkillTemplateCatalog {
         .findFirst();
   }
 
-  /** Documentation. */
+  /** Returns the template's display names across all supported languages. */
   public static Set<String> namesForTemplate(String templateId) {
     Set<String> names = new LinkedHashSet<>();
     if (templateId == null || templateId.isBlank()) {
@@ -68,7 +65,7 @@ public final class SkillTemplateCatalog {
     return names;
   }
 
-  /** Documentation. */
+  /** Reduces a locale or Accept-Language value to a supported language code, else {@code en}. */
   public static String normalizeLanguage(String language) {
     if (language == null || language.isBlank()) {
       return DEFAULT_LANGUAGE;

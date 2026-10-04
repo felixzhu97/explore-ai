@@ -24,7 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-/** Documentation. */
+/** Orchestrator-workers engine that runs and records supervisor, agent and pipeline calls. */
 @Service
 public class OrchestratorWorkersUseCase {
 
@@ -33,7 +33,6 @@ public class OrchestratorWorkersUseCase {
   private final WorkerAgentInvoker workerInvoker;
   private final AiInvocationRecorder invocationRecorder;
 
-  /** Documentation. */
   public OrchestratorWorkersUseCase(
       AgentRegistry registry,
       SupervisorRouter supervisorRouter,
@@ -45,17 +44,15 @@ public class OrchestratorWorkersUseCase {
     this.invocationRecorder = invocationRecorder;
   }
 
-  /** Documentation. */
   public List<AgentDefinition> listAgents(String clientId, String language) {
     return registry.listAll(clientId, language);
   }
 
-  /** Documentation. */
   public AgentDefinition health(AgentType type, String clientId, String language) {
     return registry.require(type, clientId, language);
   }
 
-  /** Documentation. */
+  /** Streams a supervisor run as SSE: plans routing, runs workers and synthesizes the answer. */
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       String message, String clientId, String language) {
     if (message == null || message.isBlank()) {
@@ -82,7 +79,7 @@ public class OrchestratorWorkersUseCase {
                     doneEvent()));
   }
 
-  /** Documentation. */
+  /** Streams a direct invocation of one worker agent as SSE, delegating supervisor types. */
   public Flux<ServerSentEvent<String>> invokeAgent(
       AgentType type, String message, String clientId, String language) {
     if (message == null || message.isBlank()) {
@@ -124,7 +121,7 @@ public class OrchestratorWorkersUseCase {
             .build());
   }
 
-  /** Documentation. */
+  /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */
   public Flux<ServerSentEvent<String>> invokePipeline(
       String message, AgentPipeline pipeline, String clientId, String language) {
     if (message == null || message.isBlank()) {

@@ -20,7 +20,6 @@ public final class NotifyingToolCallback implements ToolCallback {
   private final ToolCallback delegate;
   private final String conversationId;
 
-  /** Documentation. */
   public NotifyingToolCallback(ToolCallback delegate, String conversationId) {
     this.delegate = delegate;
     this.conversationId = conversationId;

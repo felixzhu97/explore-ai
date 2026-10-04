@@ -2,9 +2,8 @@ package com.ai.image.domain.vo;
 
 import com.ai.image.domain.exception.InvalidImagePromptException;
 
-/** Documentation. */
 public record ImageSize(int width, int height) {
-  /** Documentation. */
+  /** Creates a size, rejecting non-positive or catalog-unsupported dimensions. */
   public static ImageSize of(int width, int height) {
     if (width <= 0 || height <= 0) {
       throw new InvalidImagePromptException("Image dimensions must be positive");

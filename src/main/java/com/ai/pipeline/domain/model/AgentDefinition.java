@@ -36,13 +36,11 @@ public final class AgentDefinition {
     this.healthy = healthy;
   }
 
-  /** Documentation. */
   public static AgentDefinition create(
       AgentType type, String name, String description, String systemPrompt) {
     return create(type, name, description, systemPrompt, List.of(), RUNTIME_SINGLE);
   }
 
-  /** Documentation. */
   public static AgentDefinition create(
       AgentType type,
       String name,
@@ -53,37 +51,30 @@ public final class AgentDefinition {
     return new AgentDefinition(type, name, description, systemPrompt, toolKeys, runtime, true);
   }
 
-  /** Documentation. */
   public AgentType type() {
     return type;
   }
 
-  /** Documentation. */
   public String name() {
     return name;
   }
 
-  /** Documentation. */
   public String description() {
     return description;
   }
 
-  /** Documentation. */
   public String systemPrompt() {
     return systemPrompt;
   }
 
-  /** Documentation. */
   public List<String> toolKeys() {
     return toolKeys;
   }
 
-  /** Documentation. */
   public String runtime() {
     return runtime;
   }
 
-  /** Documentation. */
   public boolean healthy() {
     return healthy;
   }

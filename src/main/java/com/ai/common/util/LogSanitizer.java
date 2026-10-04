@@ -17,12 +17,11 @@ public final class LogSanitizer {
 
   private LogSanitizer() {}
 
-  /** Documentation. */
   public static String truncate(String text) {
     return truncate(text, DEFAULT_MAX_LENGTH);
   }
 
-  /** Documentation. */
+  /** Cuts text to {@code maxLength} characters plus an ellipsis; renders null as "null". */
   public static String truncate(String text, int maxLength) {
     if (text == null) {
       return "null";

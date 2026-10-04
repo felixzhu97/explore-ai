@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Documentation. */
 @RestController
 @RequestMapping("/api/automations/schedules")
 public class AutomationController {
@@ -33,20 +32,17 @@ public class AutomationController {
 
   private final AutomationUseCase automationUseCase;
 
-  /** Documentation. */
   public AutomationController(AutomationUseCase automationUseCase, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.automationUseCase = automationUseCase;
   }
 
-  /** Documentation. */
   @GetMapping
   public List<AutomationScheduleResponse> list(HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return automationUseCase.list(clientId).stream().map(AutomationScheduleResponse::from).toList();
   }
 
-  /** Documentation. */
   @PostMapping
   public ResponseEntity<AutomationScheduleResponse> create(
       @Valid @RequestBody CreateAutomationScheduleRequest body, HttpServletRequest request) {
@@ -66,7 +62,6 @@ public class AutomationController {
                     body.brief())));
   }
 
-  /** Documentation. */
   @PutMapping("/{id}")
   public AutomationScheduleResponse update(
       @PathVariable String id,
@@ -87,7 +82,6 @@ public class AutomationController {
             body.brief()));
   }
 
-  /** Documentation. */
   @PatchMapping("/{id}/enabled")
   public AutomationScheduleResponse setEnabled(
       @PathVariable String id,
@@ -98,7 +92,6 @@ public class AutomationController {
         automationUseCase.setEnabled(clientId, id, body.enabled()));
   }
 
-  /** Documentation. */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
@@ -106,7 +99,6 @@ public class AutomationController {
     return ResponseEntity.noContent().build();
   }
 
-  /** Documentation. */
   @GetMapping("/{id}/runs")
   public List<AutomationRunResponse> listRuns(
       @PathVariable String id,

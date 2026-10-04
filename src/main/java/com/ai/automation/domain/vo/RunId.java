@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class RunId extends AbstractUuidId {
 
-  /** Documentation. */
   public RunId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static RunId of(String value) {
     return new RunId(value);
   }
 
-  /** Documentation. */
   public static RunId generate() {
     return new RunId(newUuidString());
   }

@@ -1,11 +1,10 @@
 package com.ai.vision.domain.exception;
 
-/** Documentation. */
+/** Thrown when a vision provider (caption, detect, or OCR) has no loaded model or backend. */
 public class VisionProviderUnavailableException extends RuntimeException {
 
   private final String provider;
 
-  /** Documentation. */
   public VisionProviderUnavailableException(String provider, String message) {
     super(message);
     this.provider = provider;

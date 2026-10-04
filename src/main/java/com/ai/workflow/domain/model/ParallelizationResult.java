@@ -4,7 +4,6 @@ import java.util.List;
 
 /** Ordered outputs from a parallelization workflow (same order as inputs). */
 public record ParallelizationResult(List<String> outputs) {
-  /** Documentation. */
   public ParallelizationResult {
     outputs = outputs == null ? List.of() : List.copyOf(outputs);
   }

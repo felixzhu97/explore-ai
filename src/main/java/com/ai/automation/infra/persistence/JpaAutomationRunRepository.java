@@ -19,7 +19,6 @@ public class JpaAutomationRunRepository implements AutomationRunRepository {
   private final EntityManager entityManager;
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public JpaAutomationRunRepository(
       SpringDataAutomationRunRepository delegate,
       EntityManager entityManager,

@@ -29,7 +29,6 @@ public class StreamingTranscriptionUseCase {
 
   private final Map<String, SessionState> sessions = new ConcurrentHashMap<>();
 
-  /** Documentation. */
   public StreamingTranscriptionUseCase(
       StreamingTranscriptionGateway transcriptionGateway,
       @Qualifier("asrTranscriptionExecutor") TaskExecutor transcriptionExecutor,

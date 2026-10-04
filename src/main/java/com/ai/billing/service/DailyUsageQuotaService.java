@@ -17,7 +17,6 @@ public class DailyUsageQuotaService {
   private final BillingProperties properties;
   private final Map<String, DayCounter> counters = new ConcurrentHashMap<>();
 
-  /** Documentation. */
   public DailyUsageQuotaService(BillingProperties properties) {
     this.properties = properties;
   }
@@ -26,12 +25,10 @@ public class DailyUsageQuotaService {
     return properties.isQuotaEnabled();
   }
 
-  /** Documentation. */
   public int dailyLimit() {
     return properties.dailyLimit();
   }
 
-  /** Documentation. */
   public String plan() {
     return properties.getPlan();
   }
@@ -63,7 +60,7 @@ public class DailyUsageQuotaService {
     return true;
   }
 
-  /** Documentation. */
+  /** Returns the client's unused requests for the current UTC day. */
   public int remaining(String clientId) {
     if (!properties.isQuotaEnabled()) {
       return properties.dailyLimit();

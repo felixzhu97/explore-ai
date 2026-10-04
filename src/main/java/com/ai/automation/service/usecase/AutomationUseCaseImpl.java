@@ -20,7 +20,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** Manages automation schedules, enforcing per-client limits, valid cron and owned workflows. */
 @Service
 @EnableConfigurationProperties(AutomationProperties.class)
 public class AutomationUseCaseImpl implements AutomationUseCase {
@@ -31,7 +31,6 @@ public class AutomationUseCaseImpl implements AutomationUseCase {
   private final CronScheduleCalculator cronCalculator;
   private final AutomationProperties properties;
 
-  /** Documentation. */
   public AutomationUseCaseImpl(
       AutomationScheduleRepository scheduleRepository,
       AutomationRunRepository runRepository,

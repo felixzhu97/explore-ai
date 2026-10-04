@@ -12,7 +12,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Facade for MCP tool registration, server listing, and tool-augmented chat. */
 @Service
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -25,7 +25,6 @@ public class McpFacade {
   private final McpToolCallbackRegistry toolCallbackRegistry;
   private final ChatClientProvider chatClientProvider;
 
-  /** Documentation. */
   public McpFacade(
       McpClientRepository mcpClientRepository,
       McpToolCallbackRegistry toolCallbackRegistry,
@@ -47,17 +46,15 @@ public class McpFacade {
     return mcpClientRepository.listTools();
   }
 
-  /** Documentation. */
   public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
     toolCallbackRegistry.registerToolCallbacks(tools, serverName);
   }
 
-  /** Documentation. */
   public void clearTools() {
     mcpClientRepository.clearTools();
   }
 
-  /** Documentation. */
+  /** Answers the question with a stateless chat that can call all registered MCP tools. */
   public String chatWithTools(String question) {
     ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
     return chatClientProvider

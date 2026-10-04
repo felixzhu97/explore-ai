@@ -1,6 +1,6 @@
 package com.ai.mcp.domain.model;
 
-/** Documentation. */
+/** Lifecycle state of an MCP server session. */
 public enum McpSessionStatus {
   ACTIVE,
   CLOSED

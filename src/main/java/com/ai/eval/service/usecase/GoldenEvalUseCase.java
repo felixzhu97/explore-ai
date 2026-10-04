@@ -44,7 +44,6 @@ public class GoldenEvalUseCase {
   private final RagChatUseCase ragChatUseCase;
   private final GoldenRagFixtureSeeder fixtureSeeder;
 
-  /** Documentation. */
   public GoldenEvalUseCase(
       GoldenSuiteRepository suiteRepository,
       OfficialSpringAiEvaluators officialEvaluators,
@@ -58,7 +57,7 @@ public class GoldenEvalUseCase {
     this.fixtureSeeder = fixtureSeeder;
   }
 
-  /** Documentation. */
+  /** Runs golden cases for the domains, optionally filtered by id, and aggregates a report. */
   public GoldenSuiteReport run(List<GoldenEvalDomain> domains, List<String> caseIds) {
     List<GoldenEvalCase> cases = suiteRepository.loadByDomains(domains);
     if (caseIds != null && !caseIds.isEmpty()) {

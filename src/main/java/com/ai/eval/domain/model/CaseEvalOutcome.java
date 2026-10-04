@@ -14,7 +14,6 @@ public record CaseEvalOutcome(
     Boolean factualityPass,
     List<String> feedback,
     String generationError) {
-  /** Documentation. */
   public CaseEvalOutcome {
     feedback = feedback == null ? List.of() : List.copyOf(feedback);
     answer = answer == null ? "" : answer;

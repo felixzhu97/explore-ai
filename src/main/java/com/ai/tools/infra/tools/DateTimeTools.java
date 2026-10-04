@@ -20,7 +20,6 @@ public class DateTimeTools implements DateTimeTool {
 
   private final Clock clock;
 
-  /** Documentation. */
   public DateTimeTools(Clock clock) {
     this.clock = clock;
   }

@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 
-/** Documentation. */
 public record UpdateAutomationScheduleRequest(
     @NotBlank String name,
     String scheduleKind,

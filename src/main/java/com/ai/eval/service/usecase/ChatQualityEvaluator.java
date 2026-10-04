@@ -55,7 +55,6 @@ public class ChatQualityEvaluator {
   private final OfficialSpringAiEvaluators officialEvaluators;
   private final ChatClient evaluationChatClient;
 
-  /** Documentation. */
   public ChatQualityEvaluator(
       OfficialSpringAiEvaluators officialEvaluators,
       @Qualifier("evaluationChatClient") ChatClient evaluationChatClient) {
@@ -63,7 +62,7 @@ public class ChatQualityEvaluator {
     this.evaluationChatClient = evaluationChatClient;
   }
 
-  /** Documentation. */
+  /** Scores a reply using official evaluators plus an LLM safety and quality judge. */
   public ChatEvaluationResult evaluate(
       String userMessage, String assistantResponse, List<String> referenceDocuments) {
     log.debug("Evaluating response for user message: {}", LogSanitizer.truncate(userMessage));

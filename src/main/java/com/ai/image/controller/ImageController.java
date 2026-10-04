@@ -28,7 +28,6 @@ public class ImageController {
 
   private final ImageFacade imageFacade;
 
-  /** Documentation. */
   public ImageController(ImageFacade imageFacade) {
     this.imageFacade = imageFacade;
   }

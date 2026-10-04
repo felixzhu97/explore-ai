@@ -8,7 +8,7 @@ import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Health indicator reporting caption, detect, and OCR availability; DEGRADED if any is down. */
 @Component
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
@@ -21,7 +21,6 @@ public class VisionHealthIndicator implements HealthIndicator {
   private final ObjectDetector detector;
   private final OcrEngine ocrEngine;
 
-  /** Documentation. */
   public VisionHealthIndicator(
       ImageCaptioner captioner, ObjectDetector detector, OcrEngine ocrEngine) {
     this.captioner = captioner;

@@ -1,11 +1,9 @@
 package com.ai.common.service.llm;
 
-/** Documentation. */
 public record TextChatOptions(
     String provider, String model, boolean toolsEnabled, String skillSystemPrompt) {
   private static final String DEFAULT_PROVIDER = "openai";
 
-  /** Documentation. */
   public TextChatOptions {
     provider = provider == null || provider.isBlank() ? DEFAULT_PROVIDER : provider.toLowerCase();
     skillSystemPrompt =
@@ -22,7 +20,6 @@ public record TextChatOptions(
     return new TextChatOptions(DEFAULT_PROVIDER, null, false, null);
   }
 
-  /** Documentation. */
   public static TextChatOptions of(String provider, String model) {
     return new TextChatOptions(provider, model, true, null);
   }
@@ -37,19 +34,16 @@ public record TextChatOptions(
     return new TextChatOptions(provider, model, toolsEnabled == null || toolsEnabled, null);
   }
 
-  /** Documentation. */
   public static TextChatOptions of(
       String provider, String model, Boolean toolsEnabled, String skillSystemPrompt) {
     return new TextChatOptions(
         provider, model, toolsEnabled == null || toolsEnabled, skillSystemPrompt);
   }
 
-  /** Documentation. */
   public static TextChatOptions ollamaVision(String model) {
     return new TextChatOptions("ollama", model, false, null);
   }
 
-  /** Documentation. */
   public TextChatOptions withSkillSystemPrompt(String skillSystemPrompt) {
     return new TextChatOptions(provider, model, toolsEnabled, skillSystemPrompt);
   }

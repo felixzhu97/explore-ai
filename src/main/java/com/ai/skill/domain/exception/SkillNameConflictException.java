@@ -1,11 +1,10 @@
 package com.ai.skill.domain.exception;
 
-/** Documentation. */
+/** Thrown when an owner already has a skill with the requested name. */
 public class SkillNameConflictException extends RuntimeException {
 
   private final String name;
 
-  /** Documentation. */
   public SkillNameConflictException(String name) {
     super("Skill name already exists: " + name);
     this.name = name;

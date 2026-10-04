@@ -11,12 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class DocumentId extends AbstractUuidId {
 
-  /** Documentation. */
   public DocumentId(String value) {
     super(value);
   }
 
-  /** Documentation. */
+  /** Creates an id from the UUID, rejecting null. */
   public static DocumentId of(UUID uuid) {
     if (uuid == null) {
       throw new IllegalArgumentException("UUID cannot be null");
@@ -24,17 +23,14 @@ public final class DocumentId extends AbstractUuidId {
     return new DocumentId(uuid.toString());
   }
 
-  /** Documentation. */
   public static DocumentId of(String uuidString) {
     return new DocumentId(uuidString);
   }
 
-  /** Documentation. */
   public static DocumentId generate() {
     return new DocumentId(newUuidString());
   }
 
-  /** Documentation. */
   public UUID uuidValue() {
     return asUuid();
   }

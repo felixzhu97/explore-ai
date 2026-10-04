@@ -2,7 +2,7 @@ package com.ai.automation.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Mail delivery settings bound from {@code app.mail}: toggle, provider, sender and Resend API. */
 @ConfigurationProperties(prefix = "app.mail")
 public class MailProperties {
 

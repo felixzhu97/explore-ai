@@ -22,23 +22,18 @@ public interface AgentRegistry {
   /** Workers eligible for supervisor routing (excludes supervisor and deep). */
   List<AgentDefinition> listWorkers(String clientId, String language);
 
-  /** Documentation. */
   default List<AgentDefinition> listWorkers() {
     return listWorkers(null, "en");
   }
 
-  /** Documentation. */
   Optional<AgentDefinition> findByType(AgentType type, String clientId, String language);
 
-  /** Documentation. */
   default Optional<AgentDefinition> findByType(AgentType type) {
     return findByType(type, null, "en");
   }
 
-  /** Documentation. */
   AgentDefinition require(AgentType type, String clientId, String language);
 
-  /** Documentation. */
   default AgentDefinition require(AgentType type) {
     return require(type, null, "en");
   }

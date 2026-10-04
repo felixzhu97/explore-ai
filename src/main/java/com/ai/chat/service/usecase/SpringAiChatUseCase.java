@@ -40,7 +40,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
-/** Documentation. */
+/** Spring AI chat use case with session memory, tool calls, web sources, and usage metrics. */
 @Service
 public class SpringAiChatUseCase implements ChatUseCase {
 
@@ -66,7 +66,6 @@ public class SpringAiChatUseCase implements ChatUseCase {
   private final AiInvocationRecorder invocationRecorder;
   private final AiInvocationEventRepository invocationEventRepository;
 
-  /** Documentation. */
   public SpringAiChatUseCase(
       ChatClientProvider chatClientProvider,
       ChatSessionRepository repository,
@@ -561,7 +560,6 @@ public class SpringAiChatUseCase implements ChatUseCase {
         .toList();
   }
 
-  /** Documentation. */
   public void clearConversationMemory(String conversationId) {
     chatMemory.clear(conversationId);
   }

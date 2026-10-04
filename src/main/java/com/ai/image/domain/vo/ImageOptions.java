@@ -2,9 +2,8 @@ package com.ai.image.domain.vo;
 
 import com.ai.image.domain.exception.InvalidImagePromptException;
 
-/** Documentation. */
 public record ImageOptions(String model, String quality, ImageSize size, int count) {
-  /** Documentation. */
+  /** Creates options with catalog defaults, validating model, quality, size, and count (1-4). */
   public static ImageOptions of(String model, String quality, int width, int height, int count) {
     ImageCatalog catalog = ImageCatalog.defaults();
     String effectiveModel =

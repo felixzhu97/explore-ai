@@ -10,13 +10,12 @@ import com.ai.pipeline.service.WorkflowTemplateCatalog;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Manages a client's saved workflow templates, including copies of built-in catalog templates. */
 @Service
 public class WorkflowTemplateUseCaseImpl implements WorkflowTemplateUseCase {
 
   private final WorkflowTemplateRepository repository;
 
-  /** Documentation. */
   public WorkflowTemplateUseCaseImpl(WorkflowTemplateRepository repository) {
     this.repository = repository;
   }

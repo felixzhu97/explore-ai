@@ -12,7 +12,6 @@ public record RagChatRequest(
     Double temperature,
     @JsonAlias("doc_ids") List<String> docIds,
     List<String> images) {
-  /** Documentation. */
   public RagChatRequest {
     if (topK == null) {
       topK = 5;

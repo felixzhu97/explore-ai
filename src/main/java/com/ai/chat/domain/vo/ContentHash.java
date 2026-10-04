@@ -10,7 +10,7 @@ public final class ContentHash {
 
   private ContentHash() {}
 
-  /** Documentation. */
+  /** Returns the lowercase hex SHA-256 digest of the UTF-8 content. */
   public static String sha256(String content) {
     try {
       byte[] digest =

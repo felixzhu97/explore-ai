@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Static catalog of text chat providers and models, gated by Ollama and Anthropic config. */
 @Component
 public class TextProviderCatalog {
 
@@ -45,7 +45,6 @@ public class TextProviderCatalog {
   private final boolean ollamaChatEnabled;
   private final boolean anthropicEnabled;
 
-  /** Documentation. */
   public TextProviderCatalog(
       @Value("${spring.ai.ollama.chat.enabled:false}") boolean ollamaChatEnabled,
       @Value("${spring.ai.anthropic.api-key:}") String anthropicApiKey) {
@@ -53,7 +52,7 @@ public class TextProviderCatalog {
     this.anthropicEnabled = anthropicApiKey != null && !anthropicApiKey.isBlank();
   }
 
-  /** Documentation. */
+  /** Reports whether the provider is configured; a blank provider means the default and passes. */
   public boolean isProviderAvailable(String provider) {
     if (provider == null || provider.isBlank()) {
       return true;
@@ -66,7 +65,7 @@ public class TextProviderCatalog {
     };
   }
 
-  /** Documentation. */
+  /** Lists the DeepSeek, Anthropic, and Ollama providers with their models and availability. */
   public List<ProviderInfoResponse> listProviders() {
     return List.of(
         new ProviderInfoResponse("openai", "DeepSeek", modelNames("openai"), "available"),
@@ -82,7 +81,6 @@ public class TextProviderCatalog {
             ollamaChatEnabled ? "available" : "unavailable"));
   }
 
-  /** Documentation. */
   public List<ModelInfoResponse> listModels(String provider) {
     String key = provider == null || provider.isBlank() ? "openai" : provider.toLowerCase();
     return MODELS_BY_PROVIDER.getOrDefault(key, MODELS_BY_PROVIDER.get("openai"));

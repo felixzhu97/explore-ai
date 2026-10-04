@@ -26,7 +26,6 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
   private final PathMatchingResourcePatternResolver resolver =
       new PathMatchingResourcePatternResolver();
 
-  /** Documentation. */
   public ClasspathGoldenSuiteLoader(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }

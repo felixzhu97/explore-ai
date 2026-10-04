@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Runs a client's saved workflow template as a linear agent pipeline and returns its output. */
 @Component
 public class PipelineWorkflowRunner implements WorkflowRunner {
 
@@ -24,7 +24,6 @@ public class PipelineWorkflowRunner implements WorkflowRunner {
   private final WorkflowTemplateRepository workflowTemplateRepository;
   private final PipelineFacade pipelineFacade;
 
-  /** Documentation. */
   public PipelineWorkflowRunner(
       WorkflowTemplateRepository workflowTemplateRepository, PipelineFacade pipelineFacade) {
     this.workflowTemplateRepository = workflowTemplateRepository;

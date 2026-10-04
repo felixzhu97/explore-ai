@@ -32,7 +32,6 @@ public class H2VectorAdapter implements IDocumentChunkRepository, DocumentChunkS
   private final ObjectMapper objectMapper;
   private final ChunkRowMapper chunkRowMapper;
 
-  /** Documentation. */
   public H2VectorAdapter(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
     this.jdbcTemplate = jdbcTemplate;
     this.objectMapper = objectMapper;
@@ -83,13 +82,12 @@ public class H2VectorAdapter implements IDocumentChunkRepository, DocumentChunkS
     jdbcTemplate.update(sql, documentId.value());
   }
 
-  /** Documentation. */
   @Transactional(readOnly = true)
   public List<DocumentChunk> search(float[] queryEmbedding, int topK) {
     return search(queryEmbedding, topK, null);
   }
 
-  /** Documentation. */
+  /** Returns the top-K chunks by cosine similarity, optionally limited to the given documents. */
   @Transactional(readOnly = true)
   public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> docIds) {
     if (queryEmbedding == null || queryEmbedding.length == 0) {

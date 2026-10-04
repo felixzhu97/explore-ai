@@ -26,19 +26,16 @@ public final class AgentPipeline {
     this.edges = List.copyOf(edges);
   }
 
-  /** Documentation. */
   public static AgentPipeline create(List<PipelineNode> nodes, List<PipelineEdge> edges) {
     Objects.requireNonNull(nodes, "nodes");
     Objects.requireNonNull(edges, "edges");
     return new AgentPipeline(nodes, edges);
   }
 
-  /** Documentation. */
   public List<PipelineNode> nodes() {
     return nodes;
   }
 
-  /** Documentation. */
   public List<PipelineEdge> edges() {
     return edges;
   }
@@ -147,7 +144,6 @@ public final class AgentPipeline {
       String description,
       String systemPrompt,
       List<String> toolKeys) {
-    /** Documentation. */
     public PipelineNode {
       Objects.requireNonNull(id, "id");
       Objects.requireNonNull(agentType, "agentType");
@@ -160,12 +156,11 @@ public final class AgentPipeline {
       toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
     }
 
-    /** Documentation. */
     public static PipelineNode of(String id, AgentType agentType) {
       return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
     }
 
-    /** Documentation. */
+    /** Builds an agent definition from this node, defaulting the prompt when none is set. */
     public AgentDefinition toDefinition() {
       String prompt =
           systemPrompt.isBlank() ? "You are agent " + agentType.value() + "." : systemPrompt;
@@ -174,9 +169,7 @@ public final class AgentPipeline {
     }
   }
 
-  /** Documentation. */
   public record PipelineEdge(String sourceId, String targetId) {
-    /** Documentation. */
     public PipelineEdge {
       Objects.requireNonNull(sourceId, "sourceId");
       Objects.requireNonNull(targetId, "targetId");

@@ -13,22 +13,18 @@ public final class ClasspathPromptTemplate {
 
   private ClasspathPromptTemplate() {}
 
-  /** Documentation. */
   public static String load(String relativePath) {
     return ClasspathPromptLoader.load(relativePath);
   }
 
-  /** Documentation. */
   public static String joinSections(String... sections) {
     return ClasspathPromptLoader.joinSections(sections);
   }
 
-  /** Documentation. */
   public static String render(String templateText, Map<String, ?> variables) {
     return new PromptTemplate(templateText).render(toObjectMap(variables));
   }
 
-  /** Documentation. */
   public static String loadAndRender(String relativePath, Map<String, ?> variables) {
     return render(load(relativePath), variables);
   }

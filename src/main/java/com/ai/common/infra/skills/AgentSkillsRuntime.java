@@ -13,7 +13,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Holds loaded agent skills and exposes their tool callback and system-prompt catalog. */
 @Component
 public class AgentSkillsRuntime {
   private static final Logger log = LoggerFactory.getLogger(AgentSkillsRuntime.class);
@@ -30,24 +30,21 @@ public class AgentSkillsRuntime {
     }
   }
 
-  /** Documentation. */
   public boolean enabled() {
     return enabled && !skills.isEmpty();
   }
 
-  /** Documentation. */
   public List<AgentSkill> skills() {
     return skills;
   }
 
-  /** Documentation. */
   public Optional<ToolCallback> skillToolCallback() {
     return (!enabled() || skillToolCallback == null)
         ? Optional.empty()
         : Optional.of(skillToolCallback);
   }
 
-  /** Documentation. */
+  /** Appends a catalog of available skills to the base prompt when skills are enabled. */
   public String augmentSystemPrompt(String basePrompt) {
     if (!enabled() || skills.isEmpty()) {
       return basePrompt;

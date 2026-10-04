@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Fallback email gateway that only logs a masked summary while mail delivery is disabled. */
 @Component
 @ConditionalOnProperty(
     prefix = "app.mail",

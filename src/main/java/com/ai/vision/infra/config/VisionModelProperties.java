@@ -2,7 +2,7 @@ package com.ai.vision.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Documentation. */
+/** Settings under {@code app.vision} for the local detection, captioning, and OCR models. */
 @ConfigurationProperties(prefix = "app.vision")
 public class VisionModelProperties {
 
@@ -43,7 +43,7 @@ public class VisionModelProperties {
     this.ocr = ocr;
   }
 
-  /** Documentation. */
+  /** YOLO detection settings: ONNX path, confidence and NMS thresholds, and input size. */
   public static class Detect {
     private String onnxPath = "models/yolov8n.onnx";
     private float confidenceThreshold = 0.5f;
@@ -83,7 +83,7 @@ public class VisionModelProperties {
     }
   }
 
-  /** Documentation. */
+  /** BLIP captioning settings: vision and decoder ONNX paths, tokenizer, and max caption length. */
   public static class Caption {
     private String visionOnnx = "models/blip_vision_model.onnx";
     private String decoderOnnx = "models/blip_text_decoder.onnx";
@@ -123,7 +123,7 @@ public class VisionModelProperties {
     }
   }
 
-  /** Documentation. */
+  /** Tesseract OCR settings: tessdata path, language codes, and page segmentation mode. */
   public static class Ocr {
     private String tessdataPath = "models/tessdata";
     private String languages = "eng+chi_sim";

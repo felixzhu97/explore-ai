@@ -11,7 +11,6 @@ public record OfficialGateResult(
     Double factualityScore,
     List<String> feedback,
     boolean passed) {
-  /** Documentation. */
   public OfficialGateResult {
     feedback = feedback == null ? List.of() : List.copyOf(feedback);
   }

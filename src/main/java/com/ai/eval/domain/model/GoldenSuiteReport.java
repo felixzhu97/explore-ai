@@ -5,7 +5,6 @@ import java.util.List;
 /** Aggregated golden suite report. */
 public record GoldenSuiteReport(
     int total, int passed, int failed, double passRate, List<CaseEvalOutcome> cases) {
-  /** Documentation. */
   public GoldenSuiteReport {
     cases = cases == null ? List.of() : List.copyOf(cases);
     if (total < 0) {
@@ -13,7 +12,7 @@ public record GoldenSuiteReport(
     }
   }
 
-  /** Documentation. */
+  /** Builds a report counting passed and failed outcomes and computing the pass rate. */
   public static GoldenSuiteReport of(List<CaseEvalOutcome> outcomes) {
     List<CaseEvalOutcome> cases = outcomes == null ? List.of() : List.copyOf(outcomes);
     int total = cases.size();

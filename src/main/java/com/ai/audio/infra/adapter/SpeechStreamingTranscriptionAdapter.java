@@ -32,7 +32,6 @@ public class SpeechStreamingTranscriptionAdapter implements StreamingTranscripti
   private final ObjectMapper objectMapper;
   private final Map<String, WebSocketSession> upstreamByClient = new ConcurrentHashMap<>();
 
-  /** Documentation. */
   public SpeechStreamingTranscriptionAdapter(
       @Value("${app.asr.speech.base-url:${EXPLORE_ML_API_URL:http://localhost:8000}}")
           String baseUrl,

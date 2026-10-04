@@ -11,17 +11,15 @@ public class ClientIdentityCookieFactory {
 
   private final ClientIdentityProperties properties;
 
-  /** Documentation. */
   public ClientIdentityCookieFactory(ClientIdentityProperties properties) {
     this.properties = properties;
   }
 
-  /** Documentation. */
   public String cookieName() {
     return properties.getCookieName();
   }
 
-  /** Documentation. */
+  /** Creates an HttpOnly cookie carrying the client id with the configured lifetime and flags. */
   public ResponseCookie issue(String clientId) {
     return ResponseCookie.from(properties.getCookieName(), clientId)
         .httpOnly(true)
@@ -32,7 +30,7 @@ public class ClientIdentityCookieFactory {
         .build();
   }
 
-  /** Documentation. */
+  /** Creates an empty, immediately expiring cookie that removes the client identity. */
   public ResponseCookie clear() {
     return ResponseCookie.from(properties.getCookieName(), "")
         .httpOnly(true)
@@ -43,7 +41,6 @@ public class ClientIdentityCookieFactory {
         .build();
   }
 
-  /** Documentation. */
   public String newClientId() {
     return UUID.randomUUID().toString();
   }

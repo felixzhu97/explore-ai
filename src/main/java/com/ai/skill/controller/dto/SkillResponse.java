@@ -4,7 +4,6 @@ import com.ai.skill.domain.model.Skill;
 import java.time.Instant;
 import java.util.List;
 
-/** Documentation. */
 public record SkillResponse(
     String id,
     String name,
@@ -14,7 +13,7 @@ public record SkillResponse(
     boolean enabled,
     Instant createdAt,
     Instant updatedAt) {
-  /** Documentation. */
+  /** Maps a {@code Skill} aggregate to its API response. */
   public static SkillResponse from(Skill skill) {
     return new SkillResponse(
         skill.getId().value(),

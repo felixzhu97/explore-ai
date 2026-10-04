@@ -30,7 +30,6 @@ public class MetricsAdminAuthFilter extends OncePerRequestFilter {
 
   private final MetricsAdminProperties properties;
 
-  /** Documentation. */
   public MetricsAdminAuthFilter(MetricsAdminProperties properties) {
     this.properties = properties;
   }

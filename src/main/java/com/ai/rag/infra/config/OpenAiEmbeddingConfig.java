@@ -34,7 +34,6 @@ public class OpenAiEmbeddingConfig {
   @Value("${app.rag.embedding.model:text-embedding-3-small}")
   private String model;
 
-  /** Documentation. */
   @Bean
   @NonNull
   public EmbeddingModel embeddingModel() {

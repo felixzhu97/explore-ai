@@ -58,7 +58,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
     this.toolKeys = copyToolKeys(toolKeys);
   }
 
-  /** Documentation. */
+  /** Creates an enabled agent with a new id after validating its type key. */
   public static SavedAgentDefinition create(
       String ownerKey,
       String typeKey,
@@ -80,7 +80,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
         now);
   }
 
-  /** Documentation. */
+  /** Replaces name, description, system prompt and tools, bumping the update timestamp. */
   public SavedAgentDefinition update(
       String name, String description, String systemPrompt, List<String> toolKeys) {
     rename(name);
@@ -91,7 +91,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
     return this;
   }
 
-  /** Documentation. */
+  /** Converts this saved entry into a single-runtime agent definition for the registry. */
   public AgentDefinition toAgentDefinition() {
     return AgentDefinition.create(
         AgentType.of(typeKey),
@@ -102,7 +102,6 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
         AgentDefinition.RUNTIME_SINGLE);
   }
 
-  /** Documentation. */
   public List<String> getToolKeys() {
     return Collections.unmodifiableList(toolKeys == null ? List.of() : toolKeys);
   }

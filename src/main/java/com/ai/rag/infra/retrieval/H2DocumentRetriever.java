@@ -24,7 +24,6 @@ public class H2DocumentRetriever implements DocumentRetriever {
 
   private final DocumentSearchService documentSearchService;
 
-  /** Documentation. */
   public H2DocumentRetriever(DocumentSearchService documentSearchService) {
     this.documentSearchService = documentSearchService;
   }

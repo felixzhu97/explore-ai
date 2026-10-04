@@ -6,19 +6,16 @@ public class NameConflictException extends AbstractDomainException {
   private final String resourceType;
   private final String name;
 
-  /** Documentation. */
   public NameConflictException(String resourceType, String name) {
     super(resourceType + " name already exists: " + name);
     this.resourceType = resourceType;
     this.name = name;
   }
 
-  /** Documentation. */
   public String getResourceType() {
     return resourceType;
   }
 
-  /** Documentation. */
   public String getName() {
     return name;
   }

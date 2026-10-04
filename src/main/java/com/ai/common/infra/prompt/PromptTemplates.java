@@ -21,7 +21,6 @@ public class PromptTemplates {
   private final PromptTemplate questionAnswerTemplate;
   private final String afterToolsReminder;
 
-  /** Documentation. */
   public PromptTemplates() {
     this.sharedStyle = ClasspathPromptLoader.load("shared/style-minimal.st");
     String gfm = ClasspathPromptLoader.load("shared/format-gfm.st");
@@ -67,25 +66,22 @@ public class PromptTemplates {
     return ragSystemPrompt;
   }
 
-  /** Documentation. */
   public String buildSummarizationPrompt(String text) {
     log.debug("Building summarization prompt for text of length: {}", text.length());
     return summarizationTemplate.render(Map.of("text", text));
   }
 
-  /** Documentation. */
   public String buildTranslationPrompt(String text, String targetLanguage) {
     log.debug("Building translation prompt to {}", targetLanguage);
     return translationTemplate.render(Map.of("text", text, "targetLanguage", targetLanguage));
   }
 
-  /** Documentation. */
   public String buildQuestionAnswerPrompt(String context, String question) {
     log.debug("Building Q&A prompt with context length: {}", context.length());
     return questionAnswerTemplate.render(Map.of("context", context, "question", question));
   }
 
-  /** Documentation. */
+  /** Returns the default system prompt with any custom instructions appended. */
   public String buildCustomSystemPrompt(String customInstructions) {
     if (customInstructions == null || customInstructions.isEmpty()) {
       return defaultSystemPrompt;
@@ -93,7 +89,6 @@ public class PromptTemplates {
     return defaultSystemPrompt + "\n\n" + customInstructions;
   }
 
-  /** Documentation. */
   public String loadAgentSystemPrompt(String agentKey) {
     String body = ClasspathPromptLoader.load("agent/" + agentKey + ".st");
     return ClasspathPromptLoader.joinSections(body, sharedStyle);

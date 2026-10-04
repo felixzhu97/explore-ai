@@ -5,13 +5,12 @@ import com.ai.common.domain.vo.OwnerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Documentation. */
+/** Moves a guest client's owner-partitioned data to the signed-in account's partition. */
 @Service
 public class OwnerMergeUseCaseImpl implements OwnerMergeUseCase {
 
   private final OwnerPartitionRepository ownerPartitionRepository;
 
-  /** Documentation. */
   public OwnerMergeUseCaseImpl(OwnerPartitionRepository ownerPartitionRepository) {
     this.ownerPartitionRepository = ownerPartitionRepository;
   }

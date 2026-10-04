@@ -3,13 +3,12 @@ package com.ai.audio.infra.config;
 import com.ai.audio.domain.repository.TtsConfiguration;
 import org.springframework.stereotype.Component;
 
-/** Documentation. */
+/** Exposes {@code TtsProperties} to the audio domain as a {@code TtsConfiguration}. */
 @Component
 public class TtsConfigurationAdapter implements TtsConfiguration {
 
   private final TtsProperties ttsProperties;
 
-  /** Documentation. */
   public TtsConfigurationAdapter(TtsProperties ttsProperties) {
     this.ttsProperties = ttsProperties;
   }

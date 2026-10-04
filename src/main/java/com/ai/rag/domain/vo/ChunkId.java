@@ -10,17 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class ChunkId extends AbstractUuidId {
 
-  /** Documentation. */
   public ChunkId(String value) {
     super(value);
   }
 
-  /** Documentation. */
   public static ChunkId of(String value) {
     return new ChunkId(value);
   }
 
-  /** Documentation. */
   public static ChunkId generate() {
     return new ChunkId(newUuidString());
   }

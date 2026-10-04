@@ -1,8 +1,7 @@
 package com.ai.vision.domain.exception;
 
-/** Documentation. */
+/** Thrown when the OCR engine fails while extracting text from an image. */
 public class VisionOcrException extends RuntimeException {
-  /** Documentation. */
   public VisionOcrException(String message, Throwable cause) {
     super(message, cause);
   }

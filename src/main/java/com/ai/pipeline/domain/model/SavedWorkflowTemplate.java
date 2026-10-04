@@ -60,7 +60,7 @@ public class SavedWorkflowTemplate
     this.sourceTemplateId = normalizeSourceTemplateId(sourceTemplateId);
   }
 
-  /** Documentation. */
+  /** Creates an enabled template with a new id, optionally linked to its catalog source. */
   public static SavedWorkflowTemplate create(
       String ownerKey,
       String name,
@@ -84,7 +84,7 @@ public class SavedWorkflowTemplate
         now);
   }
 
-  /** Documentation. */
+  /** Replaces the editable fields, normalizing agent types and bumping the update timestamp. */
   public SavedWorkflowTemplate update(
       String name,
       String description,
@@ -100,7 +100,6 @@ public class SavedWorkflowTemplate
     return this;
   }
 
-  /** Documentation. */
   public List<String> getAgentTypes() {
     return Collections.unmodifiableList(agentTypes == null ? List.of() : agentTypes);
   }

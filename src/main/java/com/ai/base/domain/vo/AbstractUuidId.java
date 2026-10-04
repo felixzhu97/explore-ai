@@ -17,12 +17,10 @@ public abstract class AbstractUuidId implements EntityId {
   @Column(name = "id", nullable = false)
   protected UUID value;
 
-  /** Documentation. */
   protected AbstractUuidId(String value) {
     this.value = UUID.fromString(requireUuid(value));
   }
 
-  /** Documentation. */
   protected static String requireUuid(String value) {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException("Id value cannot be null or blank");
@@ -32,12 +30,10 @@ public abstract class AbstractUuidId implements EntityId {
     return trimmed;
   }
 
-  /** Documentation. */
   protected static String newUuidString() {
     return UUID.randomUUID().toString();
   }
 
-  /** Documentation. */
   public UUID asUuid() {
     return value;
   }

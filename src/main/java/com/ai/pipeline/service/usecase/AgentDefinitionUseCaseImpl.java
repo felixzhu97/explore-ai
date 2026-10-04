@@ -8,13 +8,12 @@ import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-/** Documentation. */
+/** Manages a client's saved agent library, enforcing unique type keys per client. */
 @Service
 public class AgentDefinitionUseCaseImpl implements AgentDefinitionUseCase {
 
   private final SavedAgentRepository repository;
 
-  /** Documentation. */
   public AgentDefinitionUseCaseImpl(SavedAgentRepository repository) {
     this.repository = repository;
   }

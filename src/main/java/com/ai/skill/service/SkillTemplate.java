@@ -1,6 +1,5 @@
 package com.ai.skill.service;
 
-/** Documentation. */
 public record SkillTemplate(
     String id,
     String name,

@@ -65,37 +65,31 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return title.trim();
   }
 
-  /** Documentation. */
   public static ChatSession create(String title, String clientId) {
     return new ChatSession(ChatSessionId.generate(), title, Instant.now(), parseOwnerKey(clientId));
   }
 
-  /** Documentation. */
   public static ChatSession createWithId(ChatSessionId id, String title, String clientId) {
     return new ChatSession(id, title, Instant.now(), parseOwnerKey(clientId));
   }
 
-  /** Documentation. */
   public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String clientId) {
     return new ChatSession(id, title, createdAt, parseOwnerKey(clientId));
   }
 
-  /** Documentation. */
   public Instant getLastActivityAt() {
     return getUpdatedAt();
   }
 
-  /** Documentation. */
   public boolean belongsTo(String otherClientId) {
     return belongsToClient(otherClientId);
   }
 
-  /** Documentation. */
   public boolean hasDefaultTitle() {
     return DEFAULT_TITLE.equals(title);
   }
 
-  /** Documentation. */
+  /** Renames the session, ignoring blank titles and truncating to 100 characters. */
   public void rename(String newTitle) {
     if (newTitle == null || newTitle.isBlank()) {
       return;
@@ -104,7 +98,7 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     updateLastActivity();
   }
 
-  /** Documentation. */
+  /** Appends a new user message and records activity. */
   public ChatMessage addUserMessage(String text) {
     ChatMessage message = ChatMessage.createUserMessage(text);
     messages.add(message);
@@ -112,7 +106,7 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return message;
   }
 
-  /** Documentation. */
+  /** Appends a new assistant message and records activity. */
   public ChatMessage addAssistantMessage(String text) {
     ChatMessage message = ChatMessage.createAssistantMessage(text);
     messages.add(message);
@@ -120,32 +114,26 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return message;
   }
 
-  /** Documentation. */
   public List<ChatMessage> getMessages() {
     return Collections.unmodifiableList(messages);
   }
 
-  /** Documentation. */
   public int getMessageCount() {
     return messages.size();
   }
 
-  /** Documentation. */
   public int getUserMessageCount() {
     return (int) messages.stream().filter(ChatMessage::isFromUser).count();
   }
 
-  /** Documentation. */
   public int getAssistantMessageCount() {
     return (int) messages.stream().filter(ChatMessage::isFromAssistant).count();
   }
 
-  /** Documentation. */
   public ChatMessage getLastUserMessage() {
     return getLastMessageByRole(ChatMessage::isFromUser);
   }
 
-  /** Documentation. */
   public ChatMessage getLastAssistantMessage() {
     return getLastMessageByRole(ChatMessage::isFromAssistant);
   }
@@ -154,7 +142,7 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return messages.stream().filter(filter).reduce((first, second) -> second).orElse(null);
   }
 
-  /** Documentation. */
+  /** Returns an unmodifiable view of the last {@code count} messages, or empty if non-positive. */
   public List<ChatMessage> getRecentMessages(int count) {
     if (count <= 0) {
       return Collections.emptyList();
@@ -164,18 +152,16 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return Collections.unmodifiableList(messages.subList(start, size));
   }
 
-  /** Documentation. */
   public boolean isEmpty() {
     return messages.isEmpty();
   }
 
-  /** Documentation. */
   public void clearMessages() {
     messages.clear();
     updateLastActivity();
   }
 
-  /** Documentation. */
+  /** Replaces all transient messages with the given list and records activity. */
   public void replaceMessages(List<ChatMessage> newMessages) {
     messages.clear();
     if (newMessages != null) {

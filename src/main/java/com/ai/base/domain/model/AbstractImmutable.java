@@ -23,7 +23,6 @@ public abstract class AbstractImmutable<IdT extends AbstractUuidId> {
   @Column(nullable = false, updatable = false)
   protected Instant createdAt;
 
-  /** Documentation. */
   protected AbstractImmutable(IdT id, Instant createdAt) {
     this.id = Objects.requireNonNull(id, "id cannot be null");
     this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");

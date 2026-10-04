@@ -21,7 +21,6 @@ public class DocumentRepository implements IDocumentRepository {
 
   private final OwnerPartitionScope ownerPartition;
 
-  /** Documentation. */
   public DocumentRepository(
       SpringDataDocumentRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;

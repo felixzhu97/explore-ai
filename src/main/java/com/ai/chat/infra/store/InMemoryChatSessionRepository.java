@@ -64,7 +64,6 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
     storage.clear();
   }
 
-  /** Documentation. */
   public int size() {
     return storage.size();
   }

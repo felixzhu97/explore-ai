@@ -31,13 +31,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-/** Documentation. */
+/** Maps domain, validation, and infrastructure exceptions to HTTP statuses and error bodies. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-  /** Documentation. */
   @ExceptionHandler(ChatSessionNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSessionNotFound(ChatSessionNotFoundException e) {
     log.warn("Session not found: {}", LogSanitizer.fingerprint(e.getSessionId()));
@@ -45,7 +44,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of("Session not found", "SESSION_NOT_FOUND"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(ClientIdentityRequiredException.class)
   public ResponseEntity<ErrorResponse> handleClientIdentityRequired(
       ClientIdentityRequiredException e) {
@@ -54,7 +52,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(SkillNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSkillNotFound(SkillNotFoundException e) {
     log.warn("Skill not found: {}", e.getSkillId());
@@ -62,7 +59,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "SKILL_NOT_FOUND"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(SkillNameConflictException.class)
   public ResponseEntity<ErrorResponse> handleSkillNameConflict(SkillNameConflictException e) {
     log.warn("Skill name conflict: {}", e.getName());
@@ -70,7 +66,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "SKILL_NAME_CONFLICT"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(WorkflowTemplateNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleWorkflowTemplateNotFound(
       WorkflowTemplateNotFoundException e) {
@@ -79,7 +74,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NOT_FOUND"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(WorkflowTemplateNameConflictException.class)
   public ResponseEntity<ErrorResponse> handleWorkflowTemplateNameConflict(
       WorkflowTemplateNameConflictException e) {
@@ -88,7 +82,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NAME_CONFLICT"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(SavedAgentNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSavedAgentNotFound(SavedAgentNotFoundException e) {
     log.warn("Saved agent not found: {}", e.getMessage());
@@ -96,7 +89,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_NOT_FOUND"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(AutomationScheduleNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleAutomationScheduleNotFound(
       AutomationScheduleNotFoundException e) {
@@ -105,7 +97,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_SCHEDULE_NOT_FOUND"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(AutomationLimitExceededException.class)
   public ResponseEntity<ErrorResponse> handleAutomationLimitExceeded(
       AutomationLimitExceededException e) {
@@ -114,7 +105,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_LIMIT_EXCEEDED"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(SavedAgentTypeConflictException.class)
   public ResponseEntity<ErrorResponse> handleSavedAgentTypeConflict(
       SavedAgentTypeConflictException e) {
@@ -123,7 +113,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_TYPE_CONFLICT"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(AiServiceException.class)
   public ResponseEntity<ErrorResponse> handleAiServiceError(AiServiceException e) {
     log.error("AI service error: {}", e.getMessage(), e);
@@ -131,7 +120,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of("AI service error: " + e.getMessage(), e.getErrorCode()));
   }
 
-  /** Documentation. */
   @ExceptionHandler(DocumentNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleDocumentNotFound(DocumentNotFoundException e) {
     log.warn("Document not found: {}", e.getMessage());
@@ -139,7 +127,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_NOT_FOUND"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(VisionProviderUnavailableException.class)
   public ResponseEntity<ErrorResponse> handleVisionProviderUnavailable(
       VisionProviderUnavailableException e) {
@@ -148,14 +135,12 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "VISION_PROVIDER_UNAVAILABLE"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(VisionInvalidFileException.class)
   public ResponseEntity<ErrorResponse> handleVisionInvalidFile(VisionInvalidFileException e) {
     log.warn("Invalid vision input: {}", e.getMessage());
     return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage(), "INVALID_FILE"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(VisionOcrException.class)
   public ResponseEntity<ErrorResponse> handleVisionOcrError(VisionOcrException e) {
     log.error("OCR failed: {}", e.getMessage(), e);
@@ -163,7 +148,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "OCR_FAILED"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(RagServiceException.class)
   public ResponseEntity<ErrorResponse> handleRagServiceError(RagServiceException e) {
     log.error("RAG service error: {}", e.getMessage(), e);
@@ -171,7 +155,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of("RAG service error: " + e.getMessage(), "RAG_SERVICE_ERROR"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(ImageProviderNotConfiguredException.class)
   public ResponseEntity<ErrorResponse> handleImageProviderNotConfigured(
       ImageProviderNotConfiguredException e) {
@@ -180,7 +163,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "IMAGE_PROVIDER_NOT_CONFIGURED"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(TtsProviderNotConfiguredException.class)
   public ResponseEntity<ErrorResponse> handleTtsProviderNotConfigured(
       TtsProviderNotConfiguredException e) {
@@ -189,7 +171,6 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "TTS_PROVIDER_NOT_CONFIGURED"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException e) {
     String message =
@@ -200,14 +181,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
     log.warn("Illegal argument: {}", e.getMessage());
     return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage(), "BAD_REQUEST"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(MaxUploadSizeExceededException.class)
   public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(
       MaxUploadSizeExceededException e) {
@@ -219,7 +198,6 @@ public class GlobalExceptionHandler {
                 "Uploaded file exceeds the maximum allowed size of " + limit, "FILE_TOO_LARGE"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(DataAccessException.class)
   public ResponseEntity<ErrorResponse> handleDataAccessError(DataAccessException e) {
     log.error("Database error during chat operation", e);
@@ -229,7 +207,6 @@ public class GlobalExceptionHandler {
                 "Chat memory storage is temporarily unavailable", "CHAT_MEMORY_ERROR"));
   }
 
-  /** Documentation. */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
     log.error("Unexpected error", e);

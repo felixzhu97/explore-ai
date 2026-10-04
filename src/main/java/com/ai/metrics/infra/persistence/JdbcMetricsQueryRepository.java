@@ -12,13 +12,12 @@ import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-/** Documentation. */
+/** JDBC repository that aggregates invocation, chat, and RAG metrics with SQL queries. */
 @Repository
 public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   private final JdbcTemplate jdbcTemplate;
 
-  /** Documentation. */
   public JdbcMetricsQueryRepository(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }

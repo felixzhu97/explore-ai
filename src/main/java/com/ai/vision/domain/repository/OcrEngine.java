@@ -3,11 +3,9 @@ package com.ai.vision.domain.repository;
 import com.ai.vision.domain.model.OcrResult;
 import java.awt.image.BufferedImage;
 
-/** Documentation. */
+/** Extracts text from images and reports whether the OCR backend is usable. */
 public interface OcrEngine {
-  /** Documentation. */
   OcrResult extract(BufferedImage image);
 
-  /** Documentation. */
   boolean isAvailable();
 }

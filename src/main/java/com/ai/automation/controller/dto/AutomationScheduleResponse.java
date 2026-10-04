@@ -4,7 +4,6 @@ import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.vo.ScheduleKind;
 import java.time.Instant;
 
-/** Documentation. */
 public record AutomationScheduleResponse(
     String id,
     String name,
@@ -21,7 +20,7 @@ public record AutomationScheduleResponse(
     Instant lastRunAt,
     Instant createdAt,
     Instant updatedAt) {
-  /** Documentation. */
+  /** Builds a response from a schedule, exposing {@code runAt} only for pending one-off runs. */
   public static AutomationScheduleResponse from(AutomationSchedule schedule) {
     Instant runAt = null;
     if (schedule.getScheduleKind() == ScheduleKind.ONCE
