@@ -55,7 +55,7 @@ package "Domain Kernel" as pkg_base {
     --
     +touchUpdatedAt()
   }
-  class AbstractImmutable <<Abstract>> {
+  class AbstractImmutableEntity <<Abstract>> {
     +id: IdT
     +createdAt: Instant
   }
@@ -66,7 +66,7 @@ package "Domain Kernel" as pkg_base {
 
 EntityId <|.. AbstractUuidId
 AbstractUuidId --> AbstractEntity : embedded id
-AbstractUuidId --> AbstractImmutable : embedded id
+AbstractUuidId --> AbstractImmutableEntity : embedded id
 
 ' ── Common (owner-keyed bases) ─────────────────────────────
 package "Common" as pkg_common_kernel {
@@ -130,8 +130,8 @@ AbstractEntity <|-- AbstractOwnerKeyedEntity
 AbstractOwnerKeyedEntity <|-- AbstractNamedOwnerEntity
 AbstractNamedOwnerEntity <|-- AbstractEnableableNamedOwnerEntity
 AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
-AbstractImmutable <|-- AbstractAppendOnlyEvent
-AbstractImmutable <|-- AbstractTimedRunEntity
+AbstractImmutableEntity <|-- AbstractAppendOnlyEvent
+AbstractImmutableEntity <|-- AbstractTimedRunEntity
 AbstractOwnerKeyedEntity --> OwnerKey
 AbstractOwnerKeyedEntity ..> OwnerPartition : filtered by
 
@@ -186,7 +186,7 @@ ChatMessage --> ChatMessageType
 
 ' ── rag ────────────────────────────────────────────────────
 package "RAG" as pkg_rag {
-  class Document <<AggregateRoot>> {
+  class RagDocument <<AggregateRoot>> {
     +id: DocumentId
     +ownerKey: OwnerKey
     +title: String
@@ -221,8 +221,8 @@ package "RAG" as pkg_rag {
   }
 }
 
-Document "1" *-- "0..*" DocumentChunk
-Document --> DocumentStatus
+RagDocument "1" *-- "0..*" DocumentChunk
+RagDocument --> DocumentStatus
 
 ' ── pipeline + skill ───────────────────────────────────────
 package "Pipeline" as pkg_pipeline {
@@ -237,11 +237,11 @@ package "Pipeline" as pkg_pipeline {
     +type: AgentType
     +systemPrompt: String
   }
-  class SavedWorkflowTemplate <<Entity>> {
-    +id: WorkflowTemplateId
+  class PipelineTemplate <<Entity>> {
+    +id: PipelineTemplateId
     +name: String
   }
-  class SavedAgentDefinition <<Entity>> {
+  class SavedAgent <<Entity>> {
     +id: SavedAgentId
     +typeKey: String
   }
@@ -274,7 +274,7 @@ package "Automation" as pkg_automation {
     @DynamicUpdate
     +id: ScheduleId
     +kind: ScheduleKind
-    +workflowTemplateId: WorkflowTemplateId
+    +pipelineTemplateId: PipelineTemplateId
     +enabled: boolean
     --
     +{static} create(...)
@@ -372,10 +372,10 @@ note as KERNEL_NOTE
 end note
 
 AbstractOwnerKeyedEntity <|-- ChatSession : metadata only
-AbstractOwnerKeyedEntity <|-- Document
+AbstractOwnerKeyedEntity <|-- RagDocument
 AbstractEnableableDescribedOwnerEntity <|-- Skill
-AbstractEnableableDescribedOwnerEntity <|-- SavedWorkflowTemplate
-AbstractEnableableDescribedOwnerEntity <|-- SavedAgentDefinition
+AbstractEnableableDescribedOwnerEntity <|-- PipelineTemplate
+AbstractEnableableDescribedOwnerEntity <|-- SavedAgent
 AbstractEnableableNamedOwnerEntity <|-- AutomationSchedule
 AbstractTimedRunEntity <|-- AutomationRun
 AbstractEntity <|-- AccountUser
@@ -385,11 +385,11 @@ ClientIdOwnedNamedRepository <|-- SkillRepository
 ClientIdOwnedNamedRepository <|-- WorkflowTemplateRepository
 
 ChatSession ..> OwnerKey : owned by
-Document ..> OwnerKey : owned by
+RagDocument ..> OwnerKey : owned by
 Skill ..> OwnerKey : owned by
 AccountUser ..> OwnerKey : links browser
 AiInvocationEvent ..> OwnerKey : attributed to
-AutomationSchedule ..> SavedWorkflowTemplate : by id (WorkflowTemplateId)
+AutomationSchedule ..> PipelineTemplate : by id (PipelineTemplateId)
 AutomationRun ..> OwnerPartition : filtered by
 
 N_LAYERS .. pkg_chat
