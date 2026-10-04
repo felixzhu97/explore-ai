@@ -1,7 +1,8 @@
 package com.ai.audio.infra.asr;
 
+import com.ai.audio.controller.dto.TranscriptionResponse;
+import com.ai.audio.controller.dto.TranscriptionResponse.TranscriptionType;
 import com.ai.audio.domain.repository.StreamingTranscriptionGateway;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
 
   @Override
   public void sendError(WebSocketSession session, String text) {
-    sendMessage(session, "error", text);
+    send(session, TranscriptionResponse.error(text));
   }
 
   private void forwardControl(
@@ -116,20 +117,14 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
 
   private void relayUpstream(WebSocketSession client, StringBuilder transcript, String payload) {
     try {
-      Map<String, String> message = objectMapper.readValue(payload, new TypeReference<>() {});
-      String type = message.getOrDefault("type", "");
-      String text = message.getOrDefault("text", "");
-      if ("partial".equals(type) || "final".equals(type)) {
-        if (text != null && !text.isBlank()) {
-          synchronized (transcript) {
-            transcript.setLength(0);
-            transcript.append(text);
-          }
+      TranscriptionResponse frame = objectMapper.readValue(payload, TranscriptionResponse.class);
+      if (frame.type() != TranscriptionType.ERROR && !frame.text().isBlank()) {
+        synchronized (transcript) {
+          transcript.setLength(0);
+          transcript.append(frame.text());
         }
       }
-      if (client.isOpen()) {
-        client.sendMessage(new TextMessage(payload));
-      }
+      send(client, frame);
     } catch (Exception e) {
       log.warn("Failed to relay speech ASR frame", e);
       sendError(client, "Transcription relay failed");
@@ -147,13 +142,12 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
     }
   }
 
-  private void sendMessage(WebSocketSession session, String type, String text) {
+  private void send(WebSocketSession session, TranscriptionResponse frame) {
     if (!session.isOpen()) {
       return;
     }
     try {
-      String json = objectMapper.writeValueAsString(Map.of("type", type, "text", text));
-      session.sendMessage(new TextMessage(json));
+      session.sendMessage(new TextMessage(objectMapper.writeValueAsString(frame)));
     } catch (Exception e) {
       log.error("Error sending WebSocket message", e);
     }

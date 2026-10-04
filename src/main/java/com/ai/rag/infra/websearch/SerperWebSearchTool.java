@@ -2,10 +2,10 @@ package com.ai.rag.infra.websearch;
 
 import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.common.service.llm.WebSourcesEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -107,25 +107,21 @@ public class SerperWebSearchTool implements WebSearchTool {
   }
 
   private void publishSources(String query, List<SerperResponse.OrganicResult> results) {
-    List<Map<String, String>> items = new ArrayList<>();
+    List<WebSourcesEvent.Source> items = new ArrayList<>();
     if (results != null) {
       for (SerperResponse.OrganicResult result : results) {
-        Map<String, String> item = new LinkedHashMap<>();
-        item.put("title", result.title() == null ? "" : result.title());
-        item.put("url", result.link() == null ? "" : result.link());
-        item.put("snippet", result.snippet() == null ? "" : result.snippet());
-        if (result.date() != null && !result.date().isBlank()) {
-          item.put("publishedAt", result.date().trim());
-        }
-        items.add(item);
+        String date =
+            result.date() == null || result.date().isBlank() ? null : result.date().trim();
+        items.add(
+            new WebSourcesEvent.Source(
+                result.title() == null ? "" : result.title(),
+                result.link() == null ? "" : result.link(),
+                result.snippet() == null ? "" : result.snippet(),
+                date));
       }
     }
-    Map<String, Object> payload = new LinkedHashMap<>();
-    payload.put("type", "sources");
-    payload.put("query", query);
-    payload.put("items", items);
     try {
-      ToolEventChannel.publish(JSON.writeValueAsString(payload));
+      ToolEventChannel.publish(JSON.writeValueAsString(WebSourcesEvent.of(query, items)));
     } catch (JsonProcessingException e) {
       log.warn("Failed to publish search sources event", e);
     }

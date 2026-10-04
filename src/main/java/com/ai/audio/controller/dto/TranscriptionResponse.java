@@ -1,9 +1,54 @@
 package com.ai.audio.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Locale;
+
 /**
- * Transcription result from ASR service.
+ * WebSocket frame sent to the transcription client.
  *
- * @param type Result type: partial or final
- * @param text Transcribed text
+ * @param text transcript so far for {@code partial}/{@code final}, or the failure message
  */
-public record TranscriptionResponse(String type, String text) {}
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record TranscriptionResponse(TranscriptionType type, String text) {
+
+  /** Normalizes a missing text to empty. */
+  public TranscriptionResponse {
+    text = text == null ? "" : text;
+  }
+
+  public static TranscriptionResponse error(String text) {
+    return new TranscriptionResponse(TranscriptionType.ERROR, text);
+  }
+
+  /** Kind of transcription frame. */
+  public enum TranscriptionType {
+    PARTIAL("partial"),
+    FINAL("final"),
+    ERROR("error");
+
+    private final String value;
+
+    TranscriptionType(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String value() {
+      return value;
+    }
+
+    /** Parses a wire value case-insensitively; rejects unknown frame kinds. */
+    @JsonCreator
+    public static TranscriptionType from(String raw) {
+      String normalized = raw == null ? "" : raw.trim().toLowerCase(Locale.ROOT);
+      for (TranscriptionType type : values()) {
+        if (type.value.equals(normalized)) {
+          return type;
+        }
+      }
+      throw new IllegalArgumentException("Unknown transcription type: " + raw);
+    }
+  }
+}

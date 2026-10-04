@@ -1,9 +1,9 @@
 package com.ai.common.infra.llm;
 
+import com.ai.common.service.llm.ToolCallEvent;
+import com.ai.common.service.llm.ToolResultEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
@@ -44,27 +44,15 @@ public final class NotifyingToolCallback implements ToolCallback {
     ToolEventChannel.setCurrentSessionId(conversationId);
     try {
       String name = getToolDefinition().name();
-      ToolEventChannel.publish(
-          toJson(
-              Map.of(
-                  "type", "tool_call", "name", name, "input", toolInput == null ? "" : toolInput)));
+      ToolEventChannel.publish(toJson(ToolCallEvent.of(name, toolInput)));
       try {
         String result =
             toolContext == null ? delegate.call(toolInput) : delegate.call(toolInput, toolContext);
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("type", "tool_result");
-        payload.put("name", name);
-        payload.put("ok", true);
-        payload.put("output", truncate(result));
-        ToolEventChannel.publish(toJson(payload));
+        ToolEventChannel.publish(toJson(ToolResultEvent.success(name, truncate(result))));
         return result;
       } catch (RuntimeException e) {
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("type", "tool_result");
-        payload.put("name", name);
-        payload.put("ok", false);
-        payload.put("output", e.getMessage() == null ? "tool failed" : e.getMessage());
-        ToolEventChannel.publish(toJson(payload));
+        String message = e.getMessage() == null ? "tool failed" : e.getMessage();
+        ToolEventChannel.publish(toJson(ToolResultEvent.failure(name, message)));
         throw e;
       }
     } finally {
@@ -79,7 +67,7 @@ public final class NotifyingToolCallback implements ToolCallback {
     return value.length() <= 500 ? value : value.substring(0, 500) + "...";
   }
 
-  private static String toJson(Map<String, ?> payload) {
+  private static String toJson(Record payload) {
     try {
       return JSON.writeValueAsString(payload);
     } catch (JsonProcessingException e) {
