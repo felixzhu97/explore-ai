@@ -60,7 +60,7 @@ export class MetricsOverviewPageComponent {
     if (!overview) {
       return [];
     }
-    const kpi = this.i18n.t().metricsPage.kpi;
+    const kpi = this.i18n.t().metrics.kpi;
     const chat = overview.domains['chat'] as { sessionCount?: number } | undefined;
     const rag = overview.domains['rag'] as { documentCount?: number } | undefined;
     const tokenTotal = (overview.promptTokens ?? 0) + (overview.completionTokens ?? 0);
@@ -110,7 +110,7 @@ export class MetricsOverviewPageComponent {
     if (!overview) {
       return [];
     }
-    const health = this.i18n.t().metricsPage.health;
+    const health = this.i18n.t().metrics.health;
     const agents = overview.domains['agents'] as {
       status?: string;
       agentCount?: number;

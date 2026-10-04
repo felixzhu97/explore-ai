@@ -43,13 +43,15 @@ describe('RagService', () => {
           provide: I18nService,
           useValue: {
             t: () => ({
-              common: { loadFailed: 'load failed' },
-              ragChat: {
+              common: { errors: { loadFailed: 'load failed' } },
+              rag: {
                 documentDeleted: 'deleted',
-                deleteFailed: 'delete failed',
                 fileSelected: '{count} files',
                 uploadSuccess: '{name} ok',
-                uploadFailed: '{name} fail',
+                errors: {
+                  deleteFailed: 'delete failed',
+                  uploadFailed: '{name} fail',
+                },
               },
             }),
           },

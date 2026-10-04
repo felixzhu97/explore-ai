@@ -20,7 +20,7 @@
   >
     <div class="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 px-3 py-2.5">
       <div class="flex min-w-0 items-center gap-2">
-        <h2 class="truncate text-sm font-semibold text-text">{{ i18n.t().ragChat.documents }}</h2>
+        <h2 class="truncate text-sm font-semibold text-text">{{ i18n.t().rag.documents }}</h2>
         <z-badge zType="secondary">{{ ragService.availableDocuments().length }}</z-badge>
       </div>
       <div class="flex shrink-0 items-center gap-0.5">
@@ -30,8 +30,8 @@
           zType="ghost"
           zSize="icon"
           [disabled]="ragService.isUploading()"
-          [attr.title]="i18n.t().ragChat.uploadDocs"
-          [attr.aria-label]="i18n.t().ragChat.uploadDocs"
+          [attr.title]="i18n.t().rag.uploadDocuments"
+          [attr.aria-label]="i18n.t().rag.uploadDocuments"
           (click)="docInput.click()"
         >
           <ng-icon name="lucideUpload" class="size-4!" />
@@ -42,8 +42,8 @@
           zType="ghost"
           zSize="icon"
           (click)="ragService.selectAllDocuments()"
-          [attr.title]="i18n.t().ragChat.selectAll"
-          [attr.aria-label]="i18n.t().ragChat.selectAll"
+          [attr.title]="i18n.t().rag.selectAll"
+          [attr.aria-label]="i18n.t().rag.selectAll"
         >
           <ng-icon name="lucideListChecks" class="size-4!" />
         </button>
@@ -53,8 +53,8 @@
           zType="ghost"
           zSize="icon"
           (click)="ragService.clearDocumentSelection()"
-          [attr.title]="i18n.t().ragChat.clearSelection"
-          [attr.aria-label]="i18n.t().ragChat.clearSelection"
+          [attr.title]="i18n.t().rag.clearSelection"
+          [attr.aria-label]="i18n.t().rag.clearSelection"
         >
           <ng-icon name="lucideX" class="size-4!" />
         </button>
@@ -64,8 +64,8 @@
           zType="ghost"
           zSize="icon"
           class="md:hidden"
-          [attr.title]="i18n.t().ragChat.hideDocuments"
-          [attr.aria-label]="i18n.t().ragChat.hideDocuments"
+          [attr.title]="i18n.t().rag.hideDocuments"
+          [attr.aria-label]="i18n.t().rag.hideDocuments"
           (click)="isDocumentPanelOpen.set(false)"
         >
           <ng-icon name="lucidePanelLeftClose" class="size-4!" />
@@ -89,8 +89,8 @@
                 zSize="icon"
                 class="size-5!"
                 [disabled]="ragService.isUploading()"
-                [attr.title]="i18n.t().ragChat.clearSelection"
-                [attr.aria-label]="i18n.t().ragChat.clearSelection"
+                [attr.title]="i18n.t().rag.clearSelection"
+                [attr.aria-label]="i18n.t().rag.clearSelection"
                 (click)="removePendingFile($index)"
               >
                 <ng-icon name="lucideX" class="size-3!" />
@@ -107,16 +107,16 @@
           [disabled]="ragService.isUploading()"
           (click)="uploadFiles()"
         >
-          {{ ragService.isUploading() ? i18n.t().ragChat.uploading : i18n.t().ragChat.upload }}
+          {{ ragService.isUploading() ? i18n.t().rag.uploading : i18n.t().rag.upload }}
         </button>
       </div>
     }
 
     <div class="min-h-0 flex-1 overflow-y-auto p-2">
       @if (ragService.isLoadingDocuments()) {
-        <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().ragChat.thinking }}</p>
+        <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().common.thinking }}</p>
       } @else if (ragService.availableDocuments().length === 0) {
-        <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().ragChat.noDocuments }}</p>
+        <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().rag.noDocuments }}</p>
       } @else {
         <ul class="flex flex-col gap-0.5" role="list">
           @for (doc of ragService.availableDocuments(); track doc.id) {
@@ -136,8 +136,8 @@
                 zSize="icon"
                 class="size-7!"
                 [disabled]="ragService.deletingDocumentIds().has(doc.id)"
-                [attr.title]="i18n.t().ragChat.deleteDocument"
-                [attr.aria-label]="i18n.t().ragChat.deleteDocument"
+                [attr.title]="i18n.t().rag.deleteDocument"
+                [attr.aria-label]="i18n.t().rag.deleteDocument"
                 (click)="deleteDocument(doc.id, $event)"
               >
                 <ng-icon name="lucideTrash2" class="size-3.5!" />
@@ -153,7 +153,7 @@
     <button
       type="button"
       class="absolute inset-0 z-10 bg-black/20 md:hidden"
-      [attr.aria-label]="i18n.t().ragChat.hideDocuments"
+      [attr.aria-label]="i18n.t().rag.hideDocuments"
       (click)="isDocumentPanelOpen.set(false)"
     ></button>
   }
@@ -167,30 +167,30 @@
         zType="ghost"
         zSize="sm"
         class="md:hidden"
-        [attr.title]="i18n.t().ragChat.showDocuments"
-        [attr.aria-label]="i18n.t().ragChat.showDocuments"
+        [attr.title]="i18n.t().rag.showDocuments"
+        [attr.aria-label]="i18n.t().rag.showDocuments"
         (click)="isDocumentPanelOpen.set(true)"
       >
         <ng-icon name="lucidePanelLeft" class="size-4!" />
-        <span class="ml-1">{{ i18n.t().ragChat.documentsShort }}</span>
+        <span class="ml-1">{{ i18n.t().rag.documentsShort }}</span>
       </button>
-      <h2 class="truncate text-base font-semibold text-text">{{ i18n.t().ragChat.title }}</h2>
+      <h2 class="truncate text-base font-semibold text-text">{{ i18n.t().rag.title }}</h2>
     </div>
 
     <app-chat-message-pane
       [messages]="bubbleMessages()"
       [streamingMessageIds]="ragService.streamingMessageIds()"
-      [thinkingLabel]="i18n.t().chat.thinking"
+      [thinkingLabel]="i18n.t().common.thinking"
       [footerLabels]="footerLabels()"
-      [welcomeTitle]="i18n.t().ragChat.title"
-      [welcomeDescription]="i18n.t().ragChat.askQuestion"
+      [welcomeTitle]="i18n.t().rag.title"
+      [welcomeDescription]="i18n.t().rag.askQuestion"
       [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
       [prompts]="ragPrompts()"
       (promptSelected)="onPromptSelect($event)"
     />
 
     <app-chat-sender-bar
-      [placeholder]="i18n.t().ragChat.inputPlaceholder"
+      [placeholder]="i18n.t().rag.inputPlaceholder"
       [(value)]="ragService.input"
       [isLoading]="ragService.isLoading()"
       (sent)="ragService.sendMessage()"

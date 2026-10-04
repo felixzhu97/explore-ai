@@ -114,9 +114,9 @@ export class MetricsDomainPageComponent {
   readonly title = computed(() => {
     const domain = this.domain();
     if (!domain) {
-      return this.i18n.t().metricsPage.unknownDomainTitle;
+      return this.i18n.t().metrics.unknownDomainTitle;
     }
-    const health = this.i18n.t().metricsPage.health;
+    const health = this.i18n.t().metrics.health;
     const labels: Partial<Record<MetricsDomain, string>> = {
       chat: health.chat,
       rag: health.rag,
@@ -128,17 +128,17 @@ export class MetricsDomainPageComponent {
   });
 
   readonly domainHeading = computed(() => {
-    const template = this.i18n.t().metricsPage.domainTitle;
+    const template = this.i18n.t().metrics.domainTitle;
     return this.i18n.tReplace(template, { domain: this.title() });
   });
 
   readonly dayFilterLabel = computed(() => {
-    const template = this.i18n.t().metricsPage.dayFilter;
+    const template = this.i18n.t().metrics.dayFilter;
     return this.i18n.tReplace(template, { day: this.day() ?? '' });
   });
 
   readonly modelFilterLabel = computed(() => {
-    const template = this.i18n.t().metricsPage.modelFilter;
+    const template = this.i18n.t().metrics.modelFilter;
     return this.i18n.tReplace(template, { model: this.model() ?? '' });
   });
 
@@ -147,7 +147,7 @@ export class MetricsDomainPageComponent {
     if (!snapshot) {
       return [];
     }
-    const kpi = this.i18n.t().metricsPage.kpi;
+    const kpi = this.i18n.t().metrics.kpi;
     return [
       {
         key: 'requests',

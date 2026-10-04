@@ -30,7 +30,7 @@ export class McpPageComponent implements OnInit {
   }
 
   toolsCountLabel(count: number): string {
-    return this.i18n.tReplace(this.i18n.t().mcpPage.toolsCount, { count });
+    return this.i18n.tReplace(this.i18n.t().mcp.toolsCount, { count });
   }
 
   loadDashboard(): void {
@@ -39,12 +39,12 @@ export class McpPageComponent implements OnInit {
 
     this.mcp.getHealth().subscribe({
       next: health => this.health.set(health),
-      error: () => this.error.set(this.i18n.t().mcpPage.errors.healthFailed),
+      error: () => this.error.set(this.i18n.t().mcp.errors.healthFailed),
     });
 
     this.mcp.getClientStatus().subscribe({
       next: status => this.clientStatus.set(status),
-      error: () => this.error.set(this.i18n.t().mcpPage.errors.clientStatusFailed),
+      error: () => this.error.set(this.i18n.t().mcp.errors.clientStatusFailed),
     });
 
     this.mcp.listTools().subscribe({
@@ -53,7 +53,7 @@ export class McpPageComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set(this.i18n.t().mcpPage.errors.toolsFailed);
+        this.error.set(this.i18n.t().mcp.errors.toolsFailed);
         this.isLoading.set(false);
       },
     });
@@ -73,7 +73,7 @@ export class McpPageComponent implements OnInit {
         this.isChatting.set(false);
       },
       error: () => {
-        this.error.set(this.i18n.t().mcpPage.errors.chatFailed);
+        this.error.set(this.i18n.t().mcp.errors.chatFailed);
         this.isChatting.set(false);
       },
     });

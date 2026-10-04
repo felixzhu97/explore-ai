@@ -79,7 +79,7 @@ export class AutomationsPageComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set(this.i18n.t().automationsPage.loadFailed);
+        this.error.set(this.i18n.t().automations.errors.loadFailed);
         this.isLoading.set(false);
       },
     });
@@ -160,21 +160,21 @@ export class AutomationsPageComponent implements OnInit {
     const email = this.formEmail().trim();
     const pipelineTemplateId = this.formTemplateId();
     const brief = this.formBrief().trim();
-    const t = this.i18n.t().automationsPage;
+    const t = this.i18n.t().automations;
     if (!name) {
-      this.notifications.showError(t.nameRequired);
+      this.notifications.showError(t.errors.nameRequired);
       return;
     }
     if (!email) {
-      this.notifications.showError(t.emailRequired);
+      this.notifications.showError(t.errors.emailRequired);
       return;
     }
     if (!pipelineTemplateId) {
-      this.notifications.showError(t.workflowRequired);
+      this.notifications.showError(t.errors.pipelineTemplateRequired);
       return;
     }
     if (!brief) {
-      this.notifications.showError(t.briefRequired);
+      this.notifications.showError(t.errors.briefRequired);
       return;
     }
     const preset = this.formPreset();
@@ -182,11 +182,11 @@ export class AutomationsPageComponent implements OnInit {
     if (preset === 'custom') {
       const runAt = this.formRunAt();
       if (!runAt || Number.isNaN(runAt.getTime())) {
-        this.notifications.showError(t.runAtRequired);
+        this.notifications.showError(t.errors.runAtRequired);
         return;
       }
       if (runAt.getTime() <= Date.now()) {
-        this.notifications.showError(t.runAtPast);
+        this.notifications.showError(t.errors.runAtPast);
         return;
       }
       request = {
@@ -223,31 +223,33 @@ export class AutomationsPageComponent implements OnInit {
       },
       error: () => {
         this.isSaving.set(false);
-        this.notifications.showError(t.saveFailed);
+        this.notifications.showError(t.errors.saveFailed);
       },
     });
   }
 
   toggleEnabled(schedule: AutomationSchedule): void {
     if (this.isOnceCompleted(schedule) && !schedule.enabled) {
-      this.notifications.showWarning(this.i18n.t().automationsPage.onceCompletedHint);
+      this.notifications.showWarning(this.i18n.t().automations.onceCompletedHint);
       this.startEdit(schedule);
       return;
     }
     this.automationsApi.setEnabled(schedule.id, !schedule.enabled).subscribe({
       next: () => this.reload(),
-      error: () => this.notifications.showError(this.i18n.t().automationsPage.saveFailed),
+      error: () => {
+        this.notifications.showError(this.i18n.t().automations.errors.saveFailed);
+      },
     });
   }
 
   remove(schedule: AutomationSchedule): void {
-    if (!confirm(this.i18n.t().automationsPage.deleteConfirm)) {
+    if (!confirm(this.i18n.t().automations.deleteConfirm)) {
       return;
     }
     this.automationsApi.delete(schedule.id).subscribe({
       next: () => this.reload(),
       error: () => {
-        this.notifications.showError(this.i18n.t().automationsPage.deleteFailed);
+        this.notifications.showError(this.i18n.t().automations.errors.deleteFailed);
       },
     });
   }
@@ -258,7 +260,7 @@ export class AutomationsPageComponent implements OnInit {
       next: runs => this.runs.set(runs),
       error: () => {
         this.runs.set([]);
-        this.notifications.showError(this.i18n.t().automationsPage.loadFailed);
+        this.notifications.showError(this.i18n.t().automations.errors.loadFailed);
       },
     });
   }
@@ -296,7 +298,7 @@ export class AutomationsPageComponent implements OnInit {
   }
 
   statusLabel(schedule: AutomationSchedule): string {
-    const t = this.i18n.t().automationsPage;
+    const t = this.i18n.t().automations;
     if (this.isOnceCompleted(schedule)) {
       return t.statusCompleted;
     }
@@ -308,14 +310,14 @@ export class AutomationsPageComponent implements OnInit {
       const when = this.isOnceCompleted(schedule)
         ? schedule.lastRunAt
         : (schedule.runAt ?? schedule.nextRunAt);
-      return `${this.i18n.t().automationsPage.frequencyCustom}: ${this.formatInstant(when)}`;
+      return `${this.i18n.t().automations.frequencyCustom}: ${this.formatInstant(when)}`;
     }
     return schedule.cronExpression ?? '—';
   }
 
   formatNextRun(schedule: AutomationSchedule): string {
     if (this.isOnceCompleted(schedule)) {
-      return this.i18n.t().automationsPage.nextRunNone;
+      return this.i18n.t().automations.nextRunNone;
     }
     return this.formatInstant(schedule.nextRunAt);
   }
@@ -327,7 +329,7 @@ export class AutomationsPageComponent implements OnInit {
     try {
       const ms = Date.parse(value);
       if (Number.isFinite(ms) && ms >= Date.parse('9999-01-01T00:00:00Z')) {
-        return this.i18n.t().automationsPage.nextRunNone;
+        return this.i18n.t().automations.nextRunNone;
       }
       return new Date(value).toLocaleString();
     } catch {

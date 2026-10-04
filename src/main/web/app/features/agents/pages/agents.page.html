@@ -3,12 +3,12 @@
     <div>
       <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-        {{ i18n.t().agentsPage.title }}
+        {{ i18n.t().agents.title }}
       </h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().agentsPage.subtitle }}</p>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().agents.subtitle }}</p>
     </div>
     <button type="button" z-button zType="default" zSize="sm" (click)="startCreate()">
-      {{ i18n.t().agentsPage.newAgent }}
+      {{ i18n.t().agents.newAgent }}
     </button>
   </header>
 
@@ -22,11 +22,11 @@
       @if (showForm()) {
         <section class="rounded-xl border border-black/8 bg-white p-4">
           <h2 class="text-sm font-semibold text-foreground">
-            {{ editingId() ? i18n.t().agentsPage.editTitle : i18n.t().agentsPage.createTitle }}
+            {{ editingId() ? i18n.t().agents.editTitle : i18n.t().agents.createTitle }}
           </h2>
           <div class="mt-3 flex flex-col gap-3">
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agentsPage.typeKey }}
+              {{ i18n.t().agents.typeKey }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
                 [disabled]="isFormTypeKeyLocked()"
@@ -35,7 +35,7 @@
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agentsPage.name }}
+              {{ i18n.t().common.name }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
                 [ngModel]="formName()"
@@ -43,7 +43,7 @@
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agentsPage.description }}
+              {{ i18n.t().agents.description }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
                 [ngModel]="formDescription()"
@@ -51,7 +51,7 @@
               />
             </label>
             <div>
-              <p class="text-xs font-medium text-foreground/70">{{ i18n.t().agentsPage.toolKeys }}</p>
+              <p class="text-xs font-medium text-foreground/70">{{ i18n.t().agents.toolKeys }}</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 @for (toolKey of availableToolKeys; track toolKey) {
                   <button
@@ -68,7 +68,7 @@
               </div>
             </div>
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agentsPage.systemPrompt }}
+              {{ i18n.t().agents.systemPrompt }}
               <textarea
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 font-mono text-sm outline-none focus:border-foreground/30"
                 rows="10"
@@ -84,10 +84,10 @@
                 [disabled]="isSaving()"
                 (click)="save()"
               >
-                {{ isSaving() ? i18n.t().agentsPage.saving : i18n.t().agentsPage.save }}
+                {{ isSaving() ? i18n.t().common.saving : i18n.t().common.save }}
               </button>
               <button type="button" z-button zType="ghost" (click)="cancelForm()">
-                {{ i18n.t().agentsPage.cancel }}
+                {{ i18n.t().common.cancel }}
               </button>
             </div>
           </div>
@@ -96,11 +96,11 @@
 
       <section>
         <div class="flex flex-wrap items-end justify-between gap-2">
-          <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agentsPage.builtins }}</h2>
-          <p class="text-xs text-foreground/50">{{ i18n.t().agentsPage.builtinsHint }}</p>
+          <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agents.builtins }}</h2>
+          <p class="text-xs text-foreground/50">{{ i18n.t().agents.builtinsHint }}</p>
         </div>
         @if (isLoading()) {
-          <p class="mt-3 text-xs text-foreground/50">{{ i18n.t().agentsPage.loading }}</p>
+          <p class="mt-3 text-xs text-foreground/50">{{ i18n.t().agents.loading }}</p>
         } @else {
           <ul class="mt-3 grid gap-3 sm:grid-cols-2">
             @for (agent of builtins(); track agent.type) {
@@ -118,7 +118,7 @@
                     zSize="sm"
                     (click)="customizeBuiltin(agent)"
                   >
-                    {{ i18n.t().agentsPage.edit }}
+                    {{ i18n.t().common.edit }}
                   </button>
                 </div>
               </li>
@@ -128,9 +128,9 @@
       </section>
 
       <section>
-        <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agentsPage.myAgents }}</h2>
+        <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agents.myAgents }}</h2>
         @if (savedAgents().length === 0) {
-          <p class="mt-3 text-sm text-foreground/60">{{ i18n.t().agentsPage.emptyLibrary }}</p>
+          <p class="mt-3 text-sm text-foreground/60">{{ i18n.t().agents.emptyState }}</p>
         } @else {
           <ul class="mt-3 overflow-hidden rounded-xl border border-black/8 bg-white">
             @for (agent of savedAgents(); track agent.id) {
@@ -142,7 +142,7 @@
                     {{ agent.name }}
                     @if (!agent.enabled) {
                       <span class="ml-2 text-xs font-normal text-foreground/50">
-                        {{ i18n.t().agentsPage.statusDisabled }}
+                        {{ i18n.t().agents.statusDisabled }}
                       </span>
                     }
                   </p>
@@ -157,7 +157,7 @@
                     zSize="sm"
                     (click)="startEditSavedAgent(agent)"
                   >
-                    {{ i18n.t().agentsPage.edit }}
+                    {{ i18n.t().common.edit }}
                   </button>
                   <button
                     type="button"
@@ -168,8 +168,8 @@
                   >
                     {{
                       agent.enabled
-                        ? i18n.t().agentsPage.disable
-                        : i18n.t().agentsPage.enable
+                        ? i18n.t().agents.disable
+                        : i18n.t().agents.enable
                     }}
                   </button>
                   <button
@@ -179,7 +179,7 @@
                     zSize="sm"
                     (click)="delete(agent)"
                   >
-                    {{ i18n.t().agentsPage.delete }}
+                    {{ i18n.t().common.delete }}
                   </button>
                 </div>
               </li>

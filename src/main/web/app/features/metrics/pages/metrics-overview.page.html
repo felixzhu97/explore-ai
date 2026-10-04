@@ -3,9 +3,9 @@
     <div>
       <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-        {{ i18n.t().metricsPage.overviewTitle }}
+        {{ i18n.t().metrics.overviewTitle }}
       </h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().metricsPage.overviewSubtitle }}</p>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().metrics.overviewSubtitle }}</p>
     </div>
     <div class="inline-flex rounded-lg border border-border p-0.5">
       <button
@@ -15,7 +15,7 @@
         [class.font-medium]="range() === '7d'"
         (click)="setRange('7d')"
       >
-        {{ i18n.t().metricsPage.range7d }}
+        {{ i18n.t().metrics.range7d }}
       </button>
       <button
         type="button"
@@ -24,52 +24,52 @@
         [class.font-medium]="range() === '30d'"
         (click)="setRange('30d')"
       >
-        {{ i18n.t().metricsPage.range30d }}
+        {{ i18n.t().metrics.range30d }}
       </button>
     </div>
   </header>
 
   @if (overviewResource.error()) {
-    <p class="text-sm text-rose-600">{{ i18n.t().metricsPage.loadOverviewFailed }}</p>
+    <p class="text-sm text-rose-600">{{ i18n.t().metrics.errors.loadOverviewFailed }}</p>
   } @else if (overviewResource.isLoading() && !overviewResource.value()) {
-    <p class="text-sm text-muted-foreground">{{ i18n.t().metricsPage.loadingOverview }}</p>
+    <p class="text-sm text-muted-foreground">{{ i18n.t().metrics.loadingOverview }}</p>
   } @else {
     <app-metrics-kpi-cards [items]="kpis()" (kpiSelected)="onKpiClick($event)" />
 
     <div class="grid gap-6 lg:grid-cols-2">
       <app-chart-panel
         type="line"
-        [heading]="i18n.t().metricsPage.charts.aiRequests"
-        [emptyText]="i18n.t().metricsPage.charts.aiRequestsEmpty"
+        [heading]="i18n.t().metrics.charts.aiRequests"
+        [emptyText]="i18n.t().metrics.charts.aiRequestsEmpty"
         [data]="requestSeries()"
       />
       <app-chart-panel
         type="doughnut"
-        [heading]="i18n.t().metricsPage.charts.requestsByDomain"
-        [emptyText]="i18n.t().metricsPage.charts.requestsByDomainEmpty"
+        [heading]="i18n.t().metrics.charts.requestsByDomain"
+        [emptyText]="i18n.t().metrics.charts.requestsByDomainEmpty"
         [data]="domainSeries()"
         (chartClicked)="openDomain($event.label)"
       />
     </div>
 
     <app-metrics-domain-health
-      [heading]="i18n.t().metricsPage.health.heading"
+      [heading]="i18n.t().metrics.health.heading"
       [items]="healthItems()"
       (domainSelected)="openDomain($event)"
     />
 
     <app-metrics-drilldown-table
-      [heading]="i18n.t().metricsPage.drilldown.recentHeading"
+      [heading]="i18n.t().metrics.drilldown.recentHeading"
       [items]="drilldownItems()"
       [total]="drilldownTotal()"
       (rowSelected)="onRowClick($event)"
     />
 
     <p class="text-xs text-muted-foreground">
-      {{ i18n.t().metricsPage.openDomainHint }}
-      <a routerLink="/metrics/chat" class="underline">{{ i18n.t().metricsPage.health.chat }}</a>,
-      <a routerLink="/metrics/rag" class="underline">{{ i18n.t().metricsPage.health.rag }}</a>,
-      <a routerLink="/metrics/agents" class="underline">{{ i18n.t().metricsPage.health.agents }}</a>.
+      {{ i18n.t().metrics.openDomainHint }}
+      <a routerLink="/metrics/chat" class="underline">{{ i18n.t().metrics.health.chat }}</a>,
+      <a routerLink="/metrics/rag" class="underline">{{ i18n.t().metrics.health.rag }}</a>,
+      <a routerLink="/metrics/agents" class="underline">{{ i18n.t().metrics.health.agents }}</a>.
     </p>
   }
 </div>

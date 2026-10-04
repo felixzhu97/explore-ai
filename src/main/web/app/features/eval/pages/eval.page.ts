@@ -39,7 +39,7 @@ export class EvalPageComponent {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set(this.i18n.t().evalPage.requestFailed);
+        this.error.set(this.i18n.t().eval.errors.requestFailed);
         this.isLoading.set(false);
       },
     });

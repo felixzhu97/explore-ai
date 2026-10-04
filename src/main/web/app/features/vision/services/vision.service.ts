@@ -46,7 +46,7 @@ export class VisionService {
     if (ms == null) {
       return null;
     }
-    return this.i18n.t().imageUploader.processingTime.replace('{ms}', String(ms));
+    return this.i18n.t().vision.processingTime.replace('{ms}', String(ms));
   });
 
   readonly canAnalyze = computed(() => Boolean(this.currentState().file));
@@ -57,11 +57,11 @@ export class VisionService {
 
   processFile(file: File): void {
     if (!file.type.startsWith('image/')) {
-      this.updateState({ error: this.i18n.t().imageUploader.selectImageError });
+      this.updateState({ error: this.i18n.t().vision.errors.invalidImage });
       return;
     }
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      this.updateState({ error: this.i18n.t().imageUploader.fileTooLarge });
+      this.updateState({ error: this.i18n.t().vision.errors.fileTooLarge });
       return;
     }
 
@@ -78,7 +78,7 @@ export class VisionService {
   }
 
   openZoom(image: string): void {
-    this.imageZoom.open(image, this.i18n.t().imageUploader.imageLabel);
+    this.imageZoom.open(image, this.i18n.t().vision.imageLabel);
   }
 
   analyze(): void {
@@ -149,19 +149,19 @@ export class VisionService {
     if (error instanceof HttpErrorResponse) {
       const body = error.error as ApiErrorBody | null;
       if (body?.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
-        return this.i18n.t().imageUploader.providerUnavailable;
+        return this.i18n.t().vision.errors.providerUnavailable;
       }
       if (body?.message) {
         return body.message;
       }
       if (error.status === 0) {
-        return this.i18n.t().imageUploader.requestFailed;
+        return this.i18n.t().vision.errors.requestFailed;
       }
     }
     if (error instanceof Error) {
       return error.message;
     }
-    return this.i18n.t().imageUploader.processingFailed;
+    return this.i18n.t().vision.errors.processingFailed;
   }
 
   private updateState(partial: Partial<VisionTabState>): void {

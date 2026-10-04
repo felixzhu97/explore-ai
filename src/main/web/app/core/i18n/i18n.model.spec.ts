@@ -37,15 +37,15 @@ describe('i18n.model', () => {
     it('should have required top-level keys for all languages', () => {
       const requiredKeys = [
         'nav',
-        'imageUploader',
-        'ragChat',
+        'vision',
+        'rag',
         'pipelines',
         'chat',
         'generate',
-        'metricsPage',
-        'evalPage',
-        'asrPage',
-        'mcpPage',
+        'metrics',
+        'eval',
+        'speechToText',
+        'mcp',
       ] as const;
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
@@ -58,8 +58,8 @@ describe('i18n.model', () => {
 
     describe('nav translations', () => {
       const requiredNavKeys = [
-        'imageAnalysis',
-        'documentQA',
+        'vision',
+        'rag',
         'mcp',
         'eval',
         'speechToText',
@@ -67,15 +67,15 @@ describe('i18n.model', () => {
         'skills',
         'kubernetes',
         'monitoring',
-        'aiinfra',
+        'aiInfra',
         'chat',
-        'generation',
+        'generate',
         'modelDev',
         'modelOps',
         'model',
-        'llmops',
-        'aiops',
-        'vectordb',
+        'llmOps',
+        'aiOps',
+        'vectorDb',
         'more',
       ] as const;
 
@@ -97,7 +97,7 @@ describe('i18n.model', () => {
       });
     });
 
-    describe('imageUploader translations', () => {
+    describe('vision translations', () => {
       const requiredKeys = [
         'imageLabel',
         'resultLabel',
@@ -106,10 +106,6 @@ describe('i18n.model', () => {
         'analyzing',
         'startAnalyze',
         'uploadToAnalyze',
-        'selectImageError',
-        'fileTooLarge',
-        'requestFailed',
-        'processingFailed',
         'clearImage',
         'caption',
         'detect',
@@ -118,26 +114,24 @@ describe('i18n.model', () => {
         'clickToEnlarge',
       ] as const;
 
-      it('should have image uploader translations for all languages', () => {
+      it('should have vision translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           requiredKeys.forEach((key) => {
-            expect(translations[lang].imageUploader[key]).toBeDefined();
-            expect(typeof translations[lang].imageUploader[key]).toBe('string');
+            expect(translations[lang].vision[key]).toBeDefined();
+            expect(typeof translations[lang].vision[key]).toBe('string');
           });
         });
       });
     });
 
-    describe('ragChat translations', () => {
+    describe('rag translations', () => {
       const requiredKeys = [
         'title',
         'modelBadge',
-        'uploadDocs',
+        'uploadDocuments',
         'upload',
         'askQuestion',
         'inputPlaceholder',
-        'thinking',
-        'errorMessage',
         'sources',
         'similarity',
         'whatIsThis',
@@ -154,20 +148,18 @@ describe('i18n.model', () => {
         'clearSelection',
         'filesSelected',
         'uploadSuccess',
-        'uploadFailed',
         'uploading',
         'basedOn',
         'openReference',
         'documentDeleted',
-        'deleteFailed',
         'fileSelected',
       ] as const;
 
-      it('should have rag chat translations for all languages', () => {
+      it('should have rag translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
           requiredKeys.forEach((key) => {
-            expect(translations[lang].ragChat[key]).toBeDefined();
-            expect(typeof translations[lang].ragChat[key]).toBe('string');
+            expect(translations[lang].rag[key]).toBeDefined();
+            expect(typeof translations[lang].rag[key]).toBe('string');
           });
         });
       });
@@ -176,14 +168,14 @@ describe('i18n.model', () => {
     describe('pipelines translations', () => {
       it('should have pipelines translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].pipelines.thinking).toBeDefined();
-          expect(translations[lang].pipelines.errorMessage).toBeDefined();
-          expect(translations[lang].pipelines.pipeline.inputPlaceholder).toBeDefined();
-          expect(translations[lang].pipelines.pipeline.taskPlaceholder).toBeDefined();
-          expect(translations[lang].pipelines.pipeline.paletteShow).toBeDefined();
-          expect(translations[lang].pipelines.pipeline.paletteHide).toBeDefined();
-          expect(translations[lang].pipelines.pipeline.nodeEditor.title).toBeDefined();
-          expect(translations[lang].pipelines.pipeline.emptyState.title).toBeDefined();
+          expect(translations[lang].common.thinking).toBeDefined();
+          expect(translations[lang].pipelines.errors.generic).toBeDefined();
+          expect(translations[lang].pipelines.inputPlaceholder).toBeDefined();
+          expect(translations[lang].pipelines.taskPlaceholder).toBeDefined();
+          expect(translations[lang].pipelines.paletteShow).toBeDefined();
+          expect(translations[lang].pipelines.paletteHide).toBeDefined();
+          expect(translations[lang].pipelines.nodeEditor.title).toBeDefined();
+          expect(translations[lang].pipelines.emptyState.title).toBeDefined();
         });
       });
 
@@ -191,7 +183,6 @@ describe('i18n.model', () => {
         const chromeKeys = [
           'title',
           'use',
-          'edit',
           'skipped',
           'editMode',
           'useMode',
@@ -201,9 +192,8 @@ describe('i18n.model', () => {
           'useThisGraph',
           'editThisGraph',
           'previewHint',
-          'addWorkflow',
-          'newWorkflowName',
-          'myTemplates',
+          'addTemplate',
+          'newTemplateName',
           'saveCanvas',
           'newTemplate',
           'agentTypesHint',
@@ -212,7 +202,7 @@ describe('i18n.model', () => {
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          const templates = translations[lang].pipelines.pipeline.templates;
+          const templates = translations[lang].pipelines.templates;
           chromeKeys.forEach((key) => {
             expect(templates[key].length).toBeGreaterThan(0);
           });
@@ -224,7 +214,7 @@ describe('i18n.model', () => {
     describe('chat translations', () => {
       it('should have chat translations for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].chat.thinking).toBeDefined();
+          expect(translations[lang].common.thinking).toBeDefined();
           expect(translations[lang].chat.inputPlaceholder).toBeDefined();
           expect(translations[lang].chat.welcomeTitle).toBeDefined();
           expect(translations[lang].chat.welcomeDescription).toBeDefined();
@@ -238,19 +228,19 @@ describe('i18n.model', () => {
     describe('lab page translations', () => {
       it('should have metrics page chrome for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].metricsPage.overviewTitle.length).toBeGreaterThan(0);
-          expect(translations[lang].metricsPage.kpi.aiRequests.length).toBeGreaterThan(0);
-          expect(translations[lang].metricsPage.drilldown.eventsCount).toContain('{total}');
+          expect(translations[lang].metrics.overviewTitle.length).toBeGreaterThan(0);
+          expect(translations[lang].metrics.kpi.aiRequests.length).toBeGreaterThan(0);
+          expect(translations[lang].metrics.drilldown.eventsCount).toContain('{total}');
         });
       });
 
       it('should have eval page asr page and mcp page for all languages', () => {
         SUPPORTED_LANGUAGES.forEach((lang) => {
-          expect(translations[lang].evalPage.evaluate.length).toBeGreaterThan(0);
+          expect(translations[lang].eval.evaluate.length).toBeGreaterThan(0);
           expect(
-            translations[lang].asrPage.connectionState.connected.length,
+            translations[lang].speechToText.connectionState.connected.length,
           ).toBeGreaterThan(0);
-          expect(translations[lang].mcpPage.toolsCount).toContain('{count}');
+          expect(translations[lang].mcp.toolsCount).toContain('{count}');
         });
       });
     });
@@ -274,7 +264,7 @@ describe('i18n.model', () => {
           expect(translations[lang].generate.image.negativePromptPlaceholder)
             .toBeDefined();
           expect(translations[lang].generate.image.sizeLabel).toBeDefined();
-          expect(translations[lang].generate.image.generateButton).toBeDefined();
+          expect(translations[lang].generate.image.generate).toBeDefined();
           expect(translations[lang].generate.image.generating).toBeDefined();
           expect(translations[lang].generate.image.preview).toBeDefined();
           expect(translations[lang].generate.image.download).toBeDefined();
@@ -291,7 +281,7 @@ describe('i18n.model', () => {
           expect(translations[lang].generate.tts.textPlaceholder).toBeDefined();
           expect(translations[lang].generate.tts.voiceLabel).toBeDefined();
           expect(translations[lang].generate.tts.speedLabel).toBeDefined();
-          expect(translations[lang].generate.tts.synthesizeButton).toBeDefined();
+          expect(translations[lang].generate.tts.synthesize).toBeDefined();
           expect(translations[lang].generate.tts.synthesizing).toBeDefined();
           expect(translations[lang].generate.tts.audioReady).toBeDefined();
           expect(translations[lang].generate.tts.downloadAudio).toBeDefined();
@@ -303,11 +293,11 @@ describe('i18n.model', () => {
 
   describe('translations content consistency', () => {
     it('should have localized image analysis nav labels', () => {
-      expect(translations.en.nav.imageAnalysis).toBe('Image Analysis');
-      expect(translations.zh.nav.imageAnalysis).toBe('图像分析');
-      expect(translations.ja.nav.imageAnalysis).toBe('画像分析');
-      expect(translations.fr.nav.imageAnalysis).toBe('Analyse d\'images');
-      expect(translations.es.nav.imageAnalysis).toBe('Análisis de imágenes');
+      expect(translations.en.nav.vision).toBe('Image Analysis');
+      expect(translations.zh.nav.vision).toBe('图像分析');
+      expect(translations.ja.nav.vision).toBe('画像分析');
+      expect(translations.fr.nav.vision).toBe('Analyse d\'images');
+      expect(translations.es.nav.vision).toBe('Análisis de imágenes');
     });
 
     it('should have chat nav label in all languages', () => {
@@ -348,14 +338,14 @@ describe('i18n.model', () => {
       };
 
       SUPPORTED_LANGUAGES.forEach((lang) => {
-        const ragChatTranslations = translations[lang].ragChat;
+        const ragTranslations = translations[lang].rag;
         const variables = [
-          ...extractVariables(ragChatTranslations.selectedDocuments),
-          ...extractVariables(ragChatTranslations.filesSelected),
-          ...extractVariables(ragChatTranslations.uploadSuccess),
-          ...extractVariables(ragChatTranslations.uploadFailed),
-          ...extractVariables(ragChatTranslations.basedOn),
-          ...extractVariables(ragChatTranslations.fileSelected),
+          ...extractVariables(ragTranslations.selectedDocuments),
+          ...extractVariables(ragTranslations.filesSelected),
+          ...extractVariables(ragTranslations.uploadSuccess),
+          ...extractVariables(ragTranslations.errors.uploadFailed),
+          ...extractVariables(ragTranslations.basedOn),
+          ...extractVariables(ragTranslations.fileSelected),
         ];
 
         expect(variables).toContain('count');

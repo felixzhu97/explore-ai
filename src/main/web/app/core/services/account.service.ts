@@ -94,7 +94,7 @@ export class AccountService {
       error: () => {
         this.reload();
         this.chat.resetForOwnerChange();
-        this.notifications.showError(this.i18n.t().account.logoutFailed);
+        this.notifications.showError(this.i18n.t().account.errors.logoutFailed);
       },
     });
   }
@@ -137,7 +137,7 @@ export class AccountService {
         void this.router.navigateByUrl(returnTo);
       }
     } else {
-      this.notifications.showError(this.i18n.t().account.loginFailed);
+      this.notifications.showError(this.i18n.t().account.errors.loginFailed);
       sessionStorage.removeItem(OAUTH_RETURN_KEY);
     }
   }
