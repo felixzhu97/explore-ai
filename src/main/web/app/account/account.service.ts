@@ -9,16 +9,18 @@ import { I18nService } from '../i18n';
 import { NotificationService } from '../ui/notification.service';
 import { hasText, textOr } from '../shared/presence';
 
-export type OAuthProviderId = 'google' | 'github' | 'explore-iam';
+export type LoginProvider = 'google' | 'github' | 'explore-iam';
+export type AccountMode = 'anonymous' | 'authenticated';
+export type AccountPlan = 'free' | 'pro';
 
-export interface AccountMe {
-  mode: string;
-  clientId: string;
+export interface AccountMeResponse {
+  mode: AccountMode;
+  clientId: string | null;
   userId: string | null;
   email: string | null;
-  plan: string;
+  plan: AccountPlan;
   loginAvailable: boolean;
-  loginProviders: OAuthProviderId[];
+  loginProviders: LoginProvider[];
 }
 
 /**
@@ -33,7 +35,7 @@ export class AccountService {
   readonly #i18n = inject(I18nService);
   readonly #chat = inject(ChatService);
 
-  readonly #accountState = signal<AccountMe | null>(null);
+  readonly #accountState = signal<AccountMeResponse | null>(null);
   readonly #isLoadingState = signal(false);
   readonly #isLoadedState = signal(false);
 
@@ -56,7 +58,7 @@ export class AccountService {
     }
     this.#isLoadingState.set(true);
     this.#http
-      .get<AccountMe>(`${API_BASE_URL}/account/me`)
+      .get<AccountMeResponse>(`${API_BASE_URL}/account/me`)
       .pipe(finalize(() => this.#isLoadingState.set(false)))
       .subscribe({
         next: (me) => {
@@ -79,7 +81,7 @@ export class AccountService {
    * @param assign injectable for tests (defaults to {@code location.assign})
    */
   startOAuthLogin(
-    provider: OAuthProviderId,
+    provider: LoginProvider,
     assign: (url: string) => void = url => window.location.assign(url),
   ): void {
     const { pathname, search, hash } = window.location;

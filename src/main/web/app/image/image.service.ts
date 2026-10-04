@@ -15,25 +15,40 @@ export interface ImageSize {
 }
 
 /** POST /api/images/generate */
-export interface ImageGenerateParams {
+export interface ImageGenerationRequest {
   prompt: string;
-  model?: string | undefined;
-  quality?: string | undefined;
+  model?: string;
+  quality?: string;
   width?: number;
   height?: number;
   n?: number;
 }
 
-export interface ImageGenerationApiResponse {
-  imageUrl?: string | null;
-  imageBase64?: string | null;
-  model?: string;
-  prompt?: string;
-  revisedPrompt?: string | null;
-  status: string;
+export type ImageGenerationStatus = 'SUCCESS';
+
+export interface ImageGenerationResponse {
+  imageUrl: string | null;
+  imageBase64: string | null;
+  model: string | null;
+  prompt: string;
+  revisedPrompt: string | null;
+  status: ImageGenerationStatus;
 }
 
-export interface ImageCatalogResponse {
+export interface ImageModelsResponse {
+  models: string[];
+}
+
+export interface ImageSizesResponse {
+  sizes: string[];
+}
+
+export interface ImageQualitiesResponse {
+  qualities: string[];
+}
+
+/** Models, sizes and qualities fetched together; empty lists when a lookup fails. */
+export interface ImageCatalog {
   models: string[];
   sizes: string[];
   qualities: string[];
@@ -132,10 +147,12 @@ export class ImageService {
     this.#imageSource.set(null);
 
     const size = this.selectedSize();
+    const model = this.selectedModel();
+    const quality = this.selectedQuality();
     this.#generateImage({
       prompt: this.prompt(),
-      model: this.selectedModel(),
-      quality: this.selectedQuality(),
+      ...(model !== undefined ? { model } : {}),
+      ...(quality !== undefined ? { quality } : {}),
       width: size.width,
       height: size.height,
       n: 1,
@@ -180,41 +197,29 @@ export class ImageService {
       .catch(() => this.error.set('Failed to download image'));
   }
 
-  #generateImage(
-    params: ImageGenerateParams,
-  ): Observable<ImageGenerationApiResponse> {
-    return this.#http.post<ImageGenerationApiResponse>(
-      `${API_BASE_URL}/images/generate`,
-      {
-        prompt: params.prompt,
-        model: params.model,
-        quality: params.quality,
-        width: params.width,
-        height: params.height,
-        n: params.n ?? 1,
-      },
-    );
+  #generateImage(request: ImageGenerationRequest): Observable<ImageGenerationResponse> {
+    return this.#http.post<ImageGenerationResponse>(`${API_BASE_URL}/images/generate`, request);
   }
 
   #getImageModels(): Observable<string[]> {
     return this.#http
-      .get<{ models: string[] }>(`${API_BASE_URL}/images/models`)
+      .get<ImageModelsResponse>(`${API_BASE_URL}/images/models`)
       .pipe(map(response => response.models));
   }
 
   #getImageSizes(): Observable<string[]> {
     return this.#http
-      .get<{ sizes: string[] }>(`${API_BASE_URL}/images/sizes`)
+      .get<ImageSizesResponse>(`${API_BASE_URL}/images/sizes`)
       .pipe(map(response => response.sizes));
   }
 
   #getImageQualities(): Observable<string[]> {
     return this.#http
-      .get<{ qualities: string[] }>(`${API_BASE_URL}/images/qualities`)
+      .get<ImageQualitiesResponse>(`${API_BASE_URL}/images/qualities`)
       .pipe(map(response => response.qualities));
   }
 
-  #getImageCatalog(): Observable<ImageCatalogResponse> {
+  #getImageCatalog(): Observable<ImageCatalog> {
     return forkJoin({
       models: this.#getImageModels().pipe(catchError(() => of([] as string[]))),
       sizes: this.#getImageSizes().pipe(catchError(() => of([] as string[]))),

@@ -7,6 +7,7 @@ import { provideEchartsCore } from 'ngx-echarts';
 import { BehaviorSubject } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { MetricsDomainPageComponent } from './metrics-domain.page';
+import type { MetricsDomainResponse } from './metrics.service';
 
 describe('MetricsDomainPageComponent', () => {
   let fixture: ComponentFixture<MetricsDomainPageComponent>;
@@ -53,14 +54,13 @@ describe('MetricsDomainPageComponent', () => {
     http.verify();
   });
 
-  async function flushDomainPage(domain: string): Promise<void> {
+  async function flushDomainPage(domain: 'chat' | 'rag'): Promise<void> {
     fixture.detectChanges();
     for (const req of http.match(() => true)) {
       const url = req.request.url;
       if (url.startsWith(`${API_BASE_URL}/metrics/domains/${domain}`)) {
-        req.flush({
-          domain,
-          range: '7d',
+        const stats = {
+          range: '7d' as const,
           requestCount: 12,
           errorCount: 1,
           errorRate: 0.08,
@@ -68,10 +68,31 @@ describe('MetricsDomainPageComponent', () => {
           latencyP95Ms: 90,
           promptTokens: null,
           completionTokens: null,
-          inventory: {},
           requestSeries: [{ label: 'Mon', value: 4 }],
           modelSeries: [{ label: 'gpt-4', value: 4 }],
-        });
+        };
+        const response: MetricsDomainResponse = domain === 'chat'
+          ? {
+              ...stats,
+              domain,
+              inventory: {
+                sessionCount: 3,
+                activeSessionCount: 1,
+                messageCount: 9,
+                webSourceReplyCount: 0,
+              },
+            }
+          : {
+              ...stats,
+              domain,
+              inventory: {
+                documentCount: 3,
+                documentsByStatus: { READY: 3 },
+                chunkCount: 12,
+                totalFileBytes: 2048,
+              },
+            };
+        req.flush(response);
       } else if (url.startsWith(`${API_BASE_URL}/metrics/series`)) {
         req.flush({
           name: 'documents_by_status',

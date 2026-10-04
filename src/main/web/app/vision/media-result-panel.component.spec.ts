@@ -12,7 +12,6 @@ describe('MediaResultPanelComponent', () => {
 
     fixture = TestBed.createComponent(MediaResultPanelComponent);
     fixture.componentRef.setInput('title', 'Result');
-    fixture.componentRef.setInput('task', 'caption');
     fixture.componentRef.setInput('emptyLabel', 'No result yet');
     fixture.componentRef.setInput('noDetectionsLabel', 'No detections');
     fixture.componentRef.setInput('analyzeLabel', 'Analyze');
@@ -25,7 +24,7 @@ describe('MediaResultPanelComponent', () => {
   });
 
   it('should show caption result', () => {
-    fixture.componentRef.setInput('result', { caption: 'A beach scene', processingTimeMs: 50 });
+    fixture.componentRef.setInput('result', { task: 'caption', caption: 'A beach scene', processingTimeMs: 50 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('A beach scene');
   });

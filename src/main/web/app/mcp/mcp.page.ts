@@ -4,7 +4,7 @@ import {
   McpService,
   type McpClientStatusResponse,
   type McpHealthResponse,
-  type McpTool,
+  type McpToolResponse,
 } from './mcp.service';
 import { ZardButtonComponent } from '../ui/button';
 import { I18nService } from '../i18n';
@@ -21,7 +21,7 @@ export class McpPageComponent implements OnInit {
 
   readonly health = signal<McpHealthResponse | null>(null);
   readonly clientStatus = signal<McpClientStatusResponse | null>(null);
-  readonly tools = signal<McpTool[]>([]);
+  readonly tools = signal<McpToolResponse[]>([]);
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
   readonly question = signal('');

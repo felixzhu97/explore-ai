@@ -7,7 +7,7 @@ import { ZardAlertComponent } from '../ui/alert';
 import { ZardBadgeComponent } from '../ui/badge';
 import { ZardButtonComponent } from '../ui/button';
 import { ZardCardComponent } from '../ui/card';
-import type { VisionResult, VisionTaskType } from './vision.service';
+import type { VisionResult } from './vision.service';
 
 @Component({
   selector: 'app-media-result-panel',
@@ -41,11 +41,11 @@ import type { VisionResult, VisionTaskType } from './vision.service';
 
       @let current = result();
       @if (current !== null) {
-        @if (task() === 'caption') {
+        @if (current.task === 'caption') {
           <p class="text-lg text-foreground italic">"{{ current.caption }}"</p>
         }
-        @if (task() === 'detect') {
-          @if (current.detections !== undefined && current.detections.length > 0) {
+        @if (current.task === 'detect') {
+          @if (current.detections.length > 0) {
             <div class="flex flex-col gap-2">
               @for (det of current.detections; track det.className) {
                 <div
@@ -67,7 +67,7 @@ import type { VisionResult, VisionTaskType } from './vision.service';
             </div>
           }
         }
-        @if (task() === 'ocr') {
+        @if (current.task === 'ocr') {
           <pre
             class="
               m-0 flex-1 overflow-x-auto rounded-lg bg-muted/40 p-3 font-mono
@@ -93,7 +93,6 @@ import type { VisionResult, VisionTaskType } from './vision.service';
 })
 export class MediaResultPanelComponent {
   readonly title = input.required<string>();
-  readonly task = input.required<VisionTaskType>();
   readonly result = input<VisionResult | null>(null);
   readonly error = input<string | null>(null);
   readonly isLoading = input(false);

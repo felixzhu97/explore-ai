@@ -19,6 +19,9 @@ export interface EvaluationResponse {
   hasSafetyIssues: boolean;
   safetyFlags: string[];
   suggestions: string[];
+  relevancyPassed: boolean;
+  factualityPassed: boolean | null;
+  evaluatorFeedback: string[];
 }
 
 @Service()

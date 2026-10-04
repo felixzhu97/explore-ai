@@ -20,7 +20,7 @@ import { I18nService } from '../i18n';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardAlertComponent } from '../ui/alert';
-import { PipelinesService, type AgentType } from './pipelines.service';
+import { PipelinesService, type AgentInfoResponse } from './pipelines.service';
 import { PipelinesCanvasComponent } from './pipelines-canvas.component';
 import {
   toPipelineInvokeRequest,
@@ -60,7 +60,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
   protected readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
-  readonly agentsResource = httpResource<AgentType[]>(() => ({
+  readonly agentsResource = httpResource<AgentInfoResponse[]>(() => ({
     url: `${API_BASE_URL}/pipelines/agent-types`,
     params: { lang: this.i18n.language() },
   }));

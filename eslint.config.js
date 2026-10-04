@@ -126,6 +126,19 @@ export default defineConfig([
             + 'TSParameterProperty)[accessibility="private"]',
           message: 'Use an ECMAScript #private member instead of the private keyword.',
         },
+        {
+          selector: 'TSEnumDeclaration',
+          message: 'Use a string literal union type instead of an enum.',
+        },
+        {
+          selector: ':matches(TSInterfaceDeclaration, TSTypeAliasDeclaration)[id.name=/Dto$/]',
+          message: 'Name wire types after the Java record (e.g. SkillResponse), without a Dto suffix.',
+        },
+        {
+          selector: ':matches(TSInterfaceDeclaration, TSTypeAliasDeclaration)'
+            + '[id.name=/(Response|Event)$/] TSPropertySignature[optional=true]',
+          message: 'Jackson serializes nulls, so response and event fields are `T | null`, not optional.',
+        },
       ],
       '@typescript-eslint/explicit-member-accessibility': [
         'error',

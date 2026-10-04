@@ -53,8 +53,7 @@ export class MetricsOverviewPageComponent {
       return [];
     }
     const kpi = this.i18n.t().metrics.kpi;
-    const chat = overview.domains['chat'] as { sessionCount?: number } | undefined;
-    const rag = overview.domains['rag'] as { documentCount?: number } | undefined;
+    const { chat, rag } = overview.domains;
     const tokenTotal = (overview.promptTokens ?? 0) + (overview.completionTokens ?? 0);
     const hasTokens =
       overview.promptTokens !== null || overview.completionTokens !== null;
@@ -85,13 +84,13 @@ export class MetricsOverviewPageComponent {
       {
         key: 'sessions',
         label: kpi.sessions,
-        value: formatNumber(Number(chat?.sessionCount ?? 0)),
+        value: formatNumber(chat.sessionCount),
         domain: 'chat',
       },
       {
         key: 'documents',
         label: kpi.documents,
-        value: formatNumber(Number(rag?.documentCount ?? 0)),
+        value: formatNumber(rag.documentCount),
         domain: 'rag',
       },
     ];
@@ -103,58 +102,42 @@ export class MetricsOverviewPageComponent {
       return [];
     }
     const health = this.i18n.t().metrics.health;
-    const agents = overview.domains['agents'] as {
-      status?: string;
-      agentCount?: number;
-      healthyAgentCount?: number;
-    } | undefined;
-    const mcp = overview.domains['mcp'] as {
-      status?: string;
-      registeredTools?: number;
-      connectedServers?: number;
-    } | undefined;
-    const system = overview.domains['system'] as { status?: string } | undefined;
-    const chatSessions = Number(
-      (overview.domains['chat'] as { sessionCount?: number } | undefined)?.sessionCount ?? 0,
-    );
-    const ragDocuments = Number(
-      (overview.domains['rag'] as { documentCount?: number } | undefined)?.documentCount ?? 0,
-    );
+    const { chat, rag, agents, mcp, system } = overview.domains;
     return [
       {
         domain: 'chat',
         label: health.chat,
         status: 'UP',
-        detail: this.i18n.tReplace(health.sessionsDetail, { count: chatSessions }),
+        detail: this.i18n.tReplace(health.sessionsDetail, { count: chat.sessionCount }),
       },
       {
         domain: 'rag',
         label: health.rag,
         status: 'UP',
-        detail: this.i18n.tReplace(health.documentsDetail, { count: ragDocuments }),
+        detail: this.i18n.tReplace(health.documentsDetail, { count: rag.documentCount }),
       },
       {
         domain: 'agents',
         label: health.agents,
-        status: String(agents?.status ?? 'UP'),
+        status: agents.status,
         detail: this.i18n.tReplace(health.healthyDetail, {
-          healthy: agents?.healthyAgentCount ?? 0,
-          total: agents?.agentCount ?? 0,
+          healthy: agents.healthyAgentCount,
+          total: agents.agentCount,
         }),
       },
       {
         domain: 'tools',
         label: health.toolsMcp,
-        status: String(mcp?.status ?? 'UP'),
+        status: mcp.status,
         detail: this.i18n.tReplace(health.toolsDetail, {
-          tools: mcp?.registeredTools ?? 0,
-          servers: mcp?.connectedServers ?? 0,
+          tools: mcp.registeredTools,
+          servers: mcp.connectedServers,
         }),
       },
       {
         domain: 'vision',
         label: health.vision,
-        status: String(system?.status ?? 'UP'),
+        status: system.status,
         detail: health.visionDetail,
       },
     ];

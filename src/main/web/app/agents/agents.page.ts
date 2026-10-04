@@ -11,9 +11,9 @@ import { I18nService } from '../i18n';
 import {
   AgentsService,
   type SavedAgent,
-  type SavedAgentWriteRequest,
+  type UpdateSavedAgentRequest,
 } from './agents.service';
-import type { AgentType } from '../pipelines/pipelines.service';
+import type { AgentInfoResponse } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
 import { hasText } from '../shared/presence';
@@ -49,7 +49,7 @@ export class AgentsPageComponent implements OnInit {
   readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
-  readonly catalog = signal<AgentType[]>([]);
+  readonly catalog = signal<AgentInfoResponse[]>([]);
   readonly savedAgents = signal<SavedAgent[]>([]);
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
@@ -118,7 +118,7 @@ export class AgentsPageComponent implements OnInit {
   }
 
   /** Open form to override a builtin: create or edit its saved agent. */
-  customizeBuiltin(agent: AgentType): void {
+  customizeBuiltin(agent: AgentInfoResponse): void {
     const existing = this.savedAgentForType(agent.type);
     if (existing !== undefined) {
       this.startEditSavedAgent(existing);
@@ -130,8 +130,8 @@ export class AgentsPageComponent implements OnInit {
       typeKey: agent.type,
       name: agent.name,
       description: agent.description,
-      systemPrompt: agent.systemPrompt ?? '',
-      toolKeys: [...(agent.toolKeys ?? [])],
+      systemPrompt: agent.systemPrompt,
+      toolKeys: [...agent.toolKeys],
     });
     this.showForm.set(true);
   }
@@ -158,7 +158,7 @@ export class AgentsPageComponent implements OnInit {
     }
     const draft = this.#draft();
     const typeKey = draft.typeKey.trim().toLowerCase();
-    const request: SavedAgentWriteRequest = {
+    const request: UpdateSavedAgentRequest = {
       name: draft.name.trim(),
       description: draft.description.trim(),
       systemPrompt: draft.systemPrompt.trim(),

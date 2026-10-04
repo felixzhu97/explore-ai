@@ -21,6 +21,16 @@ export interface AppError {
   errorCode?: string;
 }
 
+/* eslint-disable no-restricted-syntax --
+   Java `ErrorResponse` is `@JsonInclude(NON_NULL)`, so null fields are absent. */
+export interface ErrorResponse {
+  message?: string;
+  errorCode?: string;
+  timestamp: string;
+  path?: string;
+}
+/* eslint-enable no-restricted-syntax */
+
 export { SKIP_ERROR_NOTIFICATION };
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -42,8 +52,25 @@ function normalizeError(error: HttpErrorResponse): AppError {
     return handleClientError(error);
   }
   const appError = handleServerError(error);
-  const errorCode = (error.error as { errorCode?: unknown } | null)?.errorCode;
-  return typeof errorCode === 'string' ? { ...appError, errorCode } : appError;
+  const errorCode = readErrorResponse(error.error)?.errorCode;
+  return errorCode !== undefined ? { ...appError, errorCode } : appError;
+}
+
+/** The body as an `ErrorResponse` when it has that shape, otherwise null. */
+export function readErrorResponse(body: unknown): ErrorResponse | null {
+  if (body === null || typeof body !== 'object') {
+    return null;
+  }
+  const { message, errorCode, timestamp, path } = body as Record<string, unknown>;
+  if (typeof timestamp !== 'string') {
+    return null;
+  }
+  return {
+    timestamp,
+    ...(typeof message === 'string' ? { message } : {}),
+    ...(typeof errorCode === 'string' ? { errorCode } : {}),
+    ...(typeof path === 'string' ? { path } : {}),
+  };
 }
 
 function handleClientError(error: HttpErrorResponse): AppError {

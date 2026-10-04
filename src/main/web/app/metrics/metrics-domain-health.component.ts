@@ -1,10 +1,11 @@
 import { Component, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
+import type { MetricsDomain, ModuleStatus } from './metrics.service';
 
 export interface DomainHealthItem {
-  domain: string;
+  domain: MetricsDomain;
   label: string;
-  status: string;
+  status: ModuleStatus;
   detail: string;
 }
 
@@ -49,5 +50,5 @@ export class MetricsDomainHealthComponent {
   readonly items = input<DomainHealthItem[]>([]);
   readonly heading = input('');
   readonly emptyText = input('');
-  readonly domainSelected = output<string>();
+  readonly domainSelected = output<MetricsDomain>();
 }

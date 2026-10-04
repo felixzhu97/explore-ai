@@ -1,27 +1,31 @@
 import { Service, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { type Observable } from 'rxjs';
+import { Instant } from '@js-joda/core';
+import { type Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { I18nService } from '../i18n';
+import type { HealthStatus } from '../http/health-status';
 import { parseSseToken, streamSsePost } from '../http/sse-client';
 import type { PipelineInvokeRequest } from './pipeline-graph';
 import { textOr } from '../shared/presence';
 
-export interface AgentType {
+export type AgentRuntime = 'single' | 'deep';
+
+export interface AgentInfoResponse {
   type: string;
   name: string;
   description: string;
   healthy: boolean;
   supervisor: boolean;
-  runtime?: string;
-  toolKeys?: string[];
-  systemPrompt?: string;
+  runtime: AgentRuntime;
+  toolKeys: string[];
+  systemPrompt: string;
 }
 
-export interface AgentHealth {
+export interface AgentHealthResponse {
   type: string;
   healthy: boolean;
-  status: string;
+  status: HealthStatus;
 }
 
 export interface AgentInvokeRequest {
@@ -31,17 +35,30 @@ export interface AgentInvokeRequest {
 }
 
 /** Builtin multilingual workflow template from the backend catalog. */
-export interface PipelineTemplateDefinition {
+export interface PipelineTemplateDefinitionResponse {
   id: string;
   name: string;
   description: string;
   agentTypes: string[];
   shortTopic: string;
   briefPrompt: string;
-  nameAliases?: string[];
+  nameAliases: string[];
 }
 
-/** Client-owned saved workflow template. */
+/** Client-owned saved workflow template, as sent by the backend. */
+export interface PipelineTemplateResponse {
+  id: string;
+  name: string;
+  description: string;
+  agentTypes: string[];
+  shortTopic: string;
+  briefPrompt: string;
+  sourceTemplateId: string | null;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PipelineTemplate {
   id: string;
   name: string;
@@ -49,17 +66,33 @@ export interface PipelineTemplate {
   agentTypes: string[];
   shortTopic: string;
   briefPrompt: string;
-  sourceTemplateId?: string | null;
+  sourceTemplateId: string | null;
   enabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: Instant;
+  updatedAt: Instant;
 }
 
-export interface PipelineTemplateWriteRequest {
+export function toPipelineTemplate(response: PipelineTemplateResponse): PipelineTemplate {
+  return {
+    ...response,
+    createdAt: Instant.parse(response.createdAt),
+    updatedAt: Instant.parse(response.updatedAt),
+  };
+}
+
+export interface CreatePipelineTemplateRequest {
   name: string;
-  description: string;
+  description?: string;
   agentTypes: string[];
-  shortTopic: string;
+  shortTopic?: string;
+  briefPrompt: string;
+}
+
+export interface UpdatePipelineTemplateRequest {
+  name: string;
+  description?: string;
+  agentTypes: string[];
+  shortTopic?: string;
   briefPrompt: string;
 }
 
@@ -69,63 +102,60 @@ export class PipelinesService {
   readonly #i18n = inject(I18nService);
   readonly #templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
-  listAgents(): Observable<AgentType[]> {
-    return this.#http.get<AgentType[]>(`${API_BASE_URL}/pipelines/agent-types`, {
+  listAgents(): Observable<AgentInfoResponse[]> {
+    return this.#http.get<AgentInfoResponse[]>(`${API_BASE_URL}/pipelines/agent-types`, {
       params: this.#langParams(),
     });
   }
 
-  getHealth(agentType: string): Observable<AgentHealth> {
-    return this.#http.get<AgentHealth>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
+  getHealth(agentType: string): Observable<AgentHealthResponse> {
+    return this.#http.get<AgentHealthResponse>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
       params: this.#langParams(),
     });
   }
 
-  listTemplateDefinitions(): Observable<PipelineTemplateDefinition[]> {
-    return this.#http.get<PipelineTemplateDefinition[]>(`${API_BASE_URL}/pipelines/template-definitions`, {
-      params: this.#langParams(),
-    });
-  }
-
-  listTemplates(): Observable<PipelineTemplate[]> {
-    return this.#http.get<PipelineTemplate[]>(this.#templatesBase);
-  }
-
-  createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
-    return this.#http.post<PipelineTemplate>(
-      `${this.#templatesBase}/from-template`,
-      { templateId },
+  listTemplateDefinitions(): Observable<PipelineTemplateDefinitionResponse[]> {
+    return this.#http.get<PipelineTemplateDefinitionResponse[]>(
+      `${API_BASE_URL}/pipelines/template-definitions`,
       { params: this.#langParams() },
     );
   }
 
-  createTemplate(
-    request: PipelineTemplateWriteRequest,
-  ): Observable<PipelineTemplate> {
-    return this.#http.post<PipelineTemplate>(
-      this.#templatesBase,
-      request,
-    );
+  listTemplates(): Observable<PipelineTemplate[]> {
+    return this.#http
+      .get<PipelineTemplateResponse[]>(this.#templatesBase)
+      .pipe(map(templates => templates.map(toPipelineTemplate)));
+  }
+
+  createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
+    return this.#http
+      .post<PipelineTemplateResponse>(
+        `${this.#templatesBase}/from-template`,
+        { templateId },
+        { params: this.#langParams() },
+      )
+      .pipe(map(toPipelineTemplate));
+  }
+
+  createTemplate(request: CreatePipelineTemplateRequest): Observable<PipelineTemplate> {
+    return this.#http
+      .post<PipelineTemplateResponse>(this.#templatesBase, request)
+      .pipe(map(toPipelineTemplate));
   }
 
   updateTemplate(
     id: string,
-    request: PipelineTemplateWriteRequest,
+    request: UpdatePipelineTemplateRequest,
   ): Observable<PipelineTemplate> {
-    return this.#http.put<PipelineTemplate>(
-      `${this.#templatesBase}/${id}`,
-      request,
-    );
+    return this.#http
+      .put<PipelineTemplateResponse>(`${this.#templatesBase}/${id}`, request)
+      .pipe(map(toPipelineTemplate));
   }
 
-  setTemplateEnabled(
-    id: string,
-    enabled: boolean,
-  ): Observable<PipelineTemplate> {
-    return this.#http.patch<PipelineTemplate>(
-      `${this.#templatesBase}/${id}/enabled`,
-      { enabled },
-    );
+  setTemplateEnabled(id: string, enabled: boolean): Observable<PipelineTemplate> {
+    return this.#http
+      .patch<PipelineTemplateResponse>(`${this.#templatesBase}/${id}/enabled`, { enabled })
+      .pipe(map(toPipelineTemplate));
   }
 
   deleteTemplate(id: string): Observable<void> {

@@ -23,18 +23,14 @@ describe('TtsService', () => {
     httpMock.verify();
   });
 
-  it('should return normalized voices from api', () => {
-    service.getVoices().subscribe((voices) => {
-      expect(voices[0]).toEqual(expect.objectContaining({
-        id: 'alloy',
-        name: 'Alloy',
-        provider: 'openai',
-        isDefault: true,
-      }));
+  it('should return voices from api', () => {
+    const voices = [{ id: 'nova', name: 'Nova', language: 'en', gender: 'female' }];
+    service.getVoices().subscribe((result) => {
+      expect(result).toEqual(voices);
     });
 
     const req = httpMock.expectOne(`${API_BASE_URL}/audio/voices`);
-    req.flush({ voices: ['alloy', { id: 'nova', name: 'Nova', language: 'en' }] });
+    req.flush({ voices });
   });
 
   it('should return default voices when api fails', () => {

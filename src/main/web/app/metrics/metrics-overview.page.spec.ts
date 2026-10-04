@@ -6,8 +6,9 @@ import { provideRouter } from '@angular/router';
 import { provideEchartsCore } from 'ngx-echarts';
 import { API_BASE_URL } from '../http/api.constants';
 import { MetricsOverviewPageComponent } from './metrics-overview.page';
+import type { MetricsOverviewResponse, MetricsRange } from './metrics.service';
 
-const emptyOverview = {
+const emptyOverview: MetricsOverviewResponse = {
   range: '7d',
   requestCount: 42,
   errorCount: 0,
@@ -19,8 +20,21 @@ const emptyOverview = {
   completionTokens: 200,
   requestsByDomain: [{ name: 'chat', count: 30 }],
   domains: {
-    chat: { sessionCount: 5 },
-    rag: { documentCount: 2 },
+    chat: {
+      sessionCount: 5,
+      activeSessionCount: 1,
+      messageCount: 20,
+      webSourceReplyCount: 0,
+    },
+    rag: {
+      documentCount: 2,
+      documentsByStatus: { READY: 2 },
+      chunkCount: 8,
+      totalFileBytes: 1024,
+    },
+    agents: { status: 'UP', agentCount: 4, healthyAgentCount: 4 },
+    mcp: { status: 'DISABLED', registeredTools: 0, connectedServers: 0 },
+    system: { status: 'UP' },
   },
 };
 
@@ -56,7 +70,7 @@ describe('MetricsOverviewPageComponent', () => {
   });
 
   async function flushOverviewPage(
-    range: string,
+    range: MetricsRange,
     overview = emptyOverview,
   ): Promise<void> {
     fixture.detectChanges();

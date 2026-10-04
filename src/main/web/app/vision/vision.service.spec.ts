@@ -93,7 +93,7 @@ describe('VisionService', () => {
     req.flush({ caption: 'A cat', processingTimeMs: 120 });
 
     await vi.waitFor(() => {
-      expect(service.currentState().result?.caption).toBe('A cat');
+      expect(service.currentState().result).toEqual({ task: 'caption', caption: 'A cat', processingTimeMs: 120 });
       expect(service.isLoading()).toBe(false);
     });
   });
@@ -107,7 +107,7 @@ describe('VisionService', () => {
     service.analyze();
 
     httpMock.expectOne('/api/vision/caption').flush(
-      { errorCode: 'VISION_PROVIDER_UNAVAILABLE' },
+      { message: 'Vision provider unavailable', errorCode: 'VISION_PROVIDER_UNAVAILABLE', timestamp: '2026-01-01T00:00:00Z' },
       { status: 503, statusText: 'Unavailable' },
     );
 

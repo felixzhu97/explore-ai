@@ -17,18 +17,12 @@ import { stripToolCallMarkup } from '../chat-shell/tool-call-markup.util';
 import type { ToolStep } from '../chat-shell/chat-bubble-list.component';
 import { hasItems, hasText } from '../shared/presence';
 
-export interface ChatStreamMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
+export type ChatRole = 'user' | 'assistant';
 
-/** GET /api/chat/sessions/{id}/messages item; `timestamp` is ISO-8601. */
-export interface ChatHistoryMessage extends ChatStreamMessage {
-  id?: string;
-  timestamp: string;
-  toolCalls?: ToolCall[];
-  isLoading?: boolean;
-  sources?: WebSource[];
+/** Java `ChatStreamRequest.Message`. */
+export interface ChatStreamMessage {
+  role: ChatRole;
+  content: string;
 }
 
 /** POST /api/chat/stream */
@@ -41,30 +35,44 @@ export interface ChatStreamRequest {
   skillIds?: string[];
 }
 
-export interface ChatModel {
-  name: string;
-  provider: string;
-  description?: string;
-  maxTokens?: number;
+export interface WebSourceResponse {
+  title: string;
+  url: string;
+  snippet: string;
+  publishedAt: string | null;
 }
 
-export interface ChatProvider {
+/** GET /api/chat/sessions/{id}/messages item. */
+export interface MessageInfoResponse {
+  id: string;
+  role: ChatRole;
+  content: string;
+  timestamp: string;
+  sources: WebSourceResponse[] | null;
+}
+
+export interface ModelInfoResponse {
+  name: string;
+  provider: string;
+  description: string;
+}
+
+export interface ModelsListResponse {
+  provider: string;
+  models: ModelInfoResponse[];
+  count: number;
+}
+
+export type ProviderStatus = 'available' | 'unavailable';
+
+export interface ProviderInfoResponse {
   name: string;
   displayName: string;
   models: string[];
-  status: 'available' | 'unavailable';
+  status: ProviderStatus;
 }
 
-export interface ToolCall {
-  id: string;
-  name: string;
-  input: Record<string, unknown>;
-  output?: string;
-  status: 'pending' | 'running' | 'success' | 'error';
-}
-
-/** Session as sent by the API, with ISO-8601 instants. */
-export interface ChatSessionSummaryDto {
+export interface SessionResponse {
   sessionId: string;
   title: string;
   messageCount: number;
@@ -80,18 +88,18 @@ export interface ChatSessionSummary {
   lastActivityAt: Instant;
 }
 
-export function toChatSessionSummary(dto: ChatSessionSummaryDto): ChatSessionSummary {
+export function toChatSessionSummary(response: SessionResponse): ChatSessionSummary {
   return {
-    ...dto,
-    createdAt: Instant.parse(dto.createdAt),
-    lastActivityAt: Instant.parse(dto.lastActivityAt),
+    ...response,
+    createdAt: Instant.parse(response.createdAt),
+    lastActivityAt: Instant.parse(response.lastActivityAt),
   };
 }
 
 /** Message in the local chat thread, merged from the stream and session history. */
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: ChatRole;
   content: string;
   timestamp: Instant;
   toolSteps?: ToolStep[] | undefined;
@@ -105,8 +113,8 @@ export class ChatService {
   readonly #http = inject(HttpClient);
   readonly #router = inject(Router);
 
-  readonly providers = signal<ChatProvider[]>([]);
-  readonly models = signal<ChatModel[]>([]);
+  readonly providers = signal<ProviderInfoResponse[]>([]);
+  readonly models = signal<ModelInfoResponse[]>([]);
   readonly selectedProvider = signal('openai');
   readonly selectedModel = signal('deepseek-v4-flash');
   readonly isLoadingModels = signal(false);
@@ -150,8 +158,8 @@ export class ChatService {
         this.selectedProvider.set('openai');
         this.selectedModel.set('deepseek-v4-flash');
         this.models.set([
-          { name: 'deepseek-v4-flash', provider: 'openai' },
-          { name: 'deepseek-v4-pro', provider: 'openai' },
+          { name: 'deepseek-v4-flash', provider: 'openai', description: 'DeepSeek V4 Flash' },
+          { name: 'deepseek-v4-pro', provider: 'openai', description: 'DeepSeek V4 Pro' },
         ]);
       },
     });
@@ -169,7 +177,7 @@ export class ChatService {
         }
       },
       error: () => {
-        this.models.set([{ name: 'deepseek-v4-flash', provider }]);
+        this.models.set([{ name: 'deepseek-v4-flash', provider, description: 'DeepSeek V4 Flash' }]);
         this.selectedModel.set('deepseek-v4-flash');
       },
       complete: () => this.isLoadingModels.set(false),
@@ -776,15 +784,15 @@ export class ChatService {
     });
   }
 
-  #getProviders(): Observable<ChatProvider[]> {
+  #getProviders(): Observable<ProviderInfoResponse[]> {
     return this.#http
-      .get<ChatProvider[]>(`${API_BASE_URL}/chat/providers`)
+      .get<ProviderInfoResponse[]>(`${API_BASE_URL}/chat/providers`)
       .pipe(catchError(() => of(DEFAULT_PROVIDERS)));
   }
 
-  #getModels(provider: string): Observable<ChatModel[]> {
+  #getModels(provider: string): Observable<ModelInfoResponse[]> {
     return this.#http
-      .get<{ provider: string; models: ChatModel[]; count: number }>(`${API_BASE_URL}/chat/models`, {
+      .get<ModelsListResponse>(`${API_BASE_URL}/chat/models`, {
         params: { provider },
       })
       .pipe(
@@ -795,7 +803,7 @@ export class ChatService {
 
   #createSessionRequest(title?: string): Observable<ChatSessionSummary> {
     return this.#http
-      .post<ChatSessionSummaryDto>(
+      .post<SessionResponse>(
         `${API_BASE_URL}/chat/sessions`,
         hasText(title) ? { title } : {},
       )
@@ -804,12 +812,12 @@ export class ChatService {
 
   #getSessions(): Observable<ChatSessionSummary[]> {
     return this.#http
-      .get<ChatSessionSummaryDto[]>(`${API_BASE_URL}/chat/sessions`)
+      .get<SessionResponse[]>(`${API_BASE_URL}/chat/sessions`)
       .pipe(map(sessions => sessions.map(toChatSessionSummary)));
   }
 
-  #getSessionMessages(sessionId: string): Observable<ChatHistoryMessage[]> {
-    return this.#http.get<ChatHistoryMessage[]>(`${API_BASE_URL}/chat/sessions/${sessionId}/messages`, {
+  #getSessionMessages(sessionId: string): Observable<MessageInfoResponse[]> {
+    return this.#http.get<MessageInfoResponse[]>(`${API_BASE_URL}/chat/sessions/${sessionId}/messages`, {
       context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
     });
   }
@@ -870,21 +878,20 @@ export class ChatService {
     });
   }
 
-  #toChatMessage(message: ChatHistoryMessage): ChatMessage {
-    const timestamp = Instant.parse(message.timestamp);
+  #toChatMessage(message: MessageInfoResponse): ChatMessage {
     const content = message.role === 'assistant'
       ? stripToolCallMarkup(message.content)
       : message.content;
     return {
-      id: message.id ?? `${message.role}_${String(timestamp.toEpochMilli())}`,
-      role: message.role === 'assistant' ? 'assistant' : 'user',
+      id: message.id,
+      role: message.role,
       content,
-      timestamp,
+      timestamp: Instant.parse(message.timestamp),
       sources: message.sources?.map(source => ({
         title: source.title,
         url: source.url,
         snippet: source.snippet,
-        publishedAt: source.publishedAt === '' ? undefined : source.publishedAt,
+        publishedAt: source.publishedAt ?? undefined,
       })),
     };
   }

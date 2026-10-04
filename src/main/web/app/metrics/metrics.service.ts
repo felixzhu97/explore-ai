@@ -4,22 +4,75 @@ import { Instant } from '@js-joda/core';
 import { API_BASE_URL } from '../http/api.constants';
 import { hasText } from '../shared/presence';
 
-export type MetricsDomain = 'chat' | 'rag' | 'agents' | 'tools' | 'vision';
+export type MetricsDomain = 'chat' | 'rag' | 'agents' | 'tools' | 'vision' | 'workflow';
 
 export type MetricsRange = '7d' | '30d';
 
-export interface NamedCount {
+export type MetricsOutcome = 'success' | 'error';
+
+/** Mirrors Java `ModuleStatus`. */
+export type ModuleStatus = 'UP' | 'DEGRADED' | 'DISABLED';
+
+export interface NamedCountResponse {
   name: string;
   count: number;
 }
 
-export interface SeriesPoint {
+export interface SeriesPointResponse {
   label: string;
   value: number;
 }
 
-export interface MetricsOverview {
-  range: string;
+export interface ChatInventoryResponse {
+  sessionCount: number;
+  activeSessionCount: number;
+  messageCount: number;
+  webSourceReplyCount: number;
+}
+
+export interface RagInventoryResponse {
+  documentCount: number;
+  /** Document count keyed by `DocumentStatus`. */
+  documentsByStatus: Record<string, number>;
+  chunkCount: number;
+  totalFileBytes: number;
+}
+
+export interface AgentsInventoryResponse {
+  status: ModuleStatus;
+  agentCount: number;
+  healthyAgentCount: number;
+}
+
+export interface ToolsInventoryResponse {
+  topTools: NamedCountResponse[];
+}
+
+export interface RequestsInventoryResponse {
+  requests: number;
+  errors: number;
+}
+
+export interface McpInventoryResponse {
+  status: ModuleStatus;
+  registeredTools: number;
+  connectedServers: number;
+}
+
+export interface SystemInventoryResponse {
+  status: ModuleStatus;
+}
+
+export interface MetricsDomainsResponse {
+  chat: ChatInventoryResponse;
+  rag: RagInventoryResponse;
+  agents: AgentsInventoryResponse;
+  mcp: McpInventoryResponse;
+  system: SystemInventoryResponse;
+}
+
+export interface MetricsOverviewResponse {
+  range: MetricsRange;
   requestCount: number;
   errorCount: number;
   successRate: number;
@@ -28,13 +81,12 @@ export interface MetricsOverview {
   latencyP95Ms: number | null;
   promptTokens: number | null;
   completionTokens: number | null;
-  requestsByDomain: NamedCount[];
-  domains: Record<string, Record<string, unknown>>;
+  requestsByDomain: NamedCountResponse[];
+  domains: MetricsDomainsResponse;
 }
 
-export interface MetricsDomainSnapshot {
-  domain: string;
-  range: string;
+interface MetricsDomainStats {
+  range: MetricsRange;
   requestCount: number;
   errorCount: number;
   errorRate: number;
@@ -42,24 +94,32 @@ export interface MetricsDomainSnapshot {
   latencyP95Ms: number | null;
   promptTokens: number | null;
   completionTokens: number | null;
-  inventory: Record<string, unknown>;
-  requestSeries: SeriesPoint[];
-  modelSeries: SeriesPoint[];
+  requestSeries: SeriesPointResponse[];
+  modelSeries: SeriesPointResponse[];
 }
+
+/** The inventory shape follows the domain, as built by Java `MetricsService`. */
+export type MetricsDomainResponse = MetricsDomainStats & (
+  | { domain: 'chat'; inventory: ChatInventoryResponse }
+  | { domain: 'rag'; inventory: RagInventoryResponse }
+  | { domain: 'agents'; inventory: AgentsInventoryResponse }
+  | { domain: 'tools'; inventory: ToolsInventoryResponse }
+  | { domain: 'vision' | 'workflow'; inventory: RequestsInventoryResponse }
+);
 
 export interface SeriesResponse {
   name: string;
-  domain: string | null;
-  range: string;
-  points: SeriesPoint[];
+  domain: MetricsDomain | null;
+  range: MetricsRange;
+  points: SeriesPointResponse[];
 }
 
-export interface InvocationEvent {
+export interface InvocationEventResponse {
   id: string;
-  occurredAt: Instant;
-  domain: string;
+  occurredAt: string;
+  domain: MetricsDomain;
   operation: string;
-  outcome: string;
+  outcome: MetricsOutcome;
   latencyMs: number;
   provider: string | null;
   model: string | null;
@@ -73,8 +133,35 @@ export interface InvocationEvent {
   errorMessage: string | null;
 }
 
-/** Drill-down event as sent by the API, with an ISO-8601 `occurredAt`. */
-export type InvocationEventDto = Omit<InvocationEvent, 'occurredAt'> & { occurredAt: string };
+export interface InvocationEvent {
+  id: string;
+  occurredAt: Instant;
+  domain: MetricsDomain;
+  operation: string;
+  outcome: MetricsOutcome;
+  latencyMs: number;
+  provider: string | null;
+  model: string | null;
+  sessionId: string | null;
+  documentId: string | null;
+  agentType: string | null;
+  toolName: string | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+}
+
+export function toInvocationEvent(response: InvocationEventResponse): InvocationEvent {
+  return { ...response, occurredAt: Instant.parse(response.occurredAt) };
+}
+
+export interface DrilldownPageResponse {
+  items: InvocationEventResponse[];
+  total: number;
+  page: number;
+  size: number;
+}
 
 export interface DrilldownPage {
   items: InvocationEvent[];
@@ -83,22 +170,14 @@ export interface DrilldownPage {
   size: number;
 }
 
-export type DrilldownPageDto = Omit<DrilldownPage, 'items'> & { items: InvocationEventDto[] };
-
-export function toDrilldownPage(dto: DrilldownPageDto): DrilldownPage {
-  return {
-    ...dto,
-    items: dto.items.map(item => ({
-      ...item,
-      occurredAt: Instant.parse(item.occurredAt),
-    })),
-  };
+export function toDrilldownPage(response: DrilldownPageResponse): DrilldownPage {
+  return { ...response, items: response.items.map(toInvocationEvent) };
 }
 
 export interface DrilldownQuery {
-  domain?: string;
+  domain?: MetricsDomain;
   day?: string | undefined;
-  outcome?: string;
+  outcome?: MetricsOutcome;
   model?: string | undefined;
   agentType?: string;
   toolName?: string;
@@ -107,7 +186,7 @@ export interface DrilldownQuery {
   range?: MetricsRange;
 }
 
-export const METRICS_DOMAINS: MetricsDomain[] = ['chat', 'rag', 'agents', 'tools', 'vision'];
+export const METRICS_DOMAINS: MetricsDomain[] = ['chat', 'rag', 'agents', 'tools', 'vision', 'workflow'];
 
 export function isMetricsDomain(
   value: string | null | undefined,
@@ -126,8 +205,10 @@ export interface SeriesQuery {
 export class MetricsService {
   readonly #baseUrl = `${API_BASE_URL}/metrics`;
 
-  overview(range: () => MetricsRange): HttpResourceRef<MetricsOverview | undefined> {
-    return httpResource<MetricsOverview>(() => ({
+  overview(
+    range: () => MetricsRange,
+  ): HttpResourceRef<MetricsOverviewResponse | undefined> {
+    return httpResource<MetricsOverviewResponse>(() => ({
       url: `${this.#baseUrl}/overview`,
       params: { range: range() },
     }));
@@ -136,8 +217,8 @@ export class MetricsService {
   domain(
     domain: () => MetricsDomain | null,
     range: () => MetricsRange,
-  ): HttpResourceRef<MetricsDomainSnapshot | undefined> {
-    return httpResource<MetricsDomainSnapshot>(() => {
+  ): HttpResourceRef<MetricsDomainResponse | undefined> {
+    return httpResource<MetricsDomainResponse>(() => {
       const value = domain();
       return value !== null
         ? { url: `${this.#baseUrl}/domains/${value}`, params: { range: range() } }
@@ -166,6 +247,6 @@ export class MetricsService {
         Object.entries(value).filter(([, param]) => param !== undefined),
       ) as Record<string, string | number>;
       return { url: `${this.#baseUrl}/drilldown`, params };
-    }, { parse: raw => toDrilldownPage(raw as DrilldownPageDto) });
+    }, { parse: raw => toDrilldownPage(raw as DrilldownPageResponse) });
   }
 }
