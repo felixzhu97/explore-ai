@@ -1,6 +1,7 @@
 package com.ai.automation.infra.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
@@ -11,12 +12,14 @@ import com.ai.common.domain.vo.OwnerKey;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -27,6 +30,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
       SpringDataAutomationScheduleRepository.class,
       SpringDataAutomationRunRepository.class
     })
+@Import(JpaAutomationRunRepository.class)
 class AutomationJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:44444444-4444-4444-4444-444444444444";
@@ -36,6 +40,23 @@ class AutomationJpaTest extends AbstractDataJpaTest {
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataAutomationScheduleRepository scheduleRepository;
   @Autowired private SpringDataAutomationRunRepository runRepository;
+  @Autowired private JpaAutomationRunRepository runAdapter;
+
+  @Test
+  @DisplayName("should keep the same managed instance when saving a new run")
+  void shouldKeepTheSameManagedInstanceWhenSavingNewRun() {
+    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER_KEY);
+    run.skip("quota");
+
+    AutomationRun saved = runAdapter.save(run);
+
+    assertThat(saved).isSameAs(run);
+    assertThat(em.getEntityManager().contains(run)).isTrue();
+    em.clear();
+    AutomationRun reloaded = runRepository.findById(run.getId()).orElseThrow();
+    assertThat(reloaded.getStartedAt()).isCloseTo(run.getStartedAt(), within(1, ChronoUnit.MILLIS));
+    assertThat(reloaded.getStatus()).isEqualTo(RunStatus.SKIPPED);
+  }
 
   @Test
   @DisplayName("should persist and reload automation schedule when round tripping")
@@ -166,7 +187,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     List<AutomationRun> runs =
-        runRepository.findByScheduleIdAndOwnerKeyOrderByStartedAtDesc(
+        runRepository.findByScheduleIdAndOwnerKeyOrderByCreatedAtDesc(
             scheduleId, OWNER, PageRequest.of(0, 10));
 
     assertThat(runs).extracting(AutomationRun::getResultExcerpt).containsExactly("newer", "older");

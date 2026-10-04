@@ -4,7 +4,7 @@ import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.base.domain.vo.UuidStringAttributeConverter;
-import com.ai.common.domain.model.AbstractNamedOwnerEntity;
+import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
-/** Automation schedule aggregate with custom enable semantics. */
+/** Automation schedule aggregate; enabling it re-arms the next run. */
 @Entity
+@DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
+public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<ScheduleId> {
 
   /** Provisional / terminal next_run_at for one-shot schedules after claim or completion. */
   public static final Instant ONCE_TERMINAL_NEXT = Instant.parse("9999-12-31T23:59:59Z");
@@ -48,9 +50,6 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
   @Size(max = 64)
   @Column(nullable = false, length = 64)
   private String timezone;
-
-  @Column(nullable = false)
-  private boolean enabled;
 
   @NotNull
   @Enumerated(EnumType.STRING)
@@ -94,11 +93,10 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
       Instant lastRunAt,
       Instant createdAt,
       Instant updatedAt) {
-    super(id, ownerKey, name, createdAt, updatedAt);
+    super(id, ownerKey, name, enabled, createdAt, updatedAt);
     this.scheduleKind = Objects.requireNonNull(scheduleKind, "scheduleKind");
     this.cronExpression = normalizeCron(scheduleKind, cronExpression);
     this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
-    this.enabled = enabled;
     this.actionType = Objects.requireNonNull(actionType, "actionType");
     this.workflowTemplateId =
         DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId");
@@ -231,15 +229,8 @@ public class AutomationSchedule extends AbstractNamedOwnerEntity<ScheduleId> {
 
   /** Documentation. */
   public void enable(Instant nextRunAt) {
-    this.enabled = true;
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
-    touchUpdatedAt();
-  }
-
-  /** Documentation. */
-  public void disable() {
-    this.enabled = false;
-    touchUpdatedAt();
+    enable();
   }
 
   /** Documentation. */

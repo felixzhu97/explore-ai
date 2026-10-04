@@ -6,7 +6,7 @@ import java.util.List;
 
 /** Documentation. */
 public interface AutomationRunRepository {
-  /** Documentation. */
+  /** Inserts a new run; each run is written once, after it finishes. */
   AutomationRun save(AutomationRun run);
 
   /** Documentation. */

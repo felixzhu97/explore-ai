@@ -1,23 +1,28 @@
 package com.ai.common.domain.model;
 
 import com.ai.base.domain.vo.AbstractUuidId;
+import com.ai.common.domain.vo.DomainStrings;
 import com.ai.common.domain.vo.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Described owner-keyed aggregate that can be enabled or disabled. */
+/** Enableable named owner-keyed aggregate with normalized description. */
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends AbstractUuidId>
-    extends AbstractDescribedOwnerEntity<IdT> {
+    extends AbstractEnableableNamedOwnerEntity<IdT> {
 
-  @Column(nullable = false)
-  protected boolean enabled;
+  @NotBlank
+  @Size(max = 500)
+  @Column(nullable = false, length = 500)
+  protected String description;
 
   /** Documentation. */
   protected AbstractEnableableDescribedOwnerEntity(
@@ -28,8 +33,8 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
       boolean enabled,
       Instant createdAt,
       Instant updatedAt) {
-    super(id, ownerKey, name, description, createdAt, updatedAt);
-    this.enabled = enabled;
+    super(id, ownerKey, name, enabled, createdAt, updatedAt);
+    this.description = DomainStrings.normalizeDescription(description);
   }
 
   /** Documentation. */
@@ -41,24 +46,13 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
       boolean enabled,
       Instant createdAt,
       Instant updatedAt) {
-    super(id, clientId, name, description, createdAt, updatedAt);
-    this.enabled = enabled;
+    super(id, clientId, name, enabled, createdAt, updatedAt);
+    this.description = DomainStrings.normalizeDescription(description);
   }
 
   /** Documentation. */
-  public void enable() {
-    this.enabled = true;
+  protected void updateDescription(String nextDescription) {
+    this.description = DomainStrings.normalizeDescription(nextDescription);
     touchUpdatedAt();
-  }
-
-  /** Documentation. */
-  public void disable() {
-    this.enabled = false;
-    touchUpdatedAt();
-  }
-
-  /** Documentation. */
-  public boolean isEnabled() {
-    return enabled;
   }
 }

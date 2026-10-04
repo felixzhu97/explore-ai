@@ -1,37 +1,36 @@
 package com.ai.common.domain.model;
 
+import com.ai.base.domain.model.AbstractImmutable;
 import com.ai.base.domain.vo.AbstractUuidId;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /** Base for run records tracked by started and finished timestamps (no updated_at). */
 @MappedSuperclass
+@AttributeOverride(
+    name = "createdAt",
+    column = @Column(name = "started_at", nullable = false, updatable = false))
 @Getter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId> {
-
-  @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
-
-  @NotNull
-  @Column(nullable = false)
-  protected Instant startedAt;
+public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId>
+    extends AbstractImmutable<IdT> {
 
   @Column protected Instant finishedAt;
 
   /** Documentation. */
   protected AbstractTimedRunEntity(IdT id, Instant startedAt, Instant finishedAt) {
-    this.id = Objects.requireNonNull(id, "id");
-    this.startedAt = Objects.requireNonNull(startedAt, "startedAt");
+    super(id, Objects.requireNonNull(startedAt, "startedAt"));
     this.finishedAt = finishedAt;
+  }
+
+  public Instant getStartedAt() {
+    return createdAt;
   }
 
   /** Documentation. */
