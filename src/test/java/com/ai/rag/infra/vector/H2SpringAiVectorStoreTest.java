@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
-import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
@@ -31,7 +31,7 @@ import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 @DisplayName("H2SpringAiVectorStore")
 class H2SpringAiVectorStoreTest {
 
-  @Mock private TextEmbeddingRepository embeddingRepository;
+  @Mock private TextEmbeddingGateway embeddingRepository;
 
   @Mock private DocumentChunkSearchRepository chunkSearchRepository;
 

@@ -1,6 +1,6 @@
 package com.ai.tools.infra.tools;
 
-import com.ai.common.domain.repository.WeatherTool;
+import com.ai.common.domain.tool.WeatherTool;
 import com.ai.tools.domain.exception.InvalidWeatherQueryException;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;

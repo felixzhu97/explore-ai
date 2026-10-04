@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.model.GeneratedImage;
-import com.ai.image.domain.repository.ImageGenerationRepository;
+import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.domain.vo.ImageOptions;
 import com.ai.image.domain.vo.ImagePrompt;
 import com.ai.image.infra.config.ImageProperties;
@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("ImageGenerationService")
 class ImageGenerationServiceTest {
 
-  @Mock private ImageGenerationRepository imageGenerationRepository;
+  @Mock private ImageGenerationGateway imageGenerationGateway;
 
   private ImageProperties imageProperties;
   private ImageGenerationService imageGenerationService;
@@ -36,7 +36,7 @@ class ImageGenerationServiceTest {
     imageProperties.setApiKey("test-api-key");
     imageProperties.setBaseUrl("https://api.openai.com/v1");
     imageProperties.setModel("x/z-image-turbo");
-    imageGenerationService = new ImageGenerationService(imageGenerationRepository, imageProperties);
+    imageGenerationService = new ImageGenerationService(imageGenerationGateway, imageProperties);
   }
 
   @Test
@@ -64,26 +64,26 @@ class ImageGenerationServiceTest {
   @Test
   @DisplayName("should use configured model when request model is null")
   void shouldUseConfiguredModelWhenRequestModelIsNull() {
-    when(imageGenerationRepository.generate(any(ImagePrompt.class), any(ImageOptions.class)))
+    when(imageGenerationGateway.generate(any(ImagePrompt.class), any(ImageOptions.class)))
         .thenReturn(GeneratedImage.fromBase64("abc", "x/z-image-turbo", "sunset"));
 
     imageGenerationService.generateImage("sunset", null, null, 512, 512, 1);
 
     ArgumentCaptor<ImageOptions> optionsCaptor = ArgumentCaptor.forClass(ImageOptions.class);
-    verify(imageGenerationRepository).generate(any(ImagePrompt.class), optionsCaptor.capture());
+    verify(imageGenerationGateway).generate(any(ImagePrompt.class), optionsCaptor.capture());
     assertThat(optionsCaptor.getValue().model()).isEqualTo("x/z-image-turbo");
   }
 
   @Test
   @DisplayName("should use request model when provided")
   void shouldUseRequestModelWhenProvided() {
-    when(imageGenerationRepository.generate(any(ImagePrompt.class), any(ImageOptions.class)))
+    when(imageGenerationGateway.generate(any(ImagePrompt.class), any(ImageOptions.class)))
         .thenReturn(GeneratedImage.fromUrl("https://example.com/a.png", "dall-e-3", "sunset"));
 
     imageGenerationService.generateImage("sunset", "dall-e-3", "standard", 1024, 1024, 1);
 
     ArgumentCaptor<ImageOptions> optionsCaptor = ArgumentCaptor.forClass(ImageOptions.class);
-    verify(imageGenerationRepository).generate(any(ImagePrompt.class), optionsCaptor.capture());
+    verify(imageGenerationGateway).generate(any(ImagePrompt.class), optionsCaptor.capture());
     assertThat(optionsCaptor.getValue().model()).isEqualTo("dall-e-3");
   }
 }

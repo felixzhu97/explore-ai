@@ -3,7 +3,7 @@ package com.ai.audio.infra.config;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.audio.infra.adapter.AudioTranscriptionWebSocketHandler;
+import com.ai.audio.infra.websocket.AudioTranscriptionWebSocketHandler;
 import com.ai.common.config.CorsProperties;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

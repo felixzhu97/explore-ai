@@ -1,9 +1,9 @@
 package com.ai.rag.infra.etl;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentWriter;
-import com.ai.rag.domain.repository.IDocumentChunkRepository;
-import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmbeddingDocumentWriter implements DocumentWriter {
 
-  private final TextEmbeddingRepository embeddingRepository;
-  private final IDocumentChunkRepository chunkRepository;
+  private final TextEmbeddingGateway embeddingRepository;
+  private final DocumentChunkRepository chunkRepository;
 
   public EmbeddingDocumentWriter(
-      TextEmbeddingRepository embeddingRepository, IDocumentChunkRepository chunkRepository) {
+      TextEmbeddingGateway embeddingRepository, DocumentChunkRepository chunkRepository) {
     this.embeddingRepository = embeddingRepository;
     this.chunkRepository = chunkRepository;
   }

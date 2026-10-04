@@ -3,7 +3,7 @@ package com.ai.rag.infra.vector;
 import com.ai.common.util.LogSanitizer;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
-import com.ai.rag.domain.repository.TextEmbeddingRepository;
+import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.util.VectorSimilarity;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +31,11 @@ public class H2SpringAiVectorStore implements VectorStore {
   private static final Logger log = LoggerFactory.getLogger(H2SpringAiVectorStore.class);
   private static final int MAX_CONTENT_LENGTH = 500;
 
-  private final TextEmbeddingRepository embeddingRepository;
+  private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
 
   public H2SpringAiVectorStore(
-      TextEmbeddingRepository embeddingRepository,
+      TextEmbeddingGateway embeddingRepository,
       DocumentChunkSearchRepository chunkSearchRepository) {
     this.embeddingRepository = embeddingRepository;
     this.chunkSearchRepository = chunkSearchRepository;

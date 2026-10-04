@@ -1,9 +1,9 @@
 package com.ai.pipeline.infra.llm;
 
-import com.ai.common.domain.repository.DateTimeTool;
-import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WeatherTool;
-import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.domain.tool.DateTimeTool;
+import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.domain.tool.WeatherTool;
+import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import com.ai.common.infra.skills.AgentSkillsRuntime;
 import com.ai.common.service.llm.ChatClientProfile;

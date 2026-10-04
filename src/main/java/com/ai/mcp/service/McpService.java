@@ -3,7 +3,7 @@ package com.ai.mcp.service;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.mcp.domain.model.McpToolDefinition;
-import com.ai.mcp.domain.repository.McpClientRepository;
+import com.ai.mcp.domain.repository.McpClientGateway;
 import com.ai.mcp.domain.vo.McpServerConnection;
 import java.util.List;
 import java.util.Map;
@@ -20,29 +20,29 @@ import org.springframework.stereotype.Service;
     matchIfMissing = false)
 public class McpService {
 
-  private final McpClientRepository mcpClientRepository;
+  private final McpClientGateway mcpClientGateway;
   private final McpToolCallbackRegistry toolCallbackRegistry;
   private final ChatClientProvider chatClientProvider;
 
   public McpService(
-      McpClientRepository mcpClientRepository,
+      McpClientGateway mcpClientGateway,
       McpToolCallbackRegistry toolCallbackRegistry,
       ChatClientProvider chatClientProvider) {
-    this.mcpClientRepository = mcpClientRepository;
+    this.mcpClientGateway = mcpClientGateway;
     this.toolCallbackRegistry = toolCallbackRegistry;
     this.chatClientProvider = chatClientProvider;
   }
 
   public int getTotalToolCount() {
-    return mcpClientRepository.toolCount();
+    return mcpClientGateway.toolCount();
   }
 
   public Map<String, McpServerConnection> getConnectedServers() {
-    return mcpClientRepository.listServers();
+    return mcpClientGateway.listServers();
   }
 
   public List<McpToolDefinition> getToolDefinitions() {
-    return mcpClientRepository.listTools();
+    return mcpClientGateway.listTools();
   }
 
   public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
@@ -50,7 +50,7 @@ public class McpService {
   }
 
   public void clearTools() {
-    mcpClientRepository.clearTools();
+    mcpClientGateway.clearTools();
   }
 
   /** Answers the question with a stateless chat that can call all registered MCP tools. */

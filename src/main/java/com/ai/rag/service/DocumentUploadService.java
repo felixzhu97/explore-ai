@@ -4,11 +4,11 @@ import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.RawDocument;
+import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
+import com.ai.rag.domain.repository.DocumentRepository;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
-import com.ai.rag.domain.repository.IDocumentChunkRepository;
-import com.ai.rag.domain.repository.IDocumentRepository;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
@@ -37,15 +37,15 @@ public class DocumentUploadService {
   private final DocumentReader reader;
   private final DocumentTransformer transformer;
   private final DocumentWriter writer;
-  private final IDocumentRepository documentRepository;
-  private final IDocumentChunkRepository chunkRepository;
+  private final DocumentRepository documentRepository;
+  private final DocumentChunkRepository chunkRepository;
 
   public DocumentUploadService(
       DocumentReader reader,
       DocumentTransformer transformer,
       DocumentWriter writer,
-      IDocumentRepository documentRepository,
-      IDocumentChunkRepository chunkRepository) {
+      DocumentRepository documentRepository,
+      DocumentChunkRepository chunkRepository) {
     this.reader = reader;
     this.transformer = transformer;
     this.writer = writer;

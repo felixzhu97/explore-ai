@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.model.SynthesizedAudio;
-import com.ai.audio.domain.repository.TextToSpeechRepository;
+import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
 import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceSelection;
@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("AudioService")
 class AudioServiceTest {
 
-  @Mock private TextToSpeechRepository textToSpeechRepository;
+  @Mock private TextToSpeechGateway textToSpeechGateway;
 
   @Mock private TtsConfiguration ttsConfiguration;
 
@@ -31,7 +31,7 @@ class AudioServiceTest {
 
   @BeforeEach
   void setUp() {
-    service = new AudioService(textToSpeechRepository, ttsConfiguration);
+    service = new AudioService(textToSpeechGateway, ttsConfiguration);
   }
 
   @Test
@@ -40,8 +40,7 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
     when(ttsConfiguration.getDefaultVoice()).thenReturn("alloy");
-    when(textToSpeechRepository.synthesize(
-            any(SpeechText.class), any(VoiceSelection.class), eq(1.0)))
+    when(textToSpeechGateway.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(1.0)))
         .thenReturn(SynthesizedAudio.create(new byte[] {1, 2, 3}));
 
     byte[] audio = service.synthesize("hello", null, 1.0);
@@ -54,8 +53,7 @@ class AudioServiceTest {
   void shouldResolveLegacyVoiceAlias() {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
-    when(textToSpeechRepository.synthesize(
-            any(SpeechText.class), any(VoiceSelection.class), eq(null)))
+    when(textToSpeechGateway.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(null)))
         .thenReturn(SynthesizedAudio.create(new byte[] {9}));
 
     byte[] audio = service.synthesize("hello", "zh-CN", null);
@@ -88,8 +86,7 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
     when(ttsConfiguration.getDefaultVoice()).thenReturn("alloy");
-    when(textToSpeechRepository.synthesize(
-            any(SpeechText.class), any(VoiceSelection.class), eq(null)))
+    when(textToSpeechGateway.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(null)))
         .thenReturn(SynthesizedAudio.empty());
 
     assertThat(service.synthesize("hello", null, null)).isNull();

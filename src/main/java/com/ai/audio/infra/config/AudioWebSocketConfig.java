@@ -1,6 +1,6 @@
 package com.ai.audio.infra.config;
 
-import com.ai.audio.infra.adapter.AudioTranscriptionWebSocketHandler;
+import com.ai.audio.infra.websocket.AudioTranscriptionWebSocketHandler;
 import com.ai.common.config.CorsProperties;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

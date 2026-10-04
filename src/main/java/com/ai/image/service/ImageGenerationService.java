@@ -3,7 +3,7 @@ package com.ai.image.service;
 import com.ai.common.util.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.model.GeneratedImage;
-import com.ai.image.domain.repository.ImageGenerationRepository;
+import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.domain.vo.ImageCatalog;
 import com.ai.image.domain.vo.ImageOptions;
 import com.ai.image.domain.vo.ImagePrompt;
@@ -20,12 +20,12 @@ public class ImageGenerationService {
 
   private static final Logger log = LoggerFactory.getLogger(ImageGenerationService.class);
 
-  private final ImageGenerationRepository imageGenerationRepository;
+  private final ImageGenerationGateway imageGenerationGateway;
   private final ImageProperties imageProperties;
 
   public ImageGenerationService(
-      ImageGenerationRepository imageGenerationRepository, ImageProperties imageProperties) {
-    this.imageGenerationRepository = imageGenerationRepository;
+      ImageGenerationGateway imageGenerationGateway, ImageProperties imageProperties) {
+    this.imageGenerationGateway = imageGenerationGateway;
     this.imageProperties = imageProperties;
   }
 
@@ -35,7 +35,7 @@ public class ImageGenerationService {
     ensureProviderConfigured();
     log.info("ImageGenerationService.generateImage: {}", LogSanitizer.truncate(prompt));
     GeneratedImage image =
-        imageGenerationRepository.generate(
+        imageGenerationGateway.generate(
             ImagePrompt.of(prompt),
             ImageOptions.of(resolveModel(model), quality, width, height, n));
     return image.isAvailable() ? image : GeneratedImage.empty();

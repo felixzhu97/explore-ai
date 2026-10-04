@@ -1,7 +1,7 @@
 package com.ai.analysis.service;
 
 import com.ai.analysis.domain.model.TextAnalysis;
-import com.ai.analysis.domain.repository.StructuredAnalysisRepository;
+import com.ai.analysis.domain.repository.TextAnalysisGateway;
 import com.ai.analysis.domain.vo.AnalysisText;
 import com.ai.analysis.domain.vo.LanguageHint;
 import com.ai.common.util.LogSanitizer;
@@ -15,15 +15,15 @@ public class TextAnalysisService {
 
   private static final Logger log = LoggerFactory.getLogger(TextAnalysisService.class);
 
-  private final StructuredAnalysisRepository structuredAnalysisRepository;
+  private final TextAnalysisGateway textAnalysisGateway;
 
-  public TextAnalysisService(StructuredAnalysisRepository structuredAnalysisRepository) {
-    this.structuredAnalysisRepository = structuredAnalysisRepository;
+  public TextAnalysisService(TextAnalysisGateway textAnalysisGateway) {
+    this.textAnalysisGateway = textAnalysisGateway;
   }
 
   public TextAnalysis analyzeText(String text) {
     log.info("TextAnalysisService.analyzeText: {}", LogSanitizer.truncate(text));
-    return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.none());
+    return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.none());
   }
 
   /** Analyzes the text and asks the model to respond in the given language. */
@@ -32,6 +32,6 @@ public class TextAnalysisService {
         "TextAnalysisService.analyzeTextWithLanguage: {} lang={}",
         LogSanitizer.truncate(text),
         language);
-    return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.of(language));
+    return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.of(language));
   }
 }

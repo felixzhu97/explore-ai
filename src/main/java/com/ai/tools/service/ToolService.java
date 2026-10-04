@@ -1,7 +1,7 @@
 package com.ai.tools.service;
 
-import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.common.util.LogSanitizer;

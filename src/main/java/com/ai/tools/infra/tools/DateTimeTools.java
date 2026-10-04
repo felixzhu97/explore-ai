@@ -1,6 +1,6 @@
 package com.ai.tools.infra.tools;
 
-import com.ai.common.domain.repository.DateTimeTool;
+import com.ai.common.domain.tool.DateTimeTool;
 import java.time.Clock;
 import java.time.Instant;
 import org.springframework.ai.tool.annotation.Tool;

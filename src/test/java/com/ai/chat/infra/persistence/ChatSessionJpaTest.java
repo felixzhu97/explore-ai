@@ -94,7 +94,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
 
   @Test
   @DisplayName("should find session by id and bare client id when using jpa adapter")
-  void shouldFindSessionByIdAndBareClientIdWhenUsingJpaAdapter() {
+  void shouldFindSessionByIdAndBareClientIdWhenUsingJpaRepository() {
     ChatSession session = ChatSession.create("Scoped", OWNER_KEY);
     springDataRepository.saveAndFlush(session);
     em.clear();
@@ -108,7 +108,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
 
   @Test
   @DisplayName("should list sessions by bare client id when using jpa adapter")
-  void shouldListSessionsByBareClientIdWhenUsingJpaAdapter() {
+  void shouldListSessionsByBareClientIdWhenUsingJpaRepository() {
     ChatSession session = ChatSession.create("Listed", OWNER_KEY);
     springDataRepository.saveAndFlush(session);
     em.clear();

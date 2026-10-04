@@ -22,7 +22,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.rag.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataDocumentRepository.class)
-@Import({DocumentRepository.class, OwnerPartitionScope.class})
+@Import({JpaDocumentRepository.class, OwnerPartitionScope.class})
 class DocumentJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:33333333-3333-3333-3333-333333333333";
@@ -30,7 +30,7 @@ class DocumentJpaTest extends AbstractDataJpaTest {
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataDocumentRepository repository;
-  @Autowired private DocumentRepository adapter;
+  @Autowired private JpaDocumentRepository adapter;
 
   @Test
   @DisplayName("should persist and reload document when round tripping")

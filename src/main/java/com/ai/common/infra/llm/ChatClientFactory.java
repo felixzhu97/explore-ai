@@ -1,9 +1,9 @@
 package com.ai.common.infra.llm;
 
-import com.ai.common.domain.repository.DateTimeTool;
-import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WeatherTool;
-import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.domain.tool.DateTimeTool;
+import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.domain.tool.WeatherTool;
+import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;

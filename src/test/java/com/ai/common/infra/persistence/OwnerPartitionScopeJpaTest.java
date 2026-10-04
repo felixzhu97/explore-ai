@@ -42,8 +42,8 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
   @Autowired private TestEntityManager em;
   @Autowired private OwnerPartitionScope ownerPartition;
   @Autowired private SpringDataSkillRepository skills;
-  @Autowired private JpaSkillRepository skillAdapter;
-  @Autowired private JpaAutomationRunRepository runAdapter;
+  @Autowired private JpaSkillRepository jpaSkillRepository;
+  @Autowired private JpaAutomationRunRepository jpaRunRepository;
 
   private Skill persistSkill(String ownerKey, String name) {
     Skill skill = Skill.create(ownerKey, name, "Description", "Instructions", List.of());
@@ -68,8 +68,8 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
   void shouldHideCachedInstanceOfAnotherOwnerWhenFindingOne() {
     Skill skill = persistSkill(OWNER_A, "Cached");
 
-    assertThat(skillAdapter.findByIdAndClientId(skill.getId(), OWNER_B)).isEmpty();
-    assertThat(skillAdapter.findByIdAndClientId(skill.getId(), OWNER_A)).isPresent();
+    assertThat(jpaSkillRepository.findByIdAndClientId(skill.getId(), OWNER_B)).isEmpty();
+    assertThat(jpaSkillRepository.findByIdAndClientId(skill.getId(), OWNER_A)).isPresent();
   }
 
   @Test
@@ -79,12 +79,12 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
     persistSkill(OWNER_B, "Other");
     em.clear();
 
-    assertThat(skillAdapter.findAllByClientId(OWNER_A))
+    assertThat(jpaSkillRepository.findAllByClientId(OWNER_A))
         .extracting(Skill::getName)
         .containsExactly("Shared Name");
-    assertThat(skillAdapter.existsByClientIdAndNameIgnoringId(OWNER_B, "Shared Name", null))
+    assertThat(jpaSkillRepository.existsByClientIdAndNameIgnoringId(OWNER_B, "Shared Name", null))
         .isFalse();
-    assertThat(skillAdapter.existsByClientIdAndNameIgnoringId(OWNER_A, "Shared Name", null))
+    assertThat(jpaSkillRepository.existsByClientIdAndNameIgnoringId(OWNER_A, "Shared Name", null))
         .isTrue();
   }
 
@@ -94,7 +94,7 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
     Skill skill = persistSkill(OWNER_A, "Kept");
     em.clear();
 
-    skillAdapter.deleteByIdAndClientId(skill.getId(), OWNER_B);
+    jpaSkillRepository.deleteByIdAndClientId(skill.getId(), OWNER_B);
     em.flush();
     em.clear();
 
@@ -105,11 +105,11 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
   @DisplayName("should scope automation runs that do not share the owner keyed base")
   void shouldScopeAutomationRunsThatDoNotShareTheOwnerKeyedBase() {
     ScheduleId scheduleId = ScheduleId.generate();
-    runAdapter.save(AutomationRun.start(scheduleId, OWNER_A));
+    jpaRunRepository.save(AutomationRun.start(scheduleId, OWNER_A));
     em.clear();
 
-    assertThat(runAdapter.findByScheduleIdAndClientId(scheduleId, OWNER_B, 10)).isEmpty();
-    assertThat(runAdapter.findByScheduleIdAndClientId(scheduleId, OWNER_A, 10)).hasSize(1);
+    assertThat(jpaRunRepository.findByScheduleIdAndClientId(scheduleId, OWNER_B, 10)).isEmpty();
+    assertThat(jpaRunRepository.findByScheduleIdAndClientId(scheduleId, OWNER_A, 10)).hasSize(1);
   }
 
   @Test

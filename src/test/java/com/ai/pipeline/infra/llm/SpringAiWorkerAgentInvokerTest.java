@@ -7,10 +7,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.repository.DateTimeTool;
-import com.ai.common.domain.repository.DocumentSearchTool;
-import com.ai.common.domain.repository.WeatherTool;
-import com.ai.common.domain.repository.WebSearchTool;
+import com.ai.common.domain.tool.DateTimeTool;
+import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.domain.tool.WeatherTool;
+import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.skills.AgentSkillsRuntime;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
