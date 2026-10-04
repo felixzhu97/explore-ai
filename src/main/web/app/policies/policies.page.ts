@@ -140,7 +140,7 @@ import {
     class: 'flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-white',
   },
 })
-export class PoliciesPage {
+export class PoliciesPageComponent {
   private readonly i18n = inject(I18nService);
   private readonly route = inject(ActivatedRoute);
 

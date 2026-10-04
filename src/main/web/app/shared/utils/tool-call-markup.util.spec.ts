@@ -3,7 +3,7 @@ import {
   parseDsmlToolInvocations,
   stripToolCallMarkup,
   toMinimalToolSteps,
-} from './tool-call-markup.filter';
+} from './tool-call-markup.util';
 
 const FULLWIDTH = [
   '前言',

@@ -13,45 +13,20 @@ import {
   computed,
   ElementRef,
   type EmbeddedViewRef,
-  type EventEmitter,
   inject,
   output,
-  type TemplateRef,
-  type Type,
   viewChild,
-  type ViewContainerRef,
 } from '@angular/core';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
 
-import { mergeClasses, noopFn } from '../../utils/merge-classes';
+import { mergeClasses } from '../../utils/merge-classes';
 
 import type { ZardDialogRef } from './dialog-ref';
+import { ZardDialogOptions } from './dialog-options';
 import { dialogVariants } from './dialog.variants';
 import { ZardButtonComponent } from '../button/button.component';
-
-export type OnClickCallback<T> = (instance: T) => false | void | object;
-export class ZardDialogOptions<T, U> {
-  zCancelIcon?: string;
-  zCancelText?: string | null;
-  zClosable?: boolean;
-  zContent?: string | TemplateRef<T> | Type<T>;
-  zCustomClasses?: string;
-  zData?: U;
-  zDescription?: string;
-  zHideFooter?: boolean;
-  zMaskClosable?: boolean;
-  zOkDestructive?: boolean;
-  zOkDisabled?: boolean;
-  zOkIcon?: string;
-  zOkText?: string | null;
-  zOnCancel?: EventEmitter<T> | OnClickCallback<T> = noopFn;
-  zOnOk?: EventEmitter<T> | OnClickCallback<T> = noopFn;
-  zTitle?: string | TemplateRef<T>;
-  zViewContainerRef?: ViewContainerRef;
-  zWidth?: string;
-}
 
 @Component({
   selector: 'z-dialog',

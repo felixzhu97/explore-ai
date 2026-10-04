@@ -31,7 +31,7 @@ import { I18nService } from '../core/i18n';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeaderComponent {
+export class AppHeaderComponent {
   protected readonly i18n = inject(I18nService);
   readonly openSidebar = output<void>();
 }

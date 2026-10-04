@@ -34,7 +34,7 @@ import { dropdownItemVariants, type ZardDropdownItemVariants } from './dropdown.
   },
   exportAs: 'zDropdownMenuItem',
 })
-export class ZardDropdownMenuItemComponent {
+export class ZardDropdownItemComponent {
   private readonly dropdownService = inject(ZardDropdownService);
 
   readonly variant = input<ZardDropdownItemVariants['variant']>('default');

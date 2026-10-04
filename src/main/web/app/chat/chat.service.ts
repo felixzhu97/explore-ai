@@ -10,7 +10,7 @@ import {
   type ChatStreamEvent,
 } from '../core/streaming/sse-client';
 import { DEFAULT_MODELS, DEFAULT_PROVIDERS } from './chat.constants';
-import { stripToolCallMarkup } from '../shared/utils/tool-call-markup.filter';
+import { stripToolCallMarkup } from '../shared/utils/tool-call-markup.util';
 import type {
   ChatMessage,
   ChatStreamRequest,

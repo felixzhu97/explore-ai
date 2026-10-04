@@ -12,7 +12,7 @@ import type {
   WorkflowTemplate,
   WorkflowTemplateWriteRequest,
 } from './pipelines.model';
-import type { PipelineInvokeRequest } from './pipelines.model.graph';
+import type { PipelineInvokeRequest } from './pipeline-graph.model';
 
 @Injectable({ providedIn: 'root' })
 export class PipelinesService {

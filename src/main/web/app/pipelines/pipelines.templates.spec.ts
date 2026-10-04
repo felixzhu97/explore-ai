@@ -2,7 +2,7 @@ import {
   applyPipelineTemplate,
   type PipelineTemplateDefinition,
 } from './pipelines.templates';
-import { validatePipeline } from './pipelines.model.graph';
+import { validatePipeline } from './pipeline-graph.model';
 import type { AgentInfo } from './pipelines.model';
 
 const catalog: AgentInfo[] = [

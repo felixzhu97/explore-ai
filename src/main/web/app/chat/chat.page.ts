@@ -70,7 +70,7 @@ import { ChatService } from './chat.service';
     '(document:click)': 'onDocumentClick($event)',
   },
 })
-export class ChatPage implements OnInit, OnDestroy {
+export class ChatPageComponent implements OnInit, OnDestroy {
   protected readonly chat = inject(ChatService);
   protected readonly i18n = inject(I18nService);
   private readonly featureFlags = inject(FeatureFlagService);

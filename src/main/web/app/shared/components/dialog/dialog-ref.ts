@@ -4,9 +4,10 @@ import { EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 
 import { filter, fromEvent, Subject, takeUntil } from 'rxjs';
 
-import type { ZardDialogComponent, ZardDialogOptions } from './dialog.component';
+import type { ZardDialogComponent } from './dialog.component';
+import type { ZardDialogOptions } from './dialog-options';
 
-const enum eTriggerAction {
+const enum TriggerAction {
   CANCEL = 'cancel',
   OK = 'ok',
 }
@@ -25,9 +26,9 @@ export class ZardDialogRef<T = unknown, R = unknown, U = unknown> {
   ) {
     if (isPlatformBrowser(this.platformId) && this.containerInstance) {
       this.containerInstance.cancelTriggered.subscribe(
-        () => this.trigger(eTriggerAction.CANCEL),
+        () => this.trigger(TriggerAction.CANCEL),
       );
-      this.containerInstance.okTriggered.subscribe(() => this.trigger(eTriggerAction.OK));
+      this.containerInstance.okTriggered.subscribe(() => this.trigger(TriggerAction.OK));
     }
 
     if (
@@ -79,7 +80,7 @@ export class ZardDialogRef<T = unknown, R = unknown, U = unknown> {
     }, 150);
   }
 
-  private trigger(action: eTriggerAction) {
+  private trigger(action: TriggerAction) {
     const trigger = { ok: this.config.zOnOk, cancel: this.config.zOnCancel }[action];
 
     if (trigger instanceof EventEmitter) {

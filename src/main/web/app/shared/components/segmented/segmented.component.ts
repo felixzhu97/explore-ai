@@ -19,26 +19,13 @@ import type { ClassValue } from 'clsx';
 
 import { mergeClasses } from '../../utils/merge-classes';
 
+import { ZardSegmentedItemComponent } from './segmented-item.component';
 import { segmentedItemVariants, segmentedVariants, type ZardSegmentedVariants } from './segmented.variants';
 
 export interface SegmentedOption {
   value: string;
   label: string;
   disabled?: boolean;
-}
-
-@Component({
-  selector: 'z-segmented-item',
-  template: `
-    <ng-content />
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-})
-export class ZardSegmentedItemComponent {
-  readonly value = input.required<string>();
-  readonly label = input.required<string>();
-  readonly zDisabled = input(false, { transform: booleanAttribute });
 }
 
 @Component({

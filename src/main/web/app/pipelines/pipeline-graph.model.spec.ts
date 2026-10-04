@@ -1,4 +1,4 @@
-import { validatePipeline, toPipelineInvokeRequest, type PipelineGraph } from './pipelines.model.graph';
+import { validatePipeline, toPipelineInvokeRequest, type PipelineGraph } from './pipeline-graph.model';
 
 function node(
   id: string,

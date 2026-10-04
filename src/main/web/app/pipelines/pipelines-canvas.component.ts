@@ -31,7 +31,7 @@ import {
   type PipelineConnection,
   type PipelineGraph,
   type PipelineNode,
-} from './pipelines.model.graph';
+} from './pipeline-graph.model';
 import { applyPipelineTemplate } from './pipelines.templates';
 import { PipelinesService } from './pipelines.service';
 import { ZardButtonComponent } from '../shared/components/button';

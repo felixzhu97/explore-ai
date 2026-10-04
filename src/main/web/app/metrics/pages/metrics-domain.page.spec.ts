@@ -7,10 +7,10 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { provideEchartsCore } from 'ngx-echarts';
 import { BehaviorSubject } from 'rxjs';
 import { API_BASE_URL } from '../../core/api.constants';
-import { MetricsDomainPage } from './metrics-domain.page';
+import { MetricsDomainPageComponent } from './metrics-domain.page';
 
-describe('MetricsDomainPage', () => {
-  let fixture: ComponentFixture<MetricsDomainPage>;
+describe('MetricsDomainPageComponent', () => {
+  let fixture: ComponentFixture<MetricsDomainPageComponent>;
   let http: HttpTestingController;
 
   async function createPage(domain: string, range = '7d'): Promise<void> {
@@ -25,7 +25,7 @@ describe('MetricsDomainPage', () => {
     const queryParamMap$ = new BehaviorSubject(convertToParamMap({ range }));
 
     await TestBed.configureTestingModule({
-      imports: [MetricsDomainPage, RouterTestingModule],
+      imports: [MetricsDomainPageComponent, RouterTestingModule],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -44,7 +44,7 @@ describe('MetricsDomainPage', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MetricsDomainPage);
+    fixture = TestBed.createComponent(MetricsDomainPageComponent);
     http = TestBed.inject(HttpTestingController);
   }
 

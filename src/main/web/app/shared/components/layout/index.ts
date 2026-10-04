@@ -3,6 +3,8 @@ export * from './header.component';
 export * from './footer.component';
 export * from './content.component';
 export * from './sidebar.component';
+export * from './sidebar-group.component';
+export * from './sidebar-group-label.component';
 export * from './layout.variants';
 export * from './layout.imports';
 export * from './sidebar-menu-button.directive';

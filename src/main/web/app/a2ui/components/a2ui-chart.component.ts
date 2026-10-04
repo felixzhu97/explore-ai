@@ -33,7 +33,7 @@ import {
   `,
   host: { class: 'block w-full min-w-0 my-2' },
 })
-export class ChartComponent extends CatalogComponent<typeof ChartApi> {
+export class A2uiChartComponent extends CatalogComponent<typeof ChartApi> {
   readonly chartType = computed((): ChartType | null => {
     const value = this.props()['type']?.value();
     if (typeof value === 'string' && (CHART_TYPES as readonly string[]).includes(value)) {

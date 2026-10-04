@@ -2,7 +2,7 @@ import { UrlMatchResult, UrlMatcher, UrlSegment } from '@angular/router';
 
 /**
  * Single route config for `/chat` and `/chat/:sessionId` so Angular reuses
- * `ChatPage` when promoting a bare draft URL after the first message.
+ * `ChatPageComponent` when promoting a bare draft URL after the first message.
  * Separate `path` entries remount the page and abort the in-flight SSE.
  */
 export const chatRouteMatcher: UrlMatcher = (

@@ -19,7 +19,7 @@ import { mergeClasses } from '../../utils/merge-classes';
   },
   exportAs: 'zContent',
 })
-export class ContentComponent {
+export class ZardContentComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => {

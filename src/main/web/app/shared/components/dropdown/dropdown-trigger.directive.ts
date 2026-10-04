@@ -19,7 +19,7 @@ import { ZardDropdownService } from './dropdown.service';
   },
   exportAs: 'zDropdown',
 })
-export class ZardDropdownDirective implements OnInit {
+export class ZardDropdownTriggerDirective implements OnInit {
   private readonly elementRef = inject(ElementRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
   protected readonly dropdownService = inject(ZardDropdownService);

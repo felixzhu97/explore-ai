@@ -117,7 +117,7 @@ import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.comp
     class: 'flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-white',
   },
 })
-export class PrivacyPage {
+export class PrivacyPageComponent {
   private readonly api = inject(PrivacyApiService);
   private readonly chat = inject(ChatService);
   private readonly notify = inject(NotificationService);

@@ -9,7 +9,7 @@ import { ZardSegmentedComponent } from '../shared/components/segmented';
 type GenerateTab = 'image' | 'tts';
 
 @Component({
-  selector: 'app-generate',
+  selector: 'app-generate-page',
   imports: [RouterOutlet, FormsModule, ZardSegmentedComponent],
   template: `
     <div class="flex items-center justify-center border-b border-black/8 bg-white px-4 py-2.5">
@@ -26,7 +26,7 @@ type GenerateTab = 'image' | 'tts';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex h-full min-h-0 w-full min-w-0 flex-col' },
 })
-export class GeneratePage {
+export class GeneratePageComponent {
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nService);
 

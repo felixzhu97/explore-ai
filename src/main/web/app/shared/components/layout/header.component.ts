@@ -16,7 +16,7 @@ import { mergeClasses } from '../../utils/merge-classes';
   encapsulation: ViewEncapsulation.None,
   exportAs: 'zHeader',
 })
-export class HeaderComponent {
+export class ZardHeaderComponent {
   readonly class = input<ClassValue>('');
   readonly zHeight = input<number>(64);
 

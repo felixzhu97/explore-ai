@@ -3,7 +3,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown } from '@ng-icons/lucide';
 import { I18nService, languageNames, SUPPORTED_LANGUAGES, type Language } from '../../../core/i18n';
 import { ZardButtonComponent } from '../../../shared/components/button';
-import { ZardDropdownMenuComponent } from '../../../shared/components/dropdown/dropdown.component';
+import { ZardDropdownComponent } from '../../../shared/components/dropdown/dropdown.component';
 import { ZardDropdownImports } from '../../../shared/components/dropdown/dropdown.imports';
 
 @Component({
@@ -45,7 +45,7 @@ import { ZardDropdownImports } from '../../../shared/components/dropdown/dropdow
 })
 export class LanguagePickerComponent {
   protected readonly i18n = inject(I18nService);
-  private readonly dropdownMenu = viewChild.required(ZardDropdownMenuComponent);
+  private readonly dropdownMenu = viewChild.required(ZardDropdownComponent);
 
   readonly showLabel = input(true);
   readonly showChevron = input(true);

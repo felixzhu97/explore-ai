@@ -57,7 +57,7 @@ export const routes: Routes = [
       },
       {
         matcher: chatRouteMatcher,
-        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage),
+        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPageComponent),
       },
       {
         path: 'metrics',
@@ -65,15 +65,15 @@ export const routes: Routes = [
       },
       {
         path: 'privacy',
-        loadComponent: () => import('./privacy/privacy.page').then(m => m.PrivacyPage),
+        loadComponent: () => import('./privacy/privacy.page').then(m => m.PrivacyPageComponent),
       },
       {
         path: 'policies',
-        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPage),
+        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPageComponent),
       },
       {
         path: 'policies/:slug',
-        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPage),
+        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPageComponent),
       },
       { path: 'legal', redirectTo: 'policies', pathMatch: 'full' },
       { path: 'legal/terms', redirectTo: 'policies/terms-of-use', pathMatch: 'full' },
@@ -83,16 +83,16 @@ export const routes: Routes = [
       { path: 'legal/:doc', redirectTo: 'policies', pathMatch: 'full' },
       {
         path: 'generate',
-        loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePage),
+        loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePageComponent),
         children: [
           { path: '', redirectTo: 'image', pathMatch: 'full' },
           {
             path: 'image',
-            loadComponent: () => import('./generate/image/image.page').then(m => m.ImagePage),
+            loadComponent: () => import('./generate/image/image.page').then(m => m.ImagePageComponent),
           },
           {
             path: 'tts',
-            loadComponent: () => import('./generate/tts/tts.page').then(m => m.TtsPage),
+            loadComponent: () => import('./generate/tts/tts.page').then(m => m.TtsPageComponent),
           },
         ],
       },
