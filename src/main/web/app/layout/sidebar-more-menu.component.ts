@@ -105,6 +105,7 @@ import { ZardSidebarMenuButtonDirective } from '../ui/layout/sidebar-menu-button
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'relative block overflow-visible',
+    '[hidden]': 'sections().length === 0',
     '(document:pointerdown)': 'onDocumentPointerDown($event)',
   },
 })

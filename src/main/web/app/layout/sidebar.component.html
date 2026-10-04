@@ -127,14 +127,12 @@
             </a>
           }
 
-          @if (moreSections().length > 0) {
-            <app-sidebar-more-menu
-              [sections]="moreSections()"
-              [isCollapsed]="false"
-              [iconFor]="navIconFn"
-              (navigated)="onNavClick()"
-            />
-          }
+          <app-sidebar-more-menu
+            [sections]="moreSections()"
+            [isCollapsed]="false"
+            [iconFor]="navIconFn"
+            (navigated)="onNavClick()"
+          />
         </z-sidebar-group>
       </nav>
 
@@ -268,14 +266,12 @@
           </a>
         }
 
-        @if (moreSections().length > 0) {
-          <app-sidebar-more-menu
-            [sections]="moreSections()"
-            [isCollapsed]="true"
-            [iconFor]="navIconFn"
-            (navigated)="onNavClick()"
-          />
-        }
+        <app-sidebar-more-menu
+          [sections]="moreSections()"
+          [isCollapsed]="true"
+          [iconFor]="navIconFn"
+          (navigated)="onNavClick()"
+        />
       </div>
     }
   </div>

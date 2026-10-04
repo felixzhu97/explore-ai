@@ -14,6 +14,14 @@ import {
   type NxBubbleSlotType,
 } from 'ng-zorro-x/bubble';
 import { MarkdownWithA2uiComponent } from './markdown-with-a2ui.component';
+import { ChatSourceCardComponent } from './chat-source-card.component';
+import {
+  sourceFaviconUrl,
+  sourceInitial,
+  sourceLabel,
+  sourceTitle,
+} from './chat-source.util';
+import { ChatToolStepsComponent } from './chat-tool-steps.component';
 import { formatMessageTime } from './format-time.util';
 
 export interface ChatSourceView {
@@ -62,7 +70,6 @@ interface OpenSourceRef {
 }
 
 const USER_COLLAPSE_CHARS = 160;
-const LABEL_MAX_CHARS = 14;
 const POPOVER_WIDTH = 320;
 /** First-paint estimate only; real height is measured and re-applied. */
 const POPOVER_EST_HEIGHT = 96;
@@ -75,7 +82,12 @@ const CLOSE_DELAY_MS = 160;
 
 @Component({
   selector: 'app-chat-bubble-list',
-  imports: [NxBubbleListComponent, MarkdownWithA2uiComponent],
+  imports: [
+    NxBubbleListComponent,
+    MarkdownWithA2uiComponent,
+    ChatSourceCardComponent,
+    ChatToolStepsComponent,
+  ],
   template: `
     <div class="mx-auto max-w-220">
       <nx-bubble-list [items]="bubbleItems()" [roles]="bubbleRoles" [autoScroll]="true" />
@@ -94,45 +106,12 @@ const CLOSE_DELAY_MS = 160;
           (pointerenter)="cancelCloseSourceRef()"
           (pointerleave)="scheduleCloseSourceRef()"
         >
-          <div class="mb-2 flex items-center gap-1.5">
-            @if (faviconUrl(source); as icon) {
-              <img class="size-4 shrink-0 rounded-sm" alt="" [src]="icon" />
-            } @else {
-              <span
-                class="flex size-4 shrink-0 items-center justify-center rounded-full bg-black/10 text-[9px] font-semibold text-text-secondary"
-                aria-hidden="true"
-              >
-                {{ sourceInitial(source) }}
-              </span>
-            }
-            <span class="truncate text-xs text-text-secondary">
-              {{ sourceHostname(source) || sourceLabel(source) }}
-            </span>
-          </div>
-
-          @if (source.url) {
-            <a
-              class="block text-sm leading-snug font-semibold text-text underline-offset-2 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-              [href]="source.url"
-              (click)="onJumpClick()"
-            >
-              {{ sourceTitle(source) }}
-            </a>
-          } @else {
-            <div class="text-sm leading-snug font-semibold text-text">
-              {{ sourceTitle(source) }}
-            </div>
-          }
-
-          @if (sourcePublishedAt(source); as publishedAt) {
-            <p class="mt-1.5 text-xs text-text-tertiary">{{ publishedAt }}</p>
-          } @else if (!source.url) {
-            <p class="mt-1.5 text-xs text-text-secondary">
-              {{ footerLabels().similarity }}: {{ (source.score * 100).toFixed(1) }}%
-            </p>
-          }
+          <app-chat-source-card
+            [source]="source"
+            [fallbackLabel]="footerLabels().sources"
+            [similarityLabel]="footerLabels().similarity"
+            (jump)="onJumpClick()"
+          />
         </div>
       }
     }
@@ -172,23 +151,12 @@ const CLOSE_DELAY_MS = 160;
     </ng-template>
 
     <ng-template #assistantMessageTpl let-content="content" let-info="info">
-      @if (messageById(messageKey(info)); as message) {
-        @if (message.toolSteps?.length) {
-          <div class="mb-2 flex flex-col gap-1">
-            @for (step of message.toolSteps; track step.name + step.label + $index) {
-              <div class="text-xs text-text-secondary">
-                @if (step.status === 'running') {
-                  <span>{{ step.label }}</span>
-                } @else if (step.status === 'success') {
-                  <span>{{ step.label }} · {{ toolStepDoneLabel() }}</span>
-                } @else {
-                  <span>{{ step.label }} · {{ toolStepFailedLabel() }}</span>
-                }
-              </div>
-            }
-          </div>
-        }
-      }
+      @let message = messageById(messageKey(info));
+      <app-chat-tool-steps
+        [steps]="message?.toolSteps ?? []"
+        [doneLabel]="toolStepDoneLabel()"
+        [failedLabel]="toolStepFailedLabel()"
+      />
       @if (content) {
         <app-markdown-with-a2ui
           [content]="content"
@@ -196,59 +164,56 @@ const CLOSE_DELAY_MS = 160;
         />
       } @else if (
         isStreaming(messageKey(info))
-        && !messageById(messageKey(info))?.toolSteps?.length
+        && !message?.toolSteps?.length
       ) {
         <span class="text-text-tertiary">{{ thinkingLabel() }}</span>
       }
-      @if (messageById(messageKey(info)); as message) {
-        @if (message.sources?.length) {
-          <div
-            class="mt-2 flex flex-wrap items-center gap-1.5"
-            data-source-chips
-            [attr.aria-label]="formatBasedOn(message.sources.length)"
-          >
-            @for (source of message.sources.slice(0, 5); track source.url ?? $index) {
-              <button
-                type="button"
-                [class]="chipClass(message.id, $index)"
-                [attr.aria-expanded]="isChipOpen(message.id, $index)"
-                [attr.aria-label]="chipAriaLabel($index, source)"
-                (pointerenter)="onChipPointerEnter($event, message.id, $index)"
-                (pointerleave)="onChipPointerLeave()"
-                (click)="onChipClick($event, source)"
-              >
-                @if (faviconUrl(source); as icon) {
-                  <img
-                    class="size-3.5 shrink-0 rounded-sm"
-                    alt=""
-                    [class.opacity-90]="isChipHighlighted(message.id, $index)"
-                    [src]="icon"
-                  />
-                } @else {
-                  <span
-                    class="flex size-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold"
-                    aria-hidden="true"
-                    [class.bg-white/20]="isChipHighlighted(message.id, $index)"
-                    [class.text-background]="isChipHighlighted(message.id, $index)"
-                    [class.bg-black/10]="!isChipHighlighted(message.id, $index)"
-                    [class.text-text-secondary]="!isChipHighlighted(message.id, $index)"
-                  >
-                    {{ sourceInitial(source) }}
-                  </span>
-                }
-                <span class="truncate">{{ sourceLabel(source) }}</span>
-              </button>
-            }
-          </div>
-        }
+      @if (message?.sources?.length) {
+        <div
+          class="mt-2 flex flex-wrap items-center gap-1.5"
+          data-source-chips
+          [attr.aria-label]="formatBasedOn(message.sources.length)"
+        >
+          @for (source of message.sources.slice(0, 5); track source.url ?? $index) {
+            <button
+              type="button"
+              [class]="chipClass(message.id, $index)"
+              [attr.aria-expanded]="isChipOpen(message.id, $index)"
+              [attr.aria-label]="chipAriaLabel($index, source)"
+              (pointerenter)="onChipPointerEnter($event, message.id, $index)"
+              (pointerleave)="onChipPointerLeave()"
+              (click)="onChipClick($event, source)"
+            >
+              @if (faviconUrl(source); as icon) {
+                <img
+                  class="size-3.5 shrink-0 rounded-sm"
+                  alt=""
+                  [class.opacity-90]="isChipHighlighted(message.id, $index)"
+                  [src]="icon"
+                />
+              } @else {
+                <span
+                  class="flex size-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold"
+                  aria-hidden="true"
+                  [class.bg-white/20]="isChipHighlighted(message.id, $index)"
+                  [class.text-background]="isChipHighlighted(message.id, $index)"
+                  [class.bg-black/10]="!isChipHighlighted(message.id, $index)"
+                  [class.text-text-secondary]="!isChipHighlighted(message.id, $index)"
+                >
+                  {{ sourceInitial(source) }}
+                </span>
+              }
+              <span class="truncate">{{ sourceLabel(source) }}</span>
+            </button>
+          }
+        </div>
       }
     </ng-template>
 
     <ng-template #assistantFooterTpl let-info="info">
-      @if (messageById(messageKey(info)); as message) {
-        @if (message.timestamp) {
-          <span class="text-xs text-text-tertiary">{{ formatTime(message.timestamp) }}</span>
-        }
+      @let timestamp = messageById(messageKey(info))?.timestamp;
+      @if (timestamp) {
+        <span class="text-xs text-text-tertiary">{{ formatTime(timestamp) }}</span>
       }
     </ng-template>
   `,
@@ -427,78 +392,16 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.messageById(messageId)?.sources?.[index];
   }
 
-  sourceHostname(source: ChatSourceView): string {
-    const raw = source.url?.trim();
-    if (!raw) {
-      return '';
-    }
-    try {
-      const host = new URL(raw).hostname.toLowerCase();
-      return host.startsWith('www.') ? host.slice(4) : host;
-    } catch {
-      return '';
-    }
-  }
-
   sourceLabel(source: ChatSourceView): string {
-    const host = this.sourceHostname(source);
-    if (host) {
-      return this.truncate(host, LABEL_MAX_CHARS);
-    }
-    if (source.title?.trim()) {
-      return this.truncate(source.title.trim(), LABEL_MAX_CHARS);
-    }
-    return this.truncate(source.text, LABEL_MAX_CHARS)
-      || this.footerLabels().sources;
+    return sourceLabel(source, this.footerLabels().sources);
   }
 
   faviconUrl(source: ChatSourceView): string | null {
-    const host = this.sourceHostname(source);
-    if (!host) {
-      return null;
-    }
-    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
+    return sourceFaviconUrl(source);
   }
 
   sourceInitial(source: ChatSourceView): string {
-    const label = this.sourceLabel(source).trim();
-    return (label.charAt(0) || '?').toUpperCase();
-  }
-
-  sourceTitle(source: ChatSourceView): string {
-    if (source.title?.trim()) {
-      return source.title.trim();
-    }
-    const host = this.sourceHostname(source);
-    if (host) {
-      return host;
-    }
-    return this.truncate(source.text, 80) || this.footerLabels().sources;
-  }
-
-  sourcePublishedAt(source: ChatSourceView): string {
-    const direct = source.publishedAt?.trim();
-    if (direct) {
-      return direct;
-    }
-    const meta = source.metadata;
-    if (!meta) {
-      return '';
-    }
-    for (const key of ['publishedAt', 'date', 'published', 'published_at']) {
-      const value = meta[key];
-      if (typeof value === 'string' && value.trim()) {
-        return value.trim();
-      }
-    }
-    return '';
-  }
-
-  truncate(text: string, max: number): string {
-    if (!text) {
-      return '';
-    }
-    return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
+    return sourceInitial(source, this.footerLabels().sources);
   }
 
   isChipOpen(messageId: string, index: number): boolean {
@@ -525,7 +428,7 @@ export class ChatBubbleListComponent implements OnDestroy {
   }
 
   chipAriaLabel(index: number, source: ChatSourceView): string {
-    const title = `${index + 1}. ${this.sourceTitle(source)}`;
+    const title = `${index + 1}. ${sourceTitle(source, this.footerLabels().sources)}`;
     if (source.url) {
       return `${title}. ${this.footerLabels().openReference}`;
     }

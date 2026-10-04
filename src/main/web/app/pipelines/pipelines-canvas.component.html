@@ -1,97 +1,16 @@
 <section class="flex min-w-0 flex-1 flex-col overflow-hidden">
   @if (!isGallery()) {
-    <div class="flex shrink-0 flex-col gap-2 border-b border-black/8 bg-white px-3 py-2">
-      <div class="flex items-center justify-between gap-2">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <span
-              class="rounded-md px-2 py-0.5 text-[11px] font-medium"
-              [class.bg-black/6]="isEditMode()"
-              [class.text-foreground]="isEditMode()"
-              [class.bg-primary/10]="isUseMode()"
-              [class.text-primary]="isUseMode()"
-            >
-              {{
-                isEditMode()
-                  ? i18n.t().pipelines.templates.editMode
-                  : i18n.t().pipelines.templates.useMode
-              }}
-            </span>
-            @if (activeTemplateName()) {
-              <span class="truncate text-xs font-medium text-foreground">{{ activeTemplateName() }}</span>
-            }
-            <p class="text-xs text-foreground/60">
-              {{
-                isEditMode()
-                  ? i18n.t().pipelines.templates.editModeHint
-                  : i18n.t().pipelines.templates.useModeHint
-              }}
-            </p>
-          </div>
-        </div>
-        <div class="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            z-button
-            zType="ghost"
-            zSize="sm"
-            (click)="backToGallery()"
-          >
-            {{ i18n.t().pipelines.templates.backToTemplates }}
-          </button>
-          @if (isEditMode()) {
-            <button
-              type="button"
-              z-button
-              zType="ghost"
-              zSize="sm"
-              (click)="openAgentPicker()"
-            >
-              {{ i18n.t().pipelines.addAgent }}
-            </button>
-            <button
-              type="button"
-              z-button
-              zType="default"
-              zSize="sm"
-              [disabled]="isSaving()"
-              (click)="switchToUse()"
-            >
-              {{
-                isSaving()
-                  ? i18n.t().common.saving
-                  : i18n.t().pipelines.templates.useThisGraph
-              }}
-            </button>
-          }
-          @if (isUseMode()) {
-            <button
-              type="button"
-              z-button
-              zType="ghost"
-              zSize="sm"
-              (click)="switchToEdit()"
-            >
-              {{ i18n.t().pipelines.templates.editThisGraph }}
-            </button>
-          }
-        </div>
-      </div>
-      @if (isUseMode()) {
-        <div class="flex items-center gap-2">
-          <input
-            class="min-w-0 flex-1 rounded-md border border-black/10 bg-surface px-3 py-1.5 text-sm text-foreground outline-none focus:border-black/25"
-            [placeholder]="i18n.t().pipelines.taskPlaceholder"
-            [ngModel]="task()"
-            (ngModelChange)="task.set($event)"
-            (keydown.enter)="run()"
-          />
-          <button type="button" z-button zType="default" zSize="sm" (click)="run()">
-            {{ i18n.t().pipelines.run }}
-          </button>
-        </div>
-      }
-    </div>
+    <app-pipelines-toolbar
+      [editing]="isEditMode()"
+      [templateName]="activeTemplateName()"
+      [isSaving]="isSaving()"
+      [(task)]="task"
+      (back)="backToGallery()"
+      (addAgent)="openAgentPicker()"
+      (useGraph)="switchToUse()"
+      (editGraph)="switchToEdit()"
+      (run)="run()"
+    />
   }
 
   @if (validationHint()) {
@@ -199,132 +118,19 @@
   } @else {
     <div class="relative min-h-0 flex-1 bg-surface">
       @if (isGallery()) {
-        <div class="absolute inset-0 z-10 overflow-y-auto px-4 py-6">
-          <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
-            <header class="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
-                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-                  {{ i18n.t().pipelines.templates.title }}
-                </h1>
-                <p class="mt-1 text-sm text-muted-foreground">
-                  {{ i18n.t().pipelines.templates.hint }}
-                </p>
-              </div>
-              <button
-                type="button"
-                z-button
-                zType="default"
-                zSize="sm"
-                (click)="addWorkflow()"
-              >
-                {{ i18n.t().pipelines.templates.addTemplate }}
-              </button>
-            </header>
-
-            <section>
-              <div class="grid gap-3 sm:grid-cols-2">
-                @for (template of builtinTemplates(); track template.id) {
-                  <div
-                    class="flex flex-col gap-3 rounded-xl border border-black/8 bg-white p-4"
-                  >
-                    <div class="text-sm font-medium text-foreground">{{ template.name }}</div>
-                    <p class="line-clamp-3 text-xs text-foreground/60">{{ template.description }}</p>
-                    <p class="font-mono text-[10px] text-foreground/60">
-                      {{ templateOrder(template.agentTypes) }}
-                    </p>
-                    <div class="mt-auto flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        z-button
-                        zType="default"
-                        zSize="sm"
-                        (click)="useTemplate(template)"
-                      >
-                        {{ i18n.t().pipelines.templates.use }}
-                      </button>
-                      <button
-                        type="button"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        (click)="editTemplate(template)"
-                      >
-                        {{ i18n.t().common.edit }}
-                      </button>
-                      <button
-                        type="button"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        [disabled]="addingTemplateId() === template.id || isSaved(template)"
-                        (click)="addFromTemplate(template)"
-                      >
-                        {{
-                          isSaved(template)
-                            ? i18n.t().pipelines.templates.inLibrary
-                            : addingTemplateId() === template.id
-                              ? i18n.t().common.adding
-                              : i18n.t().common.add
-                        }}
-                      </button>
-                    </div>
-                  </div>
-                }
-                @for (template of savedTemplates(); track template.id) {
-                  <div
-                    class="flex flex-col gap-3 rounded-xl border border-black/8 bg-white p-4"
-                  >
-                    <div class="flex items-center gap-2">
-                      <div class="text-sm font-medium text-foreground">{{ template.name }}</div>
-                      @if (!template.enabled) {
-                        <span class="text-[11px] text-foreground/60">
-                          {{ i18n.t().pipelines.templates.statusDisabled }}
-                        </span>
-                      }
-                    </div>
-                    <p class="line-clamp-3 text-xs text-foreground/60">{{ template.description }}</p>
-                    <p class="font-mono text-[10px] text-foreground/60">
-                      {{ templateOrder(template.agentTypes) }}
-                    </p>
-                    <div class="mt-auto flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        z-button
-                        zType="default"
-                        zSize="sm"
-                        (click)="useSavedTemplate(template)"
-                      >
-                        {{ i18n.t().pipelines.templates.use }}
-                      </button>
-                      <button
-                        type="button"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        (click)="editSavedTemplate(template)"
-                      >
-                        {{ i18n.t().common.edit }}
-                      </button>
-                      <button
-                        type="button"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        (click)="deleteSavedTemplate(template)"
-                      >
-                        {{ i18n.t().common.delete }}
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            </section>
-          </div>
-        </div>
-      }
-
-      @if (!isGallery()) {
+        <app-pipelines-gallery
+          [builtinTemplates]="builtinTemplates()"
+          [savedTemplates]="savedTemplates()"
+          [addingTemplateId]="addingTemplateId()"
+          (addWorkflow)="addWorkflow()"
+          (useTemplate)="useTemplate($event)"
+          (editTemplate)="editTemplate($event)"
+          (addTemplate)="addFromTemplate($event)"
+          (useSavedTemplate)="useSavedTemplate($event)"
+          (editSavedTemplate)="editSavedTemplate($event)"
+          (deleteSavedTemplate)="deleteSavedTemplate($event)"
+        />
+      } @else {
         <f-flow
           class="block size-full min-h-80"
           fDraggable

@@ -30,9 +30,8 @@
   }
 
   <aside
-    class="flex min-h-0 flex-col border-l border-black/8 bg-white"
+    class="flex min-h-0 flex-none flex-col border-l border-black/8 bg-white"
     [style.width]="isResultsCollapsed() ? '40px' : `${resultsRatio() * 100}%`"
-    [style.flex]="'none'"
   >
     @if (isResultsCollapsed()) {
       <button
@@ -41,7 +40,7 @@
         [attr.aria-label]="i18n.t().pipelines.results.expand"
         (click)="toggleResultsCollapsed()"
       >
-        <span style="writing-mode: vertical-rl" class="tracking-wide">
+        <span class="tracking-wide [writing-mode:vertical-rl]">
           {{ i18n.t().pipelines.results.expand }}
         </span>
       </button>
