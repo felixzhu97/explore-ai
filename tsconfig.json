@@ -32,6 +32,7 @@
     "strictStandalone": true,
     "typeCheckHostBindings": true,
     "extendedDiagnostics": {
+      "defaultCategory": "error",
       "checks": {
         "unusedStandaloneImports": "error",
         "invalidBananaInBox": "error",
