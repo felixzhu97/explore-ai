@@ -52,8 +52,8 @@ import reactor.core.publisher.Flux;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayName("AI-239/240 RAG contract regression")
-class RagAi239240ContractRegressionTest {
+@DisplayName("RAG chat contract regression")
+class RagChatContractRegressionTest {
 
   private static final JavaClasses CLASSES = new ClassFileImporter().importPackages("com.ai.rag");
 
@@ -90,10 +90,10 @@ class RagAi239240ContractRegressionTest {
   }
 
   @Nested
-  @DisplayName("single-pass retrieval + sources (AI-239)")
+  @DisplayName("single-pass retrieval + sources")
   class SinglePassRetrieval {
     @Test
-    @DisplayName("should not depend on rag application service when rag chat use case")
+    @DisplayName("should not depend on rag application service when rag chat service answers")
     void shouldNotDependOnRagApplicationServiceWhenRagChatService() {
       ArchRuleDefinition.noClasses()
           .that()
@@ -131,7 +131,7 @@ class RagAi239240ContractRegressionTest {
   }
 
   @Nested
-  @DisplayName("topK and docIds filter (AI-240)")
+  @DisplayName("topK and docIds filter")
   class TopKAndDocIdsFilter {
     @Test
     @DisplayName("should apply custom top k on retriever when top k provided")
@@ -162,7 +162,7 @@ class RagAi239240ContractRegressionTest {
   }
 
   @Nested
-  @DisplayName("true stream, not fake chunking (AI-240)")
+  @DisplayName("true stream, not fake chunking")
   class TrueStream {
     @Test
     @DisplayName("should stream via chat client when chat stream")

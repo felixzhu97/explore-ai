@@ -48,14 +48,14 @@ public class CatalogAgentRegistry implements AgentRegistry {
       }
 
       @Override
-      public List<AgentDefinition> listAll(String clientId, String language) {
+      public List<AgentDefinition> listAll(String ownerKey, String language) {
         return listBuiltins(language);
       }
 
       @Override
-      public List<AgentDefinition> listWorkers(String clientId, String language) {
+      public List<AgentDefinition> listWorkers(String ownerKey, String language) {
         List<AgentDefinition> workers = new ArrayList<>();
-        for (AgentDefinition agent : listAll(clientId, language)) {
+        for (AgentDefinition agent : listAll(ownerKey, language)) {
           if (agent.isWorker()) {
             workers.add(agent);
           }
@@ -65,13 +65,13 @@ public class CatalogAgentRegistry implements AgentRegistry {
 
       @Override
       public Optional<AgentDefinition> findByType(
-          AgentType type, String clientId, String language) {
+          AgentType type, String ownerKey, String language) {
         return Optional.ofNullable(fixed.get(type.value()));
       }
 
       @Override
-      public AgentDefinition require(AgentType type, String clientId, String language) {
-        return findByType(type, clientId, language)
+      public AgentDefinition require(AgentType type, String ownerKey, String language) {
+        return findByType(type, ownerKey, language)
             .orElseThrow(() -> new AgentNotFoundException(type));
       }
     };
@@ -83,13 +83,13 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public List<AgentDefinition> listAll(String clientId, String language) {
+  public List<AgentDefinition> listAll(String ownerKey, String language) {
     Map<String, AgentDefinition> byType = new LinkedHashMap<>();
     for (AgentDefinition builtin : listBuiltins(language)) {
       byType.put(builtin.type().value(), builtin);
     }
-    if (clientId != null && !clientId.isBlank()) {
-      for (SavedAgentDefinition saved : savedAgentRepository.findEnabledByClientId(clientId)) {
+    if (ownerKey != null && !ownerKey.isBlank()) {
+      for (SavedAgentDefinition saved : savedAgentRepository.findEnabledByOwnerKey(ownerKey)) {
         byType.put(saved.getTypeKey(), saved.toAgentDefinition());
       }
     }
@@ -97,9 +97,9 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public List<AgentDefinition> listWorkers(String clientId, String language) {
+  public List<AgentDefinition> listWorkers(String ownerKey, String language) {
     List<AgentDefinition> workers = new ArrayList<>();
-    for (AgentDefinition agent : listAll(clientId, language)) {
+    for (AgentDefinition agent : listAll(ownerKey, language)) {
       if (agent.isWorker()) {
         workers.add(agent);
       }
@@ -108,10 +108,10 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public Optional<AgentDefinition> findByType(AgentType type, String clientId, String language) {
+  public Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language) {
     String key = type.value().toLowerCase(Locale.ROOT);
-    if (clientId != null && !clientId.isBlank()) {
-      for (SavedAgentDefinition saved : savedAgentRepository.findEnabledByClientId(clientId)) {
+    if (ownerKey != null && !ownerKey.isBlank()) {
+      for (SavedAgentDefinition saved : savedAgentRepository.findEnabledByOwnerKey(ownerKey)) {
         if (saved.getTypeKey().equals(key)) {
           return Optional.of(saved.toAgentDefinition());
         }
@@ -121,8 +121,8 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public AgentDefinition require(AgentType type, String clientId, String language) {
-    return findByType(type, clientId, language).orElseThrow(() -> new AgentNotFoundException(type));
+  public AgentDefinition require(AgentType type, String ownerKey, String language) {
+    return findByType(type, ownerKey, language).orElseThrow(() -> new AgentNotFoundException(type));
   }
 
   private AgentDefinition toDefinition(AgentTemplate template) {

@@ -115,7 +115,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
-              ownerClientId()))
+              ownerKey()))
           .thenReturn(Flux.just("Hi", " there"));
 
       assertThat(
@@ -132,7 +132,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                         "toolsEnabled": false
                       }
                       """)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk()
           .bodyText()
@@ -144,7 +144,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
-              ownerClientId());
+              ownerKey());
     }
 
     @Test
@@ -176,9 +176,9 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
       com.ai.skill.domain.model.Skill skill =
           com.ai.skill.domain.model.Skill.create(
-              ownerClientId(), "Brief Style", "Short answers.", "Be concise.", List.of());
+              ownerKey(), "Brief Style", "Short answers.", "Be concise.", List.of());
       com.ai.skill.domain.vo.SkillId skillId = skill.getId();
-      when(skillRepository.findEnabledByClientIdAndIds(eq(ownerClientId()), any()))
+      when(skillRepository.findEnabledByOwnerKeyAndIds(eq(ownerKey()), any()))
           .thenReturn(List.of(skill));
       when(chatService.chatStream(any(), any(TextChatOptions.class))).thenReturn(Flux.just("ok"));
 
@@ -197,7 +197,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                       }
                       """
                           .formatted(skillId.value()))
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId()))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
 

@@ -50,8 +50,8 @@ public class WorkflowTemplateController {
 
   @GetMapping("/library")
   public List<SavedWorkflowTemplateResponse> listLibrary(HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
-    return pipelineTemplateService.listLibrary(clientId).stream()
+    String ownerKey = ownerContext.requireValue(request);
+    return pipelineTemplateService.listLibrary(ownerKey).stream()
         .map(SavedWorkflowTemplateResponse::from)
         .toList();
   }
@@ -61,23 +61,23 @@ public class WorkflowTemplateController {
       @Valid @RequestBody CreateWorkflowTemplateFromTemplateRequest body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     String language = resolveLanguage(lang, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SavedWorkflowTemplateResponse.from(
-                pipelineTemplateService.createFromTemplate(clientId, body.templateId(), language)));
+                pipelineTemplateService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
   @PostMapping("/library")
   public ResponseEntity<SavedWorkflowTemplateResponse> create(
       @Valid @RequestBody CreateWorkflowTemplateRequest body, HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SavedWorkflowTemplateResponse.from(
                 pipelineTemplateService.create(
-                    clientId,
+                    ownerKey,
                     body.name(),
                     body.description(),
                     body.agentTypes(),
@@ -91,10 +91,10 @@ public class WorkflowTemplateController {
       @PathVariable String id,
       @Valid @RequestBody UpdateWorkflowTemplateRequest body,
       HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     return SavedWorkflowTemplateResponse.from(
         pipelineTemplateService.update(
-            clientId,
+            ownerKey,
             id,
             body.name(),
             body.description(),
@@ -108,15 +108,15 @@ public class WorkflowTemplateController {
       @PathVariable String id,
       @Valid @RequestBody SetWorkflowTemplateEnabledRequest body,
       HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     return SavedWorkflowTemplateResponse.from(
-        pipelineTemplateService.setEnabled(clientId, id, body.enabled()));
+        pipelineTemplateService.setEnabled(ownerKey, id, body.enabled()));
   }
 
   @DeleteMapping("/library/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
-    pipelineTemplateService.delete(clientId, id);
+    String ownerKey = ownerContext.requireValue(request);
+    pipelineTemplateService.delete(ownerKey, id);
     return ResponseEntity.noContent().build();
   }
 

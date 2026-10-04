@@ -70,7 +70,7 @@ class SkillJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(skill);
     em.clear();
 
-    Optional<Skill> found = adapter.findByIdAndClientId(skill.getId(), OWNER_KEY);
+    Optional<Skill> found = adapter.findByIdAndOwnerKey(skill.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Scoped");
@@ -85,7 +85,7 @@ class SkillJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(alpha);
     em.clear();
 
-    List<Skill> skills = adapter.findAllByClientId(OWNER_KEY);
+    List<Skill> skills = adapter.findAllByOwnerKey(OWNER_KEY);
 
     assertThat(skills).extracting(Skill::getName).containsExactly("Alpha", "Beta");
   }
@@ -97,7 +97,7 @@ class SkillJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(skill);
     em.clear();
 
-    assertThat(adapter.existsByClientIdAndNameIgnoringId(OWNER_KEY, "Unique", null)).isTrue();
-    assertThat(adapter.existsByClientIdAndNameIgnoringId(OWNER_KEY, "Missing", null)).isFalse();
+    assertThat(adapter.existsByOwnerKeyAndNameIgnoringId(OWNER_KEY, "Unique", null)).isTrue();
+    assertThat(adapter.existsByOwnerKeyAndNameIgnoringId(OWNER_KEY, "Missing", null)).isFalse();
   }
 }

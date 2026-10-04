@@ -75,14 +75,14 @@ public class ToolService {
     }
   }
 
-  public String getWeather(String city) {
-    log.info("ToolService.getWeather: {}", city);
+  public String lookupWeather(String city) {
+    log.info("ToolService.lookupWeather: {}", city);
     return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
   }
 
   /** Returns a formatted weather forecast for the city over the requested number of days. */
-  public String getForecast(String city, Integer days) {
-    log.info("ToolService.getForecast: {} days={}", city, days);
+  public String lookupForecast(String city, Integer days) {
+    log.info("ToolService.lookupForecast: {} days={}", city, days);
     return weatherReport
         .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
         .content();

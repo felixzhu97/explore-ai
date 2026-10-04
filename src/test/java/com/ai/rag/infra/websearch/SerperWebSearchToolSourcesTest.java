@@ -15,7 +15,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 @DisplayName("SerperWebSearchTool")
-class SerperWebSearchAdapterSourcesTest {
+class SerperWebSearchToolSourcesTest {
 
   private static final String CHANNEL = "serper-sources-test";
 

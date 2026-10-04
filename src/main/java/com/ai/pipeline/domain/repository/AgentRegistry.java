@@ -12,7 +12,7 @@ public interface AgentRegistry {
   List<AgentDefinition> listBuiltins(String language);
 
   /** Builtin workers + enabled library agents for a client. */
-  List<AgentDefinition> listAll(String clientId, String language);
+  List<AgentDefinition> listAll(String ownerKey, String language);
 
   /** Test helper / legacy: builtins in English without client library. */
   default List<AgentDefinition> listAll() {
@@ -20,19 +20,19 @@ public interface AgentRegistry {
   }
 
   /** Workers eligible for supervisor routing (excludes supervisor and deep). */
-  List<AgentDefinition> listWorkers(String clientId, String language);
+  List<AgentDefinition> listWorkers(String ownerKey, String language);
 
   default List<AgentDefinition> listWorkers() {
     return listWorkers(null, "en");
   }
 
-  Optional<AgentDefinition> findByType(AgentType type, String clientId, String language);
+  Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language);
 
   default Optional<AgentDefinition> findByType(AgentType type) {
     return findByType(type, null, "en");
   }
 
-  AgentDefinition require(AgentType type, String clientId, String language);
+  AgentDefinition require(AgentType type, String ownerKey, String language);
 
   default AgentDefinition require(AgentType type) {
     return require(type, null, "en");

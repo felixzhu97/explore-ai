@@ -2,7 +2,7 @@ package com.ai.rag.controller;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.rag.controller.dto.DocumentListResponse;
-import com.ai.rag.controller.dto.DocumentSummaryDto;
+import com.ai.rag.controller.dto.DocumentSummaryResponse;
 import com.ai.rag.controller.dto.RagChatRequest;
 import com.ai.rag.controller.dto.UploadDocumentResponse;
 import com.ai.rag.domain.model.Document;
@@ -110,8 +110,8 @@ public class RagController {
     return images != null && !images.isEmpty();
   }
 
-  private DocumentSummaryDto toSummary(Document doc) {
-    return new DocumentSummaryDto(
+  private DocumentSummaryResponse toSummary(Document doc) {
+    return new DocumentSummaryResponse(
         doc.getId().uuidValue(), doc.getTitle(), doc.getStatus().name(), doc.getCreatedAt(), 0);
   }
 }

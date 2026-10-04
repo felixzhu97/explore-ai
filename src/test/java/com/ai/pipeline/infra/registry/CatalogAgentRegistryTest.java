@@ -102,36 +102,36 @@ class CatalogAgentRegistryTest {
     }
 
     @Override
-    public Optional<SavedAgentDefinition> findByIdAndClientId(SavedAgentId id, String clientId) {
+    public Optional<SavedAgentDefinition> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
       return agents.stream()
-          .filter(a -> a.getId().equals(id) && a.getClientId().equals(clientId))
+          .filter(a -> a.getId().equals(id) && a.getClientId().equals(ownerKey))
           .findFirst();
     }
 
     @Override
-    public List<SavedAgentDefinition> findAllByClientId(String clientId) {
-      return agents.stream().filter(a -> a.getClientId().equals(clientId)).toList();
+    public List<SavedAgentDefinition> findAllByOwnerKey(String ownerKey) {
+      return agents.stream().filter(a -> a.getClientId().equals(ownerKey)).toList();
     }
 
     @Override
-    public List<SavedAgentDefinition> findEnabledByClientId(String clientId) {
+    public List<SavedAgentDefinition> findEnabledByOwnerKey(String ownerKey) {
       return agents.stream()
-          .filter(a -> a.getClientId().equals(clientId) && a.isEnabled())
+          .filter(a -> a.getClientId().equals(ownerKey) && a.isEnabled())
           .toList();
     }
 
     @Override
-    public void deleteByIdAndClientId(SavedAgentId id, String clientId) {
-      agents.removeIf(a -> a.getId().equals(id) && a.getClientId().equals(clientId));
+    public void deleteByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
+      agents.removeIf(a -> a.getId().equals(id) && a.getClientId().equals(ownerKey));
     }
 
     @Override
-    public boolean existsByClientIdAndTypeKeyIgnoringId(
-        String clientId, String typeKey, SavedAgentId excludeId) {
+    public boolean existsByOwnerKeyAndTypeKeyIgnoringId(
+        String ownerKey, String typeKey, SavedAgentId excludeId) {
       return agents.stream()
           .anyMatch(
               a ->
-                  a.getClientId().equals(clientId)
+                  a.getClientId().equals(ownerKey)
                       && a.getTypeKey().equals(typeKey)
                       && (excludeId == null || !a.getId().equals(excludeId)));
     }

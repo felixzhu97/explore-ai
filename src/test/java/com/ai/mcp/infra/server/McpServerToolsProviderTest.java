@@ -18,8 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("McpServerToolsProvider Tests")
-class AiMcpServerServiceTest {
+@DisplayName("McpServerToolsProvider")
+class McpServerToolsProviderTest {
 
   @Mock private WeatherTools weatherTools;
 
@@ -28,11 +28,11 @@ class AiMcpServerServiceTest {
   @Mock private ChatService chatService;
 
   private final RagProperties ragProperties = new RagProperties();
-  private McpServerToolsProvider service;
+  private McpServerToolsProvider toolsProvider;
 
   @BeforeEach
   void setUp() {
-    service =
+    toolsProvider =
         new McpServerToolsProvider(weatherTools, documentSearchTool, chatService, ragProperties);
   }
 
@@ -47,7 +47,7 @@ class AiMcpServerServiceTest {
       String expectedWeather = "Sunny, 25°C";
       when(weatherTools.getWeather(city)).thenReturn(expectedWeather);
 
-      String result = service.getWeather(city);
+      String result = toolsProvider.getWeather(city);
 
       assertThat(result).isEqualTo(expectedWeather);
       verify(weatherTools).getWeather(city);
@@ -66,7 +66,7 @@ class AiMcpServerServiceTest {
       String expectedForecast = "5-day forecast: sunny, rainy, cloudy, sunny, cloudy";
       when(weatherTools.getForecast(city, days)).thenReturn(expectedForecast);
 
-      String result = service.getForecast(city, days);
+      String result = toolsProvider.getForecast(city, days);
 
       assertThat(result).isEqualTo(expectedForecast);
       verify(weatherTools).getForecast(city, days);
@@ -79,7 +79,7 @@ class AiMcpServerServiceTest {
       String expectedForecast = "3-day forecast: sunny, cloudy, rainy";
       when(weatherTools.getForecast(city, null)).thenReturn(expectedForecast);
 
-      String result = service.getForecast(city, null);
+      String result = toolsProvider.getForecast(city, null);
 
       assertThat(result).isEqualTo(expectedForecast);
       verify(weatherTools).getForecast(city, null);
@@ -97,7 +97,7 @@ class AiMcpServerServiceTest {
       String expectedResults = "[{\"text\": \"AI is...\", \"score\": 0.95}]";
       when(documentSearchTool.searchDocuments(query, null)).thenReturn(expectedResults);
 
-      String result = service.searchKnowledgeBase(query, null);
+      String result = toolsProvider.searchKnowledgeBase(query, null);
 
       assertThat(result).isEqualTo(expectedResults);
       verify(documentSearchTool).searchDocuments(query, null);
@@ -112,7 +112,7 @@ class AiMcpServerServiceTest {
       when(documentSearchTool.searchDocuments(query, List.of("doc1", "doc2", "doc3")))
           .thenReturn(expectedResults);
 
-      String result = service.searchKnowledgeBase(query, docIds);
+      String result = toolsProvider.searchKnowledgeBase(query, docIds);
 
       assertThat(result).isEqualTo(expectedResults);
       verify(documentSearchTool).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
@@ -124,7 +124,7 @@ class AiMcpServerServiceTest {
       String query = "deep learning";
       when(documentSearchTool.searchDocuments(query, null)).thenReturn("[]");
 
-      String result = service.searchKnowledgeBase(query, "");
+      String result = toolsProvider.searchKnowledgeBase(query, "");
 
       assertThat(result).isEqualTo("[]");
       verify(documentSearchTool).searchDocuments(query, null);
@@ -143,7 +143,7 @@ class AiMcpServerServiceTest {
               + " {\"id\": \"doc2\", \"title\": \"Document 2\"}]";
       when(documentSearchTool.listDocuments()).thenReturn(expectedDocs);
 
-      String result = service.listDocuments();
+      String result = toolsProvider.listDocuments();
 
       assertThat(result).isEqualTo(expectedDocs);
       verify(documentSearchTool).listDocuments();
@@ -161,7 +161,7 @@ class AiMcpServerServiceTest {
       String expectedResponse = "Hello! How can I help you?";
       when(chatService.chat(message)).thenReturn(expectedResponse);
 
-      String result = service.aiChat(message);
+      String result = toolsProvider.aiChat(message);
 
       assertThat(result).isEqualTo(expectedResponse);
       verify(chatService).chat(message);
@@ -174,7 +174,7 @@ class AiMcpServerServiceTest {
       String expectedResponse = "Response";
       when(chatService.chat(longMessage)).thenReturn(expectedResponse);
 
-      String result = service.aiChat(longMessage);
+      String result = toolsProvider.aiChat(longMessage);
 
       assertThat(result).isEqualTo(expectedResponse);
     }
@@ -187,35 +187,35 @@ class AiMcpServerServiceTest {
     @Test
     @DisplayName("should return chunk size config")
     void shouldReturnChunkSizeConfig() {
-      String result = service.getConfig("spring.ai.rag.chunk.size");
+      String result = toolsProvider.getConfig("spring.ai.rag.chunk.size");
       assertThat(result).isEqualTo("500");
     }
 
     @Test
     @DisplayName("should return chunk overlap config")
     void shouldReturnChunkOverlapConfig() {
-      String result = service.getConfig("spring.ai.rag.chunk.overlap");
+      String result = toolsProvider.getConfig("spring.ai.rag.chunk.overlap");
       assertThat(result).isEqualTo("50");
     }
 
     @Test
     @DisplayName("should return top-k config")
     void shouldReturnTopKConfig() {
-      String result = service.getConfig("spring.ai.rag.retrieval.top-k");
+      String result = toolsProvider.getConfig("spring.ai.rag.retrieval.top-k");
       assertThat(result).isEqualTo("5");
     }
 
     @Test
     @DisplayName("should return score threshold config")
     void shouldReturnScoreThresholdConfig() {
-      String result = service.getConfig("spring.ai.rag.retrieval.score-threshold");
+      String result = toolsProvider.getConfig("spring.ai.rag.retrieval.score-threshold");
       assertThat(result).isEqualTo("0.5");
     }
 
     @Test
     @DisplayName("should return error for unknown key")
     void shouldReturnErrorForUnknownKey() {
-      String result = service.getConfig("unknown.key");
+      String result = toolsProvider.getConfig("unknown.key");
       assertThat(result).isEqualTo("Configuration key not found: unknown.key");
     }
   }

@@ -10,10 +10,10 @@ public final class ClientIdentityRequestPostProcessor {
   private ClientIdentityRequestPostProcessor() {}
 
   /** Returns a post-processor that sets the client id request attribute. */
-  public static RequestPostProcessor withClientId(String clientId) {
+  public static RequestPostProcessor withClientId(String ownerKey) {
     return request -> {
       if (request instanceof MockHttpServletRequest mock) {
-        mock.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
+        mock.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, ownerKey);
       }
       return request;
     };

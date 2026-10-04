@@ -22,14 +22,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Tag("integration")
 @EnabledIfEnvironmentVariable(named = "GOLDEN_EVAL_IT", matches = "true")
-@DisplayName("GoldenEvalIT")
+@DisplayName("Golden evaluation suites")
 class GoldenEvalIT {
 
   @Autowired private GoldenEvalService goldenEvalService;
 
   @Test
-  @DisplayName("should_reportPassRate_when_chatGoldenSuiteRuns")
-  void should_reportPassRate_when_chatGoldenSuiteRuns() {
+  @DisplayName("should report pass rate when chat golden suite runs")
+  void shouldReportPassRateWhenChatGoldenSuiteRuns() {
     GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalDomain.CHAT), List.of());
     logReport("CHAT", report);
 
@@ -40,8 +40,8 @@ class GoldenEvalIT {
   }
 
   @Test
-  @DisplayName("should_reportPassRate_when_ragGoldenSuiteRuns")
-  void should_reportPassRate_when_ragGoldenSuiteRuns() {
+  @DisplayName("should report pass rate when rag golden suite runs")
+  void shouldReportPassRateWhenRagGoldenSuiteRuns() {
     GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalDomain.RAG), List.of());
     logReport("RAG", report);
 
@@ -62,8 +62,8 @@ class GoldenEvalIT {
                     "  [%s] passed=%s relevancy=%s factuality=%s error=%s%n",
                     c.id(),
                     c.passed(),
-                    c.relevancyPass(),
-                    c.factualityPass(),
+                    c.relevancyPassed(),
+                    c.factualityPassed(),
                     c.generationError()));
   }
 }

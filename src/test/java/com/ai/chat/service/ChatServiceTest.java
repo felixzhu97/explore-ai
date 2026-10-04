@@ -101,7 +101,7 @@ class ChatServiceTest {
     @DisplayName("should return session when owned by client")
     void shouldReturnSessionWhenOwnedByClient() {
       ChatSession session = ChatSession.create("Test", CLIENT_A);
-      when(repository.findByIdAndClientId(
+      when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
 
@@ -116,7 +116,7 @@ class ChatServiceTest {
     @Test
     @DisplayName("should return empty when owned by another client")
     void shouldReturnEmptyWhenOwnedByAnotherClient() {
-      when(repository.findByIdAndClientId(
+      when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_B))
           .thenReturn(Optional.empty());
 
@@ -128,7 +128,7 @@ class ChatServiceTest {
   }
 
   @Nested
-  @DisplayName("getSessionHistory()")
+  @DisplayName("findSessionHistory()")
   class GetSessionHistory {
 
     @Test
@@ -137,12 +137,12 @@ class ChatServiceTest {
       ChatSession session = ChatSession.create("Test", CLIENT_A);
       session.addUserMessage("Hello");
       session.addAssistantMessage("Hi!");
-      when(repository.findByIdAndClientId(
+      when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
 
       List<ChatMessage> history =
-          useCase.getSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_A);
+          useCase.findSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
       assertThat(history).hasSize(2);
       verify(conversationMemoryRepository)
@@ -152,12 +152,12 @@ class ChatServiceTest {
     @Test
     @DisplayName("should throw when session not owned")
     void shouldThrowWhenSessionNotOwned() {
-      when(repository.findByIdAndClientId(
+      when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("44444444-4444-4444-4444-444444444444"), CLIENT_A))
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(
-              () -> useCase.getSessionHistory("44444444-4444-4444-4444-444444444444", CLIENT_A))
+              () -> useCase.findSessionHistory("44444444-4444-4444-4444-444444444444", CLIENT_A))
           .isInstanceOf(ChatSessionNotFoundException.class);
     }
   }
@@ -172,7 +172,7 @@ class ChatServiceTest {
       ChatSession session =
           ChatSession.createWithId(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), "Test", CLIENT_A);
-      when(repository.findByIdAndClientId(
+      when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
       doNothing().when(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
@@ -188,7 +188,7 @@ class ChatServiceTest {
     @Test
     @DisplayName("should throw when deleting another client's session")
     void shouldThrowWhenDeletingAnotherClientsSession() {
-      when(repository.findByIdAndClientId(
+      when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_B))
           .thenReturn(Optional.empty());
 
@@ -204,9 +204,9 @@ class ChatServiceTest {
       ChatSession owned =
           ChatSession.createWithId(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), "Test", CLIENT_A);
-      when(repository.findByClientId(CLIENT_A)).thenReturn(List.of(owned));
+      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of(owned));
 
-      useCase.deleteAllSessionsForClient(CLIENT_A);
+      useCase.deleteAllSessions(CLIENT_A);
 
       verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
       verify(chatWebSourcesRepository)
@@ -218,8 +218,8 @@ class ChatServiceTest {
   }
 
   @Nested
-  @DisplayName("getSessionsForClient()")
-  class GetSessionsForClient {
+  @DisplayName("listSessions()")
+  class ListSessions {
 
     @Test
     @DisplayName("should return sessions for client")
@@ -227,9 +227,9 @@ class ChatServiceTest {
       List<ChatSession> sessions =
           List.of(
               ChatSession.create("Session 1", CLIENT_A), ChatSession.create("Session 2", CLIENT_A));
-      when(repository.findByClientId(CLIENT_A)).thenReturn(sessions);
+      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(sessions);
 
-      List<ChatSession> result = useCase.getSessionsForClient(CLIENT_A);
+      List<ChatSession> result = useCase.listSessions(CLIENT_A);
 
       assertThat(result).hasSize(2);
     }
@@ -237,9 +237,9 @@ class ChatServiceTest {
     @Test
     @DisplayName("should return empty list when client has no sessions")
     void shouldReturnEmptyListWhenClientHasNoSessions() {
-      when(repository.findByClientId(CLIENT_A)).thenReturn(List.of());
+      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of());
 
-      List<ChatSession> result = useCase.getSessionsForClient(CLIENT_A);
+      List<ChatSession> result = useCase.listSessions(CLIENT_A);
 
       assertThat(result).isEmpty();
     }

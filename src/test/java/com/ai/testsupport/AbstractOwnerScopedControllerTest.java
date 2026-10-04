@@ -18,11 +18,11 @@ public abstract class AbstractOwnerScopedControllerTest {
 
   @BeforeEach
   void stubOwnerContext() {
-    lenient().when(ownerContext.requireValue(any())).thenReturn(ownerClientId());
+    lenient().when(ownerContext.requireValue(any())).thenReturn(ownerKey());
   }
 
   /** Owner key returned by stubbed {@link OwnerContext#requireValue}. */
-  protected String ownerClientId() {
+  protected String ownerKey() {
     return OwnerKeyFixtures.CLIENT_FULL_KEY;
   }
 }

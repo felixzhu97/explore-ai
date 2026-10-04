@@ -1,5 +1,7 @@
 package com.ai.tools.controller;
 
+import com.ai.tools.controller.dto.ToolChatRequest;
+import com.ai.tools.controller.dto.ToolChatResponse;
 import com.ai.tools.service.ToolService;
 import java.util.List;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ public class ToolsController {
       return ResponseEntity.badRequest().body("城市参数不能为空");
     }
     try {
-      return ResponseEntity.ok(toolService.getWeather(city));
+      return ResponseEntity.ok(toolService.lookupWeather(city));
     } catch (Exception e) {
       log.error("Error fetching weather for {}", city, e);
       return ResponseEntity.internalServerError().body("获取天气信息失败");
@@ -47,7 +49,7 @@ public class ToolsController {
       return ResponseEntity.badRequest().body("城市参数不能为空");
     }
     try {
-      return ResponseEntity.ok(toolService.getForecast(city, days));
+      return ResponseEntity.ok(toolService.lookupForecast(city, days));
     } catch (Exception e) {
       log.error("Error fetching forecast for {}", city, e);
       return ResponseEntity.internalServerError().body("获取天气预报失败");
@@ -99,8 +101,4 @@ public class ToolsController {
           .body(new ToolChatResponse("抱歉，处理您的请求时发生错误，请稍后重试。", null));
     }
   }
-
-  public record ToolChatRequest(String question, List<String> docIds) {}
-
-  public record ToolChatResponse(String answer, List<String> toolCalls) {}
 }

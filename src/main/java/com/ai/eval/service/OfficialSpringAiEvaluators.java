@@ -41,27 +41,27 @@ public class OfficialSpringAiEvaluators {
 
     EvaluationResponse relevancy =
         relevancyEvaluator.evaluate(new EvaluationRequest(userText, documents, responseContent));
-    boolean relevancyPass = relevancy.isPass();
+    boolean relevancyPassed = relevancy.isPass();
     double relevanceScore = scoreFrom(relevancy);
 
     List<String> feedback = new ArrayList<>();
     appendFeedback(feedback, "relevancy", relevancy);
 
-    Boolean factualityPass = null;
+    Boolean factualityPassed = null;
     Double factualityScore = null;
     if (hasContext) {
       EvaluationResponse factuality =
           factCheckingEvaluator.evaluate(
               new EvaluationRequest(userText, documents, responseContent));
-      factualityPass = factuality.isPass();
+      factualityPassed = factuality.isPass();
       factualityScore = scoreFrom(factuality);
       appendFeedback(feedback, "factuality", factuality);
     }
 
-    boolean passed = relevancyPass && (!hasContext || Boolean.TRUE.equals(factualityPass));
+    boolean passed = relevancyPassed && (!hasContext || Boolean.TRUE.equals(factualityPassed));
     return new OfficialGateResult(
-        relevancyPass,
-        factualityPass,
+        relevancyPassed,
+        factualityPassed,
         hasContext,
         relevanceScore,
         factualityScore,

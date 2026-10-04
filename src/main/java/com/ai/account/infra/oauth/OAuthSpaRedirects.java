@@ -70,7 +70,10 @@ final class OAuthSpaRedirects {
   }
 
   private static boolean isLoopback(String host) {
-    String h = host.toLowerCase();
-    return "localhost".equals(h) || "127.0.0.1".equals(h) || "[::1]".equals(h) || "::1".equals(h);
+    String normalizedHost = host.toLowerCase();
+    return "localhost".equals(normalizedHost)
+        || "127.0.0.1".equals(normalizedHost)
+        || "[::1]".equals(normalizedHost)
+        || "::1".equals(normalizedHost);
   }
 }

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-@DisplayName("H2DocumentChunkRepository Tests")
+@DisplayName("H2DocumentChunkRepository")
 class H2DocumentChunkRepositoryTest {
 
   private JdbcTemplate jdbcTemplate;

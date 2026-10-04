@@ -34,38 +34,38 @@ public class JpaSkillRepository implements SkillRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Skill> findByIdAndClientId(SkillId id, String clientId) {
-    return ownerPartition.findOne(OwnerKey.parse(clientId), () -> delegate.findById(id));
+  public Optional<Skill> findByIdAndOwnerKey(SkillId id, String ownerKey) {
+    return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Skill> findAllByClientId(String clientId) {
-    return ownerPartition.apply(OwnerKey.parse(clientId), () -> delegate.findAll(BY_NAME));
+  public List<Skill> findAllByOwnerKey(String ownerKey) {
+    return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(BY_NAME));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Skill> findEnabledByClientIdAndIds(String clientId, List<SkillId> ids) {
+  public List<Skill> findEnabledByOwnerKeyAndIds(String ownerKey, List<SkillId> ids) {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
     return ownerPartition.apply(
-        OwnerKey.parse(clientId), () -> delegate.findAllByEnabledTrueAndIdIn(ids));
+        OwnerKey.parse(ownerKey), () -> delegate.findAllByEnabledTrueAndIdIn(ids));
   }
 
   @Override
   @Transactional
-  public void deleteByIdAndClientId(SkillId id, String clientId) {
-    ownerPartition.run(OwnerKey.parse(clientId), () -> delegate.deleteById(id));
+  public void deleteByIdAndOwnerKey(SkillId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public boolean existsByClientIdAndNameIgnoringId(
-      String clientId, String name, SkillId excludeId) {
+  public boolean existsByOwnerKeyAndNameIgnoringId(
+      String ownerKey, String name, SkillId excludeId) {
     return ownerPartition.apply(
-        OwnerKey.parse(clientId),
+        OwnerKey.parse(ownerKey),
         () ->
             excludeId == null
                 ? delegate.existsByName(name)

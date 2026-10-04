@@ -19,7 +19,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("StreamingTranscriptionService Tests")
+@DisplayName("StreamingTranscriptionService")
 class StreamingTranscriptionServiceTest {
 
   @Mock private StreamingTranscriptionGateway transcriptionGateway;

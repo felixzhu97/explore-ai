@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("InMemoryChatSessionRepository Tests")
+@DisplayName("InMemoryChatSessionRepository")
 class InMemoryChatSessionRepositoryTest {
 
   private InMemoryChatSessionRepository repository;
@@ -127,13 +127,13 @@ class InMemoryChatSessionRepositoryTest {
   }
 
   @Nested
-  @DisplayName("FindByClientId Tests")
-  class FindByClientIdTests {
+  @DisplayName("FindByOwnerKey Tests")
+  class FindByOwnerKeyTests {
 
     @Test
     @DisplayName("should return empty list when no sessions exist")
     void shouldReturnEmptyListWhenNoSessionsExist() {
-      List<ChatSession> result = repository.findByClientId("c:client-a");
+      List<ChatSession> result = repository.findByOwnerKey("c:client-a");
 
       assertThat(result).isEmpty();
     }
@@ -148,7 +148,7 @@ class InMemoryChatSessionRepositoryTest {
       repository.save(session2);
       repository.save(other);
 
-      List<ChatSession> result = repository.findByClientId("c:client-a");
+      List<ChatSession> result = repository.findByOwnerKey("c:client-a");
 
       assertThat(result)
           .hasSize(2)
@@ -162,8 +162,8 @@ class InMemoryChatSessionRepositoryTest {
       var session = ChatSession.create("Owned", "c:client-a");
       repository.save(session);
 
-      assertThat(repository.findByIdAndClientId(session.getId(), "c:client-b")).isEmpty();
-      assertThat(repository.findByIdAndClientId(session.getId(), "c:client-a")).isPresent();
+      assertThat(repository.findByIdAndOwnerKey(session.getId(), "c:client-b")).isEmpty();
+      assertThat(repository.findByIdAndOwnerKey(session.getId(), "c:client-a")).isPresent();
     }
   }
 
@@ -186,7 +186,7 @@ class InMemoryChatSessionRepositoryTest {
 
       // Then
       assertThat(repository.size()).isZero();
-      assertThat(repository.findByClientId("c:client-a")).isEmpty();
+      assertThat(repository.findByOwnerKey("c:client-a")).isEmpty();
     }
   }
 

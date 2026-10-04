@@ -42,17 +42,17 @@ public class PipelineOrchestrationService {
     this.invocationRecorder = invocationRecorder;
   }
 
-  public List<AgentDefinition> listAgents(String clientId, String language) {
-    return registry.listAll(clientId, language);
+  public List<AgentDefinition> listAgents(String ownerKey, String language) {
+    return registry.listAll(ownerKey, language);
   }
 
-  public AgentDefinition health(AgentType type, String clientId, String language) {
-    return registry.require(type, clientId, language);
+  public AgentDefinition health(AgentType type, String ownerKey, String language) {
+    return registry.require(type, ownerKey, language);
   }
 
   /** Streams a supervisor run as SSE: plans routing, runs workers and synthesizes the answer. */
   public Flux<ServerSentEvent<String>> invokeSupervisor(
-      String message, String clientId, String language) {
+      String message, String ownerKey, String language) {
     if (message == null || message.isBlank()) {
       return Flux.just(errorEvent("message must not be blank"), doneEvent());
     }
@@ -60,11 +60,11 @@ public class PipelineOrchestrationService {
     long startedAt = System.nanoTime();
     return Mono.fromCallable(
             () -> {
-              List<AgentDefinition> workers = registry.listWorkers(clientId, language);
+              List<AgentDefinition> workers = registry.listWorkers(ownerKey, language);
               return supervisorRouter.plan(message, workers);
             })
         .subscribeOn(Schedulers.boundedElastic())
-        .flatMapMany(plan -> executePlan(message, plan, clientId, language))
+        .flatMapMany(plan -> executePlan(message, plan, ownerKey, language))
         .doOnComplete(() -> recordAgent("supervisor", "agent.supervisor", startedAt, true, null))
         .doOnError(
             err ->
@@ -79,17 +79,17 @@ public class PipelineOrchestrationService {
 
   /** Streams a direct invocation of one worker agent as SSE, delegating supervisor types. */
   public Flux<ServerSentEvent<String>> invokeAgent(
-      AgentType type, String message, String clientId, String language) {
+      AgentType type, String message, String ownerKey, String language) {
     if (message == null || message.isBlank()) {
       return Flux.just(errorEvent("message must not be blank"), doneEvent());
     }
     if (type.isSupervisor()) {
-      return invokeSupervisor(message, clientId, language);
+      return invokeSupervisor(message, ownerKey, language);
     }
 
     long startedAt = System.nanoTime();
     try {
-      AgentDefinition agent = registry.require(type, clientId, language);
+      AgentDefinition agent = registry.require(type, ownerKey, language);
       return Flux.concat(
               Flux.just(handoffEvent(type.value(), "direct invoke")),
               workerInvoker
@@ -121,13 +121,13 @@ public class PipelineOrchestrationService {
 
   /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */
   public Flux<ServerSentEvent<String>> invokePipeline(
-      String message, AgentPipeline pipeline, String clientId, String language) {
+      String message, AgentPipeline pipeline, String ownerKey, String language) {
     if (message == null || message.isBlank()) {
       return Flux.just(errorEvent("message must not be blank"), doneEvent());
     }
     try {
       List<AgentPipeline.PipelineNode> order = pipeline.executionOrder();
-      return runPipelineStreamed(message, order, clientId, language)
+      return runPipelineStreamed(message, order, ownerKey, language)
           .onErrorResume(
               err ->
                   Flux.just(
@@ -140,7 +140,7 @@ public class PipelineOrchestrationService {
 
   /** Blocking pipeline execution for background automation (no SSE). */
   public String invokePipelineSync(
-      String message, AgentPipeline pipeline, String clientId, String language) {
+      String message, AgentPipeline pipeline, String ownerKey, String language) {
     if (message == null || message.isBlank()) {
       throw new IllegalArgumentException("message must not be blank");
     }
@@ -150,7 +150,7 @@ public class PipelineOrchestrationService {
     long startedAt = System.nanoTime();
     try {
       for (AgentPipeline.PipelineNode node : order) {
-        AgentDefinition agent = resolveNode(node, clientId, language);
+        AgentDefinition agent = resolveNode(node, ownerKey, language);
         String stepInput =
             """
                         Original user request:
@@ -178,12 +178,12 @@ public class PipelineOrchestrationService {
   }
 
   private Flux<ServerSentEvent<String>> runPipelineStreamed(
-      String message, List<AgentPipeline.PipelineNode> order, String clientId, String language) {
+      String message, List<AgentPipeline.PipelineNode> order, String ownerKey, String language) {
     AtomicReference<String> current = new AtomicReference<>(message);
     return Flux.fromIterable(order)
         .concatMap(
             node -> {
-              AgentDefinition agent = resolveNode(node, clientId, language);
+              AgentDefinition agent = resolveNode(node, ownerKey, language);
               String stepInput =
                   """
                             Original user request:
@@ -214,18 +214,18 @@ public class PipelineOrchestrationService {
   }
 
   private Flux<ServerSentEvent<String>> executePlan(
-      String originalMessage, RoutingPlan plan, String clientId, String language) {
+      String originalMessage, RoutingPlan plan, String ownerKey, String language) {
     List<Flux<ServerSentEvent<String>>> stages = new ArrayList<>();
     stages.add(Flux.just(handoffEvent(plan.primaryAgent().value(), plan.reason())));
 
     if (plan.subtasks().isEmpty()) {
-      AgentDefinition primary = registry.require(plan.primaryAgent(), clientId, language);
+      AgentDefinition primary = registry.require(plan.primaryAgent(), ownerKey, language);
       stages.add(
           workerInvoker
               .invokeStream(primary, originalMessage)
               .map(PipelineOrchestrationService::messageEvent));
     } else {
-      stages.add(runSubtasksAndSynthesize(originalMessage, plan, clientId, language));
+      stages.add(runSubtasksAndSynthesize(originalMessage, plan, ownerKey, language));
     }
 
     stages.add(Flux.just(doneEvent()));
@@ -233,7 +233,7 @@ public class PipelineOrchestrationService {
   }
 
   private Flux<ServerSentEvent<String>> runSubtasksAndSynthesize(
-      String originalMessage, RoutingPlan plan, String clientId, String language) {
+      String originalMessage, RoutingPlan plan, String ownerKey, String language) {
     return Mono.fromCallable(
             () -> {
               List<RoutingPlan.Subtask> subtasks = plan.subtasks();
@@ -246,7 +246,7 @@ public class PipelineOrchestrationService {
                                 CompletableFuture.supplyAsync(
                                     () -> {
                                       AgentDefinition worker =
-                                          registry.require(subtask.agentType(), clientId, language);
+                                          registry.require(subtask.agentType(), ownerKey, language);
                                       String result =
                                           workerInvoker.invoke(worker, subtask.instruction());
                                       return "### "
@@ -261,7 +261,7 @@ public class PipelineOrchestrationService {
               }
               String collected = String.join("", workerOutputs);
               AgentDefinition synthesizer =
-                  registry.require(plan.primaryAgent(), clientId, language);
+                  registry.require(plan.primaryAgent(), ownerKey, language);
               String synthesisPrompt =
                   """
                             Original user request:
@@ -283,11 +283,11 @@ public class PipelineOrchestrationService {
   }
 
   private AgentDefinition resolveNode(
-      AgentPipeline.PipelineNode node, String clientId, String language) {
+      AgentPipeline.PipelineNode node, String ownerKey, String language) {
     if (node.systemPrompt() != null && !node.systemPrompt().isBlank()) {
       return node.toDefinition();
     }
-    AgentDefinition builtin = registry.require(node.agentType(), clientId, language);
+    AgentDefinition builtin = registry.require(node.agentType(), ownerKey, language);
     String name = node.name() == null || node.name().isBlank() ? builtin.name() : node.name();
     String description =
         node.description() == null || node.description().isBlank()

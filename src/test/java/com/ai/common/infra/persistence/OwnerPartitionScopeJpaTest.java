@@ -63,8 +63,8 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
   void shouldHideCachedInstanceOfAnotherOwnerWhenFindingOne() {
     Skill skill = persistSkill(OWNER_A, "Cached");
 
-    assertThat(jpaSkillRepository.findByIdAndClientId(skill.getId(), OWNER_B)).isEmpty();
-    assertThat(jpaSkillRepository.findByIdAndClientId(skill.getId(), OWNER_A)).isPresent();
+    assertThat(jpaSkillRepository.findByIdAndOwnerKey(skill.getId(), OWNER_B)).isEmpty();
+    assertThat(jpaSkillRepository.findByIdAndOwnerKey(skill.getId(), OWNER_A)).isPresent();
   }
 
   @Test
@@ -74,12 +74,12 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
     persistSkill(OWNER_B, "Other");
     em.clear();
 
-    assertThat(jpaSkillRepository.findAllByClientId(OWNER_A))
+    assertThat(jpaSkillRepository.findAllByOwnerKey(OWNER_A))
         .extracting(Skill::getName)
         .containsExactly("Shared Name");
-    assertThat(jpaSkillRepository.existsByClientIdAndNameIgnoringId(OWNER_B, "Shared Name", null))
+    assertThat(jpaSkillRepository.existsByOwnerKeyAndNameIgnoringId(OWNER_B, "Shared Name", null))
         .isFalse();
-    assertThat(jpaSkillRepository.existsByClientIdAndNameIgnoringId(OWNER_A, "Shared Name", null))
+    assertThat(jpaSkillRepository.existsByOwnerKeyAndNameIgnoringId(OWNER_A, "Shared Name", null))
         .isTrue();
   }
 
@@ -89,7 +89,7 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
     Skill skill = persistSkill(OWNER_A, "Kept");
     em.clear();
 
-    jpaSkillRepository.deleteByIdAndClientId(skill.getId(), OWNER_B);
+    jpaSkillRepository.deleteByIdAndOwnerKey(skill.getId(), OWNER_B);
     em.flush();
     em.clear();
 
@@ -103,8 +103,8 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
     jpaRunRepository.save(AutomationRun.start(scheduleId, OWNER_A));
     em.clear();
 
-    assertThat(jpaRunRepository.findByScheduleIdAndClientId(scheduleId, OWNER_B, 10)).isEmpty();
-    assertThat(jpaRunRepository.findByScheduleIdAndClientId(scheduleId, OWNER_A, 10)).hasSize(1);
+    assertThat(jpaRunRepository.findByScheduleIdAndOwnerKey(scheduleId, OWNER_B, 10)).isEmpty();
+    assertThat(jpaRunRepository.findByScheduleIdAndOwnerKey(scheduleId, OWNER_A, 10)).hasSize(1);
   }
 
   @Test

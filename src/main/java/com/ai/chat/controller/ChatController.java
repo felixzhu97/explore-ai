@@ -6,8 +6,8 @@ import com.ai.chat.controller.dto.ChatResponse;
 import com.ai.chat.controller.dto.CreateSessionRequest;
 import com.ai.chat.controller.dto.HealthResponse;
 import com.ai.chat.controller.dto.MessageInfoResponse;
-import com.ai.chat.controller.dto.SessionInfo;
-import com.ai.chat.controller.dto.WebSourceDto;
+import com.ai.chat.controller.dto.SessionResponse;
+import com.ai.chat.controller.dto.WebSourceResponse;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
@@ -61,41 +61,41 @@ public class ChatController {
       return ResponseEntity.badRequest().body(ChatResponse.of("Please provide a message."));
     }
 
-    String clientId = ownerContext.requireValue(httpRequest);
+    String ownerKey = ownerContext.requireValue(httpRequest);
     String response;
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
-      response = chatService.chatWithSession(request.sessionId(), request.message(), clientId);
+      response = chatService.chatWithSession(request.sessionId(), request.message(), ownerKey);
     } else {
-      response = chatService.chatWithSession(request.message(), clientId);
+      response = chatService.chatWithSession(request.message(), ownerKey);
     }
 
     return ResponseEntity.ok(ChatResponse.of(response));
   }
 
   @PostMapping("/sessions")
-  public ResponseEntity<SessionInfo> createSession(
+  public ResponseEntity<SessionResponse> createSession(
       @Valid @RequestBody(required = false) CreateSessionRequest body,
       HttpServletRequest httpRequest) {
     String title = body != null && body.title() != null ? body.title() : "New Chat";
     var session = chatService.createSession(title, ownerContext.requireValue(httpRequest));
-    return ResponseEntity.ok(SessionInfo.from(session));
+    return ResponseEntity.ok(SessionResponse.from(session));
   }
 
   @GetMapping("/sessions")
-  public ResponseEntity<List<SessionInfo>> getAllSessions(HttpServletRequest httpRequest) {
-    List<SessionInfo> sessions =
-        chatService.getSessionsForClient(ownerContext.requireValue(httpRequest)).stream()
-            .map(SessionInfo::from)
+  public ResponseEntity<List<SessionResponse>> getAllSessions(HttpServletRequest httpRequest) {
+    List<SessionResponse> sessions =
+        chatService.listSessions(ownerContext.requireValue(httpRequest)).stream()
+            .map(SessionResponse::from)
             .toList();
     return ResponseEntity.ok(sessions);
   }
 
   @GetMapping("/sessions/{sessionId}")
-  public ResponseEntity<SessionInfo> getSession(
+  public ResponseEntity<SessionResponse> getSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
     return chatService
         .getSession(sessionId, ownerContext.requireValue(httpRequest))
-        .map(session -> ResponseEntity.ok(SessionInfo.from(session)))
+        .map(session -> ResponseEntity.ok(SessionResponse.from(session)))
         .orElse(ResponseEntity.notFound().build());
   }
 
@@ -106,7 +106,7 @@ public class ChatController {
       Map<String, List<WebSource>> sourcesByHash =
           chatWebSourcesRepository.findByConversationId(sessionId);
       List<MessageInfoResponse> messages =
-          chatService.getSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
+          chatService.findSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
               .map(message -> toMessageInfo(message, sourcesByHash))
               .toList();
       return ResponseEntity.ok(messages);
@@ -125,7 +125,8 @@ public class ChatController {
     if (sources == null || sources.isEmpty()) {
       return MessageInfoResponse.from(message);
     }
-    return MessageInfoResponse.from(message, sources.stream().map(WebSourceDto::from).toList());
+    return MessageInfoResponse.from(
+        message, sources.stream().map(WebSourceResponse::from).toList());
   }
 
   @DeleteMapping("/sessions/{sessionId}")

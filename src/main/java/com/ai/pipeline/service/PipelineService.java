@@ -21,32 +21,32 @@ public class PipelineService {
     this.orchestrator = orchestrator;
   }
 
-  public List<AgentDefinition> listAgents(String clientId, String language) {
-    return orchestrator.listAgents(clientId, language);
+  public List<AgentDefinition> listAgents(String ownerKey, String language) {
+    return orchestrator.listAgents(ownerKey, language);
   }
 
-  public AgentDefinition health(String agentType, String clientId, String language) {
-    return orchestrator.health(AgentType.of(agentType), clientId, language);
+  public AgentDefinition health(String agentType, String ownerKey, String language) {
+    return orchestrator.health(AgentType.of(agentType), ownerKey, language);
   }
 
   public Flux<ServerSentEvent<String>> invokeSupervisor(
-      String message, String clientId, String language) {
-    return orchestrator.invokeSupervisor(message, clientId, language);
+      String message, String ownerKey, String language) {
+    return orchestrator.invokeSupervisor(message, ownerKey, language);
   }
 
   public Flux<ServerSentEvent<String>> invokeAgent(
-      String agentType, String message, String clientId, String language) {
-    return orchestrator.invokeAgent(AgentType.of(agentType), message, clientId, language);
+      String agentType, String message, String ownerKey, String language) {
+    return orchestrator.invokeAgent(AgentType.of(agentType), message, ownerKey, language);
   }
 
   public Flux<ServerSentEvent<String>> invokePipeline(
-      String message, AgentPipeline pipeline, String clientId, String language) {
-    return orchestrator.invokePipeline(message, pipeline, clientId, language);
+      String message, AgentPipeline pipeline, String ownerKey, String language) {
+    return orchestrator.invokePipeline(message, pipeline, ownerKey, language);
   }
 
   public String invokePipelineSync(
-      String message, AgentPipeline pipeline, String clientId, String language) {
-    return orchestrator.invokePipelineSync(message, pipeline, clientId, language);
+      String message, AgentPipeline pipeline, String ownerKey, String language) {
+    return orchestrator.invokePipelineSync(message, pipeline, ownerKey, language);
   }
 
   public int builtinCount() {

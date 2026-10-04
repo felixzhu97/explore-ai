@@ -24,8 +24,8 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
   }
 
   @Override
-  public Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId) {
-    return findById(id).filter(session -> session.belongsTo(clientId));
+  public Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, String ownerKey) {
+    return findById(id).filter(session -> session.belongsTo(ownerKey));
   }
 
   @Override
@@ -39,9 +39,9 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
   }
 
   @Override
-  public List<ChatSession> findByClientId(String clientId) {
+  public List<ChatSession> findByOwnerKey(String ownerKey) {
     return storage.values().stream()
-        .filter(session -> session.belongsTo(clientId))
+        .filter(session -> session.belongsTo(ownerKey))
         .sorted(Comparator.comparing(ChatSession::getLastActivityAt).reversed())
         .toList();
   }

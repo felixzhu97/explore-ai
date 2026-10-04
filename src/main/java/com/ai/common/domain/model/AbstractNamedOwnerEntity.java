@@ -31,8 +31,8 @@ public abstract class AbstractNamedOwnerEntity<IdT extends AbstractUuidId>
   }
 
   protected AbstractNamedOwnerEntity(
-      IdT id, String clientId, String name, Instant createdAt, Instant updatedAt) {
-    super(id, clientId, createdAt, updatedAt);
+      IdT id, String ownerKey, String name, Instant createdAt, Instant updatedAt) {
+    super(id, ownerKey, createdAt, updatedAt);
     this.name = DomainStrings.requireName(name);
   }
 

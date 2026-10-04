@@ -1,5 +1,6 @@
 package com.ai.audio.controller;
 
+import com.ai.audio.controller.dto.TextToSpeechRequest;
 import com.ai.audio.controller.dto.VoiceResponse;
 import com.ai.audio.domain.exception.InvalidSpeechTextException;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
@@ -35,7 +36,7 @@ public class AudioController {
   @PostMapping(
       value = {"/audio/speak", "/audio/synthesize", "/tts/synthesize"},
       produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  public ResponseEntity<byte[]> speak(@RequestBody TtsRequest request) {
+  public ResponseEntity<byte[]> speak(@RequestBody TextToSpeechRequest request) {
     if (request == null || request.text() == null || request.text().isBlank()) {
       return ResponseEntity.badRequest().build();
     }
@@ -75,10 +76,4 @@ public class AudioController {
   public ResponseEntity<Map<String, Object>> getTtsModels() {
     return ResponseEntity.ok(Map.of("models", audioService.getAvailableTtsModels()));
   }
-
-  public record TtsRequest(
-      String text,
-      String voice,
-      Double speed,
-      @com.fasterxml.jackson.annotation.JsonAlias("output_format") String outputFormat) {}
 }

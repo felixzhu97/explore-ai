@@ -1,5 +1,6 @@
 package com.ai.mcp.controller;
 
+import com.ai.mcp.controller.dto.McpChatRequest;
 import com.ai.mcp.service.McpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -82,6 +83,4 @@ public class McpClientController {
       return ResponseEntity.internalServerError().body(Map.of("error", "处理请求时发生错误，请稍后重试。"));
     }
   }
-
-  public record McpChatRequest(String question, List<String> docIds) {}
 }

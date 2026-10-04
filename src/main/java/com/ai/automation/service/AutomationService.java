@@ -43,14 +43,14 @@ public class AutomationService {
     this.properties = properties;
   }
 
-  public List<AutomationSchedule> list(String clientId) {
-    return scheduleRepository.findAllByClientId(clientId);
+  public List<AutomationSchedule> list(String ownerKey) {
+    return scheduleRepository.findAllByOwnerKey(ownerKey);
   }
 
   /** Creates a schedule for the owner and arms its first run. */
   @Transactional
   public AutomationSchedule create(
-      String clientId,
+      String ownerKey,
       String name,
       ScheduleKind scheduleKind,
       String cronExpression,
@@ -59,16 +59,16 @@ public class AutomationService {
       String workflowTemplateId,
       String recipientEmail,
       String brief) {
-    if (scheduleRepository.countByClientId(clientId) >= properties.getMaxSchedulesPerClient()) {
+    if (scheduleRepository.countByOwnerKey(ownerKey) >= properties.getMaxSchedulesPerClient()) {
       throw new AutomationLimitExceededException(
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
     }
-    requireWorkflow(clientId, workflowTemplateId);
+    requireWorkflow(ownerKey, workflowTemplateId);
     ScheduleKind kind = scheduleKind == null ? ScheduleKind.CRON : scheduleKind;
     AutomationSchedule schedule =
         buildNew(
             kind,
-            clientId,
+            ownerKey,
             name,
             cronExpression,
             runAt,
@@ -82,7 +82,7 @@ public class AutomationService {
   /** Replaces the owner's schedule settings and re-arms its next run. */
   @Transactional
   public AutomationSchedule update(
-      String clientId,
+      String ownerKey,
       String scheduleId,
       String name,
       ScheduleKind scheduleKind,
@@ -92,8 +92,8 @@ public class AutomationService {
       String workflowTemplateId,
       String recipientEmail,
       String brief) {
-    AutomationSchedule schedule = requireOwned(clientId, scheduleId);
-    requireWorkflow(clientId, workflowTemplateId);
+    AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
+    requireWorkflow(ownerKey, workflowTemplateId);
     ScheduleKind kind = scheduleKind == null ? ScheduleKind.CRON : scheduleKind;
     Instant next = resolveNextRunAt(kind, cronExpression, runAt, timezone);
     schedule.update(
@@ -103,8 +103,8 @@ public class AutomationService {
 
   /** Enables or disables the owner's schedule, re-arming the next run when enabled. */
   @Transactional
-  public AutomationSchedule setEnabled(String clientId, String scheduleId, boolean enabled) {
-    AutomationSchedule schedule = requireOwned(clientId, scheduleId);
+  public AutomationSchedule setEnabled(String ownerKey, String scheduleId, boolean enabled) {
+    AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
     if (enabled) {
       if (schedule.isOnce()) {
         if (!schedule.getNextRunAt().isAfter(Instant.now())
@@ -126,20 +126,20 @@ public class AutomationService {
   }
 
   @Transactional
-  public void delete(String clientId, String scheduleId) {
-    requireOwned(clientId, scheduleId);
-    scheduleRepository.deleteByIdAndClientId(ScheduleId.of(scheduleId), clientId);
+  public void delete(String ownerKey, String scheduleId) {
+    requireOwned(ownerKey, scheduleId);
+    scheduleRepository.deleteByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey);
   }
 
-  public List<AutomationRun> listRuns(String clientId, String scheduleId, int limit) {
-    requireOwned(clientId, scheduleId);
+  public List<AutomationRun> listRuns(String ownerKey, String scheduleId, int limit) {
+    requireOwned(ownerKey, scheduleId);
     int capped = Math.min(Math.max(limit, 1), 100);
-    return runRepository.findByScheduleIdAndClientId(ScheduleId.of(scheduleId), clientId, capped);
+    return runRepository.findByScheduleIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey, capped);
   }
 
   private AutomationSchedule buildNew(
       ScheduleKind kind,
-      String clientId,
+      String ownerKey,
       String name,
       String cronExpression,
       Instant runAt,
@@ -150,12 +150,12 @@ public class AutomationService {
     if (kind == ScheduleKind.ONCE) {
       Instant target = Objects.requireNonNull(runAt, "runAt is required for ONCE schedules");
       return AutomationSchedule.createOnce(
-          clientId, name, timezone, workflowTemplateId, recipientEmail, brief, target);
+          ownerKey, name, timezone, workflowTemplateId, recipientEmail, brief, target);
     }
     cronCalculator.validate(cronExpression, timezone);
     Instant next = cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());
     return AutomationSchedule.create(
-        clientId, name, cronExpression, timezone, workflowTemplateId, recipientEmail, brief, next);
+        ownerKey, name, cronExpression, timezone, workflowTemplateId, recipientEmail, brief, next);
   }
 
   private Instant resolveNextRunAt(
@@ -171,15 +171,15 @@ public class AutomationService {
     return cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());
   }
 
-  private AutomationSchedule requireOwned(String clientId, String scheduleId) {
+  private AutomationSchedule requireOwned(String ownerKey, String scheduleId) {
     return scheduleRepository
-        .findByIdAndClientId(ScheduleId.of(scheduleId), clientId)
+        .findByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey)
         .orElseThrow(() -> new AutomationScheduleNotFoundException(scheduleId));
   }
 
-  private void requireWorkflow(String clientId, String workflowTemplateId) {
+  private void requireWorkflow(String ownerKey, String workflowTemplateId) {
     workflowTemplateRepository
-        .findByIdAndClientId(WorkflowTemplateId.of(workflowTemplateId), clientId)
+        .findByIdAndOwnerKey(WorkflowTemplateId.of(workflowTemplateId), ownerKey)
         .filter(template -> template.isEnabled())
         .orElseThrow(() -> new WorkflowTemplateNotFoundException(workflowTemplateId));
   }

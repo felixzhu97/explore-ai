@@ -32,16 +32,16 @@ public class PipelineWorkflowRunner implements WorkflowRunner {
 
   @Override
   public String runSavedWorkflow(
-      String clientId, String workflowTemplateId, String brief, String language) {
+      String ownerKey, String workflowTemplateId, String brief, String language) {
     SavedWorkflowTemplate template =
         workflowTemplateRepository
-            .findByIdAndClientId(WorkflowTemplateId.of(workflowTemplateId), clientId)
+            .findByIdAndOwnerKey(WorkflowTemplateId.of(workflowTemplateId), ownerKey)
             .filter(SavedWorkflowTemplate::isEnabled)
             .orElseThrow(() -> new WorkflowTemplateNotFoundException(workflowTemplateId));
     AgentPipeline pipeline = toLinearPipeline(template.getAgentTypes());
     String message =
         resolveInvokeMessage(brief, template.getShortTopic(), template.getBriefPrompt());
-    return pipelineService.invokePipelineSync(message, pipeline, clientId, language);
+    return pipelineService.invokePipelineSync(message, pipeline, ownerKey, language);
   }
 
   /**

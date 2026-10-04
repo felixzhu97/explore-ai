@@ -13,8 +13,8 @@ public record ChatEvaluationResult(
     boolean hasSafetyIssues,
     List<String> safetyFlags,
     List<String> suggestions,
-    boolean relevancyPass,
-    Boolean factualityPass,
+    boolean relevancyPassed,
+    Boolean factualityPassed,
     List<String> evaluatorFeedback) {
   public static Builder builder() {
     return new Builder();
@@ -31,8 +31,8 @@ public record ChatEvaluationResult(
     private boolean hasSafetyIssues;
     private List<String> safetyFlags = List.of();
     private List<String> suggestions = List.of();
-    private boolean relevancyPass;
-    private Boolean factualityPass;
+    private boolean relevancyPassed;
+    private Boolean factualityPassed;
     private List<String> evaluatorFeedback = List.of();
 
     public Builder coherenceScore(double score) {
@@ -80,13 +80,13 @@ public record ChatEvaluationResult(
       return this;
     }
 
-    public Builder relevancyPass(boolean pass) {
-      this.relevancyPass = pass;
+    public Builder relevancyPassed(boolean pass) {
+      this.relevancyPassed = pass;
       return this;
     }
 
-    public Builder factualityPass(Boolean pass) {
-      this.factualityPass = pass;
+    public Builder factualityPassed(Boolean pass) {
+      this.factualityPassed = pass;
       return this;
     }
 
@@ -107,8 +107,8 @@ public record ChatEvaluationResult(
           hasSafetyIssues,
           safetyFlags,
           suggestions,
-          relevancyPass,
-          factualityPass,
+          relevancyPassed,
+          factualityPassed,
           evaluatorFeedback);
     }
   }

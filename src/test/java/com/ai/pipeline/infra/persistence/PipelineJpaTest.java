@@ -114,7 +114,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     agentRepository.saveAndFlush(alpha);
     em.clear();
 
-    List<SavedAgentDefinition> agents = jpaAgentRepository.findAllByClientId(OWNER_KEY);
+    List<SavedAgentDefinition> agents = jpaAgentRepository.findAllByOwnerKey(OWNER_KEY);
 
     assertThat(agents)
         .extracting(SavedAgentDefinition::getName)
@@ -131,7 +131,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     Optional<SavedWorkflowTemplate> found =
-        jpaWorkflowRepository.findByIdAndClientId(workflow.getId(), OWNER_KEY);
+        jpaWorkflowRepository.findByIdAndOwnerKey(workflow.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Scoped flow");

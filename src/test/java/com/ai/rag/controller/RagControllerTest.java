@@ -64,29 +64,29 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return list of documents")
     void shouldReturnListOfDocuments() {
       Document doc = createTestDocument("Test Doc", DocumentStatus.READY);
-      when(ragApplicationService.listDocuments(ownerClientId())).thenReturn(List.of(doc));
+      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
           .convertTo(Integer.class)
           .isEqualTo(1);
-      verify(ragApplicationService).listDocuments(ownerClientId());
+      verify(ragApplicationService).listDocuments(ownerKey());
     }
 
     @Test
     @DisplayName("should return empty list when no documents")
     void shouldReturnEmptyListWhenNoDocuments() {
-      when(ragApplicationService.listDocuments(ownerClientId())).thenReturn(List.of());
+      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of());
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
@@ -107,7 +107,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
       Document doc = createTestDocument("test.txt", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
           new DocumentUploadService.UploadResult(doc.getId(), "test.txt", "READY", 0);
-      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerClientId())))
+      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
           .thenReturn(uploadResult);
 
       assertThat(
@@ -115,9 +115,9 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .multipart()
                   .uri("/api/rag/documents/upload")
                   .file(file)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatus(HttpStatus.CREATED);
-      verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerClientId()));
+      verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerKey()));
     }
 
     @Test
@@ -128,7 +128,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
       Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
           new DocumentUploadService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
-      when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerClientId())))
+      when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
           .thenReturn(uploadResult);
 
       assertThat(
@@ -137,9 +137,9 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .uri("/api/rag/documents/upload")
                   .file(file)
                   .param("title", "Custom Title")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatus(HttpStatus.CREATED);
-      verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerClientId()));
+      verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
     }
 
     @Test
@@ -148,7 +148,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
       MockMultipartFile file =
           new MockMultipartFile(
               "file", "document.pdf", "application/pdf", "PDF content".getBytes());
-      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerClientId())))
+      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
           .thenThrow(new RuntimeException("Upload failed"));
 
       assertThat(
@@ -156,7 +156,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .multipart()
                   .uri("/api/rag/documents/upload")
                   .file(file)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -169,14 +169,14 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should delete document and return 204")
     void shouldDeleteDocumentAndReturn204() {
       UUID docId = UUID.randomUUID();
-      doNothing().when(ragApplicationService).deleteDocument(docId, ownerClientId());
+      doNothing().when(ragApplicationService).deleteDocument(docId, ownerKey());
 
       assertThat(
               mvc.delete()
                   .uri("/api/rag/documents/" + docId)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerClientId())))
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatus(HttpStatus.NO_CONTENT);
-      verify(ragApplicationService).deleteDocument(docId, ownerClientId());
+      verify(ragApplicationService).deleteDocument(docId, ownerKey());
     }
   }
 

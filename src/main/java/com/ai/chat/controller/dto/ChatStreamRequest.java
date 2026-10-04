@@ -14,7 +14,7 @@ import java.util.List;
  * @param skillIds optional skill ids
  */
 public record ChatStreamRequest(
-    List<ChatMessageDto> messages,
+    List<Message> messages,
     @JsonAlias("session_id") String sessionId,
     String provider,
     String model,
@@ -22,5 +22,5 @@ public record ChatStreamRequest(
     @JsonAlias("skill_ids") List<String> skillIds) {
 
   /** A single chat message with role and content. */
-  public record ChatMessageDto(String role, String content) {}
+  public record Message(String role, String content) {}
 }

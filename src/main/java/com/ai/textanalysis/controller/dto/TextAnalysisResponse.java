@@ -14,7 +14,7 @@ import java.util.List;
  * @param entities named entities
  * @param language detected language
  */
-public record TextAnalysisResult(
+public record TextAnalysisResponse(
     @JsonProperty("summary") String summary,
     @JsonProperty("sentiment") SentimentDto sentiment,
     @JsonProperty("key_points") List<String> keyPoints,
@@ -36,8 +36,8 @@ public record TextAnalysisResult(
   }
 
   /** Maps a domain {@link TextAnalysis} to the API response DTO. */
-  public static TextAnalysisResult fromDomain(TextAnalysis analysis) {
-    return new TextAnalysisResult(
+  public static TextAnalysisResponse fromDomain(TextAnalysis analysis) {
+    return new TextAnalysisResponse(
         analysis.summary(),
         SentimentDto.fromDomain(analysis.sentiment()),
         analysis.keyPoints(),

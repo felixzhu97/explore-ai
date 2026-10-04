@@ -18,39 +18,39 @@ public class SavedAgentService {
     this.repository = repository;
   }
 
-  public List<SavedAgentDefinition> listLibrary(String clientId) {
-    return repository.findAllByClientId(clientId);
+  public List<SavedAgentDefinition> listLibrary(String ownerKey) {
+    return repository.findAllByOwnerKey(ownerKey);
   }
 
   /** Saves a new agent definition in the owner's library. */
   public SavedAgentDefinition create(
-      String clientId,
+      String ownerKey,
       String typeKey,
       String name,
       String description,
       String systemPrompt,
       List<String> toolKeys) {
     SavedAgentDefinition agent =
-        SavedAgentDefinition.create(clientId, typeKey, name, description, systemPrompt, toolKeys);
-    assertTypeAvailable(clientId, agent.getTypeKey(), null);
+        SavedAgentDefinition.create(ownerKey, typeKey, name, description, systemPrompt, toolKeys);
+    assertTypeAvailable(ownerKey, agent.getTypeKey(), null);
     return repository.save(agent);
   }
 
   public SavedAgentDefinition update(
-      String clientId,
+      String ownerKey,
       String id,
       String name,
       String description,
       String systemPrompt,
       List<String> toolKeys) {
-    SavedAgentDefinition agent = findOwned(clientId, id);
+    SavedAgentDefinition agent = findOwned(ownerKey, id);
     agent.update(name, description, systemPrompt, toolKeys);
     return repository.save(agent);
   }
 
   /** Enables or disables the owner's saved agent. */
-  public SavedAgentDefinition setEnabled(String clientId, String id, boolean enabled) {
-    SavedAgentDefinition agent = findOwned(clientId, id);
+  public SavedAgentDefinition setEnabled(String ownerKey, String id, boolean enabled) {
+    SavedAgentDefinition agent = findOwned(ownerKey, id);
     if (enabled) {
       agent.enable();
     } else {
@@ -59,19 +59,19 @@ public class SavedAgentService {
     return repository.save(agent);
   }
 
-  public void delete(String clientId, String id) {
-    findOwned(clientId, id);
-    repository.deleteByIdAndClientId(SavedAgentId.of(id), clientId);
+  public void delete(String ownerKey, String id) {
+    findOwned(ownerKey, id);
+    repository.deleteByIdAndOwnerKey(SavedAgentId.of(id), ownerKey);
   }
 
-  private SavedAgentDefinition findOwned(String clientId, String id) {
+  private SavedAgentDefinition findOwned(String ownerKey, String id) {
     return repository
-        .findByIdAndClientId(SavedAgentId.of(id), clientId)
+        .findByIdAndOwnerKey(SavedAgentId.of(id), ownerKey)
         .orElseThrow(() -> new SavedAgentNotFoundException(id));
   }
 
-  private void assertTypeAvailable(String clientId, String typeKey, SavedAgentId excludeId) {
-    if (repository.existsByClientIdAndTypeKeyIgnoringId(clientId, typeKey, excludeId)) {
+  private void assertTypeAvailable(String ownerKey, String typeKey, SavedAgentId excludeId) {
+    if (repository.existsByOwnerKeyAndTypeKeyIgnoringId(ownerKey, typeKey, excludeId)) {
       throw new SavedAgentTypeConflictException(typeKey);
     }
   }

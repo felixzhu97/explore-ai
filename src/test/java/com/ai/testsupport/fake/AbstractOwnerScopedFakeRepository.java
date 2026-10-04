@@ -10,7 +10,7 @@ import java.util.Optional;
  * @param <E> entity type
  * @param <I> id type
  */
-public abstract class AbstractClientIdOwnedFakeRepository<E, I> {
+public abstract class AbstractOwnerScopedFakeRepository<E, I> {
 
   private final List<E> entities = new ArrayList<>();
   private int saveCount;
@@ -44,26 +44,26 @@ public abstract class AbstractClientIdOwnedFakeRepository<E, I> {
   }
 
   /** Finds an entity by id scoped to client id. */
-  public Optional<E> findByIdAndClientId(I id, String clientId) {
+  public Optional<E> findByIdAndOwnerKey(I id, String ownerKey) {
     return entities.stream()
-        .filter(entity -> getId(entity).equals(id) && getClientId(entity).equals(clientId))
+        .filter(entity -> getId(entity).equals(id) && getClientId(entity).equals(ownerKey))
         .findFirst();
   }
 
   /** Lists all entities for a client id. */
-  public List<E> findAllByClientId(String clientId) {
-    return entities.stream().filter(entity -> getClientId(entity).equals(clientId)).toList();
+  public List<E> findAllByOwnerKey(String ownerKey) {
+    return entities.stream().filter(entity -> getClientId(entity).equals(ownerKey)).toList();
   }
 
   /** Deletes an entity by id scoped to client id. */
-  public void deleteByIdAndClientId(I id, String clientId) {
-    entities.removeIf(entity -> getId(entity).equals(id) && getClientId(entity).equals(clientId));
+  public void deleteByIdAndOwnerKey(I id, String ownerKey) {
+    entities.removeIf(entity -> getId(entity).equals(id) && getClientId(entity).equals(ownerKey));
   }
 
   /** Returns whether another entity already uses the name for the client id. */
-  public boolean existsByClientIdAndNameIgnoringId(String clientId, String name, I excludeId) {
+  public boolean existsByOwnerKeyAndNameIgnoringId(String ownerKey, String name, I excludeId) {
     return entities.stream()
-        .filter(entity -> getClientId(entity).equals(clientId))
+        .filter(entity -> getClientId(entity).equals(ownerKey))
         .filter(entity -> getName(entity).equals(name))
         .anyMatch(entity -> excludeId == null || !getId(entity).equals(excludeId));
   }

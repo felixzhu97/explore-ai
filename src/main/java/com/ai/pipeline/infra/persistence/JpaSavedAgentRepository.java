@@ -34,35 +34,35 @@ public class JpaSavedAgentRepository implements SavedAgentRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<SavedAgentDefinition> findByIdAndClientId(SavedAgentId id, String clientId) {
-    return ownerPartition.findOne(OwnerKey.parse(clientId), () -> delegate.findById(id));
+  public Optional<SavedAgentDefinition> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
+    return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<SavedAgentDefinition> findAllByClientId(String clientId) {
-    return ownerPartition.apply(OwnerKey.parse(clientId), () -> delegate.findAll(BY_NAME));
+  public List<SavedAgentDefinition> findAllByOwnerKey(String ownerKey) {
+    return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(BY_NAME));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<SavedAgentDefinition> findEnabledByClientId(String clientId) {
+  public List<SavedAgentDefinition> findEnabledByOwnerKey(String ownerKey) {
     return ownerPartition.apply(
-        OwnerKey.parse(clientId), delegate::findAllByEnabledTrueOrderByNameAsc);
+        OwnerKey.parse(ownerKey), delegate::findAllByEnabledTrueOrderByNameAsc);
   }
 
   @Override
   @Transactional
-  public void deleteByIdAndClientId(SavedAgentId id, String clientId) {
-    ownerPartition.run(OwnerKey.parse(clientId), () -> delegate.deleteById(id));
+  public void deleteByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public boolean existsByClientIdAndTypeKeyIgnoringId(
-      String clientId, String typeKey, SavedAgentId excludeId) {
+  public boolean existsByOwnerKeyAndTypeKeyIgnoringId(
+      String ownerKey, String typeKey, SavedAgentId excludeId) {
     return ownerPartition.apply(
-        OwnerKey.parse(clientId),
+        OwnerKey.parse(ownerKey),
         () ->
             excludeId == null
                 ? delegate.existsByTypeKey(typeKey)
