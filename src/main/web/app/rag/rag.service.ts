@@ -283,7 +283,7 @@ export class RagService {
     this.input.set(text);
   }
 
-  async sendMessage(): Promise<void> {
+  sendMessage(): void {
     if (!this.input().trim()) {
       return;
     }

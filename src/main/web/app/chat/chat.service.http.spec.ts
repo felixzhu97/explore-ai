@@ -620,7 +620,7 @@ describe('ChatService http flows', () => {
     httpMock.expectNone(`${API_BASE_URL}/chat/sessions/s1/messages`);
   });
 
-  it('should remove empty assistant placeholder when stream aborted', async () => {
+  it('should remove empty assistant placeholder when stream aborted', () => {
     const abort = vi.fn();
     vi.mocked(streamSsePost).mockReturnValue({ abort });
     service.sessions.set([
@@ -656,7 +656,7 @@ describe('ChatService http flows', () => {
     expect(service.messages()[0].role).toBe('user');
   });
 
-  it('should remove empty assistant placeholder when stream completes with no content', async () => {
+  it('should remove empty assistant placeholder when stream completes with no content', () => {
     interface StreamHandlers {
       onEvent: (payload: { eventType: string; data: string }) => boolean | void;
       onDone: () => void;
@@ -718,7 +718,7 @@ describe('ChatService http flows', () => {
     ]);
   });
 
-  it('should keep assistant message when stream completes with content', async () => {
+  it('should keep assistant message when stream completes with content', () => {
     interface StreamHandlers {
       onEvent: (payload: { eventType: string; data: string }) => boolean | void;
       onDone: () => void;
@@ -795,7 +795,7 @@ describe('ChatService http flows', () => {
     expect(service.messages()[1]).toMatchObject({ role: 'assistant', content: 'Hi there' });
   });
 
-  it('should keep local assistant when history sync returns before persistence', async () => {
+  it('should keep local assistant when history sync returns before persistence', () => {
     interface StreamHandlers {
       onEvent: (payload: { eventType: string; data: string }) => boolean | void;
       onDone: () => void;

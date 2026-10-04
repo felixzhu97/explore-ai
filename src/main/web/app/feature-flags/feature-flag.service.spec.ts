@@ -6,7 +6,6 @@ import { STORAGE_KEYS } from '../storage-keys';
 const mockClient = {
   on: vi.fn(),
   start: vi.fn(),
-  waitForInitialization: vi.fn(),
   boolVariation: vi.fn((_key: string, fallback: boolean) => fallback),
 };
 
@@ -32,7 +31,7 @@ vi.mock('../../environments/environment', () => ({
 }));
 
 describe('FeatureFlagService', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
     localStorage.clear();
@@ -46,7 +45,7 @@ describe('FeatureFlagService', () => {
       'module-automations': true,
       'module-skills': true,
     };
-    mockClient.waitForInitialization.mockResolvedValue(undefined);
+    mockClient.start.mockResolvedValue({ status: 'complete' });
     mockClient.boolVariation.mockImplementation(
       (_key: string, fallback: boolean) => fallback,
     );
@@ -119,7 +118,7 @@ describe('FeatureFlagService', () => {
       'module-automations': true,
       'module-skills': true,
     };
-    mockClient.waitForInitialization.mockReturnValue(
+    mockClient.start.mockReturnValue(
       new Promise(() => undefined),
     );
 

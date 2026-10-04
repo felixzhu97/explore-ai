@@ -157,8 +157,11 @@ export class TtsPageComponent implements OnInit, OnDestroy {
       this.#audioElement.pause();
       this.isPlaying.set(false);
     } else {
-      this.#audioElement.play();
       this.isPlaying.set(true);
+      this.#audioElement.play().catch((error: unknown) => {
+        this.isPlaying.set(false);
+        this.error.set(error instanceof Error ? error.message : 'Playback failed');
+      });
     }
   }
 

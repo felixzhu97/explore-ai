@@ -67,9 +67,6 @@ export const appConfig: ApplicationConfig = {
       provide: A2UI_RENDERER_CONFIG,
       useFactory: () => ({
         catalogs: [inject(BasicCatalog)],
-        actionHandler: (action: unknown) => {
-          console.debug('[A2UI] action', action);
-        },
       }),
     },
     A2uiRendererService,

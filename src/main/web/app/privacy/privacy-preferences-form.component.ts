@@ -116,13 +116,14 @@ export class PrivacyPreferencesFormComponent implements OnInit {
   }
 
   savePreferences(): void {
-    submit(this.preferencesForm, async () => {
+    void submit(this.preferencesForm, () => {
       this.saving.set(true);
       const { analytics, contactEmail } = this.preferencesModel();
       this.#consent.savePreferences({ analytics, contactEmail: contactEmail.trim() });
       this.preferencesForm().reset(this.preferencesModel());
       this.#notify.showSuccess(this.copy().savePreferencesSuccess);
       this.saving.set(false);
+      return Promise.resolve();
     });
   }
 }

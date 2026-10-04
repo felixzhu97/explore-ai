@@ -170,7 +170,7 @@ describe('RagService', () => {
     httpMock.expectOne(`${API_BASE_URL}/rag/documents`).flush({ documents: [] });
   });
 
-  it('should send message via sse stream', async () => {
+  it('should send message via sse stream', () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({
         eventType: 'sources',
@@ -181,14 +181,14 @@ describe('RagService', () => {
       return { abort: vi.fn() };
     });
     service.setInput('Question');
-    await service.sendMessage();
+    service.sendMessage();
     expect(service.messages()[1].content).toContain('Hello');
     expect(service.messages()[1].sources?.[0].content).toBe('T');
     expect(service.messages()[1].sources?.[0].metadata['url']).toBe('https://a.com');
     expect(service.isLoading()).toBe(false);
   });
 
-  it('should keep leading spaces of JSON stream tokens', async () => {
+  it('should keep leading spaces of JSON stream tokens', () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({ eventType: '', data: '{"type":"message","token":"BLUE"}' });
       handlers.onEvent({ eventType: '', data: '{"type":"message","token":" HERON"}' });
@@ -196,23 +196,23 @@ describe('RagService', () => {
       return { abort: vi.fn() };
     });
     service.setInput('Codename?');
-    await service.sendMessage();
+    service.sendMessage();
     expect(service.messages()[1].content).toBe('BLUE HERON');
   });
 
-  it('should handle stream error prefix', async () => {
+  it('should handle stream error prefix', () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({ eventType: 'message', data: 'Error:failed' });
       return { abort: vi.fn() };
     });
     service.setInput('Fail');
-    await service.sendMessage();
+    service.sendMessage();
     expect(service.messages()[1].content).toContain('error occurred');
   });
 
-  it('should skip empty send', async () => {
+  it('should skip empty send', () => {
     service.setInput('   ');
-    await service.sendMessage();
+    service.sendMessage();
     expect(streamSsePostMock).not.toHaveBeenCalled();
   });
 

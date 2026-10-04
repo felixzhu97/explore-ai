@@ -30,7 +30,7 @@ describe('resolvePolicySlug', () => {
 });
 
 describe('PoliciesPageComponent', () => {
-  async function setup(slug: string | null) {
+  function setup(slug: string | null) {
     TestBed.configureTestingModule({
       imports: [PoliciesPageComponent, RouterLink],
       providers: [
@@ -58,8 +58,8 @@ describe('PoliciesPageComponent', () => {
     return fixture;
   }
 
-  it('should render the policies hub with document summaries', async () => {
-    const fixture = await setup(null);
+  it('should render the policies hub with document summaries', () => {
+    const fixture = setup(null);
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Policies');
     expect(text).toContain('Terms of Use');
@@ -68,15 +68,15 @@ describe('PoliciesPageComponent', () => {
     expect(fixture.componentInstance.doc()).toBeNull();
   });
 
-  it('should render terms of use sections when slug is valid', async () => {
-    const fixture = await setup('terms-of-use');
+  it('should render terms of use sections when slug is valid', () => {
+    const fixture = setup('terms-of-use');
     expect(fixture.componentInstance.doc()?.title).toBe('Terms of Use');
     expect(fixture.componentInstance.doc()?.sections.length).toBeGreaterThan(3);
     const headings = fixture.debugElement.queryAll(By.css('h2'));
     expect(headings.some(h => h.nativeElement.textContent.includes('Agreement'))).toBe(true);
   });
 
-  it('should render localized policy body when language is zh', async () => {
+  it('should render localized policy body when language is zh', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [PoliciesPageComponent, RouterLink],
@@ -104,8 +104,8 @@ describe('PoliciesPageComponent', () => {
     expect(headings.some(h => h.nativeElement.textContent.includes('协议'))).toBe(true);
   });
 
-  it('should fall back to hub for unknown slug', async () => {
-    const fixture = await setup('not-a-real-policy');
+  it('should fall back to hub for unknown slug', () => {
+    const fixture = setup('not-a-real-policy');
     expect(fixture.componentInstance.doc()).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Terms of Use');
   });

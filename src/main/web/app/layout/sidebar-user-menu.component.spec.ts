@@ -115,7 +115,7 @@ describe('SidebarUserMenuComponent', () => {
     expect(fixture.componentInstance.showLogout()).toBe(false);
   });
 
-  it('should open login dialog when login clicked', async () => {
+  it('should open login dialog when login clicked', () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',

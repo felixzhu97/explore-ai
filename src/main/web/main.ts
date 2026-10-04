@@ -11,4 +11,5 @@ if (hasAnalyticsConsent()) {
   initDatadogRum();
 }
 
-bootstrapApplication(AppComponent, appConfig).catch(error => console.error(error));
+bootstrapApplication(AppComponent, appConfig)
+  .catch((error: unknown) => console.error(error));
