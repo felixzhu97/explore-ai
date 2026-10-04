@@ -32,8 +32,8 @@ class AgentSkillsRuntimeTest {
 
   private static AgentSkillsRuntime runtime(boolean enabled, List<String> ids) {
     AgentSkillsProperties p = new AgentSkillsProperties();
-    p.getSkills().setEnabled(enabled);
-    p.getSkills().setIds(ids);
+    p.setEnabled(enabled);
+    p.setIds(ids);
     return new AgentSkillsRuntime(p, new AgentSkillLoader(p));
   }
 }

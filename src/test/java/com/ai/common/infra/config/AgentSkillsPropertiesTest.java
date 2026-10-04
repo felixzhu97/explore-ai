@@ -14,23 +14,22 @@ class AgentSkillsPropertiesTest {
 
   @Test
   void shouldDefaultSkillsOffWhenNotConfigured() {
-    assertThat(bind(Map.of()).getSkills().isEnabled()).isFalse();
+    assertThat(bind(Map.of()).isEnabled()).isFalse();
   }
 
   @Test
   void shouldBindSkillsConfigWhenPropertiesProvided() {
     assertThat(
             bind(Map.of(
-                    "app.pipeline.skills.enabled", "true",
-                    "app.pipeline.skills.ids[0]", "brief-style"))
-                .getSkills()
+                    "app.agent-skills.enabled", "true",
+                    "app.agent-skills.ids[0]", "brief-style"))
                 .getIds())
         .containsExactly("brief-style");
   }
 
   private static AgentSkillsProperties bind(Map<String, String> values) {
     return new Binder(new MapConfigurationPropertySource(values))
-        .bind("app.pipeline", Bindable.of(AgentSkillsProperties.class))
+        .bind("app.agent-skills", Bindable.of(AgentSkillsProperties.class))
         .orElseGet(AgentSkillsProperties::new);
   }
 }

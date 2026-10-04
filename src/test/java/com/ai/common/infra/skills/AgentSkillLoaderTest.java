@@ -51,8 +51,8 @@ class AgentSkillLoaderTest {
 
   private static AgentSkillLoader loader(boolean enabled, List<String> ids) {
     AgentSkillsProperties p = new AgentSkillsProperties();
-    p.getSkills().setEnabled(enabled);
-    p.getSkills().setIds(ids);
+    p.setEnabled(enabled);
+    p.setIds(ids);
     return new AgentSkillLoader(p);
   }
 }

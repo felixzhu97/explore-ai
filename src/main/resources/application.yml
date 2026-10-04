@@ -62,15 +62,6 @@ spring:
       chat:
         options:
           model: claude-sonnet-5
-    rag:
-      chunk:
-        # Token count for Spring AI TokenTextSplitter (ETL ingest)
-        size: ${RAG_CHUNK_SIZE:500}
-        # Legacy; TokenTextSplitter 2.0 has no overlap — kept for MCP config compatibility
-        overlap: ${RAG_CHUNK_OVERLAP:50}
-      retrieval:
-        top-k: ${RAG_TOP_K:5}
-        score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
 
   datasource:
     url: ${H2_URL:jdbc:h2:file:./data/explore-ai;AUTO_SERVER=TRUE}
@@ -155,6 +146,15 @@ launchdarkly:
     module-skills: true
 
 app:
+  rag:
+    chunk:
+      # Token count for Spring AI TokenTextSplitter (ETL ingest)
+      size: ${RAG_CHUNK_SIZE:500}
+      # Legacy; TokenTextSplitter 2.0 has no overlap — kept for MCP config compatibility
+      overlap: ${RAG_CHUNK_OVERLAP:50}
+    retrieval:
+      top-k: ${RAG_TOP_K:5}
+      score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
   datetime:
     zone: ${APP_DATETIME_ZONE:Asia/Shanghai}
   ai:
@@ -254,11 +254,10 @@ app:
     from: ${APP_MAIL_FROM:onboarding@resend.dev}
     resend-api-key: ${APP_MAIL_RESEND_API_KEY:}
     resend-base-url: ${APP_MAIL_RESEND_BASE_URL:https://api.resend.com}
-  pipeline:
-    skills:
-      enabled: ${AGENT_SKILLS_ENABLED:false}
-      ids: []
-      resource-location: classpath:agent/skills/
+  agent-skills:
+    enabled: ${AGENT_SKILLS_ENABLED:false}
+    ids: []
+    resource-location: classpath:agent/skills/
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
     detect:

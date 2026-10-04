@@ -104,11 +104,10 @@ public class McpServerToolsProvider {
     log.info("MCP resource: getConfig called for key: {}", key);
 
     return switch (key) {
-      case "spring.ai.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());
-      case "spring.ai.rag.chunk.overlap" -> String.valueOf(ragProperties.getChunk().getOverlap());
-      case "spring.ai.rag.retrieval.top-k" ->
-          String.valueOf(ragProperties.getRetrieval().getTopK());
-      case "spring.ai.rag.retrieval.score-threshold" ->
+      case "app.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());
+      case "app.rag.chunk.overlap" -> String.valueOf(ragProperties.getChunk().getOverlap());
+      case "app.rag.retrieval.top-k" -> String.valueOf(ragProperties.getRetrieval().getTopK());
+      case "app.rag.retrieval.score-threshold" ->
           String.valueOf(ragProperties.getRetrieval().getScoreThreshold());
       default -> "Configuration key not found: " + key;
     };

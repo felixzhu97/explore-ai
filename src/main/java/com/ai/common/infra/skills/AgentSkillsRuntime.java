@@ -22,7 +22,7 @@ public class AgentSkillsRuntime {
   private final ToolCallback skillToolCallback;
 
   AgentSkillsRuntime(AgentSkillsProperties agentProperties, AgentSkillLoader skillLoader) {
-    this.enabled = agentProperties.getSkills().isEnabled();
+    this.enabled = agentProperties.isEnabled();
     this.skills = skillLoader.loadEnabledSkills();
     this.skillToolCallback = buildSkillToolCallback(this.skills);
     if (enabled) {
