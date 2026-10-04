@@ -2,7 +2,6 @@ package com.ai.metrics.infra.persistence;
 
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -183,8 +182,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 ORDER BY bucket_day
                 """,
         (rs, rowNum) -> new TimePoint(rs.getString("bucket_day"), rs.getLong("metric_value")),
-        Timestamp.from(from),
-        Timestamp.from(to));
+        from,
+        to);
   }
 
   @Override
@@ -198,8 +197,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 ORDER BY bucket_day
                 """,
         (rs, rowNum) -> new TimePoint(rs.getString("bucket_day"), rs.getLong("metric_value")),
-        Timestamp.from(from),
-        Timestamp.from(to));
+        from,
+        to);
   }
 
   @Override
@@ -213,8 +212,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 ORDER BY bucket_day
                 """,
         (rs, rowNum) -> new TimePoint(rs.getString("bucket_day"), rs.getLong("metric_value")),
-        Timestamp.from(from),
-        Timestamp.from(to));
+        from,
+        to);
   }
 
   @Override
@@ -224,7 +223,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM chat_session WHERE last_activity_at >= ?",
             Long.class,
-            Timestamp.from(activeSince));
+            activeSince);
     Long messages =
         jdbcTemplate.queryForObject("SELECT COUNT(*) FROM SPRING_AI_CHAT_MEMORY", Long.class);
     Long webSources =
@@ -270,10 +269,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   private List<NamedCount> namedCounts(String sql, Instant from, Instant to) {
     return jdbcTemplate.query(
-        sql,
-        (rs, rowNum) -> new NamedCount(rs.getString("name"), rs.getLong("cnt")),
-        Timestamp.from(from),
-        Timestamp.from(to));
+        sql, (rs, rowNum) -> new NamedCount(rs.getString("name"), rs.getLong("cnt")), from, to);
   }
 
   private long countWhere(String baseSql, Optional<AiDomain> domain, Instant from, Instant to) {
@@ -307,8 +303,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
       joiner = " AND ";
     }
     sql.append(joiner).append("occurred_at >= ? AND occurred_at < ?");
-    args.add(Timestamp.from(from));
-    args.add(Timestamp.from(to));
+    args.add(from);
+    args.add(to);
   }
 
   private static long nullToZero(Long value) {

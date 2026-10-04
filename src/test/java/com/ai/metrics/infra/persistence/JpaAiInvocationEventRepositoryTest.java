@@ -16,7 +16,6 @@ import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import jakarta.persistence.EntityManager;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -97,8 +96,8 @@ class JpaAiInvocationEventRepositoryTest {
               final RowMapper<AiInvocationEvent> mapper = invocation.getArgument(1);
               ResultSet rs = mock(ResultSet.class);
               when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
-              when(rs.getTimestamp("occurred_at"))
-                  .thenReturn(Timestamp.from(Instant.parse("2026-07-26T12:00:00Z")));
+              when(rs.getObject("occurred_at", Instant.class))
+                  .thenReturn(Instant.parse("2026-07-26T12:00:00Z"));
               when(rs.getString("domain")).thenReturn("chat");
               when(rs.getString("operation")).thenReturn("chat.stream");
               when(rs.getString("outcome")).thenReturn("success");
@@ -188,7 +187,7 @@ class JpaAiInvocationEventRepositoryTest {
   @DisplayName("should delete events older than cutoff")
   void shouldDeleteEventsWhenOlderThanCutoff() {
     Instant cutoff = Instant.parse("2026-01-01T00:00:00Z");
-    when(jdbcTemplate.update(anyString(), eq(Timestamp.from(cutoff)))).thenReturn(5);
+    when(jdbcTemplate.update(anyString(), eq(cutoff))).thenReturn(5);
 
     int deleted = repository.deleteOlderThan(cutoff);
 

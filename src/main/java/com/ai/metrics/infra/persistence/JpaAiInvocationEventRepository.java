@@ -6,7 +6,6 @@ import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import jakarta.persistence.EntityManager;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -27,7 +26,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
       (rs, rowNum) ->
           AiInvocationEvent.builder()
               .id(java.util.UUID.fromString(rs.getString("id")))
-              .occurredAt(rs.getTimestamp("occurred_at").toInstant())
+              .occurredAt(rs.getObject("occurred_at", Instant.class))
               .domain(AiDomain.require(rs.getString("domain")))
               .operation(rs.getString("operation"))
               .outcome(InvocationOutcome.parse(rs.getString("outcome")))
@@ -80,8 +79,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   @Override
   @Transactional
   public int deleteOlderThan(Instant cutoff) {
-    return jdbcTemplate.update(
-        "DELETE FROM ai_invocation_event WHERE occurred_at < ?", Timestamp.from(cutoff));
+    return jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE occurred_at < ?", cutoff);
   }
 
   @Override
@@ -101,14 +99,14 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
         .ifPresent(
             from -> {
               where.append(" AND occurred_at >= ?");
-              args.add(Timestamp.from(from));
+              args.add(from);
             });
     query
         .to()
         .ifPresent(
             to -> {
               where.append(" AND occurred_at < ?");
-              args.add(Timestamp.from(to));
+              args.add(to);
             });
     query
         .day()
@@ -118,8 +116,8 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
               Instant start = date.atStartOfDay().toInstant(ZoneOffset.UTC);
               Instant end = date.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
               where.append(" AND occurred_at >= ? AND occurred_at < ?");
-              args.add(Timestamp.from(start));
-              args.add(Timestamp.from(end));
+              args.add(start);
+              args.add(end);
             });
     query
         .outcome()

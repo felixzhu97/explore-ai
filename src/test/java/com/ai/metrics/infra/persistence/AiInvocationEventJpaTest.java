@@ -3,17 +3,22 @@ package com.ai.metrics.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.repository.AiInvocationEventRepository.DrilldownQuery;
+import com.ai.metrics.domain.repository.AiInvocationEventRepository.PageResult;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
+import java.util.Optional;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @EntityScan(basePackages = {"com.ai.metrics.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = JpaAiInvocationEventRepository.class)
@@ -22,6 +27,8 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   private static final String OWNER_KEY = "c:77777777-7777-7777-7777-777777777777";
 
   @Autowired private TestEntityManager em;
+
+  @Autowired private DataSource dataSource;
 
   @Test
   @DisplayName("should persist and reload invocation event when round tripping")
@@ -148,6 +155,44 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     AiInvocationEvent reloaded = em.find(AiInvocationEvent.class, event.getId());
 
     assertThat(reloaded.getOccurredAt()).isEqualTo(occurredAt);
+  }
+
+  @Test
+  @DisplayName("should filter and read occurred at as instant when querying through jdbc")
+  void shouldFilterAndReadOccurredAtAsInstantWhenQueryingThroughJdbc() {
+    Instant occurredAt = Instant.parse("2026-03-15T12:00:00.250Z");
+    AiInvocationEvent event =
+        AiInvocationEvent.builder()
+            .occurredAt(occurredAt)
+            .domain(AiDomain.WORKFLOW)
+            .operation("execute")
+            .outcome(InvocationOutcome.SUCCESS)
+            .latencyMs(500)
+            .ownerKey(OWNER_KEY)
+            .build();
+    em.persistAndFlush(event);
+    em.clear();
+    JpaAiInvocationEventRepository repository =
+        new JpaAiInvocationEventRepository(em.getEntityManager(), new JdbcTemplate(dataSource));
+
+    PageResult page =
+        repository.findDrilldown(
+            new DrilldownQuery(
+                Optional.of(AiDomain.WORKFLOW),
+                Optional.of(occurredAt),
+                Optional.of(occurredAt.plusMillis(1)),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                0,
+                10));
+
+    assertThat(page.items())
+        .singleElement()
+        .extracting(AiInvocationEvent::getOccurredAt)
+        .isEqualTo(occurredAt);
   }
 
   private String rawColumn(AiInvocationEvent event, String column) {
