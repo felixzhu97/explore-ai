@@ -82,6 +82,16 @@ public class DocumentUploadService {
     return documentRepository.findAllByOwnerKey(ownerKey);
   }
 
+  /** Counts stored chunks for each document; documents without chunks map to 0. */
+  @Transactional(readOnly = true)
+  public Map<DocumentId, Integer> chunkCounts(List<RagDocument> documents) {
+    List<DocumentId> ids = documents.stream().map(RagDocument::getId).toList();
+    Map<DocumentId, Integer> stored = chunkRepository.countChunksByDocumentIds(ids);
+    Map<DocumentId, Integer> counts = new HashMap<>();
+    ids.forEach(id -> counts.put(id, stored.getOrDefault(id, 0)));
+    return counts;
+  }
+
   /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
   public void delete(UUID documentId, String ownerKey) {

@@ -7,7 +7,9 @@ import com.ai.rag.domain.service.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.ResultSet;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +76,29 @@ public class H2DocumentChunkRepository
             + TABLE_NAME
             + " WHERE document_id = ?";
     return jdbcTemplate.query(sql, chunkRowMapper, documentId.value());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Map<DocumentId, Integer> countChunksByDocumentIds(List<DocumentId> documentIds) {
+    if (documentIds == null || documentIds.isEmpty()) {
+      return Map.of();
+    }
+    String placeholders = documentIds.stream().map(id -> "?").collect(Collectors.joining(","));
+    String sql =
+        "SELECT document_id, COUNT(*) AS chunk_count FROM "
+            + TABLE_NAME
+            + " WHERE document_id IN ("
+            + placeholders
+            + ") GROUP BY document_id";
+    Map<DocumentId, Integer> counts = new HashMap<>();
+    jdbcTemplate.query(
+        sql,
+        (ResultSet rs) -> {
+          counts.put(DocumentId.of(rs.getString("document_id")), rs.getInt("chunk_count"));
+        },
+        documentIds.stream().map(DocumentId::value).toArray());
+    return counts;
   }
 
   @Override

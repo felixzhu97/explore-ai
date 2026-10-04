@@ -24,6 +24,7 @@ import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.service.VisionChatService;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,6 +77,24 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           .convertTo(Integer.class)
           .isEqualTo(1);
       verify(ragApplicationService).listDocuments(ownerKey());
+    }
+
+    @Test
+    @DisplayName("should return stored chunk count for each document")
+    void shouldReturnStoredChunkCountForEachDocument() {
+      RagDocument doc = createTestDocument("Chunked Doc", DocumentStatus.READY);
+      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
+      when(ragApplicationService.chunkCounts(List.of(doc))).thenReturn(Map.of(doc.getId(), 17));
+
+      assertThat(
+              mvc.get()
+                  .uri("/api/rag/documents")
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.documents[0].chunkCount")
+          .convertTo(Integer.class)
+          .isEqualTo(17);
     }
 
     @Test

@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.DocumentChunk;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @DisplayName("H2DocumentChunkRepository")
 class H2DocumentChunkRepositoryTest {
@@ -243,6 +245,55 @@ class H2DocumentChunkRepositoryTest {
       when(jdbcTemplate.update(anyString(), any(UUID.class))).thenReturn(1);
       chunkRepository.deleteChunksByDocumentId(docId);
       verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.value()));
+    }
+  }
+
+  @Nested
+  @DisplayName("countChunksByDocumentIds")
+  class CountChunksByDocumentIds {
+
+    private JdbcTemplate h2;
+    private H2DocumentChunkRepository repository;
+
+    @BeforeEach
+    void setUpDatabase() {
+      h2 =
+          new JdbcTemplate(
+              new DriverManagerDataSource(
+                  "jdbc:h2:mem:chunk-count-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
+      h2.execute("CREATE TABLE document_chunks (id UUID PRIMARY KEY, document_id UUID)");
+      repository = new H2DocumentChunkRepository(h2, objectMapper);
+    }
+
+    @Test
+    @DisplayName("should count chunks per document in one grouped query")
+    void shouldCountChunksPerDocumentInOneGroupedQuery() {
+      DocumentId first = DocumentId.generate();
+      DocumentId second = DocumentId.generate();
+      DocumentId withoutChunks = DocumentId.generate();
+      insertChunks(first, 3);
+      insertChunks(second, 1);
+
+      Map<DocumentId, Integer> counts =
+          repository.countChunksByDocumentIds(List.of(first, second, withoutChunks));
+
+      assertThat(counts).containsOnly(Map.entry(first, 3), Map.entry(second, 1));
+    }
+
+    @Test
+    @DisplayName("should return empty map without querying when no ids are given")
+    void shouldReturnEmptyMapWithoutQueryingWhenNoIdsAreGiven() {
+      assertThat(chunkRepository.countChunksByDocumentIds(List.of())).isEmpty();
+      verifyNoInteractions(jdbcTemplate);
+    }
+
+    private void insertChunks(DocumentId documentId, int count) {
+      for (int i = 0; i < count; i++) {
+        h2.update(
+            "INSERT INTO document_chunks (id, document_id) VALUES (?, ?)",
+            UUID.randomUUID(),
+            documentId.asUuid());
+      }
     }
   }
 

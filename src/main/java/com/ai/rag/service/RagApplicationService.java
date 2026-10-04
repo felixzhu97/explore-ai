@@ -4,6 +4,7 @@ import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,10 @@ public class RagApplicationService {
 
   public List<RagDocument> listDocuments(String ownerKey) {
     return uploadService.listAll(ownerKey);
+  }
+
+  public Map<DocumentId, Integer> chunkCounts(List<RagDocument> documents) {
+    return uploadService.chunkCounts(documents);
   }
 
   public void deleteDocument(UUID documentId, String ownerKey) {
