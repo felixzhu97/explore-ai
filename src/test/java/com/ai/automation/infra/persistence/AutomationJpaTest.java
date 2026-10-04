@@ -8,7 +8,7 @@ import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.vo.EmailDeliveryStatus;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -31,17 +30,21 @@ import org.springframework.test.util.ReflectionTestUtils;
       SpringDataAutomationScheduleRepository.class,
       SpringDataAutomationRunRepository.class
     })
-@Import(JpaAutomationRunRepository.class)
+@Import({
+  JpaAutomationRunRepository.class,
+  JpaAutomationScheduleRepository.class,
+  OwnerPartitionScope.class
+})
 class AutomationJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:44444444-4444-4444-4444-444444444444";
-  private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
   private static final String WORKFLOW_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataAutomationScheduleRepository scheduleRepository;
   @Autowired private SpringDataAutomationRunRepository runRepository;
   @Autowired private JpaAutomationRunRepository runAdapter;
+  @Autowired private JpaAutomationScheduleRepository scheduleAdapter;
 
   @Test
   @DisplayName("should bump version and win only once when claiming the next run")
@@ -179,8 +182,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     scheduleRepository.saveAndFlush(second);
     em.clear();
 
-    List<AutomationSchedule> schedules =
-        scheduleRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OWNER);
+    List<AutomationSchedule> schedules = scheduleAdapter.findAllByClientId(OWNER_KEY);
 
     assertThat(schedules).hasSize(2);
     assertThat(schedules.getFirst().getCreatedAt())
@@ -199,9 +201,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     runRepository.saveAndFlush(newerRun);
     em.clear();
 
-    List<AutomationRun> runs =
-        runRepository.findByScheduleIdAndOwnerKeyOrderByCreatedAtDesc(
-            scheduleId, OWNER, PageRequest.of(0, 10));
+    List<AutomationRun> runs = runAdapter.findByScheduleIdAndClientId(scheduleId, OWNER_KEY, 10);
 
     assertThat(runs).extracting(AutomationRun::getResultExcerpt).containsExactly("newer", "older");
   }

@@ -5,6 +5,7 @@ import com.ai.automation.domain.vo.RunId;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.common.domain.model.AbstractTimedRunEntity;
+import com.ai.common.domain.model.OwnerPartition;
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import jakarta.persistence.AttributeOverride;
@@ -21,10 +22,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Filter;
 
 /** Automation execution run record partitioned by owner_key. */
 @Entity
 @DynamicUpdate
+@Filter(name = OwnerPartition.FILTER_NAME)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AutomationRun extends AbstractTimedRunEntity<RunId> {

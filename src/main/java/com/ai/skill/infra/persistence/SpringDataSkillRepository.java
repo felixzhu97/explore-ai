@@ -1,6 +1,5 @@
 package com.ai.skill.infra.persistence;
 
-import com.ai.common.domain.vo.OwnerKey;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.vo.SkillId;
 import java.util.List;
@@ -11,21 +10,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataSkillRepository extends JpaRepository<Skill, SkillId> {
 
-  /** Documentation. */
-  java.util.Optional<Skill> findByIdAndOwnerKey(SkillId id, OwnerKey ownerKey);
+  /** Visible rows are limited by the ownerPartition filter when enabled. */
+  List<Skill> findAllByEnabledTrueAndIdIn(List<SkillId> ids);
 
-  /** Documentation. */
-  List<Skill> findAllByOwnerKeyOrderByNameAsc(OwnerKey ownerKey);
+  /** Visible rows are limited by the ownerPartition filter when enabled. */
+  boolean existsByName(String name);
 
-  /** Documentation. */
-  List<Skill> findAllByOwnerKeyAndEnabledTrueAndIdIn(OwnerKey ownerKey, List<SkillId> ids);
-
-  /** Documentation. */
-  void deleteByIdAndOwnerKey(SkillId id, OwnerKey ownerKey);
-
-  /** Documentation. */
-  boolean existsByOwnerKeyAndName(OwnerKey ownerKey, String name);
-
-  /** Documentation. */
-  boolean existsByOwnerKeyAndNameAndIdNot(OwnerKey ownerKey, String name, SkillId excludeId);
+  /** Visible rows are limited by the ownerPartition filter when enabled. */
+  boolean existsByNameAndIdNot(String name, SkillId excludeId);
 }

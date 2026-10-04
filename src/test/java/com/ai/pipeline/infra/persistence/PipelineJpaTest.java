@@ -2,7 +2,7 @@ package com.ai.pipeline.infra.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.pipeline.domain.model.SavedAgentDefinition;
 import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
 import com.ai.testsupport.AbstractDataJpaTest;
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.pipeline.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
@@ -22,14 +23,20 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
       SpringDataSavedAgentRepository.class,
       SpringDataWorkflowTemplateRepository.class
     })
+@Import({
+  JpaSavedAgentRepository.class,
+  JpaWorkflowTemplateRepository.class,
+  OwnerPartitionScope.class
+})
 class PipelineJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:66666666-6666-6666-6666-666666666666";
-  private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataSavedAgentRepository agentRepository;
   @Autowired private SpringDataWorkflowTemplateRepository workflowRepository;
+  @Autowired private JpaSavedAgentRepository agentAdapter;
+  @Autowired private JpaWorkflowTemplateRepository workflowAdapter;
 
   @Test
   @DisplayName("should persist and reload saved agent definition when round tripping")
@@ -107,7 +114,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     agentRepository.saveAndFlush(alpha);
     em.clear();
 
-    List<SavedAgentDefinition> agents = agentRepository.findAllByOwnerKeyOrderByNameAsc(OWNER);
+    List<SavedAgentDefinition> agents = agentAdapter.findAllByClientId(OWNER_KEY);
 
     assertThat(agents)
         .extracting(SavedAgentDefinition::getName)
@@ -124,7 +131,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     Optional<SavedWorkflowTemplate> found =
-        workflowRepository.findByIdAndOwnerKey(workflow.getId(), OWNER);
+        workflowAdapter.findByIdAndClientId(workflow.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Scoped flow");

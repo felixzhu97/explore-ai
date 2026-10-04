@@ -2,7 +2,6 @@ package com.ai.automation.infra.persistence;
 
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.vo.ScheduleId;
-import com.ai.common.domain.vo.OwnerKey;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -16,18 +15,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataAutomationScheduleRepository
     extends JpaRepository<AutomationSchedule, ScheduleId> {
-
-  /** Documentation. */
-  java.util.Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, OwnerKey ownerKey);
-
-  /** Documentation. */
-  List<AutomationSchedule> findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey ownerKey);
-
-  /** Documentation. */
-  int countByOwnerKey(OwnerKey ownerKey);
-
-  /** Documentation. */
-  void deleteByIdAndOwnerKey(ScheduleId id, OwnerKey ownerKey);
 
   /** Documentation. */
   List<AutomationSchedule> findByEnabledTrueAndNextRunAtLessThanEqualOrderByNextRunAtAsc(

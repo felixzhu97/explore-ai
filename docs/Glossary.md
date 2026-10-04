@@ -126,6 +126,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Abstract Immutable | 不可变记录基类 | Append-only rows: id + `created_at` only | Mapped Superclass | `AbstractImmutable<IdT>` | Used for event streams |
 | Base JPA Config | JPA 内核配置 | `@EnableJpaAuditing`, repository scan | Configuration | `BaseJpaConfig` | Replaces per-module duplicate JPA config |
 | Owner-Keyed Entity | 归属键实体基类 | Rows partitioned by `owner_key` | Mapped Superclass | `AbstractOwnerKeyedEntity<IdT>` | `belongsToClient`, `rebindOwnerKey` |
+| Owner Partition Filter | 归属分区过滤器 | Hibernate filter limiting queries and loads by id to one Owner Key | Persistence | `ownerPartition` (`OwnerPartition`), `OwnerPartitionScope` | Enabled per adapter call inside a transaction; background jobs stay unfiltered |
 | Named Owner Entity | 命名归属实体 | Owner-keyed row with validated `name` | Mapped Superclass | `AbstractNamedOwnerEntity<IdT>` | Max 120 chars via `DomainStrings` |
 | Enableable Entity | 可启用实体 | Named + described + `enabled` flag | Mapped Superclass | `AbstractEnableableDescribedOwnerEntity<IdT>` | `enable()` / `disable()` |
 | Timed Run Entity | 定时运行记录 | `started_at` / `finished_at` without `updated_at` | Mapped Superclass | `AbstractTimedRunEntity<IdT>` | Automation runs |

@@ -13,9 +13,11 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 /** Aggregate base for rows partitioned by owner_key. */
 @MappedSuperclass
+@Filter(name = OwnerPartition.FILTER_NAME)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>

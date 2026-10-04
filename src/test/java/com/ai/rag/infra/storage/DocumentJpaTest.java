@@ -3,6 +3,7 @@ package com.ai.rag.infra.storage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.vo.DocumentId;
@@ -16,17 +17,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.rag.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataDocumentRepository.class)
+@Import({DocumentRepository.class, OwnerPartitionScope.class})
 class DocumentJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:33333333-3333-3333-3333-333333333333";
-  private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
+  private static final String OTHER_OWNER_KEY = OwnerKey.forClient("other").value();
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataDocumentRepository repository;
+  @Autowired private DocumentRepository adapter;
 
   @Test
   @DisplayName("should persist and reload document when round tripping")
@@ -94,7 +98,7 @@ class DocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(newer);
     em.clear();
 
-    List<Document> documents = repository.findAllByOwnerKeyOrderByCreatedAtDesc(OWNER);
+    List<Document> documents = adapter.findAllByOwnerKey(OWNER_KEY);
 
     assertThat(documents).extracting(Document::getTitle).containsExactly("Newer", "Older");
   }
@@ -107,12 +111,11 @@ class DocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(document);
     em.clear();
 
-    Optional<Document> found = repository.findByIdAndOwnerKey(document.getId(), OWNER);
+    Optional<Document> found = adapter.findByIdAndOwnerKey(document.getId().asUuid(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getTitle()).isEqualTo("Scoped");
-    assertThat(repository.findByIdAndOwnerKey(document.getId(), OwnerKey.forClient("other")))
-        .isEmpty();
+    assertThat(adapter.findByIdAndOwnerKey(document.getId().asUuid(), OTHER_OWNER_KEY)).isEmpty();
   }
 
   @Test
@@ -123,11 +126,11 @@ class DocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(document);
     em.clear();
 
-    repository.deleteByIdAndOwnerKey(document.getId(), OwnerKey.forClient("other"));
+    adapter.deleteByIdAndOwnerKey(document.getId().asUuid(), OTHER_OWNER_KEY);
     em.flush();
     assertThat(repository.existsById(document.getId())).isTrue();
 
-    repository.deleteByIdAndOwnerKey(document.getId(), OWNER);
+    adapter.deleteByIdAndOwnerKey(document.getId().asUuid(), OWNER_KEY);
     em.flush();
     assertThat(repository.existsById(document.getId())).isFalse();
   }

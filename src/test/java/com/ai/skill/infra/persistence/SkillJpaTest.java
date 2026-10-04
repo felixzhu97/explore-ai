@@ -2,7 +2,7 @@ package com.ai.skill.infra.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.skill.domain.model.Skill;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
@@ -13,17 +13,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.skill.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataSkillRepository.class)
+@Import({JpaSkillRepository.class, OwnerPartitionScope.class})
 class SkillJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:22222222-2222-2222-2222-222222222222";
-  private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataSkillRepository repository;
+  @Autowired private JpaSkillRepository adapter;
 
   @Test
   @DisplayName("should persist and reload skill when round tripping")
@@ -68,7 +70,7 @@ class SkillJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(skill);
     em.clear();
 
-    Optional<Skill> found = repository.findByIdAndOwnerKey(skill.getId(), OWNER);
+    Optional<Skill> found = adapter.findByIdAndClientId(skill.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Scoped");
@@ -83,7 +85,7 @@ class SkillJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(alpha);
     em.clear();
 
-    List<Skill> skills = repository.findAllByOwnerKeyOrderByNameAsc(OWNER);
+    List<Skill> skills = adapter.findAllByClientId(OWNER_KEY);
 
     assertThat(skills).extracting(Skill::getName).containsExactly("Alpha", "Beta");
   }
@@ -95,7 +97,7 @@ class SkillJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(skill);
     em.clear();
 
-    assertThat(repository.existsByOwnerKeyAndName(OWNER, "Unique")).isTrue();
-    assertThat(repository.existsByOwnerKeyAndName(OWNER, "Missing")).isFalse();
+    assertThat(adapter.existsByClientIdAndNameIgnoringId(OWNER_KEY, "Unique", null)).isTrue();
+    assertThat(adapter.existsByClientIdAndNameIgnoringId(OWNER_KEY, "Missing", null)).isFalse();
   }
 }
