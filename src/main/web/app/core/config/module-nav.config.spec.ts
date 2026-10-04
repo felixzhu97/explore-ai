@@ -57,7 +57,7 @@ describe('module-nav.config', () => {
 
     expect(sections.map(section => section.group)).toEqual(['create', 'lab']);
     expect(sections[0].tabs.map(tab => tab.key)).toEqual(['generate']);
-    expect(sections[1].tabs.map(tab => tab.key)).toEqual(['vision', 'asr', 'mcp', 'eval']);
+    expect(sections[1].tabs.map(tab => tab.key)).toEqual(['vision', 'speechToText', 'mcp', 'eval']);
   });
 
   it('should hide more sections when create and lab tabs are disabled', () => {

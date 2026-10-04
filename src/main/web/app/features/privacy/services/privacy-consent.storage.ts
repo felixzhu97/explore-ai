@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from '../../../core/config/storage-keys';
+
 export interface PrivacyConsentState {
   decided: boolean;
   analytics: boolean;
@@ -5,14 +7,12 @@ export interface PrivacyConsentState {
   decidedAt?: string;
 }
 
-export const PRIVACY_CONSENT_STORAGE_KEY = 'explore-ai-privacy-consent';
-
 export function readPrivacyConsent(): PrivacyConsentState {
   if (typeof localStorage === 'undefined') {
     return { decided: false, analytics: false, contactEmail: '' };
   }
   try {
-    const raw = localStorage.getItem(PRIVACY_CONSENT_STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEYS.PRIVACY_CONSENT);
     if (!raw) {
       return { decided: false, analytics: false, contactEmail: '' };
     }
@@ -44,7 +44,7 @@ export function writePrivacyPreferences(preferences: {
     decidedAt: new Date().toISOString(),
   };
   if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(PRIVACY_CONSENT_STORAGE_KEY, JSON.stringify(next));
+    localStorage.setItem(STORAGE_KEYS.PRIVACY_CONSENT, JSON.stringify(next));
   }
   return next;
 }

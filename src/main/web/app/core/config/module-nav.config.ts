@@ -34,7 +34,7 @@ export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'skills', labelKey: 'skills', path: '/skills', group: 'work', flagKey: FEATURE_FLAG_KEYS.MODULE_SKILLS },
   { key: 'generate', labelKey: 'generate', path: '/generate', group: 'create' },
   { key: 'vision', labelKey: 'vision', path: '/vision', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_VISION },
-  { key: 'asr', labelKey: 'speechToText', path: '/asr', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR },
+  { key: 'speechToText', labelKey: 'speechToText', path: '/speech-to-text', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR },
   { key: 'mcp', labelKey: 'mcp', path: '/mcp', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_MCP },
   { key: 'eval', labelKey: 'eval', path: '/eval', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_EVAL },
 ];

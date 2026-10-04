@@ -77,9 +77,9 @@ export async function setupCommonMocks(page: Page): Promise<void> {
   sessionMessages = [];
 
   await page.addInitScript(() => {
-    localStorage.setItem('language', 'en');
+    localStorage.setItem('explore-ai.i18n.language', 'en');
     localStorage.setItem(
-      'explore-ai-privacy-consent',
+      'explore-ai.privacy.consent',
       JSON.stringify({ decided: true, analytics: false, contactEmail: '' }),
     );
   });

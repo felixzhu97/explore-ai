@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AsrService } from './asr.service';
+import { SpeechToTextService } from './speech-to-text.service';
 
 class FakeWebSocket {
   static readonly CONNECTING = 0;
@@ -43,7 +43,7 @@ class FakeWebSocket {
   }
 }
 
-describe('AsrService', () => {
+describe('SpeechToTextService', () => {
   beforeEach(() => {
     FakeWebSocket.instances = [];
     vi.stubGlobal('WebSocket', FakeWebSocket);
@@ -53,8 +53,8 @@ describe('AsrService', () => {
     vi.unstubAllGlobals();
   });
 
-  it('should connect to asr websocket when connect called', () => {
-    const service = new AsrService();
+  it('should connect to transcription websocket when connect called', () => {
+    const service = new SpeechToTextService();
 
     service.connect();
 
@@ -115,7 +115,7 @@ describe('AsrService', () => {
   });
 
   it('should set error when sending without connected socket', () => {
-    const service = new AsrService();
+    const service = new SpeechToTextService();
 
     service.sendStop();
 
@@ -134,8 +134,8 @@ describe('AsrService', () => {
   });
 });
 
-function connectService(): AsrService {
-  const service = new AsrService();
+function connectService(): SpeechToTextService {
+  const service = new SpeechToTextService();
   service.connect();
   latestSocket().open();
   return service;

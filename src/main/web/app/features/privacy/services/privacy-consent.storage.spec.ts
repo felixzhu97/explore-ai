@@ -1,12 +1,12 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import {
-  PRIVACY_CONSENT_STORAGE_KEY,
   hasAnalyticsConsent,
   needsPrivacyConsentDecision,
   readPrivacyConsent,
   writePrivacyConsent,
   writePrivacyPreferences,
 } from './privacy-consent.storage';
+import { STORAGE_KEYS } from '../../../core/config/storage-keys';
 
 describe('privacy-consent.storage', () => {
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('privacy-consent.storage', () => {
     writePrivacyConsent(true);
     expect(readPrivacyConsent()).toMatchObject({ decided: true, analytics: true });
     expect(hasAnalyticsConsent()).toBe(true);
-    expect(localStorage.getItem(PRIVACY_CONSENT_STORAGE_KEY)).toContain('"analytics":true');
+    expect(localStorage.getItem(STORAGE_KEYS.PRIVACY_CONSENT)).toContain('"analytics":true');
   });
 
   it('should reject analytics when user chooses necessary only', () => {

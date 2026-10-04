@@ -4,11 +4,10 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ChatService } from '../../features/chat/services/chat.service';
 import { API_BASE_URL } from '../api.constants';
+import { STORAGE_KEYS } from '../config/storage-keys';
 import type { AccountMe, OAuthProviderId } from '../models/account.model';
 import { I18nService } from '../i18n';
 import { NotificationService } from './notification.service';
-
-const OAUTH_RETURN_KEY = 'ea_oauth_return';
 
 /**
  * Shared account state for guest + optional OAuth (Google / GitHub).
@@ -73,7 +72,7 @@ export class AccountService {
   ): void {
     const { pathname, search, hash } = window.location;
     const returnTo = `${pathname}${search}${hash}`;
-    sessionStorage.setItem(OAUTH_RETURN_KEY, returnTo || '/chat');
+    sessionStorage.setItem(STORAGE_KEYS.OAUTH_RETURN_URL, returnTo || '/chat');
     assign(`/oauth2/authorization/${provider}`);
   }
 
@@ -131,14 +130,14 @@ export class AccountService {
 
     if (login === 'success') {
       this.notifications.showSuccess(this.i18n.t().account.loginSuccess);
-      const returnTo = sessionStorage.getItem(OAUTH_RETURN_KEY);
-      sessionStorage.removeItem(OAUTH_RETURN_KEY);
+      const returnTo = sessionStorage.getItem(STORAGE_KEYS.OAUTH_RETURN_URL);
+      sessionStorage.removeItem(STORAGE_KEYS.OAUTH_RETURN_URL);
       if (returnTo && returnTo !== cleanUrl) {
         void this.router.navigateByUrl(returnTo);
       }
     } else {
       this.notifications.showError(this.i18n.t().account.errors.loginFailed);
-      sessionStorage.removeItem(OAUTH_RETURN_KEY);
+      sessionStorage.removeItem(STORAGE_KEYS.OAUTH_RETURN_URL);
     }
   }
 }
