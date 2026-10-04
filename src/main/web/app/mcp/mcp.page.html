@@ -64,7 +64,7 @@
             z-button
             zType="default"
             class="mt-3"
-            [disabled]="isChatting() || !question().trim()"
+            [zDisabled]="isChatting() || !question().trim()"
             (click)="submitQuestion()"
           >
             {{ isChatting() ? i18n.t().mcp.sending : i18n.t().mcp.send }}

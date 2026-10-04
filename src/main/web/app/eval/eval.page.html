@@ -33,7 +33,7 @@
         z-button
         zType="default"
         class="mt-4"
-        [disabled]="isLoading() || !userMessage().trim() || !assistantResponse().trim()"
+        [zDisabled]="isLoading() || !userMessage().trim() || !assistantResponse().trim()"
         (click)="submit()"
       >
         {{ isLoading() ? i18n.t().eval.evaluating : i18n.t().eval.evaluate }}

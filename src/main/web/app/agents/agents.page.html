@@ -81,7 +81,7 @@
                 type="button"
                 z-button
                 zType="default"
-                [disabled]="isSaving()"
+                [zDisabled]="isSaving()"
                 (click)="save()"
               >
                 {{ isSaving() ? i18n.t().common.saving : i18n.t().common.save }}

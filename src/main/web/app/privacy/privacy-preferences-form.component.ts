@@ -67,7 +67,7 @@ export interface PrivacyPreferencesModel {
           z-button
           zType="default"
           class="rounded-full"
-          [disabled]="
+          [zDisabled]="
             saving() || preferencesForm().invalid() || !preferencesForm().dirty()
           "
           (click)="savePreferences()"
