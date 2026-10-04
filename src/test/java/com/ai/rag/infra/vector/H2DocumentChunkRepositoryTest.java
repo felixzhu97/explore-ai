@@ -103,11 +103,39 @@ class H2DocumentChunkRepositoryTest {
       assertThat(results).extracting(DocumentChunk::getContent).containsExactly("own");
     }
 
+    @Test
+    @DisplayName("should return the opening chunks of each requested owner document")
+    void shouldReturnTheOpeningChunksOfEachRequestedOwnerDocument() {
+      final DocumentId first = DocumentId.generate();
+      final DocumentId second = DocumentId.generate();
+      final DocumentId foreign = DocumentId.generate();
+      save(first, OWNER, "first-2", 2);
+      save(first, OWNER, "first-0", 0);
+      save(first, OWNER, "first-1", 1);
+      save(second, OWNER, "second-0", 0);
+      save(foreign, OTHER_OWNER, "foreign-0", 0);
+
+      List<DocumentChunk> results =
+          repository.findLeadingChunks(
+              OWNER, List.of(first.asUuid(), second.asUuid(), foreign.asUuid()), 3);
+
+      assertThat(results)
+          .extracting(DocumentChunk::getContent)
+          .containsExactlyInAnyOrder("first-0", "second-0", "first-1");
+    }
+
     private void save(DocumentId documentId, String ownerKey, String content, float[] embedding) {
       repository.saveChunk(
           DocumentChunk.create(
                   ChunkId.generate(), documentId, content, 0, Map.of("ownerKey", ownerKey))
               .withEmbedding(embedding));
+    }
+
+    private void save(DocumentId documentId, String ownerKey, String content, int chunkIndex) {
+      repository.saveChunk(
+          DocumentChunk.create(
+                  ChunkId.generate(), documentId, content, chunkIndex, Map.of("ownerKey", ownerKey))
+              .withEmbedding(new float[] {1f, 0f}));
     }
   }
 

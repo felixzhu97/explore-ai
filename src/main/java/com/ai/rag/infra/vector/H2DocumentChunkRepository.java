@@ -132,21 +132,41 @@ public class H2DocumentChunkRepository
         .toList();
   }
 
+  @Override
+  @Transactional(readOnly = true)
+  public List<DocumentChunk> findLeadingChunks(String ownerKey, List<UUID> documentIds, int limit) {
+    if (documentIds.isEmpty()) {
+      return List.of();
+    }
+    StringBuilder sql = ownerScopedSelect(documentIds);
+    sql.append(" ORDER BY chunk_index, document_id LIMIT ?");
+    List<Object> args = new ArrayList<>();
+    args.add(ownerKey);
+    args.addAll(documentIds);
+    args.add(limit);
+    return jdbcTemplate.query(sql.toString(), chunkRowMapper, args.toArray());
+  }
+
   private List<DocumentChunk> loadCandidates(String ownerKey, List<UUID> documentIds) {
+    List<Object> args = new ArrayList<>();
+    args.add(ownerKey);
+    args.addAll(documentIds);
+    return jdbcTemplate.query(
+        ownerScopedSelect(documentIds).toString(), chunkRowMapper, args.toArray());
+  }
+
+  private static StringBuilder ownerScopedSelect(List<UUID> documentIds) {
     StringBuilder sql =
         new StringBuilder("SELECT id, document_id, content, chunk_index, embedding, metadata,")
             .append(" created_at FROM ")
             .append(TABLE_NAME)
             .append(" WHERE owner_key = ?");
-    List<Object> args = new ArrayList<>();
-    args.add(ownerKey);
     if (!documentIds.isEmpty()) {
       sql.append(" AND document_id IN (")
           .append(documentIds.stream().map(id -> "?").collect(Collectors.joining(",")))
           .append(")");
-      args.addAll(documentIds);
     }
-    return jdbcTemplate.query(sql.toString(), chunkRowMapper, args.toArray());
+    return sql;
   }
 
   private static String resolveOwnerKey(Map<String, Object> metadata) {
