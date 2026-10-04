@@ -1,12 +1,19 @@
 package com.ai.metrics.domain.repository;
 
-import java.util.Map;
+import com.ai.metrics.domain.vo.ModuleStatus;
 
-/** Gateway supplying system, agent, and MCP health maps to the metrics dashboard. */
+/** Gateway supplying system, agent, and MCP health to the metrics dashboard. */
 public interface MetricsHealthGateway {
-  Map<String, Object> systemStatus();
 
-  Map<String, Object> agentsHealth();
+  /** Agent pipeline health: UP only when every registered agent is healthy. */
+  record AgentsHealth(ModuleStatus status, long agentCount, long healthyAgentCount) {}
 
-  Map<String, Object> mcpHealth();
+  /** MCP client health: DISABLED when the MCP module is off. */
+  record McpHealth(ModuleStatus status, long registeredTools, long connectedServers) {}
+
+  ModuleStatus systemStatus();
+
+  AgentsHealth agentsHealth();
+
+  McpHealth mcpHealth();
 }

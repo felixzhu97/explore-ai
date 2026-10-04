@@ -1,7 +1,6 @@
 package com.ai.metrics.service.model;
 
 import java.util.List;
-import java.util.Map;
 
 public record MetricsDomainSnapshot(
     String domain,
@@ -13,6 +12,6 @@ public record MetricsDomainSnapshot(
     Double latencyP95Ms,
     Long promptTokens,
     Long completionTokens,
-    Map<String, Object> inventory,
+    DomainInventory inventory,
     List<SeriesPoint> requestSeries,
     List<SeriesPoint> modelSeries) {}

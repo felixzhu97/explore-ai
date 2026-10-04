@@ -5,16 +5,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.ModuleStatus;
+import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
 import com.ai.metrics.test.fixture.FakeAiInvocationEventRepository;
 import com.ai.metrics.test.fixture.FakeMetricsQueryRepository;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,18 +36,18 @@ class MetricsServiceTest {
     MetricsHealthGateway healthGateway =
         new MetricsHealthGateway() {
           @Override
-          public Map<String, Object> systemStatus() {
-            return Map.of("status", "UP");
+          public ModuleStatus systemStatus() {
+            return ModuleStatus.UP;
           }
 
           @Override
-          public Map<String, Object> agentsHealth() {
-            return Map.of("status", "UP", "agentCount", 2, "healthyAgentCount", 2);
+          public AgentsHealth agentsHealth() {
+            return new AgentsHealth(ModuleStatus.UP, 2, 2);
           }
 
           @Override
-          public Map<String, Object> mcpHealth() {
-            return Map.of("status", "UP", "registeredTools", 3, "connectedServers", 1);
+          public McpHealth mcpHealth() {
+            return new McpHealth(ModuleStatus.UP, 3, 1);
           }
         };
     useCase = new MetricsService(queryRepository, eventRepository, healthGateway);
@@ -59,7 +62,9 @@ class MetricsServiceTest {
     assertThat(overview.errorCount()).isZero();
     assertThat(overview.errorRate()).isZero();
     assertThat(overview.successRate()).isEqualTo(1.0);
-    assertThat(overview.domains()).containsKeys("chat", "rag", "agents", "mcp", "system");
+    assertThat(overview.domains().agents()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
+    assertThat(overview.domains().mcp()).isEqualTo(new McpHealth(ModuleStatus.UP, 3, 1));
+    assertThat(overview.domains().system()).isEqualTo(ModuleStatus.UP);
   }
 
   @Test
@@ -114,10 +119,14 @@ class MetricsServiceTest {
     queryRepository.errorCount = 1;
     queryRepository.topTools = List.of(new MetricsQueryRepository.NamedCount("weather", 2));
 
-    assertThat(useCase.domain("chat", "7d").inventory()).containsKey("sessionCount");
-    assertThat(useCase.domain("rag", "7d").inventory()).containsKey("documentCount");
-    assertThat(useCase.domain("agents", "7d").inventory()).containsKey("agentCount");
-    assertThat(useCase.domain("tools", "7d").inventory()).containsKey("topTools");
+    assertThat(useCase.domain("chat", "7d").inventory()).isInstanceOf(DomainInventory.Chat.class);
+    assertThat(useCase.domain("rag", "7d").inventory()).isInstanceOf(DomainInventory.Rag.class);
+    assertThat(useCase.domain("agents", "7d").inventory())
+        .isEqualTo(new DomainInventory.Agents(new AgentsHealth(ModuleStatus.UP, 2, 2)));
+    assertThat(useCase.domain("tools", "7d").inventory())
+        .isEqualTo(new DomainInventory.Tools(List.of(new NamedCount("weather", 2))));
+    assertThat(useCase.domain("vision", "30d").inventory())
+        .isEqualTo(new DomainInventory.Requests(4, 1));
     assertThat(useCase.domain("vision", "30d").errorRate()).isEqualTo(0.25);
     assertThat(useCase.domain("workflow", "7d").requestCount()).isEqualTo(4);
   }

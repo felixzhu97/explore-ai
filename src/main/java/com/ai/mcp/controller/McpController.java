@@ -1,5 +1,9 @@
 package com.ai.mcp.controller;
 
+import com.ai.common.controller.dto.HealthStatus;
+import com.ai.mcp.controller.dto.McpCapabilitiesResponse;
+import com.ai.mcp.controller.dto.McpHealthResponse;
+import com.ai.mcp.controller.dto.McpInfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
@@ -21,42 +25,31 @@ import org.springframework.web.bind.annotation.RestController;
 public class McpController {
   @GetMapping("/health")
   @Operation(summary = "MCP Server health check")
-  public ResponseEntity<Map<String, Object>> health() {
+  public ResponseEntity<McpHealthResponse> health() {
     return ResponseEntity.ok(
-        Map.of(
-            "status", "UP",
-            "server", "explore-ai-mcp-server",
-            "version", "1.0.0",
-            "protocol", "MCP 1.0"));
+        new McpHealthResponse(HealthStatus.UP, "explore-ai-mcp-server", "1.0.0", "MCP 1.0"));
   }
 
   @GetMapping("/info")
   @Operation(summary = "Get MCP Server information")
-  public ResponseEntity<Map<String, Object>> info() {
+  public ResponseEntity<McpInfoResponse> info() {
     return ResponseEntity.ok(
-        Map.of(
-            "name", "explore-ai-mcp-server",
-            "version", "1.0.0",
-            "description", "AI Explore MCP Server with RAG, Weather, and Chat tools",
-            "capabilities",
-                Map.of(
-                    "tools", true,
-                    "resources", true,
-                    "prompts", true),
-            "availableTools",
-                Map.of(
-                    "get_weather", "Get current weather for a city",
-                    "get_forecast", "Get weather forecast",
-                    "search_knowledge_base", "Search documents in knowledge base",
-                    "list_documents", "List all documents",
-                    "ai_chat", "Chat with AI assistant"),
-            "availableResources",
-                Map.of(
-                    "document:///{docId}", "Access document by ID",
-                    "config:///{key}", "Access configuration values"),
-            "availablePrompts",
-                Map.of(
-                    "analyze-document", "Generate document analysis prompt",
-                    "greeting", "Generate greeting message")));
+        new McpInfoResponse(
+            "explore-ai-mcp-server",
+            "1.0.0",
+            "AI Explore MCP Server with RAG, Weather, and Chat tools",
+            new McpCapabilitiesResponse(true, true, true),
+            Map.of(
+                "get_weather", "Get current weather for a city",
+                "get_forecast", "Get weather forecast",
+                "search_knowledge_base", "Search documents in knowledge base",
+                "list_documents", "List all documents",
+                "ai_chat", "Chat with AI assistant"),
+            Map.of(
+                "document:///{docId}", "Access document by ID",
+                "config:///{key}", "Access configuration values"),
+            Map.of(
+                "analyze-document", "Generate document analysis prompt",
+                "greeting", "Generate greeting message")));
   }
 }

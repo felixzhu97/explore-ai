@@ -1,7 +1,6 @@
 package com.ai.metrics.controller.dto;
 
 import java.util.List;
-import java.util.Map;
 
 public record MetricsOverviewResponse(
     MetricsRange range,
@@ -14,4 +13,4 @@ public record MetricsOverviewResponse(
     Long promptTokens,
     Long completionTokens,
     List<NamedCountResponse> requestsByDomain,
-    Map<String, Object> domains) {}
+    MetricsDomainsResponse domains) {}

@@ -8,11 +8,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.ai.metrics.domain.repository.McpHealthProbe;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
+import com.ai.metrics.domain.vo.ModuleStatus;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.service.PipelineService;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,9 +44,7 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report system status up")
   void shouldReportSystemStatusUp() {
-    Map<String, Object> status = gateway.systemStatus();
-
-    assertThat(status).containsEntry("status", "UP");
+    assertThat(gateway.systemStatus()).isEqualTo(ModuleStatus.UP);
   }
 
   @Test
@@ -56,11 +56,7 @@ class DomainHealthGatewayTest {
                 AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
                 AgentDefinition.create(AgentType.supervisor(), "Supervisor", "desc", "prompt")));
 
-    Map<String, Object> health = gateway.agentsHealth();
-
-    assertThat(health).containsEntry("status", "UP");
-    assertThat(health).containsEntry("agentCount", 2);
-    assertThat(health).containsEntry("healthyAgentCount", 2L);
+    assertThat(gateway.agentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
   }
 
   @Test
@@ -68,17 +64,13 @@ class DomainHealthGatewayTest {
   void shouldReportAgentsDegradedWhenListEmptyOrUnhealthy() {
     when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of());
 
-    Map<String, Object> emptyHealth = gateway.agentsHealth();
-    assertThat(emptyHealth).containsEntry("status", "DEGRADED");
-    assertThat(emptyHealth).containsEntry("agentCount", 0);
+    assertThat(gateway.agentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 0, 0));
 
     AgentDefinition unhealthy = mock(AgentDefinition.class);
     when(unhealthy.healthy()).thenReturn(false);
     when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of(unhealthy));
 
-    Map<String, Object> degradedHealth = gateway.agentsHealth();
-    assertThat(degradedHealth).containsEntry("status", "DEGRADED");
-    assertThat(degradedHealth).containsEntry("healthyAgentCount", 0L);
+    assertThat(gateway.agentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 1, 0));
   }
 
   @Test
@@ -87,11 +79,7 @@ class DomainHealthGatewayTest {
     when(mcpHealthProbe.registeredToolCount()).thenReturn(5);
     when(mcpHealthProbe.connectedServerCount()).thenReturn(2);
 
-    Map<String, Object> health = gateway.mcpHealth();
-
-    assertThat(health).containsEntry("status", "UP");
-    assertThat(health).containsEntry("registeredTools", 5);
-    assertThat(health).containsEntry("connectedServers", 2);
+    assertThat(gateway.mcpHealth()).isEqualTo(new McpHealth(ModuleStatus.UP, 5, 2));
   }
 
   @Test
@@ -100,10 +88,6 @@ class DomainHealthGatewayTest {
     when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(null);
     gateway = new DomainHealthGateway(pipelineService, mcpHealthProbeProvider);
 
-    Map<String, Object> health = gateway.mcpHealth();
-
-    assertThat(health).containsEntry("status", "DISABLED");
-    assertThat(health).containsEntry("registeredTools", 0);
-    assertThat(health).containsEntry("connectedServers", 0);
+    assertThat(gateway.mcpHealth()).isEqualTo(new McpHealth(ModuleStatus.DISABLED, 0, 0));
   }
 }

@@ -3,11 +3,12 @@ package com.ai.image.controller;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.image.controller.dto.ImageGenerationRequest;
 import com.ai.image.controller.dto.ImageGenerationResponse;
+import com.ai.image.controller.dto.ImageModelsResponse;
+import com.ai.image.controller.dto.ImageQualitiesResponse;
+import com.ai.image.controller.dto.ImageSizesResponse;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.service.ImageGenerationService;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,20 +47,22 @@ public class ImageController {
 
   /** Get available image generation models. */
   @GetMapping("/models")
-  public ResponseEntity<Map<String, List<String>>> getImageModels() {
-    return ResponseEntity.ok(Map.of("models", imageGenerationService.getAvailableImageModels()));
+  public ResponseEntity<ImageModelsResponse> getImageModels() {
+    return ResponseEntity.ok(
+        new ImageModelsResponse(imageGenerationService.getAvailableImageModels()));
   }
 
   /** Get available image sizes. */
   @GetMapping("/sizes")
-  public ResponseEntity<Map<String, List<String>>> getImageSizes() {
-    return ResponseEntity.ok(Map.of("sizes", imageGenerationService.getAvailableImageSizes()));
+  public ResponseEntity<ImageSizesResponse> getImageSizes() {
+    return ResponseEntity.ok(
+        new ImageSizesResponse(imageGenerationService.getAvailableImageSizes()));
   }
 
   /** Get available image qualities. */
   @GetMapping("/qualities")
-  public ResponseEntity<Map<String, List<String>>> getImageQualities() {
+  public ResponseEntity<ImageQualitiesResponse> getImageQualities() {
     return ResponseEntity.ok(
-        Map.of("qualities", imageGenerationService.getAvailableImageQualities()));
+        new ImageQualitiesResponse(imageGenerationService.getAvailableImageQualities()));
   }
 }
