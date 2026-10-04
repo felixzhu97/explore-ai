@@ -1,6 +1,5 @@
 import {
   Component,
-  ChangeDetectionStrategy,
   type OnInit,
   computed,
   effect,
@@ -29,7 +28,6 @@ const EMPTY_FORM: SkillWriteRequest = {
   selector: 'app-skills-page',
   imports: [FormsModule, ZardButtonComponent],
   templateUrl: './skills.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
   },

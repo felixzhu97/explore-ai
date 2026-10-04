@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { I18nService } from '../i18n';
 import { ZardSegmentedComponent } from '../ui/segmented';
@@ -15,7 +15,6 @@ import { VisionService } from './vision.service';
     MediaResultPanelComponent,
   ],
   templateUrl: './vision.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden' },
 })
 export class VisionPageComponent {

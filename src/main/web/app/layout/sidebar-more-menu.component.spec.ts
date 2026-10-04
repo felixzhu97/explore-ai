@@ -7,7 +7,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { SidebarMoreMenuComponent } from './sidebar-more-menu.component';
 import type { ModuleNavSection } from './module-nav.config';
 
-@Component({ standalone: true, template: '' })
+@Component({ selector: 'app-blank-host', template: '' })
 class BlankHostComponent {}
 
 describe('SidebarMoreMenuComponent', () => {

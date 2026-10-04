@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, inject, type OnDestroy } from '@angular/core';
+import { Component, computed, inject, type OnDestroy } from '@angular/core';
 import { SpeechToTextService } from './speech-to-text.service';
 import { ZardButtonComponent } from '../ui/button';
 import { I18nService } from '../i18n';
@@ -10,7 +10,6 @@ type SpeechToTextErrorKey = (typeof SPEECH_TO_TEXT_ERROR_KEYS)[number];
   selector: 'app-speech-to-text-page',
   imports: [ZardButtonComponent],
   templateUrl: './speech-to-text.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class SpeechToTextPageComponent implements OnDestroy {

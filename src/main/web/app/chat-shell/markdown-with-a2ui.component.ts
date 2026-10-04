@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -77,7 +76,6 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
       align-self: stretch;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   // Custom elements default to inline; charts/mermaid need a block box so
   // ECharts can resolve width against the bubble (not shrink-wrap to ~90px).
   host: { class: 'block w-full min-w-0' },

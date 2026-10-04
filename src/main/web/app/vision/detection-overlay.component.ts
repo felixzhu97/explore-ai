@@ -3,7 +3,6 @@ import {
   input,
   viewChild,
   effect,
-  ChangeDetectionStrategy,
   type ElementRef,
 } from '@angular/core';
 
@@ -30,7 +29,6 @@ export interface Detection {
       ></canvas>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetectionOverlayComponent {
   readonly imageSrc = input.required<string>();

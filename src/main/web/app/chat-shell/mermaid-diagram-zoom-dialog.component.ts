@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload } from '@ng-icons/lucide';
@@ -35,7 +35,6 @@ export interface MermaidDiagramZoomData {
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ lucideDownload })],
 })
 export class MermaidDiagramZoomDialogComponent {

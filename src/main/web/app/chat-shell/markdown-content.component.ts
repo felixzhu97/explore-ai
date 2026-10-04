@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -12,7 +11,6 @@ import { MarkdownService } from './markdown.service';
   selector: 'app-markdown-content',
   template: `<div [innerHTML]="html()"></div>`,
   styleUrl: './markdown-content.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'markdown-content' },
 })

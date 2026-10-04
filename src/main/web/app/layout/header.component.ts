@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { ZardButtonComponent } from '../ui/button';
 import { LanguagePickerComponent } from './language-picker.component';
 import { I18nService } from '../i18n';
@@ -29,7 +29,6 @@ import { I18nService } from '../i18n';
       <app-language-picker [showLabel]="false" />
     </header>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppHeaderComponent {
   protected readonly i18n = inject(I18nService);

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
 import type { InvocationEvent } from './metrics.service';
 
@@ -59,7 +59,6 @@ import type { InvocationEvent } from './metrics.service';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsDrilldownTableComponent {
   protected readonly i18n = inject(I18nService);

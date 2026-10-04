@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -63,7 +62,6 @@ async function loadMermaid(): Promise<MermaidApi> {
       <p class="my-2 text-sm text-text-tertiary">{{ i18n.t().chat.diagramRendering }}</p>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MermaidDiagramComponent {
   readonly #sanitizer = inject(DomSanitizer);

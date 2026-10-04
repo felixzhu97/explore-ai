@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../ui/notification.service';
 import { ChatService } from '../chat/chat.service';
@@ -112,7 +112,6 @@ import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.comp
       </footer>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-white',
   },

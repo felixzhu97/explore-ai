@@ -1,6 +1,5 @@
 import { httpResource } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   type OnDestroy,
@@ -51,7 +50,6 @@ const MIN_PANE_PX = 240;
   ],
   templateUrl: './pipelines.page.html',
   providers: [provideNzIconsPatch([ArrowUpOutline])],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class PipelinesPageComponent implements OnDestroy {

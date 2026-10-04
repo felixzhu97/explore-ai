@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, type OnInit } from '@angular/core';
+import { Component, inject, signal, type OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   McpService,
@@ -13,7 +13,6 @@ import { I18nService } from '../i18n';
   selector: 'app-mcp-page',
   imports: [FormsModule, ZardButtonComponent],
   templateUrl: './mcp.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class McpPageComponent implements OnInit {

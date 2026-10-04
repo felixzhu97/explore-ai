@@ -4,7 +4,6 @@ import {
   inject,
   type OnInit,
   type OnDestroy,
-  ChangeDetectionStrategy,
   model,
   computed,
   signal,
@@ -64,7 +63,6 @@ import { ChatService } from './chat.service';
   providers: [
     provideNzIconsPatch([ArrowUpOutline]),
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'relative flex flex-1 min-h-0 w-full flex-col overflow-hidden',
     '(document:click)': 'onDocumentClick($event)',

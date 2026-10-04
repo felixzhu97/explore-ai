@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   effect,
@@ -70,7 +69,6 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex min-h-0 flex-1 flex-col overflow-hidden' },
 })
 export class ChatMessagePaneComponent {

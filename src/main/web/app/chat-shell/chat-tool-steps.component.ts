@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import type { ToolStep } from './chat-bubble-list.component';
 
 @Component({
@@ -20,7 +20,6 @@ import type { ToolStep } from './chat-bubble-list.component';
       </div>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'mb-2 flex flex-col gap-1',
     '[hidden]': 'steps().length === 0',

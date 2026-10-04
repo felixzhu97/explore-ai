@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
 
 export interface DomainHealthItem {
@@ -42,7 +42,6 @@ export interface DomainHealthItem {
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsDomainHealthComponent {
   protected readonly i18n = inject(I18nService);

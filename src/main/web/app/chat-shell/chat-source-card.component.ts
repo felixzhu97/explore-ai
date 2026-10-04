@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import type { ChatSourceView } from './chat-bubble-list.component';
 import {
   sourceFaviconUrl,
@@ -52,7 +52,6 @@ import {
       </p>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
 })
 export class ChatSourceCardComponent {

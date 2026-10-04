@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   input,
@@ -226,7 +225,6 @@ const CLOSE_DELAY_MS = 160;
       max-width: 100%;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:pointerdown)': 'onDocumentPointerDown($event)',
     '(document:keydown.escape)': 'onEscape()',

@@ -1,6 +1,5 @@
 import {
   Component,
-  ChangeDetectionStrategy,
   inject,
   signal,
   computed,
@@ -38,7 +37,6 @@ import { FeatureFlagService } from '../feature-flags/feature-flag.service';
     SidebarMoreMenuComponent,
   ],
   templateUrl: './sidebar.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(window:resize)': 'onResize()',
     '(document:pointerdown)': 'onDocumentPointerDown($event)',

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, input, viewChild } from '@angular/core';
+import { Component, inject, input, viewChild } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown } from '@ng-icons/lucide';
 import { I18nService, languageNames, SUPPORTED_LANGUAGES, type Language } from '../i18n';
@@ -41,7 +41,6 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
     </z-dropdown-menu>
   `,
   providers: [provideIcons({ lucideChevronDown })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguagePickerComponent {
   protected readonly i18n = inject(I18nService);

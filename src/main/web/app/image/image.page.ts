@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { I18nService } from '../i18n';
 import { ImageGenFormComponent } from './image-gen-form.component';
 import { MediaPreviewPanelComponent } from './media-preview-panel.component';
@@ -15,7 +15,6 @@ import { ImageService } from './image.service';
     ZardButtonComponent,
   ],
   templateUrl: './image.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block min-w-0 w-full max-w-full' },
 })
 export class ImagePageComponent {

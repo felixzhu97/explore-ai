@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { I18nService } from '../i18n';
 import { PrivacyConsentService } from './privacy-consent.service';
@@ -43,7 +43,6 @@ import { PrivacyConsentService } from './privacy-consent.service';
       </div>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConsentBannerComponent {
   readonly #i18n = inject(I18nService);

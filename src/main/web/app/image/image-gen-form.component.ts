@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   input,
@@ -75,7 +74,6 @@ import type { ImageSize } from './image.service';
       </div>
     </z-card>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImageGenFormComponent {
   readonly title = input.required<string>();

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, type OnInit } from '@angular/core';
+import { Component, inject, type OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ZardToastComponent } from '../ui/toast';
 import { AppSidebarComponent } from './sidebar.component';
@@ -29,7 +29,6 @@ import { AccountService } from '../account/account.service';
       </main>
       <app-consent-banner />
     `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
       'flex h-dvh min-h-0 flex-col overflow-x-hidden bg-gray-100 max-md:max-h-dvh max-md:overflow-hidden',

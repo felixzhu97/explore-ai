@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -102,7 +101,6 @@ import { ZardSidebarMenuButtonDirective } from '../ui/layout/sidebar-menu-button
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'relative block overflow-visible',
     '[hidden]': 'sections().length === 0',

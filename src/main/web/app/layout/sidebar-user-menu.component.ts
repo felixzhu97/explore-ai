@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -203,7 +202,6 @@ import { SidebarService } from './sidebar.service';
       </button>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'relative block w-full overflow-visible',
     '(document:pointerdown)': 'onDocumentPointerDown($event)',

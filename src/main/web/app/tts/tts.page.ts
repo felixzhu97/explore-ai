@@ -4,7 +4,6 @@ import {
   inject,
   type OnInit,
   type OnDestroy,
-  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -32,7 +31,6 @@ import { ZardSliderComponent } from '../ui/slider';
   ],
   templateUrl: './tts.page.html',
   providers: [provideIcons({ lucidePlay, lucidePause, lucideDownload })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TtsPageComponent implements OnInit, OnDestroy {
   readonly #tts = inject(TtsService);

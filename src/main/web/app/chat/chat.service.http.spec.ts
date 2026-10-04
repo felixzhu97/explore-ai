@@ -14,7 +14,7 @@ vi.mock('../http/sse-client', () => ({
   streamSsePost: vi.fn(() => ({ abort: vi.fn() })),
 }));
 
-@Component({ standalone: true, template: '' })
+@Component({ selector: 'app-blank-host', template: '' })
 class BlankHostComponent {}
 
 describe('ChatService http flows', () => {
