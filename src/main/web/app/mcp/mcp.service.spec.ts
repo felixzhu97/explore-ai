@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { McpService } from './mcp.service';
 
@@ -13,8 +14,7 @@ describe('McpService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [McpService],
+      providers: [McpService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(McpService);
     httpMock = TestBed.inject(HttpTestingController);

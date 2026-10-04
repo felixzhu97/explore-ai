@@ -1270,15 +1270,6 @@ function resolveRiverData(input: ChartBuildInput): ChartRiverDatum[] {
   return [];
 }
 
-/** @deprecated Prefer buildChartOption — kept for simple call sites / tests. */
-export function buildEchartsOption(
-  type: ChartType,
-  data: ChartItem[],
-  title?: string,
-): EChartsCoreOption | null {
-  return buildChartOption({ type, chartData: data, title });
-}
-
 /** Coerce LLM chartData rows (value may be a number or numeric string). */
 export function toChartItems(value: unknown): ChartItem[] {
   if (!Array.isArray(value)) {

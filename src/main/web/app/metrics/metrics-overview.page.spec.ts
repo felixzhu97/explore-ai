@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { provideEchartsCore } from 'ngx-echarts';
 import { API_BASE_URL } from '../http/api.constants';
 import { MetricsOverviewPageComponent } from './metrics-overview.page';
@@ -37,8 +37,9 @@ describe('MetricsOverviewPageComponent', () => {
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [MetricsOverviewPageComponent, RouterTestingModule],
+      imports: [MetricsOverviewPageComponent],
       providers: [
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideEchartsCore({ echarts: () => Promise.resolve({}) }),

@@ -22,8 +22,6 @@ export interface ModuleNavSection {
 /** Groups shown inside the More flyout (not top-level accordion). */
 export const MORE_NAV_GROUP_ORDER: readonly ModuleNavGroup[] = ['create', 'lab'];
 
-export const MODULE_NAV_GROUP_ORDER: readonly ModuleNavGroup[] = ['work', 'create', 'lab'];
-
 export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'chat', labelKey: 'chat', path: '/chat', group: 'work' },
   { key: 'rag', labelKey: 'rag', path: '/rag', group: 'work' },
@@ -60,16 +58,6 @@ export function primaryNavTabs(tabs: readonly ModuleNavTab[]): ModuleNavTab[] {
 /** Create + Lab sections for the More flyout; empty sections omitted. */
 export function moreNavSections(tabs: readonly ModuleNavTab[]): ModuleNavSection[] {
   return MORE_NAV_GROUP_ORDER
-    .map(group => ({
-      group,
-      tabs: tabs.filter(tab => tab.group === group),
-    }))
-    .filter(section => section.tabs.length > 0);
-}
-
-/** @deprecated Prefer primaryNavTabs / moreNavSections for the flat sidebar IA. */
-export function groupNavTabs(tabs: readonly ModuleNavTab[]): ModuleNavSection[] {
-  return MODULE_NAV_GROUP_ORDER
     .map(group => ({
       group,
       tabs: tabs.filter(tab => tab.group === group),
