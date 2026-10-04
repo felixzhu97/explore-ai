@@ -1,9 +1,9 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
-import { initDatadogRum } from './app/core/config/datadog-rum.config';
-import { migrateLegacyStorageKeys } from './app/core/config/storage-keys';
-import { hasAnalyticsConsent } from './app/features/privacy/services/privacy-consent.storage';
+import { initDatadogRum } from './app/privacy/datadog-rum.config';
+import { migrateLegacyStorageKeys } from './app/storage-keys';
+import { hasAnalyticsConsent } from './app/privacy/privacy-consent.storage';
 
 migrateLegacyStorageKeys();
 

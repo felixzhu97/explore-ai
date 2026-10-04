@@ -1,0 +1,155 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { AccountDialogService } from '../account/account-dialog.service';
+import { API_BASE_URL } from '../http/api.constants';
+import { AccountService } from '../account/account.service';
+import { SidebarUserMenuComponent } from './sidebar-user-menu.component';
+import { I18nService } from '../i18n';
+
+describe('SidebarUserMenuComponent', () => {
+  let fixture: ComponentFixture<SidebarUserMenuComponent>;
+  let http: HttpTestingController;
+  let account: AccountService;
+  let accountDialog: {
+    openLogin: ReturnType<typeof vi.fn>;
+    openLogout: ReturnType<typeof vi.fn>;
+  };
+
+  beforeEach(async () => {
+    accountDialog = {
+      openLogin: vi.fn(),
+      openLogout: vi.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [SidebarUserMenuComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        I18nService,
+        AccountService,
+        { provide: AccountDialogService, useValue: accountDialog },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SidebarUserMenuComponent);
+    http = TestBed.inject(HttpTestingController);
+    account = TestBed.inject(AccountService);
+  });
+
+  afterEach(() => {
+    http.match(() => true).forEach(req => req.flush(null));
+    http.verify();
+  });
+
+  it('should show email when account loaded', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'authenticated',
+      clientId: 'c1',
+      userId: 'u1',
+      email: 'user@example.com',
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['google'],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.account()?.email).toBe('user@example.com');
+    expect(fixture.componentInstance.displayName()).toBe('user@example.com');
+  });
+
+  it('should show signed in when authenticated without email', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'authenticated',
+      clientId: 'c1',
+      userId: 'u1',
+      email: null,
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['github'],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.displayName()).toBe(
+      TestBed.inject(I18nService).t().account.signedIn,
+    );
+    expect(fixture.componentInstance.showLogout()).toBe(true);
+    expect(fixture.componentInstance.showLogin()).toBe(false);
+  });
+
+  it('should show guest when account request fails', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).error(new ProgressEvent('error'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.account()).toBeNull();
+    expect(fixture.componentInstance.displayName()).toBe(
+      TestBed.inject(I18nService).t().account.guest,
+    );
+  });
+
+  it('should show login when login available and anonymous', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'anonymous',
+      clientId: 'c1',
+      userId: null,
+      email: null,
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['google', 'github'],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.showLogin()).toBe(true);
+    expect(fixture.componentInstance.showLogout()).toBe(false);
+  });
+
+  it('should open login dialog when login clicked', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'anonymous',
+      clientId: 'c1',
+      userId: null,
+      email: null,
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['github'],
+    });
+    fixture.detectChanges();
+
+    fixture.componentInstance.onLogin();
+    expect(accountDialog.openLogin).toHaveBeenCalled();
+  });
+
+  it('should open logout dialog when logout clicked', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'authenticated',
+      clientId: 'c1',
+      userId: 'u1',
+      email: 'a@b.com',
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['google', 'github'],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    fixture.componentInstance.onLogout();
+    expect(accountDialog.openLogout).toHaveBeenCalledWith({
+      email: 'a@b.com',
+      displayName: 'a@b.com',
+    });
+  });
+});

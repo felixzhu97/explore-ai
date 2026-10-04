@@ -1,0 +1,65 @@
+import { describe, expect, it, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { FEATURE_FLAG_KEYS } from './feature-flag-keys';
+import { FeatureFlagService } from './feature-flag.service';
+import { moduleEnabledGuard } from './module-enabled.guard';
+
+describe('moduleEnabledGuard', () => {
+  const route = {} as ActivatedRouteSnapshot;
+  const state = {} as RouterStateSnapshot;
+
+  it('should allow route when flag enabled', () => {
+    const featureFlags = {
+      isEnabled: vi.fn().mockReturnValue(true),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: FeatureFlagService, useValue: featureFlags }],
+    });
+
+    const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION);
+    const canActivate = TestBed.runInInjectionContext(() => guard(route, state));
+
+    expect(canActivate).toBe(true);
+  });
+
+  it('should redirect to chat when flag disabled', () => {
+    const featureFlags = {
+      isEnabled: vi.fn().mockReturnValue(false),
+    };
+    const router = {
+      createUrlTree: vi.fn().mockReturnValue({} as UrlTree),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: FeatureFlagService, useValue: featureFlags },
+        { provide: Router, useValue: router },
+      ],
+    });
+
+    const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_MCP);
+    const canActivate = TestBed.runInInjectionContext(() => guard(route, state));
+
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/chat']);
+    expect(canActivate).toEqual({});
+  });
+
+  it('should support eval flag', () => {
+    const featureFlags = {
+      isEnabled: vi.fn().mockImplementation(
+        (key: string) => key === FEATURE_FLAG_KEYS.MODULE_EVAL,
+      ),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: FeatureFlagService, useValue: featureFlags }],
+    });
+
+    const guard = moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_EVAL);
+    const canActivate = TestBed.runInInjectionContext(() => guard(route, state));
+
+    expect(canActivate).toBe(true);
+  });
+});
