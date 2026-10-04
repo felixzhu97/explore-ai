@@ -94,6 +94,54 @@ export default defineConfig([
       '@angular-eslint/use-lifecycle-interface': 'error',
     },
   },
+  // App code only: the generated ZardUI library under ui/ keeps its upstream style.
+  {
+    files: ['src/main/web/**/*.ts'],
+    ignores: ['src/main/web/app/ui/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: ':matches(PropertyDefinition, MethodDefinition, AccessorProperty, '
+            + 'TSParameterProperty)[accessibility="private"]',
+          message: 'Use an ECMAScript #private member instead of the private keyword.',
+        },
+      ],
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
+        { accessibility: 'no-public' },
+      ],
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'default',
+          format: ['camelCase'],
+          leadingUnderscore: 'forbid',
+          trailingUnderscore: 'forbid',
+        },
+        { selector: 'import', format: null },
+        { selector: 'variable', format: ['camelCase', 'UPPER_CASE', 'PascalCase'] },
+        {
+          selector: 'classProperty',
+          modifiers: ['static', 'readonly'],
+          format: ['camelCase', 'UPPER_CASE'],
+        },
+        { selector: 'typeLike', format: ['PascalCase'] },
+        { selector: 'enumMember', format: ['PascalCase', 'UPPER_CASE'] },
+        {
+          selector: 'parameter',
+          modifiers: ['unused'],
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+        },
+        {
+          selector: ['objectLiteralProperty', 'objectLiteralMethod', 'typeProperty', 'typeMethod'],
+          format: null,
+        },
+      ],
+      '@typescript-eslint/prefer-readonly': 'error',
+    },
+  },
   {
     files: ['**/*.html'],
     ignores: ['**/index.html'],
