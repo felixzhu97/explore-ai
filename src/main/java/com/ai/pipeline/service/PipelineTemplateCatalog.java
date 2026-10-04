@@ -12,34 +12,34 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/** Built-in workflow templates loaded per language from {@code pipeline-templates/*.json}. */
-public final class WorkflowTemplateCatalog {
+/** Built-in pipeline templates loaded per language from {@code pipeline-templates/*.json}. */
+public final class PipelineTemplateCatalog {
 
   private static final String DEFAULT_LANGUAGE = "en";
   private static final List<String> SUPPORTED_LANGUAGES = List.of("en", "zh", "ja", "fr", "es");
   private static final ObjectMapper MAPPER = new ObjectMapper();
-  private static final Map<String, List<WorkflowTemplate>> BY_LANGUAGE = loadAll();
+  private static final Map<String, List<PipelineTemplateDefinition>> BY_LANGUAGE = loadAll();
 
-  private WorkflowTemplateCatalog() {}
+  private PipelineTemplateCatalog() {}
 
-  public static List<WorkflowTemplate> listAll() {
+  public static List<PipelineTemplateDefinition> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
-  public static List<WorkflowTemplate> listAll(String language) {
+  public static List<PipelineTemplateDefinition> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
-  public static Optional<WorkflowTemplate> findById(String templateId) {
+  public static Optional<PipelineTemplateDefinition> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }
 
   /** Finds a template by id in the given language, falling back to the English catalog. */
-  public static Optional<WorkflowTemplate> findById(String templateId, String language) {
+  public static Optional<PipelineTemplateDefinition> findById(String templateId, String language) {
     if (templateId == null || templateId.isBlank()) {
       return Optional.empty();
     }
-    Optional<WorkflowTemplate> localized =
+    Optional<PipelineTemplateDefinition> localized =
         listAll(language).stream().filter(template -> template.id().equals(templateId)).findFirst();
     if (localized.isPresent()) {
       return localized;
@@ -55,8 +55,8 @@ public final class WorkflowTemplateCatalog {
     if (templateId == null || templateId.isBlank()) {
       return names;
     }
-    for (List<WorkflowTemplate> templates : BY_LANGUAGE.values()) {
-      for (WorkflowTemplate template : templates) {
+    for (List<PipelineTemplateDefinition> templates : BY_LANGUAGE.values()) {
+      for (PipelineTemplateDefinition template : templates) {
         if (template.id().equals(templateId)) {
           names.add(template.name());
         }
@@ -75,8 +75,8 @@ public final class WorkflowTemplateCatalog {
     return SUPPORTED_LANGUAGES.contains(primary) ? primary : DEFAULT_LANGUAGE;
   }
 
-  private static Map<String, List<WorkflowTemplate>> loadAll() {
-    Map<String, List<WorkflowTemplate>> loaded = new LinkedHashMap<>();
+  private static Map<String, List<PipelineTemplateDefinition>> loadAll() {
+    Map<String, List<PipelineTemplateDefinition>> loaded = new LinkedHashMap<>();
     for (String language : SUPPORTED_LANGUAGES) {
       loaded.put(language, loadLanguage(language));
     }
@@ -86,14 +86,15 @@ public final class WorkflowTemplateCatalog {
     return Map.copyOf(loaded);
   }
 
-  private static List<WorkflowTemplate> loadLanguage(String language) {
+  private static List<PipelineTemplateDefinition> loadLanguage(String language) {
     String path = "pipeline-templates/" + language + ".json";
     try (InputStream input =
-        WorkflowTemplateCatalog.class.getClassLoader().getResourceAsStream(path)) {
+        PipelineTemplateCatalog.class.getClassLoader().getResourceAsStream(path)) {
       if (input == null) {
         return List.of();
       }
-      List<WorkflowTemplate> templates = MAPPER.readValue(input, new TypeReference<>() {});
+      List<PipelineTemplateDefinition> templates =
+          MAPPER.readValue(input, new TypeReference<>() {});
       return List.copyOf(templates);
     } catch (IOException ex) {
       throw new IllegalStateException("Failed to load pipeline templates: " + path, ex);

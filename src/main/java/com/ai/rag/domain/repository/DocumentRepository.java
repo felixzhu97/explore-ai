@@ -1,6 +1,6 @@
 package com.ai.rag.domain.repository;
 
-import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.RagDocument;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,19 +12,19 @@ import java.util.UUID;
 public interface DocumentRepository {
 
   /** Saves a document and returns the saved entity. */
-  Document save(Document document);
+  RagDocument save(RagDocument document);
 
-  Document save(Document document, String ownerKey);
+  RagDocument save(RagDocument document, String ownerKey);
 
   /** Finds a document by its ID. */
-  Optional<Document> findById(UUID id);
+  Optional<RagDocument> findById(UUID id);
 
   /** Retrieves all documents. */
-  List<Document> findAll();
+  List<RagDocument> findAll();
 
-  List<Document> findAllByOwnerKey(String ownerKey);
+  List<RagDocument> findAllByOwnerKey(String ownerKey);
 
-  Optional<Document> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+  Optional<RagDocument> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
   void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 

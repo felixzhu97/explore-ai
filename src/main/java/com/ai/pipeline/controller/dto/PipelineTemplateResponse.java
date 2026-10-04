@@ -1,10 +1,10 @@
 package com.ai.pipeline.controller.dto;
 
-import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
+import com.ai.pipeline.domain.model.PipelineTemplate;
 import java.time.Instant;
 import java.util.List;
 
-public record SavedWorkflowTemplateResponse(
+public record PipelineTemplateResponse(
     String id,
     String name,
     String description,
@@ -15,9 +15,9 @@ public record SavedWorkflowTemplateResponse(
     boolean enabled,
     Instant createdAt,
     Instant updatedAt) {
-  /** Builds a response from a user-saved workflow template. */
-  public static SavedWorkflowTemplateResponse from(SavedWorkflowTemplate template) {
-    return new SavedWorkflowTemplateResponse(
+  /** Builds a response from a user-saved pipeline template. */
+  public static PipelineTemplateResponse from(PipelineTemplate template) {
+    return new PipelineTemplateResponse(
         template.getId().value(),
         template.getName(),
         template.getDescription(),

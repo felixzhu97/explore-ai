@@ -3,11 +3,11 @@ package com.ai.pipeline.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
-import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
-import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
-import com.ai.pipeline.test.fixture.FakeWorkflowTemplateRepository;
+import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
+import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
+import com.ai.pipeline.test.fixture.FakePipelineTemplateRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,19 +18,19 @@ class PipelineTemplateServiceTest {
 
   private static final String CLIENT_ID = "c:client-1";
 
-  private FakeWorkflowTemplateRepository repository;
+  private FakePipelineTemplateRepository repository;
   private PipelineTemplateService useCase;
 
   @BeforeEach
   void setUp() {
-    repository = new FakeWorkflowTemplateRepository();
+    repository = new FakePipelineTemplateRepository();
     useCase = new PipelineTemplateService(repository);
   }
 
   @Test
   @DisplayName("should create template when name available")
   void shouldCreateTemplateWhenNameAvailable() {
-    SavedWorkflowTemplate created =
+    PipelineTemplate created =
         useCase.create(
             CLIENT_ID, "My flow", "desc", List.of("research", "analyst"), "topic", "brief", null);
 
@@ -43,25 +43,24 @@ class PipelineTemplateServiceTest {
   @DisplayName("should throw when name conflict on create")
   void shouldThrowWhenNameConflictOnCreate() {
     repository.seed(
-        SavedWorkflowTemplate.create(
-            CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null));
+        PipelineTemplate.create(CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null));
 
     assertThatThrownBy(
             () -> useCase.create(CLIENT_ID, "My flow", "", List.of("analyst"), "", "other", null))
-        .isInstanceOf(WorkflowTemplateNameConflictException.class);
+        .isInstanceOf(PipelineTemplateNameConflictException.class);
   }
 
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, WorkflowTemplateId.generate().value()))
-        .isInstanceOf(WorkflowTemplateNotFoundException.class);
+    assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generate().value()))
+        .isInstanceOf(PipelineTemplateNotFoundException.class);
   }
 
   @Test
   @DisplayName("should create from template when template exists")
   void shouldCreateFromTemplateWhenTemplateExists() {
-    SavedWorkflowTemplate created = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
+    PipelineTemplate created = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
 
     assertThat(created.getName()).isEqualTo("Competitive intelligence");
     assertThat(created.getAgentTypes()).containsExactly("research", "analyst");
@@ -72,7 +71,7 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should create localized template when language is zh")
   void shouldCreateLocalizedTemplateWhenLanguageIsZh() {
-    SavedWorkflowTemplate created = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "zh");
+    PipelineTemplate created = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "zh");
 
     assertThat(created.getName()).isEqualTo("竞品情报");
     assertThat(created.getBriefPrompt()).contains("竞品情报简报");
@@ -83,8 +82,7 @@ class PipelineTemplateServiceTest {
   void shouldSuffixNameWhenCreateFromTemplateConflicts() {
     useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
 
-    SavedWorkflowTemplate duplicate =
-        useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
+    PipelineTemplate duplicate = useCase.createFromTemplate(CLIENT_ID, "competitiveIntel", "en");
 
     assertThat(duplicate.getName()).isEqualTo("Competitive intelligence (2)");
   }
@@ -92,12 +90,12 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should disable template when set enabled false")
   void shouldDisableTemplateWhenSetEnabledFalse() {
-    SavedWorkflowTemplate seeded =
+    PipelineTemplate seeded =
         repository.seed(
-            SavedWorkflowTemplate.create(
+            PipelineTemplate.create(
                 CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null));
 
-    SavedWorkflowTemplate updated = useCase.setEnabled(CLIENT_ID, seeded.getId().value(), false);
+    PipelineTemplate updated = useCase.setEnabled(CLIENT_ID, seeded.getId().value(), false);
 
     assertThat(updated.isEnabled()).isFalse();
   }

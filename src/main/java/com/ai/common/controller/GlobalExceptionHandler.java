@@ -8,10 +8,10 @@ import com.ai.common.controller.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
+import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
+import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
-import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
-import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.RagServiceException;
 import com.ai.skill.domain.exception.SkillNameConflictException;
@@ -67,20 +67,20 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "SKILL_NAME_CONFLICT"));
   }
 
-  @ExceptionHandler(WorkflowTemplateNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleWorkflowTemplateNotFound(
-      WorkflowTemplateNotFoundException e) {
-    log.warn("Workflow template not found: {}", e.getMessage());
+  @ExceptionHandler(PipelineTemplateNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handlePipelineTemplateNotFound(
+      PipelineTemplateNotFoundException e) {
+    log.warn("Pipeline template not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NOT_FOUND"));
+        .body(ErrorResponse.of(e.getMessage(), "PIPELINE_TEMPLATE_NOT_FOUND"));
   }
 
-  @ExceptionHandler(WorkflowTemplateNameConflictException.class)
-  public ResponseEntity<ErrorResponse> handleWorkflowTemplateNameConflict(
-      WorkflowTemplateNameConflictException e) {
-    log.warn("Workflow template name conflict: {}", e.getMessage());
+  @ExceptionHandler(PipelineTemplateNameConflictException.class)
+  public ResponseEntity<ErrorResponse> handlePipelineTemplateNameConflict(
+      PipelineTemplateNameConflictException e) {
+    log.warn("Pipeline template name conflict: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorResponse.of(e.getMessage(), "WORKFLOW_TEMPLATE_NAME_CONFLICT"));
+        .body(ErrorResponse.of(e.getMessage(), "PIPELINE_TEMPLATE_NAME_CONFLICT"));
   }
 
   @ExceptionHandler(SavedAgentNotFoundException.class)

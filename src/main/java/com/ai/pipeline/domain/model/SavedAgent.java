@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity<SavedAgentId> {
+public class SavedAgent extends AbstractEnableableDescribedOwnerEntity<SavedAgentId> {
 
   private static final Pattern TYPE_KEY_PATTERN = Pattern.compile("^[a-z][a-z0-9_-]{0,63}$");
 
@@ -41,7 +41,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
   @Column(nullable = false, columnDefinition = "clob")
   private List<String> toolKeys = new ArrayList<>();
 
-  private SavedAgentDefinition(
+  private SavedAgent(
       SavedAgentId id,
       String ownerKey,
       String typeKey,
@@ -59,7 +59,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
   }
 
   /** Creates an enabled agent with a new id after validating its type key. */
-  public static SavedAgentDefinition create(
+  public static SavedAgent create(
       String ownerKey,
       String typeKey,
       String name,
@@ -67,7 +67,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
       String systemPrompt,
       List<String> toolKeys) {
     Instant now = Instant.now();
-    return new SavedAgentDefinition(
+    return new SavedAgent(
         SavedAgentId.generate(),
         ownerKey,
         typeKey,
@@ -81,7 +81,7 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
   }
 
   /** Replaces name, description, system prompt and tools, bumping the update timestamp. */
-  public SavedAgentDefinition update(
+  public SavedAgent update(
       String name, String description, String systemPrompt, List<String> toolKeys) {
     rename(name);
     updateDescription(description);

@@ -5,7 +5,7 @@ import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -57,13 +57,13 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   @Column(nullable = false, length = 40, updatable = false)
   private AutomationActionType actionType;
 
-  /** References a SavedWorkflowTemplate by id only; the template is a separate aggregate. */
+  /** References a PipelineTemplate by id only; the template is a separate aggregate. */
   @NotNull
   @Embedded
   @AttributeOverride(
       name = "value",
-      column = @Column(name = "workflow_template_id", nullable = false))
-  private WorkflowTemplateId workflowTemplateId;
+      column = @Column(name = "pipeline_template_id", nullable = false))
+  private PipelineTemplateId pipelineTemplateId;
 
   @NotBlank
   @Size(max = 320)
@@ -89,7 +89,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String timezone,
       boolean enabled,
       AutomationActionType actionType,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief,
       Instant nextRunAt,
@@ -101,22 +101,25 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     this.cronExpression = normalizeCron(scheduleKind, cronExpression);
     this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
     this.actionType = Objects.requireNonNull(actionType, "actionType");
-    this.workflowTemplateId =
-        WorkflowTemplateId.of(
-            DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId"));
+    this.pipelineTemplateId =
+        PipelineTemplateId.of(
+            DomainStrings.requireNonBlank(pipelineTemplateId, "pipelineTemplateId"));
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
     this.lastRunAt = lastRunAt;
   }
 
-  /** Creates an enabled cron schedule that runs a saved workflow starting at {@code nextRunAt}. */
+  /**
+   * Creates an enabled cron schedule that runs a saved pipeline template starting at {@code
+   * nextRunAt}.
+   */
   public static AutomationSchedule create(
       String ownerKey,
       String name,
       String cronExpression,
       String timezone,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief,
       Instant nextRunAt) {
@@ -130,7 +133,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         timezone,
         true,
         AutomationActionType.RUN_SAVED_WORKFLOW,
-        workflowTemplateId,
+        pipelineTemplateId,
         recipientEmail,
         brief,
         nextRunAt,
@@ -139,12 +142,14 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         now);
   }
 
-  /** Creates an enabled one-off schedule that runs a saved workflow at a future instant. */
+  /**
+   * Creates an enabled one-off schedule that runs a saved pipeline template at a future instant.
+   */
   public static AutomationSchedule createOnce(
       String ownerKey,
       String name,
       String timezone,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief,
       Instant runAt) {
@@ -162,7 +167,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         timezone,
         true,
         AutomationActionType.RUN_SAVED_WORKFLOW,
-        workflowTemplateId,
+        pipelineTemplateId,
         recipientEmail,
         brief,
         runAt,
@@ -177,7 +182,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       ScheduleKind scheduleKind,
       String cronExpression,
       String timezone,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief,
       Instant nextRunAt) {
@@ -185,9 +190,9 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     this.scheduleKind = Objects.requireNonNull(scheduleKind, "scheduleKind");
     this.cronExpression = normalizeCron(scheduleKind, cronExpression);
     this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
-    this.workflowTemplateId =
-        WorkflowTemplateId.of(
-            DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId"));
+    this.pipelineTemplateId =
+        PipelineTemplateId.of(
+            DomainStrings.requireNonBlank(pipelineTemplateId, "pipelineTemplateId"));
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");

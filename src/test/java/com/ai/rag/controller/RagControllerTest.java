@@ -13,8 +13,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.controller.GlobalExceptionHandler;
-import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.DocumentUploadService;
 import com.ai.rag.service.RagApplicationService;
@@ -63,7 +63,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return list of documents")
     void shouldReturnListOfDocuments() {
-      Document doc = createTestDocument("Test Doc", DocumentStatus.READY);
+      RagDocument doc = createTestDocument("Test Doc", DocumentStatus.READY);
       when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
 
       assertThat(
@@ -104,7 +104,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldUploadTextFileSuccessfully() {
       MockMultipartFile file =
           new MockMultipartFile("file", "test.txt", "text/plain", "Hello World".getBytes());
-      Document doc = createTestDocument("test.txt", DocumentStatus.READY);
+      RagDocument doc = createTestDocument("test.txt", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
           new DocumentUploadService.UploadResult(doc.getId(), "test.txt", "READY", 0);
       when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
@@ -125,7 +125,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldUseCustomTitleWhenProvided() {
       MockMultipartFile file =
           new MockMultipartFile("file", "original.txt", "text/plain", "Content".getBytes());
-      Document doc = createTestDocument("Custom Title", DocumentStatus.READY);
+      RagDocument doc = createTestDocument("Custom Title", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
           new DocumentUploadService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
       when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
@@ -287,7 +287,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     }
   }
 
-  private Document createTestDocument(String title, DocumentStatus status) {
-    return new Document(DocumentId.generate(), title, title, 1024L, "c:test");
+  private RagDocument createTestDocument(String title, DocumentStatus status) {
+    return new RagDocument(DocumentId.generate(), title, title, 1024L, "c:test");
   }
 }

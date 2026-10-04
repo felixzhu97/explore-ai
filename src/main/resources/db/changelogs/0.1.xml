@@ -456,4 +456,38 @@
       columnName="owner_key"
       columnDataType="${string.type}(80)"/>
   </changeSet>
+
+  <changeSet author="explore-ai" id="0.1-013-rename-rag-document" dbms="h2">
+    <renameTable oldTableName="document" newTableName="rag_document"/>
+    <sql>ALTER INDEX idx_document_status RENAME TO idx_rag_document_status</sql>
+    <sql>ALTER INDEX idx_document_owner_key RENAME TO idx_rag_document_owner_key</sql>
+  </changeSet>
+
+  <changeSet author="explore-ai" id="0.1-014-rename-pipeline-template" dbms="h2">
+    <renameTable oldTableName="saved_workflow_template" newTableName="pipeline_template"/>
+    <sql>
+      ALTER TABLE pipeline_template RENAME CONSTRAINT uk_saved_workflow_template_owner_key_name
+      TO uk_pipeline_template_owner_key_name
+    </sql>
+    <sql>
+      ALTER INDEX idx_saved_workflow_template_owner_key RENAME TO idx_pipeline_template_owner_key
+    </sql>
+  </changeSet>
+
+  <changeSet author="explore-ai" id="0.1-015-rename-saved-agent" dbms="h2">
+    <renameTable oldTableName="saved_agent_definition" newTableName="saved_agent"/>
+    <sql>
+      ALTER TABLE saved_agent RENAME CONSTRAINT uk_saved_agent_definition_owner_key_type_key
+      TO uk_saved_agent_owner_key_type_key
+    </sql>
+    <sql>ALTER INDEX idx_saved_agent_definition_owner_key RENAME TO idx_saved_agent_owner_key</sql>
+  </changeSet>
+
+  <changeSet author="explore-ai" id="0.1-016-rename-automation-pipeline-template-id" dbms="h2">
+    <renameColumn
+      tableName="automation_schedule"
+      oldColumnName="workflow_template_id"
+      newColumnName="pipeline_template_id"
+      columnDataType="${uuid.type}"/>
+  </changeSet>
 </databaseChangeLog>

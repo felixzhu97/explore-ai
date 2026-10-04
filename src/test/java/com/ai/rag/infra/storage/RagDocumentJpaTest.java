@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
-import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
@@ -23,7 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = {"com.ai.rag.domain", JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataDocumentRepository.class)
 @Import({JpaDocumentRepository.class, OwnerPartitionScope.class})
-class DocumentJpaTest extends AbstractDataJpaTest {
+class RagDocumentJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:33333333-3333-3333-3333-333333333333";
   private static final String OTHER_OWNER_KEY = OwnerKey.forClient("other").value();
@@ -35,12 +35,13 @@ class DocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should persist and reload document when round tripping")
   void shouldPersistAndReloadDocumentWhenRoundTripping() {
-    Document document = new Document(DocumentId.generate(), "Guide", "guide.pdf", 2048L, OWNER_KEY);
+    RagDocument document =
+        new RagDocument(DocumentId.generate(), "Guide", "guide.pdf", 2048L, OWNER_KEY);
 
     repository.saveAndFlush(document);
     em.clear();
 
-    Optional<Document> reloaded = repository.findById(document.getId());
+    Optional<RagDocument> reloaded = repository.findById(document.getId());
 
     assertThat(reloaded).isPresent();
     assertThat(reloaded.get().getTitle()).isEqualTo("Guide");
@@ -52,8 +53,8 @@ class DocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should store owner key when persisting partitioned document")
   void shouldStoreOwnerKeyWhenPersistingPartitionedDocument() {
-    Document document =
-        new Document(
+    RagDocument document =
+        new RagDocument(
             DocumentId.generate(),
             "Owned",
             "owned.pdf",
@@ -66,7 +67,7 @@ class DocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(document);
     em.clear();
 
-    Document reloaded = repository.findById(document.getId()).orElseThrow();
+    RagDocument reloaded = repository.findById(document.getId()).orElseThrow();
 
     assertThat(reloaded.getClientId()).isEqualTo(OWNER_KEY);
   }
@@ -74,8 +75,8 @@ class DocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should list documents by owner ordered by created at descending")
   void shouldListDocumentsByOwnerOrderedByCreatedAtDescending() {
-    Document older =
-        new Document(
+    RagDocument older =
+        new RagDocument(
             DocumentId.generate(),
             "Older",
             "older.pdf",
@@ -84,8 +85,8 @@ class DocumentJpaTest extends AbstractDataJpaTest {
             Instant.parse("2026-01-01T00:00:00Z"),
             Instant.parse("2026-01-02T00:00:00Z"),
             OWNER_KEY);
-    Document newer =
-        new Document(
+    RagDocument newer =
+        new RagDocument(
             DocumentId.generate(),
             "Newer",
             "newer.pdf",
@@ -98,20 +99,20 @@ class DocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(newer);
     em.clear();
 
-    List<Document> documents = adapter.findAllByOwnerKey(OWNER_KEY);
+    List<RagDocument> documents = adapter.findAllByOwnerKey(OWNER_KEY);
 
-    assertThat(documents).extracting(Document::getTitle).containsExactly("Newer", "Older");
+    assertThat(documents).extracting(RagDocument::getTitle).containsExactly("Newer", "Older");
   }
 
   @Test
   @DisplayName("should find document by id and owner key when scoped lookup")
   void shouldFindDocumentByIdAndOwnerKeyWhenScopedLookup() {
-    Document document =
-        new Document(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
+    RagDocument document =
+        new RagDocument(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
     repository.saveAndFlush(document);
     em.clear();
 
-    Optional<Document> found = adapter.findByIdAndOwnerKey(document.getId().asUuid(), OWNER_KEY);
+    Optional<RagDocument> found = adapter.findByIdAndOwnerKey(document.getId().asUuid(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getTitle()).isEqualTo("Scoped");
@@ -121,8 +122,8 @@ class DocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should delete only the owner's document when scoped delete")
   void shouldDeleteOnlyTheOwnersDocumentWhenScopedDelete() {
-    Document document =
-        new Document(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
+    RagDocument document =
+        new RagDocument(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
     repository.saveAndFlush(document);
     em.clear();
 

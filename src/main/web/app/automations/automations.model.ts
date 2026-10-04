@@ -9,7 +9,7 @@ export interface AutomationSchedule {
   timezone: string;
   enabled: boolean;
   actionType: string;
-  workflowTemplateId: string;
+  pipelineTemplateId: string;
   recipientEmail: string;
   brief: string;
   nextRunAt: string;
@@ -35,7 +35,7 @@ export interface AutomationScheduleWriteRequest {
   cronExpression?: string | null;
   runAt?: string | null;
   timezone: string;
-  workflowTemplateId: string;
+  pipelineTemplateId: string;
   recipientEmail: string;
   brief: string;
 }

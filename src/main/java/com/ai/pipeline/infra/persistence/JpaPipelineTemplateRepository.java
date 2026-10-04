@@ -2,59 +2,58 @@ package com.ai.pipeline.infra.persistence;
 
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
-import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
-import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-/** JPA adapter for saved workflow templates. */
+/** JPA adapter for saved pipeline templates. */
 @Repository
-public class JpaWorkflowTemplateRepository implements WorkflowTemplateRepository {
+public class JpaPipelineTemplateRepository implements PipelineTemplateRepository {
 
-  private final SpringDataWorkflowTemplateRepository delegate;
+  private final SpringDataPipelineTemplateRepository delegate;
   private static final Sort BY_NAME = Sort.by("name");
 
   private final OwnerPartitionScope ownerPartition;
 
-  public JpaWorkflowTemplateRepository(
-      SpringDataWorkflowTemplateRepository delegate, OwnerPartitionScope ownerPartition) {
+  public JpaPipelineTemplateRepository(
+      SpringDataPipelineTemplateRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;
     this.ownerPartition = ownerPartition;
   }
 
   @Override
   @Transactional
-  public SavedWorkflowTemplate save(SavedWorkflowTemplate template) {
+  public PipelineTemplate save(PipelineTemplate template) {
     return delegate.saveAndFlush(template);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<SavedWorkflowTemplate> findByIdAndOwnerKey(
-      WorkflowTemplateId id, String ownerKey) {
+  public Optional<PipelineTemplate> findByIdAndOwnerKey(PipelineTemplateId id, String ownerKey) {
     return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<SavedWorkflowTemplate> findAllByOwnerKey(String ownerKey) {
+  public List<PipelineTemplate> findAllByOwnerKey(String ownerKey) {
     return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(BY_NAME));
   }
 
   @Override
   @Transactional
-  public void deleteByIdAndOwnerKey(WorkflowTemplateId id, String ownerKey) {
+  public void deleteByIdAndOwnerKey(PipelineTemplateId id, String ownerKey) {
     ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
   public boolean existsByOwnerKeyAndNameIgnoringId(
-      String ownerKey, String name, WorkflowTemplateId excludeId) {
+      String ownerKey, String name, PipelineTemplateId excludeId) {
     return ownerPartition.apply(
         OwnerKey.parse(ownerKey),
         () ->

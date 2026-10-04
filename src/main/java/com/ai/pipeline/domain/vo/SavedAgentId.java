@@ -5,7 +5,7 @@ import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-/** Strongly-typed ID for {@link com.ai.pipeline.domain.model.SavedAgentDefinition}. */
+/** Strongly-typed ID for {@link com.ai.pipeline.domain.model.SavedAgent}. */
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public final class SavedAgentId extends AbstractUuidId {

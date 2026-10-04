@@ -12,11 +12,11 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
   private static final String[] OWNER_TABLES = {
     "chat_session",
     "skill",
-    "saved_agent_definition",
-    "saved_workflow_template",
+    "saved_agent",
+    "pipeline_template",
     "automation_schedule",
     "automation_run",
-    "document",
+    "rag_document",
     "document_chunks",
     "ai_invocation_event"
   };
@@ -42,11 +42,11 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
     jdbcTemplate.update("DELETE FROM automation_run WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM automation_schedule WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM document_chunks WHERE owner_key = ?", key);
-    jdbcTemplate.update("DELETE FROM document WHERE owner_key = ?", key);
+    jdbcTemplate.update("DELETE FROM rag_document WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM skill WHERE owner_key = ?", key);
-    jdbcTemplate.update("DELETE FROM saved_agent_definition WHERE owner_key = ?", key);
-    jdbcTemplate.update("DELETE FROM saved_workflow_template WHERE owner_key = ?", key);
+    jdbcTemplate.update("DELETE FROM saved_agent WHERE owner_key = ?", key);
+    jdbcTemplate.update("DELETE FROM pipeline_template WHERE owner_key = ?", key);
 
     // Chat memory + web sources keyed by conversation id owned by this partition
     jdbcTemplate.update(

@@ -1,6 +1,6 @@
 package com.ai.rag.service;
 
-import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
@@ -40,7 +40,7 @@ public class RagApplicationService {
     return uploadService.upload(title, fileName, fileSize, fileContent, ownerKey);
   }
 
-  public List<Document> listDocuments(String ownerKey) {
+  public List<RagDocument> listDocuments(String ownerKey) {
     return uploadService.listAll(ownerKey);
   }
 

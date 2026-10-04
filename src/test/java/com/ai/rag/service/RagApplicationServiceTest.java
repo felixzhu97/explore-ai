@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
@@ -78,11 +78,13 @@ class RagApplicationServiceTest {
     @Test
     @DisplayName("should delegate to uploadService")
     void shouldDelegateToUploadService() {
-      Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
-      Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
+      RagDocument doc1 =
+          new RagDocument(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
+      RagDocument doc2 =
+          new RagDocument(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
       when(uploadService.listAll("c:test-owner")).thenReturn(List.of(doc1, doc2));
 
-      List<Document> result = service.listDocuments("c:test-owner");
+      List<RagDocument> result = service.listDocuments("c:test-owner");
 
       assertThat(result).hasSize(2);
       verify(uploadService).listAll("c:test-owner");
@@ -93,7 +95,7 @@ class RagApplicationServiceTest {
     void shouldReturnEmptyListWhenNoDocuments() {
       when(uploadService.listAll("c:test-owner")).thenReturn(List.of());
 
-      List<Document> result = service.listDocuments("c:test-owner");
+      List<RagDocument> result = service.listDocuments("c:test-owner");
 
       assertThat(result).isEmpty();
     }

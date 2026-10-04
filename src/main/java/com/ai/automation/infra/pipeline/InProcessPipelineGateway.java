@@ -1,43 +1,46 @@
 package com.ai.automation.infra.pipeline;
 
-import com.ai.automation.domain.repository.WorkflowRunner;
-import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
+import com.ai.automation.domain.repository.PipelineGateway;
+import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
 import com.ai.pipeline.domain.model.AgentPipeline;
-import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
-import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
+import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.AgentType;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import com.ai.pipeline.service.PipelineService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Component;
 
-/** Runs a client's saved workflow template as a linear agent pipeline and returns its output. */
+/**
+ * Runs an owner's saved pipeline template in process as a linear agent pipeline and returns its
+ * output.
+ */
 @Component
-public class PipelineWorkflowRunner implements WorkflowRunner {
+public class InProcessPipelineGateway implements PipelineGateway {
 
   /** Same default as pipelines canvas when no real brief is configured. */
   static final String GENERIC_PLACEHOLDER =
       "Follow the configured agent pipeline for the user task.";
 
-  private final WorkflowTemplateRepository workflowTemplateRepository;
+  private final PipelineTemplateRepository pipelineTemplateRepository;
   private final PipelineService pipelineService;
 
-  public PipelineWorkflowRunner(
-      WorkflowTemplateRepository workflowTemplateRepository, PipelineService pipelineService) {
-    this.workflowTemplateRepository = workflowTemplateRepository;
+  public InProcessPipelineGateway(
+      PipelineTemplateRepository pipelineTemplateRepository, PipelineService pipelineService) {
+    this.pipelineTemplateRepository = pipelineTemplateRepository;
     this.pipelineService = pipelineService;
   }
 
   @Override
-  public String runSavedWorkflow(
-      String ownerKey, String workflowTemplateId, String brief, String language) {
-    SavedWorkflowTemplate template =
-        workflowTemplateRepository
-            .findByIdAndOwnerKey(WorkflowTemplateId.of(workflowTemplateId), ownerKey)
-            .filter(SavedWorkflowTemplate::isEnabled)
-            .orElseThrow(() -> new WorkflowTemplateNotFoundException(workflowTemplateId));
+  public String runSavedTemplate(
+      String ownerKey, String pipelineTemplateId, String brief, String language) {
+    PipelineTemplate template =
+        pipelineTemplateRepository
+            .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
+            .filter(PipelineTemplate::isEnabled)
+            .orElseThrow(() -> new PipelineTemplateNotFoundException(pipelineTemplateId));
     AgentPipeline pipeline = toLinearPipeline(template.getAgentTypes());
     String message =
         resolveInvokeMessage(brief, template.getShortTopic(), template.getBriefPrompt());

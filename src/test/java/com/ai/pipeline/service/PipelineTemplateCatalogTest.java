@@ -5,14 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("WorkflowTemplateCatalog")
-class WorkflowTemplateCatalogTest {
+@DisplayName("PipelineTemplateCatalog")
+class PipelineTemplateCatalogTest {
 
   @Test
   @DisplayName("should list built in templates when catalog loaded")
   void shouldListBuiltInTemplatesWhenCatalogLoaded() {
-    assertThat(WorkflowTemplateCatalog.listAll())
-        .extracting(WorkflowTemplate::id)
+    assertThat(PipelineTemplateCatalog.listAll())
+        .extracting(PipelineTemplateDefinition::id)
         .containsExactly(
             "competitiveIntel",
             "policyQa",
@@ -28,46 +28,46 @@ class WorkflowTemplateCatalogTest {
   @Test
   @DisplayName("should localize templates when language provided")
   void shouldLocalizeTemplatesWhenLanguageProvided() {
-    assertThat(WorkflowTemplateCatalog.findById("competitiveIntel", "zh"))
+    assertThat(PipelineTemplateCatalog.findById("competitiveIntel", "zh"))
         .isPresent()
         .get()
-        .extracting(WorkflowTemplate::name)
+        .extracting(PipelineTemplateDefinition::name)
         .isEqualTo("竞品情报");
 
-    assertThat(WorkflowTemplateCatalog.findById("incidentReview", "zh"))
+    assertThat(PipelineTemplateCatalog.findById("incidentReview", "zh"))
         .isPresent()
         .get()
-        .extracting(WorkflowTemplate::name)
+        .extracting(PipelineTemplateDefinition::name)
         .isEqualTo("事故复盘");
 
-    assertThat(WorkflowTemplateCatalog.findById("policyQa", "en"))
+    assertThat(PipelineTemplateCatalog.findById("policyQa", "en"))
         .isPresent()
         .get()
-        .extracting(WorkflowTemplate::agentTypes)
+        .extracting(PipelineTemplateDefinition::agentTypes)
         .isEqualTo(java.util.List.of("vectordb", "analyst"));
   }
 
   @Test
   @DisplayName("should fallback to english when language unsupported")
   void shouldFallbackToEnglishWhenLanguageUnsupported() {
-    assertThat(WorkflowTemplateCatalog.findById("meetingPrep", "de"))
+    assertThat(PipelineTemplateCatalog.findById("meetingPrep", "de"))
         .isPresent()
         .get()
-        .extracting(WorkflowTemplate::name)
+        .extracting(PipelineTemplateDefinition::name)
         .isEqualTo("Stakeholder meeting prep");
   }
 
   @Test
   @DisplayName("should collect name aliases when template exists")
   void shouldCollectNameAliasesWhenTemplateExists() {
-    assertThat(WorkflowTemplateCatalog.namesForTemplate("competitiveIntel"))
+    assertThat(PipelineTemplateCatalog.namesForTemplate("competitiveIntel"))
         .contains("Competitive intelligence", "竞品情报");
   }
 
   @Test
   @DisplayName("should return empty when id unknown")
   void shouldReturnEmptyWhenIdUnknown() {
-    assertThat(WorkflowTemplateCatalog.findById("missing")).isEmpty();
-    assertThat(WorkflowTemplateCatalog.findById(" ")).isEmpty();
+    assertThat(PipelineTemplateCatalog.findById("missing")).isEmpty();
+    assertThat(PipelineTemplateCatalog.findById(" ")).isEmpty();
   }
 }

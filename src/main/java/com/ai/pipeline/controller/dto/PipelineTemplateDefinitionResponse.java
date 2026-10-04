@@ -1,10 +1,10 @@
 package com.ai.pipeline.controller.dto;
 
-import com.ai.pipeline.service.WorkflowTemplate;
-import com.ai.pipeline.service.WorkflowTemplateCatalog;
+import com.ai.pipeline.service.PipelineTemplateCatalog;
+import com.ai.pipeline.service.PipelineTemplateDefinition;
 import java.util.List;
 
-public record WorkflowTemplateResponse(
+public record PipelineTemplateDefinitionResponse(
     String id,
     String name,
     String description,
@@ -13,14 +13,14 @@ public record WorkflowTemplateResponse(
     String briefPrompt,
     List<String> nameAliases) {
   /** Builds a response from a built-in template, adding its names across all languages. */
-  public static WorkflowTemplateResponse from(WorkflowTemplate template) {
-    return new WorkflowTemplateResponse(
+  public static PipelineTemplateDefinitionResponse from(PipelineTemplateDefinition template) {
+    return new PipelineTemplateDefinitionResponse(
         template.id(),
         template.name(),
         template.description(),
         template.agentTypes(),
         template.shortTopic(),
         template.briefPrompt(),
-        List.copyOf(WorkflowTemplateCatalog.namesForTemplate(template.id())));
+        List.copyOf(PipelineTemplateCatalog.namesForTemplate(template.id())));
   }
 }

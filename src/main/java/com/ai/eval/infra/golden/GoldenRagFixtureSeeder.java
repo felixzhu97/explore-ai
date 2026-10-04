@@ -1,6 +1,6 @@
 package com.ai.eval.infra.golden;
 
-import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.service.DocumentUploadService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -81,9 +81,9 @@ public class GoldenRagFixtureSeeder {
   }
 
   private Map<String, String> indexExistingByTitle() {
-    List<Document> documents = documentUploadService.listAll("c:eval-golden");
+    List<RagDocument> documents = documentUploadService.listAll("c:eval-golden");
     Map<String, String> byTitle = new HashMap<>();
-    for (Document document : documents) {
+    for (RagDocument document : documents) {
       if (document.getTitle() != null && document.getTitle().startsWith(TITLE_PREFIX)) {
         byTitle.put(document.getTitle(), document.getId().value().toString());
       }

@@ -6,7 +6,7 @@ import com.ai.automation.domain.model.EmailMessage;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
-import com.ai.automation.domain.repository.WorkflowRunner;
+import com.ai.automation.domain.repository.PipelineGateway;
 import com.ai.automation.domain.vo.EmailDeliveryStatus;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
@@ -25,7 +25,7 @@ public class DueAutomationRunner {
 
   private final AutomationScheduleRepository scheduleRepository;
   private final AutomationRunRepository runRepository;
-  private final WorkflowRunner workflowRunner;
+  private final PipelineGateway pipelineGateway;
   private final EmailGateway emailGateway;
   private final AutomationMailFormatter mailFormatter;
   private final CronScheduleCalculator cronCalculator;
@@ -35,7 +35,7 @@ public class DueAutomationRunner {
   public DueAutomationRunner(
       AutomationScheduleRepository scheduleRepository,
       AutomationRunRepository runRepository,
-      WorkflowRunner workflowRunner,
+      PipelineGateway pipelineGateway,
       EmailGateway emailGateway,
       AutomationMailFormatter mailFormatter,
       CronScheduleCalculator cronCalculator,
@@ -43,7 +43,7 @@ public class DueAutomationRunner {
       AutomationProperties properties) {
     this.scheduleRepository = scheduleRepository;
     this.runRepository = runRepository;
-    this.workflowRunner = workflowRunner;
+    this.pipelineGateway = pipelineGateway;
     this.emailGateway = emailGateway;
     this.mailFormatter = mailFormatter;
     this.cronCalculator = cronCalculator;
@@ -84,9 +84,9 @@ public class DueAutomationRunner {
 
     try {
       String result =
-          workflowRunner.runSavedWorkflow(
+          pipelineGateway.runSavedTemplate(
               schedule.getClientId(),
-              schedule.getWorkflowTemplateId().value(),
+              schedule.getPipelineTemplateId().value(),
               schedule.getBrief(),
               "en");
       EmailDeliveryStatus emailStatus = sendResultEmail(schedule, result);

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.domain.model.SavedAgentDefinition;
+import com.ai.pipeline.domain.model.SavedAgent;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.domain.vo.SavedAgentId;
@@ -38,7 +38,7 @@ class CatalogAgentRegistryTest {
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     savedAgents.save(
-        SavedAgentDefinition.create(
+        SavedAgent.create(
             "c:client-a",
             typeKey,
             "Override Name",
@@ -65,8 +65,8 @@ class CatalogAgentRegistryTest {
   void shouldIgnoreDisabledClientDefinition() {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     String builtinName = registry.require(AgentType.of(typeKey), "c:client-a", "en").name();
-    SavedAgentDefinition disabled =
-        SavedAgentDefinition.create(
+    SavedAgent disabled =
+        SavedAgent.create(
             "c:client-a", typeKey, "Disabled Override", "d", "Disabled prompt", List.of());
     disabled.disable();
     savedAgents.save(disabled);
@@ -79,7 +79,7 @@ class CatalogAgentRegistryTest {
   @Test
   void shouldIncludeCustomTypeFromEnabledLibrary() {
     savedAgents.save(
-        SavedAgentDefinition.create(
+        SavedAgent.create(
             "c:client-a", "custom_writer", "Writer", "writes", "You write.", List.of("document")));
 
     assertThat(registry.listAll("c:client-a", "en"))
@@ -92,29 +92,29 @@ class CatalogAgentRegistryTest {
   }
 
   private static final class InMemorySavedAgentRepository implements SavedAgentRepository {
-    private final List<SavedAgentDefinition> agents = new ArrayList<>();
+    private final List<SavedAgent> agents = new ArrayList<>();
 
     @Override
-    public SavedAgentDefinition save(SavedAgentDefinition agent) {
+    public SavedAgent save(SavedAgent agent) {
       agents.removeIf(existing -> existing.getId().equals(agent.getId()));
       agents.add(agent);
       return agent;
     }
 
     @Override
-    public Optional<SavedAgentDefinition> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
+    public Optional<SavedAgent> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
       return agents.stream()
           .filter(a -> a.getId().equals(id) && a.getClientId().equals(ownerKey))
           .findFirst();
     }
 
     @Override
-    public List<SavedAgentDefinition> findAllByOwnerKey(String ownerKey) {
+    public List<SavedAgent> findAllByOwnerKey(String ownerKey) {
       return agents.stream().filter(a -> a.getClientId().equals(ownerKey)).toList();
     }
 
     @Override
-    public List<SavedAgentDefinition> findEnabledByOwnerKey(String ownerKey) {
+    public List<SavedAgent> findEnabledByOwnerKey(String ownerKey) {
       return agents.stream()
           .filter(a -> a.getClientId().equals(ownerKey) && a.isEnabled())
           .toList();
