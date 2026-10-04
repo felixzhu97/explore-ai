@@ -1,29 +1,25 @@
 package com.ai.base.domain.vo;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /** Shared UUID id field for {@code @Embeddable} feature-module ID types. */
 @MappedSuperclass
-@Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractUuidId implements EntityId {
 
   @EqualsAndHashCode.Include
-  @Convert(converter = UuidStringAttributeConverter.class)
-  @Column(name = "id", nullable = false, length = 36)
-  protected String value;
+  @Column(name = "id", nullable = false)
+  protected UUID value;
 
   /** Documentation. */
   protected AbstractUuidId(String value) {
-    this.value = requireUuid(value);
+    this.value = UUID.fromString(requireUuid(value));
   }
 
   /** Documentation. */
@@ -43,16 +39,16 @@ public abstract class AbstractUuidId implements EntityId {
 
   /** Documentation. */
   public UUID asUuid() {
-    return UUID.fromString(value);
+    return value;
   }
 
   @Override
   public String value() {
-    return value;
+    return value.toString();
   }
 
   @Override
   public String toString() {
-    return value;
+    return value.toString();
   }
 }
