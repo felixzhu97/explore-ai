@@ -126,7 +126,7 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
   readonly dropdownTemplate = viewChild.required<TemplateRef<void>>('dropdownTemplate');
   readonly selectItems = contentChildren(ZardSelectItemComponent);
 
-  private overlayRef?: OverlayRef;
+  private overlayRef?: OverlayRef | undefined;
   private portal?: TemplatePortal;
 
   readonly class = input<ClassValue>('');

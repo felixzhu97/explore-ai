@@ -75,7 +75,7 @@ export class ZardDropdownComponent implements OnDestroy {
   readonly dropdownTemplate = viewChild.required<TemplateRef<unknown>>('dropdownTemplate');
   readonly triggerContainer = viewChild.required<ElementRef<HTMLElement>>('triggerContainer');
 
-  private overlayRef?: OverlayRef;
+  private overlayRef?: OverlayRef | undefined;
   private portal?: TemplatePortal;
 
   readonly class = input<ClassValue>('');

@@ -15,7 +15,7 @@ const enum TriggerAction {
 export class ZardDialogRef<T = unknown, R = unknown, U = unknown> {
   private destroy$ = new Subject<void>();
   private isClosing = false;
-  protected result?: R;
+  protected result?: R | undefined;
   componentInstance: T | null = null;
 
   constructor(

@@ -74,8 +74,8 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
-  toolSteps?: ToolStep[];
-  sources?: WebSource[];
+  toolSteps?: ToolStep[] | undefined;
+  sources?: WebSource[] | undefined;
 }
 
 type ChatStreamEventHandler = (event: ChatStreamEvent) => void;

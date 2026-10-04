@@ -33,7 +33,7 @@ export class ZardStringTemplateOutletDirective<T = unknown> implements OnDestroy
   #isFirstChange = true;
   #lastOutletWasTemplate = false;
   #lastTemplateRef: TemplateRef<void> | null = null;
-  #lastContext?: ZardStringTemplateOutletContext;
+  #lastContext?: ZardStringTemplateOutletContext | undefined;
 
   readonly zStringTemplateOutletContext = input<
     ZardStringTemplateOutletContext | undefined

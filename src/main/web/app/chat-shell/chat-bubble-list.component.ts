@@ -22,7 +22,7 @@ export interface ChatSourceView {
   url?: string;
   title?: string;
   /** Publisher date when known (e.g. Serper organic `date`). */
-  publishedAt?: string;
+  publishedAt?: string | undefined;
   metadata?: Record<string, unknown>;
 }
 
@@ -39,8 +39,8 @@ export interface ChatMessageView {
   timestamp?: number;
   images?: string[];
   streaming?: boolean;
-  sources?: ChatSourceView[];
-  toolSteps?: ToolStep[];
+  sources?: ChatSourceView[] | undefined;
+  toolSteps?: ToolStep[] | undefined;
   assistantIcon?: 'chat' | 'document';
 }
 

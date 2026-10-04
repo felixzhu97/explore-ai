@@ -18,7 +18,7 @@ export interface Voice {
 /** POST /api/audio/speech */
 export interface TtsRequest {
   text: string;
-  voice?: string;
+  voice?: string | undefined;
   speed?: number;
   outputFormat?: string;
 }
