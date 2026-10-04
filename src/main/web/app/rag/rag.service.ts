@@ -412,8 +412,8 @@ export class RagService {
 
         if (eventType === 'sources') {
           try {
-            const sources = JSON.parse(data);
-            onSources(Array.isArray(sources) ? sources : []);
+            const sources: unknown = JSON.parse(data);
+            onSources(Array.isArray(sources) ? sources as SourceDocument[] : []);
           } catch {
             /* ignore */
           }

@@ -490,7 +490,8 @@ export class ChatService {
     if (segments[0] === 'chat' && segments[1]) {
       return segments[1];
     }
-    return tree.queryParams['session'] ?? null;
+    const session: unknown = tree.queryParams['session'];
+    return typeof session === 'string' ? session : null;
   }
 
   #currentChatPath(): string {
@@ -814,8 +815,9 @@ export class ChatService {
         if (eventType === 'error') {
           let message = 'Stream error';
           try {
-            const parsed = JSON.parse(data);
-            message = parsed.error ?? parsed.message ?? message;
+            type ErrorBody = { error?: string; message?: string } | null;
+            const parsed = JSON.parse(data) as ErrorBody;
+            message = parsed?.error ?? parsed?.message ?? message;
           } catch {
             if (data) {
               message = data;

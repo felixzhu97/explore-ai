@@ -87,7 +87,7 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
 
   if (first === '"') {
     try {
-      const parsed = JSON.parse(data);
+      const parsed: unknown = JSON.parse(data);
       return typeof parsed === 'string' ? { type: 'message', token: parsed } : { type: 'message', token: data };
     } catch {
       return { type: 'message', token: data };

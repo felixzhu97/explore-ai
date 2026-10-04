@@ -1489,9 +1489,9 @@ export function toRiverData(value: unknown): ChartRiverDatum[] {
   return value
     .map((item) => {
       if (Array.isArray(item) && item.length >= 3) {
-        const time = item[0];
+        const time: unknown = item[0];
         const riverValue = toFiniteNumber(item[1]);
-        const name = item[2];
+        const name: unknown = item[2];
         if (typeof time === 'string' && riverValue !== null && typeof name === 'string') {
           return { time, value: riverValue, name };
         }

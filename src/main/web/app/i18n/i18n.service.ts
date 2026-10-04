@@ -36,6 +36,6 @@ export class I18nService {
   }
 
   tReplace(template: string, values: Record<string, string | number>): string {
-    return template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? `{${key}}`));
+    return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? `{${key}}`));
   }
 }

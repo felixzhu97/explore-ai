@@ -156,17 +156,18 @@ function handleServerError(error: HttpErrorResponse): AppError {
 }
 
 function extractMessage(error: HttpErrorResponse): string | null {
-  const errorBody = error.error;
-  if (!errorBody) {
+  const errorBody: unknown = error.error;
+  if (typeof errorBody === 'string') {
+    return errorBody || null;
+  }
+  if (!errorBody || typeof errorBody !== 'object') {
     return null;
   }
 
-  return (
-    errorBody.message
-    || errorBody.error
-    || errorBody.detail
-    || (typeof errorBody === 'string' ? errorBody : null)
-  );
+  const { message, error: reason, detail } = errorBody as Record<string, unknown>;
+  return [message, reason, detail]
+    .find((value): value is string => typeof value === 'string' && value.length > 0)
+    ?? null;
 }
 
 function logError(req: HttpRequest<unknown>, error: AppError): void {
