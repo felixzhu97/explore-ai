@@ -3,6 +3,7 @@ package com.ai.vision.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +30,8 @@ import reactor.test.StepVerifier;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("VisionChatService")
 class VisionChatServiceTest {
+
+  private static final String OWNER = "c:owner";
 
   @Mock private RagApplicationService ragApplicationService;
 
@@ -58,7 +61,7 @@ class VisionChatServiceTest {
   @Test
   @DisplayName("should emit token stream and sources when images provided")
   void shouldEmitTokenStreamAndSourcesWhenImagesProvided() {
-    when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class)))
+    when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class), eq(OWNER)))
         .thenReturn(
             new RagApplicationService.RetrievalResult(
                 "context chunk",
@@ -73,7 +76,7 @@ class VisionChatServiceTest {
 
     StepVerifier.create(
             visionChatService.chatStreamWithImages(
-                "What is in the image?", null, List.of("iVBORw0KGgo="), 5))
+                "What is in the image?", null, List.of("iVBORw0KGgo="), 5, OWNER))
         .assertNext(event -> assertThat(event.data()).isEqualTo("Hello "))
         .assertNext(event -> assertThat(event.data()).isEqualTo("world"))
         .assertNext(
@@ -89,7 +92,7 @@ class VisionChatServiceTest {
   @Test
   @DisplayName("should emit error event when stream fails")
   void shouldEmitErrorEventWhenStreamFails() {
-    when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class)))
+    when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class), eq(OWNER)))
         .thenReturn(new RagApplicationService.RetrievalResult("context", List.of(), "question"));
     when(localizedRagPromptBuilder.build(anyString(), anyString())).thenReturn("prompt");
     when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
@@ -99,7 +102,8 @@ class VisionChatServiceTest {
     when(streamResponseSpec.content()).thenReturn(Flux.error(new RuntimeException("model down")));
 
     StepVerifier.create(
-            visionChatService.chatStreamWithImages("question", null, List.of("iVBORw0KGgo="), 5))
+            visionChatService.chatStreamWithImages(
+                "question", null, List.of("iVBORw0KGgo="), 5, OWNER))
         .assertNext(
             event -> {
               assertThat(event.event()).isEqualTo("error");

@@ -8,6 +8,7 @@ import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -108,18 +109,14 @@ public class H2DocumentChunkRepository
     jdbcTemplate.update(sql, documentId.value());
   }
 
+  @Override
   @Transactional(readOnly = true)
-  public List<DocumentChunk> search(float[] queryEmbedding, int topK) {
-    return search(queryEmbedding, topK, null);
-  }
-
-  /** Returns the top-K chunks by cosine similarity, optionally limited to the given documents. */
-  @Transactional(readOnly = true)
-  public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> documentIds) {
-    if (queryEmbedding == null || queryEmbedding.length == 0) {
+  public List<DocumentChunk> search(
+      float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds) {
+    if (queryEmbedding.length == 0) {
       return List.of();
     }
-    List<DocumentChunk> candidates = loadCandidates(documentIds);
+    List<DocumentChunk> candidates = loadCandidates(ownerKey, documentIds);
 
     return candidates.stream()
         .filter(
@@ -135,24 +132,21 @@ public class H2DocumentChunkRepository
         .toList();
   }
 
-  private List<DocumentChunk> loadCandidates(List<UUID> documentIds) {
-    if (documentIds != null && !documentIds.isEmpty()) {
-      String placeholders = documentIds.stream().map(id -> "?").collect(Collectors.joining(","));
-      String sql =
-          "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at "
-              + "FROM "
-              + TABLE_NAME
-              + " WHERE document_id IN ("
-              + placeholders
-              + ")";
-      return jdbcTemplate.query(sql, chunkRowMapper, documentIds.toArray());
+  private List<DocumentChunk> loadCandidates(String ownerKey, List<UUID> documentIds) {
+    StringBuilder sql =
+        new StringBuilder("SELECT id, document_id, content, chunk_index, embedding, metadata,")
+            .append(" created_at FROM ")
+            .append(TABLE_NAME)
+            .append(" WHERE owner_key = ?");
+    List<Object> args = new ArrayList<>();
+    args.add(ownerKey);
+    if (!documentIds.isEmpty()) {
+      sql.append(" AND document_id IN (")
+          .append(documentIds.stream().map(id -> "?").collect(Collectors.joining(",")))
+          .append(")");
+      args.addAll(documentIds);
     }
-
-    String sql =
-        "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at "
-            + "FROM "
-            + TABLE_NAME;
-    return jdbcTemplate.query(sql, chunkRowMapper);
+    return jdbcTemplate.query(sql.toString(), chunkRowMapper, args.toArray());
   }
 
   private static String resolveOwnerKey(Map<String, Object> metadata) {

@@ -22,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("RagApplicationService")
 class RagApplicationServiceTest {
 
+  private static final String OWNER = "c:owner";
+
   @Mock private DocumentUploadService uploadService;
 
   @Mock private DocumentSearchService searchService;
@@ -127,14 +129,14 @@ class RagApplicationServiceTest {
       var searchResult =
           new DocumentSearchService.RetrievalResult(
               "context content", List.of(new SourceDocument("source text", 0.95, Map.of())));
-      when(searchService.retrieve(query, null, 5)).thenReturn(searchResult);
+      when(searchService.retrieve(query, null, 5, OWNER)).thenReturn(searchResult);
 
-      RagApplicationService.RetrievalResult result = service.retrieveContext(query, null, 5);
+      RagApplicationService.RetrievalResult result = service.retrieveContext(query, null, 5, OWNER);
 
       assertThat(result.context()).isEqualTo("context content");
       assertThat(result.sources()).hasSize(1);
       assertThat(result.enrichedQuery()).isEqualTo(query);
-      verify(searchService).retrieve(query, null, 5);
+      verify(searchService).retrieve(query, null, 5, OWNER);
     }
 
     @Test
@@ -143,11 +145,11 @@ class RagApplicationServiceTest {
       String query = "test";
       DocumentId docId = DocumentId.generate();
       var searchResult = new DocumentSearchService.RetrievalResult("ctx", List.of());
-      when(searchService.retrieve(query, List.of(docId), 3)).thenReturn(searchResult);
+      when(searchService.retrieve(query, List.of(docId), 3, OWNER)).thenReturn(searchResult);
 
-      service.retrieveContext(query, List.of(docId), 3);
+      service.retrieveContext(query, List.of(docId), 3, OWNER);
 
-      verify(searchService).retrieve(query, List.of(docId), 3);
+      verify(searchService).retrieve(query, List.of(docId), 3, OWNER);
     }
   }
 }

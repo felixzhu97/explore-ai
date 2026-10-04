@@ -49,9 +49,10 @@ class ChunkRowMapperTest {
     @Test
     void shouldMapSearchResults() {
       DocumentChunk expectedChunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
           .thenReturn(List.of(expectedChunk));
-      List<DocumentChunk> results = adapter.search(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5);
+      List<DocumentChunk> results =
+          adapter.search(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5, "c:owner", List.of());
       assertThat(results).hasSize(1);
       assertThat(results.get(0).getId()).isEqualTo(TEST_CHUNK_ID);
       assertThat(results.get(0).getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
@@ -61,8 +62,10 @@ class ChunkRowMapperTest {
 
     @Test
     void shouldReturnEmptyList() {
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(List.of());
-      List<DocumentChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5);
+      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+          .thenReturn(List.of());
+      List<DocumentChunk> results =
+          adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
       assertThat(results).isEmpty();
     }
 
@@ -74,10 +77,11 @@ class ChunkRowMapperTest {
       DocumentChunk highScore =
           DocumentChunk.create(ChunkId.generate(), TEST_DOCUMENT_ID, "high", 1, Map.of())
               .withEmbedding(new float[] {1.0f, 0.0f});
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
           .thenReturn(List.of(lowScore, highScore));
 
-      List<DocumentChunk> results = adapter.search(new float[] {1.0f, 0.0f}, 1);
+      List<DocumentChunk> results =
+          adapter.search(new float[] {1.0f, 0.0f}, 1, "c:owner", List.of());
 
       assertThat(results).hasSize(1);
       assertThat(results.get(0).getContent()).isEqualTo("high");
@@ -85,10 +89,11 @@ class ChunkRowMapperTest {
 
     @Test
     void shouldSelectAllRequiredColumns() {
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(List.of());
-      adapter.search(new float[] {1.0f, 2.0f}, 5);
+      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+          .thenReturn(List.of());
+      adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
       ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-      verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class));
+      verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
       String sql = sqlCaptor.getValue();
       assertThat(sql).contains("id");
       assertThat(sql).contains("document_id");
@@ -96,6 +101,7 @@ class ChunkRowMapperTest {
       assertThat(sql).contains("embedding");
       assertThat(sql).contains("metadata");
       assertThat(sql).contains("created_at");
+      assertThat(sql).contains("owner_key = ?");
     }
 
     @Test
@@ -104,9 +110,10 @@ class ChunkRowMapperTest {
       DocumentChunk chunkWithMetadata =
           DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, "Test content", 0, metadata)
               .withEmbedding(new float[] {1.0f, 2.0f});
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
           .thenReturn(List.of(chunkWithMetadata));
-      List<DocumentChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5);
+      List<DocumentChunk> results =
+          adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
       assertThat(results.get(0).getMetadata()).containsKey("source");
     }
   }

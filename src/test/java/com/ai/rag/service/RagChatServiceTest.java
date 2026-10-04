@@ -41,11 +41,13 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.Filter;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RagChatService")
 class RagChatServiceTest {
+
+  private static final String OWNER = "c:owner";
 
   @Mock private ChatClientProvider chatClientProvider;
 
@@ -99,7 +101,7 @@ class RagChatServiceTest {
       Document sourceDoc = new Document("AI definition", Map.of("score", 0.95));
       stubChatClientResponse(aiResponse, List.of(sourceDoc));
 
-      RagChatResult result = ragChatService.chat(question, null, 5);
+      RagChatResult result = ragChatService.chat(question, null, 5, null, OWNER);
 
       assertThat(result).isNotNull();
       assertThat(result.response()).isEqualTo(aiResponse);
@@ -110,42 +112,28 @@ class RagChatServiceTest {
     }
 
     @Test
-    @DisplayName("should pass doc ids via filter expression when provided")
-    void shouldPassDocIdsViaFilterExpressionWhenProvided() {
-      String question = "What is AI?";
-      String docId1 = UUID.randomUUID().toString();
+    @DisplayName("should filter by owner and doc ids when doc ids are provided")
+    void shouldFilterByOwnerAndDocIdsWhenDocIdsAreProvided() {
+      String docId = UUID.randomUUID().toString();
       stubChatClientResponse("response", List.of());
 
-      ragChatService.chat(question, List.of(docId1), 5);
+      ragChatService.chat("What is AI?", List.of(docId), 5, null, OWNER);
 
-      @SuppressWarnings("unchecked")
-      ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
-          ArgumentCaptor.forClass(Consumer.class);
-      verify(requestSpec, atLeastOnce()).advisors(advisorCaptor.capture());
-
-      CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
-      advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
-      assertThat(capturing.params).containsKey(VectorStoreDocumentRetriever.FILTER_EXPRESSION);
-      assertThat(capturing.params.get(VectorStoreDocumentRetriever.FILTER_EXPRESSION))
-          .isInstanceOf(Filter.Expression.class);
+      FilterExpressionBuilder b = new FilterExpressionBuilder();
+      assertThat(capturedFilter())
+          .isEqualTo(
+              b.and(b.eq("ownerKey", OWNER), b.in("document_id", List.<Object>of(docId))).build());
     }
 
     @Test
-    @DisplayName("should omit filter when doc ids empty")
-    void shouldOmitFilterWhenDocIdsEmpty() {
+    @DisplayName("should filter by owner only when doc ids are empty")
+    void shouldFilterByOwnerOnlyWhenDocIdsAreEmpty() {
       stubChatClientResponse("response", List.of());
 
-      ragChatService.chat("q", Collections.emptyList(), 10);
+      ragChatService.chat("q", Collections.emptyList(), 10, null, OWNER);
 
-      @SuppressWarnings("unchecked")
-      ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
-          ArgumentCaptor.forClass(Consumer.class);
-      verify(requestSpec, atLeastOnce()).advisors(advisorCaptor.capture());
-
-      CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
-      advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
-      assertThat(capturing.params)
-          .doesNotContainKey(VectorStoreDocumentRetriever.FILTER_EXPRESSION);
+      assertThat(capturedFilter())
+          .isEqualTo(new FilterExpressionBuilder().eq("ownerKey", OWNER).build());
     }
 
     @Test
@@ -159,13 +147,23 @@ class RagChatServiceTest {
       when(compressionBuilder.build()).thenReturn(compressionClient);
       stubChatClientResponse("response", List.of());
 
-      ragChatService.chat("follow-up question", null, 5, "session-1");
+      ragChatService.chat("follow-up question", null, 5, "session-1", OWNER);
 
       verify(chatClientProvider)
           .create(any(TextChatOptions.class), eq(ChatClientProfile.MEMORY), eq("session-1"));
       verify(compressionClient).mutate();
       verify(chatClient, never()).mutate();
     }
+  }
+
+  private Object capturedFilter() {
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
+        ArgumentCaptor.forClass(Consumer.class);
+    verify(requestSpec, atLeastOnce()).advisors(advisorCaptor.capture());
+    CapturingAdvisorSpec capturing = new CapturingAdvisorSpec();
+    advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
+    return capturing.params.get(VectorStoreDocumentRetriever.FILTER_EXPRESSION);
   }
 
   private void stubChatClientResponse(String content, List<Document> documents) {

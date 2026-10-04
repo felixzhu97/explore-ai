@@ -17,7 +17,6 @@ import com.ai.rag.domain.vo.DocumentId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -49,47 +48,66 @@ class H2DocumentChunkRepositoryTest {
   @DisplayName("Search")
   class Search {
 
-    @Test
-    @DisplayName("should return empty list when no results")
-    void shouldReturnEmptyList() {
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
-          .thenReturn(Collections.emptyList());
-      assertThat(chunkRepository.search(new float[] {0.1f, 0.2f}, 5)).isEmpty();
+    private static final String OWNER = "c:owner";
+    private static final String OTHER_OWNER = "c:other";
+
+    private H2DocumentChunkRepository repository;
+
+    @BeforeEach
+    void setUpDatabase() {
+      JdbcTemplate h2 =
+          new JdbcTemplate(
+              new DriverManagerDataSource(
+                  "jdbc:h2:mem:chunk-search-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1",
+                  "sa",
+                  ""));
+      h2.execute(
+          "CREATE TABLE document_chunks (id UUID PRIMARY KEY, document_id UUID,"
+              + " content CLOB, chunk_index INT, embedding CLOB, metadata CLOB,"
+              + " created_at VARCHAR(40), owner_key VARCHAR(80) NOT NULL)");
+      repository = new H2DocumentChunkRepository(h2, objectMapper);
     }
 
     @Test
-    @DisplayName("should rank chunks by cosine similarity")
-    void shouldRankByCosineSimilarity() {
-      DocumentChunk lowScore = createChunk(new float[] {0.0f, 1.0f});
-      DocumentChunk highScore = createChunk(new float[] {1.0f, 0.0f});
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
-          .thenReturn(List.of(lowScore, highScore));
+    @DisplayName("should return empty list when the owner has no chunks")
+    void shouldReturnEmptyListWhenTheOwnerHasNoChunks() {
+      save(DocumentId.generate(), OTHER_OWNER, "other", new float[] {1f, 0f});
 
-      List<DocumentChunk> results = chunkRepository.search(new float[] {1.0f, 0.0f}, 1);
-
-      assertThat(results).hasSize(1);
-      assertThat(results.get(0)).isSameAs(highScore);
+      assertThat(repository.search(new float[] {1f, 0f}, 5, OWNER, List.of())).isEmpty();
     }
 
     @Test
-    @DisplayName("should filter by document IDs")
-    void shouldFilterByDocumentIds() {
-      when(jdbcTemplate.query(
-              contains("WHERE document_id IN"), any(RowMapper.class), any(Object[].class)))
-          .thenReturn(Collections.emptyList());
-      List<UUID> documentIds = List.of(UUID.randomUUID());
-      chunkRepository.search(new float[] {0.1f}, 5, documentIds);
-      verify(jdbcTemplate)
-          .query(contains("WHERE document_id IN"), any(RowMapper.class), any(Object[].class));
+    @DisplayName("should rank only the owner chunks by cosine similarity")
+    void shouldRankOnlyTheOwnerChunksByCosineSimilarity() {
+      save(DocumentId.generate(), OWNER, "low", new float[] {0f, 1f});
+      save(DocumentId.generate(), OWNER, "high", new float[] {1f, 0f});
+      save(DocumentId.generate(), OTHER_OWNER, "foreign", new float[] {1f, 0f});
+
+      List<DocumentChunk> results = repository.search(new float[] {1f, 0f}, 5, OWNER, List.of());
+
+      assertThat(results).extracting(DocumentChunk::getContent).containsExactly("high", "low");
     }
 
     @Test
-    @DisplayName("should load all chunks when documentIds is empty")
-    void shouldLoadAllChunksWhenDocIdsIsEmpty() {
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
-          .thenReturn(Collections.emptyList());
-      chunkRepository.search(new float[] {0.1f}, 5, List.of());
-      verify(jdbcTemplate).query(contains("FROM document_chunks"), any(RowMapper.class));
+    @DisplayName("should ignore another owner document when its id is requested")
+    void shouldIgnoreAnotherOwnerDocumentWhenItsIdIsRequested() {
+      DocumentId own = DocumentId.generate();
+      DocumentId foreign = DocumentId.generate();
+      save(own, OWNER, "own", new float[] {1f, 0f});
+      save(foreign, OTHER_OWNER, "foreign", new float[] {1f, 0f});
+
+      List<DocumentChunk> results =
+          repository.search(
+              new float[] {1f, 0f}, 5, OWNER, List.of(own.asUuid(), foreign.asUuid()));
+
+      assertThat(results).extracting(DocumentChunk::getContent).containsExactly("own");
+    }
+
+    private void save(DocumentId documentId, String ownerKey, String content, float[] embedding) {
+      repository.saveChunk(
+          DocumentChunk.create(
+                  ChunkId.generate(), documentId, content, 0, Map.of("ownerKey", ownerKey))
+              .withEmbedding(embedding));
     }
   }
 

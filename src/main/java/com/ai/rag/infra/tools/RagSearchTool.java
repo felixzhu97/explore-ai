@@ -24,6 +24,7 @@ public class RagSearchTool implements DocumentSearchTool {
   private static final Logger log = LoggerFactory.getLogger(RagSearchTool.class);
   private static final int DEFAULT_TOP_K = 5;
   private static final int MAX_CONTENT_LENGTH = 500;
+  private static final String UNKNOWN_OWNER_MESSAGE = "当前上下文无法识别用户，暂时无法访问文档。";
 
   private final RagApplicationService ragApplicationService;
   private final OwnerContext ownerContext;
@@ -44,6 +45,10 @@ public class RagSearchTool implements DocumentSearchTool {
     if (query == null || query.isBlank()) {
       return "请提供有效的搜索查询";
     }
+    Optional<String> ownerKey = currentOwnerKey();
+    if (ownerKey.isEmpty()) {
+      return UNKNOWN_OWNER_MESSAGE;
+    }
 
     try {
       List<DocumentId> documentIdList =
@@ -51,7 +56,9 @@ public class RagSearchTool implements DocumentSearchTool {
               ? documentIds.stream().map(DocumentId::of).collect(Collectors.toList())
               : null;
 
-      var result = ragApplicationService.retrieveContext(query, documentIdList, DEFAULT_TOP_K);
+      var result =
+          ragApplicationService.retrieveContext(
+              query, documentIdList, DEFAULT_TOP_K, ownerKey.get());
 
       if (result.sources().isEmpty()) {
         return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
@@ -72,7 +79,7 @@ public class RagSearchTool implements DocumentSearchTool {
   public String listDocuments() {
     Optional<String> ownerKey = currentOwnerKey();
     if (ownerKey.isEmpty()) {
-      return "当前上下文无法识别用户，暂时无法列出文档。";
+      return UNKNOWN_OWNER_MESSAGE;
     }
     try {
       var documents = ragApplicationService.listDocuments(ownerKey.get());
