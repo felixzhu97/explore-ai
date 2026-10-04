@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Language, SUPPORTED_LANGUAGES, translations, languageNames } from './translations';
+import { type Language, SUPPORTED_LANGUAGES, translations, languageNames } from './translations';
 
 describe('translations', () => {
   describe('Language type', () => {

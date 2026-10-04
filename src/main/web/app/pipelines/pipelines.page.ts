@@ -2,8 +2,8 @@ import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  OnDestroy,
+  type ElementRef,
+  type OnDestroy,
   computed,
   effect,
   inject,
@@ -13,7 +13,7 @@ import {
 import { API_BASE_URL } from '../http/api.constants';
 import {
   ChatMessagePaneComponent,
-  ChatMessageView,
+  type ChatMessageView,
   type ToolStep,
 } from '../chat-shell';
 import { I18nService } from '../i18n';
@@ -67,7 +67,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
   readonly agents = computed(() => {
     if (this.agentsResource.hasValue()) {
-      return this.agentsResource.value()!;
+      return this.agentsResource.value();
     }
     return [];
   });

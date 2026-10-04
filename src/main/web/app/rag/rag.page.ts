@@ -1,7 +1,7 @@
 import {
   Component,
   inject,
-  OnInit,
+  type OnInit,
   ChangeDetectionStrategy,
   computed,
   signal,
@@ -16,14 +16,14 @@ import {
   lucideUpload,
   lucideX,
 } from '@ng-icons/lucide';
-import { RagService, UploadStatus } from './rag.service';
+import { RagService, type UploadStatus } from './rag.service';
 import {
-  ChatMessageView,
+  type ChatMessageView,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
 } from '../chat-shell';
 import { I18nService } from '../i18n';
-import { NxPrompt } from 'ng-zorro-x/prompts';
+import { type NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardBadgeComponent } from '../ui/badge';

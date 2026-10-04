@@ -1,9 +1,9 @@
 import {
   Component,
-  ElementRef,
+  type ElementRef,
   inject,
-  OnInit,
-  OnDestroy,
+  type OnInit,
+  type OnDestroy,
   ChangeDetectionStrategy,
   model,
   computed,
@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import {
-  ChatMessageView,
+  type ChatMessageView,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
 } from '../chat-shell';
@@ -24,7 +24,7 @@ import { I18nService } from '../i18n';
 import { FEATURE_FLAG_KEYS } from '../feature-flags/feature-flag-keys';
 import { FeatureFlagService } from '../feature-flags/feature-flag.service';
 import { SkillsService } from '../skills/skills.service';
-import { NxPrompt } from 'ng-zorro-x/prompts';
+import { type NxPrompt } from 'ng-zorro-x/prompts';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardAlertComponent } from '../ui/alert';

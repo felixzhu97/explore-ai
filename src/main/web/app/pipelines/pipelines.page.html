@@ -38,8 +38,8 @@
       <button
         type="button"
         class="flex size-full flex-col items-center justify-center gap-2 px-1 py-3 text-xs text-text-secondary hover:bg-black/4"
-        (click)="toggleResultsCollapsed()"
         [attr.aria-label]="i18n.t().pipelines.results.expand"
+        (click)="toggleResultsCollapsed()"
       >
         <span style="writing-mode: vertical-rl" class="tracking-wide">
           {{ i18n.t().pipelines.results.expand }}
@@ -62,14 +62,14 @@
       </div>
       <app-chat-message-pane
         class="min-h-0 flex-1"
+        toolStepDoneLabel="完成"
+        toolStepFailedLabel="失败"
         [messages]="messages()"
         [streamingMessageId]="streamingMessageId()"
         [thinkingLabel]="i18n.t().common.thinking"
         [collapseLongUserMessages]="true"
         [expandLabel]="i18n.t().pipelines.results.expandMessage"
         [collapseLabel]="i18n.t().pipelines.results.collapseMessage"
-        toolStepDoneLabel="完成"
-        toolStepFailedLabel="失败"
         [emptyText]="i18n.t().pipelines.results.emptyState"
         [compact]="true"
       />

@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { type Routes } from '@angular/router';
 import { PoliciesPageComponent } from './policies.page';
 
 export const POLICIES_ROUTES: Routes = [

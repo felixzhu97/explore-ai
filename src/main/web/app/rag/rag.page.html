@@ -41,9 +41,9 @@
           z-button
           zType="ghost"
           zSize="icon"
-          (click)="ragService.selectAllDocuments()"
           [attr.title]="i18n.t().rag.selectAll"
           [attr.aria-label]="i18n.t().rag.selectAll"
+          (click)="ragService.selectAllDocuments()"
         >
           <ng-icon name="lucideListChecks" class="size-4!" />
         </button>
@@ -52,9 +52,9 @@
           z-button
           zType="ghost"
           zSize="icon"
-          (click)="ragService.clearDocumentSelection()"
           [attr.title]="i18n.t().rag.clearSelection"
           [attr.aria-label]="i18n.t().rag.clearSelection"
+          (click)="ragService.clearDocumentSelection()"
         >
           <ng-icon name="lucideX" class="size-4!" />
         </button>
@@ -191,8 +191,8 @@
 
     <app-chat-sender-bar
       [placeholder]="i18n.t().rag.inputPlaceholder"
-      [(value)]="ragService.input"
       [isLoading]="ragService.isLoading()"
+      [(value)]="ragService.input"
       (sent)="ragService.sendMessage()"
     />
   </div>

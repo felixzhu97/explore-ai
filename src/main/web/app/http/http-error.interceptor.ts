@@ -1,11 +1,11 @@
 import { inject } from '@angular/core';
 import {
-  HttpRequest,
-  HttpErrorResponse,
-  HttpEvent,
-  HttpInterceptorFn,
+  type HttpRequest,
+  type HttpErrorResponse,
+  type HttpEvent,
+  type HttpInterceptorFn,
 } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { type Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { NotificationService } from '../ui/notification.service';
 import { SKIP_ERROR_NOTIFICATION } from './http-error.context';
@@ -33,7 +33,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       }
       return throwError(() => appError);
     }),
-  ) as Observable<HttpEvent<unknown>>;
+  );
 };
 
 function normalizeError(error: HttpErrorResponse): AppError {

@@ -4,7 +4,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import { NxPrompt, NxPromptsComponent } from 'ng-zorro-x/prompts';
+import { type NxPrompt, NxPromptsComponent } from 'ng-zorro-x/prompts';
 import { NxWelcomeComponent } from 'ng-zorro-x/welcome';
 
 @Component({

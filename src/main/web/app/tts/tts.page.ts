@@ -2,8 +2,8 @@ import {
   Component,
   signal,
   inject,
-  OnInit,
-  OnDestroy,
+  type OnInit,
+  type OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -100,7 +100,9 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   synthesize() {
-    if (!this.text().trim() || this.isSynthesizing()) return;
+    if (!this.text().trim() || this.isSynthesizing()) {
+      return;
+    }
 
     this.isSynthesizing.set(true);
     this.error.set(null);
@@ -124,7 +126,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
 
           this.#audioElement = new Audio(url);
           this.#audioElement.addEventListener('ended', () => {
-            return this.isPlaying.set(false);
+            this.isPlaying.set(false);
           });
           this.#audioElement.addEventListener('timeupdate', () => {
             if (this.#audioElement) {
@@ -132,7 +134,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
               const progressValue = duration > 0
                 ? (this.#audioElement.currentTime / duration) * 100
                 : 0;
-              return this.progress.set(progressValue);
+              this.progress.set(progressValue);
             }
           });
         },
@@ -147,7 +149,9 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   togglePlayPause() {
-    if (!this.#audioElement) return;
+    if (!this.#audioElement) {
+      return;
+    }
 
     if (this.isPlaying()) {
       this.#audioElement.pause();

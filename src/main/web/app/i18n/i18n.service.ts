@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { STORAGE_KEYS } from '../storage-keys';
-import { Language, Translations, translations, languageNames } from './translations';
+import { type Language, type Translations, translations, languageNames } from './translations';
 
 @Injectable({
   providedIn: 'root',

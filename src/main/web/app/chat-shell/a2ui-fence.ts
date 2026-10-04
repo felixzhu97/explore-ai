@@ -40,7 +40,7 @@ export function parseA2uiNdjson(raw: string): A2uiMessage[] {
 function normalizeMessageVersion(message: A2uiMessage): A2uiMessage {
   const version = (message as { version?: string }).version;
   if (version === 'v0.9.1' || version === 'v0.9') {
-    return { ...message, version: 'v0.9' } as A2uiMessage;
+    return { ...message, version: 'v0.9' };
   }
   return message;
 }

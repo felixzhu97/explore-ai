@@ -54,7 +54,7 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
             <div
               class="my-2 w-full min-w-80 overflow-hidden rounded-lg border border-border-light bg-surface-secondary/40 p-2"
             >
-              <a2ui-v09-surface [surfaceId]="segment.surfaceId" class="block w-full min-w-0" />
+              <a2ui-v09-surface class="block w-full min-w-0" [surfaceId]="segment.surfaceId" />
             </div>
           }
         }

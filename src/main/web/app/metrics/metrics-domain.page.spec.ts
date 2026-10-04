@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -18,7 +18,7 @@ describe('MetricsDomainPageComponent', () => {
       observe = vi.fn();
       unobserve = vi.fn();
       disconnect = vi.fn();
-    } as unknown as typeof ResizeObserver;
+    };
 
     TestBed.resetTestingModule();
     const paramMap$ = new BehaviorSubject(convertToParamMap({ domain }));

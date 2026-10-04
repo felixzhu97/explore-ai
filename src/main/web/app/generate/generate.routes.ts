@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { type Routes } from '@angular/router';
 import { GeneratePageComponent } from './generate.page';
 
 export const GENERATE_ROUTES: Routes = [

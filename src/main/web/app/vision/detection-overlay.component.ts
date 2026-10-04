@@ -4,7 +4,7 @@ import {
   viewChild,
   effect,
   ChangeDetectionStrategy,
-  ElementRef,
+  type ElementRef,
 } from '@angular/core';
 
 export interface Detection {
@@ -20,8 +20,8 @@ export interface Detection {
       <img
         previewImage
         class="max-h-96 max-w-full rounded-xl object-contain"
-        [src]="imageSrc()"
         alt="Preview"
+        [src]="imageSrc()"
         (load)="drawOverlay()"
       />
       <canvas

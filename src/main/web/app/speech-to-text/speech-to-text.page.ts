@@ -1,8 +1,5 @@
-import { Component, ChangeDetectionStrategy, computed, inject, OnDestroy } from '@angular/core';
-import {
-  SpeechToTextService,
-  type SpeechToTextConnectionState,
-} from './speech-to-text.service';
+import { Component, ChangeDetectionStrategy, computed, inject, type OnDestroy } from '@angular/core';
+import { SpeechToTextService } from './speech-to-text.service';
 import { ZardButtonComponent } from '../ui/button';
 import { I18nService } from '../i18n';
 
@@ -21,7 +18,7 @@ export class SpeechToTextPageComponent implements OnDestroy {
   protected readonly i18n = inject(I18nService);
 
   readonly connectionStateLabel = computed(() => {
-    const state = this.speechToText.connectionState() as SpeechToTextConnectionState;
+    const state = this.speechToText.connectionState();
     return this.i18n.t().speechToText.connectionState[state];
   });
 

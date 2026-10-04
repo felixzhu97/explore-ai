@@ -4,7 +4,7 @@ import {
   inject,
   signal,
   computed,
-  OnInit,
+  type OnInit,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -16,7 +16,7 @@ import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './session-item.component';
 import { SidebarUserMenuComponent } from './sidebar-user-menu.component';
 import { SidebarMoreMenuComponent } from './sidebar-more-menu.component';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { SESSION_LIST, type SidebarSession } from './session-list.token';
 import {
   isNavTabEnabled,

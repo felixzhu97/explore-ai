@@ -4,7 +4,7 @@ import { chatRouteMatcher } from './chat.route-matcher';
 
 describe('chatRouteMatcher', () => {
   it('should match bare chat path', () => {
-    const result = chatRouteMatcher([new UrlSegment('chat', {})], {} as never, {} as never);
+    const result = chatRouteMatcher([new UrlSegment('chat', {})], {} as never, {});
 
     expect(result?.consumed).toEqual([expect.objectContaining({ path: 'chat' })]);
     expect(result?.posParams).toBeUndefined();
@@ -15,7 +15,7 @@ describe('chatRouteMatcher', () => {
     const result = chatRouteMatcher(
       [new UrlSegment('chat', {}), session],
       {} as never,
-      {} as never,
+      {},
     );
 
     expect(result?.posParams?.['sessionId']).toBe(session);
@@ -23,12 +23,12 @@ describe('chatRouteMatcher', () => {
   });
 
   it('should not match unrelated paths', () => {
-    expect(chatRouteMatcher([new UrlSegment('rag', {})], {} as never, {} as never)).toBeNull();
+    expect(chatRouteMatcher([new UrlSegment('rag', {})], {} as never, {})).toBeNull();
     expect(
       chatRouteMatcher(
         [new UrlSegment('chat', {}), new UrlSegment('a', {}), new UrlSegment('b', {})],
         {} as never,
-        {} as never,
+        {},
       ),
     ).toBeNull();
   });

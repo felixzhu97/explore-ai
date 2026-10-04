@@ -1,4 +1,4 @@
-import { InjectionToken, Signal } from '@angular/core';
+import { InjectionToken, type Signal } from '@angular/core';
 
 export interface SidebarSession {
   id: string;

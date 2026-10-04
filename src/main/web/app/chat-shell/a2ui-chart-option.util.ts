@@ -128,7 +128,7 @@ function valueAxis(extra: Record<string, unknown> = {}) {
 }
 
 function seriesColor(index: number): string {
-  return COLOR.series[index % COLOR.series.length]!;
+  return COLOR.series[index % COLOR.series.length];
 }
 
 function simpleCategoryOption(
@@ -569,7 +569,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       const root =
         input.nodes.length === 1
-          ? input.nodes[0]!
+          ? input.nodes[0]
           : { name: title || 'Root', children: input.nodes };
       return {
         color: [...COLOR.series],
@@ -1007,8 +1007,8 @@ function resolveCandles(
     return { categories, candles: fromCandles };
   }
   // One series with flat OHLC groups, or one candle per series values[0..3]
-  if (input.series?.length === 1 && input.series[0]!.values.length >= 4) {
-    const values = input.series[0]!.values;
+  if (input.series?.length === 1 && input.series[0].values.length >= 4) {
+    const values = input.series[0].values;
     const categoryCount = input.categories?.length ?? 0;
     if (values.length % 4 === 0 && categoryCount === values.length / 4) {
       const candles: ChartCandle[] = [];
@@ -1140,7 +1140,7 @@ function normalizeRiverTime(time: string): string {
   // 2024年1月 → YYYY-MM-01; bare 1月 stays category
   const cn = trimmed.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月$/);
   if (cn) {
-    return `${cn[1]}-${cn[2]!.padStart(2, '0')}-01`;
+    return `${cn[1]}-${cn[2].padStart(2, '0')}-01`;
   }
   return trimmed;
 }
@@ -1158,7 +1158,7 @@ function monthIndexFromLabel(time: string): number | null {
       jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
       jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
     };
-    return map[en[1]!.slice(0, 3).toLowerCase()] ?? null;
+    return map[en[1].slice(0, 3).toLowerCase()] ?? null;
   }
   return null;
 }

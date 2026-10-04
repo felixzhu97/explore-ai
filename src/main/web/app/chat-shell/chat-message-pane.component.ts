@@ -1,18 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
+  type ElementRef,
   effect,
   input,
   output,
   untracked,
   viewChild,
 } from '@angular/core';
-import { NxPrompt } from 'ng-zorro-x/prompts';
+import { type NxPrompt } from 'ng-zorro-x/prompts';
 import {
-  ChatBubbleFooterLabels,
+  type ChatBubbleFooterLabels,
   ChatBubbleListComponent,
-  ChatMessageView,
+  type ChatMessageView,
 } from './chat-bubble-list.component';
 import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
 

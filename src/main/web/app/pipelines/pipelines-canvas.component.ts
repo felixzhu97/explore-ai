@@ -6,15 +6,15 @@ import {
   effect,
   inject,
   input,
-  OnInit,
+  type OnInit,
   output,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  FCreateConnectionEvent,
+  type FCreateConnectionEvent,
   FFlowModule,
-  FMoveNodesEvent,
+  type FMoveNodesEvent,
 } from '@foblex/flow';
 import { I18nService } from '../i18n';
 import { NotificationService } from '../ui/notification.service';

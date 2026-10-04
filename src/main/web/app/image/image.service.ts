@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, map, catchError, of } from 'rxjs';
+import { type Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import type { AppError } from '../http/http-error.interceptor';
 import { ImageZoomService } from '../ui/image-zoom.service';

@@ -25,8 +25,8 @@ export interface ChartClickPayload {
       } @else {
         <div
           echarts
-          [options]="chartOption()"
           class="h-64 w-full"
+          [options]="chartOption()"
           (chartClick)="onChartClick($event)"
         ></div>
       }

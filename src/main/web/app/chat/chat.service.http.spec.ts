@@ -663,7 +663,7 @@ describe('ChatService http flows', () => {
     }
     let handlers: StreamHandlers | undefined;
     vi.mocked(streamSsePost).mockImplementation((_url, _body, options) => {
-      handlers = options as StreamHandlers;
+      handlers = options;
       return { abort: vi.fn() };
     });
 
@@ -725,7 +725,7 @@ describe('ChatService http flows', () => {
     }
     let handlers: StreamHandlers | undefined;
     vi.mocked(streamSsePost).mockImplementation((_url, _body, options) => {
-      handlers = options as StreamHandlers;
+      handlers = options;
       return { abort: vi.fn() };
     });
     vi.mocked(parseChatStreamEvent).mockImplementation((data: string) => {
@@ -802,7 +802,7 @@ describe('ChatService http flows', () => {
     }
     let handlers: StreamHandlers | undefined;
     vi.mocked(streamSsePost).mockImplementation((_url, _body, options) => {
-      handlers = options as StreamHandlers;
+      handlers = options;
       return { abort: vi.fn() };
     });
     vi.mocked(parseChatStreamEvent).mockImplementation((data: string) => {

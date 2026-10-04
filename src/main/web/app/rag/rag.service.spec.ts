@@ -9,7 +9,7 @@ import { RagService } from './rag.service';
 import * as sseClient from '../http/sse-client';
 
 vi.mock('../http/sse-client', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../http/sse-client')>();
+  const actual = await importOriginal<typeof sseClient>();
   return {
     ...actual,
     streamSsePost: vi.fn(),

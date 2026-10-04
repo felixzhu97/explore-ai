@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, type OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ZardToastComponent } from '../ui/toast';
 import { AppSidebarComponent } from './sidebar.component';

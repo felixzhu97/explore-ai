@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 vi.mock('./markdown-with-a2ui.component', async () => {
   const { Component, input } = await import('@angular/core');
@@ -17,13 +17,13 @@ vi.mock('./markdown-with-a2ui.component', async () => {
 });
 
 import { ChatMessagePaneComponent } from './chat-message-pane.component';
-import { ChatMessageView } from './chat-bubble-list.component';
+import { type ChatMessageView } from './chat-bubble-list.component';
 
 describe('ChatMessagePaneComponent', () => {
   let fixture: ComponentFixture<ChatMessagePaneComponent>;
 
   beforeEach(async () => {
-    Element.prototype.scrollTo = vi.fn() as unknown as Element['scrollTo'];
+    Element.prototype.scrollTo = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [ChatMessagePaneComponent],
