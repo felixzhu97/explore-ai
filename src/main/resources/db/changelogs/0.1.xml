@@ -80,11 +80,14 @@
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-003-chat-sessions" dbms="h2">
+    <validCheckSum>any</validCheckSum>
     <createTable tableName="chat_session">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)"/>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
       <column name="title" type="${string.type}(100)">
         <constraints nullable="false"/>
       </column>
@@ -440,5 +443,17 @@
     <createIndex indexName="idx_account_user_linked_client_id" tableName="account_user">
       <column name="linked_client_id"/>
     </createIndex>
+  </changeSet>
+
+  <!-- Databases created before 0.1-003 declared owner_key NOT NULL still hold ownerless rows. -->
+  <changeSet author="explore-ai" id="0.1-012-chat-session-owner-key-backfill" dbms="h2">
+    <update tableName="chat_session">
+      <column name="owner_key" value="c:legacy-orphan"/>
+      <where>owner_key IS NULL</where>
+    </update>
+    <addNotNullConstraint
+      tableName="chat_session"
+      columnName="owner_key"
+      columnDataType="${string.type}(80)"/>
   </changeSet>
 </databaseChangeLog>

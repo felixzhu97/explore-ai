@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
@@ -74,9 +75,22 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     List<ChatSession> sessions =
-        springDataRepository.findByOwnerKeyValueOrderByUpdatedAtDesc(OWNER_KEY);
+        springDataRepository.findByOwnerKeyOrderByUpdatedAtDesc(OwnerKey.parse(OWNER_KEY));
 
     assertThat(sessions).extracting(ChatSession::getTitle).containsExactly("Newer", "Older");
+  }
+
+  @Test
+  @DisplayName("should hide session from another owner when finding by id and client id")
+  void shouldHideSessionFromAnotherOwnerWhenFindingByIdAndClientId() {
+    ChatSession session = ChatSession.create("Private", OWNER_KEY);
+    springDataRepository.saveAndFlush(session);
+    em.clear();
+
+    Optional<ChatSession> found =
+        jpaRepository.findByIdAndClientId(session.getId(), "22222222-2222-2222-2222-222222222222");
+
+    assertThat(found).isEmpty();
   }
 
   @Test
