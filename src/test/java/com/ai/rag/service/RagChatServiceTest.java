@@ -3,7 +3,10 @@ package com.ai.rag.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -143,6 +146,25 @@ class RagChatServiceTest {
       advisorCaptor.getAllValues().forEach(consumer -> consumer.accept(capturing));
       assertThat(capturing.params)
           .doesNotContainKey(VectorStoreDocumentRetriever.FILTER_EXPRESSION);
+    }
+
+    @Test
+    @DisplayName("should use bare client for query compression when session id is present")
+    void shouldUseBareClientForQueryCompressionWhenSessionIdIsPresent() {
+      ChatClient compressionClient = mock(ChatClient.class);
+      ChatClient.Builder compressionBuilder = mock(ChatClient.Builder.class);
+      when(chatClientProvider.createBareStateless(any(TextChatOptions.class)))
+          .thenReturn(compressionClient);
+      when(compressionClient.mutate()).thenReturn(compressionBuilder);
+      when(compressionBuilder.build()).thenReturn(compressionClient);
+      stubChatClientResponse("response", List.of());
+
+      ragChatService.chat("follow-up question", null, null, "session-1");
+
+      verify(chatClientProvider)
+          .create(any(TextChatOptions.class), eq(ChatClientProfile.MEMORY), eq("session-1"));
+      verify(compressionClient).mutate();
+      verify(chatClient, never()).mutate();
     }
   }
 
