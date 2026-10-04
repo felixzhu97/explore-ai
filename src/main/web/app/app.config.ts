@@ -2,6 +2,7 @@ import { type ApplicationConfig, ErrorHandler, inject, provideAppInitializer, pr
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
+import { provideNzNativeDateAdapter } from 'ng-zorro-antd/core/time';
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { provideZard } from './ui/zard';
 import { routes } from './app.routes';
@@ -29,6 +30,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideNzI18n(en_US),
+    provideNzNativeDateAdapter(),
     provideAppInitializer(() => inject(FeatureFlagService).initialize()),
     provideZard(),
     provideRouter(routes),
