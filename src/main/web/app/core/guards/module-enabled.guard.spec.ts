@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { FEATURE_FLAG_KEYS } from '../config/feature-flag-keys';
-import { FeatureFlagService } from '../feature-flag.service';
+import { FeatureFlagService } from '../services/feature-flag.service';
 import { moduleEnabledGuard } from './module-enabled.guard';
 
 describe('moduleEnabledGuard', () => {

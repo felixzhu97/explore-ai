@@ -168,7 +168,7 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 - **框架**: Angular 22 + TypeScript
 - **路由**: `/chat` `/chat/:sessionId` / `/generate` / `/rag` / `/metrics` + flag `/pipelines` `/skills` `/vision` `/mcp` `/eval` `/asr`
 - **对话壳**: `shared/components/chat-shell`（message-pane / sender-bar / bubble-list / welcome），供 Chat / RAG / Agents 共用
-- **实现目录**: `app/chat/`、`app/generate/{image,tts}/`、`app/metrics/`（与业务域 / 路由对齐）
+- **实现目录**: `app/features/chat/`、`app/features/generate/{image,tts}/`、`app/features/metrics/`（与业务域 / 路由对齐）
 - **API 服务**: `ApiChatService` / `ApiRagService` / `ApiMediaService` / `AgentsService` / `MetricsService` + `sse-client.ts` + shared ECharts panels
 - **功能开关**: `FeatureFlagService` + `moduleEnabledGuard`（LaunchDarkly Client SDK）
 - **可观测性**: `datadog-rum.config.ts`
