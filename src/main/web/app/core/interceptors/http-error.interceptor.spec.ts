@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { httpErrorInterceptor, AppError } from './http-error.interceptor';
 import { SKIP_ERROR_NOTIFICATION } from './http-error.context';
-import { NotificationService } from '../notification.service';
+import { NotificationService } from '../services/notification.service';
 
 describe('httpErrorInterceptor', () => {
   let notificationService: NotificationService;

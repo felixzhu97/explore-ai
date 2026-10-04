@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { MainLayoutComponent } from './layout';
-import { chatRouteMatcher } from './chat/chat.route-matcher';
+import { MainLayoutComponent } from './core/layout';
 import { FEATURE_FLAG_KEYS } from './core/config/feature-flag-keys';
 import { moduleEnabledGuard } from './core/guards/module-enabled.guard';
+import { CHAT_ROUTES } from './features/chat/chat.routes';
 
 export const routes: Routes = [
   {
@@ -12,68 +12,60 @@ export const routes: Routes = [
       { path: '', redirectTo: 'chat', pathMatch: 'full' },
       {
         path: 'rag',
-        loadComponent: () => import('./rag/rag.page').then(m => m.RagPageComponent),
+        loadChildren: () => import('./features/rag/rag.routes').then(m => m.RAG_ROUTES),
       },
       {
         path: 'vision',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_VISION)],
-        loadComponent: () => import('./vision/vision.page').then(m => m.VisionPageComponent),
+        loadChildren: () => import('./features/vision/vision.routes').then(m => m.VISION_ROUTES),
       },
       {
         path: 'mcp',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_MCP)],
-        loadComponent: () => import('./mcp/mcp.page').then(m => m.McpPageComponent),
+        loadChildren: () => import('./features/mcp/mcp.routes').then(m => m.MCP_ROUTES),
       },
       {
         path: 'eval',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_EVAL)],
-        loadComponent: () => import('./eval/eval.page').then(m => m.EvalPageComponent),
+        loadChildren: () => import('./features/eval/eval.routes').then(m => m.EVAL_ROUTES),
       },
       {
         path: 'asr',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AUDIO_ASR)],
-        loadComponent: () => import('./asr/asr.page').then(m => m.AsrPageComponent),
+        loadChildren: () => import('./features/asr/asr.routes').then(m => m.ASR_ROUTES),
       },
       {
         path: 'pipelines',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_PIPELINES)],
-        loadComponent: () => import('./pipelines/pipelines.page').then(m => m.PipelinesPageComponent),
+        loadChildren: () => import('./features/pipelines/pipelines.routes').then(m => m.PIPELINES_ROUTES),
       },
       {
         path: 'automations',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_AUTOMATIONS)],
-        loadComponent: () => import('./automations/automations.page').then(m => m.AutomationsPageComponent),
+        loadChildren: () => import('./features/automations/automations.routes').then(m => m.AUTOMATIONS_ROUTES),
       },
       {
         path: 'agents',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_PIPELINES)],
-        loadComponent: () => import('./agents/agents.page').then(m => m.AgentsPageComponent),
+        loadChildren: () => import('./features/agents/agents.routes').then(m => m.AGENTS_ROUTES),
       },
-
       {
         path: 'skills',
         canActivate: [moduleEnabledGuard(FEATURE_FLAG_KEYS.MODULE_SKILLS)],
-        loadComponent: () => import('./skills/skills.page').then(m => m.SkillsPageComponent),
+        loadChildren: () => import('./features/skills/skills.routes').then(m => m.SKILLS_ROUTES),
       },
-      {
-        matcher: chatRouteMatcher,
-        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPageComponent),
-      },
+      ...CHAT_ROUTES,
       {
         path: 'metrics',
-        loadChildren: () => import('./metrics/metrics.routes').then(m => m.METRICS_ROUTES),
+        loadChildren: () => import('./features/metrics/metrics.routes').then(m => m.METRICS_ROUTES),
       },
       {
         path: 'privacy',
-        loadComponent: () => import('./privacy/privacy.page').then(m => m.PrivacyPageComponent),
+        loadChildren: () => import('./features/privacy/privacy.routes').then(m => m.PRIVACY_ROUTES),
       },
       {
         path: 'policies',
-        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPageComponent),
-      },
-      {
-        path: 'policies/:slug',
-        loadComponent: () => import('./policies/policies.page').then(m => m.PoliciesPageComponent),
+        loadChildren: () => import('./features/policies/policies.routes').then(m => m.POLICIES_ROUTES),
       },
       { path: 'legal', redirectTo: 'policies', pathMatch: 'full' },
       { path: 'legal/terms', redirectTo: 'policies/terms-of-use', pathMatch: 'full' },
@@ -83,18 +75,7 @@ export const routes: Routes = [
       { path: 'legal/:doc', redirectTo: 'policies', pathMatch: 'full' },
       {
         path: 'generate',
-        loadComponent: () => import('./generate/generate.page').then(m => m.GeneratePageComponent),
-        children: [
-          { path: '', redirectTo: 'image', pathMatch: 'full' },
-          {
-            path: 'image',
-            loadComponent: () => import('./generate/image/image.page').then(m => m.ImagePageComponent),
-          },
-          {
-            path: 'tts',
-            loadComponent: () => import('./generate/tts/tts.page').then(m => m.TtsPageComponent),
-          },
-        ],
+        loadChildren: () => import('./features/generate/generate.routes').then(m => m.GENERATE_ROUTES),
       },
     ],
   },

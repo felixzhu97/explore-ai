@@ -139,7 +139,7 @@ export default defineConfig([
   // Dynamic / base64 previews cannot use NgOptimizedImage
   {
     files: [
-      '**/media-shell/**',
+      '**/generate/image/components/**',
       '**/chat-shell/**',
       '**/image-zoom/**',
       '**/vision/**',

@@ -1,6 +1,6 @@
 import type { Translations } from '../i18n/translations.types';
 import { FEATURE_FLAG_KEYS, type FeatureFlagKey } from './feature-flag-keys';
-import type { FeatureFlagService } from '../feature-flag.service';
+import type { FeatureFlagService } from '../services/feature-flag.service';
 
 export type ModuleNavGroup = 'work' | 'create' | 'lab';
 

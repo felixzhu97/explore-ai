@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import type { FeatureFlagKey } from '../config/feature-flag-keys';
-import { FeatureFlagService } from '../feature-flag.service';
+import { FeatureFlagService } from '../services/feature-flag.service';
 
 export const moduleEnabledGuard = (flagKey: FeatureFlagKey): CanActivateFn => {
   return () => {

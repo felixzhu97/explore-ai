@@ -8,9 +8,9 @@ import { provideZard } from './shared/zard';
 import { routes } from './app.routes';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 import { credentialsInterceptor } from './core/interceptors/credentials.interceptor';
-import { SESSION_LIST } from './layout/services/session-list.token';
-import { ChatSessionListService } from './chat/chat-session-list.service';
-import { FeatureFlagService } from './core/feature-flag.service';
+import { SESSION_LIST } from './core/layout/services/session-list.token';
+import { ChatSessionListService } from './features/chat/services/chat-session-list.service';
+import { FeatureFlagService } from './core/services/feature-flag.service';
 import { DatadogErrorHandler } from './core/config/datadog-rum.config';
 import {
   A2UI_RENDERER_CONFIG,
@@ -24,7 +24,7 @@ import { provideEchartsCore } from 'ngx-echarts';
 import {
   ChartComponentImplementation,
   EXPLORE_CHAT_CATALOG_ID,
-} from './a2ui/explore-chat.catalog';
+} from './shared/a2ui/explore-chat.catalog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
