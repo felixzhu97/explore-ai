@@ -29,25 +29,21 @@
               {{ i18n.t().agents.typeKey }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
-                [disabled]="isFormTypeKeyLocked()"
-                [ngModel]="formTypeKey()"
-                (ngModelChange)="formTypeKey.set($event)"
+                [formField]="draftForm.typeKey"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().common.name }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
-                [ngModel]="formName()"
-                (ngModelChange)="formName.set($event)"
+                [formField]="draftForm.name"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().agents.description }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
-                [ngModel]="formDescription()"
-                (ngModelChange)="formDescription.set($event)"
+                [formField]="draftForm.description"
               />
             </label>
             <div>
@@ -72,8 +68,7 @@
               <textarea
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 font-mono text-sm outline-none focus:border-foreground/30"
                 rows="10"
-                [ngModel]="formSystemPrompt()"
-                (ngModelChange)="formSystemPrompt.set($event)"
+                [formField]="draftForm.systemPrompt"
               ></textarea>
             </label>
             <div class="flex gap-2">

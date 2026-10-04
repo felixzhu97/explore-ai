@@ -461,6 +461,7 @@ export const zh: Translations = {
       deleteFailed: '删除自动化失败',
       nameRequired: '请填写名称',
       emailRequired: '请填写收件邮箱',
+      emailInvalid: '请输入有效的邮箱地址',
       briefRequired: '请填写任务说明',
       runAtRequired: '请选择运行时间',
       runAtPast: '运行时间必须晚于现在',

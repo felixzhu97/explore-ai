@@ -6,7 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
 import {
@@ -16,17 +16,19 @@ import {
   type SkillWriteRequest,
 } from './skills.service';
 import { ZardButtonComponent } from '../ui/button';
+import { requiredText } from '../forms/required-text';
 
-const EMPTY_FORM: SkillWriteRequest = {
+type SkillDraft = Pick<SkillWriteRequest, 'name' | 'description' | 'instructions'>;
+
+const EMPTY_DRAFT: SkillDraft = {
   name: '',
   description: '',
   instructions: '',
-  allowedTools: [],
 };
 
 @Component({
   selector: 'app-skills-page',
-  imports: [FormsModule, ZardButtonComponent],
+  imports: [FormField, ZardButtonComponent],
   templateUrl: './skills.page.html',
   host: {
     class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
@@ -44,9 +46,12 @@ export class SkillsPageComponent implements OnInit {
   readonly addingTemplateId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly editingId = signal<string | null>(null);
-  readonly formName = signal('');
-  readonly formDescription = signal('');
-  readonly formInstructions = signal('');
+  readonly #draft = signal<SkillDraft>(EMPTY_DRAFT);
+  protected readonly draftForm = form(this.#draft, (path) => {
+    requiredText(path.name);
+    requiredText(path.instructions);
+  });
+
   readonly showForm = signal(false);
 
   readonly ownedNames = computed(() => {
@@ -102,28 +107,26 @@ export class SkillsPageComponent implements OnInit {
 
   startCreate(): void {
     this.editingId.set(null);
-    this.#applyForm(EMPTY_FORM);
+    this.#draft.set(EMPTY_DRAFT);
     this.showForm.set(true);
   }
 
   startEdit(skill: Skill): void {
     this.editingId.set(skill.id);
-    this.#applyForm({
+    this.#draft.set({
       name: skill.name,
       description: skill.description,
       instructions: skill.instructions,
-      allowedTools: skill.allowedTools,
     });
     this.showForm.set(true);
   }
 
   customizeTemplate(template: SkillTemplate): void {
     this.editingId.set(null);
-    this.#applyForm({
+    this.#draft.set({
       name: template.name,
       description: template.description,
       instructions: template.instructions,
-      allowedTools: template.allowedTools,
     });
     this.showForm.set(true);
   }
@@ -153,11 +156,17 @@ export class SkillsPageComponent implements OnInit {
   }
 
   save(): void {
-    const request = this.#readForm();
-    if (!request.name.trim() || !request.instructions.trim()) {
+    if (this.draftForm().invalid()) {
       this.error.set(this.i18n.t().skills.errors.nameRequired);
       return;
     }
+    const draft = this.#draft();
+    const request: SkillWriteRequest = {
+      name: draft.name.trim(),
+      description: draft.description.trim(),
+      instructions: draft.instructions.trim(),
+      allowedTools: [],
+    };
     this.isSaving.set(true);
     this.error.set(null);
     const id = this.editingId();
@@ -196,20 +205,5 @@ export class SkillsPageComponent implements OnInit {
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().skills.errors.deleteFailed),
     });
-  }
-
-  #applyForm(request: SkillWriteRequest): void {
-    this.formName.set(request.name);
-    this.formDescription.set(request.description);
-    this.formInstructions.set(request.instructions);
-  }
-
-  #readForm(): SkillWriteRequest {
-    return {
-      name: this.formName().trim(),
-      description: this.formDescription().trim(),
-      instructions: this.formInstructions().trim(),
-      allowedTools: [],
-    };
   }
 }

@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { disabled, form, FormField } from '@angular/forms/signals';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
 import {
@@ -15,12 +15,29 @@ import {
 } from './agents.service';
 import type { AgentType } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
+import { requiredText } from '../forms/required-text';
 
 const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
 
+interface AgentDraft {
+  typeKey: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  toolKeys: string[];
+}
+
+const EMPTY_DRAFT: AgentDraft = {
+  typeKey: '',
+  name: '',
+  description: '',
+  systemPrompt: '',
+  toolKeys: [],
+};
+
 @Component({
   selector: 'app-agents-page',
-  imports: [FormsModule, ZardButtonComponent],
+  imports: [FormField, ZardButtonComponent],
   templateUrl: './agents.page.html',
   host: {
     class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
@@ -38,12 +55,14 @@ export class AgentsPageComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly showForm = signal(false);
   readonly editingId = signal<string | null>(null);
-  readonly formTypeKey = signal('');
   readonly isFormTypeKeyLocked = signal(false);
-  readonly formName = signal('');
-  readonly formDescription = signal('');
-  readonly formSystemPrompt = signal('');
-  readonly formToolKeys = signal<string[]>([]);
+  readonly #draft = signal<AgentDraft>(EMPTY_DRAFT);
+  protected readonly draftForm = form(this.#draft, (path) => {
+    disabled(path.typeKey, { when: () => this.isFormTypeKeyLocked() });
+    requiredText(path.typeKey, () => !this.editingId());
+    requiredText(path.name);
+    requiredText(path.systemPrompt);
+  });
 
   readonly availableToolKeys = TOOL_KEYS;
 
@@ -80,22 +99,20 @@ export class AgentsPageComponent implements OnInit {
   startCreate(): void {
     this.editingId.set(null);
     this.isFormTypeKeyLocked.set(false);
-    this.formTypeKey.set('');
-    this.formName.set('');
-    this.formDescription.set('');
-    this.formSystemPrompt.set('');
-    this.formToolKeys.set([]);
+    this.#draft.set(EMPTY_DRAFT);
     this.showForm.set(true);
   }
 
   startEditSavedAgent(agent: SavedAgent): void {
     this.editingId.set(agent.id);
     this.isFormTypeKeyLocked.set(true);
-    this.formTypeKey.set(agent.typeKey);
-    this.formName.set(agent.name);
-    this.formDescription.set(agent.description);
-    this.formSystemPrompt.set(agent.systemPrompt);
-    this.formToolKeys.set([...agent.toolKeys]);
+    this.#draft.set({
+      typeKey: agent.typeKey,
+      name: agent.name,
+      description: agent.description,
+      systemPrompt: agent.systemPrompt,
+      toolKeys: [...agent.toolKeys],
+    });
     this.showForm.set(true);
   }
 
@@ -108,11 +125,13 @@ export class AgentsPageComponent implements OnInit {
     }
     this.editingId.set(null);
     this.isFormTypeKeyLocked.set(true);
-    this.formTypeKey.set(agent.type);
-    this.formName.set(agent.name);
-    this.formDescription.set(agent.description);
-    this.formSystemPrompt.set(agent.systemPrompt ?? '');
-    this.formToolKeys.set([...(agent.toolKeys ?? [])]);
+    this.#draft.set({
+      typeKey: agent.type,
+      name: agent.name,
+      description: agent.description,
+      systemPrompt: agent.systemPrompt ?? '',
+      toolKeys: [...(agent.toolKeys ?? [])],
+    });
     this.showForm.set(true);
   }
 
@@ -122,31 +141,27 @@ export class AgentsPageComponent implements OnInit {
   }
 
   isToolSelected(toolKey: string): boolean {
-    return this.formToolKeys().includes(toolKey);
+    return this.#draft().toolKeys.includes(toolKey);
   }
 
   toggleTool(toolKey: string): void {
-    const current = this.formToolKeys();
-    if (current.includes(toolKey)) {
-      this.formToolKeys.set(current.filter(key => key !== toolKey));
-      return;
-    }
-    this.formToolKeys.set([...current, toolKey]);
+    this.draftForm.toolKeys().value.update(current => (current.includes(toolKey)
+      ? current.filter(key => key !== toolKey)
+      : [...current, toolKey]));
   }
 
   save(): void {
-    const name = this.formName().trim();
-    const systemPrompt = this.formSystemPrompt().trim();
-    const typeKey = this.formTypeKey().trim().toLowerCase();
-    if (!name || !systemPrompt || (!this.editingId() && !typeKey)) {
+    if (this.draftForm().invalid()) {
       this.error.set(this.i18n.t().agents.errors.nameRequired);
       return;
     }
+    const draft = this.#draft();
+    const typeKey = draft.typeKey.trim().toLowerCase();
     const request: SavedAgentWriteRequest = {
-      name,
-      description: this.formDescription().trim(),
-      systemPrompt,
-      toolKeys: [...this.formToolKeys()],
+      name: draft.name.trim(),
+      description: draft.description.trim(),
+      systemPrompt: draft.systemPrompt.trim(),
+      toolKeys: [...draft.toolKeys],
     };
     this.isSaving.set(true);
     this.error.set(null);

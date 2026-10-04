@@ -35,8 +35,7 @@
             {{ i18n.t().common.name }}
             <input
               class="rounded-md border border-black/10 bg-surface px-3 py-2 text-sm text-foreground"
-              [ngModel]="editName()"
-              (ngModelChange)="editName.set($event)"
+              [formField]="nodeForm.name"
             />
           </label>
           <div class="flex flex-col gap-1.5">
@@ -63,8 +62,7 @@
             {{ i18n.t().pipelines.nodeEditor.description }}
             <input
               class="rounded-md border border-black/10 bg-surface px-3 py-2 text-sm text-foreground"
-              [ngModel]="editDescription()"
-              (ngModelChange)="editDescription.set($event)"
+              [formField]="nodeForm.description"
             />
           </label>
           <label class="flex flex-col gap-1 text-xs text-foreground/60">
@@ -72,8 +70,7 @@
             <textarea
               rows="12"
               class="min-h-48 rounded-md border border-black/10 bg-surface px-3 py-2 font-mono text-sm text-foreground"
-              [ngModel]="editSystemPrompt()"
-              (ngModelChange)="editSystemPrompt.set($event)"
+              [formField]="nodeForm.systemPrompt"
             ></textarea>
           </label>
         </div>

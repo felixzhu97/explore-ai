@@ -470,6 +470,7 @@ export interface Translations {
       deleteFailed: string;
       nameRequired: string;
       emailRequired: string;
+      emailInvalid: string;
       briefRequired: string;
       runAtRequired: string;
       runAtPast: string;

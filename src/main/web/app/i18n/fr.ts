@@ -461,6 +461,7 @@ export const fr: Translations = {
       deleteFailed: 'Échec de la suppression',
       nameRequired: 'Le nom est requis',
       emailRequired: 'L\'e-mail est requis',
+      emailInvalid: 'Saisissez une adresse e-mail valide',
       briefRequired: 'Le brief est requis',
       runAtRequired: 'Veuillez choisir une heure d’exécution',
       runAtPast: 'L’heure d’exécution doit être dans le futur',

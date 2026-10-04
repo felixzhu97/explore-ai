@@ -80,16 +80,14 @@
               {{ i18n.t().common.name }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
-                [ngModel]="formName()"
-                (ngModelChange)="formName.set($event)"
+                [formField]="draftForm.name"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().skills.description }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
-                [ngModel]="formDescription()"
-                (ngModelChange)="formDescription.set($event)"
+                [formField]="draftForm.description"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
@@ -97,8 +95,7 @@
               <textarea
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
                 rows="8"
-                [ngModel]="formInstructions()"
-                (ngModelChange)="formInstructions.set($event)"
+                [formField]="draftForm.instructions"
               ></textarea>
             </label>
             <div class="flex gap-2">

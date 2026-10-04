@@ -461,6 +461,7 @@ export const en: Translations = {
       deleteFailed: 'Failed to delete automation',
       nameRequired: 'Name is required',
       emailRequired: 'Email is required',
+      emailInvalid: 'Enter a valid email address',
       briefRequired: 'Task brief is required',
       runAtRequired: 'Please pick a run time',
       runAtPast: 'Run time must be in the future',

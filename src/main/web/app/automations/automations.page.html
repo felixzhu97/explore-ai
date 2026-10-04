@@ -30,15 +30,14 @@
               {{ i18n.t().common.name }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="formName()"
-                (ngModelChange)="formName.set($event)"
+                [formField]="draftForm.name"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().automations.pipelineTemplate }}
               <select
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="formTemplateId()"
+                [ngModel]="draftForm.templateId().value()"
                 (ngModelChange)="onTemplateChange($event)"
               >
                 <option value="" disabled>
@@ -54,23 +53,21 @@
               <input
                 type="email"
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="formEmail()"
-                (ngModelChange)="formEmail.set($event)"
+                [formField]="draftForm.email"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().automations.timezone }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="formTimezone()"
-                (ngModelChange)="formTimezone.set($event)"
+                [formField]="draftForm.timezone"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().automations.frequency }}
               <select
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="formPreset()"
+                [ngModel]="draftForm.preset().value()"
                 (ngModelChange)="onPresetChange($event)"
               >
                 <option value="daily">{{ i18n.t().automations.frequencyDaily }}</option>
@@ -78,7 +75,7 @@
                 <option value="custom">{{ i18n.t().automations.frequencyCustom }}</option>
               </select>
             </label>
-            @if (formPreset() === 'custom') {
+            @if (draftForm.preset().value() === 'custom') {
               <div
                 data-run-at
                 class="rounded-xl border border-black/15 bg-black/[0.03] p-3"
@@ -99,8 +96,7 @@
                   nzDropdownClassName="run-at-picker-popup"
                   [nzPlaceHolder]="i18n.t().automations.runAtPlaceholder"
                   [nzDisabledDate]="disabledDate"
-                  [ngModel]="formRunAt()"
-                  (ngModelChange)="formRunAt.set($event)"
+                  [formField]="draftForm.runAt"
                 />
               </div>
             }
@@ -110,8 +106,7 @@
                 rows="4"
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
                 [placeholder]="i18n.t().automations.briefPlaceholder"
-                [ngModel]="formBrief()"
-                (ngModelChange)="formBrief.set($event)"
+                [formField]="draftForm.brief"
               ></textarea>
             </label>
             <div class="flex flex-wrap gap-2">

@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { email, form, FormField, required } from '@angular/forms/signals';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
@@ -14,6 +15,7 @@ import {
   type PipelineTemplate,
 } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
+import { requiredText } from '../forms/required-text';
 import {
   AutomationsService,
   type AutomationRun,
@@ -55,9 +57,31 @@ function defaultRunAtDate(): Date {
   return date;
 }
 
+interface AutomationDraft {
+  name: string;
+  email: string;
+  timezone: string;
+  templateId: string;
+  brief: string;
+  preset: FrequencyPreset;
+  runAt: Date | null;
+}
+
+function emptyDraft(): AutomationDraft {
+  return {
+    name: '',
+    email: '',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+    templateId: '',
+    brief: '',
+    preset: 'daily',
+    runAt: defaultRunAtDate(),
+  };
+}
+
 @Component({
   selector: 'app-automations-page',
-  imports: [FormsModule, ZardButtonComponent, NzDatePickerModule],
+  imports: [FormsModule, FormField, ZardButtonComponent, NzDatePickerModule],
   templateUrl: './automations.page.html',
   styleUrl: './automations.page.css',
   host: {
@@ -80,13 +104,15 @@ export class AutomationsPageComponent implements OnInit {
   readonly editingId = signal<string | null>(null);
   readonly historyScheduleId = signal<string | null>(null);
 
-  readonly formName = signal('');
-  readonly formEmail = signal('');
-  readonly formTimezone = signal(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
-  readonly formTemplateId = signal('');
-  readonly formBrief = signal('');
-  readonly formPreset = signal<FrequencyPreset>('daily');
-  readonly formRunAt = signal<Date | null>(defaultRunAtDate());
+  readonly #draft = signal<AutomationDraft>(emptyDraft());
+  protected readonly draftForm = form(this.#draft, (path) => {
+    requiredText(path.name);
+    requiredText(path.email);
+    email(path.email);
+    requiredText(path.templateId);
+    requiredText(path.brief);
+    required(path.runAt, { when: field => field.valueOf(path.preset) === 'custom' });
+  });
 
   readonly enabledTemplates = computed(() => {
     return this.templates().filter(template => template.enabled);
@@ -117,54 +143,52 @@ export class AutomationsPageComponent implements OnInit {
 
   startCreate(): void {
     this.editingId.set(null);
-    this.formName.set('');
-    this.formEmail.set('');
-    this.formTimezone.set(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
     const first = this.enabledTemplates()[0];
-    this.formTemplateId.set(first?.id ?? '');
-    this.formBrief.set(this.#defaultBriefForTemplate(first));
-    this.formPreset.set('daily');
-    this.formRunAt.set(defaultRunAtDate());
+    this.#draft.set({
+      ...emptyDraft(),
+      templateId: first?.id ?? '',
+      brief: this.#defaultBriefForTemplate(first),
+    });
     this.showForm.set(true);
   }
 
   onTemplateChange(templateId: string): void {
-    this.formTemplateId.set(templateId);
+    this.draftForm.templateId().value.set(templateId);
     const template = this.enabledTemplates().find(item => item.id === templateId);
     if (!template) {
       return;
     }
-    if (!this.formBrief().trim() || this.#isGenericPlaceholder(this.formBrief())) {
-      this.formBrief.set(this.#defaultBriefForTemplate(template));
+    const brief = this.draftForm.brief().value();
+    if (!brief.trim() || this.#isGenericPlaceholder(brief)) {
+      this.draftForm.brief().value.set(this.#defaultBriefForTemplate(template));
     }
   }
 
   startEdit(schedule: AutomationSchedule): void {
     this.editingId.set(schedule.id);
-    this.formName.set(schedule.name);
-    this.formEmail.set(schedule.recipientEmail);
-    this.formTimezone.set(schedule.timezone);
-    this.formTemplateId.set(schedule.pipelineTemplateId);
     const templateId = schedule.pipelineTemplateId;
     const template = this.enabledTemplates().find(item => item.id === templateId)
       ?? this.templates().find(item => item.id === templateId);
-    if (this.#isGenericPlaceholder(schedule.brief)) {
-      this.formBrief.set(this.#defaultBriefForTemplate(template));
-    } else {
-      this.formBrief.set(schedule.brief);
-    }
-    this.formPreset.set(presetFromSchedule(schedule));
-    if (schedule.scheduleKind === 'ONCE') {
-      if (this.isOnceCompleted(schedule)) {
-        this.formRunAt.set(defaultRunAtDate());
-      } else {
-        const source = schedule.runAt ?? schedule.nextRunAt;
-        this.formRunAt.set(source ? new Date(source) : defaultRunAtDate());
-      }
-    } else {
-      this.formRunAt.set(defaultRunAtDate());
-    }
+    this.#draft.set({
+      name: schedule.name,
+      email: schedule.recipientEmail,
+      timezone: schedule.timezone,
+      templateId,
+      brief: this.#isGenericPlaceholder(schedule.brief)
+        ? this.#defaultBriefForTemplate(template)
+        : schedule.brief,
+      preset: presetFromSchedule(schedule),
+      runAt: this.#runAtForEdit(schedule),
+    });
     this.showForm.set(true);
+  }
+
+  #runAtForEdit(schedule: AutomationSchedule): Date {
+    if (schedule.scheduleKind !== 'ONCE' || this.isOnceCompleted(schedule)) {
+      return defaultRunAtDate();
+    }
+    const source = schedule.runAt ?? schedule.nextRunAt;
+    return source ? new Date(source) : defaultRunAtDate();
   }
 
   cancelForm(): void {
@@ -173,10 +197,11 @@ export class AutomationsPageComponent implements OnInit {
   }
 
   onPresetChange(preset: FrequencyPreset): void {
-    this.formPreset.set(preset);
-    if (preset === 'custom' && !this.formRunAt()) {
-      this.formRunAt.set(defaultRunAtDate());
-    }
+    this.#draft.update(draft => ({
+      ...draft,
+      preset,
+      runAt: preset === 'custom' && !draft.runAt ? defaultRunAtDate() : draft.runAt,
+    }));
   }
 
   disabledDate = (current: Date): boolean => {
@@ -186,31 +211,22 @@ export class AutomationsPageComponent implements OnInit {
   };
 
   save(): void {
-    const name = this.formName().trim();
-    const email = this.formEmail().trim();
-    const pipelineTemplateId = this.formTemplateId();
-    const brief = this.formBrief().trim();
     const t = this.i18n.t().automations;
-    if (!name) {
-      this.#notifications.showError(t.errors.nameRequired);
+    const invalidMessage = this.#firstInvalidMessage();
+    if (invalidMessage) {
+      this.#notifications.showError(invalidMessage);
       return;
     }
-    if (!email) {
-      this.#notifications.showError(t.errors.emailRequired);
-      return;
-    }
-    if (!pipelineTemplateId) {
-      this.#notifications.showError(t.errors.pipelineTemplateRequired);
-      return;
-    }
-    if (!brief) {
-      this.#notifications.showError(t.errors.briefRequired);
-      return;
-    }
-    const preset = this.formPreset();
+    const draft = this.#draft();
+    const name = draft.name.trim();
+    const email = draft.email.trim();
+    const pipelineTemplateId = draft.templateId;
+    const brief = draft.brief.trim();
+    const preset = draft.preset;
+    const timezone = draft.timezone.trim() || 'UTC';
     let request: AutomationScheduleWriteRequest;
     if (preset === 'custom') {
-      const runAt = this.formRunAt();
+      const runAt = draft.runAt;
       if (!runAt || Number.isNaN(runAt.getTime())) {
         this.#notifications.showError(t.errors.runAtRequired);
         return;
@@ -223,7 +239,7 @@ export class AutomationsPageComponent implements OnInit {
         name,
         scheduleKind: 'ONCE',
         runAt: runAt.toISOString(),
-        timezone: this.formTimezone().trim() || 'UTC',
+        timezone,
         pipelineTemplateId,
         recipientEmail: email,
         brief,
@@ -233,7 +249,7 @@ export class AutomationsPageComponent implements OnInit {
         name,
         scheduleKind: 'CRON',
         cronExpression: cronForPreset(preset),
-        timezone: this.formTimezone().trim() || 'UTC',
+        timezone,
         pipelineTemplateId,
         recipientEmail: email,
         brief,
@@ -256,6 +272,27 @@ export class AutomationsPageComponent implements OnInit {
         this.#notifications.showError(t.errors.saveFailed);
       },
     });
+  }
+
+  #firstInvalidMessage(): string | null {
+    const errors = this.i18n.t().automations.errors;
+    const fields = this.draftForm;
+    if (fields.name().invalid()) {
+      return errors.nameRequired;
+    }
+    if (fields.email().invalid()) {
+      return this.#draft().email.trim() ? errors.emailInvalid : errors.emailRequired;
+    }
+    if (fields.templateId().invalid()) {
+      return errors.pipelineTemplateRequired;
+    }
+    if (fields.brief().invalid()) {
+      return errors.briefRequired;
+    }
+    if (fields.runAt().invalid()) {
+      return errors.runAtRequired;
+    }
+    return null;
   }
 
   toggleEnabled(schedule: AutomationSchedule): void {

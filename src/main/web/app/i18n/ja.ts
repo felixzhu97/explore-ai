@@ -461,6 +461,7 @@ export const ja: Translations = {
       deleteFailed: '削除に失敗しました',
       nameRequired: '名前を入力してください',
       emailRequired: 'メールを入力してください',
+      emailInvalid: '有効なメールアドレスを入力してください',
       briefRequired: 'タスク説明を入力してください',
       runAtRequired: '実行時刻を選択してください',
       runAtPast: '実行時刻は現在より後である必要があります',

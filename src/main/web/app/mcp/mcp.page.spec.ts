@@ -35,8 +35,15 @@ describe('McpPageComponent', () => {
 
   it('should enable send once a question is typed', () => {
     const fixture = setup();
-    fixture.componentInstance.question.set('What tools exist?');
+    const host = fixture.nativeElement as HTMLElement;
+    const textarea = host.querySelector('textarea');
+    if (!textarea) {
+      throw new Error('question textarea not rendered');
+    }
+    textarea.value = 'What tools exist?';
+    textarea.dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(sendButton(fixture.nativeElement as HTMLElement)?.disabled).toBe(false);
+    expect(fixture.componentInstance.question()).toBe('What tools exist?');
+    expect(sendButton(host)?.disabled).toBe(false);
   });
 });
