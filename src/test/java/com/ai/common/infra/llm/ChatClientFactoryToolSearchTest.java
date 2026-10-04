@@ -66,7 +66,7 @@ class ChatClientFactoryToolSearchTest {
   static class StubDocumentSearchTool implements DocumentSearchTool {
     @Override
     @Tool(description = "search docs")
-    public String searchDocuments(String query, List<String> docIds) {
+    public String searchDocuments(String query, List<String> documentIds) {
       return query;
     }
 

@@ -110,13 +110,13 @@ public class GoldenEvalService {
 
   private GeneratedAnswer generate(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
     if (evalCase.domain() == GoldenEvalDomain.RAG) {
-      List<String> docIds = resolveDocumentIds(evalCase, fixtureIds);
-      RagChatResult result = ragChatService.chat(evalCase.userText(), docIds, 5);
+      List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
+      RagChatResult result = ragChatService.chat(evalCase.userText(), documentIds, 5);
       List<String> sources =
           result.sources() == null
               ? List.of()
               : result.sources().stream()
-                  .map(SourceDocument::text)
+                  .map(SourceDocument::content)
                   .filter(text -> text != null && !text.isBlank())
                   .toList();
       return new GeneratedAnswer(result.response() == null ? "" : result.response(), sources);

@@ -97,13 +97,13 @@ public class RagController {
       VisionChatService visionChat = visionChatService.getIfAvailable();
       if (visionChat == null) {
         return ragChatService.chatStream(
-            request.question(), request.docIds(), request.topK(), request.sessionId());
+            request.question(), request.documentIds(), request.topK(), request.sessionId());
       }
       return visionChat.chatStreamWithImages(
-          request.question(), request.docIds(), request.images(), request.topK());
+          request.question(), request.documentIds(), request.images(), request.topK());
     }
     return ragChatService.chatStream(
-        request.question(), request.docIds(), request.topK(), request.sessionId());
+        request.question(), request.documentIds(), request.topK(), request.sessionId());
   }
 
   private boolean hasImages(List<String> images) {

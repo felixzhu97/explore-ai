@@ -14,8 +14,8 @@ public record EvaluationResponse(
     boolean hasSafetyIssues,
     List<String> safetyFlags,
     List<String> suggestions,
-    boolean relevancyPass,
-    Boolean factualityPass,
+    boolean relevancyPassed,
+    Boolean factualityPassed,
     List<String> evaluatorFeedback) {
   /** Maps a domain evaluation result to the response, rounding scores to two decimals. */
   public static EvaluationResponse from(ChatEvaluationResult result) {

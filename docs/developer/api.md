@@ -355,7 +355,7 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
   -H "Accept: text/event-stream" \
   -d '{
     "question": "What is the warranty period for this product?",
-    "docIds": [],
+    "documentIds": [],
     "topK": 5
   }'
 ```
@@ -366,7 +366,7 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
 | Field         | Type    | Required | Description                                        |
 | ------------- | ------- | -------- | -------------------------------------------------- |
 | `question`    | string  | Yes      | Question text                                      |
-| `docIds`      | array   | No       | Document IDs to search (empty = all)               |
+| `documentIds` | array   | No       | Document IDs to search (empty = all)               |
 | `topK`        | integer | No       | Number of document chunks to retrieve (default: 5) |
 | `temperature` | number  | No       | AI temperature parameter (default: 0.7)            |
 | `sessionId`   | string  | No       | Session ID                                         |
@@ -382,7 +382,7 @@ data: a two-year
 data: full warranty.
 
 event: sources
-data: [{"text":"...warranty period is two years...","score":0.95,"metadata":{"source":"user_manual.pdf"}}]
+data: [{"id":null,"content":"...warranty period is two years...","score":0.95,"metadata":{"source":"user_manual.pdf"}}]
 ```
 
 ---
@@ -397,7 +397,7 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
   -H "Accept: text/event-stream" \
   -d '{
     "question": "Summarize the main content of this document",
-    "docIds": ["550e8400-e29b-41d4-a716-446655440000", "660e8400-e29b-41d4-a716-446655440001"],
+    "documentIds": ["550e8400-e29b-41d4-a716-446655440000", "660e8400-e29b-41d4-a716-446655440001"],
     "topK": 3
   }'
 ```
@@ -527,7 +527,7 @@ curl -X GET "${BASE_URL}/api/tools/documents/search?query=product features"
 | Parameter | Type   | Required | Description                                 |
 | --------- | ------ | -------- | ------------------------------------------- |
 | `query`   | string | Yes      | Search keyword                              |
-| `docIds`  | string | No       | Comma-separated document IDs to limit scope |
+| `documentIds`  | string | No       | Comma-separated document IDs to limit scope |
 
 
 **Response Example**
@@ -551,7 +551,7 @@ curl -X GET "${BASE_URL}/api/tools/documents/search?query=product features"
 Search only within specific documents.
 
 ```bash
-curl -X GET "${BASE_URL}/api/tools/documents/search?query=warranty&docIds=uuid1,uuid2"
+curl -X GET "${BASE_URL}/api/tools/documents/search?query=warranty&documentIds=uuid1,uuid2"
 ```
 
 ---
@@ -598,7 +598,7 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 | Field      | Type   | Required | Description                    |
 | ---------- | ------ | -------- | ------------------------------ |
 | `question` | string | Yes      | Question text                  |
-| `docIds`   | array  | No       | Document IDs for RAG retrieval |
+| `documentIds`   | array  | No       | Document IDs for RAG retrieval |
 
 
 **Response Example**
@@ -666,7 +666,7 @@ curl -X POST "${BASE_URL}/api/tools/chat/stream" \
   -H "Accept: text/event-stream" \
   -d '{
     "question": "How is the weather in Beijing today?",
-    "docIds": []
+    "documentIds": []
   }'
 ```
 
@@ -1186,7 +1186,7 @@ curl -X POST "${BASE_URL}/api/mcp/client/chat" \
   -H "Content-Type: application/json" \
   -d '{
     "question": "What is the weather in Beijing?",
-    "docIds": []
+    "documentIds": []
   }'
 ```
 
@@ -1196,7 +1196,7 @@ curl -X POST "${BASE_URL}/api/mcp/client/chat" \
 | Field      | Type   | Required | Description                  |
 | ---------- | ------ | -------- | ---------------------------- |
 | `question` | string | Yes      | Question text                |
-| `docIds`   | array  | No       | Document IDs for RAG context |
+| `documentIds`   | array  | No       | Document IDs for RAG context |
 
 
 **Response Example**

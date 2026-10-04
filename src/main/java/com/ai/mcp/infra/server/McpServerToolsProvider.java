@@ -68,15 +68,15 @@ public class McpServerToolsProvider {
       @McpToolParam(
               description = "Optional document IDs to filter (comma-separated)",
               required = false)
-          String docIds) {
+          String documentIds) {
     log.info("MCP tool: searchKnowledgeBase called with query: {}", query);
 
-    List<String> docIdList = null;
-    if (docIds != null && !docIds.isBlank()) {
-      docIdList = List.of(docIds.split(","));
+    List<String> documentIdList = null;
+    if (documentIds != null && !documentIds.isBlank()) {
+      documentIdList = List.of(documentIds.split(","));
     }
 
-    return documentSearchTool.searchDocuments(query, docIdList);
+    return documentSearchTool.searchDocuments(query, documentIdList);
   }
 
   @McpTool(

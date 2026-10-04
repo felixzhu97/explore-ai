@@ -3,7 +3,6 @@ package com.ai.chat.service;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.AdvisorParams;
@@ -56,7 +55,7 @@ public class SessionTitleGenerator {
     return fallback(userMessage);
   }
 
-  record SessionTitleResponse(@JsonProperty("title") String title) {}
+  record SessionTitleResponse(String title) {}
 
   String fallback(String userMessage) {
     if (userMessage == null || userMessage.isBlank()) {

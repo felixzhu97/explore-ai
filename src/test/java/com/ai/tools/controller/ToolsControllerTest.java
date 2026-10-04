@@ -152,10 +152,10 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should search documents with docIds filter")
+    @DisplayName("should search documents with documentIds filter")
     void shouldSearchDocumentsWithDocIdsFilter() {
       String query = "AI";
-      String docIds = "doc1,doc2,doc3";
+      String documentIds = "doc1,doc2,doc3";
       String result = "[{\"id\": \"doc1\"}]";
       when(toolService.searchDocuments(query, List.of("doc1", "doc2", "doc3"))).thenReturn(result);
 
@@ -163,7 +163,7 @@ class ToolsControllerTest {
               mvc.get()
                   .uri("/api/tools/documents/search")
                   .param("query", query)
-                  .param("docIds", docIds))
+                  .param("documentIds", documentIds))
           .hasStatusOk()
           .hasBodyTextEqualTo(result);
       verify(toolService).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
@@ -250,7 +250,7 @@ class ToolsControllerTest {
     }
 
     @Test
-    @DisplayName("should pass docIds to service")
+    @DisplayName("should pass documentIds to service")
     void shouldPassDocIdsToService() {
       String question = "Search in docs";
       when(toolService.chatWithTools(question)).thenReturn("Result");
@@ -259,7 +259,7 @@ class ToolsControllerTest {
               mvc.post()
                   .uri("/api/tools/chat")
                   .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"question\":\"Search in docs\",\"docIds\":[\"doc1\",\"doc2\"]}"))
+                  .content("{\"question\":\"Search in docs\",\"documentIds\":[\"doc1\",\"doc2\"]}"))
           .hasStatusOk();
 
       verify(toolService).chatWithTools(question);

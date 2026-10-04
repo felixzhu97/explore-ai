@@ -2,7 +2,6 @@ package com.ai.textanalysis.controller.dto;
 
 import com.ai.textanalysis.domain.model.Sentiment;
 import com.ai.textanalysis.domain.model.TextAnalysis;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
@@ -15,23 +14,23 @@ import java.util.List;
  * @param language detected language
  */
 public record TextAnalysisResponse(
-    @JsonProperty("summary") String summary,
-    @JsonProperty("sentiment") SentimentDto sentiment,
-    @JsonProperty("key_points") List<String> keyPoints,
-    @JsonProperty("entities") List<String> entities,
-    @JsonProperty("language") String language) {
+    String summary,
+    SentimentLabel sentiment,
+    List<String> keyPoints,
+    List<String> entities,
+    String language) {
 
   /** Sentiment label exposed in the analysis API response. */
-  public enum SentimentDto {
+  public enum SentimentLabel {
     POSITIVE,
     NEUTRAL,
     NEGATIVE;
 
-    static SentimentDto fromDomain(Sentiment sentiment) {
+    static SentimentLabel fromDomain(Sentiment sentiment) {
       if (sentiment == null) {
-        return SentimentDto.NEUTRAL;
+        return SentimentLabel.NEUTRAL;
       }
-      return SentimentDto.valueOf(sentiment.name());
+      return SentimentLabel.valueOf(sentiment.name());
     }
   }
 
@@ -39,7 +38,7 @@ public record TextAnalysisResponse(
   public static TextAnalysisResponse fromDomain(TextAnalysis analysis) {
     return new TextAnalysisResponse(
         analysis.summary(),
-        SentimentDto.fromDomain(analysis.sentiment()),
+        SentimentLabel.fromDomain(analysis.sentiment()),
         analysis.keyPoints(),
         analysis.entities(),
         analysis.language());

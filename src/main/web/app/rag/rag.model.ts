@@ -2,21 +2,22 @@
 
 /** POST /api/rag/chat/stream */
 export interface RagQuery {
-  query: string;
+  question: string;
   sessionId?: string;
   topK?: number;
   temperature?: number;
-  docIds?: string[];
+  documentIds?: string[];
 }
 
-/** Matches SourceDocumentDto / SSE sources event */
+/** Matches SourceDocumentResponse / SSE sources event */
 export interface SourceDocument {
-  text: string;
+  id: string;
+  content: string;
   score: number;
   metadata: Record<string, unknown>;
 }
 
-/** GET /api/rag/documents — DocumentSummaryDto */
+/** GET /api/rag/documents — DocumentSummaryResponse */
 export interface DocumentListItem {
   id: string;
   title: string;

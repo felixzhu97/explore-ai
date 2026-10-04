@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * Adapts existing H2 vector search to Spring AI DocumentRetriever for RetrievalAugmentationAdvisor.
- * Reads optional topK / docIds from {@link Query#context()} (advisor request params).
+ * Reads optional topK / documentIds from {@link Query#context()} (advisor request params).
  */
 @Component
 public class H2DocumentRetriever implements DocumentRetriever {
 
   public static final String TOP_K_CONTEXT_KEY = "topK";
-  public static final String DOC_IDS_CONTEXT_KEY = "docIds";
+  public static final String DOC_IDS_CONTEXT_KEY = "documentIds";
 
   private final DocumentSearchService documentSearchService;
 
@@ -32,10 +32,10 @@ public class H2DocumentRetriever implements DocumentRetriever {
   public List<Document> retrieve(Query query) {
     Map<String, Object> context = query.context() != null ? query.context() : Map.of();
     int topK = resolveTopK(context.get(TOP_K_CONTEXT_KEY));
-    List<DocumentId> docIds = resolveDocIds(context.get(DOC_IDS_CONTEXT_KEY));
+    List<DocumentId> documentIds = resolveDocIds(context.get(DOC_IDS_CONTEXT_KEY));
 
     DocumentSearchService.RetrievalResult result =
-        documentSearchService.retrieve(query.text(), docIds, topK);
+        documentSearchService.retrieve(query.text(), documentIds, topK);
     return result.sources().stream().map(this::toDocument).toList();
   }
 
@@ -58,14 +58,14 @@ public class H2DocumentRetriever implements DocumentRetriever {
     if (!(raw instanceof List<?> list) || list.isEmpty()) {
       return null;
     }
-    List<DocumentId> docIds = new ArrayList<>(list.size());
+    List<DocumentId> documentIds = new ArrayList<>(list.size());
     for (Object item : list) {
       if (item == null) {
         continue;
       }
-      docIds.add(DocumentId.of(item.toString()));
+      documentIds.add(DocumentId.of(item.toString()));
     }
-    return docIds.isEmpty() ? null : docIds;
+    return documentIds.isEmpty() ? null : documentIds;
   }
 
   private Document toDocument(SourceDocument source) {
@@ -74,6 +74,6 @@ public class H2DocumentRetriever implements DocumentRetriever {
       metadata.putAll(source.metadata());
     }
     metadata.put("score", source.score());
-    return new Document(source.text(), metadata);
+    return new Document(source.content(), metadata);
   }
 }

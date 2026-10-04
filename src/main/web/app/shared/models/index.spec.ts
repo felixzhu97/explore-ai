@@ -39,13 +39,13 @@ describe('Shared domain models', () => {
 
   it('should accept aligned rag query fields', () => {
     const query: RagQuery = {
-      query: 'What is RAG?',
+      question: 'What is RAG?',
       sessionId: 'session-1',
       topK: 5,
-      docIds: ['doc-1'],
+      documentIds: ['doc-1'],
     };
 
-    expect(query.docIds).toEqual(['doc-1']);
+    expect(query.documentIds).toEqual(['doc-1']);
   });
 
   it('should accept aligned document list item fields', () => {
@@ -61,7 +61,8 @@ describe('Shared domain models', () => {
 
   it('should accept aligned source document fields', () => {
     const source: SourceDocument = {
-      text: 'excerpt',
+      id: 'chunk-1',
+      content: 'excerpt',
       score: 0.92,
       metadata: { title: 'Guide.pdf' },
     };

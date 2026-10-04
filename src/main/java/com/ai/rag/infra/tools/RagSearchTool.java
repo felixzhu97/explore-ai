@@ -40,18 +40,18 @@ public class RagSearchTool implements DocumentSearchTool {
   public String searchDocuments(
       @ToolParam(description = "The search query text") String query,
       @ToolParam(description = "Optional list of document IDs to filter", required = false)
-          List<String> docIds) {
+          List<String> documentIds) {
     if (query == null || query.isBlank()) {
       return "请提供有效的搜索查询";
     }
 
     try {
-      List<DocumentId> docIdList =
-          docIds != null && !docIds.isEmpty()
-              ? docIds.stream().map(DocumentId::of).collect(Collectors.toList())
+      List<DocumentId> documentIdList =
+          documentIds != null && !documentIds.isEmpty()
+              ? documentIds.stream().map(DocumentId::of).collect(Collectors.toList())
               : null;
 
-      var result = ragApplicationService.retrieveContext(query, docIdList, DEFAULT_TOP_K);
+      var result = ragApplicationService.retrieveContext(query, documentIdList, DEFAULT_TOP_K);
 
       if (result.sources().isEmpty()) {
         return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
@@ -108,7 +108,7 @@ public class RagSearchTool implements DocumentSearchTool {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < sources.size(); i++) {
       var source = sources.get(i);
-      String content = LogSanitizer.truncate(source.text(), MAX_CONTENT_LENGTH);
+      String content = LogSanitizer.truncate(source.content(), MAX_CONTENT_LENGTH);
       sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
       if (source.metadata() != null && source.metadata().get("title") instanceof String title) {
         sb.append(String.format("文档: %s\n", title));

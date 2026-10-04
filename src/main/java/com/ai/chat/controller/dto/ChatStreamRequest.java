@@ -1,6 +1,5 @@
 package com.ai.chat.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.List;
 
 /**
@@ -15,11 +14,11 @@ import java.util.List;
  */
 public record ChatStreamRequest(
     List<Message> messages,
-    @JsonAlias("session_id") String sessionId,
+    String sessionId,
     String provider,
     String model,
-    @JsonAlias("tools_enabled") Boolean toolsEnabled,
-    @JsonAlias("skill_ids") List<String> skillIds) {
+    Boolean toolsEnabled,
+    List<String> skillIds) {
 
   /** A single chat message with role and content. */
   public record Message(String role, String content) {}

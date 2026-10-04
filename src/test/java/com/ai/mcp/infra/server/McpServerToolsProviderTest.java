@@ -104,22 +104,22 @@ class McpServerToolsProviderTest {
     }
 
     @Test
-    @DisplayName("should search with query and docIds")
+    @DisplayName("should search with query and documentIds")
     void shouldSearchWithQueryAndDocIds() {
       String query = "machine learning";
-      String docIds = "doc1,doc2,doc3";
+      String documentIds = "doc1,doc2,doc3";
       String expectedResults = "[{\"text\": \"ML results...\", \"score\": 0.88}]";
       when(documentSearchTool.searchDocuments(query, List.of("doc1", "doc2", "doc3")))
           .thenReturn(expectedResults);
 
-      String result = toolsProvider.searchKnowledgeBase(query, docIds);
+      String result = toolsProvider.searchKnowledgeBase(query, documentIds);
 
       assertThat(result).isEqualTo(expectedResults);
       verify(documentSearchTool).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
     }
 
     @Test
-    @DisplayName("should handle empty docIds string")
+    @DisplayName("should handle empty documentIds string")
     void shouldHandleEmptyDocIdsString() {
       String query = "deep learning";
       when(documentSearchTool.searchDocuments(query, null)).thenReturn("[]");

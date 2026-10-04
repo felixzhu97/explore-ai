@@ -50,7 +50,7 @@ class DocumentSearchServiceTest {
   class Retrieve {
 
     @Test
-    @DisplayName("should retrieve documents for query without docIds filter")
+    @DisplayName("should retrieve documents for query without documentIds filter")
     void shouldRetrieveDocumentsForQueryWithoutDocIdsFilter() {
       String query = "What is AI?";
       float[] queryEmbedding = new float[] {0.1f, 0.2f, 0.3f};
@@ -211,8 +211,8 @@ class DocumentSearchServiceTest {
 
       DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
-      assertThat(result.sources().get(0).text()).hasSize(503); // 500 + "..."
-      assertThat(result.sources().get(0).text()).endsWith("...");
+      assertThat(result.sources().get(0).content()).hasSize(503); // 500 + "..."
+      assertThat(result.sources().get(0).content()).endsWith("...");
     }
 
     @Test
@@ -228,7 +228,7 @@ class DocumentSearchServiceTest {
 
       DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5);
 
-      assertThat(result.sources().get(0).text()).isEqualTo(shortContent);
+      assertThat(result.sources().get(0).content()).isEqualTo(shortContent);
     }
 
     @Test
@@ -257,7 +257,7 @@ class DocumentSearchServiceTest {
     }
 
     @Test
-    @DisplayName("should pass empty docIds list to vector adapter")
+    @DisplayName("should pass empty documentIds list to vector adapter")
     void shouldPassEmptyDocIdsListToChunkRepository() {
       String query = "test";
       float[] queryEmbedding = new float[] {0.1f, 0.2f};

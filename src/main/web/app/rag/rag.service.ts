@@ -277,14 +277,14 @@ export class RagService {
     this.streamingMessageIds.update(ids => new Set(ids).add(assistantMessageId));
 
     const requestBody: RagQuery = {
-      query: userMessage.content,
+      question: userMessage.content,
       sessionId: this.sessionId,
       topK: DEFAULT_TOP_K,
       temperature: DEFAULT_TEMPERATURE,
     };
 
     if (this.selectedDocIds().size > 0) {
-      requestBody.docIds = Array.from(this.selectedDocIds());
+      requestBody.documentIds = Array.from(this.selectedDocIds());
     }
 
     this.ragChat(

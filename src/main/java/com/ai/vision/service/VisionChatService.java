@@ -63,16 +63,17 @@ public class VisionChatService {
 
   /** Answers a question about the images using retrieved document context and the vision model. */
   public RagChatResult chatWithImages(
-      String question, List<String> docIds, List<String> images, Integer topK) {
+      String question, List<String> documentIds, List<String> images, Integer topK) {
     log.info(
         "Vision RAG chat request: {} with {} images",
         LogSanitizer.truncate(question),
         images != null ? images.size() : 0);
 
     List<Media> mediaList = parseImages(images);
-    List<DocumentId> docIdList = toDocumentIds(docIds);
+    List<DocumentId> documentIdList = toDocumentIds(documentIds);
     int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-    var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
+    var retrievalResult =
+        ragApplicationService.retrieveContext(question, documentIdList, topKValue);
 
     String prompt = buildPrompt(question, retrievalResult.context());
     String aiResponse = chatWithVision(prompt, mediaList);
@@ -83,16 +84,17 @@ public class VisionChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStreamWithImages(
-      String question, List<String> docIds, List<String> images, Integer topK) {
+      String question, List<String> documentIds, List<String> images, Integer topK) {
     log.info(
         "Vision RAG stream request: {} with {} images",
         LogSanitizer.truncate(question),
         images != null ? images.size() : 0);
 
     List<Media> mediaList = parseImages(images);
-    List<DocumentId> docIdList = toDocumentIds(docIds);
+    List<DocumentId> documentIdList = toDocumentIds(documentIds);
     int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-    var retrievalResult = ragApplicationService.retrieveContext(question, docIdList, topKValue);
+    var retrievalResult =
+        ragApplicationService.retrieveContext(question, documentIdList, topKValue);
     String prompt = buildPrompt(question, retrievalResult.context());
     List<SourceDocument> sources = retrievalResult.sources();
 
@@ -101,11 +103,11 @@ public class VisionChatService {
         .doOnComplete(() -> log.info("Vision RAG stream completed successfully"));
   }
 
-  private List<DocumentId> toDocumentIds(List<String> docIds) {
-    if (docIds == null || docIds.isEmpty()) {
+  private List<DocumentId> toDocumentIds(List<String> documentIds) {
+    if (documentIds == null || documentIds.isEmpty()) {
       return null;
     }
-    return docIds.stream().map(DocumentId::of).toList();
+    return documentIds.stream().map(DocumentId::of).toList();
   }
 
   private Flux<ServerSentEvent<String>> streamVision(String prompt, List<Media> images) {
@@ -143,12 +145,12 @@ public class VisionChatService {
     try {
       List<Map<String, Object>> payload = new ArrayList<>();
       for (SourceDocument source : sources) {
-        if (source.text() == null || source.text().isBlank()) {
+        if (source.content() == null || source.content().isBlank()) {
           continue;
         }
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("id", null);
-        row.put("text", source.text());
+        row.put("content", source.content());
         row.put("score", source.score());
         row.put("metadata", source.metadata() != null ? source.metadata() : Map.of());
         payload.add(row);

@@ -101,7 +101,7 @@ class RagChatServiceTest {
       assertThat(result).isNotNull();
       assertThat(result.response()).isEqualTo(aiResponse);
       assertThat(result.sources()).hasSize(1);
-      assertThat(result.sources().getFirst().text()).isEqualTo("AI definition");
+      assertThat(result.sources().getFirst().content()).isEqualTo("AI definition");
       assertThat(result.sources().getFirst().score()).isEqualTo(0.95);
       verify(requestSpec).user(question);
     }

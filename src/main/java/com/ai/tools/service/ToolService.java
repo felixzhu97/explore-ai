@@ -88,9 +88,9 @@ public class ToolService {
         .content();
   }
 
-  public String searchDocuments(String query, List<String> docIds) {
+  public String searchDocuments(String query, List<String> documentIds) {
     log.info("ToolService.searchDocuments: {}", LogSanitizer.truncate(query));
-    return documentSearchTool.searchDocuments(query, docIds);
+    return documentSearchTool.searchDocuments(query, documentIds);
   }
 
   public String listDocuments() {

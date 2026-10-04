@@ -59,16 +59,17 @@ public class ToolsController {
   /** Search documents in knowledge base. */
   @GetMapping("/documents/search")
   public ResponseEntity<String> searchDocuments(
-      @RequestParam(required = false) String query, @RequestParam(required = false) String docIds) {
+      @RequestParam(required = false) String query,
+      @RequestParam(required = false) String documentIds) {
     if (query == null || query.isBlank()) {
       return ResponseEntity.badRequest().body("搜索关键词不能为空");
     }
     try {
-      List<String> docIdList = null;
-      if (docIds != null && !docIds.isBlank()) {
-        docIdList = List.of(docIds.split(","));
+      List<String> documentIdList = null;
+      if (documentIds != null && !documentIds.isBlank()) {
+        documentIdList = List.of(documentIds.split(","));
       }
-      return ResponseEntity.ok(toolService.searchDocuments(query, docIdList));
+      return ResponseEntity.ok(toolService.searchDocuments(query, documentIdList));
     } catch (Exception e) {
       log.error("Error searching documents", e);
       return ResponseEntity.internalServerError().body("搜索文档失败");
