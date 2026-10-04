@@ -5,6 +5,7 @@ import type {
   SidebarSession,
 } from '../layout/session-list.token';
 import { ChatService } from './chat.service';
+import { hasText } from '../shared/presence';
 
 @Injectable()
 export class ChatSessionListService implements SessionList {
@@ -73,7 +74,7 @@ export class ChatSessionListService implements SessionList {
 function readPinnedIds(): string[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.CHAT_PINNED_SESSION_IDS);
-    if (!raw) {
+    if (!hasText(raw)) {
       return [];
     }
     const parsed: unknown = JSON.parse(raw);

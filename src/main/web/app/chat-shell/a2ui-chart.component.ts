@@ -86,7 +86,7 @@ export class A2uiChartComponent extends CatalogComponent<typeof ChartApi> {
 
   readonly candles = computed(() => {
     const direct = toCandles(this.props()['candles']?.value());
-    if (direct.length) {
+    if (direct.length > 0) {
       return direct;
     }
     return toCandles(this.props()['ohlc']?.value());
@@ -106,12 +106,13 @@ export class A2uiChartComponent extends CatalogComponent<typeof ChartApi> {
 
   readonly chartOption = computed(() => {
     const type = this.chartType();
-    if (!type) {
+    if (type === null) {
       return null;
     }
+    const title = this.titleText();
     return buildChartOption({
       type,
-      title: this.titleText() || undefined,
+      title: title === '' ? undefined : title,
       chartData: this.chartData(),
       chartDataRaw: this.chartDataRaw(),
       categories: this.categories(),
@@ -137,10 +138,10 @@ export class A2uiChartComponent extends CatalogComponent<typeof ChartApi> {
   });
 
   readonly error = computed(() => {
-    if (!this.chartType()) {
+    if (this.chartType() === null) {
       return 'Unsupported or missing chart type';
     }
-    if (!this.chartOption()) {
+    if (this.chartOption() === null) {
       return 'Invalid or empty chart data';
     }
     return null;

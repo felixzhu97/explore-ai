@@ -12,7 +12,7 @@ export const chatRouteMatcher: UrlMatcher = (
   if (first?.path !== 'chat' || rest.length > 0) {
     return null;
   }
-  return sessionId
+  return sessionId !== undefined
     ? { consumed: segments, posParams: { sessionId } }
     : { consumed: segments };
 };

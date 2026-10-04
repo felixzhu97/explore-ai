@@ -19,7 +19,7 @@ export function stableMermaidId(source: string): string {
  * Split markdown into markdown / completed mermaid fences / pending fence.
  */
 export function splitMarkdownAndMermaid(content: string): MermaidSegment[] {
-  if (!content) {
+  if (content === '') {
     return [];
   }
 
@@ -30,7 +30,7 @@ export function splitMarkdownAndMermaid(content: string): MermaidSegment[] {
   let match: RegExpExecArray | null;
   while ((match = MERMAID_FENCE_RE.exec(content)) !== null) {
     const before = content.slice(lastIndex, match.index);
-    if (before.trim()) {
+    if (before.trim() !== '') {
       segments.push({ type: 'markdown', content: before });
     }
     const source = (match[1] ?? '').trimEnd();
@@ -46,11 +46,11 @@ export function splitMarkdownAndMermaid(content: string): MermaidSegment[] {
   if (hasUnclosedMermaidFence(rest)) {
     const openIndex = rest.search(/```mermaid\b/i);
     const beforeOpen = openIndex >= 0 ? rest.slice(0, openIndex) : '';
-    if (beforeOpen.trim()) {
+    if (beforeOpen.trim() !== '') {
       segments.push({ type: 'markdown', content: beforeOpen });
     }
     segments.push({ type: 'mermaid-pending' });
-  } else if (rest.trim()) {
+  } else if (rest.trim() !== '') {
     segments.push({ type: 'markdown', content: rest });
   }
 

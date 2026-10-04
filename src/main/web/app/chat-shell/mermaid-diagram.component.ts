@@ -90,7 +90,7 @@ export class MermaidDiagramComponent {
 
   openFullscreen(): void {
     const markup = this.svgMarkup();
-    if (!markup) {
+    if (markup === '') {
       return;
     }
     this.#dialog.create({
@@ -108,7 +108,7 @@ export class MermaidDiagramComponent {
 
   async #renderDiagram(source: string, diagramId: string): Promise<void> {
     const trimmed = source.trim();
-    if (!trimmed) {
+    if (trimmed === '') {
       this.hasError.set(true);
       return;
     }
@@ -122,7 +122,7 @@ export class MermaidDiagramComponent {
         USE_PROFILES: { svg: true, svgFilters: true },
         ADD_TAGS: ['foreignObject'],
       });
-      if (!clean) {
+      if (clean === '') {
         this.hasError.set(true);
         return;
       }

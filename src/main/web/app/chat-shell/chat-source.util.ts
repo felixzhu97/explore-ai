@@ -1,10 +1,11 @@
 import type { ChatSourceView } from './chat-bubble-list.component';
+import { hasText } from '../shared/presence';
 
 const LABEL_MAX_CHARS = 14;
 const TITLE_MAX_CHARS = 80;
 
 export function truncateText(text: string, max: number): string {
-  if (!text) {
+  if (text === '') {
     return '';
   }
   return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
@@ -12,7 +13,7 @@ export function truncateText(text: string, max: number): string {
 
 export function sourceHostname(source: ChatSourceView): string {
   const raw = source.url?.trim();
-  if (!raw) {
+  if (!hasText(raw)) {
     return '';
   }
   try {
@@ -25,18 +26,19 @@ export function sourceHostname(source: ChatSourceView): string {
 
 export function sourceLabel(source: ChatSourceView, fallback: string): string {
   const host = sourceHostname(source);
-  if (host) {
+  if (host !== '') {
     return truncateText(host, LABEL_MAX_CHARS);
   }
-  if (source.title?.trim()) {
-    return truncateText(source.title.trim(), LABEL_MAX_CHARS);
+  const title = source.title?.trim();
+  if (hasText(title)) {
+    return truncateText(title, LABEL_MAX_CHARS);
   }
-  return truncateText(source.text, LABEL_MAX_CHARS) || fallback;
+  return orFallback(truncateText(source.text, LABEL_MAX_CHARS), fallback);
 }
 
 export function sourceFaviconUrl(source: ChatSourceView): string | null {
   const host = sourceHostname(source);
-  if (!host) {
+  if (host === '') {
     return null;
   }
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
@@ -44,32 +46,37 @@ export function sourceFaviconUrl(source: ChatSourceView): string | null {
 
 export function sourceInitial(source: ChatSourceView, fallback: string): string {
   const label = sourceLabel(source, fallback).trim();
-  return (label.charAt(0) || '?').toUpperCase();
+  return (label === '' ? '?' : label.charAt(0)).toUpperCase();
 }
 
 export function sourceTitle(source: ChatSourceView, fallback: string): string {
-  if (source.title?.trim()) {
-    return source.title.trim();
+  const title = source.title?.trim();
+  if (hasText(title)) {
+    return title;
   }
   const host = sourceHostname(source);
-  if (host) {
+  if (host !== '') {
     return host;
   }
-  return truncateText(source.text, TITLE_MAX_CHARS) || fallback;
+  return orFallback(truncateText(source.text, TITLE_MAX_CHARS), fallback);
+}
+
+function orFallback(text: string, fallback: string): string {
+  return text === '' ? fallback : text;
 }
 
 export function sourcePublishedAt(source: ChatSourceView): string {
   const direct = source.publishedAt?.trim();
-  if (direct) {
+  if (hasText(direct)) {
     return direct;
   }
   const meta = source.metadata;
-  if (!meta) {
+  if (meta === undefined) {
     return '';
   }
   for (const key of ['publishedAt', 'date', 'published', 'published_at']) {
     const value = meta[key];
-    if (typeof value === 'string' && value.trim()) {
+    if (typeof value === 'string' && value.trim() !== '') {
       return value.trim();
     }
   }

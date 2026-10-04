@@ -118,11 +118,13 @@ describe('a2ui-fence', () => {
 
       expect(remapped).toHaveLength(4);
       for (const message of remapped) {
-        const payload =
-          ('createSurface' in message && message.createSurface)
-          || ('updateComponents' in message && message.updateComponents)
-          || ('updateDataModel' in message && message.updateDataModel)
-          || ('deleteSurface' in message && message.deleteSurface);
+        const payload = 'createSurface' in message
+          ? message.createSurface
+          : 'updateComponents' in message
+            ? message.updateComponents
+            : 'updateDataModel' in message
+              ? message.updateDataModel
+              : message.deleteSurface;
         expect(payload).toMatchObject({ surfaceId: 'a2ui-fixed' });
       }
     });

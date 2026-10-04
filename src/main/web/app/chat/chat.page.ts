@@ -30,6 +30,7 @@ import { ZardButtonComponent } from '../ui/button';
 import { ZardSelectImports } from '../ui/select/select.imports';
 import { ZardSwitchComponent } from '../ui/switch';
 import { ChatService } from './chat.service';
+import { hasItems, hasText } from '../shared/presence';
 
 @Component({
   selector: 'app-chat-page',
@@ -106,11 +107,9 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     return this.chat.messages()
       .filter(
         message => message.id === streamingId
-          || Boolean(
-            message.content.trim()
-            || message.toolSteps?.length
-            || message.sources?.length,
-          ),
+          || message.content.trim() !== ''
+          || hasItems(message.toolSteps)
+          || hasItems(message.sources),
       )
       .map(message => ({
         id: message.id,
@@ -141,7 +140,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   constructor() {
     effect(() => {
       const sessionId = this.#routeSessionId();
-      if (!sessionId || !this.chat.sessionsReady()) {
+      if (!hasText(sessionId) || !this.chat.sessionsReady()) {
         return;
       }
       // Missing session → ChatService redirects to `/chat` (no toast).
@@ -151,7 +150,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const legacySession = this.#route.snapshot.queryParamMap.get('session');
-    if (legacySession) {
+    if (hasText(legacySession)) {
       void this.#router.navigate(['/chat', legacySession], { replaceUrl: true });
     }
 
@@ -190,7 +189,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   onDocumentClick(event: MouseEvent): void {
     const root = this.skillsPicker()?.nativeElement;
-    if (root?.contains(event.target as Node)) {
+    if (root?.contains(event.target as Node) === true) {
       return;
     }
     this.isSkillsMenuOpen.set(false);
@@ -205,7 +204,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   #positionSkillsMenu(): void {
     const root = this.skillsPicker()?.nativeElement;
-    if (!root) {
+    if (root === undefined) {
       return;
     }
     const rect = root.getBoundingClientRect();
@@ -233,7 +232,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   send() {
     const text = this.input().trim();
-    if (!text || this.chat.isLoading()) {
+    if (text === '' || this.chat.isLoading()) {
       return;
     }
     if (!this.chat.isSelectedProviderAvailable()) {

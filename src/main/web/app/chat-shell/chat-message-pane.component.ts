@@ -122,7 +122,7 @@ export class ChatMessagePaneComponent {
 
   #scrollMessagesToBottom(): void {
     const element = this.messageScrollEl()?.nativeElement;
-    if (!element) {
+    if (element === undefined) {
       return;
     }
     element.scrollTop = element.scrollHeight;

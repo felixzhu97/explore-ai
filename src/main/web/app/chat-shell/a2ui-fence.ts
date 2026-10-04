@@ -21,12 +21,12 @@ export function parseA2uiNdjson(raw: string): A2uiMessage[] {
   const messages: A2uiMessage[] = [];
   for (const line of raw.split('\n')) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('//')) {
+    if (trimmed === '' || trimmed.startsWith('//')) {
       continue;
     }
     try {
       const parsed: unknown = JSON.parse(trimmed);
-      if (parsed && typeof parsed === 'object' && 'version' in parsed) {
+      if (parsed !== null && typeof parsed === 'object' && 'version' in parsed) {
         messages.push(normalizeMessageVersion(parsed as A2uiMessage));
       }
     } catch {
@@ -86,7 +86,7 @@ export function remapSurfaceIds(
  * Split assistant markdown into markdown / completed a2ui fences / pending fence.
  */
 export function splitMarkdownAndA2ui(content: string): ContentSegment[] {
-  if (!content) {
+  if (content === '') {
     return [];
   }
 
@@ -97,7 +97,7 @@ export function splitMarkdownAndA2ui(content: string): ContentSegment[] {
   let match: RegExpExecArray | null;
   while ((match = A2UI_FENCE_RE.exec(content)) !== null) {
     const before = content.slice(lastIndex, match.index);
-    if (before.trim()) {
+    if (before.trim() !== '') {
       segments.push({ type: 'markdown', content: before });
     }
     const raw = match[1] ?? '';
@@ -111,11 +111,11 @@ export function splitMarkdownAndA2ui(content: string): ContentSegment[] {
   if (hasUnclosedA2uiFence(rest)) {
     const openIndex = rest.search(/```a2ui\b/i);
     const beforeOpen = openIndex >= 0 ? rest.slice(0, openIndex) : '';
-    if (beforeOpen.trim()) {
+    if (beforeOpen.trim() !== '') {
       segments.push({ type: 'markdown', content: beforeOpen });
     }
     segments.push({ type: 'a2ui-pending' });
-  } else if (rest.trim()) {
+  } else if (rest.trim() !== '') {
     segments.push({ type: 'markdown', content: rest });
   }
 

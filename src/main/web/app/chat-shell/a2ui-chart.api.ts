@@ -272,7 +272,7 @@ export const ChartApi = {
         case 'boxplot': {
           const seriesOk = hasNamedSeries
             && data.series?.every(s => s.values.length >= 5);
-          if (!hasBoxes && !seriesOk) {
+          if (!hasBoxes && seriesOk !== true) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'boxplot requires boxes or series with five-number values',
@@ -283,7 +283,7 @@ export const ChartApi = {
         case 'candlestick':
           if (
             !hasCandles
-            && !(hasNamedSeries && data.series?.some(s => s.values.length >= 4))
+            && !(hasNamedSeries && data.series?.some(s => s.values.length >= 4) === true)
           ) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
