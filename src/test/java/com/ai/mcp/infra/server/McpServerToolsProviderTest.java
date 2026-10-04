@@ -192,13 +192,6 @@ class McpServerToolsProviderTest {
     }
 
     @Test
-    @DisplayName("should return chunk overlap config")
-    void shouldReturnChunkOverlapConfig() {
-      String result = toolsProvider.getConfig("app.rag.chunk.overlap");
-      assertThat(result).isEqualTo("50");
-    }
-
-    @Test
     @DisplayName("should return top-k config")
     void shouldReturnTopKConfig() {
       String result = toolsProvider.getConfig("app.rag.retrieval.top-k");

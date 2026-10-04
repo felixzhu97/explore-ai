@@ -71,7 +71,7 @@ class ChatMemorySessionBridgeTest {
             new UserMessage("chart please"),
             new AssistantMessage("前言\n<｜DSML｜tool_calls>x</｜DSML｜tool_calls>\n后记")));
 
-    ChatSession session = ChatSession.create("Title", "11111111-1111-1111-1111-111111111111");
+    ChatSession session = ChatSession.create("Title", "c:11111111-1111-1111-1111-111111111111");
     session.addUserMessage("stale");
 
     bridge.syncToSession("conv-1", session);
@@ -86,7 +86,7 @@ class ChatMemorySessionBridgeTest {
   @Test
   @DisplayName("should skip sync when memory empty")
   void shouldSkipSyncWhenMemoryEmpty() {
-    ChatSession session = ChatSession.create("Title", "11111111-1111-1111-1111-111111111111");
+    ChatSession session = ChatSession.create("Title", "c:11111111-1111-1111-1111-111111111111");
     session.addUserMessage("keep me");
 
     bridge.syncToSession("conv-1", session);

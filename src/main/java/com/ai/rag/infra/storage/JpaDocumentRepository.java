@@ -30,12 +30,6 @@ public class JpaDocumentRepository implements DocumentRepository {
   @Override
   @Transactional
   public RagDocument save(RagDocument document) {
-    return save(document, OwnerKey.LEGACY_ORPHAN.value());
-  }
-
-  @Override
-  @Transactional
-  public RagDocument save(RagDocument document, String ownerKey) {
     return delegate.saveAndFlush(document);
   }
 

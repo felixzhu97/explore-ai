@@ -30,35 +30,12 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
   @Column(nullable = false)
   private DocumentStatus status;
 
-  public RagDocument(DocumentId id, String title, String fileName, Long fileSize) {
-    this(id, title, fileName, fileSize, com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
-  }
-
   public RagDocument(DocumentId id, String title, String fileName, Long fileSize, String ownerKey) {
     super(id, ownerKey, Instant.now(), Instant.now());
     this.title = validateTitle(title);
     this.fileName = fileName;
     this.fileSize = fileSize;
     this.status = DocumentStatus.UPLOADING;
-  }
-
-  public RagDocument(
-      DocumentId id,
-      String title,
-      String fileName,
-      Long fileSize,
-      DocumentStatus status,
-      Instant createdAt,
-      Instant updatedAt) {
-    this(
-        id,
-        title,
-        fileName,
-        fileSize,
-        status,
-        createdAt,
-        updatedAt,
-        com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
   }
 
   public RagDocument(

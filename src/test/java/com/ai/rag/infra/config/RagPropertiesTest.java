@@ -20,13 +20,6 @@ class RagPropertiesTest {
     }
 
     @Test
-    void shouldHaveDefaultChunkOverlapWhenCreated() {
-      RagProperties properties = new RagProperties();
-
-      assertEquals(50, properties.getChunk().getOverlap());
-    }
-
-    @Test
     void shouldHaveDefaultRetrievalTopKWhenCreated() {
       RagProperties properties = new RagProperties();
 
@@ -54,25 +47,14 @@ class RagPropertiesTest {
     }
 
     @Test
-    void shouldUpdateChunkOverlapViaSetter() {
-      RagProperties properties = new RagProperties();
-
-      properties.getChunk().setOverlap(100);
-
-      assertEquals(100, properties.getChunk().getOverlap());
-    }
-
-    @Test
     void shouldUpdateEntireChunkObject() {
       RagProperties properties = new RagProperties();
       RagProperties.Chunk newChunk = new RagProperties.Chunk();
       newChunk.setSize(800);
-      newChunk.setOverlap(80);
 
       properties.setChunk(newChunk);
 
       assertEquals(800, properties.getChunk().getSize());
-      assertEquals(80, properties.getChunk().getOverlap());
     }
   }
 
@@ -119,7 +101,6 @@ class RagPropertiesTest {
       RagProperties.Chunk chunk = new RagProperties.Chunk();
 
       assertEquals(500, chunk.getSize());
-      assertEquals(50, chunk.getOverlap());
     }
 
     @Test
@@ -129,15 +110,6 @@ class RagPropertiesTest {
       chunk.setSize(0);
 
       assertEquals(0, chunk.getSize());
-    }
-
-    @Test
-    void shouldAcceptZeroOverlap() {
-      RagProperties.Chunk chunk = new RagProperties.Chunk();
-
-      chunk.setOverlap(0);
-
-      assertEquals(0, chunk.getOverlap());
     }
   }
 

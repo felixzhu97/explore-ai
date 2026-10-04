@@ -44,17 +44,6 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     this.title = validateTitle(title);
   }
 
-  private static OwnerKey parseOwnerKey(String ownerKey) {
-    if (ownerKey == null || ownerKey.isBlank()) {
-      throw new IllegalArgumentException("Owner key cannot be null or blank");
-    }
-    String trimmed = ownerKey.trim();
-    if (trimmed.startsWith(OwnerKey.CLIENT_PREFIX) || trimmed.startsWith(OwnerKey.ACCOUNT_PREFIX)) {
-      return OwnerKey.parse(trimmed);
-    }
-    return OwnerKey.forClient(trimmed);
-  }
-
   private static String validateTitle(String title) {
     if (title == null || title.isBlank()) {
       return DEFAULT_TITLE;
@@ -66,15 +55,16 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
   }
 
   public static ChatSession create(String title, String ownerKey) {
-    return new ChatSession(ChatSessionId.generate(), title, Instant.now(), parseOwnerKey(ownerKey));
+    return new ChatSession(
+        ChatSessionId.generate(), title, Instant.now(), OwnerKey.parse(ownerKey));
   }
 
   public static ChatSession createWithId(ChatSessionId id, String title, String ownerKey) {
-    return new ChatSession(id, title, Instant.now(), parseOwnerKey(ownerKey));
+    return new ChatSession(id, title, Instant.now(), OwnerKey.parse(ownerKey));
   }
 
   public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String ownerKey) {
-    return new ChatSession(id, title, createdAt, parseOwnerKey(ownerKey));
+    return new ChatSession(id, title, createdAt, OwnerKey.parse(ownerKey));
   }
 
   public Instant getLastActivityAt() {

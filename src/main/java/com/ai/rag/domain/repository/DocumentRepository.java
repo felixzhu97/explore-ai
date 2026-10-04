@@ -14,8 +14,6 @@ public interface DocumentRepository {
   /** Saves a document and returns the saved entity. */
   RagDocument save(RagDocument document);
 
-  RagDocument save(RagDocument document, String ownerKey);
-
   /** Finds a document by its ID. */
   Optional<RagDocument> findById(UUID id);
 

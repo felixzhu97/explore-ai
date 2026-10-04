@@ -1,6 +1,7 @@
 package com.ai.rag.infra.vector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
@@ -30,6 +31,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @DisplayName("H2DocumentChunkRepository")
 class H2DocumentChunkRepositoryTest {
+
+  private static final Map<String, Object> OWNER_METADATA = Map.of("ownerKey", "c:owner");
 
   private JdbcTemplate jdbcTemplate;
   private ObjectMapper objectMapper;
@@ -98,7 +101,8 @@ class H2DocumentChunkRepositoryTest {
     @DisplayName("should save chunk with embedding via MERGE")
     void shouldSaveChunk() {
       DocumentChunk chunk =
-          DocumentChunk.create(ChunkId.generate(), DocumentId.generate(), "content", 0, Map.of())
+          DocumentChunk.create(
+                  ChunkId.generate(), DocumentId.generate(), "content", 0, OWNER_METADATA)
               .withEmbedding(new float[] {0.1f, 0.2f});
       when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
       chunkRepository.saveChunk(chunk);
@@ -106,14 +110,16 @@ class H2DocumentChunkRepositoryTest {
     }
 
     @Test
-    @DisplayName("should handle null metadata")
-    void shouldHandleNullMetadata() {
+    @DisplayName("should reject chunk when metadata has no owner key")
+    void shouldRejectChunkWhenMetadataHasNoOwnerKey() {
       DocumentChunk chunk =
-          DocumentChunk.create(ChunkId.generate(), DocumentId.generate(), "content", 0, null)
+          DocumentChunk.create(ChunkId.generate(), DocumentId.generate(), "content", 0, Map.of())
               .withEmbedding(new float[] {0.1f});
-      when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
-      chunkRepository.saveChunk(chunk);
-      verify(jdbcTemplate).update(anyString(), any(Object[].class));
+
+      assertThatThrownBy(() -> chunkRepository.saveChunk(chunk))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("ownerKey");
+      verifyNoInteractions(jdbcTemplate);
     }
 
     @Test
@@ -121,7 +127,11 @@ class H2DocumentChunkRepositoryTest {
     void shouldSerializeMetadataWhenPresent() {
       DocumentChunk chunk =
           DocumentChunk.create(
-                  ChunkId.generate(), DocumentId.generate(), "content", 0, Map.of("key", "value"))
+                  ChunkId.generate(),
+                  DocumentId.generate(),
+                  "content",
+                  0,
+                  Map.of("key", "value", "ownerKey", "c:owner"))
               .withEmbedding(new float[] {0.1f});
       when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
       chunkRepository.saveChunk(chunk);

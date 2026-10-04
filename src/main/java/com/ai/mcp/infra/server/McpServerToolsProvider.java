@@ -105,7 +105,6 @@ public class McpServerToolsProvider {
 
     return switch (key) {
       case "app.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());
-      case "app.rag.chunk.overlap" -> String.valueOf(ragProperties.getChunk().getOverlap());
       case "app.rag.retrieval.top-k" -> String.valueOf(ragProperties.getRetrieval().getTopK());
       case "app.rag.retrieval.score-threshold" ->
           String.valueOf(ragProperties.getRetrieval().getScoreThreshold());

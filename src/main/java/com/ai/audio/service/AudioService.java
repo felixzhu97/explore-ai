@@ -10,7 +10,6 @@ import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.domain.vo.VoiceSelection;
 import com.ai.common.infra.logging.LogSanitizer;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,11 +19,6 @@ import org.springframework.stereotype.Service;
 public class AudioService {
 
   private static final Logger log = LoggerFactory.getLogger(AudioService.class);
-
-  private static final Map<String, String> LEGACY_VOICE_ALIASES =
-      Map.of(
-          "en-US", "alloy",
-          "zh-CN", "alloy");
 
   private final TextToSpeechGateway textToSpeechGateway;
   private final TtsConfiguration ttsConfiguration;
@@ -72,7 +66,6 @@ public class AudioService {
     if (voice == null || voice.isBlank()) {
       return ttsConfiguration.getDefaultVoice();
     }
-    String normalized = voice.trim();
-    return LEGACY_VOICE_ALIASES.getOrDefault(normalized, normalized);
+    return voice.trim();
   }
 }

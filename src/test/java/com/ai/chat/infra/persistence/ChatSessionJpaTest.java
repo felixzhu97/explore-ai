@@ -23,8 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Import({JpaChatSessionRepository.class, OwnerPartitionScope.class})
 class ChatSessionJpaTest extends AbstractDataJpaTest {
 
-  private static final String BARE_CLIENT_ID = "11111111-1111-1111-1111-111111111111";
-  private static final String OWNER_KEY = "c:" + BARE_CLIENT_ID;
+  private static final String OWNER_KEY = "c:11111111-1111-1111-1111-111111111111";
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataChatSessionRepository springDataRepository;
@@ -80,40 +79,40 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
   }
 
   @Test
-  @DisplayName("should hide session from another owner when finding by id and client id")
+  @DisplayName("should hide session from another owner when finding by id and owner key")
   void shouldHideSessionFromAnotherOwnerWhenFindingByIdAndOwnerKey() {
     ChatSession session = ChatSession.create("Private", OWNER_KEY);
     springDataRepository.saveAndFlush(session);
     em.clear();
 
     Optional<ChatSession> found =
-        jpaRepository.findByIdAndOwnerKey(session.getId(), "22222222-2222-2222-2222-222222222222");
+        jpaRepository.findByIdAndOwnerKey(
+            session.getId(), "c:22222222-2222-2222-2222-222222222222");
 
     assertThat(found).isEmpty();
   }
 
   @Test
-  @DisplayName("should find session by id and bare client id when using jpa adapter")
-  void shouldFindSessionByIdAndBareClientIdWhenUsingJpaRepository() {
+  @DisplayName("should find session by id and owner key when using jpa adapter")
+  void shouldFindSessionByIdAndOwnerKeyWhenUsingJpaRepository() {
     ChatSession session = ChatSession.create("Scoped", OWNER_KEY);
     springDataRepository.saveAndFlush(session);
     em.clear();
 
-    Optional<ChatSession> found =
-        jpaRepository.findByIdAndOwnerKey(session.getId(), BARE_CLIENT_ID);
+    Optional<ChatSession> found = jpaRepository.findByIdAndOwnerKey(session.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getTitle()).isEqualTo("Scoped");
   }
 
   @Test
-  @DisplayName("should list sessions by bare client id when using jpa adapter")
-  void shouldListSessionsByBareClientIdWhenUsingJpaRepository() {
+  @DisplayName("should list sessions by owner key when using jpa adapter")
+  void shouldListSessionsByOwnerKeyWhenUsingJpaRepository() {
     ChatSession session = ChatSession.create("Listed", OWNER_KEY);
     springDataRepository.saveAndFlush(session);
     em.clear();
 
-    List<ChatSession> sessions = jpaRepository.findByOwnerKey(BARE_CLIENT_ID);
+    List<ChatSession> sessions = jpaRepository.findByOwnerKey(OWNER_KEY);
 
     assertThat(sessions).hasSize(1);
     assertThat(sessions.getFirst().getId()).isEqualTo(session.getId());

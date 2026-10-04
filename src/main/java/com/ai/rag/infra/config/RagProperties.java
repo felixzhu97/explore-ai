@@ -30,7 +30,7 @@ public class RagProperties {
     this.retrieval = retrieval;
   }
 
-  /** Document chunking settings: token chunk size and legacy character overlap. */
+  /** Document chunking settings: token chunk size. */
   public static class Chunk {
     /**
      * Target chunk size in tokens ({@link
@@ -38,23 +38,12 @@ public class RagProperties {
      */
     private int size = 500;
 
-    /** Legacy overlap (characters); unused by Spring AI 2.0 {@code TokenTextSplitter}. */
-    private int overlap = 50;
-
     public int getSize() {
       return size;
     }
 
     public void setSize(int size) {
       this.size = size;
-    }
-
-    public int getOverlap() {
-      return overlap;
-    }
-
-    public void setOverlap(int overlap) {
-      this.overlap = overlap;
     }
   }
 

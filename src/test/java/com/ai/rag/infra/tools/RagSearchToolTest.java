@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
+import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +33,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RagSearchTool")
 class RagSearchToolTest {
-  private OwnerContext ownerContext;
+  private static final String CHANNEL = "rag-search-tool-test";
+  private static final String OWNER_KEY = "c:test-owner";
+
+  @Mock private OwnerContext ownerContext;
 
   @Mock private RagApplicationService ragApplicationService;
 
@@ -146,11 +151,43 @@ class RagSearchToolTest {
   @DisplayName("listDocuments")
   class ListDocuments {
 
+    @BeforeEach
+    void bindOwner() {
+      ToolEventChannel.open(CHANNEL);
+      ToolEventChannel.bindOwnerKey(CHANNEL, OWNER_KEY);
+    }
+
+    @AfterEach
+    void closeChannel() {
+      ToolEventChannel.close(CHANNEL);
+    }
+
+    @Test
+    @DisplayName("should list documents of owner bound to tool channel")
+    void shouldListDocumentsOfOwnerBoundToToolChannel() {
+      when(ragApplicationService.listDocuments(OWNER_KEY)).thenReturn(Collections.emptyList());
+
+      ragSearchTool.listDocuments();
+
+      verify(ragApplicationService).listDocuments(OWNER_KEY);
+    }
+
+    @Test
+    @DisplayName("should refuse to list documents when owner is unknown")
+    void shouldRefuseToListDocumentsWhenOwnerIsUnknown() {
+      ToolEventChannel.close(CHANNEL);
+
+      String result = ragSearchTool.listDocuments();
+
+      assertThat(result).contains("无法识别用户");
+      verifyNoInteractions(ragApplicationService);
+    }
+
     @Test
     @DisplayName("should return document list")
     void shouldReturnDocumentList() {
       DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
-      RagDocument doc = new RagDocument(docId, TEST_DOC_TITLE, "test.pdf", 1024L, "c:test-owner");
+      RagDocument doc = new RagDocument(docId, TEST_DOC_TITLE, "test.pdf", 1024L, OWNER_KEY);
       when(ragApplicationService.listDocuments(anyString())).thenReturn(List.of(doc));
 
       String result = ragSearchTool.listDocuments();

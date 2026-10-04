@@ -67,6 +67,7 @@ public class ChatStreamController {
   public Flux<String> chatStream(
       @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {
     TextChatOptions options = buildChatOptions(request, httpRequest);
+    String ownerKey = ownerContext.requireValue(httpRequest);
 
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
       String userMessage = extractLastUserMessage(request.messages());
@@ -74,7 +75,6 @@ public class ChatStreamController {
         return Flux.error(
             new IllegalArgumentException("User message is required when sessionId is provided"));
       }
-      String ownerKey = ownerContext.requireValue(httpRequest);
       return chatService.chatStreamWithSession(request.sessionId(), userMessage, options, ownerKey);
     }
 
@@ -88,7 +88,7 @@ public class ChatStreamController {
                         dto.role(),
                         Instant.now()))
             .toList();
-    return chatService.chatStream(messages, options);
+    return chatService.chatStream(messages, options, ownerKey);
   }
 
   private TextChatOptions buildChatOptions(

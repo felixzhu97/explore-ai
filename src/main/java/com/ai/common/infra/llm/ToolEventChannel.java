@@ -1,6 +1,7 @@
 package com.ai.common.infra.llm;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -14,6 +15,7 @@ public final class ToolEventChannel {
 
   private static final ConcurrentHashMap<String, Sinks.Many<String>> BY_ID =
       new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, String> OWNER_BY_ID = new ConcurrentHashMap<>();
   private static final ThreadLocal<String> CURRENT_ID = new ThreadLocal<>();
 
   private ToolEventChannel() {}
@@ -25,6 +27,17 @@ public final class ToolEventChannel {
     BY_ID.put(channelId, sink);
     CURRENT_ID.set(channelId);
     return sink;
+  }
+
+  /** Records whose data tools may read while the channel is open; cleared by {@link #close}. */
+  public static void bindOwnerKey(String channelId, String ownerKey) {
+    OWNER_BY_ID.put(channelId, ownerKey);
+  }
+
+  /** Owner key bound to the current thread's channel, if any. */
+  public static Optional<String> currentOwnerKey() {
+    String id = CURRENT_ID.get();
+    return id == null ? Optional.empty() : Optional.ofNullable(OWNER_BY_ID.get(id));
   }
 
   public static void setCurrentSessionId(String channelId) {
@@ -61,6 +74,7 @@ public final class ToolEventChannel {
     if (channelId == null) {
       return;
     }
+    OWNER_BY_ID.remove(channelId);
     Sinks.Many<String> sink = BY_ID.remove(channelId);
     if (sink != null) {
       sink.tryEmitComplete();

@@ -112,7 +112,7 @@ public class DocumentUploadService {
     RagDocument document =
         new RagDocument(DocumentId.generate(), title, fileName, fileSize, ownerKey);
     document.markProcessing();
-    document = documentRepository.save(document, ownerKey);
+    document = documentRepository.save(document);
 
     try {
       RawDocument raw = reader.read(fileContent, fileName);
@@ -133,13 +133,13 @@ public class DocumentUploadService {
 
       writer.write(chunks);
       document.markReady();
-      document = documentRepository.save(document, ownerKey);
+      document = documentRepository.save(document);
       return new UploadResult(
           document.getId(), document.getTitle(), document.getStatus().name(), chunks.size());
     } catch (Exception e) {
       log.error("Failed to process document", e);
       document.markFailed();
-      documentRepository.save(document, ownerKey);
+      documentRepository.save(document);
       throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
     }
   }

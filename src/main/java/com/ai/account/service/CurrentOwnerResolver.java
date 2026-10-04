@@ -34,12 +34,8 @@ public class CurrentOwnerResolver {
       return OwnerKey.forAccount(fromAuth.get().getId().value());
     }
 
-    if (clientId == null || clientId.isBlank()) {
-      throw new IllegalArgumentException("clientId is required");
-    }
-
     return accountUserRepository
-        .findByLinkedClientId(clientId.trim())
+        .findByLinkedClientId(clientId)
         .map(user -> OwnerKey.forAccount(user.getId().value()))
         .orElseGet(() -> OwnerKey.forClient(clientId));
   }

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.ai.audio.domain.exception.InvalidSpeechTextException;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
@@ -49,16 +50,14 @@ class AudioServiceTest {
   }
 
   @Test
-  @DisplayName("should resolve legacy voice alias")
-  void shouldResolveLegacyVoiceAlias() {
+  @DisplayName("should reject retired locale voice name")
+  void shouldRejectRetiredLocaleVoiceName() {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
-    when(textToSpeechGateway.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(null)))
-        .thenReturn(SynthesizedAudio.create(new byte[] {9}));
 
-    byte[] audio = service.synthesize("hello", "zh-CN", null);
-
-    assertThat(audio).containsExactly(9);
+    assertThatThrownBy(() -> service.synthesize("hello", "zh-CN", null))
+        .isInstanceOf(InvalidSpeechTextException.class)
+        .hasMessageContaining("Unknown voice");
   }
 
   @Test

@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("DocumentChunk")
 class DocumentChunkTest {
 
-  private static final DocumentId TEST_ID =
-      DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+  private static final ChunkId TEST_ID = ChunkId.of("123e4567-e89b-12d3-a456-426614174000");
   private static final DocumentId TEST_DOCUMENT_ID =
       DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
   private static final String TEST_CONTENT = "This is a test chunk content.";
