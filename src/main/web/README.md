@@ -36,20 +36,27 @@ pnpm test
 
 ## Project Structure
 
+Each bounded context is one flat folder under `app/`. Pages,
+services, components and `<context>.routes.ts` sit side by side, and
+types live in the service or component that uses them (no `core`,
+`shared` or `*.model.ts`).
+
 ```
-src/
+src/main/web/
 ├── app/
-│   ├── components/     # UI components
-│   │   ├── ai/         # AI-related components
-│   │   ├── agents/     # Agent components
-│   │   └── panels/     # Panel components
-│   ├── services/       # Angular services
-│   ├── i18n/           # Internationalization
-│   ├── shared/         # Shared utilities & models
-│   └── theme/          # Theme configuration
-├── styles.scss         # Global styles
-├── main.ts             # Application entry point
-└── index.html          # HTML entry point
+│   ├── app.config.ts, app.routes.ts, storage-keys.ts
+│   ├── layout/          # Main layout, header, sidebar, nav config
+│   ├── http/            # API base URL, interceptors, SSE client
+│   ├── i18n/            # I18nService, translations, locales
+│   ├── feature-flags/   # FeatureFlagService, module guard
+│   ├── ui/              # zard kit (one folder per component)
+│   ├── chat-shell/      # Message pane, bubbles, markdown, A2UI
+│   ├── account/  agents/  automations/  chat/  eval/
+│   ├── generate/  image/  tts/  mcp/  metrics/  pipelines/
+│   └── policies/  privacy/  rag/  skills/  speech-to-text/  vision/
+├── styles.css           # Global styles
+├── main.ts              # Application entry point
+└── index.html           # HTML entry point
 ```
 
 ## Features
