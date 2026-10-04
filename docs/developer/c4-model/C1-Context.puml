@@ -1,21 +1,8 @@
 @startuml C1-Context
-!ROUNDED_STYLE=1
+!theme C4_blue_new from https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/themes
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-UpdateElementStyle("person", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("external_person", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("system", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("external_system", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("container", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("external_container", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("component", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("external_component", "#FFFFFF", "#000000", "#000000")
-UpdateElementStyle("node", "#FFFFFF", "#000000", "#000000")
-UpdateBoundaryStyle("", $bgColor="#FFFFFF", $fontColor="#000000", $borderColor="#000000")
-UpdateRelStyle("#000000", "#000000")
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
 
-title System Context (C1) - AI Chat & Agent Platform
+title System Context (C1) — AI Chat & Agent Platform
 
 Person(user, "User", "Chat, RAG, Agent/workflows, image/TTS; optional Vision/MCP/Eval/ASR\nSigns in via Web or AI iOS (IAM PKCE)")
 Person(admin, "Admin / Developer", "Eval, text analysis, metrics, feature flags, API integration")

@@ -4,14 +4,15 @@
 
 Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库: [C4-PlantUML](https://github.com/plantuml-stdlib/C4-PlantUML)。
 
-## Visual tracks
+## Visual tracks (do not mix)
+
+与 [Explore IAM C4 模型](https://github.com/felixzhu97/explore-iam/tree/main/docs/developer/c4-model) 保持一致。
 
 | Track | Files | Style |
 | ----- | ----- | ----- |
-| **Structural C4** | C1–C3, Deployment | Official **`C4_blue_new`** theme（线框；勿与 zinc 混用） |
-| **Domain + Dynamics** | Code domain model, `C4-Dynamic-*` | [`style-zinc.puml`](style-zinc.puml)（白底 + 彩色边框，IAM 风格） |
-
-Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc.puml` 用于 structural C4）。
+| **Structural C4** | C1–C3, Deployment | `C4_blue_new` theme (wireframe) |
+| **Domain model** | `C4-Code-Domain-Model.puml` | 白底黑字黑边框（内联 `!theme plain`）；package 以业务域命名（Glossary Preferred Term），不用 Java 包路径 |
+| **Dynamics** | `C4-Dynamic-*` | [`style-zinc.puml`](style-zinc.puml) 或内联白底（见各文件） |
 
 ## 文件
 
@@ -20,9 +21,9 @@ Do not mix `C4_blue_new` into domain/dynamic diagrams（也不要把 `style-zinc
 | `C1-Context.puml` | C1 | 系统上下文（含 Explore IAM、AI iOS、LaunchDarkly、Datadog） |
 | `C2-Container.puml` | C2 | 容器图（13 子域 + AI iOS + IAM） |
 | `C3-Component.puml` | C3 | **单图**：Web + iOS + Backend；`IamResourceServerConfig` |
-| `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；对齐 `com.ai.*.domain`） |
+| `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；按业务域分 package：Domain Kernel、Common、Chat、RAG…） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地（IAM :9100 / AI :9000 / Simulator）+ 生产 |
-| `style-zinc.puml` | Shared | Code + Dynamic 共用样式（白底、标题色区分 stereotype） |
+| `style-zinc.puml` | Shared | Dynamic 序列图可选样式（Code 领域模型内联白底黑边框） |
 | `C4-Dynamic-Document-Upload.puml` | Dynamic | 文档上传 ETL |
 | `C4-Dynamic-Rag-Ask.puml` | Dynamic | RAG SSE 问答 |
 | `C4-Dynamic-Chat-Tools.puml` | Dynamic | Chat 工具 SSE + A2UI 图表 |

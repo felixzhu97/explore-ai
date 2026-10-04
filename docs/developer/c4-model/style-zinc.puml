@@ -1,4 +1,4 @@
-' Shared look for Code domain model + Dynamic sequence diagrams.
+' Optional shared look for Dynamic sequence diagrams (Code domain model styles itself inline).
 ' Do NOT use with structural C4 New Style diagrams (C1–C3 / Deployment).
 ' White body + colored header/border (IAM / authorization domain model style).
 

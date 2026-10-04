@@ -1,29 +1,41 @@
 @startuml C4-Code-Domain-Model
-!include style-zinc.puml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
 
-title Code diagram (C4) — Domain model (aligned to com.ai.*.domain)
+title Code diagram (C4) — Domain model (by business domain)
+hide empty members
 
 legend right
-  |= 标题色 |= Type |
-  | <color:#334155>Abstract</color> | 抽象基类 |
-  | <color:#064E3B>AggregateRoot</color> | 聚合根 |
-  | <color:#1E3A8A>Entity</color> | 实体 |
-  | <color:#9A3412>ValueObject</color> | 值对象 |
-  | <color:#78350F>Enum</color> | 枚举 |
-  | <color:#581C87>DomainEvent</color> | 领域事件 |
-  | <color:#3730A3>DomainService</color> | 领域服务 |
-  | <color:#52525B>Repository</color> | 仓储端口 |
+  |= Stereotype |= Meaning |
+  | <<Abstract>> | 抽象基类 |
+  | <<AggregateRoot>> | 聚合根 |
+  | <<Entity>> | 实体 |
+  | <<ValueObject>> | 值对象 |
+  | <<Enum>> | 枚举 |
+  | <<DomainEvent>> | 领域事件 |
+  | <<DomainService>> | 领域服务 |
+  | <<Repository>> | 仓储端口 |
+  | <<FilterDef>> | Hibernate 过滤器定义 |
 endlegend
 
 note as N_LAYERS
   controller → service → domain ← infra
   Aggregates encapsulate invariants; application orchestrates use cases.
   ChatMessage bodies persist via Spring AI ChatMemory bridge.
-  Kernel: com.ai.base + com.ai.common.domain (see packages below).
+  Kernel: Domain Kernel + Common packages below.
+  Preferred Terms: docs/Glossary.md
 end note
 
-' ── domain kernel (com.ai.base) ─────────────────────────────
-package "com.ai.base" as pkg_base {
+' ── Domain Kernel ──────────────────────────────────────────
+package "Domain Kernel" as pkg_base {
   interface EntityId <<ValueObject>> {
     +value()
   }
@@ -56,8 +68,8 @@ EntityId <|.. AbstractUuidId
 AbstractUuidId --> AbstractEntity : embedded id
 AbstractUuidId --> AbstractImmutable : embedded id
 
-' ── aggregate bases (com.ai.common.domain.model) ───────────
-package "com.ai.common.domain" as pkg_common_kernel {
+' ── Common (owner-keyed bases) ─────────────────────────────
+package "Common" as pkg_common_kernel {
   class AbstractOwnerKeyedEntity <<Abstract>> {
     @Filter(ownerPartition)
     +ownerKey: OwnerKey NOT NULL
@@ -124,7 +136,7 @@ AbstractOwnerKeyedEntity --> OwnerKey
 AbstractOwnerKeyedEntity ..> OwnerPartition : filtered by
 
 ' ── chat ───────────────────────────────────────────────────
-package "com.ai.chat.domain" as pkg_chat {
+package "Chat" as pkg_chat {
   class ChatSession <<AggregateRoot>> {
     +id: ChatSessionId
     +ownerKey: OwnerKey
@@ -173,7 +185,7 @@ ChatSession "1" *-- "0..*" ChatMessage
 ChatMessage --> ChatMessageType
 
 ' ── rag ────────────────────────────────────────────────────
-package "com.ai.rag.domain" as pkg_rag {
+package "RAG" as pkg_rag {
   class Document <<AggregateRoot>> {
     +id: DocumentId
     +ownerKey: OwnerKey
@@ -213,7 +225,7 @@ Document "1" *-- "0..*" DocumentChunk
 Document --> DocumentStatus
 
 ' ── pipeline + skill ───────────────────────────────────────
-package "com.ai.pipeline.domain" as pkg_pipeline {
+package "Pipeline" as pkg_pipeline {
   class AgentPipeline <<AggregateRoot>> {
     +nodes: List
     +edges: List
@@ -240,7 +252,7 @@ package "com.ai.pipeline.domain" as pkg_pipeline {
   }
 }
 
-package "com.ai.skill.domain" as pkg_skill {
+package "Skill" as pkg_skill {
   class Skill <<AggregateRoot>> {
     +id: SkillId
     +name: String
@@ -257,7 +269,7 @@ package "com.ai.skill.domain" as pkg_skill {
 }
 
 ' ── automation ─────────────────────────────────────────────
-package "com.ai.automation.domain" as pkg_automation {
+package "Automation" as pkg_automation {
   class AutomationSchedule <<AggregateRoot>> {
     @DynamicUpdate
     +id: ScheduleId
@@ -290,7 +302,7 @@ package "com.ai.automation.domain" as pkg_automation {
 AutomationSchedule "1" o-- "0..*" AutomationRun
 
 ' ── account ────────────────────────────────────────────────
-package "com.ai.account.domain" as pkg_account {
+package "Account" as pkg_account {
   class AccountUser <<Entity>> {
     +provider: String <<NaturalId>>
     +subject: String <<NaturalId>>
@@ -303,7 +315,7 @@ package "com.ai.account.domain" as pkg_account {
 }
 
 ' ── mcp ────────────────────────────────────────────────────
-package "com.ai.mcp.domain" as pkg_mcp {
+package "MCP" as pkg_mcp {
   class McpSession <<AggregateRoot>> {
     +id: UUID
     +status: McpSessionStatus
@@ -320,7 +332,7 @@ package "com.ai.mcp.domain" as pkg_mcp {
 }
 
 ' ── metrics ────────────────────────────────────────────────
-package "com.ai.metrics.domain" as pkg_metrics {
+package "Metrics" as pkg_metrics {
   class AiInvocationEvent <<DomainEvent>> {
     @Immutable
     +domain: AiDomain
@@ -341,7 +353,7 @@ package "com.ai.metrics.domain" as pkg_metrics {
 }
 
 ' ── tools (sample) ─────────────────────────────────────────
-package "com.ai.tools.domain" as pkg_tools {
+package "Tool Calling" as pkg_tools {
   class WeatherReport <<Entity>> {
     +location: String
     +current: WeatherInfo
@@ -350,8 +362,8 @@ package "com.ai.tools.domain" as pkg_tools {
 
 ' ── cross-cutting (kernel note) ─────────────────────────────
 note as KERNEL_NOTE
-  OwnerKey and aggregate bases are defined in
-  **com.ai.common.domain** (pkg_common_kernel above).
+  OwnerKey and owner-keyed aggregate bases live in
+  the **Common** package above.
   Attribute converters (OwnerKey, enums, JSON lists) live in domain.vo.
   Typed ids map to native UUID columns.
   Owner-scoped adapters run inside OwnerPartitionScope (infra),
