@@ -167,12 +167,12 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 
 - **框架**: Angular 22 + TypeScript
 - **路由**: `/chat` `/chat/:sessionId` / `/generate` / `/rag` / `/metrics` + flag `/pipelines` `/skills` `/vision` `/mcp` `/eval` `/speech-to-text`（`/asr` 重定向）
-- **对话壳**: `shared/components/chat-shell`（message-pane / sender-bar / bubble-list / welcome），供 Chat / RAG / Agents 共用
-- **实现目录**: `app/features/<feature>/{pages,components,services}` + `<feature>.routes.ts`（文件夹、路由、i18n 区段与导航 key 同名）；`app/core/{layout,services,i18n,config}`；`app/shared/{components,a2ui}`
-- **API 服务**: 每个 feature 的 `services/`（`ChatService` / `RagService` / `ImageService` / `TtsService` / `VisionService` / `SpeechToTextService` / `PipelinesService` / `AgentsService` / `MetricsService`）+ `sse-client.ts` + shared ECharts panels
-- **浏览器存储**: 键名统一为 `explore-ai.<area>.<key>`（`core/config/storage-keys.ts`），启动时一次性迁移旧键 `language` / `ea_oauth_return` / `explore-ai-privacy-consent`
+- **对话壳**: `app/chat-shell/`（message-pane / sender-bar / bubble-list / welcome + markdown、mermaid、`a2ui-*`），供 Chat / RAG / Pipelines 共用
+- **实现目录**: 每个限界上下文一个扁平文件夹 `app/<context>/`（page、service、component、`<context>.routes.ts` 平铺，文件夹、路由、i18n 区段与导航 key 同名）；跨上下文代码放在 `app/layout`、`app/http`、`app/i18n`、`app/feature-flags`、`app/ui`（zard 组件库，按组件分文件夹）和 `app/chat-shell`；不使用 `core` / `shared` / `*.model.ts`，类型内联在 service 或使用处
+- **API 服务**: 每个上下文的 `<context>.service.ts`（`ChatService` / `RagService` / `ImageService` / `TtsService` / `VisionService` / `SpeechToTextService` / `PipelinesService` / `AgentsService` / `MetricsService`）+ `http/sse-client.ts` + `metrics/` 下的 ECharts 面板
+- **浏览器存储**: 键名统一为 `explore-ai.<area>.<key>`（`app/storage-keys.ts`），启动时一次性迁移旧键 `language` / `ea_oauth_return` / `explore-ai-privacy-consent`
 - **功能开关**: `FeatureFlagService` + `moduleEnabledGuard`（LaunchDarkly Client SDK）
-- **可观测性**: `datadog-rum.config.ts`
+- **可观测性**: `privacy/datadog-rum.config.ts`
 - **端口**: dev 4200 (proxy `/api` → `:9000`) / prod Vercel 静态托管
 
 ### Chat 流式 API

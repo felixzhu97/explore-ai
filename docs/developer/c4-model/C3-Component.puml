@@ -5,18 +5,18 @@
 title Component Diagram (C3) — AI Platform (backend + frontend)
 
 Container_Boundary(web_app, "Web App (Angular 22)") {
-    Component(layout, "MainLayout + app.routes", "Angular", "core/layout · lazy features/*/<feature>.routes.ts")
+    Component(layout, "MainLayout + app.routes", "Angular", "layout/ · lazy <context>/<context>.routes.ts")
     Component(chat_page, "ChatPageComponent", "Angular", "/chat/:sessionId · sessions + tools")
     Component(rag_page, "RagPageComponent", "Angular", "/rag · document rail + grounded SSE")
     Component(generate_page, "GeneratePageComponent", "Angular", "/generate/image /generate/tts")
     Component(metrics_page, "Metrics pages", "Angular", "/metrics overview + domain drilldown")
     Component(lab_pages, "Lab pages [flag]", "Angular", "/pipelines /automations /vision /mcp /eval /speech-to-text")
-    Component(chat_shell, "chat-shell", "Angular", "message-pane / sender-bar / bubble-list / A2UI")
-    Component(shared_ui, "shared UI", "Angular", "charts · mermaid · citations · zard")
-    Component(api_layer, "Feature services", "Angular", "features/*/services · ChatService / RagService / ImageService / MetricsService / PipelinesService")
-    Component(sse_client, "sse-client", "Utility", "streamSsePost / parseSseToken")
+    Component(chat_shell, "chat-shell", "Angular", "chat-shell/ · message-pane / sender-bar / bubble-list / markdown / mermaid / A2UI")
+    Component(shared_ui, "ui kit", "Angular", "ui/ · zard components · notifications · image zoom")
+    Component(api_layer, "Feature services", "Angular", "<context>/<context>.service.ts · ChatService / RagService / ImageService / MetricsService / PipelinesService")
+    Component(sse_client, "sse-client", "Utility", "http/ · streamSsePost / parseSseToken")
     Component(flags, "FeatureFlagService + guards", "Angular", "LaunchDarkly Client SDK")
-    Component(rum, "datadog-rum.config", "Config", "RUM + ErrorHandler")
+    Component(rum, "datadog-rum.config", "Config", "privacy/ · RUM + ErrorHandler")
 }
 
 Container_Boundary(backend, "AI Platform Backend (Spring Boot)") {

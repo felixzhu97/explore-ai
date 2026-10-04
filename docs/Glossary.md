@@ -32,7 +32,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 | Preferred Term   | 中文        | Java Package      | Frontend Route          | API Prefix                                | Feature Flag                  | Notes                                 |
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
-| Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/chat`, `/api/chat/sessions`, `/api/privacy` | —                             | UI under `app/features/chat/` + `app/features/privacy/` |
+| Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/chat`, `/api/chat/sessions`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/`  |
 | Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG; per-node editable agent copies; multilingual builtin catalog |
 | Automation       | 定时自动化      | `com.ai.automation` | `/automations`        | `/api/automations`                        | `module-automations`          | Schedule saved workflows; email result summary |
 | Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
@@ -40,7 +40,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
 | Text Analysis    | 结构化分析     | `com.ai.textanalysis` | —                   | `/api/text-analysis`                      | —                             | No dedicated frontend route           |
 | Eval             | 对话质量评估    | `com.ai.eval`     | `/eval`                 | `/api/eval`                               | `module-eval`                 | LLM-as-a-Judge                        |
-| Image Generation | 图像生成      | `com.ai.image`    | `/generate/image`       | `/api/images`                             | —                             | UI under `app/features/generate/image/`        |
+| Image Generation | 图像生成      | `com.ai.image`    | `/generate/image`       | `/api/images`                             | —                             | UI under `app/image/`                 |
 | Image Analysis   | 图像分析      | `com.ai.vision`   | `/vision`               | `/api/vision`                             | `module-vision`               | Caption / Detect / OCR                |
 | Audio            | 语音        | `com.ai.audio`    | `/generate/tts`, `/speech-to-text` | `/api/audio`, `/ws/audio`                 | `module-audio-asr` (ASR only) | TTS always on                         |
 | MCP              | MCP       | `com.ai.mcp`      | `/mcp`                  | `/api/mcp`, `/api/mcp/client`             | `module-mcp`                  | Server + Client in one package        |
@@ -431,7 +431,7 @@ Shared BI vocabulary (Dashboard, KPI, Dimension, Drill-down, …): see **Appendi
 
 ## 14. Generation | 生成
 
-UI shell only (no dedicated Java package). Routes under `/generate` host **Image Generation** and **Text-to-Speech** pages (`app/features/generate/image/`, `app/features/generate/tts/`). Prefer those business-domain terms in code and API naming.
+UI shell only (no dedicated Java package). Routes under `/generate` host **Image Generation** and **Text-to-Speech** pages (`app/image/`, `app/tts/`; the tab shell lives in `app/generate/`). Prefer those business-domain terms in code and API naming.
 
 ---
 
