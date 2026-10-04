@@ -139,9 +139,10 @@ export default defineConfig([
   // Dynamic / base64 previews cannot use NgOptimizedImage
   {
     files: [
-      '**/generate/image/components/**',
+      '**/image/image-gen-form.component.ts/**',
+      '**/image/media-preview-panel.component.ts/**',
       '**/chat-shell/**',
-      '**/image-zoom/**',
+      '**/ui/image-zoom-dialog.component.ts/**',
       '**/vision/**',
       '**/rag.page.html',
     ],
@@ -182,8 +183,8 @@ export default defineConfig([
   },
   {
     files: [
-      'src/main/web/app/shared/components/input/input.directive.ts',
-      'src/main/web/app/shared/components/layout/sidebar-menu-button.directive.ts',
+      'src/main/web/app/ui/input/input.directive.ts',
+      'src/main/web/app/ui/layout/sidebar-menu-button.directive.ts',
     ],
     rules: {
       '@angular-eslint/directive-selector': [

@@ -1,0 +1,59 @@
+import { STORAGE_KEYS } from '../storage-keys';
+
+export interface PrivacyConsentState {
+  decided: boolean;
+  analytics: boolean;
+  contactEmail: string;
+  decidedAt?: string;
+}
+
+export function readPrivacyConsent(): PrivacyConsentState {
+  if (typeof localStorage === 'undefined') {
+    return { decided: false, analytics: false, contactEmail: '' };
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PRIVACY_CONSENT);
+    if (!raw) {
+      return { decided: false, analytics: false, contactEmail: '' };
+    }
+    const parsed = JSON.parse(raw) as Partial<PrivacyConsentState>;
+    return {
+      decided: Boolean(parsed.decided),
+      analytics: Boolean(parsed.analytics),
+      contactEmail: typeof parsed.contactEmail === 'string' ? parsed.contactEmail : '',
+      decidedAt: typeof parsed.decidedAt === 'string' ? parsed.decidedAt : undefined,
+    };
+  } catch {
+    return { decided: false, analytics: false, contactEmail: '' };
+  }
+}
+
+export function writePrivacyConsent(analytics: boolean): PrivacyConsentState {
+  const current = readPrivacyConsent();
+  return writePrivacyPreferences({ analytics, contactEmail: current.contactEmail });
+}
+
+export function writePrivacyPreferences(preferences: {
+  analytics: boolean;
+  contactEmail: string;
+}): PrivacyConsentState {
+  const next: PrivacyConsentState = {
+    decided: true,
+    analytics: preferences.analytics,
+    contactEmail: preferences.contactEmail,
+    decidedAt: new Date().toISOString(),
+  };
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.PRIVACY_CONSENT, JSON.stringify(next));
+  }
+  return next;
+}
+
+export function hasAnalyticsConsent(): boolean {
+  const state = readPrivacyConsent();
+  return state.decided && state.analytics;
+}
+
+export function needsPrivacyConsentDecision(): boolean {
+  return !readPrivacyConsent().decided;
+}

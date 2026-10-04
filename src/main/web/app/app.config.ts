@@ -4,14 +4,14 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
-import { provideZard } from './shared/zard';
+import { provideZard } from './ui/zard';
 import { routes } from './app.routes';
-import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
-import { credentialsInterceptor } from './core/interceptors/credentials.interceptor';
-import { SESSION_LIST } from './core/layout/services/session-list.token';
-import { ChatSessionListService } from './features/chat/services/chat-session-list.service';
-import { FeatureFlagService } from './core/services/feature-flag.service';
-import { DatadogErrorHandler } from './core/config/datadog-rum.config';
+import { httpErrorInterceptor } from './http/http-error.interceptor';
+import { credentialsInterceptor } from './http/credentials.interceptor';
+import { SESSION_LIST } from './layout/session-list.token';
+import { ChatSessionListService } from './chat/chat-session-list.service';
+import { FeatureFlagService } from './feature-flags/feature-flag.service';
+import { DatadogErrorHandler } from './privacy/datadog-rum.config';
 import {
   A2UI_RENDERER_CONFIG,
   A2uiRendererService,
@@ -24,7 +24,7 @@ import { provideEchartsCore } from 'ngx-echarts';
 import {
   ChartComponentImplementation,
   EXPLORE_CHAT_CATALOG_ID,
-} from './shared/a2ui/explore-chat.catalog';
+} from './chat-shell/a2ui-explore-chat.catalog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -53,7 +53,7 @@ export const appConfig: ApplicationConfig = {
     }),
     // Lazy-load treeshaken ECharts so it stays out of the initial bundle budget.
     provideEchartsCore({
-      echarts: () => import('./shared/components/charts/echarts.bundle').then(m => m.default),
+      echarts: () => import('./metrics/echarts.bundle').then(m => m.default),
     }),
     provideMarkdownRenderer(async markdown => String(await marked.parse(String(markdown ?? '')))),
     {
