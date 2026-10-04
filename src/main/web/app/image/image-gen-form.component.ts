@@ -62,7 +62,7 @@ import type { ImageSize } from './image.service';
           z-button
           zFull
           zSize="lg"
-          [zDisabled]="!prompt().trim() || isGenerating()"
+          [zDisabled]="prompt().trim() === '' || isGenerating()"
           (click)="generateRequested.emit()"
         >
           @if (isGenerating()) {

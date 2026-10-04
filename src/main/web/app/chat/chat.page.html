@@ -60,7 +60,8 @@
       >
         {{ skillsTriggerLabel() }}
       </button>
-      @if (isSkillsMenuOpen() && skillsMenuStyle(); as menuStyle) {
+      @let menuStyle = skillsMenuStyle();
+      @if (isSkillsMenuOpen() && menuStyle !== null) {
         <div
           class="fixed z-80 w-64 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg"
           role="listbox"
@@ -117,7 +118,8 @@
   (promptSelected)="onPromptSelect($event)"
 />
 
-@if (chat.error(); as error) {
+@let error = chat.error();
+@if (error !== null) {
   <z-alert
     class="rounded-none border-x-0 border-t"
     zType="destructive"

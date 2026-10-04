@@ -29,7 +29,7 @@ export interface MermaidDiagramZoomData {
       <div
         class="max-h-[80vh] w-full overflow-auto"
         role="img"
-        [attr.aria-label]="data.label || i18n.t().chat.diagramLabel"
+        [attr.aria-label]="data.label ?? i18n.t().chat.diagramLabel"
       >
         <div class="flex w-full justify-center p-2" [innerHTML]="safeSvg"></div>
       </div>

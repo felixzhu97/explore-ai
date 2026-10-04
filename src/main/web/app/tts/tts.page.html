@@ -62,7 +62,7 @@
       zFull
       zSize="lg"
       [zLoading]="isSynthesizing()"
-      [zDisabled]="!text().trim() || isSynthesizing()"
+      [zDisabled]="text().trim() === '' || isSynthesizing()"
       (click)="synthesize()"
     >
       @if (isSynthesizing()) {
@@ -72,7 +72,8 @@
       }
     </button>
 
-    @if (error(); as errorText) {
+    @let errorText = error();
+    @if (errorText !== null) {
       <z-alert zType="destructive" [zDescription]="errorText" />
     }
   </div>
@@ -80,7 +81,7 @@
   <div
     class="flex min-h-64 flex-col justify-center gap-4 rounded-xl border border-black/8 bg-muted/30 p-6 md:min-h-80"
   >
-    @if (audioUrl()) {
+    @if (audioUrl() !== null) {
       <div class="flex items-center gap-4">
         <button
           type="button"

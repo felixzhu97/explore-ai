@@ -16,7 +16,7 @@ import {
   type MetricsDomain,
   type MetricsRange,
 } from './metrics.service';
-import { hasText } from '../shared/presence';
+import { hasText, textOr } from '../shared/presence';
 
 @Component({
   selector: 'app-metrics-domain-page',
@@ -54,8 +54,8 @@ export class MetricsDomainPageComponent {
     return value === '30d' ? '30d' : '7d';
   });
 
-  readonly day = computed(() => this.#queryParams().get('day') ?? undefined);
-  readonly model = computed(() => this.#queryParams().get('model') ?? undefined);
+  readonly day = computed(() => textOr(this.#queryParams().get('day'), undefined));
+  readonly model = computed(() => textOr(this.#queryParams().get('model'), undefined));
   readonly page = signal(0);
 
   readonly domainResource = this.#metrics.domain(this.domain, this.range);

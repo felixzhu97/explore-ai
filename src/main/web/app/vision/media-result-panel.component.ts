@@ -39,12 +39,13 @@ import type { VisionResult, VisionTaskType } from './vision.service';
         </button>
       </div>
 
-      @if (result(); as current) {
+      @let current = result();
+      @if (current !== null) {
         @if (task() === 'caption') {
           <p class="text-lg text-foreground italic">"{{ current.caption }}"</p>
         }
         @if (task() === 'detect') {
-          @if (current.detections?.length) {
+          @if (current.detections !== undefined && current.detections.length > 0) {
             <div class="flex flex-col gap-2">
               @for (det of current.detections; track det.className) {
                 <div
@@ -74,7 +75,7 @@ import type { VisionResult, VisionTaskType } from './vision.service';
             "
           >{{ current.fullText }}</pre>
         }
-        @if (processingTimeLabel()) {
+        @if (processingTimeLabel() !== null) {
           <p class="mt-3 text-xs text-muted-foreground">{{ processingTimeLabel() }}</p>
         }
       } @else {
@@ -83,7 +84,8 @@ import type { VisionResult, VisionTaskType } from './vision.service';
         </div>
       }
 
-      @if (error(); as errorText) {
+      @let errorText = error();
+      @if (errorText !== null) {
         <z-alert zType="destructive" class="mt-4" [zDescription]="errorText" />
       }
     </z-card>

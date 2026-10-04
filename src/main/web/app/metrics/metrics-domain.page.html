@@ -5,7 +5,7 @@
     <span class="text-foreground">{{ title() }}</span>
   </nav>
 
-  @if (!domain()) {
+  @if (domain() === null) {
     <p class="text-sm text-rose-600">
       {{ i18n.t().metrics.unknownDomain }}
       <a routerLink="/metrics" class="underline">{{ i18n.t().metrics.backToOverview }}</a>
@@ -16,16 +16,16 @@
         <h1 class="text-2xl font-semibold tracking-tight text-foreground">{{ domainHeading() }}</h1>
         <p class="mt-1 text-sm text-muted-foreground">
           {{ i18n.t().metrics.domainSubtitle }}
-          @if (day()) {
+          @if (day() !== undefined) {
             <span>{{ dayFilterLabel() }}</span>
           }
-          @if (model()) {
+          @if (model() !== undefined) {
             <span>{{ modelFilterLabel() }}</span>
           }
         </p>
       </div>
       <div class="flex items-center gap-2">
-        @if (day() || model()) {
+        @if (day() !== undefined || model() !== undefined) {
           <button type="button" class="text-sm text-muted-foreground underline" (click)="clearFilters()">
             {{ i18n.t().metrics.clearFilters }}
           </button>
@@ -51,9 +51,9 @@
       </div>
     </header>
 
-    @if (domainResource.error()) {
+    @if (domainResource.error() !== undefined) {
       <p class="text-sm text-rose-600">{{ i18n.t().metrics.errors.loadDomainFailed }}</p>
-    } @else if (domainResource.isLoading() && !domainResource.value()) {
+    } @else if (domainResource.isLoading() && domainResource.value() === undefined) {
       <p class="text-sm text-muted-foreground">{{ i18n.t().metrics.loading }}</p>
     } @else {
       <app-metrics-kpi-cards [items]="kpis()" />

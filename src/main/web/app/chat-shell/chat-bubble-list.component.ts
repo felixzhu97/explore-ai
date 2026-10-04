@@ -95,8 +95,10 @@ const CLOSE_DELAY_MS = 160;
       <nx-bubble-list [items]="bubbleItems()" [roles]="bubbleRoles" [autoScroll]="true" />
     </div>
 
-    @if (openRef(); as ref) {
-      @if (sourceAt(ref.messageId, ref.index); as source) {
+    @let ref = openRef();
+    @if (ref !== null) {
+      @let source = sourceAt(ref.messageId, ref.index);
+      @if (source !== undefined) {
         <div
           class="fixed z-80 w-80 max-w-[calc(100vw-1.5rem)] animate-in rounded-2xl border border-black/8 bg-white p-3.5 shadow-lg duration-150 fade-in-0 zoom-in-95"
           role="dialog"
@@ -119,8 +121,9 @@ const CLOSE_DELAY_MS = 160;
     }
 
     <ng-template #userMessageTpl let-info="info">
-      @if (messageById(messageKey(info)); as message) {
-        @if (message.content) {
+      @let message = messageById(messageKey(info));
+      @if (message !== undefined) {
+        @if (message.content !== '') {
           <div class="wrap-break-word whitespace-pre-wrap">
             {{ userMessageText(message) }}
           </div>
@@ -138,7 +141,7 @@ const CLOSE_DELAY_MS = 160;
             </button>
           }
         }
-        @if (message.images?.length) {
+        @if (message.images !== undefined && message.images.length > 0) {
           <div class="mt-2 flex flex-wrap gap-2">
             @for (img of message.images; track $index) {
               <img
@@ -159,18 +162,22 @@ const CLOSE_DELAY_MS = 160;
         [doneLabel]="toolStepDoneLabel()"
         [failedLabel]="toolStepFailedLabel()"
       />
-      @if (content) {
+      @if (content !== '') {
         <app-markdown-with-a2ui
           [content]="content"
           [isStreaming]="isStreaming(messageKey(info))"
         />
       } @else if (
         isStreaming(messageKey(info))
-        && !message?.toolSteps?.length
+        && (message?.toolSteps?.length ?? 0) === 0
       ) {
         <span class="text-text-tertiary">{{ thinkingLabel() }}</span>
       }
-      @if (message?.sources?.length) {
+      @if (
+        message !== undefined
+        && message.sources !== undefined
+        && message.sources.length > 0
+      ) {
         <div
           class="mt-2 flex flex-wrap items-center gap-1.5"
           data-source-chips
@@ -186,7 +193,8 @@ const CLOSE_DELAY_MS = 160;
               (pointerleave)="onChipPointerLeave()"
               (click)="onChipClick($event, source)"
             >
-              @if (faviconUrl(source); as icon) {
+              @let icon = faviconUrl(source);
+              @if (icon !== null) {
                 <img
                   class="size-3.5 shrink-0 rounded-sm"
                   alt=""
@@ -214,7 +222,7 @@ const CLOSE_DELAY_MS = 160;
 
     <ng-template #assistantFooterTpl let-info="info">
       @let timestamp = messageById(messageKey(info))?.timestamp;
-      @if (timestamp) {
+      @if (timestamp !== undefined) {
         <span class="text-xs text-text-tertiary">{{ timestamp | instant: 'time' }}</span>
       }
     </ng-template>

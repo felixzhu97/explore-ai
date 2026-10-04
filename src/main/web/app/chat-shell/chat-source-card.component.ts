@@ -13,7 +13,8 @@ import {
   selector: 'app-chat-source-card',
   template: `
     <div class="mb-2 flex items-center gap-1.5">
-      @if (faviconUrl(); as icon) {
+      @let icon = faviconUrl();
+      @if (icon !== null) {
         <img class="size-4 shrink-0 rounded-sm" alt="" [src]="icon" />
       } @else {
         <span
@@ -24,11 +25,12 @@ import {
         </span>
       }
       <span class="truncate text-xs text-text-secondary">
-        {{ hostname() || label() }}
+        {{ hostname() !== '' ? hostname() : label() }}
       </span>
     </div>
 
-    @if (source().url; as url) {
+    @let url = source().url;
+    @if (url !== undefined && url !== '') {
       <a
         class="block text-sm leading-snug font-semibold text-text underline-offset-2 hover:underline"
         target="_blank"
@@ -44,9 +46,10 @@ import {
       </div>
     }
 
-    @if (publishedAt(); as date) {
+    @let date = publishedAt();
+    @if (date !== '') {
       <p class="mt-1.5 text-xs text-text-tertiary">{{ date }}</p>
-    } @else if (!source().url) {
+    } @else if (url === undefined || url === '') {
       <p class="mt-1.5 text-xs text-text-secondary">
         {{ similarityLabel() }}: {{ (source().score * 100).toFixed(1) }}%
       </p>

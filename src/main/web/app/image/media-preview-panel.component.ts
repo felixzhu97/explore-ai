@@ -33,7 +33,8 @@ import { ZardSkeletonComponent } from '../ui/skeleton';
             </span>
           </div>
         }
-        @if (imageSrc(); as src) {
+        @let src = imageSrc();
+        @if (src !== null) {
           <img
             class="
               max-h-112 max-w-full animate-fade-in cursor-zoom-in rounded-xl

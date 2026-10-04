@@ -38,7 +38,7 @@ export interface AccountLogoutDialogData {
           <span class="block truncate text-sm font-medium text-foreground">
             {{ data.displayName }}
           </span>
-          @if (data.email) {
+          @if (data.email !== null && data.email !== '') {
             <span class="block truncate text-xs text-muted-foreground">
               {{ data.email }}
             </span>

@@ -18,7 +18,7 @@ export interface ChartClickPayload {
   imports: [NgxEchartsDirective],
   template: `
     <div class="flex min-h-0 flex-col gap-2">
-      @if (heading()) {
+      @if (heading() !== '') {
         <h3 class="text-sm font-medium text-foreground">{{ heading() }}</h3>
       }
       @if (data().length === 0) {

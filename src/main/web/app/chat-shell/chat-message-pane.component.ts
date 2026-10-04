@@ -39,7 +39,8 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
           ></div>
         </div>
       } @else if (messages().length === 0) {
-        @if (emptyText(); as text) {
+        @let text = emptyText();
+        @if (text !== null && text !== '') {
           <p class="text-xs text-text-secondary">{{ text }}</p>
         } @else {
           <app-chat-welcome-panel
