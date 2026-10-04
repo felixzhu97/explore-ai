@@ -209,8 +209,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
     const rect = root.getBoundingClientRect();
     this.skillsMenuStyle.set({
-      top: `${Math.round(rect.bottom + 4)}px`,
-      right: `${Math.round(window.innerWidth - rect.right)}px`,
+      top: `${String(Math.round(rect.bottom + 4))}px`,
+      right: `${String(Math.round(window.innerWidth - rect.right))}px`,
     });
   }
 

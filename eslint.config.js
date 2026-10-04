@@ -186,7 +186,20 @@ export default defineConfig([
         'error',
         { ignorePrimitives: { string: true } },
       ],
+      '@typescript-eslint/no-base-to-string': 'error',
       '@typescript-eslint/require-await': 'error',
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        {
+          allowAny: false,
+          allowArray: false,
+          allowBoolean: false,
+          allowNever: false,
+          allowNullish: false,
+          allowNumber: false,
+          allowRegExp: false,
+        },
+      ],
       '@typescript-eslint/strict-boolean-expressions': [
         'error',
         {

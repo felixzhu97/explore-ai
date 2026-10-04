@@ -974,9 +974,9 @@ function resolveBoxes(
   if (fromBoxes.length > 0) {
     const categories = hasItems(input.categories)
       ? input.categories.slice(0, fromBoxes.length)
-      : fromBoxes.map((_, i) => `C${i + 1}`);
+      : fromBoxes.map((_, i) => `C${String(i + 1)}`);
     while (categories.length < fromBoxes.length) {
-      categories.push(`C${categories.length + 1}`);
+      categories.push(`C${String(categories.length + 1)}`);
     }
     return { categories, boxes: fromBoxes };
   }
@@ -1009,9 +1009,9 @@ function resolveCandles(
   if (fromCandles.length > 0) {
     const categories = hasItems(input.categories)
       ? input.categories.slice(0, fromCandles.length)
-      : fromCandles.map((_, i) => `D${i + 1}`);
+      : fromCandles.map((_, i) => `D${String(i + 1)}`);
     while (categories.length < fromCandles.length) {
-      categories.push(`D${categories.length + 1}`);
+      categories.push(`D${String(categories.length + 1)}`);
     }
     return { categories, candles: fromCandles };
   }
@@ -1069,7 +1069,7 @@ function resolveCandles(
         continue;
       }
       const name = row['label'] ?? row['name'] ?? row['date'];
-      categories.push(typeof name === 'string' && name !== '' ? name : `D${categories.length + 1}`);
+      categories.push(typeof name === 'string' && name !== '' ? name : `D${String(categories.length + 1)}`);
       candles.push(candle);
     }
     if (candles.length > 0) {
@@ -1112,7 +1112,7 @@ function resolveParallel(
     }
     const dimensions = input.dimensions?.length === dimCount
       ? input.dimensions
-      : Array.from({ length: dimCount }, (_, i) => `D${i + 1}`);
+      : Array.from({ length: dimCount }, (_, i) => `D${String(i + 1)}`);
     const rows = input.series
       .map(s => s.values.slice(0, dimCount))
       .filter(row => row.length === dimCount);
@@ -1130,7 +1130,7 @@ function resolveParallel(
     }
     const dimensions = input.dimensions?.length === dimCount
       ? input.dimensions
-      : Array.from({ length: dimCount }, (_, i) => `D${i + 1}`);
+      : Array.from({ length: dimCount }, (_, i) => `D${String(i + 1)}`);
     const rows = vectors
       .map(v => v.values.slice(0, dimCount))
       .filter(row => row.length === dimCount);

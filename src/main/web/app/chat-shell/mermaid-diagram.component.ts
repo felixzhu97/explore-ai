@@ -116,7 +116,7 @@ export class MermaidDiagramComponent {
     try {
       const mermaid = await loadMermaid();
       // Unique DOM id per render — Mermaid requires unique ids in the document.
-      const renderId = `${diagramId}-${++renderSeq}`;
+      const renderId = `${diagramId}-${String(++renderSeq)}`;
       const { svg } = await mermaid.render(renderId, trimmed);
       const clean = DOMPurify.sanitize(svg, {
         USE_PROFILES: { svg: true, svgFilters: true },

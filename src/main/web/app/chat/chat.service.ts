@@ -631,12 +631,12 @@ export class ChatService {
 
     const now = Instant.now();
     const userMsg: ChatMessage = {
-      id: `user_${now.toEpochMilli()}`,
+      id: `user_${String(now.toEpochMilli())}`,
       role: 'user',
       content: content.trim(),
       timestamp: now,
     };
-    const assistantId = `assistant_${now.toEpochMilli()}`;
+    const assistantId = `assistant_${String(now.toEpochMilli())}`;
 
     this.messages.update(messages => [
       ...messages,
@@ -876,7 +876,7 @@ export class ChatService {
       ? stripToolCallMarkup(message.content)
       : message.content;
     return {
-      id: message.id ?? `${message.role}_${timestamp.toEpochMilli()}`,
+      id: message.id ?? `${message.role}_${String(timestamp.toEpochMilli())}`,
       role: message.role === 'assistant' ? 'assistant' : 'user',
       content,
       timestamp,

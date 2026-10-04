@@ -169,7 +169,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   download() {
     const blob = this.audioBlob();
     if (blob !== null) {
-      this.#tts.download(blob, `speech_${Instant.now().toEpochMilli()}.mp3`);
+      this.#tts.download(blob, `speech_${String(Instant.now().toEpochMilli())}.mp3`);
     }
   }
 }

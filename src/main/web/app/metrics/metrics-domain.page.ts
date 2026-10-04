@@ -141,7 +141,7 @@ export class MetricsDomainPageComponent {
         value:
           snapshot.latencyP95Ms === null
             ? '—'
-            : `${Math.round(snapshot.latencyP95Ms)} ms`,
+            : `${String(Math.round(snapshot.latencyP95Ms))} ms`,
       },
     ];
   });

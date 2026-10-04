@@ -302,6 +302,6 @@ export class PipelinesPageComponent implements OnDestroy {
 
   #nextId(prefix: string): string {
     this.#messageSeq += 1;
-    return `${prefix}-${this.#messageSeq}-${Instant.now().toEpochMilli()}`;
+    return `${prefix}-${String(this.#messageSeq)}-${String(Instant.now().toEpochMilli())}`;
   }
 }

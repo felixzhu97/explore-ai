@@ -425,7 +425,7 @@ export class ChatBubbleListComponent implements OnDestroy {
   }
 
   chipAriaLabel(index: number, source: ChatSourceView): string {
-    const title = `${index + 1}. ${sourceTitle(source, this.footerLabels().sources)}`;
+    const title = `${String(index + 1)}. ${sourceTitle(source, this.footerLabels().sources)}`;
     if (hasText(source.url)) {
       return `${title}. ${this.footerLabels().openReference}`;
     }

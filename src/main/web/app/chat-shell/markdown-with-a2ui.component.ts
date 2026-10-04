@@ -145,8 +145,8 @@ export class MarkdownWithA2uiComponent {
       return segment.diagramId;
     }
     if (segment.type === 'a2ui-pending' || segment.type === 'mermaid-pending') {
-      return `${segment.type}-${index}`;
+      return `${segment.type}-${String(index)}`;
     }
-    return `md-${index}-${segment.content.length}`;
+    return `md-${String(index)}-${String(segment.content.length)}`;
   }
 }
