@@ -28,6 +28,9 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
   private static final Logger log =
       LoggerFactory.getLogger(SpeechStreamingTranscriptionClient.class);
 
+  /** Client-facing reason; exception details stay in the server log. */
+  static final String TRANSCRIPTION_FAILED = "Transcription failed";
+
   private final String wsUri;
   private final Duration connectTimeout;
   private final ObjectMapper objectMapper;
@@ -54,7 +57,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
       upstream.sendMessage(new TextMessage(payload));
     } catch (Exception e) {
       log.error("Failed to forward audio chunk to speech", e);
-      sendError(session, "Transcription failed: " + e.getMessage());
+      sendError(session, TRANSCRIPTION_FAILED);
     }
   }
 
