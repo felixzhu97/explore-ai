@@ -75,7 +75,7 @@ export class MetricsOverviewPageComponent {
         value:
           overview.latencyP95Ms === null
             ? '—'
-            : `${Math.round(overview.latencyP95Ms)} ms`,
+            : `${String(Math.round(overview.latencyP95Ms))} ms`,
       },
       {
         key: 'tokens',

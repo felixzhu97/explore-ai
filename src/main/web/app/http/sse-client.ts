@@ -21,6 +21,11 @@ export type ChatStreamEvent =
   | { type: 'tool_result'; name: string; ok: boolean; output: string }
   | { type: 'sources'; query: string; items: WebSource[] };
 
+/** The JSON field when it is a string; any other value reads as empty. */
+function stringField(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
+
 /** Parse chat SSE data payloads (message tokens, tool events, web sources). */
 export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
   if (data === '') {
@@ -40,41 +45,41 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
       if (eventType === 'tool_call') {
         return {
           type: 'tool_call',
-          name: String(parsed['name'] ?? ''),
-          input: String(parsed['input'] ?? ''),
+          name: stringField(parsed['name']),
+          input: stringField(parsed['input']),
         };
       }
       if (eventType === 'tool_result') {
         return {
           type: 'tool_result',
-          name: String(parsed['name'] ?? ''),
-          ok: Boolean(parsed['ok']),
-          output: String(parsed['output'] ?? ''),
+          name: stringField(parsed['name']),
+          ok: parsed['ok'] === true,
+          output: stringField(parsed['output']),
         };
       }
       if (eventType === 'sources') {
         const rawItems = Array.isArray(parsed['items']) ? parsed['items'] : [];
         const items: WebSource[] = rawItems.map((item) => {
           const row = (item ?? {}) as Record<string, unknown>;
-          const publishedAt = String(row['publishedAt'] ?? row['date'] ?? '').trim();
+          const publishedAt = stringField(row['publishedAt'] ?? row['date']).trim();
           return {
-            title: String(row['title'] ?? ''),
-            url: String(row['url'] ?? ''),
-            snippet: String(row['snippet'] ?? ''),
+            title: stringField(row['title']),
+            url: stringField(row['url']),
+            snippet: stringField(row['snippet']),
             ...(publishedAt !== '' ? { publishedAt } : {}),
           };
         });
         return {
           type: 'sources',
-          query: String(parsed['query'] ?? ''),
+          query: stringField(parsed['query']),
           items,
         };
       }
 
       if (eventType === 'message' || 'token' in parsed) {
         const token = parsed['token'];
-        if (token !== null && token !== undefined) {
-          return { type: 'message', token: String(token) };
+        if (typeof token === 'string') {
+          return { type: 'message', token };
         }
         return null;
       }
@@ -177,7 +182,7 @@ export function streamSsePost(
     signal: controller.signal,
   }).then(async (response) => {
     if (!response.ok) {
-      handlers.onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
+      handlers.onError(new Error(`HTTP ${String(response.status)}: ${response.statusText}`));
       return;
     }
 

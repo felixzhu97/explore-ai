@@ -43,7 +43,7 @@ export function applyPipelineTemplate(
   }
 
   const nodes: PipelineNode[] = resolved.map((agent, index) => ({
-    id: `node-${idSeed + index}`,
+    id: `node-${String(idSeed + index)}`,
     agentType: agent.type,
     name: agent.name,
     description: agent.description,
@@ -60,7 +60,7 @@ export function applyPipelineTemplate(
   for (const node of nodes) {
     if (hasText(sourceNodeId)) {
       connections.push({
-        id: `edge-${idSeed + connections.length}`,
+        id: `edge-${String(idSeed + connections.length)}`,
         sourceNodeId,
         targetNodeId: node.id,
       });

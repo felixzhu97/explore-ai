@@ -112,7 +112,7 @@ export function buildRiverTimeline(
       if (day === null) {
         return String(axisValue);
       }
-      return axisToOriginal.get(day.toString()) ?? `${day.monthValue()}月`;
+      return axisToOriginal.get(day.toString()) ?? `${String(day.monthValue())}月`;
     },
   };
 }

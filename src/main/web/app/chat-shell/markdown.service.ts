@@ -66,13 +66,13 @@ export class MarkdownService {
     const codeBlocks: string[] = [];
     normalized = normalized.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, (match) => {
       codeBlocks.push(match);
-      return `${CODE_PLACEHOLDER_PREFIX}${codeBlocks.length - 1}${CODE_PLACEHOLDER_SUFFIX}`;
+      return `${CODE_PLACEHOLDER_PREFIX}${String(codeBlocks.length - 1)}${CODE_PLACEHOLDER_SUFFIX}`;
     });
 
     const horizontalRules: string[] = [];
     normalized = normalized.replace(/^([-*_]){3,}\s*$/gm, (match) => {
       horizontalRules.push(match);
-      return `${HR_PLACEHOLDER}${horizontalRules.length - 1}`;
+      return `${HR_PLACEHOLDER}${String(horizontalRules.length - 1)}`;
     });
 
     normalized = normalized.replace(/^(#{1,6})([^\s#\n])/gm, '$1 $2');

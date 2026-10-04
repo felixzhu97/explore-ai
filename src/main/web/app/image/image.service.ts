@@ -167,7 +167,7 @@ export class ImageService {
       return;
     }
 
-    const filename = `ai_generated_${Instant.now().toEpochMilli()}.png`;
+    const filename = `ai_generated_${String(Instant.now().toEpochMilli())}.png`;
     if (this.#imageSource() === 'base64') {
       const base64 = image.replace(/^data:image\/\w+;base64,/, '');
       downloadBase64Image(base64, filename);

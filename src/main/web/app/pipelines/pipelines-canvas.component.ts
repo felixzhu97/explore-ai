@@ -183,7 +183,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.connections.update(list => [
       ...list,
       {
-        id: `edge-${this.#connectionSeq}`,
+        id: `edge-${String(this.#connectionSeq)}`,
         sourceNodeId,
         targetNodeId,
       },
@@ -561,7 +561,7 @@ export class PipelinesCanvasComponent implements OnInit {
   #addNode(agent: AgentType, position: { x: number; y: number }): void {
     const chainTailId = this.#findChainTailId();
     this.#nodeSeq += 1;
-    const nodeId = `node-${this.#nodeSeq}`;
+    const nodeId = `node-${String(this.#nodeSeq)}`;
     this.nodes.update(list => [
       ...list,
       {
@@ -579,7 +579,7 @@ export class PipelinesCanvasComponent implements OnInit {
       this.connections.update(list => [
         ...list,
         {
-          id: `edge-${this.#connectionSeq}`,
+          id: `edge-${String(this.#connectionSeq)}`,
           sourceNodeId: chainTailId,
           targetNodeId: nodeId,
         },

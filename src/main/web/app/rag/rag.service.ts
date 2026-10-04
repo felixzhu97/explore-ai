@@ -67,7 +67,7 @@ export class RagService {
   readonly #http = inject(HttpClient);
   readonly #notifications = inject(NotificationService);
   readonly #i18n = inject(I18nService);
-  readonly #sessionId = `session_${Instant.now().toEpochMilli()}`;
+  readonly #sessionId = `session_${String(Instant.now().toEpochMilli())}`;
 
   // Document state
   readonly availableDocuments = signal<RagDocumentItem[]>([]);
@@ -208,7 +208,7 @@ export class RagService {
     };
 
     this.pendingFiles().forEach((file, index) => {
-      const documentId = `doc_${Instant.now().toEpochMilli()}_${Math.random().toString(36).slice(2, 11)}`;
+      const documentId = `doc_${String(Instant.now().toEpochMilli())}_${Math.random().toString(36).slice(2, 11)}`;
 
       this.uploadStatuses.update((statuses) => {
         const next = new Map(statuses);
@@ -299,7 +299,7 @@ export class RagService {
 
     const now = Instant.now();
     const userMessage: RagChatMessage = {
-      id: `user_${now.toEpochMilli()}`,
+      id: `user_${String(now.toEpochMilli())}`,
       role: 'user',
       content: this.input().trim(),
       timestamp: now,
@@ -309,7 +309,7 @@ export class RagService {
     this.input.set('');
     this.isLoading.set(true);
 
-    const assistantMessageId = `assistant_${now.toEpochMilli()}`;
+    const assistantMessageId = `assistant_${String(now.toEpochMilli())}`;
     this.messages.update(messages => [
       ...messages,
       {
