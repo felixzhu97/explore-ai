@@ -120,9 +120,6 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
-      zone.js:
-        specifier: ~0.16.3
-        version: 0.16.3
     devDependencies:
       '@analogjs/vitest-angular':
         specifier: ^2.7.2
@@ -8789,7 +8786,8 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zone.js@0.16.3: {}
+  zone.js@0.16.3:
+    optional: true
 
   zrender@6.1.0:
     dependencies:

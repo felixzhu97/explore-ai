@@ -1,4 +1,11 @@
-import { type ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import {
+  type ApplicationConfig,
+  ErrorHandler,
+  inject,
+  isDevMode,
+  provideAppInitializer,
+  provideCheckNoChangesConfig,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
@@ -28,7 +35,11 @@ import {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    // Dev only: periodically re-check every view so state that changes without
+    // notifying a signal shows up as ExpressionChangedAfterItHasBeenChecked.
+    ...(isDevMode()
+      ? [provideCheckNoChangesConfig({ exhaustive: true, interval: 1000 })]
+      : []),
     provideNzI18n(en_US),
     provideNzNativeDateAdapter(),
     provideAppInitializer(() => inject(FeatureFlagService).initialize()),

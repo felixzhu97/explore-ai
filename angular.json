@@ -30,9 +30,6 @@
             "outputPath": "dist/web",
             "index": "src/main/web/index.html",
             "browser": "src/main/web/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
