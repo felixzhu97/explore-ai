@@ -79,7 +79,8 @@
           @for (file of ragService.pendingFiles(); track file.name) {
             <div class="inline-flex max-w-full items-center gap-1 rounded-md bg-black/4 px-2 py-1 text-xs text-text">
               <span class="max-w-28 truncate">{{ file.name }}</span>
-              @if (getUploadStatus(file.name); as status) {
+              @let status = getUploadStatus(file.name);
+              @if (status !== undefined) {
                 <span class="shrink-0 text-muted-foreground">{{ status.status }}</span>
               }
               <button

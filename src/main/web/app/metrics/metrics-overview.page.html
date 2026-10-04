@@ -29,9 +29,9 @@
     </div>
   </header>
 
-  @if (overviewResource.error()) {
+  @if (overviewResource.error() !== undefined) {
     <p class="text-sm text-rose-600">{{ i18n.t().metrics.errors.loadOverviewFailed }}</p>
-  } @else if (overviewResource.isLoading() && !overviewResource.value()) {
+  } @else if (overviewResource.isLoading() && overviewResource.value() === undefined) {
     <p class="text-sm text-muted-foreground">{{ i18n.t().metrics.loadingOverview }}</p>
   } @else {
     <app-metrics-kpi-cards [items]="kpis()" (kpiSelected)="onKpiClick($event)" />

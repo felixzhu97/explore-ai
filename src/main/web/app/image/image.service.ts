@@ -77,7 +77,7 @@ export class ImageService {
 
   readonly #imageSource = signal<'url' | 'base64' | null>(null);
 
-  readonly hasGeneratedImage = computed(() => Boolean(this.generatedImage()));
+  readonly hasGeneratedImage = computed(() => hasText(this.generatedImage()));
 
   constructor() {
     this.loadCatalog();

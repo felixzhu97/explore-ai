@@ -32,7 +32,8 @@
     </div>
   </div>
 
-  @if (errorMessage(); as message) {
+  @let message = errorMessage();
+  @if (message !== null) {
     <p class="shrink-0 border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
       {{ message }}
     </p>
@@ -44,12 +45,13 @@
         <h2 class="text-xs font-medium tracking-wide text-foreground/50 uppercase">
           {{ i18n.t().speechToText.transcript }}
         </h2>
+        @let transcript = speechToText.transcript();
         <p class="mt-4 flex-1 text-base leading-relaxed whitespace-pre-wrap text-foreground">
-          {{ speechToText.transcript() || i18n.t().speechToText.emptyState }}
+          {{ transcript !== '' ? transcript : i18n.t().speechToText.emptyState }}
         </p>
       </section>
 
-      @if (speechToText.lastMessage()) {
+      @if (speechToText.lastMessage() !== null) {
         <details class="rounded-lg border border-black/8 bg-white px-4 py-3 text-xs text-foreground/70">
           <summary class="cursor-pointer font-medium text-foreground/60 select-none">
             {{ i18n.t().speechToText.lastServerMessage }}

@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
+import { textOr } from '../shared/presence';
 import { InstantPipe } from '../time/instant.pipe';
 import type { InvocationEvent } from './metrics.service';
 
@@ -14,7 +15,7 @@ import type { InvocationEvent } from './metrics.service';
       </div>
       @if (items().length === 0) {
         <p class="rounded-xl border border-border px-4 py-10 text-center text-sm text-muted-foreground">
-          {{ emptyText() || i18n.t().metrics.drilldown.emptyState }}
+          {{ emptyText() !== '' ? emptyText() : i18n.t().metrics.drilldown.emptyState }}
         </p>
       } @else {
         <div class="overflow-x-auto rounded-xl border border-border">
@@ -49,7 +50,7 @@ import type { InvocationEvent } from './metrics.service';
                     {{ item.latencyMs }} ms
                   </td>
                   <td class="px-3 py-2 text-muted-foreground">
-                    {{ item.model || item.agentType || item.toolName || '—' }}
+                    {{ subjectOf(item) }}
                   </td>
                 </tr>
               }
@@ -73,4 +74,8 @@ export class MetricsDrilldownTableComponent {
     const template = this.i18n.t().metrics.drilldown.eventsCount;
     return this.i18n.tReplace(template, { total: this.total() });
   });
+
+  subjectOf(item: InvocationEvent): string {
+    return textOr(item.model, textOr(item.agentType, textOr(item.toolName, '—')));
+  }
 }

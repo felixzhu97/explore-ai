@@ -39,11 +39,13 @@ import { hasText } from '../shared/presence';
         (drop)="onDrop($event)"
         (dragover)="onDragOver($event)"
       >
-        @if (imagePreview(); as preview) {
-          @if (showDetectionOverlay() && detections()?.length) {
+        @let preview = imagePreview();
+        @if (preview !== null) {
+          @let overlayDetections = detections() ?? [];
+          @if (showDetectionOverlay() && overlayDetections.length > 0) {
             <app-detection-overlay
               [imageSrc]="preview"
-              [detections]="detections() ?? []"
+              [detections]="overlayDetections"
             />
           } @else {
             <img

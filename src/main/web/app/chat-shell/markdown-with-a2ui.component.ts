@@ -47,7 +47,7 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
           <app-markdown-content [content]="segment.content" [isStreaming]="isStreaming()" />
         }
         @case ('a2ui') {
-          @if (ingestError()) {
+          @if (ingestError() !== null) {
             <p class="my-2 text-sm text-text-secondary">{{ ingestError() }}</p>
           } @else {
             <div

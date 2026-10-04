@@ -14,7 +14,8 @@ import {
   imports: [RouterLink],
   template: `
     <div class="mx-auto w-full max-w-(--container-2xl) px-6 py-12 md:py-16">
-      @if (doc(); as d) {
+      @let d = doc();
+      @if (d !== null) {
         <article>
           <p class="text-[13px] font-medium text-[#8F8F8F]">{{ d.updated }}</p>
           <h1
@@ -124,7 +125,7 @@ import {
         >
           {{ hub().controlsLink }}
         </a>
-        @if (doc()) {
+        @if (doc() !== null) {
           <a
             routerLink="/policies"
             class="text-[13px] text-[#8F8F8F] no-underline underline-offset-4 hover:text-[#0D0D0D] hover:underline"

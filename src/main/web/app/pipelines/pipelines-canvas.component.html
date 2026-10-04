@@ -13,7 +13,7 @@
     />
   }
 
-  @if (validationHint()) {
+  @if (validationHint() !== null) {
     <p class="shrink-0 border-b border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
       {{ validationHint() }}
     </p>

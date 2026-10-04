@@ -29,9 +29,10 @@ function isChartType(value: unknown): value is ChartType {
   selector: 'app-a2ui-chart',
   imports: [NgxEchartsDirective],
   template: `
-    @if (error()) {
+    @let option = chartOption();
+    @if (error() !== null) {
       <p class="text-sm text-text-secondary">{{ error() }}</p>
-    } @else if (chartOption(); as option) {
+    } @else if (option !== null) {
       <div echarts class="h-72 w-full min-w-0" [options]="option"></div>
     }
   `,

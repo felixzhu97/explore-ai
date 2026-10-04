@@ -14,7 +14,7 @@
             : i18n.t().pipelines.templates.useMode
         }}
       </span>
-      @if (templateName()) {
+      @if (templateName() !== '') {
         <span class="truncate text-xs font-medium text-foreground">{{ templateName() }}</span>
       }
       <p class="text-xs text-foreground/60">

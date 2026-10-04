@@ -39,7 +39,8 @@ async function loadMermaid(): Promise<MermaidApi> {
 @Component({
   selector: 'app-mermaid-diagram',
   template: `
-    @if (safeSvg(); as svg) {
+    @let svg = safeSvg();
+    @if (svg !== null) {
       <button
         type="button"
         class="my-2 flex w-full cursor-zoom-in items-center justify-center overflow-x-auto rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"

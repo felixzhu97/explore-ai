@@ -13,7 +13,7 @@
   </header>
 
   <div class="flex flex-col gap-6">
-      @if (error()) {
+      @if (error() !== null) {
         <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {{ error() }}
         </p>
@@ -40,7 +40,7 @@
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
                 (change)="onTemplateChange(templateSelect.value)"
               >
-                <option value="" disabled [selected]="!draftForm.templateId().value()">
+                <option value="" disabled [selected]="draftForm.templateId().value() === ''">
                   {{ i18n.t().automations.pipelineTemplatePlaceholder }}
                 </option>
                 @for (template of enabledTemplates(); track template.id) {
@@ -250,7 +250,7 @@
                               >
                               <span>{{ displayInstant(run.startedAt) }}</span>
                             </div>
-                            @if (run.errorMessage) {
+                            @if (run.errorMessage !== null) {
                               <p class="mt-1 text-red-600">{{ run.errorMessage }}</p>
                             }
                           </li>
