@@ -11,7 +11,6 @@ import {
   effect,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import {
@@ -35,7 +34,6 @@ import { ChatService } from './chat.service';
 @Component({
   selector: 'app-chat-page',
   imports: [
-    FormsModule,
     RouterLink,
     NzIconModule,
     ChatMessagePaneComponent,
@@ -217,12 +215,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onProviderChange(provider: string) {
-    this.chat.setProvider(provider);
+  onProviderChange(provider: string | string[]) {
+    if (typeof provider === 'string') {
+      this.chat.setProvider(provider);
+    }
   }
 
-  setSelectedModel(modelName: string) {
-    this.chat.setModel(modelName);
+  setSelectedModel(modelName: string | string[]) {
+    if (typeof modelName === 'string') {
+      this.chat.setModel(modelName);
+    }
   }
 
   onPromptSelect(label: string): void {

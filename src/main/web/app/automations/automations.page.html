@@ -36,15 +36,20 @@
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().automations.pipelineTemplate }}
               <select
+                #templateSelect
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="draftForm.templateId().value()"
-                (ngModelChange)="onTemplateChange($event)"
+                (change)="onTemplateChange(templateSelect.value)"
               >
-                <option value="" disabled>
+                <option value="" disabled [selected]="!draftForm.templateId().value()">
                   {{ i18n.t().automations.pipelineTemplatePlaceholder }}
                 </option>
                 @for (template of enabledTemplates(); track template.id) {
-                  <option [value]="template.id">{{ template.name }}</option>
+                  <option
+                    [value]="template.id"
+                    [selected]="template.id === draftForm.templateId().value()"
+                  >
+                    {{ template.name }}
+                  </option>
                 }
               </select>
             </label>
@@ -66,13 +71,20 @@
             <label class="text-xs font-medium text-foreground/70">
               {{ i18n.t().automations.frequency }}
               <select
+                #presetSelect
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="draftForm.preset().value()"
-                (ngModelChange)="onPresetChange($event)"
+                (change)="onPresetChange(presetSelect.value)"
               >
-                <option value="daily">{{ i18n.t().automations.frequencyDaily }}</option>
-                <option value="weekly">{{ i18n.t().automations.frequencyWeekly }}</option>
-                <option value="custom">{{ i18n.t().automations.frequencyCustom }}</option>
+                @let preset = draftForm.preset().value();
+                <option value="daily" [selected]="preset === 'daily'">
+                  {{ i18n.t().automations.frequencyDaily }}
+                </option>
+                <option value="weekly" [selected]="preset === 'weekly'">
+                  {{ i18n.t().automations.frequencyWeekly }}
+                </option>
+                <option value="custom" [selected]="preset === 'custom'">
+                  {{ i18n.t().automations.frequencyCustom }}
+                </option>
               </select>
             </label>
             @if (draftForm.preset().value() === 'custom') {

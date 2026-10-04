@@ -5,7 +5,6 @@ import {
   type OnInit,
   type OnDestroy,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePause, lucidePlay } from '@ng-icons/lucide';
@@ -22,7 +21,6 @@ import { ZardSliderComponent } from '../ui/slider';
   selector: 'app-tts-page',
   imports: [
     FormField,
-    FormsModule,
     NgIcon,
     ZardAlertComponent,
     ZardButtonComponent,
@@ -89,8 +87,10 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  setVoice(voice: string) {
-    this.voice.set(voice);
+  setVoice(voice: string | string[]) {
+    if (typeof voice === 'string') {
+      this.voice.set(voice);
+    }
   }
 
   setSpeed(speed: number) {

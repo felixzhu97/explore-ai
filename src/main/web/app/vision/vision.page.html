@@ -1,8 +1,8 @@
 <div class="flex shrink-0 items-center justify-center border-b border-black/8 bg-white px-4 py-2.5">
   <z-segmented
     [zOptions]="taskOptions()"
-    [ngModel]="vision.activeTask()"
-    (ngModelChange)="vision.setActiveTask($event)"
+    [formField]="taskField"
+    (zChange)="onTaskChange($event)"
   />
 </div>
 

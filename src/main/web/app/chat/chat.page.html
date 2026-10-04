@@ -6,8 +6,8 @@
     <z-select
       class="min-w-28 sm:min-w-32"
       zSize="sm"
-      [ngModel]="chat.selectedProvider()"
-      (ngModelChange)="onProviderChange($event)"
+      [zValue]="chat.selectedProvider()"
+      (zSelectionChange)="onProviderChange($event)"
     >
       @for (provider of chat.providers(); track provider.name) {
         <z-select-item
@@ -23,9 +23,9 @@
       class="min-w-24 sm:min-w-28"
       zSize="sm"
       zPlaceholder="Model"
-      [ngModel]="chat.selectedModel()"
+      [zValue]="chat.selectedModel()"
       [zDisabled]="chat.isLoadingModels()"
-      (ngModelChange)="setSelectedModel($event)"
+      (zSelectionChange)="setSelectedModel($event)"
     >
       @if (chat.isLoadingModels()) {
         <z-select-item zValue="" [zDisabled]="true">{{ i18n.t().chat.loadingModels }}</z-select-item>
@@ -38,8 +38,8 @@
 
     <div class="hidden shrink-0 items-center lg:flex">
       <z-switch
-        [ngModel]="chat.toolsEnabled()"
-        (ngModelChange)="chat.setToolsEnabled($event)"
+        [zChecked]="chat.toolsEnabled()"
+        (zCheckedChange)="chat.setToolsEnabled($event)"
       >
         Tools
       </z-switch>

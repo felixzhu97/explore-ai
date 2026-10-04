@@ -1,5 +1,5 @@
-import { Component, inject, computed } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, computed, linkedSignal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -10,13 +10,13 @@ type GenerateTab = 'image' | 'tts';
 
 @Component({
   selector: 'app-generate-page',
-  imports: [RouterOutlet, FormsModule, ZardSegmentedComponent],
+  imports: [RouterOutlet, FormField, ZardSegmentedComponent],
   template: `
     <div class="flex items-center justify-center border-b border-black/8 bg-white px-4 py-2.5">
       <z-segmented
         [zOptions]="tabOptions()"
-        [ngModel]="activeTab()"
-        (ngModelChange)="onTabChange($event)"
+        [formField]="tabField"
+        (zChange)="onTabChange($event)"
       />
     </div>
     <div class="flex-1 overflow-x-hidden overflow-y-auto bg-surface px-4 py-6">
@@ -40,6 +40,9 @@ export class GeneratePageComponent {
   readonly activeTab = computed<GenerateTab>(() => this.#currentPath().includes('/tts') ? 'tts' : 'image',
   );
 
+  readonly #selectedTab = linkedSignal(() => this.activeTab());
+  protected readonly tabField = form(this.#selectedTab);
+
   readonly tabOptions = computed(() => {
     const tabs = this.i18n.t().generate.tabs;
     return [
@@ -48,7 +51,8 @@ export class GeneratePageComponent {
     ];
   });
 
-  onTabChange(tab: GenerateTab): void {
+  onTabChange(value: string): void {
+    const tab: GenerateTab = value === 'tts' ? 'tts' : 'image';
     void this.#router.navigate(['/generate', tab]);
   }
 }

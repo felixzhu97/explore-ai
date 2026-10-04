@@ -194,6 +194,19 @@ export default defineConfig([
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       curly: ['error', 'all'],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@angular/forms',
+              importNames: ['FormsModule', 'NgModel'],
+              message: 'Bind with [formField] from @angular/forms/signals or the control\'s '
+                + 'signal inputs and outputs instead.',
+            },
+          ],
+        },
+      ],
       'object-shorthand': 'error',
       'prefer-template': 'error',
     },

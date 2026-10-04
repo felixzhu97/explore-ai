@@ -5,7 +5,6 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideListChecks,
@@ -31,7 +30,6 @@ import { ZardButtonComponent } from '../ui/button';
 @Component({
   selector: 'app-rag-page',
   imports: [
-    FormsModule,
     NgIcon,
     NzIconModule,
     ChatMessagePaneComponent,
