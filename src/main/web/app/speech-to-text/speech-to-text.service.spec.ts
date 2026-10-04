@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SpeechToTextService } from './speech-to-text.service';
+import { SpeechToTextService, parseTranscriptionResponse } from './speech-to-text.service';
 
 class FakeWebSocket {
   static readonly CONNECTING = 0;
@@ -70,33 +70,35 @@ describe('SpeechToTextService', () => {
     expect(service.lastMessage()).toBeNull();
   });
 
-  it('should append transcript and store last message when json text received', () => {
+  it('should replace transcript with latest frame text when transcription received', () => {
     const service = connectService();
     const socket = latestSocket();
 
-    socket.receive('{"text":"hello "}');
-    socket.receive('{"text":"world"}');
+    socket.receive('{"type":"partial","text":"hello"}');
+    socket.receive('{"type":"final","text":"hello world"}');
 
     expect(service.transcript()).toBe('hello world');
-    expect(service.lastMessage()).toBe('{"text":"world"}');
+    expect(service.lastMessage()).toBe('{"type":"final","text":"hello world"}');
     expect(service.error()).toBeNull();
   });
 
-  it('should append plain text when message is not json', () => {
+  it('should ignore frames that are not transcription responses', () => {
     const service = connectService();
 
     latestSocket().receive('partial transcript');
+    latestSocket().receive('{"text":"untyped"}');
 
-    expect(service.transcript()).toBe('partial transcript');
-    expect(service.lastMessage()).toBe('partial transcript');
+    expect(service.transcript()).toBe('');
+    expect(service.lastMessage()).toBe('{"text":"untyped"}');
   });
 
-  it('should set error when server message reports failure', () => {
+  it('should set error when server sends error frame', () => {
     const service = connectService();
 
-    latestSocket().receive('{"message":"transcription model unavailable"}');
+    latestSocket().receive('{"type":"error","text":"transcription model unavailable"}');
 
     expect(service.error()).toBe('transcription model unavailable');
+    expect(service.transcript()).toBe('');
     expect(service.connectionState()).toBe('connected');
   });
 
@@ -148,3 +150,18 @@ function latestSocket(): FakeWebSocket {
   }
   return socket;
 }
+
+describe('parseTranscriptionResponse', () => {
+  it('should parse typed frames', () => {
+    expect(parseTranscriptionResponse('{"type":"partial","text":"hi"}')).toEqual({ type: 'partial', text: 'hi' });
+  });
+
+  it('should default missing text to empty string', () => {
+    expect(parseTranscriptionResponse('{"type":"final"}')).toEqual({ type: 'final', text: '' });
+  });
+
+  it('should return null when type is unknown or payload is not json', () => {
+    expect(parseTranscriptionResponse('{"type":"delta","text":"x"}')).toBeNull();
+    expect(parseTranscriptionResponse('plain')).toBeNull();
+  });
+});

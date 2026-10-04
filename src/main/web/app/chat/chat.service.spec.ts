@@ -15,6 +15,7 @@ describe('mergeHistoryWithLocalMessages', () => {
             title: 'Paris – Wikipedia',
             url: 'https://en.wikipedia.org/wiki/Paris',
             snippet: 'Capital of France',
+            publishedAt: null,
           },
         ],
       },
@@ -41,7 +42,7 @@ describe('mergeHistoryWithLocalMessages', () => {
         role: 'assistant',
         content: 'answer',
         timestamp: Instant.ofEpochMilli(2),
-        sources: [{ title: 'Old', url: 'https://old.example', snippet: '' }],
+        sources: [{ title: 'Old', url: 'https://old.example', snippet: '', publishedAt: null }],
       },
     ];
     const history: ChatMessage[] = [
@@ -50,7 +51,9 @@ describe('mergeHistoryWithLocalMessages', () => {
         role: 'assistant',
         content: 'answer',
         timestamp: Instant.ofEpochMilli(2),
-        sources: [{ title: 'New', url: 'https://new.example', snippet: 'from api' }],
+        sources: [
+          { title: 'New', url: 'https://new.example', snippet: 'from api', publishedAt: null },
+        ],
       },
     ];
 

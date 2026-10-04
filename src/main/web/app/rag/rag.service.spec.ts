@@ -5,7 +5,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
-import { RagService } from './rag.service';
+import { RagService, parseRagSources } from './rag.service';
 import * as sseClient from '../http/sse-client';
 
 vi.mock('../http/sse-client', async (importOriginal) => {
@@ -174,7 +174,7 @@ describe('RagService', () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({
         eventType: 'sources',
-        data: '[{"id":"s1","content":"T","score":0.9,"metadata":{"url":"https://a.com"}}]',
+        data: '[{"content":"T","score":0.9,"metadata":{"url":"https://a.com"}}]',
       });
       handlers.onEvent({ eventType: 'message', data: 'Hello<br/>world' });
       handlers.onEvent({ eventType: 'message', data: '[DONE]' });
@@ -219,5 +219,22 @@ describe('RagService', () => {
   it('should update input signal', () => {
     service.setInput('hello rag');
     expect(service.input()).toBe('hello rag');
+  });
+});
+
+describe('parseRagSources', () => {
+  it('should parse rag source events', () => {
+    expect(parseRagSources('[{"content":"c","score":0.5,"metadata":{"source":"a.md"}}]'))
+      .toEqual([{ content: 'c', score: 0.5, metadata: { source: 'a.md' } }]);
+  });
+
+  it('should skip malformed entries and default missing metadata', () => {
+    expect(parseRagSources('[{"content":"c","score":0.5},{"content":1},"x",null]'))
+      .toEqual([{ content: 'c', score: 0.5, metadata: {} }]);
+  });
+
+  it('should return empty list when data is not a json array', () => {
+    expect(parseRagSources('oops')).toEqual([]);
+    expect(parseRagSources('{"content":"c"}')).toEqual([]);
   });
 });

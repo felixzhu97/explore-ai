@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { PipelinesService } from './pipelines.service';
+import { PipelinesService, parsePipelineHandoff } from './pipelines.service';
 import { API_BASE_URL } from '../http/api.constants';
 
 describe('PipelinesService', () => {
@@ -49,5 +49,22 @@ describe('PipelinesService', () => {
       r => r.url === `${API_BASE_URL}/pipelines/k8s/health` && r.params.get('lang') === 'en',
     );
     req.flush({ type: 'k8s', healthy: true, status: 'UP' });
+  });
+});
+
+describe('parsePipelineHandoff', () => {
+  it('should parse handoff event', () => {
+    expect(parsePipelineHandoff('{"agentType":"researcher","reason":"needs data"}'))
+      .toEqual({ agentType: 'researcher', reason: 'needs data' });
+  });
+
+  it('should default missing reason to empty string', () => {
+    expect(parsePipelineHandoff('{"agentType":"writer"}')).toEqual({ agentType: 'writer', reason: '' });
+  });
+
+  it('should return null when agent type is missing or payload is malformed', () => {
+    expect(parsePipelineHandoff('{"reason":"x"}')).toBeNull();
+    expect(parsePipelineHandoff('{"agentType":"  "}')).toBeNull();
+    expect(parsePipelineHandoff('not json')).toBeNull();
   });
 });

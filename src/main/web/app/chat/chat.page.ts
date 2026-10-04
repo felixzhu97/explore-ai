@@ -122,7 +122,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
           score: 1,
           url: source.url,
           title: source.title,
-          publishedAt: source.publishedAt,
+          publishedAt: source.publishedAt ?? undefined,
         })),
       }));
   });
