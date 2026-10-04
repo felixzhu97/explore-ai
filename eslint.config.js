@@ -187,13 +187,30 @@ export default defineConfig([
         { ignorePrimitives: { string: true } },
       ],
       '@typescript-eslint/require-await': 'error',
+      '@typescript-eslint/strict-boolean-expressions': [
+        'error',
+        {
+          allowString: false,
+          allowNumber: false,
+          allowNullableObject: false,
+          allowNullableBoolean: false,
+          allowNullableString: false,
+          allowNullableNumber: false,
+          allowNullableEnum: false,
+          allowAny: false,
+        },
+      ],
       '@typescript-eslint/use-unknown-in-catch-callback-variable': 'error',
       'no-console': ['error', { allow: ['warn', 'error'] }],
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       '@typescript-eslint/only-throw-error': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       curly: ['error', 'all'],
-      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      eqeqeq: ['error', 'always'],
+      'no-implicit-coercion': [
+        'error',
+        { boolean: true, number: true, string: true, disallowTemplateShorthand: true },
+      ],
       'no-restricted-imports': [
         'error',
         {

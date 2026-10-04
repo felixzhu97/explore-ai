@@ -46,7 +46,7 @@ export class VisionService {
 
   readonly processingTimeLabel = computed(() => {
     const ms = this.currentState().result?.processingTimeMs;
-    if (ms == null) {
+    if (ms === undefined) {
       return null;
     }
     return this.#i18n.t().vision.processingTime.replace('{ms}', String(ms));
@@ -86,7 +86,7 @@ export class VisionService {
 
   analyze(): void {
     const currentFile = this.currentState().file;
-    if (!currentFile || this.isLoading()) {
+    if (currentFile === null || this.isLoading()) {
       return;
     }
 

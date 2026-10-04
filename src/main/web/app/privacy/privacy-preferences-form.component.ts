@@ -93,7 +93,7 @@ export class PrivacyPreferencesFormComponent implements OnInit {
   readonly preferencesForm = form(this.preferencesModel, (schemaPath) => {
     validate(schemaPath.contactEmail, ({ value }) => {
       const email = value().trim();
-      if (!email) {
+      if (email === '') {
         return undefined;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

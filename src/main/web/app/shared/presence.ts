@@ -9,3 +9,8 @@ export function hasItems<L extends readonly unknown[]>(
 export function hasText(text: string | null | undefined): text is string {
   return text !== null && text !== undefined && text !== '';
 }
+
+/** `text` when it is a non-empty string, otherwise `fallback`. */
+export function textOr<F>(text: string | null | undefined, fallback: F): string | F {
+  return hasText(text) ? text : fallback;
+}

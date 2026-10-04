@@ -41,7 +41,7 @@ export function isNavTabEnabled(
   tab: ModuleNavTab,
   featureFlags: Pick<FeatureFlagService, 'isEnabled'>,
 ): boolean {
-  if (!tab.flagKey) {
+  if (tab.flagKey === undefined) {
     return true;
   }
   return featureFlags.isEnabled(tab.flagKey);

@@ -102,7 +102,7 @@ export class ImageGenFormComponent {
 
   onSizeLabelChange(label: string): void {
     const size = this.sizes().find(item => item.label === label);
-    if (size) {
+    if (size !== undefined) {
       this.sizeSelected.emit(size);
     }
   }

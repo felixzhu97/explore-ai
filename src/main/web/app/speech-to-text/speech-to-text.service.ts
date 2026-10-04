@@ -1,5 +1,6 @@
 import { Service, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { hasText } from '../shared/presence';
 
 export type SpeechToTextConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
@@ -38,10 +39,10 @@ export class SpeechToTextService {
       this.lastMessage.set(payload);
       try {
         const message = JSON.parse(payload) as TranscriptionMessage;
-        if (message.text) {
+        if (hasText(message.text)) {
           this.transcript.update(current => current + message.text);
         }
-        if (message.error || message.message) {
+        if (hasText(message.error) || hasText(message.message)) {
           this.error.set(message.error ?? message.message ?? 'generic');
         }
       } catch {
@@ -70,7 +71,7 @@ export class SpeechToTextService {
   }
 
   disconnect(): void {
-    if (this.#socket) {
+    if (this.#socket !== null) {
       this.#socket.close();
       this.#socket = null;
     }
@@ -78,7 +79,7 @@ export class SpeechToTextService {
   }
 
   #sendJson(payload: Record<string, string>): void {
-    if (!this.#socket || this.#socket.readyState !== WebSocket.OPEN) {
+    if (this.#socket === null || this.#socket.readyState !== WebSocket.OPEN) {
       this.error.set('notConnected');
       return;
     }

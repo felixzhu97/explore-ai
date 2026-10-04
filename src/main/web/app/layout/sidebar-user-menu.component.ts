@@ -18,6 +18,7 @@ import { AccountDialogService } from '../account/account-dialog.service';
 import { AccountService } from '../account/account.service';
 import { ZardSidebarMenuButtonDirective } from '../ui/layout/sidebar-menu-button.directive';
 import { SidebarService } from './sidebar.service';
+import { textOr } from '../shared/presence';
 
 @Component({
   selector: 'app-sidebar-user-menu',
@@ -260,7 +261,7 @@ export class SidebarUserMenuComponent {
     const me = this.account();
     if (me?.mode === 'authenticated') {
       const email = me.email?.trim();
-      return email || this.i18n.t().account.signedIn;
+      return textOr(email, this.i18n.t().account.signedIn);
     }
     return this.i18n.t().account.guest;
   });
@@ -273,7 +274,7 @@ export class SidebarUserMenuComponent {
 
   readonly avatarLetter = computed(() => {
     const name = this.displayName();
-    return (name.trim().charAt(0) || 'G').toUpperCase();
+    return textOr(name.trim().charAt(0), 'G').toUpperCase();
   });
 
   readonly primaryItemClass = '!h-8 !py-1.5 !text-xs';
@@ -348,7 +349,7 @@ export class SidebarUserMenuComponent {
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
-    if (!(event.target as Element).closest('app-sidebar-user-menu')) {
+    if ((event.target as Element).closest('app-sidebar-user-menu') === null) {
       this.isMenuOpen.set(false);
       this.#closeSubmenus();
     }

@@ -16,6 +16,7 @@ import {
   type InvocationEvent,
   type MetricsRange,
 } from './metrics.service';
+import { hasText } from '../shared/presence';
 
 @Component({
   selector: 'app-metrics-overview-page',
@@ -48,7 +49,7 @@ export class MetricsOverviewPageComponent {
 
   readonly kpis = computed((): MetricsKpi[] => {
     const overview = this.overviewResource.value();
-    if (!overview) {
+    if (overview === undefined) {
       return [];
     }
     const kpi = this.i18n.t().metrics.kpi;
@@ -56,7 +57,7 @@ export class MetricsOverviewPageComponent {
     const rag = overview.domains['rag'] as { documentCount?: number } | undefined;
     const tokenTotal = (overview.promptTokens ?? 0) + (overview.completionTokens ?? 0);
     const hasTokens =
-      overview.promptTokens != null || overview.completionTokens != null;
+      overview.promptTokens !== null || overview.completionTokens !== null;
     return [
       {
         key: 'requests',
@@ -72,7 +73,7 @@ export class MetricsOverviewPageComponent {
         key: 'p95',
         label: kpi.p95Latency,
         value:
-          overview.latencyP95Ms == null
+          overview.latencyP95Ms === null
             ? '—'
             : `${Math.round(overview.latencyP95Ms)} ms`,
       },
@@ -98,7 +99,7 @@ export class MetricsOverviewPageComponent {
 
   readonly healthItems = computed((): DomainHealthItem[] => {
     const overview = this.overviewResource.value();
-    if (!overview) {
+    if (overview === undefined) {
       return [];
     }
     const health = this.i18n.t().metrics.health;
@@ -169,7 +170,7 @@ export class MetricsOverviewPageComponent {
 
   readonly domainSeries = computed(() => {
     const overview = this.overviewResource.value();
-    if (!overview) {
+    if (overview === undefined) {
       return [];
     }
     return overview.requestsByDomain.map(item => ({
@@ -197,17 +198,17 @@ export class MetricsOverviewPageComponent {
   }
 
   onKpiClick(kpi: MetricsKpi): void {
-    if (kpi.domain) {
+    if (hasText(kpi.domain)) {
       this.openDomain(kpi.domain);
     }
   }
 
   onRowClick(event: InvocationEvent): void {
-    if (event.sessionId) {
+    if (hasText(event.sessionId)) {
       void this.#router.navigate(['/chat', event.sessionId]);
       return;
     }
-    if (event.documentId || event.domain === 'rag') {
+    if (hasText(event.documentId) || event.domain === 'rag') {
       void this.#router.navigate(['/rag']);
     }
   }

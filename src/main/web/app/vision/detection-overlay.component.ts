@@ -58,7 +58,7 @@ export class DetectionOverlayComponent {
     canvas.height = image.clientHeight;
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) {
+    if (ctx === null) {
       return;
     }
 

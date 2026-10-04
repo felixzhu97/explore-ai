@@ -37,6 +37,7 @@ import {
   finalizePipelineStages,
   mergeToolSteps,
 } from './pipeline-stage.util';
+import { hasText, textOr } from '../shared/presence';
 
 const DEFAULT_RESULTS_RATIO = 0.38;
 const MIN_PANE_PX = 240;
@@ -87,7 +88,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
   constructor() {
     effect(() => {
-      if (this.agentsResource.error() && !this.agentsResource.hasValue()) {
+      if (this.agentsResource.error() !== undefined && !this.agentsResource.hasValue()) {
         this.error.set(this.i18n.t().pipelines.errors.generic);
       }
     });
@@ -140,7 +141,7 @@ export class PipelinesPageComponent implements OnDestroy {
       return;
     }
     const host = this.splitHost()?.nativeElement;
-    if (!host) {
+    if (host === undefined) {
       return;
     }
     const rect = host.getBoundingClientRect();
@@ -173,9 +174,9 @@ export class PipelinesPageComponent implements OnDestroy {
     }
 
     const topic =
-      task.trim() || this.i18n.t().pipelines.defaultMessage;
+      textOr(task.trim(), this.i18n.t().pipelines.defaultMessage);
     const brief = this.#activeBriefPrompt?.trim();
-    const invokeMessage = brief ? `${topic}\n\n${brief}` : topic;
+    const invokeMessage = hasText(brief) ? `${topic}\n\n${brief}` : topic;
 
     this.#streamAbort?.();
     this.error.set(null);
@@ -214,20 +215,20 @@ export class PipelinesPageComponent implements OnDestroy {
     const finish = (content: string, error?: Error) => {
       pipelineStages = finalizePipelineStages(
         pipelineStages,
-        error ? 'error' : 'success',
+        error !== undefined ? 'error' : 'success',
       );
       const cleaned = stripToolCallMarkup(content);
       this.#patchAssistant(
         assistantId,
         cleaned,
         false,
-        visibleSteps(error ? 'error' : 'success'),
+        visibleSteps(error !== undefined ? 'error' : 'success'),
       );
       this.streamingMessageId.set(null);
       this.isLoading.set(false);
       this.#streamAbort = null;
-      if (error) {
-        this.error.set(error.message || this.i18n.t().pipelines.errors.generic);
+      if (error !== undefined) {
+        this.error.set(textOr(error.message, this.i18n.t().pipelines.errors.generic));
       }
     };
 
@@ -239,7 +240,7 @@ export class PipelinesPageComponent implements OnDestroy {
     const onHandoff = (handoff: string) => {
       try {
         const parsed = JSON.parse(handoff) as { agentType?: string; reason?: string };
-        if (parsed.agentType) {
+        if (hasText(parsed.agentType)) {
           pipelineStages = appendPipelineStage(pipelineStages, parsed.agentType);
           const note = `\n_Delegated to **${parsed.agentType}**_\n\n`;
           rawContent += note;
@@ -256,8 +257,8 @@ export class PipelinesPageComponent implements OnDestroy {
       request,
       onChunk,
       onHandoff,
-      () => finish(rawContent || this.i18n.t().common.thinking),
-      error => finish(rawContent || this.i18n.t().pipelines.errors.generic, error),
+      () => finish(textOr(rawContent, this.i18n.t().common.thinking)),
+      error => finish(textOr(rawContent, this.i18n.t().pipelines.errors.generic), error),
     );
     this.#streamAbort = abort;
   }

@@ -17,6 +17,7 @@ import { ZardInputDirective } from '../ui/input';
 import { ZardProgressBarComponent } from '../ui/progress-bar';
 import { ZardSelectImports } from '../ui/select/select.imports';
 import { ZardSliderComponent } from '../ui/slider';
+import { hasText, textOr } from '../shared/presence';
 
 @Component({
   selector: 'app-tts-page',
@@ -56,11 +57,11 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.#audioElement) {
+    if (this.#audioElement !== null) {
       this.#audioElement.pause();
     }
     const audioUrl = this.audioUrl();
-    if (audioUrl) {
+    if (hasText(audioUrl)) {
       URL.revokeObjectURL(audioUrl);
     }
   }
@@ -69,8 +70,8 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.#tts.getVoices().subscribe({
       next: (voices) => {
         this.availableVoices.set(voices);
-        const defaultVoice = voices.find((v: Voice) => v.isDefault) ?? voices[0];
-        if (defaultVoice) {
+        const defaultVoice = voices.find((v: Voice) => v.isDefault === true) ?? voices[0];
+        if (defaultVoice !== undefined) {
           this.voice.set(defaultVoice.id);
         }
       },
@@ -99,7 +100,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   synthesize() {
-    if (!this.text().trim() || this.isSynthesizing()) {
+    if (this.text().trim() === '' || this.isSynthesizing()) {
       return;
     }
 
@@ -109,14 +110,14 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.#tts
       .synthesizeSpeech({
         text: this.text(),
-        voice: this.voice() || undefined,
+        voice: textOr(this.voice(), undefined),
         speed: this.speed(),
         outputFormat: 'mp3',
       })
       .subscribe({
         next: (blob: Blob) => {
           const previousUrl = this.audioUrl();
-          if (previousUrl) {
+          if (hasText(previousUrl)) {
             URL.revokeObjectURL(previousUrl);
           }
 
@@ -129,7 +130,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
             this.isPlaying.set(false);
           });
           this.#audioElement.addEventListener('timeupdate', () => {
-            if (this.#audioElement) {
+            if (this.#audioElement !== null) {
               const duration = this.#audioElement.duration;
               const progressValue = duration > 0
                 ? (this.#audioElement.currentTime / duration) * 100
@@ -149,7 +150,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   togglePlayPause() {
-    if (!this.#audioElement) {
+    if (this.#audioElement === null) {
       return;
     }
 
@@ -167,7 +168,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
 
   download() {
     const blob = this.audioBlob();
-    if (blob) {
+    if (blob !== null) {
       this.#tts.download(blob, `speech_${Instant.now().toEpochMilli()}.mp3`);
     }
   }

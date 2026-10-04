@@ -32,8 +32,7 @@ if (typeof globalThis.URL.revokeObjectURL === 'undefined') {
 const originalError = console.error;
 console.error = (...args: unknown[]) => {
   if (
-    args[0]
-    && typeof args[0] === 'string'
+    typeof args[0] === 'string'
     && args[0].includes('Could not parse CSS stylesheet')
   ) {
     return;

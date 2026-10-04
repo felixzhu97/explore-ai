@@ -70,7 +70,7 @@ export function validatePipeline(graph: PipelineGraph): PipelineValidationResult
       return { ok: false, reason: 'selfLoop' };
     }
     const outs = outgoing.get(edge.sourceNodeId);
-    if (outs && !outs.has(edge.targetNodeId)) {
+    if (outs !== undefined && !outs.has(edge.targetNodeId)) {
       outs.add(edge.targetNodeId);
       indegree.set(edge.targetNodeId, (indegree.get(edge.targetNodeId) ?? 0) + 1);
     }
@@ -92,7 +92,7 @@ export function validatePipeline(graph: PipelineGraph): PipelineValidationResult
 
   for (let id = ready.shift(); id !== undefined; id = ready.shift()) {
     const node = byId.get(id);
-    if (node) {
+    if (node !== undefined) {
       order.push(node.agentType);
     }
     for (const next of outgoing.get(id) ?? []) {

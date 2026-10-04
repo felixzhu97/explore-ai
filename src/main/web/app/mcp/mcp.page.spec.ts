@@ -37,7 +37,7 @@ describe('McpPageComponent', () => {
     const fixture = setup();
     const host = fixture.nativeElement as HTMLElement;
     const textarea = host.querySelector('textarea');
-    if (!textarea) {
+    if (textarea === null) {
       throw new Error('question textarea not rendered');
     }
     textarea.value = 'What tools exist?';

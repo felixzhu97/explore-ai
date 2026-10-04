@@ -5,5 +5,5 @@ export function requiredText(
   path: SchemaPath<string>,
   when: () => boolean = () => true,
 ): void {
-  validate(path, ({ value }) => (!when() || value().trim() ? null : requiredError()));
+  validate(path, ({ value }) => (!when() || value().trim() !== '' ? null : requiredError()));
 }

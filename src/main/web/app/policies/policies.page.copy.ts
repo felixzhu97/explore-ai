@@ -1,5 +1,6 @@
 import type { Language } from '../i18n/translations';
 import { POLICY_DOCS } from './policies.docs.copy';
+import { hasText } from '../shared/presence';
 
 export type PolicySlug =
   | 'terms-of-use'
@@ -52,11 +53,11 @@ export const POLICY_SLUGS: readonly PolicySlug[] = [
 ] as const;
 
 export function isPolicySlug(value: string | null | undefined): value is PolicySlug {
-  return !!value && (POLICY_SLUGS as readonly string[]).includes(value);
+  return hasText(value) && (POLICY_SLUGS as readonly string[]).includes(value);
 }
 
 export function resolvePolicySlug(raw: string | null | undefined): PolicySlug | null {
-  if (!raw) {
+  if (!hasText(raw)) {
     return null;
   }
   if (isPolicySlug(raw)) {

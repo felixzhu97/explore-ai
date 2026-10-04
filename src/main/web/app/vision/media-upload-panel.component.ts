@@ -9,6 +9,7 @@ import { ZardButtonComponent } from '../ui/button';
 import { ZardCardComponent } from '../ui/card';
 import { ZardSkeletonComponent } from '../ui/skeleton';
 import { DetectionOverlayComponent, type Detection } from './detection-overlay.component';
+import { hasText } from '../shared/presence';
 
 @Component({
   selector: 'app-media-upload-panel',
@@ -134,7 +135,7 @@ export class MediaUploadPanelComponent {
   readonly zoomRequested = output<string>();
 
   onAreaClick(): void {
-    if (!this.imagePreview()) {
+    if (!hasText(this.imagePreview())) {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
@@ -146,7 +147,7 @@ export class MediaUploadPanelComponent {
   onFileInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (file) {
+    if (file !== undefined) {
       this.fileSelected.emit(file);
     }
     input.value = '';
@@ -155,7 +156,7 @@ export class MediaUploadPanelComponent {
   onDrop(event: DragEvent): void {
     event.preventDefault();
     const droppedFile = event.dataTransfer?.files[0];
-    if (droppedFile) {
+    if (droppedFile !== undefined) {
       this.fileSelected.emit(droppedFile);
     }
   }
@@ -172,7 +173,7 @@ export class MediaUploadPanelComponent {
   onZoomClick(event: Event): void {
     event.stopPropagation();
     const image = this.imagePreview();
-    if (image) {
+    if (hasText(image)) {
       this.zoomRequested.emit(image);
     }
   }

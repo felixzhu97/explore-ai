@@ -17,7 +17,7 @@ export class FeatureFlagService {
 
   async initialize(): Promise<void> {
     const clientSideId = environment.launchDarklyClientSideId;
-    if (!clientSideId || !hasAnalyticsConsent()) {
+    if (clientSideId === '' || !hasAnalyticsConsent()) {
       this.#flags.set(environment.featureFlagFallback);
       return;
     }

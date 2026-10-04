@@ -7,6 +7,7 @@ import { API_BASE_URL } from '../http/api.constants';
 import { STORAGE_KEYS } from '../storage-keys';
 import { I18nService } from '../i18n';
 import { NotificationService } from '../ui/notification.service';
+import { hasText, textOr } from '../shared/presence';
 
 export type OAuthProviderId = 'google' | 'github' | 'explore-iam';
 
@@ -41,10 +42,10 @@ export class AccountService {
   readonly isLoaded = this.#isLoadedState.asReadonly();
 
   readonly isAuthenticated = computed(() => this.#accountState()?.mode === 'authenticated');
-  readonly loginAvailable = computed(() => !!this.#accountState()?.loginAvailable);
+  readonly loginAvailable = computed(() => this.#accountState()?.loginAvailable === true);
   readonly loginProviders = computed(() => this.#accountState()?.loginProviders ?? []);
   readonly showLogin = computed(
-    () => !!this.#accountState()?.loginAvailable && this.#accountState()?.mode !== 'authenticated',
+    () => this.#accountState()?.loginAvailable === true && this.#accountState()?.mode !== 'authenticated',
   );
 
   readonly showLogout = computed(() => this.#accountState()?.mode === 'authenticated');
@@ -83,7 +84,7 @@ export class AccountService {
   ): void {
     const { pathname, search, hash } = window.location;
     const returnTo = `${pathname}${search}${hash}`;
-    sessionStorage.setItem(STORAGE_KEYS.OAUTH_RETURN_URL, returnTo || '/chat');
+    sessionStorage.setItem(STORAGE_KEYS.OAUTH_RETURN_URL, textOr(returnTo, '/chat'));
     assign(`/oauth2/authorization/${provider}`);
   }
 
@@ -124,7 +125,7 @@ export class AccountService {
   ): void {
     const params = new URLSearchParams(search);
     const login = params.get('login');
-    if (!login) {
+    if (!hasText(login)) {
       if (!this.#isLoadedState()) {
         this.load();
       }
@@ -133,7 +134,7 @@ export class AccountService {
 
     params.delete('login');
     const query = params.toString();
-    const cleanUrl = query ? `${path}?${query}` : path;
+    const cleanUrl = query !== '' ? `${path}?${query}` : path;
     void this.#router.navigateByUrl(cleanUrl, { replaceUrl: true });
 
     this.reload();
@@ -143,7 +144,7 @@ export class AccountService {
       this.#notifications.showSuccess(this.#i18n.t().account.loginSuccess);
       const returnTo = sessionStorage.getItem(STORAGE_KEYS.OAUTH_RETURN_URL);
       sessionStorage.removeItem(STORAGE_KEYS.OAUTH_RETURN_URL);
-      if (returnTo && returnTo !== cleanUrl) {
+      if (hasText(returnTo) && returnTo !== cleanUrl) {
         void this.#router.navigateByUrl(returnTo);
       }
     } else {

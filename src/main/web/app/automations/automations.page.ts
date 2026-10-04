@@ -24,6 +24,7 @@ import {
   type AutomationSchedule,
   type AutomationScheduleWriteRequest,
 } from './automations.service';
+import { hasText, textOr } from '../shared/presence';
 
 type FrequencyPreset = 'daily' | 'weekly' | 'custom';
 
@@ -163,11 +164,11 @@ export class AutomationsPageComponent implements OnInit {
   onTemplateChange(templateId: string): void {
     this.draftForm.templateId().value.set(templateId);
     const template = this.enabledTemplates().find(item => item.id === templateId);
-    if (!template) {
+    if (template === undefined) {
       return;
     }
     const brief = this.draftForm.brief().value();
-    if (!brief.trim() || this.#isGenericPlaceholder(brief)) {
+    if (brief.trim() === '' || this.#isGenericPlaceholder(brief)) {
       this.draftForm.brief().value.set(this.#defaultBriefForTemplate(template));
     }
   }
@@ -217,7 +218,7 @@ export class AutomationsPageComponent implements OnInit {
   save(): void {
     const t = this.i18n.t().automations;
     const invalidMessage = this.#firstInvalidMessage();
-    if (invalidMessage) {
+    if (hasText(invalidMessage)) {
       this.#notifications.showError(invalidMessage);
       return;
     }
@@ -227,7 +228,7 @@ export class AutomationsPageComponent implements OnInit {
     const pipelineTemplateId = draft.templateId;
     const brief = draft.brief.trim();
     const preset = draft.preset;
-    const timezone = draft.timezone.trim() || 'UTC';
+    const timezone = textOr(draft.timezone.trim(), 'UTC');
     let request: AutomationScheduleWriteRequest;
     if (preset === 'custom') {
       const runAt = draft.runAt;
@@ -261,7 +262,7 @@ export class AutomationsPageComponent implements OnInit {
     }
     this.isSaving.set(true);
     const editingId = this.editingId();
-    const request$ = editingId
+    const request$ = hasText(editingId)
       ? this.#automationsApi.update(editingId, request)
       : this.#automationsApi.create(request);
     request$.subscribe({
@@ -285,7 +286,7 @@ export class AutomationsPageComponent implements OnInit {
       return errors.nameRequired;
     }
     if (fields.email().invalid()) {
-      return this.#draft().email.trim() ? errors.emailInvalid : errors.emailRequired;
+      return this.#draft().email.trim() !== '' ? errors.emailInvalid : errors.emailRequired;
     }
     if (fields.templateId().invalid()) {
       return errors.pipelineTemplateRequired;
@@ -341,11 +342,11 @@ export class AutomationsPageComponent implements OnInit {
   }
 
   #defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
-    if (!template) {
+    if (template === undefined) {
       return '';
     }
     const topic = template.shortTopic.trim();
-    if (topic) {
+    if (topic !== '') {
       return topic;
     }
     return template.briefPrompt.trim();

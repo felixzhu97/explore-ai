@@ -2,6 +2,7 @@ import { httpResource, type HttpResourceRef } from '@angular/common/http';
 import { Service } from '@angular/core';
 import { Instant } from '@js-joda/core';
 import { API_BASE_URL } from '../http/api.constants';
+import { hasText } from '../shared/presence';
 
 export type MetricsDomain = 'chat' | 'rag' | 'agents' | 'tools' | 'vision';
 
@@ -111,7 +112,7 @@ export const METRICS_DOMAINS: MetricsDomain[] = ['chat', 'rag', 'agents', 'tools
 export function isMetricsDomain(
   value: string | null | undefined,
 ): value is MetricsDomain {
-  return !!value && (METRICS_DOMAINS as string[]).includes(value);
+  return hasText(value) && (METRICS_DOMAINS as string[]).includes(value);
 }
 
 export interface SeriesQuery {
@@ -138,7 +139,7 @@ export class MetricsService {
   ): HttpResourceRef<MetricsDomainSnapshot | undefined> {
     return httpResource<MetricsDomainSnapshot>(() => {
       const value = domain();
-      return value
+      return value !== null
         ? { url: `${this.#baseUrl}/domains/${value}`, params: { range: range() } }
         : undefined;
     });
@@ -149,7 +150,7 @@ export class MetricsService {
   ): HttpResourceRef<SeriesResponse | undefined> {
     return httpResource<SeriesResponse>(() => {
       const value = query();
-      return value ? { url: `${this.#baseUrl}/series`, params: { ...value } } : undefined;
+      return value !== undefined ? { url: `${this.#baseUrl}/series`, params: { ...value } } : undefined;
     });
   }
 
@@ -158,7 +159,7 @@ export class MetricsService {
   ): HttpResourceRef<DrilldownPage | undefined> {
     return httpResource<DrilldownPage>(() => {
       const value = query();
-      if (!value) {
+      if (value === undefined) {
         return undefined;
       }
       const params = Object.fromEntries(

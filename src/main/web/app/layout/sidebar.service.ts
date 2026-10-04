@@ -53,7 +53,7 @@ export class SidebarService {
   }
 
   #removeMobileResizeListener(): void {
-    if (this.#mobileResizeHandler) {
+    if (this.#mobileResizeHandler !== null) {
       window.removeEventListener('resize', this.#mobileResizeHandler);
       this.#mobileResizeHandler = null;
     }

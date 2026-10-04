@@ -16,6 +16,7 @@ import {
 import type { AgentType } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
+import { hasText } from '../shared/presence';
 
 const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
 
@@ -59,7 +60,7 @@ export class AgentsPageComponent implements OnInit {
   readonly #draft = signal<AgentDraft>(EMPTY_DRAFT);
   protected readonly draftForm = form(this.#draft, (path) => {
     disabled(path.typeKey, { when: () => this.isFormTypeKeyLocked() });
-    requiredText(path.typeKey, () => !this.editingId());
+    requiredText(path.typeKey, () => !hasText(this.editingId()));
     requiredText(path.name);
     requiredText(path.systemPrompt);
   });
@@ -119,7 +120,7 @@ export class AgentsPageComponent implements OnInit {
   /** Open form to override a builtin: create or edit its saved agent. */
   customizeBuiltin(agent: AgentType): void {
     const existing = this.savedAgentForType(agent.type);
-    if (existing) {
+    if (existing !== undefined) {
       this.startEditSavedAgent(existing);
       return;
     }
@@ -166,7 +167,7 @@ export class AgentsPageComponent implements OnInit {
     this.isSaving.set(true);
     this.error.set(null);
     const id = this.editingId();
-    const request$ = id
+    const request$ = hasText(id)
       ? this.#agentsApi.update(id, request)
       : this.#agentsApi.create({ ...request, typeKey });
     request$.subscribe({

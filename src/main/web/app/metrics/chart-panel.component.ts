@@ -6,6 +6,7 @@ import {
   type SharedChartItem,
   type SharedChartType,
 } from './chart-option.util';
+import { textOr } from '../shared/presence';
 
 export interface ChartClickPayload {
   label: string;
@@ -43,7 +44,7 @@ export class ChartPanelComponent {
   readonly chartClicked = output<ChartClickPayload>();
 
   readonly chartOption = computed(() => {
-    const title = this.title() || undefined;
+    const title = textOr(this.title(), undefined);
     return buildSharedChartOption(this.type(), this.data(), title);
   });
 
@@ -51,7 +52,7 @@ export class ChartPanelComponent {
     const label = event.name;
     const raw = Array.isArray(event.value) ? event.value[1] : event.value;
     const value = typeof raw === 'number' ? raw : Number(raw);
-    if (!label || !Number.isFinite(value)) {
+    if (label === '' || !Number.isFinite(value)) {
       return;
     }
     this.chartClicked.emit({ label, value });
