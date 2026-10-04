@@ -5,6 +5,27 @@ import { map, type Observable } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 
 export type ScheduleKind = 'CRON' | 'ONCE';
+export type AutomationActionType = 'RUN_PIPELINE_TEMPLATE';
+export type RunStatus = 'SUCCESS' | 'FAILED' | 'SKIPPED';
+export type EmailDeliveryStatus = 'PENDING' | 'SENT' | 'SKIPPED' | 'FAILED';
+
+export interface AutomationScheduleResponse {
+  id: string;
+  name: string;
+  scheduleKind: ScheduleKind;
+  cronExpression: string | null;
+  runAt: string | null;
+  timezone: string;
+  enabled: boolean;
+  actionType: AutomationActionType;
+  pipelineTemplateId: string;
+  recipientEmail: string;
+  brief: string;
+  nextRunAt: string;
+  lastRunAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface AutomationSchedule {
   id: string;
@@ -14,7 +35,7 @@ export interface AutomationSchedule {
   runAt: Instant | null;
   timezone: string;
   enabled: boolean;
-  actionType: string;
+  actionType: AutomationActionType;
   pipelineTemplateId: string;
   recipientEmail: string;
   brief: string;
@@ -24,41 +45,46 @@ export interface AutomationSchedule {
   updatedAt: Instant;
 }
 
-/** Schedule as sent by the API, with ISO-8601 instants. */
-export type AutomationScheduleDto = Omit<
-  AutomationSchedule,
-  'runAt' | 'nextRunAt' | 'lastRunAt' | 'createdAt' | 'updatedAt'
-> & {
-  runAt: string | null;
-  nextRunAt: string;
-  lastRunAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+export interface AutomationRunResponse {
+  id: string;
+  scheduleId: string;
+  startedAt: string;
+  finishedAt: string | null;
+  status: RunStatus;
+  errorMessage: string | null;
+  resultExcerpt: string | null;
+  emailStatus: EmailDeliveryStatus;
+}
 
 export interface AutomationRun {
   id: string;
   scheduleId: string;
   startedAt: Instant;
   finishedAt: Instant | null;
-  status: string;
+  status: RunStatus;
   errorMessage: string | null;
   resultExcerpt: string | null;
-  emailStatus: string;
+  emailStatus: EmailDeliveryStatus;
 }
 
-/** Run as sent by the API, with ISO-8601 instants. */
-export type AutomationRunDto = Omit<AutomationRun, 'startedAt' | 'finishedAt'> & {
-  startedAt: string;
-  finishedAt: string | null;
-};
-
-export interface AutomationScheduleWriteRequest {
+export interface CreateAutomationScheduleRequest {
   name: string;
   scheduleKind: ScheduleKind;
-  cronExpression?: string | null;
+  cronExpression?: string;
   /** ISO-8601 instant. */
-  runAt?: string | null;
+  runAt?: string;
+  timezone: string;
+  pipelineTemplateId: string;
+  recipientEmail: string;
+  brief: string;
+}
+
+export interface UpdateAutomationScheduleRequest {
+  name: string;
+  scheduleKind: ScheduleKind;
+  cronExpression?: string;
+  /** ISO-8601 instant. */
+  runAt?: string;
   timezone: string;
   pipelineTemplateId: string;
   recipientEmail: string;
@@ -69,22 +95,24 @@ function parseOptionalInstant(value: string | null): Instant | null {
   return value === null ? null : Instant.parse(value);
 }
 
-export function toAutomationSchedule(dto: AutomationScheduleDto): AutomationSchedule {
+export function toAutomationSchedule(
+  response: AutomationScheduleResponse,
+): AutomationSchedule {
   return {
-    ...dto,
-    runAt: parseOptionalInstant(dto.runAt),
-    nextRunAt: Instant.parse(dto.nextRunAt),
-    lastRunAt: parseOptionalInstant(dto.lastRunAt),
-    createdAt: Instant.parse(dto.createdAt),
-    updatedAt: Instant.parse(dto.updatedAt),
+    ...response,
+    runAt: parseOptionalInstant(response.runAt),
+    nextRunAt: Instant.parse(response.nextRunAt),
+    lastRunAt: parseOptionalInstant(response.lastRunAt),
+    createdAt: Instant.parse(response.createdAt),
+    updatedAt: Instant.parse(response.updatedAt),
   };
 }
 
-export function toAutomationRun(dto: AutomationRunDto): AutomationRun {
+export function toAutomationRun(response: AutomationRunResponse): AutomationRun {
   return {
-    ...dto,
-    startedAt: Instant.parse(dto.startedAt),
-    finishedAt: parseOptionalInstant(dto.finishedAt),
+    ...response,
+    startedAt: Instant.parse(response.startedAt),
+    finishedAt: parseOptionalInstant(response.finishedAt),
   };
 }
 
@@ -95,28 +123,28 @@ export class AutomationsService {
 
   list(): Observable<AutomationSchedule[]> {
     return this.#http
-      .get<AutomationScheduleDto[]>(this.#base)
+      .get<AutomationScheduleResponse[]>(this.#base)
       .pipe(map(schedules => schedules.map(toAutomationSchedule)));
   }
 
-  create(request: AutomationScheduleWriteRequest): Observable<AutomationSchedule> {
+  create(request: CreateAutomationScheduleRequest): Observable<AutomationSchedule> {
     return this.#http
-      .post<AutomationScheduleDto>(this.#base, request)
+      .post<AutomationScheduleResponse>(this.#base, request)
       .pipe(map(toAutomationSchedule));
   }
 
   update(
     id: string,
-    request: AutomationScheduleWriteRequest,
+    request: UpdateAutomationScheduleRequest,
   ): Observable<AutomationSchedule> {
     return this.#http
-      .put<AutomationScheduleDto>(`${this.#base}/${id}`, request)
+      .put<AutomationScheduleResponse>(`${this.#base}/${id}`, request)
       .pipe(map(toAutomationSchedule));
   }
 
   setEnabled(id: string, enabled: boolean): Observable<AutomationSchedule> {
     return this.#http
-      .patch<AutomationScheduleDto>(`${this.#base}/${id}/enabled`, { enabled })
+      .patch<AutomationScheduleResponse>(`${this.#base}/${id}/enabled`, { enabled })
       .pipe(map(toAutomationSchedule));
   }
 
@@ -127,7 +155,7 @@ export class AutomationsService {
   listRuns(id: string, limit = 20): Observable<AutomationRun[]> {
     const params = new HttpParams().set('limit', String(limit));
     return this.#http
-      .get<AutomationRunDto[]>(`${this.#base}/${id}/runs`, { params })
+      .get<AutomationRunResponse[]>(`${this.#base}/${id}/runs`, { params })
       .pipe(map(runs => runs.map(toAutomationRun)));
   }
 }

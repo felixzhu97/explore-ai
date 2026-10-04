@@ -19,10 +19,10 @@ import { I18nService } from '../i18n';
 import { NotificationService } from '../ui/notification.service';
 import {
   PipelinesService,
-  type AgentType,
+  type AgentInfoResponse,
   type PipelineTemplate,
-  type PipelineTemplateDefinition,
-  type PipelineTemplateWriteRequest,
+  type PipelineTemplateDefinitionResponse,
+  type CreatePipelineTemplateRequest,
 } from './pipelines.service';
 import {
   connectorInId,
@@ -73,7 +73,7 @@ export class PipelinesCanvasComponent implements OnInit {
   readonly #notifications = inject(NotificationService);
   readonly i18n = inject(I18nService);
 
-  readonly agents = input.required<AgentType[]>();
+  readonly agents = input.required<AgentInfoResponse[]>();
   readonly validationHint = input<string | null>(null);
   readonly runRequested = output<{ graph: PipelineGraph; task: string }>();
   readonly graphChanged = output<PipelineGraph>();
@@ -84,7 +84,7 @@ export class PipelinesCanvasComponent implements OnInit {
 
   readonly nodes = signal<PipelineNode[]>([]);
   readonly connections = signal<PipelineConnection[]>([]);
-  readonly builtinTemplates = signal<PipelineTemplateDefinition[]>([]);
+  readonly builtinTemplates = signal<PipelineTemplateDefinitionResponse[]>([]);
   readonly savedTemplates = signal<PipelineTemplate[]>([]);
   readonly workspaceMode = signal<WorkspaceMode>('gallery');
   readonly activeTemplateName = signal('');
@@ -151,7 +151,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.showAgentPicker.set(false);
   }
 
-  pickAgent(agent: AgentType): void {
+  pickAgent(agent: AgentInfoResponse): void {
     if (!this.isEditMode() || agent.supervisor) {
       return;
     }
@@ -312,7 +312,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
-  editTemplate(template: PipelineTemplateDefinition): void {
+  editTemplate(template: PipelineTemplateDefinitionResponse): void {
     this.#applyTemplate({
       id: template.id,
       name: template.name,
@@ -323,7 +323,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }, 'edit');
   }
 
-  useTemplate(template: PipelineTemplateDefinition): void {
+  useTemplate(template: PipelineTemplateDefinitionResponse): void {
     this.#applyTemplate({
       id: template.id,
       name: template.name,
@@ -334,11 +334,11 @@ export class PipelinesCanvasComponent implements OnInit {
     }, 'use');
   }
 
-  isSaved(template: PipelineTemplateDefinition): boolean {
+  isSaved(template: PipelineTemplateDefinitionResponse): boolean {
     return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
   }
 
-  addFromTemplate(template: PipelineTemplateDefinition): void {
+  addFromTemplate(template: PipelineTemplateDefinitionResponse): void {
     if (this.addingTemplateId() !== null || this.isSaved(template)) {
       return;
     }
@@ -520,7 +520,7 @@ export class PipelinesCanvasComponent implements OnInit {
     });
   }
 
-  #buildTemplateWriteRequest(): PipelineTemplateWriteRequest | null {
+  #buildTemplateWriteRequest(): CreatePipelineTemplateRequest | null {
     const agentTypes = this.nodes().map(node => node.agentType);
     if (agentTypes.length === 0) {
       return null;
@@ -558,7 +558,7 @@ export class PipelinesCanvasComponent implements OnInit {
     });
   }
 
-  #addNode(agent: AgentType, position: { x: number; y: number }): void {
+  #addNode(agent: AgentInfoResponse, position: { x: number; y: number }): void {
     const chainTailId = this.#findChainTailId();
     this.#nodeSeq += 1;
     const nodeId = `node-${String(this.#nodeSeq)}`;
@@ -569,8 +569,8 @@ export class PipelinesCanvasComponent implements OnInit {
         agentType: agent.type,
         name: agent.name,
         description: agent.description,
-        systemPrompt: agent.systemPrompt ?? '',
-        toolKeys: [...(agent.toolKeys ?? [])],
+        systemPrompt: agent.systemPrompt,
+        toolKeys: [...agent.toolKeys],
         position,
       },
     ]);

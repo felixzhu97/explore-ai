@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../http/api.constants';
-import { MetricsService, type MetricsDomain } from './metrics.service';
+import { MetricsService, type DrilldownQuery, type MetricsDomain } from './metrics.service';
 
 describe('MetricsService', () => {
   let service: MetricsService;
@@ -33,7 +33,7 @@ describe('MetricsService', () => {
   });
 
   it('should request drilldown without undefined filters', () => {
-    const query = { domain: 'chat', day: '2026-07-26', model: undefined, page: 0 };
+    const query: DrilldownQuery = { domain: 'chat', day: '2026-07-26', model: undefined, page: 0 };
     TestBed.runInInjectionContext(() => service.drilldown(() => query));
     flushEffects();
 

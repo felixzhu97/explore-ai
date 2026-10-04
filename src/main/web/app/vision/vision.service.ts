@@ -1,20 +1,39 @@
 import { Service, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { type Observable } from 'rxjs';
+import { type Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import type { AppError } from '../http/http-error.interceptor';
 import { I18nService } from '../i18n';
 import { ImageZoomService } from '../ui/image-zoom.service';
-import type { Detection } from './detection-overlay.component';
 
-export interface VisionResult {
-  caption?: string;
-  detections?: Detection[];
-  fullText?: string;
-  processingTimeMs?: number;
+export interface CaptionResponse {
+  caption: string;
+  processingTimeMs: number;
+}
+
+export interface DetectionResponse {
+  className: string;
+  confidence: number;
+  /** `[x, y, width, height]` in source image pixels. */
+  bbox: number[];
+}
+
+export interface DetectResponse {
+  detections: DetectionResponse[];
+  processingTimeMs: number;
+}
+
+export interface OcrResponse {
+  fullText: string;
+  processingTimeMs: number;
 }
 
 export type VisionTaskType = 'caption' | 'detect' | 'ocr';
+
+export type VisionResult =
+  | ({ task: 'caption' } & CaptionResponse)
+  | ({ task: 'detect' } & DetectResponse)
+  | ({ task: 'ocr' } & OcrResponse);
 
 export interface VisionTabState {
   image: string | null;
@@ -50,6 +69,11 @@ export class VisionService {
       return null;
     }
     return this.#i18n.t().vision.processingTime.replace('{ms}', String(ms));
+  });
+
+  readonly detections = computed(() => {
+    const result = this.currentState().result;
+    return result?.task === 'detect' ? result.detections : undefined;
   });
 
   readonly canAnalyze = computed(() => Boolean(this.currentState().file));
@@ -121,31 +145,22 @@ export class VisionService {
     });
   }
 
-  #captionImage(file: File): Observable<Pick<VisionResult, 'caption' | 'processingTimeMs'>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.#http.post<Pick<VisionResult, 'caption' | 'processingTimeMs'>>(
-      `${API_BASE_URL}/vision/caption`,
-      formData,
-    );
+  #captionImage(file: File): Observable<VisionResult> {
+    return this.#http
+      .post<CaptionResponse>(`${API_BASE_URL}/vision/caption`, imageForm(file))
+      .pipe(map(response => ({ task: 'caption', ...response })));
   }
 
-  #detectObjects(file: File): Observable<Pick<VisionResult, 'detections' | 'processingTimeMs'>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.#http.post<Pick<VisionResult, 'detections' | 'processingTimeMs'>>(
-      `${API_BASE_URL}/vision/detect`,
-      formData,
-    );
+  #detectObjects(file: File): Observable<VisionResult> {
+    return this.#http
+      .post<DetectResponse>(`${API_BASE_URL}/vision/detect`, imageForm(file))
+      .pipe(map(response => ({ task: 'detect', ...response })));
   }
 
-  #ocrImage(file: File): Observable<Pick<VisionResult, 'fullText' | 'processingTimeMs'>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.#http.post<Pick<VisionResult, 'fullText' | 'processingTimeMs'>>(
-      `${API_BASE_URL}/vision/ocr`,
-      formData,
-    );
+  #ocrImage(file: File): Observable<VisionResult> {
+    return this.#http
+      .post<OcrResponse>(`${API_BASE_URL}/vision/ocr`, imageForm(file))
+      .pipe(map(response => ({ task: 'ocr', ...response })));
   }
 
   #resolveErrorMessage(error: AppError): string {
@@ -164,4 +179,10 @@ export class VisionService {
       [this.activeTask()]: { ...states[this.activeTask()], ...partial },
     }));
   }
+}
+
+function imageForm(file: File): FormData {
+  const formData = new FormData();
+  formData.append('file', file);
+  return formData;
 }

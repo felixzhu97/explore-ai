@@ -8,7 +8,8 @@ import { lucideImage } from '@ng-icons/lucide';
 import { ZardButtonComponent } from '../ui/button';
 import { ZardCardComponent } from '../ui/card';
 import { ZardSkeletonComponent } from '../ui/skeleton';
-import { DetectionOverlayComponent, type Detection } from './detection-overlay.component';
+import { DetectionOverlayComponent } from './detection-overlay.component';
+import type { DetectionResponse } from './vision.service';
 import { hasText } from '../shared/presence';
 
 @Component({
@@ -130,7 +131,7 @@ export class MediaUploadPanelComponent {
   readonly clearLabel = input.required<string>();
   readonly clickToEnlargeLabel = input.required<string>();
   readonly showDetectionOverlay = input(false);
-  readonly detections = input<Detection[] | undefined>(undefined);
+  readonly detections = input<DetectionResponse[] | undefined>(undefined);
 
   readonly fileSelected = output<File>();
   readonly cleared = output<void>();

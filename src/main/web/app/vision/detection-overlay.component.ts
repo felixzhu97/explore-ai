@@ -5,12 +5,7 @@ import {
   effect,
   type ElementRef,
 } from '@angular/core';
-
-export interface Detection {
-  className: string;
-  confidence: number;
-  bbox: [number, number, number, number];
-}
+import type { DetectionResponse } from './vision.service';
 
 @Component({
   selector: 'app-detection-overlay',
@@ -32,7 +27,7 @@ export interface Detection {
 })
 export class DetectionOverlayComponent {
   readonly imageSrc = input.required<string>();
-  readonly detections = input<Detection[]>([]);
+  readonly detections = input<DetectionResponse[]>([]);
 
   protected readonly previewImage = viewChild.required<ElementRef<HTMLImageElement>>('previewImage');
   protected readonly overlayCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('overlayCanvas');
@@ -67,7 +62,7 @@ export class DetectionOverlayComponent {
     ctx.font = '12px system-ui, sans-serif';
 
     for (const detection of this.detections()) {
-      const [x, y, width, height] = detection.bbox;
+      const [x = 0, y = 0, width = 0, height = 0] = detection.bbox;
       const scaledX = x * scaleX;
       const scaledY = y * scaleY;
       const scaledWidth = width * scaleX;

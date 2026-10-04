@@ -1,4 +1,4 @@
-import type { AgentType } from './pipelines.service';
+import type { AgentInfoResponse } from './pipelines.service';
 import type { PipelineConnection, PipelineGraph, PipelineNode } from './pipeline-graph';
 import { hasText } from '../shared/presence';
 
@@ -22,7 +22,7 @@ const NODE_ORIGIN = { x: 80, y: 120 };
  */
 export function applyPipelineTemplate(
   definition: PipelineTemplateInput,
-  agents: readonly AgentType[],
+  agents: readonly AgentInfoResponse[],
   idSeed = 1,
 ): PipelineTemplateApplyResult {
   const byType = new Map(
@@ -32,7 +32,7 @@ export function applyPipelineTemplate(
   );
 
   const skippedAgentTypes: string[] = [];
-  const resolved: AgentType[] = [];
+  const resolved: AgentInfoResponse[] = [];
   for (const type of definition.agentTypes) {
     const agent = byType.get(type);
     if (agent === undefined) {
@@ -47,8 +47,8 @@ export function applyPipelineTemplate(
     agentType: agent.type,
     name: agent.name,
     description: agent.description,
-    systemPrompt: agent.systemPrompt ?? '',
-    toolKeys: [...(agent.toolKeys ?? [])],
+    systemPrompt: agent.systemPrompt,
+    toolKeys: [...agent.toolKeys],
     position: {
       x: NODE_ORIGIN.x + index * NODE_GAP_X,
       y: NODE_ORIGIN.y,

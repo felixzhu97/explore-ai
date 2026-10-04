@@ -9,12 +9,13 @@ import { parseSseToken, streamSsePost } from '../http/sse-client';
 import { textOr } from '../shared/presence';
 
 /** POST /api/rag/chat/stream */
-export interface RagQuery {
+export interface RagChatRequest {
   question: string;
   sessionId?: string;
   topK?: number;
   temperature?: number;
   documentIds?: string[];
+  images?: string[];
 }
 
 /** Matches SourceDocumentResponse / SSE sources event */
@@ -25,17 +26,26 @@ export interface SourceDocument {
   metadata: Record<string, unknown>;
 }
 
-/** GET /api/rag/documents — DocumentSummaryResponse */
-export interface DocumentListItem {
+export type DocumentStatus = 'UPLOADING' | 'PROCESSING' | 'READY' | 'FAILED';
+
+export interface DocumentSummaryResponse {
   id: string;
-  title: string;
-  status?: string;
-  createdAt?: string;
-  chunkCount?: number;
+  title: string | null;
+  status: DocumentStatus;
+  createdAt: string;
+  chunkCount: number;
 }
 
 export interface DocumentListResponse {
-  documents: DocumentListItem[];
+  documents: DocumentSummaryResponse[];
+}
+
+export interface UploadDocumentResponse {
+  id: string;
+  title: string | null;
+  status: DocumentStatus;
+  chunkCount: number;
+  createdAt: string;
 }
 
 export interface RagDocumentItem {
@@ -321,7 +331,7 @@ export class RagService {
     ]);
     this.streamingMessageIds.update(ids => new Set(ids).add(assistantMessageId));
 
-    const requestBody: RagQuery = {
+    const requestBody: RagChatRequest = {
       question: userMessage.content,
       sessionId: this.#sessionId,
       topK: DEFAULT_TOP_K,
@@ -384,11 +394,11 @@ export class RagService {
   #uploadDocument(
     file: File,
     title?: string,
-  ): Observable<HttpEvent<{ id: string }>> {
+  ): Observable<HttpEvent<UploadDocumentResponse>> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title ?? file.name);
-    return this.#http.post<{ id: string }>(`${API_BASE_URL}/rag/documents/upload`, formData, {
+    return this.#http.post<UploadDocumentResponse>(`${API_BASE_URL}/rag/documents/upload`, formData, {
       reportProgress: true,
       observe: 'events',
     });
@@ -399,7 +409,7 @@ export class RagService {
   }
 
   #ragChat(
-    query: RagQuery,
+    query: RagChatRequest,
     onChunk: (text: string) => void,
     onSources: (sources: SourceDocument[]) => void,
     onDone: () => void,

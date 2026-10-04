@@ -3,15 +3,18 @@ import {
   type PipelineTemplateInput,
 } from './pipelines.templates';
 import { validatePipeline } from './pipeline-graph';
-import type { AgentType } from './pipelines.service';
+import type { AgentInfoResponse } from './pipelines.service';
 
-const catalog: AgentType[] = [
+const catalog: AgentInfoResponse[] = [
   {
     type: 'supervisor',
     name: 'Supervisor',
     description: '',
     healthy: true,
     supervisor: true,
+    runtime: 'single',
+    toolKeys: [],
+    systemPrompt: '',
   },
   {
     type: 'research',
@@ -19,6 +22,9 @@ const catalog: AgentType[] = [
     description: 'web',
     healthy: true,
     supervisor: false,
+    runtime: 'single',
+    toolKeys: [],
+    systemPrompt: '',
   },
   {
     type: 'weather',
@@ -26,6 +32,9 @@ const catalog: AgentType[] = [
     description: 'forecast',
     healthy: true,
     supervisor: false,
+    runtime: 'single',
+    toolKeys: [],
+    systemPrompt: '',
   },
   {
     type: 'vectordb',
@@ -33,6 +42,9 @@ const catalog: AgentType[] = [
     description: 'rag',
     healthy: true,
     supervisor: false,
+    runtime: 'single',
+    toolKeys: [],
+    systemPrompt: '',
   },
   {
     type: 'analyst',
@@ -40,6 +52,9 @@ const catalog: AgentType[] = [
     description: 'synth',
     healthy: true,
     supervisor: false,
+    runtime: 'single',
+    toolKeys: [],
+    systemPrompt: '',
   },
 ];
 

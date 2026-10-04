@@ -22,7 +22,7 @@ import {
   AutomationsService,
   type AutomationRun,
   type AutomationSchedule,
-  type AutomationScheduleWriteRequest,
+  type CreateAutomationScheduleRequest,
 } from './automations.service';
 import { hasText, textOr } from '../shared/presence';
 
@@ -229,7 +229,7 @@ export class AutomationsPageComponent implements OnInit {
     const brief = draft.brief.trim();
     const preset = draft.preset;
     const timezone = textOr(draft.timezone.trim(), 'UTC');
-    let request: AutomationScheduleWriteRequest;
+    let request: CreateAutomationScheduleRequest;
     if (preset === 'custom') {
       const runAt = draft.runAt;
       if (runAt === null) {

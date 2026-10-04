@@ -17,7 +17,7 @@
       [clearLabel]="i18n.t().vision.clearImage"
       [clickToEnlargeLabel]="i18n.t().vision.clickToEnlarge"
       [showDetectionOverlay]="vision.activeTask() === 'detect'"
-      [detections]="vision.currentState().result?.detections"
+      [detections]="vision.detections()"
       (fileSelected)="vision.processFile($event)"
       (cleared)="vision.clearImage()"
       (zoomRequested)="vision.openZoom($event)"
@@ -25,7 +25,6 @@
 
     <app-media-result-panel
       [title]="i18n.t().vision.resultLabel"
-      [task]="vision.activeTask()"
       [result]="vision.currentState().result"
       [error]="vision.currentState().error"
       [isLoading]="vision.isLoading()"

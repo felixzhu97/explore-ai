@@ -13,7 +13,7 @@ describe('McpPageComponent', () => {
           provide: McpService,
           useValue: {
             getHealth: () => of({ status: 'UP' }),
-            getClientStatus: () => of({ enabled: true, connectedServers: 0 }),
+            getClientStatus: () => of({ status: 'READY', registeredTools: 0, connectedServers: [] }),
             listTools: () => of([]),
           },
         },

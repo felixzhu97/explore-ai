@@ -12,14 +12,18 @@ import { I18nService } from '../i18n';
 import {
   SkillsService,
   type Skill,
-  type SkillTemplate,
-  type SkillWriteRequest,
+  type SkillTemplateResponse,
+  type CreateSkillRequest,
 } from './skills.service';
 import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
 import { hasText } from '../shared/presence';
 
-type SkillDraft = Pick<SkillWriteRequest, 'name' | 'description' | 'instructions'>;
+interface SkillDraft {
+  name: string;
+  description: string;
+  instructions: string;
+}
 
 const EMPTY_DRAFT: SkillDraft = {
   name: '',
@@ -41,7 +45,7 @@ export class SkillsPageComponent implements OnInit {
   protected readonly i18n = inject(I18nService);
 
   readonly skills = signal<Skill[]>([]);
-  readonly templates = signal<SkillTemplate[]>([]);
+  readonly templates = signal<SkillTemplateResponse[]>([]);
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly addingTemplateId = signal<string | null>(null);
@@ -74,9 +78,9 @@ export class SkillsPageComponent implements OnInit {
     this.reload();
   }
 
-  isInLibrary(template: SkillTemplate): boolean {
+  isInLibrary(template: SkillTemplateResponse): boolean {
     const owned = this.ownedNames();
-    const aliases = [template.name, ...(template.nameAliases ?? [])]
+    const aliases = [template.name, ...template.nameAliases]
       .map(name => name.trim().toLowerCase())
       .filter(Boolean);
     return aliases.some(alias => owned.has(alias) || [...owned].some(ownedName => ownedName.startsWith(`${alias} (`)),
@@ -122,7 +126,7 @@ export class SkillsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
-  customizeTemplate(template: SkillTemplate): void {
+  customizeTemplate(template: SkillTemplateResponse): void {
     this.editingId.set(null);
     this.#draft.set({
       name: template.name,
@@ -132,7 +136,7 @@ export class SkillsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
-  addFromTemplate(template: SkillTemplate): void {
+  addFromTemplate(template: SkillTemplateResponse): void {
     if (hasText(this.addingTemplateId())) {
       return;
     }
@@ -162,7 +166,7 @@ export class SkillsPageComponent implements OnInit {
       return;
     }
     const draft = this.#draft();
-    const request: SkillWriteRequest = {
+    const request: CreateSkillRequest = {
       name: draft.name.trim(),
       description: draft.description.trim(),
       instructions: draft.instructions.trim(),

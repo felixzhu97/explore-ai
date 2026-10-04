@@ -2,8 +2,10 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { AgentsService } from './agents.service';
+import { AgentsService, type SavedAgentResponse } from './agents.service';
 import { API_BASE_URL } from '../http/api.constants';
+
+const STAMPS = { createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-02T00:00:00Z' };
 
 describe('AgentsService', () => {
   let service: AgentsService;
@@ -26,7 +28,7 @@ describe('AgentsService', () => {
 
     const req = httpMock.expectOne(savedAgentsBase);
     expect(req.request.method).toBe('GET');
-    req.flush([
+    const response: SavedAgentResponse[] = [
       {
         id: '1',
         typeKey: 'researcher',
@@ -35,8 +37,10 @@ describe('AgentsService', () => {
         systemPrompt: 'You research.',
         toolKeys: ['web'],
         enabled: true,
+        ...STAMPS,
       },
-    ]);
+    ];
+    req.flush(response);
   });
 
   it('should create saved agent', () => {
@@ -54,7 +58,8 @@ describe('AgentsService', () => {
     const req = httpMock.expectOne(savedAgentsBase);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
-    req.flush({ id: '42', ...body, enabled: true });
+    const response: SavedAgentResponse = { id: '42', ...body, enabled: true, ...STAMPS };
+    req.flush(response);
   });
 
   it('should set enabled via patch', () => {
@@ -65,7 +70,7 @@ describe('AgentsService', () => {
     const req = httpMock.expectOne(`${savedAgentsBase}/42/enabled`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ enabled: false });
-    req.flush({
+    const response: SavedAgentResponse = {
       id: '42',
       typeKey: 'custom',
       name: 'Custom',
@@ -73,6 +78,8 @@ describe('AgentsService', () => {
       systemPrompt: 'p',
       toolKeys: [],
       enabled: false,
-    });
+      ...STAMPS,
+    };
+    req.flush(response);
   });
 });

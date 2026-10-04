@@ -4,7 +4,7 @@ import { httpResource, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { computed, ApplicationRef, Injector, runInInjectionContext } from '@angular/core';
 import { API_BASE_URL } from '../http/api.constants';
-import type { AgentType } from './pipelines.service';
+import type { AgentInfoResponse } from './pipelines.service';
 
 describe('PipelinesPageComponent httpResource', () => {
   let http: HttpTestingController;
@@ -25,7 +25,7 @@ describe('PipelinesPageComponent httpResource', () => {
 
   it('should load agents via http resource when mounted', async () => {
     const agents = runInInjectionContext(injector, () => {
-      const resource = httpResource<AgentType[]>(() => `${API_BASE_URL}/pipelines/agent-types`);
+      const resource = httpResource<AgentInfoResponse[]>(() => `${API_BASE_URL}/pipelines/agent-types`);
       const agentsSignal = computed(() => resource.hasValue() ? resource.value() : [],
       );
       return { resource, agentsSignal };
@@ -49,7 +49,7 @@ describe('PipelinesPageComponent httpResource', () => {
   });
 
   it('should expose error when agents request fails', async () => {
-    const resource = runInInjectionContext(injector, () => httpResource<AgentType[]>(() => `${API_BASE_URL}/pipelines/agent-types`),
+    const resource = runInInjectionContext(injector, () => httpResource<AgentInfoResponse[]>(() => `${API_BASE_URL}/pipelines/agent-types`),
     );
 
     TestBed.tick();

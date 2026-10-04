@@ -285,6 +285,7 @@ describe('httpErrorInterceptor', () => {
         error: {
           message: 'Image provider not configured',
           errorCode: 'IMAGE_PROVIDER_NOT_CONFIGURED',
+          timestamp: '2026-01-01T00:00:00Z',
         },
       });
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));

@@ -10,14 +10,15 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePause, lucidePlay } from '@ng-icons/lucide';
 import { I18nService } from '../i18n';
-import { TtsService, type Voice } from './tts.service';
+import { TtsService, type VoiceResponse } from './tts.service';
+import { DEFAULT_VOICES } from './tts.constants';
 import { ZardAlertComponent } from '../ui/alert';
 import { ZardButtonComponent } from '../ui/button';
 import { ZardInputDirective } from '../ui/input';
 import { ZardProgressBarComponent } from '../ui/progress-bar';
 import { ZardSelectImports } from '../ui/select/select.imports';
 import { ZardSliderComponent } from '../ui/slider';
-import { hasText, textOr } from '../shared/presence';
+import { hasText } from '../shared/presence';
 
 @Component({
   selector: 'app-tts-page',
@@ -42,7 +43,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   protected readonly textField = form(this.text);
   readonly voice = signal('alloy');
   readonly speed = signal(1.0);
-  readonly availableVoices = signal<Voice[]>([]);
+  readonly availableVoices = signal<VoiceResponse[]>([]);
   readonly isSynthesizing = signal(false);
   readonly error = signal<string | null>(null);
   readonly audioUrl = signal<string | null>(null);
@@ -70,21 +71,13 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.#tts.getVoices().subscribe({
       next: (voices) => {
         this.availableVoices.set(voices);
-        const defaultVoice = voices.find((v: Voice) => v.isDefault === true) ?? voices[0];
+        const defaultVoice = voices[0];
         if (defaultVoice !== undefined) {
           this.voice.set(defaultVoice.id);
         }
       },
       error: () => {
-        this.availableVoices.set([
-          {
-            id: 'alloy',
-            name: 'Alloy',
-            language: 'en',
-            provider: 'openai',
-            isDefault: true,
-          },
-        ]);
+        this.availableVoices.set(DEFAULT_VOICES);
       },
     });
   }
@@ -110,7 +103,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.#tts
       .synthesizeSpeech({
         text: this.text(),
-        voice: textOr(this.voice(), undefined),
+        ...(hasText(this.voice()) ? { voice: this.voice() } : {}),
         speed: this.speed(),
         outputFormat: 'mp3',
       })

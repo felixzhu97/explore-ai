@@ -1,18 +1,16 @@
-import type { Voice } from './tts.service';
+import type { VoiceResponse } from './tts.service';
 
-export const DEFAULT_VOICES: Voice[] = [
+export const DEFAULT_VOICES: VoiceResponse[] = [
   {
     id: 'alloy',
     name: 'Alloy',
     language: 'en',
-    provider: 'openai',
-    isDefault: true,
+    gender: 'neutral',
   },
   {
     id: 'nova',
     name: 'Nova',
     language: 'en',
-    provider: 'openai',
-    isDefault: false,
+    gender: 'female',
   },
 ];

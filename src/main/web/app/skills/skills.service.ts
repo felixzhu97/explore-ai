@@ -1,8 +1,20 @@
 import { Service, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Instant } from '@js-joda/core';
 import { type Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { I18nService } from '../i18n';
+
+export interface SkillResponse {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  allowedTools: string[];
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface Skill {
   id: string;
@@ -11,24 +23,39 @@ export interface Skill {
   instructions: string;
   allowedTools: string[];
   enabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: Instant;
+  updatedAt: Instant;
 }
 
-export interface SkillTemplate {
+export function toSkill(response: SkillResponse): Skill {
+  return {
+    ...response,
+    createdAt: Instant.parse(response.createdAt),
+    updatedAt: Instant.parse(response.updatedAt),
+  };
+}
+
+export interface SkillTemplateResponse {
   id: string;
   name: string;
   description: string;
   instructions: string;
   allowedTools: string[];
-  nameAliases?: string[];
+  nameAliases: string[];
 }
 
-export interface SkillWriteRequest {
+export interface CreateSkillRequest {
   name: string;
-  description: string;
+  description?: string;
   instructions: string;
-  allowedTools: string[];
+  allowedTools?: string[];
+}
+
+export interface UpdateSkillRequest {
+  name: string;
+  description?: string;
+  instructions: string;
+  allowedTools?: string[];
 }
 
 @Service()
@@ -38,43 +65,47 @@ export class SkillsService {
   readonly #base = `${API_BASE_URL}/skills`;
 
   list(): Observable<Skill[]> {
-    return this.#http.get<Skill[]>(this.#base);
+    return this.#http
+      .get<SkillResponse[]>(this.#base)
+      .pipe(map(skills => skills.map(toSkill)));
   }
 
   listEnabled(): Observable<Skill[]> {
-    return this.#http.get<Skill[]>(this.#base).pipe(
-      map(skills => skills.filter(skill => skill.enabled)),
-    );
+    return this.list().pipe(map(skills => skills.filter(skill => skill.enabled)));
   }
 
   get(id: string): Observable<Skill> {
-    return this.#http.get<Skill>(`${this.#base}/${id}`);
+    return this.#http.get<SkillResponse>(`${this.#base}/${id}`).pipe(map(toSkill));
   }
 
-  listTemplates(): Observable<SkillTemplate[]> {
-    return this.#http.get<SkillTemplate[]>(`${this.#base}/templates`, {
+  listTemplates(): Observable<SkillTemplateResponse[]> {
+    return this.#http.get<SkillTemplateResponse[]>(`${this.#base}/templates`, {
       params: this.#langParams(),
     });
   }
 
   createFromTemplate(templateId: string): Observable<Skill> {
-    return this.#http.post<Skill>(
-      `${this.#base}/from-template`,
-      { templateId },
-      { params: this.#langParams() },
-    );
+    return this.#http
+      .post<SkillResponse>(
+        `${this.#base}/from-template`,
+        { templateId },
+        { params: this.#langParams() },
+      )
+      .pipe(map(toSkill));
   }
 
-  create(request: SkillWriteRequest): Observable<Skill> {
-    return this.#http.post<Skill>(this.#base, request);
+  create(request: CreateSkillRequest): Observable<Skill> {
+    return this.#http.post<SkillResponse>(this.#base, request).pipe(map(toSkill));
   }
 
-  update(id: string, request: SkillWriteRequest): Observable<Skill> {
-    return this.#http.put<Skill>(`${this.#base}/${id}`, request);
+  update(id: string, request: UpdateSkillRequest): Observable<Skill> {
+    return this.#http.put<SkillResponse>(`${this.#base}/${id}`, request).pipe(map(toSkill));
   }
 
   setEnabled(id: string, enabled: boolean): Observable<Skill> {
-    return this.#http.patch<Skill>(`${this.#base}/${id}/enabled`, { enabled });
+    return this.#http
+      .patch<SkillResponse>(`${this.#base}/${id}/enabled`, { enabled })
+      .pipe(map(toSkill));
   }
 
   delete(id: string): Observable<void> {
