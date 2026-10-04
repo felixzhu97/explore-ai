@@ -2,7 +2,7 @@ package com.ai.automation.domain.vo;
 
 /** Action an automation schedule performs when it fires. */
 public enum AutomationActionType {
-  RUN_SAVED_WORKFLOW;
+  RUN_PIPELINE_TEMPLATE;
 
   public String value() {
     return name();

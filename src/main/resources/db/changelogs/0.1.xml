@@ -490,4 +490,11 @@
       newColumnName="pipeline_template_id"
       columnDataType="${uuid.type}"/>
   </changeSet>
+
+  <changeSet author="explore-ai" id="0.1-017-rename-automation-action-type" dbms="h2">
+    <update tableName="automation_schedule">
+      <column name="action_type" value="RUN_PIPELINE_TEMPLATE"/>
+      <where>action_type = 'RUN_SAVED_WORKFLOW'</where>
+    </update>
+  </changeSet>
 </databaseChangeLog>
