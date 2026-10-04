@@ -32,17 +32,17 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 | Preferred Term   | 中文        | Java Package      | Frontend Route          | API Prefix                                | Feature Flag                  | Notes                                 |
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
-| Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/text`, `/api/sessions`, `/api/chat`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
+| Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/chat`, `/api/chat/sessions`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/` |
 | Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG; per-node editable agent copies; multilingual builtin catalog |
 | Automation       | 定时自动化      | `com.ai.automation` | `/automations`        | `/api/automations`                        | `module-automations`          | Schedule saved workflows; email result summary |
 | Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
 | Tool Calling     | 工具调用      | `com.ai.tools`    | —                       | `/api/tools`                              | —                             | Weather + Serper                      |
-| Analysis         | 结构化分析     | `com.ai.analysis` | —                       | `/api/chat/analyze`                       | —                             | No dedicated frontend route           |
+| Text Analysis    | 结构化分析     | `com.ai.textanalysis` | —                   | `/api/text-analysis`                      | —                             | No dedicated frontend route           |
 | Eval             | 对话质量评估    | `com.ai.eval`     | `/eval`                 | `/api/eval`                               | `module-eval`                 | LLM-as-a-Judge                        |
 | Image Generation | 图像生成      | `com.ai.image`    | `/generate/image`       | `/api/images`                             | —                             | UI under `app/generate/image/`        |
 | Image Analysis   | 图像分析      | `com.ai.vision`   | `/vision`               | `/api/vision`                             | `module-vision`               | Caption / Detect / OCR                |
-| Audio            | 语音        | `com.ai.audio`    | `/generate/tts`, `/asr` | `/api/audio`, `/ws/audio`                 | `module-audio-asr` (ASR only) | TTS always on                         |
+| Audio            | 语音        | `com.ai.audio`    | `/generate/tts`, `/speech-to-text` | `/api/audio`, `/ws/audio`                 | `module-audio-asr` (ASR only) | TTS always on                         |
 | MCP              | MCP       | `com.ai.mcp`      | `/mcp`                  | `/api/mcp`, `/api/mcp/client`             | `module-mcp`                  | Server + Client in one package        |
 | Workflow         | Workflow Lab 原语 | `com.ai.workflow` | —                       | `/api/workflows`                          | —                             | Educational Effective Agents APIs; ≠ product Pipeline/工作流 |
 | Generation       | 生成        | —                 | `/generate`             | —                                         | —                             | UI shell for image + TTS              |
@@ -196,12 +196,13 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Agent Pipeline           | 工作流流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline` (`com.ai.pipeline`)                | Canvas + `POST /api/pipelines/invoke/sse` |
 | Pipeline Node            | 流水线节点         | Graph node with editable agent snapshot                         | Value Object   | `AgentPipeline.PipelineNode`                       | Double-click edit: name / prompt / tools        |
 | Pipeline Edge            | 流水线边          | Directed handoff between nodes                                | Value Object   | `AgentPipeline.PipelineEdge`                       | —                                               |
-| Workflow Template        | 工作流模版        | Multilingual builtin or client-owned linear agentTypes + brief | Entity / Catalog | `WorkflowTemplate`, `SavedWorkflowTemplate`, `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*` |
-| Pipeline Facade          | Pipeline 门面   | Application entry for list, invoke, supervisor, pipeline      | Facade         | `PipelineFacade`                                   | Passes `clientId` + `lang`                      |
-| Automation Schedule      | 自动化日程        | Client-owned CRON or one-shot schedule + timezone + saved workflow + recipient email | Aggregate      | `AutomationSchedule`, `ScheduleKind` (`com.ai.automation`) | Due scan; `/api/automations/schedules`; ONCE auto-disables after run |
+| Pipeline Template        | 工作流模版        | Multilingual builtin or owner-saved linear agentTypes + brief | Entity / Catalog | `PipelineTemplateDefinition` (builtin), `PipelineTemplate` (saved, table `pipeline_template`), `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*`; formerly Workflow Template |
+| Saved Agent              | 已保存 Agent     | Owner-saved agent definition in the agent library             | Entity         | `SavedAgent` (table `saved_agent`)                 | `/api/pipelines/agents`; formerly Saved Agent Definition |
+| Pipeline Service         | Pipeline 服务   | Application entry for list, invoke, supervisor, pipeline      | Application Service | `PipelineService`                             | Passes Owner Key + `lang`                       |
+| Automation Schedule      | 自动化日程        | Client-owned CRON or one-shot schedule + timezone + saved Pipeline Template + recipient email | Aggregate      | `AutomationSchedule`, `ScheduleKind` (`com.ai.automation`) | Due scan; `/api/automations/schedules`; ONCE auto-disables after run |
 | Automation Run           | 自动化运行记录     | One execution attempt with status and email outcome           | Entity         | `AutomationRun`                                    | SUCCESS / FAILED / SKIPPED                      |
 | Email Gateway            | 邮件网关          | Outbound transactional email (Resend HTTP API; optional SMTP); HTML + plain text | Repository     | `EmailGateway` → `ResendEmailGateway` / `SmtpEmailGateway` / `LoggingEmailGateway`; `AutomationMailFormatter` | Prod: Resend (`APP_MAIL_*`); local default logs only |
-| Orchestrator Workers     | 编排用例          | Runs Worker Agents according to a routing or pipeline plan    | Use Case       | `OrchestratorWorkersUseCase`                       | Prefers node snapshot prompt/tools when present         |
+| Pipeline Orchestration   | 编排服务          | Runs Worker Agents according to a routing or pipeline plan    | Application Service | `PipelineOrchestrationService`                | Prefers node snapshot prompt/tools when present         |
 | Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | Workers exclude supervisor               |
 | Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker`, `SpringAiWorkerAgentInvoker` | Tools from `toolKeys` whitelist                 |
 | Tool Call Markup Filter  | 工具标记过滤器   | Strips DeepSeek DSML tool markup from model text              | Utility        | `ToolCallMarkupFilter`, `SanitizingChatMemory`     | Chat SSE, ChatMemory, Pipeline workers             |
@@ -228,7 +229,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Chain Workflow               | 链式工作流        | Sequential LLM steps; each output feeds the next        | Domain Service | `ChainWorkflow`, `SpringAiChainWorkflow`               | Anthropic Effective Agents / Spring AI examples    |
 | Parallelization Workflow     | 并行化工作流       | Concurrent LLM calls over independent items             | Domain Service | `ParallelizationWorkflow`, `SpringAiParallelizationWorkflow` | Sectioning / voting                              |
 | Routing Workflow             | 路由工作流        | Classify input then run a specialized prompt            | Domain Service | `RoutingWorkflow`, `SpringAiRoutingWorkflow`           | Structured classification via `.entity()`          |
-| Orchestrator-Workers Workflow | 编排-工人工作流    | Plan subtasks, parallel workers, synthesize             | Domain Service | `OrchestratorWorkersWorkflow`, `SpringAiOrchestratorWorkersWorkflow` | Distinct from Agent `OrchestratorWorkersUseCase` |
+| Orchestrator-Workers Workflow | 编排-工人工作流    | Plan subtasks, parallel workers, synthesize             | Domain Service | `OrchestratorWorkersWorkflow`, `SpringAiOrchestratorWorkersWorkflow` | Distinct from Pipeline `PipelineOrchestrationService` |
 | Evaluator-Optimizer Workflow | 评估-优化工作流     | Generator/evaluator loop until PASS or max iterations   | Domain Service | `EvaluatorOptimizerWorkflow`, `SpringAiEvaluatorOptimizerWorkflow` | Returns solution + chain of thought            |
 
 
@@ -239,7 +240,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 
 | Preferred Term (English) | 中文       | Definition                                          | Type                 | Code Mapping                              | Notes                                                               |
 | ------------------------ | -------- | --------------------------------------------------- | -------------------- | ----------------------------------------- | ------------------------------------------------------------------- |
-| Document                 | 文档       | User-uploaded knowledge source file (TXT/PDF)       | Entity               | `Document`                                | Full lifecycle                                                      |
+| Rag Document             | 文档       | User-uploaded knowledge source file (TXT/PDF)       | Entity               | `RagDocument` (table `rag_document`)      | Full lifecycle; prefix avoids clash with Spring AI `Document`       |
 | Document ID              | 文档标识     | Unique identifier of a document                     | Value Object         | `DocumentId`                              | —                                                                   |
 | Document Status          | 文档状态     | Processing state from upload to ready               | Enum                 | `DocumentStatus`                          | See state machine                                                   |
 | Document Chunk           | 文档分块     | Smallest retrieval unit after document splitting    | Entity               | `DocumentChunk`                           | Includes embedding vector                                           |
@@ -370,7 +371,7 @@ Package: `com.ai.mcp` (Server + Client).
 
 ---
 
-## 11. Analysis | 结构化分析
+## 11. Text Analysis | 结构化分析
 
 
 | Preferred Term (English) | 中文    | Definition                                          | Type             | Code Mapping                      | Notes                       |
@@ -456,10 +457,9 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Entity                   | 实体   | Domain object with identity and mutable lifecycle                                     | Architecture | `ChatMessage`, `Document`, `AgentDefinition`                  | Distinguished by ID                         |
 | Value Object             | 值对象  | Immutable object compared by value, no standalone identity                            | Architecture | `ChatSessionId`, `DocumentId`, `SourceDocument`, `AgentType`  | Use `record` or factory methods             |
 | Domain Service           | 领域服务 | Stateless domain logic that does not belong to a single entity                        | Architecture | `LanguageDetectionService`                                    | Cross-entity operations                     |
-| Use Case                 | 用例   | Application-layer orchestration of domain objects and repositories                    | Architecture | `RagChatUseCase`, `ChatUseCase`, `OrchestratorWorkersUseCase` | No business-rule details                    |
-| Facade                   | 门面   | Simplified application entry point                                                    | Architecture | `PipelineFacade`, `ToolsFacade`, `ImageFacade`, `AudioFacade`    | Coordinates use cases                       |
-| Repository               | 仓储   | Persistence or outbound capability abstraction for the domain                         | Architecture | `ChatSessionRepository`, `DocumentReader`, `AgentRegistry`    | Interface in domain, impl in infrastructure |
-| Adapter                  | 适配器  | Infrastructure implementation of a repository / outbound contract                     | Architecture | `OllamaEmbeddingAdapter`, `SerperWebSearchAdapter`            | Lives in `infrastructure/`                  |
+| Application Service      | 应用服务 | Application-layer orchestration of domain objects, repositories and gateways          | Architecture | `RagChatService`, `ChatService`, `PipelineService`            | `*Service` in `service/`; no business-rule details |
+| Repository               | 仓储   | Persistence abstraction for an aggregate                                              | Architecture | `ChatSessionRepository`, `DocumentRepository`                 | Interface in `domain/repository`, impl in `infra/` (`Jpa*`, `Jdbc*`, `H2*`) |
+| Gateway                  | 网关   | Outbound call to an external system (LLM, TTS, embedding, email, MCP)                 | Architecture | `TextToSpeechGateway`, `TextEmbeddingGateway`, `EmailGateway` | Interface in `domain/repository`, impl in `infra/` named by technology |
 | Streaming (SSE)          | 流式响应 | Real-time AI output via Server-Sent Events                                            | Technical    | Chat / RAG / Agent SSE endpoints                              | Shared frontend `sse-client`                |
 | Provider                 | 提供商  | LLM or AI service vendor (e.g. OpenAI, Ollama)                                        | Business     | Frontend `selectedProvider`                                   | User-selectable model source                |
 | Domain Exception         | 领域异常 | Exception representing a business rule violation                                      | Architecture | `ChatSessionNotFoundException`, `AgentNotFoundException`      | Mapped to HTTP 4xx                          |
@@ -637,7 +637,7 @@ References:
 | -------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------- |
 | chat history                                 | **Chat Session**             | Aggregate root containing multiple messages                                   |
 | chat content                                 | **Chat Message**             | Single user/assistant message                                                 |
-| knowledge base file                          | **Document**                 | Uploaded file in RAG context                                                  |
+| knowledge base file                          | **Rag Document**             | Uploaded file in RAG context                                                  |
 | knowledge base                               | **Document** collection      | RAG context; not a separate domain object                                     |
 | snippet / paragraph                          | **Document Chunk**           | Smallest RAG retrieval unit                                                   |
 | search result                                | **Source Document**          | RAG retrieval hit                                                             |
@@ -659,6 +659,10 @@ References:
 | RAG ETL Domain                               | **RAG** (+ ETL Pipeline)     | Not a separate bounded context                                                |
 | `com.ai.mcp.server` / `.client` packages     | `**com.ai.mcp`**             | Single package in code                                                        |
 | `domain.port`                                | `**domain.repository`**      | Project architecture rule                                                     |
+| `*UseCase` / `*Facade` / `*Impl` classes     | **Application Service** (`*Service`) | One class per service; no interface + `Impl` pair                     |
+| `*Adapter` / `I*` interfaces                 | **Repository** / **Gateway** | Name implementations by technology (`JpaDocumentRepository`)                  |
+| Workflow Template (Pipeline)                 | **Pipeline Template**        | Workflow names only the Effective Agents patterns (`com.ai.workflow`)         |
+| client id (inside service / domain)          | **Owner Key**                | Client id names only the browser identity cookie                              |
 | stats / statistics (UI)                      | **KPI** / **Metric**         | Prefer BI Preferred Terms on Metrics pages                                    |
 | chart data (domain noun)                     | **Time Series** / **Categorical Series** | Charts are presentation; name the measure series                    |
 | log row / telemetry row                      | **Fact Event** / **AI Invocation Event** | Metrics facts are domain events, not raw logs                       |
