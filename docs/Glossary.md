@@ -128,8 +128,8 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Owner-Keyed Entity | 归属键实体基类 | Rows partitioned by `owner_key` | Mapped Superclass | `AbstractOwnerKeyedEntity<IdT>` | `belongsToClient`, `rebindOwnerKey` |
 | Owner Partition Filter | 归属分区过滤器 | Hibernate filter limiting queries and loads by id to one Owner Key | Persistence | `ownerPartition` (`OwnerPartition`), `OwnerPartitionScope` | Enabled per adapter call inside a transaction; background jobs stay unfiltered |
 | Named Owner Entity | 命名归属实体 | Owner-keyed row with validated `name` | Mapped Superclass | `AbstractNamedOwnerEntity<IdT>` | Max 120 chars via `DomainStrings` |
-| Enableable Entity | 可启用实体 | Named + described + `enabled` flag | Mapped Superclass | `AbstractEnableableDescribedOwnerEntity<IdT>` | `enable()` / `disable()` |
-| Timed Run Entity | 定时运行记录 | `started_at` / `finished_at` without `updated_at` | Mapped Superclass | `AbstractTimedRunEntity<IdT>` | Automation runs |
+| Enableable Entity | 可启用实体 | Named owner row with an `enabled` flag; the described variant adds `description` | Mapped Superclass | `AbstractEnableableNamedOwnerEntity<IdT>`, `AbstractEnableableDescribedOwnerEntity<IdT>` | `enable()` / `disable()`; schedules use the named variant |
+| Timed Run Entity | 定时运行记录 | `started_at` / `finished_at` without `updated_at` | Mapped Superclass | `AbstractTimedRunEntity<IdT>` | Extends Abstract Immutable (`createdAt` → `started_at`); automation runs |
 | Append-Only Event | 追加事件 | Immutable AI invocation / audit event | Mapped Superclass | `AbstractAppendOnlyEvent<IdT>` | Maps `createdAt` → `occurred_at` |
 | Client-Owned Repository | 归属仓储契约 | Owner-scoped CRUD port | Repository | `ClientOwnedRepository<E, IdT>` | `findByIdAndOwnerKey`, etc. |
 | Domain Strings | 域字符串校验 | Shared name/description normalization | Utility | `DomainStrings` | Replaces per-module copy-paste |
