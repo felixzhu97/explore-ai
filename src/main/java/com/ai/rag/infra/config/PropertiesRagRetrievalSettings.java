@@ -3,7 +3,7 @@ package com.ai.rag.infra.config;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import org.springframework.stereotype.Component;
 
-/** Exposes {@code spring.ai.rag.retrieval} top-K and score threshold as retrieval settings. */
+/** Exposes {@code app.rag.retrieval} top-K and score threshold as retrieval settings. */
 @Component
 public class PropertiesRagRetrievalSettings implements RagRetrievalSettings {
 

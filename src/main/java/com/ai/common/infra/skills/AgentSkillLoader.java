@@ -32,7 +32,7 @@ public class AgentSkillLoader {
 
   /** Loads the configured skill ids from the resource location, skipping invalid or duplicates. */
   public List<AgentSkill> loadEnabledSkills() {
-    AgentSkillsProperties.Skills config = agentProperties.getSkills();
+    AgentSkillsProperties config = agentProperties;
     if (!config.isEnabled()) {
       return List.of();
     }

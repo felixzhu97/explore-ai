@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * RAG (Retrieval-Augmented Generation) configuration properties. Binds configuration from
- * application.yml under 'spring.ai.rag' prefix.
+ * application.yml under 'app.rag' prefix.
  */
 @Component
-@ConfigurationProperties(prefix = "spring.ai.rag")
+@ConfigurationProperties(prefix = "app.rag")
 public class RagProperties {
 
   private Chunk chunk = new Chunk();
