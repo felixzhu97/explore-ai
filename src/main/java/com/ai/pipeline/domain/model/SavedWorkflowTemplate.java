@@ -2,7 +2,7 @@ package com.ai.pipeline.domain.model;
 
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.infra.persistence.converter.StringListJsonAttributeConverter;
+import com.ai.common.domain.vo.StringListJsonAttributeConverter;
 import com.ai.pipeline.domain.vo.WorkflowTemplateId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -82,33 +82,6 @@ public class SavedWorkflowTemplate
         true,
         now,
         now);
-  }
-
-  /** Documentation. */
-  public static SavedWorkflowTemplate reconstitute(
-      WorkflowTemplateId id,
-      String ownerKey,
-      String name,
-      String description,
-      List<String> agentTypes,
-      String shortTopic,
-      String briefPrompt,
-      String sourceTemplateId,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    return new SavedWorkflowTemplate(
-        id,
-        ownerKey,
-        name,
-        description,
-        agentTypes,
-        shortTopic,
-        briefPrompt,
-        sourceTemplateId,
-        enabled,
-        createdAt,
-        updatedAt);
   }
 
   /** Documentation. */

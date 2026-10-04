@@ -109,22 +109,6 @@ public class ChatSession extends AbstractEntity<ChatSessionId> {
     return new ChatSession(id, title, createdAt, parseOwnerKey(clientId), false);
   }
 
-  /** Documentation. */
-  public static ChatSession reconstitute(
-      ChatSessionId id,
-      String title,
-      Instant createdAt,
-      Instant lastActivityAt,
-      List<ChatMessage> messages,
-      String clientId) {
-    ChatSession session =
-        new ChatSession(id, title, createdAt, lastActivityAt, parseOwnerKey(clientId), false);
-    if (messages != null) {
-      session.messages.addAll(messages);
-    }
-    return session;
-  }
-
   /** Reconstitute a legacy row that has no client ownership (invisible to clients). */
   public static ChatSession reconstituteOrphan(
       ChatSessionId id,

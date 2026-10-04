@@ -25,4 +25,16 @@ class ArchitectureRulesTest {
         .resideInAnyPackage("..adapter.in..", "..adapter.out..")
         .check(CLASSES);
   }
+
+  @Test
+  @DisplayName("should keep domain free of infra dependencies")
+  void shouldKeepDomainFreeOfInfraDependencies() {
+    ArchRuleDefinition.noClasses()
+        .that()
+        .resideInAPackage("com.ai..domain..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage("com.ai..infra..")
+        .check(CLASSES);
+  }
 }

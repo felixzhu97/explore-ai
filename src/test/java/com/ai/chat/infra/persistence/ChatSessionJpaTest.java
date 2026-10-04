@@ -67,12 +67,8 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
   void shouldReturnSessionsOrderedByLastActivityDescendingWhenListingByOwner() {
     Instant older = Instant.parse("2026-01-01T00:00:00Z");
     Instant newer = Instant.parse("2026-06-01T00:00:00Z");
-    ChatSession olderSession =
-        ChatSession.reconstitute(
-            ChatSessionId.generate(), "Older", older, older, List.of(), OWNER_KEY);
-    ChatSession newerSession =
-        ChatSession.reconstitute(
-            ChatSessionId.generate(), "Newer", newer, newer, List.of(), OWNER_KEY);
+    ChatSession olderSession = ChatSession.of(ChatSessionId.generate(), "Older", older, OWNER_KEY);
+    ChatSession newerSession = ChatSession.of(ChatSessionId.generate(), "Newer", newer, OWNER_KEY);
     springDataRepository.saveAndFlush(olderSession);
     springDataRepository.saveAndFlush(newerSession);
     em.clear();

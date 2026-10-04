@@ -3,7 +3,6 @@ package com.ai.skill.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.skill.domain.vo.SkillId;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -52,31 +51,6 @@ class SkillTest {
     skill.disable();
 
     assertThat(skill.isEnabled()).isFalse();
-  }
-
-  @Test
-  @DisplayName("should restore skill when restore called")
-  void shouldRestoreSkillWhenRestoreCalled() {
-    SkillId id = SkillId.generate();
-    Instant createdAt = Instant.parse("2026-01-01T00:00:00Z");
-    Instant updatedAt = Instant.parse("2026-01-02T00:00:00Z");
-
-    Skill skill =
-        Skill.reconstitute(
-            id,
-            "c:client-1",
-            "Name",
-            "Description",
-            "Instructions",
-            List.of("Read"),
-            false,
-            createdAt,
-            updatedAt);
-
-    assertThat(skill.getId()).isEqualTo(id);
-    assertThat(skill.isEnabled()).isFalse();
-    assertThat(skill.getCreatedAt()).isEqualTo(createdAt);
-    assertThat(skill.getUpdatedAt()).isEqualTo(updatedAt);
   }
 
   @Test

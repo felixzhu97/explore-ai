@@ -168,41 +168,6 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   }
 
   /** Documentation. */
-  public static AutomationSchedule reconstitute(
-      ScheduleId id,
-      String ownerKey,
-      String name,
-      ScheduleKind scheduleKind,
-      String cronExpression,
-      String timezone,
-      boolean enabled,
-      AutomationActionType actionType,
-      String workflowTemplateId,
-      String recipientEmail,
-      String brief,
-      Instant nextRunAt,
-      Instant lastRunAt,
-      Instant createdAt,
-      Instant updatedAt) {
-    return new AutomationSchedule(
-        id,
-        ownerKey,
-        name,
-        scheduleKind,
-        cronExpression,
-        timezone,
-        enabled,
-        actionType,
-        workflowTemplateId,
-        recipientEmail,
-        brief,
-        nextRunAt,
-        lastRunAt,
-        createdAt,
-        updatedAt);
-  }
-
-  /** Documentation. */
   public void update(
       String name,
       ScheduleKind scheduleKind,

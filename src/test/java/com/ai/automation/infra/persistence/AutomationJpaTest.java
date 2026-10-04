@@ -22,6 +22,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @EntityScan(
     basePackages = {"com.ai.automation.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
@@ -192,28 +193,8 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     ScheduleId scheduleId = ScheduleId.generate();
     Instant earlier = Instant.parse("2026-01-01T10:00:00Z");
     Instant later = Instant.parse("2026-01-02T10:00:00Z");
-    AutomationRun olderRun =
-        AutomationRun.reconstitute(
-            com.ai.automation.domain.vo.RunId.generate(),
-            scheduleId,
-            OWNER_KEY,
-            earlier,
-            earlier.plusSeconds(30),
-            RunStatus.SUCCESS,
-            null,
-            "older",
-            EmailDeliveryStatus.SENT);
-    AutomationRun newerRun =
-        AutomationRun.reconstitute(
-            com.ai.automation.domain.vo.RunId.generate(),
-            scheduleId,
-            OWNER_KEY,
-            later,
-            later.plusSeconds(30),
-            RunStatus.SUCCESS,
-            null,
-            "newer",
-            EmailDeliveryStatus.SENT);
+    AutomationRun olderRun = finishedRun(scheduleId, earlier, "older");
+    AutomationRun newerRun = finishedRun(scheduleId, later, "newer");
     runRepository.saveAndFlush(olderRun);
     runRepository.saveAndFlush(newerRun);
     em.clear();
@@ -223,5 +204,13 @@ class AutomationJpaTest extends AbstractDataJpaTest {
             scheduleId, OWNER, PageRequest.of(0, 10));
 
     assertThat(runs).extracting(AutomationRun::getResultExcerpt).containsExactly("newer", "older");
+  }
+
+  private static AutomationRun finishedRun(
+      ScheduleId scheduleId, Instant startedAt, String result) {
+    AutomationRun run = AutomationRun.start(scheduleId, OWNER_KEY);
+    run.succeed(result, EmailDeliveryStatus.SENT);
+    ReflectionTestUtils.setField(run, "createdAt", startedAt);
+    return run;
   }
 }

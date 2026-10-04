@@ -174,18 +174,10 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should attach skill system prompt when skillIds provided")
     void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
-      com.ai.skill.domain.vo.SkillId skillId = com.ai.skill.domain.vo.SkillId.generate();
       com.ai.skill.domain.model.Skill skill =
-          com.ai.skill.domain.model.Skill.reconstitute(
-              skillId,
-              ownerClientId(),
-              "Brief Style",
-              "Short answers.",
-              "Be concise.",
-              List.of(),
-              true,
-              java.time.Instant.now(),
-              java.time.Instant.now());
+          com.ai.skill.domain.model.Skill.create(
+              ownerClientId(), "Brief Style", "Short answers.", "Be concise.", List.of());
+      com.ai.skill.domain.vo.SkillId skillId = skill.getId();
       when(skillRepository.findEnabledByClientIdAndIds(eq(ownerClientId()), any()))
           .thenReturn(List.of(skill));
       when(chatUseCase.chatStream(any(), any(TextChatOptions.class))).thenReturn(Flux.just("ok"));
