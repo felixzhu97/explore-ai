@@ -1,10 +1,8 @@
-import { httpResource } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ChartPanelComponent, type ChartClickPayload } from '../../../shared/components/charts';
-import { API_BASE_URL } from '../../../core/api.constants';
 import { I18nService } from '../../../core/i18n';
 import {
   MetricsKpiCardsComponent,
@@ -13,13 +11,11 @@ import {
 import { MetricsDrilldownTableComponent } from '../components/metrics-drilldown-table.component';
 import {
   isMetricsDomain,
-  type DrilldownPage,
   type InvocationEvent,
   type MetricsDomain,
-  type MetricsDomainSnapshot,
   type MetricsRange,
-  type SeriesResponse,
 } from '../metrics.model';
+import { MetricsService } from '../services/metrics.service';
 
 @Component({
   selector: 'app-metrics-domain-page',
@@ -61,53 +57,29 @@ export class MetricsDomainPageComponent {
   readonly model = computed(() => this.queryParams().get('model') ?? undefined);
   readonly page = signal(0);
 
-  readonly domainResource = httpResource<MetricsDomainSnapshot>(() => {
-    const domain = this.domain();
-    if (!domain) {
-      return undefined;
-    }
-    return {
-      url: `${API_BASE_URL}/metrics/domains/${domain}`,
-      params: { range: this.range() },
-    };
-  });
+  private readonly metrics = inject(MetricsService);
 
-  readonly docsSeriesResource = httpResource<SeriesResponse>(() => {
+  readonly domainResource = this.metrics.domain(this.domain, this.range);
+
+  readonly docsSeriesResource = this.metrics.series(() => {
     if (this.domain() !== 'rag') {
       return undefined;
     }
-    return {
-      url: `${API_BASE_URL}/metrics/series`,
-      params: {
-        name: 'documents_by_status',
-        domain: 'rag',
-        range: this.range(),
-      },
-    };
+    return { name: 'documents_by_status', domain: 'rag', range: this.range() };
   });
 
-  readonly drilldownResource = httpResource<DrilldownPage>(() => {
+  readonly drilldownResource = this.metrics.drilldown(() => {
     const domain = this.domain();
     if (!domain) {
       return undefined;
     }
-    const params: Record<string, string | number> = {
+    return {
       domain,
       range: this.range(),
       page: this.page(),
       size: 20,
-    };
-    const day = this.day();
-    const model = this.model();
-    if (day) {
-      params['day'] = day;
-    }
-    if (model) {
-      params['model'] = model;
-    }
-    return {
-      url: `${API_BASE_URL}/metrics/drilldown`,
-      params,
+      day: this.day(),
+      model: this.model(),
     };
   });
 

@@ -1,7 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../core/api.constants';
+import type { MetricsDomain } from '../metrics.model';
 import { MetricsService } from './metrics.service';
 
 describe('MetricsService', () => {
@@ -20,37 +22,35 @@ describe('MetricsService', () => {
     http.verify();
   });
 
+  const flushEffects = () => TestBed.inject(ApplicationRef).tick();
+
   it('should request overview with range', () => {
-    service.getOverview('30d').subscribe((result) => {
-      expect(result.requestCount).toBe(0);
-    });
+    TestBed.runInInjectionContext(() => service.overview(() => '30d'));
+    flushEffects();
 
     const req = http.expectOne(`${API_BASE_URL}/metrics/overview?range=30d`);
     expect(req.request.method).toBe('GET');
-    req.flush({
-      range: '30d',
-      requestCount: 0,
-      errorCount: 0,
-      successRate: 1,
-      errorRate: 0,
-      latencyP50Ms: null,
-      latencyP95Ms: null,
-      promptTokens: null,
-      completionTokens: null,
-      requestsByDomain: [],
-      domains: {},
-    });
+    req.flush({});
   });
 
-  it('should request drilldown with filters', () => {
-    service.getDrilldown({ domain: 'chat', day: '2026-07-26', page: 0, size: 20 }).subscribe((result) => {
-      expect(result.total).toBe(0);
-    });
+  it('should request drilldown without undefined filters', () => {
+    const query = { domain: 'chat', day: '2026-07-26', model: undefined, page: 0 };
+    TestBed.runInInjectionContext(() => service.drilldown(() => query));
+    flushEffects();
 
     const req = http.expectOne(
       r => r.url === `${API_BASE_URL}/metrics/drilldown` && r.params.get('domain') === 'chat',
     );
     expect(req.request.params.get('day')).toBe('2026-07-26');
+    expect(req.request.params.has('model')).toBe(false);
     req.flush({ items: [], total: 0, page: 0, size: 20 });
+  });
+
+  it('should skip domain request when domain is unknown', () => {
+    const domain = signal<MetricsDomain | null>(null);
+    TestBed.runInInjectionContext(() => service.domain(domain, () => '7d'));
+    flushEffects();
+
+    http.expectNone(r => r.url.startsWith(`${API_BASE_URL}/metrics/domains`));
   });
 });
