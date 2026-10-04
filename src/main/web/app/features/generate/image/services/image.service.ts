@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../../../../core/api.constants';
 import { ImageZoomService } from '../../../../shared/services/image-zoom.service';
@@ -182,13 +182,10 @@ export class ImageService {
   }
 
   private extractErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-      return error.message;
-    }
-    if (typeof error === 'object' && error !== null && 'error' in error) {
-      const errorBody = (error as { error?: { status?: string } }).error;
-      if (errorBody?.status?.startsWith('ERROR:')) {
-        return errorBody.status.replace(/^ERROR:\s*/, '');
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error as { message?: string } | null;
+      if (body?.message) {
+        return body.message;
       }
     }
     return 'Image generation failed';

@@ -95,7 +95,7 @@ describe('ImageService', () => {
     );
 
     await vi.waitFor(() => {
-      expect(service.error()).toBeTruthy();
+      expect(service.error()).toBe('Provider down');
       expect(service.isGenerating()).toBe(false);
     });
   });

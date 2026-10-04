@@ -8,6 +8,7 @@ import com.ai.common.controller.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
+import com.ai.image.domain.exception.InvalidImagePromptException;
 import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
 import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -171,6 +173,13 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.of(e.getMessage(), "IMAGE_PROVIDER_NOT_CONFIGURED"));
   }
 
+  @ExceptionHandler(InvalidImagePromptException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidImagePrompt(InvalidImagePromptException e) {
+    log.warn("Invalid image prompt: {}", e.getMessage());
+    return ResponseEntity.badRequest()
+        .body(ErrorResponse.of(e.getMessage(), "INVALID_IMAGE_PROMPT"));
+  }
+
   @ExceptionHandler(TtsProviderNotConfiguredException.class)
   public ResponseEntity<ErrorResponse> handleTtsProviderNotConfigured(
       TtsProviderNotConfiguredException e) {
@@ -184,6 +193,24 @@ public class GlobalExceptionHandler {
     String message =
         e.getBindingResult().getFieldErrors().stream()
             .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .collect(Collectors.joining(", "));
+    log.warn("Validation error: {}", message);
+    return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));
+  }
+
+  @ExceptionHandler(HandlerMethodValidationException.class)
+  public ResponseEntity<ErrorResponse> handleMethodValidationError(
+      HandlerMethodValidationException e) {
+    String message =
+        e.getParameterValidationResults().stream()
+            .flatMap(
+                result ->
+                    result.getResolvableErrors().stream()
+                        .map(
+                            error ->
+                                result.getMethodParameter().getParameterName()
+                                    + ": "
+                                    + error.getDefaultMessage()))
             .collect(Collectors.joining(", "));
     log.warn("Validation error: {}", message);
     return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));

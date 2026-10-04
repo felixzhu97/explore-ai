@@ -1,17 +1,13 @@
 package com.ai.image.controller;
 
+import com.ai.common.domain.exception.AiServiceException;
 import com.ai.image.controller.dto.ImageGenerationRequest;
 import com.ai.image.controller.dto.ImageGenerationResponse;
-import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
-import com.ai.image.domain.exception.InvalidImagePromptException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.service.ImageGenerationService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/images")
 public class ImageController {
 
-  private static final Logger log = LoggerFactory.getLogger(ImageController.class);
-
   private final ImageGenerationService imageGenerationService;
 
   public ImageController(ImageGenerationService imageGenerationService) {
@@ -34,36 +28,20 @@ public class ImageController {
 
   /** Generate an image from text prompt. */
   @PostMapping("/generate")
-  public ResponseEntity<ImageGenerationResponse> generateImage(
-      @Valid @RequestBody ImageGenerationRequest request) {
-    try {
-      GeneratedImage image =
-          imageGenerationService.generateImage(
-              request.prompt(),
-              request.model(),
-              request.quality(),
-              request.width(),
-              request.height(),
-              request.n());
-
-      if (!image.isAvailable()) {
-        return ResponseEntity.internalServerError()
-            .body(ImageGenerationResponse.error("Failed to generate image"));
-      }
-
-      String model = request.model() != null ? request.model() : image.model();
-      return ResponseEntity.ok(
-          ImageGenerationResponse.success(image.url(), image.base64(), model, request.prompt()));
-    } catch (InvalidImagePromptException e) {
-      return ResponseEntity.badRequest().body(ImageGenerationResponse.error(e.getMessage()));
-    } catch (ImageProviderNotConfiguredException e) {
-      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-          .body(ImageGenerationResponse.error(e.getMessage()));
-    } catch (Exception e) {
-      log.error("Error generating image", e);
-      return ResponseEntity.internalServerError()
-          .body(ImageGenerationResponse.error("生成图片时发生错误，请稍后重试。"));
+  public ImageGenerationResponse generateImage(@Valid @RequestBody ImageGenerationRequest request) {
+    GeneratedImage image =
+        imageGenerationService.generateImage(
+            request.prompt(),
+            request.model(),
+            request.quality(),
+            request.width(),
+            request.height(),
+            request.n());
+    if (!image.isAvailable()) {
+      throw new AiServiceException("Failed to generate image", "IMAGE_GENERATION_FAILED", null);
     }
+    String model = request.model() != null ? request.model() : image.model();
+    return ImageGenerationResponse.success(image.url(), image.base64(), model, request.prompt());
   }
 
   /** Get available image generation models. */

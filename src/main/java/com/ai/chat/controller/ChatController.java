@@ -8,7 +8,6 @@ import com.ai.chat.controller.dto.HealthResponse;
 import com.ai.chat.controller.dto.MessageInfoResponse;
 import com.ai.chat.controller.dto.SessionResponse;
 import com.ai.chat.controller.dto.WebSourceResponse;
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ContentHash;
@@ -18,8 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
   private final OwnerContext ownerContext;
-
-  private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
   private final ChatService chatService;
   private final ChatWebSourcesRepository chatWebSourcesRepository;
@@ -57,10 +52,6 @@ public class ChatController {
   @PostMapping
   public ResponseEntity<ChatResponse> chat(
       @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
-    if (request.message() == null || request.message().isBlank()) {
-      return ResponseEntity.badRequest().body(ChatResponse.of("Please provide a message."));
-    }
-
     String ownerKey = ownerContext.requireValue(httpRequest);
     String response;
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
@@ -102,18 +93,13 @@ public class ChatController {
   @GetMapping("/sessions/{sessionId}/messages")
   public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
-    try {
-      Map<String, List<WebSource>> sourcesByHash =
-          chatWebSourcesRepository.findByConversationId(sessionId);
-      List<MessageInfoResponse> messages =
-          chatService.findSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
-              .map(message -> toMessageInfo(message, sourcesByHash))
-              .toList();
-      return ResponseEntity.ok(messages);
-    } catch (ChatSessionNotFoundException e) {
-      log.debug("Session not found: {}", sessionId);
-      return ResponseEntity.notFound().build();
-    }
+    Map<String, List<WebSource>> sourcesByHash =
+        chatWebSourcesRepository.findByConversationId(sessionId);
+    List<MessageInfoResponse> messages =
+        chatService.findSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
+            .map(message -> toMessageInfo(message, sourcesByHash))
+            .toList();
+    return ResponseEntity.ok(messages);
   }
 
   private static MessageInfoResponse toMessageInfo(
@@ -132,11 +118,7 @@ public class ChatController {
   @DeleteMapping("/sessions/{sessionId}")
   public ResponseEntity<Void> deleteSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
-    try {
-      chatService.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
-      return ResponseEntity.noContent().build();
-    } catch (ChatSessionNotFoundException e) {
-      return ResponseEntity.notFound().build();
-    }
+    chatService.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
+    return ResponseEntity.noContent().build();
   }
 }

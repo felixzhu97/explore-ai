@@ -7,7 +7,6 @@ import com.ai.common.service.llm.TextChatOptions;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
-import com.ai.rag.service.dto.RagChatResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -58,25 +57,6 @@ public class VisionChatService {
     this.chatClientProvider = chatClientProvider;
     this.localizedRagPromptBuilder = localizedRagPromptBuilder;
     this.objectMapper = objectMapper;
-  }
-
-  /** Answers a question about the images using retrieved document context and the vision model. */
-  public RagChatResult chatWithImages(
-      String question, List<String> documentIds, List<String> images, int topK) {
-    log.info(
-        "Vision RAG chat request: {} with {} images",
-        LogSanitizer.truncate(question),
-        images.size());
-
-    List<Media> mediaList = parseImages(images);
-    List<DocumentId> documentIdList = toDocumentIds(documentIds);
-    var retrievalResult = ragApplicationService.retrieveContext(question, documentIdList, topK);
-
-    String prompt = buildPrompt(question, retrievalResult.context());
-    String aiResponse = chatWithVision(prompt, mediaList);
-
-    log.info("Vision RAG chat completed successfully");
-    return new RagChatResult(aiResponse, retrievalResult.sources());
   }
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
@@ -208,23 +188,6 @@ public class VisionChatService {
 
   private boolean isBase64(String str) {
     return !str.isEmpty() && str.matches("^[A-Za-z0-9+/=]+$") && str.length() % 4 == 0;
-  }
-
-  private String chatWithVision(String prompt, List<Media> images) {
-    log.info("Processing {} images with Ollama vision model: {}", images.size(), visionModel);
-    try {
-      ChatClient chatClient =
-          chatClientProvider.createStateless(TextChatOptions.ollamaVision(visionModel));
-
-      return chatClient
-          .prompt()
-          .user(user -> user.text(prompt).media(images.toArray(Media[]::new)))
-          .call()
-          .content();
-    } catch (Exception e) {
-      log.error("Error in vision chat: {}", e.getMessage(), e);
-      return "Error processing images: " + e.getMessage();
-    }
   }
 
   private String buildPrompt(String question, String context) {

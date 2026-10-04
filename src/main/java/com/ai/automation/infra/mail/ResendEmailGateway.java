@@ -81,10 +81,6 @@ public class ResendEmailGateway implements EmailGateway {
               + " "
               + e.getResponseBodyAsString(),
           e);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException("Failed to send email via Resend", e);
     }
   }
 

@@ -12,6 +12,7 @@ import com.ai.rag.domain.repository.DocumentWriter;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ public class DocumentUploadService {
     try {
       return upload(docTitle, fileName, file.getSize(), file.getBytes(), ownerKey);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read file content", e);
+      throw new UncheckedIOException("Failed to read file content", e);
     }
   }
 
@@ -136,11 +137,10 @@ public class DocumentUploadService {
       document = documentRepository.save(document);
       return new UploadResult(
           document.getId(), document.getTitle(), document.getStatus().name(), chunks.size());
-    } catch (Exception e) {
-      log.error("Failed to process document", e);
+    } catch (RuntimeException e) {
       document.markFailed();
       documentRepository.save(document);
-      throw new RuntimeException("Failed to process document: " + e.getMessage(), e);
+      throw e;
     }
   }
 }

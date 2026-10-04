@@ -48,7 +48,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyText()
           .asString()
-          .contains("城市参数不能为空");
+          .contains("Required parameter 'city' is missing");
     }
 
     @Test
@@ -58,7 +58,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyText()
           .asString()
-          .contains("城市参数不能为空");
+          .contains("VALIDATION_ERROR");
     }
 
     @Test
@@ -71,7 +71,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyText()
           .asString()
-          .contains("获取天气信息失败");
+          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -111,7 +111,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyText()
           .asString()
-          .contains("城市参数不能为空");
+          .contains("Required parameter 'city' is missing");
     }
 
     @Test
@@ -131,7 +131,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyText()
           .asString()
-          .contains("获取天气预报失败");
+          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -176,7 +176,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyText()
           .asString()
-          .contains("搜索关键词不能为空");
+          .contains("Required parameter 'query' is missing");
     }
 
     @Test
@@ -196,7 +196,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyText()
           .asString()
-          .contains("搜索文档失败");
+          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -222,7 +222,7 @@ class ToolsControllerTest {
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyText()
           .asString()
-          .contains("获取文档列表失败");
+          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -275,9 +275,9 @@ class ToolsControllerTest {
                   .content("{}"))
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyJson()
-          .extractingPath("$.answer")
+          .extractingPath("$.errorCode")
           .asString()
-          .contains("问题不能为空");
+          .isEqualTo("VALIDATION_ERROR");
     }
 
     @Test
@@ -290,9 +290,9 @@ class ToolsControllerTest {
                   .content("{\"question\":null}"))
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyJson()
-          .extractingPath("$.answer")
+          .extractingPath("$.errorCode")
           .asString()
-          .contains("问题不能为空");
+          .isEqualTo("VALIDATION_ERROR");
     }
 
     @Test
@@ -319,9 +319,9 @@ class ToolsControllerTest {
                   .content("{\"question\":\"error question\"}"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyJson()
-          .extractingPath("$.answer")
+          .extractingPath("$.errorCode")
           .asString()
-          .contains("抱歉");
+          .isEqualTo("INTERNAL_ERROR");
     }
   }
 }

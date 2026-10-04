@@ -60,7 +60,6 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
     } catch (RagServiceException e) {
       throw e;
     } catch (Exception e) {
-      log.error("Embedding failed: {}", e.getMessage(), e);
       throw new RagServiceException("Embedding generation failed: " + e.getMessage(), e);
     }
   }
@@ -76,7 +75,6 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       return embeddings.stream().map(e -> convertToFloatArray(e.getOutput())).toList();
 
     } catch (Exception e) {
-      log.error("Batch embedding failed: {}", e.getMessage(), e);
       throw new RagServiceException("Batch embedding generation failed: " + e.getMessage(), e);
     }
   }
