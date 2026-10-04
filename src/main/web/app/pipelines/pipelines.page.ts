@@ -20,7 +20,7 @@ import { I18nService } from '../i18n';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardAlertComponent } from '../ui/alert';
-import { PipelinesService, type AgentInfoResponse } from './pipelines.service';
+import { PipelinesService, type AgentInfoResponse, type PipelineHandoffEvent } from './pipelines.service';
 import { PipelinesCanvasComponent } from './pipelines-canvas.component';
 import {
   toPipelineInvokeRequest,
@@ -237,19 +237,11 @@ export class PipelinesPageComponent implements OnDestroy {
       const cleaned = stripToolCallMarkup(rawContent);
       this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
     };
-    const onHandoff = (handoff: string) => {
-      try {
-        const parsed = JSON.parse(handoff) as { agentType?: string; reason?: string };
-        if (hasText(parsed.agentType)) {
-          pipelineStages = appendPipelineStage(pipelineStages, parsed.agentType);
-          const note = `\n_Delegated to **${parsed.agentType}**_\n\n`;
-          rawContent += note;
-          const cleaned = stripToolCallMarkup(rawContent);
-          this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
-        }
-      } catch {
-        // ignore malformed handoff payloads
-      }
+    const onHandoff = ({ agentType }: PipelineHandoffEvent) => {
+      pipelineStages = appendPipelineStage(pipelineStages, agentType);
+      rawContent += `\n_Delegated to **${agentType}**_\n\n`;
+      const cleaned = stripToolCallMarkup(rawContent);
+      this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
     };
 
     const request = toPipelineInvokeRequest(invokeMessage, graph);

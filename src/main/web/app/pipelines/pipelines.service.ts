@@ -5,9 +5,31 @@ import { type Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { I18nService } from '../i18n';
 import type { HealthStatus } from '../http/health-status';
-import { parseSseToken, streamSsePost } from '../http/sse-client';
+import { objectOrNull, parseSseToken, streamSsePost, stringField } from '../http/sse-client';
 import type { PipelineInvokeRequest } from './pipeline-graph';
-import { textOr } from '../shared/presence';
+import { hasText, textOr } from '../shared/presence';
+
+/** Matches the backend PipelineHandoffEvent (`agent_handoff` SSE event). */
+export interface PipelineHandoffEvent {
+  agentType: string;
+  reason: string;
+}
+
+/** Parse `agent_handoff` SSE data; null when it names no agent. */
+export function parsePipelineHandoff(data: string): PipelineHandoffEvent | null {
+  let json: unknown;
+  try {
+    json = JSON.parse(data);
+  } catch {
+    return null;
+  }
+  const event = objectOrNull(json);
+  if (event === null) {
+    return null;
+  }
+  const agentType = stringField(event['agentType']).trim();
+  return hasText(agentType) ? { agentType, reason: stringField(event['reason']) } : null;
+}
 
 export type AgentRuntime = 'single' | 'deep';
 
@@ -166,7 +188,7 @@ export class PipelinesService {
     agentType: string,
     request: AgentInvokeRequest,
     onChunk: (token: string) => void,
-    onHandoff: (payload: string) => void,
+    onHandoff: (event: PipelineHandoffEvent) => void,
     onDone: () => void,
     onError: (error: Error) => void,
   ): { abort: () => void } {
@@ -181,7 +203,7 @@ export class PipelinesService {
   invokePipelineStream(
     request: PipelineInvokeRequest,
     onChunk: (token: string) => void,
-    onHandoff: (payload: string) => void,
+    onHandoff: (event: PipelineHandoffEvent) => void,
     onDone: () => void,
     onError: (error: Error) => void,
   ): { abort: () => void } {
@@ -203,7 +225,7 @@ export class PipelinesService {
     path: string,
     body: unknown,
     onChunk: (token: string) => void,
-    onHandoff: (payload: string) => void,
+    onHandoff: (event: PipelineHandoffEvent) => void,
     onDone: () => void,
     onError: (error: Error) => void,
   ): { abort: () => void } {
@@ -220,7 +242,10 @@ export class PipelinesService {
           return true;
         }
         if (eventType === 'agent_handoff') {
-          onHandoff(data);
+          const handoff = parsePipelineHandoff(data);
+          if (handoff !== null) {
+            onHandoff(handoff);
+          }
           return false;
         }
         if (eventType === 'message' || eventType === '') {

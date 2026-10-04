@@ -1,10 +1,40 @@
-/** Web search hit from the `sources` SSE event or session history (WebSourceResponse). */
+/** One web search hit: Java `WebSourcesEvent.Source`, shaped like `WebSourceResponse`. */
 export interface WebSource {
   title: string;
   url: string;
   snippet: string;
-  publishedAt?: string | undefined;
+  publishedAt: string | null;
 }
+
+export interface StreamTokenEvent {
+  type: 'message';
+  token: string;
+}
+
+export interface ToolCallEvent {
+  type: 'tool_call';
+  name: string;
+  input: string;
+}
+
+export interface ToolResultEvent {
+  type: 'tool_result';
+  name: string;
+  ok: boolean;
+  output: string;
+}
+
+export interface WebSourcesEvent {
+  type: 'sources';
+  query: string;
+  items: WebSource[];
+}
+
+export type ChatStreamEvent =
+  | StreamTokenEvent
+  | ToolCallEvent
+  | ToolResultEvent
+  | WebSourcesEvent;
 
 /** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
 export function parseSseToken(data: string): string | null {
@@ -15,15 +45,32 @@ export function parseSseToken(data: string): string | null {
   return event.type === 'message' ? event.token : null;
 }
 
-export type ChatStreamEvent =
-  | { type: 'message'; token: string }
-  | { type: 'tool_call'; name: string; input: string }
-  | { type: 'tool_result'; name: string; ok: boolean; output: string }
-  | { type: 'sources'; query: string; items: WebSource[] };
-
 /** The JSON field when it is a string; any other value reads as empty. */
-function stringField(value: unknown): string {
+export function stringField(value: unknown): string {
   return typeof value === 'string' ? value : '';
+}
+
+/** The JSON value as an object, or null for arrays, primitives and null. */
+export function objectOrNull(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function parseWebSource(value: unknown): WebSource | null {
+  const row = objectOrNull(value);
+  if (row === null) {
+    return null;
+  }
+  const publishedAt = row['publishedAt'];
+  return {
+    title: stringField(row['title']),
+    url: stringField(row['url']),
+    snippet: stringField(row['snippet']),
+    publishedAt: typeof publishedAt === 'string' && publishedAt.trim() !== ''
+      ? publishedAt.trim()
+      : null,
+  };
 }
 
 /** Parse chat SSE data payloads (message tokens, tool events, web sources). */
@@ -34,59 +81,44 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
 
   const first = data.trimStart()[0];
   if (first === '{' || first === '[') {
+    let json: unknown;
     try {
-      const json: unknown = JSON.parse(data);
-      if (json === null || typeof json !== 'object' || Array.isArray(json)) {
-        return null;
-      }
-      const parsed = json as Record<string, unknown>;
+      json = JSON.parse(data);
+    } catch {
+      return { type: 'message', token: data };
+    }
+    const parsed = objectOrNull(json);
+    if (parsed === null) {
+      return null;
+    }
 
-      const eventType = parsed['type'];
-      if (eventType === 'tool_call') {
+    switch (parsed['type']) {
+      case 'tool_call':
         return {
           type: 'tool_call',
           name: stringField(parsed['name']),
           input: stringField(parsed['input']),
         };
-      }
-      if (eventType === 'tool_result') {
+      case 'tool_result':
         return {
           type: 'tool_result',
           name: stringField(parsed['name']),
           ok: parsed['ok'] === true,
           output: stringField(parsed['output']),
         };
+      case 'sources': {
+        const rawItems: unknown = parsed['items'];
+        const items = Array.isArray(rawItems)
+          ? rawItems.map(parseWebSource).filter(item => item !== null)
+          : [];
+        return { type: 'sources', query: stringField(parsed['query']), items };
       }
-      if (eventType === 'sources') {
-        const rawItems = Array.isArray(parsed['items']) ? parsed['items'] : [];
-        const items: WebSource[] = rawItems.map((item) => {
-          const row = (item ?? {}) as Record<string, unknown>;
-          const publishedAt = stringField(row['publishedAt'] ?? row['date']).trim();
-          return {
-            title: stringField(row['title']),
-            url: stringField(row['url']),
-            snippet: stringField(row['snippet']),
-            ...(publishedAt !== '' ? { publishedAt } : {}),
-          };
-        });
-        return {
-          type: 'sources',
-          query: stringField(parsed['query']),
-          items,
-        };
-      }
-
-      if (eventType === 'message' || 'token' in parsed) {
+      case 'message': {
         const token = parsed['token'];
-        if (typeof token === 'string') {
-          return { type: 'message', token };
-        }
-        return null;
+        return typeof token === 'string' ? { type: 'message', token } : null;
       }
-
-      return null;
-    } catch {
-      return { type: 'message', token: data };
+      default:
+        return null;
     }
   }
 

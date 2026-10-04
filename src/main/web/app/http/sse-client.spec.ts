@@ -7,8 +7,8 @@ describe('sse-client', () => {
       expect(parseSseToken('')).toBe('\n');
     });
 
-    it('should parse json token object', () => {
-      expect(parseSseToken('{"token":"hello"}')).toBe('hello');
+    it('should ignore json object without event type', () => {
+      expect(parseSseToken('{"token":"hello"}')).toBeNull();
     });
 
     it('should parse typed message event', () => {
@@ -36,8 +36,25 @@ describe('sse-client', () => {
       expect(event).toEqual({
         type: 'sources',
         query: 'q',
-        items: [{ title: 'T', url: 'https://a.com', snippet: 's' }],
+        items: [{ title: 'T', url: 'https://a.com', snippet: 's', publishedAt: null }],
       });
+    });
+
+    it('should keep published at and skip malformed source items', () => {
+      const event = parseChatStreamEvent(
+        '{"type":"sources","query":"q","items":['
+        + '{"title":"T","url":"u","snippet":"s","publishedAt":" Jul 19, 2026 "},'
+        + '"bad",null]}',
+      );
+      expect(event).toEqual({
+        type: 'sources',
+        query: 'q',
+        items: [{ title: 'T', url: 'u', snippet: 's', publishedAt: 'Jul 19, 2026' }],
+      });
+    });
+
+    it('should return null for unknown event type', () => {
+      expect(parseChatStreamEvent('{"type":"usage","tokens":3}')).toBeNull();
     });
 
     it('should parse tool call and result', () => {

@@ -1,14 +1,41 @@
 import { Service, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { hasText } from '../shared/presence';
+import { objectOrNull, stringField } from '../http/sse-client';
+import { hasText, textOr } from '../shared/presence';
 
 export type SpeechToTextConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
-export interface TranscriptionMessage {
-  type?: string;
-  text?: string;
-  error?: string;
-  message?: string;
+export type TranscriptionType = 'partial' | 'final' | 'error';
+
+/** Matches the backend TranscriptionResponse WebSocket frame. */
+export interface TranscriptionResponse {
+  type: TranscriptionType;
+  /** Full transcript so far, or the error reason when `type` is `error`. */
+  text: string;
+}
+
+const TRANSCRIPTION_TYPES: readonly string[] =
+  ['partial', 'final', 'error'] satisfies TranscriptionType[];
+
+function isTranscriptionType(value: unknown): value is TranscriptionType {
+  return typeof value === 'string' && TRANSCRIPTION_TYPES.includes(value);
+}
+
+/** Parse a transcription frame; null when the payload is not a TranscriptionResponse. */
+export function parseTranscriptionResponse(
+  payload: string,
+): TranscriptionResponse | null {
+  let json: unknown;
+  try {
+    json = JSON.parse(payload);
+  } catch {
+    return null;
+  }
+  const frame = objectOrNull(json);
+  if (frame === null || !isTranscriptionType(frame['type'])) {
+    return null;
+  }
+  return { type: frame['type'], text: stringField(frame['text']) };
 }
 
 @Service()
@@ -37,16 +64,14 @@ export class SpeechToTextService {
     this.#socket.onmessage = (event) => {
       const payload = String(event.data);
       this.lastMessage.set(payload);
-      try {
-        const message = JSON.parse(payload) as TranscriptionMessage;
-        if (hasText(message.text)) {
-          this.transcript.update(current => current + message.text);
-        }
-        if (hasText(message.error) || hasText(message.message)) {
-          this.error.set(message.error ?? message.message ?? 'generic');
-        }
-      } catch {
-        this.transcript.update(current => current + payload);
+      const frame = parseTranscriptionResponse(payload);
+      if (frame === null) {
+        return;
+      }
+      if (frame.type === 'error') {
+        this.error.set(textOr(frame.text, 'generic'));
+      } else if (hasText(frame.text)) {
+        this.transcript.set(frame.text);
       }
     };
 

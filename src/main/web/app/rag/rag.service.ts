@@ -5,7 +5,7 @@ import { type Observable, of, catchError, finalize } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
-import { parseSseToken, streamSsePost } from '../http/sse-client';
+import { objectOrNull, parseSseToken, streamSsePost } from '../http/sse-client';
 import { textOr } from '../shared/presence';
 
 /** POST /api/rag/chat/stream */
@@ -18,12 +18,36 @@ export interface RagChatRequest {
   images?: string[];
 }
 
-/** Matches SourceDocumentResponse / SSE sources event */
-export interface SourceDocument {
-  id: string;
+/** One retrieved chunk in the `sources` SSE event. */
+export interface RagSourceEvent {
   content: string;
   score: number;
+  /** Vector-store metadata; keys vary by ingestion source. */
   metadata: Record<string, unknown>;
+}
+
+/** Parse `sources` SSE data, dropping entries that are not source objects. */
+export function parseRagSources(data: string): RagSourceEvent[] {
+  let json: unknown;
+  try {
+    json = JSON.parse(data);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(json)) {
+    return [];
+  }
+  return json.flatMap((item: unknown) => {
+    const row = objectOrNull(item);
+    if (row === null || typeof row['content'] !== 'string' || typeof row['score'] !== 'number') {
+      return [];
+    }
+    return [{
+      content: row['content'],
+      score: row['score'],
+      metadata: objectOrNull(row['metadata']) ?? {},
+    }];
+  });
 }
 
 export type DocumentStatus = 'UPLOADING' | 'PROCESSING' | 'READY' | 'FAILED';
@@ -65,7 +89,7 @@ export interface RagChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  sources?: SourceDocument[];
+  sources?: RagSourceEvent[];
   timestamp: Instant;
 }
 
@@ -351,7 +375,7 @@ export class RagService {
             : message;
         }));
       },
-      (sources: SourceDocument[]) => {
+      (sources: RagSourceEvent[]) => {
         this.messages.update((messages) => {
           return messages.map((message) => {
             return message.id === assistantMessageId ? { ...message, sources } : message;
@@ -411,7 +435,7 @@ export class RagService {
   #ragChat(
     query: RagChatRequest,
     onChunk: (text: string) => void,
-    onSources: (sources: SourceDocument[]) => void,
+    onSources: (sources: RagSourceEvent[]) => void,
     onDone: () => void,
     onError: (error: Error) => void,
   ): { abort: () => void } {
@@ -428,12 +452,7 @@ export class RagService {
         }
 
         if (eventType === 'sources') {
-          try {
-            const sources: unknown = JSON.parse(data);
-            onSources(Array.isArray(sources) ? sources as SourceDocument[] : []);
-          } catch {
-            /* ignore */
-          }
+          onSources(parseRagSources(data));
           return false;
         }
 

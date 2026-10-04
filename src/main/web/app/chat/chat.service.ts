@@ -7,15 +7,17 @@ import { API_BASE_URL } from '../http/api.constants';
 import { STORAGE_KEYS } from '../storage-keys';
 import { SKIP_ERROR_NOTIFICATION } from '../http/http-error.context';
 import {
+  objectOrNull,
   parseChatStreamEvent,
   streamSsePost,
+  stringField,
   type ChatStreamEvent,
   type WebSource,
 } from '../http/sse-client';
 import { DEFAULT_MODELS, DEFAULT_PROVIDERS } from './chat.constants';
 import { stripToolCallMarkup } from '../chat-shell/tool-call-markup.util';
 import type { ToolStep } from '../chat-shell/chat-bubble-list.component';
-import { hasItems, hasText } from '../shared/presence';
+import { hasItems, hasText, textOr } from '../shared/presence';
 
 export type ChatRole = 'user' | 'assistant';
 
@@ -747,15 +749,7 @@ export class ChatService {
             });
             return { ...message, toolSteps: steps };
           }
-          return {
-            ...message,
-            sources: event.items.map(item => ({
-              title: item.title,
-              url: item.url,
-              snippet: item.snippet,
-              publishedAt: item.publishedAt === '' ? undefined : item.publishedAt,
-            })),
-          };
+          return { ...message, sources: event.items };
         }));
       },
     );
@@ -849,17 +843,7 @@ export class ChatService {
         }
 
         if (eventType === 'error') {
-          let message = 'Stream error';
-          try {
-            type ErrorBody = { error?: string; message?: string } | null;
-            const parsed = JSON.parse(data) as ErrorBody;
-            message = parsed?.error ?? parsed?.message ?? message;
-          } catch {
-            if (data !== '') {
-              message = data;
-            }
-          }
-          onError(new Error(message));
+          onError(new Error(streamErrorMessage(data)));
           return true;
         }
 
@@ -887,12 +871,7 @@ export class ChatService {
       role: message.role,
       content,
       timestamp: Instant.parse(message.timestamp),
-      sources: message.sources?.map(source => ({
-        title: source.title,
-        url: source.url,
-        snippet: source.snippet,
-        publishedAt: source.publishedAt ?? undefined,
-      })),
+      sources: message.sources ?? undefined,
     };
   }
 }
@@ -924,6 +903,21 @@ export function mergeHistoryWithLocalMessages(
       ?? previousSources.get(stripToolCallMarkup(ui.content));
     return hasItems(local) ? { ...ui, sources: local } : ui;
   });
+}
+
+/** Message of an SSE `error` event: JSON `error`/`message` field, else the raw text. */
+function streamErrorMessage(data: string): string {
+  let body: Record<string, unknown> | null = null;
+  try {
+    body = objectOrNull(JSON.parse(data));
+  } catch {
+    // plain-text error payload
+  }
+  if (body !== null) {
+    const reason = stringField(body['error']);
+    return hasText(reason) ? reason : textOr(stringField(body['message']), 'Stream error');
+  }
+  return textOr(data, 'Stream error');
 }
 
 function hasRenderableBody(message: ChatMessage): boolean {
