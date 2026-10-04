@@ -1,5 +1,6 @@
 package com.ai.rag.infra.etl;
 
+import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.infra.parser.PdfTextExtractor;
@@ -22,7 +23,8 @@ public class PdfAndTextDocumentReader implements DocumentReader {
       String text =
           pdfTextExtractor
               .extractText(content)
-              .orElseThrow(() -> new IllegalStateException("PDF text extraction returned empty"));
+              .orElseThrow(
+                  () -> new DocumentProcessingException("Could not extract text from " + fileName));
       return new RawDocument(text, Map.of("fileName", fileName), fileName);
     }
     return new RawDocument(new String(content), Map.of("fileName", fileName), fileName);

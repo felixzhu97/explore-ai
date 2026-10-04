@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
-import { Observable, of, catchError } from 'rxjs';
+import { Observable, of, catchError, finalize } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
@@ -194,6 +194,14 @@ export class RagService {
     if (this.pendingFiles().length === 0) return;
 
     this.isUploading.set(true);
+    let remaining = this.pendingFiles().length;
+    const settle = () => {
+      remaining -= 1;
+      if (remaining === 0) {
+        this.isUploading.set(false);
+        this.fetchAvailableDocuments();
+      }
+    };
 
     this.pendingFiles().forEach((file, index) => {
       const documentId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -209,7 +217,7 @@ export class RagService {
         return next;
       });
 
-      this.uploadDocument(file).subscribe({
+      this.uploadDocument(file).pipe(finalize(settle)).subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress && event.total) {
             const progress = Math.round((100 * event.loaded) / event.total);
@@ -243,7 +251,6 @@ export class RagService {
 
           if (index === this.pendingFiles().length - 1) {
             this.pendingFiles.set([]);
-            this.fetchAvailableDocuments();
             setTimeout(() => {
               this.uploadStatuses.set(new Map());
             }, 2000);
@@ -263,11 +270,6 @@ export class RagService {
           this.notifications.showError(
             this.i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
           );
-        },
-        complete: () => {
-          if (index === this.pendingFiles().length - 1) {
-            this.isUploading.set(false);
-          }
         },
       });
     });

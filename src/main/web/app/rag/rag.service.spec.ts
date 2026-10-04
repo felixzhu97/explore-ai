@@ -160,12 +160,14 @@ describe('RagService', () => {
     vi.useRealTimers();
   });
 
-  it('should handle upload error', () => {
+  it('should finish uploading and refresh documents when the upload fails', () => {
     const file = new File(['data'], 'bad.pdf');
     service.pendingFiles.set([file]);
     service.uploadFiles();
     httpMock.expectOne(`${API_BASE_URL}/rag/documents/upload`).error(new ProgressEvent('error'));
     expect(service.getUploadStatus('bad.pdf')?.status).toBe('error');
+    expect(service.isUploading()).toBe(false);
+    httpMock.expectOne(`${API_BASE_URL}/rag/documents`).flush({ documents: [] });
   });
 
   it('should send message via sse stream', async () => {

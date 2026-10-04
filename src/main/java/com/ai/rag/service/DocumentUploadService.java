@@ -1,6 +1,7 @@
 package com.ai.rag.service;
 
 import com.ai.rag.domain.exception.DocumentNotFoundException;
+import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
@@ -21,7 +22,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -40,34 +43,42 @@ public class DocumentUploadService {
   private final DocumentWriter writer;
   private final DocumentRepository documentRepository;
   private final DocumentChunkRepository chunkRepository;
+  private final TransactionTemplate transactions;
 
   public DocumentUploadService(
       DocumentReader reader,
       DocumentTransformer transformer,
       DocumentWriter writer,
       DocumentRepository documentRepository,
-      DocumentChunkRepository chunkRepository) {
+      DocumentChunkRepository chunkRepository,
+      PlatformTransactionManager transactionManager) {
     this.reader = reader;
     this.transformer = transformer;
     this.writer = writer;
     this.documentRepository = documentRepository;
     this.chunkRepository = chunkRepository;
+    this.transactions = new TransactionTemplate(transactionManager);
   }
 
-  @Transactional
+  /**
+   * Ingests text content. Not transactional: the FAILED status must commit even when ingestion
+   * rolls back.
+   */
   public UploadResult upload(
       String title, String fileName, Long fileSize, String content, String ownerKey) {
     return processUpload(title, fileName, fileSize, content.getBytes(), ownerKey);
   }
 
-  @Transactional
+  /**
+   * Ingests file bytes. Not transactional: the FAILED status must commit even when ingestion rolls
+   * back.
+   */
   public UploadResult upload(
       String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
     return processUpload(title, fileName, fileSize, fileContent, ownerKey);
   }
 
   /** Ingests the uploaded file, using its file name as the title when none is given. */
-  @Transactional
   public UploadResult upload(MultipartFile file, String title, String ownerKey) {
     String fileName = file.getOriginalFilename();
     String docTitle = title != null && !title.isBlank() ? title : fileName;
@@ -110,37 +121,48 @@ public class DocumentUploadService {
 
   private UploadResult processUpload(
       String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
+    if (fileContent.length == 0) {
+      throw new IllegalArgumentException("Uploaded file is empty");
+    }
     RagDocument document =
         new RagDocument(DocumentId.generate(), title, fileName, fileSize, ownerKey);
     document.markProcessing();
-    document = documentRepository.save(document);
+    RagDocument processing = transactions.execute(status -> documentRepository.save(document));
 
     try {
-      RawDocument raw = reader.read(fileContent, fileName);
-      List<RawDocument> chunkDocs = transformer.transform(raw);
-
-      List<DocumentChunk> chunks = new ArrayList<>();
-      for (int i = 0; i < chunkDocs.size(); i++) {
-        RawDocument chunkDoc = chunkDocs.get(i);
-        Map<String, Object> metadata = new HashMap<>(chunkDoc.metadata());
-        metadata.put("title", document.getTitle());
-        metadata.put("fileName", document.getFileName());
-        metadata.put("ownerKey", ownerKey);
-
-        chunks.add(
-            DocumentChunk.create(
-                ChunkId.generate(), document.getId(), chunkDoc.content(), i, metadata));
-      }
-
-      writer.write(chunks);
-      document.markReady();
-      document = documentRepository.save(document);
-      return new UploadResult(
-          document.getId(), document.getTitle(), document.getStatus().name(), chunks.size());
+      return transactions.execute(status -> ingest(processing, fileContent));
     } catch (RuntimeException e) {
-      document.markFailed();
-      documentRepository.save(document);
+      processing.markFailed();
+      transactions.executeWithoutResult(status -> documentRepository.save(processing));
       throw e;
     }
+  }
+
+  private UploadResult ingest(RagDocument document, byte[] fileContent) {
+    String fileName = document.getFileName();
+    RawDocument raw = reader.read(fileContent, fileName);
+    List<RawDocument> chunkDocs = raw.content().isBlank() ? List.of() : transformer.transform(raw);
+    if (chunkDocs.isEmpty()) {
+      throw new DocumentProcessingException("No text found in " + fileName);
+    }
+
+    List<DocumentChunk> chunks = new ArrayList<>();
+    for (int i = 0; i < chunkDocs.size(); i++) {
+      RawDocument chunkDoc = chunkDocs.get(i);
+      Map<String, Object> metadata = new HashMap<>(chunkDoc.metadata());
+      metadata.put("title", document.getTitle());
+      metadata.put("fileName", fileName);
+      metadata.put("ownerKey", document.getOwnerKeyValue());
+
+      chunks.add(
+          DocumentChunk.create(
+              ChunkId.generate(), document.getId(), chunkDoc.content(), i, metadata));
+    }
+
+    writer.write(chunks);
+    document.markReady();
+    RagDocument ready = documentRepository.save(document);
+    return new UploadResult(
+        ready.getId(), ready.getTitle(), ready.getStatus().name(), chunks.size());
   }
 }

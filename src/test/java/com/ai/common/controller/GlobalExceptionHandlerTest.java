@@ -8,6 +8,7 @@ import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.controller.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
+import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.exception.RagServiceException;
 import java.util.List;
 import java.util.Set;
@@ -163,6 +164,24 @@ class GlobalExceptionHandlerTest {
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
       assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_NOT_FOUND");
+    }
+  }
+
+  @Nested
+  @DisplayName("DocumentProcessingException")
+  class HandleDocumentProcessing {
+
+    @Test
+    @DisplayName("should return 422 with DOCUMENT_UNREADABLE error code")
+    void shouldReturn422WithDocumentUnreadableErrorCode() {
+      DocumentProcessingException exception =
+          new DocumentProcessingException("Could not extract text from scan.pdf");
+
+      ResponseEntity<ErrorResponse> response = handler.handleDocumentProcessing(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+      assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_UNREADABLE");
+      assertThat(response.getBody().message()).isEqualTo("Could not extract text from scan.pdf");
     }
   }
 

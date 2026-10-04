@@ -14,6 +14,7 @@ import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
+import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.exception.RagServiceException;
 import com.ai.skill.domain.exception.SkillNameConflictException;
 import com.ai.skill.domain.exception.SkillNotFoundException;
@@ -135,6 +136,13 @@ public class GlobalExceptionHandler {
     log.warn("Document not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_NOT_FOUND"));
+  }
+
+  @ExceptionHandler(DocumentProcessingException.class)
+  public ResponseEntity<ErrorResponse> handleDocumentProcessing(DocumentProcessingException e) {
+    log.warn("Document processing failed: {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
+        .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_UNREADABLE"));
   }
 
   @ExceptionHandler(VisionProviderUnavailableException.class)
