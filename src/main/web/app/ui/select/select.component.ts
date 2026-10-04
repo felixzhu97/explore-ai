@@ -311,14 +311,14 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
             : [this.zValue() as string]
         ),
         selectItem: (value: string, label: string) => this.selectItem(value, label),
-        navigateTo: () => this.navigateTo(item, index),
+        navigateTo: () => this.navigateTo(index),
       });
       item.zSize.set(this.zSize());
       item.zMode.set(isCompact ? 'compact' : 'normal');
     }
   }
 
-  private navigateTo(element: ZardSelectItemComponent, index: number): void {
+  private navigateTo(index: number): void {
     this.focusedIndex.set(index);
     this.updateItemFocus(this.getSelectItems(true), index);
   }
