@@ -16,8 +16,7 @@ vi.mock('../markdown-with-a2ui/markdown-with-a2ui.component', async () => {
   return { MarkdownWithA2uiComponent };
 });
 
-import { ChatBubbleListComponent } from './chat-bubble-list.component';
-import { ChatMessageView } from './chat-bubble.model';
+import { ChatBubbleListComponent, ChatMessageView } from './chat-bubble-list.component';
 
 describe('ChatBubbleListComponent', () => {
   let fixture: ComponentFixture<ChatBubbleListComponent>;

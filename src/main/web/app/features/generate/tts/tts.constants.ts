@@ -1,4 +1,4 @@
-import type { Voice } from './tts.model';
+import type { Voice } from './services/tts.service';
 
 export const DEFAULT_VOICES: Voice[] = [
   {

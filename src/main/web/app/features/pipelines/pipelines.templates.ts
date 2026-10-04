@@ -1,5 +1,5 @@
-import type { AgentType } from './pipelines.model';
-import type { PipelineConnection, PipelineGraph, PipelineNode } from './pipeline-graph.model';
+import type { AgentType } from './services/pipelines.service';
+import type { PipelineConnection, PipelineGraph, PipelineNode } from './pipeline-graph';
 
 export interface PipelineTemplateInput {
   id: string;

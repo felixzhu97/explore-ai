@@ -11,7 +11,7 @@ import { ZardButtonComponent } from '../../../../shared/components/button';
 import { ZardCardComponent } from '../../../../shared/components/card';
 import { ZardInputDirective } from '../../../../shared/components/input';
 import { ZardSegmentedComponent } from '../../../../shared/components/segmented';
-import type { ImageSize } from '../image.model';
+import type { ImageSize } from '../services/image.service';
 
 @Component({
   selector: 'app-image-gen-form',

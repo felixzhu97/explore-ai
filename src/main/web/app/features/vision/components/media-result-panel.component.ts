@@ -8,8 +8,7 @@ import { ZardAlertComponent } from '../../../shared/components/alert';
 import { ZardBadgeComponent } from '../../../shared/components/badge';
 import { ZardButtonComponent } from '../../../shared/components/button';
 import { ZardCardComponent } from '../../../shared/components/card';
-import type { VisionResult } from '../vision.model';
-import type { VisionTaskType } from '../services/vision.service';
+import type { VisionResult, VisionTaskType } from '../services/vision.service';
 
 @Component({
   selector: 'app-media-result-panel',

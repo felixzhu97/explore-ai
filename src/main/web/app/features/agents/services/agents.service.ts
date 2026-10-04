@@ -1,11 +1,29 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../core/api.constants';
-import type { AgentType } from '../../pipelines/pipelines.model';
-import type { SavedAgent, SavedAgentWriteRequest } from '../agents.model';
+import type { AgentType } from '../../pipelines/services/pipelines.service';
 import { I18nService } from '../../../core/i18n';
-import { HttpParams } from '@angular/common/http';
+
+export interface SavedAgent {
+  id: string;
+  typeKey: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  toolKeys: string[];
+  enabled: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SavedAgentWriteRequest {
+  typeKey?: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  toolKeys: string[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class AgentsService {

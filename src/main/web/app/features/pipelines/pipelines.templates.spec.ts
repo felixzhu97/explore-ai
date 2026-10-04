@@ -2,8 +2,8 @@ import {
   applyPipelineTemplate,
   type PipelineTemplateInput,
 } from './pipelines.templates';
-import { validatePipeline } from './pipeline-graph.model';
-import type { AgentType } from './pipelines.model';
+import { validatePipeline } from './pipeline-graph';
+import type { AgentType } from './services/pipelines.service';
 
 const catalog: AgentType[] = [
   {

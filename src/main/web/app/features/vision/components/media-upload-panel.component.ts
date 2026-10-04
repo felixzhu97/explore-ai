@@ -9,8 +9,7 @@ import { lucideImage } from '@ng-icons/lucide';
 import { ZardButtonComponent } from '../../../shared/components/button';
 import { ZardCardComponent } from '../../../shared/components/card';
 import { ZardSkeletonComponent } from '../../../shared/components/skeleton';
-import { DetectionOverlayComponent } from './detection-overlay.component';
-import type { Detection } from '../vision.model';
+import { DetectionOverlayComponent, type Detection } from './detection-overlay.component';
 
 @Component({
   selector: 'app-media-upload-panel',

@@ -1,4 +1,4 @@
-import type { Translations } from '../translations.types';
+import type { Translations } from '../translations';
 
 export const fr: Translations = {
   common: {

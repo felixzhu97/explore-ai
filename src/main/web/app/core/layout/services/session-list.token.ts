@@ -1,5 +1,11 @@
 import { InjectionToken, Signal } from '@angular/core';
-import type { SidebarSession } from '../sidebar-session.model';
+
+export interface SidebarSession {
+  id: string;
+  title: string;
+  timestamp: Date;
+  pinned: boolean;
+}
 
 /** Layout-level contract: sidebar reads session list without importing chat feature. */
 export interface SessionList {

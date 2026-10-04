@@ -5,7 +5,36 @@ import { API_BASE_URL } from '../../../core/api.constants';
 import { NotificationService } from '../../../core/services/notification.service';
 import { I18nService } from '../../../core/i18n';
 import { streamSsePost } from '../../../core/streaming/sse-client';
-import { SourceDocument, RagQuery, DocumentListResponse } from '../rag.model';
+
+/** POST /api/rag/chat/stream */
+export interface RagQuery {
+  question: string;
+  sessionId?: string;
+  topK?: number;
+  temperature?: number;
+  documentIds?: string[];
+}
+
+/** Matches SourceDocumentResponse / SSE sources event */
+export interface SourceDocument {
+  id: string;
+  content: string;
+  score: number;
+  metadata: Record<string, unknown>;
+}
+
+/** GET /api/rag/documents — DocumentSummaryResponse */
+export interface DocumentListItem {
+  id: string;
+  title: string;
+  status?: string;
+  createdAt?: string;
+  chunkCount?: number;
+}
+
+export interface DocumentListResponse {
+  documents: DocumentListItem[];
+}
 
 export interface RagDocumentItem {
   id: string;

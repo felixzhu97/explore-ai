@@ -10,19 +10,51 @@ import { FormsModule } from '@angular/forms';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NotificationService } from '../../../core/services/notification.service';
 import { I18nService } from '../../../core/i18n';
-import { PipelinesService } from '../../pipelines/services/pipelines.service';
-import type { PipelineTemplate } from '../../pipelines/pipelines.model';
-import { ZardButtonComponent } from '../../../shared/components/button';
-import { AutomationsService } from '../services/automations.service';
 import {
-  cronForPreset,
-  defaultRunAtDate,
-  presetFromSchedule,
+  PipelinesService,
+  type PipelineTemplate,
+} from '../../pipelines/services/pipelines.service';
+import { ZardButtonComponent } from '../../../shared/components/button';
+import {
+  AutomationsService,
   type AutomationRun,
   type AutomationSchedule,
   type AutomationScheduleWriteRequest,
-  type FrequencyPreset,
-} from '../automations.model';
+} from '../services/automations.service';
+
+type FrequencyPreset = 'daily' | 'weekly' | 'custom';
+
+function cronForPreset(preset: FrequencyPreset): string {
+  switch (preset) {
+    case 'daily':
+      return '0 0 9 * * *';
+    case 'weekly':
+      return '0 0 9 * * MON';
+    case 'custom':
+      return '';
+  }
+}
+
+function presetFromSchedule(schedule: AutomationSchedule): FrequencyPreset {
+  if (schedule.scheduleKind === 'ONCE') {
+    return 'custom';
+  }
+  const cron = schedule.cronExpression ?? '';
+  if (cron === '0 0 9 * * *') {
+    return 'daily';
+  }
+  if (cron === '0 0 9 * * MON') {
+    return 'weekly';
+  }
+  return 'daily';
+}
+
+/** Default run-at: now + 5 minutes, truncated to seconds. */
+function defaultRunAtDate(): Date {
+  const date = new Date(Date.now() + 5 * 60 * 1000);
+  date.setMilliseconds(0);
+  return date;
+}
 
 @Component({
   selector: 'app-automations-page',

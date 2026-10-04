@@ -8,7 +8,7 @@ import {
 import { I18nService } from '../../../i18n/i18n.service';
 import { ZardButtonComponent } from '../../../../shared/components/button';
 import { ZardSidebarMenuButtonDirective } from '../../../../shared/components/layout/sidebar-menu-button.directive';
-import type { SidebarSession } from '../../sidebar-session.model';
+import type { SidebarSession } from '../../services/session-list.token';
 
 @Component({
   selector: 'app-session-item',

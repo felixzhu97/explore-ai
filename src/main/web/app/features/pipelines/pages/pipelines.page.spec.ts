@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { httpResource, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { httpResource } from '@angular/common/http';
 import { computed, ApplicationRef, Injector, runInInjectionContext } from '@angular/core';
 import { API_BASE_URL } from '../../../core/api.constants';
-import type { AgentType } from '../pipelines.model';
+import type { AgentType } from '../services/pipelines.service';
 
 describe('PipelinesPageComponent httpResource', () => {
   let http: HttpTestingController;

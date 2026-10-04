@@ -10,8 +10,12 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
 import { I18nService } from '../../../core/i18n';
-import { SkillsService } from '../services/skills.service';
-import type { Skill, SkillTemplate, SkillWriteRequest } from '../skills.model';
+import {
+  SkillsService,
+  type Skill,
+  type SkillTemplate,
+  type SkillWriteRequest,
+} from '../services/skills.service';
 import { ZardButtonComponent } from '../../../shared/components/button';
 
 const EMPTY_FORM: SkillWriteRequest = {

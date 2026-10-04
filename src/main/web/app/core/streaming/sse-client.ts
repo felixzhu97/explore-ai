@@ -1,4 +1,10 @@
-import type { WebSource } from '../../features/chat/chat.model';
+/** Web search hit from the `sources` SSE event or session history (WebSourceResponse). */
+export interface WebSource {
+  title: string;
+  url: string;
+  snippet: string;
+  publishedAt?: string;
+}
 
 /** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
 export function parseSseToken(data: string): string | null {

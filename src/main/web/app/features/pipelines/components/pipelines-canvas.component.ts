@@ -18,12 +18,13 @@ import {
 } from '@foblex/flow';
 import { I18nService } from '../../../core/i18n';
 import { NotificationService } from '../../../core/services/notification.service';
-import type {
-  AgentType,
-  PipelineTemplate,
-  PipelineTemplateDefinition,
-  PipelineTemplateWriteRequest,
-} from '../pipelines.model';
+import {
+  PipelinesService,
+  type AgentType,
+  type PipelineTemplate,
+  type PipelineTemplateDefinition,
+  type PipelineTemplateWriteRequest,
+} from '../services/pipelines.service';
 import {
   connectorInId,
   connectorOutId,
@@ -31,9 +32,8 @@ import {
   type PipelineConnection,
   type PipelineGraph,
   type PipelineNode,
-} from '../pipeline-graph.model';
+} from '../pipeline-graph';
 import { applyPipelineTemplate } from '../pipelines.templates';
-import { PipelinesService } from '../services/pipelines.service';
 import { ZardButtonComponent } from '../../../shared/components/button';
 
 type WorkspaceMode = 'gallery' | 'edit' | 'use';

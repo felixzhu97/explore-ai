@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ChatMessage } from '../chat.model';
-import { mergeHistoryWithLocalMessages } from './chat.service';
+import { mergeHistoryWithLocalMessages, type ChatMessage } from './chat.service';
 
 describe('mergeHistoryWithLocalMessages', () => {
   it('should keep local sources when api sources missing', () => {

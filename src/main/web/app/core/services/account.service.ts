@@ -5,9 +5,20 @@ import { finalize } from 'rxjs';
 import { ChatService } from '../../features/chat/services/chat.service';
 import { API_BASE_URL } from '../api.constants';
 import { STORAGE_KEYS } from '../config/storage-keys';
-import type { AccountMe, OAuthProviderId } from '../models/account.model';
 import { I18nService } from '../i18n';
 import { NotificationService } from './notification.service';
+
+export type OAuthProviderId = 'google' | 'github' | 'explore-iam';
+
+export interface AccountMe {
+  mode: string;
+  clientId: string;
+  userId: string | null;
+  email: string | null;
+  plan: string;
+  loginAvailable: boolean;
+  loginProviders: OAuthProviderId[];
+}
 
 /**
  * Shared account state for guest + optional OAuth (Google / GitHub).

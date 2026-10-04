@@ -1,8 +1,10 @@
 import { Component, ChangeDetectionStrategy, computed, inject, OnDestroy } from '@angular/core';
-import { SpeechToTextService } from '../services/speech-to-text.service';
+import {
+  SpeechToTextService,
+  type SpeechToTextConnectionState,
+} from '../services/speech-to-text.service';
 import { ZardButtonComponent } from '../../../shared/components/button';
 import { I18nService } from '../../../core/i18n';
-import type { SpeechToTextConnectionState } from '../speech-to-text.model';
 
 const SPEECH_TO_TEXT_ERROR_KEYS = ['connectionFailed', 'notConnected', 'generic'] as const;
 type SpeechToTextErrorKey = (typeof SPEECH_TO_TEXT_ERROR_KEYS)[number];

@@ -3,8 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../core/api.constants';
-import type { MetricsDomain } from '../metrics.model';
-import { MetricsService } from './metrics.service';
+import { MetricsService, type MetricsDomain } from './metrics.service';
 
 describe('MetricsService', () => {
   let service: MetricsService;

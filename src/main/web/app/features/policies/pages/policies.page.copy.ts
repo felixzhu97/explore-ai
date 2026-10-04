@@ -1,4 +1,4 @@
-import type { Language } from '../../../core/i18n/translations.types';
+import type { Language } from '../../../core/i18n/translations';
 import { POLICY_DOCS } from '../policies.docs.copy';
 
 export type PolicySlug =

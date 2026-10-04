@@ -4,7 +4,14 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../core/api.constants';
 import { I18nService } from '../../../core/i18n';
 import { ImageZoomService } from '../../../shared/services/image-zoom.service';
-import type { VisionResult } from '../vision.model';
+import type { Detection } from '../components/detection-overlay.component';
+
+export interface VisionResult {
+  caption?: string;
+  detections?: Detection[];
+  fullText?: string;
+  processingTimeMs?: number;
+}
 
 export type VisionTaskType = 'caption' | 'detect' | 'ocr';
 

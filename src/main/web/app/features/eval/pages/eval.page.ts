@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { EvalService } from '../services/eval.service';
-import type { EvaluationResponse } from '../eval.model';
+import { EvalService, type EvaluationResponse } from '../services/eval.service';
 import { ZardButtonComponent } from '../../../shared/components/button';
 import { I18nService } from '../../../core/i18n';
 

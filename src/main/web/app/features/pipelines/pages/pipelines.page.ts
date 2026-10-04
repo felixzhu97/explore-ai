@@ -12,27 +12,26 @@ import {
 } from '@angular/core';
 import { API_BASE_URL } from '../../../core/api.constants';
 import {
-  ChatMessageView,
   ChatMessagePaneComponent,
+  ChatMessageView,
+  type ToolStep,
 } from '../../../shared/components/chat-shell';
 import { I18nService } from '../../../core/i18n';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardAlertComponent } from '../../../shared/components/alert';
-import { PipelinesService } from '../services/pipelines.service';
+import { PipelinesService, type AgentType } from '../services/pipelines.service';
 import { PipelinesCanvasComponent } from '../components/pipelines-canvas.component';
-import type { AgentType } from '../pipelines.model';
 import {
   toPipelineInvokeRequest,
   validatePipeline,
   type PipelineGraph,
-} from '../pipeline-graph.model';
+} from '../pipeline-graph';
 import {
   parseDsmlToolInvocations,
   stripToolCallMarkup,
   toMinimalToolSteps,
 } from '../../../shared/utils/tool-call-markup.util';
-import type { ToolStep } from '../../../shared/components/chat-shell';
 import {
   appendPipelineStage,
   finalizePipelineStages,

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { I18nService } from '../../../core/i18n';
-import type { InvocationEvent } from '../metrics.model';
+import type { InvocationEvent } from '../services/metrics.service';
 
 @Component({
   selector: 'app-metrics-drilldown-table',

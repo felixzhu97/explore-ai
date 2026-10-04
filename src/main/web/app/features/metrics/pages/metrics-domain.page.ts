@@ -11,11 +11,11 @@ import {
 import { MetricsDrilldownTableComponent } from '../components/metrics-drilldown-table.component';
 import {
   isMetricsDomain,
+  MetricsService,
   type InvocationEvent,
   type MetricsDomain,
   type MetricsRange,
-} from '../metrics.model';
-import { MetricsService } from '../services/metrics.service';
+} from '../services/metrics.service';
 
 @Component({
   selector: 'app-metrics-domain-page',
