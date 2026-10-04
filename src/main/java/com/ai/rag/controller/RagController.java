@@ -6,6 +6,7 @@ import com.ai.rag.controller.dto.DocumentSummaryResponse;
 import com.ai.rag.controller.dto.RagChatRequest;
 import com.ai.rag.controller.dto.UploadDocumentResponse;
 import com.ai.rag.domain.model.RagDocument;
+import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.DocumentUploadService;
 import com.ai.rag.service.RagApplicationService;
 import com.ai.rag.service.RagChatService;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
@@ -59,9 +61,11 @@ public class RagController {
   @Operation(summary = "List documents for the current owner")
   public ResponseEntity<DocumentListResponse> listDocuments(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
+    List<RagDocument> documents = ragApplicationService.listDocuments(ownerKey);
+    Map<DocumentId, Integer> chunkCounts = ragApplicationService.chunkCounts(documents);
     return ResponseEntity.ok(
         new DocumentListResponse(
-            ragApplicationService.listDocuments(ownerKey).stream().map(this::toSummary).toList()));
+            documents.stream().map(doc -> toSummary(doc, chunkCounts)).toList()));
   }
 
   @PostMapping("/documents/upload")
@@ -110,8 +114,12 @@ public class RagController {
     return images != null && !images.isEmpty();
   }
 
-  private DocumentSummaryResponse toSummary(RagDocument doc) {
+  private DocumentSummaryResponse toSummary(RagDocument doc, Map<DocumentId, Integer> chunkCounts) {
     return new DocumentSummaryResponse(
-        doc.getId().uuidValue(), doc.getTitle(), doc.getStatus().name(), doc.getCreatedAt(), 0);
+        doc.getId().uuidValue(),
+        doc.getTitle(),
+        doc.getStatus().name(),
+        doc.getCreatedAt(),
+        chunkCounts.getOrDefault(doc.getId(), 0));
   }
 }

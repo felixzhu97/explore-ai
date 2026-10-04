@@ -298,6 +298,26 @@ class DocumentUploadServiceTest {
   }
 
   @Nested
+  @DisplayName("chunkCounts()")
+  class ChunkCounts {
+
+    @Test
+    @DisplayName("should map documents without stored chunks to zero")
+    void shouldMapDocumentsWithoutStoredChunksToZero() {
+      RagDocument chunked =
+          new RagDocument(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
+      RagDocument empty =
+          new RagDocument(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
+      when(chunkRepository.countChunksByDocumentIds(List.of(chunked.getId(), empty.getId())))
+          .thenReturn(Map.of(chunked.getId(), 3));
+
+      Map<DocumentId, Integer> counts = service.chunkCounts(List.of(chunked, empty));
+
+      assertThat(counts).containsEntry(chunked.getId(), 3).containsEntry(empty.getId(), 0);
+    }
+  }
+
+  @Nested
   @DisplayName("delete()")
   class Delete {
 
