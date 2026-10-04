@@ -46,7 +46,7 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
 
   private static OwnerKey parseOwnerKey(String ownerKey) {
     if (ownerKey == null || ownerKey.isBlank()) {
-      throw new IllegalArgumentException("ClientId cannot be null or blank");
+      throw new IllegalArgumentException("Owner key cannot be null or blank");
     }
     String trimmed = ownerKey.trim();
     if (trimmed.startsWith(OwnerKey.CLIENT_PREFIX) || trimmed.startsWith(OwnerKey.ACCOUNT_PREFIX)) {
@@ -79,10 +79,6 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
 
   public Instant getLastActivityAt() {
     return getUpdatedAt();
-  }
-
-  public boolean belongsTo(String otherClientId) {
-    return belongsToClient(otherClientId);
   }
 
   public boolean hasDefaultTitle() {

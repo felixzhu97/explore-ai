@@ -45,10 +45,10 @@ class AbstractEnableableNamedOwnerEntityTest {
   }
 
   @Test
-  @DisplayName("should match client partition when belongsToClient is called")
-  void shouldMatchClientPartitionWhenBelongsToClientIsCalled() {
+  @DisplayName("should match owner key when belongsTo is called with its value")
+  void shouldMatchOwnerKeyWhenBelongsToIsCalledWithItsValue() {
     TestEntity entity = new TestEntity(true);
-    assertThat(entity.belongsToClient("c:client-1")).isTrue();
-    assertThat(entity.belongsToClient("c:other")).isFalse();
+    assertThat(entity.belongsTo("c:client-1")).isTrue();
+    assertThat(entity.belongsTo("c:other")).isFalse();
   }
 }

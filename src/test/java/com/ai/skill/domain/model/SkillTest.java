@@ -18,7 +18,7 @@ class SkillTest {
         Skill.create("c:client-1", "Brief Style", "Short answers", "Be concise.", List.of("Read"));
 
     assertThat(skill.getId()).isNotNull();
-    assertThat(skill.getClientId()).isEqualTo("c:client-1");
+    assertThat(skill.getOwnerKeyValue()).isEqualTo("c:client-1");
     assertThat(skill.getName()).isEqualTo("Brief Style");
     assertThat(skill.getDescription()).isEqualTo("Short answers");
     assertThat(skill.getInstructions()).isEqualTo("Be concise.");

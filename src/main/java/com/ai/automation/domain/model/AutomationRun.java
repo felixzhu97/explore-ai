@@ -118,7 +118,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
   }
 
   /** Returns the persisted owner_key value (c:… or u:…). */
-  public String getClientId() {
+  public String getOwnerKeyValue() {
     return ownerKey.value();
   }
 

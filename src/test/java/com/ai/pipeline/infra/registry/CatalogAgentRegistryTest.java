@@ -104,25 +104,25 @@ class CatalogAgentRegistryTest {
     @Override
     public Optional<SavedAgent> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
       return agents.stream()
-          .filter(a -> a.getId().equals(id) && a.getClientId().equals(ownerKey))
+          .filter(a -> a.getId().equals(id) && a.getOwnerKeyValue().equals(ownerKey))
           .findFirst();
     }
 
     @Override
     public List<SavedAgent> findAllByOwnerKey(String ownerKey) {
-      return agents.stream().filter(a -> a.getClientId().equals(ownerKey)).toList();
+      return agents.stream().filter(a -> a.getOwnerKeyValue().equals(ownerKey)).toList();
     }
 
     @Override
     public List<SavedAgent> findEnabledByOwnerKey(String ownerKey) {
       return agents.stream()
-          .filter(a -> a.getClientId().equals(ownerKey) && a.isEnabled())
+          .filter(a -> a.getOwnerKeyValue().equals(ownerKey) && a.isEnabled())
           .toList();
     }
 
     @Override
     public void deleteByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
-      agents.removeIf(a -> a.getId().equals(id) && a.getClientId().equals(ownerKey));
+      agents.removeIf(a -> a.getId().equals(id) && a.getOwnerKeyValue().equals(ownerKey));
     }
 
     @Override
@@ -131,7 +131,7 @@ class CatalogAgentRegistryTest {
       return agents.stream()
           .anyMatch(
               a ->
-                  a.getClientId().equals(ownerKey)
+                  a.getOwnerKeyValue().equals(ownerKey)
                       && a.getTypeKey().equals(typeKey)
                       && (excludeId == null || !a.getId().equals(excludeId)));
     }
