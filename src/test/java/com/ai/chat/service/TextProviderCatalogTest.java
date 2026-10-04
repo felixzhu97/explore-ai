@@ -2,6 +2,7 @@ package com.ai.chat.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ai.chat.controller.dto.ProviderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ class TextProviderCatalogTest {
 
     assertThat(providers).hasSize(3);
     assertThat(providers.getFirst().name()).isEqualTo("openai");
-    assertThat(providers.getFirst().status()).isEqualTo("available");
+    assertThat(providers.getFirst().status()).isEqualTo(ProviderStatus.AVAILABLE);
     assertThat(providers.getFirst().displayName()).isEqualTo("DeepSeek");
   }
 
@@ -69,7 +70,7 @@ class TextProviderCatalogTest {
 
     var ollama =
         providers.stream().filter(p -> "ollama".equals(p.name())).findFirst().orElseThrow();
-    assertThat(ollama.status()).isEqualTo("unavailable");
+    assertThat(ollama.status()).isEqualTo(ProviderStatus.UNAVAILABLE);
   }
 
   @Test
@@ -82,7 +83,7 @@ class TextProviderCatalogTest {
             .findFirst()
             .orElseThrow();
 
-    assertThat(anthropic.status()).isEqualTo("available");
+    assertThat(anthropic.status()).isEqualTo(ProviderStatus.AVAILABLE);
   }
 
   @Test

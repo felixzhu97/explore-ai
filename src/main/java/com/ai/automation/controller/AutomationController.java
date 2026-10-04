@@ -6,7 +6,6 @@ import com.ai.automation.controller.dto.AutomationScheduleResponse;
 import com.ai.automation.controller.dto.CreateAutomationScheduleRequest;
 import com.ai.automation.controller.dto.SetAutomationEnabledRequest;
 import com.ai.automation.controller.dto.UpdateAutomationScheduleRequest;
-import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.automation.service.AutomationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -53,7 +52,7 @@ public class AutomationController {
                 automationService.create(
                     ownerKey,
                     body.name(),
-                    ScheduleKind.from(body.scheduleKind()),
+                    body.scheduleKind(),
                     body.cronExpression(),
                     body.runAt(),
                     body.timezone(),
@@ -73,7 +72,7 @@ public class AutomationController {
             ownerKey,
             id,
             body.name(),
-            ScheduleKind.from(body.scheduleKind()),
+            body.scheduleKind(),
             body.cronExpression(),
             body.runAt(),
             body.timezone(),

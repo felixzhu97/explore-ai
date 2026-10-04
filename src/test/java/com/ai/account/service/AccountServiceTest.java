@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.account.controller.dto.AccountMode;
+import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
 import com.ai.account.infra.config.OAuthExploreIamProperties;
@@ -73,7 +75,7 @@ class AccountServiceTest {
   void shouldReturnAnonymousWhenNoAuthentication() {
     var response = useCase.currentAccount("cid-1");
 
-    assertThat(response.mode()).isEqualTo("anonymous");
+    assertThat(response.mode()).isEqualTo(AccountMode.ANONYMOUS);
     assertThat(response.clientId()).isEqualTo("cid-1");
     assertThat(response.loginAvailable()).isFalse();
     assertThat(response.loginProviders()).isEmpty();
@@ -88,7 +90,7 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount("cid-1");
 
-    assertThat(response.mode()).isEqualTo("anonymous");
+    assertThat(response.mode()).isEqualTo(AccountMode.ANONYMOUS);
   }
 
   @Test
@@ -106,11 +108,11 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount("cid-1");
 
-    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("user@example.com");
     assertThat(response.userId()).isEqualTo(linked.getId().value());
     assertThat(response.loginAvailable()).isTrue();
-    assertThat(response.loginProviders()).containsExactly("google");
+    assertThat(response.loginProviders()).containsExactly(LoginProvider.GOOGLE);
   }
 
   @Test
@@ -132,9 +134,9 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount("cid-gh");
 
-    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("octocat@github.com");
-    assertThat(response.loginProviders()).containsExactly("github");
+    assertThat(response.loginProviders()).containsExactly(LoginProvider.GITHUB);
   }
 
   @Test
@@ -156,7 +158,7 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount("cid-gh");
 
-    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("octocat");
   }
 
@@ -177,7 +179,7 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount("cid-2");
 
-    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("u@example.com");
   }
 
@@ -188,7 +190,7 @@ class AccountServiceTest {
     oauthGoogleProperties.setClientSecret("secret");
 
     assertThat(useCase.isLoginAvailable()).isTrue();
-    assertThat(useCase.loginProviders()).isEqualTo(List.of("google"));
+    assertThat(useCase.loginProviders()).isEqualTo(List.of(LoginProvider.GOOGLE));
   }
 
   @Test
@@ -200,7 +202,8 @@ class AccountServiceTest {
     oauthGithubProperties.setClientId("h");
     oauthGithubProperties.setClientSecret("hs");
 
-    assertThat(useCase.loginProviders()).containsExactly("google", "github");
+    assertThat(useCase.loginProviders())
+        .containsExactly(LoginProvider.GOOGLE, LoginProvider.GITHUB);
   }
 
   @Test
@@ -211,7 +214,7 @@ class AccountServiceTest {
     oauthExploreIamProperties.setIssuerUri("http://localhost:9100");
 
     assertThat(useCase.isLoginAvailable()).isTrue();
-    assertThat(useCase.loginProviders()).containsExactly("explore-iam");
+    assertThat(useCase.loginProviders()).containsExactly(LoginProvider.EXPLORE_IAM);
   }
 
   @Test
@@ -233,7 +236,7 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount(null);
 
-    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("iam@example.com");
     assertThat(response.userId()).isEqualTo(linked.getId().value());
     assertThat(response.clientId()).isNull();
@@ -259,7 +262,7 @@ class AccountServiceTest {
 
     var response = useCase.currentAccount(null);
 
-    assertThat(response.mode()).isEqualTo("authenticated");
+    assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("new@example.com");
     verify(accountUserRepository).save(org.mockito.ArgumentMatchers.any(AccountUser.class));
   }

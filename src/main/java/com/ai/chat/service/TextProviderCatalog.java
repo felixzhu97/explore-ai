@@ -2,6 +2,7 @@ package com.ai.chat.service;
 
 import com.ai.chat.controller.dto.ModelInfoResponse;
 import com.ai.chat.controller.dto.ProviderInfoResponse;
+import com.ai.chat.controller.dto.ProviderStatus;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,17 +69,18 @@ public class TextProviderCatalog {
   /** Lists the DeepSeek, Anthropic, and Ollama providers with their models and availability. */
   public List<ProviderInfoResponse> listProviders() {
     return List.of(
-        new ProviderInfoResponse("openai", "DeepSeek", modelNames("openai"), "available"),
+        new ProviderInfoResponse(
+            "openai", "DeepSeek", modelNames("openai"), ProviderStatus.AVAILABLE),
         new ProviderInfoResponse(
             "anthropic",
             "Anthropic Claude",
             modelNames("anthropic"),
-            anthropicEnabled ? "available" : "unavailable"),
+            ProviderStatus.of(anthropicEnabled)),
         new ProviderInfoResponse(
             "ollama",
             "Ollama (Local)",
             modelNames("ollama"),
-            ollamaChatEnabled ? "available" : "unavailable"));
+            ProviderStatus.of(ollamaChatEnabled)));
   }
 
   public List<ModelInfoResponse> listModels(String provider) {

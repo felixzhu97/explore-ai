@@ -1,6 +1,9 @@
 package com.ai.account.service;
 
 import com.ai.account.controller.dto.AccountMeResponse;
+import com.ai.account.controller.dto.AccountMode;
+import com.ai.account.controller.dto.AccountPlan;
+import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
 import com.ai.account.infra.config.OAuthExploreIamProperties;
@@ -80,11 +83,11 @@ public class AccountService {
     }
 
     return new AccountMeResponse(
-        "anonymous",
+        AccountMode.ANONYMOUS,
         clientId,
         null,
         null,
-        billingProperties.getPlan(),
+        AccountPlan.from(billingProperties.getPlan()),
         isLoginAvailable(),
         loginProviders());
   }
@@ -132,27 +135,27 @@ public class AccountService {
   }
 
   /** Registration ids that are currently configured (e.g. {@code google}, {@code github}). */
-  public List<String> loginProviders() {
-    List<String> providers = new ArrayList<>(3);
+  public List<LoginProvider> loginProviders() {
+    List<LoginProvider> providers = new ArrayList<>(3);
     if (oauthGoogleProperties.isReady()) {
-      providers.add("google");
+      providers.add(LoginProvider.GOOGLE);
     }
     if (oauthGithubProperties.isReady()) {
-      providers.add("github");
+      providers.add(LoginProvider.GITHUB);
     }
     if (oauthExploreIamProperties.isReady()) {
-      providers.add("explore-iam");
+      providers.add(LoginProvider.EXPLORE_IAM);
     }
     return List.copyOf(providers);
   }
 
   private AccountMeResponse authenticated(String clientId, String userId, String email) {
     return new AccountMeResponse(
-        "authenticated",
+        AccountMode.AUTHENTICATED,
         clientId,
         userId,
         email,
-        billingProperties.getPlan(),
+        AccountPlan.from(billingProperties.getPlan()),
         isLoginAvailable(),
         loginProviders());
   }

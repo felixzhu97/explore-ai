@@ -5,9 +5,9 @@ import java.time.Instant;
 public record InvocationEventResponse(
     String id,
     Instant occurredAt,
-    String domain,
+    MetricsDomain domain,
     String operation,
-    String outcome,
+    MetricsOutcome outcome,
     long latencyMs,
     String provider,
     String model,

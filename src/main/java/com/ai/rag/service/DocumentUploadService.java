@@ -3,6 +3,7 @@ package com.ai.rag.service;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
@@ -14,6 +15,7 @@ import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +38,12 @@ public class DocumentUploadService {
 
   private static final Logger log = LoggerFactory.getLogger(DocumentUploadService.class);
 
-  public record UploadResult(DocumentId documentId, String title, String status, int chunkCount) {}
+  public record UploadResult(
+      DocumentId documentId,
+      String title,
+      DocumentStatus status,
+      int chunkCount,
+      Instant createdAt) {}
 
   private final DocumentReader reader;
   private final DocumentTransformer transformer;
@@ -163,6 +170,6 @@ public class DocumentUploadService {
     document.markReady();
     RagDocument ready = documentRepository.save(document);
     return new UploadResult(
-        ready.getId(), ready.getTitle(), ready.getStatus().name(), chunks.size());
+        ready.getId(), ready.getTitle(), ready.getStatus(), chunks.size(), ready.getCreatedAt());
   }
 }

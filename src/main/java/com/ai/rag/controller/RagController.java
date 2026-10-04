@@ -84,7 +84,7 @@ public class RagController {
                 result.title(),
                 result.status(),
                 result.chunkCount(),
-                null));
+                result.createdAt()));
   }
 
   @DeleteMapping("/documents/{id}")
@@ -114,7 +114,7 @@ public class RagController {
     return new DocumentSummaryResponse(
         doc.getId().uuidValue(),
         doc.getTitle(),
-        doc.getStatus().name(),
+        doc.getStatus(),
         doc.getCreatedAt(),
         chunkCounts.getOrDefault(doc.getId(), 0));
   }

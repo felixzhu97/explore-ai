@@ -4,10 +4,10 @@ import java.util.List;
 
 /** Current viewer identity: anonymous guest (Client Identity) or authenticated OAuth user. */
 public record AccountMeResponse(
-    String mode,
+    AccountMode mode,
     String clientId,
     String userId,
     String email,
-    String plan,
+    AccountPlan plan,
     boolean loginAvailable,
-    List<String> loginProviders) {}
+    List<LoginProvider> loginProviders) {}

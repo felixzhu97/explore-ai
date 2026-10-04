@@ -1,5 +1,5 @@
 package com.ai.vision.controller.dto;
 
-import java.util.Map;
+import com.ai.common.controller.dto.HealthStatus;
 
-public record VisionHealthResponse(String status, Map<String, String> providers) {}
+public record VisionHealthResponse(HealthStatus status, VisionProvidersResponse providers) {}

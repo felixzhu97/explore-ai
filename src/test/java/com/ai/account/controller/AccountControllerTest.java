@@ -5,6 +5,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.dto.AccountMeResponse;
+import com.ai.account.controller.dto.AccountMode;
+import com.ai.account.controller.dto.AccountPlan;
+import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.service.AccountService;
 import com.ai.common.controller.GlobalExceptionHandler;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
@@ -48,7 +51,13 @@ class AccountControllerTest {
       when(accountService.currentAccount("cid-123"))
           .thenReturn(
               new AccountMeResponse(
-                  "anonymous", "cid-123", null, null, "free", false, java.util.List.of()));
+                  AccountMode.ANONYMOUS,
+                  "cid-123",
+                  null,
+                  null,
+                  AccountPlan.FREE,
+                  false,
+                  java.util.List.of()));
 
       var result =
           mvc.get()
@@ -71,13 +80,13 @@ class AccountControllerTest {
       when(accountService.currentAccount(null))
           .thenReturn(
               new AccountMeResponse(
-                  "authenticated",
+                  AccountMode.AUTHENTICATED,
                   null,
                   "user-1",
                   "iam@example.com",
-                  "free",
+                  AccountPlan.FREE,
                   true,
-                  java.util.List.of("explore-iam")));
+                  java.util.List.of(LoginProvider.EXPLORE_IAM)));
 
       Jwt jwt =
           Jwt.withTokenValue("t")
