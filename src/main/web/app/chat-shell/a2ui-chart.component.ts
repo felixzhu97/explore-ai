@@ -21,6 +21,10 @@ import {
   toTreeNodes,
 } from './a2ui-chart-option.util';
 
+function isChartType(value: unknown): value is ChartType {
+  return typeof value === 'string' && (CHART_TYPES as readonly string[]).includes(value);
+}
+
 @Component({
   selector: 'app-a2ui-chart',
   imports: [NgxEchartsDirective],
@@ -35,11 +39,10 @@ import {
 })
 export class A2uiChartComponent extends CatalogComponent<typeof ChartApi> {
   readonly chartType = computed((): ChartType | null => {
-    const value = this.props()['type']?.value();
-    if (typeof value === 'string' && (CHART_TYPES as readonly string[]).includes(value)) {
-      return value;
-    }
-    return null;
+    // a2ui binds only the properties present in the message.
+    const props: Partial<Record<string, { value(): unknown }>> = this.props();
+    const value = props['type']?.value();
+    return isChartType(value) ? value : null;
   });
 
   readonly titleText = computed(() => {

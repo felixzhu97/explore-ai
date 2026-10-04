@@ -55,7 +55,9 @@ export const appConfig: ApplicationConfig = {
     provideEchartsCore({
       echarts: () => import('./metrics/echarts.bundle').then(m => m.default),
     }),
-    provideMarkdownRenderer(async markdown => String(await marked.parse(String(markdown ?? '')))),
+    provideMarkdownRenderer(
+      async markdown => String(await marked.parse(String(markdown))),
+    ),
     {
       provide: BASIC_CATALOG_OPTIONS,
       useValue: {

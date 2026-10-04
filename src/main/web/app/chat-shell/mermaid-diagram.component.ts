@@ -25,17 +25,15 @@ let mermaidInitPromise: Promise<MermaidApi> | null = null;
 let renderSeq = 0;
 
 async function loadMermaid(): Promise<MermaidApi> {
-  if (!mermaidInitPromise) {
-    mermaidInitPromise = import('mermaid').then((mod) => {
-      const api = mod.default as MermaidApi;
-      api.initialize({
-        startOnLoad: false,
-        securityLevel: 'strict',
-        flowchart: { htmlLabels: false },
-      });
-      return api;
+  mermaidInitPromise ??= import('mermaid').then((mod) => {
+    const api = mod.default as MermaidApi;
+    api.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      flowchart: { htmlLabels: false },
     });
-  }
+    return api;
+  });
   return mermaidInitPromise;
 }
 

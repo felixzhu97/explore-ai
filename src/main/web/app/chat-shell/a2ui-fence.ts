@@ -25,9 +25,9 @@ export function parseA2uiNdjson(raw: string): A2uiMessage[] {
       continue;
     }
     try {
-      const parsed = JSON.parse(trimmed) as A2uiMessage;
+      const parsed: unknown = JSON.parse(trimmed);
       if (parsed && typeof parsed === 'object' && 'version' in parsed) {
-        messages.push(normalizeMessageVersion(parsed));
+        messages.push(normalizeMessageVersion(parsed as A2uiMessage));
       }
     } catch {
       // skip invalid lines
@@ -50,28 +50,28 @@ export function remapSurfaceIds(
   surfaceId: string,
 ): A2uiMessage[] {
   return messages.map((message) => {
-    if ('createSurface' in message && message.createSurface) {
+    if ('createSurface' in message) {
       return {
         ...message,
         version: 'v0.9' as const,
         createSurface: { ...message.createSurface, surfaceId },
       };
     }
-    if ('updateComponents' in message && message.updateComponents) {
+    if ('updateComponents' in message) {
       return {
         ...message,
         version: 'v0.9' as const,
         updateComponents: { ...message.updateComponents, surfaceId },
       };
     }
-    if ('updateDataModel' in message && message.updateDataModel) {
+    if ('updateDataModel' in message) {
       return {
         ...message,
         version: 'v0.9' as const,
         updateDataModel: { ...message.updateDataModel, surfaceId },
       };
     }
-    if ('deleteSurface' in message && message.deleteSurface) {
+    if ('deleteSurface' in message) {
       return {
         ...message,
         version: 'v0.9' as const,

@@ -712,18 +712,15 @@ export class ChatService {
             });
             return { ...message, toolSteps: steps };
           }
-          if (event.type === 'sources') {
-            return {
-              ...message,
-              sources: event.items.map(item => ({
-                title: item.title,
-                url: item.url,
-                snippet: item.snippet,
-                publishedAt: item.publishedAt || undefined,
-              })),
-            };
-          }
-          return message;
+          return {
+            ...message,
+            sources: event.items.map(item => ({
+              title: item.title,
+              url: item.url,
+              snippet: item.snippet,
+              publishedAt: item.publishedAt || undefined,
+            })),
+          };
         }));
       },
     );

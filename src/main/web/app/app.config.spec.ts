@@ -21,7 +21,7 @@ describe('appConfig', () => {
   describe('configuration values', () => {
     it('should include A2UI and ECharts providers', () => {
       expect(appConfig.providers.length).toBeGreaterThanOrEqual(3);
-      const serialized = JSON.stringify(appConfig.providers.map(p => p && typeof p === 'object' && 'provide' in p ? String((p as { provide: unknown }).provide) : typeof p,
+      const serialized = JSON.stringify(appConfig.providers.map(p => typeof p === 'object' && 'provide' in p ? String((p as { provide: unknown }).provide) : typeof p,
       ));
       expect(serialized).toMatch(/A2UI|BasicCatalog|provideEcharts|Function/);
     });

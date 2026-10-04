@@ -30,10 +30,11 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
   const first = data.trimStart()[0];
   if (first === '{' || first === '[') {
     try {
-      const parsed = JSON.parse(data) as Record<string, unknown>;
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      const json: unknown = JSON.parse(data);
+      if (!json || typeof json !== 'object' || Array.isArray(json)) {
         return null;
       }
+      const parsed = json as Record<string, unknown>;
 
       const eventType = parsed['type'];
       if (eventType === 'tool_call') {

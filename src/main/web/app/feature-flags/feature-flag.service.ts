@@ -35,7 +35,7 @@ export class FeatureFlagService {
 
     client.on('change', () => this.#syncFlags(client));
 
-    let timeoutId: ReturnType<typeof setTimeout>;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(() => reject(new Error('LaunchDarkly init timeout')), 5000);
     });
@@ -46,14 +46,14 @@ export class FeatureFlagService {
       this.#flags.set(environment.featureFlagFallback);
       return;
     } finally {
-      clearTimeout(timeoutId!);
+      clearTimeout(timeoutId);
     }
 
     this.#syncFlags(client);
   }
 
   isEnabled(key: FeatureFlagKey): boolean {
-    return this.#flags()[key] ?? environment.featureFlagFallback[key] ?? false;
+    return this.#flags()[key] === true;
   }
 
   #syncFlags(client: LDClient): void {

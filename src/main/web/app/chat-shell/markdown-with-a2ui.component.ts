@@ -114,7 +114,7 @@ export class MarkdownWithA2uiComponent {
         this.#processedFences.add(key);
         try {
           const withCatalog = segment.messages.map((message) => {
-            if ('createSurface' in message && message.createSurface) {
+            if ('createSurface' in message) {
               return {
                 ...message,
                 createSurface: {

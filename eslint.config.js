@@ -152,6 +152,15 @@ export default defineConfig([
       '@typescript-eslint/no-deprecated': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-unnecessary-condition': [
+        'error',
+        { allowConstantLoopConditions: 'only-allowed-literals' },
+      ],
+      '@typescript-eslint/prefer-nullish-coalescing': [
+        'error',
+        { ignorePrimitives: { string: true } },
+      ],
       '@typescript-eslint/require-await': 'error',
       '@typescript-eslint/use-unknown-in-catch-callback-variable': 'error',
       'no-console': ['error', { allow: ['warn', 'error'] }],
@@ -162,6 +171,12 @@ export default defineConfig([
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'object-shorthand': 'error',
       'prefer-template': 'error',
+    },
+  },
+  {
+    files: ['src/main/web/**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {

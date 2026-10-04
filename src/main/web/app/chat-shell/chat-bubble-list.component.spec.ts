@@ -190,7 +190,7 @@ describe('ChatBubbleListComponent', () => {
 
     const chip = fixture.nativeElement.querySelector('[data-source-chips] button') as HTMLButtonElement | null;
     expect(chip).toBeTruthy();
-    expect(chip?.textContent?.replace(/\s+/g, ' ').trim()).toContain('example.com');
+    expect(chip?.textContent.replace(/\s+/g, ' ').trim()).toContain('example.com');
     expect(chip?.textContent).not.toContain('[1]');
 
     const icon = chip?.querySelector('img') as HTMLImageElement | null;

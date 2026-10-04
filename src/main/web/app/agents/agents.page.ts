@@ -97,7 +97,7 @@ export class AgentsPageComponent implements OnInit {
     this.formName.set(agent.name);
     this.formDescription.set(agent.description);
     this.formSystemPrompt.set(agent.systemPrompt);
-    this.formToolKeys.set([...(agent.toolKeys ?? [])]);
+    this.formToolKeys.set([...agent.toolKeys]);
     this.showForm.set(true);
   }
 

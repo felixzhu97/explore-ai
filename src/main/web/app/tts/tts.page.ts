@@ -59,8 +59,9 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     if (this.#audioElement) {
       this.#audioElement.pause();
     }
-    if (this.audioUrl()) {
-      URL.revokeObjectURL(this.audioUrl()!);
+    const audioUrl = this.audioUrl();
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
     }
   }
 
@@ -68,7 +69,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.#tts.getVoices().subscribe({
       next: (voices) => {
         this.availableVoices.set(voices);
-        const defaultVoice = voices.find((v: Voice) => v.isDefault) || voices[0];
+        const defaultVoice = voices.find((v: Voice) => v.isDefault) ?? voices[0];
         if (defaultVoice) {
           this.voice.set(defaultVoice.id);
         }
@@ -116,8 +117,9 @@ export class TtsPageComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: (blob: Blob) => {
-          if (this.audioUrl()) {
-            URL.revokeObjectURL(this.audioUrl()!);
+          const previousUrl = this.audioUrl();
+          if (previousUrl) {
+            URL.revokeObjectURL(previousUrl);
           }
 
           const url = URL.createObjectURL(blob);
