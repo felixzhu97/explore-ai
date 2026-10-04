@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Service, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -57,7 +57,7 @@ export const DEFAULT_IMAGE_SIZES: ImageSize[] = [
   DEFAULT_IMAGE_SIZE,
 ];
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ImageService {
   readonly #http = inject(HttpClient);
   readonly #imageZoom = inject(ImageZoomService);

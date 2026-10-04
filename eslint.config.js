@@ -111,6 +111,7 @@ export default defineConfig([
       '@angular-eslint/no-pipe-impure': 'error',
       '@angular-eslint/no-queries-metadata-property': 'error',
       '@angular-eslint/prefer-output-readonly': 'error',
+      '@angular-eslint/prefer-service-decorator': 'error',
       '@angular-eslint/reactive-context-must-read-signal': 'error',
       '@angular-eslint/relative-url-prefix': 'error',
       '@angular-eslint/require-lifecycle-on-prototype': 'error',

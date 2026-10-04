@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -31,7 +31,7 @@ export interface SkillWriteRequest {
   allowedTools: string[];
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SkillsService {
   readonly #http = inject(HttpClient);
   readonly #i18n = inject(I18nService);

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ChatService } from '../chat/chat.service';
@@ -24,7 +24,7 @@ export interface AccountMe {
  * Shared account state for guest + optional OAuth (Google / GitHub).
  * Login uses a full-page redirect; return is signaled via `?login=`.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AccountService {
   readonly #http = inject(HttpClient);
   readonly #router = inject(Router);

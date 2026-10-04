@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { ZardDialogService } from '../ui/dialog';
 import { AccountLoginDialogComponent } from './account-login-dialog.component';
 import {
@@ -6,7 +6,7 @@ import {
   type AccountLogoutDialogData,
 } from './account-logout-dialog.component';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AccountDialogService {
   readonly #dialog = inject(ZardDialogService);
 

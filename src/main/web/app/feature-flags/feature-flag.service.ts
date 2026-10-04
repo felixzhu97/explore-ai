@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import { createClient, type LDClient } from '@launchdarkly/js-client-sdk';
 import { environment } from '../../environments/environment';
 import {
@@ -10,7 +10,7 @@ import { hasAnalyticsConsent } from '../privacy/privacy-consent.storage';
 
 const FLAG_KEYS = Object.values(FEATURE_FLAG_KEYS);
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class FeatureFlagService {
   readonly #flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
   #ldStarted = false;

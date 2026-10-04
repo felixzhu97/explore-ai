@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import {
   hasAnalyticsConsent,
   needsPrivacyConsentDecision,
@@ -9,7 +9,7 @@ import {
 import { initDatadogRum } from './datadog-rum.config';
 import { FeatureFlagService } from '../feature-flags/feature-flag.service';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PrivacyConsentService {
   readonly #featureFlags = inject(FeatureFlagService);
 

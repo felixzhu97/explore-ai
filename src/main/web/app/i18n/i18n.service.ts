@@ -1,10 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Service, signal, computed } from '@angular/core';
 import { STORAGE_KEYS } from '../storage-keys';
 import { type Language, type Translations, translations, languageNames } from './translations';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class I18nService {
   readonly #languageState = signal<Language>(this.#getInitialLanguage());
 

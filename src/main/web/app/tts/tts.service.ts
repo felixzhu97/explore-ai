@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -23,7 +23,7 @@ export interface TtsRequest {
   outputFormat?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class TtsService {
   readonly #http = inject(HttpClient);
 
