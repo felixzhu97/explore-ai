@@ -34,7 +34,7 @@
   } @else if (overviewResource.isLoading() && !overviewResource.value()) {
     <p class="text-sm text-muted-foreground">{{ i18n.t().metricsPage.loadingOverview }}</p>
   } @else {
-    <app-metrics-kpi-cards [items]="kpis()" (kpiClick)="onKpiClick($event)" />
+    <app-metrics-kpi-cards [items]="kpis()" (kpiSelected)="onKpiClick($event)" />
 
     <div class="grid gap-6 lg:grid-cols-2">
       <app-chart-panel
@@ -48,21 +48,21 @@
         [heading]="i18n.t().metricsPage.charts.requestsByDomain"
         [emptyText]="i18n.t().metricsPage.charts.requestsByDomainEmpty"
         [data]="domainSeries()"
-        (chartClick)="openDomain($event.label)"
+        (chartClicked)="openDomain($event.label)"
       />
     </div>
 
     <app-metrics-domain-health
       [heading]="i18n.t().metricsPage.health.heading"
       [items]="healthItems()"
-      (domainClick)="openDomain($event)"
+      (domainSelected)="openDomain($event)"
     />
 
     <app-metrics-drilldown-table
       [heading]="i18n.t().metricsPage.drilldown.recentHeading"
       [items]="drilldownItems()"
       [total]="drilldownTotal()"
-      (rowClick)="onRowClick($event)"
+      (rowSelected)="onRowClick($event)"
     />
 
     <p class="text-xs text-muted-foreground">

@@ -46,11 +46,11 @@ export class ChatWelcomePanelComponent {
   readonly promptsTitle = input('');
   readonly prompts = input<NxPrompt[]>([]);
 
-  readonly promptSelect = output<string>();
+  readonly promptSelected = output<string>();
 
   onPromptClick(prompt: NxPrompt): void {
     if (prompt.label) {
-      this.promptSelect.emit(prompt.label);
+      this.promptSelected.emit(prompt.label);
     }
   }
 }

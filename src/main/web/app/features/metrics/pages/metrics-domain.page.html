@@ -64,14 +64,14 @@
           [heading]="i18n.t().metricsPage.charts.requestsOverTime"
           [emptyText]="i18n.t().metricsPage.charts.requestsOverTimeEmpty"
           [data]="requestSeries()"
-          (chartClick)="onRequestClick($event)"
+          (chartClicked)="onRequestClick($event)"
         />
         <app-chart-panel
           type="bar"
           [heading]="i18n.t().metricsPage.charts.callsByModel"
           [emptyText]="i18n.t().metricsPage.charts.callsByModelEmpty"
           [data]="modelSeries()"
-          (chartClick)="onModelClick($event)"
+          (chartClicked)="onModelClick($event)"
         />
       </div>
 
@@ -88,7 +88,7 @@
         [heading]="i18n.t().metricsPage.drilldown.filteredHeading"
         [items]="drilldownItems()"
         [total]="drilldownTotal()"
-        (rowClick)="onRowClick($event)"
+        (rowSelected)="onRowClick($event)"
       />
     }
   }

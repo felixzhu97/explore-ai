@@ -41,7 +41,7 @@ describe('SidebarMoreMenuComponent', () => {
     const fixture = TestBed.createComponent(SidebarMoreMenuComponent);
     const sanitizer = TestBed.inject(DomSanitizer);
     fixture.componentRef.setInput('sections', sections);
-    fixture.componentRef.setInput('collapsed', false);
+    fixture.componentRef.setInput('isCollapsed', false);
     fixture.componentRef.setInput('iconFor', () => sanitizer.bypassSecurityTrustHtml('<svg></svg>'));
     const router = TestBed.inject(Router);
     await router.navigateByUrl(url);
@@ -77,6 +77,6 @@ describe('SidebarMoreMenuComponent', () => {
     const trigger = fixture.debugElement.query(By.css('button[aria-haspopup="menu"]'));
     trigger.triggerEventHandler('click', new MouseEvent('click'));
     fixture.detectChanges();
-    expect(fixture.componentInstance.pinned()).toBe(true);
+    expect(fixture.componentInstance.isPinned()).toBe(true);
   });
 });

@@ -11,14 +11,14 @@
       [agents]="agents()"
       [validationHint]="pipelineHint()"
       (runRequested)="runPipeline($event)"
-      (graphChange)="onGraphChange($event)"
-      (clearValidation)="pipelineHint.set(null)"
-      (templateHint)="onTemplateHint($event)"
+      (graphChanged)="onGraphChange($event)"
+      (validationCleared)="pipelineHint.set(null)"
+      (templateHintChanged)="onTemplateHint($event)"
       (templateApplied)="onTemplateApplied($event)"
     />
   </div>
 
-  @if (!resultsCollapsed()) {
+  @if (!isResultsCollapsed()) {
     <div
       class="group relative z-10 w-1.5 shrink-0 cursor-col-resize bg-black/6 hover:bg-black/15"
       role="separator"
@@ -31,10 +31,10 @@
 
   <aside
     class="flex min-h-0 flex-col border-l border-black/8 bg-white"
-    [style.width]="resultsCollapsed() ? '40px' : `${resultsRatio() * 100}%`"
+    [style.width]="isResultsCollapsed() ? '40px' : `${resultsRatio() * 100}%`"
     [style.flex]="'none'"
   >
-    @if (resultsCollapsed()) {
+    @if (isResultsCollapsed()) {
       <button
         type="button"
         class="flex size-full flex-col items-center justify-center gap-2 px-1 py-3 text-xs text-text-secondary hover:bg-black/4"

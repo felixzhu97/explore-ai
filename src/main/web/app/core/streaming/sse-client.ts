@@ -1,3 +1,5 @@
+import type { WebSource } from '../../features/chat/chat.model';
+
 /** SSE data: JSON objects/strings vs plain token text (e.g. numeric chunks). */
 export function parseSseToken(data: string): string | null {
   const event = parseChatStreamEvent(data);
@@ -7,18 +9,11 @@ export function parseSseToken(data: string): string | null {
   return event.type === 'message' ? event.token : null;
 }
 
-export interface ChatStreamSourceItem {
-  title: string;
-  url: string;
-  snippet: string;
-  publishedAt?: string;
-}
-
 export type ChatStreamEvent =
   | { type: 'message'; token: string }
   | { type: 'tool_call'; name: string; input: string }
   | { type: 'tool_result'; name: string; ok: boolean; output: string }
-  | { type: 'sources'; query: string; items: ChatStreamSourceItem[] };
+  | { type: 'sources'; query: string; items: WebSource[] };
 
 /** Parse chat SSE data payloads (message tokens, tool events, web sources). */
 export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
@@ -52,7 +47,7 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
       }
       if (eventType === 'sources') {
         const rawItems = Array.isArray(parsed['items']) ? parsed['items'] : [];
-        const items: ChatStreamSourceItem[] = rawItems.map((item) => {
+        const items: WebSource[] = rawItems.map((item) => {
           const row = (item ?? {}) as Record<string, unknown>;
           const publishedAt = String(row['publishedAt'] ?? row['date'] ?? '').trim();
           return {
@@ -228,16 +223,16 @@ export function streamSsePost(
         }
       }
       finish();
-    } catch (err) {
-      if ((err as Error).name !== 'AbortError') {
-        handlers.onError(err as Error);
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        handlers.onError(error as Error);
       }
     }
   });
 
-  readerPromise.catch((err) => {
-    if ((err as Error).name !== 'AbortError') {
-      handlers.onError(err as Error);
+  readerPromise.catch((error) => {
+    if ((error as Error).name !== 'AbortError') {
+      handlers.onError(error as Error);
     }
   });
 

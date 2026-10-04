@@ -41,7 +41,7 @@ export class ChartPanelComponent {
   readonly heading = input('');
   readonly title = input('');
   readonly emptyText = input('No data yet');
-  readonly chartClick = output<ChartClickPayload>();
+  readonly chartClicked = output<ChartClickPayload>();
 
   readonly chartOption = computed(() => {
     const title = this.title() || undefined;
@@ -55,6 +55,6 @@ export class ChartPanelComponent {
     if (!label || !Number.isFinite(value)) {
       return;
     }
-    this.chartClick.emit({ label, value });
+    this.chartClicked.emit({ label, value });
   }
 }

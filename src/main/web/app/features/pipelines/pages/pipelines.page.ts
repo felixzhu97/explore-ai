@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { API_BASE_URL } from '../../../core/api.constants';
 import {
-  ChatBubbleMessage,
+  ChatMessageView,
   ChatMessagePaneComponent,
 } from '../../../shared/components/chat-shell';
 import { I18nService } from '../../../core/i18n';
@@ -21,7 +21,7 @@ import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
 import { ZardAlertComponent } from '../../../shared/components/alert';
 import { PipelinesService } from '../services/pipelines.service';
 import { PipelinesCanvasComponent } from '../components/pipelines-canvas.component';
-import type { AgentInfo } from '../pipelines.model';
+import type { AgentType } from '../pipelines.model';
 import {
   toPipelineInvokeRequest,
   validatePipeline,
@@ -32,7 +32,7 @@ import {
   stripToolCallMarkup,
   toMinimalToolSteps,
 } from '../../../shared/utils/tool-call-markup.util';
-import type { ChatBubbleToolStep } from '../../../shared/components/chat-shell';
+import type { ToolStep } from '../../../shared/components/chat-shell';
 import {
   appendPipelineStage,
   finalizePipelineStages,
@@ -61,7 +61,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
   private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
-  readonly agentsResource = httpResource<AgentInfo[]>(() => ({
+  readonly agentsResource = httpResource<AgentType[]>(() => ({
     url: `${API_BASE_URL}/pipelines/agent-types`,
     params: { lang: this.i18n.language() },
   }));
@@ -73,12 +73,12 @@ export class PipelinesPageComponent implements OnDestroy {
     return [];
   });
 
-  readonly messages = signal<ChatBubbleMessage[]>([]);
+  readonly messages = signal<ChatMessageView[]>([]);
   readonly streamingMessageId = signal<string | null>(null);
-  readonly loading = signal(false);
+  readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
   readonly pipelineHint = signal<string | null>(null);
-  readonly resultsCollapsed = signal(false);
+  readonly isResultsCollapsed = signal(false);
   readonly resultsRatio = signal(DEFAULT_RESULTS_RATIO);
   readonly isDraggingSplitter = signal(false);
 
@@ -122,17 +122,17 @@ export class PipelinesPageComponent implements OnDestroy {
   }
 
   toggleResultsCollapsed(): void {
-    if (this.resultsCollapsed()) {
-      this.resultsCollapsed.set(false);
+    if (this.isResultsCollapsed()) {
+      this.isResultsCollapsed.set(false);
       this.resultsRatio.set(this.savedRatio);
       return;
     }
     this.savedRatio = this.resultsRatio();
-    this.resultsCollapsed.set(true);
+    this.isResultsCollapsed.set(true);
   }
 
   onSplitterPointerDown(event: PointerEvent): void {
-    if (this.resultsCollapsed()) {
+    if (this.isResultsCollapsed()) {
       return;
     }
     event.preventDefault();
@@ -167,7 +167,7 @@ export class PipelinesPageComponent implements OnDestroy {
   }
 
   private executePipeline(graph: PipelineGraph, task: string): void {
-    if (this.loading()) {
+    if (this.isLoading()) {
       return;
     }
 
@@ -185,17 +185,17 @@ export class PipelinesPageComponent implements OnDestroy {
     this.streamAbort?.();
     this.error.set(null);
     this.pipelineHint.set(null);
-    this.loading.set(true);
-    if (this.resultsCollapsed()) {
-      this.resultsCollapsed.set(false);
+    this.isLoading.set(true);
+    if (this.isResultsCollapsed()) {
+      this.isResultsCollapsed.set(false);
       this.resultsRatio.set(this.savedRatio);
     }
 
     const userId = this.nextId('user');
     const assistantId = this.nextId('assistant');
 
-    this.messages.update(msgs => [
-      ...msgs,
+    this.messages.update(messages => [
+      ...messages,
       { id: userId, role: 'user', content: topic, timestamp: Date.now() },
       {
         id: assistantId,
@@ -208,30 +208,30 @@ export class PipelinesPageComponent implements OnDestroy {
     this.streamingMessageId.set(assistantId);
 
     let rawContent = '';
-    let pipelineStages: ChatBubbleToolStep[] = [];
+    let pipelineStages: ToolStep[] = [];
 
     const visibleSteps = (dsmlStatus: 'running' | 'success' | 'error') => mergeToolSteps(
       pipelineStages,
       toMinimalToolSteps(parseDsmlToolInvocations(rawContent), dsmlStatus),
     );
 
-    const finish = (content: string, err?: Error) => {
+    const finish = (content: string, error?: Error) => {
       pipelineStages = finalizePipelineStages(
         pipelineStages,
-        err ? 'error' : 'success',
+        error ? 'error' : 'success',
       );
       const cleaned = stripToolCallMarkup(content);
       this.patchAssistant(
         assistantId,
         cleaned,
         false,
-        visibleSteps(err ? 'error' : 'success'),
+        visibleSteps(error ? 'error' : 'success'),
       );
       this.streamingMessageId.set(null);
-      this.loading.set(false);
+      this.isLoading.set(false);
       this.streamAbort = null;
-      if (err) {
-        this.error.set(err.message || this.i18n.t().pipelines.errorMessage);
+      if (error) {
+        this.error.set(error.message || this.i18n.t().pipelines.errorMessage);
       }
     };
 
@@ -261,7 +261,7 @@ export class PipelinesPageComponent implements OnDestroy {
       onChunk,
       onHandoff,
       () => finish(rawContent || this.i18n.t().pipelines.thinking),
-      err => finish(rawContent || this.i18n.t().pipelines.errorMessage, err),
+      error => finish(rawContent || this.i18n.t().pipelines.errorMessage, error),
     );
     this.streamAbort = abort;
   }
@@ -286,15 +286,15 @@ export class PipelinesPageComponent implements OnDestroy {
     id: string,
     content: string,
     streaming: boolean,
-    toolSteps: ChatBubbleToolStep[] = [],
+    toolSteps: ToolStep[] = [],
   ): void {
-    this.messages.update((msgs) => {
-      return msgs.map((msg) => {
-        if (msg.id !== id) {
-          return msg;
+    this.messages.update((messages) => {
+      return messages.map((message) => {
+        if (message.id !== id) {
+          return message;
         }
         return {
-          ...msg,
+          ...message,
           content,
           streaming,
           toolSteps: toolSteps.length > 0 ? toolSteps : undefined,

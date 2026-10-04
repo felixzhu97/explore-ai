@@ -63,8 +63,8 @@ export class AppSidebarComponent implements OnInit {
   );
 
   readonly collapsed = this.sidebar.collapsed;
-  readonly pinnedExpanded = signal(true);
-  readonly recentsExpanded = signal(true);
+  readonly isPinnedExpanded = signal(true);
+  readonly isRecentsExpanded = signal(true);
 
   private readonly isMobile = signal(false);
 

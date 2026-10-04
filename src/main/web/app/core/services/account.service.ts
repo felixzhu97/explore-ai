@@ -22,39 +22,39 @@ export class AccountService {
   private readonly i18n = inject(I18nService);
   private readonly chat = inject(ChatService);
 
-  private readonly accountSignal = signal<AccountMe | null>(null);
-  private readonly loadingSignal = signal(false);
-  private readonly loadedSignal = signal(false);
+  private readonly accountState = signal<AccountMe | null>(null);
+  private readonly isLoadingState = signal(false);
+  private readonly isLoadedState = signal(false);
 
-  readonly account = this.accountSignal.asReadonly();
-  readonly loading = this.loadingSignal.asReadonly();
-  readonly loaded = this.loadedSignal.asReadonly();
+  readonly account = this.accountState.asReadonly();
+  readonly isLoading = this.isLoadingState.asReadonly();
+  readonly isLoaded = this.isLoadedState.asReadonly();
 
-  readonly isAuthenticated = computed(() => this.accountSignal()?.mode === 'authenticated');
-  readonly loginAvailable = computed(() => !!this.accountSignal()?.loginAvailable);
-  readonly loginProviders = computed(() => this.accountSignal()?.loginProviders ?? []);
+  readonly isAuthenticated = computed(() => this.accountState()?.mode === 'authenticated');
+  readonly loginAvailable = computed(() => !!this.accountState()?.loginAvailable);
+  readonly loginProviders = computed(() => this.accountState()?.loginProviders ?? []);
   readonly showLogin = computed(
-    () => !!this.accountSignal()?.loginAvailable && this.accountSignal()?.mode !== 'authenticated',
+    () => !!this.accountState()?.loginAvailable && this.accountState()?.mode !== 'authenticated',
   );
 
-  readonly showLogout = computed(() => this.accountSignal()?.mode === 'authenticated');
+  readonly showLogout = computed(() => this.accountState()?.mode === 'authenticated');
 
   load(): void {
-    if (this.loadingSignal()) {
+    if (this.isLoadingState()) {
       return;
     }
-    this.loadingSignal.set(true);
+    this.isLoadingState.set(true);
     this.http
       .get<AccountMe>(`${API_BASE_URL}/account/me`)
-      .pipe(finalize(() => this.loadingSignal.set(false)))
+      .pipe(finalize(() => this.isLoadingState.set(false)))
       .subscribe({
         next: (me) => {
-          this.accountSignal.set(me);
-          this.loadedSignal.set(true);
+          this.accountState.set(me);
+          this.isLoadedState.set(true);
         },
         error: () => {
-          this.accountSignal.set(null);
-          this.loadedSignal.set(true);
+          this.accountState.set(null);
+          this.isLoadedState.set(true);
         },
       });
   }
@@ -115,7 +115,7 @@ export class AccountService {
     const params = new URLSearchParams(search);
     const login = params.get('login');
     if (!login) {
-      if (!this.loadedSignal()) {
+      if (!this.isLoadedState()) {
         this.load();
       }
       return;

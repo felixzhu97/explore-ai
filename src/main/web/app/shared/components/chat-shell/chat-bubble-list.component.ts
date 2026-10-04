@@ -15,7 +15,7 @@ import {
 } from 'ng-zorro-x/bubble';
 import { MarkdownWithA2uiComponent } from '../markdown-with-a2ui/markdown-with-a2ui.component';
 import { formatMessageTime } from '../../utils/format-time.util';
-import { ChatBubbleMessage, ChatBubbleSource } from './chat-bubble.model';
+import { ChatMessageView, ChatSourceView } from './chat-bubble.model';
 
 export interface ChatBubbleFooterLabels {
   sources: string;
@@ -153,7 +153,7 @@ interface OpenSourceRef {
       @if (content) {
         <app-markdown-with-a2ui
           [content]="content"
-          [streaming]="isStreaming(messageKey(info))"
+          [isStreaming]="isStreaming(messageKey(info))"
         />
       } @else if (
         isStreaming(messageKey(info))
@@ -230,7 +230,7 @@ interface OpenSourceRef {
   },
 })
 export class ChatBubbleListComponent implements OnDestroy {
-  readonly messages = input.required<ChatBubbleMessage[]>();
+  readonly messages = input.required<ChatMessageView[]>();
   readonly streamingMessageId = input<string | null>(null);
   readonly streamingMessageIds = input<ReadonlySet<string>>(new Set());
   readonly thinkingLabel = input('Thinking...');
@@ -279,7 +279,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     viewChild<TemplateRef<NxBubbleSlotType>>('assistantFooterTpl');
 
   readonly messageByIdMap = computed(() => {
-    const map = new Map<string, ChatBubbleMessage>();
+    const map = new Map<string, ChatMessageView>();
     for (const message of this.messages()) {
       map.set(message.id, message);
     }
@@ -372,7 +372,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
-  messageById(id: string): ChatBubbleMessage | undefined {
+  messageById(id: string): ChatMessageView | undefined {
     return this.messageByIdMap().get(id);
   }
 
@@ -396,11 +396,11 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.footerLabels().basedOn.replace('{count}', `${count}`);
   }
 
-  sourceAt(messageId: string, index: number): ChatBubbleSource | undefined {
+  sourceAt(messageId: string, index: number): ChatSourceView | undefined {
     return this.messageById(messageId)?.sources?.[index];
   }
 
-  sourceHostname(source: ChatBubbleSource): string {
+  sourceHostname(source: ChatSourceView): string {
     const raw = source.url?.trim();
     if (!raw) {
       return '';
@@ -413,7 +413,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     }
   }
 
-  sourceLabel(source: ChatBubbleSource): string {
+  sourceLabel(source: ChatSourceView): string {
     const host = this.sourceHostname(source);
     if (host) {
       return this.truncate(host, ChatBubbleListComponent.LABEL_MAX_CHARS);
@@ -425,7 +425,7 @@ export class ChatBubbleListComponent implements OnDestroy {
       || this.footerLabels().sources;
   }
 
-  faviconUrl(source: ChatBubbleSource): string | null {
+  faviconUrl(source: ChatSourceView): string | null {
     const host = this.sourceHostname(source);
     if (!host) {
       return null;
@@ -433,12 +433,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
   }
 
-  sourceInitial(source: ChatBubbleSource): string {
+  sourceInitial(source: ChatSourceView): string {
     const label = this.sourceLabel(source).trim();
     return (label.charAt(0) || '?').toUpperCase();
   }
 
-  sourceTitle(source: ChatBubbleSource): string {
+  sourceTitle(source: ChatSourceView): string {
     if (source.title?.trim()) {
       return source.title.trim();
     }
@@ -449,7 +449,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.truncate(source.text, 80) || this.footerLabels().sources;
   }
 
-  sourcePublishedAt(source: ChatBubbleSource): string {
+  sourcePublishedAt(source: ChatSourceView): string {
     const direct = source.publishedAt?.trim();
     if (direct) {
       return direct;
@@ -497,7 +497,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     return `${base} bg-black/5 text-text-secondary`;
   }
 
-  chipAriaLabel(index: number, source: ChatBubbleSource): string {
+  chipAriaLabel(index: number, source: ChatSourceView): string {
     const title = `${index + 1}. ${this.sourceTitle(source)}`;
     if (source.url) {
       return `${title}. ${this.footerLabels().openReference}`;
@@ -509,7 +509,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
-  onChipClick(event: MouseEvent, source: ChatBubbleSource): void {
+  onChipClick(event: MouseEvent, source: ChatSourceView): void {
     event.stopPropagation();
     const url = source.url?.trim();
     if (!url) {
@@ -648,7 +648,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.openRef.set(null);
   }
 
-  isLongUserMessage(message: ChatBubbleMessage): boolean {
+  isLongUserMessage(message: ChatMessageView): boolean {
     return (
       this.collapseLongUserMessages()
       && message.content.length > ChatBubbleListComponent.USER_COLLAPSE_CHARS
@@ -659,7 +659,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.expandedUserIds().has(messageId);
   }
 
-  userMessageText(message: ChatBubbleMessage): string {
+  userMessageText(message: ChatMessageView): string {
     if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
       return message.content;
     }

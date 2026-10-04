@@ -6,7 +6,7 @@
       <h1 class="text-base font-semibold text-foreground">{{ i18n.t().mcpPage.title }}</h1>
       <p class="text-xs text-foreground/60">{{ i18n.t().mcpPage.subtitle }}</p>
     </div>
-    @if (!loading()) {
+    @if (!isLoading()) {
       <div class="flex flex-wrap items-center gap-3 text-xs text-foreground/70">
         @if (health(); as healthInfo) {
           <span>
@@ -35,7 +35,7 @@
         </p>
       }
 
-      @if (!loading()) {
+      @if (!isLoading()) {
         <section>
           <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().mcpPage.tools }}</h2>
           <ul class="mt-3 overflow-hidden rounded-xl border border-black/8 bg-white">
@@ -64,10 +64,10 @@
             z-button
             zType="default"
             class="mt-3"
-            [disabled]="chatting() || !question().trim()"
+            [disabled]="isChatting() || !question().trim()"
             (click)="submitQuestion()"
           >
-            {{ chatting() ? i18n.t().mcpPage.sending : i18n.t().mcpPage.send }}
+            {{ isChatting() ? i18n.t().mcpPage.sending : i18n.t().mcpPage.send }}
           </button>
           @if (chatResponse(); as response) {
             <p class="mt-3 rounded-lg bg-surface px-3 py-2 text-sm text-foreground">{{ response }}</p>

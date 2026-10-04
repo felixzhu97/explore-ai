@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { mergeHistoryWithUiState, type UiMessage } from './chat.service';
+import type { ChatMessage } from '../chat.model';
+import { mergeHistoryWithLocalMessages } from './chat.service';
 
-describe('mergeHistoryWithUiState', () => {
+describe('mergeHistoryWithLocalMessages', () => {
   it('should keep local sources when api sources missing', () => {
-    const previous: UiMessage[] = [
+    const previous: ChatMessage[] = [
       {
         id: 'assistant_1',
         role: 'assistant',
@@ -18,7 +19,7 @@ describe('mergeHistoryWithUiState', () => {
         ],
       },
     ];
-    const history: UiMessage[] = [
+    const history: ChatMessage[] = [
       {
         id: 'uuid-assistant',
         role: 'assistant',
@@ -27,14 +28,14 @@ describe('mergeHistoryWithUiState', () => {
       },
     ];
 
-    const merged = mergeHistoryWithUiState(history, previous);
+    const merged = mergeHistoryWithLocalMessages(history, previous);
 
     expect(merged[0].id).toBe('uuid-assistant');
     expect(merged[0].sources).toEqual(previous[0].sources);
   });
 
   it('should prefer api sources when present', () => {
-    const previous: UiMessage[] = [
+    const previous: ChatMessage[] = [
       {
         id: 'assistant_1',
         role: 'assistant',
@@ -43,7 +44,7 @@ describe('mergeHistoryWithUiState', () => {
         sources: [{ title: 'Old', url: 'https://old.example', snippet: '' }],
       },
     ];
-    const history: UiMessage[] = [
+    const history: ChatMessage[] = [
       {
         id: 'uuid-assistant',
         role: 'assistant',
@@ -53,7 +54,7 @@ describe('mergeHistoryWithUiState', () => {
       },
     ];
 
-    const merged = mergeHistoryWithUiState(history, previous);
+    const merged = mergeHistoryWithLocalMessages(history, previous);
 
     expect(merged[0].sources?.[0].url).toBe('https://new.example');
   });

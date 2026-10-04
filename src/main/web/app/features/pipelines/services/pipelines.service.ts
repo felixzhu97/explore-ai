@@ -6,11 +6,11 @@ import { I18nService } from '../../../core/i18n';
 import { parseSseToken, streamSsePost } from '../../../core/streaming/sse-client';
 import type {
   AgentHealth,
-  AgentInfo,
+  AgentType,
   AgentInvokeRequest,
-  SavedWorkflowTemplate,
-  WorkflowTemplate,
-  WorkflowTemplateWriteRequest,
+  PipelineTemplate,
+  PipelineTemplateDefinition,
+  PipelineTemplateWriteRequest,
 } from '../pipelines.model';
 import type { PipelineInvokeRequest } from '../pipeline-graph.model';
 
@@ -20,8 +20,8 @@ export class PipelinesService {
   private readonly i18n = inject(I18nService);
   private readonly templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
-  listAgents(): Observable<AgentInfo[]> {
-    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/agent-types`, {
+  listAgents(): Observable<AgentType[]> {
+    return this.http.get<AgentType[]>(`${API_BASE_URL}/pipelines/agent-types`, {
       params: this.langParams(),
     });
   }
@@ -32,54 +32,54 @@ export class PipelinesService {
     });
   }
 
-  listTemplates(): Observable<WorkflowTemplate[]> {
-    return this.http.get<WorkflowTemplate[]>(`${API_BASE_URL}/pipelines/template-definitions`, {
+  listTemplateDefinitions(): Observable<PipelineTemplateDefinition[]> {
+    return this.http.get<PipelineTemplateDefinition[]>(`${API_BASE_URL}/pipelines/template-definitions`, {
       params: this.langParams(),
     });
   }
 
-  listLibrary(): Observable<SavedWorkflowTemplate[]> {
-    return this.http.get<SavedWorkflowTemplate[]>(this.templatesBase);
+  listTemplates(): Observable<PipelineTemplate[]> {
+    return this.http.get<PipelineTemplate[]>(this.templatesBase);
   }
 
-  createFromTemplate(templateId: string): Observable<SavedWorkflowTemplate> {
-    return this.http.post<SavedWorkflowTemplate>(
+  createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
+    return this.http.post<PipelineTemplate>(
       `${this.templatesBase}/from-template`,
       { templateId },
       { params: this.langParams() },
     );
   }
 
-  createLibraryTemplate(
-    request: WorkflowTemplateWriteRequest,
-  ): Observable<SavedWorkflowTemplate> {
-    return this.http.post<SavedWorkflowTemplate>(
+  createTemplate(
+    request: PipelineTemplateWriteRequest,
+  ): Observable<PipelineTemplate> {
+    return this.http.post<PipelineTemplate>(
       this.templatesBase,
       request,
     );
   }
 
-  updateLibraryTemplate(
+  updateTemplate(
     id: string,
-    request: WorkflowTemplateWriteRequest,
-  ): Observable<SavedWorkflowTemplate> {
-    return this.http.put<SavedWorkflowTemplate>(
+    request: PipelineTemplateWriteRequest,
+  ): Observable<PipelineTemplate> {
+    return this.http.put<PipelineTemplate>(
       `${this.templatesBase}/${id}`,
       request,
     );
   }
 
-  setLibraryTemplateEnabled(
+  setTemplateEnabled(
     id: string,
     enabled: boolean,
-  ): Observable<SavedWorkflowTemplate> {
-    return this.http.patch<SavedWorkflowTemplate>(
+  ): Observable<PipelineTemplate> {
+    return this.http.patch<PipelineTemplate>(
       `${this.templatesBase}/${id}/enabled`,
       { enabled },
     );
   }
 
-  deleteLibraryTemplate(id: string): Observable<void> {
+  deleteTemplate(id: string): Observable<void> {
     return this.http.delete<void>(`${this.templatesBase}/${id}`);
   }
 

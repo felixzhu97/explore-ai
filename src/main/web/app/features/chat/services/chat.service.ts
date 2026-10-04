@@ -12,37 +12,17 @@ import {
 import { DEFAULT_MODELS, DEFAULT_PROVIDERS } from '../chat.constants';
 import { stripToolCallMarkup } from '../../../shared/utils/tool-call-markup.util';
 import type {
-  ChatMessage,
+  ChatStreamMessage,
   ChatStreamRequest,
-  ProviderInfo,
-  ModelInfo,
-  SessionInfo,
-  ChatMessageData,
+  ChatProvider,
+  ChatModel,
+  ChatSessionSummary,
+  ChatHistoryMessage,
+  ChatMessage,
+  WebSource,
 } from '../chat.model';
 
 type ChatStreamEventHandler = (event: ChatStreamEvent) => void;
-
-export interface UiToolStep {
-  name: string;
-  label: string;
-  status: 'running' | 'success' | 'error';
-}
-
-export interface UiWebSource {
-  title: string;
-  url: string;
-  snippet: string;
-  publishedAt?: string;
-}
-
-export interface UiMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-  toolSteps?: UiToolStep[];
-  sources?: UiWebSource[];
-}
 
 const ACTIVE_SESSION_STORAGE_KEY = 'explore-ai.chat.activeSessionId';
 
@@ -51,15 +31,15 @@ export class ChatService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  readonly providers = signal<ProviderInfo[]>([]);
-  readonly models = signal<ModelInfo[]>([]);
+  readonly providers = signal<ChatProvider[]>([]);
+  readonly models = signal<ChatModel[]>([]);
   readonly selectedProvider = signal('openai');
   readonly selectedModel = signal('deepseek-v4-flash');
   readonly isLoadingModels = signal(false);
 
-  readonly sessions = signal<SessionInfo[]>([]);
+  readonly sessions = signal<ChatSessionSummary[]>([]);
   readonly activeSessionId = signal<string | null>(null);
-  readonly messages = signal<UiMessage[]>([]);
+  readonly messages = signal<ChatMessage[]>([]);
   readonly isLoading = signal(false);
   /** True while history for the selected session is loading. */
   readonly isLoadingSession = signal(false);
@@ -286,7 +266,7 @@ export class ChatService {
           return;
         }
         this.messages.set(withoutEmptyBodies(
-          history.map(msg => this.toUiMessage(msg)),
+          history.map(message => this.toChatMessage(message)),
         ));
         this.isLoadingSession.set(false);
         this.rememberActiveSessionIfNeeded(sessionId);
@@ -318,7 +298,7 @@ export class ChatService {
   }
 
   private resolveBootstrapSession(
-    sorted: SessionInfo[],
+    sorted: ChatSessionSummary[],
     options: { createIfEmpty: boolean },
   ): void {
     const preferredId = this.sessionIdFromRoute();
@@ -378,7 +358,7 @@ export class ChatService {
     });
   }
 
-  private newestEmptySession(): SessionInfo | undefined {
+  private newestEmptySession(): ChatSessionSummary | undefined {
     return this.sortSessionsByActivity(
       this.sessions().filter(session => !this.sessionRecordHasHistory(session)),
     )[0];
@@ -397,7 +377,7 @@ export class ChatService {
     }
   }
 
-  private sortSessionsByActivity(sessions: SessionInfo[]): SessionInfo[] {
+  private sortSessionsByActivity(sessions: ChatSessionSummary[]): ChatSessionSummary[] {
     return [...sessions].sort((a, b) => {
       const bTime = new Date(b.lastActivityAt).getTime();
       const aTime = new Date(a.lastActivityAt).getTime();
@@ -418,7 +398,7 @@ export class ChatService {
     return loadId !== this.sessionLoadGeneration || this.activeSessionId() !== sessionId;
   }
 
-  private sessionRecordHasHistory(session: SessionInfo): boolean {
+  private sessionRecordHasHistory(session: ChatSessionSummary): boolean {
     return session.messageCount > 0;
   }
 
@@ -539,18 +519,18 @@ export class ChatService {
       next: (history) => {
         if (this.activeSessionId() === sessionId && !this.isLoading()) {
           this.messages.update((previous) => {
-            const fromApi = withoutEmptyBodies(mergeHistoryWithUiState(
-              history.map(msg => this.toUiMessage(msg)),
+            const fromApi = withoutEmptyBodies(mergeHistoryWithLocalMessages(
+              history.map(message => this.toChatMessage(message)),
               previous,
             ));
-            const apiIds = new Set(fromApi.map(msg => msg.id));
-            const apiHasAssistant = fromApi.some(msg => msg.role === 'assistant');
+            const apiIds = new Set(fromApi.map(message => message.id));
+            const apiHasAssistant = fromApi.some(message => message.role === 'assistant');
             const localOnly = apiHasAssistant
               ? []
               : previous.filter(
-                  msg => msg.role === 'assistant'
-                    && !apiIds.has(msg.id)
-                    && hasRenderableBody(msg),
+                  message => message.role === 'assistant'
+                    && !apiIds.has(message.id)
+                    && hasRenderableBody(message),
                 );
             return withoutEmptyBodies([...fromApi, ...localOnly]);
           });
@@ -577,7 +557,7 @@ export class ChatService {
       this.streamAbort();
     }
 
-    const userMsg: UiMessage = {
+    const userMsg: ChatMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
       content: content.trim(),
@@ -585,8 +565,8 @@ export class ChatService {
     };
     const assistantId = `assistant_${Date.now()}`;
 
-    this.messages.update(msgs => [
-      ...msgs,
+    this.messages.update(messages => [
+      ...messages,
       userMsg,
       { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
     ]);
@@ -603,7 +583,7 @@ export class ChatService {
     this.error.set(null);
 
     let fullContent = '';
-    const streamRequest: ChatMessage[] = [{ role: 'user', content: userMsg.content }];
+    const streamRequest: ChatStreamMessage[] = [{ role: 'user', content: userMsg.content }];
 
     const { abort } = this.chatStream(
       {
@@ -617,22 +597,22 @@ export class ChatService {
       (chunk) => {
         fullContent += chunk;
         const displayContent = stripToolCallMarkup(fullContent);
-        this.messages.update(msgs => msgs.map((msg) => {
-          if (msg.id !== assistantId) {
-            return msg;
+        this.messages.update(messages => messages.map((message) => {
+          if (message.id !== assistantId) {
+            return message;
           }
-          return { ...msg, content: displayContent };
+          return { ...message, content: displayContent };
         }),
         );
       },
       () => {
         // Drop empty placeholder before clearing streaming to avoid a blank-bubble flash.
-        this.messages.update((msgs) => {
-          const target = msgs.find(msg => msg.id === assistantId);
+        this.messages.update((messages) => {
+          const target = messages.find(message => message.id === assistantId);
           if (target && !hasRenderableBody(target)) {
-            return msgs.filter(msg => msg.id !== assistantId);
+            return messages.filter(message => message.id !== assistantId);
           }
-          return msgs;
+          return messages;
         });
         this.isLoading.set(false);
         this.streamingMessageId.set(null);
@@ -644,13 +624,13 @@ export class ChatService {
           this.loadSessions();
         }, 2500);
       },
-      (err) => {
-        this.error.set(err.message);
-        this.messages.update(msgs => msgs.map((msg) => {
-          if (msg.id !== assistantId) {
-            return msg;
+      (error) => {
+        this.error.set(error.message);
+        this.messages.update(messages => messages.map((message) => {
+          if (message.id !== assistantId) {
+            return message;
           }
-          return { ...msg, content: err.message };
+          return { ...message, content: error.message };
         }),
         );
         this.isLoading.set(false);
@@ -661,21 +641,21 @@ export class ChatService {
         if (event.type === 'message') {
           return;
         }
-        this.messages.update(msgs => msgs.map((msg) => {
-          if (msg.id !== assistantId) {
-            return msg;
+        this.messages.update(messages => messages.map((message) => {
+          if (message.id !== assistantId) {
+            return message;
           }
           if (event.type === 'tool_call') {
-            const steps = [...(msg.toolSteps ?? [])];
+            const steps = [...(message.toolSteps ?? [])];
             steps.push({
               name: event.name,
               label: toolLabel(event.name),
               status: 'running',
             });
-            return { ...msg, toolSteps: steps };
+            return { ...message, toolSteps: steps };
           }
           if (event.type === 'tool_result') {
-            const steps = (msg.toolSteps ?? []).map((step) => {
+            const steps = (message.toolSteps ?? []).map((step) => {
               if (step.name !== event.name || step.status !== 'running') {
                 return step;
               }
@@ -684,11 +664,11 @@ export class ChatService {
                 status: event.ok ? 'success' as const : 'error' as const,
               };
             });
-            return { ...msg, toolSteps: steps };
+            return { ...message, toolSteps: steps };
           }
           if (event.type === 'sources') {
             return {
-              ...msg,
+              ...message,
               sources: event.items.map(item => ({
                 title: item.title,
                 url: item.url,
@@ -697,7 +677,7 @@ export class ChatService {
               })),
             };
           }
-          return msg;
+          return message;
         }));
       },
     );
@@ -717,24 +697,24 @@ export class ChatService {
       return;
     }
     // Drop the empty assistant placeholder so the UI does not stay on "thinking".
-    this.messages.update((msgs) => {
-      const target = msgs.find(msg => msg.id === streamingId);
+    this.messages.update((messages) => {
+      const target = messages.find(message => message.id === streamingId);
       if (target && !hasRenderableBody(target)) {
-        return msgs.filter(msg => msg.id !== streamingId);
+        return messages.filter(message => message.id !== streamingId);
       }
-      return msgs;
+      return messages;
     });
   }
 
-  private getProviders(): Observable<ProviderInfo[]> {
+  private getProviders(): Observable<ChatProvider[]> {
     return this.http
-      .get<ProviderInfo[]>(`${API_BASE_URL}/chat/providers`)
+      .get<ChatProvider[]>(`${API_BASE_URL}/chat/providers`)
       .pipe(catchError(() => of(DEFAULT_PROVIDERS)));
   }
 
-  private getModels(provider: string): Observable<ModelInfo[]> {
+  private getModels(provider: string): Observable<ChatModel[]> {
     return this.http
-      .get<{ provider: string; models: ModelInfo[]; count: number }>(`${API_BASE_URL}/chat/models`, {
+      .get<{ provider: string; models: ChatModel[]; count: number }>(`${API_BASE_URL}/chat/models`, {
         params: { provider },
       })
       .pipe(
@@ -743,21 +723,21 @@ export class ChatService {
       );
   }
 
-  private createSessionRequest(title?: string): Observable<SessionInfo> {
-    return this.http.post<SessionInfo>(`${API_BASE_URL}/chat/sessions`, title ? { title } : {});
+  private createSessionRequest(title?: string): Observable<ChatSessionSummary> {
+    return this.http.post<ChatSessionSummary>(`${API_BASE_URL}/chat/sessions`, title ? { title } : {});
   }
 
-  private getSessions(): Observable<SessionInfo[]> {
-    return this.http.get<SessionInfo[]>(`${API_BASE_URL}/chat/sessions`);
+  private getSessions(): Observable<ChatSessionSummary[]> {
+    return this.http.get<ChatSessionSummary[]>(`${API_BASE_URL}/chat/sessions`);
   }
 
-  private getSessionMessages(sessionId: string): Observable<ChatMessageData[]> {
-    return this.http.get<ChatMessageData[]>(`${API_BASE_URL}/chat/sessions/${sessionId}/messages`, {
+  private getSessionMessages(sessionId: string): Observable<ChatHistoryMessage[]> {
+    return this.http.get<ChatHistoryMessage[]>(`${API_BASE_URL}/chat/sessions/${sessionId}/messages`, {
       context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
     }).pipe(
-      map(messages => messages.map(msg => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp as unknown as string).getTime(),
+      map(messages => messages.map(message => ({
+        ...message,
+        timestamp: new Date(message.timestamp as unknown as string).getTime(),
       }))),
     );
   }
@@ -770,7 +750,7 @@ export class ChatService {
     request: ChatStreamRequest,
     onChunk: (token: string) => void,
     onDone: () => void,
-    onError: (err: Error) => void,
+    onError: (error: Error) => void,
     onEvent?: ChatStreamEventHandler,
   ): { abort: () => void } {
     let finished = false;
@@ -789,16 +769,16 @@ export class ChatService {
         }
 
         if (eventType === 'error') {
-          let msg = 'Stream error';
+          let message = 'Stream error';
           try {
             const parsed = JSON.parse(data);
-            msg = parsed.error ?? parsed.message ?? msg;
+            message = parsed.error ?? parsed.message ?? message;
           } catch {
             if (data) {
-              msg = data;
+              message = data;
             }
           }
-          onError(new Error(msg));
+          onError(new Error(message));
           return true;
         }
 
@@ -817,20 +797,20 @@ export class ChatService {
     });
   }
 
-  private toUiMessage(msg: ChatMessageData): UiMessage {
+  private toChatMessage(message: ChatHistoryMessage): ChatMessage {
     const timestamp =
-      typeof msg.timestamp === 'number'
-        ? msg.timestamp
-        : new Date(msg.timestamp).getTime();
-    const content = msg.role === 'assistant'
-      ? stripToolCallMarkup(msg.content ?? '')
-      : (msg.content ?? '');
+      typeof message.timestamp === 'number'
+        ? message.timestamp
+        : new Date(message.timestamp).getTime();
+    const content = message.role === 'assistant'
+      ? stripToolCallMarkup(message.content ?? '')
+      : (message.content ?? '');
     return {
-      id: msg.id ?? `${msg.role}_${timestamp}`,
-      role: msg.role === 'assistant' ? 'assistant' : 'user',
+      id: message.id ?? `${message.role}_${timestamp}`,
+      role: message.role === 'assistant' ? 'assistant' : 'user',
       content,
       timestamp,
-      sources: msg.sources?.map(source => ({
+      sources: message.sources?.map(source => ({
         title: source.title,
         url: source.url,
         snippet: source.snippet,
@@ -844,17 +824,17 @@ export class ChatService {
  * After stream complete, history sync may race DB persistence.
  * Keep local sources when API has not returned them yet for the same content.
  */
-export function mergeHistoryWithUiState(
-  history: UiMessage[],
-  previous: UiMessage[],
-): UiMessage[] {
-  const previousSources = new Map<string, UiWebSource[]>();
-  for (const msg of previous) {
-    if (msg.role === 'assistant' && msg.sources?.length) {
-      previousSources.set(msg.content, msg.sources);
-      const stripped = stripToolCallMarkup(msg.content);
-      if (stripped !== msg.content) {
-        previousSources.set(stripped, msg.sources);
+export function mergeHistoryWithLocalMessages(
+  history: ChatMessage[],
+  previous: ChatMessage[],
+): ChatMessage[] {
+  const previousSources = new Map<string, WebSource[]>();
+  for (const message of previous) {
+    if (message.role === 'assistant' && message.sources?.length) {
+      previousSources.set(message.content, message.sources);
+      const stripped = stripToolCallMarkup(message.content);
+      if (stripped !== message.content) {
+        previousSources.set(stripped, message.sources);
       }
     }
   }
@@ -869,7 +849,7 @@ export function mergeHistoryWithUiState(
   });
 }
 
-function hasRenderableBody(message: UiMessage): boolean {
+function hasRenderableBody(message: ChatMessage): boolean {
   return Boolean(
     message.content?.trim()
     || message.toolSteps?.length
@@ -877,7 +857,7 @@ function hasRenderableBody(message: UiMessage): boolean {
   );
 }
 
-function withoutEmptyBodies(messages: UiMessage[]): UiMessage[] {
+function withoutEmptyBodies(messages: ChatMessage[]): ChatMessage[] {
   return messages.filter(hasRenderableBody);
 }
 

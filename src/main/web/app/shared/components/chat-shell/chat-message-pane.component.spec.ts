@@ -17,7 +17,7 @@ vi.mock('../markdown-with-a2ui/markdown-with-a2ui.component', async () => {
 });
 
 import { ChatMessagePaneComponent } from './chat-message-pane.component';
-import { ChatBubbleMessage } from './chat-bubble.model';
+import { ChatMessageView } from './chat-bubble.model';
 
 describe('ChatMessagePaneComponent', () => {
   let fixture: ComponentFixture<ChatMessagePaneComponent>;
@@ -54,7 +54,7 @@ describe('ChatMessagePaneComponent', () => {
   });
 
   it('should show bubble list when messages present', () => {
-    const messages: ChatBubbleMessage[] = [
+    const messages: ChatMessageView[] = [
       { id: '1', role: 'user', content: 'Hello' },
     ];
     fixture.componentRef.setInput('messages', messages);
@@ -65,15 +65,15 @@ describe('ChatMessagePaneComponent', () => {
     ).toBeTruthy();
   });
 
-  it('should emit prompt select when welcome prompt chosen', () => {
+  it('should emit prompt selected when welcome prompt chosen', () => {
     const spy = vi.fn();
-    fixture.componentInstance.promptSelect.subscribe(spy);
+    fixture.componentInstance.promptSelected.subscribe(spy);
     fixture.componentRef.setInput('messages', []);
     fixture.componentRef.setInput('welcomeTitle', 'Welcome');
     fixture.componentRef.setInput('welcomeDescription', 'Start');
     fixture.detectChanges();
 
-    fixture.componentInstance.promptSelect.emit('Ask something');
+    fixture.componentInstance.promptSelected.emit('Ask something');
 
     expect(spy).toHaveBeenCalledWith('Ask something');
   });

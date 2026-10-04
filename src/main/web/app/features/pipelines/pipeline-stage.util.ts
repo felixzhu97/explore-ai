@@ -1,10 +1,10 @@
-import type { ChatBubbleToolStep } from '../../shared/components/chat-shell';
+import type { ToolStep } from '../../shared/components/chat-shell';
 
 /** Mark prior running stages success and append the new agent as running. */
 export function appendPipelineStage(
-  stages: ChatBubbleToolStep[],
+  stages: ToolStep[],
   agentType: string,
-): ChatBubbleToolStep[] {
+): ToolStep[] {
   const completed = stages.map(step => step.status === 'running' ? { ...step, status: 'success' as const } : step,
   );
   return [
@@ -19,18 +19,18 @@ export function appendPipelineStage(
 
 /** Close any still-running stages when the stream finishes. */
 export function finalizePipelineStages(
-  stages: ChatBubbleToolStep[],
+  stages: ToolStep[],
   status: 'success' | 'error',
-): ChatBubbleToolStep[] {
+): ToolStep[] {
   return stages.map(step => step.status === 'running' ? { ...step, status } : step,
   );
 }
 
 /** Prefer pipeline stages first, then DSML-derived tool steps. */
 export function mergeToolSteps(
-  stages: ChatBubbleToolStep[],
-  dsmlSteps: ChatBubbleToolStep[],
-): ChatBubbleToolStep[] {
+  stages: ToolStep[],
+  dsmlSteps: ToolStep[],
+): ToolStep[] {
   if (stages.length === 0) {
     return dsmlSteps;
   }

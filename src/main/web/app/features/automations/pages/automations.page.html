@@ -19,7 +19,7 @@
         </p>
       }
 
-      @if (enabledWorkflows().length === 0) {
+      @if (enabledTemplates().length === 0) {
         <p class="text-sm text-foreground/60">{{ i18n.t().automationsPage.noWorkflows }}</p>
       }
 
@@ -38,14 +38,14 @@
               {{ i18n.t().automationsPage.workflow }}
               <select
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
-                [ngModel]="formWorkflowId()"
-                (ngModelChange)="onWorkflowChange($event)"
+                [ngModel]="formTemplateId()"
+                (ngModelChange)="onTemplateChange($event)"
               >
                 <option value="" disabled>
                   {{ i18n.t().automationsPage.workflowPlaceholder }}
                 </option>
-                @for (workflow of enabledWorkflows(); track workflow.id) {
-                  <option [value]="workflow.id">{{ workflow.name }}</option>
+                @for (template of enabledTemplates(); track template.id) {
+                  <option [value]="template.id">{{ template.name }}</option>
                 }
               </select>
             </label>
@@ -120,10 +120,10 @@
                 z-button
                 zType="default"
                 zSize="sm"
-                [disabled]="saving()"
+                [disabled]="isSaving()"
                 (click)="save()"
               >
-                {{ saving() ? i18n.t().automationsPage.saving : i18n.t().automationsPage.save }}
+                {{ isSaving() ? i18n.t().automationsPage.saving : i18n.t().automationsPage.save }}
               </button>
               <button type="button" z-button zType="ghost" zSize="sm" (click)="cancelForm()">
                 {{ i18n.t().automationsPage.cancel }}
@@ -134,7 +134,7 @@
       }
 
       <section>
-        @if (loading()) {
+        @if (isLoading()) {
           <p class="text-sm text-foreground/50">…</p>
         } @else if (schedules().length === 0) {
           <div class="rounded-xl border border-dashed border-black/15 px-4 py-8 text-center">
@@ -162,7 +162,7 @@
                       </span>
                     </div>
                     <p class="mt-1 text-xs text-foreground/55">
-                      {{ workflowName(schedule.pipelineTemplateId) }} ·
+                      {{ templateName(schedule.pipelineTemplateId) }} ·
                       {{ schedule.recipientEmail }}
                     </p>
                     <p class="mt-1 text-xs text-foreground/45">

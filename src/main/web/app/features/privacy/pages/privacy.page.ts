@@ -70,7 +70,7 @@ import { PrivacyPreferencesFormComponent } from '../components/privacy-preferenc
                 rounded-full border border-black/12 px-4 py-2 text-[14px] font-medium
                 text-[#0D0D0D] transition-opacity hover:opacity-70 disabled:opacity-40
               "
-              [disabled]="busy()"
+              [disabled]="isBusy()"
               (click)="eraseSessions()"
             >
               {{ copy().eraseButton }}
@@ -81,7 +81,7 @@ import { PrivacyPreferencesFormComponent } from '../components/privacy-preferenc
                 rounded-full border border-black/12 px-4 py-2 text-[14px] font-medium
                 text-[#0D0D0D] transition-opacity hover:opacity-70 disabled:opacity-40
               "
-              [disabled]="busy()"
+              [disabled]="isBusy()"
               (click)="resetIdentity()"
             >
               {{ copy().resetButton }}
@@ -124,24 +124,24 @@ export class PrivacyPageComponent {
   private readonly i18n = inject(I18nService);
 
   readonly copy = computed(() => PRIVACY_PAGE_COPY[this.i18n.language()]);
-  readonly busy = signal(false);
+  readonly isBusy = signal(false);
 
   eraseSessions(): void {
     if (!confirm(this.copy().eraseConfirm)) {
       return;
     }
-    this.busy.set(true);
+    this.isBusy.set(true);
     this.api.eraseAllSessions().subscribe({
       next: () => {
         this.chat.sessions.set([]);
         this.chat.activeSessionId.set(null);
         this.chat.messages.set([]);
         this.notify.showSuccess(this.copy().eraseSuccess);
-        this.busy.set(false);
+        this.isBusy.set(false);
       },
       error: () => {
         this.notify.showError(this.copy().eraseFailed);
-        this.busy.set(false);
+        this.isBusy.set(false);
       },
     });
   }
@@ -150,7 +150,7 @@ export class PrivacyPageComponent {
     if (!confirm(this.copy().resetConfirm)) {
       return;
     }
-    this.busy.set(true);
+    this.isBusy.set(true);
     this.api.resetIdentity().subscribe({
       next: () => {
         this.chat.sessions.set([]);
@@ -158,11 +158,11 @@ export class PrivacyPageComponent {
         this.chat.messages.set([]);
         this.chat.loadSessions();
         this.notify.showSuccess(this.copy().resetSuccess);
-        this.busy.set(false);
+        this.isBusy.set(false);
       },
       error: () => {
         this.notify.showError(this.copy().resetFailed);
-        this.busy.set(false);
+        this.isBusy.set(false);
       },
     });
   }

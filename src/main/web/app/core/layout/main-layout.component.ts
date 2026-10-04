@@ -19,7 +19,7 @@ import { AccountService } from '../services/account.service';
   template: `
       <z-toaster position="top-right" [richColors]="true" [closeButton]="true" />
       <app-sidebar />
-      <app-header (openSidebar)="openSidebar()" />
+      <app-header (sidebarOpenRequested)="openSidebar()" />
       <main
         class="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden transition-all duration-250"
         [class.md:pl-[240px]]="!sidebar.collapsed()"

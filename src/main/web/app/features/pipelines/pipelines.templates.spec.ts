@@ -1,11 +1,11 @@
 import {
   applyPipelineTemplate,
-  type PipelineTemplateDefinition,
+  type PipelineTemplateInput,
 } from './pipelines.templates';
 import { validatePipeline } from './pipeline-graph.model';
-import type { AgentInfo } from './pipelines.model';
+import type { AgentType } from './pipelines.model';
 
-const catalog: AgentInfo[] = [
+const catalog: AgentType[] = [
   {
     type: 'supervisor',
     name: 'Supervisor',
@@ -45,7 +45,7 @@ const catalog: AgentInfo[] = [
 
 describe('applyPipelineTemplate', () => {
   it('should build valid connected graph when all agents exist', () => {
-    const definition: PipelineTemplateDefinition = {
+    const definition: PipelineTemplateInput = {
       id: 'competitiveIntel',
       agentTypes: ['research', 'analyst'],
     };
@@ -61,7 +61,7 @@ describe('applyPipelineTemplate', () => {
   });
 
   it('should skip missing agent types and reconnect remaining', () => {
-    const definition: PipelineTemplateDefinition = {
+    const definition: PipelineTemplateInput = {
       id: 'competitiveIntel',
       agentTypes: ['research', 'analyst'],
     };
@@ -77,7 +77,7 @@ describe('applyPipelineTemplate', () => {
   });
 
   it('should return empty graph when no template agents available', () => {
-    const definition: PipelineTemplateDefinition = {
+    const definition: PipelineTemplateInput = {
       id: 'policyQa',
       agentTypes: ['vectordb', 'analyst'],
     };
@@ -95,7 +95,7 @@ describe('applyPipelineTemplate', () => {
   });
 
   it('should build three node pipeline', () => {
-    const definition: PipelineTemplateDefinition = {
+    const definition: PipelineTemplateInput = {
       id: 'vendorDiligence',
       agentTypes: ['research', 'vectordb', 'analyst'],
     };

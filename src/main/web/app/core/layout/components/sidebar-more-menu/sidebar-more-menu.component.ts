@@ -24,17 +24,17 @@ import { ZardSidebarMenuButtonDirective } from '../../../../shared/components/la
   template: `
     <div
       class="group/more relative overflow-visible"
-      [class.is-more-open]="pinned()"
+      [class.is-more-open]="isPinned()"
       data-sidebar-more
     >
       <button
         type="button"
         z-sidebar-menu-button
-        [zIconOnly]="collapsed()"
-        [zFull]="!collapsed()"
+        [zIconOnly]="isCollapsed()"
+        [zFull]="!isCollapsed()"
         [zActive]="moreActive()"
         [class]="triggerClass()"
-        [attr.aria-expanded]="pinned()"
+        [attr.aria-expanded]="isPinned()"
         [attr.aria-haspopup]="'menu'"
         [attr.aria-label]="t().nav.more"
         [title]="t().nav.more"
@@ -55,7 +55,7 @@ import { ZardSidebarMenuButtonDirective } from '../../../../shared/components/la
             <circle cx="5" cy="12" r="1" />
           </svg>
         </span>
-        @if (!collapsed()) {
+        @if (!isCollapsed()) {
           <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
             {{ t().nav.more }}
           </span>
@@ -113,12 +113,12 @@ export class SidebarMoreMenuComponent {
   private readonly router = inject(Router);
 
   readonly sections = input.required<ModuleNavSection[]>();
-  readonly collapsed = input(false);
+  readonly isCollapsed = input(false);
   readonly iconFor = input.required<(key: string) => SafeHtml>();
 
   readonly navigated = output<void>();
 
-  readonly pinned = signal(false);
+  readonly isPinned = signal(false);
 
   readonly flatTabs = computed<ModuleNavTab[]>(() => {
     return this.sections().flatMap(section => section.tabs);
@@ -151,23 +151,23 @@ export class SidebarMoreMenuComponent {
   }
 
   triggerClass(): string {
-    return this.collapsed()
+    return this.isCollapsed()
       ? '!size-7 !justify-center'
       : '!h-auto min-h-8 !items-center gap-1.5 !rounded-md !px-2 !py-1.5';
   }
 
   togglePinned(event: MouseEvent): void {
     event.stopPropagation();
-    this.pinned.update(open => !open);
+    this.isPinned.update(open => !open);
   }
 
   onNavigate(): void {
-    this.pinned.set(false);
+    this.isPinned.set(false);
     this.navigated.emit();
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
-    if (!this.pinned()) {
+    if (!this.isPinned()) {
       return;
     }
     const target = event.target as Element | null;
@@ -175,7 +175,7 @@ export class SidebarMoreMenuComponent {
       return;
     }
     if (!target.closest('[data-sidebar-more]')) {
-      this.pinned.set(false);
+      this.isPinned.set(false);
     }
   }
 }

@@ -80,7 +80,7 @@ import type { Detection } from '../vision.model';
           >
             ×
           </button>
-          @if (loading()) {
+          @if (isLoading()) {
             <div
               class="
                 absolute inset-0 z-20 flex flex-col items-center
@@ -124,7 +124,7 @@ import type { Detection } from '../vision.model';
 export class MediaUploadPanelComponent {
   readonly title = input.required<string>();
   readonly imagePreview = input<string | null>(null);
-  readonly loading = input(false);
+  readonly isLoading = input(false);
   readonly dropText = input.required<string>();
   readonly dropHint = input.required<string>();
   readonly clearLabel = input.required<string>();

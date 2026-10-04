@@ -11,17 +11,17 @@
   <!-- Document rail: desktop always; mobile when expanded -->
   <aside
     class="hidden min-h-0 w-72 shrink-0 flex-col border-r border-black/8 bg-white md:flex"
-    [class.max-md:!flex]="docsOpen()"
-    [class.max-md:absolute]="docsOpen()"
-    [class.max-md:inset-y-0]="docsOpen()"
-    [class.max-md:left-0]="docsOpen()"
-    [class.max-md:z-20]="docsOpen()"
-    [class.max-md:shadow-lg]="docsOpen()"
+    [class.max-md:!flex]="isDocumentPanelOpen()"
+    [class.max-md:absolute]="isDocumentPanelOpen()"
+    [class.max-md:inset-y-0]="isDocumentPanelOpen()"
+    [class.max-md:left-0]="isDocumentPanelOpen()"
+    [class.max-md:z-20]="isDocumentPanelOpen()"
+    [class.max-md:shadow-lg]="isDocumentPanelOpen()"
   >
     <div class="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 px-3 py-2.5">
       <div class="flex min-w-0 items-center gap-2">
         <h2 class="truncate text-sm font-semibold text-text">{{ i18n.t().ragChat.documents }}</h2>
-        <z-badge zType="secondary">{{ ragService.availableDocs().length }}</z-badge>
+        <z-badge zType="secondary">{{ ragService.availableDocuments().length }}</z-badge>
       </div>
       <div class="flex shrink-0 items-center gap-0.5">
         <button
@@ -41,7 +41,7 @@
           z-button
           zType="ghost"
           zSize="icon"
-          (click)="ragService.selectAllDocs()"
+          (click)="ragService.selectAllDocuments()"
           [attr.title]="i18n.t().ragChat.selectAll"
           [attr.aria-label]="i18n.t().ragChat.selectAll"
         >
@@ -52,7 +52,7 @@
           z-button
           zType="ghost"
           zSize="icon"
-          (click)="ragService.clearDocSelection()"
+          (click)="ragService.clearDocumentSelection()"
           [attr.title]="i18n.t().ragChat.clearSelection"
           [attr.aria-label]="i18n.t().ragChat.clearSelection"
         >
@@ -66,7 +66,7 @@
           class="md:hidden"
           [attr.title]="i18n.t().ragChat.hideDocuments"
           [attr.aria-label]="i18n.t().ragChat.hideDocuments"
-          (click)="docsOpen.set(false)"
+          (click)="isDocumentPanelOpen.set(false)"
         >
           <ng-icon name="lucidePanelLeftClose" class="size-4!" />
         </button>
@@ -113,20 +113,20 @@
     }
 
     <div class="min-h-0 flex-1 overflow-y-auto p-2">
-      @if (ragService.isLoadingDocs()) {
+      @if (ragService.isLoadingDocuments()) {
         <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().ragChat.thinking }}</p>
-      } @else if (ragService.availableDocs().length === 0) {
+      } @else if (ragService.availableDocuments().length === 0) {
         <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().ragChat.noDocuments }}</p>
       } @else {
         <ul class="flex flex-col gap-0.5" role="list">
-          @for (doc of ragService.availableDocs(); track doc.id) {
+          @for (doc of ragService.availableDocuments(); track doc.id) {
             <li class="flex items-center gap-2 rounded-md p-1.5 hover:bg-black/4">
               <input
                 type="checkbox"
                 class="size-3.5 shrink-0 accent-black"
-                [checked]="ragService.selectedDocIds().has(doc.id)"
+                [checked]="ragService.selectedDocumentIds().has(doc.id)"
                 [attr.aria-label]="doc.title"
-                (change)="ragService.toggleDocSelection(doc.id)"
+                (change)="ragService.toggleDocumentSelection(doc.id)"
               />
               <span class="min-w-0 flex-1 truncate text-sm text-text">{{ doc.title }}</span>
               <button
@@ -135,7 +135,7 @@
                 zType="ghost"
                 zSize="icon"
                 class="size-7!"
-                [disabled]="ragService.deletingDocIds().has(doc.id)"
+                [disabled]="ragService.deletingDocumentIds().has(doc.id)"
                 [attr.title]="i18n.t().ragChat.deleteDocument"
                 [attr.aria-label]="i18n.t().ragChat.deleteDocument"
                 (click)="deleteDocument(doc.id, $event)"
@@ -149,12 +149,12 @@
     </div>
   </aside>
 
-  @if (docsOpen()) {
+  @if (isDocumentPanelOpen()) {
     <button
       type="button"
       class="absolute inset-0 z-10 bg-black/20 md:hidden"
       [attr.aria-label]="i18n.t().ragChat.hideDocuments"
-      (click)="docsOpen.set(false)"
+      (click)="isDocumentPanelOpen.set(false)"
     ></button>
   }
 
@@ -169,7 +169,7 @@
         class="md:hidden"
         [attr.title]="i18n.t().ragChat.showDocuments"
         [attr.aria-label]="i18n.t().ragChat.showDocuments"
-        (click)="docsOpen.set(true)"
+        (click)="isDocumentPanelOpen.set(true)"
       >
         <ng-icon name="lucidePanelLeft" class="size-4!" />
         <span class="ml-1">{{ i18n.t().ragChat.documentsShort }}</span>
@@ -186,14 +186,14 @@
       [welcomeDescription]="i18n.t().ragChat.askQuestion"
       [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
       [prompts]="ragPrompts()"
-      (promptSelect)="onPromptSelect($event)"
+      (promptSelected)="onPromptSelect($event)"
     />
 
     <app-chat-sender-bar
       [placeholder]="i18n.t().ragChat.inputPlaceholder"
       [(value)]="ragService.input"
-      [loading]="ragService.isLoading()"
-      (submitSend)="ragService.sendMessage()"
+      [isLoading]="ragService.isLoading()"
+      (sent)="ragService.sendMessage()"
     />
   </div>
 </div>

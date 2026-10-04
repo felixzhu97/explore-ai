@@ -21,8 +21,8 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
           class="min-w-0 flex-1"
           [placeholder]="placeholder()"
           [(value)]="value"
-          [loading]="loading()"
-          (submitSend)="submitSend.emit()"
+          [loading]="isLoading()"
+          (submitSend)="sent.emit()"
         />
       </div>
     </div>
@@ -32,8 +32,8 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
 })
 export class ChatSenderBarComponent {
   readonly placeholder = input.required<string>();
-  readonly loading = input(false);
+  readonly isLoading = input(false);
   readonly value = model('');
 
-  readonly submitSend = output<void>();
+  readonly sent = output<void>();
 }

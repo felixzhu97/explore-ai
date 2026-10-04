@@ -1,4 +1,4 @@
-import type { ChatBubbleToolStep } from '../components/chat-shell';
+import type { ToolStep } from '../components/chat-shell';
 
 /**
  * DeepSeek DSML tool-call markup helpers (not A2UI).
@@ -62,8 +62,8 @@ export function parseDsmlToolInvocations(content: string): DsmlToolInvocation[] 
 
 export function toMinimalToolSteps(
   invocations: readonly DsmlToolInvocation[],
-  status: ChatBubbleToolStep['status'] = 'running',
-): ChatBubbleToolStep[] {
+  status: ToolStep['status'] = 'running',
+): ToolStep[] {
   return invocations.map(item => ({
     name: item.toolName,
     label: minimalToolLabel(item.toolName, item.query),

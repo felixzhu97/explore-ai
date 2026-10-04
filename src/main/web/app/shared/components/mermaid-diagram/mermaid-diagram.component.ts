@@ -56,7 +56,7 @@ async function loadMermaid(): Promise<MermaidApi> {
           [innerHTML]="svg"
         ></div>
       </button>
-    } @else if (error()) {
+    } @else if (hasError()) {
       <div class="my-2">
         <p class="mb-1 text-sm text-text-secondary">{{ i18n.t().chat.diagramRenderFailed }}</p>
         <pre class="overflow-x-auto rounded-lg bg-surface p-3 text-xs"><code>{{ source() }}</code></pre>
@@ -77,7 +77,7 @@ export class MermaidDiagramComponent {
 
   readonly safeSvg = signal<SafeHtml | null>(null);
   readonly svgMarkup = signal('');
-  readonly error = signal(false);
+  readonly hasError = signal(false);
 
   constructor() {
     effect(() => {
@@ -86,7 +86,7 @@ export class MermaidDiagramComponent {
       untracked(() => {
         this.safeSvg.set(null);
         this.svgMarkup.set('');
-        this.error.set(false);
+        this.hasError.set(false);
       });
       void this.renderDiagram(source, diagramId);
     });
@@ -113,7 +113,7 @@ export class MermaidDiagramComponent {
   private async renderDiagram(source: string, diagramId: string): Promise<void> {
     const trimmed = source.trim();
     if (!trimmed) {
-      this.error.set(true);
+      this.hasError.set(true);
       return;
     }
 
@@ -127,16 +127,16 @@ export class MermaidDiagramComponent {
         ADD_TAGS: ['foreignObject'],
       });
       if (!clean) {
-        this.error.set(true);
+        this.hasError.set(true);
         return;
       }
       this.svgMarkup.set(clean);
       this.safeSvg.set(this.sanitizer.bypassSecurityTrustHtml(clean));
-      this.error.set(false);
+      this.hasError.set(false);
     } catch {
       this.safeSvg.set(null);
       this.svgMarkup.set('');
-      this.error.set(true);
+      this.hasError.set(true);
     }
   }
 }

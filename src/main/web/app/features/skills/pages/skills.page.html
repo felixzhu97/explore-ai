@@ -106,10 +106,10 @@
                 type="button"
                 z-button
                 zType="default"
-                [disabled]="saving()"
+                [disabled]="isSaving()"
                 (click)="save()"
               >
-                {{ saving() ? i18n.t().skillsPage.saving : i18n.t().skillsPage.save }}
+                {{ isSaving() ? i18n.t().skillsPage.saving : i18n.t().skillsPage.save }}
               </button>
               <button type="button" z-button zType="ghost" (click)="cancelForm()">
                 {{ i18n.t().skillsPage.cancel }}
@@ -121,7 +121,7 @@
 
       <section>
         <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().skillsPage.yourSkills }}</h2>
-        @if (loading()) {
+        @if (isLoading()) {
           <p class="mt-3 text-sm text-foreground/60">…</p>
         } @else {
           <ul class="mt-3 overflow-hidden rounded-xl border border-black/8 bg-white">

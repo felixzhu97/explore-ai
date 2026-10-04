@@ -63,10 +63,10 @@ import type { ImageSize } from '../image.model';
           z-button
           zFull
           zSize="lg"
-          [zDisabled]="!prompt().trim() || generating()"
+          [zDisabled]="!prompt().trim() || isGenerating()"
           (click)="generateRequested.emit()"
         >
-          @if (generating()) {
+          @if (isGenerating()) {
             {{ generatingLabel() }}
           } @else {
             {{ generateLabel() }}
@@ -88,7 +88,7 @@ export class ImageGenFormComponent {
   readonly prompt = model.required<string>();
   readonly sizes = input.required<ImageSize[]>();
   readonly selectedSize = input.required<ImageSize>();
-  readonly generating = input(false);
+  readonly isGenerating = input(false);
 
   readonly sizeSelected = output<ImageSize>();
   readonly generateRequested = output<void>();

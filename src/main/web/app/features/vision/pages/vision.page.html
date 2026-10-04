@@ -11,7 +11,7 @@
     <app-media-upload-panel
       [title]="i18n.t().imageUploader.imageLabel"
       [imagePreview]="vision.currentState().image"
-      [loading]="vision.isLoading()"
+      [isLoading]="vision.isLoading()"
       [dropText]="i18n.t().imageUploader.dropText"
       [dropHint]="i18n.t().imageUploader.dropHint"
       [clearLabel]="i18n.t().imageUploader.clearImage"
@@ -28,7 +28,7 @@
       [task]="vision.activeTask()"
       [result]="vision.currentState().result"
       [error]="vision.currentState().error"
-      [loading]="vision.isLoading()"
+      [isLoading]="vision.isLoading()"
       [canAnalyze]="vision.canAnalyze()"
       [emptyLabel]="i18n.t().imageUploader.noImageYet"
       [noDetectionsLabel]="i18n.t().imageUploader.noDetections"

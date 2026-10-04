@@ -17,13 +17,13 @@ vi.mock('../markdown-with-a2ui/markdown-with-a2ui.component', async () => {
 });
 
 import { ChatBubbleListComponent } from './chat-bubble-list.component';
-import { ChatBubbleMessage } from './chat-bubble.model';
+import { ChatMessageView } from './chat-bubble.model';
 
 describe('ChatBubbleListComponent', () => {
   let fixture: ComponentFixture<ChatBubbleListComponent>;
   let component: ChatBubbleListComponent;
 
-  const messages: ChatBubbleMessage[] = [
+  const messages: ChatMessageView[] = [
     {
       id: 'user-1',
       role: 'user',

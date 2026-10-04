@@ -1,4 +1,4 @@
-export interface AgentInfo {
+export interface AgentType {
   type: string;
   name: string;
   description: string;
@@ -22,7 +22,7 @@ export interface AgentInvokeRequest {
 }
 
 /** Builtin multilingual workflow template from the backend catalog. */
-export interface WorkflowTemplate {
+export interface PipelineTemplateDefinition {
   id: string;
   name: string;
   description: string;
@@ -33,7 +33,7 @@ export interface WorkflowTemplate {
 }
 
 /** Client-owned saved workflow template. */
-export interface SavedWorkflowTemplate {
+export interface PipelineTemplate {
   id: string;
   name: string;
   description: string;
@@ -46,7 +46,7 @@ export interface SavedWorkflowTemplate {
   updatedAt?: string;
 }
 
-export interface WorkflowTemplateWriteRequest {
+export interface PipelineTemplateWriteRequest {
   name: string;
   description: string;
   agentTypes: string[];

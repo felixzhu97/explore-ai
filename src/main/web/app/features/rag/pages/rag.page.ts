@@ -18,7 +18,7 @@ import {
 } from '@ng-icons/lucide';
 import { RagService, UploadStatus } from '../services/rag.service';
 import {
-  ChatBubbleMessage,
+  ChatMessageView,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
 } from '../../../shared/components/chat-shell';
@@ -59,7 +59,7 @@ export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);
   protected readonly i18n = inject(I18nService);
   /** Mobile document rail visibility; desktop rail is always shown. */
-  readonly docsOpen = signal(false);
+  readonly isDocumentPanelOpen = signal(false);
 
   readonly ragPrompts = computed((): NxPrompt[] => {
     const t = this.i18n.t().ragChat;
@@ -70,7 +70,7 @@ export class RagPageComponent implements OnInit {
     ];
   });
 
-  readonly bubbleMessages = computed((): ChatBubbleMessage[] => {
+  readonly bubbleMessages = computed((): ChatMessageView[] => {
     return this.ragService.messages().map(message => ({
       id: message.id,
       role: message.role,
@@ -96,12 +96,12 @@ export class RagPageComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.ragService.fetchAvailableDocs();
+    this.ragService.fetchAvailableDocuments();
   }
 
-  deleteDocument(docId: string, event: Event): void {
+  deleteDocument(documentId: string, event: Event): void {
     event.stopPropagation();
-    this.ragService.deleteDocument(docId);
+    this.ragService.deleteDocument(documentId);
   }
 
   onFileSelect(event: Event): void {

@@ -105,8 +105,8 @@ export class ImageService {
           this.imageSource.set('base64');
         }
       },
-      error: (err: unknown) => {
-        this.error.set(this.extractErrorMessage(err));
+      error: (error: unknown) => {
+        this.error.set(this.extractErrorMessage(error));
         this.isGenerating.set(false);
       },
       complete: () => {
@@ -181,12 +181,12 @@ export class ImageService {
     });
   }
 
-  private extractErrorMessage(err: unknown): string {
-    if (err instanceof Error) {
-      return err.message;
+  private extractErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
     }
-    if (typeof err === 'object' && err !== null && 'error' in err) {
-      const errorBody = (err as { error?: { status?: string } }).error;
+    if (typeof error === 'object' && error !== null && 'error' in error) {
+      const errorBody = (error as { error?: { status?: string } }).error;
       if (errorBody?.status?.startsWith('ERROR:')) {
         return errorBody.status.replace(/^ERROR:\s*/, '');
       }
