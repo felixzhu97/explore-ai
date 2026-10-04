@@ -278,6 +278,31 @@ describe('httpErrorInterceptor', () => {
       });
     });
 
+    it('should keep the server message and error code of a 503 ErrorResponse', async () => {
+      const mockErrorResponse = new HttpErrorResponse({
+        status: 503,
+        statusText: 'Service Unavailable',
+        url: '/api/images/generate',
+        error: {
+          message: 'Image provider not configured',
+          errorCode: 'IMAGE_PROVIDER_NOT_CONFIGURED',
+        },
+      });
+      const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
+      const req = new HttpRequest('POST', '/api/images/generate', {});
+
+      const interceptor = TestBed.runInInjectionContext(() => {
+        return httpErrorInterceptor(req, mockNext as unknown as HttpHandlerFn);
+      });
+
+      const error = await new Promise<AppError>((resolve) => {
+        interceptor.subscribe({ next: vi.fn(), error: resolve });
+      });
+      expect(error.code).toBe('SERVICE_UNAVAILABLE');
+      expect(error.message).toBe('Image provider not configured');
+      expect(error.errorCode).toBe('IMAGE_PROVIDER_NOT_CONFIGURED');
+    });
+
     it('should handle 403 forbidden errors', async () => {
       const mockErrorResponse = new HttpErrorResponse({
         status: 403,

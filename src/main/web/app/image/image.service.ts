@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
+import type { AppError } from '../http/http-error.interceptor';
 import { ImageZoomService } from '../ui/image-zoom.service';
 import { downloadBase64Image, downloadBlob } from '../ui/download';
 
@@ -145,8 +146,8 @@ export class ImageService {
           this.imageSource.set('base64');
         }
       },
-      error: (error: unknown) => {
-        this.error.set(this.extractErrorMessage(error));
+      error: (error: AppError) => {
+        this.error.set(error.message);
         this.isGenerating.set(false);
       },
       complete: () => {
@@ -214,15 +215,5 @@ export class ImageService {
       sizes: this.getImageSizes().pipe(catchError(() => of([] as string[]))),
       qualities: this.getImageQualities().pipe(catchError(() => of([] as string[]))),
     });
-  }
-
-  private extractErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const body = error.error as { message?: string } | null;
-      if (body?.message) {
-        return body.message;
-      }
-    }
-    return 'Image generation failed';
   }
 }

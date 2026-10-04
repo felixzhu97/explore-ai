@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { httpErrorInterceptor } from '../http/http-error.interceptor';
+import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
 import { ImageZoomService } from '../ui/image-zoom.service';
 import { VisionService } from './vision.service';
@@ -14,8 +17,10 @@ describe('VisionService', () => {
     imageZoom = { open: vi.fn() };
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(withInterceptors([httpErrorInterceptor])),
+        provideHttpClientTesting(),
+        { provide: NotificationService, useValue: { showError: vi.fn() } },
         VisionService,
         { provide: ImageZoomService, useValue: imageZoom },
         I18nService,
