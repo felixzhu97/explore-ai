@@ -88,7 +88,10 @@ public class ExecuteDueAutomationsUseCase {
     try {
       String result =
           workflowRunner.runSavedWorkflow(
-              schedule.getClientId(), schedule.getWorkflowTemplateId(), schedule.getBrief(), "en");
+              schedule.getClientId(),
+              schedule.getWorkflowTemplateId().value(),
+              schedule.getBrief(),
+              "en");
       EmailDeliveryStatus emailStatus = sendResultEmail(schedule, result);
       run.succeed(result, emailStatus);
       runRepository.save(run);

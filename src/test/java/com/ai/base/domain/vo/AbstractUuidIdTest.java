@@ -33,6 +33,16 @@ class AbstractUuidIdTest {
   }
 
   @Test
+  @DisplayName("should hold a native uuid when constructing from upper case text")
+  void shouldHoldNativeUuidWhenConstructingFromUpperCaseText() {
+    UUID uuid = UUID.randomUUID();
+    TestId id = TestId.of(" " + uuid.toString().toUpperCase() + " ");
+    assertEquals(uuid, id.asUuid());
+    assertEquals(uuid.toString(), id.value());
+    assertEquals(TestId.of(uuid.toString()), id);
+  }
+
+  @Test
   @DisplayName("should reject blank id value when constructing id")
   void shouldRejectBlankIdValueWhenConstructingId() {
     assertThrows(IllegalArgumentException.class, () -> TestId.of(" "));

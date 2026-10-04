@@ -3,11 +3,12 @@ package com.ai.automation.domain.model;
 import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
-import com.ai.base.domain.vo.UuidStringAttributeConverter;
 import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
+import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -56,11 +57,13 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   @Column(nullable = false, length = 40, updatable = false)
   private AutomationActionType actionType;
 
-  /** FK to workflow_templates.id (UUID column); stored as domain UUID string. */
-  @NotBlank
-  @Convert(converter = UuidStringAttributeConverter.class)
-  @Column(nullable = false, length = 36)
-  private String workflowTemplateId;
+  /** References a SavedWorkflowTemplate by id only; the template is a separate aggregate. */
+  @NotNull
+  @Embedded
+  @AttributeOverride(
+      name = "value",
+      column = @Column(name = "workflow_template_id", nullable = false))
+  private WorkflowTemplateId workflowTemplateId;
 
   @NotBlank
   @Size(max = 320)
@@ -99,7 +102,8 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
     this.actionType = Objects.requireNonNull(actionType, "actionType");
     this.workflowTemplateId =
-        DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId");
+        WorkflowTemplateId.of(
+            DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId"));
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
@@ -182,7 +186,8 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     this.cronExpression = normalizeCron(scheduleKind, cronExpression);
     this.timezone = DomainStrings.requireNonBlank(timezone, "timezone");
     this.workflowTemplateId =
-        DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId");
+        WorkflowTemplateId.of(
+            DomainStrings.requireNonBlank(workflowTemplateId, "workflowTemplateId"));
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");

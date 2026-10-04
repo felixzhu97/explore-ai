@@ -37,7 +37,7 @@ public record AutomationScheduleResponse(
         schedule.getTimezone(),
         schedule.isEnabled(),
         schedule.getActionType().value(),
-        schedule.getWorkflowTemplateId(),
+        schedule.getWorkflowTemplateId().value(),
         schedule.getRecipientEmail(),
         schedule.getBrief(),
         schedule.getNextRunAt(),

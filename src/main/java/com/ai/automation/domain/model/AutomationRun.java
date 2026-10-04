@@ -32,9 +32,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
   public static final int MAX_RESULT_EXCERPT = 16_384;
 
   @Embedded
-  @AttributeOverride(
-      name = "value",
-      column = @Column(name = "schedule_id", nullable = false, length = 36))
+  @AttributeOverride(name = "value", column = @Column(name = "schedule_id", nullable = false))
   private ScheduleId scheduleId;
 
   @NotNull
