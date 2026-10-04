@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { FEATURE_FLAG_KEYS } from '../feature-flags/feature-flag-keys';
 import {
-  groupNavTabs,
   isNavTabEnabled,
   MODULE_NAV_TABS,
   moreNavSections,
@@ -73,11 +72,5 @@ describe('module-nav.config', () => {
 
     expect(sections.map(section => section.group)).toEqual(['create']);
     expect(pipelinesTab?.group).toBe('work');
-  });
-
-  it('should order work create lab when grouping all tabs', () => {
-    const sections = groupNavTabs(MODULE_NAV_TABS);
-
-    expect(sections.map(section => section.group)).toEqual(['work', 'create', 'lab']);
   });
 });

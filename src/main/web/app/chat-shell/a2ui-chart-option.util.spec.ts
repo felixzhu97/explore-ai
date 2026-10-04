@@ -2,21 +2,20 @@ import { describe, expect, it } from 'vitest';
 import type { ChartBox, ChartCandle } from './a2ui-chart.api';
 import {
   buildChartOption,
-  buildEchartsOption,
   toChartItems,
   toChartSeries,
   toHeatmapCells,
   toScatterPoints,
 } from './a2ui-chart-option.util';
 
-describe('buildEchartsOption', () => {
+describe('buildChartOption basic types', () => {
   const data = [
     { label: 'A', value: 1 },
     { label: 'B', value: 2 },
   ];
 
   it('should map bar chart to category series', () => {
-    const option = buildEchartsOption('bar', data, 'Title');
+    const option = buildChartOption({ type: 'bar', chartData: data, title: 'Title' });
 
     expect(option).toMatchObject({
       title: { text: 'Title', left: 'center' },
@@ -27,7 +26,7 @@ describe('buildEchartsOption', () => {
   });
 
   it('should map line chart with smooth', () => {
-    const option = buildEchartsOption('line', data);
+    const option = buildChartOption({ type: 'line', chartData: data });
 
     expect(option).toMatchObject({
       series: [{ type: 'line', data: [1, 2], smooth: true }],
@@ -35,8 +34,8 @@ describe('buildEchartsOption', () => {
   });
 
   it('should map pie and doughnut to pie series', () => {
-    const pie = buildEchartsOption('pie', data, 'Share');
-    const doughnut = buildEchartsOption('doughnut', data);
+    const pie = buildChartOption({ type: 'pie', chartData: data, title: 'Share' });
+    const doughnut = buildChartOption({ type: 'doughnut', chartData: data });
 
     expect(pie).toMatchObject({
       series: [
@@ -56,7 +55,7 @@ describe('buildEchartsOption', () => {
   });
 
   it('should return null when data empty', () => {
-    expect(buildEchartsOption('bar', [])).toBeNull();
+    expect(buildChartOption({ type: 'bar', chartData: [] })).toBeNull();
   });
 });
 

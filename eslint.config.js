@@ -149,6 +149,7 @@ export default defineConfig([
         'error',
         { ignoreArrowShorthand: true },
       ],
+      '@typescript-eslint/no-deprecated': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/require-await': 'error',

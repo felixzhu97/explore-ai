@@ -206,7 +206,7 @@ export class RagService {
     };
 
     this.pendingFiles().forEach((file, index) => {
-      const documentId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const documentId = `doc_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
       this.uploadStatuses.update((statuses) => {
         const next = new Map(statuses);

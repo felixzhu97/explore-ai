@@ -2,8 +2,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { provideEchartsCore } from 'ngx-echarts';
 import { BehaviorSubject } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -25,8 +24,9 @@ describe('MetricsDomainPageComponent', () => {
     const queryParamMap$ = new BehaviorSubject(convertToParamMap({ range }));
 
     await TestBed.configureTestingModule({
-      imports: [MetricsDomainPageComponent, RouterTestingModule],
+      imports: [MetricsDomainPageComponent],
       providers: [
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideEchartsCore({ echarts: () => Promise.resolve({}) }),

@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TtsService } from './tts.service';
 import { DEFAULT_VOICES } from './tts.constants';
 import { API_BASE_URL } from '../http/api.constants';
@@ -12,8 +13,7 @@ describe('TtsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [TtsService],
+      providers: [TtsService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(TtsService);
     httpMock = TestBed.inject(HttpTestingController);
