@@ -1,4 +1,5 @@
 import type { ToolStep } from '.';
+import { hasText } from '../shared/presence';
 
 /**
  * DeepSeek DSML tool-call markup helpers (not A2UI).
@@ -19,7 +20,7 @@ const QUERY_PARAM_RE =
   /<\s*[^<>]*DSML[^<>]*parameter[^<>]*name\s*=\s*["']query["'][^<>]*>([\s\S]*?)<\/\s*[^<>]*DSML[^<>]*parameter[^<>]*>/i;
 
 export function stripToolCallMarkup(content: string): string {
-  if (!content) {
+  if (content === '') {
     return '';
   }
   let cleaned = content;
@@ -38,7 +39,7 @@ export function stripToolCallMarkup(content: string): string {
 }
 
 export function parseDsmlToolInvocations(content: string): DsmlToolInvocation[] {
-  if (!content || !/DSML/i.test(content)) {
+  if (content === '' || !/DSML/i.test(content)) {
     return [];
   }
   const found: DsmlToolInvocation[] = [];
@@ -46,7 +47,8 @@ export function parseDsmlToolInvocations(content: string): DsmlToolInvocation[] 
   INVOKE_RE.lastIndex = 0;
   let match: RegExpExecArray | null;
   while ((match = INVOKE_RE.exec(content)) !== null) {
-    const toolName = match[1]?.trim() || 'tool';
+    const named = match[1]?.trim();
+    const toolName = hasText(named) ? named : 'tool';
     const body = match[2] ?? '';
     const param = body.match(QUERY_PARAM_RE);
     const query = (param?.[1] ?? stripAngleBracketTags(body)).trim();
@@ -74,9 +76,9 @@ export function toMinimalToolSteps(
 function minimalToolLabel(toolName: string, query: string): string {
   const truncated = truncateQuery(query);
   if (toolName === 'searchWeb') {
-    return truncated ? `搜索 · ${truncated}` : '搜索';
+    return truncated !== '' ? `搜索 · ${truncated}` : '搜索';
   }
-  return truncated ? `${toolName} · ${truncated}` : toolName;
+  return truncated !== '' ? `${toolName} · ${truncated}` : toolName;
 }
 
 function truncateQuery(query: string): string {

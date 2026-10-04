@@ -15,6 +15,7 @@ import {
 import { DEFAULT_MODELS, DEFAULT_PROVIDERS } from './chat.constants';
 import { stripToolCallMarkup } from '../chat-shell/tool-call-markup.util';
 import type { ToolStep } from '../chat-shell/chat-bubble-list.component';
+import { hasItems, hasText } from '../shared/presence';
 
 export interface ChatStreamMessage {
   role: 'user' | 'assistant' | 'system';
@@ -132,7 +133,7 @@ export class ChatService {
       next: (data) => {
         this.providers.set(data);
         const available = data.find(p => p.status === 'available') ?? data[0];
-        if (available) {
+        if (available !== undefined) {
           this.selectedProvider.set(available.name);
           this.loadModels(available.name);
         }
@@ -163,7 +164,7 @@ export class ChatService {
         this.models.set(data);
         const defaultModel =
           data.find(m => m.name.includes('mini') || m.name.includes('flash')) ?? data[0];
-        if (defaultModel) {
+        if (defaultModel !== undefined) {
           this.selectedModel.set(defaultModel.name);
         }
       },
@@ -190,7 +191,7 @@ export class ChatService {
 
   isSelectedProviderAvailable(): boolean {
     const provider = this.providers().find(p => p.name === this.selectedProvider());
-    return provider == null || provider.status === 'available';
+    return provider === undefined || provider.status === 'available';
   }
 
   setModel(model: string): void {
@@ -229,7 +230,7 @@ export class ChatService {
    * (guest after logout, or account after sign-in).
    */
   resetForOwnerChange(): void {
-    if (this.#streamAbort) {
+    if (this.#streamAbort !== null) {
       this.#streamAbort();
       this.#streamAbort = null;
     }
@@ -274,13 +275,13 @@ export class ChatService {
         const sorted = this.#sortSessionsByActivity(sessions);
         this.sessions.set(sorted);
         this.#resolveBootstrapSession(sorted, options);
-        if (options.finalizeBootstrap) {
+        if (options.finalizeBootstrap === true) {
           this.#markSessionsReady();
         }
       },
       error: () => {
         this.sessions.set([]);
-        if (options.finalizeBootstrap) {
+        if (options.finalizeBootstrap === true) {
           this.#markSessionsReady();
           this.#ensureEmptyDraft(options.createIfEmpty);
         }
@@ -293,10 +294,10 @@ export class ChatService {
   }
 
   selectSession(sessionId: string, options?: { navigateToChat?: boolean }): void {
-    if (!sessionId || this.#chatRedirectInFlight) {
+    if (sessionId === '' || this.#chatRedirectInFlight) {
       return;
     }
-    const syncOpts = options?.navigateToChat
+    const syncOpts = options?.navigateToChat === true
       ? ({ navigateToChat: true } as const)
       : undefined;
     const owned = this.sessions();
@@ -323,7 +324,7 @@ export class ChatService {
       this.#syncChatUrl(sessionId, syncOpts);
       return;
     }
-    if (this.#streamAbort) {
+    if (this.#streamAbort !== null) {
       this.abortStream();
     }
     const loadId = ++this.#sessionLoadGeneration;
@@ -360,7 +361,7 @@ export class ChatService {
         this.sessions.update(list => list.filter(s => s.sessionId !== sessionId));
         if (this.activeSessionId() === sessionId) {
           const [next] = this.sessions();
-          if (next) {
+          if (next !== undefined) {
             this.selectSession(next.sessionId);
           } else {
             this.#clearActiveChat();
@@ -375,11 +376,14 @@ export class ChatService {
     options: { createIfEmpty: boolean },
   ): void {
     const preferredId = this.#sessionIdFromRoute();
-    if (preferredId && sorted.some(session => session.sessionId === preferredId)) {
+    if (
+      preferredId !== null
+      && sorted.some(session => session.sessionId === preferredId)
+    ) {
       this.selectSession(preferredId);
       return;
     }
-    if (preferredId) {
+    if (preferredId !== null) {
       // Unknown / foreign `/chat/:id` → redirect to `/chat` first, then draft.
       this.#redirectToChat(preferredId, options.createIfEmpty);
       return;
@@ -387,7 +391,7 @@ export class ChatService {
 
     // Bare `/chat`: empty draft only — never auto-open a history thread.
     const activeId = this.activeSessionId();
-    if (activeId && sorted.some(session => session.sessionId === activeId)) {
+    if (hasText(activeId) && sorted.some(session => session.sessionId === activeId)) {
       this.#syncChatUrl(activeId);
       return;
     }
@@ -400,7 +404,7 @@ export class ChatService {
     options?: { navigateToChat?: boolean },
   ): void {
     const existingEmpty = this.#newestEmptySession();
-    if (existingEmpty) {
+    if (existingEmpty !== undefined) {
       this.selectSession(existingEmpty.sessionId, options);
       this.#pruneExtraEmptySessions(existingEmpty.sessionId);
       return;
@@ -477,12 +481,12 @@ export class ChatService {
       return true;
     }
     const session = this.sessions().find(item => item.sessionId === sessionId);
-    return session != null && this.#sessionRecordHasHistory(session);
+    return session !== undefined && this.#sessionRecordHasHistory(session);
   }
 
   #persistActiveSessionId(sessionId: string | null): void {
     try {
-      if (sessionId) {
+      if (hasText(sessionId)) {
         sessionStorage.setItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION_ID, sessionId);
       } else {
         sessionStorage.removeItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION_ID);
@@ -494,7 +498,7 @@ export class ChatService {
 
   #rememberActiveSessionIfNeeded(sessionId: string | null): void {
     this.#persistActiveSessionId(
-      sessionId && this.#hasHistory(sessionId) ? sessionId : null,
+      hasText(sessionId) && this.#hasHistory(sessionId) ? sessionId : null,
     );
   }
 
@@ -502,11 +506,12 @@ export class ChatService {
     const tree = this.#router.parseUrl(this.#router.url);
     const primary = tree.root.children['primary'];
     const segments = primary?.segments.map(segment => segment.path) ?? [];
-    if (segments[0] === 'chat' && segments[1]) {
-      return segments[1];
+    const [section, routeSessionId] = segments;
+    if (section === 'chat' && hasText(routeSessionId)) {
+      return routeSessionId;
     }
     const session: unknown = tree.queryParams['session'];
-    return typeof session === 'string' ? session : null;
+    return typeof session === 'string' && session !== '' ? session : null;
   }
 
   #currentChatPath(): string {
@@ -536,11 +541,11 @@ export class ChatService {
     const currentPath = this.#currentChatPath();
     const onChat = currentPath === '/chat' || currentPath.startsWith('/chat/');
     // Passive sync (bootstrap) must not leave RAG/Policies/etc. User actions may.
-    if (!onChat && !options?.navigateToChat) {
+    if (!onChat && options?.navigateToChat !== true) {
       return;
     }
-    const expose = sessionId != null && this.#shouldExposeSessionInUrl(sessionId);
-    const targetUrl = expose && sessionId ? `/chat/${sessionId}` : '/chat';
+    const expose = hasText(sessionId) && this.#shouldExposeSessionInUrl(sessionId);
+    const targetUrl = hasText(sessionId) && expose ? `/chat/${sessionId}` : '/chat';
     if (currentPath === targetUrl) {
       return;
     }
@@ -603,7 +608,12 @@ export class ChatService {
 
   sendMessage(content: string): void {
     const sessionId = this.activeSessionId();
-    if (!sessionId || !content.trim() || this.isLoading() || this.isLoadingSession()) {
+    if (
+      !hasText(sessionId)
+      || content.trim() === ''
+      || this.isLoading()
+      || this.isLoadingSession()
+    ) {
       return;
     }
 
@@ -615,7 +625,7 @@ export class ChatService {
       return;
     }
 
-    if (this.#streamAbort) {
+    if (this.#streamAbort !== null) {
       this.#streamAbort();
     }
 
@@ -672,7 +682,7 @@ export class ChatService {
         // Drop empty placeholder before clearing streaming to avoid a blank-bubble flash.
         this.messages.update((messages) => {
           const target = messages.find(message => message.id === assistantId);
-          if (target && !hasRenderableBody(target)) {
+          if (target !== undefined && !hasRenderableBody(target)) {
             return messages.filter(message => message.id !== assistantId);
           }
           return messages;
@@ -735,7 +745,7 @@ export class ChatService {
               title: item.title,
               url: item.url,
               snippet: item.snippet,
-              publishedAt: item.publishedAt || undefined,
+              publishedAt: item.publishedAt === '' ? undefined : item.publishedAt,
             })),
           };
         }));
@@ -745,7 +755,7 @@ export class ChatService {
   }
 
   abortStream(): void {
-    if (!this.#streamAbort) {
+    if (this.#streamAbort === null) {
       return;
     }
     this.#streamAbort();
@@ -753,13 +763,13 @@ export class ChatService {
     const streamingId = this.streamingMessageId();
     this.isLoading.set(false);
     this.streamingMessageId.set(null);
-    if (!streamingId) {
+    if (streamingId === null) {
       return;
     }
     // Drop the empty assistant placeholder so the UI does not stay on "thinking".
     this.messages.update((messages) => {
       const target = messages.find(message => message.id === streamingId);
-      if (target && !hasRenderableBody(target)) {
+      if (target !== undefined && !hasRenderableBody(target)) {
         return messages.filter(message => message.id !== streamingId);
       }
       return messages;
@@ -785,7 +795,10 @@ export class ChatService {
 
   #createSessionRequest(title?: string): Observable<ChatSessionSummary> {
     return this.#http
-      .post<ChatSessionSummaryDto>(`${API_BASE_URL}/chat/sessions`, title ? { title } : {})
+      .post<ChatSessionSummaryDto>(
+        `${API_BASE_URL}/chat/sessions`,
+        hasText(title) ? { title } : {},
+      )
       .pipe(map(toChatSessionSummary));
   }
 
@@ -834,7 +847,7 @@ export class ChatService {
             const parsed = JSON.parse(data) as ErrorBody;
             message = parsed?.error ?? parsed?.message ?? message;
           } catch {
-            if (data) {
+            if (data !== '') {
               message = data;
             }
           }
@@ -871,7 +884,7 @@ export class ChatService {
         title: source.title,
         url: source.url,
         snippet: source.snippet,
-        publishedAt: source.publishedAt || undefined,
+        publishedAt: source.publishedAt === '' ? undefined : source.publishedAt,
       })),
     };
   }
@@ -887,7 +900,7 @@ export function mergeHistoryWithLocalMessages(
 ): ChatMessage[] {
   const previousSources = new Map<string, WebSource[]>();
   for (const message of previous) {
-    if (message.role === 'assistant' && message.sources?.length) {
+    if (message.role === 'assistant' && hasItems(message.sources)) {
       previousSources.set(message.content, message.sources);
       const stripped = stripToolCallMarkup(message.content);
       if (stripped !== message.content) {
@@ -897,21 +910,19 @@ export function mergeHistoryWithLocalMessages(
   }
 
   return history.map((ui) => {
-    if (ui.role !== 'assistant' || ui.sources?.length) {
+    if (ui.role !== 'assistant' || hasItems(ui.sources)) {
       return ui;
     }
     const local = previousSources.get(ui.content)
       ?? previousSources.get(stripToolCallMarkup(ui.content));
-    return local?.length ? { ...ui, sources: local } : ui;
+    return hasItems(local) ? { ...ui, sources: local } : ui;
   });
 }
 
 function hasRenderableBody(message: ChatMessage): boolean {
-  return Boolean(
-    message.content.trim()
-    || message.toolSteps?.length
-    || message.sources?.length,
-  );
+  return message.content.trim() !== ''
+    || hasItems(message.toolSteps)
+    || hasItems(message.sources);
 }
 
 function withoutEmptyBodies(messages: ChatMessage[]): ChatMessage[] {

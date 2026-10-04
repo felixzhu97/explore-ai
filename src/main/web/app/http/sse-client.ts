@@ -31,7 +31,7 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
   if (first === '{' || first === '[') {
     try {
       const json: unknown = JSON.parse(data);
-      if (!json || typeof json !== 'object' || Array.isArray(json)) {
+      if (json === null || typeof json !== 'object' || Array.isArray(json)) {
         return null;
       }
       const parsed = json as Record<string, unknown>;
@@ -61,7 +61,7 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
             title: String(row['title'] ?? ''),
             url: String(row['url'] ?? ''),
             snippet: String(row['snippet'] ?? ''),
-            ...(publishedAt ? { publishedAt } : {}),
+            ...(publishedAt !== '' ? { publishedAt } : {}),
           };
         });
         return {
@@ -108,7 +108,7 @@ export class SseEventAssembler {
   #dataLines: string[] = [];
 
   pushLine(line: string): SseEventPayload | null {
-    if (!line) {
+    if (line === '') {
       return this.flush();
     }
 
@@ -181,7 +181,7 @@ export function streamSsePost(
       return;
     }
 
-    if (!response.body) {
+    if (response.body === null) {
       handlers.onError(new Error('No response body'));
       return;
     }
@@ -217,7 +217,7 @@ export function streamSsePost(
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (value) {
+        if (value !== undefined) {
           buffer += decoder.decode(value, { stream: !done });
         }
         if (processBuffer()) {

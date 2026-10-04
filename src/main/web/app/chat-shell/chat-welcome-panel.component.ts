@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { type NxPrompt, NxPromptsComponent } from 'ng-zorro-x/prompts';
 import { NxWelcomeComponent } from 'ng-zorro-x/welcome';
+import { hasText } from '../shared/presence';
 
 @Component({
   selector: 'app-chat-welcome-panel',
@@ -47,7 +48,7 @@ export class ChatWelcomePanelComponent {
   readonly promptSelected = output<string>();
 
   onPromptClick(prompt: NxPrompt): void {
-    if (prompt.label) {
+    if (hasText(prompt.label)) {
       this.promptSelected.emit(prompt.label);
     }
   }

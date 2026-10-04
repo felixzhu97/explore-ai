@@ -24,7 +24,7 @@ export class MarkdownService {
   }
 
   render(content: string, streaming = false): SafeHtml {
-    if (!content) {
+    if (content === '') {
       return '';
     }
 
@@ -44,7 +44,7 @@ export class MarkdownService {
   }
 
   renderToString(content: string): string {
-    if (!content) {
+    if (content === '') {
       return '';
     }
 

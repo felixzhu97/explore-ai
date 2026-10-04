@@ -15,6 +15,7 @@ import type {
   ChartType,
 } from './a2ui-chart.api';
 import { buildRiverTimeline } from './river-timeline.util';
+import { hasItems, hasText } from '../shared/presence';
 
 export interface ChartBuildInput {
   type: ChartType;
@@ -70,7 +71,7 @@ function textStyle(size = 12, weight: number | string = 400, color: string = COL
 }
 
 function titleBlock(title?: string) {
-  if (!title) {
+  if (!hasText(title)) {
     return undefined;
   }
   return {
@@ -141,7 +142,13 @@ function simpleCategoryOption(
     color: [...COLOR.series],
     title: titleBlock(title),
     tooltip: { trigger: 'axis' },
-    grid: { left: 44, right: 16, top: title ? 52 : 28, bottom: 36, containLabel: false },
+    grid: {
+      left: 44,
+      right: 16,
+      top: hasText(title) ? 52 : 28,
+      bottom: 36,
+      containLabel: false,
+    },
     xAxis: categoryAxis(data.map(item => item.label)),
     yAxis: valueAxis(),
     series: [
@@ -173,11 +180,11 @@ function multiSeriesOption(
     color: [...COLOR.series],
     title: titleBlock(title),
     tooltip: { trigger: 'axis' },
-    legend: legendBlock({ top: title ? 30 : 4 }),
+    legend: legendBlock({ top: hasText(title) ? 30 : 4 }),
     grid: {
       left: 44,
       right: useDualAxis ? 52 : 16,
-      top: title ? 68 : 44,
+      top: hasText(title) ? 68 : 44,
       bottom: 36,
     },
     xAxis: categoryAxis(categories),
@@ -218,17 +225,17 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
   switch (type) {
     case 'bar':
     case 'line': {
-      if (input.categories?.length && input.series?.length) {
+      if (hasItems(input.categories) && hasItems(input.series)) {
         return multiSeriesOption(type, input.categories, input.series, title);
       }
-      if (input.chartData?.length) {
+      if (hasItems(input.chartData)) {
         return simpleCategoryOption(type, input.chartData, title);
       }
       return null;
     }
     case 'pie':
     case 'doughnut': {
-      if (!input.chartData?.length) {
+      if (!hasItems(input.chartData)) {
         return null;
       }
       return {
@@ -239,7 +246,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           {
             type: 'pie',
             radius: type === 'doughnut' ? ['42%', '68%'] : '62%',
-            center: ['50%', title ? '56%' : '52%'],
+            center: ['50%', hasText(title) ? '56%' : '52%'],
             itemStyle: { borderColor: '#fff', borderWidth: 2, borderRadius: 4 },
             label: {
               ...textStyle(11, 500, COLOR.text),
@@ -255,7 +262,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'funnel': {
-      if (!input.chartData?.length) {
+      if (!hasItems(input.chartData)) {
         return null;
       }
       return {
@@ -267,7 +274,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             type: 'funnel',
             left: '12%',
             width: '76%',
-            top: title ? 48 : 28,
+            top: hasText(title) ? 48 : 28,
             bottom: 16,
             minSize: '18%',
             maxSize: '100%',
@@ -290,20 +297,24 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'combo': {
-      if (!input.categories?.length || !input.series || input.series.length < 2) {
+      if (
+        !hasItems(input.categories)
+        || input.series === undefined
+        || input.series.length < 2
+      ) {
         return null;
       }
       return multiSeriesOption('bar', input.categories, input.series, title, true);
     }
     case 'scatter': {
-      if (!input.points?.length) {
+      if (!hasItems(input.points)) {
         return null;
       }
       return {
         color: [COLOR.accent],
         title: titleBlock(title),
         tooltip: { trigger: 'item' },
-        grid: { left: 48, right: 20, top: title ? 52 : 28, bottom: 40 },
+        grid: { left: 48, right: 20, top: hasText(title) ? 52 : 28, bottom: 40 },
         xAxis: valueAxis({ nameGap: 8 }),
         yAxis: valueAxis(),
         series: [
@@ -316,7 +327,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
               borderColor: '#fff',
               borderWidth: 1,
             },
-            data: input.points.map(point => point.label
+            data: input.points.map(point => hasText(point.label)
               ? { value: [point.x, point.y], name: point.label }
               : [point.x, point.y],
             ),
@@ -325,7 +336,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'radar': {
-      if (!input.indicators?.length || !input.series?.length) {
+      if (!hasItems(input.indicators) || !hasItems(input.series)) {
         return null;
       }
       return {
@@ -334,7 +345,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         tooltip: {},
         legend: legendBlock({ bottom: 4 }),
         radar: {
-          center: ['50%', title ? '54%' : '50%'],
+          center: ['50%', hasText(title) ? '54%' : '50%'],
           radius: '48%',
           axisName: {
             ...textStyle(11, 500, COLOR.secondary),
@@ -372,7 +383,9 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'heatmap': {
-      if (!input.xLabels?.length || !input.yLabels?.length || !input.cells?.length) {
+      if (
+        !hasItems(input.xLabels) || !hasItems(input.yLabels) || !hasItems(input.cells)
+      ) {
         return null;
       }
       const values = input.cells.map(cell => cell.value);
@@ -387,7 +400,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         grid: {
           left: 56,
           right: 20,
-          top: title ? 52 : 28,
+          top: hasText(title) ? 52 : 28,
           bottom: 56,
         },
         xAxis: {
@@ -446,7 +459,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             max: gaugeMax,
             startAngle: 210,
             endAngle: -30,
-            center: ['50%', title ? '58%' : '55%'],
+            center: ['50%', hasText(title) ? '58%' : '55%'],
             radius: '78%',
             progress: {
               show: true,
@@ -510,12 +523,12 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'treemap': {
-      const nodes = input.nodes?.length
+      const nodes = hasItems(input.nodes)
         ? input.nodes
-        : (input.chartData?.length
+        : (hasItems(input.chartData)
             ? input.chartData.map(item => ({ name: item.label, value: item.value }))
             : []);
-      if (!nodes.length) {
+      if (nodes.length === 0) {
         return null;
       }
       return {
@@ -525,7 +538,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         series: [
           {
             type: 'treemap',
-            top: title ? 40 : 16,
+            top: hasText(title) ? 40 : 16,
             bottom: 8,
             left: 8,
             right: 8,
@@ -540,12 +553,12 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'sunburst': {
-      const nodes = input.nodes?.length
+      const nodes = hasItems(input.nodes)
         ? input.nodes
-        : (input.chartData?.length
+        : (hasItems(input.chartData)
             ? input.chartData.map(item => ({ name: item.label, value: item.value }))
             : []);
-      if (!nodes.length) {
+      if (nodes.length === 0) {
         return null;
       }
       return {
@@ -556,7 +569,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           {
             type: 'sunburst',
             radius: [0, '72%'],
-            center: ['50%', title ? '56%' : '52%'],
+            center: ['50%', hasText(title) ? '56%' : '52%'],
             label: { ...textStyle(11, 500, COLOR.text), rotate: 'radial' },
             itemStyle: { borderColor: '#fff', borderWidth: 2 },
             data: nodes,
@@ -565,13 +578,13 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'tree': {
-      if (!input.nodes?.length) {
+      if (!hasItems(input.nodes)) {
         return null;
       }
       const root =
         input.nodes.length === 1
           ? input.nodes[0]
-          : { name: title || 'Root', children: input.nodes };
+          : { name: hasText(title) ? title : 'Root', children: input.nodes };
       return {
         color: [...COLOR.series],
         title: titleBlock(title),
@@ -579,7 +592,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         series: [
           {
             type: 'tree',
-            top: title ? 48 : 24,
+            top: hasText(title) ? 48 : 24,
             bottom: 24,
             left: 48,
             right: 80,
@@ -596,7 +609,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     }
     case 'sankey': {
       const graphNodes = toNamedNodes(input.nodes);
-      if (!graphNodes.length || !input.links?.length) {
+      if (graphNodes.length === 0 || !hasItems(input.links)) {
         return null;
       }
       return {
@@ -606,7 +619,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         series: [
           {
             type: 'sankey',
-            top: title ? 48 : 24,
+            top: hasText(title) ? 48 : 24,
             bottom: 16,
             left: 24,
             right: 24,
@@ -626,7 +639,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     }
     case 'graph': {
       const graphNodes = toNamedNodes(input.nodes);
-      if (!graphNodes.length || !input.links?.length) {
+      if (graphNodes.length === 0 || !hasItems(input.links)) {
         return null;
       }
       const layout = input.layout === 'circular' ? 'circular' : 'force';
@@ -661,14 +674,14 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     }
     case 'boxplot': {
       const resolved = resolveBoxes(input);
-      if (!resolved) {
+      if (resolved === null) {
         return null;
       }
       return {
         color: [COLOR.accent],
         title: titleBlock(title),
         tooltip: { trigger: 'item' },
-        grid: { left: 48, right: 20, top: title ? 52 : 28, bottom: 40 },
+        grid: { left: 48, right: 20, top: hasText(title) ? 52 : 28, bottom: 40 },
         xAxis: categoryAxis(resolved.categories),
         yAxis: valueAxis(),
         series: [
@@ -692,13 +705,13 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     }
     case 'candlestick': {
       const resolved = resolveCandles(input);
-      if (!resolved) {
+      if (resolved === null) {
         return null;
       }
       return {
         title: titleBlock(title),
         tooltip: { trigger: 'axis' },
-        grid: { left: 48, right: 20, top: title ? 52 : 28, bottom: 40 },
+        grid: { left: 48, right: 20, top: hasText(title) ? 52 : 28, bottom: 40 },
         xAxis: categoryAxis(resolved.categories),
         yAxis: valueAxis({ scale: true }),
         series: [
@@ -722,7 +735,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     }
     case 'parallel': {
       const resolved = resolveParallel(input);
-      if (!resolved) {
+      if (resolved === null) {
         return null;
       }
       return {
@@ -732,7 +745,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         parallel: {
           left: 48,
           right: 48,
-          top: title ? 56 : 32,
+          top: hasText(title) ? 56 : 32,
           bottom: 32,
           parallelAxisDefault: {
             nameTextStyle: textStyle(11, 500, COLOR.secondary),
@@ -755,7 +768,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     }
     case 'themeRiver': {
       const riverData = resolveRiverData(input);
-      if (!riverData.length) {
+      if (riverData.length === 0) {
         return null;
       }
       const times: string[] = [];
@@ -781,13 +794,13 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           axisPointer: { type: 'line', lineStyle: { color: COLOR.border, width: 1 } },
         },
         legend: {
-          ...legendBlock({ top: title ? 28 : 8 }),
+          ...legendBlock({ top: hasText(title) ? 28 : 8 }),
           data: names,
         },
         singleAxis: {
           // ThemeRiver needs numeric time; category labels won't draw layers.
           type: 'time',
-          top: title ? 64 : 40,
+          top: hasText(title) ? 64 : 40,
           bottom: 40,
           left: 48,
           right: 48,
@@ -815,7 +828,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       };
     }
     case 'calendar': {
-      if (!input.range || !input.calendarCells?.length) {
+      if (input.range === undefined || input.range === '' || !hasItems(input.calendarCells)) {
         return null;
       }
       const values = input.calendarCells.map(cell => cell.value);
@@ -837,7 +850,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           textStyle: textStyle(11, 400, COLOR.secondary),
         },
         calendar: {
-          top: title ? 56 : 32,
+          top: hasText(title) ? 56 : 32,
           left: 48,
           right: 24,
           bottom: 56,
@@ -864,23 +877,26 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
 }
 
 function toNamedNodes(nodes?: ChartTreeNode[]): ChartNamedNode[] {
-  if (!nodes?.length) {
+  if (!hasItems(nodes)) {
     return [];
   }
   return nodes
-    .map(node => (typeof node.name === 'string' && node.name ? { name: node.name } : null))
+    .map(node => (typeof node.name === 'string' && node.name !== '' ? { name: node.name } : null))
     .filter((node): node is ChartNamedNode => node !== null);
 }
 
 function parseBox(item: unknown): ChartBox | null {
   if (Array.isArray(item) && item.length >= 5) {
     const [min, q1, median, q3, max] = item.slice(0, 5).map(toFiniteNumber);
-    if (min == null || q1 == null || median == null || q3 == null || max == null) {
+    if (
+      typeof min !== 'number' || typeof q1 !== 'number' || typeof median !== 'number'
+      || typeof q3 !== 'number' || typeof max !== 'number'
+    ) {
       return null;
     }
     return { min, q1, median, q3, max };
   }
-  if (!item || typeof item !== 'object') {
+  if (item === null || typeof item !== 'object') {
     return null;
   }
   const row = item as Record<string, unknown>;
@@ -899,12 +915,15 @@ function parseCandle(item: unknown): ChartCandle | null {
   if (Array.isArray(item) && item.length >= 4) {
     // ECharts candlestick: [open, close, low, high]
     const [open, close, low, high] = item.slice(0, 4).map(toFiniteNumber);
-    if (open == null || close == null || low == null || high == null) {
+    if (
+      typeof open !== 'number' || typeof close !== 'number'
+      || typeof low !== 'number' || typeof high !== 'number'
+    ) {
       return null;
     }
     return { open, close, low, high };
   }
-  if (!item || typeof item !== 'object') {
+  if (item === null || typeof item !== 'object') {
     return null;
   }
   const row = item as Record<string, unknown>;
@@ -924,19 +943,19 @@ function toLabeledVectors(value: unknown): { name: string; values: number[] }[] 
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
       const name = row['label'] ?? row['name'];
-      if (typeof name !== 'string' || !name) {
+      if (typeof name !== 'string' || name === '') {
         return null;
       }
       if (Array.isArray(row['values'])) {
         const values = row['values']
           .map(toFiniteNumber)
           .filter((n): n is number => n !== null);
-        if (!values.length) {
+        if (values.length === 0) {
           return null;
         }
         return { name, values };
@@ -953,7 +972,7 @@ function resolveBoxes(
     .map(parseBox)
     .filter((b): b is ChartBox => b !== null);
   if (fromBoxes.length > 0) {
-    const categories = input.categories?.length
+    const categories = hasItems(input.categories)
       ? input.categories.slice(0, fromBoxes.length)
       : fromBoxes.map((_, i) => `C${i + 1}`);
     while (categories.length < fromBoxes.length) {
@@ -961,17 +980,17 @@ function resolveBoxes(
     }
     return { categories, boxes: fromBoxes };
   }
-  const fromSeries = input.series?.length
+  const fromSeries = hasItems(input.series)
     ? input.series
     : toLabeledVectors(input.chartDataRaw).map(v => ({
         name: v.name,
         values: v.values,
       }));
-  if (fromSeries.length) {
+  if (fromSeries.length !== 0) {
     const boxes = fromSeries
       .map(s => parseBox(s.values))
       .filter((b): b is ChartBox => b !== null);
-    if (!boxes.length) {
+    if (boxes.length === 0) {
       return null;
     }
     const categories = input.categories?.length === boxes.length
@@ -988,7 +1007,7 @@ function resolveCandles(
   const raw = [...(input.candles ?? []), ...(input.ohlc ?? [])];
   const fromCandles = raw.map(parseCandle).filter((c): c is ChartCandle => c !== null);
   if (fromCandles.length > 0) {
-    const categories = input.categories?.length
+    const categories = hasItems(input.categories)
       ? input.categories.slice(0, fromCandles.length)
       : fromCandles.map((_, i) => `D${i + 1}`);
     while (categories.length < fromCandles.length) {
@@ -998,14 +1017,14 @@ function resolveCandles(
   }
   // One series with flat OHLC groups, or one candle per series values[0..3]
   const onlySeries = input.series?.length === 1 ? input.series[0] : undefined;
-  if (onlySeries && onlySeries.values.length >= 4) {
+  if (onlySeries !== undefined && onlySeries.values.length >= 4) {
     const values = onlySeries.values;
     const categories = input.categories ?? [];
     if (values.length % 4 === 0 && categories.length === values.length / 4) {
       const candles: ChartCandle[] = [];
       for (let i = 0; i < values.length; i += 4) {
         const candle = parseCandle(values.slice(i, i + 4));
-        if (!candle) {
+        if (candle === null) {
           return null;
         }
         candles.push(candle);
@@ -1013,11 +1032,11 @@ function resolveCandles(
       return { categories, candles };
     }
   }
-  if (input.series?.length) {
+  if (hasItems(input.series)) {
     const candles = input.series
       .map(s => parseCandle(s.values))
       .filter((c): c is ChartCandle => c !== null);
-    if (!candles.length) {
+    if (candles.length === 0) {
       return null;
     }
     const categories = input.categories?.length === candles.length
@@ -1026,11 +1045,11 @@ function resolveCandles(
     return { categories, candles };
   }
   const vectors = toLabeledVectors(input.chartDataRaw);
-  if (vectors.length) {
+  if (vectors.length > 0) {
     const candles = vectors
       .map(v => parseCandle(v.values))
       .filter((c): c is ChartCandle => c !== null);
-    if (candles.length) {
+    if (candles.length > 0) {
       return {
         categories: vectors.slice(0, candles.length).map(v => v.name),
         candles,
@@ -1041,19 +1060,19 @@ function resolveCandles(
     const candles: ChartCandle[] = [];
     const categories: string[] = [];
     for (const item of input.chartDataRaw) {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         continue;
       }
       const row = item as Record<string, unknown>;
       const candle = parseCandle(row);
-      if (!candle) {
+      if (candle === null) {
         continue;
       }
       const name = row['label'] ?? row['name'] ?? row['date'];
-      categories.push(typeof name === 'string' && name ? name : `D${categories.length + 1}`);
+      categories.push(typeof name === 'string' && name !== '' ? name : `D${categories.length + 1}`);
       candles.push(candle);
     }
-    if (candles.length) {
+    if (candles.length > 0) {
       return { categories, candles };
     }
   }
@@ -1064,7 +1083,7 @@ function resolveParallel(
   input: ChartBuildInput,
 ): { dimensions: string[]; rows: number[][] } | null {
   const fromRows = toNumberRows(input.rows);
-  if (input.dimensions?.length && fromRows.length) {
+  if (hasItems(input.dimensions) && fromRows.length > 0) {
     const dimCount = input.dimensions.length;
     const rows = fromRows
       .map((row) => {
@@ -1081,11 +1100,11 @@ function resolveParallel(
         return null;
       })
       .filter((row): row is number[] => row !== null);
-    if (rows.length) {
+    if (rows.length > 0) {
       return { dimensions: input.dimensions, rows };
     }
   }
-  if (input.series?.length) {
+  if (hasItems(input.series)) {
     const dimCount = input.dimensions?.length
       ?? Math.max(...input.series.map(s => s.values.length));
     if (dimCount <= 0) {
@@ -1097,13 +1116,13 @@ function resolveParallel(
     const rows = input.series
       .map(s => s.values.slice(0, dimCount))
       .filter(row => row.length === dimCount);
-    if (!rows.length) {
+    if (rows.length === 0) {
       return null;
     }
     return { dimensions, rows };
   }
   const vectors = toLabeledVectors(input.chartDataRaw);
-  if (vectors.length) {
+  if (vectors.length > 0) {
     const dimCount = input.dimensions?.length
       ?? Math.max(...vectors.map(v => v.values.length));
     if (dimCount <= 0) {
@@ -1115,7 +1134,7 @@ function resolveParallel(
     const rows = vectors
       .map(v => v.values.slice(0, dimCount))
       .filter(row => row.length === dimCount);
-    if (rows.length) {
+    if (rows.length > 0) {
       return { dimensions, rows };
     }
   }
@@ -1124,10 +1143,10 @@ function resolveParallel(
 
 function resolveRiverData(input: ChartBuildInput): ChartRiverDatum[] {
   const direct = toRiverData(input.riverData);
-  if (direct.length) {
+  if (direct.length > 0) {
     return direct;
   }
-  if (input.categories?.length && input.series?.length) {
+  if (hasItems(input.categories) && hasItems(input.series)) {
     const out: ChartRiverDatum[] = [];
     for (const series of input.series) {
       input.categories.forEach((time, index) => {
@@ -1137,13 +1156,13 @@ function resolveRiverData(input: ChartBuildInput): ChartRiverDatum[] {
         }
       });
     }
-    if (out.length) {
+    if (out.length > 0) {
       return out;
     }
   }
   // chartData [{label: topic, values: monthly heats}] + categories as months
   const vectors = toLabeledVectors(input.chartDataRaw);
-  if (vectors.length && input.categories?.length) {
+  if (vectors.length > 0 && hasItems(input.categories)) {
     const out: ChartRiverDatum[] = [];
     for (const vector of vectors) {
       input.categories.forEach((time, index) => {
@@ -1153,14 +1172,14 @@ function resolveRiverData(input: ChartBuildInput): ChartRiverDatum[] {
         }
       });
     }
-    if (out.length) {
+    if (out.length > 0) {
       return out;
     }
   }
   // river-shaped chartData / triples already handled by toRiverData(riverData);
   // also accept chartDataRaw as river triples or {time,value,name}
   const fromRaw = toRiverData(input.chartDataRaw);
-  if (fromRaw.length) {
+  if (fromRaw.length > 0) {
     return fromRaw;
   }
   return [];
@@ -1173,7 +1192,7 @@ export function toChartItems(value: unknown): ChartItem[] {
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1206,7 +1225,7 @@ export function toChartSeries(value: unknown): ChartSeriesItem[] {
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1237,7 +1256,7 @@ export function toScatterPoints(value: unknown): ChartScatterPoint[] {
   }
   return value
     .map((item): ChartScatterPoint | null => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1258,7 +1277,7 @@ export function toRadarIndicators(value: unknown): ChartRadarIndicator[] {
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1278,7 +1297,7 @@ export function toHeatmapCells(value: unknown): ChartHeatmapCell[] {
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1294,12 +1313,12 @@ export function toHeatmapCells(value: unknown): ChartHeatmapCell[] {
 }
 
 function toTreeNode(value: unknown): ChartTreeNode | null {
-  if (!value || typeof value !== 'object') {
+  if (value === null || typeof value !== 'object') {
     return null;
   }
   const row = value as Record<string, unknown>;
   const name = row['name'];
-  if (typeof name !== 'string' || !name) {
+  if (typeof name !== 'string' || name === '') {
     return null;
   }
   const node: ChartTreeNode = { name };
@@ -1331,7 +1350,7 @@ export function toChartLinks(value: unknown): ChartLink[] {
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1373,7 +1392,7 @@ export function toNumberRows(value: unknown): number[][] {
         }
         return numbers as number[];
       }
-      if (row && typeof row === 'object') {
+      if (row !== null && typeof row === 'object') {
         const record = row as Record<string, unknown>;
         if (Array.isArray(record['values'])) {
           const numbers = record['values'].map(toFiniteNumber);
@@ -1403,7 +1422,7 @@ export function toRiverData(value: unknown): ChartRiverDatum[] {
         }
         return null;
       }
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1424,7 +1443,7 @@ export function toCalendarCells(value: unknown): ChartCalendarCell[] {
   }
   return value
     .map((item) => {
-      if (!item || typeof item !== 'object') {
+      if (item === null || typeof item !== 'object') {
         return null;
       }
       const row = item as Record<string, unknown>;
@@ -1439,7 +1458,7 @@ export function toCalendarCells(value: unknown): ChartCalendarCell[] {
 }
 
 export function toChartRange(value: unknown): string | [string, string] | undefined {
-  if (typeof value === 'string' && value) {
+  if (typeof value === 'string' && value !== '') {
     return value;
   }
   if (Array.isArray(value) && value.length === 2

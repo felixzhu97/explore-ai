@@ -23,6 +23,7 @@ import {
 import { ChatToolStepsComponent } from './chat-tool-steps.component';
 import type { Instant } from '@js-joda/core';
 import { InstantPipe } from '../time/instant.pipe';
+import { hasItems, hasText } from '../shared/presence';
 
 export interface ChatSourceView {
   text: string;
@@ -283,7 +284,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     const assistantTpl = this.assistantMessageTpl();
     const footerTpl = this.assistantFooterTpl();
 
-    if (!userTpl || !assistantTpl || !footerTpl) {
+    if (userTpl === undefined || assistantTpl === undefined || footerTpl === undefined) {
       return [];
     }
 
@@ -292,13 +293,13 @@ export class ChatBubbleListComponent implements OnDestroy {
         if (this.isStreaming(message.id)) {
           return true;
         }
-        if (message.content.trim()) {
+        if (message.content.trim() !== '') {
           return true;
         }
         if (
-          message.toolSteps?.length
-          || message.sources?.length
-          || message.images?.length
+          hasItems(message.toolSteps)
+          || hasItems(message.sources)
+          || hasItems(message.images)
         ) {
           return true;
         }
@@ -313,11 +314,11 @@ export class ChatBubbleListComponent implements OnDestroy {
           key: message.id,
           role: message.role,
           content: message.content,
-          loading: isAssistant && isStreaming && !message.content && !hasToolSteps,
+          loading: isAssistant && isStreaming && message.content === '' && !hasToolSteps,
           messageRender: isAssistant ? assistantTpl : userTpl,
         };
 
-        if (isAssistant && message.timestamp) {
+        if (isAssistant && message.timestamp !== undefined) {
           item.footerRender = footerTpl;
         }
 
@@ -346,7 +347,7 @@ export class ChatBubbleListComponent implements OnDestroy {
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
-    if (!this.openRef()) {
+    if (this.openRef() === null) {
       return;
     }
     const target = event.target;
@@ -354,7 +355,7 @@ export class ChatBubbleListComponent implements OnDestroy {
       this.closeSourceRef();
       return;
     }
-    if (target.closest('[data-source-popover]') || target.closest('[data-source-chips]')) {
+    if (target.closest('[data-source-popover]') !== null || target.closest('[data-source-chips]') !== null) {
       return;
     }
     this.closeSourceRef();
@@ -381,7 +382,7 @@ export class ChatBubbleListComponent implements OnDestroy {
   }
 
   formatBasedOn(count: number): string {
-    return this.footerLabels().basedOn.replace('{count}', `${count}`);
+    return this.footerLabels().basedOn.replace('{count}', String(count));
   }
 
   sourceAt(messageId: string, index: number): ChatSourceView | undefined {
@@ -425,7 +426,7 @@ export class ChatBubbleListComponent implements OnDestroy {
 
   chipAriaLabel(index: number, source: ChatSourceView): string {
     const title = `${index + 1}. ${sourceTitle(source, this.footerLabels().sources)}`;
-    if (source.url) {
+    if (hasText(source.url)) {
       return `${title}. ${this.footerLabels().openReference}`;
     }
     return title;
@@ -438,7 +439,7 @@ export class ChatBubbleListComponent implements OnDestroy {
   onChipClick(event: MouseEvent, source: ChatSourceView): void {
     event.stopPropagation();
     const url = source.url?.trim();
-    if (!url) {
+    if (!hasText(url)) {
       return;
     }
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -463,7 +464,7 @@ export class ChatBubbleListComponent implements OnDestroy {
       return;
     }
     // Switching between chips while open should feel instant; first open waits briefly.
-    if (this.openRef()) {
+    if (this.openRef() !== null) {
       this.#openSourceRefAt(target, messageId, index);
       return;
     }
@@ -522,7 +523,7 @@ export class ChatBubbleListComponent implements OnDestroy {
 
   #refinePopoverPosition(): void {
     const current = this.openRef();
-    if (!current) {
+    if (current === null) {
       return;
     }
     const el = document.querySelector('[data-source-popover]');

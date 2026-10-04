@@ -50,7 +50,7 @@ function handleClientError(error: HttpErrorResponse): AppError {
   const clientError = error.error as ErrorEvent;
   return {
     code: 'CLIENT_ERROR',
-    message: clientError.message || 'A client-side error occurred',
+    message: clientError.message !== '' ? clientError.message : 'A client-side error occurred',
     status: 0,
     timestamp: Instant.now(),
   };
@@ -61,7 +61,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
     case 400:
       return {
         code: 'BAD_REQUEST',
-        message: extractMessage(error) || 'Invalid request',
+        message: extractMessage(error) ?? 'Invalid request',
         status: 400,
         timestamp: Instant.now(),
         details: error.error,
@@ -80,7 +80,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'FORBIDDEN',
         message:
           extractMessage(error)
-          || 'You do not have permission to perform this action.',
+          ?? 'You do not have permission to perform this action.',
         status: 403,
         timestamp: Instant.now(),
       };
@@ -89,7 +89,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
       return {
         code: 'NOT_FOUND',
         message:
-          extractMessage(error) || 'The requested resource was not found.',
+          extractMessage(error) ?? 'The requested resource was not found.',
         status: 404,
         timestamp: Instant.now(),
         details: error.url,
@@ -106,7 +106,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
     case 422:
       return {
         code: 'VALIDATION_ERROR',
-        message: extractMessage(error) || 'Validation failed',
+        message: extractMessage(error) ?? 'Validation failed',
         status: 422,
         timestamp: Instant.now(),
         details: error.error,
@@ -141,7 +141,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'SERVICE_UNAVAILABLE',
         message:
           extractMessage(error)
-          || 'The service is currently unavailable. Please try again later.',
+          ?? 'The service is currently unavailable. Please try again later.',
         status: 503,
         timestamp: Instant.now(),
       };
@@ -149,7 +149,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
     default:
       return {
         code: 'UNKNOWN_ERROR',
-        message: extractMessage(error) || 'An unexpected error occurred',
+        message: extractMessage(error) ?? 'An unexpected error occurred',
         status: error.status,
         timestamp: Instant.now(),
       };
@@ -159,9 +159,9 @@ function handleServerError(error: HttpErrorResponse): AppError {
 function extractMessage(error: HttpErrorResponse): string | null {
   const errorBody: unknown = error.error;
   if (typeof errorBody === 'string') {
-    return errorBody || null;
+    return errorBody !== '' ? errorBody : null;
   }
-  if (!errorBody || typeof errorBody !== 'object') {
+  if (errorBody === null || typeof errorBody !== 'object') {
     return null;
   }
 
