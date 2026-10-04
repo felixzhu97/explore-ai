@@ -15,7 +15,7 @@ import com.ai.automation.domain.model.EmailMessage;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
-import com.ai.automation.domain.repository.WorkflowRunner;
+import com.ai.automation.domain.repository.PipelineGateway;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.infra.config.AutomationProperties;
@@ -37,7 +37,7 @@ class DueAutomationRunnerTest {
 
   @Mock private AutomationScheduleRepository scheduleRepository;
   @Mock private AutomationRunRepository runRepository;
-  @Mock private WorkflowRunner workflowRunner;
+  @Mock private PipelineGateway pipelineGateway;
   @Mock private EmailGateway emailGateway;
   @Mock private DailyUsageQuotaService dailyUsageQuotaService;
 
@@ -51,7 +51,7 @@ class DueAutomationRunnerTest {
         new DueAutomationRunner(
             scheduleRepository,
             runRepository,
-            workflowRunner,
+            pipelineGateway,
             emailGateway,
             new AutomationMailFormatter(),
             cronCalculator,
@@ -75,7 +75,7 @@ class DueAutomationRunnerTest {
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
-    when(workflowRunner.runSavedWorkflow(anyString(), anyString(), anyString(), anyString()))
+    when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("workflow result");
 
     int executed = useCase.executeDue();
@@ -107,8 +107,8 @@ class DueAutomationRunnerTest {
 
     useCase.executeDue();
 
-    verify(workflowRunner, never())
-        .runSavedWorkflow(anyString(), anyString(), anyString(), anyString());
+    verify(pipelineGateway, never())
+        .runSavedTemplate(anyString(), anyString(), anyString(), anyString());
     ArgumentCaptor<AutomationRun> runCaptor = ArgumentCaptor.forClass(AutomationRun.class);
     verify(runRepository).save(runCaptor.capture());
     assertThat(runCaptor.getValue().getStatus()).isEqualTo(RunStatus.SKIPPED);
@@ -132,7 +132,7 @@ class DueAutomationRunnerTest {
             eq(schedule.getId()), eq(past), eq(AutomationSchedule.ONCE_TERMINAL_NEXT)))
         .thenReturn(true);
     when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
-    when(workflowRunner.runSavedWorkflow(anyString(), anyString(), anyString(), anyString()))
+    when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("once result");
 
     useCase.executeDue();

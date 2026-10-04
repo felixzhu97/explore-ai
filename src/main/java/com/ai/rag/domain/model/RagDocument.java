@@ -12,11 +12,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Document aggregate root with JPA mapping on the documents table. */
+/** Uploaded RAG document aggregate; chunks and embeddings hang off it. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
+public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
 
   @Column(nullable = false)
   private String title;
@@ -30,11 +30,11 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
   @Column(nullable = false)
   private DocumentStatus status;
 
-  public Document(DocumentId id, String title, String fileName, Long fileSize) {
+  public RagDocument(DocumentId id, String title, String fileName, Long fileSize) {
     this(id, title, fileName, fileSize, com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
   }
 
-  public Document(DocumentId id, String title, String fileName, Long fileSize, String ownerKey) {
+  public RagDocument(DocumentId id, String title, String fileName, Long fileSize, String ownerKey) {
     super(id, ownerKey, Instant.now(), Instant.now());
     this.title = validateTitle(title);
     this.fileName = fileName;
@@ -42,7 +42,7 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
     this.status = DocumentStatus.UPLOADING;
   }
 
-  public Document(
+  public RagDocument(
       DocumentId id,
       String title,
       String fileName,
@@ -61,7 +61,7 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
         com.ai.common.domain.vo.OwnerKey.LEGACY_ORPHAN.value());
   }
 
-  public Document(
+  public RagDocument(
       DocumentId id,
       String title,
       String fileName,
@@ -138,6 +138,6 @@ public class Document extends AbstractOwnerKeyedEntity<DocumentId> {
 
   @Override
   public String toString() {
-    return "Document{id=%s, title='%s', status=%s}".formatted(getId(), title, status);
+    return "RagDocument{id=%s, title='%s', status=%s}".formatted(getId(), title, status);
   }
 }

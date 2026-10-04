@@ -4,7 +4,7 @@ import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.domain.model.SavedAgentDefinition;
+import com.ai.pipeline.domain.model.SavedAgent;
 import com.ai.pipeline.domain.repository.AgentRegistry;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.AgentType;
@@ -89,7 +89,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
       byType.put(builtin.type().value(), builtin);
     }
     if (ownerKey != null && !ownerKey.isBlank()) {
-      for (SavedAgentDefinition saved : savedAgentRepository.findEnabledByOwnerKey(ownerKey)) {
+      for (SavedAgent saved : savedAgentRepository.findEnabledByOwnerKey(ownerKey)) {
         byType.put(saved.getTypeKey(), saved.toAgentDefinition());
       }
     }
@@ -111,7 +111,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
   public Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language) {
     String key = type.value().toLowerCase(Locale.ROOT);
     if (ownerKey != null && !ownerKey.isBlank()) {
-      for (SavedAgentDefinition saved : savedAgentRepository.findEnabledByOwnerKey(ownerKey)) {
+      for (SavedAgent saved : savedAgentRepository.findEnabledByOwnerKey(ownerKey)) {
         if (saved.getTypeKey().equals(key)) {
           return Optional.of(saved.toAgentDefinition());
         }

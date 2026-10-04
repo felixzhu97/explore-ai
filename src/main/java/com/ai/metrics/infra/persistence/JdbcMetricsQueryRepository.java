@@ -235,13 +235,14 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public RagInventory ragInventory() {
-    Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document", Long.class);
+    Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM rag_document", Long.class);
     Long chunks = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document_chunks", Long.class);
     Long bytes =
-        jdbcTemplate.queryForObject("SELECT COALESCE(SUM(file_size), 0) FROM document", Long.class);
+        jdbcTemplate.queryForObject(
+            "SELECT COALESCE(SUM(file_size), 0) FROM rag_document", Long.class);
     Map<String, Long> byStatus = new LinkedHashMap<>();
     jdbcTemplate.query(
-        "SELECT status, COUNT(*) AS cnt FROM document GROUP BY status",
+        "SELECT status, COUNT(*) AS cnt FROM rag_document GROUP BY status",
         rs -> {
           byStatus.put(rs.getString("status"), rs.getLong("cnt"));
         });

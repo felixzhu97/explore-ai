@@ -9,9 +9,9 @@ import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.automation.infra.config.AutomationProperties;
-import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
-import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -26,19 +26,19 @@ public class AutomationService {
 
   private final AutomationScheduleRepository scheduleRepository;
   private final AutomationRunRepository runRepository;
-  private final WorkflowTemplateRepository workflowTemplateRepository;
+  private final PipelineTemplateRepository pipelineTemplateRepository;
   private final CronScheduleCalculator cronCalculator;
   private final AutomationProperties properties;
 
   public AutomationService(
       AutomationScheduleRepository scheduleRepository,
       AutomationRunRepository runRepository,
-      WorkflowTemplateRepository workflowTemplateRepository,
+      PipelineTemplateRepository pipelineTemplateRepository,
       CronScheduleCalculator cronCalculator,
       AutomationProperties properties) {
     this.scheduleRepository = scheduleRepository;
     this.runRepository = runRepository;
-    this.workflowTemplateRepository = workflowTemplateRepository;
+    this.pipelineTemplateRepository = pipelineTemplateRepository;
     this.cronCalculator = cronCalculator;
     this.properties = properties;
   }
@@ -56,14 +56,14 @@ public class AutomationService {
       String cronExpression,
       Instant runAt,
       String timezone,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief) {
     if (scheduleRepository.countByOwnerKey(ownerKey) >= properties.getMaxSchedulesPerClient()) {
       throw new AutomationLimitExceededException(
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
     }
-    requireWorkflow(ownerKey, workflowTemplateId);
+    requireWorkflow(ownerKey, pipelineTemplateId);
     ScheduleKind kind = scheduleKind == null ? ScheduleKind.CRON : scheduleKind;
     AutomationSchedule schedule =
         buildNew(
@@ -73,7 +73,7 @@ public class AutomationService {
             cronExpression,
             runAt,
             timezone,
-            workflowTemplateId,
+            pipelineTemplateId,
             recipientEmail,
             brief);
     return scheduleRepository.save(schedule);
@@ -89,15 +89,15 @@ public class AutomationService {
       String cronExpression,
       Instant runAt,
       String timezone,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief) {
     AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
-    requireWorkflow(ownerKey, workflowTemplateId);
+    requireWorkflow(ownerKey, pipelineTemplateId);
     ScheduleKind kind = scheduleKind == null ? ScheduleKind.CRON : scheduleKind;
     Instant next = resolveNextRunAt(kind, cronExpression, runAt, timezone);
     schedule.update(
-        name, kind, cronExpression, timezone, workflowTemplateId, recipientEmail, brief, next);
+        name, kind, cronExpression, timezone, pipelineTemplateId, recipientEmail, brief, next);
     return scheduleRepository.save(schedule);
   }
 
@@ -144,18 +144,18 @@ public class AutomationService {
       String cronExpression,
       Instant runAt,
       String timezone,
-      String workflowTemplateId,
+      String pipelineTemplateId,
       String recipientEmail,
       String brief) {
     if (kind == ScheduleKind.ONCE) {
       Instant target = Objects.requireNonNull(runAt, "runAt is required for ONCE schedules");
       return AutomationSchedule.createOnce(
-          ownerKey, name, timezone, workflowTemplateId, recipientEmail, brief, target);
+          ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, target);
     }
     cronCalculator.validate(cronExpression, timezone);
     Instant next = cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());
     return AutomationSchedule.create(
-        ownerKey, name, cronExpression, timezone, workflowTemplateId, recipientEmail, brief, next);
+        ownerKey, name, cronExpression, timezone, pipelineTemplateId, recipientEmail, brief, next);
   }
 
   private Instant resolveNextRunAt(
@@ -177,10 +177,10 @@ public class AutomationService {
         .orElseThrow(() -> new AutomationScheduleNotFoundException(scheduleId));
   }
 
-  private void requireWorkflow(String ownerKey, String workflowTemplateId) {
-    workflowTemplateRepository
-        .findByIdAndOwnerKey(WorkflowTemplateId.of(workflowTemplateId), ownerKey)
+  private void requireWorkflow(String ownerKey, String pipelineTemplateId) {
+    pipelineTemplateRepository
+        .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
         .filter(template -> template.isEnabled())
-        .orElseThrow(() -> new WorkflowTemplateNotFoundException(workflowTemplateId));
+        .orElseThrow(() -> new PipelineTemplateNotFoundException(pipelineTemplateId));
   }
 }

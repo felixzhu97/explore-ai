@@ -12,8 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
@@ -73,7 +73,7 @@ class DocumentUploadServiceTest {
       Long fileSize = 1024L;
       String content = "This is test content";
 
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(fileName)))
           .thenReturn(new RawDocument(content, Map.of("fileName", fileName), fileName));
@@ -98,7 +98,7 @@ class DocumentUploadServiceTest {
     void shouldMarkDocumentAsUploadingThenReady() {
       String content = "Test content";
 
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
           .thenReturn(new RawDocument(content, Map.of(), "test"));
@@ -108,7 +108,7 @@ class DocumentUploadServiceTest {
 
       service.upload("Title", "file.txt", 100L, content, "c:test-owner");
 
-      verify(documentRepository, times(2)).save(any(Document.class), eq("c:test-owner"));
+      verify(documentRepository, times(2)).save(any(RagDocument.class), eq("c:test-owner"));
     }
   }
 
@@ -123,7 +123,7 @@ class DocumentUploadServiceTest {
       String fileName = "test.txt";
       byte[] content = "Test content".getBytes();
 
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(content), eq(fileName)))
           .thenReturn(new RawDocument("processed", Map.of("fileName", fileName), fileName));
@@ -144,7 +144,7 @@ class DocumentUploadServiceTest {
       String fileName = "document.pdf";
       byte[] pdfContent = new byte[] {1, 2, 3};
 
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(pdfContent), eq(fileName)))
           .thenThrow(new IllegalStateException("PDF text extraction returned empty"));
@@ -168,7 +168,7 @@ class DocumentUploadServiceTest {
       when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
       when(multipartFile.getSize()).thenReturn(100L);
       when(multipartFile.getBytes()).thenReturn("content".getBytes());
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(originalFileName)))
           .thenReturn(
@@ -194,7 +194,7 @@ class DocumentUploadServiceTest {
       when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
       when(multipartFile.getSize()).thenReturn(50L);
       when(multipartFile.getBytes()).thenReturn("content".getBytes());
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(originalFileName)))
           .thenReturn(
@@ -233,7 +233,7 @@ class DocumentUploadServiceTest {
     @DisplayName("should mark document as FAILED when transformer fails")
     void shouldMarkDocumentAsFailedWhenTransformerFails() {
       String content = "Test content";
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
           .thenReturn(new RawDocument(content, Map.of(), "test"));
@@ -244,14 +244,14 @@ class DocumentUploadServiceTest {
           .isInstanceOf(RuntimeException.class)
           .hasMessageContaining("Failed to process document");
 
-      verify(documentRepository, times(2)).save(any(Document.class), eq("c:test-owner"));
+      verify(documentRepository, times(2)).save(any(RagDocument.class), eq("c:test-owner"));
     }
 
     @Test
     @DisplayName("should mark document as FAILED when writer fails")
     void shouldMarkDocumentAsFailedWhenWriterFails() {
       String content = "Test content";
-      when(documentRepository.save(any(Document.class), anyString()))
+      when(documentRepository.save(any(RagDocument.class), anyString()))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
           .thenReturn(new RawDocument(content, Map.of(), "test"));
@@ -263,7 +263,7 @@ class DocumentUploadServiceTest {
           .isInstanceOf(RuntimeException.class)
           .hasMessageContaining("Embedding failed");
 
-      verify(documentRepository, times(2)).save(any(Document.class), eq("c:test-owner"));
+      verify(documentRepository, times(2)).save(any(RagDocument.class), eq("c:test-owner"));
     }
   }
 
@@ -274,11 +274,13 @@ class DocumentUploadServiceTest {
     @Test
     @DisplayName("should return all documents")
     void shouldReturnAllDocuments() {
-      Document doc1 = new Document(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
-      Document doc2 = new Document(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
+      RagDocument doc1 =
+          new RagDocument(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
+      RagDocument doc2 =
+          new RagDocument(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
       when(documentRepository.findAllByOwnerKey("c:test-owner")).thenReturn(List.of(doc1, doc2));
 
-      List<Document> result = service.listAll("c:test-owner");
+      List<RagDocument> result = service.listAll("c:test-owner");
 
       assertThat(result).hasSize(2);
       verify(documentRepository).findAllByOwnerKey("c:test-owner");
@@ -289,7 +291,7 @@ class DocumentUploadServiceTest {
     void shouldReturnEmptyListWhenNoDocuments() {
       when(documentRepository.findAllByOwnerKey("c:test-owner")).thenReturn(List.of());
 
-      List<Document> result = service.listAll("c:test-owner");
+      List<RagDocument> result = service.listAll("c:test-owner");
 
       assertThat(result).isEmpty();
     }
@@ -304,7 +306,7 @@ class DocumentUploadServiceTest {
     void shouldDeleteDocumentAndItsChunks() {
       UUID documentId = UUID.randomUUID();
       DocumentId docId = DocumentId.of(documentId);
-      Document document = new Document(docId, "Test Doc", "test.txt", 100L, "c:test");
+      RagDocument document = new RagDocument(docId, "Test Doc", "test.txt", 100L, "c:test");
 
       when(documentRepository.findByIdAndOwnerKey(documentId, "c:test-owner"))
           .thenReturn(Optional.of(document));
@@ -333,7 +335,7 @@ class DocumentUploadServiceTest {
     void shouldDeleteChunksEvenWhenDocumentHasNoChunks() {
       UUID documentId = UUID.randomUUID();
       DocumentId docId = DocumentId.of(documentId);
-      Document document = new Document(docId, "Test Doc", "test.txt", 100L, "c:test");
+      RagDocument document = new RagDocument(docId, "Test Doc", "test.txt", 100L, "c:test");
 
       when(documentRepository.findByIdAndOwnerKey(documentId, "c:test-owner"))
           .thenReturn(Optional.of(document));

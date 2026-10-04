@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
-public record UpdateWorkflowTemplateRequest(
+public record UpdatePipelineTemplateRequest(
     @NotBlank @Size(max = 120) String name,
     @Size(max = 500) String description,
     @NotEmpty List<String> agentTypes,

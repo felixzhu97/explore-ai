@@ -1,8 +1,8 @@
 package com.ai.rag.service;
 
 import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
@@ -78,7 +78,7 @@ public class DocumentUploadService {
   }
 
   @Transactional(readOnly = true)
-  public List<Document> listAll(String ownerKey) {
+  public List<RagDocument> listAll(String ownerKey) {
     return documentRepository.findAllByOwnerKey(ownerKey);
   }
 
@@ -99,7 +99,8 @@ public class DocumentUploadService {
 
   private UploadResult processUpload(
       String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
-    Document document = new Document(DocumentId.generate(), title, fileName, fileSize, ownerKey);
+    RagDocument document =
+        new RagDocument(DocumentId.generate(), title, fileName, fileSize, ownerKey);
     document.markProcessing();
     document = documentRepository.save(document, ownerKey);
 

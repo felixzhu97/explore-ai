@@ -2,7 +2,7 @@ package com.ai.pipeline.infra.persistence;
 
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
-import com.ai.pipeline.domain.model.SavedAgentDefinition;
+import com.ai.pipeline.domain.model.SavedAgent;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
@@ -28,25 +28,25 @@ public class JpaSavedAgentRepository implements SavedAgentRepository {
 
   @Override
   @Transactional
-  public SavedAgentDefinition save(SavedAgentDefinition agent) {
+  public SavedAgent save(SavedAgent agent) {
     return delegate.saveAndFlush(agent);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<SavedAgentDefinition> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
+  public Optional<SavedAgent> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
     return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<SavedAgentDefinition> findAllByOwnerKey(String ownerKey) {
+  public List<SavedAgent> findAllByOwnerKey(String ownerKey) {
     return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(BY_NAME));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<SavedAgentDefinition> findEnabledByOwnerKey(String ownerKey) {
+  public List<SavedAgent> findEnabledByOwnerKey(String ownerKey) {
     return ownerPartition.apply(
         OwnerKey.parse(ownerKey), delegate::findAllByEnabledTrueOrderByNameAsc);
   }

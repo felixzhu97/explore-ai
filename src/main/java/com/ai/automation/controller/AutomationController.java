@@ -57,7 +57,7 @@ public class AutomationController {
                     body.cronExpression(),
                     body.runAt(),
                     body.timezone(),
-                    body.workflowTemplateId(),
+                    body.pipelineTemplateId(),
                     body.recipientEmail(),
                     body.brief())));
   }
@@ -77,7 +77,7 @@ public class AutomationController {
             body.cronExpression(),
             body.runAt(),
             body.timezone(),
-            body.workflowTemplateId(),
+            body.pipelineTemplateId(),
             body.recipientEmail(),
             body.brief()));
   }

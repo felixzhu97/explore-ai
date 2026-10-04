@@ -114,8 +114,8 @@ export class AutomationsPageComponent implements OnInit {
     this.formName.set(schedule.name);
     this.formEmail.set(schedule.recipientEmail);
     this.formTimezone.set(schedule.timezone);
-    this.formWorkflowId.set(schedule.workflowTemplateId);
-    const workflowId = schedule.workflowTemplateId;
+    this.formWorkflowId.set(schedule.pipelineTemplateId);
+    const workflowId = schedule.pipelineTemplateId;
     const workflow = this.enabledWorkflows().find(item => item.id === workflowId)
       ?? this.workflows().find(item => item.id === workflowId);
     if (this.isGenericPlaceholder(schedule.brief)) {
@@ -158,7 +158,7 @@ export class AutomationsPageComponent implements OnInit {
   save(): void {
     const name = this.formName().trim();
     const email = this.formEmail().trim();
-    const workflowTemplateId = this.formWorkflowId();
+    const pipelineTemplateId = this.formWorkflowId();
     const brief = this.formBrief().trim();
     const t = this.i18n.t().automationsPage;
     if (!name) {
@@ -169,7 +169,7 @@ export class AutomationsPageComponent implements OnInit {
       this.notifications.showError(t.emailRequired);
       return;
     }
-    if (!workflowTemplateId) {
+    if (!pipelineTemplateId) {
       this.notifications.showError(t.workflowRequired);
       return;
     }
@@ -194,7 +194,7 @@ export class AutomationsPageComponent implements OnInit {
         scheduleKind: 'ONCE',
         runAt: runAt.toISOString(),
         timezone: this.formTimezone().trim() || 'UTC',
-        workflowTemplateId,
+        pipelineTemplateId,
         recipientEmail: email,
         brief,
       };
@@ -204,7 +204,7 @@ export class AutomationsPageComponent implements OnInit {
         scheduleKind: 'CRON',
         cronExpression: cronForPreset(preset),
         timezone: this.formTimezone().trim() || 'UTC',
-        workflowTemplateId,
+        pipelineTemplateId,
         recipientEmail: email,
         brief,
       };

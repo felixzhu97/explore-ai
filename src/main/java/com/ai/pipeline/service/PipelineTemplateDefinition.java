@@ -2,7 +2,7 @@ package com.ai.pipeline.service;
 
 import java.util.List;
 
-public record WorkflowTemplate(
+public record PipelineTemplateDefinition(
     String id,
     String name,
     String description,

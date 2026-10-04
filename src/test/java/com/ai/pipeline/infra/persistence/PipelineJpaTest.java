@@ -3,8 +3,8 @@ package com.ai.pipeline.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.infra.persistence.OwnerPartitionScope;
-import com.ai.pipeline.domain.model.SavedAgentDefinition;
-import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
+import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.model.SavedAgent;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.util.List;
@@ -21,11 +21,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(
     basePackageClasses = {
       SpringDataSavedAgentRepository.class,
-      SpringDataWorkflowTemplateRepository.class
+      SpringDataPipelineTemplateRepository.class
     })
 @Import({
   JpaSavedAgentRepository.class,
-  JpaWorkflowTemplateRepository.class,
+  JpaPipelineTemplateRepository.class,
   OwnerPartitionScope.class
 })
 class PipelineJpaTest extends AbstractDataJpaTest {
@@ -34,15 +34,15 @@ class PipelineJpaTest extends AbstractDataJpaTest {
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataSavedAgentRepository agentRepository;
-  @Autowired private SpringDataWorkflowTemplateRepository workflowRepository;
+  @Autowired private SpringDataPipelineTemplateRepository workflowRepository;
   @Autowired private JpaSavedAgentRepository jpaAgentRepository;
-  @Autowired private JpaWorkflowTemplateRepository jpaWorkflowRepository;
+  @Autowired private JpaPipelineTemplateRepository jpaWorkflowRepository;
 
   @Test
-  @DisplayName("should persist and reload saved agent definition when round tripping")
-  void shouldPersistAndReloadSavedAgentDefinitionWhenRoundTripping() {
-    SavedAgentDefinition agent =
-        SavedAgentDefinition.create(
+  @DisplayName("should persist and reload saved agent when round tripping")
+  void shouldPersistAndReloadSavedAgentWhenRoundTripping() {
+    SavedAgent agent =
+        SavedAgent.create(
             OWNER_KEY,
             "researcher",
             "Research Agent",
@@ -53,7 +53,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     agentRepository.saveAndFlush(agent);
     em.clear();
 
-    SavedAgentDefinition reloaded = agentRepository.findById(agent.getId()).orElseThrow();
+    SavedAgent reloaded = agentRepository.findById(agent.getId()).orElseThrow();
 
     assertThat(reloaded.getTypeKey()).isEqualTo("researcher");
     assertThat(reloaded.getName()).isEqualTo("Research Agent");
@@ -63,8 +63,8 @@ class PipelineJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should persist tool keys as json when saving agent")
   void shouldPersistToolKeysAsJsonWhenSavingAgent() {
-    SavedAgentDefinition agent =
-        SavedAgentDefinition.create(
+    SavedAgent agent =
+        SavedAgent.create(
             OWNER_KEY,
             "writer",
             "Writer",
@@ -75,16 +75,16 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     agentRepository.saveAndFlush(agent);
     em.clear();
 
-    SavedAgentDefinition reloaded = agentRepository.findById(agent.getId()).orElseThrow();
+    SavedAgent reloaded = agentRepository.findById(agent.getId()).orElseThrow();
 
     assertThat(reloaded.getToolKeys()).containsExactly("draft", "edit");
   }
 
   @Test
-  @DisplayName("should persist and reload workflow template when round tripping")
-  void shouldPersistAndReloadWorkflowTemplateWhenRoundTripping() {
-    SavedWorkflowTemplate workflow =
-        SavedWorkflowTemplate.create(
+  @DisplayName("should persist and reload pipeline template when round tripping")
+  void shouldPersistAndReloadPipelineTemplateWhenRoundTripping() {
+    PipelineTemplate workflow =
+        PipelineTemplate.create(
             OWNER_KEY,
             "Research flow",
             "Two-step workflow",
@@ -96,7 +96,7 @@ class PipelineJpaTest extends AbstractDataJpaTest {
     workflowRepository.saveAndFlush(workflow);
     em.clear();
 
-    SavedWorkflowTemplate reloaded = workflowRepository.findById(workflow.getId()).orElseThrow();
+    PipelineTemplate reloaded = workflowRepository.findById(workflow.getId()).orElseThrow();
 
     assertThat(reloaded.getName()).isEqualTo("Research flow");
     assertThat(reloaded.getAgentTypes()).containsExactly("researcher", "writer");
@@ -106,31 +106,29 @@ class PipelineJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should list agents by owner ordered by name ascending")
   void shouldListAgentsByOwnerOrderedByNameAscending() {
-    SavedAgentDefinition beta =
-        SavedAgentDefinition.create(OWNER_KEY, "beta", "Beta Agent", "desc", "prompt", List.of());
-    SavedAgentDefinition alpha =
-        SavedAgentDefinition.create(OWNER_KEY, "alpha", "Alpha Agent", "desc", "prompt", List.of());
+    SavedAgent beta =
+        SavedAgent.create(OWNER_KEY, "beta", "Beta Agent", "desc", "prompt", List.of());
+    SavedAgent alpha =
+        SavedAgent.create(OWNER_KEY, "alpha", "Alpha Agent", "desc", "prompt", List.of());
     agentRepository.saveAndFlush(beta);
     agentRepository.saveAndFlush(alpha);
     em.clear();
 
-    List<SavedAgentDefinition> agents = jpaAgentRepository.findAllByOwnerKey(OWNER_KEY);
+    List<SavedAgent> agents = jpaAgentRepository.findAllByOwnerKey(OWNER_KEY);
 
-    assertThat(agents)
-        .extracting(SavedAgentDefinition::getName)
-        .containsExactly("Alpha Agent", "Beta Agent");
+    assertThat(agents).extracting(SavedAgent::getName).containsExactly("Alpha Agent", "Beta Agent");
   }
 
   @Test
   @DisplayName("should find workflow by id and owner key when scoped lookup")
   void shouldFindWorkflowByIdAndOwnerKeyWhenScopedLookup() {
-    SavedWorkflowTemplate workflow =
-        SavedWorkflowTemplate.create(
+    PipelineTemplate workflow =
+        PipelineTemplate.create(
             OWNER_KEY, "Scoped flow", "desc", List.of("researcher"), "topic", "brief", null);
     workflowRepository.saveAndFlush(workflow);
     em.clear();
 
-    Optional<SavedWorkflowTemplate> found =
+    Optional<PipelineTemplate> found =
         jpaWorkflowRepository.findByIdAndOwnerKey(workflow.getId(), OWNER_KEY);
 
     assertThat(found).isPresent();

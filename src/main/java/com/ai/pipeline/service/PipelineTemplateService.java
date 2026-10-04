@@ -1,33 +1,33 @@
 package com.ai.pipeline.service;
 
-import com.ai.pipeline.domain.exception.WorkflowTemplateNameConflictException;
-import com.ai.pipeline.domain.exception.WorkflowTemplateNotFoundException;
-import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
-import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
+import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-/** Manages a client's saved workflow templates, including copies of built-in catalog templates. */
+/** Manages a client's saved pipeline templates, including copies of built-in catalog templates. */
 @Service
 public class PipelineTemplateService {
 
-  private final WorkflowTemplateRepository repository;
+  private final PipelineTemplateRepository repository;
 
-  public PipelineTemplateService(WorkflowTemplateRepository repository) {
+  public PipelineTemplateService(PipelineTemplateRepository repository) {
     this.repository = repository;
   }
 
-  public List<SavedWorkflowTemplate> listLibrary(String ownerKey) {
+  public List<PipelineTemplate> listLibrary(String ownerKey) {
     return repository.findAllByOwnerKey(ownerKey);
   }
 
-  public SavedWorkflowTemplate get(String ownerKey, String id) {
+  public PipelineTemplate get(String ownerKey, String id) {
     return findOwned(ownerKey, id);
   }
 
   /** Saves a new Pipeline Template for the owner. */
-  public SavedWorkflowTemplate create(
+  public PipelineTemplate create(
       String ownerKey,
       String name,
       String description,
@@ -36,14 +36,14 @@ public class PipelineTemplateService {
       String briefPrompt,
       String sourceTemplateId) {
     assertNameAvailable(ownerKey, name, null);
-    SavedWorkflowTemplate template =
-        SavedWorkflowTemplate.create(
+    PipelineTemplate template =
+        PipelineTemplate.create(
             ownerKey, name, description, agentTypes, shortTopic, briefPrompt, sourceTemplateId);
     return repository.save(template);
   }
 
   /** Replaces the owner's Pipeline Template content. */
-  public SavedWorkflowTemplate update(
+  public PipelineTemplate update(
       String ownerKey,
       String id,
       String name,
@@ -51,15 +51,15 @@ public class PipelineTemplateService {
       List<String> agentTypes,
       String shortTopic,
       String briefPrompt) {
-    SavedWorkflowTemplate template = findOwned(ownerKey, id);
+    PipelineTemplate template = findOwned(ownerKey, id);
     assertNameAvailable(ownerKey, name, template.getId());
     template.update(name, description, agentTypes, shortTopic, briefPrompt);
     return repository.save(template);
   }
 
   /** Enables or disables the owner's Pipeline Template. */
-  public SavedWorkflowTemplate setEnabled(String ownerKey, String id, boolean enabled) {
-    SavedWorkflowTemplate template = findOwned(ownerKey, id);
+  public PipelineTemplate setEnabled(String ownerKey, String id, boolean enabled) {
+    PipelineTemplate template = findOwned(ownerKey, id);
     if (enabled) {
       template.enable();
     } else {
@@ -70,20 +70,19 @@ public class PipelineTemplateService {
 
   public void delete(String ownerKey, String id) {
     findOwned(ownerKey, id);
-    repository.deleteByIdAndOwnerKey(WorkflowTemplateId.of(id), ownerKey);
+    repository.deleteByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey);
   }
 
-  public List<WorkflowTemplate> listTemplates(String language) {
-    return WorkflowTemplateCatalog.listAll(language);
+  public List<PipelineTemplateDefinition> listTemplates(String language) {
+    return PipelineTemplateCatalog.listAll(language);
   }
 
   /** Copies a built-in template into the owner's library. */
-  public SavedWorkflowTemplate createFromTemplate(
-      String ownerKey, String templateId, String language) {
-    WorkflowTemplate template =
-        WorkflowTemplateCatalog.findById(templateId, language)
+  public PipelineTemplate createFromTemplate(String ownerKey, String templateId, String language) {
+    PipelineTemplateDefinition template =
+        PipelineTemplateCatalog.findById(templateId, language)
             .orElseThrow(
-                () -> new IllegalArgumentException("Unknown workflow template: " + templateId));
+                () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));
     return create(
         ownerKey,
         nextAvailableName(ownerKey, template.name()),
@@ -94,15 +93,15 @@ public class PipelineTemplateService {
         template.id());
   }
 
-  private SavedWorkflowTemplate findOwned(String ownerKey, String id) {
+  private PipelineTemplate findOwned(String ownerKey, String id) {
     return repository
-        .findByIdAndOwnerKey(WorkflowTemplateId.of(id), ownerKey)
-        .orElseThrow(() -> new WorkflowTemplateNotFoundException(id));
+        .findByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey)
+        .orElseThrow(() -> new PipelineTemplateNotFoundException(id));
   }
 
-  private void assertNameAvailable(String ownerKey, String name, WorkflowTemplateId excludeId) {
+  private void assertNameAvailable(String ownerKey, String name, PipelineTemplateId excludeId) {
     if (repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)) {
-      throw new WorkflowTemplateNameConflictException(name);
+      throw new PipelineTemplateNameConflictException(name);
     }
   }
 
@@ -116,6 +115,6 @@ public class PipelineTemplateService {
         return candidate;
       }
     }
-    return baseName + " (" + WorkflowTemplateId.generate().value().substring(0, 8) + ")";
+    return baseName + " (" + PipelineTemplateId.generate().value().substring(0, 8) + ")";
   }
 }

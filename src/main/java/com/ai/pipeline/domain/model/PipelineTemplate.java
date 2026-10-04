@@ -3,7 +3,7 @@ package com.ai.pipeline.domain.model;
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
 import com.ai.common.domain.vo.StringListJsonAttributeConverter;
-import com.ai.pipeline.domain.vo.WorkflowTemplateId;
+import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -18,12 +18,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Saved multi-agent workflow template partitioned by owner_key. */
+/** Saved multi-agent pipeline template partitioned by owner key. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class SavedWorkflowTemplate
-    extends AbstractEnableableDescribedOwnerEntity<WorkflowTemplateId> {
+public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<PipelineTemplateId> {
 
   @Convert(converter = StringListJsonAttributeConverter.class)
   @Column(nullable = false, columnDefinition = "clob")
@@ -41,8 +40,8 @@ public class SavedWorkflowTemplate
   @Column(length = 64)
   private String sourceTemplateId;
 
-  private SavedWorkflowTemplate(
-      WorkflowTemplateId id,
+  private PipelineTemplate(
+      PipelineTemplateId id,
       String ownerKey,
       String name,
       String description,
@@ -61,7 +60,7 @@ public class SavedWorkflowTemplate
   }
 
   /** Creates an enabled template with a new id, optionally linked to its catalog source. */
-  public static SavedWorkflowTemplate create(
+  public static PipelineTemplate create(
       String ownerKey,
       String name,
       String description,
@@ -70,8 +69,8 @@ public class SavedWorkflowTemplate
       String briefPrompt,
       String sourceTemplateId) {
     Instant now = Instant.now();
-    return new SavedWorkflowTemplate(
-        WorkflowTemplateId.generate(),
+    return new PipelineTemplate(
+        PipelineTemplateId.generate(),
         ownerKey,
         name,
         description,
@@ -85,7 +84,7 @@ public class SavedWorkflowTemplate
   }
 
   /** Replaces the editable fields, normalizing agent types and bumping the update timestamp. */
-  public SavedWorkflowTemplate update(
+  public PipelineTemplate update(
       String name,
       String description,
       List<String> agentTypes,

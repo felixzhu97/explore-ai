@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.rag.domain.model.Document;
+import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
@@ -150,7 +150,7 @@ class RagSearchToolTest {
     @DisplayName("should return document list")
     void shouldReturnDocumentList() {
       DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
-      Document doc = new Document(docId, TEST_DOC_TITLE, "test.pdf", 1024L, "c:test-owner");
+      RagDocument doc = new RagDocument(docId, TEST_DOC_TITLE, "test.pdf", 1024L, "c:test-owner");
       when(ragApplicationService.listDocuments(anyString())).thenReturn(List.of(doc));
 
       String result = ragSearchTool.listDocuments();

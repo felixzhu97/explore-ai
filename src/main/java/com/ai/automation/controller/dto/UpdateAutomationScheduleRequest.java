@@ -10,6 +10,6 @@ public record UpdateAutomationScheduleRequest(
     String cronExpression,
     Instant runAt,
     @NotBlank String timezone,
-    @NotBlank String workflowTemplateId,
+    @NotBlank String pipelineTemplateId,
     @NotBlank @Email String recipientEmail,
     @NotBlank String brief) {}

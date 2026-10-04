@@ -2,7 +2,7 @@ package com.ai.pipeline.service;
 
 import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
 import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
-import com.ai.pipeline.domain.model.SavedAgentDefinition;
+import com.ai.pipeline.domain.model.SavedAgent;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
@@ -18,39 +18,39 @@ public class SavedAgentService {
     this.repository = repository;
   }
 
-  public List<SavedAgentDefinition> listLibrary(String ownerKey) {
+  public List<SavedAgent> listLibrary(String ownerKey) {
     return repository.findAllByOwnerKey(ownerKey);
   }
 
   /** Saves a new agent definition in the owner's library. */
-  public SavedAgentDefinition create(
+  public SavedAgent create(
       String ownerKey,
       String typeKey,
       String name,
       String description,
       String systemPrompt,
       List<String> toolKeys) {
-    SavedAgentDefinition agent =
-        SavedAgentDefinition.create(ownerKey, typeKey, name, description, systemPrompt, toolKeys);
+    SavedAgent agent =
+        SavedAgent.create(ownerKey, typeKey, name, description, systemPrompt, toolKeys);
     assertTypeAvailable(ownerKey, agent.getTypeKey(), null);
     return repository.save(agent);
   }
 
-  public SavedAgentDefinition update(
+  public SavedAgent update(
       String ownerKey,
       String id,
       String name,
       String description,
       String systemPrompt,
       List<String> toolKeys) {
-    SavedAgentDefinition agent = findOwned(ownerKey, id);
+    SavedAgent agent = findOwned(ownerKey, id);
     agent.update(name, description, systemPrompt, toolKeys);
     return repository.save(agent);
   }
 
   /** Enables or disables the owner's saved agent. */
-  public SavedAgentDefinition setEnabled(String ownerKey, String id, boolean enabled) {
-    SavedAgentDefinition agent = findOwned(ownerKey, id);
+  public SavedAgent setEnabled(String ownerKey, String id, boolean enabled) {
+    SavedAgent agent = findOwned(ownerKey, id);
     if (enabled) {
       agent.enable();
     } else {
@@ -64,7 +64,7 @@ public class SavedAgentService {
     repository.deleteByIdAndOwnerKey(SavedAgentId.of(id), ownerKey);
   }
 
-  private SavedAgentDefinition findOwned(String ownerKey, String id) {
+  private SavedAgent findOwned(String ownerKey, String id) {
     return repository
         .findByIdAndOwnerKey(SavedAgentId.of(id), ownerKey)
         .orElseThrow(() -> new SavedAgentNotFoundException(id));

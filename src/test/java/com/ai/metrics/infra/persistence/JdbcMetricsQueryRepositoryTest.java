@@ -262,12 +262,12 @@ class JdbcMetricsQueryRepositoryTest {
   @Test
   @DisplayName("should build rag inventory with status breakdown")
   void shouldBuildRagInventoryWithStatusBreakdown() {
-    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM document"), eq(Long.class)))
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM rag_document"), eq(Long.class)))
         .thenReturn(4L);
     when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM document_chunks"), eq(Long.class)))
         .thenReturn(12L);
     when(jdbcTemplate.queryForObject(
-            eq("SELECT COALESCE(SUM(file_size), 0) FROM document"), eq(Long.class)))
+            eq("SELECT COALESCE(SUM(file_size), 0) FROM rag_document"), eq(Long.class)))
         .thenReturn(2048L);
     doAnswer(
             invocation -> {
@@ -280,7 +280,7 @@ class JdbcMetricsQueryRepositoryTest {
             })
         .when(jdbcTemplate)
         .query(
-            eq("SELECT status, COUNT(*) AS cnt FROM document GROUP BY status"),
+            eq("SELECT status, COUNT(*) AS cnt FROM rag_document GROUP BY status"),
             any(RowCallbackHandler.class));
 
     MetricsQueryRepository.RagInventory inventory = repository.ragInventory();

@@ -1,6 +1,6 @@
 package com.ai.pipeline.controller.dto;
 
-import com.ai.pipeline.domain.model.SavedAgentDefinition;
+import com.ai.pipeline.domain.model.SavedAgent;
 import java.time.Instant;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public record SavedAgentResponse(
     Instant createdAt,
     Instant updatedAt) {
   /** Builds a response from a saved library agent definition. */
-  public static SavedAgentResponse from(SavedAgentDefinition agent) {
+  public static SavedAgentResponse from(SavedAgent agent) {
     return new SavedAgentResponse(
         agent.getId().value(),
         agent.getTypeKey(),

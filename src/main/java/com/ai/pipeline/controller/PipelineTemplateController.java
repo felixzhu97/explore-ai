@@ -1,12 +1,12 @@
 package com.ai.pipeline.controller;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.pipeline.controller.dto.CreateWorkflowTemplateFromTemplateRequest;
-import com.ai.pipeline.controller.dto.CreateWorkflowTemplateRequest;
-import com.ai.pipeline.controller.dto.SavedWorkflowTemplateResponse;
-import com.ai.pipeline.controller.dto.SetWorkflowTemplateEnabledRequest;
-import com.ai.pipeline.controller.dto.UpdateWorkflowTemplateRequest;
-import com.ai.pipeline.controller.dto.WorkflowTemplateResponse;
+import com.ai.pipeline.controller.dto.CreatePipelineTemplateFromDefinitionRequest;
+import com.ai.pipeline.controller.dto.CreatePipelineTemplateRequest;
+import com.ai.pipeline.controller.dto.PipelineTemplateDefinitionResponse;
+import com.ai.pipeline.controller.dto.PipelineTemplateResponse;
+import com.ai.pipeline.controller.dto.SetPipelineTemplateEnabledRequest;
+import com.ai.pipeline.controller.dto.UpdatePipelineTemplateRequest;
 import com.ai.pipeline.service.PipelineTemplateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -40,42 +40,42 @@ public class PipelineTemplateController {
   }
 
   @GetMapping("/template-definitions")
-  public List<WorkflowTemplateResponse> listTemplates(
+  public List<PipelineTemplateDefinitionResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String language = resolveLanguage(lang, request);
     return pipelineTemplateService.listTemplates(language).stream()
-        .map(WorkflowTemplateResponse::from)
+        .map(PipelineTemplateDefinitionResponse::from)
         .toList();
   }
 
   @GetMapping("/templates")
-  public List<SavedWorkflowTemplateResponse> listLibrary(HttpServletRequest request) {
+  public List<PipelineTemplateResponse> listLibrary(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return pipelineTemplateService.listLibrary(ownerKey).stream()
-        .map(SavedWorkflowTemplateResponse::from)
+        .map(PipelineTemplateResponse::from)
         .toList();
   }
 
   @PostMapping("/templates/from-template")
-  public ResponseEntity<SavedWorkflowTemplateResponse> createFromTemplate(
-      @Valid @RequestBody CreateWorkflowTemplateFromTemplateRequest body,
+  public ResponseEntity<PipelineTemplateResponse> createFromTemplate(
+      @Valid @RequestBody CreatePipelineTemplateFromDefinitionRequest body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     String language = resolveLanguage(lang, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            SavedWorkflowTemplateResponse.from(
+            PipelineTemplateResponse.from(
                 pipelineTemplateService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
   @PostMapping("/templates")
-  public ResponseEntity<SavedWorkflowTemplateResponse> create(
-      @Valid @RequestBody CreateWorkflowTemplateRequest body, HttpServletRequest request) {
+  public ResponseEntity<PipelineTemplateResponse> create(
+      @Valid @RequestBody CreatePipelineTemplateRequest body, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            SavedWorkflowTemplateResponse.from(
+            PipelineTemplateResponse.from(
                 pipelineTemplateService.create(
                     ownerKey,
                     body.name(),
@@ -87,12 +87,12 @@ public class PipelineTemplateController {
   }
 
   @PutMapping("/templates/{id}")
-  public SavedWorkflowTemplateResponse update(
+  public PipelineTemplateResponse update(
       @PathVariable String id,
-      @Valid @RequestBody UpdateWorkflowTemplateRequest body,
+      @Valid @RequestBody UpdatePipelineTemplateRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return SavedWorkflowTemplateResponse.from(
+    return PipelineTemplateResponse.from(
         pipelineTemplateService.update(
             ownerKey,
             id,
@@ -104,12 +104,12 @@ public class PipelineTemplateController {
   }
 
   @PatchMapping("/templates/{id}/enabled")
-  public SavedWorkflowTemplateResponse setEnabled(
+  public PipelineTemplateResponse setEnabled(
       @PathVariable String id,
-      @Valid @RequestBody SetWorkflowTemplateEnabledRequest body,
+      @Valid @RequestBody SetPipelineTemplateEnabledRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return SavedWorkflowTemplateResponse.from(
+    return PipelineTemplateResponse.from(
         pipelineTemplateService.setEnabled(ownerKey, id, body.enabled()));
   }
 
