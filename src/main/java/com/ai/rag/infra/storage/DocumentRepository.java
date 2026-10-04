@@ -42,7 +42,7 @@ public class DocumentRepository implements IDocumentRepository {
   @Override
   @Transactional(readOnly = true)
   public Optional<Document> findByIdAndOwnerKey(UUID id, String ownerKey) {
-    return delegate.findByIdAndOwnerKeyValue(id.toString(), ownerKey);
+    return delegate.findByIdAndOwnerKey(DocumentId.of(id), OwnerKey.parse(ownerKey));
   }
 
   @Override
@@ -54,7 +54,7 @@ public class DocumentRepository implements IDocumentRepository {
   @Override
   @Transactional(readOnly = true)
   public List<Document> findAllByOwnerKey(String ownerKey) {
-    return delegate.findByOwnerKeyValueOrderByCreatedAtDesc(ownerKey);
+    return delegate.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parse(ownerKey));
   }
 
   @Override
@@ -66,6 +66,6 @@ public class DocumentRepository implements IDocumentRepository {
   @Override
   @Transactional
   public void deleteByIdAndOwnerKey(UUID id, String ownerKey) {
-    delegate.deleteByIdAndOwnerKeyValue(id.toString(), ownerKey);
+    delegate.deleteByIdAndOwnerKey(DocumentId.of(id), OwnerKey.parse(ownerKey));
   }
 }

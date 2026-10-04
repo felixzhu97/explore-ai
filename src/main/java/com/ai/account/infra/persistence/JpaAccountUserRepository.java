@@ -2,7 +2,10 @@ package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import jakarta.persistence.EntityManager;
+import java.util.Map;
 import java.util.Optional;
+import org.hibernate.KeyType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaAccountUserRepository implements AccountUserRepository {
 
   private final SpringDataAccountUserRepository delegate;
+  private final EntityManager entityManager;
 
   /** Documentation. */
-  public JpaAccountUserRepository(SpringDataAccountUserRepository delegate) {
+  public JpaAccountUserRepository(
+      SpringDataAccountUserRepository delegate, EntityManager entityManager) {
     this.delegate = delegate;
+    this.entityManager = entityManager;
   }
 
   @Override
@@ -26,7 +32,12 @@ public class JpaAccountUserRepository implements AccountUserRepository {
   @Override
   @Transactional(readOnly = true)
   public Optional<AccountUser> findByProviderAndSubject(String provider, String subject) {
-    return delegate.findByProviderAndSubject(provider, subject);
+    if (provider == null || provider.isBlank() || subject == null || subject.isBlank()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(
+        entityManager.find(
+            AccountUser.class, Map.of("provider", provider, "subject", subject), KeyType.NATURAL));
   }
 
   @Override

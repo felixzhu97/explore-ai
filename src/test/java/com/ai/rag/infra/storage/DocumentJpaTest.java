@@ -2,6 +2,7 @@ package com.ai.rag.infra.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.vo.DocumentId;
@@ -22,6 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 class DocumentJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:33333333-3333-3333-3333-333333333333";
+  private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataDocumentRepository repository;
@@ -92,23 +94,41 @@ class DocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(newer);
     em.clear();
 
-    List<Document> documents = repository.findByOwnerKeyValueOrderByCreatedAtDesc(OWNER_KEY);
+    List<Document> documents = repository.findAllByOwnerKeyOrderByCreatedAtDesc(OWNER);
 
     assertThat(documents).extracting(Document::getTitle).containsExactly("Newer", "Older");
   }
 
   @Test
-  @DisplayName("should find document by id and owner key value when scoped lookup")
-  void shouldFindDocumentByIdAndOwnerKeyValueWhenScopedLookup() {
+  @DisplayName("should find document by id and owner key when scoped lookup")
+  void shouldFindDocumentByIdAndOwnerKeyWhenScopedLookup() {
     Document document =
         new Document(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
     repository.saveAndFlush(document);
     em.clear();
 
-    Optional<Document> found =
-        repository.findByIdAndOwnerKeyValue(document.getId().value(), OWNER_KEY);
+    Optional<Document> found = repository.findByIdAndOwnerKey(document.getId(), OWNER);
 
     assertThat(found).isPresent();
     assertThat(found.get().getTitle()).isEqualTo("Scoped");
+    assertThat(repository.findByIdAndOwnerKey(document.getId(), OwnerKey.forClient("other")))
+        .isEmpty();
+  }
+
+  @Test
+  @DisplayName("should delete only the owner's document when scoped delete")
+  void shouldDeleteOnlyTheOwnersDocumentWhenScopedDelete() {
+    Document document =
+        new Document(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
+    repository.saveAndFlush(document);
+    em.clear();
+
+    repository.deleteByIdAndOwnerKey(document.getId(), OwnerKey.forClient("other"));
+    em.flush();
+    assertThat(repository.existsById(document.getId())).isTrue();
+
+    repository.deleteByIdAndOwnerKey(document.getId(), OWNER);
+    em.flush();
+    assertThat(repository.existsById(document.getId())).isFalse();
   }
 }

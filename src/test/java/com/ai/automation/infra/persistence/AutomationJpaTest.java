@@ -43,6 +43,38 @@ class AutomationJpaTest extends AbstractDataJpaTest {
   @Autowired private JpaAutomationRunRepository runAdapter;
 
   @Test
+  @DisplayName("should bump version and win only once when claiming the next run")
+  void shouldBumpVersionAndWinOnlyOnceWhenClaimingNextRun() {
+    Instant nextRun = Instant.parse("2026-01-01T09:00:00Z");
+    AutomationSchedule schedule =
+        AutomationSchedule.create(
+            OWNER_KEY,
+            "Claimed",
+            "0 9 * * *",
+            "UTC",
+            WORKFLOW_ID,
+            "user@example.com",
+            "Send daily summary",
+            nextRun);
+    scheduleRepository.saveAndFlush(schedule);
+    final Long versionBefore = schedule.getVersion();
+    em.clear();
+
+    Instant provisional = AutomationSchedule.ONCE_TERMINAL_NEXT;
+    int first =
+        scheduleRepository.claimNextRun(schedule.getId(), nextRun, provisional, Instant.now());
+    int second =
+        scheduleRepository.claimNextRun(schedule.getId(), nextRun, provisional, Instant.now());
+    em.clear();
+
+    AutomationSchedule reloaded = scheduleRepository.findById(schedule.getId()).orElseThrow();
+    assertThat(first).isEqualTo(1);
+    assertThat(second).isZero();
+    assertThat(reloaded.getVersion()).isEqualTo(versionBefore + 1);
+    assertThat(reloaded.getNextRunAt()).isEqualTo(provisional);
+  }
+
+  @Test
   @DisplayName("should keep the same managed instance when saving a new run")
   void shouldKeepTheSameManagedInstanceWhenSavingNewRun() {
     AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER_KEY);

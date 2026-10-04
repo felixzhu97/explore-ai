@@ -37,7 +37,7 @@ public interface SpringDataAutomationScheduleRepository
   @Modifying
   @Query(
       """
-      UPDATE AutomationSchedule s
+      UPDATE VERSIONED AutomationSchedule s
       SET s.nextRunAt = :provisionalNextRunAt, s.updatedAt = :now
       WHERE s.id = :id AND s.enabled = true AND s.nextRunAt = :expectedNextRunAt
       """)

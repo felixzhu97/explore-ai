@@ -11,8 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataAccountUserRepository extends JpaRepository<AccountUser, AccountUserId> {
 
   /** Documentation. */
-  Optional<AccountUser> findByProviderAndSubject(String provider, String subject);
-
-  /** Documentation. */
   Optional<AccountUser> findByLinkedClientId(String linkedClientId);
 }
