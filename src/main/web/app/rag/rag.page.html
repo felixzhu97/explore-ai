@@ -29,7 +29,7 @@
           z-button
           zType="ghost"
           zSize="icon"
-          [disabled]="ragService.isUploading()"
+          [zDisabled]="ragService.isUploading()"
           [attr.title]="i18n.t().rag.uploadDocuments"
           [attr.aria-label]="i18n.t().rag.uploadDocuments"
           (click)="docInput.click()"
@@ -88,7 +88,7 @@
                 zType="ghost"
                 zSize="icon"
                 class="size-5!"
-                [disabled]="ragService.isUploading()"
+                [zDisabled]="ragService.isUploading()"
                 [attr.title]="i18n.t().rag.clearSelection"
                 [attr.aria-label]="i18n.t().rag.clearSelection"
                 (click)="removePendingFile($index)"
@@ -104,7 +104,7 @@
           zType="secondary"
           zSize="sm"
           class="w-full"
-          [disabled]="ragService.isUploading()"
+          [zDisabled]="ragService.isUploading()"
           (click)="uploadFiles()"
         >
           {{ ragService.isUploading() ? i18n.t().rag.uploading : i18n.t().rag.upload }}
@@ -135,7 +135,7 @@
                 zType="ghost"
                 zSize="icon"
                 class="size-7!"
-                [disabled]="ragService.deletingDocumentIds().has(doc.id)"
+                [zDisabled]="ragService.deletingDocumentIds().has(doc.id)"
                 [attr.title]="i18n.t().rag.deleteDocument"
                 [attr.aria-label]="i18n.t().rag.deleteDocument"
                 (click)="deleteDocument(doc.id, $event)"

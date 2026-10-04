@@ -1,0 +1,42 @@
+import { describe, expect, it } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { McpPageComponent } from './mcp.page';
+import { McpService } from './mcp.service';
+
+describe('McpPageComponent', () => {
+  function setup() {
+    TestBed.configureTestingModule({
+      imports: [McpPageComponent],
+      providers: [
+        {
+          provide: McpService,
+          useValue: {
+            getHealth: () => of({ status: 'UP' }),
+            getClientStatus: () => of({ enabled: true, connectedServers: 0 }),
+            listTools: () => of([]),
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(McpPageComponent);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  function sendButton(host: HTMLElement): HTMLButtonElement | undefined {
+    return [...host.querySelectorAll('button')].find(button => button.classList.contains('mt-3'));
+  }
+
+  it('should disable send on first render when the question is empty', () => {
+    const fixture = setup();
+    expect(sendButton(fixture.nativeElement as HTMLElement)?.disabled).toBe(true);
+  });
+
+  it('should enable send once a question is typed', () => {
+    const fixture = setup();
+    fixture.componentInstance.question.set('What tools exist?');
+    fixture.detectChanges();
+    expect(sendButton(fixture.nativeElement as HTMLElement)?.disabled).toBe(false);
+  });
+});
