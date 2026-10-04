@@ -184,10 +184,6 @@ export default defineConfig([
     files: [
       'src/main/web/app/shared/components/input/input.directive.ts',
       'src/main/web/app/shared/components/layout/sidebar-menu-button.directive.ts',
-      'src/main/web/app/shared/components/menu/context-menu.directive.ts',
-      'src/main/web/app/shared/components/menu/menu-content.directive.ts',
-      'src/main/web/app/shared/components/menu/menu-item.directive.ts',
-      'src/main/web/app/shared/components/menu/menu.directive.ts',
     ],
     rules: {
       '@angular-eslint/directive-selector': [

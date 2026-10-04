@@ -1,8 +1,6 @@
-import { httpResource } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ChartPanelComponent } from '../../../shared/components/charts';
-import { API_BASE_URL } from '../../../core/api.constants';
 import { I18nService } from '../../../core/i18n';
 import {
   MetricsDomainHealthComponent,
@@ -13,13 +11,8 @@ import {
   type MetricsKpi,
 } from '../components/metrics-kpi-cards.component';
 import { MetricsDrilldownTableComponent } from '../components/metrics-drilldown-table.component';
-import type {
-  DrilldownPage,
-  InvocationEvent,
-  MetricsOverview,
-  MetricsRange,
-  SeriesResponse,
-} from '../metrics.model';
+import type { InvocationEvent, MetricsRange } from '../metrics.model';
+import { MetricsService } from '../services/metrics.service';
 
 @Component({
   selector: 'app-metrics-overview-page',
@@ -40,19 +33,16 @@ export class MetricsOverviewPageComponent {
 
   readonly range = signal<MetricsRange>('7d');
 
-  readonly overviewResource = httpResource<MetricsOverview>(() => ({
-    url: `${API_BASE_URL}/metrics/overview`,
-    params: { range: this.range() },
-  }));
+  private readonly metrics = inject(MetricsService);
 
-  readonly seriesResource = httpResource<SeriesResponse>(() => ({
-    url: `${API_BASE_URL}/metrics/series`,
-    params: { name: 'requests', range: this.range() },
-  }));
+  readonly overviewResource = this.metrics.overview(this.range);
 
-  readonly drilldownResource = httpResource<DrilldownPage>(() => ({
-    url: `${API_BASE_URL}/metrics/drilldown`,
-    params: { page: 0, size: 10, range: this.range() },
+  readonly seriesResource = this.metrics.series(() => ({ name: 'requests', range: this.range() }));
+
+  readonly drilldownResource = this.metrics.drilldown(() => ({
+    page: 0,
+    size: 10,
+    range: this.range(),
   }));
 
   readonly kpis = computed((): MetricsKpi[] => {
