@@ -19,16 +19,23 @@ import com.ai.skill.domain.exception.SkillNotFoundException;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.domain.exception.VisionOcrException;
 import com.ai.vision.domain.exception.VisionProviderUnavailableException;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.unit.DataSize;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -212,6 +219,57 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of("No endpoint at " + e.getResourcePath(), "NOT_FOUND"));
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ErrorResponse> handleMethodNotSupported(
+      HttpRequestMethodNotSupportedException e) {
+    log.warn("Method not supported: {}", e.getMethod());
+    ResponseEntity.BodyBuilder builder = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED);
+    Set<HttpMethod> supported = e.getSupportedHttpMethods();
+    if (supported != null && !supported.isEmpty()) {
+      builder.allow(supported.toArray(HttpMethod[]::new));
+    }
+    return builder.body(
+        ErrorResponse.of("Method " + e.getMethod() + " is not supported", "METHOD_NOT_ALLOWED"));
+  }
+
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  public ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(
+      HttpMediaTypeNotSupportedException e) {
+    log.warn("Media type not supported: {}", e.getContentType());
+    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+        .body(
+            ErrorResponse.of(
+                "Content type " + e.getContentType() + " is not supported",
+                "UNSUPPORTED_MEDIA_TYPE"));
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleMessageNotReadable(HttpMessageNotReadableException e) {
+    log.warn("Unreadable request body: {}", e.getMessage());
+    return ResponseEntity.badRequest()
+        .body(ErrorResponse.of("Request body is missing or malformed", "BAD_REQUEST"));
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> handleMissingParameter(
+      MissingServletRequestParameterException e) {
+    log.warn("Missing request parameter: {}", e.getParameterName());
+    return ResponseEntity.badRequest()
+        .body(
+            ErrorResponse.of(
+                "Required parameter '" + e.getParameterName() + "' is missing", "BAD_REQUEST"));
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleArgumentTypeMismatch(
+      MethodArgumentTypeMismatchException e) {
+    log.warn("Argument type mismatch: {}", e.getName());
+    return ResponseEntity.badRequest()
+        .body(
+            ErrorResponse.of(
+                "Parameter '" + e.getName() + "' has an invalid value", "BAD_REQUEST"));
   }
 
   @ExceptionHandler(Exception.class)
