@@ -186,6 +186,18 @@ describe('RagService', () => {
     expect(service.isLoading()).toBe(false);
   });
 
+  it('should keep leading spaces of JSON stream tokens', async () => {
+    streamSsePostMock.mockImplementation((_url, _body, handlers) => {
+      handlers.onEvent({ eventType: '', data: '{"type":"message","token":"BLUE"}' });
+      handlers.onEvent({ eventType: '', data: '{"type":"message","token":" HERON"}' });
+      handlers.onEvent({ eventType: '', data: '[DONE]' });
+      return { abort: vi.fn() };
+    });
+    service.setInput('Codename?');
+    await service.sendMessage();
+    expect(service.messages()[1].content).toBe('BLUE HERON');
+  });
+
   it('should handle stream error prefix', async () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({ eventType: 'message', data: 'Error:failed' });

@@ -13,6 +13,7 @@ import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
@@ -22,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
@@ -233,7 +233,7 @@ public class ChatService {
         .doOnNext(repaired::append)
         .map(this::sanitizeStreamToken)
         .filter(token -> !token.isEmpty())
-        .map(this::messageEvent)
+        .map(StreamTokenEvent::json)
         .doOnComplete(
             () -> {
               String text = ToolCallMarkupFilter.sanitize(repaired.toString());
@@ -272,7 +272,7 @@ public class ChatService {
       Flux<String> content, String channelId, String ownerKey, boolean toolsEnabled) {
     Flux<String> textTokens = content.map(this::sanitizeStreamToken);
     if (!toolsEnabled) {
-      return textTokens.filter(token -> !token.isEmpty()).map(this::messageEvent);
+      return textTokens.filter(token -> !token.isEmpty()).map(StreamTokenEvent::json);
     }
     Sinks.Many<String> sink = ToolEventChannel.open(channelId);
     ToolEventChannel.bindOwnerKey(channelId, ownerKey);
@@ -281,7 +281,7 @@ public class ChatService {
     Flux<String> textEvents =
         textTokens
             .filter(token -> !token.isEmpty())
-            .map(this::messageEvent)
+            .map(StreamTokenEvent::json)
             .doFinally(signal -> ToolEventChannel.close(channelId));
     return Flux.merge(toolEvents, textEvents);
   }
@@ -305,15 +305,6 @@ public class ChatService {
           CapturedWebSources.parseItems(root.get("items")));
     } catch (JsonProcessingException e) {
       log.debug("Skipping non-JSON tool event for sources capture");
-    }
-  }
-
-  private String messageEvent(String token) {
-    try {
-      return JSON.writeValueAsString(
-          Map.of("type", "message", "token", token == null ? "" : token));
-    } catch (JsonProcessingException e) {
-      return "{\"type\":\"message\",\"token\":\"\"}";
     }
   }
 

@@ -4,6 +4,7 @@ import com.ai.chat.domain.service.LanguageDetectionService;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
@@ -124,7 +125,7 @@ public class RagChatService {
               if (piece.isEmpty()) {
                 return null;
               }
-              return ServerSentEvent.<String>builder().data(piece).build();
+              return ServerSentEvent.<String>builder().data(StreamTokenEvent.json(piece)).build();
             })
         .concatWith(Flux.defer(() -> sourceEvents(sourcesRef.get())))
         .doOnComplete(() -> recordSuccess(options, sessionId, documentId, startedAt))

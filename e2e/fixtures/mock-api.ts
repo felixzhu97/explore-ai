@@ -151,7 +151,7 @@ export async function setupRagStreamMock(
     'event: sources',
     `data: ${JSON.stringify(RAG_SOURCES)}`,
     '',
-    `data: ${answer}`,
+    `data: ${JSON.stringify({ type: 'message', token: answer })}`,
     'data: [DONE]',
     '',
   ]),

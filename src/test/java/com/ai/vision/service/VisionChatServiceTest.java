@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.chat.infra.prompt.LocalizedRagPromptBuilder;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.service.RagApplicationService;
@@ -77,8 +78,8 @@ class VisionChatServiceTest {
     StepVerifier.create(
             visionChatService.chatStreamWithImages(
                 "What is in the image?", null, List.of("iVBORw0KGgo="), 5, OWNER))
-        .assertNext(event -> assertThat(event.data()).isEqualTo("Hello "))
-        .assertNext(event -> assertThat(event.data()).isEqualTo("world"))
+        .assertNext(event -> assertThat(event.data()).isEqualTo(StreamTokenEvent.json("Hello ")))
+        .assertNext(event -> assertThat(event.data()).isEqualTo(StreamTokenEvent.json("world")))
         .assertNext(
             event -> {
               assertThat(event.event()).isEqualTo("sources");
