@@ -1,6 +1,6 @@
-import type { ModelInfo, ProviderInfo } from './chat.model';
+import type { ChatModel, ChatProvider } from './chat.model';
 
-export const DEFAULT_PROVIDERS: ProviderInfo[] = [
+export const DEFAULT_PROVIDERS: ChatProvider[] = [
   {
     name: 'openai',
     displayName: 'DeepSeek',
@@ -40,7 +40,7 @@ export const DEFAULT_PROVIDERS: ProviderInfo[] = [
   },
 ];
 
-export const DEFAULT_MODELS: Record<string, ModelInfo[]> = {
+export const DEFAULT_MODELS: Record<string, ChatModel[]> = {
   openai: [
     { name: 'deepseek-v4-flash', provider: 'openai' },
     { name: 'deepseek-v4-pro', provider: 'openai' },

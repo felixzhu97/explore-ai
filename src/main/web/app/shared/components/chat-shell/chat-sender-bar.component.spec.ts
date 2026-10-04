@@ -22,11 +22,11 @@ describe('ChatSenderBarComponent', () => {
     expect(fixture.nativeElement.querySelector('nx-sender')).toBeTruthy();
   });
 
-  it('should emit submit send when submit triggered', () => {
+  it('should emit sent when submit triggered', () => {
     const spy = vi.fn();
-    fixture.componentInstance.submitSend.subscribe(spy);
+    fixture.componentInstance.sent.subscribe(spy);
 
-    fixture.componentInstance.submitSend.emit();
+    fixture.componentInstance.sent.emit();
 
     expect(spy).toHaveBeenCalledOnce();
   });

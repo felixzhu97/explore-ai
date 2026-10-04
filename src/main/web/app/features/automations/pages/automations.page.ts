@@ -11,7 +11,7 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NotificationService } from '../../../core/services/notification.service';
 import { I18nService } from '../../../core/i18n';
 import { PipelinesService } from '../../pipelines/services/pipelines.service';
-import type { SavedWorkflowTemplate } from '../../pipelines/pipelines.model';
+import type { PipelineTemplate } from '../../pipelines/pipelines.model';
 import { ZardButtonComponent } from '../../../shared/components/button';
 import { AutomationsService } from '../services/automations.service';
 import {
@@ -41,10 +41,10 @@ export class AutomationsPageComponent implements OnInit {
   protected readonly i18n = inject(I18nService);
 
   readonly schedules = signal<AutomationSchedule[]>([]);
-  readonly workflows = signal<SavedWorkflowTemplate[]>([]);
+  readonly templates = signal<PipelineTemplate[]>([]);
   readonly runs = signal<AutomationRun[]>([]);
-  readonly loading = signal(true);
-  readonly saving = signal(false);
+  readonly isLoading = signal(true);
+  readonly isSaving = signal(false);
   readonly error = signal<string | null>(null);
   readonly showForm = signal(false);
   readonly editingId = signal<string | null>(null);
@@ -53,13 +53,13 @@ export class AutomationsPageComponent implements OnInit {
   readonly formName = signal('');
   readonly formEmail = signal('');
   readonly formTimezone = signal(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
-  readonly formWorkflowId = signal('');
+  readonly formTemplateId = signal('');
   readonly formBrief = signal('');
   readonly formPreset = signal<FrequencyPreset>('daily');
   readonly formRunAt = signal<Date | null>(defaultRunAtDate());
 
-  readonly enabledWorkflows = computed(() => {
-    return this.workflows().filter(workflow => workflow.enabled);
+  readonly enabledTemplates = computed(() => {
+    return this.templates().filter(template => template.enabled);
   });
 
   ngOnInit(): void {
@@ -67,20 +67,20 @@ export class AutomationsPageComponent implements OnInit {
   }
 
   reload(): void {
-    this.loading.set(true);
+    this.isLoading.set(true);
     this.error.set(null);
-    this.pipelinesApi.listLibrary().subscribe({
-      next: workflows => this.workflows.set(workflows),
-      error: () => this.workflows.set([]),
+    this.pipelinesApi.listTemplates().subscribe({
+      next: templates => this.templates.set(templates),
+      error: () => this.templates.set([]),
     });
     this.automationsApi.list().subscribe({
       next: (schedules) => {
         this.schedules.set(schedules);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
       error: () => {
         this.error.set(this.i18n.t().automationsPage.loadFailed);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
     });
   }
@@ -90,22 +90,22 @@ export class AutomationsPageComponent implements OnInit {
     this.formName.set('');
     this.formEmail.set('');
     this.formTimezone.set(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
-    const first = this.enabledWorkflows()[0];
-    this.formWorkflowId.set(first?.id ?? '');
-    this.formBrief.set(this.defaultBriefForWorkflow(first));
+    const first = this.enabledTemplates()[0];
+    this.formTemplateId.set(first?.id ?? '');
+    this.formBrief.set(this.defaultBriefForTemplate(first));
     this.formPreset.set('daily');
     this.formRunAt.set(defaultRunAtDate());
     this.showForm.set(true);
   }
 
-  onWorkflowChange(workflowId: string): void {
-    this.formWorkflowId.set(workflowId);
-    const workflow = this.enabledWorkflows().find(item => item.id === workflowId);
-    if (!workflow) {
+  onTemplateChange(templateId: string): void {
+    this.formTemplateId.set(templateId);
+    const template = this.enabledTemplates().find(item => item.id === templateId);
+    if (!template) {
       return;
     }
     if (!this.formBrief().trim() || this.isGenericPlaceholder(this.formBrief())) {
-      this.formBrief.set(this.defaultBriefForWorkflow(workflow));
+      this.formBrief.set(this.defaultBriefForTemplate(template));
     }
   }
 
@@ -114,12 +114,12 @@ export class AutomationsPageComponent implements OnInit {
     this.formName.set(schedule.name);
     this.formEmail.set(schedule.recipientEmail);
     this.formTimezone.set(schedule.timezone);
-    this.formWorkflowId.set(schedule.pipelineTemplateId);
-    const workflowId = schedule.pipelineTemplateId;
-    const workflow = this.enabledWorkflows().find(item => item.id === workflowId)
-      ?? this.workflows().find(item => item.id === workflowId);
+    this.formTemplateId.set(schedule.pipelineTemplateId);
+    const templateId = schedule.pipelineTemplateId;
+    const template = this.enabledTemplates().find(item => item.id === templateId)
+      ?? this.templates().find(item => item.id === templateId);
     if (this.isGenericPlaceholder(schedule.brief)) {
-      this.formBrief.set(this.defaultBriefForWorkflow(workflow));
+      this.formBrief.set(this.defaultBriefForTemplate(template));
     } else {
       this.formBrief.set(schedule.brief);
     }
@@ -158,7 +158,7 @@ export class AutomationsPageComponent implements OnInit {
   save(): void {
     const name = this.formName().trim();
     const email = this.formEmail().trim();
-    const pipelineTemplateId = this.formWorkflowId();
+    const pipelineTemplateId = this.formTemplateId();
     const brief = this.formBrief().trim();
     const t = this.i18n.t().automationsPage;
     if (!name) {
@@ -209,20 +209,20 @@ export class AutomationsPageComponent implements OnInit {
         brief,
       };
     }
-    this.saving.set(true);
+    this.isSaving.set(true);
     const editingId = this.editingId();
     const request$ = editingId
       ? this.automationsApi.update(editingId, request)
       : this.automationsApi.create(request);
     request$.subscribe({
       next: () => {
-        this.saving.set(false);
+        this.isSaving.set(false);
         this.showForm.set(false);
         this.notifications.showSuccess(this.i18n.t().common.success);
         this.reload();
       },
       error: () => {
-        this.saving.set(false);
+        this.isSaving.set(false);
         this.notifications.showError(t.saveFailed);
       },
     });
@@ -263,19 +263,19 @@ export class AutomationsPageComponent implements OnInit {
     });
   }
 
-  workflowName(id: string): string {
-    return this.workflows().find(workflow => workflow.id === id)?.name ?? id;
+  templateName(id: string): string {
+    return this.templates().find(template => template.id === id)?.name ?? id;
   }
 
-  private defaultBriefForWorkflow(workflow: SavedWorkflowTemplate | undefined): string {
-    if (!workflow) {
+  private defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
+    if (!template) {
       return '';
     }
-    const topic = workflow.shortTopic?.trim();
+    const topic = template.shortTopic?.trim();
     if (topic) {
       return topic;
     }
-    return workflow.briefPrompt?.trim() ?? '';
+    return template.briefPrompt?.trim() ?? '';
   }
 
   private isGenericPlaceholder(brief: string): boolean {

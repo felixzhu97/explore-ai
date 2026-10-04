@@ -45,7 +45,7 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
     @for (segment of segments(); track trackSegment($index, segment)) {
       @switch (segment.type) {
         @case ('markdown') {
-          <app-markdown-content [content]="segment.content" [streaming]="streaming()" />
+          <app-markdown-content [content]="segment.content" [isStreaming]="isStreaming()" />
         }
         @case ('a2ui') {
           @if (ingestError()) {
@@ -87,7 +87,7 @@ export class MarkdownWithA2uiComponent {
   protected readonly i18n = inject(I18nService);
 
   readonly content = input.required<string>();
-  readonly streaming = input(false);
+  readonly isStreaming = input(false);
 
   readonly segments = computed(() => {
     return expandMermaidInMarkdown(splitMarkdownAndA2ui(this.content()));

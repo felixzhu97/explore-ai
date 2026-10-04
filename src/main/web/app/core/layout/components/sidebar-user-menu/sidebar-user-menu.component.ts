@@ -24,7 +24,7 @@ import { SidebarService } from '../../sidebar.service';
   imports: [RouterLink, ZardSidebarMenuButtonDirective],
   template: `
     <div class="relative overflow-visible">
-      @if (menuOpen()) {
+      @if (isMenuOpen()) {
         <div
           class="
             absolute bottom-full left-0 z-100 mb-1 w-44
@@ -34,13 +34,13 @@ import { SidebarService } from '../../sidebar.service';
           role="menu"
           [attr.aria-label]="t().account.menuLabel"
         >
-          <div class="group/help relative" [class.is-help-open]="helpPinned()">
+          <div class="group/help relative" [class.is-help-open]="isHelpPinned()">
             <button
               type="button"
               role="menuitem"
               z-sidebar-menu-button
               [class]="primaryItemClass"
-              [attr.aria-expanded]="helpPinned()"
+              [attr.aria-expanded]="isHelpPinned()"
               [attr.aria-haspopup]="'menu'"
               (click)="toggleHelpPinned($event)"
             >
@@ -88,13 +88,13 @@ import { SidebarService } from '../../sidebar.service';
             </div>
           </div>
 
-          <div class="group/lang relative" [class.is-lang-open]="langPinned()">
+          <div class="group/lang relative" [class.is-lang-open]="isLanguagePinned()">
             <button
               type="button"
               role="menuitem"
               z-sidebar-menu-button
               [class]="primaryItemClass"
-              [attr.aria-expanded]="langPinned()"
+              [attr.aria-expanded]="isLanguagePinned()"
               [attr.aria-haspopup]="'menu'"
               (click)="toggleLangPinned($event)"
             >
@@ -178,7 +178,7 @@ import { SidebarService } from '../../sidebar.service';
         [zIconOnly]="false"
         [zFull]="true"
         [class]="userTriggerClass()"
-        [attr.aria-expanded]="menuOpen()"
+        [attr.aria-expanded]="isMenuOpen()"
         [attr.aria-haspopup]="'menu'"
         [attr.aria-label]="t().account.menuLabel"
         (click)="toggleMenu($event)"
@@ -192,7 +192,7 @@ import { SidebarService } from '../../sidebar.service';
         >
           {{ avatarLetter() }}
         </span>
-        @if (!collapsed()) {
+        @if (!isCollapsed()) {
           <span class="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left leading-snug">
             <span class="w-full truncate text-sm font-medium">{{ displayName() }}</span>
             <span class="w-full truncate text-[11px] text-muted-foreground">
@@ -216,11 +216,11 @@ export class SidebarUserMenuComponent {
   private readonly accountDialog = inject(AccountDialogService);
   protected readonly i18n = inject(I18nService);
 
-  readonly collapsed = input(false);
+  readonly isCollapsed = input(false);
 
-  readonly menuOpen = signal(false);
-  readonly helpPinned = signal(false);
-  readonly langPinned = signal(false);
+  readonly isMenuOpen = signal(false);
+  readonly isHelpPinned = signal(false);
+  readonly isLanguagePinned = signal(false);
 
   readonly account = this.accountService.account;
   readonly showLogin = this.accountService.showLogin;
@@ -281,7 +281,7 @@ export class SidebarUserMenuComponent {
   readonly secondaryItemClass = '!h-7 !gap-1.5 !px-2 !py-1 !text-xs';
 
   /** Override default h-8 / py-1.5 so hover background has real vertical padding. */
-  readonly userTriggerClass = computed(() => this.collapsed()
+  readonly userTriggerClass = computed(() => this.isCollapsed()
     ? 'h-auto min-h-0 !size-10 !justify-center !p-1.5'
     : 'h-auto min-h-0 !h-auto !px-2.5 !py-2',
   );
@@ -298,7 +298,7 @@ export class SidebarUserMenuComponent {
   toggleMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.menuOpen.update((open) => {
+    this.isMenuOpen.update((open) => {
       const next = !open;
       if (!next) {
         this.closeSubmenus();
@@ -310,38 +310,38 @@ export class SidebarUserMenuComponent {
   toggleHelpPinned(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.langPinned.set(false);
-    this.helpPinned.update(open => !open);
+    this.isLanguagePinned.set(false);
+    this.isHelpPinned.update(open => !open);
   }
 
   toggleLangPinned(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.helpPinned.set(false);
-    this.langPinned.update(open => !open);
+    this.isHelpPinned.set(false);
+    this.isLanguagePinned.update(open => !open);
   }
 
   selectLanguage(lang: Language): void {
     this.i18n.setLanguage(lang);
     this.closeSubmenus();
-    this.menuOpen.set(false);
+    this.isMenuOpen.set(false);
   }
 
   onItemClick(): void {
     this.closeSubmenus();
-    this.menuOpen.set(false);
+    this.isMenuOpen.set(false);
     this.sidebar.close();
   }
 
   onLogin(): void {
     this.closeSubmenus();
-    this.menuOpen.set(false);
+    this.isMenuOpen.set(false);
     this.accountDialog.openLogin();
   }
 
   onLogout(): void {
     this.closeSubmenus();
-    this.menuOpen.set(false);
+    this.isMenuOpen.set(false);
     this.accountDialog.openLogout({
       email: this.account()?.email ?? null,
       displayName: this.displayName(),
@@ -351,13 +351,13 @@ export class SidebarUserMenuComponent {
   onDocumentPointerDown(event: PointerEvent): void {
     const target = event.target as Element | null;
     if (!target?.closest?.('app-sidebar-user-menu')) {
-      this.menuOpen.set(false);
+      this.isMenuOpen.set(false);
       this.closeSubmenus();
     }
   }
 
   private closeSubmenus(): void {
-    this.helpPinned.set(false);
-    this.langPinned.set(false);
+    this.isHelpPinned.set(false);
+    this.isLanguagePinned.set(false);
   }
 }

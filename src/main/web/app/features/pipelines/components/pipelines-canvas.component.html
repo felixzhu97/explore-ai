@@ -54,11 +54,11 @@
               z-button
               zType="default"
               zSize="sm"
-              [disabled]="saving()"
+              [disabled]="isSaving()"
               (click)="switchToUse()"
             >
               {{
-                saving()
+                isSaving()
                   ? i18n.t().pipelines.pipeline.templates.saving
                   : i18n.t().pipelines.pipeline.templates.useThisGraph
               }}
@@ -257,11 +257,11 @@
                         z-button
                         zType="ghost"
                         zSize="sm"
-                        [disabled]="addingTemplateId() === template.id || isInLibrary(template)"
+                        [disabled]="addingTemplateId() === template.id || isSaved(template)"
                         (click)="addFromTemplate(template)"
                       >
                         {{
-                          isInLibrary(template)
+                          isSaved(template)
                             ? i18n.t().pipelines.pipeline.templates.inLibrary
                             : addingTemplateId() === template.id
                               ? i18n.t().pipelines.pipeline.templates.adding
@@ -271,7 +271,7 @@
                     </div>
                   </div>
                 }
-                @for (template of library(); track template.id) {
+                @for (template of savedTemplates(); track template.id) {
                   <div
                     class="flex flex-col gap-3 rounded-xl border border-black/8 bg-white p-4"
                   >
@@ -293,7 +293,7 @@
                         z-button
                         zType="default"
                         zSize="sm"
-                        (click)="useLibrary(template)"
+                        (click)="useSavedTemplate(template)"
                       >
                         {{ i18n.t().pipelines.pipeline.templates.use }}
                       </button>
@@ -302,7 +302,7 @@
                         z-button
                         zType="ghost"
                         zSize="sm"
-                        (click)="editLibrary(template)"
+                        (click)="editSavedTemplate(template)"
                       >
                         {{ i18n.t().pipelines.pipeline.templates.edit }}
                       </button>
@@ -311,7 +311,7 @@
                         z-button
                         zType="ghost"
                         zSize="sm"
-                        (click)="deleteLibrary(template)"
+                        (click)="deleteSavedTemplate(template)"
                       >
                         {{ i18n.t().pipelines.pipeline.templates.delete }}
                       </button>

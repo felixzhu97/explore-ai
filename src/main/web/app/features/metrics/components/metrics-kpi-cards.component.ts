@@ -15,7 +15,7 @@ export interface MetricsKpi {
         <button
           type="button"
           class="rounded-xl border border-black/10 bg-card p-3 text-left transition hover:border-black/20"
-          (click)="kpiClick.emit(kpi)"
+          (click)="kpiSelected.emit(kpi)"
         >
           <p class="text-xs text-muted-foreground">{{ kpi.label }}</p>
           <p class="mt-1 text-xl font-semibold tracking-tight text-foreground">{{ kpi.value }}</p>
@@ -27,5 +27,5 @@ export interface MetricsKpi {
 })
 export class MetricsKpiCardsComponent {
   readonly items = input<MetricsKpi[]>([]);
-  readonly kpiClick = output<MetricsKpi>();
+  readonly kpiSelected = output<MetricsKpi>();
 }

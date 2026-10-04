@@ -13,7 +13,7 @@ import {
   ChatBubbleFooterLabels,
   ChatBubbleListComponent,
 } from './chat-bubble-list.component';
-import { ChatBubbleMessage } from './chat-bubble.model';
+import { ChatMessageView } from './chat-bubble.model';
 import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
 
 @Component({
@@ -28,7 +28,7 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
           : 'min-h-0 flex-1 overflow-y-auto bg-surface px-4 py-3 max-md:pt-2 md:py-6'
       "
     >
-      @if (loading()) {
+      @if (isLoading()) {
         <div
           class="mx-auto flex w-full max-w-3xl justify-center py-12"
           aria-busy="true"
@@ -49,7 +49,7 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
             [description]="welcomeDescription()"
             [promptsTitle]="promptsTitle()"
             [prompts]="prompts()"
-            (promptSelect)="promptSelect.emit($event)"
+            (promptSelected)="promptSelected.emit($event)"
           />
         }
       } @else {
@@ -74,9 +74,9 @@ import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
   host: { class: 'flex min-h-0 flex-1 flex-col overflow-hidden' },
 })
 export class ChatMessagePaneComponent {
-  readonly messages = input.required<ChatBubbleMessage[]>();
+  readonly messages = input.required<ChatMessageView[]>();
   /** Session history loading — show skeleton instead of welcome flash. */
-  readonly loading = input(false);
+  readonly isLoading = input(false);
   readonly streamingMessageId = input<string | null>(null);
   readonly streamingMessageIds = input<ReadonlySet<string>>(new Set());
   readonly thinkingLabel = input('Thinking...');
@@ -102,7 +102,7 @@ export class ChatMessagePaneComponent {
   readonly autoScroll = input(false);
   readonly compact = input(false);
 
-  readonly promptSelect = output<string>();
+  readonly promptSelected = output<string>();
 
   private readonly messageScrollEl =
     viewChild<ElementRef<HTMLElement>>('messageScroll');

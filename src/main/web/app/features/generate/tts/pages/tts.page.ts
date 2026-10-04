@@ -137,8 +137,8 @@ export class TtsPageComponent implements OnInit, OnDestroy {
             }
           });
         },
-        error: (err: unknown) => {
-          this.error.set(err instanceof Error ? err.message : 'Synthesis failed');
+        error: (error: unknown) => {
+          this.error.set(error instanceof Error ? error.message : 'Synthesis failed');
           this.isSynthesizing.set(false);
         },
         complete: () => {

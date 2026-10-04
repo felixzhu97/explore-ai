@@ -26,7 +26,7 @@ import type { SidebarSession } from '../../sidebar-session.model';
         </span>
       </button>
 
-      @if (!collapsed()) {
+      @if (!isCollapsed()) {
         <div
           class="
             pointer-events-none absolute inset-y-0 right-1 z-10 flex items-center gap-0.5
@@ -94,24 +94,24 @@ import type { SidebarSession } from '../../sidebar-session.model';
 export class SessionItemComponent {
   readonly session = input.required<SidebarSession>();
   readonly isActive = input(false);
-  readonly collapsed = input(false);
+  readonly isCollapsed = input(false);
 
-  readonly pin = output<void>();
-  readonly delete = output<void>();
-  readonly sessionSelect = output<void>();
+  readonly pinToggleRequested = output<void>();
+  readonly deleteRequested = output<void>();
+  readonly selected = output<void>();
 
   onSelect(): void {
-    this.sessionSelect.emit();
+    this.selected.emit();
     (document.activeElement as HTMLElement | null)?.blur();
   }
 
   onPin(event: MouseEvent): void {
     event.stopPropagation();
-    this.pin.emit();
+    this.pinToggleRequested.emit();
   }
 
   onDelete(event: MouseEvent): void {
     event.stopPropagation();
-    this.delete.emit();
+    this.deleteRequested.emit();
   }
 }

@@ -68,34 +68,34 @@ describe('RagService', () => {
   });
 
   it('should fetch documents and select all', () => {
-    service.fetchAvailableDocs();
+    service.fetchAvailableDocuments();
     httpMock.expectOne(`${API_BASE_URL}/rag/documents`).flush({
       documents: [{ id: 'd1', title: 'Doc 1' }],
     });
-    expect(service.availableDocs()).toEqual([{ id: 'd1', title: 'Doc 1' }]);
-    expect(service.selectedDocIds().has('d1')).toBe(true);
-    expect(service.isLoadingDocs()).toBe(false);
+    expect(service.availableDocuments()).toEqual([{ id: 'd1', title: 'Doc 1' }]);
+    expect(service.selectedDocumentIds().has('d1')).toBe(true);
+    expect(service.isLoadingDocuments()).toBe(false);
   });
 
-  it('should return empty docs when api fails', () => {
-    service.fetchAvailableDocs();
+  it('should return empty documents when api fails', () => {
+    service.fetchAvailableDocuments();
     httpMock.expectOne(`${API_BASE_URL}/rag/documents`).error(new ProgressEvent('error'));
-    expect(service.availableDocs()).toEqual([]);
-    expect(service.isLoadingDocs()).toBe(false);
+    expect(service.availableDocuments()).toEqual([]);
+    expect(service.isLoadingDocuments()).toBe(false);
   });
 
-  it('should toggle clear and select all docs', () => {
-    service.availableDocs.set([
+  it('should toggle clear and select all documents', () => {
+    service.availableDocuments.set([
       { id: 'a', title: 'A' },
       { id: 'b', title: 'B' },
     ]);
-    service.selectedDocIds.set(new Set(['a', 'b']));
-    service.toggleDocSelection('a');
-    expect(service.selectedDocIds().has('a')).toBe(false);
-    service.clearDocSelection();
-    expect(service.selectedDocIds().size).toBe(0);
-    service.selectAllDocs();
-    expect(service.selectedDocIds().size).toBe(2);
+    service.selectedDocumentIds.set(new Set(['a', 'b']));
+    service.toggleDocumentSelection('a');
+    expect(service.selectedDocumentIds().has('a')).toBe(false);
+    service.clearDocumentSelection();
+    expect(service.selectedDocumentIds().size).toBe(0);
+    service.selectAllDocuments();
+    expect(service.selectedDocumentIds().size).toBe(2);
   });
 
   it('should reject invalid document id on delete', () => {
@@ -106,11 +106,11 @@ describe('RagService', () => {
 
   it('should delete document', async () => {
     vi.useFakeTimers();
-    service.availableDocs.set([{ id: 'd1', title: 'Doc' }]);
+    service.availableDocuments.set([{ id: 'd1', title: 'Doc' }]);
     service.deleteDocument('d1');
     httpMock.expectOne(`${API_BASE_URL}/rag/documents/d1`).flush(null);
     await vi.advanceTimersByTimeAsync(200);
-    expect(service.availableDocs()).toEqual([]);
+    expect(service.availableDocuments()).toEqual([]);
     expect(notifications.showSuccess).toHaveBeenCalledWith('deleted');
   });
 
@@ -128,7 +128,7 @@ describe('RagService', () => {
     expect(service.pendingFiles()).toHaveLength(0);
   });
 
-  it('should upload files and refresh docs', async () => {
+  it('should upload files and refresh documents', async () => {
     vi.useFakeTimers();
     const file = new File(['data'], 'doc.pdf');
     service.pendingFiles.set([file]);

@@ -32,7 +32,7 @@ import type { InvocationEvent } from '../metrics.model';
               @for (item of items(); track item.id) {
                 <tr
                   class="cursor-pointer border-t border-border hover:bg-accent"
-                  (click)="rowClick.emit(item)"
+                  (click)="rowSelected.emit(item)"
                 >
                   <td class="px-3 py-2 whitespace-nowrap text-muted-foreground">
                     {{ item.occurredAt | date: 'yyyy-MM-dd HH:mm:ss' }}
@@ -68,7 +68,7 @@ export class MetricsDrilldownTableComponent {
   readonly total = input(0);
   readonly heading = input('');
   readonly emptyText = input('');
-  readonly rowClick = output<InvocationEvent>();
+  readonly rowSelected = output<InvocationEvent>();
 
   readonly eventsCountLabel = computed(() => {
     const template = this.i18n.t().metricsPage.drilldown.eventsCount;

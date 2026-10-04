@@ -28,7 +28,7 @@ describe('ChatWelcomePanelComponent', () => {
 
   it('should emit prompt label on item click', () => {
     const spy = vi.fn();
-    fixture.componentInstance.promptSelect.subscribe(spy);
+    fixture.componentInstance.promptSelected.subscribe(spy);
 
     fixture.componentInstance.onPromptClick(prompts[0]);
 

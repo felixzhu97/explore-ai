@@ -19,11 +19,11 @@ export class McpPageComponent implements OnInit {
   readonly health = signal<McpHealthResponse | null>(null);
   readonly clientStatus = signal<McpClientStatusResponse | null>(null);
   readonly tools = signal<McpTool[]>([]);
-  readonly loading = signal(true);
+  readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
   readonly question = signal('');
   readonly chatResponse = signal<string | null>(null);
-  readonly chatting = signal(false);
+  readonly isChatting = signal(false);
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -34,7 +34,7 @@ export class McpPageComponent implements OnInit {
   }
 
   loadDashboard(): void {
-    this.loading.set(true);
+    this.isLoading.set(true);
     this.error.set(null);
 
     this.mcp.getHealth().subscribe({
@@ -50,11 +50,11 @@ export class McpPageComponent implements OnInit {
     this.mcp.listTools().subscribe({
       next: (tools) => {
         this.tools.set(tools);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
       error: () => {
         this.error.set(this.i18n.t().mcpPage.errors.toolsFailed);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
     });
   }
@@ -65,16 +65,16 @@ export class McpPageComponent implements OnInit {
       return;
     }
 
-    this.chatting.set(true);
+    this.isChatting.set(true);
     this.chatResponse.set(null);
     this.mcp.chat(question).subscribe({
       next: (response) => {
         this.chatResponse.set(response.response);
-        this.chatting.set(false);
+        this.isChatting.set(false);
       },
       error: () => {
         this.error.set(this.i18n.t().mcpPage.errors.chatFailed);
-        this.chatting.set(false);
+        this.isChatting.set(false);
       },
     });
   }

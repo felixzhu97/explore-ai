@@ -37,8 +37,8 @@ export class SkillsPageComponent implements OnInit {
 
   readonly skills = signal<Skill[]>([]);
   readonly templates = signal<SkillTemplate[]>([]);
-  readonly loading = signal(true);
-  readonly saving = signal(false);
+  readonly isLoading = signal(true);
+  readonly isSaving = signal(false);
   readonly addingTemplateId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly editingId = signal<string | null>(null);
@@ -76,16 +76,16 @@ export class SkillsPageComponent implements OnInit {
   }
 
   reload(): void {
-    this.loading.set(true);
+    this.isLoading.set(true);
     this.error.set(null);
     this.skillsApi.list().subscribe({
       next: (skills) => {
         this.skills.set(skills);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
       error: () => {
         this.error.set(this.i18n.t().skillsPage.loadFailed);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
     });
     this.reloadTemplates();
@@ -156,7 +156,7 @@ export class SkillsPageComponent implements OnInit {
       this.error.set(this.i18n.t().skillsPage.nameRequired);
       return;
     }
-    this.saving.set(true);
+    this.isSaving.set(true);
     this.error.set(null);
     const id = this.editingId();
     const request$ = id
@@ -164,14 +164,14 @@ export class SkillsPageComponent implements OnInit {
       : this.skillsApi.create(request);
     request$.subscribe({
       next: () => {
-        this.saving.set(false);
+        this.isSaving.set(false);
         this.showForm.set(false);
         this.notifications.showSuccess(this.i18n.t().common.success);
         this.reload();
       },
       error: () => {
         this.error.set(this.i18n.t().skillsPage.saveFailed);
-        this.saving.set(false);
+        this.isSaving.set(false);
       },
     });
   }

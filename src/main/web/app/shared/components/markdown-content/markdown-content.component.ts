@@ -20,7 +20,9 @@ export class MarkdownContentComponent {
   private readonly markdown = inject(MarkdownService);
 
   readonly content = input.required<string>();
-  readonly streaming = input(false);
+  readonly isStreaming = input(false);
 
-  readonly html = computed(() => this.markdown.render(this.content(), this.streaming()));
+  readonly html = computed(() => {
+    return this.markdown.render(this.content(), this.isStreaming());
+  });
 }

@@ -130,7 +130,7 @@
           @if (moreSections().length > 0) {
             <app-sidebar-more-menu
               [sections]="moreSections()"
-              [collapsed]="false"
+              [isCollapsed]="false"
               [iconFor]="navIconFn"
               (navigated)="onNavClick()"
             />
@@ -150,13 +150,13 @@
                     font-medium text-[#8F8F8F] no-underline transition-all duration-150
                     hover:text-[#8F8F8F]
                   "
-                  (click)="pinnedExpanded.update(v => !v)"
+                  (click)="isPinnedExpanded.update(v => !v)"
                 >
                   {{ t().sidebar.pinned }}
                   <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <svg
                       class="size-3 transition-transform duration-200"
-                      [class.rotate-90]="pinnedExpanded()"
+                      [class.rotate-90]="isPinnedExpanded()"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -166,16 +166,16 @@
                     </svg>
                   </span>
                 </button>
-                @if (pinnedExpanded()) {
+                @if (isPinnedExpanded()) {
                   <z-sidebar-group class="space-y-0.5">
                     @for (session of pinnedSessions(); track session.id) {
                       <app-session-item
                         [session]="session"
                         [isActive]="sessionList.activeSessionId() === session.id"
-                        [collapsed]="collapsed()"
-                        (sessionSelect)="onSessionSelect(session.id)"
-                        (pin)="onSessionPin(session.id)"
-                        (delete)="onSessionDelete(session.id)"
+                        [isCollapsed]="collapsed()"
+                        (selected)="onSessionSelect(session.id)"
+                        (pinToggleRequested)="onSessionPin(session.id)"
+                        (deleteRequested)="onSessionDelete(session.id)"
                       />
                     }
                   </z-sidebar-group>
@@ -191,13 +191,13 @@
                   font-medium text-[#8F8F8F] no-underline transition-all duration-150
                   hover:text-[#8F8F8F]
                 "
-                (click)="recentsExpanded.update(v => !v)"
+                (click)="isRecentsExpanded.update(v => !v)"
               >
                 {{ t().sidebar.recents }}
                 <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                   <svg
                     class="size-3 transition-transform duration-200"
-                    [class.rotate-90]="recentsExpanded()"
+                    [class.rotate-90]="isRecentsExpanded()"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -207,16 +207,16 @@
                   </svg>
                 </span>
               </button>
-              @if (recentsExpanded()) {
+              @if (isRecentsExpanded()) {
                 <z-sidebar-group class="space-y-0.5">
                   @for (session of recentSessions(); track session.id) {
                     <app-session-item
                       [session]="session"
                       [isActive]="sessionList.activeSessionId() === session.id"
-                      [collapsed]="collapsed()"
-                      (sessionSelect)="onSessionSelect(session.id)"
-                      (pin)="onSessionPin(session.id)"
-                      (delete)="onSessionDelete(session.id)"
+                      [isCollapsed]="collapsed()"
+                      (selected)="onSessionSelect(session.id)"
+                      (pinToggleRequested)="onSessionPin(session.id)"
+                      (deleteRequested)="onSessionDelete(session.id)"
                     />
                   }
                 </z-sidebar-group>
@@ -271,7 +271,7 @@
         @if (moreSections().length > 0) {
           <app-sidebar-more-menu
             [sections]="moreSections()"
-            [collapsed]="true"
+            [isCollapsed]="true"
             [iconFor]="navIconFn"
             (navigated)="onNavClick()"
           />
@@ -283,7 +283,7 @@
   <div
     class="relative z-20 mt-auto shrink-0 overflow-visible border-t border-sidebar-border p-2"
   >
-    <app-sidebar-user-menu [collapsed]="collapsed()" />
+    <app-sidebar-user-menu [isCollapsed]="collapsed()" />
   </div>
 </aside>
 

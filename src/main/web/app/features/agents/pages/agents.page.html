@@ -29,7 +29,7 @@
               {{ i18n.t().agentsPage.typeKey }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
-                [disabled]="formTypeKeyLocked()"
+                [disabled]="isFormTypeKeyLocked()"
                 [ngModel]="formTypeKey()"
                 (ngModelChange)="formTypeKey.set($event)"
               />
@@ -81,10 +81,10 @@
                 type="button"
                 z-button
                 zType="default"
-                [disabled]="saving()"
+                [disabled]="isSaving()"
                 (click)="save()"
               >
-                {{ saving() ? i18n.t().agentsPage.saving : i18n.t().agentsPage.save }}
+                {{ isSaving() ? i18n.t().agentsPage.saving : i18n.t().agentsPage.save }}
               </button>
               <button type="button" z-button zType="ghost" (click)="cancelForm()">
                 {{ i18n.t().agentsPage.cancel }}
@@ -99,7 +99,7 @@
           <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agentsPage.builtins }}</h2>
           <p class="text-xs text-foreground/50">{{ i18n.t().agentsPage.builtinsHint }}</p>
         </div>
-        @if (loading()) {
+        @if (isLoading()) {
           <p class="mt-3 text-xs text-foreground/50">{{ i18n.t().agentsPage.loading }}</p>
         } @else {
           <ul class="mt-3 grid gap-3 sm:grid-cols-2">
@@ -129,11 +129,11 @@
 
       <section>
         <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agentsPage.myAgents }}</h2>
-        @if (library().length === 0) {
+        @if (savedAgents().length === 0) {
           <p class="mt-3 text-sm text-foreground/60">{{ i18n.t().agentsPage.emptyLibrary }}</p>
         } @else {
           <ul class="mt-3 overflow-hidden rounded-xl border border-black/8 bg-white">
-            @for (agent of library(); track agent.id) {
+            @for (agent of savedAgents(); track agent.id) {
               <li
                 class="flex flex-wrap items-start justify-between gap-3 border-b border-black/8 px-4 py-3 last:border-b-0"
               >
@@ -155,7 +155,7 @@
                     z-button
                     zType="ghost"
                     zSize="sm"
-                    (click)="startEditLibrary(agent)"
+                    (click)="startEditSavedAgent(agent)"
                   >
                     {{ i18n.t().agentsPage.edit }}
                   </button>

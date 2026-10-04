@@ -19,7 +19,7 @@ export class EvalPageComponent {
   readonly userMessage = signal('');
   readonly assistantResponse = signal('');
   readonly result = signal<EvaluationResponse | null>(null);
-  readonly loading = signal(false);
+  readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
 
   submit(): void {
@@ -29,18 +29,18 @@ export class EvalPageComponent {
       return;
     }
 
-    this.loading.set(true);
+    this.isLoading.set(true);
     this.error.set(null);
     this.result.set(null);
 
     this.evalService.evaluate({ userMessage, assistantResponse }).subscribe({
       next: (response) => {
         this.result.set(response);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
       error: () => {
         this.error.set(this.i18n.t().evalPage.requestFailed);
-        this.loading.set(false);
+        this.isLoading.set(false);
       },
     });
   }

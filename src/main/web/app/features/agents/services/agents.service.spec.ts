@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../../../core/api.constants';
 describe('AgentsService', () => {
   let service: AgentsService;
   let httpMock: HttpTestingController;
-  const libraryBase = `${API_BASE_URL}/pipelines/agents`;
+  const savedAgentsBase = `${API_BASE_URL}/pipelines/agents`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -18,13 +18,13 @@ describe('AgentsService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should list library from api', () => {
-    service.listLibrary().subscribe((agents) => {
+  it('should list saved agents from api', () => {
+    service.listSavedAgents().subscribe((agents) => {
       expect(agents).toHaveLength(1);
       expect(agents[0].typeKey).toBe('researcher');
     });
 
-    const req = httpMock.expectOne(libraryBase);
+    const req = httpMock.expectOne(savedAgentsBase);
     expect(req.request.method).toBe('GET');
     req.flush([
       {
@@ -51,7 +51,7 @@ describe('AgentsService', () => {
       expect(agent.id).toBe('42');
     });
 
-    const req = httpMock.expectOne(libraryBase);
+    const req = httpMock.expectOne(savedAgentsBase);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
     req.flush({ id: '42', ...body, enabled: true });
@@ -62,7 +62,7 @@ describe('AgentsService', () => {
       expect(agent.enabled).toBe(false);
     });
 
-    const req = httpMock.expectOne(`${libraryBase}/42/enabled`);
+    const req = httpMock.expectOne(`${savedAgentsBase}/42/enabled`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ enabled: false });
     req.flush({

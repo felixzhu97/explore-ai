@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import {
-  ChatBubbleMessage,
+  ChatMessageView,
   ChatMessagePaneComponent,
   ChatSenderBarComponent,
 } from '../../../shared/components/chat-shell';
@@ -81,7 +81,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   readonly input = model('');
   readonly skillsEnabled = signal(false);
-  readonly skillsMenuOpen = signal(false);
+  readonly isSkillsMenuOpen = signal(false);
   readonly skillsMenuStyle = signal<{ top: string; right: string } | null>(null);
 
   private readonly routeSessionId = toSignal(
@@ -107,7 +107,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }));
   });
 
-  readonly bubbleMessages = computed((): ChatBubbleMessage[] => {
+  readonly bubbleMessages = computed((): ChatMessageView[] => {
     const streamingId = this.chat.streamingMessageId();
     return this.chat.messages()
       .filter(
@@ -185,13 +185,13 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   toggleSkillsMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    const willOpen = !this.skillsMenuOpen();
+    const willOpen = !this.isSkillsMenuOpen();
     if (willOpen) {
       this.positionSkillsMenu();
     } else {
       this.skillsMenuStyle.set(null);
     }
-    this.skillsMenuOpen.set(willOpen);
+    this.isSkillsMenuOpen.set(willOpen);
   }
 
   onDocumentClick(event: MouseEvent): void {
@@ -199,7 +199,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     if (root?.contains(event.target as Node)) {
       return;
     }
-    this.skillsMenuOpen.set(false);
+    this.isSkillsMenuOpen.set(false);
     this.skillsMenuStyle.set(null);
   }
 

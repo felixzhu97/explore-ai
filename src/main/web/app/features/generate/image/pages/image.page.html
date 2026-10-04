@@ -10,7 +10,7 @@
     [prompt]="imageGen.prompt()"
     [sizes]="imageGen.sizes()"
     [selectedSize]="imageGen.selectedSize()"
-    [generating]="imageGen.isGenerating()"
+    [isGenerating]="imageGen.isGenerating()"
     (promptChange)="imageGen.setPrompt($event)"
     (sizeSelected)="imageGen.setSize($event)"
     (generateRequested)="imageGen.generate()"
@@ -20,7 +20,7 @@
     <app-media-preview-panel
       class="min-h-0 flex-1"
       [imageSrc]="imageGen.generatedImage()"
-      [loading]="imageGen.isGenerating()"
+      [isLoading]="imageGen.isGenerating()"
       [loadingLabel]="i18n.t().generate.image.generating"
       [emptyState]="i18n.t().generate.image.emptyState"
       [zoomLabel]="i18n.t().generate.image.zoomLabel"

@@ -30,10 +30,10 @@ import type { VisionTaskType } from '../services/vision.service';
           z-button
           zFull
           zSize="lg"
-          [zDisabled]="!canAnalyze() || loading()"
+          [zDisabled]="!canAnalyze() || isLoading()"
           (click)="analyzeRequested.emit()"
         >
-          @if (loading()) {
+          @if (isLoading()) {
             {{ analyzingLabel() }}
           } @else {
             {{ analyzeLabel() }}
@@ -97,7 +97,7 @@ export class MediaResultPanelComponent {
   readonly task = input.required<VisionTaskType>();
   readonly result = input<VisionResult | null>(null);
   readonly error = input<string | null>(null);
-  readonly loading = input(false);
+  readonly isLoading = input(false);
   readonly canAnalyze = input(false);
   readonly emptyLabel = input.required<string>();
   readonly noDetectionsLabel = input.required<string>();

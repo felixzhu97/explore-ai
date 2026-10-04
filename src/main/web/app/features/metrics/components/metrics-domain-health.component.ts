@@ -20,7 +20,7 @@ export interface DomainHealthItem {
           <button
             type="button"
             class="flex w-full items-center justify-between gap-3 border-b border-black/10 px-4 py-3 text-left last:border-b-0 hover:bg-accent"
-            (click)="domainClick.emit(item.domain)"
+            (click)="domainSelected.emit(item.domain)"
           >
             <div>
               <p class="text-sm font-medium text-foreground">{{ item.label }}</p>
@@ -50,5 +50,5 @@ export class MetricsDomainHealthComponent {
   readonly items = input<DomainHealthItem[]>([]);
   readonly heading = input('');
   readonly emptyText = input('');
-  readonly domainClick = output<string>();
+  readonly domainSelected = output<string>();
 }

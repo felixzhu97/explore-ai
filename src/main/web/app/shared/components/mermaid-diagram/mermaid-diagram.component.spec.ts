@@ -51,7 +51,7 @@ describe('MermaidDiagramComponent', () => {
     fixture.detectChanges();
 
     await vi.waitFor(() => {
-      expect(fixture.componentInstance.error()).toBe(true);
+      expect(fixture.componentInstance.hasError()).toBe(true);
     });
     fixture.detectChanges();
 

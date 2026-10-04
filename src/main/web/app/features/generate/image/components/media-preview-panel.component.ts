@@ -21,7 +21,7 @@ import { ZardSkeletonComponent } from '../../../../shared/components/skeleton';
           bg-muted/40 md:min-h-96
         "
       >
-        @if (loading()) {
+        @if (isLoading()) {
           <div
             class="
               absolute inset-0 z-10 flex flex-col items-center justify-center
@@ -72,7 +72,7 @@ import { ZardSkeletonComponent } from '../../../../shared/components/skeleton';
 })
 export class MediaPreviewPanelComponent {
   readonly imageSrc = input<string | null>(null);
-  readonly loading = input(false);
+  readonly isLoading = input(false);
   readonly loadingLabel = input('');
   readonly emptyState = input.required<string>();
   readonly imageAlt = input('Generated image');

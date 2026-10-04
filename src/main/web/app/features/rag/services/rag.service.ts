@@ -39,10 +39,10 @@ export class RagService {
   private readonly sessionId = `session_${Date.now()}`;
 
   // Document state
-  readonly availableDocs = signal<RagDocumentItem[]>([]);
-  readonly selectedDocIds = signal<Set<string>>(new Set());
-  readonly deletingDocIds = signal<Set<string>>(new Set());
-  readonly isLoadingDocs = signal(true);
+  readonly availableDocuments = signal<RagDocumentItem[]>([]);
+  readonly selectedDocumentIds = signal<Set<string>>(new Set());
+  readonly deletingDocumentIds = signal<Set<string>>(new Set());
+  readonly isLoadingDocuments = signal(true);
 
   // Upload state
   readonly pendingFiles = signal<File[]>([]);
@@ -57,83 +57,85 @@ export class RagService {
   // Streaming state
   readonly streamingMessageIds = signal<Set<string>>(new Set());
 
-  fetchAvailableDocs(): void {
-    this.isLoadingDocs.set(true);
+  fetchAvailableDocuments(): void {
+    this.isLoadingDocuments.set(true);
     this.getDocuments().subscribe({
       next: (data) => {
-        const docs = (data.documents || []).map(d => ({
-          id: d.id,
-          title: d.title || 'Untitled',
+        const documents = (data.documents || []).map(item => ({
+          id: item.id,
+          title: item.title || 'Untitled',
         }));
-        this.availableDocs.set(docs);
+        this.availableDocuments.set(documents);
         const ids = new Set<string>();
-        docs.forEach(d => ids.add(d.id));
-        this.selectedDocIds.set(ids);
+        documents.forEach(item => ids.add(item.id));
+        this.selectedDocumentIds.set(ids);
       },
       error: () => {
         this.notifications.showError(this.i18n.t().common.loadFailed);
-        this.availableDocs.set([]);
+        this.availableDocuments.set([]);
       },
       complete: () => {
-        this.isLoadingDocs.set(false);
+        this.isLoadingDocuments.set(false);
       },
     });
   }
 
-  toggleDocSelection(docId: string): void {
-    this.selectedDocIds.update((ids) => {
+  toggleDocumentSelection(documentId: string): void {
+    this.selectedDocumentIds.update((ids) => {
       const next = new Set(ids);
-      if (next.has(docId)) {
-        next.delete(docId);
+      if (next.has(documentId)) {
+        next.delete(documentId);
       } else {
-        next.add(docId);
+        next.add(documentId);
       }
       return next;
     });
   }
 
-  selectAllDocs(): void {
-    const docs = this.availableDocs();
+  selectAllDocuments(): void {
+    const documents = this.availableDocuments();
     const ids = new Set<string>();
-    docs.forEach(d => ids.add(d.id));
-    this.selectedDocIds.set(ids);
+    documents.forEach(item => ids.add(item.id));
+    this.selectedDocumentIds.set(ids);
   }
 
-  clearDocSelection(): void {
-    this.selectedDocIds.set(new Set());
+  clearDocumentSelection(): void {
+    this.selectedDocumentIds.set(new Set());
   }
 
-  deleteDocument(docId: string): void {
-    if (!docId || docId === 'undefined' || docId === 'null') {
+  deleteDocument(documentId: string): void {
+    if (!documentId || documentId === 'undefined' || documentId === 'null') {
       this.notifications.showError('Cannot delete: document ID is invalid');
       return;
     }
 
-    this.deletingDocIds.update((ids) => {
-      return new Set(ids).add(docId);
+    this.deletingDocumentIds.update((ids) => {
+      return new Set(ids).add(documentId);
     });
 
-    this.deleteDocumentRequest(docId).subscribe({
+    this.deleteDocumentRequest(documentId).subscribe({
       next: () => {
         setTimeout(() => {
-          this.availableDocs.update(docs => docs.filter(d => d.id !== docId));
-          this.selectedDocIds.update((ids) => {
+          this.availableDocuments.update((documents) => {
+            return documents.filter(item => item.id !== documentId);
+          });
+          this.selectedDocumentIds.update((ids) => {
             const next = new Set(ids);
-            next.delete(docId);
+            next.delete(documentId);
             return next;
           });
-          this.deletingDocIds.update((ids) => {
+          this.deletingDocumentIds.update((ids) => {
             const next = new Set(ids);
-            next.delete(docId);
+            next.delete(documentId);
             return next;
           });
           this.notifications.showSuccess(this.i18n.t().ragChat.documentDeleted);
         }, 200);
       },
       error: () => {
-        this.deletingDocIds.update((ids) => {
+        this.deletingDocumentIds.update((ids) => {
           const next = new Set(ids);
-          next.delete(docId);
+          next.delete(documentId);
           return next;
         });
         this.notifications.showError(this.i18n.t().ragChat.deleteFailed);
@@ -165,12 +167,12 @@ export class RagService {
     this.isUploading.set(true);
 
     this.pendingFiles().forEach((file, index) => {
-      const docId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const documentId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       this.uploadStatuses.update((statuses) => {
         const next = new Map(statuses);
         next.set(file.name, {
-          id: docId,
+          id: documentId,
           title: file.name,
           status: 'uploading',
           progress: 0,
@@ -200,7 +202,7 @@ export class RagService {
           this.uploadStatuses.update((statuses) => {
             const next = new Map(statuses);
             next.set(file.name, {
-              id: docId,
+              id: documentId,
               title: file.name,
               status: 'success',
             });
@@ -212,7 +214,7 @@ export class RagService {
 
           if (index === this.pendingFiles().length - 1) {
             this.pendingFiles.set([]);
-            this.fetchAvailableDocs();
+            this.fetchAvailableDocuments();
             setTimeout(() => {
               this.uploadStatuses.set(new Map());
             }, 2000);
@@ -222,7 +224,7 @@ export class RagService {
           this.uploadStatuses.update((statuses) => {
             const next = new Map(statuses);
             next.set(file.name, {
-              id: docId,
+              id: documentId,
               title: file.name,
               status: 'error',
               error: this.i18n.t().ragChat.uploadFailed.replace('{name}', file.name),
@@ -260,13 +262,13 @@ export class RagService {
       timestamp: Date.now(),
     };
 
-    this.messages.update(msgs => [...msgs, userMessage]);
+    this.messages.update(messages => [...messages, userMessage]);
     this.input.set('');
     this.isLoading.set(true);
 
     const assistantMessageId = `assistant_${Date.now()}`;
-    this.messages.update(msgs => [
-      ...msgs,
+    this.messages.update(messages => [
+      ...messages,
       {
         id: assistantMessageId,
         role: 'assistant',
@@ -283,23 +285,23 @@ export class RagService {
       temperature: DEFAULT_TEMPERATURE,
     };
 
-    if (this.selectedDocIds().size > 0) {
-      requestBody.documentIds = Array.from(this.selectedDocIds());
+    if (this.selectedDocumentIds().size > 0) {
+      requestBody.documentIds = Array.from(this.selectedDocumentIds());
     }
 
     this.ragChat(
       requestBody,
       (chunk: string) => {
-        this.messages.update(msgs => msgs.map(msg => msg.id === assistantMessageId
-          ? { ...msg, content: msg.content + chunk }
-          : msg,
-        ),
-        );
+        this.messages.update(messages => messages.map((message) => {
+          return message.id === assistantMessageId
+            ? { ...message, content: message.content + chunk }
+            : message;
+        }));
       },
       (sources: SourceDocument[]) => {
-        this.messages.update((msgs) => {
-          return msgs.map((msg) => {
-            return msg.id === assistantMessageId ? { ...msg, sources } : msg;
+        this.messages.update((messages) => {
+          return messages.map((message) => {
+            return message.id === assistantMessageId ? { ...message, sources } : message;
           });
         });
       },
@@ -312,11 +314,11 @@ export class RagService {
         this.isLoading.set(false);
       },
       () => {
-        this.messages.update((msgs) => {
-          return msgs.map((msg) => {
-            return msg.id === assistantMessageId
-              ? { ...msg, content: 'An error occurred while processing your request.' }
-              : msg;
+        this.messages.update((messages) => {
+          return messages.map((message) => {
+            return message.id === assistantMessageId
+              ? { ...message, content: 'An error occurred while processing your request.' }
+              : message;
           });
         });
         this.streamingMessageIds.update((ids) => {
@@ -349,8 +351,8 @@ export class RagService {
     });
   }
 
-  private deleteDocumentRequest(docId: string): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/rag/documents/${docId}`);
+  private deleteDocumentRequest(documentId: string): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/rag/documents/${documentId}`);
   }
 
   private ragChat(
@@ -358,7 +360,7 @@ export class RagService {
     onChunk: (text: string) => void,
     onSources: (sources: SourceDocument[]) => void,
     onDone: () => void,
-    onError: (err: Error) => void,
+    onError: (error: Error) => void,
   ): { abort: () => void } {
     return streamSsePost(`${API_BASE_URL}/rag/chat/stream`, query, {
       onEvent: ({ eventType, data }) => {

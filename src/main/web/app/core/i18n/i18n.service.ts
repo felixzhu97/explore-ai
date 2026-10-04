@@ -5,11 +5,11 @@ import { Language, Translations, translations, languageNames } from './i18n.mode
   providedIn: 'root',
 })
 export class I18nService {
-  private readonly _language = signal<Language>(this.getInitialLanguage());
+  private readonly languageState = signal<Language>(this.getInitialLanguage());
 
-  readonly language = this._language.asReadonly();
-  readonly t = computed<Translations>(() => translations[this._language()]);
-  readonly languageName = computed(() => languageNames[this._language()]);
+  readonly language = this.languageState.asReadonly();
+  readonly t = computed<Translations>(() => translations[this.languageState()]);
+  readonly languageName = computed(() => languageNames[this.languageState()]);
 
   private getInitialLanguage(): Language {
     const stored = localStorage.getItem('language');
@@ -30,7 +30,7 @@ export class I18nService {
   }
 
   setLanguage(lang: Language): void {
-    this._language.set(lang);
+    this.languageState.set(lang);
     localStorage.setItem('language', lang);
   }
 

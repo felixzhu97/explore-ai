@@ -108,8 +108,8 @@ export class VisionService {
       next: (data) => {
         this.updateState({ result: data });
       },
-      error: (err: unknown) => {
-        this.updateState({ error: this.resolveErrorMessage(err) });
+      error: (error: unknown) => {
+        this.updateState({ error: this.resolveErrorMessage(error) });
         this.isLoading.set(false);
       },
       complete: () => {
@@ -145,21 +145,21 @@ export class VisionService {
     );
   }
 
-  private resolveErrorMessage(err: unknown): string {
-    if (err instanceof HttpErrorResponse) {
-      const body = err.error as ApiErrorBody | null;
+  private resolveErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const body = error.error as ApiErrorBody | null;
       if (body?.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
         return this.i18n.t().imageUploader.providerUnavailable;
       }
       if (body?.message) {
         return body.message;
       }
-      if (err.status === 0) {
+      if (error.status === 0) {
         return this.i18n.t().imageUploader.requestFailed;
       }
     }
-    if (err instanceof Error) {
-      return err.message;
+    if (error instanceof Error) {
+      return error.message;
     }
     return this.i18n.t().imageUploader.processingFailed;
   }

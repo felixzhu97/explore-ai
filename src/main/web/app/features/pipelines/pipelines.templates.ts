@@ -1,7 +1,7 @@
-import type { AgentInfo } from './pipelines.model';
+import type { AgentType } from './pipelines.model';
 import type { PipelineConnection, PipelineGraph, PipelineNode } from './pipeline-graph.model';
 
-export interface PipelineTemplateDefinition {
+export interface PipelineTemplateInput {
   id: string;
   /** Ordered worker agent types forming a linear pipeline. */
   agentTypes: readonly string[];
@@ -20,8 +20,8 @@ const NODE_ORIGIN = { x: 80, y: 120 };
  * not present (or supervisor-only) in the current catalog.
  */
 export function applyPipelineTemplate(
-  definition: PipelineTemplateDefinition,
-  agents: readonly AgentInfo[],
+  definition: PipelineTemplateInput,
+  agents: readonly AgentType[],
   idSeed = 1,
 ): PipelineTemplateApplyResult {
   const byType = new Map(
@@ -31,7 +31,7 @@ export function applyPipelineTemplate(
   );
 
   const skippedAgentTypes: string[] = [];
-  const resolved: AgentInfo[] = [];
+  const resolved: AgentType[] = [];
   for (const type of definition.agentTypes) {
     const agent = byType.get(type);
     if (!agent) {
