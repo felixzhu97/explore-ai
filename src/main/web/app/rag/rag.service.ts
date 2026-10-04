@@ -4,7 +4,7 @@ import { Observable, of, catchError } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
-import { streamSsePost } from '../http/sse-client';
+import { parseSseToken, streamSsePost } from '../http/sse-client';
 
 /** POST /api/rag/chat/stream */
 export interface RagQuery {
@@ -412,8 +412,10 @@ export class RagService {
           return false;
         }
 
-        const displayData = data.replace(/<br\s*\/?>/gi, '\n');
-        onChunk(displayData);
+        const token = parseSseToken(data);
+        if (token !== null) {
+          onChunk(token.replace(/<br\s*\/?>/gi, '\n'));
+        }
         return false;
       },
       onDone,

@@ -374,12 +374,14 @@ curl -X POST "${BASE_URL}/api/rag/chat/stream" \
 
 **Response Example (SSE)**
 
+Each token is a JSON object so leading spaces survive SSE framing.
+
 ```
-event: message
-data: According to the product user manual,
-data: this product is covered by
-data: a two-year
-data: full warranty.
+data: {"type":"message","token":"According to the product user manual,"}
+
+data: {"type":"message","token":" this product has"}
+
+data: {"type":"message","token":" a two-year warranty."}
 
 event: sources
 data: [{"id":null,"content":"...warranty period is two years...","score":0.95,"metadata":{"source":"user_manual.pdf"}}]

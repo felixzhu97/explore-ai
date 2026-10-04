@@ -3,6 +3,7 @@ package com.ai.vision.service;
 import com.ai.chat.infra.prompt.LocalizedRagPromptBuilder;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
@@ -98,7 +99,8 @@ public class VisionChatService {
           .stream()
           .content()
           .filter(piece -> !piece.isEmpty())
-          .map(piece -> ServerSentEvent.<String>builder().data(piece).build())
+          .map(
+              piece -> ServerSentEvent.<String>builder().data(StreamTokenEvent.json(piece)).build())
           .onErrorResume(
               ex -> {
                 log.error("Error in vision stream: {}", ex.getMessage(), ex);

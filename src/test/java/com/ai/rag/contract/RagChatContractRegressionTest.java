@@ -182,8 +182,8 @@ class RagChatContractRegressionTest {
       verify(requestSpec).stream();
       verify(requestSpec, never()).call();
       assertThat(events).hasSize(3);
-      assertThat(events.get(0).data()).isEqualTo("Hello ");
-      assertThat(events.get(1).data()).isEqualTo("world");
+      assertThat(events.get(0).data()).isEqualTo("{\"type\":\"message\",\"token\":\"Hello \"}");
+      assertThat(events.get(1).data()).isEqualTo("{\"type\":\"message\",\"token\":\"world\"}");
       assertThat(events.stream().filter(e -> "sources".equals(e.event()))).hasSize(1);
     }
   }
