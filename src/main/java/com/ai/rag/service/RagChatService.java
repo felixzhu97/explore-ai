@@ -13,9 +13,8 @@ import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.service.dto.RagChatResult;
+import com.ai.rag.service.dto.RagSourceEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -227,18 +226,7 @@ public class RagChatService {
       return Flux.empty();
     }
     try {
-      List<Map<String, Object>> payload = new ArrayList<>();
-      for (SourceDocument source : sources) {
-        if (source.content() == null || source.content().isBlank()) {
-          continue;
-        }
-        Map<String, Object> row = new LinkedHashMap<>();
-        row.put("id", null);
-        row.put("content", source.content());
-        row.put("score", source.score());
-        row.put("metadata", source.metadata());
-        payload.add(row);
-      }
+      List<RagSourceEvent> payload = RagSourceEvent.fromAll(sources);
       if (payload.isEmpty()) {
         return Flux.empty();
       }

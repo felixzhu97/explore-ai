@@ -46,13 +46,12 @@ final class CapturedWebSources {
     }
     List<WebSource> sources = new ArrayList<>();
     for (JsonNode item : itemsNode) {
-      String publishedAt = text(item, "publishedAt");
-      if (publishedAt.isBlank()) {
-        publishedAt = text(item, "date");
-      }
       sources.add(
           new WebSource(
-              text(item, "title"), text(item, "url"), text(item, "snippet"), publishedAt));
+              text(item, "title"),
+              text(item, "url"),
+              text(item, "snippet"),
+              text(item, "publishedAt")));
     }
     return sources;
   }

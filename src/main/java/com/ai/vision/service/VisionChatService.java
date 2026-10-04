@@ -8,16 +8,14 @@ import com.ai.common.service.llm.TextChatOptions;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
+import com.ai.rag.service.dto.RagSourceEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -121,18 +119,7 @@ public class VisionChatService {
       return Flux.empty();
     }
     try {
-      List<Map<String, Object>> payload = new ArrayList<>();
-      for (SourceDocument source : sources) {
-        if (source.content() == null || source.content().isBlank()) {
-          continue;
-        }
-        Map<String, Object> row = new LinkedHashMap<>();
-        row.put("id", null);
-        row.put("content", source.content());
-        row.put("score", source.score());
-        row.put("metadata", source.metadata());
-        payload.add(row);
-      }
+      List<RagSourceEvent> payload = RagSourceEvent.fromAll(sources);
       if (payload.isEmpty()) {
         return Flux.empty();
       }

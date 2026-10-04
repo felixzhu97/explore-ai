@@ -294,8 +294,7 @@ public class PipelineOrchestrationService {
   }
 
   static ServerSentEvent<String> handoffEvent(String agentType, String reason) {
-    String payload =
-        "{\"agentType\":\"%s\",\"reason\":%s}".formatted(agentType, jsonString(reason));
+    String payload = PipelineHandoffEvent.of(agentType, reason).toJson();
     return ServerSentEvent.<String>builder().event("agent_handoff").data(payload).build();
   }
 
@@ -305,12 +304,5 @@ public class PipelineOrchestrationService {
 
   static ServerSentEvent<String> errorEvent(String message) {
     return ServerSentEvent.<String>builder().event("error").data(message).build();
-  }
-
-  private static String jsonString(String value) {
-    if (value == null) {
-      return "\"\"";
-    }
-    return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
   }
 }
