@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.chat.controller.dto.ProviderStatus;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
@@ -43,7 +44,10 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
           .thenReturn(
               List.of(
                   new com.ai.chat.controller.dto.ProviderInfoResponse(
-                      "openai", "DeepSeek", List.of("deepseek-v4-flash"), "available")));
+                      "openai",
+                      "DeepSeek",
+                      List.of("deepseek-v4-flash"),
+                      ProviderStatus.AVAILABLE)));
 
       assertThat(mvc.get().uri("/api/chat/providers"))
           .hasStatusOk()

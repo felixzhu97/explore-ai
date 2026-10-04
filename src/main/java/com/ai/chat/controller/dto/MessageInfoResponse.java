@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.List;
 
 public record MessageInfoResponse(
-    String id, String role, String content, Instant timestamp, List<WebSourceResponse> sources) {
+    String id, ChatRole role, String content, Instant timestamp, List<WebSourceResponse> sources) {
   public static MessageInfoResponse from(ChatMessage message) {
     return from(message, List.of());
   }
@@ -16,7 +16,7 @@ public record MessageInfoResponse(
         sources == null || sources.isEmpty() ? null : List.copyOf(sources);
     return new MessageInfoResponse(
         message.getId().toString(),
-        message.role(),
+        ChatRole.from(message.role()),
         message.getText(),
         message.getTimestamp(),
         safeSources);

@@ -1,5 +1,6 @@
 package com.ai.vision.service;
 
+import com.ai.common.controller.dto.HealthStatus;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.controller.dto.CaptionResponse;
@@ -7,6 +8,7 @@ import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.DetectionResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
+import com.ai.vision.controller.dto.VisionProvidersResponse;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.repository.ImageCaptioner;
@@ -16,9 +18,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -135,12 +135,13 @@ public class VisionAnalysisService {
 
   /** Reports each vision provider's status, overall UP only when all three are available. */
   public VisionHealthResponse health() {
-    Map<String, String> providers = new LinkedHashMap<>();
-    providers.put("caption", captioner.isAvailable() ? "UP" : "DOWN");
-    providers.put("detect", detector.isAvailable() ? "UP" : "DOWN");
-    providers.put("ocr", ocrEngine.isAvailable() ? "UP" : "DOWN");
+    VisionProvidersResponse providers =
+        new VisionProvidersResponse(
+            HealthStatus.of(captioner.isAvailable()),
+            HealthStatus.of(detector.isAvailable()),
+            HealthStatus.of(ocrEngine.isAvailable()));
     boolean allUp = captioner.isAvailable() && detector.isAvailable() && ocrEngine.isAvailable();
-    return new VisionHealthResponse(allUp ? "UP" : "DEGRADED", providers);
+    return new VisionHealthResponse(allUp ? HealthStatus.UP : HealthStatus.DEGRADED, providers);
   }
 
   private DetectionResponse toDto(Detection detection) {

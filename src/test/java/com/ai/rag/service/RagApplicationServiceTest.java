@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,7 +45,9 @@ class RagApplicationServiceTest {
     @DisplayName("should delegate to uploadService")
     void shouldDelegateToUploadService() {
       DocumentId docId = DocumentId.generate();
-      var uploadResult = new DocumentUploadService.UploadResult(docId, "Test", "READY", 3);
+      var uploadResult =
+          new DocumentUploadService.UploadResult(
+              docId, "Test", DocumentStatus.READY, 3, Instant.EPOCH);
       when(uploadService.upload("Test", "file.txt", 1024L, "content", "c:test-owner"))
           .thenReturn(uploadResult);
 
@@ -51,7 +55,7 @@ class RagApplicationServiceTest {
 
       assertThat(result.documentId()).isEqualTo(docId);
       assertThat(result.title()).isEqualTo("Test");
-      assertThat(result.status()).isEqualTo("READY");
+      assertThat(result.status()).isEqualTo(DocumentStatus.READY);
       assertThat(result.chunkCount()).isEqualTo(3);
       verify(uploadService).upload("Test", "file.txt", 1024L, "content", "c:test-owner");
     }
@@ -61,7 +65,9 @@ class RagApplicationServiceTest {
     void shouldDelegateUploadDocumentFromBytesToUploadService() {
       DocumentId docId = DocumentId.generate();
       byte[] content = "test content".getBytes();
-      var uploadResult = new DocumentUploadService.UploadResult(docId, "Test", "READY", 5);
+      var uploadResult =
+          new DocumentUploadService.UploadResult(
+              docId, "Test", DocumentStatus.READY, 5, Instant.EPOCH);
       when(uploadService.upload("Test", "file.bin", 12L, content, "c:test-owner"))
           .thenReturn(uploadResult);
 

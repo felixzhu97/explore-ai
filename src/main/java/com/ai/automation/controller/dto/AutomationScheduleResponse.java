@@ -1,18 +1,19 @@
 package com.ai.automation.controller.dto;
 
 import com.ai.automation.domain.model.AutomationSchedule;
+import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleKind;
 import java.time.Instant;
 
 public record AutomationScheduleResponse(
     String id,
     String name,
-    String scheduleKind,
+    ScheduleKind scheduleKind,
     String cronExpression,
     Instant runAt,
     String timezone,
     boolean enabled,
-    String actionType,
+    AutomationActionType actionType,
     String pipelineTemplateId,
     String recipientEmail,
     String brief,
@@ -30,12 +31,12 @@ public record AutomationScheduleResponse(
     return new AutomationScheduleResponse(
         schedule.getId().value(),
         schedule.getName(),
-        schedule.getScheduleKind().value(),
+        schedule.getScheduleKind(),
         schedule.getCronExpression(),
         runAt,
         schedule.getTimezone(),
         schedule.isEnabled(),
-        schedule.getActionType().value(),
+        schedule.getActionType(),
         schedule.getPipelineTemplateId().value(),
         schedule.getRecipientEmail(),
         schedule.getBrief(),

@@ -1,6 +1,8 @@
 package com.ai.chat.controller.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -14,7 +16,7 @@ import java.util.List;
  * @param skillIds optional skill ids
  */
 public record ChatStreamRequest(
-    @NotEmpty List<Message> messages,
+    @NotEmpty @Valid List<Message> messages,
     String sessionId,
     String provider,
     String model,
@@ -22,5 +24,5 @@ public record ChatStreamRequest(
     List<String> skillIds) {
 
   /** A single chat message with role and content. */
-  public record Message(String role, String content) {}
+  public record Message(@NotNull ChatRole role, String content) {}
 }

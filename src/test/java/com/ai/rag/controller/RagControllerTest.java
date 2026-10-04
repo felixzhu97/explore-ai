@@ -24,6 +24,7 @@ import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.service.VisionChatService;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -126,7 +127,8 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           new MockMultipartFile("file", "test.txt", "text/plain", "Hello World".getBytes());
       RagDocument doc = createTestDocument("test.txt", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
-          new DocumentUploadService.UploadResult(doc.getId(), "test.txt", "READY", 0);
+          new DocumentUploadService.UploadResult(
+              doc.getId(), "test.txt", DocumentStatus.READY, 0, Instant.EPOCH);
       when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
           .thenReturn(uploadResult);
 
@@ -147,7 +149,8 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           new MockMultipartFile("file", "original.txt", "text/plain", "Content".getBytes());
       RagDocument doc = createTestDocument("Custom Title", DocumentStatus.READY);
       DocumentUploadService.UploadResult uploadResult =
-          new DocumentUploadService.UploadResult(doc.getId(), "Custom Title", "READY", 0);
+          new DocumentUploadService.UploadResult(
+              doc.getId(), "Custom Title", DocumentStatus.READY, 0, Instant.EPOCH);
       when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
           .thenReturn(uploadResult);
 

@@ -6,15 +6,16 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.controller.GlobalExceptionHandler;
+import com.ai.common.controller.dto.HealthStatus;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.DetectionResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
+import com.ai.vision.controller.dto.VisionProvidersResponse;
 import com.ai.vision.service.VisionAnalysisService;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -140,11 +141,9 @@ class VisionControllerTest {
       when(visionAnalysisService.health())
           .thenReturn(
               new VisionHealthResponse(
-                  "DEGRADED",
-                  Map.of(
-                      "caption", "UP",
-                      "detect", "DOWN",
-                      "ocr", "UP")));
+                  HealthStatus.DEGRADED,
+                  new VisionProvidersResponse(
+                      HealthStatus.UP, HealthStatus.DOWN, HealthStatus.UP)));
 
       assertThat(mvc.get().uri("/api/vision/health"))
           .hasStatusOk()

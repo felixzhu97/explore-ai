@@ -7,9 +7,10 @@ public record ImageGenerationResponse(
     String model,
     String prompt,
     String revisedPrompt,
-    String status) {
+    ImageGenerationStatus status) {
   public static ImageGenerationResponse success(
       String imageUrl, String imageBase64, String model, String prompt) {
-    return new ImageGenerationResponse(imageUrl, imageBase64, model, prompt, null, "SUCCESS");
+    return new ImageGenerationResponse(
+        imageUrl, imageBase64, model, prompt, null, ImageGenerationStatus.SUCCESS);
   }
 }

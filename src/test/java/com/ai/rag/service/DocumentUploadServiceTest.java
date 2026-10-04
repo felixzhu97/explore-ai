@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.ai.rag.domain.exception.DocumentNotFoundException;
 import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
@@ -97,7 +98,7 @@ class DocumentUploadServiceTest {
           service.upload(title, fileName, fileSize, content, "c:test-owner");
 
       assertThat(result.title()).isEqualTo(title);
-      assertThat(result.status()).isEqualTo("READY");
+      assertThat(result.status()).isEqualTo(DocumentStatus.READY);
       assertThat(result.chunkCount()).isEqualTo(2);
       assertThat(result.documentId()).isNotNull();
     }
@@ -143,7 +144,7 @@ class DocumentUploadServiceTest {
       DocumentUploadService.UploadResult result =
           service.upload(title, fileName, 12L, content, "c:test-owner");
 
-      assertThat(result.status()).isEqualTo("READY");
+      assertThat(result.status()).isEqualTo(DocumentStatus.READY);
       verify(reader).read(eq(content), eq(fileName));
     }
 

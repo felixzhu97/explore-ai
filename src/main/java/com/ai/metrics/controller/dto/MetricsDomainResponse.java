@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 public record MetricsDomainResponse(
-    String domain,
-    String range,
+    MetricsDomain domain,
+    MetricsRange range,
     long requestCount,
     long errorCount,
     double errorRate,

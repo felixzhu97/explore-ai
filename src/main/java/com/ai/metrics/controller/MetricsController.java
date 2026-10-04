@@ -2,8 +2,11 @@ package com.ai.metrics.controller;
 
 import com.ai.metrics.controller.dto.DrilldownPageResponse;
 import com.ai.metrics.controller.dto.InvocationEventResponse;
+import com.ai.metrics.controller.dto.MetricsDomain;
 import com.ai.metrics.controller.dto.MetricsDomainResponse;
+import com.ai.metrics.controller.dto.MetricsOutcome;
 import com.ai.metrics.controller.dto.MetricsOverviewResponse;
+import com.ai.metrics.controller.dto.MetricsRange;
 import com.ai.metrics.controller.dto.NamedCountResponse;
 import com.ai.metrics.controller.dto.SeriesPointResponse;
 import com.ai.metrics.controller.dto.SeriesResponse;
@@ -78,7 +81,7 @@ public class MetricsController {
 
   private MetricsOverviewResponse toOverview(MetricsOverview overview) {
     return new MetricsOverviewResponse(
-        overview.range(),
+        MetricsRange.fromValue(overview.range()),
         overview.requestCount(),
         overview.errorCount(),
         overview.successRate(),
@@ -95,8 +98,8 @@ public class MetricsController {
 
   private MetricsDomainResponse toDomain(MetricsDomainSnapshot snapshot) {
     return new MetricsDomainResponse(
-        snapshot.domain(),
-        snapshot.range(),
+        MetricsDomain.fromValue(snapshot.domain()),
+        MetricsRange.fromValue(snapshot.range()),
         snapshot.requestCount(),
         snapshot.errorCount(),
         snapshot.errorRate(),
@@ -116,8 +119,8 @@ public class MetricsController {
   private SeriesResponse toSeries(SeriesSnapshot snapshot) {
     return new SeriesResponse(
         snapshot.name(),
-        snapshot.domain(),
-        snapshot.range(),
+        snapshot.domain() == null ? null : MetricsDomain.fromValue(snapshot.domain()),
+        MetricsRange.fromValue(snapshot.range()),
         snapshot.points().stream()
             .map(p -> new SeriesPointResponse(p.label(), p.value()))
             .toList());
@@ -132,9 +135,9 @@ public class MetricsController {
     return new InvocationEventResponse(
         event.getId().toString(),
         event.getOccurredAt(),
-        event.getDomain().value(),
+        MetricsDomain.from(event.getDomain()),
         event.getOperation(),
-        event.getOutcome().value(),
+        MetricsOutcome.from(event.getOutcome()),
         event.getLatencyMs(),
         event.getProvider(),
         event.getModel(),

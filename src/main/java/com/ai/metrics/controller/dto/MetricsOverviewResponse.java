@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public record MetricsOverviewResponse(
-    String range,
+    MetricsRange range,
     long requestCount,
     long errorCount,
     double successRate,
