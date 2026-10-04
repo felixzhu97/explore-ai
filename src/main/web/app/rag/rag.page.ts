@@ -76,7 +76,11 @@ export class RagPageComponent implements OnInit {
       role: message.role,
       content: message.content,
       timestamp: message.timestamp,
-      sources: message.sources,
+      sources: message.sources?.map(source => ({
+        text: source.content,
+        score: source.score,
+        metadata: source.metadata,
+      })),
       assistantIcon: 'document',
     }));
   });

@@ -29,12 +29,12 @@ const RAG_DOCUMENTS = {
 
 const RAG_SOURCES = [
   {
-    text: 'The ng-zorro-x bubble component supports custom message and footer rendering templates.',
+    content: 'The ng-zorro-x bubble component supports custom message and footer rendering templates.',
     score: 0.94,
     metadata: { source: 'Product Guide.pdf' },
   },
   {
-    text: 'Welcome and Prompts components can be composed for empty chat states.',
+    content: 'Welcome and Prompts components can be composed for empty chat states.',
     score: 0.87,
     metadata: { source: 'API Reference.md' },
   },

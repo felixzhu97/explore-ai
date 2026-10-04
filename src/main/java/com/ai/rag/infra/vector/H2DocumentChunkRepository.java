@@ -90,11 +90,11 @@ public class H2DocumentChunkRepository
 
   /** Returns the top-K chunks by cosine similarity, optionally limited to the given documents. */
   @Transactional(readOnly = true)
-  public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> docIds) {
+  public List<DocumentChunk> search(float[] queryEmbedding, int topK, List<UUID> documentIds) {
     if (queryEmbedding == null || queryEmbedding.length == 0) {
       return List.of();
     }
-    List<DocumentChunk> candidates = loadCandidates(docIds);
+    List<DocumentChunk> candidates = loadCandidates(documentIds);
 
     return candidates.stream()
         .filter(
@@ -110,9 +110,9 @@ public class H2DocumentChunkRepository
         .toList();
   }
 
-  private List<DocumentChunk> loadCandidates(List<UUID> docIds) {
-    if (docIds != null && !docIds.isEmpty()) {
-      String placeholders = docIds.stream().map(id -> "?").collect(Collectors.joining(","));
+  private List<DocumentChunk> loadCandidates(List<UUID> documentIds) {
+    if (documentIds != null && !documentIds.isEmpty()) {
+      String placeholders = documentIds.stream().map(id -> "?").collect(Collectors.joining(","));
       String sql =
           "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at "
               + "FROM "
@@ -120,7 +120,7 @@ public class H2DocumentChunkRepository
               + " WHERE document_id IN ("
               + placeholders
               + ")";
-      return jdbcTemplate.query(sql, chunkRowMapper, docIds.toArray());
+      return jdbcTemplate.query(sql, chunkRowMapper, documentIds.toArray());
     }
 
     String sql =

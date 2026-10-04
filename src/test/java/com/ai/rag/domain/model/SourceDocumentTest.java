@@ -36,7 +36,7 @@ class SourceDocumentTest {
       SourceDocument sourceDocument = new SourceDocument(text, score, metadata);
 
       // Assert
-      assertThat(sourceDocument.text()).isEqualTo(text);
+      assertThat(sourceDocument.content()).isEqualTo(text);
       assertThat(sourceDocument.score()).isEqualTo(score);
       assertThat(sourceDocument.metadata()).isEqualTo(metadata);
     }
@@ -88,7 +88,7 @@ class SourceDocumentTest {
       SourceDocument sourceDocument = new SourceDocument("", 0.5, new HashMap<>());
 
       // Assert
-      assertThat(sourceDocument.text()).isEmpty();
+      assertThat(sourceDocument.content()).isEmpty();
     }
 
     @Test
@@ -101,7 +101,7 @@ class SourceDocumentTest {
       SourceDocument sourceDocument = new SourceDocument(specialText, 0.9, new HashMap<>());
 
       // Assert
-      assertThat(sourceDocument.text()).isEqualTo(specialText);
+      assertThat(sourceDocument.content()).isEqualTo(specialText);
     }
   }
 
@@ -241,7 +241,7 @@ class SourceDocumentTest {
       SourceDocument doc = new SourceDocument("test text", 0.8, metadata);
 
       // Assert
-      assertThat(doc.text()).isNotNull();
+      assertThat(doc.content()).isNotNull();
       assertThat(doc.score()).isNotNull();
       assertThat(doc.metadata()).isNotNull();
     }

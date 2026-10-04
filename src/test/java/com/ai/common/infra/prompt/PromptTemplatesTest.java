@@ -234,13 +234,13 @@ class PromptTemplatesTest {
     }
 
     @Test
-    @DisplayName("should include key_points field reference")
+    @DisplayName("should include key points field reference")
     void shouldIncludeKeyPointsFieldReference() {
       // Act
       String prompt = templates.buildSummarizationPrompt("Test");
 
       // Assert
-      assertThat(prompt).contains("key_points");
+      assertThat(prompt).contains("keyPoints");
     }
 
     @Test

@@ -74,12 +74,12 @@ public class H2SpringAiVectorStore implements VectorStore {
 
     float[] queryEmbedding = embeddingRepository.embed(query);
     int topK = Math.max(request.getTopK(), 1);
-    List<UUID> docIds = extractDocumentIds(request.getFilterExpression());
+    List<UUID> documentIds = extractDocumentIds(request.getFilterExpression());
 
     List<DocumentChunk> chunks =
-        docIds == null
+        documentIds == null
             ? chunkSearchRepository.search(queryEmbedding, topK)
-            : chunkSearchRepository.search(queryEmbedding, topK, docIds);
+            : chunkSearchRepository.search(queryEmbedding, topK, documentIds);
     double threshold = request.getSimilarityThreshold();
 
     List<Document> results = new ArrayList<>();

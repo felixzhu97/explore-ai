@@ -81,6 +81,6 @@ enum ChatStreamClient {
     guard let data = payload.data(using: .utf8),
           let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     else { return nil }
-    return (obj["sessionId"] as? String) ?? (obj["session_id"] as? String)
+    return obj["sessionId"] as? String
   }
 }

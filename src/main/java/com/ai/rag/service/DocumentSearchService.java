@@ -38,15 +38,15 @@ public class DocumentSearchService {
   }
 
   /** Embeds the query and returns chunks above the score threshold as context and sources. */
-  public RetrievalResult retrieve(String query, List<DocumentId> docIds, int topK) {
+  public RetrievalResult retrieve(String query, List<DocumentId> documentIds, int topK) {
     log.info("RAG retrieval for query: {}", query);
     float[] queryEmbedding = embeddingRepository.embed(query);
     int effectiveTopK = topK > 0 ? topK : retrievalSettings.getTopK();
     double scoreThreshold = retrievalSettings.getScoreThreshold();
 
     List<DocumentChunk> chunks;
-    if (docIds != null && !docIds.isEmpty()) {
-      List<UUID> uuids = docIds.stream().map(DocumentId::uuidValue).toList();
+    if (documentIds != null && !documentIds.isEmpty()) {
+      List<UUID> uuids = documentIds.stream().map(DocumentId::uuidValue).toList();
       chunks = chunkSearchRepository.search(queryEmbedding, effectiveTopK, uuids);
     } else {
       chunks = chunkSearchRepository.search(queryEmbedding, effectiveTopK);

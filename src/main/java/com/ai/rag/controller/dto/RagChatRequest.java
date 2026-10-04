@@ -1,16 +1,14 @@
 package com.ai.rag.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /** RAG chat request DTO. */
 public record RagChatRequest(
-    @JsonProperty("query") @JsonAlias("question") String question,
-    @JsonAlias("session_id") String sessionId,
-    @JsonAlias("top_k") Integer topK,
+    String question,
+    String sessionId,
+    Integer topK,
     Double temperature,
-    @JsonAlias("doc_ids") List<String> docIds,
+    List<String> documentIds,
     List<String> images) {
   public RagChatRequest {
     if (topK == null) {

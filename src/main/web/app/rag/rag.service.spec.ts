@@ -170,7 +170,7 @@ describe('RagService', () => {
     streamSsePostMock.mockImplementation((_url, _body, handlers) => {
       handlers.onEvent({
         eventType: 'sources',
-        data: '[{"text":"T","score":0.9,"metadata":{"url":"https://a.com"}}]',
+        data: '[{"id":"s1","content":"T","score":0.9,"metadata":{"url":"https://a.com"}}]',
       });
       handlers.onEvent({ eventType: 'message', data: 'Hello<br/>world' });
       handlers.onEvent({ eventType: 'message', data: '[DONE]' });
@@ -179,7 +179,7 @@ describe('RagService', () => {
     service.setInput('Question');
     await service.sendMessage();
     expect(service.messages()[1].content).toContain('Hello');
-    expect(service.messages()[1].sources?.[0].text).toBe('T');
+    expect(service.messages()[1].sources?.[0].content).toBe('T');
     expect(service.messages()[1].sources?.[0].metadata['url']).toBe('https://a.com');
     expect(service.isLoading()).toBe(false);
   });

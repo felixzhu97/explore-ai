@@ -48,8 +48,8 @@ public class RagApplicationService {
     uploadService.delete(documentId, ownerKey);
   }
 
-  public RetrievalResult retrieveContext(String query, List<DocumentId> docIds, int topK) {
-    var result = searchService.retrieve(query, docIds, topK);
+  public RetrievalResult retrieveContext(String query, List<DocumentId> documentIds, int topK) {
+    var result = searchService.retrieve(query, documentIds, topK);
     return new RetrievalResult(result.context(), result.sources(), query);
   }
 }

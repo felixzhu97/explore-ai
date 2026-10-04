@@ -8,7 +8,6 @@ import com.ai.textanalysis.domain.model.TextAnalysis;
 import com.ai.textanalysis.domain.repository.TextAnalysisGateway;
 import com.ai.textanalysis.domain.vo.AnalysisText;
 import com.ai.textanalysis.domain.vo.LanguageHint;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
@@ -54,9 +53,9 @@ public class SpringAiTextAnalysisGateway implements TextAnalysisGateway {
   }
 
   record StructuredAnalysisEntity(
-      @JsonProperty("summary") String summary,
-      @JsonProperty("sentiment") String sentiment,
-      @JsonProperty("key_points") List<String> keyPoints,
-      @JsonProperty("entities") List<String> entities,
-      @JsonProperty("language") String language) {}
+      String summary,
+      String sentiment,
+      List<String> keyPoints,
+      List<String> entities,
+      String language) {}
 }

@@ -125,13 +125,13 @@ class RagChatContractRegressionTest {
                   "answer", List.of(new Document("retrieved chunk", Map.of("score", 0.91)))));
       var result = ragChatService.chat("What is AI?", null, null);
       assertThat(result.sources()).hasSize(1);
-      assertThat(result.sources().getFirst().text()).isEqualTo("retrieved chunk");
+      assertThat(result.sources().getFirst().content()).isEqualTo("retrieved chunk");
       assertThat(result.sources().getFirst().score()).isEqualTo(0.91);
     }
   }
 
   @Nested
-  @DisplayName("topK and docIds filter")
+  @DisplayName("topK and documentIds filter")
   class TopKAndDocIdsFilter {
     @Test
     @DisplayName("should apply custom top k on retriever when top k provided")

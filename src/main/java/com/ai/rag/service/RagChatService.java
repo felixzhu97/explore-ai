@@ -70,18 +70,20 @@ public class RagChatService {
     this.objectMapper = objectMapper;
   }
 
-  public RagChatResult chat(String question, List<String> docIds, Integer topK) {
-    return chat(question, docIds, topK, null);
+  public RagChatResult chat(String question, List<String> documentIds, Integer topK) {
+    return chat(question, documentIds, topK, null);
   }
 
   /** Answers the question with retrieval-augmented context and records the invocation. */
-  public RagChatResult chat(String question, List<String> docIds, Integer topK, String sessionId) {
+  public RagChatResult chat(
+      String question, List<String> documentIds, Integer topK, String sessionId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
-    String documentId = docIds != null && !docIds.isEmpty() ? docIds.getFirst() : null;
+    String documentId =
+        documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
     try {
       ChatClient.ChatClientRequestSpec promptSpec =
-          buildPrompt(question, docIds, topK, sessionId, options);
+          buildPrompt(question, documentIds, topK, sessionId, options);
       ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
       String aiResponse = extractContent(clientResponse);
       List<SourceDocument> sources = extractSources(clientResponse);
@@ -95,15 +97,16 @@ public class RagChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStream(
-      String question, List<String> docIds, Integer topK, String sessionId) {
+      String question, List<String> documentIds, Integer topK, String sessionId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
-    String documentId = docIds != null && !docIds.isEmpty() ? docIds.getFirst() : null;
+    String documentId =
+        documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
     AtomicReference<List<SourceDocument>> sourcesRef = new AtomicReference<>(List.of());
 
     ChatClient.ChatClientRequestSpec promptSpec;
     try {
-      promptSpec = buildPrompt(question, docIds, topK, sessionId, options);
+      promptSpec = buildPrompt(question, documentIds, topK, sessionId, options);
     } catch (RuntimeException ex) {
       recordError(sessionId, startedAt, ex);
       return Flux.error(ex);
@@ -137,13 +140,14 @@ public class RagChatService {
 
   private ChatClient.ChatClientRequestSpec buildPrompt(
       String question,
-      List<String> docIds,
+      List<String> documentIds,
       Integer topK,
       String sessionId,
       TextChatOptions options) {
     log.info("RAG chat request: {}", LogSanitizer.truncate(question));
     int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-    List<String> filterDocIds = docIds != null && !docIds.isEmpty() ? List.copyOf(docIds) : null;
+    List<String> filterDocIds =
+        documentIds != null && !documentIds.isEmpty() ? List.copyOf(documentIds) : null;
 
     String languageCode = languageDetectionService.detect(question);
     String languageHint =
@@ -223,12 +227,12 @@ public class RagChatService {
     try {
       List<Map<String, Object>> payload = new ArrayList<>();
       for (SourceDocument source : sources) {
-        if (source.text() == null || source.text().isBlank()) {
+        if (source.content() == null || source.content().isBlank()) {
           continue;
         }
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("id", null);
-        row.put("text", source.text());
+        row.put("content", source.content());
         row.put("score", source.score());
         row.put("metadata", source.metadata() != null ? source.metadata() : Map.of());
         payload.add(row);

@@ -136,7 +136,7 @@ class RagApplicationServiceTest {
     }
 
     @Test
-    @DisplayName("should pass docIds to searchService")
+    @DisplayName("should pass documentIds to searchService")
     void shouldPassDocIdsToSearchService() {
       String query = "test";
       DocumentId docId = DocumentId.generate();

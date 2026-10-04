@@ -72,14 +72,14 @@ class H2DocumentChunkRepositoryTest {
       when(jdbcTemplate.query(
               contains("WHERE document_id IN"), any(RowMapper.class), any(Object[].class)))
           .thenReturn(Collections.emptyList());
-      List<UUID> docIds = List.of(UUID.randomUUID());
-      chunkRepository.search(new float[] {0.1f}, 5, docIds);
+      List<UUID> documentIds = List.of(UUID.randomUUID());
+      chunkRepository.search(new float[] {0.1f}, 5, documentIds);
       verify(jdbcTemplate)
           .query(contains("WHERE document_id IN"), any(RowMapper.class), any(Object[].class));
     }
 
     @Test
-    @DisplayName("should load all chunks when docIds is empty")
+    @DisplayName("should load all chunks when documentIds is empty")
     void shouldLoadAllChunksWhenDocIdsIsEmpty() {
       when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
           .thenReturn(Collections.emptyList());

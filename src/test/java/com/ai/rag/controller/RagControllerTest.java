@@ -205,10 +205,10 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
-    @DisplayName("should use docIds when provided")
+    @DisplayName("should use documentIds when provided")
     void shouldUseDocIdsWhenProvided() {
-      List<String> docIds = List.of(UUID.randomUUID().toString());
-      when(ragChatService.chatStream(eq("Question"), eq(docIds), eq(5), isNull()))
+      List<String> documentIds = List.of(UUID.randomUUID().toString());
+      when(ragChatService.chatStream(eq("Question"), eq(documentIds), eq(5), isNull()))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -219,13 +219,13 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                       """
                       {
                         "question": "Question",
-                        "doc_ids": ["%s"]
+                        "documentIds": ["%s"]
                       }
                       """
-                          .formatted(docIds.getFirst()))
+                          .formatted(documentIds.getFirst()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(ragChatService).chatStream(eq("Question"), eq(docIds), eq(5), isNull());
+      verify(ragChatService).chatStream(eq("Question"), eq(documentIds), eq(5), isNull());
     }
 
     @Test
@@ -238,7 +238,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
               mvc.post()
                   .uri("/api/rag/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"question\":\"Question\",\"top_k\":10}")
+                  .content("{\"question\":\"Question\",\"topK\":10}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
       verify(ragChatService).chatStream(eq("Question"), isNull(), eq(10), isNull());
