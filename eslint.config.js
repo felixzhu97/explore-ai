@@ -222,6 +222,30 @@ export default defineConfig([
       '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
+  // Dates are js-joda types; `Date` only crosses into third-party APIs through time/.
+  {
+    files: ['src/main/web/**/*.ts'],
+    ignores: [
+      'src/main/web/app/ui/**',
+      'src/main/web/app/time/native-date.ts',
+      'src/main/web/app/time/instant-picker.component.ts',
+      'src/main/web/app/chat-shell/a2ui-chart-option.util.ts',
+    ],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        { name: 'Date', message: 'Use Instant, LocalDate or LocalDateTime from @js-joda/core.' },
+      ],
+      '@typescript-eslint/no-restricted-types': [
+        'error',
+        {
+          types: {
+            Date: 'Use Instant, LocalDate or LocalDateTime from @js-joda/core.',
+          },
+        },
+      ],
+    },
+  },
   {
     files: ['src/main/web/**/*.html'],
     ignores: ['src/main/web/app/ui/**', '**/index.html'],

@@ -1,11 +1,11 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
+import { InstantPipe } from '../time/instant.pipe';
 import type { InvocationEvent } from './metrics.service';
 
 @Component({
   selector: 'app-metrics-drilldown-table',
-  imports: [DatePipe],
+  imports: [InstantPipe],
   template: `
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between gap-2">
@@ -35,7 +35,7 @@ import type { InvocationEvent } from './metrics.service';
                   (click)="rowSelected.emit(item)"
                 >
                   <td class="px-3 py-2 whitespace-nowrap text-muted-foreground">
-                    {{ item.occurredAt | date: 'yyyy-MM-dd HH:mm:ss' }}
+                    {{ item.occurredAt | instant }}
                   </td>
                   <td class="px-3 py-2 text-foreground">{{ item.operation }}</td>
                   <td

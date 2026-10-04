@@ -21,7 +21,8 @@ import {
   sourceTitle,
 } from './chat-source.util';
 import { ChatToolStepsComponent } from './chat-tool-steps.component';
-import { formatMessageTime } from './format-time.util';
+import type { Instant } from '@js-joda/core';
+import { InstantPipe } from '../time/instant.pipe';
 
 export interface ChatSourceView {
   text: string;
@@ -43,7 +44,7 @@ export interface ChatMessageView {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  timestamp?: number;
+  timestamp?: Instant;
   images?: string[];
   streaming?: boolean;
   sources?: ChatSourceView[] | undefined;
@@ -86,6 +87,7 @@ const CLOSE_DELAY_MS = 160;
     MarkdownWithA2uiComponent,
     ChatSourceCardComponent,
     ChatToolStepsComponent,
+    InstantPipe,
   ],
   template: `
     <div class="mx-auto max-w-220">
@@ -212,7 +214,7 @@ const CLOSE_DELAY_MS = 160;
     <ng-template #assistantFooterTpl let-info="info">
       @let timestamp = messageById(messageKey(info))?.timestamp;
       @if (timestamp) {
-        <span class="text-xs text-text-tertiary">{{ formatTime(timestamp) }}</span>
+        <span class="text-xs text-text-tertiary">{{ timestamp | instant: 'time' }}</span>
       }
     </ng-template>
   `,
@@ -376,10 +378,6 @@ export class ChatBubbleListComponent implements OnDestroy {
       return true;
     }
     return this.streamingMessageIds().has(messageId);
-  }
-
-  formatTime(timestamp: number): string {
-    return formatMessageTime(timestamp);
   }
 
   formatBasedOn(count: number): string {

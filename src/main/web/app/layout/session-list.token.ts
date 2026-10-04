@@ -1,9 +1,10 @@
 import { InjectionToken, type Signal } from '@angular/core';
+import type { Instant } from '@js-joda/core';
 
 export interface SidebarSession {
   id: string;
   title: string;
-  timestamp: Date;
+  timestamp: Instant;
   pinned: boolean;
 }
 

@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { email, form, FormField, required } from '@angular/forms/signals';
-import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { ChronoUnit, Instant } from '@js-joda/core';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
 import {
@@ -15,6 +15,9 @@ import {
 } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
+import { DATE_TIME, formatInstant, ONCE_TERMINAL_NEXT } from '../time/instant-format';
+import { InstantPickerComponent } from '../time/instant-picker.component';
+import { systemZoneName } from '../time/native-date';
 import {
   AutomationsService,
   type AutomationRun,
@@ -54,10 +57,12 @@ function presetFromSchedule(schedule: AutomationSchedule): FrequencyPreset {
 }
 
 /** Default run-at: now + 5 minutes, truncated to seconds. */
-function defaultRunAtDate(): Date {
-  const date = new Date(Date.now() + 5 * 60 * 1000);
-  date.setMilliseconds(0);
-  return date;
+function defaultRunAt(): Instant {
+  return Instant.now().plus(5, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.SECONDS);
+}
+
+function isOnceTerminal(instant: Instant): boolean {
+  return !instant.isBefore(ONCE_TERMINAL_NEXT);
 }
 
 interface AutomationDraft {
@@ -67,24 +72,24 @@ interface AutomationDraft {
   templateId: string;
   brief: string;
   preset: FrequencyPreset;
-  runAt: Date | null;
+  runAt: Instant | null;
 }
 
 function emptyDraft(): AutomationDraft {
   return {
     name: '',
     email: '',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+    timezone: systemZoneName(),
     templateId: '',
     brief: '',
     preset: 'daily',
-    runAt: defaultRunAtDate(),
+    runAt: defaultRunAt(),
   };
 }
 
 @Component({
   selector: 'app-automations-page',
-  imports: [FormField, ZardButtonComponent, NzDatePickerModule],
+  imports: [FormField, ZardButtonComponent, InstantPickerComponent],
   templateUrl: './automations.page.html',
   styleUrl: './automations.page.css',
   host: {
@@ -186,12 +191,11 @@ export class AutomationsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
-  #runAtForEdit(schedule: AutomationSchedule): Date {
+  #runAtForEdit(schedule: AutomationSchedule): Instant {
     if (schedule.scheduleKind !== 'ONCE' || this.isOnceCompleted(schedule)) {
-      return defaultRunAtDate();
+      return defaultRunAt();
     }
-    const source = schedule.runAt ?? schedule.nextRunAt;
-    return source ? new Date(source) : defaultRunAtDate();
+    return schedule.runAt ?? schedule.nextRunAt;
   }
 
   cancelForm(): void {
@@ -206,15 +210,9 @@ export class AutomationsPageComponent implements OnInit {
     this.#draft.update(draft => ({
       ...draft,
       preset,
-      runAt: preset === 'custom' && !draft.runAt ? defaultRunAtDate() : draft.runAt,
+      runAt: preset === 'custom' && draft.runAt === null ? defaultRunAt() : draft.runAt,
     }));
   }
-
-  disabledDate = (current: Date): boolean => {
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    return current.getTime() < start.getTime();
-  };
 
   save(): void {
     const t = this.i18n.t().automations;
@@ -233,18 +231,18 @@ export class AutomationsPageComponent implements OnInit {
     let request: AutomationScheduleWriteRequest;
     if (preset === 'custom') {
       const runAt = draft.runAt;
-      if (!runAt || Number.isNaN(runAt.getTime())) {
+      if (runAt === null) {
         this.#notifications.showError(t.errors.runAtRequired);
         return;
       }
-      if (runAt.getTime() <= Date.now()) {
+      if (!runAt.isAfter(Instant.now())) {
         this.#notifications.showError(t.errors.runAtPast);
         return;
       }
       request = {
         name,
         scheduleKind: 'ONCE',
-        runAt: runAt.toISOString(),
+        runAt: runAt.toString(),
         timezone,
         pipelineTemplateId,
         recipientEmail: email,
@@ -363,11 +361,10 @@ export class AutomationsPageComponent implements OnInit {
     if (schedule.scheduleKind !== 'ONCE') {
       return false;
     }
-    if (schedule.lastRunAt && !schedule.enabled) {
+    if (schedule.lastRunAt !== null && !schedule.enabled) {
       return true;
     }
-    const next = Date.parse(schedule.nextRunAt);
-    return Number.isFinite(next) && next >= Date.parse('9999-01-01T00:00:00Z');
+    return isOnceTerminal(schedule.nextRunAt);
   }
 
   statusLabel(schedule: AutomationSchedule): string {
@@ -383,7 +380,7 @@ export class AutomationsPageComponent implements OnInit {
       const when = this.isOnceCompleted(schedule)
         ? schedule.lastRunAt
         : (schedule.runAt ?? schedule.nextRunAt);
-      return `${this.i18n.t().automations.frequencyCustom}: ${this.formatInstant(when)}`;
+      return `${this.i18n.t().automations.frequencyCustom}: ${this.displayInstant(when)}`;
     }
     return schedule.cronExpression ?? '—';
   }
@@ -392,17 +389,16 @@ export class AutomationsPageComponent implements OnInit {
     if (this.isOnceCompleted(schedule)) {
       return this.i18n.t().automations.nextRunNone;
     }
-    return this.formatInstant(schedule.nextRunAt);
+    return this.displayInstant(schedule.nextRunAt);
   }
 
-  formatInstant(value: string | null): string {
-    if (!value) {
+  displayInstant(value: Instant | null): string {
+    if (value === null) {
       return '—';
     }
-    const ms = Date.parse(value);
-    if (Number.isFinite(ms) && ms >= Date.parse('9999-01-01T00:00:00Z')) {
+    if (isOnceTerminal(value)) {
       return this.i18n.t().automations.nextRunNone;
     }
-    return new Date(value).toLocaleString();
+    return formatInstant(value, DATE_TIME);
   }
 }

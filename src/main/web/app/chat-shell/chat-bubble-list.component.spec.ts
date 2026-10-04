@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { Instant } from '@js-joda/core';
 
 vi.mock('./markdown-with-a2ui.component', async () => {
   const { Component, input } = await import('@angular/core');
@@ -27,13 +28,13 @@ describe('ChatBubbleListComponent', () => {
       id: 'user-1',
       role: 'user',
       content: 'Hello',
-      timestamp: Date.now(),
+      timestamp: Instant.now(),
     },
     {
       id: 'assistant-1',
       role: 'assistant',
       content: 'Hi there',
-      timestamp: Date.now(),
+      timestamp: Instant.now(),
       sources: [
         {
           text: 'Snippet about AI',
@@ -137,7 +138,7 @@ describe('ChatBubbleListComponent', () => {
         id: 'assistant-2',
         role: 'assistant',
         content: '',
-        timestamp: Date.now(),
+        timestamp: Instant.now(),
       },
     ]);
     fixture.componentRef.setInput('streamingMessageId', 'assistant-2');
@@ -154,7 +155,7 @@ describe('ChatBubbleListComponent', () => {
         id: 'assistant-empty',
         role: 'assistant',
         content: '',
-        timestamp: Date.now(),
+        timestamp: Instant.now(),
       },
     ]);
     fixture.componentRef.setInput('streamingMessageId', null);
@@ -171,7 +172,7 @@ describe('ChatBubbleListComponent', () => {
         id: 'user-long',
         role: 'user',
         content: longContent,
-        timestamp: Date.now(),
+        timestamp: Instant.now(),
       },
     ]);
     fixture.componentRef.setInput('collapseLongUserMessages', true);
@@ -247,7 +248,7 @@ describe('ChatBubbleListComponent', () => {
         id: 'assistant-dated',
         role: 'assistant',
         content: 'Answer',
-        timestamp: Date.now(),
+        timestamp: Instant.now(),
         sources: [
           {
             text: 'Snippet',
@@ -361,7 +362,7 @@ describe('ChatBubbleListComponent', () => {
         id: 'assistant-multi',
         role: 'assistant',
         content: 'Answer',
-        timestamp: Date.now(),
+        timestamp: Instant.now(),
         sources: [
           {
             text: 'One',
@@ -465,7 +466,7 @@ describe('ChatBubbleListComponent', () => {
         id: 'assistant-rag',
         role: 'assistant',
         content: 'Answer',
-        timestamp: Date.now(),
+        timestamp: Instant.now(),
         sources: [{ text: 'Document chunk about RAG', score: 0.82 }],
       },
     ]);
