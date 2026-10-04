@@ -610,7 +610,7 @@ describe('ChatService http flows', () => {
     expect(service.isLoading()).toBe(true);
     expect(streamSsePost).toHaveBeenCalled();
 
-    // Simulates ChatPage effect after `/chat` → `/chat/s1` (same session).
+    // Simulates ChatPageComponent effect after `/chat` → `/chat/s1` (same session).
     service.selectSession('s1');
 
     expect(abort).not.toHaveBeenCalled();

@@ -1,5 +1,5 @@
-export { ZardDialogComponent, ZardDialogOptions } from './dialog.component';
-export { type OnClickCallback as DialogOnClickCallback } from './dialog.component';
+export { ZardDialogComponent } from './dialog.component';
+export { ZardDialogOptions, type OnClickCallback as DialogOnClickCallback } from './dialog-options';
 export * from './dialog.service';
 export * from './dialog-ref';
 export * from './dialog.variants';

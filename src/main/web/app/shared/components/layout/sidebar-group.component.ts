@@ -2,25 +2,24 @@ import { ChangeDetectionStrategy, Component, computed, input, ViewEncapsulation 
 
 import type { ClassValue } from 'clsx';
 
-import { footerVariants } from './layout.variants';
 import { mergeClasses } from '../../utils/merge-classes';
+import { sidebarGroupVariants } from './layout.variants';
 
 @Component({
-  selector: 'z-footer',
+  selector: 'z-sidebar-group',
   template: `
-    <footer [class]="classes()" [style.height.px]="zHeight()">
+    <div [class]="classes()">
       <ng-content />
-    </footer>
+    </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  exportAs: 'zFooter',
+  exportAs: 'zSidebarGroup',
 })
-export class ZardFooterComponent {
+export class ZardSidebarGroupComponent {
   readonly class = input<ClassValue>('');
-  readonly zHeight = input<number>(64);
 
   protected readonly classes = computed(() => {
-    return mergeClasses(footerVariants(), this.class());
+    return mergeClasses(sidebarGroupVariants(), this.class());
   });
 }

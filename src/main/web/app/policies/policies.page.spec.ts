@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, RouterLink } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
-import { PoliciesPage } from './policies.page';
+import { PoliciesPageComponent } from './policies.page';
 import {
   LEGACY_LEGAL_TO_SLUG,
   resolvePolicySlug,
@@ -29,10 +29,10 @@ describe('resolvePolicySlug', () => {
   });
 });
 
-describe('PoliciesPage', () => {
+describe('PoliciesPageComponent', () => {
   async function setup(slug: string | null) {
     TestBed.configureTestingModule({
-      imports: [PoliciesPage, RouterLink],
+      imports: [PoliciesPageComponent, RouterLink],
       providers: [
         provideRouter([]),
         {
@@ -53,7 +53,7 @@ describe('PoliciesPage', () => {
       ],
     });
 
-    const fixture = TestBed.createComponent(PoliciesPage);
+    const fixture = TestBed.createComponent(PoliciesPageComponent);
     fixture.detectChanges();
     return fixture;
   }
@@ -79,7 +79,7 @@ describe('PoliciesPage', () => {
   it('should render localized policy body when language is zh', async () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [PoliciesPage, RouterLink],
+      imports: [PoliciesPageComponent, RouterLink],
       providers: [
         provideRouter([]),
         {
@@ -97,7 +97,7 @@ describe('PoliciesPage', () => {
         },
       ],
     });
-    const fixture = TestBed.createComponent(PoliciesPage);
+    const fixture = TestBed.createComponent(PoliciesPageComponent);
     fixture.detectChanges();
     expect(fixture.componentInstance.doc()?.title).toBe('使用条款');
     const headings = fixture.debugElement.queryAll(By.css('h2'));

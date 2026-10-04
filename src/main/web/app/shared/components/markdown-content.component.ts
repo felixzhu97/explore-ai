@@ -6,7 +6,7 @@ import {
   input,
   ViewEncapsulation,
 } from '@angular/core';
-import { MarkdownService } from '../utils/markdown.service';
+import { MarkdownService } from '../services/markdown.service';
 
 @Component({
   selector: 'app-markdown-content',

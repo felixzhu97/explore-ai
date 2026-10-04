@@ -35,7 +35,7 @@ import type { Voice } from './tts.model';
   providers: [provideIcons({ lucidePlay, lucidePause, lucideDownload })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TtsPage implements OnInit, OnDestroy {
+export class TtsPageComponent implements OnInit, OnDestroy {
   private readonly tts = inject(TtsService);
   protected readonly i18n = inject(I18nService);
 

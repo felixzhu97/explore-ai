@@ -26,12 +26,12 @@ import {
   toPipelineInvokeRequest,
   validatePipeline,
   type PipelineGraph,
-} from './pipelines.model.graph';
+} from './pipeline-graph.model';
 import {
   parseDsmlToolInvocations,
   stripToolCallMarkup,
   toMinimalToolSteps,
-} from './tool-call-markup.filter';
+} from '../shared/utils/tool-call-markup.util';
 import type { ChatBubbleToolStep } from '../shared/components/chat-shell';
 import {
   appendPipelineStage,

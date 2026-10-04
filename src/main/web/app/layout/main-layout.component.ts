@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ZardToastComponent } from '../shared/components/toast';
-import { SidebarComponent } from './sidebar.component';
-import { HeaderComponent } from './header.component';
+import { AppSidebarComponent } from './sidebar.component';
+import { AppHeaderComponent } from './header.component';
 import { SidebarService } from './sidebar.service';
 import { ConsentBannerComponent } from '../privacy/consent-banner.component';
 import { AccountService } from '../core/account.service';
@@ -12,8 +12,8 @@ import { AccountService } from '../core/account.service';
   imports: [
     RouterOutlet,
     ZardToastComponent,
-    SidebarComponent,
-    HeaderComponent,
+    AppSidebarComponent,
+    AppHeaderComponent,
     ConsentBannerComponent,
   ],
   template: `

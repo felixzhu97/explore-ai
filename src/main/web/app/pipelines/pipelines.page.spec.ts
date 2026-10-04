@@ -7,7 +7,7 @@ import { computed, ApplicationRef, Injector, runInInjectionContext } from '@angu
 import { API_BASE_URL } from '../core/api.constants';
 import type { AgentInfo } from './pipelines.model';
 
-describe('AgentsPage httpResource', () => {
+describe('PipelinesPageComponent httpResource', () => {
   let http: HttpTestingController;
   let injector: Injector;
 

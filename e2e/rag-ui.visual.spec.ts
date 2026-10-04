@@ -16,7 +16,7 @@ test.describe('RAG UI visual regression', () => {
     await setupRagStreamMock(page);
   });
 
-  test('welcome empty state with nx-welcome and nx-prompts', async ({ page }) => {
+  test('should show welcome empty state with nx-welcome and nx-prompts', async ({ page }) => {
     await gotoAppPage(page, '/rag');
     await waitForChatReady(page);
     await prepareVisualPage(page);
@@ -29,7 +29,7 @@ test.describe('RAG UI visual regression', () => {
     await expect(main).toHaveScreenshot('rag-welcome.png');
   });
 
-  test('conversation with sources footer in nx-bubble-list', async ({ page }) => {
+  test('should show conversation with sources footer in nx-bubble-list', async ({ page }) => {
     await gotoAppPage(page, '/rag');
     await waitForChatReady(page);
     await sendRagMessage(page, 'What is this document about?');
@@ -42,7 +42,7 @@ test.describe('RAG UI visual regression', () => {
     await expect(page.locator('main')).toHaveScreenshot('rag-conversation.png');
   });
 
-  test('expanded RAG sources panel', async ({ page }) => {
+  test('should show expanded RAG sources panel', async ({ page }) => {
     await gotoAppPage(page, '/rag');
     await waitForChatReady(page);
     await sendRagMessage(page, 'Summarize the key points');

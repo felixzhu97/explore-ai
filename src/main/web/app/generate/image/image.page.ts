@@ -20,7 +20,7 @@ import { ImageService } from './image.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block min-w-0 w-full max-w-full' },
 })
-export class ImagePage {
+export class ImagePageComponent {
   protected readonly imageGen = inject(ImageService);
   protected readonly i18n = inject(I18nService);
 }

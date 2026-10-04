@@ -12,7 +12,8 @@ import {
 } from '@angular/core';
 
 import { ZardDialogRef } from './dialog-ref';
-import { ZardDialogComponent, ZardDialogOptions } from './dialog.component';
+import { ZardDialogComponent } from './dialog.component';
+import { ZardDialogOptions } from './dialog-options';
 
 type ContentType<T> = ComponentType<T> | TemplateRef<T> | string;
 

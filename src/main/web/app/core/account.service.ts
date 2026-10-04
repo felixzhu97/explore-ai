@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ChatService } from '../chat/chat.service';
 import { API_BASE_URL } from './api.constants';
-import type { AccountMe, OAuthProviderId } from './account-api.service';
+import type { AccountMe, OAuthProviderId } from './account.model';
 import { I18nService } from './i18n';
 import { NotificationService } from './notification.service';
 

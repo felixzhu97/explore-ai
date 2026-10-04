@@ -5,7 +5,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { RouterTestingModule } from '@angular/router/testing';
 import { provideEchartsCore } from 'ngx-echarts';
 import { API_BASE_URL } from '../../core/api.constants';
-import { MetricsOverviewPage } from './metrics-overview.page';
+import { MetricsOverviewPageComponent } from './metrics-overview.page';
 
 const emptyOverview = {
   range: '7d',
@@ -24,8 +24,8 @@ const emptyOverview = {
   },
 };
 
-describe('MetricsOverviewPage', () => {
-  let fixture: ComponentFixture<MetricsOverviewPage>;
+describe('MetricsOverviewPageComponent', () => {
+  let fixture: ComponentFixture<MetricsOverviewPageComponent>;
   let http: HttpTestingController;
 
   beforeEach(async () => {
@@ -37,7 +37,7 @@ describe('MetricsOverviewPage', () => {
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [MetricsOverviewPage, RouterTestingModule],
+      imports: [MetricsOverviewPageComponent, RouterTestingModule],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -45,7 +45,7 @@ describe('MetricsOverviewPage', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MetricsOverviewPage);
+    fixture = TestBed.createComponent(MetricsOverviewPageComponent);
     http = TestBed.inject(HttpTestingController);
   });
 

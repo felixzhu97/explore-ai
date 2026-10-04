@@ -31,7 +31,7 @@ test.describe('Chat A2UI Chart functional', () => {
     await setupCommonMocks(page);
   });
 
-  test('should_render_a2ui_bar_chart_surface_with_echarts', async ({ page }) => {
+  test('should render a2ui bar chart surface with echarts', async ({ page }) => {
     await setupChatStreamMock(page, A2UI_BAR_CHART_RESPONSE);
     await gotoAppPage(page, '/chat');
     await waitForChatReady(page);
@@ -51,7 +51,7 @@ test.describe('Chat A2UI Chart functional', () => {
     await expect(page.getByText('界面生成中…')).toHaveCount(0);
   });
 
-  test('should_show_pending_hint_for_unclosed_a2ui_fence', async ({ page }) => {
+  test('should show pending hint for unclosed a2ui fence', async ({ page }) => {
     await setupChatStreamMock(page, A2UI_PENDING_RESPONSE);
     await gotoAppPage(page, '/chat');
     await waitForChatReady(page);

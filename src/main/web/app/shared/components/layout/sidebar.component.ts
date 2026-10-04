@@ -14,8 +14,6 @@ import { lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
 import type { ClassValue } from 'clsx';
 
 import {
-  sidebarGroupLabelVariants,
-  sidebarGroupVariants,
   sidebarTriggerVariants,
   sidebarVariants,
 } from './layout.variants';
@@ -55,7 +53,7 @@ import { mergeClasses } from '../../utils/merge-classes';
   viewProviders: [provideIcons({ lucideChevronRight, lucideChevronLeft })],
   exportAs: 'zSidebar',
 })
-export class SidebarComponent {
+export class ZardSidebarComponent {
   readonly zWidth = input<string | number>(200);
   readonly zCollapsedWidth = input<number>(64);
   readonly zCollapsible = input(false, { transform: booleanAttribute });
@@ -96,42 +94,4 @@ export class SidebarComponent {
   toggleCollapsed(): void {
     this.zCollapsed.set(!this.zCollapsed());
   }
-}
-
-@Component({
-  selector: 'z-sidebar-group',
-  template: `
-    <div [class]="classes()">
-      <ng-content />
-    </div>
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  exportAs: 'zSidebarGroup',
-})
-export class SidebarGroupComponent {
-  readonly class = input<ClassValue>('');
-
-  protected readonly classes = computed(() => {
-    return mergeClasses(sidebarGroupVariants(), this.class());
-  });
-}
-
-@Component({
-  selector: 'z-sidebar-group-label',
-  template: `
-    <div [class]="classes()">
-      <ng-content />
-    </div>
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  exportAs: 'zSidebarGroupLabel',
-})
-export class SidebarGroupLabelComponent {
-  readonly class = input<ClassValue>('');
-
-  protected readonly classes = computed(() => {
-    return mergeClasses(sidebarGroupLabelVariants(), this.class());
-  });
 }

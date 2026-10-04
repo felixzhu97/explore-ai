@@ -15,7 +15,7 @@ test.describe('Chat UI visual regression', () => {
     await setupChatStreamMock(page);
   });
 
-  test('welcome empty state with nx-welcome and nx-prompts', async ({ page }) => {
+  test('should show welcome empty state with nx-welcome and nx-prompts', async ({ page }) => {
     await gotoAppPage(page, '/chat');
     await waitForChatReady(page);
     await prepareVisualPage(page);
@@ -29,7 +29,7 @@ test.describe('Chat UI visual regression', () => {
     await expect(main).toHaveScreenshot('chat-welcome.png');
   });
 
-  test('conversation with nx-bubble-list user and assistant bubbles', async ({ page }) => {
+  test('should show user and assistant bubbles in nx-bubble-list', async ({ page }) => {
     await gotoAppPage(page, '/chat');
     await waitForChatReady(page);
     await sendChatMessage(page, 'Explain ng-zorro-x bubble components');

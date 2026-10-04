@@ -10,9 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { I18nService } from '../core/i18n';
-import {
-  SidebarGroupComponent,
-} from '../shared/components/layout/sidebar.component';
+import { ZardSidebarGroupComponent } from '../shared/components/layout/sidebar-group.component';
 import { ZardSidebarMenuButtonDirective } from '../shared/components/layout/sidebar-menu-button.directive';
 import { SidebarService } from './sidebar.service';
 import { SessionItemComponent } from './components/session-item/session-item.component';
@@ -34,7 +32,7 @@ import { FeatureFlagService } from '../core/feature-flag.service';
   selector: 'app-sidebar',
   imports: [
     RouterLink,
-    SidebarGroupComponent,
+    ZardSidebarGroupComponent,
     ZardSidebarMenuButtonDirective,
     SessionItemComponent,
     SidebarUserMenuComponent,
@@ -47,7 +45,7 @@ import { FeatureFlagService } from '../core/feature-flag.service';
     '(document:pointerdown)': 'onDocumentPointerDown($event)',
   },
 })
-export class SidebarComponent implements OnInit {
+export class AppSidebarComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nService);

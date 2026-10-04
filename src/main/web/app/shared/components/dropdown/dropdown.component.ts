@@ -65,7 +65,7 @@ import { dropdownContentVariants } from './dropdown.variants';
   },
   exportAs: 'zDropdownMenu',
 })
-export class ZardDropdownMenuComponent implements OnDestroy {
+export class ZardDropdownComponent implements OnDestroy {
   private elementRef = inject(ElementRef);
   private overlay = inject(Overlay);
   private overlayPositionBuilder = inject(OverlayPositionBuilder);
