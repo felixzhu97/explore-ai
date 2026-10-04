@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { type Observable, map, catchError, of } from 'rxjs';
@@ -80,7 +80,7 @@ export interface ChatMessage {
 
 type ChatStreamEventHandler = (event: ChatStreamEvent) => void;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ChatService {
   readonly #http = inject(HttpClient);
   readonly #router = inject(Router);

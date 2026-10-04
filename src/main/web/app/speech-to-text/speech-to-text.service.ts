@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 
 export type SpeechToTextConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -10,7 +10,7 @@ export interface TranscriptionMessage {
   message?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SpeechToTextService {
   #socket: WebSocket | null = null;
 

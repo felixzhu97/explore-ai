@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -21,7 +21,7 @@ export interface EvaluationResponse {
   suggestions: string[];
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class EvalService {
   readonly #http = inject(HttpClient);
 

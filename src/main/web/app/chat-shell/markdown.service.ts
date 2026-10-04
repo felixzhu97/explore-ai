@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -7,7 +7,7 @@ const HR_PLACEHOLDER = '\uE000HR\uE001';
 const CODE_PLACEHOLDER_PREFIX = '\uE002CODE';
 const CODE_PLACEHOLDER_SUFFIX = '\uE003';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MarkdownService {
   readonly #sanitizer = inject(DomSanitizer);
 

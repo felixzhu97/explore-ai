@@ -1,5 +1,5 @@
 import { httpResource, type HttpResourceRef } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { API_BASE_URL } from '../http/api.constants';
 
 export type MetricsDomain = 'chat' | 'rag' | 'agents' | 'tools' | 'vision';
@@ -105,7 +105,7 @@ export interface SeriesQuery {
 }
 
 /** Signal-driven metrics resources; create them from an injection context. */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MetricsService {
   readonly #baseUrl = `${API_BASE_URL}/metrics`;
 

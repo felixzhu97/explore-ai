@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import { HttpClient, type HttpEvent, HttpEventType } from '@angular/common/http';
 import { type Observable, of, catchError, finalize } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -60,7 +60,7 @@ export interface RagChatMessage {
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_TOP_K = 5;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class RagService {
   readonly #http = inject(HttpClient);
   readonly #notifications = inject(NotificationService);

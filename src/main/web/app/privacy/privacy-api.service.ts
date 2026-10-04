@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class PrivacyApiService {
   readonly #http = inject(HttpClient);
 

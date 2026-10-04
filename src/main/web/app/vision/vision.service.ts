@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Service, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -25,7 +25,7 @@ export interface VisionTabState {
 
 const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class VisionService {
   readonly #http = inject(HttpClient);
   readonly #i18n = inject(I18nService);
