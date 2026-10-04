@@ -10,6 +10,7 @@ import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NaturalId;
 
 /** Linked OAuth identity for a browser Client Identity partition. */
 @Entity
@@ -17,11 +18,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AccountUser extends AbstractEntity<AccountUserId> {
 
+  @NaturalId
   @NotBlank
   @Size(max = 32)
   @Column(nullable = false, length = 32)
   private String provider;
 
+  @NaturalId
   @NotBlank
   @Size(max = 255)
   @Column(nullable = false, length = 255)

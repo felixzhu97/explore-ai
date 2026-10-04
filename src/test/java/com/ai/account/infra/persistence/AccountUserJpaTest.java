@@ -11,16 +11,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.account.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataAccountUserRepository.class)
+@Import(JpaAccountUserRepository.class)
 class AccountUserJpaTest extends AbstractDataJpaTest {
 
   private static final String LINKED_CLIENT_ID = "55555555-5555-5555-5555-555555555555";
 
   @Autowired private TestEntityManager em;
   @Autowired private SpringDataAccountUserRepository repository;
+  @Autowired private JpaAccountUserRepository adapter;
 
   @Test
   @DisplayName("should persist and reload account user when round tripping")
@@ -40,16 +43,17 @@ class AccountUserJpaTest extends AbstractDataJpaTest {
   }
 
   @Test
-  @DisplayName("should find user by provider and subject when oauth identity lookup")
-  void shouldFindUserByProviderAndSubjectWhenOauthIdentityLookup() {
+  @DisplayName("should find user by natural id when oauth identity lookup")
+  void shouldFindUserByNaturalIdWhenOauthIdentityLookup() {
     AccountUser user = AccountUser.create("github", "gh-42", "dev@example.com", LINKED_CLIENT_ID);
     repository.saveAndFlush(user);
     em.clear();
 
-    Optional<AccountUser> found = repository.findByProviderAndSubject("github", "gh-42");
+    Optional<AccountUser> found = adapter.findByProviderAndSubject("github", "gh-42");
 
     assertThat(found).isPresent();
     assertThat(found.get().getEmail()).isEqualTo("dev@example.com");
+    assertThat(adapter.findByProviderAndSubject("github", "gh-43")).isEmpty();
   }
 
   @Test
