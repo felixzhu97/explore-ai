@@ -69,14 +69,14 @@ class ChatQualityEvaluatorTest {
             .hasSafetyIssues(true)
             .safetyFlags(List.of("Test flag"))
             .suggestions(List.of("Test suggestion"))
-            .relevancyPass(true)
-            .factualityPass(true)
+            .relevancyPassed(true)
+            .factualityPassed(true)
             .evaluatorFeedback(List.of("relevancy: PASS"))
             .build();
 
     assertThat(result.coherenceScore()).isEqualTo(0.9);
-    assertThat(result.relevancyPass()).isTrue();
-    assertThat(result.factualityPass()).isTrue();
+    assertThat(result.relevancyPassed()).isTrue();
+    assertThat(result.factualityPassed()).isTrue();
     assertThat(result.evaluatorFeedback()).containsExactly("relevancy: PASS");
   }
 
@@ -94,8 +94,8 @@ class ChatQualityEvaluatorTest {
 
     assertThat(result.factualityAvailable()).isFalse();
     assertThat(result.factualityScore()).isNull();
-    assertThat(result.relevancyPass()).isTrue();
-    assertThat(result.factualityPass()).isNull();
+    assertThat(result.relevancyPassed()).isTrue();
+    assertThat(result.factualityPassed()).isNull();
     verify(officialEvaluators).evaluate(anyString(), anyString(), anyList());
   }
 
@@ -116,7 +116,7 @@ class ChatQualityEvaluatorTest {
 
     assertThat(result.factualityAvailable()).isTrue();
     assertThat(result.factualityScore()).isEqualTo(1.0);
-    assertThat(result.factualityPass()).isTrue();
+    assertThat(result.factualityPassed()).isTrue();
     assertThat(result.evaluatorFeedback()).isNotEmpty();
   }
 
@@ -179,7 +179,7 @@ class ChatQualityEvaluatorTest {
 
     ChatEvaluationResult result = evaluator.evaluate("Q", "unrelated", List.of());
 
-    assertThat(result.relevancyPass()).isFalse();
+    assertThat(result.relevancyPassed()).isFalse();
     assertThat(result.suggestions())
         .contains("Response does not fully address the user's question");
   }

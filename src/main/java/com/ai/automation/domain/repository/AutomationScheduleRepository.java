@@ -10,13 +10,13 @@ import java.util.Optional;
 public interface AutomationScheduleRepository {
   AutomationSchedule save(AutomationSchedule schedule);
 
-  Optional<AutomationSchedule> findByIdAndClientId(ScheduleId id, String clientId);
+  Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, String ownerKey);
 
-  List<AutomationSchedule> findAllByClientId(String clientId);
+  List<AutomationSchedule> findAllByOwnerKey(String ownerKey);
 
-  int countByClientId(String clientId);
+  int countByOwnerKey(String ownerKey);
 
-  void deleteByIdAndClientId(ScheduleId id, String clientId);
+  void deleteByIdAndOwnerKey(ScheduleId id, String ownerKey);
 
   List<AutomationSchedule> findDue(Instant asOf, int limit);
 

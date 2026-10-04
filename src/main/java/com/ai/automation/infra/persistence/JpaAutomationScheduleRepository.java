@@ -36,26 +36,26 @@ public class JpaAutomationScheduleRepository implements AutomationScheduleReposi
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<AutomationSchedule> findByIdAndClientId(ScheduleId id, String clientId) {
-    return ownerPartition.findOne(OwnerKey.parse(clientId), () -> delegate.findById(id));
+  public Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, String ownerKey) {
+    return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<AutomationSchedule> findAllByClientId(String clientId) {
-    return ownerPartition.apply(OwnerKey.parse(clientId), () -> delegate.findAll(NEWEST_FIRST));
+  public List<AutomationSchedule> findAllByOwnerKey(String ownerKey) {
+    return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(NEWEST_FIRST));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public int countByClientId(String clientId) {
-    return Math.toIntExact(ownerPartition.apply(OwnerKey.parse(clientId), delegate::count));
+  public int countByOwnerKey(String ownerKey) {
+    return Math.toIntExact(ownerPartition.apply(OwnerKey.parse(ownerKey), delegate::count));
   }
 
   @Override
   @Transactional
-  public void deleteByIdAndClientId(ScheduleId id, String clientId) {
-    ownerPartition.run(OwnerKey.parse(clientId), () -> delegate.deleteById(id));
+  public void deleteByIdAndOwnerKey(ScheduleId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 
   @Override

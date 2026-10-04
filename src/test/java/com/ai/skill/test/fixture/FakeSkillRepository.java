@@ -3,12 +3,12 @@ package com.ai.skill.test.fixture;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
-import com.ai.testsupport.fake.AbstractClientIdOwnedFakeRepository;
+import com.ai.testsupport.fake.AbstractOwnerScopedFakeRepository;
 import java.util.List;
 import java.util.Optional;
 
 /** In-memory {@link SkillRepository} for service-layer unit tests. */
-public class FakeSkillRepository extends AbstractClientIdOwnedFakeRepository<Skill, SkillId>
+public class FakeSkillRepository extends AbstractOwnerScopedFakeRepository<Skill, SkillId>
     implements SkillRepository {
 
   @Override
@@ -32,31 +32,31 @@ public class FakeSkillRepository extends AbstractClientIdOwnedFakeRepository<Ski
   }
 
   @Override
-  public Optional<Skill> findByIdAndClientId(SkillId id, String clientId) {
-    return super.findByIdAndClientId(id, clientId);
+  public Optional<Skill> findByIdAndOwnerKey(SkillId id, String ownerKey) {
+    return super.findByIdAndOwnerKey(id, ownerKey);
   }
 
   @Override
-  public List<Skill> findAllByClientId(String clientId) {
-    return super.findAllByClientId(clientId);
+  public List<Skill> findAllByOwnerKey(String ownerKey) {
+    return super.findAllByOwnerKey(ownerKey);
   }
 
   @Override
-  public List<Skill> findEnabledByClientIdAndIds(String clientId, List<SkillId> ids) {
-    return findAllByClientId(clientId).stream()
+  public List<Skill> findEnabledByOwnerKeyAndIds(String ownerKey, List<SkillId> ids) {
+    return findAllByOwnerKey(ownerKey).stream()
         .filter(Skill::isEnabled)
         .filter(skill -> ids.contains(skill.getId()))
         .toList();
   }
 
   @Override
-  public void deleteByIdAndClientId(SkillId id, String clientId) {
-    super.deleteByIdAndClientId(id, clientId);
+  public void deleteByIdAndOwnerKey(SkillId id, String ownerKey) {
+    super.deleteByIdAndOwnerKey(id, ownerKey);
   }
 
   @Override
-  public boolean existsByClientIdAndNameIgnoringId(
-      String clientId, String name, SkillId excludeId) {
-    return super.existsByClientIdAndNameIgnoringId(clientId, name, excludeId);
+  public boolean existsByOwnerKeyAndNameIgnoringId(
+      String ownerKey, String name, SkillId excludeId) {
+    return super.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId);
   }
 }

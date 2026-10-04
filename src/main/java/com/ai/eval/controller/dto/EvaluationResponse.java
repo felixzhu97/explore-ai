@@ -29,8 +29,8 @@ public record EvaluationResponse(
         result.hasSafetyIssues(),
         result.safetyFlags(),
         result.suggestions(),
-        result.relevancyPass(),
-        result.factualityPass(),
+        result.relevancyPassed(),
+        result.factualityPassed(),
         result.evaluatorFeedback());
   }
 

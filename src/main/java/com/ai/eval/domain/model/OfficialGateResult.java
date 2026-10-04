@@ -4,8 +4,8 @@ import java.util.List;
 
 /** Pass/fail gate from Spring AI RelevancyEvaluator and FactCheckingEvaluator. */
 public record OfficialGateResult(
-    boolean relevancyPass,
-    Boolean factualityPass,
+    boolean relevancyPassed,
+    Boolean factualityPassed,
     boolean factualityEvaluated,
     double relevanceScore,
     Double factualityScore,

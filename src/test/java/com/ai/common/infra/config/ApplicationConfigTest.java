@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-@DisplayName("ApplicationConfig Tests")
+@DisplayName("ApplicationConfig")
 class ApplicationConfigTest {
 
   private final AnnotationConfigApplicationContext context;

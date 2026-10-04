@@ -38,9 +38,9 @@ class OfficialSpringAiEvaluatorsTest {
     OfficialGateResult result = evaluators.evaluate("q", "a", List.of());
 
     assertThat(result.passed()).isTrue();
-    assertThat(result.relevancyPass()).isTrue();
+    assertThat(result.relevancyPassed()).isTrue();
     assertThat(result.factualityEvaluated()).isFalse();
-    assertThat(result.factualityPass()).isNull();
+    assertThat(result.factualityPassed()).isNull();
     assertThat(result.relevanceScore()).isEqualTo(1.0);
     verify(factCheckingEvaluator, never()).evaluate(any());
   }
@@ -57,7 +57,7 @@ class OfficialSpringAiEvaluatorsTest {
 
     assertThat(result.passed()).isFalse();
     assertThat(result.factualityEvaluated()).isTrue();
-    assertThat(result.factualityPass()).isFalse();
+    assertThat(result.factualityPassed()).isFalse();
     assertThat(result.feedback()).anyMatch(f -> f.contains("factuality"));
   }
 }

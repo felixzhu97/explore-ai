@@ -9,14 +9,14 @@ import java.util.Optional;
 public interface SavedAgentRepository {
   SavedAgentDefinition save(SavedAgentDefinition agent);
 
-  Optional<SavedAgentDefinition> findByIdAndClientId(SavedAgentId id, String clientId);
+  Optional<SavedAgentDefinition> findByIdAndOwnerKey(SavedAgentId id, String ownerKey);
 
-  List<SavedAgentDefinition> findAllByClientId(String clientId);
+  List<SavedAgentDefinition> findAllByOwnerKey(String ownerKey);
 
-  List<SavedAgentDefinition> findEnabledByClientId(String clientId);
+  List<SavedAgentDefinition> findEnabledByOwnerKey(String ownerKey);
 
-  void deleteByIdAndClientId(SavedAgentId id, String clientId);
+  void deleteByIdAndOwnerKey(SavedAgentId id, String ownerKey);
 
-  boolean existsByClientIdAndTypeKeyIgnoringId(
-      String clientId, String typeKey, SavedAgentId excludeId);
+  boolean existsByOwnerKeyAndTypeKeyIgnoringId(
+      String ownerKey, String typeKey, SavedAgentId excludeId);
 }

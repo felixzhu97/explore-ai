@@ -74,20 +74,20 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     springDataRepository.saveAndFlush(newerSession);
     em.clear();
 
-    List<ChatSession> sessions = jpaRepository.findByClientId(OWNER_KEY);
+    List<ChatSession> sessions = jpaRepository.findByOwnerKey(OWNER_KEY);
 
     assertThat(sessions).extracting(ChatSession::getTitle).containsExactly("Newer", "Older");
   }
 
   @Test
   @DisplayName("should hide session from another owner when finding by id and client id")
-  void shouldHideSessionFromAnotherOwnerWhenFindingByIdAndClientId() {
+  void shouldHideSessionFromAnotherOwnerWhenFindingByIdAndOwnerKey() {
     ChatSession session = ChatSession.create("Private", OWNER_KEY);
     springDataRepository.saveAndFlush(session);
     em.clear();
 
     Optional<ChatSession> found =
-        jpaRepository.findByIdAndClientId(session.getId(), "22222222-2222-2222-2222-222222222222");
+        jpaRepository.findByIdAndOwnerKey(session.getId(), "22222222-2222-2222-2222-222222222222");
 
     assertThat(found).isEmpty();
   }
@@ -100,7 +100,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     Optional<ChatSession> found =
-        jpaRepository.findByIdAndClientId(session.getId(), BARE_CLIENT_ID);
+        jpaRepository.findByIdAndOwnerKey(session.getId(), BARE_CLIENT_ID);
 
     assertThat(found).isPresent();
     assertThat(found.get().getTitle()).isEqualTo("Scoped");
@@ -113,7 +113,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     springDataRepository.saveAndFlush(session);
     em.clear();
 
-    List<ChatSession> sessions = jpaRepository.findByClientId(BARE_CLIENT_ID);
+    List<ChatSession> sessions = jpaRepository.findByOwnerKey(BARE_CLIENT_ID);
 
     assertThat(sessions).hasSize(1);
     assertThat(sessions.getFirst().getId()).isEqualTo(session.getId());

@@ -89,8 +89,8 @@ public class GoldenEvalService {
           evalCase.userText(),
           truncate(generated.answer()),
           gate.passed(),
-          gate.relevancyPass(),
-          gate.factualityPass(),
+          gate.relevancyPassed(),
+          gate.factualityPassed(),
           gate.feedback(),
           null);
     } catch (RuntimeException ex) {

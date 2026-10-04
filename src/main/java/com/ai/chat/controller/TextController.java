@@ -74,8 +74,8 @@ public class TextController {
         return Flux.error(
             new IllegalArgumentException("User message is required when sessionId is provided"));
       }
-      String clientId = ownerContext.requireValue(httpRequest);
-      return chatService.chatStreamWithSession(request.sessionId(), userMessage, options, clientId);
+      String ownerKey = ownerContext.requireValue(httpRequest);
+      return chatService.chatStreamWithSession(request.sessionId(), userMessage, options, ownerKey);
     }
 
     List<ChatMessage> messages =
@@ -100,13 +100,13 @@ public class TextController {
       return baseOptions;
     }
 
-    String clientId = ownerContext.requireValue(httpRequest);
+    String ownerKey = ownerContext.requireValue(httpRequest);
     List<SkillId> parsedSkillIds = parseSkillIds(skillIds);
     if (parsedSkillIds.isEmpty()) {
       return baseOptions;
     }
 
-    List<Skill> skills = skillRepository.findEnabledByClientIdAndIds(clientId, parsedSkillIds);
+    List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(ownerKey, parsedSkillIds);
     if (skills.size() < parsedSkillIds.size()) {
       log.debug(
           "Ignored unknown or disabled skill ids: requested={}, resolved={}",
@@ -136,12 +136,12 @@ public class TextController {
     return parsed;
   }
 
-  private String extractLastUserMessage(List<ChatStreamRequest.ChatMessageDto> messages) {
+  private String extractLastUserMessage(List<ChatStreamRequest.Message> messages) {
     if (messages == null || messages.isEmpty()) {
       return null;
     }
     for (int i = messages.size() - 1; i >= 0; i--) {
-      ChatStreamRequest.ChatMessageDto message = messages.get(i);
+      ChatStreamRequest.Message message = messages.get(i);
       if ("user".equalsIgnoreCase(message.role())) {
         return message.content();
       }

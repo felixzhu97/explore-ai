@@ -42,10 +42,10 @@ public class PipelineController {
   @GetMapping("/list")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     String language = resolveLanguage(lang, request);
     List<AgentInfoResponse> agents =
-        pipelineService.listAgents(clientId, language).stream()
+        pipelineService.listAgents(ownerKey, language).stream()
             .map(AgentInfoResponse::from)
             .toList();
     return ResponseEntity.ok(agents);
@@ -57,10 +57,10 @@ public class PipelineController {
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
     try {
-      String clientId = ownerContext.requireValue(request);
+      String ownerKey = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentHealthResponse.from(
-              pipelineService.health(agentType, clientId, resolveLanguage(lang, request))));
+              pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
     }
@@ -72,10 +72,10 @@ public class PipelineController {
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
     try {
-      String clientId = ownerContext.requireValue(request);
+      String ownerKey = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentInfoResponse.from(
-              pipelineService.health(agentType, clientId, resolveLanguage(lang, request))));
+              pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
     }
@@ -86,9 +86,9 @@ public class PipelineController {
       @Valid @RequestBody AgentInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
-    String clientId = ownerContext.requireValue(httpRequest);
+    String ownerKey = ownerContext.requireValue(httpRequest);
     return pipelineService.invokeSupervisor(
-        request.message(), clientId, resolveLanguage(lang, httpRequest));
+        request.message(), ownerKey, resolveLanguage(lang, httpRequest));
   }
 
   @PostMapping(value = "/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -96,7 +96,7 @@ public class PipelineController {
       @Valid @RequestBody PipelineInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
-    String clientId = ownerContext.requireValue(httpRequest);
+    String ownerKey = ownerContext.requireValue(httpRequest);
     List<AgentPipeline.PipelineNode> nodes =
         request.nodes().stream()
             .map(
@@ -116,7 +116,7 @@ public class PipelineController {
     return pipelineService.invokePipeline(
         request.message(),
         AgentPipeline.create(nodes, edges),
-        clientId,
+        ownerKey,
         resolveLanguage(lang, httpRequest));
   }
 
@@ -126,9 +126,9 @@ public class PipelineController {
       @Valid @RequestBody AgentInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
-    String clientId = ownerContext.requireValue(httpRequest);
+    String ownerKey = ownerContext.requireValue(httpRequest);
     return pipelineService
-        .invokeAgent(agentType, request.message(), clientId, resolveLanguage(lang, httpRequest))
+        .invokeAgent(agentType, request.message(), ownerKey, resolveLanguage(lang, httpRequest))
         .onErrorResume(
             AgentNotFoundException.class,
             e ->

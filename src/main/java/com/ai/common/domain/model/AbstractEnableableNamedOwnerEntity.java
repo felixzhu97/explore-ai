@@ -31,8 +31,8 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractUui
   }
 
   protected AbstractEnableableNamedOwnerEntity(
-      IdT id, String clientId, String name, boolean enabled, Instant createdAt, Instant updatedAt) {
-    super(id, clientId, name, createdAt, updatedAt);
+      IdT id, String ownerKey, String name, boolean enabled, Instant createdAt, Instant updatedAt) {
+    super(id, ownerKey, name, createdAt, updatedAt);
     this.enabled = enabled;
   }
 

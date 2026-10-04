@@ -3,4 +3,4 @@ package com.ai.rag.controller.dto;
 import java.util.List;
 
 /** RAG chat response DTO containing AI response and source documents. */
-public record RagChatResponse(String content, List<SourceDocumentDto> sources) {}
+public record RagChatResponse(String content, List<SourceDocumentResponse> sources) {}

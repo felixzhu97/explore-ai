@@ -32,7 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
       "spring.flyway.enabled=false"
     })
 @EnabledIfEnvironmentVariable(named = "VISION_MODELS_READY", matches = "true")
-@DisplayName("VisionFunctionalVerificationIT")
+@DisplayName("Vision functional verification")
 class VisionFunctionalVerificationIT {
 
   @Autowired private WebApplicationContext webApplicationContext;
@@ -47,8 +47,8 @@ class VisionFunctionalVerificationIT {
   }
 
   @Test
-  @DisplayName("should_return_health_status")
-  void should_return_health_status() throws Exception {
+  @DisplayName("should return health status")
+  void shouldReturnHealthStatus() throws Exception {
     mockMvc
         .perform(get("/api/vision/health"))
         .andExpect(status().isOk())
@@ -57,8 +57,8 @@ class VisionFunctionalVerificationIT {
   }
 
   @Test
-  @DisplayName("should_reject_empty_file_with_structured_error")
-  void should_reject_empty_file_with_structured_error() throws Exception {
+  @DisplayName("should reject empty file with structured error")
+  void shouldRejectEmptyFileWithStructuredError() throws Exception {
     mockMvc
         .perform(multipart("/api/vision/ocr"))
         .andExpect(status().isBadRequest())
@@ -66,8 +66,8 @@ class VisionFunctionalVerificationIT {
   }
 
   @Test
-  @DisplayName("should_ocr_fixture_image")
-  void should_ocr_fixture_image() throws Exception {
+  @DisplayName("should ocr fixture image")
+  void shouldOcrFixtureImage() throws Exception {
     MockMultipartFile file = fixture("vision/fixtures/ocr-hello.png", "image/png");
     mockMvc
         .perform(multipart("/api/vision/ocr").file(file))
@@ -77,8 +77,8 @@ class VisionFunctionalVerificationIT {
   }
 
   @Test
-  @DisplayName("should_detect_objects_in_fixture_image")
-  void should_detect_objects_in_fixture_image() throws Exception {
+  @DisplayName("should detect objects in fixture image")
+  void shouldDetectObjectsInFixtureImage() throws Exception {
     MockMultipartFile file = fixture("vision/fixtures/street-person.jpg", "image/jpeg");
     mockMvc
         .perform(multipart("/api/vision/detect").file(file))
@@ -88,8 +88,8 @@ class VisionFunctionalVerificationIT {
   }
 
   @Test
-  @DisplayName("should_caption_fixture_image")
-  void should_caption_fixture_image() throws Exception {
+  @DisplayName("should caption fixture image")
+  void shouldCaptionFixtureImage() throws Exception {
     Assumptions.assumeTrue(captioner.isAvailable(), "BLIP captioner is not available");
     MockMultipartFile file = fixture("vision/fixtures/landscape.jpg", "image/jpeg");
     mockMvc

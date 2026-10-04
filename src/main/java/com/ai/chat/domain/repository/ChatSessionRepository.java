@@ -10,13 +10,13 @@ import java.util.Optional;
 public interface ChatSessionRepository {
   Optional<ChatSession> findById(ChatSessionId id);
 
-  Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId);
+  Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, String ownerKey);
 
   void save(ChatSession session);
 
   void delete(ChatSessionId id);
 
-  List<ChatSession> findByClientId(String clientId);
+  List<ChatSession> findByOwnerKey(String ownerKey);
 
   List<ChatSession> findInactiveSince(Instant cutoff);
 

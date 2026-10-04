@@ -34,29 +34,29 @@ public class JpaWorkflowTemplateRepository implements WorkflowTemplateRepository
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<SavedWorkflowTemplate> findByIdAndClientId(
-      WorkflowTemplateId id, String clientId) {
-    return ownerPartition.findOne(OwnerKey.parse(clientId), () -> delegate.findById(id));
+  public Optional<SavedWorkflowTemplate> findByIdAndOwnerKey(
+      WorkflowTemplateId id, String ownerKey) {
+    return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<SavedWorkflowTemplate> findAllByClientId(String clientId) {
-    return ownerPartition.apply(OwnerKey.parse(clientId), () -> delegate.findAll(BY_NAME));
+  public List<SavedWorkflowTemplate> findAllByOwnerKey(String ownerKey) {
+    return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(BY_NAME));
   }
 
   @Override
   @Transactional
-  public void deleteByIdAndClientId(WorkflowTemplateId id, String clientId) {
-    ownerPartition.run(OwnerKey.parse(clientId), () -> delegate.deleteById(id));
+  public void deleteByIdAndOwnerKey(WorkflowTemplateId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public boolean existsByClientIdAndNameIgnoringId(
-      String clientId, String name, WorkflowTemplateId excludeId) {
+  public boolean existsByOwnerKeyAndNameIgnoringId(
+      String ownerKey, String name, WorkflowTemplateId excludeId) {
     return ownerPartition.apply(
-        OwnerKey.parse(clientId),
+        OwnerKey.parse(ownerKey),
         () ->
             excludeId == null
                 ? delegate.existsByName(name)

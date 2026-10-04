@@ -4,7 +4,7 @@ import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
-import com.ai.vision.controller.dto.DetectionDto;
+import com.ai.vision.controller.dto.DetectionResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
@@ -112,7 +112,8 @@ public class VisionAnalysisService {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
-      List<DetectionDto> detections = detector.detect(image).stream().map(this::toDto).toList();
+      List<DetectionResponse> detections =
+          detector.detect(image).stream().map(this::toDto).toList();
       long processingTimeMs = elapsedMillis(startedAt);
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
@@ -142,8 +143,8 @@ public class VisionAnalysisService {
     return new VisionHealthResponse(allUp ? "UP" : "DEGRADED", providers);
   }
 
-  private DetectionDto toDto(Detection detection) {
-    return new DetectionDto(
+  private DetectionResponse toDto(Detection detection) {
+    return new DetectionResponse(
         detection.className(),
         detection.confidence(),
         List.of(detection.x(), detection.y(), detection.width(), detection.height()));

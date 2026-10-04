@@ -38,13 +38,13 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
 
   protected AbstractEnableableDescribedOwnerEntity(
       IdT id,
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       boolean enabled,
       Instant createdAt,
       Instant updatedAt) {
-    super(id, clientId, name, enabled, createdAt, updatedAt);
+    super(id, ownerKey, name, enabled, createdAt, updatedAt);
     this.description = DomainStrings.normalizeDescription(description);
   }
 

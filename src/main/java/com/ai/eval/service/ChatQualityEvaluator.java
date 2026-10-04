@@ -96,8 +96,8 @@ public class ChatQualityEvaluator {
         .hasSafetyIssues(safetyResult.hasSafetyIssues())
         .safetyFlags(safetyFlags)
         .suggestions(suggestions)
-        .relevancyPass(gate.relevancyPass())
-        .factualityPass(gate.factualityPass())
+        .relevancyPassed(gate.relevancyPassed())
+        .factualityPassed(gate.factualityPassed())
         .evaluatorFeedback(gate.feedback())
         .build();
   }
@@ -140,10 +140,10 @@ public class ChatQualityEvaluator {
     if (safetyResult.coherenceScore() < 0.7) {
       suggestions.add("Improve logical flow and coherence");
     }
-    if (!gate.relevancyPass()) {
+    if (!gate.relevancyPassed()) {
       suggestions.add("Response does not fully address the user's question");
     }
-    if (gate.factualityEvaluated() && Boolean.FALSE.equals(gate.factualityPass())) {
+    if (gate.factualityEvaluated() && Boolean.FALSE.equals(gate.factualityPassed())) {
       suggestions.add("Response may contain inaccurate information");
     }
     return suggestions;

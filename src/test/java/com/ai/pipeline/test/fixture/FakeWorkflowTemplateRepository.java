@@ -3,13 +3,13 @@ package com.ai.pipeline.test.fixture;
 import com.ai.pipeline.domain.model.SavedWorkflowTemplate;
 import com.ai.pipeline.domain.repository.WorkflowTemplateRepository;
 import com.ai.pipeline.domain.vo.WorkflowTemplateId;
-import com.ai.testsupport.fake.AbstractClientIdOwnedFakeRepository;
+import com.ai.testsupport.fake.AbstractOwnerScopedFakeRepository;
 import java.util.List;
 import java.util.Optional;
 
 /** In-memory {@link WorkflowTemplateRepository} for service-layer unit tests. */
 public class FakeWorkflowTemplateRepository
-    extends AbstractClientIdOwnedFakeRepository<SavedWorkflowTemplate, WorkflowTemplateId>
+    extends AbstractOwnerScopedFakeRepository<SavedWorkflowTemplate, WorkflowTemplateId>
     implements WorkflowTemplateRepository {
 
   @Override
@@ -33,24 +33,24 @@ public class FakeWorkflowTemplateRepository
   }
 
   @Override
-  public Optional<SavedWorkflowTemplate> findByIdAndClientId(
-      WorkflowTemplateId id, String clientId) {
-    return super.findByIdAndClientId(id, clientId);
+  public Optional<SavedWorkflowTemplate> findByIdAndOwnerKey(
+      WorkflowTemplateId id, String ownerKey) {
+    return super.findByIdAndOwnerKey(id, ownerKey);
   }
 
   @Override
-  public List<SavedWorkflowTemplate> findAllByClientId(String clientId) {
-    return super.findAllByClientId(clientId);
+  public List<SavedWorkflowTemplate> findAllByOwnerKey(String ownerKey) {
+    return super.findAllByOwnerKey(ownerKey);
   }
 
   @Override
-  public void deleteByIdAndClientId(WorkflowTemplateId id, String clientId) {
-    super.deleteByIdAndClientId(id, clientId);
+  public void deleteByIdAndOwnerKey(WorkflowTemplateId id, String ownerKey) {
+    super.deleteByIdAndOwnerKey(id, ownerKey);
   }
 
   @Override
-  public boolean existsByClientIdAndNameIgnoringId(
-      String clientId, String name, WorkflowTemplateId excludeId) {
-    return super.existsByClientIdAndNameIgnoringId(clientId, name, excludeId);
+  public boolean existsByOwnerKeyAndNameIgnoringId(
+      String ownerKey, String name, WorkflowTemplateId excludeId) {
+    return super.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId);
   }
 }

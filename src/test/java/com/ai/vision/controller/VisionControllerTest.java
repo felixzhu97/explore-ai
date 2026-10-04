@@ -9,7 +9,7 @@ import com.ai.common.controller.GlobalExceptionHandler;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
-import com.ai.vision.controller.dto.DetectionDto;
+import com.ai.vision.controller.dto.DetectionResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.service.VisionAnalysisService;
@@ -90,8 +90,8 @@ class VisionControllerTest {
     void shouldReturnDetections() throws Exception {
       MockMultipartFile file =
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
-      List<DetectionDto> detections =
-          List.of(new DetectionDto("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
+      List<DetectionResponse> detections =
+          List.of(new DetectionResponse("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
       doReturn(new DetectResponse(detections, 150L)).when(visionAnalysisService).detect(any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))

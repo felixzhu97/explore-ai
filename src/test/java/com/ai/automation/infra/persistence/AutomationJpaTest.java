@@ -181,7 +181,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     scheduleRepository.saveAndFlush(second);
     em.clear();
 
-    List<AutomationSchedule> schedules = jpaScheduleRepository.findAllByClientId(OWNER_KEY);
+    List<AutomationSchedule> schedules = jpaScheduleRepository.findAllByOwnerKey(OWNER_KEY);
 
     assertThat(schedules).hasSize(2);
     assertThat(schedules.getFirst().getCreatedAt())
@@ -201,7 +201,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     em.clear();
 
     List<AutomationRun> runs =
-        jpaRunRepository.findByScheduleIdAndClientId(scheduleId, OWNER_KEY, 10);
+        jpaRunRepository.findByScheduleIdAndOwnerKey(scheduleId, OWNER_KEY, 10);
 
     assertThat(runs).extracting(AutomationRun::getResultExcerpt).containsExactly("newer", "older");
   }

@@ -1,11 +1,10 @@
-package com.ai.eval;
+package com.ai.eval.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.ai.eval.controller.EvalController;
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.service.ChatQualityEvaluator;
 import com.ai.testsupport.SliceWebMvcTest;

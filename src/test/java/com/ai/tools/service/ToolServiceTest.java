@@ -55,7 +55,7 @@ class ToolServiceTest {
     when(weatherReport.lookupCurrent(any(WeatherQuery.class)))
         .thenReturn(ToolResult.success("北京今天的天气：温度 25°C，天气 晴，湿度 65%"));
 
-    String weather = toolService.getWeather("beijing");
+    String weather = toolService.lookupWeather("beijing");
 
     assertThat(weather).contains("北京");
   }

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.Yaml;
 
-@DisplayName("AI-239 Spring AI observation defaults regression")
+@DisplayName("Spring AI observation defaults regression")
 class SpringAiObservationDefaultsRegressionTest {
 
   @Test

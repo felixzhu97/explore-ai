@@ -35,8 +35,8 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId) {
-    return ownerPartition.findOne(toOwnerKey(clientId), () -> delegate.findById(id));
+  public Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, String ownerKey) {
+    return ownerPartition.findOne(toOwnerKey(ownerKey), () -> delegate.findById(id));
   }
 
   @Override
@@ -53,8 +53,8 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public List<ChatSession> findByClientId(String clientId) {
-    return ownerPartition.apply(toOwnerKey(clientId), () -> delegate.findAll(MOST_RECENT_FIRST));
+  public List<ChatSession> findByOwnerKey(String ownerKey) {
+    return ownerPartition.apply(toOwnerKey(ownerKey), () -> delegate.findAll(MOST_RECENT_FIRST));
   }
 
   @Override
@@ -69,11 +69,11 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
     return delegate.existsById(id);
   }
 
-  private static OwnerKey toOwnerKey(String clientId) {
-    if (clientId == null || clientId.isBlank()) {
-      throw new IllegalArgumentException("clientId is required");
+  private static OwnerKey toOwnerKey(String ownerKey) {
+    if (ownerKey == null || ownerKey.isBlank()) {
+      throw new IllegalArgumentException("ownerKey is required");
     }
-    String trimmed = clientId.trim();
+    String trimmed = ownerKey.trim();
     if (trimmed.startsWith(OwnerKey.CLIENT_PREFIX) || trimmed.startsWith(OwnerKey.ACCOUNT_PREFIX)) {
       return OwnerKey.parse(trimmed);
     }

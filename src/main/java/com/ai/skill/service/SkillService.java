@@ -18,42 +18,42 @@ public class SkillService {
     this.skillRepository = skillRepository;
   }
 
-  public List<Skill> list(String clientId) {
-    return skillRepository.findAllByClientId(clientId);
+  public List<Skill> list(String ownerKey) {
+    return skillRepository.findAllByOwnerKey(ownerKey);
   }
 
-  public Skill get(String clientId, String id) {
-    return findOwnedSkill(clientId, id);
+  public Skill get(String ownerKey, String id) {
+    return findOwnedSkill(ownerKey, id);
   }
 
   public Skill create(
-      String clientId,
+      String ownerKey,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    assertNameAvailable(clientId, name, null);
-    Skill skill = Skill.create(clientId, name, description, instructions, allowedTools);
+    assertNameAvailable(ownerKey, name, null);
+    Skill skill = Skill.create(ownerKey, name, description, instructions, allowedTools);
     return skillRepository.save(skill);
   }
 
   /** Replaces the owner's skill, keeping names unique per owner. */
   public Skill update(
-      String clientId,
+      String ownerKey,
       String id,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    Skill skill = findOwnedSkill(clientId, id);
-    assertNameAvailable(clientId, name, skill.getId());
+    Skill skill = findOwnedSkill(ownerKey, id);
+    assertNameAvailable(ownerKey, name, skill.getId());
     skill.update(name, description, instructions, allowedTools);
     return skillRepository.save(skill);
   }
 
   /** Enables or disables the owner's skill. */
-  public Skill setEnabled(String clientId, String id, boolean enabled) {
-    Skill skill = findOwnedSkill(clientId, id);
+  public Skill setEnabled(String ownerKey, String id, boolean enabled) {
+    Skill skill = findOwnedSkill(ownerKey, id);
     if (enabled) {
       skill.enable();
     } else {
@@ -62,9 +62,9 @@ public class SkillService {
     return skillRepository.save(skill);
   }
 
-  public void delete(String clientId, String id) {
-    findOwnedSkill(clientId, id);
-    skillRepository.deleteByIdAndClientId(SkillId.of(id), clientId);
+  public void delete(String ownerKey, String id) {
+    findOwnedSkill(ownerKey, id);
+    skillRepository.deleteByIdAndOwnerKey(SkillId.of(id), ownerKey);
   }
 
   public List<SkillTemplate> listTemplates(String language) {
@@ -72,38 +72,38 @@ public class SkillService {
   }
 
   /** Copies a built-in skill template into the owner's skills. */
-  public Skill createFromTemplate(String clientId, String templateId, String language) {
+  public Skill createFromTemplate(String ownerKey, String templateId, String language) {
     SkillTemplate template =
         SkillTemplateCatalog.findById(templateId, language)
             .orElseThrow(
                 () -> new IllegalArgumentException("Unknown skill template: " + templateId));
     return create(
-        clientId,
-        nextAvailableName(clientId, template.name()),
+        ownerKey,
+        nextAvailableName(ownerKey, template.name()),
         template.description(),
         template.instructions(),
         template.allowedTools());
   }
 
-  private Skill findOwnedSkill(String clientId, String id) {
+  private Skill findOwnedSkill(String ownerKey, String id) {
     return skillRepository
-        .findByIdAndClientId(SkillId.of(id), clientId)
+        .findByIdAndOwnerKey(SkillId.of(id), ownerKey)
         .orElseThrow(() -> new SkillNotFoundException(id));
   }
 
-  private void assertNameAvailable(String clientId, String name, SkillId excludeId) {
-    if (skillRepository.existsByClientIdAndNameIgnoringId(clientId, name, excludeId)) {
+  private void assertNameAvailable(String ownerKey, String name, SkillId excludeId) {
+    if (skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)) {
       throw new SkillNameConflictException(name);
     }
   }
 
-  private String nextAvailableName(String clientId, String baseName) {
-    if (!skillRepository.existsByClientIdAndNameIgnoringId(clientId, baseName, null)) {
+  private String nextAvailableName(String ownerKey, String baseName) {
+    if (!skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, baseName, null)) {
       return baseName;
     }
     for (int suffix = 2; suffix <= 99; suffix++) {
       String candidate = baseName + " (" + suffix + ")";
-      if (!skillRepository.existsByClientIdAndNameIgnoringId(clientId, candidate, null)) {
+      if (!skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, candidate, null)) {
         return candidate;
       }
     }

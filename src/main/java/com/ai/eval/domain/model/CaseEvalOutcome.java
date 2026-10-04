@@ -10,8 +10,8 @@ public record CaseEvalOutcome(
     String userText,
     String answer,
     boolean passed,
-    boolean relevancyPass,
-    Boolean factualityPass,
+    boolean relevancyPassed,
+    Boolean factualityPassed,
     List<String> feedback,
     String generationError) {
   public CaseEvalOutcome {

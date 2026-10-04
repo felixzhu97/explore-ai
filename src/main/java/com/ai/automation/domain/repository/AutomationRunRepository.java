@@ -9,6 +9,6 @@ public interface AutomationRunRepository {
   /** Inserts a new run; each run is written once, after it finishes. */
   AutomationRun save(AutomationRun run);
 
-  List<AutomationRun> findByScheduleIdAndClientId(
-      ScheduleId scheduleId, String clientId, int limit);
+  List<AutomationRun> findByScheduleIdAndOwnerKey(
+      ScheduleId scheduleId, String ownerKey, int limit);
 }

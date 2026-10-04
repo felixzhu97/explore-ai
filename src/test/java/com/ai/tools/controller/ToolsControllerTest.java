@@ -33,12 +33,12 @@ class ToolsControllerTest {
     void shouldReturnWeatherForValidCity() {
       String city = "Beijing";
       String weather = "Sunny, 25°C";
-      when(toolService.getWeather(city)).thenReturn(weather);
+      when(toolService.lookupWeather(city)).thenReturn(weather);
 
       assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
           .hasStatusOk()
           .hasBodyTextEqualTo(weather);
-      verify(toolService).getWeather(city);
+      verify(toolService).lookupWeather(city);
     }
 
     @Test
@@ -65,7 +65,7 @@ class ToolsControllerTest {
     @DisplayName("should return 500 when service throws exception")
     void shouldReturn500WhenServiceThrowsException() {
       String city = "Unknown";
-      when(toolService.getWeather(city)).thenThrow(new RuntimeException("API error"));
+      when(toolService.lookupWeather(city)).thenThrow(new RuntimeException("API error"));
 
       assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -84,7 +84,7 @@ class ToolsControllerTest {
     void shouldReturnForecastForValidCity() {
       String city = "Shanghai";
       String forecast = "Rainy for 3 days";
-      when(toolService.getForecast(city, 5)).thenReturn(forecast);
+      when(toolService.lookupForecast(city, 5)).thenReturn(forecast);
 
       assertThat(
               mvc.get().uri("/api/tools/weather/forecast").param("city", city).param("days", "5"))
@@ -97,7 +97,7 @@ class ToolsControllerTest {
     void shouldReturnForecastWithNullDays() {
       String city = "Guangzhou";
       String forecast = "Cloudy forecast";
-      when(toolService.getForecast(city, null)).thenReturn(forecast);
+      when(toolService.lookupForecast(city, null)).thenReturn(forecast);
 
       assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", city))
           .hasStatusOk()
@@ -124,7 +124,8 @@ class ToolsControllerTest {
     @Test
     @DisplayName("should return 500 when service throws exception")
     void shouldReturn500WhenServiceThrowsException() {
-      when(toolService.getForecast("ErrorCity", null)).thenThrow(new RuntimeException("API error"));
+      when(toolService.lookupForecast("ErrorCity", null))
+          .thenThrow(new RuntimeException("API error"));
 
       assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", "ErrorCity"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)

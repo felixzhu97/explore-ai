@@ -37,19 +37,19 @@ public class PipelineAgentLibraryController {
 
   @GetMapping
   public List<SavedAgentResponse> listLibrary(HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
-    return savedAgentService.listLibrary(clientId).stream().map(SavedAgentResponse::from).toList();
+    String ownerKey = ownerContext.requireValue(request);
+    return savedAgentService.listLibrary(ownerKey).stream().map(SavedAgentResponse::from).toList();
   }
 
   @PostMapping
   public ResponseEntity<SavedAgentResponse> create(
       @Valid @RequestBody CreateSavedAgentRequest body, HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SavedAgentResponse.from(
                 savedAgentService.create(
-                    clientId,
+                    ownerKey,
                     body.typeKey(),
                     body.name(),
                     body.description(),
@@ -62,10 +62,10 @@ public class PipelineAgentLibraryController {
       @PathVariable String id,
       @Valid @RequestBody UpdateSavedAgentRequest body,
       HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
+    String ownerKey = ownerContext.requireValue(request);
     return SavedAgentResponse.from(
         savedAgentService.update(
-            clientId, id, body.name(), body.description(), body.systemPrompt(), body.toolKeys()));
+            ownerKey, id, body.name(), body.description(), body.systemPrompt(), body.toolKeys()));
   }
 
   @PatchMapping("/{id}/enabled")
@@ -73,14 +73,14 @@ public class PipelineAgentLibraryController {
       @PathVariable String id,
       @Valid @RequestBody SetSavedAgentEnabledRequest body,
       HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
-    return SavedAgentResponse.from(savedAgentService.setEnabled(clientId, id, body.enabled()));
+    String ownerKey = ownerContext.requireValue(request);
+    return SavedAgentResponse.from(savedAgentService.setEnabled(ownerKey, id, body.enabled()));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
-    String clientId = ownerContext.requireValue(request);
-    savedAgentService.delete(clientId, id);
+    String ownerKey = ownerContext.requireValue(request);
+    savedAgentService.delete(ownerKey, id);
     return ResponseEntity.noContent().build();
   }
 }

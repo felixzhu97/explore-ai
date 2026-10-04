@@ -5,14 +5,14 @@ import java.time.Instant;
 import java.util.List;
 
 public record MessageInfoResponse(
-    String id, String role, String content, Instant timestamp, List<WebSourceDto> sources) {
+    String id, String role, String content, Instant timestamp, List<WebSourceResponse> sources) {
   public static MessageInfoResponse from(ChatMessage message) {
     return from(message, List.of());
   }
 
   /** Builds a response from the message, omitting sources when the list is null or empty. */
-  public static MessageInfoResponse from(ChatMessage message, List<WebSourceDto> sources) {
-    List<WebSourceDto> safeSources =
+  public static MessageInfoResponse from(ChatMessage message, List<WebSourceResponse> sources) {
+    List<WebSourceResponse> safeSources =
         sources == null || sources.isEmpty() ? null : List.copyOf(sources);
     return new MessageInfoResponse(
         message.getId().toString(),

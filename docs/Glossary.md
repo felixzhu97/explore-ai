@@ -249,7 +249,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Embedding                | 嵌入向量     | Vector representation of text for similarity search | Technical            | `OllamaTextEmbeddingGateway`                  | Ollama `qwen3-embedding:0.6b` (1024-d)                              |
 | Retrieval                | 检索       | Find relevant chunks via vector similarity          | Application Behavior | `DocumentSearchService`                   | topK + scoreThreshold; RAG chat uses Spring AI `VectorStore` |
 | Spring AI Vector Store   | Spring AI 向量库 | Spring AI SPI over H2 cosine search for Modular RAG | Infrastructure       | `H2SpringAiVectorStore`                   | Used by `VectorStoreDocumentRetriever`                       |
-| Source Document          | 来源文档     | Retrieved chunk with similarity score               | Value Object         | `SourceDocument`                          | Domain field `text`; SSE JSON uses `"text"` via `SourceDocumentDto` |
+| Source Document          | 来源文档     | Retrieved chunk with similarity score               | Value Object         | `SourceDocument`                          | Domain field `text`; SSE JSON uses `"text"` via `SourceDocumentResponse` |
 | Context                  | 上下文      | Retrieved text and sources passed to the LLM        | Application Concept  | `RagApplicationService.retrieveContext()` | Augments the Prompt                                                 |
 | RAG Chat                 | RAG 对话   | Generate AI answers from retrieved context          | Use Case             | `RagChatService`                          | Supports streaming                                                  |
 | Vision Chat              | 视觉问答     | Multimodal RAG Q&A over images in chat stream       | Use Case             | `VisionChatService`                       | Ollama multimodal; not `/api/vision/`*                              |
@@ -377,11 +377,11 @@ Package: `com.ai.mcp` (Server + Client).
 | Preferred Term (English) | 中文    | Definition                                          | Type             | Code Mapping                      | Notes                       |
 | ------------------------ | ----- | --------------------------------------------------- | ---------------- | --------------------------------- | --------------------------- |
 | Structured Output        | 结构化输出 | AI returns strongly typed JSON instead of free text | Technical        | `SpringAiStructuredOutputUseCase` | Spring AI `.entity()`       |
-| Text Analysis            | 文本分析  | Summarize, classify sentiment, etc.                 | Use Case         | `AnalysisController`              | —                           |
-| Text Analysis Result     | 分析结果  | Result with summary, sentiment, key points          | DTO              | `TextAnalysisResult`              | —                           |
-| Sentiment                | 情感    | Sentiment classification of text                    | Enum             | `TextAnalysisResult.Sentiment`    | POSITIVE, NEUTRAL, NEGATIVE |
-| Key Points               | 关键点   | Extracted core points from text                     | Business Concept | `TextAnalysisResult.keyPoints()`  | —                           |
-| Named Entities           | 命名实体  | Named entities extracted from text (NLP)            | Business Concept | `TextAnalysisResult.entities()`   | Not a DDD Entity            |
+| Text Analysis            | 文本分析  | Summarize, classify sentiment, etc.                 | Use Case         | `TextAnalysisController`              | —                           |
+| Text Analysis Result     | 分析结果  | Result with summary, sentiment, key points          | DTO              | `TextAnalysisResponse`              | —                           |
+| Sentiment                | 情感    | Sentiment classification of text                    | Enum             | `TextAnalysisResponse.Sentiment`    | POSITIVE, NEUTRAL, NEGATIVE |
+| Key Points               | 关键点   | Extracted core points from text                     | Business Concept | `TextAnalysisResponse.keyPoints()`  | —                           |
+| Named Entities           | 命名实体  | Named entities extracted from text (NLP)            | Business Concept | `TextAnalysisResponse.entities()`   | Not a DDD Entity            |
 
 
 ---

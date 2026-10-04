@@ -38,10 +38,10 @@ public class JpaAutomationRunRepository implements AutomationRunRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public List<AutomationRun> findByScheduleIdAndClientId(
-      ScheduleId scheduleId, String clientId, int limit) {
+  public List<AutomationRun> findByScheduleIdAndOwnerKey(
+      ScheduleId scheduleId, String ownerKey, int limit) {
     return ownerPartition.apply(
-        OwnerKey.parse(clientId),
+        OwnerKey.parse(ownerKey),
         () -> delegate.findByScheduleIdOrderByCreatedAtDesc(scheduleId, PageRequest.of(0, limit)));
   }
 }
