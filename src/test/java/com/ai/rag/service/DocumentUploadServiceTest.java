@@ -6,11 +6,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.exception.DocumentNotFoundException;
+import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
@@ -34,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +61,13 @@ class DocumentUploadServiceTest {
   @BeforeEach
   void setUp() {
     service =
-        new DocumentUploadService(reader, transformer, writer, documentRepository, chunkRepository);
+        new DocumentUploadService(
+            reader,
+            transformer,
+            writer,
+            documentRepository,
+            chunkRepository,
+            mock(PlatformTransactionManager.class));
   }
 
   @Nested
@@ -138,19 +148,47 @@ class DocumentUploadServiceTest {
     }
 
     @Test
-    @DisplayName("should throw exception when reader returns empty content")
-    void shouldThrowExceptionWhenReaderReturnsEmptyContent() {
+    @DisplayName("should mark document as FAILED when the reader cannot extract text")
+    void shouldMarkDocumentAsFailedWhenTheReaderCannotExtractText() {
       String fileName = "document.pdf";
       byte[] pdfContent = new byte[] {1, 2, 3};
 
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(pdfContent), eq(fileName)))
-          .thenThrow(new IllegalStateException("PDF text extraction returned empty"));
+          .thenThrow(new DocumentProcessingException("Could not extract text from document.pdf"));
 
       assertThatThrownBy(() -> service.upload("PDF", fileName, 3L, pdfContent, "c:test-owner"))
-          .isInstanceOf(IllegalStateException.class)
-          .hasMessage("PDF text extraction returned empty");
+          .isInstanceOf(DocumentProcessingException.class)
+          .hasMessage("Could not extract text from document.pdf");
+
+      verify(documentRepository, times(2)).save(any(RagDocument.class));
+    }
+
+    @Test
+    @DisplayName("should reject blank text without calling the transformer")
+    void shouldRejectBlankTextWithoutCallingTheTransformer() {
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.read(any(byte[].class), eq("blank.txt")))
+          .thenReturn(new RawDocument(" \n", Map.of(), "blank.txt"));
+
+      assertThatThrownBy(() -> service.upload("Blank", "blank.txt", 2L, " \n", "c:test-owner"))
+          .isInstanceOf(DocumentProcessingException.class)
+          .hasMessage("No text found in blank.txt");
+
+      verifyNoInteractions(transformer, writer);
+    }
+
+    @Test
+    @DisplayName("should reject an empty file before storing anything")
+    void shouldRejectAnEmptyFileBeforeStoringAnything() {
+      assertThatThrownBy(
+              () -> service.upload("Empty", "empty.txt", 0L, new byte[0], "c:test-owner"))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Uploaded file is empty");
+
+      verifyNoInteractions(documentRepository, reader);
     }
   }
 
