@@ -4,6 +4,7 @@ import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
@@ -16,12 +17,16 @@ public class JpaAutomationRunRepository implements AutomationRunRepository {
 
   private final SpringDataAutomationRunRepository delegate;
   private final EntityManager entityManager;
+  private final OwnerPartitionScope ownerPartition;
 
   /** Documentation. */
   public JpaAutomationRunRepository(
-      SpringDataAutomationRunRepository delegate, EntityManager entityManager) {
+      SpringDataAutomationRunRepository delegate,
+      EntityManager entityManager,
+      OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;
     this.entityManager = entityManager;
+    this.ownerPartition = ownerPartition;
   }
 
   @Override
@@ -36,7 +41,8 @@ public class JpaAutomationRunRepository implements AutomationRunRepository {
   @Transactional(readOnly = true)
   public List<AutomationRun> findByScheduleIdAndClientId(
       ScheduleId scheduleId, String clientId, int limit) {
-    return delegate.findByScheduleIdAndOwnerKeyOrderByCreatedAtDesc(
-        scheduleId, OwnerKey.parse(clientId), PageRequest.of(0, limit));
+    return ownerPartition.apply(
+        OwnerKey.parse(clientId),
+        () -> delegate.findByScheduleIdOrderByCreatedAtDesc(scheduleId, PageRequest.of(0, limit)));
   }
 }

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
@@ -20,7 +20,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = {"com.ai.chat.domain", JpaTestPackages.BASE, JpaTestPackages.COMMON})
 @EnableJpaRepositories(basePackageClasses = SpringDataChatSessionRepository.class)
-@Import(JpaChatSessionRepository.class)
+@Import({JpaChatSessionRepository.class, OwnerPartitionScope.class})
 class ChatSessionJpaTest extends AbstractDataJpaTest {
 
   private static final String BARE_CLIENT_ID = "11111111-1111-1111-1111-111111111111";
@@ -74,8 +74,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     springDataRepository.saveAndFlush(newerSession);
     em.clear();
 
-    List<ChatSession> sessions =
-        springDataRepository.findByOwnerKeyOrderByUpdatedAtDesc(OwnerKey.parse(OWNER_KEY));
+    List<ChatSession> sessions = jpaRepository.findByClientId(OWNER_KEY);
 
     assertThat(sessions).extracting(ChatSession::getTitle).containsExactly("Newer", "Older");
   }

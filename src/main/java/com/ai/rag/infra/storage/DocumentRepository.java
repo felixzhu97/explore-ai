@@ -1,12 +1,14 @@
 package com.ai.rag.infra.storage;
 
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.repository.IDocumentRepository;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentRepository implements IDocumentRepository {
 
   private final SpringDataDocumentRepository delegate;
+  private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "createdAt");
+
+  private final OwnerPartitionScope ownerPartition;
 
   /** Documentation. */
-  public DocumentRepository(SpringDataDocumentRepository delegate) {
+  public DocumentRepository(
+      SpringDataDocumentRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;
+    this.ownerPartition = ownerPartition;
   }
 
   @Override
@@ -42,7 +49,8 @@ public class DocumentRepository implements IDocumentRepository {
   @Override
   @Transactional(readOnly = true)
   public Optional<Document> findByIdAndOwnerKey(UUID id, String ownerKey) {
-    return delegate.findByIdAndOwnerKey(DocumentId.of(id), OwnerKey.parse(ownerKey));
+    return ownerPartition.findOne(
+        OwnerKey.parse(ownerKey), () -> delegate.findById(DocumentId.of(id)));
   }
 
   @Override
@@ -54,7 +62,7 @@ public class DocumentRepository implements IDocumentRepository {
   @Override
   @Transactional(readOnly = true)
   public List<Document> findAllByOwnerKey(String ownerKey) {
-    return delegate.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parse(ownerKey));
+    return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(NEWEST_FIRST));
   }
 
   @Override
@@ -66,6 +74,6 @@ public class DocumentRepository implements IDocumentRepository {
   @Override
   @Transactional
   public void deleteByIdAndOwnerKey(UUID id, String ownerKey) {
-    delegate.deleteByIdAndOwnerKey(DocumentId.of(id), OwnerKey.parse(ownerKey));
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(DocumentId.of(id)));
   }
 }

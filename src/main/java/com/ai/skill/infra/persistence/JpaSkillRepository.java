@@ -1,11 +1,13 @@
 package com.ai.skill.infra.persistence;
 
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaSkillRepository implements SkillRepository {
 
   private final SpringDataSkillRepository delegate;
+  private static final Sort BY_NAME = Sort.by("name");
+
+  private final OwnerPartitionScope ownerPartition;
 
   /** Documentation. */
-  public JpaSkillRepository(SpringDataSkillRepository delegate) {
+  public JpaSkillRepository(
+      SpringDataSkillRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;
+    this.ownerPartition = ownerPartition;
   }
 
   @Override
@@ -29,13 +36,13 @@ public class JpaSkillRepository implements SkillRepository {
   @Override
   @Transactional(readOnly = true)
   public Optional<Skill> findByIdAndClientId(SkillId id, String clientId) {
-    return delegate.findByIdAndOwnerKey(id, OwnerKey.parse(clientId));
+    return ownerPartition.findOne(OwnerKey.parse(clientId), () -> delegate.findById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Skill> findAllByClientId(String clientId) {
-    return delegate.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parse(clientId));
+    return ownerPartition.apply(OwnerKey.parse(clientId), () -> delegate.findAll(BY_NAME));
   }
 
   @Override
@@ -44,23 +51,25 @@ public class JpaSkillRepository implements SkillRepository {
     if (ids == null || ids.isEmpty()) {
       return List.of();
     }
-    return delegate.findAllByOwnerKeyAndEnabledTrueAndIdIn(OwnerKey.parse(clientId), ids);
+    return ownerPartition.apply(
+        OwnerKey.parse(clientId), () -> delegate.findAllByEnabledTrueAndIdIn(ids));
   }
 
   @Override
   @Transactional
   public void deleteByIdAndClientId(SkillId id, String clientId) {
-    delegate.deleteByIdAndOwnerKey(id, OwnerKey.parse(clientId));
+    ownerPartition.run(OwnerKey.parse(clientId), () -> delegate.deleteById(id));
   }
 
   @Override
   @Transactional(readOnly = true)
   public boolean existsByClientIdAndNameIgnoringId(
       String clientId, String name, SkillId excludeId) {
-    OwnerKey ownerKey = OwnerKey.parse(clientId);
-    if (excludeId == null) {
-      return delegate.existsByOwnerKeyAndName(ownerKey, name);
-    }
-    return delegate.existsByOwnerKeyAndNameAndIdNot(ownerKey, name, excludeId);
+    return ownerPartition.apply(
+        OwnerKey.parse(clientId),
+        () ->
+            excludeId == null
+                ? delegate.existsByName(name)
+                : delegate.existsByNameAndIdNot(name, excludeId));
   }
 }

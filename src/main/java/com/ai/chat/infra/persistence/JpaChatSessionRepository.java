@@ -4,9 +4,11 @@ import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.infra.persistence.OwnerPartitionScope;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaChatSessionRepository implements ChatSessionRepository {
 
   private final SpringDataChatSessionRepository delegate;
+  private static final Sort MOST_RECENT_FIRST = Sort.by(Sort.Direction.DESC, "updatedAt");
+
+  private final OwnerPartitionScope ownerPartition;
 
   /** Documentation. */
-  public JpaChatSessionRepository(SpringDataChatSessionRepository delegate) {
+  public JpaChatSessionRepository(
+      SpringDataChatSessionRepository delegate, OwnerPartitionScope ownerPartition) {
     this.delegate = delegate;
+    this.ownerPartition = ownerPartition;
   }
 
   @Override
@@ -30,7 +37,7 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
   @Override
   @Transactional(readOnly = true)
   public Optional<ChatSession> findByIdAndClientId(ChatSessionId id, String clientId) {
-    return delegate.findByIdAndOwnerKey(id, toOwnerKey(clientId));
+    return ownerPartition.findOne(toOwnerKey(clientId), () -> delegate.findById(id));
   }
 
   @Override
@@ -48,7 +55,7 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
   @Override
   @Transactional(readOnly = true)
   public List<ChatSession> findByClientId(String clientId) {
-    return delegate.findByOwnerKeyOrderByUpdatedAtDesc(toOwnerKey(clientId));
+    return ownerPartition.apply(toOwnerKey(clientId), () -> delegate.findAll(MOST_RECENT_FIRST));
   }
 
   @Override

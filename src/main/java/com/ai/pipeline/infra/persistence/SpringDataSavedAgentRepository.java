@@ -1,6 +1,5 @@
 package com.ai.pipeline.infra.persistence;
 
-import com.ai.common.domain.vo.OwnerKey;
 import com.ai.pipeline.domain.model.SavedAgentDefinition;
 import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
@@ -12,22 +11,12 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataSavedAgentRepository
     extends JpaRepository<SavedAgentDefinition, SavedAgentId> {
 
-  /** Documentation. */
-  java.util.Optional<SavedAgentDefinition> findByIdAndOwnerKey(SavedAgentId id, OwnerKey ownerKey);
+  /** Visible rows are limited by the ownerPartition filter when enabled. */
+  List<SavedAgentDefinition> findAllByEnabledTrueOrderByNameAsc();
 
-  /** Documentation. */
-  List<SavedAgentDefinition> findAllByOwnerKeyOrderByNameAsc(OwnerKey ownerKey);
+  /** Visible rows are limited by the ownerPartition filter when enabled. */
+  boolean existsByTypeKey(String typeKey);
 
-  /** Documentation. */
-  List<SavedAgentDefinition> findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(OwnerKey ownerKey);
-
-  /** Documentation. */
-  void deleteByIdAndOwnerKey(SavedAgentId id, OwnerKey ownerKey);
-
-  /** Documentation. */
-  boolean existsByOwnerKeyAndTypeKey(OwnerKey ownerKey, String typeKey);
-
-  /** Documentation. */
-  boolean existsByOwnerKeyAndTypeKeyAndIdNot(
-      OwnerKey ownerKey, String typeKey, SavedAgentId excludeId);
+  /** Visible rows are limited by the ownerPartition filter when enabled. */
+  boolean existsByTypeKeyAndIdNot(String typeKey, SavedAgentId excludeId);
 }
