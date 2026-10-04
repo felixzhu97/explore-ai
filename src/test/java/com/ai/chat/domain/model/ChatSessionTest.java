@@ -80,42 +80,6 @@ class ChatSessionTest {
   }
 
   @Nested
-  @DisplayName("reconstitute()")
-  class Reconstitute {
-
-    @Test
-    @DisplayName("should reconstitute session with messages")
-    void shouldReconstituteSessionWithMessages() {
-      var id = com.ai.chat.domain.vo.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
-      Instant createdAt = Instant.now().minusSeconds(3600);
-      Instant lastActivity = Instant.now();
-
-      var messages =
-          java.util.List.of(
-              ChatMessage.createUserMessage("Hello"), ChatMessage.createAssistantMessage("Hi!"));
-
-      ChatSession session =
-          ChatSession.reconstitute(id, "Title", createdAt, lastActivity, messages, "c:client-a");
-
-      assertThat(session.getId()).isEqualTo(id);
-      assertThat(session.getLastActivityAt()).isEqualTo(lastActivity);
-      assertThat(session.getMessages()).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("should handle null lastActivityAt")
-    void shouldHandleNullLastActivityAt() {
-      var id = com.ai.chat.domain.vo.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
-      Instant createdAt = Instant.now();
-
-      ChatSession session =
-          ChatSession.reconstitute(id, "Title", createdAt, null, java.util.List.of(), "c:client-a");
-
-      assertThat(session.getLastActivityAt()).isEqualTo(createdAt);
-    }
-  }
-
-  @Nested
   @DisplayName("addUserMessage()")
   class AddUserMessage {
 

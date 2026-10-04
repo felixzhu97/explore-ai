@@ -54,39 +54,6 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   }
 
   /** Documentation. */
-  public static AccountUser reconstitute(
-      AccountUserId id,
-      String provider,
-      String subject,
-      String email,
-      String linkedClientId,
-      Instant createdAt,
-      Instant updatedAt) {
-    AccountUser user = new AccountUser();
-    user.id = id;
-    user.provider = requireProvider(provider);
-    user.subject = requireSubject(subject);
-    user.email = normalizeEmail(email);
-    user.linkedClientId = normalizeClientId(linkedClientId);
-    user.createdAt = createdAt;
-    user.updatedAt = updatedAt;
-    return user;
-  }
-
-  /** Documentation. */
-  public static AccountUser reconstitute(
-      String id,
-      String provider,
-      String subject,
-      String email,
-      String linkedClientId,
-      Instant createdAt,
-      Instant updatedAt) {
-    return reconstitute(
-        AccountUserId.of(id), provider, subject, email, linkedClientId, createdAt, updatedAt);
-  }
-
-  /** Documentation. */
   public void linkSession(String email, String linkedClientId) {
     this.email = normalizeEmail(email);
     this.linkedClientId = requireClientId(linkedClientId);

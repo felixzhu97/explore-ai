@@ -8,7 +8,6 @@ import com.ai.pipeline.domain.model.SavedAgentDefinition;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.domain.vo.SavedAgentId;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,17 +38,13 @@ class CatalogAgentRegistryTest {
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     savedAgents.save(
-        SavedAgentDefinition.reconstitute(
-            SavedAgentId.generate(),
+        SavedAgentDefinition.create(
             "c:client-a",
             typeKey,
             "Override Name",
             "override desc",
             "You are an override.",
-            List.of("web"),
-            true,
-            Instant.now(),
-            Instant.now()));
+            List.of("web")));
 
     Optional<AgentDefinition> found =
         registry.findByType(AgentType.of(typeKey), "c:client-a", "en");
@@ -70,18 +65,11 @@ class CatalogAgentRegistryTest {
   void shouldIgnoreDisabledClientDefinition() {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
     String builtinName = registry.require(AgentType.of(typeKey), "c:client-a", "en").name();
-    savedAgents.save(
-        SavedAgentDefinition.reconstitute(
-            SavedAgentId.generate(),
-            "c:client-a",
-            typeKey,
-            "Disabled Override",
-            "d",
-            "Disabled prompt",
-            List.of(),
-            false,
-            Instant.now(),
-            Instant.now()));
+    SavedAgentDefinition disabled =
+        SavedAgentDefinition.create(
+            "c:client-a", typeKey, "Disabled Override", "d", "Disabled prompt", List.of());
+    disabled.disable();
+    savedAgents.save(disabled);
 
     AgentDefinition effective = registry.require(AgentType.of(typeKey), "c:client-a", "en");
     assertThat(effective.name()).isEqualTo(builtinName);

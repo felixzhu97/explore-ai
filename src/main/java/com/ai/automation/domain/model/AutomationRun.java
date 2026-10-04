@@ -92,29 +92,6 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
   }
 
   /** Documentation. */
-  public static AutomationRun reconstitute(
-      RunId id,
-      ScheduleId scheduleId,
-      String ownerKey,
-      Instant startedAt,
-      Instant finishedAt,
-      RunStatus status,
-      String errorMessage,
-      String resultExcerpt,
-      EmailDeliveryStatus emailStatus) {
-    return new AutomationRun(
-        id,
-        scheduleId,
-        ownerKey,
-        startedAt,
-        finishedAt,
-        status,
-        errorMessage,
-        resultExcerpt,
-        emailStatus);
-  }
-
-  /** Documentation. */
   public void succeed(String resultExcerpt, EmailDeliveryStatus emailStatus) {
     this.status = RunStatus.SUCCESS;
     this.resultExcerpt = truncate(resultExcerpt);

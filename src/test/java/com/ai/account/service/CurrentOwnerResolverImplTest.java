@@ -44,15 +44,7 @@ class CurrentOwnerResolverImplTest {
 
   @Test
   void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
-    AccountUser user =
-        AccountUser.reconstitute(
-            "22222222-2222-2222-2222-222222222222",
-            "google",
-            "sub",
-            "a@b.com",
-            "cid-1",
-            Instant.now(),
-            Instant.now());
+    AccountUser user = AccountUser.create("google", "sub", "a@b.com", "cid-1");
     when(accountUserRepository.findByLinkedClientId("cid-1")).thenReturn(Optional.of(user));
 
     OwnerKey key =
@@ -61,20 +53,12 @@ class CurrentOwnerResolverImplTest {
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-    assertThat(key).isEqualTo(OwnerKey.forAccount("22222222-2222-2222-2222-222222222222"));
+    assertThat(key).isEqualTo(OwnerKey.forAccount(user.getId().value()));
   }
 
   @Test
   void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
-    AccountUser user =
-        AccountUser.reconstitute(
-            "11111111-1111-1111-1111-111111111111",
-            "google",
-            "sub-9",
-            "a@b.com",
-            "cid-9",
-            Instant.now(),
-            Instant.now());
+    AccountUser user = AccountUser.create("google", "sub-9", "a@b.com", "cid-9");
     when(accountUserRepository.findByProviderAndSubject("google", "sub-9"))
         .thenReturn(Optional.of(user));
 
@@ -87,20 +71,12 @@ class CurrentOwnerResolverImplTest {
 
     OwnerKey key = resolver.resolve("cid-other", auth);
 
-    assertThat(key).isEqualTo(OwnerKey.forAccount("11111111-1111-1111-1111-111111111111"));
+    assertThat(key).isEqualTo(OwnerKey.forAccount(user.getId().value()));
   }
 
   @Test
   void shouldReturnAccountOwnerWhenIamJwtAuthenticated() {
-    AccountUser user =
-        AccountUser.reconstitute(
-            "33333333-3333-3333-3333-333333333333",
-            "explore-iam",
-            "iam-sub",
-            "iam@example.com",
-            null,
-            Instant.now(),
-            Instant.now());
+    AccountUser user = AccountUser.create("explore-iam", "iam-sub", "iam@example.com", null);
     when(accountUserRepository.findByProviderAndSubject("explore-iam", "iam-sub"))
         .thenReturn(Optional.of(user));
 
@@ -117,6 +93,6 @@ class CurrentOwnerResolverImplTest {
 
     OwnerKey key = resolver.resolve("unused-cid", auth);
 
-    assertThat(key).isEqualTo(OwnerKey.forAccount("33333333-3333-3333-3333-333333333333"));
+    assertThat(key).isEqualTo(OwnerKey.forAccount(user.getId().value()));
   }
 }

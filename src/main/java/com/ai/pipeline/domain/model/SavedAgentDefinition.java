@@ -2,7 +2,7 @@ package com.ai.pipeline.domain.model;
 
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.infra.persistence.converter.StringListJsonAttributeConverter;
+import com.ai.common.domain.vo.StringListJsonAttributeConverter;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.domain.vo.SavedAgentId;
 import jakarta.persistence.Column;
@@ -78,31 +78,6 @@ public class SavedAgentDefinition extends AbstractEnableableDescribedOwnerEntity
         true,
         now,
         now);
-  }
-
-  /** Documentation. */
-  public static SavedAgentDefinition reconstitute(
-      SavedAgentId id,
-      String ownerKey,
-      String typeKey,
-      String name,
-      String description,
-      String systemPrompt,
-      List<String> toolKeys,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    return new SavedAgentDefinition(
-        id,
-        ownerKey,
-        typeKey,
-        name,
-        description,
-        systemPrompt,
-        toolKeys,
-        enabled,
-        createdAt,
-        updatedAt);
   }
 
   /** Documentation. */

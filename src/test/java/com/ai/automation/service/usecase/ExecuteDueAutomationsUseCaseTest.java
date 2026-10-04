@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ExecuteDueAutomationsUseCase")
@@ -127,24 +128,7 @@ class ExecuteDueAutomationsUseCaseTest {
             "user@example.com",
             "Do once",
             Instant.now().plusSeconds(120));
-    // Force due by restoring with past nextRunAt
-    schedule =
-        AutomationSchedule.reconstitute(
-            schedule.getId(),
-            schedule.getClientId(),
-            schedule.getName(),
-            schedule.getScheduleKind(),
-            schedule.getCronExpression(),
-            schedule.getTimezone(),
-            true,
-            schedule.getActionType(),
-            schedule.getWorkflowTemplateId(),
-            schedule.getRecipientEmail(),
-            schedule.getBrief(),
-            past,
-            null,
-            schedule.getCreatedAt(),
-            schedule.getUpdatedAt());
+    ReflectionTestUtils.setField(schedule, "nextRunAt", past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(
             eq(schedule.getId()), eq(past), eq(AutomationSchedule.ONCE_TERMINAL_NEXT)))

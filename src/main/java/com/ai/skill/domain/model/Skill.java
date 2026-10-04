@@ -2,7 +2,7 @@ package com.ai.skill.domain.model;
 
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.infra.persistence.converter.StringListJsonAttributeConverter;
+import com.ai.common.domain.vo.StringListJsonAttributeConverter;
 import com.ai.skill.domain.vo.SkillId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -63,21 +63,6 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
         true,
         now,
         now);
-  }
-
-  /** Documentation. */
-  public static Skill reconstitute(
-      SkillId id,
-      String ownerKey,
-      String name,
-      String description,
-      String instructions,
-      List<String> allowedTools,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    return new Skill(
-        id, ownerKey, name, description, instructions, allowedTools, enabled, createdAt, updatedAt);
   }
 
   /** Documentation. */
