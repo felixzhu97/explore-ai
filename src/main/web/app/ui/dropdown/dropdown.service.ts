@@ -233,13 +233,6 @@ export class ZardDropdownService {
     }
   }
 
-  private focusFirstItem() {
-    const items = this.getDropdownItems();
-    if (items.length > 0) {
-      this.focusItemAtIndex(items, 0);
-    }
-  }
-
   private selectFocusedItem(items: HTMLElement[]) {
     const currentIndex = this.focusedIndex();
     if (currentIndex >= 0 && currentIndex < items.length) {

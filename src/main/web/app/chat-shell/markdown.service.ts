@@ -122,7 +122,7 @@ export class MarkdownService {
     const processed = this.escapeHtml(content);
 
     const html = processed
-      .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+      .replace(/```\w*\n?([\s\S]*?)```/g, (_, code: string) => {
         return `<pre class="code-block"><code>${code.trim()}</code></pre>`;
       })
       .replace(/`([^`]+)`/g, '<code>$1</code>')
