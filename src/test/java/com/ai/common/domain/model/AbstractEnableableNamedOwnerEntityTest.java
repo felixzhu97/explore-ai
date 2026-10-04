@@ -7,8 +7,8 @@ import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("AbstractEnableableDescribedOwnerEntity")
-class AbstractEnableableDescribedOwnerEntityTest {
+@DisplayName("AbstractEnableableNamedOwnerEntity")
+class AbstractEnableableNamedOwnerEntityTest {
 
   static final class TestId extends AbstractUuidId {
 
@@ -21,10 +21,10 @@ class AbstractEnableableDescribedOwnerEntityTest {
     }
   }
 
-  static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<TestId> {
+  static final class TestEntity extends AbstractEnableableNamedOwnerEntity<TestId> {
 
     TestEntity(boolean enabled) {
-      super(TestId.generate(), "c:client-1", "name", "desc", enabled, Instant.now(), Instant.now());
+      super(TestId.generate(), "c:client-1", "name", enabled, Instant.now(), Instant.now());
     }
   }
 

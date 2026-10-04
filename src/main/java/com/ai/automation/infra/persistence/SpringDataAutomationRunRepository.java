@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataAutomationRunRepository extends JpaRepository<AutomationRun, RunId> {
 
   /** Documentation. */
-  List<AutomationRun> findByScheduleIdAndOwnerKeyOrderByStartedAtDesc(
+  List<AutomationRun> findByScheduleIdAndOwnerKeyOrderByCreatedAtDesc(
       ScheduleId scheduleId, OwnerKey ownerKey, Pageable pageable);
 }

@@ -20,9 +20,11 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 /** Automation execution run record partitioned by owner_key. */
 @Entity
+@DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AutomationRun extends AbstractTimedRunEntity<RunId> {

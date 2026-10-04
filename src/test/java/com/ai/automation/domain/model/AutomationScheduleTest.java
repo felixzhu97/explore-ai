@@ -68,6 +68,28 @@ class AutomationScheduleTest {
   }
 
   @Test
+  @DisplayName("should re-arm next run when enabling a disabled schedule")
+  void shouldReArmNextRunWhenEnablingDisabledSchedule() {
+    AutomationSchedule schedule =
+        AutomationSchedule.create(
+            "c:client-1",
+            "Daily research",
+            "0 0 9 * * *",
+            "Asia/Shanghai",
+            "11111111-1111-1111-1111-111111111111",
+            "user@example.com",
+            "Summarize market moves",
+            Instant.now());
+    schedule.disable();
+    Instant nextRunAt = Instant.now().plus(1, ChronoUnit.DAYS);
+
+    schedule.enable(nextRunAt);
+
+    assertThat(schedule.isEnabled()).isTrue();
+    assertThat(schedule.getNextRunAt()).isEqualTo(nextRunAt);
+  }
+
+  @Test
   void shouldCreateOnceScheduleWhenRunAtInFuture() {
     Instant runAt = Instant.now().plus(5, ChronoUnit.MINUTES);
     AutomationSchedule schedule =
