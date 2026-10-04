@@ -1,0 +1,37 @@
+package com.ai.analysis.service;
+
+import com.ai.analysis.domain.model.TextAnalysis;
+import com.ai.analysis.domain.repository.StructuredAnalysisRepository;
+import com.ai.analysis.domain.vo.AnalysisText;
+import com.ai.analysis.domain.vo.LanguageHint;
+import com.ai.common.util.LogSanitizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+/** Entry point for structured text analysis: summary, sentiment, key points, and entities. */
+@Service
+public class TextAnalysisService {
+
+  private static final Logger log = LoggerFactory.getLogger(TextAnalysisService.class);
+
+  private final StructuredAnalysisRepository structuredAnalysisRepository;
+
+  public TextAnalysisService(StructuredAnalysisRepository structuredAnalysisRepository) {
+    this.structuredAnalysisRepository = structuredAnalysisRepository;
+  }
+
+  public TextAnalysis analyzeText(String text) {
+    log.info("TextAnalysisService.analyzeText: {}", LogSanitizer.truncate(text));
+    return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.none());
+  }
+
+  /** Analyzes the text and asks the model to respond in the given language. */
+  public TextAnalysis analyzeTextWithLanguage(String text, String language) {
+    log.info(
+        "TextAnalysisService.analyzeTextWithLanguage: {} lang={}",
+        LogSanitizer.truncate(text),
+        language);
+    return structuredAnalysisRepository.analyze(AnalysisText.of(text), LanguageHint.of(language));
+  }
+}

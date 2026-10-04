@@ -10,7 +10,7 @@ import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
 import com.ai.workflow.domain.model.OrchestratorWorkersResult;
 import com.ai.workflow.domain.model.ParallelizationResult;
 import com.ai.workflow.domain.model.RoutingResult;
-import com.ai.workflow.service.usecase.WorkflowUseCase;
+import com.ai.workflow.service.WorkflowService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,15 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/workflows")
 public class WorkflowController {
 
-  private final WorkflowUseCase workflowUseCase;
+  private final WorkflowService workflowService;
 
-  public WorkflowController(WorkflowUseCase workflowUseCase) {
-    this.workflowUseCase = workflowUseCase;
+  public WorkflowController(WorkflowService workflowService) {
+    this.workflowService = workflowService;
   }
 
   @PostMapping("/chain")
   public ResponseEntity<ChainResult> chain(@Valid @RequestBody ChainWorkflowRequest request) {
-    return ResponseEntity.ok(workflowUseCase.chain(request.userInput(), request.systemPrompts()));
+    return ResponseEntity.ok(workflowService.chain(request.userInput(), request.systemPrompts()));
   }
 
   @PostMapping("/parallel")
@@ -38,23 +38,23 @@ public class WorkflowController {
       @Valid @RequestBody ParallelizationWorkflowRequest request) {
     int parallelism = request.parallelism() == null ? 2 : request.parallelism();
     return ResponseEntity.ok(
-        workflowUseCase.parallel(request.prompt(), request.items(), parallelism));
+        workflowService.parallel(request.prompt(), request.items(), parallelism));
   }
 
   @PostMapping("/route")
   public ResponseEntity<RoutingResult> route(@Valid @RequestBody RoutingWorkflowRequest request) {
-    return ResponseEntity.ok(workflowUseCase.route(request.input(), request.routes()));
+    return ResponseEntity.ok(workflowService.route(request.input(), request.routes()));
   }
 
   @PostMapping("/orchestrator-workers")
   public ResponseEntity<OrchestratorWorkersResult> orchestratorWorkers(
       @Valid @RequestBody OrchestratorWorkersRequest request) {
-    return ResponseEntity.ok(workflowUseCase.orchestratorWorkers(request.task()));
+    return ResponseEntity.ok(workflowService.orchestratorWorkers(request.task()));
   }
 
   @PostMapping("/evaluator-optimizer")
   public ResponseEntity<EvaluatorOptimizerResult> evaluatorOptimizer(
       @Valid @RequestBody EvaluatorOptimizerRequest request) {
-    return ResponseEntity.ok(workflowUseCase.evaluatorOptimizer(request.task()));
+    return ResponseEntity.ok(workflowService.evaluatorOptimizer(request.task()));
   }
 }

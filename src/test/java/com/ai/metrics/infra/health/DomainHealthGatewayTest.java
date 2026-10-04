@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.ai.metrics.domain.repository.McpHealthProbe;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.vo.AgentType;
-import com.ai.pipeline.service.usecase.PipelineFacade;
+import com.ai.pipeline.service.PipelineService;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ import org.springframework.beans.factory.ObjectProvider;
 @DisplayName("DomainHealthGateway")
 class DomainHealthGatewayTest {
 
-  @Mock private PipelineFacade pipelineFacade;
+  @Mock private PipelineService pipelineService;
 
   @Mock private McpHealthProbe mcpHealthProbe;
 
@@ -36,7 +36,7 @@ class DomainHealthGatewayTest {
   @BeforeEach
   void setUp() {
     lenient().when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(mcpHealthProbe);
-    gateway = new DomainHealthGateway(pipelineFacade, mcpHealthProbeProvider);
+    gateway = new DomainHealthGateway(pipelineService, mcpHealthProbeProvider);
   }
 
   @Test
@@ -50,7 +50,7 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report agents up when all registered agents are healthy")
   void shouldReportAgentsUpWhenAllRegisteredAgentsAreHealthy() {
-    when(pipelineFacade.listAgents(isNull(), eq("en")))
+    when(pipelineService.listAgents(isNull(), eq("en")))
         .thenReturn(
             List.of(
                 AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
@@ -66,7 +66,7 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report agents degraded when list empty or unhealthy")
   void shouldReportAgentsDegradedWhenListEmptyOrUnhealthy() {
-    when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of());
+    when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of());
 
     Map<String, Object> emptyHealth = gateway.agentsHealth();
     assertThat(emptyHealth).containsEntry("status", "DEGRADED");
@@ -74,7 +74,7 @@ class DomainHealthGatewayTest {
 
     AgentDefinition unhealthy = mock(AgentDefinition.class);
     when(unhealthy.healthy()).thenReturn(false);
-    when(pipelineFacade.listAgents(isNull(), eq("en"))).thenReturn(List.of(unhealthy));
+    when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of(unhealthy));
 
     Map<String, Object> degradedHealth = gateway.agentsHealth();
     assertThat(degradedHealth).containsEntry("status", "DEGRADED");
@@ -95,10 +95,10 @@ class DomainHealthGatewayTest {
   }
 
   @Test
-  @DisplayName("should report mcp disabled when facade bean is absent")
-  void shouldReportMcpDisabledWhenFacadeBeanIsAbsent() {
+  @DisplayName("should report mcp disabled when mcp service bean is absent")
+  void shouldReportMcpDisabledWhenServiceBeanIsAbsent() {
     when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(null);
-    gateway = new DomainHealthGateway(pipelineFacade, mcpHealthProbeProvider);
+    gateway = new DomainHealthGateway(pipelineService, mcpHealthProbeProvider);
 
     Map<String, Object> health = gateway.mcpHealth();
 

@@ -7,8 +7,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.service.usecase.ChatUseCase;
-import com.ai.chat.service.usecase.TextProviderCatalog;
+import com.ai.chat.service.ChatService;
+import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
@@ -26,7 +26,7 @@ import reactor.core.publisher.Flux;
 @DisplayName("TextController")
 class TextControllerTest extends AbstractOwnerScopedControllerTest {
 
-  @MockitoBean private ChatUseCase chatUseCase;
+  @MockitoBean private ChatService chatService;
 
   @MockitoBean private TextProviderCatalog providerCatalog;
 
@@ -111,7 +111,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use session stream when sessionId provided")
     void shouldUseSessionStreamWhenSessionIdProvided() {
-      when(chatUseCase.chatStreamWithSession(
+      when(chatService.chatStreamWithSession(
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
@@ -139,7 +139,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
           .asString()
           .contains("Hi")
           .contains("there");
-      verify(chatUseCase)
+      verify(chatService)
           .chatStreamWithSession(
               "22222222-2222-2222-2222-222222222222",
               "Hello",
@@ -150,7 +150,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use stateless stream when sessionId missing")
     void shouldUseStatelessStreamWhenSessionIdMissing() {
-      when(chatUseCase.chatStream(any(), any(TextChatOptions.class)))
+      when(chatService.chatStream(any(), any(TextChatOptions.class)))
           .thenReturn(Flux.just("token"));
 
       assertThat(
@@ -180,7 +180,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
       com.ai.skill.domain.vo.SkillId skillId = skill.getId();
       when(skillRepository.findEnabledByClientIdAndIds(eq(ownerClientId()), any()))
           .thenReturn(List.of(skill));
-      when(chatUseCase.chatStream(any(), any(TextChatOptions.class))).thenReturn(Flux.just("ok"));
+      when(chatService.chatStream(any(), any(TextChatOptions.class))).thenReturn(Flux.just("ok"));
 
       assertThat(
               mvc.post()
@@ -201,7 +201,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
 
-      verify(chatUseCase)
+      verify(chatService)
           .chatStream(
               any(),
               org.mockito.ArgumentMatchers.argThat(

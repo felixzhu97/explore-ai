@@ -1,6 +1,6 @@
 package com.ai.mcp.infra.server;
 
-import com.ai.chat.service.usecase.ChatUseCase;
+import com.ai.chat.service.ChatService;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.util.LogSanitizer;
 import com.ai.rag.infra.config.RagProperties;
@@ -27,17 +27,17 @@ public class AiMcpServerService {
 
   private final WeatherTools weatherTools;
   private final DocumentSearchTool documentSearchTool;
-  private final ChatUseCase aiChatUseCase;
+  private final ChatService chatService;
   private final RagProperties ragProperties;
 
   public AiMcpServerService(
       WeatherTools weatherTools,
       DocumentSearchTool documentSearchTool,
-      ChatUseCase aiChatUseCase,
+      ChatService chatService,
       RagProperties ragProperties) {
     this.weatherTools = weatherTools;
     this.documentSearchTool = documentSearchTool;
-    this.aiChatUseCase = aiChatUseCase;
+    this.chatService = chatService;
     this.ragProperties = ragProperties;
   }
 
@@ -92,7 +92,7 @@ public class AiMcpServerService {
       @McpToolParam(description = "The message to send to the AI", required = true)
           String message) {
     log.info("MCP tool: aiChat called with message: {}", LogSanitizer.truncate(message, 50));
-    return aiChatUseCase.chat(message);
+    return chatService.chat(message);
   }
 
   /** Returns the value of a supported RAG chunking or retrieval setting by property key. */

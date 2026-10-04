@@ -5,7 +5,7 @@ import com.ai.image.controller.dto.ImageGenerationResponse;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.exception.InvalidImagePromptException;
 import com.ai.image.domain.model.GeneratedImage;
-import com.ai.image.service.usecase.ImageFacade;
+import com.ai.image.service.ImageGenerationService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +26,10 @@ public class ImageController {
 
   private static final Logger log = LoggerFactory.getLogger(ImageController.class);
 
-  private final ImageFacade imageFacade;
+  private final ImageGenerationService imageGenerationService;
 
-  public ImageController(ImageFacade imageFacade) {
-    this.imageFacade = imageFacade;
+  public ImageController(ImageGenerationService imageGenerationService) {
+    this.imageGenerationService = imageGenerationService;
   }
 
   /** Generate an image from text prompt. */
@@ -38,7 +38,7 @@ public class ImageController {
       @Valid @RequestBody ImageGenerationRequest request) {
     try {
       GeneratedImage image =
-          imageFacade.generateImage(
+          imageGenerationService.generateImage(
               request.prompt(),
               request.model(),
               request.quality(),
@@ -69,18 +69,19 @@ public class ImageController {
   /** Get available image generation models. */
   @GetMapping("/images/models")
   public ResponseEntity<Map<String, List<String>>> getImageModels() {
-    return ResponseEntity.ok(Map.of("models", imageFacade.getAvailableImageModels()));
+    return ResponseEntity.ok(Map.of("models", imageGenerationService.getAvailableImageModels()));
   }
 
   /** Get available image sizes. */
   @GetMapping("/images/sizes")
   public ResponseEntity<Map<String, List<String>>> getImageSizes() {
-    return ResponseEntity.ok(Map.of("sizes", imageFacade.getAvailableImageSizes()));
+    return ResponseEntity.ok(Map.of("sizes", imageGenerationService.getAvailableImageSizes()));
   }
 
   /** Get available image qualities. */
   @GetMapping("/images/qualities")
   public ResponseEntity<Map<String, List<String>>> getImageQualities() {
-    return ResponseEntity.ok(Map.of("qualities", imageFacade.getAvailableImageQualities()));
+    return ResponseEntity.ok(
+        Map.of("qualities", imageGenerationService.getAvailableImageQualities()));
   }
 }

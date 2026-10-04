@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.service.usecase.ChatUseCase;
+import com.ai.chat.service.ChatService;
 import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.rag.infra.config.RagProperties;
 import com.ai.tools.infra.tools.WeatherTools;
@@ -25,15 +25,14 @@ class AiMcpServerServiceTest {
 
   @Mock private DocumentSearchTool documentSearchTool;
 
-  @Mock private ChatUseCase aiChatUseCase;
+  @Mock private ChatService chatService;
 
   private final RagProperties ragProperties = new RagProperties();
   private AiMcpServerService service;
 
   @BeforeEach
   void setUp() {
-    service =
-        new AiMcpServerService(weatherTools, documentSearchTool, aiChatUseCase, ragProperties);
+    service = new AiMcpServerService(weatherTools, documentSearchTool, chatService, ragProperties);
   }
 
   @Nested
@@ -159,12 +158,12 @@ class AiMcpServerServiceTest {
     void shouldReturnAiResponse() {
       String message = "Hello AI";
       String expectedResponse = "Hello! How can I help you?";
-      when(aiChatUseCase.chat(message)).thenReturn(expectedResponse);
+      when(chatService.chat(message)).thenReturn(expectedResponse);
 
       String result = service.aiChat(message);
 
       assertThat(result).isEqualTo(expectedResponse);
-      verify(aiChatUseCase).chat(message);
+      verify(chatService).chat(message);
     }
 
     @Test
@@ -172,7 +171,7 @@ class AiMcpServerServiceTest {
     void shouldTruncateLongMessageForLogging() {
       String longMessage = "A".repeat(100);
       String expectedResponse = "Response";
-      when(aiChatUseCase.chat(longMessage)).thenReturn(expectedResponse);
+      when(chatService.chat(longMessage)).thenReturn(expectedResponse);
 
       String result = service.aiChat(longMessage);
 

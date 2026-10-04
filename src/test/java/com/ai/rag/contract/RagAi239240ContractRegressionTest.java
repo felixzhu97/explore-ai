@@ -14,8 +14,8 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
-import com.ai.rag.service.usecase.RagApplicationService;
-import com.ai.rag.service.usecase.RagChatUseCase;
+import com.ai.rag.service.RagApplicationService;
+import com.ai.rag.service.RagChatService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -66,13 +66,13 @@ class RagAi239240ContractRegressionTest {
   @Mock private VectorStore vectorStore;
   @Mock private RagRetrievalSettings retrievalSettings;
   @Mock private AiInvocationRecorder invocationRecorder;
-  private RagChatUseCase ragChatUseCase;
+  private RagChatService ragChatService;
 
   @BeforeEach
   void setUp() {
     when(retrievalSettings.getScoreThreshold()).thenReturn(0.5);
-    ragChatUseCase =
-        new RagChatUseCase(
+    ragChatService =
+        new RagChatService(
             chatClientProvider,
             languageDetectionService,
             vectorStore,
@@ -94,10 +94,10 @@ class RagAi239240ContractRegressionTest {
   class SinglePassRetrieval {
     @Test
     @DisplayName("should not depend on rag application service when rag chat use case")
-    void shouldNotDependOnRagApplicationServiceWhenRagChatUseCase() {
+    void shouldNotDependOnRagApplicationServiceWhenRagChatService() {
       ArchRuleDefinition.noClasses()
           .that()
-          .haveSimpleName("RagChatUseCase")
+          .haveSimpleName("RagChatService")
           .should()
           .dependOnClassesThat()
           .haveSimpleName(RagApplicationService.class.getSimpleName())
@@ -110,7 +110,7 @@ class RagAi239240ContractRegressionTest {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse())
           .thenReturn(clientResponse("answer", List.of(new Document("ctx", Map.of("score", 0.8)))));
-      ragChatUseCase.chat("What is AI?", null, null);
+      ragChatService.chat("What is AI?", null, null);
       assertThat(captureRetrievalAdvisor()).isPresent();
       verify(requestSpec).call();
     }
@@ -123,7 +123,7 @@ class RagAi239240ContractRegressionTest {
           .thenReturn(
               clientResponse(
                   "answer", List.of(new Document("retrieved chunk", Map.of("score", 0.91)))));
-      var result = ragChatUseCase.chat("What is AI?", null, null);
+      var result = ragChatService.chat("What is AI?", null, null);
       assertThat(result.sources()).hasSize(1);
       assertThat(result.sources().getFirst().text()).isEqualTo("retrieved chunk");
       assertThat(result.sources().getFirst().score()).isEqualTo(0.91);
@@ -138,7 +138,7 @@ class RagAi239240ContractRegressionTest {
     void shouldApplyCustomTopKOnRetrieverWhenTopKProvided() {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
-      ragChatUseCase.chat("q", null, 10);
+      ragChatService.chat("q", null, 10);
       assertThat(extractTopK(captureRetrievalAdvisor().orElseThrow())).isEqualTo(10);
     }
 
@@ -147,7 +147,7 @@ class RagAi239240ContractRegressionTest {
     void shouldApplyDefaultTopKOnRetrieverWhenTopKNull() {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
-      ragChatUseCase.chat("q", null, null);
+      ragChatService.chat("q", null, null);
       assertThat(extractTopK(captureRetrievalAdvisor().orElseThrow())).isEqualTo(5);
     }
 
@@ -156,7 +156,7 @@ class RagAi239240ContractRegressionTest {
     void shouldPassDocIdsViaFilterExpressionWhenDocIdsProvided() {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
-      ragChatUseCase.chat("q", List.of(UUID.randomUUID().toString()), null);
+      ragChatService.chat("q", List.of(UUID.randomUUID().toString()), null);
       assertThat(captureFilterExpression()).isInstanceOf(Filter.Expression.class);
     }
   }
@@ -176,7 +176,7 @@ class RagAi239240ContractRegressionTest {
                   clientResponse("world", List.of()),
                   clientResponse("", List.of(source))));
       List<ServerSentEvent<String>> events =
-          ragChatUseCase.chatStream("q", null, 5, null).collectList().block();
+          ragChatService.chatStream("q", null, 5, null).collectList().block();
       verify(requestSpec).stream();
       verify(requestSpec, never()).call();
       assertThat(events).hasSize(3);

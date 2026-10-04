@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.service.usecase.DocumentSearchService;
+import com.ai.rag.service.DocumentSearchService;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

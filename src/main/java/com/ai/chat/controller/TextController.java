@@ -5,8 +5,8 @@ import com.ai.chat.controller.dto.ChatStreamRequest;
 import com.ai.chat.controller.dto.ModelsListResponse;
 import com.ai.chat.controller.dto.ProviderInfoResponse;
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.service.usecase.ChatUseCase;
-import com.ai.chat.service.usecase.TextProviderCatalog;
+import com.ai.chat.service.ChatService;
+import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.repository.SkillRepository;
@@ -35,17 +35,17 @@ public class TextController {
 
   private static final Logger log = LoggerFactory.getLogger(TextController.class);
 
-  private final ChatUseCase chatUseCase;
+  private final ChatService chatService;
   private final TextProviderCatalog providerCatalog;
   private final SkillRepository skillRepository;
 
   public TextController(
-      ChatUseCase chatUseCase,
+      ChatService chatService,
       TextProviderCatalog providerCatalog,
       SkillRepository skillRepository,
       OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
-    this.chatUseCase = chatUseCase;
+    this.chatService = chatService;
     this.providerCatalog = providerCatalog;
     this.skillRepository = skillRepository;
   }
@@ -75,7 +75,7 @@ public class TextController {
             new IllegalArgumentException("User message is required when sessionId is provided"));
       }
       String clientId = ownerContext.requireValue(httpRequest);
-      return chatUseCase.chatStreamWithSession(request.sessionId(), userMessage, options, clientId);
+      return chatService.chatStreamWithSession(request.sessionId(), userMessage, options, clientId);
     }
 
     List<ChatMessage> messages =
@@ -88,7 +88,7 @@ public class TextController {
                         dto.role(),
                         Instant.now()))
             .toList();
-    return chatUseCase.chatStream(messages, options);
+    return chatService.chatStream(messages, options);
   }
 
   private TextChatOptions buildChatOptions(

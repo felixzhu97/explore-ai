@@ -1,7 +1,7 @@
 package com.ai.eval.infra.golden;
 
 import com.ai.rag.domain.model.Document;
-import com.ai.rag.service.usecase.DocumentUploadService;
+import com.ai.rag.service.DocumentUploadService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

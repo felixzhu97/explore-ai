@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.vo.McpServerConnection;
-import com.ai.mcp.service.usecase.McpFacade;
+import com.ai.mcp.service.McpService;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ class McpClientControllerTest {
 
   @Autowired private MockMvcTester mvc;
 
-  @MockitoBean private McpFacade mcpFacade;
+  @MockitoBean private McpService mcpService;
 
   @Nested
   @DisplayName("GET /api/mcp/client/status")
@@ -40,8 +40,8 @@ class McpClientControllerTest {
     @Test
     @DisplayName("should return READY status with tool count")
     void shouldReturnReadyStatusWithToolCount() {
-      when(mcpFacade.getTotalToolCount()).thenReturn(5);
-      when(mcpFacade.getConnectedServers()).thenReturn(Map.of());
+      when(mcpService.getTotalToolCount()).thenReturn(5);
+      when(mcpService.getConnectedServers()).thenReturn(Map.of());
 
       assertThat(mvc.get().uri("/api/mcp/client/status"))
           .hasStatusOk()
@@ -59,7 +59,7 @@ class McpClientControllerTest {
     @Test
     @DisplayName("should return list of connected servers")
     void shouldReturnListOfConnectedServers() {
-      when(mcpFacade.getConnectedServers())
+      when(mcpService.getConnectedServers())
           .thenReturn(Map.of("server1", McpServerConnection.connected("server1", 3)));
 
       assertThat(mvc.get().uri("/api/mcp/client/servers"))
@@ -85,7 +85,7 @@ class McpClientControllerTest {
     @Test
     @DisplayName("should return list of registered MCP tools")
     void shouldReturnListOfRegisteredMcpTools() {
-      when(mcpFacade.getToolDefinitions())
+      when(mcpService.getToolDefinitions())
           .thenReturn(List.of(McpToolDefinition.create("get_weather", "Get current weather")));
 
       assertThat(mvc.get().uri("/api/mcp/client/tools"))
@@ -137,7 +137,7 @@ class McpClientControllerTest {
     @Test
     @DisplayName("should return internal server error on service exception")
     void shouldReturnInternalServerErrorOnServiceException() {
-      when(mcpFacade.chatWithTools("Hello")).thenThrow(new RuntimeException("Service error"));
+      when(mcpService.chatWithTools("Hello")).thenThrow(new RuntimeException("Service error"));
 
       assertThat(
               mvc.post()

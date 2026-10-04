@@ -5,7 +5,7 @@ import com.ai.common.domain.repository.DocumentSearchTool;
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.util.LogSanitizer;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.service.usecase.RagApplicationService;
+import com.ai.rag.service.RagApplicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;

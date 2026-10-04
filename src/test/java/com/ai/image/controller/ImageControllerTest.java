@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.image.domain.model.GeneratedImage;
-import com.ai.image.service.usecase.ImageFacade;
+import com.ai.image.service.ImageGenerationService;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,7 @@ class ImageControllerTest {
 
   @Autowired private MockMvcTester mvc;
 
-  @MockitoBean private ImageFacade imageFacade;
+  @MockitoBean private ImageGenerationService imageGenerationService;
 
   @Nested
   @DisplayName("POST /api/images/generate")
@@ -36,7 +36,7 @@ class ImageControllerTest {
     void shouldGenerateImageWithAllParameters() {
       GeneratedImage image =
           GeneratedImage.fromUrl("https://example.com/image.png", "dall-e-3", "A cat");
-      when(imageFacade.generateImage("A cat", "dall-e-3", "standard", 1024, 1024, 1))
+      when(imageGenerationService.generateImage("A cat", "dall-e-3", "standard", 1024, 1024, 1))
           .thenReturn(image);
 
       assertThat(
@@ -87,7 +87,8 @@ class ImageControllerTest {
     void shouldUseDefaultValuesWhenOptionalParametersAreNull() {
       GeneratedImage image =
           GeneratedImage.fromUrl("https://example.com/default.png", "dall-e-3", "Sunset");
-      when(imageFacade.generateImage("Sunset", null, null, 1024, 1024, 1)).thenReturn(image);
+      when(imageGenerationService.generateImage("Sunset", null, null, 1024, 1024, 1))
+          .thenReturn(image);
 
       assertThat(
               mvc.post()
@@ -99,7 +100,7 @@ class ImageControllerTest {
           .extractingPath("$.imageUrl")
           .asString()
           .isEqualTo("https://example.com/default.png");
-      verify(imageFacade).generateImage("Sunset", null, null, 1024, 1024, 1);
+      verify(imageGenerationService).generateImage("Sunset", null, null, 1024, 1024, 1);
     }
 
     @Test
@@ -107,7 +108,8 @@ class ImageControllerTest {
     void shouldUseImageModelWhenRequestModelIsNull() {
       GeneratedImage image =
           GeneratedImage.fromUrl("https://example.com/image.png", "dall-e-3", "Mountain");
-      when(imageFacade.generateImage("Mountain", null, "hd", 512, 512, 2)).thenReturn(image);
+      when(imageGenerationService.generateImage("Mountain", null, "hd", 512, 512, 2))
+          .thenReturn(image);
 
       assertThat(
               mvc.post()
@@ -131,10 +133,11 @@ class ImageControllerTest {
     }
 
     @Test
-    @DisplayName("should return base64 payload when facade returns base64 image")
-    void shouldReturnBase64PayloadWhenFacadeReturnsBase64Image() {
+    @DisplayName("should return base64 payload when service returns base64 image")
+    void shouldReturnBase64PayloadWhenServiceReturnsBase64Image() {
       GeneratedImage image = GeneratedImage.fromBase64("abc123", "dall-e-3", "Test");
-      when(imageFacade.generateImage("Test", null, null, 1024, 1024, 1)).thenReturn(image);
+      when(imageGenerationService.generateImage("Test", null, null, 1024, 1024, 1))
+          .thenReturn(image);
 
       assertThat(
               mvc.post()
@@ -149,9 +152,9 @@ class ImageControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade returns empty image")
-    void shouldReturn500WhenFacadeReturnsEmptyImage() {
-      when(imageFacade.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
+    @DisplayName("should return 500 when service returns empty image")
+    void shouldReturn500WhenServiceReturnsEmptyImage() {
+      when(imageGenerationService.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
           .thenReturn(GeneratedImage.empty());
 
       assertThat(
@@ -167,9 +170,9 @@ class ImageControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when facade throws exception")
-    void shouldReturn500WhenFacadeThrowsException() {
-      when(imageFacade.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
+    @DisplayName("should return 500 when service throws exception")
+    void shouldReturn500WhenServiceThrowsException() {
+      when(imageGenerationService.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
           .thenThrow(new RuntimeException("API error"));
 
       assertThat(
@@ -185,11 +188,11 @@ class ImageControllerTest {
     }
 
     @Test
-    @DisplayName("should pass custom dimensions to facade")
-    void shouldPassCustomDimensionsToFacade() {
+    @DisplayName("should pass custom dimensions to service")
+    void shouldPassCustomDimensionsToService() {
       GeneratedImage image =
           GeneratedImage.fromUrl("https://example.com/wide.png", "dall-e-2", "Landscape");
-      when(imageFacade.generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1))
+      when(imageGenerationService.generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1))
           .thenReturn(image);
 
       assertThat(
@@ -207,7 +210,7 @@ class ImageControllerTest {
                       }
                       """))
           .hasStatusOk();
-      verify(imageFacade).generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1);
+      verify(imageGenerationService).generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1);
     }
   }
 
@@ -219,7 +222,7 @@ class ImageControllerTest {
     @DisplayName("should return available image models")
     void shouldReturnAvailableImageModels() {
       List<String> models = List.of("dall-e-2", "dall-e-3", "dall-e-3-hd");
-      when(imageFacade.getAvailableImageModels()).thenReturn(models);
+      when(imageGenerationService.getAvailableImageModels()).thenReturn(models);
 
       assertThat(mvc.get().uri("/api/images/models"))
           .hasStatusOk()
@@ -232,7 +235,7 @@ class ImageControllerTest {
     @Test
     @DisplayName("should return empty list when no models available")
     void shouldReturnEmptyListWhenNoModelsAvailable() {
-      when(imageFacade.getAvailableImageModels()).thenReturn(List.of());
+      when(imageGenerationService.getAvailableImageModels()).thenReturn(List.of());
 
       assertThat(mvc.get().uri("/api/images/models"))
           .hasStatusOk()
@@ -251,7 +254,7 @@ class ImageControllerTest {
     @DisplayName("should return available image sizes")
     void shouldReturnAvailableImageSizes() {
       List<String> sizes = List.of("256x256", "512x512", "1024x1024");
-      when(imageFacade.getAvailableImageSizes()).thenReturn(sizes);
+      when(imageGenerationService.getAvailableImageSizes()).thenReturn(sizes);
 
       assertThat(mvc.get().uri("/api/images/sizes"))
           .hasStatusOk()
@@ -270,7 +273,7 @@ class ImageControllerTest {
     @DisplayName("should return available image qualities")
     void shouldReturnAvailableImageQualities() {
       List<String> qualities = List.of("standard", "hd");
-      when(imageFacade.getAvailableImageQualities()).thenReturn(qualities);
+      when(imageGenerationService.getAvailableImageQualities()).thenReturn(qualities);
 
       assertThat(mvc.get().uri("/api/images/qualities"))
           .hasStatusOk()

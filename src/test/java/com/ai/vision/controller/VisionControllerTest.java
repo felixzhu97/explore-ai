@@ -12,7 +12,7 @@ import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.DetectionDto;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
-import com.ai.vision.service.usecase.VisionAnalysisUseCase;
+import com.ai.vision.service.VisionAnalysisService;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +39,7 @@ class VisionControllerTest {
 
   @Autowired private MockMvcTester mvc;
 
-  @MockitoBean private VisionAnalysisUseCase visionAnalysisUseCase;
+  @MockitoBean private VisionAnalysisService visionAnalysisService;
 
   @Nested
   @DisplayName("POST /api/vision/caption")
@@ -51,7 +51,7 @@ class VisionControllerTest {
       MockMultipartFile file =
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
       doReturn(new CaptionResponse("A cat on a sofa", 120L))
-          .when(visionAnalysisUseCase)
+          .when(visionAnalysisService)
           .caption(any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/caption").file(file))
@@ -92,7 +92,7 @@ class VisionControllerTest {
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
       List<DetectionDto> detections =
           List.of(new DetectionDto("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
-      doReturn(new DetectResponse(detections, 150L)).when(visionAnalysisUseCase).detect(any());
+      doReturn(new DetectResponse(detections, 150L)).when(visionAnalysisService).detect(any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
           .hasStatusOk()
@@ -119,7 +119,7 @@ class VisionControllerTest {
     void shouldReturnExtractedText() throws Exception {
       MockMultipartFile file =
           new MockMultipartFile("file", "scan.png", "image/png", "image".getBytes());
-      doReturn(new OcrResponse("Hello World", 90L)).when(visionAnalysisUseCase).ocr(any());
+      doReturn(new OcrResponse("Hello World", 90L)).when(visionAnalysisService).ocr(any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/ocr").file(file))
           .hasStatusOk()
@@ -137,7 +137,7 @@ class VisionControllerTest {
     @Test
     @DisplayName("should report provider availability")
     void shouldReportProviderAvailability() {
-      when(visionAnalysisUseCase.health())
+      when(visionAnalysisService.health())
           .thenReturn(
               new VisionHealthResponse(
                   "DEGRADED",

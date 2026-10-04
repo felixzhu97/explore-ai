@@ -16,13 +16,13 @@ import com.ai.common.controller.GlobalExceptionHandler;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.service.usecase.DocumentUploadService;
-import com.ai.rag.service.usecase.RagApplicationService;
-import com.ai.rag.service.usecase.RagChatUseCase;
-import com.ai.rag.service.usecase.VisionChatUseCase;
+import com.ai.rag.service.DocumentUploadService;
+import com.ai.rag.service.RagApplicationService;
+import com.ai.rag.service.RagChatService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
+import com.ai.vision.service.VisionChatService;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,15 +45,15 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private RagApplicationService ragApplicationService;
 
-  @MockitoBean private RagChatUseCase ragChatUseCase;
+  @MockitoBean private RagChatService ragChatService;
 
-  @MockitoBean private VisionChatUseCase visionChatUseCase;
+  @MockitoBean private VisionChatService visionChatService;
 
-  @MockitoBean private ObjectProvider<VisionChatUseCase> visionChatUseCaseProvider;
+  @MockitoBean private ObjectProvider<VisionChatService> visionChatServiceProvider;
 
   @BeforeEach
   void setUpVisionProvider() {
-    lenient().when(visionChatUseCaseProvider.getIfAvailable()).thenReturn(visionChatUseCase);
+    lenient().when(visionChatServiceProvider.getIfAvailable()).thenReturn(visionChatService);
   }
 
   @Nested
@@ -187,7 +187,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should handle RAG chat request")
     void shouldHandleRagChatRequest() {
-      when(ragChatUseCase.chatStream(eq("What is AI?"), isNull(), eq(5), isNull()))
+      when(ragChatService.chatStream(eq("What is AI?"), isNull(), eq(5), isNull()))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response ").build()));
 
       assertThat(
@@ -200,15 +200,15 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           .bodyText()
           .asString()
           .contains("AI response");
-      verify(ragChatUseCase).chatStream(eq("What is AI?"), isNull(), eq(5), isNull());
-      verifyNoInteractions(visionChatUseCase);
+      verify(ragChatService).chatStream(eq("What is AI?"), isNull(), eq(5), isNull());
+      verifyNoInteractions(visionChatService);
     }
 
     @Test
     @DisplayName("should use docIds when provided")
     void shouldUseDocIdsWhenProvided() {
       List<String> docIds = List.of(UUID.randomUUID().toString());
-      when(ragChatUseCase.chatStream(eq("Question"), eq(docIds), eq(5), isNull()))
+      when(ragChatService.chatStream(eq("Question"), eq(docIds), eq(5), isNull()))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -225,13 +225,13 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                           .formatted(docIds.getFirst()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(ragChatUseCase).chatStream(eq("Question"), eq(docIds), eq(5), isNull());
+      verify(ragChatService).chatStream(eq("Question"), eq(docIds), eq(5), isNull());
     }
 
     @Test
     @DisplayName("should use custom topK when provided")
     void shouldUseCustomTopKWhenProvided() {
-      when(ragChatUseCase.chatStream(eq("Question"), isNull(), eq(10), isNull()))
+      when(ragChatService.chatStream(eq("Question"), isNull(), eq(10), isNull()))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -241,14 +241,14 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"question\":\"Question\",\"top_k\":10}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(ragChatUseCase).chatStream(eq("Question"), isNull(), eq(10), isNull());
+      verify(ragChatService).chatStream(eq("Question"), isNull(), eq(10), isNull());
     }
 
     @Test
     @DisplayName("should stream vision RAG when images provided")
     void shouldStreamVisionRagWhenImagesProvided() {
       List<String> images = List.of("iVBORw0KGgo=");
-      when(visionChatUseCase.chatStreamWithImages(
+      when(visionChatService.chatStreamWithImages(
               eq("Describe image"), isNull(), eq(images), eq(5)))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("token").build()));
 
@@ -265,15 +265,15 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                       """)
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(visionChatUseCase)
+      verify(visionChatService)
           .chatStreamWithImages(eq("Describe image"), isNull(), eq(images), eq(5));
-      verify(ragChatUseCase, never()).chatStream(any(), any(), any(), any());
+      verify(ragChatService, never()).chatStream(any(), any(), any(), any());
     }
 
     @Test
     @DisplayName("should propagate stream error from service")
     void shouldPropagateStreamErrorFromService() {
-      when(ragChatUseCase.chatStream(any(), any(), any(), any()))
+      when(ragChatService.chatStream(any(), any(), any(), any()))
           .thenReturn(Flux.error(new RuntimeException("Service error")));
 
       assertThat(
@@ -283,7 +283,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"question\":\"Question\"}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-      verify(ragChatUseCase).chatStream(eq("Question"), isNull(), eq(5), isNull());
+      verify(ragChatService).chatStream(eq("Question"), isNull(), eq(5), isNull());
     }
   }
 

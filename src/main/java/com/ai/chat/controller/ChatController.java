@@ -13,7 +13,7 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
-import com.ai.chat.service.usecase.ChatUseCase;
+import com.ai.chat.service.ChatService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -37,15 +37,15 @@ public class ChatController {
 
   private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
-  private final ChatUseCase chatUseCase;
+  private final ChatService chatService;
   private final ChatWebSourcesRepository chatWebSourcesRepository;
 
   public ChatController(
-      ChatUseCase chatUseCase,
+      ChatService chatService,
       ChatWebSourcesRepository chatWebSourcesRepository,
       OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
-    this.chatUseCase = chatUseCase;
+    this.chatService = chatService;
     this.chatWebSourcesRepository = chatWebSourcesRepository;
   }
 
@@ -64,9 +64,9 @@ public class ChatController {
     String clientId = ownerContext.requireValue(httpRequest);
     String response;
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
-      response = chatUseCase.chatWithSession(request.sessionId(), request.message(), clientId);
+      response = chatService.chatWithSession(request.sessionId(), request.message(), clientId);
     } else {
-      response = chatUseCase.chatWithSession(request.message(), clientId);
+      response = chatService.chatWithSession(request.message(), clientId);
     }
 
     return ResponseEntity.ok(ChatResponse.of(response));
@@ -77,14 +77,14 @@ public class ChatController {
       @Valid @RequestBody(required = false) CreateSessionRequest body,
       HttpServletRequest httpRequest) {
     String title = body != null && body.title() != null ? body.title() : "New Chat";
-    var session = chatUseCase.createSession(title, ownerContext.requireValue(httpRequest));
+    var session = chatService.createSession(title, ownerContext.requireValue(httpRequest));
     return ResponseEntity.ok(SessionInfo.from(session));
   }
 
   @GetMapping("/sessions")
   public ResponseEntity<List<SessionInfo>> getAllSessions(HttpServletRequest httpRequest) {
     List<SessionInfo> sessions =
-        chatUseCase.getSessionsForClient(ownerContext.requireValue(httpRequest)).stream()
+        chatService.getSessionsForClient(ownerContext.requireValue(httpRequest)).stream()
             .map(SessionInfo::from)
             .toList();
     return ResponseEntity.ok(sessions);
@@ -93,7 +93,7 @@ public class ChatController {
   @GetMapping("/sessions/{sessionId}")
   public ResponseEntity<SessionInfo> getSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
-    return chatUseCase
+    return chatService
         .getSession(sessionId, ownerContext.requireValue(httpRequest))
         .map(session -> ResponseEntity.ok(SessionInfo.from(session)))
         .orElse(ResponseEntity.notFound().build());
@@ -106,7 +106,7 @@ public class ChatController {
       Map<String, List<WebSource>> sourcesByHash =
           chatWebSourcesRepository.findByConversationId(sessionId);
       List<MessageInfoResponse> messages =
-          chatUseCase.getSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
+          chatService.getSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
               .map(message -> toMessageInfo(message, sourcesByHash))
               .toList();
       return ResponseEntity.ok(messages);
@@ -132,7 +132,7 @@ public class ChatController {
   public ResponseEntity<Void> deleteSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
     try {
-      chatUseCase.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
+      chatService.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
       return ResponseEntity.noContent().build();
     } catch (ChatSessionNotFoundException e) {
       return ResponseEntity.notFound().build();

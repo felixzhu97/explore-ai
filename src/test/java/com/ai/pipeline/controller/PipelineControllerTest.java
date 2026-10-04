@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.vo.AgentType;
-import com.ai.pipeline.service.usecase.PipelineFacade;
+import com.ai.pipeline.service.PipelineService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -27,7 +27,7 @@ import reactor.core.publisher.Flux;
 @DisplayName("PipelineController")
 class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
 
-  @MockitoBean private PipelineFacade agentFacade;
+  @MockitoBean private PipelineService pipelineService;
 
   @Nested
   @DisplayName("GET /api/pipelines/list")
@@ -36,7 +36,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should list agents")
     void shouldListAgents() {
-      when(agentFacade.listAgents(eq(ownerClientId()), anyString()))
+      when(pipelineService.listAgents(eq(ownerClientId()), anyString()))
           .thenReturn(
               List.of(
                   AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
@@ -61,7 +61,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when health unknown")
     void shouldReturn404WhenHealthUnknown() {
-      when(agentFacade.health(eq("missing"), eq(ownerClientId()), anyString()))
+      when(pipelineService.health(eq("missing"), eq(ownerClientId()), anyString()))
           .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
 
       assertThat(
@@ -74,7 +74,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return ok for known agent health")
     void shouldReturnOkForKnownAgentHealth() {
-      when(agentFacade.health(eq("k8s"), eq(ownerClientId()), anyString()))
+      when(pipelineService.health(eq("k8s"), eq(ownerClientId()), anyString()))
           .thenReturn(AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
 
       assertThat(
@@ -92,7 +92,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when agent unknown")
     void shouldReturn404WhenGetAgentUnknown() {
-      when(agentFacade.health(eq("missing"), eq(ownerClientId()), anyString()))
+      when(pipelineService.health(eq("missing"), eq(ownerClientId()), anyString()))
           .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
 
       assertThat(
@@ -105,7 +105,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return ok when agent known")
     void shouldReturnOkWhenGetAgentKnown() {
-      when(agentFacade.health(eq("k8s"), eq(ownerClientId()), anyString()))
+      when(pipelineService.health(eq("k8s"), eq(ownerClientId()), anyString()))
           .thenReturn(AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
 
       assertThat(
@@ -123,7 +123,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should stream supervisor SSE")
     void shouldStreamSupervisorSse() {
-      when(agentFacade.invokeSupervisor(eq("hello"), eq(ownerClientId()), anyString()))
+      when(pipelineService.invokeSupervisor(eq("hello"), eq(ownerClientId()), anyString()))
           .thenReturn(
               Flux.just(
                   ServerSentEvent.<String>builder().event("message").data("hi").build(),
@@ -151,7 +151,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should emit error SSE when direct invoke unknown")
     void shouldEmitErrorSseWhenDirectInvokeUnknown() {
-      when(agentFacade.invokeAgent(eq("missing"), eq("hi"), eq(ownerClientId()), anyString()))
+      when(pipelineService.invokeAgent(eq("missing"), eq("hi"), eq(ownerClientId()), anyString()))
           .thenReturn(Flux.error(new AgentNotFoundException(AgentType.of("missing"))));
 
       assertThat(
@@ -176,7 +176,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should report module health")
     void shouldReportModuleHealth() {
-      when(agentFacade.builtinCount()).thenReturn(1);
+      when(pipelineService.builtinCount()).thenReturn(1);
 
       assertThat(mvc.get().uri("/api/pipelines/health"))
           .hasStatusOk()

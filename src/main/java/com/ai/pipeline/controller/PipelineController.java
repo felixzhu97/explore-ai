@@ -8,7 +8,7 @@ import com.ai.pipeline.controller.dto.PipelineInvokeRequest;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.vo.AgentType;
-import com.ai.pipeline.service.usecase.PipelineFacade;
+import com.ai.pipeline.service.PipelineService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,11 +32,11 @@ public class PipelineController {
 
   private final OwnerContext ownerContext;
 
-  private final PipelineFacade agentFacade;
+  private final PipelineService pipelineService;
 
-  public PipelineController(PipelineFacade agentFacade, OwnerContext ownerContext) {
+  public PipelineController(PipelineService pipelineService, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
-    this.agentFacade = agentFacade;
+    this.pipelineService = pipelineService;
   }
 
   @GetMapping("/list")
@@ -45,7 +45,9 @@ public class PipelineController {
     String clientId = ownerContext.requireValue(request);
     String language = resolveLanguage(lang, request);
     List<AgentInfoResponse> agents =
-        agentFacade.listAgents(clientId, language).stream().map(AgentInfoResponse::from).toList();
+        pipelineService.listAgents(clientId, language).stream()
+            .map(AgentInfoResponse::from)
+            .toList();
     return ResponseEntity.ok(agents);
   }
 
@@ -58,7 +60,7 @@ public class PipelineController {
       String clientId = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentHealthResponse.from(
-              agentFacade.health(agentType, clientId, resolveLanguage(lang, request))));
+              pipelineService.health(agentType, clientId, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
     }
@@ -73,7 +75,7 @@ public class PipelineController {
       String clientId = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentInfoResponse.from(
-              agentFacade.health(agentType, clientId, resolveLanguage(lang, request))));
+              pipelineService.health(agentType, clientId, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
     }
@@ -85,7 +87,7 @@ public class PipelineController {
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
     String clientId = ownerContext.requireValue(httpRequest);
-    return agentFacade.invokeSupervisor(
+    return pipelineService.invokeSupervisor(
         request.message(), clientId, resolveLanguage(lang, httpRequest));
   }
 
@@ -111,7 +113,7 @@ public class PipelineController {
         request.edges().stream()
             .map(edge -> new AgentPipeline.PipelineEdge(edge.sourceId(), edge.targetId()))
             .toList();
-    return agentFacade.invokePipeline(
+    return pipelineService.invokePipeline(
         request.message(),
         AgentPipeline.create(nodes, edges),
         clientId,
@@ -125,7 +127,7 @@ public class PipelineController {
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
     String clientId = ownerContext.requireValue(httpRequest);
-    return agentFacade
+    return pipelineService
         .invokeAgent(agentType, request.message(), clientId, resolveLanguage(lang, httpRequest))
         .onErrorResume(
             AgentNotFoundException.class,
@@ -137,7 +139,7 @@ public class PipelineController {
 
   @GetMapping("/health")
   public ResponseEntity<Map<String, Object>> moduleHealth() {
-    return ResponseEntity.ok(Map.of("status", "UP", "agents", agentFacade.builtinCount()));
+    return ResponseEntity.ok(Map.of("status", "UP", "agents", pipelineService.builtinCount()));
   }
 
   private static String resolveLanguage(String lang, HttpServletRequest request) {

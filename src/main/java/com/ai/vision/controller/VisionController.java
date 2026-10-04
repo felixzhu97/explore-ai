@@ -5,7 +5,7 @@ import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
-import com.ai.vision.service.usecase.VisionAnalysisUseCase;
+import com.ai.vision.service.VisionAnalysisService;
 import java.io.IOException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,36 +24,36 @@ import org.springframework.web.multipart.MultipartFile;
     matchIfMissing = false)
 public class VisionController {
 
-  private final VisionAnalysisUseCase visionAnalysisUseCase;
+  private final VisionAnalysisService visionAnalysisService;
 
-  public VisionController(VisionAnalysisUseCase visionAnalysisUseCase) {
-    this.visionAnalysisUseCase = visionAnalysisUseCase;
+  public VisionController(VisionAnalysisService visionAnalysisService) {
+    this.visionAnalysisService = visionAnalysisService;
   }
 
   @PostMapping("/caption")
   public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
     validateFile(file);
-    return visionAnalysisUseCase.caption(file);
+    return visionAnalysisService.caption(file);
   }
 
   @PostMapping("/detect")
   public DetectResponse detect(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
     validateFile(file);
-    return visionAnalysisUseCase.detect(file);
+    return visionAnalysisService.detect(file);
   }
 
   @PostMapping("/ocr")
   public OcrResponse ocr(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
     validateFile(file);
-    return visionAnalysisUseCase.ocr(file);
+    return visionAnalysisService.ocr(file);
   }
 
   @GetMapping("/health")
   public VisionHealthResponse health() {
-    return visionAnalysisUseCase.health();
+    return visionAnalysisService.health();
   }
 
   private void validateFile(MultipartFile file) {

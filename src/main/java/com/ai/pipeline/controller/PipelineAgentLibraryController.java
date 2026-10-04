@@ -5,7 +5,7 @@ import com.ai.pipeline.controller.dto.CreateSavedAgentRequest;
 import com.ai.pipeline.controller.dto.SavedAgentResponse;
 import com.ai.pipeline.controller.dto.SetSavedAgentEnabledRequest;
 import com.ai.pipeline.controller.dto.UpdateSavedAgentRequest;
-import com.ai.pipeline.service.usecase.AgentDefinitionUseCase;
+import com.ai.pipeline.service.SavedAgentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -27,20 +27,18 @@ public class PipelineAgentLibraryController {
 
   private final OwnerContext ownerContext;
 
-  private final AgentDefinitionUseCase agentDefinitionUseCase;
+  private final SavedAgentService savedAgentService;
 
   public PipelineAgentLibraryController(
-      AgentDefinitionUseCase agentDefinitionUseCase, OwnerContext ownerContext) {
+      SavedAgentService savedAgentService, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
-    this.agentDefinitionUseCase = agentDefinitionUseCase;
+    this.savedAgentService = savedAgentService;
   }
 
   @GetMapping
   public List<SavedAgentResponse> listLibrary(HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    return agentDefinitionUseCase.listLibrary(clientId).stream()
-        .map(SavedAgentResponse::from)
-        .toList();
+    return savedAgentService.listLibrary(clientId).stream().map(SavedAgentResponse::from).toList();
   }
 
   @PostMapping
@@ -50,7 +48,7 @@ public class PipelineAgentLibraryController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SavedAgentResponse.from(
-                agentDefinitionUseCase.create(
+                savedAgentService.create(
                     clientId,
                     body.typeKey(),
                     body.name(),
@@ -66,7 +64,7 @@ public class PipelineAgentLibraryController {
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
     return SavedAgentResponse.from(
-        agentDefinitionUseCase.update(
+        savedAgentService.update(
             clientId, id, body.name(), body.description(), body.systemPrompt(), body.toolKeys()));
   }
 
@@ -76,13 +74,13 @@ public class PipelineAgentLibraryController {
       @Valid @RequestBody SetSavedAgentEnabledRequest body,
       HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    return SavedAgentResponse.from(agentDefinitionUseCase.setEnabled(clientId, id, body.enabled()));
+    return SavedAgentResponse.from(savedAgentService.setEnabled(clientId, id, body.enabled()));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String clientId = ownerContext.requireValue(request);
-    agentDefinitionUseCase.delete(clientId, id);
+    savedAgentService.delete(clientId, id);
     return ResponseEntity.noContent().build();
   }
 }

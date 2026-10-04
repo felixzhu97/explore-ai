@@ -4,7 +4,7 @@ import com.ai.common.util.LogSanitizer;
 import com.ai.eval.controller.dto.EvaluationRequest;
 import com.ai.eval.controller.dto.EvaluationResponse;
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.service.usecase.ChatQualityEvaluator;
+import com.ai.eval.service.ChatQualityEvaluator;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

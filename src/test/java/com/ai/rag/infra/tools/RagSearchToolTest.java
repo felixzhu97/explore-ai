@@ -15,7 +15,7 @@ import com.ai.account.controller.OwnerContext;
 import com.ai.rag.domain.model.Document;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.service.usecase.RagApplicationService;
+import com.ai.rag.service.RagApplicationService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

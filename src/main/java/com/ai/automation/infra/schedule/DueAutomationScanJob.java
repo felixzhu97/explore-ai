@@ -1,7 +1,7 @@
 package com.ai.automation.infra.schedule;
 
 import com.ai.automation.service.AutomationProperties;
-import com.ai.automation.service.usecase.ExecuteDueAutomationsUseCase;
+import com.ai.automation.service.DueAutomationRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -15,12 +15,12 @@ public class DueAutomationScanJob {
 
   private static final Logger log = LoggerFactory.getLogger(DueAutomationScanJob.class);
 
-  private final ExecuteDueAutomationsUseCase executeDueAutomationsUseCase;
+  private final DueAutomationRunner dueAutomationRunner;
   private final AutomationProperties properties;
 
   public DueAutomationScanJob(
-      ExecuteDueAutomationsUseCase executeDueAutomationsUseCase, AutomationProperties properties) {
-    this.executeDueAutomationsUseCase = executeDueAutomationsUseCase;
+      DueAutomationRunner dueAutomationRunner, AutomationProperties properties) {
+    this.dueAutomationRunner = dueAutomationRunner;
     this.properties = properties;
   }
 
@@ -29,7 +29,7 @@ public class DueAutomationScanJob {
     if (!properties.isScanEnabled()) {
       return;
     }
-    int executed = executeDueAutomationsUseCase.executeDue();
+    int executed = dueAutomationRunner.executeDue();
     if (executed > 0) {
       log.info("Automation due scan executed={}", executed);
     }

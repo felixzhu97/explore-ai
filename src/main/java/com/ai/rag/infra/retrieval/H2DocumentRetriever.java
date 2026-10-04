@@ -2,7 +2,7 @@ package com.ai.rag.infra.retrieval;
 
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.service.usecase.DocumentSearchService;
+import com.ai.rag.service.DocumentSearchService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

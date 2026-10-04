@@ -1,6 +1,6 @@
 package com.ai.common.infra.llm;
 
-import com.ai.chat.service.usecase.TextProviderCatalog;
+import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
