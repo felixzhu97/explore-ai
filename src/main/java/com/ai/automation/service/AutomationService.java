@@ -14,7 +14,6 @@ import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,11 +164,7 @@ public class AutomationService {
   private Instant resolveNextRunAt(
       ScheduleKind kind, String cronExpression, Instant runAt, String timezone) {
     if (kind == ScheduleKind.ONCE) {
-      Instant target = Objects.requireNonNull(runAt, "runAt is required for ONCE schedules");
-      if (!target.isAfter(Instant.now())) {
-        throw new IllegalArgumentException("One-shot runAt must be in the future");
-      }
-      return target;
+      return AutomationSchedule.requireFutureRunAt(runAt, Instant.now());
     }
     cronCalculator.validate(cronExpression, timezone);
     return cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());

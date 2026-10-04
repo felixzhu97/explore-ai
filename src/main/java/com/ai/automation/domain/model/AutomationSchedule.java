@@ -154,10 +154,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String brief,
       Instant runAt) {
     Instant now = Instant.now();
-    Objects.requireNonNull(runAt, "runAt");
-    if (!runAt.isAfter(now)) {
-      throw new IllegalArgumentException("One-shot runAt must be in the future");
-    }
+    requireFutureRunAt(runAt, now);
     return new AutomationSchedule(
         ScheduleId.generate(),
         ownerKey,
@@ -174,6 +171,17 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         null,
         now,
         now);
+  }
+
+  /** Returns {@code runAt} when it is set and later than {@code now}. */
+  public static Instant requireFutureRunAt(Instant runAt, Instant now) {
+    if (runAt == null) {
+      throw new IllegalArgumentException("runAt is required for ONCE schedules");
+    }
+    if (!runAt.isAfter(now)) {
+      throw new IllegalArgumentException("One-shot runAt must be in the future");
+    }
+    return runAt;
   }
 
   /** Replaces the schedule settings and next run, re-enabling a one-off with a pending run. */

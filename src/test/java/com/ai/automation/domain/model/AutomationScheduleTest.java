@@ -127,6 +127,23 @@ class AutomationScheduleTest {
   }
 
   @Test
+  @DisplayName("should reject a one-off schedule when runAt is missing")
+  void shouldRejectAOneOffScheduleWhenRunAtIsMissing() {
+    assertThatThrownBy(
+            () ->
+                AutomationSchedule.createOnce(
+                    "c:client-1",
+                    "One shot",
+                    "Asia/Shanghai",
+                    "11111111-1111-1111-1111-111111111111",
+                    "user@example.com",
+                    "Do once",
+                    null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("runAt is required for ONCE schedules");
+  }
+
+  @Test
   void shouldDisableAfterCompleteOnce() {
     AutomationSchedule schedule =
         AutomationSchedule.createOnce(
