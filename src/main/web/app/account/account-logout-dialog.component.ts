@@ -75,24 +75,24 @@ export interface AccountLogoutDialogData {
 })
 export class AccountLogoutDialogComponent {
   readonly data = inject<AccountLogoutDialogData>(Z_MODAL_DATA);
-  private readonly account = inject(AccountService);
-  private readonly dialogRef = inject(ZardDialogRef);
-  private readonly i18n = inject(I18nService);
+  readonly #account = inject(AccountService);
+  readonly #dialogRef = inject(ZardDialogRef);
+  readonly #i18n = inject(I18nService);
 
   readonly avatarLetter = (
     this.data.displayName.trim() || this.data.email || 'G'
   ).charAt(0).toUpperCase();
 
   get t() {
-    return this.i18n.t;
+    return this.#i18n.t;
   }
 
   confirmLogout(): void {
-    this.dialogRef.close();
-    this.account.logout();
+    this.#dialogRef.close();
+    this.#account.logout();
   }
 
   cancel(): void {
-    this.dialogRef.close();
+    this.#dialogRef.close();
   }
 }

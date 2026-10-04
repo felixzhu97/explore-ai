@@ -23,9 +23,9 @@ export interface EvaluationResponse {
 
 @Injectable({ providedIn: 'root' })
 export class EvalService {
-  private readonly http = inject(HttpClient);
+  readonly #http = inject(HttpClient);
 
   evaluate(request: EvaluationRequest): Observable<EvaluationResponse> {
-    return this.http.post<EvaluationResponse>(`${API_BASE_URL}/eval/chat`, request);
+    return this.#http.post<EvaluationResponse>(`${API_BASE_URL}/eval/chat`, request);
   }
 }

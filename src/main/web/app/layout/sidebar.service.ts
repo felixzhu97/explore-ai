@@ -5,19 +5,19 @@ export class SidebarService {
   readonly mobileOpen = signal(false);
   readonly collapsed = signal(false);
 
-  private mobileResizeHandler: (() => void) | null = null;
+  #mobileResizeHandler: (() => void) | null = null;
 
   open() {
     if (window.innerWidth < 768) {
       this.collapsed.set(false);
-      this.lockBodyScroll();
+      this.#lockBodyScroll();
     }
     this.mobileOpen.set(true);
   }
 
   close() {
     this.mobileOpen.set(false);
-    this.unlockBodyScroll();
+    this.#unlockBodyScroll();
   }
 
   toggle() {
@@ -27,35 +27,35 @@ export class SidebarService {
       if (isMobile) {
         if (next) {
           this.collapsed.set(false);
-          this.lockBodyScroll();
+          this.#lockBodyScroll();
         } else {
-          this.unlockBodyScroll();
+          this.#unlockBodyScroll();
         }
       }
       return next;
     });
   }
 
-  private lockBodyScroll(): void {
+  #lockBodyScroll(): void {
     document.body.classList.add('overflow-hidden');
-    this.removeMobileResizeListener();
-    this.mobileResizeHandler = () => {
+    this.#removeMobileResizeListener();
+    this.#mobileResizeHandler = () => {
       if (window.innerWidth >= 768) {
         this.close();
       }
     };
-    window.addEventListener('resize', this.mobileResizeHandler);
+    window.addEventListener('resize', this.#mobileResizeHandler);
   }
 
-  private unlockBodyScroll(): void {
+  #unlockBodyScroll(): void {
     document.body.classList.remove('overflow-hidden');
-    this.removeMobileResizeListener();
+    this.#removeMobileResizeListener();
   }
 
-  private removeMobileResizeListener(): void {
-    if (this.mobileResizeHandler) {
-      window.removeEventListener('resize', this.mobileResizeHandler);
-      this.mobileResizeHandler = null;
+  #removeMobileResizeListener(): void {
+    if (this.#mobileResizeHandler) {
+      window.removeEventListener('resize', this.#mobileResizeHandler);
+      this.#mobileResizeHandler = null;
     }
   }
 }

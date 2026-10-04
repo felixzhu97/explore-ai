@@ -67,9 +67,9 @@ function defaultRunAtDate(): Date {
   },
 })
 export class AutomationsPageComponent implements OnInit {
-  private readonly automationsApi = inject(AutomationsService);
-  private readonly pipelinesApi = inject(PipelinesService);
-  private readonly notifications = inject(NotificationService);
+  readonly #automationsApi = inject(AutomationsService);
+  readonly #pipelinesApi = inject(PipelinesService);
+  readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
   readonly schedules = signal<AutomationSchedule[]>([]);
@@ -101,11 +101,11 @@ export class AutomationsPageComponent implements OnInit {
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);
-    this.pipelinesApi.listTemplates().subscribe({
+    this.#pipelinesApi.listTemplates().subscribe({
       next: templates => this.templates.set(templates),
       error: () => this.templates.set([]),
     });
-    this.automationsApi.list().subscribe({
+    this.#automationsApi.list().subscribe({
       next: (schedules) => {
         this.schedules.set(schedules);
         this.isLoading.set(false);
@@ -124,7 +124,7 @@ export class AutomationsPageComponent implements OnInit {
     this.formTimezone.set(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
     const first = this.enabledTemplates()[0];
     this.formTemplateId.set(first?.id ?? '');
-    this.formBrief.set(this.defaultBriefForTemplate(first));
+    this.formBrief.set(this.#defaultBriefForTemplate(first));
     this.formPreset.set('daily');
     this.formRunAt.set(defaultRunAtDate());
     this.showForm.set(true);
@@ -136,8 +136,8 @@ export class AutomationsPageComponent implements OnInit {
     if (!template) {
       return;
     }
-    if (!this.formBrief().trim() || this.isGenericPlaceholder(this.formBrief())) {
-      this.formBrief.set(this.defaultBriefForTemplate(template));
+    if (!this.formBrief().trim() || this.#isGenericPlaceholder(this.formBrief())) {
+      this.formBrief.set(this.#defaultBriefForTemplate(template));
     }
   }
 
@@ -150,8 +150,8 @@ export class AutomationsPageComponent implements OnInit {
     const templateId = schedule.pipelineTemplateId;
     const template = this.enabledTemplates().find(item => item.id === templateId)
       ?? this.templates().find(item => item.id === templateId);
-    if (this.isGenericPlaceholder(schedule.brief)) {
-      this.formBrief.set(this.defaultBriefForTemplate(template));
+    if (this.#isGenericPlaceholder(schedule.brief)) {
+      this.formBrief.set(this.#defaultBriefForTemplate(template));
     } else {
       this.formBrief.set(schedule.brief);
     }
@@ -194,19 +194,19 @@ export class AutomationsPageComponent implements OnInit {
     const brief = this.formBrief().trim();
     const t = this.i18n.t().automations;
     if (!name) {
-      this.notifications.showError(t.errors.nameRequired);
+      this.#notifications.showError(t.errors.nameRequired);
       return;
     }
     if (!email) {
-      this.notifications.showError(t.errors.emailRequired);
+      this.#notifications.showError(t.errors.emailRequired);
       return;
     }
     if (!pipelineTemplateId) {
-      this.notifications.showError(t.errors.pipelineTemplateRequired);
+      this.#notifications.showError(t.errors.pipelineTemplateRequired);
       return;
     }
     if (!brief) {
-      this.notifications.showError(t.errors.briefRequired);
+      this.#notifications.showError(t.errors.briefRequired);
       return;
     }
     const preset = this.formPreset();
@@ -214,11 +214,11 @@ export class AutomationsPageComponent implements OnInit {
     if (preset === 'custom') {
       const runAt = this.formRunAt();
       if (!runAt || Number.isNaN(runAt.getTime())) {
-        this.notifications.showError(t.errors.runAtRequired);
+        this.#notifications.showError(t.errors.runAtRequired);
         return;
       }
       if (runAt.getTime() <= Date.now()) {
-        this.notifications.showError(t.errors.runAtPast);
+        this.#notifications.showError(t.errors.runAtPast);
         return;
       }
       request = {
@@ -244,32 +244,32 @@ export class AutomationsPageComponent implements OnInit {
     this.isSaving.set(true);
     const editingId = this.editingId();
     const request$ = editingId
-      ? this.automationsApi.update(editingId, request)
-      : this.automationsApi.create(request);
+      ? this.#automationsApi.update(editingId, request)
+      : this.#automationsApi.create(request);
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
         this.showForm.set(false);
-        this.notifications.showSuccess(this.i18n.t().common.success);
+        this.#notifications.showSuccess(this.i18n.t().common.success);
         this.reload();
       },
       error: () => {
         this.isSaving.set(false);
-        this.notifications.showError(t.errors.saveFailed);
+        this.#notifications.showError(t.errors.saveFailed);
       },
     });
   }
 
   toggleEnabled(schedule: AutomationSchedule): void {
     if (this.isOnceCompleted(schedule) && !schedule.enabled) {
-      this.notifications.showWarning(this.i18n.t().automations.onceCompletedHint);
+      this.#notifications.showWarning(this.i18n.t().automations.onceCompletedHint);
       this.startEdit(schedule);
       return;
     }
-    this.automationsApi.setEnabled(schedule.id, !schedule.enabled).subscribe({
+    this.#automationsApi.setEnabled(schedule.id, !schedule.enabled).subscribe({
       next: () => this.reload(),
       error: () => {
-        this.notifications.showError(this.i18n.t().automations.errors.saveFailed);
+        this.#notifications.showError(this.i18n.t().automations.errors.saveFailed);
       },
     });
   }
@@ -278,21 +278,21 @@ export class AutomationsPageComponent implements OnInit {
     if (!confirm(this.i18n.t().automations.deleteConfirm)) {
       return;
     }
-    this.automationsApi.delete(schedule.id).subscribe({
+    this.#automationsApi.delete(schedule.id).subscribe({
       next: () => this.reload(),
       error: () => {
-        this.notifications.showError(this.i18n.t().automations.errors.deleteFailed);
+        this.#notifications.showError(this.i18n.t().automations.errors.deleteFailed);
       },
     });
   }
 
   showHistory(schedule: AutomationSchedule): void {
     this.historyScheduleId.set(schedule.id);
-    this.automationsApi.listRuns(schedule.id).subscribe({
+    this.#automationsApi.listRuns(schedule.id).subscribe({
       next: runs => this.runs.set(runs),
       error: () => {
         this.runs.set([]);
-        this.notifications.showError(this.i18n.t().automations.errors.loadFailed);
+        this.#notifications.showError(this.i18n.t().automations.errors.loadFailed);
       },
     });
   }
@@ -301,7 +301,7 @@ export class AutomationsPageComponent implements OnInit {
     return this.templates().find(template => template.id === id)?.name ?? id;
   }
 
-  private defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
+  #defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
     if (!template) {
       return '';
     }
@@ -312,7 +312,7 @@ export class AutomationsPageComponent implements OnInit {
     return template.briefPrompt.trim();
   }
 
-  private isGenericPlaceholder(brief: string): boolean {
+  #isGenericPlaceholder(brief: string): boolean {
     return brief.trim().toLowerCase()
       === 'follow the configured agent pipeline for the user task.';
   }

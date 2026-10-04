@@ -6,32 +6,32 @@ import { Language, Translations, translations, languageNames } from './translati
   providedIn: 'root',
 })
 export class I18nService {
-  private readonly languageState = signal<Language>(this.getInitialLanguage());
+  readonly #languageState = signal<Language>(this.#getInitialLanguage());
 
-  readonly language = this.languageState.asReadonly();
-  readonly t = computed<Translations>(() => translations[this.languageState()]);
-  readonly languageName = computed(() => languageNames[this.languageState()]);
+  readonly language = this.#languageState.asReadonly();
+  readonly t = computed<Translations>(() => translations[this.#languageState()]);
+  readonly languageName = computed(() => languageNames[this.#languageState()]);
 
-  private getInitialLanguage(): Language {
+  #getInitialLanguage(): Language {
     const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
-    if (stored && this.isValidLanguage(stored)) {
+    if (stored && this.#isValidLanguage(stored)) {
       return stored as Language;
     }
 
     const browserLang = navigator.language.split('-')[0];
-    if (this.isValidLanguage(browserLang)) {
+    if (this.#isValidLanguage(browserLang)) {
       return browserLang as Language;
     }
 
     return 'zh';
   }
 
-  private isValidLanguage(lang: string): boolean {
+  #isValidLanguage(lang: string): boolean {
     return ['en', 'zh', 'ja', 'fr', 'es'].includes(lang);
   }
 
   setLanguage(lang: Language): void {
-    this.languageState.set(lang);
+    this.#languageState.set(lang);
     localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
   }
 

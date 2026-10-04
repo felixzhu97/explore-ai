@@ -27,21 +27,21 @@ export interface McpChatResponse {
 
 @Injectable({ providedIn: 'root' })
 export class McpService {
-  private readonly http = inject(HttpClient);
+  readonly #http = inject(HttpClient);
 
   getHealth(): Observable<McpHealthResponse> {
-    return this.http.get<McpHealthResponse>(`${API_BASE_URL}/mcp/health`);
+    return this.#http.get<McpHealthResponse>(`${API_BASE_URL}/mcp/health`);
   }
 
   getClientStatus(): Observable<McpClientStatusResponse> {
-    return this.http.get<McpClientStatusResponse>(`${API_BASE_URL}/mcp/client/status`);
+    return this.#http.get<McpClientStatusResponse>(`${API_BASE_URL}/mcp/client/status`);
   }
 
   listTools(): Observable<McpTool[]> {
-    return this.http.get<McpTool[]>(`${API_BASE_URL}/mcp/client/tools`);
+    return this.#http.get<McpTool[]>(`${API_BASE_URL}/mcp/client/tools`);
   }
 
   chat(question: string): Observable<McpChatResponse> {
-    return this.http.post<McpChatResponse>(`${API_BASE_URL}/mcp/client/chat`, { question });
+    return this.#http.post<McpChatResponse>(`${API_BASE_URL}/mcp/client/chat`, { question });
   }
 }

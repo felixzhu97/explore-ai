@@ -104,7 +104,7 @@ export class ChatMessagePaneComponent {
 
   readonly promptSelected = output<string>();
 
-  private readonly messageScrollEl =
+  protected readonly messageScrollEl =
     viewChild<ElementRef<HTMLElement>>('messageScroll');
 
   constructor() {
@@ -117,12 +117,12 @@ export class ChatMessagePaneComponent {
         if (messageCount === 0) {
           return;
         }
-        requestAnimationFrame(() => this.scrollMessagesToBottom());
+        requestAnimationFrame(() => this.#scrollMessagesToBottom());
       });
     });
   }
 
-  private scrollMessagesToBottom(): void {
+  #scrollMessagesToBottom(): void {
     const element = this.messageScrollEl()?.nativeElement;
     if (!element) {
       return;

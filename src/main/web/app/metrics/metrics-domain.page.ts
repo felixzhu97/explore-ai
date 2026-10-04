@@ -30,45 +30,45 @@ import {
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
 export class MetricsDomainPageComponent {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  readonly #route = inject(ActivatedRoute);
+  readonly #router = inject(Router);
   protected readonly i18n = inject(I18nService);
 
-  private readonly routeDomain = toSignal(
-    this.route.paramMap.pipe(map(params => params.get('domain') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('domain') ?? '' },
+  readonly #routeDomain = toSignal(
+    this.#route.paramMap.pipe(map(params => params.get('domain') ?? '')),
+    { initialValue: this.#route.snapshot.paramMap.get('domain') ?? '' },
   );
 
-  private readonly queryParams = toSignal(this.route.queryParamMap, {
-    initialValue: this.route.snapshot.queryParamMap,
+  readonly #queryParams = toSignal(this.#route.queryParamMap, {
+    initialValue: this.#route.snapshot.queryParamMap,
   });
 
   readonly domain = computed((): MetricsDomain | null => {
-    const value = this.routeDomain();
+    const value = this.#routeDomain();
     return isMetricsDomain(value) ? value : null;
   });
 
   readonly range = computed((): MetricsRange => {
-    const value = this.queryParams().get('range');
+    const value = this.#queryParams().get('range');
     return value === '30d' ? '30d' : '7d';
   });
 
-  readonly day = computed(() => this.queryParams().get('day') ?? undefined);
-  readonly model = computed(() => this.queryParams().get('model') ?? undefined);
+  readonly day = computed(() => this.#queryParams().get('day') ?? undefined);
+  readonly model = computed(() => this.#queryParams().get('model') ?? undefined);
   readonly page = signal(0);
 
-  private readonly metrics = inject(MetricsService);
+  readonly #metrics = inject(MetricsService);
 
-  readonly domainResource = this.metrics.domain(this.domain, this.range);
+  readonly domainResource = this.#metrics.domain(this.domain, this.range);
 
-  readonly docsSeriesResource = this.metrics.series(() => {
+  readonly docsSeriesResource = this.#metrics.series(() => {
     if (this.domain() !== 'rag') {
       return undefined;
     }
     return { name: 'documents_by_status', domain: 'rag', range: this.range() };
   });
 
-  readonly drilldownResource = this.metrics.drilldown(() => {
+  readonly drilldownResource = this.#metrics.drilldown(() => {
     const domain = this.domain();
     if (!domain) {
       return undefined;
@@ -183,8 +183,8 @@ export class MetricsDomainPageComponent {
   );
 
   setRange(range: MetricsRange): void {
-    void this.router.navigate([], {
-      relativeTo: this.route,
+    void this.#router.navigate([], {
+      relativeTo: this.#route,
       queryParams: { range, day: this.day(), model: this.model() },
       queryParamsHandling: 'merge',
     });
@@ -192,8 +192,8 @@ export class MetricsDomainPageComponent {
   }
 
   onRequestClick(payload: ChartClickPayload): void {
-    void this.router.navigate([], {
-      relativeTo: this.route,
+    void this.#router.navigate([], {
+      relativeTo: this.#route,
       queryParams: { day: payload.label, model: null },
       queryParamsHandling: 'merge',
     });
@@ -201,8 +201,8 @@ export class MetricsDomainPageComponent {
   }
 
   onModelClick(payload: ChartClickPayload): void {
-    void this.router.navigate([], {
-      relativeTo: this.route,
+    void this.#router.navigate([], {
+      relativeTo: this.#route,
       queryParams: { model: payload.label, day: null },
       queryParamsHandling: 'merge',
     });
@@ -210,8 +210,8 @@ export class MetricsDomainPageComponent {
   }
 
   clearFilters(): void {
-    void this.router.navigate([], {
-      relativeTo: this.route,
+    void this.#router.navigate([], {
+      relativeTo: this.#route,
       queryParams: { range: this.range(), day: null, model: null },
     });
     this.page.set(0);
@@ -219,11 +219,11 @@ export class MetricsDomainPageComponent {
 
   onRowClick(event: InvocationEvent): void {
     if (event.sessionId) {
-      void this.router.navigate(['/chat', event.sessionId]);
+      void this.#router.navigate(['/chat', event.sessionId]);
       return;
     }
     if (event.documentId || event.domain === 'rag') {
-      void this.router.navigate(['/rag']);
+      void this.#router.navigate(['/rag']);
     }
   }
 }

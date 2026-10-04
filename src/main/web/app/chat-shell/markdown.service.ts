@@ -9,7 +9,7 @@ const CODE_PLACEHOLDER_SUFFIX = '\uE003';
 
 @Injectable({ providedIn: 'root' })
 export class MarkdownService {
-  private readonly sanitizer = inject(DomSanitizer);
+  readonly #sanitizer = inject(DomSanitizer);
 
   constructor() {
     const renderer = new marked.Renderer();
@@ -26,14 +26,14 @@ export class MarkdownService {
   render(content: string, streaming = false): SafeHtml {
     if (!content) return '';
 
-    const source = this.prepareSource(content, streaming);
+    const source = this.#prepareSource(content, streaming);
     const html = marked.parse(source) as string;
     const cleanHtml = DOMPurify.sanitize(html, {
       ADD_TAGS: ['pre', 'code'],
       ADD_ATTR: ['class'],
     });
 
-    return this.sanitizer.bypassSecurityTrustHtml(cleanHtml);
+    return this.#sanitizer.bypassSecurityTrustHtml(cleanHtml);
   }
 
   /** @deprecated Use {@link render} with streaming=true */
@@ -44,7 +44,7 @@ export class MarkdownService {
   renderToString(content: string): string {
     if (!content) return '';
 
-    const source = this.prepareSource(content, false);
+    const source = this.#prepareSource(content, false);
     const html = marked.parse(source) as string;
     return DOMPurify.sanitize(html, {
       ADD_TAGS: ['pre', 'code'],
@@ -80,7 +80,7 @@ export class MarkdownService {
       /([一二三四五六七八九十]+、[^\n-]+)(-(?!-)(?=[^\s\n0-9a-zA-Z]))/g,
       '$1\n$2',
     );
-    normalized = this.promoteOutlineSectionHeadings(normalized);
+    normalized = this.#promoteOutlineSectionHeadings(normalized);
     normalized = normalized.replace(/^-(?!-)(?=[^\s\n0-9a-zA-Z])/gm, '- ');
     normalized = normalized.replace(/^\*(?!\*)(?=[^\s\n0-9a-zA-Z])/gm, '* ');
     normalized = normalized.replace(/^\+(?=[^\s\n0-9a-zA-Z])/gm, '+ ');
@@ -99,14 +99,14 @@ export class MarkdownService {
   }
 
   /** Outline sections written as "一、…" on their own line → GFM ## headings. */
-  private promoteOutlineSectionHeadings(content: string): string {
+  #promoteOutlineSectionHeadings(content: string): string {
     return content.replace(
       /(^|\n)([一二三四五六七八九十]+、[^\n]+)(?=\n|$)/g,
       '$1## $2',
     );
   }
 
-  private prepareSource(content: string, streaming: boolean): string {
+  #prepareSource(content: string, streaming: boolean): string {
     let source = this.normalizeGfmSyntax(content);
     if (streaming && !source.endsWith('\n')) {
       source += '\n';
@@ -131,7 +131,7 @@ export class MarkdownService {
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>');
 
-    return this.sanitizer.bypassSecurityTrustHtml(`<p>${html}</p>`);
+    return this.#sanitizer.bypassSecurityTrustHtml(`<p>${html}</p>`);
   }
 
   highlightJson(json: string): string {

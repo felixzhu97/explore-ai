@@ -27,9 +27,9 @@ const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
 
 @Injectable({ providedIn: 'root' })
 export class VisionService {
-  private readonly http = inject(HttpClient);
-  private readonly i18n = inject(I18nService);
-  private readonly imageZoom = inject(ImageZoomService);
+  readonly #http = inject(HttpClient);
+  readonly #i18n = inject(I18nService);
+  readonly #imageZoom = inject(ImageZoomService);
 
   readonly activeTask = signal<VisionTaskType>('caption');
   readonly tabStates = signal<Record<VisionTaskType, VisionTabState>>({
@@ -49,7 +49,7 @@ export class VisionService {
     if (ms == null) {
       return null;
     }
-    return this.i18n.t().vision.processingTime.replace('{ms}', String(ms));
+    return this.#i18n.t().vision.processingTime.replace('{ms}', String(ms));
   });
 
   readonly canAnalyze = computed(() => Boolean(this.currentState().file));
@@ -60,28 +60,28 @@ export class VisionService {
 
   processFile(file: File): void {
     if (!file.type.startsWith('image/')) {
-      this.updateState({ error: this.i18n.t().vision.errors.invalidImage });
+      this.#updateState({ error: this.#i18n.t().vision.errors.invalidImage });
       return;
     }
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      this.updateState({ error: this.i18n.t().vision.errors.fileTooLarge });
+      this.#updateState({ error: this.#i18n.t().vision.errors.fileTooLarge });
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const imageData = event.target?.result as string;
-      this.updateState({ image: imageData, file, error: null, result: null });
+      this.#updateState({ image: imageData, file, error: null, result: null });
     };
     reader.readAsDataURL(file);
   }
 
   clearImage(): void {
-    this.updateState({ image: null, file: null, error: null, result: null });
+    this.#updateState({ image: null, file: null, error: null, result: null });
   }
 
   openZoom(image: string): void {
-    this.imageZoom.open(image, this.i18n.t().vision.imageLabel);
+    this.#imageZoom.open(image, this.#i18n.t().vision.imageLabel);
   }
 
   analyze(): void {
@@ -91,28 +91,28 @@ export class VisionService {
     }
 
     this.isLoading.set(true);
-    this.updateState({ error: null, result: null });
+    this.#updateState({ error: null, result: null });
 
     const task = this.activeTask();
     let request: Observable<VisionResult>;
     switch (task) {
       case 'caption':
-        request = this.captionImage(currentFile);
+        request = this.#captionImage(currentFile);
         break;
       case 'detect':
-        request = this.detectObjects(currentFile);
+        request = this.#detectObjects(currentFile);
         break;
       case 'ocr':
-        request = this.ocrImage(currentFile);
+        request = this.#ocrImage(currentFile);
         break;
     }
 
     request.subscribe({
       next: (data) => {
-        this.updateState({ result: data });
+        this.#updateState({ result: data });
       },
       error: (error: AppError) => {
-        this.updateState({ error: this.resolveErrorMessage(error) });
+        this.#updateState({ error: this.#resolveErrorMessage(error) });
         this.isLoading.set(false);
       },
       complete: () => {
@@ -121,44 +121,44 @@ export class VisionService {
     });
   }
 
-  private captionImage(file: File): Observable<Pick<VisionResult, 'caption' | 'processingTimeMs'>> {
+  #captionImage(file: File): Observable<Pick<VisionResult, 'caption' | 'processingTimeMs'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<Pick<VisionResult, 'caption' | 'processingTimeMs'>>(
+    return this.#http.post<Pick<VisionResult, 'caption' | 'processingTimeMs'>>(
       `${API_BASE_URL}/vision/caption`,
       formData,
     );
   }
 
-  private detectObjects(file: File): Observable<Pick<VisionResult, 'detections' | 'processingTimeMs'>> {
+  #detectObjects(file: File): Observable<Pick<VisionResult, 'detections' | 'processingTimeMs'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<Pick<VisionResult, 'detections' | 'processingTimeMs'>>(
+    return this.#http.post<Pick<VisionResult, 'detections' | 'processingTimeMs'>>(
       `${API_BASE_URL}/vision/detect`,
       formData,
     );
   }
 
-  private ocrImage(file: File): Observable<Pick<VisionResult, 'fullText' | 'processingTimeMs'>> {
+  #ocrImage(file: File): Observable<Pick<VisionResult, 'fullText' | 'processingTimeMs'>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<Pick<VisionResult, 'fullText' | 'processingTimeMs'>>(
+    return this.#http.post<Pick<VisionResult, 'fullText' | 'processingTimeMs'>>(
       `${API_BASE_URL}/vision/ocr`,
       formData,
     );
   }
 
-  private resolveErrorMessage(error: AppError): string {
+  #resolveErrorMessage(error: AppError): string {
     if (error.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
-      return this.i18n.t().vision.errors.providerUnavailable;
+      return this.#i18n.t().vision.errors.providerUnavailable;
     }
     if (error.status === 0) {
-      return this.i18n.t().vision.errors.requestFailed;
+      return this.#i18n.t().vision.errors.requestFailed;
     }
     return error.message;
   }
 
-  private updateState(partial: Partial<VisionTabState>): void {
+  #updateState(partial: Partial<VisionTabState>): void {
     this.tabStates.update(states => ({
       ...states,
       [this.activeTask()]: { ...states[this.activeTask()], ...partial },

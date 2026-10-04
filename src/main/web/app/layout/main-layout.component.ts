@@ -37,10 +37,10 @@ import { AccountService } from '../account/account.service';
 })
 export class MainLayoutComponent implements OnInit {
   readonly sidebar = inject(SidebarService);
-  private readonly account = inject(AccountService);
+  readonly #account = inject(AccountService);
 
   ngOnInit(): void {
-    this.account.consumeLoginReturn();
+    this.#account.consumeLoginReturn();
   }
 
   openSidebar(): void {

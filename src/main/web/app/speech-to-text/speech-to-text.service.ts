@@ -12,7 +12,7 @@ export interface TranscriptionMessage {
 
 @Injectable({ providedIn: 'root' })
 export class SpeechToTextService {
-  private socket: WebSocket | null = null;
+  #socket: WebSocket | null = null;
 
   readonly connectionState = signal<SpeechToTextConnectionState>('disconnected');
   readonly transcript = signal('');
@@ -27,13 +27,13 @@ export class SpeechToTextService {
     this.lastMessage.set(null);
 
     const url = `${environment.wsUrl}/ws/audio/transcribe`;
-    this.socket = new WebSocket(url);
+    this.#socket = new WebSocket(url);
 
-    this.socket.onopen = () => {
+    this.#socket.onopen = () => {
       this.connectionState.set('connected');
     };
 
-    this.socket.onmessage = (event) => {
+    this.#socket.onmessage = (event) => {
       const payload = String(event.data);
       this.lastMessage.set(payload);
       try {
@@ -49,12 +49,12 @@ export class SpeechToTextService {
       }
     };
 
-    this.socket.onerror = () => {
+    this.#socket.onerror = () => {
       this.connectionState.set('error');
       this.error.set('connectionFailed');
     };
 
-    this.socket.onclose = () => {
+    this.#socket.onclose = () => {
       if (this.connectionState() !== 'error') {
         this.connectionState.set('disconnected');
       }
@@ -62,26 +62,26 @@ export class SpeechToTextService {
   }
 
   sendStop(): void {
-    this.sendJson({ type: 'stop' });
+    this.#sendJson({ type: 'stop' });
   }
 
   sendTestAudioPayload(): void {
-    this.sendJson({ type: 'audio', data: '' });
+    this.#sendJson({ type: 'audio', data: '' });
   }
 
   disconnect(): void {
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
+    if (this.#socket) {
+      this.#socket.close();
+      this.#socket = null;
     }
     this.connectionState.set('disconnected');
   }
 
-  private sendJson(payload: Record<string, string>): void {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+  #sendJson(payload: Record<string, string>): void {
+    if (!this.#socket || this.#socket.readyState !== WebSocket.OPEN) {
       this.error.set('notConnected');
       return;
     }
-    this.socket.send(JSON.stringify(payload));
+    this.#socket.send(JSON.stringify(payload));
   }
 }

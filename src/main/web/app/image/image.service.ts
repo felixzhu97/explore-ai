@@ -57,8 +57,8 @@ export const DEFAULT_IMAGE_SIZES: ImageSize[] = [
 
 @Injectable({ providedIn: 'root' })
 export class ImageService {
-  private readonly http = inject(HttpClient);
-  private readonly imageZoom = inject(ImageZoomService);
+  readonly #http = inject(HttpClient);
+  readonly #imageZoom = inject(ImageZoomService);
 
   readonly prompt = signal('');
   readonly isGenerating = signal(false);
@@ -71,7 +71,7 @@ export class ImageService {
   readonly selectedQuality = signal<string | undefined>(undefined);
   readonly selectedSize = signal<ImageSize>(DEFAULT_IMAGE_SIZES[2]);
 
-  private readonly imageSource = signal<'url' | 'base64' | null>(null);
+  readonly #imageSource = signal<'url' | 'base64' | null>(null);
 
   readonly hasGeneratedImage = computed(() => Boolean(this.generatedImage()));
 
@@ -80,7 +80,7 @@ export class ImageService {
   }
 
   loadCatalog(): void {
-    this.getImageCatalog().subscribe({
+    this.#getImageCatalog().subscribe({
       next: (catalog) => {
         if (catalog.models.length > 0) {
           this.models.set(catalog.models);
@@ -112,7 +112,7 @@ export class ImageService {
   openZoom(): void {
     const image = this.generatedImage();
     if (image) {
-      this.imageZoom.open(image);
+      this.#imageZoom.open(image);
     }
   }
 
@@ -124,10 +124,10 @@ export class ImageService {
     this.isGenerating.set(true);
     this.error.set(null);
     this.generatedImage.set(null);
-    this.imageSource.set(null);
+    this.#imageSource.set(null);
 
     const size = this.selectedSize();
-    this.generateImage({
+    this.#generateImage({
       prompt: this.prompt(),
       model: this.selectedModel(),
       quality: this.selectedQuality(),
@@ -138,12 +138,12 @@ export class ImageService {
       next: (result) => {
         if (result.imageUrl) {
           this.generatedImage.set(result.imageUrl);
-          this.imageSource.set('url');
+          this.#imageSource.set('url');
           return;
         }
         if (result.imageBase64) {
           this.generatedImage.set(`data:image/png;base64,${result.imageBase64}`);
-          this.imageSource.set('base64');
+          this.#imageSource.set('base64');
         }
       },
       error: (error: AppError) => {
@@ -163,7 +163,7 @@ export class ImageService {
     }
 
     const filename = `ai_generated_${Date.now()}.png`;
-    if (this.imageSource() === 'base64') {
+    if (this.#imageSource() === 'base64') {
       const base64 = image.replace(/^data:image\/\w+;base64,/, '');
       downloadBase64Image(base64, filename);
       return;
@@ -175,10 +175,10 @@ export class ImageService {
       .catch(() => this.error.set('Failed to download image'));
   }
 
-  private generateImage(
+  #generateImage(
     params: ImageGenerateParams,
   ): Observable<ImageGenerationApiResponse> {
-    return this.http.post<ImageGenerationApiResponse>(
+    return this.#http.post<ImageGenerationApiResponse>(
       `${API_BASE_URL}/images/generate`,
       {
         prompt: params.prompt,
@@ -191,29 +191,29 @@ export class ImageService {
     );
   }
 
-  private getImageModels(): Observable<string[]> {
-    return this.http
+  #getImageModels(): Observable<string[]> {
+    return this.#http
       .get<{ models: string[] }>(`${API_BASE_URL}/images/models`)
       .pipe(map(response => response.models));
   }
 
-  private getImageSizes(): Observable<string[]> {
-    return this.http
+  #getImageSizes(): Observable<string[]> {
+    return this.#http
       .get<{ sizes: string[] }>(`${API_BASE_URL}/images/sizes`)
       .pipe(map(response => response.sizes));
   }
 
-  private getImageQualities(): Observable<string[]> {
-    return this.http
+  #getImageQualities(): Observable<string[]> {
+    return this.#http
       .get<{ qualities: string[] }>(`${API_BASE_URL}/images/qualities`)
       .pipe(map(response => response.qualities));
   }
 
-  private getImageCatalog(): Observable<ImageCatalogResponse> {
+  #getImageCatalog(): Observable<ImageCatalogResponse> {
     return forkJoin({
-      models: this.getImageModels().pipe(catchError(() => of([] as string[]))),
-      sizes: this.getImageSizes().pipe(catchError(() => of([] as string[]))),
-      qualities: this.getImageQualities().pipe(catchError(() => of([] as string[]))),
+      models: this.#getImageModels().pipe(catchError(() => of([] as string[]))),
+      sizes: this.#getImageSizes().pipe(catchError(() => of([] as string[]))),
+      qualities: this.#getImageQualities().pipe(catchError(() => of([] as string[]))),
     });
   }
 }

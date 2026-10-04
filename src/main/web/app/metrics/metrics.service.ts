@@ -107,11 +107,11 @@ export interface SeriesQuery {
 /** Signal-driven metrics resources; create them from an injection context. */
 @Injectable({ providedIn: 'root' })
 export class MetricsService {
-  private readonly baseUrl = `${API_BASE_URL}/metrics`;
+  readonly #baseUrl = `${API_BASE_URL}/metrics`;
 
   overview(range: () => MetricsRange): HttpResourceRef<MetricsOverview | undefined> {
     return httpResource<MetricsOverview>(() => ({
-      url: `${this.baseUrl}/overview`,
+      url: `${this.#baseUrl}/overview`,
       params: { range: range() },
     }));
   }
@@ -123,7 +123,7 @@ export class MetricsService {
     return httpResource<MetricsDomainSnapshot>(() => {
       const value = domain();
       return value
-        ? { url: `${this.baseUrl}/domains/${value}`, params: { range: range() } }
+        ? { url: `${this.#baseUrl}/domains/${value}`, params: { range: range() } }
         : undefined;
     });
   }
@@ -133,7 +133,7 @@ export class MetricsService {
   ): HttpResourceRef<SeriesResponse | undefined> {
     return httpResource<SeriesResponse>(() => {
       const value = query();
-      return value ? { url: `${this.baseUrl}/series`, params: { ...value } } : undefined;
+      return value ? { url: `${this.#baseUrl}/series`, params: { ...value } } : undefined;
     });
   }
 
@@ -148,7 +148,7 @@ export class MetricsService {
       const params = Object.fromEntries(
         Object.entries(value).filter(([, param]) => param !== undefined),
       ) as Record<string, string | number>;
-      return { url: `${this.baseUrl}/drilldown`, params };
+      return { url: `${this.#baseUrl}/drilldown`, params };
     });
   }
 }

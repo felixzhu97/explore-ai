@@ -17,12 +17,12 @@ import { MarkdownService } from './markdown.service';
   host: { class: 'markdown-content' },
 })
 export class MarkdownContentComponent {
-  private readonly markdown = inject(MarkdownService);
+  readonly #markdown = inject(MarkdownService);
 
   readonly content = input.required<string>();
   readonly isStreaming = input(false);
 
   readonly html = computed(() => {
-    return this.markdown.render(this.content(), this.isStreaming());
+    return this.#markdown.render(this.content(), this.isStreaming());
   });
 }

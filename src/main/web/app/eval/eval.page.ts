@@ -12,7 +12,7 @@ import { I18nService } from '../i18n';
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
 export class EvalPageComponent {
-  private readonly evalService = inject(EvalService);
+  readonly #evalService = inject(EvalService);
   protected readonly i18n = inject(I18nService);
 
   readonly userMessage = signal('');
@@ -32,7 +32,7 @@ export class EvalPageComponent {
     this.error.set(null);
     this.result.set(null);
 
-    this.evalService.evaluate({ userMessage, assistantResponse }).subscribe({
+    this.#evalService.evaluate({ userMessage, assistantResponse }).subscribe({
       next: (response) => {
         this.result.set(response);
         this.isLoading.set(false);

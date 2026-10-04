@@ -141,18 +141,18 @@ import {
   },
 })
 export class PoliciesPageComponent {
-  private readonly i18n = inject(I18nService);
-  private readonly route = inject(ActivatedRoute);
+  readonly #i18n = inject(I18nService);
+  readonly #route = inject(ActivatedRoute);
 
-  private readonly rawSlug = toSignal(
-    this.route.paramMap.pipe(map(params => params.get('slug'))),
+  readonly #rawSlug = toSignal(
+    this.#route.paramMap.pipe(map(params => params.get('slug'))),
     { initialValue: null as string | null },
   );
 
-  readonly hub = computed(() => policiesHubCopy(this.i18n.language()));
+  readonly hub = computed(() => policiesHubCopy(this.#i18n.language()));
 
   readonly doc = computed(() => {
-    const slug = resolvePolicySlug(this.rawSlug());
-    return slug ? policyDocCopy(slug, this.i18n.language()) : null;
+    const slug = resolvePolicySlug(this.#rawSlug());
+    return slug ? policyDocCopy(slug, this.#i18n.language()) : null;
   });
 }

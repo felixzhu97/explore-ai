@@ -35,8 +35,8 @@ const EMPTY_FORM: SkillWriteRequest = {
   },
 })
 export class SkillsPageComponent implements OnInit {
-  private readonly skillsApi = inject(SkillsService);
-  private readonly notifications = inject(NotificationService);
+  readonly #skillsApi = inject(SkillsService);
+  readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
   readonly skills = signal<Skill[]>([]);
@@ -62,7 +62,7 @@ export class SkillsPageComponent implements OnInit {
   constructor() {
     effect(() => {
       this.i18n.language();
-      this.reloadTemplates();
+      this.#reloadTemplates();
     });
   }
 
@@ -82,7 +82,7 @@ export class SkillsPageComponent implements OnInit {
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);
-    this.skillsApi.list().subscribe({
+    this.#skillsApi.list().subscribe({
       next: (skills) => {
         this.skills.set(skills);
         this.isLoading.set(false);
@@ -92,11 +92,11 @@ export class SkillsPageComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
-    this.reloadTemplates();
+    this.#reloadTemplates();
   }
 
-  private reloadTemplates(): void {
-    this.skillsApi.listTemplates().subscribe({
+  #reloadTemplates(): void {
+    this.#skillsApi.listTemplates().subscribe({
       next: templates => this.templates.set(templates),
       error: () => undefined,
     });
@@ -104,13 +104,13 @@ export class SkillsPageComponent implements OnInit {
 
   startCreate(): void {
     this.editingId.set(null);
-    this.applyForm(EMPTY_FORM);
+    this.#applyForm(EMPTY_FORM);
     this.showForm.set(true);
   }
 
   startEdit(skill: Skill): void {
     this.editingId.set(skill.id);
-    this.applyForm({
+    this.#applyForm({
       name: skill.name,
       description: skill.description,
       instructions: skill.instructions,
@@ -121,7 +121,7 @@ export class SkillsPageComponent implements OnInit {
 
   customizeTemplate(template: SkillTemplate): void {
     this.editingId.set(null);
-    this.applyForm({
+    this.#applyForm({
       name: template.name,
       description: template.description,
       instructions: template.instructions,
@@ -136,10 +136,10 @@ export class SkillsPageComponent implements OnInit {
     }
     this.addingTemplateId.set(template.id);
     this.error.set(null);
-    this.skillsApi.createFromTemplate(template.id).subscribe({
+    this.#skillsApi.createFromTemplate(template.id).subscribe({
       next: () => {
         this.addingTemplateId.set(null);
-        this.notifications.showSuccess(this.i18n.t().skills.added);
+        this.#notifications.showSuccess(this.i18n.t().skills.added);
         this.reload();
       },
       error: () => {
@@ -155,7 +155,7 @@ export class SkillsPageComponent implements OnInit {
   }
 
   save(): void {
-    const request = this.readForm();
+    const request = this.#readForm();
     if (!request.name.trim() || !request.instructions.trim()) {
       this.error.set(this.i18n.t().skills.errors.nameRequired);
       return;
@@ -164,13 +164,13 @@ export class SkillsPageComponent implements OnInit {
     this.error.set(null);
     const id = this.editingId();
     const request$ = id
-      ? this.skillsApi.update(id, request)
-      : this.skillsApi.create(request);
+      ? this.#skillsApi.update(id, request)
+      : this.#skillsApi.create(request);
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
         this.showForm.set(false);
-        this.notifications.showSuccess(this.i18n.t().common.success);
+        this.#notifications.showSuccess(this.i18n.t().common.success);
         this.reload();
       },
       error: () => {
@@ -181,7 +181,7 @@ export class SkillsPageComponent implements OnInit {
   }
 
   toggleEnabled(skill: Skill): void {
-    this.skillsApi.setEnabled(skill.id, !skill.enabled).subscribe({
+    this.#skillsApi.setEnabled(skill.id, !skill.enabled).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().skills.errors.updateFailed),
     });
@@ -194,19 +194,19 @@ export class SkillsPageComponent implements OnInit {
     if (!confirm(message)) {
       return;
     }
-    this.skillsApi.delete(skill.id).subscribe({
+    this.#skillsApi.delete(skill.id).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().skills.errors.deleteFailed),
     });
   }
 
-  private applyForm(request: SkillWriteRequest): void {
+  #applyForm(request: SkillWriteRequest): void {
     this.formName.set(request.name);
     this.formDescription.set(request.description);
     this.formInstructions.set(request.instructions);
   }
 
-  private readForm(): SkillWriteRequest {
+  #readForm(): SkillWriteRequest {
     return {
       name: this.formName().trim(),
       description: this.formDescription().trim(),

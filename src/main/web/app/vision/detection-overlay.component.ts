@@ -18,14 +18,14 @@ export interface Detection {
   template: `
     <div class="relative inline-block max-h-96 max-w-full">
       <img
-        #previewImage
+        previewImage
         class="max-h-96 max-w-full rounded-xl object-contain"
         [src]="imageSrc()"
         alt="Preview"
         (load)="drawOverlay()"
       />
       <canvas
-        #overlayCanvas
+        overlayCanvas
         class="pointer-events-none absolute top-0 left-0 size-full"
       ></canvas>
     </div>
@@ -36,8 +36,8 @@ export class DetectionOverlayComponent {
   readonly imageSrc = input.required<string>();
   readonly detections = input<Detection[]>([]);
 
-  private readonly previewImage = viewChild.required<ElementRef<HTMLImageElement>>('previewImage');
-  private readonly overlayCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('overlayCanvas');
+  protected readonly previewImage = viewChild.required<ElementRef<HTMLImageElement>>('previewImage');
+  protected readonly overlayCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('overlayCanvas');
 
   constructor() {
     effect(() => {

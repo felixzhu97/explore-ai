@@ -12,20 +12,20 @@ const FLAG_KEYS = Object.values(FEATURE_FLAG_KEYS);
 
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagService {
-  private readonly flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
-  private ldStarted = false;
+  readonly #flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
+  #ldStarted = false;
 
   async initialize(): Promise<void> {
     const clientSideId = environment.launchDarklyClientSideId;
     if (!clientSideId || !hasAnalyticsConsent()) {
-      this.flags.set(environment.featureFlagFallback);
+      this.#flags.set(environment.featureFlagFallback);
       return;
     }
 
-    if (this.ldStarted) {
+    if (this.#ldStarted) {
       return;
     }
-    this.ldStarted = true;
+    this.#ldStarted = true;
 
     const client = createClient(clientSideId, {
       kind: 'user',
@@ -33,7 +33,7 @@ export class FeatureFlagService {
       anonymous: true,
     });
 
-    client.on('change', () => this.syncFlags(client));
+    client.on('change', () => this.#syncFlags(client));
     client.start();
 
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -44,24 +44,24 @@ export class FeatureFlagService {
     try {
       await Promise.race([client.waitForInitialization(), timeoutPromise]);
     } catch {
-      this.flags.set(environment.featureFlagFallback);
+      this.#flags.set(environment.featureFlagFallback);
       return;
     } finally {
       clearTimeout(timeoutId!);
     }
 
-    this.syncFlags(client);
+    this.#syncFlags(client);
   }
 
   isEnabled(key: FeatureFlagKey): boolean {
-    return this.flags()[key] ?? environment.featureFlagFallback[key] ?? false;
+    return this.#flags()[key] ?? environment.featureFlagFallback[key] ?? false;
   }
 
-  private syncFlags(client: LDClient): void {
+  #syncFlags(client: LDClient): void {
     const values = {} as Record<FeatureFlagKey, boolean>;
     for (const key of FLAG_KEYS) {
       values[key] = client.boolVariation(key, environment.featureFlagFallback[key]);
     }
-    this.flags.set(values);
+    this.#flags.set(values);
   }
 }

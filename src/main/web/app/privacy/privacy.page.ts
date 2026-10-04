@@ -118,12 +118,12 @@ import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.comp
   },
 })
 export class PrivacyPageComponent {
-  private readonly api = inject(PrivacyApiService);
-  private readonly chat = inject(ChatService);
-  private readonly notify = inject(NotificationService);
-  private readonly i18n = inject(I18nService);
+  readonly #api = inject(PrivacyApiService);
+  readonly #chat = inject(ChatService);
+  readonly #notify = inject(NotificationService);
+  readonly #i18n = inject(I18nService);
 
-  readonly copy = computed(() => PRIVACY_PAGE_COPY[this.i18n.language()]);
+  readonly copy = computed(() => PRIVACY_PAGE_COPY[this.#i18n.language()]);
   readonly isBusy = signal(false);
 
   eraseSessions(): void {
@@ -131,16 +131,16 @@ export class PrivacyPageComponent {
       return;
     }
     this.isBusy.set(true);
-    this.api.eraseAllSessions().subscribe({
+    this.#api.eraseAllSessions().subscribe({
       next: () => {
-        this.chat.sessions.set([]);
-        this.chat.activeSessionId.set(null);
-        this.chat.messages.set([]);
-        this.notify.showSuccess(this.copy().eraseSuccess);
+        this.#chat.sessions.set([]);
+        this.#chat.activeSessionId.set(null);
+        this.#chat.messages.set([]);
+        this.#notify.showSuccess(this.copy().eraseSuccess);
         this.isBusy.set(false);
       },
       error: () => {
-        this.notify.showError(this.copy().eraseFailed);
+        this.#notify.showError(this.copy().eraseFailed);
         this.isBusy.set(false);
       },
     });
@@ -151,17 +151,17 @@ export class PrivacyPageComponent {
       return;
     }
     this.isBusy.set(true);
-    this.api.resetIdentity().subscribe({
+    this.#api.resetIdentity().subscribe({
       next: () => {
-        this.chat.sessions.set([]);
-        this.chat.activeSessionId.set(null);
-        this.chat.messages.set([]);
-        this.chat.loadSessions();
-        this.notify.showSuccess(this.copy().resetSuccess);
+        this.#chat.sessions.set([]);
+        this.#chat.activeSessionId.set(null);
+        this.#chat.messages.set([]);
+        this.#chat.loadSessions();
+        this.#notify.showSuccess(this.copy().resetSuccess);
         this.isBusy.set(false);
       },
       error: () => {
-        this.notify.showError(this.copy().resetFailed);
+        this.#notify.showError(this.copy().resetFailed);
         this.isBusy.set(false);
       },
     });

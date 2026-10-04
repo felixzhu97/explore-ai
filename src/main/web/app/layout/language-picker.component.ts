@@ -10,7 +10,7 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
   selector: 'app-language-picker',
   imports: [NgIcon, ZardButtonComponent, ...ZardDropdownImports],
   template: `
-    <z-dropdown-menu #dropdownMenu="zDropdownMenu">
+    <z-dropdown-menu dropdownMenu="zDropdownMenu">
       <button
         dropdown-trigger
         type="button"
@@ -45,7 +45,7 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
 })
 export class LanguagePickerComponent {
   protected readonly i18n = inject(I18nService);
-  private readonly dropdownMenu = viewChild.required(ZardDropdownComponent);
+  protected readonly dropdownMenu = viewChild.required(ZardDropdownComponent);
 
   readonly showLabel = input(true);
   readonly showChevron = input(true);

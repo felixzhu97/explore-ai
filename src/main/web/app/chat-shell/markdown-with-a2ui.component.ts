@@ -83,7 +83,7 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
   host: { class: 'block w-full min-w-0' },
 })
 export class MarkdownWithA2uiComponent {
-  private readonly a2ui = inject(A2uiRendererService);
+  readonly #a2ui = inject(A2uiRendererService);
   protected readonly i18n = inject(I18nService);
 
   readonly content = input.required<string>();
@@ -95,7 +95,7 @@ export class MarkdownWithA2uiComponent {
 
   readonly ingestError = signal<string | null>(null);
 
-  private readonly processedFences = new Set<string>();
+  readonly #processedFences = new Set<string>();
 
   constructor() {
     effect(() => {
@@ -107,11 +107,11 @@ export class MarkdownWithA2uiComponent {
           continue;
         }
         const key = segment.surfaceId;
-        if (this.processedFences.has(key) || segment.messages.length === 0) {
+        if (this.#processedFences.has(key) || segment.messages.length === 0) {
           continue;
         }
         // Mark before ingest so concurrent effect re-entry does not double createSurface.
-        this.processedFences.add(key);
+        this.#processedFences.add(key);
         try {
           const withCatalog = segment.messages.map((message) => {
             if ('createSurface' in message && message.createSurface) {
@@ -125,13 +125,13 @@ export class MarkdownWithA2uiComponent {
             }
             return message;
           });
-          this.a2ui.processMessages(withCatalog);
+          this.#a2ui.processMessages(withCatalog);
         } catch (error) {
           const message = error instanceof Error ? error.message : 'A2UI render failed';
           if (/already exists/i.test(message)) {
             continue;
           }
-          this.processedFences.delete(key);
+          this.#processedFences.delete(key);
           untracked(() => this.ingestError.set(message));
         }
       }
