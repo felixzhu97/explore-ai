@@ -88,7 +88,7 @@ class ChatServiceTest {
       ChatSession result = useCase.createSession("My Chat", CLIENT_A);
 
       assertThat(result.getTitle()).isEqualTo("My Chat");
-      assertThat(result.getClientId()).isEqualTo(CLIENT_A);
+      assertThat(result.getOwnerKeyValue()).isEqualTo(CLIENT_A);
       verify(repository).save(any(ChatSession.class));
     }
   }

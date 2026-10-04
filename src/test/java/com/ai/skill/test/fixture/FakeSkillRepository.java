@@ -17,8 +17,8 @@ public class FakeSkillRepository extends AbstractOwnerScopedFakeRepository<Skill
   }
 
   @Override
-  protected String getClientId(Skill entity) {
-    return entity.getClientId();
+  protected String getOwnerKeyValue(Skill entity) {
+    return entity.getOwnerKeyValue();
   }
 
   @Override

@@ -18,8 +18,8 @@ public class FakePipelineTemplateRepository
   }
 
   @Override
-  protected String getClientId(PipelineTemplate entity) {
-    return entity.getClientId();
+  protected String getOwnerKeyValue(PipelineTemplate entity) {
+    return entity.getOwnerKeyValue();
   }
 
   @Override

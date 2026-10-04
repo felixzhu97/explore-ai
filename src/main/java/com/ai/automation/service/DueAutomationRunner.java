@@ -74,8 +74,8 @@ public class DueAutomationRunner {
   }
 
   private void executeOne(AutomationSchedule schedule, Instant now, Instant provisionalNext) {
-    AutomationRun run = AutomationRun.start(schedule.getId(), schedule.getClientId());
-    if (!dailyUsageQuotaService.tryConsume(schedule.getClientId())) {
+    AutomationRun run = AutomationRun.start(schedule.getId(), schedule.getOwnerKeyValue());
+    if (!dailyUsageQuotaService.tryConsume(schedule.getOwnerKeyValue())) {
       run.skip("Daily plan quota exceeded");
       runRepository.save(run);
       finishSchedule(schedule, Instant.now(), provisionalNext);
@@ -85,7 +85,7 @@ public class DueAutomationRunner {
     try {
       String result =
           pipelineGateway.runSavedTemplate(
-              schedule.getClientId(),
+              schedule.getOwnerKeyValue(),
               schedule.getPipelineTemplateId().value(),
               schedule.getBrief(),
               "en");

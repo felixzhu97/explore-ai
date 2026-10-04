@@ -69,7 +69,7 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
 
     RagDocument reloaded = repository.findById(document.getId()).orElseThrow();
 
-    assertThat(reloaded.getClientId()).isEqualTo(OWNER_KEY);
+    assertThat(reloaded.getOwnerKeyValue()).isEqualTo(OWNER_KEY);
   }
 
   @Test

@@ -42,7 +42,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
 
     assertThat(reloaded).isPresent();
     assertThat(reloaded.get().getTitle()).isEqualTo("Planning");
-    assertThat(reloaded.get().getClientId()).isEqualTo(OWNER_KEY);
+    assertThat(reloaded.get().getOwnerKeyValue()).isEqualTo(OWNER_KEY);
   }
 
   @Test

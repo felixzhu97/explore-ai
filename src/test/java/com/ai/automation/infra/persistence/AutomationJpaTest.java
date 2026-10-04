@@ -114,7 +114,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
     AutomationSchedule reloaded = scheduleRepository.findById(schedule.getId()).orElseThrow();
 
     assertThat(reloaded.getName()).isEqualTo("Daily digest");
-    assertThat(reloaded.getClientId()).isEqualTo(OWNER_KEY);
+    assertThat(reloaded.getOwnerKeyValue()).isEqualTo(OWNER_KEY);
     assertThat(reloaded.isEnabled()).isTrue();
   }
 

@@ -30,7 +30,7 @@ public abstract class AbstractOwnerScopedFakeRepository<E, I> {
   protected abstract I getId(E entity);
 
   /** Returns the client id partition key. */
-  protected abstract String getClientId(E entity);
+  protected abstract String getOwnerKeyValue(E entity);
 
   /** Returns the entity display name. */
   protected abstract String getName(E entity);
@@ -46,24 +46,25 @@ public abstract class AbstractOwnerScopedFakeRepository<E, I> {
   /** Finds an entity by id scoped to client id. */
   public Optional<E> findByIdAndOwnerKey(I id, String ownerKey) {
     return entities.stream()
-        .filter(entity -> getId(entity).equals(id) && getClientId(entity).equals(ownerKey))
+        .filter(entity -> getId(entity).equals(id) && getOwnerKeyValue(entity).equals(ownerKey))
         .findFirst();
   }
 
   /** Lists all entities for a client id. */
   public List<E> findAllByOwnerKey(String ownerKey) {
-    return entities.stream().filter(entity -> getClientId(entity).equals(ownerKey)).toList();
+    return entities.stream().filter(entity -> getOwnerKeyValue(entity).equals(ownerKey)).toList();
   }
 
   /** Deletes an entity by id scoped to client id. */
   public void deleteByIdAndOwnerKey(I id, String ownerKey) {
-    entities.removeIf(entity -> getId(entity).equals(id) && getClientId(entity).equals(ownerKey));
+    entities.removeIf(
+        entity -> getId(entity).equals(id) && getOwnerKeyValue(entity).equals(ownerKey));
   }
 
   /** Returns whether another entity already uses the name for the client id. */
   public boolean existsByOwnerKeyAndNameIgnoringId(String ownerKey, String name, I excludeId) {
     return entities.stream()
-        .filter(entity -> getClientId(entity).equals(ownerKey))
+        .filter(entity -> getOwnerKeyValue(entity).equals(ownerKey))
         .filter(entity -> getName(entity).equals(name))
         .anyMatch(entity -> excludeId == null || !getId(entity).equals(excludeId));
   }
