@@ -1,4 +1,5 @@
 import { inject, Service, signal } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import { HttpClient, type HttpEvent, HttpEventType } from '@angular/common/http';
 import { type Observable, of, catchError, finalize } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -54,7 +55,7 @@ export interface RagChatMessage {
   role: 'user' | 'assistant';
   content: string;
   sources?: SourceDocument[];
-  timestamp: number;
+  timestamp: Instant;
 }
 
 const DEFAULT_TEMPERATURE = 0.7;
@@ -65,7 +66,7 @@ export class RagService {
   readonly #http = inject(HttpClient);
   readonly #notifications = inject(NotificationService);
   readonly #i18n = inject(I18nService);
-  readonly #sessionId = `session_${Date.now()}`;
+  readonly #sessionId = `session_${Instant.now().toEpochMilli()}`;
 
   // Document state
   readonly availableDocuments = signal<RagDocumentItem[]>([]);
@@ -206,7 +207,7 @@ export class RagService {
     };
 
     this.pendingFiles().forEach((file, index) => {
-      const documentId = `doc_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+      const documentId = `doc_${Instant.now().toEpochMilli()}_${Math.random().toString(36).slice(2, 11)}`;
 
       this.uploadStatuses.update((statuses) => {
         const next = new Map(statuses);
@@ -291,25 +292,26 @@ export class RagService {
       return;
     }
 
+    const now = Instant.now();
     const userMessage: RagChatMessage = {
-      id: `user_${Date.now()}`,
+      id: `user_${now.toEpochMilli()}`,
       role: 'user',
       content: this.input().trim(),
-      timestamp: Date.now(),
+      timestamp: now,
     };
 
     this.messages.update(messages => [...messages, userMessage]);
     this.input.set('');
     this.isLoading.set(true);
 
-    const assistantMessageId = `assistant_${Date.now()}`;
+    const assistantMessageId = `assistant_${now.toEpochMilli()}`;
     this.messages.update(messages => [
       ...messages,
       {
         id: assistantMessageId,
         role: 'assistant',
         content: '',
-        timestamp: Date.now(),
+        timestamp: now,
       },
     ]);
     this.streamingMessageIds.update(ids => new Set(ids).add(assistantMessageId));

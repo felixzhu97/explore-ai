@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Instant } from '@js-joda/core';
 import { mergeHistoryWithLocalMessages, type ChatMessage } from './chat.service';
 
 describe('mergeHistoryWithLocalMessages', () => {
@@ -8,7 +9,7 @@ describe('mergeHistoryWithLocalMessages', () => {
         id: 'assistant_1',
         role: 'assistant',
         content: 'Paris is the capital.',
-        timestamp: 2,
+        timestamp: Instant.ofEpochMilli(2),
         sources: [
           {
             title: 'Paris – Wikipedia',
@@ -23,7 +24,7 @@ describe('mergeHistoryWithLocalMessages', () => {
         id: 'uuid-assistant',
         role: 'assistant',
         content: 'Paris is the capital.',
-        timestamp: 2,
+        timestamp: Instant.ofEpochMilli(2),
       },
     ];
 
@@ -39,7 +40,7 @@ describe('mergeHistoryWithLocalMessages', () => {
         id: 'assistant_1',
         role: 'assistant',
         content: 'answer',
-        timestamp: 2,
+        timestamp: Instant.ofEpochMilli(2),
         sources: [{ title: 'Old', url: 'https://old.example', snippet: '' }],
       },
     ];
@@ -48,7 +49,7 @@ describe('mergeHistoryWithLocalMessages', () => {
         id: 'uuid-assistant',
         role: 'assistant',
         content: 'answer',
-        timestamp: 2,
+        timestamp: Instant.ofEpochMilli(2),
         sources: [{ title: 'New', url: 'https://new.example', snippet: 'from api' }],
       },
     ];

@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import { ChatSessionListService } from './chat-session-list.service';
 import { ChatService } from './chat.service';
 
@@ -36,13 +37,13 @@ describe('ChatSessionListService', () => {
           sessionId: 's1',
           title: 'First',
           messageCount: 2,
-          lastActivityAt: '2026-01-01T00:00:00.000Z',
+          lastActivityAt: Instant.parse('2026-01-01T00:00:00.000Z'),
         },
         {
           sessionId: 'empty',
           title: 'New Chat',
           messageCount: 0,
-          lastActivityAt: '2026-01-02T00:00:00.000Z',
+          lastActivityAt: Instant.parse('2026-01-02T00:00:00.000Z'),
         },
       ]),
       activeSessionId: signal('s1'),
@@ -71,7 +72,7 @@ describe('ChatSessionListService', () => {
       {
         id: 's1',
         title: 'First',
-        timestamp: new Date('2026-01-01T00:00:00.000Z'),
+        timestamp: Instant.parse('2026-01-01T00:00:00.000Z'),
         pinned: false,
       },
     ]);

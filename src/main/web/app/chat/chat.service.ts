@@ -1,4 +1,5 @@
 import { Service, inject, signal } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { type Observable, map, catchError, of } from 'rxjs';
@@ -20,9 +21,10 @@ export interface ChatStreamMessage {
   content: string;
 }
 
+/** GET /api/chat/sessions/{id}/messages item; `timestamp` is ISO-8601. */
 export interface ChatHistoryMessage extends ChatStreamMessage {
   id?: string;
-  timestamp: number | Date | string;
+  timestamp: string;
   toolCalls?: ToolCall[];
   isLoading?: boolean;
   sources?: WebSource[];
@@ -60,7 +62,8 @@ export interface ToolCall {
   status: 'pending' | 'running' | 'success' | 'error';
 }
 
-export interface ChatSessionSummary {
+/** Session as sent by the API, with ISO-8601 instants. */
+export interface ChatSessionSummaryDto {
   sessionId: string;
   title: string;
   messageCount: number;
@@ -68,12 +71,28 @@ export interface ChatSessionSummary {
   lastActivityAt: string;
 }
 
+export interface ChatSessionSummary {
+  sessionId: string;
+  title: string;
+  messageCount: number;
+  createdAt: Instant;
+  lastActivityAt: Instant;
+}
+
+export function toChatSessionSummary(dto: ChatSessionSummaryDto): ChatSessionSummary {
+  return {
+    ...dto,
+    createdAt: Instant.parse(dto.createdAt),
+    lastActivityAt: Instant.parse(dto.lastActivityAt),
+  };
+}
+
 /** Message in the local chat thread, merged from the stream and session history. */
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  timestamp: number;
+  timestamp: Instant;
   toolSteps?: ToolStep[] | undefined;
   sources?: WebSource[] | undefined;
 }
@@ -432,11 +451,7 @@ export class ChatService {
   }
 
   #sortSessionsByActivity(sessions: ChatSessionSummary[]): ChatSessionSummary[] {
-    return [...sessions].sort((a, b) => {
-      const bTime = new Date(b.lastActivityAt).getTime();
-      const aTime = new Date(a.lastActivityAt).getTime();
-      return bTime - aTime;
-    });
+    return [...sessions].sort((a, b) => b.lastActivityAt.compareTo(a.lastActivityAt));
   }
 
   #clearActiveChat(): void {
@@ -604,18 +619,19 @@ export class ChatService {
       this.#streamAbort();
     }
 
+    const now = Instant.now();
     const userMsg: ChatMessage = {
-      id: `user_${Date.now()}`,
+      id: `user_${now.toEpochMilli()}`,
       role: 'user',
       content: content.trim(),
-      timestamp: Date.now(),
+      timestamp: now,
     };
-    const assistantId = `assistant_${Date.now()}`;
+    const assistantId = `assistant_${now.toEpochMilli()}`;
 
     this.messages.update(messages => [
       ...messages,
       userMsg,
-      { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
+      { id: assistantId, role: 'assistant', content: '', timestamp: now },
     ]);
     this.sessions.update(list => list.map(session => (
       session.sessionId === sessionId
@@ -768,22 +784,21 @@ export class ChatService {
   }
 
   #createSessionRequest(title?: string): Observable<ChatSessionSummary> {
-    return this.#http.post<ChatSessionSummary>(`${API_BASE_URL}/chat/sessions`, title ? { title } : {});
+    return this.#http
+      .post<ChatSessionSummaryDto>(`${API_BASE_URL}/chat/sessions`, title ? { title } : {})
+      .pipe(map(toChatSessionSummary));
   }
 
   #getSessions(): Observable<ChatSessionSummary[]> {
-    return this.#http.get<ChatSessionSummary[]>(`${API_BASE_URL}/chat/sessions`);
+    return this.#http
+      .get<ChatSessionSummaryDto[]>(`${API_BASE_URL}/chat/sessions`)
+      .pipe(map(sessions => sessions.map(toChatSessionSummary)));
   }
 
   #getSessionMessages(sessionId: string): Observable<ChatHistoryMessage[]> {
     return this.#http.get<ChatHistoryMessage[]>(`${API_BASE_URL}/chat/sessions/${sessionId}/messages`, {
       context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
-    }).pipe(
-      map(messages => messages.map(message => ({
-        ...message,
-        timestamp: new Date(message.timestamp as unknown as string).getTime(),
-      }))),
-    );
+    });
   }
 
   #deleteSessionRequest(sessionId: string): Observable<void> {
@@ -843,15 +858,12 @@ export class ChatService {
   }
 
   #toChatMessage(message: ChatHistoryMessage): ChatMessage {
-    const timestamp =
-      typeof message.timestamp === 'number'
-        ? message.timestamp
-        : new Date(message.timestamp).getTime();
+    const timestamp = Instant.parse(message.timestamp);
     const content = message.role === 'assistant'
       ? stripToolCallMarkup(message.content)
       : message.content;
     return {
-      id: message.id ?? `${message.role}_${timestamp}`,
+      id: message.id ?? `${message.role}_${timestamp.toEpochMilli()}`,
       role: message.role === 'assistant' ? 'assistant' : 'user',
       content,
       timestamp,

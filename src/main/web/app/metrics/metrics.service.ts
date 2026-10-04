@@ -1,5 +1,6 @@
 import { httpResource, type HttpResourceRef } from '@angular/common/http';
 import { Service } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import { API_BASE_URL } from '../http/api.constants';
 
 export type MetricsDomain = 'chat' | 'rag' | 'agents' | 'tools' | 'vision';
@@ -54,7 +55,7 @@ export interface SeriesResponse {
 
 export interface InvocationEvent {
   id: string;
-  occurredAt: string;
+  occurredAt: Instant;
   domain: string;
   operation: string;
   outcome: string;
@@ -71,11 +72,26 @@ export interface InvocationEvent {
   errorMessage: string | null;
 }
 
+/** Drill-down event as sent by the API, with an ISO-8601 `occurredAt`. */
+export type InvocationEventDto = Omit<InvocationEvent, 'occurredAt'> & { occurredAt: string };
+
 export interface DrilldownPage {
   items: InvocationEvent[];
   total: number;
   page: number;
   size: number;
+}
+
+export type DrilldownPageDto = Omit<DrilldownPage, 'items'> & { items: InvocationEventDto[] };
+
+export function toDrilldownPage(dto: DrilldownPageDto): DrilldownPage {
+  return {
+    ...dto,
+    items: dto.items.map(item => ({
+      ...item,
+      occurredAt: Instant.parse(item.occurredAt),
+    })),
+  };
 }
 
 export interface DrilldownQuery {
@@ -149,6 +165,6 @@ export class MetricsService {
         Object.entries(value).filter(([, param]) => param !== undefined),
       ) as Record<string, string | number>;
       return { url: `${this.#baseUrl}/drilldown`, params };
-    });
+    }, { parse: raw => toDrilldownPage(raw as DrilldownPageDto) });
   }
 }

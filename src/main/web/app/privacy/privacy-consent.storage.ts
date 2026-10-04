@@ -1,3 +1,4 @@
+import { Instant } from '@js-joda/core';
 import { STORAGE_KEYS } from '../storage-keys';
 
 export interface PrivacyConsentState {
@@ -41,7 +42,7 @@ export function writePrivacyPreferences(preferences: {
     decided: true,
     analytics: preferences.analytics,
     contactEmail: preferences.contactEmail,
-    decidedAt: new Date().toISOString(),
+    decidedAt: Instant.now().toString(),
   };
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_KEYS.PRIVACY_CONSENT, JSON.stringify(next));

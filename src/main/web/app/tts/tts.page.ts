@@ -5,6 +5,7 @@ import {
   type OnInit,
   type OnDestroy,
 } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import { form, FormField } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePause, lucidePlay } from '@ng-icons/lucide';
@@ -167,7 +168,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   download() {
     const blob = this.audioBlob();
     if (blob) {
-      this.#tts.download(blob, `speech_${Date.now()}.mp3`);
+      this.#tts.download(blob, `speech_${Instant.now().toEpochMilli()}.mp3`);
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Service, inject, signal, computed } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
@@ -165,7 +166,7 @@ export class ImageService {
       return;
     }
 
-    const filename = `ai_generated_${Date.now()}.png`;
+    const filename = `ai_generated_${Instant.now().toEpochMilli()}.png`;
     if (this.#imageSource() === 'base64') {
       const base64 = image.replace(/^data:image\/\w+;base64,/, '');
       downloadBase64Image(base64, filename);

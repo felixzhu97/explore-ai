@@ -200,5 +200,5 @@ export class AppSidebarComponent implements OnInit {
 }
 
 function byNewest(sessions: SidebarSession[]): SidebarSession[] {
-  return [...sessions].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  return [...sessions].sort((a, b) => b.timestamp.compareTo(a.timestamp));
 }

@@ -1,4 +1,5 @@
 import { inject } from '@angular/core';
+import { Instant } from '@js-joda/core';
 import {
   type HttpRequest,
   type HttpErrorResponse,
@@ -14,7 +15,7 @@ export interface AppError {
   code: string;
   message: string;
   status: number;
-  timestamp: Date;
+  timestamp: Instant;
   details?: unknown;
   /** `ErrorResponse.errorCode` from the API, when the body carries one. */
   errorCode?: string;
@@ -51,7 +52,7 @@ function handleClientError(error: HttpErrorResponse): AppError {
     code: 'CLIENT_ERROR',
     message: clientError.message || 'A client-side error occurred',
     status: 0,
-    timestamp: new Date(),
+    timestamp: Instant.now(),
   };
 }
 
@@ -62,7 +63,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'BAD_REQUEST',
         message: extractMessage(error) || 'Invalid request',
         status: 400,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
         details: error.error,
       };
 
@@ -71,7 +72,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'UNAUTHORIZED',
         message: 'Authentication required. Please log in again.',
         status: 401,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     case 403:
@@ -81,7 +82,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
           extractMessage(error)
           || 'You do not have permission to perform this action.',
         status: 403,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     case 404:
@@ -90,7 +91,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         message:
           extractMessage(error) || 'The requested resource was not found.',
         status: 404,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
         details: error.url,
       };
 
@@ -99,7 +100,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'REQUEST_TIMEOUT',
         message: 'The request took too long. Please try again.',
         status: 408,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     case 422:
@@ -107,7 +108,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'VALIDATION_ERROR',
         message: extractMessage(error) || 'Validation failed',
         status: 422,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
         details: error.error,
       };
 
@@ -116,7 +117,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'RATE_LIMITED',
         message: 'Too many requests. Please wait a moment and try again.',
         status: 429,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     case 500:
@@ -124,7 +125,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'A server error occurred. Please try again later.',
         status: 500,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     case 502:
@@ -132,7 +133,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'BAD_GATEWAY',
         message: 'The server is temporarily unavailable. Please try again later.',
         status: 502,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     case 503:
@@ -142,7 +143,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
           extractMessage(error)
           || 'The service is currently unavailable. Please try again later.',
         status: 503,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
 
     default:
@@ -150,7 +151,7 @@ function handleServerError(error: HttpErrorResponse): AppError {
         code: 'UNKNOWN_ERROR',
         message: extractMessage(error) || 'An unexpected error occurred',
         status: error.status,
-        timestamp: new Date(),
+        timestamp: Instant.now(),
       };
   }
 }
@@ -177,7 +178,7 @@ function logError(req: HttpRequest<unknown>, error: AppError): void {
     code: error.code,
     message: error.message,
     status: error.status,
-    timestamp: error.timestamp,
+    timestamp: error.timestamp.toString(),
   };
 
   if (error.status >= 500) {

@@ -1,4 +1,5 @@
 import { httpResource } from '@angular/common/http';
+import { Instant } from '@js-joda/core';
 import {
   Component,
   type ElementRef,
@@ -185,17 +186,18 @@ export class PipelinesPageComponent implements OnDestroy {
       this.resultsRatio.set(this.#savedRatio);
     }
 
+    const now = Instant.now();
     const userId = this.#nextId('user');
     const assistantId = this.#nextId('assistant');
 
     this.messages.update(messages => [
       ...messages,
-      { id: userId, role: 'user', content: topic, timestamp: Date.now() },
+      { id: userId, role: 'user', content: topic, timestamp: now },
       {
         id: assistantId,
         role: 'assistant',
         content: '',
-        timestamp: Date.now(),
+        timestamp: now,
         streaming: true,
       },
     ]);
@@ -299,6 +301,6 @@ export class PipelinesPageComponent implements OnDestroy {
 
   #nextId(prefix: string): string {
     this.#messageSeq += 1;
-    return `${prefix}-${this.#messageSeq}-${Date.now()}`;
+    return `${prefix}-${this.#messageSeq}-${Instant.now().toEpochMilli()}`;
   }
 }

@@ -100,14 +100,10 @@
                     {{ i18n.t().automations.runAtHint }}
                   </span>
                 </div>
-                <nz-date-picker
-                  class="w-full"
-                  nzSize="large"
-                  nzShowTime
-                  nzFormat="yyyy-MM-dd HH:mm:ss"
-                  nzDropdownClassName="run-at-picker-popup"
-                  [nzPlaceHolder]="i18n.t().automations.runAtPlaceholder"
-                  [nzDisabledDate]="disabledDate"
+                <app-instant-picker
+                  dropdownClass="run-at-picker-popup"
+                  [placeholder]="i18n.t().automations.runAtPlaceholder"
+                  [disablePast]="true"
                   [formField]="draftForm.runAt"
                 />
               </div>
@@ -184,7 +180,7 @@
                       {{ i18n.t().automations.nextRun }}:
                       {{ formatNextRun(schedule) }}
                       · {{ i18n.t().automations.lastRun }}:
-                      {{ formatInstant(schedule.lastRunAt) }}
+                      {{ displayInstant(schedule.lastRunAt) }}
                     </p>
                   </div>
                   <div class="flex flex-wrap gap-2">
@@ -252,7 +248,7 @@
                                 >{{ i18n.t().automations.emailStatus }}:
                                 {{ run.emailStatus }}</span
                               >
-                              <span>{{ formatInstant(run.startedAt) }}</span>
+                              <span>{{ displayInstant(run.startedAt) }}</span>
                             </div>
                             @if (run.errorMessage) {
                               <p class="mt-1 text-red-600">{{ run.errorMessage }}</p>

@@ -19,7 +19,7 @@ export class ChatSessionListService implements SessionList {
       .map(session => ({
         id: session.sessionId,
         title: session.title,
-        timestamp: new Date(session.lastActivityAt),
+        timestamp: session.lastActivityAt,
         pinned: pinned.has(session.sessionId),
       }));
   });

@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Instant } from '@js-joda/core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -49,13 +50,13 @@ describe('ChatService http flows', () => {
         sessionId: 's-old',
         title: 'Old',
         messageCount: 1,
-        createdAt: '2026-08-08T00:00:00Z',
-        lastActivityAt: '2026-08-08T00:00:00Z',
+        createdAt: Instant.parse('2026-08-08T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-08-08T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s-old');
     service.messages.set([
-      { id: 'm1', role: 'user', content: 'hi', timestamp: Date.now() },
+      { id: 'm1', role: 'user', content: 'hi', timestamp: Instant.now() },
     ]);
     service.selectedSkillIds.set(['skill-1']);
 
@@ -158,15 +159,15 @@ describe('ChatService http flows', () => {
         sessionId: 'empty-1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-02T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-02T00:00:00Z'),
       },
       {
         sessionId: 'empty-2',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.createSession();
@@ -274,8 +275,8 @@ describe('ChatService http flows', () => {
         sessionId: 'hist',
         title: 'History',
         messageCount: 2,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-03T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-03T00:00:00Z'),
       },
     ]);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
@@ -402,8 +403,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'Chat',
         messageCount: 4,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-02T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-02T00:00:00Z'),
       },
     ]);
     service.selectSession('s1');
@@ -455,8 +456,8 @@ describe('ChatService http flows', () => {
         sessionId: 'empty',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.selectSession('empty');
@@ -503,13 +504,13 @@ describe('ChatService http flows', () => {
         sessionId: 'mine',
         title: 'Mine',
         messageCount: 2,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('mine');
     service.messages.set([
-      { id: 'm1', role: 'user', content: 'hi', timestamp: 1 },
+      { id: 'm1', role: 'user', content: 'hi', timestamp: Instant.ofEpochMilli(1) },
     ]);
 
     service.selectSession('foreign');
@@ -558,8 +559,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
@@ -590,8 +591,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
@@ -628,8 +629,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
@@ -672,8 +673,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
@@ -704,7 +705,7 @@ describe('ChatService http flows', () => {
         id: 'u1',
         role: 'user',
         content: 'hello',
-        timestamp: Date.now(),
+        timestamp: '2026-07-01T00:00:00Z',
       },
     ]);
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
@@ -741,8 +742,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
@@ -773,13 +774,13 @@ describe('ChatService http flows', () => {
         id: 'u1',
         role: 'user',
         content: 'hello',
-        timestamp: Date.now(),
+        timestamp: '2026-07-01T00:00:00Z',
       },
       {
         id: 'a1',
         role: 'assistant',
         content: 'Hi there',
-        timestamp: Date.now(),
+        timestamp: '2026-07-01T00:00:00Z',
       },
     ]);
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
@@ -818,8 +819,8 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'New Chat',
         messageCount: 0,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
@@ -846,7 +847,7 @@ describe('ChatService http flows', () => {
         id: 'u1',
         role: 'user',
         content: 'hello',
-        timestamp: Date.now(),
+        timestamp: '2026-07-01T00:00:00Z',
       },
     ]);
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
@@ -869,12 +870,12 @@ describe('ChatService http flows', () => {
         sessionId: 's1',
         title: 'Only',
         messageCount: 1,
-        createdAt: '2026-07-01T00:00:00Z',
-        lastActivityAt: '2026-07-01T00:00:00Z',
+        createdAt: Instant.parse('2026-07-01T00:00:00Z'),
+        lastActivityAt: Instant.parse('2026-07-01T00:00:00Z'),
       },
     ]);
     service.activeSessionId.set('s1');
-    service.messages.set([{ id: '1', role: 'user', content: 'x', timestamp: 1 }]);
+    service.messages.set([{ id: '1', role: 'user', content: 'x', timestamp: Instant.ofEpochMilli(1) }]);
 
     service.deleteSession('s1');
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1`).flush(null);
