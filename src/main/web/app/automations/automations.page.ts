@@ -5,7 +5,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { email, form, FormField, required } from '@angular/forms/signals';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NotificationService } from '../ui/notification.service';
@@ -24,6 +23,10 @@ import {
 } from './automations.service';
 
 type FrequencyPreset = 'daily' | 'weekly' | 'custom';
+
+function isFrequencyPreset(value: string): value is FrequencyPreset {
+  return value === 'daily' || value === 'weekly' || value === 'custom';
+}
 
 function cronForPreset(preset: FrequencyPreset): string {
   switch (preset) {
@@ -81,7 +84,7 @@ function emptyDraft(): AutomationDraft {
 
 @Component({
   selector: 'app-automations-page',
-  imports: [FormsModule, FormField, ZardButtonComponent, NzDatePickerModule],
+  imports: [FormField, ZardButtonComponent, NzDatePickerModule],
   templateUrl: './automations.page.html',
   styleUrl: './automations.page.css',
   host: {
@@ -196,7 +199,10 @@ export class AutomationsPageComponent implements OnInit {
     this.editingId.set(null);
   }
 
-  onPresetChange(preset: FrequencyPreset): void {
+  onPresetChange(preset: string): void {
+    if (!isFrequencyPreset(preset)) {
+      return;
+    }
     this.#draft.update(draft => ({
       ...draft,
       preset,

@@ -2,10 +2,10 @@ import {
   Component,
   computed,
   input,
+  linkedSignal,
   model,
   output,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { ZardButtonComponent } from '../ui/button';
 import { ZardCardComponent } from '../ui/card';
@@ -17,7 +17,6 @@ import type { ImageSize } from './image.service';
   selector: 'app-image-gen-form',
   imports: [
     FormField,
-    FormsModule,
     ZardButtonComponent,
     ZardCardComponent,
     ZardInputDirective,
@@ -53,8 +52,8 @@ import type { ImageSize } from './image.service';
             class="h-auto flex-wrap"
             [zOptions]="sizeOptions()"
             [zAriaLabel]="sizeLabel()"
-            [ngModel]="selectedSize().label"
-            (ngModelChange)="onSizeLabelChange($event)"
+            [formField]="sizeLabelField"
+            (zChange)="onSizeLabelChange($event)"
           />
         </div>
 
@@ -89,6 +88,9 @@ export class ImageGenFormComponent {
   readonly sizes = input.required<ImageSize[]>();
   readonly selectedSize = input.required<ImageSize>();
   readonly isGenerating = input(false);
+
+  readonly #sizeLabel = linkedSignal(() => this.selectedSize().label);
+  protected readonly sizeLabelField = form(this.#sizeLabel);
 
   readonly sizeSelected = output<ImageSize>();
   readonly generateRequested = output<void>();

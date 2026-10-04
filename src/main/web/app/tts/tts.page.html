@@ -26,9 +26,9 @@
         </label>
         <z-select
           id="voice-select"
-          [ngModel]="voice()"
+          [zValue]="voice()"
           [zPlaceholder]="i18n.t().generate.tts.voiceLabel"
-          (ngModelChange)="setVoice($event)"
+          (zSelectionChange)="setVoice($event)"
         >
           @for (v of availableVoices(); track v.id) {
             <z-select-item [zValue]="v.id">{{ v.name }} ({{ v.language }})</z-select-item>
@@ -50,8 +50,8 @@
           [zMin]="0.5"
           [zMax]="2"
           [zStep]="0.1"
-          [ngModel]="speed()"
-          (ngModelChange)="setSpeed($event)"
+          [zValue]="speed()"
+          (zSlideIndexChange)="setSpeed($event)"
         />
       </div>
     </div>
