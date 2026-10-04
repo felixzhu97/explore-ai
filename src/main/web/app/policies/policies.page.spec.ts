@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { signal } from '@angular/core';
+import { type DebugElement, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, RouterLink } from '@angular/router';
 import { By } from '@angular/platform-browser';
@@ -10,6 +10,11 @@ import {
   resolvePolicySlug,
 } from './policies.page.copy';
 import { I18nService } from '../i18n';
+import { hasText } from '../shared/presence';
+
+function textOf(element: DebugElement): string {
+  return (element.nativeElement as HTMLElement).textContent;
+}
 
 describe('resolvePolicySlug', () => {
   it('should resolve modern policy slugs', () => {
@@ -38,7 +43,7 @@ describe('PoliciesPageComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of(convertToParamMap(slug ? { slug } : {})),
+            paramMap: of(convertToParamMap(hasText(slug) ? { slug } : {})),
           },
         },
         {
@@ -73,7 +78,7 @@ describe('PoliciesPageComponent', () => {
     expect(fixture.componentInstance.doc()?.title).toBe('Terms of Use');
     expect(fixture.componentInstance.doc()?.sections.length).toBeGreaterThan(3);
     const headings = fixture.debugElement.queryAll(By.css('h2'));
-    expect(headings.some(h => h.nativeElement.textContent.includes('Agreement'))).toBe(true);
+    expect(headings.some(h => textOf(h).includes('Agreement'))).toBe(true);
   });
 
   it('should render localized policy body when language is zh', () => {
@@ -101,7 +106,7 @@ describe('PoliciesPageComponent', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.doc()?.title).toBe('使用条款');
     const headings = fixture.debugElement.queryAll(By.css('h2'));
-    expect(headings.some(h => h.nativeElement.textContent.includes('协议'))).toBe(true);
+    expect(headings.some(h => textOf(h).includes('协议'))).toBe(true);
   });
 
   it('should fall back to hub for unknown slug', () => {

@@ -143,7 +143,7 @@ function connectService(): SpeechToTextService {
 
 function latestSocket(): FakeWebSocket {
   const socket = FakeWebSocket.instances.at(-1);
-  if (!socket) {
+  if (socket === undefined) {
     throw new Error('Expected a fake WebSocket instance');
   }
   return socket;

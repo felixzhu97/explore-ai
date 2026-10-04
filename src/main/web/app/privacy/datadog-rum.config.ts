@@ -10,7 +10,7 @@ export function initDatadogRum(): void {
   }
 
   const { applicationId, clientToken, site, service, env, version } = environment.datadog;
-  if (!applicationId || !clientToken) {
+  if (applicationId === '' || clientToken === '') {
     return;
   }
 

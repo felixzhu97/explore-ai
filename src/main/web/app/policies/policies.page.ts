@@ -152,6 +152,6 @@ export class PoliciesPageComponent {
 
   readonly doc = computed(() => {
     const slug = resolvePolicySlug(this.#rawSlug());
-    return slug ? policyDocCopy(slug, this.#i18n.language()) : null;
+    return slug !== null ? policyDocCopy(slug, this.#i18n.language()) : null;
   });
 }

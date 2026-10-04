@@ -1,5 +1,6 @@
 import type { AgentType } from './pipelines.service';
 import type { PipelineConnection, PipelineGraph, PipelineNode } from './pipeline-graph';
+import { hasText } from '../shared/presence';
 
 export interface PipelineTemplateInput {
   id: string;
@@ -34,7 +35,7 @@ export function applyPipelineTemplate(
   const resolved: AgentType[] = [];
   for (const type of definition.agentTypes) {
     const agent = byType.get(type);
-    if (!agent) {
+    if (agent === undefined) {
       skippedAgentTypes.push(type);
       continue;
     }
@@ -57,7 +58,7 @@ export function applyPipelineTemplate(
   const connections: PipelineConnection[] = [];
   let sourceNodeId: string | undefined;
   for (const node of nodes) {
-    if (sourceNodeId) {
+    if (hasText(sourceNodeId)) {
       connections.push({
         id: `edge-${idSeed + connections.length}`,
         sourceNodeId,

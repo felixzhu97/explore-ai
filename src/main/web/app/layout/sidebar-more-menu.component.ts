@@ -169,7 +169,7 @@ export class SidebarMoreMenuComponent {
     if (!this.isPinned()) {
       return;
     }
-    if (!(event.target as Element).closest('[data-sidebar-more]')) {
+    if ((event.target as Element).closest('[data-sidebar-more]') === null) {
       this.isPinned.set(false);
     }
   }

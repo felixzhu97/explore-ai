@@ -56,7 +56,7 @@ export class TtsService {
   }
 
   #normalizeVoices(voices: (Voice | string)[]): Voice[] {
-    if (!voices.length) {
+    if (voices.length === 0) {
       return DEFAULT_VOICES;
     }
 

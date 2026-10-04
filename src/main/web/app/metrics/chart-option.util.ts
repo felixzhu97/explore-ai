@@ -1,4 +1,5 @@
 import type { EChartsCoreOption } from 'echarts/core';
+import { hasText } from '../shared/presence';
 
 export type SharedChartType = 'bar' | 'line' | 'pie' | 'doughnut';
 
@@ -17,7 +18,7 @@ export function buildSharedChartOption(
 
   if (type === 'pie' || type === 'doughnut') {
     return {
-      title: title ? { text: title, left: 'center', textStyle: { fontSize: 14, fontWeight: 500 } } : undefined,
+      title: hasText(title) ? { text: title, left: 'center', textStyle: { fontSize: 14, fontWeight: 500 } } : undefined,
       tooltip: { trigger: 'item' },
       series: [
         {
@@ -30,9 +31,9 @@ export function buildSharedChartOption(
   }
 
   return {
-    title: title ? { text: title, left: 'center', textStyle: { fontSize: 14, fontWeight: 500 } } : undefined,
+    title: hasText(title) ? { text: title, left: 'center', textStyle: { fontSize: 14, fontWeight: 500 } } : undefined,
     tooltip: { trigger: 'axis' },
-    grid: { left: 48, right: 16, top: title ? 48 : 24, bottom: 36 },
+    grid: { left: 48, right: 16, top: hasText(title) ? 48 : 24, bottom: 36 },
     xAxis: { type: 'category', data: labels },
     yAxis: { type: 'value' },
     series: [

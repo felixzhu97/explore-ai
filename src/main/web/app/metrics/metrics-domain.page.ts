@@ -16,6 +16,7 @@ import {
   type MetricsDomain,
   type MetricsRange,
 } from './metrics.service';
+import { hasText } from '../shared/presence';
 
 @Component({
   selector: 'app-metrics-domain-page',
@@ -68,7 +69,7 @@ export class MetricsDomainPageComponent {
 
   readonly drilldownResource = this.#metrics.drilldown(() => {
     const domain = this.domain();
-    if (!domain) {
+    if (domain === null) {
       return undefined;
     }
     return {
@@ -83,7 +84,7 @@ export class MetricsDomainPageComponent {
 
   readonly title = computed(() => {
     const domain = this.domain();
-    if (!domain) {
+    if (domain === null) {
       return this.i18n.t().metrics.unknownDomainTitle;
     }
     const health = this.i18n.t().metrics.health;
@@ -114,7 +115,7 @@ export class MetricsDomainPageComponent {
 
   readonly kpis = computed((): MetricsKpi[] => {
     const snapshot = this.domainResource.value();
-    if (!snapshot) {
+    if (snapshot === undefined) {
       return [];
     }
     const kpi = this.i18n.t().metrics.kpi;
@@ -138,7 +139,7 @@ export class MetricsDomainPageComponent {
         key: 'p95',
         label: kpi.p95Latency,
         value:
-          snapshot.latencyP95Ms == null
+          snapshot.latencyP95Ms === null
             ? '—'
             : `${Math.round(snapshot.latencyP95Ms)} ms`,
       },
@@ -163,7 +164,7 @@ export class MetricsDomainPageComponent {
 
   readonly docsSeries = computed(() => {
     const response = this.docsSeriesResource.value();
-    if (!response) {
+    if (response === undefined) {
       return [];
     }
     return response.points.map(point => ({
@@ -216,11 +217,11 @@ export class MetricsDomainPageComponent {
   }
 
   onRowClick(event: InvocationEvent): void {
-    if (event.sessionId) {
+    if (hasText(event.sessionId)) {
       void this.#router.navigate(['/chat', event.sessionId]);
       return;
     }
-    if (event.documentId || event.domain === 'rag') {
+    if (hasText(event.documentId) || event.domain === 'rag') {
       void this.#router.navigate(['/rag']);
     }
   }

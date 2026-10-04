@@ -65,7 +65,7 @@ export class McpPageComponent implements OnInit {
 
   submitQuestion(): void {
     const question = this.question().trim();
-    if (!question) {
+    if (question === '') {
       return;
     }
 

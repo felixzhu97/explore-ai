@@ -36,6 +36,7 @@ import { applyPipelineTemplate } from './pipelines.templates';
 import { ZardButtonComponent } from '../ui/button';
 import { PipelinesGalleryComponent } from './pipelines-gallery.component';
 import { PipelinesToolbarComponent } from './pipelines-toolbar.component';
+import { hasText, textOr } from '../shared/presence';
 
 type WorkspaceMode = 'gallery' | 'edit' | 'use';
 
@@ -116,7 +117,7 @@ export class PipelinesCanvasComponent implements OnInit {
 
   readonly workers = computed(() => this.agents().filter(agent => !agent.supervisor));
 
-  readonly isEditingNode = computed(() => this.editingNodeId() != null);
+  readonly isEditingNode = computed(() => this.editingNodeId() !== null);
   readonly isEditMode = computed(() => this.workspaceMode() === 'edit');
   readonly isUseMode = computed(() => this.workspaceMode() === 'use');
   readonly isGallery = computed(() => this.workspaceMode() === 'gallery');
@@ -164,7 +165,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   onCreateConnection(event: FCreateConnectionEvent): void {
-    if (!this.isEditMode() || !event.targetId) {
+    if (!this.isEditMode() || !hasText(event.targetId)) {
       return;
     }
     const sourceNodeId = nodeIdFromConnector(event.sourceId);
@@ -199,7 +200,9 @@ export class PipelinesCanvasComponent implements OnInit {
     const moved = new Map(event.nodes.map(node => [node.id, node.position]));
     this.nodes.update(list => list.map((node) => {
       const position = moved.get(node.id);
-      return position ? { ...node, position: { x: position.x, y: position.y } } : node;
+      return position !== undefined
+        ? { ...node, position: { x: position.x, y: position.y } }
+        : node;
     }),
     );
     this.#emitGraph();
@@ -252,12 +255,12 @@ export class PipelinesCanvasComponent implements OnInit {
 
   saveNodeEdit(): void {
     const nodeId = this.editingNodeId();
-    if (!nodeId) {
+    if (!hasText(nodeId)) {
       return;
     }
     const draft = this.#nodeDraft();
     const snapshot: NodeDraft = {
-      name: draft.name.trim() || 'Agent',
+      name: textOr(draft.name.trim(), 'Agent'),
       description: draft.description.trim(),
       systemPrompt: draft.systemPrompt.trim(),
       toolKeys: [...draft.toolKeys],
@@ -336,7 +339,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   addFromTemplate(template: PipelineTemplateDefinition): void {
-    if (this.addingTemplateId() || this.isSaved(template)) {
+    if (this.addingTemplateId() !== null || this.isSaved(template)) {
       return;
     }
     this.addingTemplateId.set(template.id);
@@ -411,7 +414,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#persistTemplateIfNeeded(() => {
       this.workspaceMode.set('use');
       this.templateApplied.emit({
-        topic: this.task().trim() || this.activeTemplateName(),
+        topic: textOr(this.task().trim(), this.activeTemplateName()),
         brief: this.#activeBrief,
       });
       this.#cdr.markForCheck();
@@ -456,17 +459,17 @@ export class PipelinesCanvasComponent implements OnInit {
     this.connections.set(result.graph.connections);
     this.workspaceMode.set(mode);
     this.activeTemplateName.set(template.name);
-    this.#activeBrief = template.briefPrompt || DEFAULT_BRIEF;
+    this.#activeBrief = textOr(template.briefPrompt, DEFAULT_BRIEF);
     this.editingTemplateId.set(template.savedTemplateId ?? null);
     this.isDraft.set(false);
     this.#emitGraph();
     this.validationCleared.emit();
     const defaultTask = template.shortTopic.trim();
-    if (defaultTask) {
+    if (defaultTask !== '') {
       this.task.set(defaultTask);
     }
     this.templateApplied.emit({
-      topic: defaultTask || template.name,
+      topic: textOr(defaultTask, template.name),
       brief: this.#activeBrief,
     });
     if (result.skippedAgentTypes.length > 0) {
@@ -482,13 +485,13 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   #persistTemplateIfNeeded(done: () => void): void {
-    const shouldPersist = this.isDraft() || this.editingTemplateId() != null;
+    const shouldPersist = this.isDraft() || this.editingTemplateId() !== null;
     if (!shouldPersist) {
       done();
       return;
     }
     const request = this.#buildTemplateWriteRequest();
-    if (!request) {
+    if (request === null) {
       this.#notifications.showWarning(
         this.i18n.t().pipelines.templates.canvasEmpty,
       );
@@ -496,7 +499,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }
     this.isSaving.set(true);
     const savedTemplateId = this.editingTemplateId();
-    const request$ = savedTemplateId
+    const request$ = hasText(savedTemplateId)
       ? this.#pipelinesApi.updateTemplate(savedTemplateId, request)
       : this.#pipelinesApi.createTemplate(request);
     request$.subscribe({
@@ -522,14 +525,16 @@ export class PipelinesCanvasComponent implements OnInit {
     if (agentTypes.length === 0) {
       return null;
     }
-    const name = this.activeTemplateName().trim()
-      || this.i18n.t().pipelines.templates.newTemplateName;
+    const name = textOr(
+      this.activeTemplateName().trim(),
+      this.i18n.t().pipelines.templates.newTemplateName,
+    );
     return {
       name,
       description: '',
       agentTypes,
       shortTopic: this.task().trim(),
-      briefPrompt: this.#activeBrief.trim() || DEFAULT_BRIEF,
+      briefPrompt: textOr(this.#activeBrief.trim(), DEFAULT_BRIEF),
     };
   }
 
@@ -569,7 +574,7 @@ export class PipelinesCanvasComponent implements OnInit {
         position,
       },
     ]);
-    if (chainTailId) {
+    if (hasText(chainTailId)) {
       this.#connectionSeq += 1;
       this.connections.update(list => [
         ...list,

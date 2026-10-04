@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
 import { parseSseToken, streamSsePost } from '../http/sse-client';
+import { textOr } from '../shared/presence';
 
 /** POST /api/rag/chat/stream */
 export interface RagQuery {
@@ -93,7 +94,7 @@ export class RagService {
       next: (data) => {
         const documents = data.documents.map(item => ({
           id: item.id,
-          title: item.title || 'Untitled',
+          title: textOr(item.title, 'Untitled'),
         }));
         this.availableDocuments.set(documents);
         const ids = new Set<string>();
@@ -134,7 +135,7 @@ export class RagService {
   }
 
   deleteDocument(documentId: string): void {
-    if (!documentId || documentId === 'undefined' || documentId === 'null') {
+    if (documentId === '' || documentId === 'undefined' || documentId === 'null') {
       this.#notifications.showError('Cannot delete: document ID is invalid');
       return;
     }
@@ -222,12 +223,16 @@ export class RagService {
 
       this.#uploadDocument(file).pipe(finalize(settle)).subscribe({
         next: (event) => {
-          if (event.type === HttpEventType.UploadProgress && event.total) {
+          if (
+            event.type === HttpEventType.UploadProgress
+            && event.total !== undefined
+            && event.total > 0
+          ) {
             const progress = Math.round((100 * event.loaded) / event.total);
             this.uploadStatuses.update((statuses) => {
               const next = new Map(statuses);
               const current = next.get(file.name);
-              if (current) {
+              if (current !== undefined) {
                 next.set(file.name, { ...current, progress });
               }
               return next;
@@ -285,7 +290,7 @@ export class RagService {
   }
 
   sendMessage(): void {
-    if (!this.input().trim()) {
+    if (this.input().trim() === '') {
       return;
     }
     if (this.isLoading()) {

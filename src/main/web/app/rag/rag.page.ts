@@ -103,7 +103,7 @@ export class RagPageComponent implements OnInit {
   onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = input.files;
-    if (files) {
+    if (files !== null) {
       this.ragService.onFileSelect(Array.from(files));
     }
     input.value = '';

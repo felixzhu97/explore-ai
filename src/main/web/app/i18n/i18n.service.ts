@@ -1,6 +1,7 @@
 import { Service, signal, computed } from '@angular/core';
 import { STORAGE_KEYS } from '../storage-keys';
 import { type Language, type Translations, translations, languageNames } from './translations';
+import { hasText } from '../shared/presence';
 
 @Service()
 export class I18nService {
@@ -12,7 +13,7 @@ export class I18nService {
 
   #getInitialLanguage(): Language {
     const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
-    if (stored && this.#isValidLanguage(stored)) {
+    if (hasText(stored) && this.#isValidLanguage(stored)) {
       return stored as Language;
     }
 

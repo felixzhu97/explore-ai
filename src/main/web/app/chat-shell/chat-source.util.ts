@@ -1,5 +1,5 @@
 import type { ChatSourceView } from './chat-bubble-list.component';
-import { hasText } from '../shared/presence';
+import { hasText, textOr } from '../shared/presence';
 
 const LABEL_MAX_CHARS = 14;
 const TITLE_MAX_CHARS = 80;
@@ -33,7 +33,7 @@ export function sourceLabel(source: ChatSourceView, fallback: string): string {
   if (hasText(title)) {
     return truncateText(title, LABEL_MAX_CHARS);
   }
-  return orFallback(truncateText(source.text, LABEL_MAX_CHARS), fallback);
+  return textOr(truncateText(source.text, LABEL_MAX_CHARS), fallback);
 }
 
 export function sourceFaviconUrl(source: ChatSourceView): string | null {
@@ -58,11 +58,7 @@ export function sourceTitle(source: ChatSourceView, fallback: string): string {
   if (host !== '') {
     return host;
   }
-  return orFallback(truncateText(source.text, TITLE_MAX_CHARS), fallback);
-}
-
-function orFallback(text: string, fallback: string): string {
-  return text === '' ? fallback : text;
+  return textOr(truncateText(source.text, TITLE_MAX_CHARS), fallback);
 }
 
 export function sourcePublishedAt(source: ChatSourceView): string {

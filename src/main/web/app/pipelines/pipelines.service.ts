@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../http/api.constants';
 import { I18nService } from '../i18n';
 import { parseSseToken, streamSsePost } from '../http/sse-client';
 import type { PipelineInvokeRequest } from './pipeline-graph';
+import { textOr } from '../shared/presence';
 
 export interface AgentType {
   type: string;
@@ -185,14 +186,14 @@ export class PipelinesService {
           return true;
         }
         if (eventType === 'error') {
-          onError(new Error(data || 'Pipeline stream error'));
+          onError(new Error(textOr(data, 'Pipeline stream error')));
           return true;
         }
         if (eventType === 'agent_handoff') {
           onHandoff(data);
           return false;
         }
-        if (eventType === 'message' || !eventType) {
+        if (eventType === 'message' || eventType === '') {
           const token = parseSseToken(data);
           if (token !== null) {
             onChunk(token);

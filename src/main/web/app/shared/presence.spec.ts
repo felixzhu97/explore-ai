@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasItems, hasText } from './presence';
+import { hasItems, hasText, textOr } from './presence';
 
 describe('presence', () => {
   it('should treat a list with elements as present', () => {
@@ -20,5 +20,11 @@ describe('presence', () => {
     expect(hasText('')).toBe(false);
     expect(hasText(null)).toBe(false);
     expect(hasText(undefined)).toBe(false);
+  });
+
+  it('should fall back only when the text is absent', () => {
+    expect(textOr('a', 'b')).toBe('a');
+    expect(textOr('', 'b')).toBe('b');
+    expect(textOr(null, undefined)).toBeUndefined();
   });
 });

@@ -1,5 +1,6 @@
 import { Instant } from '@js-joda/core';
 import { STORAGE_KEYS } from '../storage-keys';
+import { hasText } from '../shared/presence';
 
 export interface PrivacyConsentState {
   decided: boolean;
@@ -14,7 +15,7 @@ export function readPrivacyConsent(): PrivacyConsentState {
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.PRIVACY_CONSENT);
-    if (!raw) {
+    if (!hasText(raw)) {
       return { decided: false, analytics: false, contactEmail: '' };
     }
     const parsed = JSON.parse(raw) as Partial<PrivacyConsentState>;

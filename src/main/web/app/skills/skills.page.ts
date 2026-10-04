@@ -17,6 +17,7 @@ import {
 } from './skills.service';
 import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
+import { hasText } from '../shared/presence';
 
 type SkillDraft = Pick<SkillWriteRequest, 'name' | 'description' | 'instructions'>;
 
@@ -132,7 +133,7 @@ export class SkillsPageComponent implements OnInit {
   }
 
   addFromTemplate(template: SkillTemplate): void {
-    if (this.addingTemplateId()) {
+    if (hasText(this.addingTemplateId())) {
       return;
     }
     this.addingTemplateId.set(template.id);
@@ -170,7 +171,7 @@ export class SkillsPageComponent implements OnInit {
     this.isSaving.set(true);
     this.error.set(null);
     const id = this.editingId();
-    const request$ = id
+    const request$ = hasText(id)
       ? this.#skillsApi.update(id, request)
       : this.#skillsApi.create(request);
     request$.subscribe({

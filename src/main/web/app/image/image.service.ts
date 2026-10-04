@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../http/api.constants';
 import type { AppError } from '../http/http-error.interceptor';
 import { ImageZoomService } from '../ui/image-zoom.service';
 import { downloadBase64Image, downloadBlob } from '../ui/download';
+import { hasText } from '../shared/presence';
 
 export interface ImageSize {
   label: string;
@@ -40,7 +41,7 @@ export interface ImageCatalogResponse {
 
 export function parseImageSizeLabel(label: string): ImageSize | null {
   const [, width, height] = /^(\d+)x(\d+)$/.exec(label.trim()) ?? [];
-  if (!width || !height) {
+  if (!hasText(width) || !hasText(height)) {
     return null;
   }
   return {
@@ -97,7 +98,7 @@ export class ImageService {
           .map(parseImageSizeLabel)
           .filter((size): size is ImageSize => size !== null);
         const largest = parsedSizes.at(-1);
-        if (largest) {
+        if (largest !== undefined) {
           this.sizes.set(parsedSizes);
           this.selectedSize.set(largest);
         }
@@ -115,13 +116,13 @@ export class ImageService {
 
   openZoom(): void {
     const image = this.generatedImage();
-    if (image) {
+    if (hasText(image)) {
       this.#imageZoom.open(image);
     }
   }
 
   generate(): void {
-    if (!this.prompt().trim() || this.isGenerating()) {
+    if (this.prompt().trim() === '' || this.isGenerating()) {
       return;
     }
 
@@ -140,12 +141,12 @@ export class ImageService {
       n: 1,
     }).subscribe({
       next: (result) => {
-        if (result.imageUrl) {
+        if (hasText(result.imageUrl)) {
           this.generatedImage.set(result.imageUrl);
           this.#imageSource.set('url');
           return;
         }
-        if (result.imageBase64) {
+        if (hasText(result.imageBase64)) {
           this.generatedImage.set(`data:image/png;base64,${result.imageBase64}`);
           this.#imageSource.set('base64');
         }
@@ -162,7 +163,7 @@ export class ImageService {
 
   download(): void {
     const image = this.generatedImage();
-    if (!image) {
+    if (!hasText(image)) {
       return;
     }
 

@@ -186,12 +186,12 @@ export class AppSidebarComponent implements OnInit {
       metrics: `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>`,
       generate: `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`,
     };
-    const iconSvg = icons[key] || `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
+    const iconSvg = icons[key] ?? `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
     return this.#sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
-    const isOutsideSidebar = !(event.target as Element).closest('[data-sidebar-panel]');
+    const isOutsideSidebar = (event.target as Element).closest('[data-sidebar-panel]') === null;
 
     if (this.sidebar.mobileOpen() && isOutsideSidebar) {
       this.sidebar.close();

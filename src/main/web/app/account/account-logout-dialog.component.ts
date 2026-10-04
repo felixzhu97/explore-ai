@@ -3,6 +3,7 @@ import { AccountService } from './account.service';
 import { I18nService } from '../i18n';
 import { ZardButtonComponent } from '../ui/button';
 import { Z_MODAL_DATA, ZardDialogRef } from '../ui/dialog';
+import { textOr } from '../shared/presence';
 
 export interface AccountLogoutDialogData {
   email: string | null;
@@ -79,7 +80,7 @@ export class AccountLogoutDialogComponent {
   readonly #i18n = inject(I18nService);
 
   readonly avatarLetter = (
-    this.data.displayName.trim() || this.data.email || 'G'
+    textOr(this.data.displayName.trim(), textOr(this.data.email, 'G'))
   ).charAt(0).toUpperCase();
 
   get t() {
