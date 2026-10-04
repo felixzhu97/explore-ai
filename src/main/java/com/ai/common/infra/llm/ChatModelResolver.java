@@ -51,10 +51,10 @@ public class ChatModelResolver {
       throw new IllegalArgumentException(
           ("Provider '%s' is not configured. Configure the API key"
                   + " or enable the provider before chatting.")
-              .formatted(provider == null || provider.isBlank() ? "unknown" : provider));
+              .formatted(provider));
     }
 
-    return switch (provider == null || provider.isBlank() ? "openai" : provider.toLowerCase()) {
+    return switch (provider) {
       case "ollama" -> resolveOllama(options.model());
       case "anthropic" -> resolveAnthropic(options.model());
       default -> resolveOpenAi(options.model());

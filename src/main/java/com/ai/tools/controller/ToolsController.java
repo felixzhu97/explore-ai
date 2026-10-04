@@ -90,7 +90,7 @@ public class ToolsController {
   /** Chat with function calling. */
   @PostMapping("/chat")
   public ResponseEntity<ToolChatResponse> chatWithTools(@RequestBody ToolChatRequest request) {
-    if (request == null || request.question() == null || request.question().isBlank()) {
+    if (request.question() == null || request.question().isBlank()) {
       return ResponseEntity.badRequest().body(new ToolChatResponse("问题不能为空", null));
     }
     try {

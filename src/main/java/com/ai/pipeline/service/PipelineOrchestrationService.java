@@ -53,10 +53,6 @@ public class PipelineOrchestrationService {
   /** Streams a supervisor run as SSE: plans routing, runs workers and synthesizes the answer. */
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       String message, String ownerKey, String language) {
-    if (message == null || message.isBlank()) {
-      return Flux.just(errorEvent("message must not be blank"), doneEvent());
-    }
-
     long startedAt = System.nanoTime();
     return Mono.fromCallable(
             () -> {
@@ -80,9 +76,6 @@ public class PipelineOrchestrationService {
   /** Streams a direct invocation of one worker agent as SSE, delegating supervisor types. */
   public Flux<ServerSentEvent<String>> invokeAgent(
       AgentType type, String message, String ownerKey, String language) {
-    if (message == null || message.isBlank()) {
-      return Flux.just(errorEvent("message must not be blank"), doneEvent());
-    }
     if (type.isSupervisor()) {
       return invokeSupervisor(message, ownerKey, language);
     }
@@ -122,9 +115,6 @@ public class PipelineOrchestrationService {
   /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */
   public Flux<ServerSentEvent<String>> invokePipeline(
       String message, AgentPipeline pipeline, String ownerKey, String language) {
-    if (message == null || message.isBlank()) {
-      return Flux.just(errorEvent("message must not be blank"), doneEvent());
-    }
     try {
       List<AgentPipeline.PipelineNode> order = pipeline.executionOrder();
       return runPipelineStreamed(message, order, ownerKey, language)
@@ -200,12 +190,7 @@ public class PipelineOrchestrationService {
                   Flux.just(handoffEvent(node.agentType().value(), "pipeline step")),
                   workerInvoker
                       .invokeStream(agent, stepInput)
-                      .doOnNext(
-                          chunk -> {
-                            if (chunk != null) {
-                              stepOutput.append(chunk);
-                            }
-                          })
+                      .doOnNext(stepOutput::append)
                       .map(PipelineOrchestrationService::messageEvent),
                   Mono.fromRunnable(() -> current.set(stepOutput.toString()))
                       .thenMany(Flux.just(messageEvent("\n\n"))));

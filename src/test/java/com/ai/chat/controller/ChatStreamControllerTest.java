@@ -148,6 +148,20 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
+    @DisplayName("should reject request when messages are empty")
+    void shouldRejectRequestWhenMessagesAreEmpty() {
+      assertThat(
+              mvc.post()
+                  .uri("/api/chat/stream")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {"messages": []}
+                      """))
+          .hasStatus(400);
+    }
+
+    @Test
     @DisplayName("should use stateless stream when sessionId missing")
     void shouldUseStatelessStreamWhenSessionIdMissing() {
       when(chatService.chatStream(any(), any(TextChatOptions.class), eq(ownerKey())))

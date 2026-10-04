@@ -95,24 +95,9 @@ class PipelineOrchestrationServiceTest {
   }
 
   @Test
-  void shouldEmitErrorWhenMessageBlank() {
-    StepVerifier.create(useCase.invokeSupervisor("  ", null, "en"))
-        .assertNext(event -> assertEvent(event, "error"))
-        .assertNext(event -> assertEvent(event, "done"))
-        .verifyComplete();
-  }
-
-  @Test
-  void shouldEmitErrorWhenMessageNull() {
-    StepVerifier.create(useCase.invokeSupervisor(null, null, "en"))
-        .assertNext(event -> assertEvent(event, "error"))
-        .assertNext(event -> assertEvent(event, "done"))
-        .verifyComplete();
-  }
-
-  @Test
-  void shouldEmitErrorWhenDirectInvokeMessageBlank() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("k8s"), " ", null, "en"))
+  @DisplayName("should emit error and done when direct invoke agent is unknown")
+  void shouldEmitErrorAndDoneWhenDirectInvokeAgentIsUnknown() {
+    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hi", null, "en"))
         .assertNext(event -> assertEvent(event, "error"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();

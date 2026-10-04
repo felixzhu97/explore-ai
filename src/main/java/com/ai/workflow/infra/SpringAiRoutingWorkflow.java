@@ -16,7 +16,7 @@ public class SpringAiRoutingWorkflow implements RoutingWorkflow {
   private final ChatClientProvider chatClientProvider;
 
   public SpringAiRoutingWorkflow(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = Objects.requireNonNull(chatClientProvider);
+    this.chatClientProvider = chatClientProvider;
   }
 
   @Override

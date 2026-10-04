@@ -35,13 +35,13 @@ public class AudioController {
   /** Convert text to speech. */
   @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> speak(@RequestBody TextToSpeechRequest request) {
-    if (request == null || request.text() == null || request.text().isBlank()) {
+    if (request.text() == null || request.text().isBlank()) {
       return ResponseEntity.badRequest().build();
     }
     try {
       var audio = audioService.synthesizeAudio(request.text(), request.voice(), request.speed());
 
-      if (audio == null || audio.isEmpty()) {
+      if (audio.isEmpty()) {
         return ResponseEntity.internalServerError().build();
       }
 

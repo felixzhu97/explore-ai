@@ -100,7 +100,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
   }
 
   public List<String> getAgentTypes() {
-    return Collections.unmodifiableList(agentTypes == null ? List.of() : agentTypes);
+    return Collections.unmodifiableList(agentTypes);
   }
 
   private static String normalizeShortTopic(String shortTopic) {

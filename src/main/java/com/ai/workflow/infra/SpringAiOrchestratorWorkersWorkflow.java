@@ -79,7 +79,7 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
       String orchestratorPrompt,
       String workerPrompt,
       String synthesizerPrompt) {
-    this.chatClientProvider = Objects.requireNonNull(chatClientProvider);
+    this.chatClientProvider = chatClientProvider;
     this.orchestratorPrompt = Objects.requireNonNull(orchestratorPrompt);
     this.workerPrompt = Objects.requireNonNull(workerPrompt);
     this.synthesizerPrompt = Objects.requireNonNull(synthesizerPrompt);

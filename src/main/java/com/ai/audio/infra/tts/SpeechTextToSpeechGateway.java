@@ -88,16 +88,8 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
 
   /** Prefer Qwen speakers; omit OpenAI aliases so speech picks TTS_SPEAKER. */
   static String qwenSpeakerOrNull(VoiceSelection voiceSelection) {
-    if (voiceSelection == null
-        || voiceSelection.voice() == null
-        || voiceSelection.voice().isBlank()) {
-      return null;
-    }
-    String voice = voiceSelection.voice().trim();
-    if (OPENAI_VOICES.contains(voice.toLowerCase())) {
-      return null;
-    }
-    return voice;
+    String voice = voiceSelection.voice();
+    return OPENAI_VOICES.contains(voice.toLowerCase()) ? null : voice;
   }
 
   URI resolveAudioUri(String audioUrl) {
@@ -111,7 +103,7 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
   }
 
   private static String trimSlash(String baseUrl) {
-    String base = baseUrl == null ? "http://localhost:8000" : baseUrl.trim();
+    String base = baseUrl.trim();
     while (base.endsWith("/")) {
       base = base.substring(0, base.length() - 1);
     }

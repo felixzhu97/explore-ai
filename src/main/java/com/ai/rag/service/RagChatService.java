@@ -14,8 +14,6 @@ import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.service.dto.RagChatResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +41,6 @@ import reactor.core.publisher.Flux;
 public class RagChatService {
 
   private static final Logger log = LoggerFactory.getLogger(RagChatService.class);
-  private static final int DEFAULT_TOP_K = 5;
 
   /** Must match {@code H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY}. */
   private static final String DOCUMENT_ID_METADATA_KEY = "document_id";
@@ -70,13 +67,12 @@ public class RagChatService {
     this.objectMapper = objectMapper;
   }
 
-  public RagChatResult chat(String question, List<String> documentIds, Integer topK) {
+  public RagChatResult chat(String question, List<String> documentIds, int topK) {
     return chat(question, documentIds, topK, null);
   }
 
   /** Answers the question with retrieval-augmented context and records the invocation. */
-  public RagChatResult chat(
-      String question, List<String> documentIds, Integer topK, String sessionId) {
+  public RagChatResult chat(String question, List<String> documentIds, int topK, String sessionId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
@@ -97,7 +93,7 @@ public class RagChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStream(
-      String question, List<String> documentIds, Integer topK, String sessionId) {
+      String question, List<String> documentIds, int topK, String sessionId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
@@ -128,25 +124,17 @@ public class RagChatService {
             })
         .concatWith(Flux.defer(() -> sourceEvents(sourcesRef.get())))
         .doOnComplete(() -> recordSuccess(options, sessionId, documentId, startedAt))
-        .doOnError(
-            ex ->
-                recordError(
-                    sessionId,
-                    startedAt,
-                    ex instanceof RuntimeException runtimeException
-                        ? runtimeException
-                        : new RuntimeException(ex)));
+        .doOnError(ex -> recordError(sessionId, startedAt, ex));
   }
 
   private ChatClient.ChatClientRequestSpec buildPrompt(
       String question,
       List<String> documentIds,
-      Integer topK,
+      int topK,
       String sessionId,
       TextChatOptions options) {
     log.info("RAG chat request: {}", LogSanitizer.truncate(question));
-    int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-    List<String> filterDocIds =
+    List<Object> filterDocIds =
         documentIds != null && !documentIds.isEmpty() ? List.copyOf(documentIds) : null;
 
     String languageCode = languageDetectionService.detect(question);
@@ -160,7 +148,7 @@ public class RagChatService {
     VectorStoreDocumentRetriever documentRetriever =
         VectorStoreDocumentRetriever.builder()
             .vectorStore(vectorStore)
-            .topK(topKValue)
+            .topK(topK)
             .similarityThreshold(retrievalSettings.getScoreThreshold())
             .build();
 
@@ -182,10 +170,11 @@ public class RagChatService {
             .advisors(
                 a -> {
                   if (filterDocIds != null) {
-                    List<Object> ids = new ArrayList<>(filterDocIds);
                     a.param(
                         VectorStoreDocumentRetriever.FILTER_EXPRESSION,
-                        new FilterExpressionBuilder().in(DOCUMENT_ID_METADATA_KEY, ids).build());
+                        new FilterExpressionBuilder()
+                            .in(DOCUMENT_ID_METADATA_KEY, filterDocIds)
+                            .build());
                   }
                   if (withMemory) {
                     a.param(ChatMemory.CONVERSATION_ID, sessionId);
@@ -212,7 +201,7 @@ public class RagChatService {
     log.info("RAG chat completed successfully");
   }
 
-  private void recordError(String sessionId, long startedAt, RuntimeException ex) {
+  private void recordError(String sessionId, long startedAt, Throwable ex) {
     invocationRecorder.recordError(
         AiDomain.RAG,
         "rag.chat",
@@ -225,7 +214,7 @@ public class RagChatService {
   }
 
   private Flux<ServerSentEvent<String>> sourceEvents(List<SourceDocument> sources) {
-    if (sources == null || sources.isEmpty()) {
+    if (sources.isEmpty()) {
       return Flux.empty();
     }
     try {
@@ -238,7 +227,7 @@ public class RagChatService {
         row.put("id", null);
         row.put("content", source.content());
         row.put("score", source.score());
-        row.put("metadata", source.metadata() != null ? source.metadata() : Map.of());
+        row.put("metadata", source.metadata());
         payload.add(row);
       }
       if (payload.isEmpty()) {
@@ -278,8 +267,7 @@ public class RagChatService {
   }
 
   private static SourceDocument toSourceDocument(Document document) {
-    Map<String, Object> metadata =
-        document.getMetadata() != null ? new HashMap<>(document.getMetadata()) : new HashMap<>();
+    Map<String, Object> metadata = document.getMetadata();
     double score = 0.0;
     Object scoreMeta = metadata.get("score");
     if (scoreMeta instanceof Number number) {
@@ -288,8 +276,6 @@ public class RagChatService {
       score = document.getScore();
     }
     return new SourceDocument(
-        document.getText() != null ? document.getText() : "",
-        score,
-        Collections.unmodifiableMap(metadata));
+        document.getText() != null ? document.getText() : "", score, metadata);
   }
 }

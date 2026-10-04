@@ -13,6 +13,7 @@ import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
 import com.ai.skill.service.SkillSystemPromptBuilder;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class ChatStreamController {
 
   @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<String> chatStream(
-      @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {
+      @Valid @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {
     TextChatOptions options = buildChatOptions(request, httpRequest);
     String ownerKey = ownerContext.requireValue(httpRequest);
 
@@ -137,9 +138,6 @@ public class ChatStreamController {
   }
 
   private String extractLastUserMessage(List<ChatStreamRequest.Message> messages) {
-    if (messages == null || messages.isEmpty()) {
-      return null;
-    }
     for (int i = messages.size() - 1; i >= 0; i--) {
       ChatStreamRequest.Message message = messages.get(i);
       if ("user".equalsIgnoreCase(message.role())) {

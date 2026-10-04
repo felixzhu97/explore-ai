@@ -113,13 +113,11 @@ public class GoldenEvalService {
       List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
       RagChatResult result = ragChatService.chat(evalCase.userText(), documentIds, 5);
       List<String> sources =
-          result.sources() == null
-              ? List.of()
-              : result.sources().stream()
-                  .map(SourceDocument::content)
-                  .filter(text -> text != null && !text.isBlank())
-                  .toList();
-      return new GeneratedAnswer(result.response() == null ? "" : result.response(), sources);
+          result.sources().stream()
+              .map(SourceDocument::content)
+              .filter(text -> text != null && !text.isBlank())
+              .toList();
+      return new GeneratedAnswer(result.response(), sources);
     }
 
     TextChatOptions options =

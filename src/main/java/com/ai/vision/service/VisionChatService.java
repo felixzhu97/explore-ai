@@ -38,7 +38,6 @@ import reactor.core.publisher.Flux;
 public class VisionChatService {
 
   private static final Logger log = LoggerFactory.getLogger(VisionChatService.class);
-  private static final int DEFAULT_TOP_K = 5;
 
   @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
   private String visionModel;
@@ -63,17 +62,15 @@ public class VisionChatService {
 
   /** Answers a question about the images using retrieved document context and the vision model. */
   public RagChatResult chatWithImages(
-      String question, List<String> documentIds, List<String> images, Integer topK) {
+      String question, List<String> documentIds, List<String> images, int topK) {
     log.info(
         "Vision RAG chat request: {} with {} images",
         LogSanitizer.truncate(question),
-        images != null ? images.size() : 0);
+        images.size());
 
     List<Media> mediaList = parseImages(images);
     List<DocumentId> documentIdList = toDocumentIds(documentIds);
-    int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-    var retrievalResult =
-        ragApplicationService.retrieveContext(question, documentIdList, topKValue);
+    var retrievalResult = ragApplicationService.retrieveContext(question, documentIdList, topK);
 
     String prompt = buildPrompt(question, retrievalResult.context());
     String aiResponse = chatWithVision(prompt, mediaList);
@@ -84,17 +81,15 @@ public class VisionChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStreamWithImages(
-      String question, List<String> documentIds, List<String> images, Integer topK) {
+      String question, List<String> documentIds, List<String> images, int topK) {
     log.info(
         "Vision RAG stream request: {} with {} images",
         LogSanitizer.truncate(question),
-        images != null ? images.size() : 0);
+        images.size());
 
     List<Media> mediaList = parseImages(images);
     List<DocumentId> documentIdList = toDocumentIds(documentIds);
-    int topKValue = topK != null ? topK : DEFAULT_TOP_K;
-    var retrievalResult =
-        ragApplicationService.retrieveContext(question, documentIdList, topKValue);
+    var retrievalResult = ragApplicationService.retrieveContext(question, documentIdList, topK);
     String prompt = buildPrompt(question, retrievalResult.context());
     List<SourceDocument> sources = retrievalResult.sources();
 
@@ -121,7 +116,7 @@ public class VisionChatService {
           .user(user -> user.text(prompt).media(images.toArray(Media[]::new)))
           .stream()
           .content()
-          .filter(piece -> piece != null && !piece.isEmpty())
+          .filter(piece -> !piece.isEmpty())
           .map(piece -> ServerSentEvent.<String>builder().data(piece).build())
           .onErrorResume(
               ex -> {
@@ -139,7 +134,7 @@ public class VisionChatService {
   }
 
   private Flux<ServerSentEvent<String>> sourceEvents(List<SourceDocument> sources) {
-    if (sources == null || sources.isEmpty()) {
+    if (sources.isEmpty()) {
       return Flux.empty();
     }
     try {
@@ -152,7 +147,7 @@ public class VisionChatService {
         row.put("id", null);
         row.put("content", source.content());
         row.put("score", source.score());
-        row.put("metadata", source.metadata() != null ? source.metadata() : Map.of());
+        row.put("metadata", source.metadata());
         payload.add(row);
       }
       if (payload.isEmpty()) {
@@ -167,10 +162,6 @@ public class VisionChatService {
   }
 
   private List<Media> parseImages(List<String> images) {
-    if (images == null || images.isEmpty()) {
-      return List.of();
-    }
-
     return images.stream()
         .filter(img -> img != null && !img.isBlank())
         .map(this::parseImage)
@@ -216,10 +207,7 @@ public class VisionChatService {
   }
 
   private boolean isBase64(String str) {
-    if (str == null || str.isEmpty()) {
-      return false;
-    }
-    return str.matches("^[A-Za-z0-9+/=]+$") && str.length() % 4 == 0;
+    return !str.isEmpty() && str.matches("^[A-Za-z0-9+/=]+$") && str.length() % 4 == 0;
   }
 
   private String chatWithVision(String prompt, List<Media> images) {

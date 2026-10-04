@@ -103,7 +103,7 @@ public class SavedAgent extends AbstractEnableableDescribedOwnerEntity<SavedAgen
   }
 
   public List<String> getToolKeys() {
-    return Collections.unmodifiableList(toolKeys == null ? List.of() : toolKeys);
+    return Collections.unmodifiableList(toolKeys);
   }
 
   private static String requireTypeKey(String typeKey) {

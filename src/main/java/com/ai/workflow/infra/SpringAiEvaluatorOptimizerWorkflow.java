@@ -54,7 +54,7 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
       String generatorPrompt,
       String evaluatorPrompt,
       int maxIterations) {
-    this.chatClientProvider = Objects.requireNonNull(chatClientProvider);
+    this.chatClientProvider = chatClientProvider;
     this.generatorPrompt = Objects.requireNonNull(generatorPrompt);
     this.evaluatorPrompt = Objects.requireNonNull(evaluatorPrompt);
     if (maxIterations <= 0) {

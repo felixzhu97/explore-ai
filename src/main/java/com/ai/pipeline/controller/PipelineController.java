@@ -127,14 +127,8 @@ public class PipelineController {
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
     String ownerKey = ownerContext.requireValue(httpRequest);
-    return pipelineService
-        .invokeAgent(agentType, request.message(), ownerKey, resolveLanguage(lang, httpRequest))
-        .onErrorResume(
-            AgentNotFoundException.class,
-            e ->
-                Flux.just(
-                    ServerSentEvent.<String>builder().event("error").data(e.getMessage()).build(),
-                    ServerSentEvent.<String>builder().event("done").data("[DONE]").build()));
+    return pipelineService.invokeAgent(
+        agentType, request.message(), ownerKey, resolveLanguage(lang, httpRequest));
   }
 
   @GetMapping("/health")

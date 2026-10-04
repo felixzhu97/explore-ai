@@ -73,7 +73,7 @@ class VisionChatServiceTest {
 
     StepVerifier.create(
             visionChatService.chatStreamWithImages(
-                "What is in the image?", null, List.of("iVBORw0KGgo="), null))
+                "What is in the image?", null, List.of("iVBORw0KGgo="), 5))
         .assertNext(event -> assertThat(event.data()).isEqualTo("Hello "))
         .assertNext(event -> assertThat(event.data()).isEqualTo("world"))
         .assertNext(
@@ -99,7 +99,7 @@ class VisionChatServiceTest {
     when(streamResponseSpec.content()).thenReturn(Flux.error(new RuntimeException("model down")));
 
     StepVerifier.create(
-            visionChatService.chatStreamWithImages("question", null, List.of("iVBORw0KGgo="), null))
+            visionChatService.chatStreamWithImages("question", null, List.of("iVBORw0KGgo="), 5))
         .assertNext(
             event -> {
               assertThat(event.event()).isEqualTo("error");
