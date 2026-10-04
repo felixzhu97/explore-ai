@@ -56,13 +56,13 @@ This document defines the project **Ubiquitous Language**. English terms are the
 
 | Route             | Preferred Term   | API prefix                      |
 | ----------------- | ---------------- | ------------------------------- |
-| `/chat`, `/chat/:sessionId` | Chat      | `/api/text`, `/api/sessions`    |
+| `/chat`, `/chat/:sessionId` | Chat      | `/api/chat`, `/api/chat/sessions`    |
 | `/pipelines`      | Pipeline         | `/api/pipelines`                |
 | `/automations`    | Automation       | `/api/automations`              |
 | `/skills`         | Skill            | `/api/skills`                   |
 | `/generate`       | Generation       | —                               |
 | `/generate/image` | Image Generation | `/api/images`                   |
-| `/generate/tts`   | Text-to-Speech   | `/api/audio` (alias `/api/tts`) |
+| `/generate/tts`   | Text-to-Speech   | `/api/audio` |
 | `/rag`            | RAG              | `/api/rag`                      |
 | `/vision`         | Image Analysis   | `/api/vision`                   |
 | `/asr`            | Audio (ASR)      | `/ws/audio`                     |
@@ -344,7 +344,7 @@ UPLOADING → PROCESSING → READY
 | Voice                              | 音色     | Voice type used for synthesis              | Business Concept    | `VoiceInfo`, `VoiceCatalog`          | GET `/api/audio/voices`                               |
 | Speech Text                        | 语音文本   | Validated text input for TTS               | Value Object        | `SpeechText`                         | —                                                     |
 | Synthesized Audio                  | 合成音频   | Domain result of TTS conversion            | Value Object        | `SynthesizedAudio`                   | Audio bytes                                           |
-| Synthesize                         | 合成     | Execute text-to-speech conversion          | Use Case Behavior   | `AudioService.synthesize()`           | POST `/api/audio/speak` (alias `/api/tts/synthesize`) |
+| Synthesize                         | 合成     | Execute text-to-speech conversion          | Use Case Behavior   | `AudioService.synthesize()`           | POST `/api/audio/speech` |
 | Automatic Speech Recognition (ASR) | 自动语音识别 | Convert spoken audio to text               | Capability          | `StreamingTranscriptionService`      | explore-ml Qwen3-ASR via speech (`:8000`); flag `module-audio-asr` |
 | Streaming Transcription            | 流式转写   | Real-time ASR over WebSocket               | Use Case Behavior   | `AudioTranscriptionWebSocketHandler` | Product `WS /ws/audio/transcribe` → speech `/ws/v1/audios:transcribe` |
 | Transcription                      | 转写     | Single ASR result converting audio to text | Application Concept | `StreamingTranscriptionGateway`      | `SpeechStreamingTranscriptionClient` |
@@ -652,7 +652,7 @@ References:
 | hallucination                                | low **Factuality Score**     | Use Eval domain terminology                                                   |
 | Vision AI                                    | **Image Analysis**           | Renamed in UI; route `/vision`                                                |
 | AI Hub                                       | **Chat** + **Generation**    | Split into `/chat` and `/generate/*`                                       |
-| TextController / `/api/text` as product name | **Chat** / **Chat Stream**   | Transport legacy; prefer Chat domain language                                 |
+| ChatStreamController / `/api/chat/stream` as product name | **Chat** / **Chat Stream**   | Transport legacy; prefer Chat domain language                                 |
 | supervisor (module)                          | **Pipeline**                 | Canvas workbench → `/pipelines` (工作流) |
 | plugin                                       | **Tool** / **MCP Tool**      | Distinguish Tool Calling from MCP                                             |
 | bot                                          | **Agent** / **ChatClient**   | Prefer Agent for autonomous entities                                          |

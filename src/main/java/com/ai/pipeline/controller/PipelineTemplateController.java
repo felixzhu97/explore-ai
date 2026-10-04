@@ -26,20 +26,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/pipelines/templates")
-public class WorkflowTemplateController {
+@RequestMapping("/api/pipelines")
+public class PipelineTemplateController {
 
   private final OwnerContext ownerContext;
 
   private final PipelineTemplateService pipelineTemplateService;
 
-  public WorkflowTemplateController(
+  public PipelineTemplateController(
       PipelineTemplateService pipelineTemplateService, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.pipelineTemplateService = pipelineTemplateService;
   }
 
-  @GetMapping
+  @GetMapping("/template-definitions")
   public List<WorkflowTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String language = resolveLanguage(lang, request);
@@ -48,7 +48,7 @@ public class WorkflowTemplateController {
         .toList();
   }
 
-  @GetMapping("/library")
+  @GetMapping("/templates")
   public List<SavedWorkflowTemplateResponse> listLibrary(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return pipelineTemplateService.listLibrary(ownerKey).stream()
@@ -56,7 +56,7 @@ public class WorkflowTemplateController {
         .toList();
   }
 
-  @PostMapping("/from-template")
+  @PostMapping("/templates/from-template")
   public ResponseEntity<SavedWorkflowTemplateResponse> createFromTemplate(
       @Valid @RequestBody CreateWorkflowTemplateFromTemplateRequest body,
       @RequestParam(value = "lang", required = false) String lang,
@@ -69,7 +69,7 @@ public class WorkflowTemplateController {
                 pipelineTemplateService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
-  @PostMapping("/library")
+  @PostMapping("/templates")
   public ResponseEntity<SavedWorkflowTemplateResponse> create(
       @Valid @RequestBody CreateWorkflowTemplateRequest body, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
@@ -86,7 +86,7 @@ public class WorkflowTemplateController {
                     null)));
   }
 
-  @PutMapping("/library/{id}")
+  @PutMapping("/templates/{id}")
   public SavedWorkflowTemplateResponse update(
       @PathVariable String id,
       @Valid @RequestBody UpdateWorkflowTemplateRequest body,
@@ -103,7 +103,7 @@ public class WorkflowTemplateController {
             body.briefPrompt()));
   }
 
-  @PatchMapping("/library/{id}/enabled")
+  @PatchMapping("/templates/{id}/enabled")
   public SavedWorkflowTemplateResponse setEnabled(
       @PathVariable String id,
       @Valid @RequestBody SetWorkflowTemplateEnabledRequest body,
@@ -113,7 +113,7 @@ public class WorkflowTemplateController {
         pipelineTemplateService.setEnabled(ownerKey, id, body.enabled()));
   }
 
-  @DeleteMapping("/library/{id}")
+  @DeleteMapping("/templates/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     pipelineTemplateService.delete(ownerKey, id);

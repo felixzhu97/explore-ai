@@ -51,9 +51,8 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
     if (path == null || !path.startsWith("/api/")) {
       return true;
     }
-    return !(path.startsWith("/api/sessions")
-        || path.startsWith("/api/chat")
-        || path.startsWith("/api/text/chat")
+    return !(path.startsWith("/api/chat")
+        || path.startsWith("/api/text-analysis")
         || path.startsWith("/api/privacy"));
   }
 

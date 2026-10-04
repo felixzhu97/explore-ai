@@ -47,7 +47,7 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
       return true;
     }
     return !(path.startsWith("/api/chat")
-        || path.startsWith("/api/text")
+        || path.startsWith("/api/text-analysis")
         || path.startsWith("/api/rag")
         || path.startsWith("/api/pipelines")
         || path.startsWith("/api/automations")

@@ -26,14 +26,14 @@ describe('AgentsPage httpResource', () => {
 
   it('should load agents via http resource when mounted', async () => {
     const agents = runInInjectionContext(injector, () => {
-      const resource = httpResource<AgentInfo[]>(() => `${API_BASE_URL}/pipelines/list`);
+      const resource = httpResource<AgentInfo[]>(() => `${API_BASE_URL}/pipelines/agent-types`);
       const agentsSignal = computed(() => resource.hasValue() ? resource.value()! : [],
       );
       return { resource, agentsSignal };
     });
 
     TestBed.tick();
-    const req = http.expectOne(`${API_BASE_URL}/pipelines/list`);
+    const req = http.expectOne(`${API_BASE_URL}/pipelines/agent-types`);
     req.flush([
       {
         type: 'supervisor',
@@ -50,11 +50,11 @@ describe('AgentsPage httpResource', () => {
   });
 
   it('should expose error when agents request fails', async () => {
-    const resource = runInInjectionContext(injector, () => httpResource<AgentInfo[]>(() => `${API_BASE_URL}/pipelines/list`),
+    const resource = runInInjectionContext(injector, () => httpResource<AgentInfo[]>(() => `${API_BASE_URL}/pipelines/agent-types`),
     );
 
     TestBed.tick();
-    http.expectOne(`${API_BASE_URL}/pipelines/list`).error(new ProgressEvent('error'));
+    http.expectOne(`${API_BASE_URL}/pipelines/agent-types`).error(new ProgressEvent('error'));
     await TestBed.inject(ApplicationRef).whenStable();
 
     expect(resource.error()).toBeTruthy();

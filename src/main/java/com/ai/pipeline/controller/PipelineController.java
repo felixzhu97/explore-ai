@@ -39,7 +39,7 @@ public class PipelineController {
     this.pipelineService = pipelineService;
   }
 
-  @GetMapping("/list")
+  @GetMapping("/agent-types")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);

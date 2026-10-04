@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Audio/TTS REST Controller. */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/audio")
 public class AudioController {
 
   private static final Logger log = LoggerFactory.getLogger(AudioController.class);
@@ -33,9 +33,7 @@ public class AudioController {
   }
 
   /** Convert text to speech. */
-  @PostMapping(
-      value = {"/audio/speak", "/audio/synthesize", "/tts/synthesize"},
-      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> speak(@RequestBody TextToSpeechRequest request) {
     if (request == null || request.text() == null || request.text().isBlank()) {
       return ResponseEntity.badRequest().build();
@@ -64,7 +62,7 @@ public class AudioController {
   }
 
   /** Get available TTS voices. */
-  @GetMapping({"/audio/voices", "/tts/voices"})
+  @GetMapping("/voices")
   public ResponseEntity<Map<String, Object>> getVoices() {
     List<VoiceResponse> voices =
         audioService.getAvailableVoices().stream().map(VoiceResponse::from).toList();
@@ -72,7 +70,7 @@ public class AudioController {
   }
 
   /** Get available TTS models. */
-  @GetMapping("/audio/models")
+  @GetMapping("/models")
   public ResponseEntity<Map<String, Object>> getTtsModels() {
     return ResponseEntity.ok(Map.of("models", audioService.getAvailableTtsModels()));
   }

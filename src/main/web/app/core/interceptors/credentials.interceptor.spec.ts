@@ -19,7 +19,7 @@ describe('credentialsInterceptor', () => {
   });
 
   it('should set with credentials when request cloned', () => {
-    const req = new HttpRequest('GET', '/api/sessions');
+    const req = new HttpRequest('GET', '/api/chat/sessions');
     let withCredentials = false;
     let csrfHeader = '';
 

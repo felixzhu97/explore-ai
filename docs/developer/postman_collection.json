@@ -79,7 +79,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/tts/synthesize",
+              "raw": "{{host}}/api/audio/speech",
               "host": [
                 "{{host}}"
               ],
@@ -139,7 +139,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/api/tts/voices?language=&provider=",
+              "raw": "{{host}}/api/audio/voices?language=&provider=",
               "host": [
                 "{{host}}"
               ],
@@ -225,7 +225,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/api/tts/models?provider=",
+              "raw": "{{host}}/api/audio/models?provider=",
               "host": [
                 "{{host}}"
               ],
@@ -2568,7 +2568,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/api/text/providers",
+              "raw": "{{host}}/api/chat/providers",
               "host": [
                 "{{host}}"
               ],
@@ -2580,7 +2580,7 @@
               "query": [],
               "variable": []
             },
-            "description": "List available LLM providers.\nGET /api/text/providers"
+            "description": "List available LLM providers.\nGET /api/chat/providers"
           },
           "response": []
         },
@@ -2590,7 +2590,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/api/text/models?provider=",
+              "raw": "{{host}}/api/chat/models?provider=",
               "host": [
                 "{{host}}"
               ],
@@ -2609,7 +2609,7 @@
               ],
               "variable": []
             },
-            "description": "List available models for a provider.\nGET /api/text/models?provider=X"
+            "description": "List available models for a provider.\nGET /api/chat/models?provider=X"
           },
           "response": []
         },
@@ -2635,7 +2635,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/text/chat",
+              "raw": "{{host}}/api/chat",
               "host": [
                 "{{host}}"
               ],
@@ -2647,7 +2647,7 @@
               "query": [],
               "variable": []
             },
-            "description": "Non-streaming chat completion.\nPOST /api/text/chat"
+            "description": "Non-streaming chat completion.\nPOST /api/chat"
           },
           "response": []
         },
@@ -2673,7 +2673,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/text/chat/stream",
+              "raw": "{{host}}/api/chat/stream",
               "host": [
                 "{{host}}"
               ],
@@ -2686,7 +2686,7 @@
               "query": [],
               "variable": []
             },
-            "description": "Streaming chat completion with SSE.\nPOST /api/text/chat/stream\n\nProduces SSE events:\n- event: meta, data:{\"token\": \"...\"} for each token chunk\n- event: done, data: [DONE] when complete\n- event: error, data:{\"error\": \"...\"} on error"
+            "description": "Streaming chat completion with SSE.\nPOST /api/chat/stream\n\nProduces SSE events:\n- event: meta, data:{\"token\": \"...\"} for each token chunk\n- event: done, data: [DONE] when complete\n- event: error, data:{\"error\": \"...\"} on error"
           },
           "response": []
         },
@@ -2696,7 +2696,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/api/text/health?provider=&model=",
+              "raw": "{{host}}/api/chat/health?provider=&model=",
               "host": [
                 "{{host}}"
               ],
@@ -2721,7 +2721,7 @@
               ],
               "variable": []
             },
-            "description": "Health check endpoint.\nGET /api/text/health"
+            "description": "Health check endpoint.\nGET /api/chat/health"
           },
           "response": []
         }

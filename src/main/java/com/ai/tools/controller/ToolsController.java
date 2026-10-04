@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Tools REST Controller for weather and document search. */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/tools")
 public class ToolsController {
 
   private static final Logger log = LoggerFactory.getLogger(ToolsController.class);
@@ -28,7 +28,7 @@ public class ToolsController {
   }
 
   /** Get weather for a city. */
-  @GetMapping("/tools/weather")
+  @GetMapping("/weather")
   public ResponseEntity<String> getWeather(@RequestParam(required = false) String city) {
     if (city == null || city.isBlank()) {
       return ResponseEntity.badRequest().body("城市参数不能为空");
@@ -42,7 +42,7 @@ public class ToolsController {
   }
 
   /** Get weather forecast. */
-  @GetMapping("/tools/weather/forecast")
+  @GetMapping("/weather/forecast")
   public ResponseEntity<String> getForecast(
       @RequestParam(required = false) String city, @RequestParam(required = false) Integer days) {
     if (city == null || city.isBlank()) {
@@ -57,7 +57,7 @@ public class ToolsController {
   }
 
   /** Search documents in knowledge base. */
-  @GetMapping("/tools/documents/search")
+  @GetMapping("/documents/search")
   public ResponseEntity<String> searchDocuments(
       @RequestParam(required = false) String query, @RequestParam(required = false) String docIds) {
     if (query == null || query.isBlank()) {
@@ -76,7 +76,7 @@ public class ToolsController {
   }
 
   /** List all documents in knowledge base. */
-  @GetMapping("/tools/documents/list")
+  @GetMapping("/documents")
   public ResponseEntity<String> listDocuments() {
     try {
       return ResponseEntity.ok(toolService.listDocuments());
@@ -87,7 +87,7 @@ public class ToolsController {
   }
 
   /** Chat with function calling. */
-  @PostMapping("/tools/chat")
+  @PostMapping("/chat")
   public ResponseEntity<ToolChatResponse> chatWithTools(@RequestBody ToolChatRequest request) {
     if (request == null || request.question() == null || request.question().isBlank()) {
       return ResponseEntity.badRequest().body(new ToolChatResponse("问题不能为空", null));

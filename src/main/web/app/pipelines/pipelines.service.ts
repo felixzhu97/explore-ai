@@ -21,7 +21,7 @@ export class PipelinesService {
   private readonly templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
   listAgents(): Observable<AgentInfo[]> {
-    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/list`, {
+    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/agent-types`, {
       params: this.langParams(),
     });
   }
@@ -33,13 +33,13 @@ export class PipelinesService {
   }
 
   listTemplates(): Observable<WorkflowTemplate[]> {
-    return this.http.get<WorkflowTemplate[]>(this.templatesBase, {
+    return this.http.get<WorkflowTemplate[]>(`${API_BASE_URL}/pipelines/template-definitions`, {
       params: this.langParams(),
     });
   }
 
   listLibrary(): Observable<SavedWorkflowTemplate[]> {
-    return this.http.get<SavedWorkflowTemplate[]>(`${this.templatesBase}/library`);
+    return this.http.get<SavedWorkflowTemplate[]>(this.templatesBase);
   }
 
   createFromTemplate(templateId: string): Observable<SavedWorkflowTemplate> {
@@ -54,7 +54,7 @@ export class PipelinesService {
     request: WorkflowTemplateWriteRequest,
   ): Observable<SavedWorkflowTemplate> {
     return this.http.post<SavedWorkflowTemplate>(
-      `${this.templatesBase}/library`,
+      this.templatesBase,
       request,
     );
   }
@@ -64,7 +64,7 @@ export class PipelinesService {
     request: WorkflowTemplateWriteRequest,
   ): Observable<SavedWorkflowTemplate> {
     return this.http.put<SavedWorkflowTemplate>(
-      `${this.templatesBase}/library/${id}`,
+      `${this.templatesBase}/${id}`,
       request,
     );
   }
@@ -74,13 +74,13 @@ export class PipelinesService {
     enabled: boolean,
   ): Observable<SavedWorkflowTemplate> {
     return this.http.patch<SavedWorkflowTemplate>(
-      `${this.templatesBase}/library/${id}/enabled`,
+      `${this.templatesBase}/${id}/enabled`,
       { enabled },
     );
   }
 
   deleteLibraryTemplate(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.templatesBase}/library/${id}`);
+    return this.http.delete<void>(`${this.templatesBase}/${id}`);
   }
 
   invokeStream(

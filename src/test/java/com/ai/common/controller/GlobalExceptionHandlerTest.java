@@ -14,19 +14,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * GlobalExceptionHandler Unit Tests.
  *
- * <p>Tests all exception handler methods using AAA pattern: - Naming convention:
- * should_expected_when_condition - Covers all exception types handled - Tests edge cases and
- * boundary conditions
+ * <p>Covers every exception handler with arrange, act, assert tests, including edge cases.
  */
 @DisplayName("GlobalExceptionHandler")
 class GlobalExceptionHandlerTest {
@@ -36,6 +36,23 @@ class GlobalExceptionHandlerTest {
   @BeforeEach
   void setUp() {
     handler = new GlobalExceptionHandler();
+  }
+
+  @Nested
+  @DisplayName("NoResourceFoundException")
+  class HandleNoResourceFound {
+
+    @Test
+    @DisplayName("should return 404 with NOT_FOUND error code when no endpoint matches")
+    void shouldReturn404WithNotFoundErrorCodeWhenNoEndpointMatches() {
+      NoResourceFoundException exception =
+          new NoResourceFoundException(HttpMethod.GET, "/api/text/providers", "api/text/providers");
+
+      ResponseEntity<ErrorResponse> response = handler.handleNoResourceFound(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+      assertThat(response.getBody().errorCode()).isEqualTo("NOT_FOUND");
+    }
   }
 
   @Nested

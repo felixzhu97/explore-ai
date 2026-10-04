@@ -28,18 +28,18 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/api/text")
-public class TextController {
+@RequestMapping("/api/chat")
+public class ChatStreamController {
 
   private final OwnerContext ownerContext;
 
-  private static final Logger log = LoggerFactory.getLogger(TextController.class);
+  private static final Logger log = LoggerFactory.getLogger(ChatStreamController.class);
 
   private final ChatService chatService;
   private final TextProviderCatalog providerCatalog;
   private final SkillRepository skillRepository;
 
-  public TextController(
+  public ChatStreamController(
       ChatService chatService,
       TextProviderCatalog providerCatalog,
       SkillRepository skillRepository,
@@ -63,7 +63,7 @@ public class TextController {
     return ModelsListResponse.of(resolvedProvider, models);
   }
 
-  @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<String> chatStream(
       @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {
     TextChatOptions options = buildChatOptions(request, httpRequest);

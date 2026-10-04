@@ -22,9 +22,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import reactor.core.publisher.Flux;
 
-@SliceWebMvcTest(controllers = TextController.class)
-@DisplayName("TextController")
-class TextControllerTest extends AbstractOwnerScopedControllerTest {
+@SliceWebMvcTest(controllers = ChatStreamController.class)
+@DisplayName("ChatStreamController")
+class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private ChatService chatService;
 
@@ -33,7 +33,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
   @MockitoBean private SkillRepository skillRepository;
 
   @Nested
-  @DisplayName("GET /api/text/providers")
+  @DisplayName("GET /api/chat/providers")
   class ListProviders {
 
     @Test
@@ -45,21 +45,21 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                   new com.ai.chat.controller.dto.ProviderInfoResponse(
                       "openai", "DeepSeek", List.of("deepseek-v4-flash"), "available")));
 
-      assertThat(mvc.get().uri("/api/text/providers"))
+      assertThat(mvc.get().uri("/api/chat/providers"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$")
           .asArray()
           .hasSize(1);
 
-      assertThat(mvc.get().uri("/api/text/providers"))
+      assertThat(mvc.get().uri("/api/chat/providers"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$[0].name")
           .asString()
           .isEqualTo("openai");
 
-      assertThat(mvc.get().uri("/api/text/providers"))
+      assertThat(mvc.get().uri("/api/chat/providers"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$[0].displayName")
@@ -69,7 +69,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   @Nested
-  @DisplayName("GET /api/text/models")
+  @DisplayName("GET /api/chat/models")
   class ListModels {
 
     @Test
@@ -81,21 +81,21 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
                   new com.ai.chat.controller.dto.ModelInfoResponse(
                       "deepseek-v4-flash", "openai", "DeepSeek chat model")));
 
-      assertThat(mvc.get().uri("/api/text/models").param("provider", "openai"))
+      assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.provider")
           .asString()
           .isEqualTo("openai");
 
-      assertThat(mvc.get().uri("/api/text/models").param("provider", "openai"))
+      assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.count")
           .convertTo(Integer.class)
           .isEqualTo(1);
 
-      assertThat(mvc.get().uri("/api/text/models").param("provider", "openai"))
+      assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.models[0].name")
@@ -105,7 +105,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   @Nested
-  @DisplayName("POST /api/text/chat/stream")
+  @DisplayName("POST /api/chat/stream")
   class ChatStream {
 
     @Test
@@ -120,7 +120,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/text/chat/stream")
+                  .uri("/api/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
                       """
@@ -155,7 +155,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/text/chat/stream")
+                  .uri("/api/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
                       """
@@ -184,7 +184,7 @@ class TextControllerTest extends AbstractOwnerScopedControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/text/chat/stream")
+                  .uri("/api/chat/stream")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
                       """

@@ -728,13 +728,13 @@ export class ChatService {
 
   private getProviders(): Observable<ProviderInfo[]> {
     return this.http
-      .get<ProviderInfo[]>(`${API_BASE_URL}/text/providers`)
+      .get<ProviderInfo[]>(`${API_BASE_URL}/chat/providers`)
       .pipe(catchError(() => of(DEFAULT_PROVIDERS)));
   }
 
   private getModels(provider: string): Observable<ModelInfo[]> {
     return this.http
-      .get<{ provider: string; models: ModelInfo[]; count: number }>(`${API_BASE_URL}/text/models`, {
+      .get<{ provider: string; models: ModelInfo[]; count: number }>(`${API_BASE_URL}/chat/models`, {
         params: { provider },
       })
       .pipe(
@@ -744,15 +744,15 @@ export class ChatService {
   }
 
   private createSessionRequest(title?: string): Observable<SessionInfo> {
-    return this.http.post<SessionInfo>(`${API_BASE_URL}/sessions`, title ? { title } : {});
+    return this.http.post<SessionInfo>(`${API_BASE_URL}/chat/sessions`, title ? { title } : {});
   }
 
   private getSessions(): Observable<SessionInfo[]> {
-    return this.http.get<SessionInfo[]>(`${API_BASE_URL}/sessions`);
+    return this.http.get<SessionInfo[]>(`${API_BASE_URL}/chat/sessions`);
   }
 
   private getSessionMessages(sessionId: string): Observable<ChatMessageData[]> {
-    return this.http.get<ChatMessageData[]>(`${API_BASE_URL}/sessions/${sessionId}/messages`, {
+    return this.http.get<ChatMessageData[]>(`${API_BASE_URL}/chat/sessions/${sessionId}/messages`, {
       context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
     }).pipe(
       map(messages => messages.map(msg => ({
@@ -763,7 +763,7 @@ export class ChatService {
   }
 
   private deleteSessionRequest(sessionId: string): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/sessions/${sessionId}`);
+    return this.http.delete<void>(`${API_BASE_URL}/chat/sessions/${sessionId}`);
   }
 
   private chatStream(
@@ -781,7 +781,7 @@ export class ChatService {
       }
     };
 
-    return streamSsePost(`${API_BASE_URL}/text/chat/stream`, request, {
+    return streamSsePost(`${API_BASE_URL}/chat/stream`, request, {
       onEvent: ({ eventType, data }) => {
         if (data === '[DONE]' || eventType === 'done') {
           finish();

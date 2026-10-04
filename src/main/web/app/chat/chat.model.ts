@@ -13,7 +13,7 @@ export interface ChatMessageData extends ChatMessage {
   sources?: { title: string; url: string; snippet: string; publishedAt?: string }[];
 }
 
-/** POST /api/text/chat/stream */
+/** POST /api/chat/stream */
 export interface ChatStreamRequest {
   messages: ChatMessage[];
   sessionId?: string;

@@ -66,22 +66,22 @@ describe('ChatService http flows', () => {
     expect(service.messages()).toEqual([]);
     expect(service.selectedSkillIds()).toEqual([]);
 
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'draft',
       title: 'New Chat',
       messageCount: 0,
       createdAt: '2026-08-08T00:00:00Z',
       lastActivityAt: '2026-08-08T00:00:00Z',
     });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/draft/messages`).flush([]);
     expect(service.activeSessionId()).toBe('draft');
     expect(service.sessionsReady()).toBe(true);
   });
 
   it('should load providers and models when api succeeds', () => {
     service.loadProviders();
-    httpMock.expectOne(`${API_BASE_URL}/text/providers`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/providers`).flush([
       {
         name: 'openai',
         displayName: 'DeepSeek',
@@ -91,7 +91,7 @@ describe('ChatService http flows', () => {
     ]);
     httpMock
       .expectOne(
-        req => req.url === `${API_BASE_URL}/text/models` && req.params.get('provider') === 'openai',
+        req => req.url === `${API_BASE_URL}/chat/models` && req.params.get('provider') === 'openai',
       )
       .flush({
         provider: 'openai',
@@ -106,7 +106,7 @@ describe('ChatService http flows', () => {
 
   it('should fallback providers when api fails', () => {
     service.loadProviders();
-    httpMock.expectOne(`${API_BASE_URL}/text/providers`).error(new ProgressEvent('error'));
+    httpMock.expectOne(`${API_BASE_URL}/chat/providers`).error(new ProgressEvent('error'));
     expect(service.providers()[0].name).toBe('openai');
     expect(service.selectedModel()).toBe('deepseek-v4-flash');
   });
@@ -135,7 +135,7 @@ describe('ChatService http flows', () => {
     await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.createSession();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 's1',
       title: 'New',
       messageCount: 0,
@@ -143,7 +143,7 @@ describe('ChatService http flows', () => {
       lastActivityAt: '2026-07-01T00:00:00Z',
     });
     expect(service.isLoadingSession()).toBe(true);
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([]);
     expect(service.activeSessionId()).toBe('s1');
     expect(service.sessions()[0].sessionId).toBe('s1');
     expect(service.isLoadingSession()).toBe(false);
@@ -170,9 +170,9 @@ describe('ChatService http flows', () => {
       },
     ]);
     service.createSession();
-    httpMock.expectNone(`${API_BASE_URL}/sessions`);
-    httpMock.expectOne(`${API_BASE_URL}/sessions/empty-1/messages`).flush([]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions/empty-2`).flush(null);
+    httpMock.expectNone(`${API_BASE_URL}/chat/sessions`);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/empty-1/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/empty-2`).flush(null);
     expect(service.activeSessionId()).toBe('empty-1');
     expect(service.sessions().every(session => session.sessionId !== 'empty-2')).toBe(true);
   });
@@ -182,7 +182,7 @@ describe('ChatService http flows', () => {
     // Stale empty-session persistence must be ignored.
     sessionStorage.setItem('explore-ai.chat.activeSessionId', 'empty');
     service.loadSessions();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 'older',
         title: 'Older',
@@ -205,8 +205,8 @@ describe('ChatService http flows', () => {
         lastActivityAt: '2026-07-01T00:00:00Z',
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions/empty/messages`).flush([]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions/empty-old`).flush(null);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/empty/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/empty-old`).flush(null);
     expect(service.activeSessionId()).toBe('empty');
     expect(service.messages()).toEqual([]);
     expect(sessionStorage.getItem('explore-ai.chat.activeSessionId')).toBeNull();
@@ -217,7 +217,7 @@ describe('ChatService http flows', () => {
     await router.navigateByUrl('/chat');
     sessionStorage.setItem('explore-ai.chat.activeSessionId', 'older');
     service.initializeSessions();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 'older',
         title: 'Older',
@@ -226,14 +226,14 @@ describe('ChatService http flows', () => {
         lastActivityAt: '2026-07-03T00:00:00Z',
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'fresh',
       title: 'New Chat',
       messageCount: 0,
       createdAt: '2026-07-04T00:00:00Z',
       lastActivityAt: '2026-07-04T00:00:00Z',
     });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/fresh/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/fresh/messages`).flush([]);
     expect(service.activeSessionId()).toBe('fresh');
     expect(sessionStorage.getItem('explore-ai.chat.activeSessionId')).toBeNull();
   });
@@ -242,7 +242,7 @@ describe('ChatService http flows', () => {
     await router.navigateByUrl('/policies');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
     service.initializeSessions();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 'hist',
         title: 'History',
@@ -251,14 +251,14 @@ describe('ChatService http flows', () => {
         lastActivityAt: '2026-07-03T00:00:00Z',
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'draft',
       title: 'New Chat',
       messageCount: 0,
       createdAt: '2026-07-04T00:00:00Z',
       lastActivityAt: '2026-07-04T00:00:00Z',
     });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/draft/messages`).flush([]);
     expect(service.activeSessionId()).toBe('draft');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat', expect.anything());
@@ -281,7 +281,7 @@ describe('ChatService http flows', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.selectSession('hist', { navigateToChat: true });
     expect(navigateSpy).toHaveBeenCalledWith('/chat/hist', { replaceUrl: false });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/hist/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/hist/messages`).flush([
       { id: 'm1', role: 'user', content: 'hi', timestamp: '2026-07-02T00:00:00Z' },
     ]);
   });
@@ -291,7 +291,7 @@ describe('ChatService http flows', () => {
     service.sessions.set([]);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.createSession();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'draft',
       title: 'New Chat',
       messageCount: 0,
@@ -299,7 +299,7 @@ describe('ChatService http flows', () => {
       lastActivityAt: '2026-07-04T00:00:00Z',
     });
     expect(navigateSpy).toHaveBeenCalledWith('/chat', { replaceUrl: false });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/draft/messages`).flush([]);
   });
 
   it('should not demote deep link url while session history is loading', async () => {
@@ -312,7 +312,7 @@ describe('ChatService http flows', () => {
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat', expect.anything());
 
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([
       { id: 'm1', role: 'user', content: 'hi', timestamp: '2026-07-02T00:00:00Z' },
     ]);
     expect(service.isLoadingSession()).toBe(false);
@@ -323,7 +323,7 @@ describe('ChatService http flows', () => {
     await router.navigateByUrl('/chat');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.loadSessions();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 's2',
         title: 'Older',
@@ -339,7 +339,7 @@ describe('ChatService http flows', () => {
         lastActivityAt: '2026-07-02T00:00:00Z',
       },
     ]);
-    httpMock.expectNone(`${API_BASE_URL}/sessions/s1/messages`);
+    httpMock.expectNone(`${API_BASE_URL}/chat/sessions/s1/messages`);
     expect(service.activeSessionId()).toBeNull();
     expect(service.messages()).toEqual([]);
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/s1');
@@ -348,7 +348,7 @@ describe('ChatService http flows', () => {
   it('should prefer session from path when loading sessions', async () => {
     await router.navigateByUrl('/chat/s2');
     service.loadSessions();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 's1',
         title: 'Newer',
@@ -364,7 +364,7 @@ describe('ChatService http flows', () => {
         lastActivityAt: '2026-07-01T00:00:00Z',
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s2/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s2/messages`).flush([
       { id: 'm2', role: 'user', content: 'url', timestamp: '2026-07-01T00:00:00Z' },
     ]);
     expect(service.activeSessionId()).toBe('s2');
@@ -377,10 +377,10 @@ describe('ChatService http flows', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     service.selectSession('s1');
     expect(service.isLoadingSession()).toBe(true);
-    const first = httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`);
+    const first = httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`);
 
     service.selectSession('s2');
-    const second = httpMock.expectOne(`${API_BASE_URL}/sessions/s2/messages`);
+    const second = httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s2/messages`);
 
     first.flush([
       { id: 'old', role: 'user', content: 'stale', timestamp: '2026-07-01T00:00:00Z' },
@@ -407,7 +407,7 @@ describe('ChatService http flows', () => {
       },
     ]);
     service.selectSession('s1');
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([
       {
         id: 'u1',
         role: 'user',
@@ -460,7 +460,7 @@ describe('ChatService http flows', () => {
       },
     ]);
     service.selectSession('empty');
-    httpMock.expectOne(`${API_BASE_URL}/sessions/empty/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/empty/messages`).flush([]);
     expect(service.activeSessionId()).toBe('empty');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/empty');
     expect(navigateSpy).not.toHaveBeenCalledWith('/chat/empty', expect.anything());
@@ -472,7 +472,7 @@ describe('ChatService http flows', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     service.initializeSessions();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 'mine',
         title: 'Mine',
@@ -483,17 +483,17 @@ describe('ChatService http flows', () => {
     ]);
     expect(navigateSpy).toHaveBeenCalledWith('/chat', { replaceUrl: true });
     await Promise.resolve();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'draft',
       title: 'New Chat',
       messageCount: 0,
       createdAt: '2026-07-04T00:00:00Z',
       lastActivityAt: '2026-07-04T00:00:00Z',
     });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/draft/messages`).flush([]);
 
     expect(service.isLoadingSession()).toBe(false);
-    httpMock.expectNone(`${API_BASE_URL}/sessions/missing/messages`);
+    httpMock.expectNone(`${API_BASE_URL}/chat/sessions/missing/messages`);
   });
 
   it('should redirect to /chat when session id is not owned', async () => {
@@ -514,17 +514,17 @@ describe('ChatService http flows', () => {
 
     service.selectSession('foreign');
 
-    httpMock.expectNone(`${API_BASE_URL}/sessions/foreign/messages`);
+    httpMock.expectNone(`${API_BASE_URL}/chat/sessions/foreign/messages`);
     expect(navigateSpy).toHaveBeenCalledWith('/chat', { replaceUrl: true });
     await Promise.resolve();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'draft',
       title: 'New Chat',
       messageCount: 0,
       createdAt: '2026-07-04T00:00:00Z',
       lastActivityAt: '2026-07-04T00:00:00Z',
     });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/draft/messages`).flush([]);
     expect(service.error()).toBeNull();
   });
 
@@ -534,18 +534,18 @@ describe('ChatService http flows', () => {
     service.activeSessionId.set(null);
 
     service.selectSession('gone');
-    const req = httpMock.expectOne(`${API_BASE_URL}/sessions/gone/messages`);
+    const req = httpMock.expectOne(`${API_BASE_URL}/chat/sessions/gone/messages`);
     req.flush(null, { status: 404, statusText: 'Not Found' });
     expect(navigateSpy).toHaveBeenCalledWith('/chat', { replaceUrl: true });
     await Promise.resolve();
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush({
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({
       sessionId: 'draft',
       title: 'New Chat',
       messageCount: 0,
       createdAt: '2026-07-05T00:00:00Z',
       lastActivityAt: '2026-07-05T00:00:00Z',
     });
-    httpMock.expectOne(`${API_BASE_URL}/sessions/draft/messages`).flush([]);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/draft/messages`).flush([]);
     expect(service.error()).toBeNull();
     expect(service.isLoadingSession()).toBe(false);
   });
@@ -617,7 +617,7 @@ describe('ChatService http flows', () => {
     expect(service.isLoading()).toBe(true);
     expect(service.streamingMessageId()).toBeTruthy();
     expect(service.messages().some(message => message.role === 'assistant' && message.content === '')).toBe(true);
-    httpMock.expectNone(`${API_BASE_URL}/sessions/s1/messages`);
+    httpMock.expectNone(`${API_BASE_URL}/chat/sessions/s1/messages`);
   });
 
   it('should remove empty assistant placeholder when stream aborted', async () => {
@@ -699,7 +699,7 @@ describe('ChatService http flows', () => {
     expect(service.messages()).toHaveLength(1);
     expect(service.messages()[0].role).toBe('user');
 
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([
       {
         id: 'u1',
         role: 'user',
@@ -707,7 +707,7 @@ describe('ChatService http flows', () => {
         timestamp: Date.now(),
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 's1',
         title: 'New Chat',
@@ -768,7 +768,7 @@ describe('ChatService http flows', () => {
     expect(service.messages()[1]).toMatchObject({ role: 'assistant', content: 'Hi there' });
     expect(service.streamingMessageId()).toBeNull();
 
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([
       {
         id: 'u1',
         role: 'user',
@@ -782,7 +782,7 @@ describe('ChatService http flows', () => {
         timestamp: Date.now(),
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 's1',
         title: 'New Chat',
@@ -841,7 +841,7 @@ describe('ChatService http flows', () => {
     });
     handlers?.onDone();
 
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1/messages`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1/messages`).flush([
       {
         id: 'u1',
         role: 'user',
@@ -849,7 +849,7 @@ describe('ChatService http flows', () => {
         timestamp: Date.now(),
       },
     ]);
-    httpMock.expectOne(`${API_BASE_URL}/sessions`).flush([
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush([
       {
         sessionId: 's1',
         title: 'New Chat',
@@ -877,7 +877,7 @@ describe('ChatService http flows', () => {
     service.messages.set([{ id: '1', role: 'user', content: 'x', timestamp: 1 }]);
 
     service.deleteSession('s1');
-    httpMock.expectOne(`${API_BASE_URL}/sessions/s1`).flush(null);
+    httpMock.expectOne(`${API_BASE_URL}/chat/sessions/s1`).flush(null);
     expect(service.sessions()).toHaveLength(0);
     expect(service.activeSessionId()).toBeNull();
     expect(service.messages()).toHaveLength(0);
@@ -885,7 +885,7 @@ describe('ChatService http flows', () => {
 
   it('should not send message when no session', () => {
     service.sendMessage('hello');
-    httpMock.expectNone(`${API_BASE_URL}/text/chat/stream`);
+    httpMock.expectNone(`${API_BASE_URL}/chat/stream`);
   });
 
   it('should set error when sending with unavailable provider', () => {

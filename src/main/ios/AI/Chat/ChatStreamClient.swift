@@ -1,6 +1,6 @@
 import Foundation
 
-/// SSE client for `POST /api/text/chat/stream`.
+/// SSE client for `POST /api/chat/stream`.
 enum ChatStreamClient {
   static func streamReply(
     accessToken: String,
@@ -10,7 +10,7 @@ enum ChatStreamClient {
     voiceMode: Bool = false,
     onToken: ((String) -> Void)? = nil
   ) async throws -> (sessionId: String?, reply: String) {
-    var request = URLRequest(url: config.apiBaseURL.appendingPathComponent("api/text/chat/stream"))
+    var request = URLRequest(url: config.apiBaseURL.appendingPathComponent("api/chat/stream"))
     request.httpMethod = "POST"
     request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/chat")
 public class ChatController {
 
   private final OwnerContext ownerContext;
@@ -54,7 +54,7 @@ public class ChatController {
     return ResponseEntity.ok(HealthResponse.up());
   }
 
-  @PostMapping("/chat")
+  @PostMapping
   public ResponseEntity<ChatResponse> chat(
       @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
     if (request.message() == null || request.message().isBlank()) {
