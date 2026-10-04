@@ -1,12 +1,10 @@
 package com.ai.chat.domain.model;
 
-import com.ai.base.domain.model.AbstractEntity;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
 import com.ai.common.domain.vo.OwnerKey;
-import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
@@ -30,14 +28,9 @@ import lombok.NoArgsConstructor;
     column = @Column(name = "last_activity_at", nullable = false))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class ChatSession extends AbstractEntity<ChatSessionId> {
+public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
 
   public static final String DEFAULT_TITLE = "New Chat";
-  static final String ORPHAN_CLIENT_ID = "__orphan__";
-
-  @Convert(converter = OwnerKeyAttributeConverter.class)
-  @Column(length = 80)
-  private OwnerKey ownerKey;
 
   @NotBlank
   @Size(max = 100)
@@ -46,30 +39,9 @@ public class ChatSession extends AbstractEntity<ChatSessionId> {
 
   @Transient private List<ChatMessage> messages = new ArrayList<>();
 
-  private ChatSession(
-      ChatSessionId id, String title, Instant createdAt, OwnerKey ownerKey, boolean orphan) {
-    super(id, createdAt, createdAt);
+  private ChatSession(ChatSessionId id, String title, Instant createdAt, OwnerKey ownerKey) {
+    super(id, ownerKey, createdAt, createdAt);
     this.title = validateTitle(title);
-    this.ownerKey = orphan ? null : requireOwnerKey(ownerKey);
-  }
-
-  private ChatSession(
-      ChatSessionId id,
-      String title,
-      Instant createdAt,
-      Instant lastActivityAt,
-      OwnerKey ownerKey,
-      boolean orphan) {
-    super(id, createdAt, lastActivityAt != null ? lastActivityAt : createdAt);
-    this.title = validateTitle(title);
-    this.ownerKey = orphan ? null : requireOwnerKey(ownerKey);
-  }
-
-  private static OwnerKey requireOwnerKey(OwnerKey ownerKey) {
-    if (ownerKey == null) {
-      throw new IllegalArgumentException("ClientId cannot be null or blank");
-    }
-    return ownerKey;
   }
 
   private static OwnerKey parseOwnerKey(String clientId) {
@@ -95,37 +67,17 @@ public class ChatSession extends AbstractEntity<ChatSessionId> {
 
   /** Documentation. */
   public static ChatSession create(String title, String clientId) {
-    return new ChatSession(
-        ChatSessionId.generate(), title, Instant.now(), parseOwnerKey(clientId), false);
+    return new ChatSession(ChatSessionId.generate(), title, Instant.now(), parseOwnerKey(clientId));
   }
 
   /** Documentation. */
   public static ChatSession createWithId(ChatSessionId id, String title, String clientId) {
-    return new ChatSession(id, title, Instant.now(), parseOwnerKey(clientId), false);
+    return new ChatSession(id, title, Instant.now(), parseOwnerKey(clientId));
   }
 
   /** Documentation. */
   public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String clientId) {
-    return new ChatSession(id, title, createdAt, parseOwnerKey(clientId), false);
-  }
-
-  /** Reconstitute a legacy row that has no client ownership (invisible to clients). */
-  public static ChatSession reconstituteOrphan(
-      ChatSessionId id,
-      String title,
-      Instant createdAt,
-      Instant lastActivityAt,
-      List<ChatMessage> messages) {
-    ChatSession session = new ChatSession(id, title, createdAt, lastActivityAt, null, true);
-    if (messages != null) {
-      session.messages.addAll(messages);
-    }
-    return session;
-  }
-
-  /** Returns the persisted owner_key value (c:… or u:…) or {@link #ORPHAN_CLIENT_ID}. */
-  public String getClientId() {
-    return ownerKey == null ? ORPHAN_CLIENT_ID : ownerKey.value();
+    return new ChatSession(id, title, createdAt, parseOwnerKey(clientId));
   }
 
   /** Documentation. */
@@ -135,7 +87,7 @@ public class ChatSession extends AbstractEntity<ChatSessionId> {
 
   /** Documentation. */
   public boolean belongsTo(String otherClientId) {
-    return getClientId().equals(otherClientId);
+    return belongsToClient(otherClientId);
   }
 
   /** Documentation. */
