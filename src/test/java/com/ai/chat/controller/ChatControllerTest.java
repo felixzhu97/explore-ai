@@ -84,9 +84,9 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"message\":null}"))
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyJson()
-          .extractingPath("$.response")
+          .extractingPath("$.errorCode")
           .asString()
-          .isEqualTo("Please provide a message.");
+          .isEqualTo("VALIDATION_ERROR");
     }
 
     @Test

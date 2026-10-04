@@ -149,8 +149,8 @@ class DocumentUploadServiceTest {
           .thenThrow(new IllegalStateException("PDF text extraction returned empty"));
 
       assertThatThrownBy(() -> service.upload("PDF", fileName, 3L, pdfContent, "c:test-owner"))
-          .isInstanceOf(RuntimeException.class)
-          .hasMessageContaining("Failed to process document");
+          .isInstanceOf(IllegalStateException.class)
+          .hasMessage("PDF text extraction returned empty");
     }
   }
 
@@ -240,8 +240,7 @@ class DocumentUploadServiceTest {
           .thenThrow(new RuntimeException("Transformation failed"));
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", 100L, content, "c:test-owner"))
-          .isInstanceOf(RuntimeException.class)
-          .hasMessageContaining("Failed to process document");
+          .hasMessage("Transformation failed");
 
       verify(documentRepository, times(2)).save(any(RagDocument.class));
     }

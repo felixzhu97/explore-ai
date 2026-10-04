@@ -118,9 +118,9 @@ class McpClientControllerTest {
                   .content("{\"question\":\"  \"}"))
           .hasStatus(HttpStatus.BAD_REQUEST)
           .bodyJson()
-          .extractingPath("$.error")
+          .extractingPath("$.errorCode")
           .asString()
-          .isEqualTo("提问内容不能为空");
+          .isEqualTo("VALIDATION_ERROR");
     }
 
     @Test

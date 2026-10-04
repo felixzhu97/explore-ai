@@ -152,8 +152,8 @@ class ImageControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when service returns empty image")
-    void shouldReturn500WhenServiceReturnsEmptyImage() {
+    @DisplayName("should return 503 when service returns empty image")
+    void shouldReturn503WhenServiceReturnsEmptyImage() {
       when(imageGenerationService.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
           .thenReturn(GeneratedImage.empty());
 
@@ -162,11 +162,11 @@ class ImageControllerTest {
                   .uri("/api/images/generate")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"prompt\":\"Test\"}"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+          .hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
           .bodyJson()
-          .extractingPath("$.status")
+          .extractingPath("$.errorCode")
           .asString()
-          .contains("Failed to generate image");
+          .isEqualTo("IMAGE_GENERATION_FAILED");
     }
 
     @Test
@@ -182,9 +182,9 @@ class ImageControllerTest {
                   .content("{\"prompt\":\"Test\"}"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyJson()
-          .extractingPath("$.status")
+          .extractingPath("$.errorCode")
           .asString()
-          .contains("ERROR");
+          .isEqualTo("INTERNAL_ERROR");
     }
 
     @Test
