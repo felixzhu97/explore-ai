@@ -45,6 +45,17 @@ class SkillJpaTest extends AbstractDataJpaTest {
   }
 
   @Test
+  @DisplayName("should persist skill with empty description when description is omitted")
+  void shouldPersistSkillWithEmptyDescriptionWhenDescriptionIsOmitted() {
+    Skill skill = Skill.create(OWNER_KEY, "No description", null, "Answer briefly", List.of());
+
+    repository.saveAndFlush(skill);
+    em.clear();
+
+    assertThat(repository.findById(skill.getId()).orElseThrow().getDescription()).isEmpty();
+  }
+
+  @Test
   @DisplayName("should store allowed tools as json when persisting skill")
   void shouldStoreAllowedToolsAsJsonWhenPersistingSkill() {
     Skill skill =
