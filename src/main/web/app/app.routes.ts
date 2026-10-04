@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { type Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout';
 import { FEATURE_FLAG_KEYS } from './feature-flags/feature-flag-keys';
 import { moduleEnabledGuard } from './feature-flags/module-enabled.guard';

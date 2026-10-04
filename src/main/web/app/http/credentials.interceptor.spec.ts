@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import {
-  HttpInterceptorFn,
+  type HttpInterceptorFn,
   HttpRequest,
   HttpResponse,
 } from '@angular/common/http';

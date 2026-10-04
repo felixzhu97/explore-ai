@@ -1,4 +1,4 @@
-import { UrlMatchResult, UrlMatcher, UrlSegment } from '@angular/router';
+import { type UrlMatchResult, type UrlMatcher, type UrlSegment } from '@angular/router';
 
 /**
  * Single route config for `/chat` and `/chat/:sessionId` so Angular reuses

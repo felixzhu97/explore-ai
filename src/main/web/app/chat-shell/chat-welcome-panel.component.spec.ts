@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChatWelcomePanelComponent } from './chat-welcome-panel.component';
-import { NxPrompt } from 'ng-zorro-x/prompts';
+import { type NxPrompt } from 'ng-zorro-x/prompts';
 
 describe('ChatWelcomePanelComponent', () => {
   let fixture: ComponentFixture<ChatWelcomePanelComponent>;

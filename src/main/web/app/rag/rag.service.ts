@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
-import { Observable, of, catchError, finalize } from 'rxjs';
+import { HttpClient, type HttpEvent, HttpEventType } from '@angular/common/http';
+import { type Observable, of, catchError, finalize } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
@@ -191,7 +191,9 @@ export class RagService {
   }
 
   uploadFiles(): void {
-    if (this.pendingFiles().length === 0) return;
+    if (this.pendingFiles().length === 0) {
+      return;
+    }
 
     this.isUploading.set(true);
     let remaining = this.pendingFiles().length;
@@ -282,8 +284,12 @@ export class RagService {
   }
 
   async sendMessage(): Promise<void> {
-    if (!this.input().trim()) return;
-    if (this.isLoading()) return;
+    if (!this.input().trim()) {
+      return;
+    }
+    if (this.isLoading()) {
+      return;
+    }
 
     const userMessage: RagChatMessage = {
       id: `user_${Date.now()}`,

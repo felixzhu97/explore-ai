@@ -1,7 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  OnInit,
+  type OnInit,
   computed,
   effect,
   inject,

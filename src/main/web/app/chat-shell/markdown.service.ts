@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
@@ -24,7 +24,9 @@ export class MarkdownService {
   }
 
   render(content: string, streaming = false): SafeHtml {
-    if (!content) return '';
+    if (!content) {
+      return '';
+    }
 
     const source = this.#prepareSource(content, streaming);
     const html = marked.parse(source) as string;
@@ -42,7 +44,9 @@ export class MarkdownService {
   }
 
   renderToString(content: string): string {
-    if (!content) return '';
+    if (!content) {
+      return '';
+    }
 
     const source = this.#prepareSource(content, false);
     const html = marked.parse(source) as string;

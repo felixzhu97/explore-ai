@@ -26,7 +26,7 @@ describe('PipelinesPageComponent httpResource', () => {
   it('should load agents via http resource when mounted', async () => {
     const agents = runInInjectionContext(injector, () => {
       const resource = httpResource<AgentType[]>(() => `${API_BASE_URL}/pipelines/agent-types`);
-      const agentsSignal = computed(() => resource.hasValue() ? resource.value()! : [],
+      const agentsSignal = computed(() => resource.hasValue() ? resource.value() : [],
       );
       return { resource, agentsSignal };
     });

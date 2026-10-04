@@ -44,8 +44,8 @@ export class GeneratePageComponent {
   readonly tabOptions = computed(() => {
     const tabs = this.i18n.t().generate.tabs;
     return [
-      { value: 'image' as GenerateTab, label: tabs.image },
-      { value: 'tts' as GenerateTab, label: tabs.tts },
+      { value: 'image', label: tabs.image },
+      { value: 'tts', label: tabs.tts },
     ];
   });
 

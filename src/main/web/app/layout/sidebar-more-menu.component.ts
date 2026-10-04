@@ -24,8 +24,8 @@ import { ZardSidebarMenuButtonDirective } from '../ui/layout/sidebar-menu-button
   template: `
     <div
       class="group/more relative overflow-visible"
-      [class.is-more-open]="isPinned()"
       data-sidebar-more
+      [class.is-more-open]="isPinned()"
     >
       <button
         type="button"

@@ -20,8 +20,8 @@ import { NxSenderComponent } from 'ng-zorro-x/sender';
         <nx-sender
           class="min-w-0 flex-1"
           [placeholder]="placeholder()"
-          [(value)]="value"
           [loading]="isLoading()"
+          [(value)]="value"
           (submitSend)="sent.emit()"
         />
       </div>

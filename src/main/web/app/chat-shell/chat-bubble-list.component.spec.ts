@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 vi.mock('./markdown-with-a2ui.component', async () => {
   const { Component, input } = await import('@angular/core');
@@ -16,7 +16,7 @@ vi.mock('./markdown-with-a2ui.component', async () => {
   return { MarkdownWithA2uiComponent };
 });
 
-import { ChatBubbleListComponent, ChatMessageView } from './chat-bubble-list.component';
+import { ChatBubbleListComponent, type ChatMessageView } from './chat-bubble-list.component';
 
 describe('ChatBubbleListComponent', () => {
   let fixture: ComponentFixture<ChatBubbleListComponent>;
@@ -47,7 +47,7 @@ describe('ChatBubbleListComponent', () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
-    Element.prototype.scrollTo = vi.fn() as unknown as Element['scrollTo'];
+    Element.prototype.scrollTo = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [ChatBubbleListComponent],
@@ -215,7 +215,7 @@ describe('ChatBubbleListComponent', () => {
       x: 40,
       y: 80,
       toJSON: () => ({}),
-    }) as DOMRect;
+    });
     chip.dispatchEvent(new Event('pointerenter', { bubbles: true }));
     fixture.detectChanges();
     // Chip highlight is immediate; panel waits for open delay.
@@ -300,7 +300,7 @@ describe('ChatBubbleListComponent', () => {
       x: 60,
       y: 320,
       toJSON: () => ({}),
-    }) as DOMRect;
+    });
     chip.dispatchEvent(new Event('pointerenter', { bubbles: true }));
     vi.advanceTimersByTime(200);
     fixture.detectChanges();
@@ -330,7 +330,7 @@ describe('ChatBubbleListComponent', () => {
       x: 60,
       y: 320,
       toJSON: () => ({}),
-    }) as DOMRect;
+    });
     chip.dispatchEvent(new Event('pointerenter', { bubbles: true }));
     vi.advanceTimersByTime(200);
     fixture.detectChanges();
@@ -346,7 +346,7 @@ describe('ChatBubbleListComponent', () => {
       x: 60,
       y: 0,
       toJSON: () => ({}),
-    }) as DOMRect;
+    });
 
     // Measured height 72 → top = 320 - 72 - 2 = 246 (flush above chip)
     while (frames.length > 0) {
@@ -395,7 +395,7 @@ describe('ChatBubbleListComponent', () => {
       x: 40,
       y: 80,
       toJSON: () => ({}),
-    }) as DOMRect;
+    });
     buttons[1].getBoundingClientRect = () => ({
       left: 160,
       top: 80,
@@ -406,7 +406,7 @@ describe('ChatBubbleListComponent', () => {
       x: 160,
       y: 80,
       toJSON: () => ({}),
-    }) as DOMRect;
+    });
 
     buttons[0].dispatchEvent(new Event('pointerenter', { bubbles: true }));
     vi.advanceTimersByTime(200);

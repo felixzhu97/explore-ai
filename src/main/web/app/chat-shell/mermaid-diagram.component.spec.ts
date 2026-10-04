@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ZardDialogService } from '../ui/dialog';
 import { MermaidDiagramComponent } from './mermaid-diagram.component';

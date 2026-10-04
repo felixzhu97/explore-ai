@@ -96,9 +96,9 @@
                   nzSize="large"
                   nzShowTime
                   nzFormat="yyyy-MM-dd HH:mm:ss"
+                  nzDropdownClassName="run-at-picker-popup"
                   [nzPlaceHolder]="i18n.t().automations.runAtPlaceholder"
                   [nzDisabledDate]="disabledDate"
-                  nzDropdownClassName="run-at-picker-popup"
                   [ngModel]="formRunAt()"
                   (ngModelChange)="formRunAt.set($event)"
                 />

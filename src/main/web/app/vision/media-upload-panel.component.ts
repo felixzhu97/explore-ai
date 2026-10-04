@@ -31,13 +31,13 @@ import { DetectionOverlayComponent, type Detection } from './detection-overlay.c
           items-stretch justify-center overflow-hidden rounded-xl border-2
           border-dashed border-input bg-muted/40
         "
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="dropText()"
         (click)="onAreaClick()"
         (keydown.enter)="onAreaClick()"
         (drop)="onDrop($event)"
         (dragover)="onDragOver($event)"
-        tabindex="0"
-        role="button"
-        [attr.aria-label]="dropText()"
       >
         @if (imagePreview()) {
           @if (showDetectionOverlay() && detections()?.length) {
@@ -48,13 +48,13 @@ import { DetectionOverlayComponent, type Detection } from './detection-overlay.c
           } @else {
             <img
               class="max-h-96 max-w-full cursor-zoom-in rounded-xl object-contain"
-              [src]="imagePreview()"
               alt="Preview"
-              (click)="onZoomClick($event)"
-              (keydown.enter)="onZoomClick($event)"
               tabindex="0"
               role="button"
+              [src]="imagePreview()"
               [attr.aria-label]="clickToEnlargeLabel()"
+              (click)="onZoomClick($event)"
+              (keydown.enter)="onZoomClick($event)"
             />
           }
           <div
@@ -74,8 +74,8 @@ import { DetectionOverlayComponent, type Detection } from './detection-overlay.c
             zSize="icon"
             zShape="circle"
             class="absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100"
-            (click)="onClearClick($event)"
             [attr.aria-label]="clearLabel()"
+            (click)="onClearClick($event)"
           >
             ×
           </button>

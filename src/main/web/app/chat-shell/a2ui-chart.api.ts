@@ -255,8 +255,8 @@ export const ChartApi = {
           if (!hasNodes && !(data.type !== 'tree' && hasChartData)) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: `${data.type} requires nodes`
-                + (data.type === 'tree' ? '' : ' or chartData'),
+              message: `${data.type} requires nodes${
+                data.type === 'tree' ? '' : ' or chartData'}`,
             });
           }
           break;

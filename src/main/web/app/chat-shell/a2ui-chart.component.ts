@@ -1,7 +1,7 @@
 import { Component, computed } from '@angular/core';
 import { CatalogComponent } from '@a2ui/angular/v0_9';
 import { NgxEchartsDirective } from 'ngx-echarts';
-import { ChartApi, CHART_TYPES, type ChartType } from './a2ui-chart.api';
+import { type ChartApi, CHART_TYPES, type ChartType } from './a2ui-chart.api';
 import {
   buildChartOption,
   toBoxes,
@@ -28,7 +28,7 @@ import {
     @if (error()) {
       <p class="text-sm text-text-secondary">{{ error() }}</p>
     } @else if (chartOption(); as option) {
-      <div echarts [options]="option" class="h-72 w-full min-w-0"></div>
+      <div echarts class="h-72 w-full min-w-0" [options]="option"></div>
     }
   `,
   host: { class: 'block w-full min-w-0 my-2' },
@@ -37,7 +37,7 @@ export class A2uiChartComponent extends CatalogComponent<typeof ChartApi> {
   readonly chartType = computed((): ChartType | null => {
     const value = this.props()['type']?.value();
     if (typeof value === 'string' && (CHART_TYPES as readonly string[]).includes(value)) {
-      return value as ChartType;
+      return value;
     }
     return null;
   });

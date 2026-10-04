@@ -40,13 +40,13 @@ import { ZardSkeletonComponent } from '../ui/skeleton';
               max-h-112 max-w-full animate-fade-in cursor-zoom-in rounded-xl
               object-contain transition-transform hover:scale-105
             "
-            [src]="imageSrc()"
-            [alt]="imageAlt()"
-            (click)="zoomRequested.emit(imageSrc()!)"
-            (keydown.enter)="zoomRequested.emit(imageSrc()!)"
             tabindex="0"
             role="button"
+            [src]="imageSrc()"
+            [alt]="imageAlt()"
             [attr.aria-label]="zoomLabel()"
+            (click)="zoomRequested.emit(imageSrc()!)"
+            (keydown.enter)="zoomRequested.emit(imageSrc()!)"
           />
         } @else {
           <div class="flex w-full flex-col items-center justify-center gap-2 px-6 py-8 text-center">

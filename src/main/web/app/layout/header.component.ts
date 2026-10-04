@@ -18,8 +18,8 @@ import { I18nService } from '../i18n';
         zType="ghost"
         zSize="icon"
         class="flex flex-col gap-1 p-2"
-        (click)="sidebarOpenRequested.emit()"
         [attr.aria-label]="i18n.t().sidebar.openMenu"
+        (click)="sidebarOpenRequested.emit()"
       >
         <span class="h-px w-4.5 rounded-sm bg-text"></span>
         <span class="h-px w-4.5 rounded-sm bg-text"></span>

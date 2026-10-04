@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { type ActivatedRouteSnapshot, Router, type RouterStateSnapshot } from '@angular/router';
 import { FEATURE_FLAG_KEYS } from './feature-flag-keys';
 import { FeatureFlagService } from './feature-flag.service';
 import { moduleEnabledGuard } from './module-enabled.guard';
@@ -29,7 +29,7 @@ describe('moduleEnabledGuard', () => {
       isEnabled: vi.fn().mockReturnValue(false),
     };
     const router = {
-      createUrlTree: vi.fn().mockReturnValue({} as UrlTree),
+      createUrlTree: vi.fn().mockReturnValue({}),
     };
 
     TestBed.configureTestingModule({

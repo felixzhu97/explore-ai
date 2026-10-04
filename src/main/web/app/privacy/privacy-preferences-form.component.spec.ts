@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { PrivacyPreferencesFormComponent } from './privacy-preferences-form.component';
 import { PrivacyConsentService } from './privacy-consent.service';
 import { NotificationService } from '../ui/notification.service';

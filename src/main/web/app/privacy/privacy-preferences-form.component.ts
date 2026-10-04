@@ -3,7 +3,7 @@ import {
   Component,
   inject,
   input,
-  OnInit,
+  type OnInit,
   signal,
 } from '@angular/core';
 import { form, FormField, submit, validate, disabled } from '@angular/forms/signals';

@@ -4,7 +4,7 @@ import { I18nService } from '../i18n';
 import { ZardSegmentedComponent } from '../ui/segmented';
 import { MediaResultPanelComponent } from './media-result-panel.component';
 import { MediaUploadPanelComponent } from './media-upload-panel.component';
-import { VisionService, type VisionTaskType } from './vision.service';
+import { VisionService } from './vision.service';
 
 @Component({
   selector: 'app-vision-page',
@@ -25,9 +25,9 @@ export class VisionPageComponent {
   readonly taskOptions = computed(() => {
     const t = this.i18n.t().vision;
     return [
-      { value: 'caption' as VisionTaskType, label: t.caption },
-      { value: 'detect' as VisionTaskType, label: t.detect },
-      { value: 'ocr' as VisionTaskType, label: t.ocr },
+      { value: 'caption', label: t.caption },
+      { value: 'detect', label: t.detect },
+      { value: 'ocr', label: t.ocr },
     ];
   });
 }

@@ -13,10 +13,10 @@
         id="tts-text-input"
         z-input
         class="min-h-28 resize-y"
-        [ngModel]="text()"
-        (ngModelChange)="setText($event)"
-        [placeholder]="i18n.t().generate.tts.textPlaceholder"
         rows="5"
+        [ngModel]="text()"
+        [placeholder]="i18n.t().generate.tts.textPlaceholder"
+        (ngModelChange)="setText($event)"
       ></textarea>
     </div>
 
@@ -28,8 +28,8 @@
         <z-select
           id="voice-select"
           [ngModel]="voice()"
-          (ngModelChange)="setVoice($event)"
           [zPlaceholder]="i18n.t().generate.tts.voiceLabel"
+          (ngModelChange)="setVoice($event)"
         >
           @for (v of availableVoices(); track v.id) {
             <z-select-item [zValue]="v.id">{{ v.name }} ({{ v.language }})</z-select-item>
@@ -87,10 +87,10 @@
           type="button"
           z-button
           zSize="icon"
-          (click)="togglePlayPause()"
           [attr.aria-label]="isPlaying() ? i18n.t().generate.tts.pause : i18n.t().generate.tts.play"
+          (click)="togglePlayPause()"
         >
-          <ng-icon [name]="isPlaying() ? 'lucidePause' : 'lucidePlay'" class="size-5!" />
+          <ng-icon class="size-5!" [name]="isPlaying() ? 'lucidePause' : 'lucidePlay'" />
         </button>
         <div class="flex flex-1 flex-col gap-2">
           <span class="text-base font-medium text-foreground">{{ i18n.t().generate.tts.audioReady }}</span>

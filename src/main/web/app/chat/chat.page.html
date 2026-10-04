@@ -22,10 +22,10 @@
     <z-select
       class="min-w-24 sm:min-w-28"
       zSize="sm"
-      [ngModel]="chat.selectedModel()"
-      (ngModelChange)="setSelectedModel($event)"
-      [zDisabled]="chat.isLoadingModels()"
       zPlaceholder="Model"
+      [ngModel]="chat.selectedModel()"
+      [zDisabled]="chat.isLoadingModels()"
+      (ngModelChange)="setSelectedModel($event)"
     >
       @if (chat.isLoadingModels()) {
         <z-select-item zValue="" [zDisabled]="true">{{ i18n.t().chat.loadingModels }}</z-select-item>
@@ -54,8 +54,8 @@
         zType="outline"
         zSize="sm"
         class="gap-1.5 text-xs"
-        [attr.aria-expanded]="isSkillsMenuOpen()"
         aria-haspopup="listbox"
+        [attr.aria-expanded]="isSkillsMenuOpen()"
         (click)="toggleSkillsMenu($event)"
       >
         {{ skillsTriggerLabel() }}
@@ -127,7 +127,7 @@
 
 <app-chat-sender-bar
   [placeholder]="i18n.t().chat.inputPlaceholder"
-  [(value)]="input"
   [isLoading]="chat.isLoading() || chat.isLoadingSession()"
+  [(value)]="input"
   (sent)="send()"
 />

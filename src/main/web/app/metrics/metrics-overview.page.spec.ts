@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -33,7 +33,7 @@ describe('MetricsOverviewPageComponent', () => {
       observe = vi.fn();
       unobserve = vi.fn();
       disconnect = vi.fn();
-    } as unknown as typeof ResizeObserver;
+    };
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({

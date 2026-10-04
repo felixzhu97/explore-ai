@@ -140,6 +140,30 @@ export default defineConfig([
         },
       ],
       '@typescript-eslint/prefer-readonly': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'inline-type-imports' },
+      ],
+      '@typescript-eslint/no-confusing-void-expression': [
+        'error',
+        { ignoreArrowShorthand: true },
+      ],
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@typescript-eslint/only-throw-error': 'error',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      curly: ['error', 'all'],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'object-shorthand': 'error',
+      'prefer-template': 'error',
+    },
+  },
+  {
+    files: ['src/main/web/**/*.html'],
+    ignores: ['src/main/web/app/ui/**', '**/index.html'],
+    rules: {
+      '@angular-eslint/template/attributes-order': 'error',
     },
   },
   {

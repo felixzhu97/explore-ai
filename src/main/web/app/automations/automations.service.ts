@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { type Observable } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 
 export type ScheduleKind = 'CRON' | 'ONCE';

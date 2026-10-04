@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, map, catchError, of } from 'rxjs';
+import { type Observable, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { STORAGE_KEYS } from '../storage-keys';
 import { SKIP_ERROR_NOTIFICATION } from '../http/http-error.context';

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, catchError, of } from 'rxjs';
+import { type Observable, map, catchError, of } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { downloadBlob } from '../ui/download';
 import { DEFAULT_VOICES } from './tts.constants';

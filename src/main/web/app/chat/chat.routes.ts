@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { type Routes } from '@angular/router';
 import { chatRouteMatcher } from './chat.route-matcher';
 
 /** Spread into the shell children: a top-level matcher keeps the page mounted. */

@@ -3,15 +3,15 @@ import {
   Component,
   computed,
   input,
-  OnDestroy,
+  type OnDestroy,
   signal,
-  TemplateRef,
+  type TemplateRef,
   viewChild,
 } from '@angular/core';
 import {
   NxBubbleListComponent,
-  NxBubbleListItem,
-  NxBubbleSlotType,
+  type NxBubbleListItem,
+  type NxBubbleSlotType,
 } from 'ng-zorro-x/bubble';
 import { MarkdownWithA2uiComponent } from './markdown-with-a2ui.component';
 import { formatMessageTime } from './format-time.util';
@@ -86,17 +86,17 @@ const CLOSE_DELAY_MS = 160;
         <div
           class="fixed z-80 w-80 max-w-[calc(100vw-1.5rem)] animate-in rounded-2xl border border-black/8 bg-white p-3.5 shadow-lg duration-150 fade-in-0 zoom-in-95"
           role="dialog"
+          data-source-popover
           [attr.aria-label]="footerLabels().sources"
           [style.left.px]="ref.x"
           [style.top.px]="ref.y"
-          data-source-popover
           (pointerdown)="$event.stopPropagation()"
           (pointerenter)="cancelCloseSourceRef()"
           (pointerleave)="scheduleCloseSourceRef()"
         >
           <div class="mb-2 flex items-center gap-1.5">
             @if (faviconUrl(source); as icon) {
-              <img class="size-4 shrink-0 rounded-sm" [src]="icon" alt="" />
+              <img class="size-4 shrink-0 rounded-sm" alt="" [src]="icon" />
             } @else {
               <span
                 class="flex size-4 shrink-0 items-center justify-center rounded-full bg-black/10 text-[9px] font-semibold text-text-secondary"
@@ -113,9 +113,9 @@ const CLOSE_DELAY_MS = 160;
           @if (source.url) {
             <a
               class="block text-sm leading-snug font-semibold text-text underline-offset-2 hover:underline"
-              [href]="source.url"
               target="_blank"
               rel="noopener noreferrer"
+              [href]="source.url"
               (click)="onJumpClick()"
             >
               {{ sourceTitle(source) }}
@@ -161,9 +161,9 @@ const CLOSE_DELAY_MS = 160;
           <div class="mt-2 flex flex-wrap gap-2">
             @for (img of message.images; track $index) {
               <img
-                [src]="img"
                 alt="Uploaded image"
                 class="max-h-48 max-w-48 rounded-lg object-contain"
+                [src]="img"
               />
             }
           </div>
@@ -220,18 +220,18 @@ const CLOSE_DELAY_MS = 160;
                 @if (faviconUrl(source); as icon) {
                   <img
                     class="size-3.5 shrink-0 rounded-sm"
+                    alt=""
                     [class.opacity-90]="isChipHighlighted(message.id, $index)"
                     [src]="icon"
-                    alt=""
                   />
                 } @else {
                   <span
                     class="flex size-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold"
+                    aria-hidden="true"
                     [class.bg-white/20]="isChipHighlighted(message.id, $index)"
                     [class.text-background]="isChipHighlighted(message.id, $index)"
                     [class.bg-black/10]="!isChipHighlighted(message.id, $index)"
                     [class.text-text-secondary]="!isChipHighlighted(message.id, $index)"
-                    aria-hidden="true"
                   >
                     {{ sourceInitial(source) }}
                   </span>

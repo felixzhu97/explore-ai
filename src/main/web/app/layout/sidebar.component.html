@@ -19,8 +19,8 @@
           hover:bg-sidebar-accent
           md:flex
         "
-        (click)="toggleCollapse()"
         [attr.aria-label]="i18n.t().sidebar.collapse"
+        (click)="toggleCollapse()"
       >
         <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10" />
@@ -35,8 +35,8 @@
           hover:bg-sidebar-accent
           max-md:hidden
         "
-        (click)="toggleCollapse()"
         [attr.aria-label]="i18n.t().sidebar.collapse"
+        (click)="toggleCollapse()"
       >
         <svg class="size-5 text-sidebar-foreground" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -54,8 +54,8 @@
           hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
           md:hidden
         "
-        (click)="sidebar.close()"
         [attr.aria-label]="i18n.t().sidebar.closeMenu"
+        (click)="sidebar.close()"
       >
         ✕
       </button>
@@ -67,8 +67,8 @@
           border-none bg-transparent transition-all duration-150
           hover:bg-sidebar-accent
         "
-        (click)="toggleCollapse()"
         [attr.aria-label]="i18n.t().sidebar.expand"
+        (click)="toggleCollapse()"
       >
         <svg class="size-5 text-sidebar-foreground/70" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -88,8 +88,8 @@
           <button
             type="button"
             z-sidebar-menu-button
-            (click)="newChat()"
             [title]="t().sidebar.newChat"
+            (click)="newChat()"
           >
             <span class="size-3.5 shrink-0">
               <svg
@@ -156,11 +156,11 @@
                   <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <svg
                       class="size-3 transition-transform duration-200"
-                      [class.rotate-90]="isPinnedExpanded()"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       stroke-width="2"
+                      [class.rotate-90]="isPinnedExpanded()"
                     >
                       <path d="M9 18l6-6-6-6" />
                     </svg>
@@ -197,11 +197,11 @@
                 <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                   <svg
                     class="size-3 transition-transform duration-200"
-                    [class.rotate-90]="isRecentsExpanded()"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
+                    [class.rotate-90]="isRecentsExpanded()"
                   >
                     <path d="M9 18l6-6-6-6" />
                   </svg>
@@ -237,8 +237,8 @@
           z-sidebar-menu-button
           zIconOnly
           [zFull]="false"
-          (click)="newChat()"
           [title]="t().sidebar.newChat"
+          (click)="newChat()"
         >
           <svg
             class="size-3.5"
@@ -292,11 +292,11 @@
     pointer-events-none fixed inset-0 z-85 hidden bg-black/40 opacity-0
     transition-opacity duration-250 max-md:block
   "
-  [class.opacity-100]="sidebar.mobileOpen()"
-  [class.pointer-events-auto]="sidebar.mobileOpen()"
-  (click)="sidebar.close()"
-  (keydown.escape)="sidebar.close()"
   tabindex="-1"
   role="button"
+  [class.opacity-100]="sidebar.mobileOpen()"
+  [class.pointer-events-auto]="sidebar.mobileOpen()"
   [attr.aria-label]="i18n.t().sidebar.closeOverlay"
+  (click)="sidebar.close()"
+  (keydown.escape)="sidebar.close()"
 ></div>

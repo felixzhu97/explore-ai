@@ -37,10 +37,10 @@ import type { ImageSize } from './image.service';
             id="prompt-input"
             z-input
             class="min-h-24 resize-y"
-            [ngModel]="prompt()"
-            (ngModelChange)="prompt.set($event)"
-            [placeholder]="promptPlaceholder()"
             rows="4"
+            [ngModel]="prompt()"
+            [placeholder]="promptPlaceholder()"
+            (ngModelChange)="prompt.set($event)"
           ></textarea>
         </div>
 
