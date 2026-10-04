@@ -30,6 +30,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /** Maps domain, validation, and infrastructure exceptions to HTTP statuses and error bodies. */
 @RestControllerAdvice
@@ -205,6 +206,12 @@ public class GlobalExceptionHandler {
         .body(
             ErrorResponse.of(
                 "Chat memory storage is temporarily unavailable", "CHAT_MEMORY_ERROR"));
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ErrorResponse.of("No endpoint at " + e.getResourcePath(), "NOT_FOUND"));
   }
 
   @ExceptionHandler(Exception.class)

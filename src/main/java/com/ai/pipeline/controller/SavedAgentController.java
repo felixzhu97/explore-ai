@@ -22,15 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/pipelines/agents/library")
-public class PipelineAgentLibraryController {
+@RequestMapping("/api/pipelines/agents")
+public class SavedAgentController {
 
   private final OwnerContext ownerContext;
 
   private final SavedAgentService savedAgentService;
 
-  public PipelineAgentLibraryController(
-      SavedAgentService savedAgentService, OwnerContext ownerContext) {
+  public SavedAgentController(SavedAgentService savedAgentService, OwnerContext ownerContext) {
     this.ownerContext = ownerContext;
     this.savedAgentService = savedAgentService;
   }

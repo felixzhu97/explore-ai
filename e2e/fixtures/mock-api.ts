@@ -78,11 +78,15 @@ export async function setupCommonMocks(page: Page): Promise<void> {
 
   await page.addInitScript(() => {
     localStorage.setItem('language', 'en');
+    localStorage.setItem(
+      'explore-ai-privacy-consent',
+      JSON.stringify({ decided: true, analytics: false, contactEmail: '' }),
+    );
   });
 
-  await page.route('**/api/text/providers', route => fulfillJson(route, PROVIDERS));
-  await page.route('**/api/text/models**', route => fulfillJson(route, MODELS));
-  await page.route('**/api/sessions', async (route) => {
+  await page.route('**/api/chat/providers', route => fulfillJson(route, PROVIDERS));
+  await page.route('**/api/chat/models**', route => fulfillJson(route, MODELS));
+  await page.route('**/api/chat/sessions', async (route) => {
     if (route.request().method() === 'GET') {
       await fulfillJson(route, [
         {
@@ -101,7 +105,7 @@ export async function setupCommonMocks(page: Page): Promise<void> {
       });
     }
   });
-  await page.route(`**/api/sessions/${TEST_SESSION_ID}/messages`, route => fulfillJson(route, sessionMessages),
+  await page.route(`**/api/chat/sessions/${TEST_SESSION_ID}/messages`, route => fulfillJson(route, sessionMessages),
   );
 }
 
@@ -109,7 +113,7 @@ export async function setupChatStreamMock(
   page: Page,
   response = 'Here is a **markdown** answer with a list:\n\n- Item one\n- Item two',
 ): Promise<void> {
-  await page.route('**/api/text/chat/stream', async (route) => {
+  await page.route('**/api/chat/stream', async (route) => {
     const request = route.request().postDataJSON() as {
       messages?: { role: string; content: string }[];
     };
@@ -170,7 +174,7 @@ export async function prepareVisualPage(page: Page): Promise<void> {
 export async function gotoAppPage(page: Page, path: '/chat' | '/rag'): Promise<void> {
   await Promise.all([
     page.waitForResponse(
-      response => response.url().includes('/api/sessions') && response.request().method() === 'GET',
+      response => response.url().includes('/api/chat/sessions') && response.request().method() === 'GET',
     ),
     page.goto(path),
   ]);

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Image generation REST Controller. */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/images")
 public class ImageController {
 
   private static final Logger log = LoggerFactory.getLogger(ImageController.class);
@@ -33,7 +33,7 @@ public class ImageController {
   }
 
   /** Generate an image from text prompt. */
-  @PostMapping("/images/generate")
+  @PostMapping("/generate")
   public ResponseEntity<ImageGenerationResponse> generateImage(
       @Valid @RequestBody ImageGenerationRequest request) {
     try {
@@ -67,19 +67,19 @@ public class ImageController {
   }
 
   /** Get available image generation models. */
-  @GetMapping("/images/models")
+  @GetMapping("/models")
   public ResponseEntity<Map<String, List<String>>> getImageModels() {
     return ResponseEntity.ok(Map.of("models", imageGenerationService.getAvailableImageModels()));
   }
 
   /** Get available image sizes. */
-  @GetMapping("/images/sizes")
+  @GetMapping("/sizes")
   public ResponseEntity<Map<String, List<String>>> getImageSizes() {
     return ResponseEntity.ok(Map.of("sizes", imageGenerationService.getAvailableImageSizes()));
   }
 
   /** Get available image qualities. */
-  @GetMapping("/images/qualities")
+  @GetMapping("/qualities")
   public ResponseEntity<Map<String, List<String>>> getImageQualities() {
     return ResponseEntity.ok(
         Map.of("qualities", imageGenerationService.getAvailableImageQualities()));

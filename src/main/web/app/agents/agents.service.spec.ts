@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../core/api.constants';
 describe('AgentsService', () => {
   let service: AgentsService;
   let httpMock: HttpTestingController;
-  const libraryBase = `${API_BASE_URL}/pipelines/agents/library`;
+  const libraryBase = `${API_BASE_URL}/pipelines/agents`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

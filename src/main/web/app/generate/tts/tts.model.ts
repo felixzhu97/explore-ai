@@ -10,7 +10,7 @@ export interface Voice {
   isDefault?: boolean;
 }
 
-/** POST /api/audio/speak */
+/** POST /api/audio/speech */
 export interface TtsRequest {
   text: string;
   voice?: string;

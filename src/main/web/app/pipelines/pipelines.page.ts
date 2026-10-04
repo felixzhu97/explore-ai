@@ -62,7 +62,7 @@ export class PipelinesPageComponent implements OnDestroy {
   private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
   readonly agentsResource = httpResource<AgentInfo[]>(() => ({
-    url: `${API_BASE_URL}/pipelines/list`,
+    url: `${API_BASE_URL}/pipelines/agent-types`,
     params: { lang: this.i18n.language() },
   }));
 

@@ -201,7 +201,7 @@ class ToolsControllerTest {
   }
 
   @Nested
-  @DisplayName("GET /api/tools/documents/list")
+  @DisplayName("GET /api/tools/documents")
   class ListDocuments {
 
     @Test
@@ -210,9 +210,7 @@ class ToolsControllerTest {
       String documents = "[{\"title\": \"Doc1\"}, {\"title\": \"Doc2\"}]";
       when(toolService.listDocuments()).thenReturn(documents);
 
-      assertThat(mvc.get().uri("/api/tools/documents/list"))
-          .hasStatusOk()
-          .hasBodyTextEqualTo(documents);
+      assertThat(mvc.get().uri("/api/tools/documents")).hasStatusOk().hasBodyTextEqualTo(documents);
     }
 
     @Test
@@ -220,7 +218,7 @@ class ToolsControllerTest {
     void shouldReturn500WhenServiceThrowsException() {
       when(toolService.listDocuments()).thenThrow(new RuntimeException("List error"));
 
-      assertThat(mvc.get().uri("/api/tools/documents/list"))
+      assertThat(mvc.get().uri("/api/tools/documents"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
           .bodyText()
           .asString()

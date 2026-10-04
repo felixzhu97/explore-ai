@@ -106,7 +106,7 @@
 1. **Scenario** 调色板随语言本地化
    **GIVEN** 我切换 UI 语言  
    **WHEN** 打开工作流调色板  
-   **THEN** Agent 名称与描述来自 `GET /api/pipelines/list?lang=`
+   **THEN** Agent 名称与描述来自 `GET /api/pipelines/agent-types?lang=`
 
 2. **Scenario** 模版选用可视化选 Agent
    **GIVEN** 我创建或编辑工作流模版  

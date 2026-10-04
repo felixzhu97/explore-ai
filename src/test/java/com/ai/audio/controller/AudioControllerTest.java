@@ -29,7 +29,7 @@ class AudioControllerTest {
   @MockitoBean private AudioService audioService;
 
   @Nested
-  @DisplayName("POST /api/audio/speak")
+  @DisplayName("POST /api/audio/speech")
   class Speak {
 
     @Test
@@ -42,7 +42,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
                       """
@@ -59,7 +59,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
                       """
@@ -76,7 +76,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
                       """
@@ -97,7 +97,7 @@ class AudioControllerTest {
     void shouldReturn400ForEmptyRequestBody() {
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{}"))
           .hasStatus(HttpStatus.BAD_REQUEST);
@@ -108,7 +108,7 @@ class AudioControllerTest {
     void shouldReturn400ForNullText() {
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{}"))
           .hasStatus(HttpStatus.BAD_REQUEST);
@@ -119,7 +119,7 @@ class AudioControllerTest {
     void shouldReturn400ForBlankText() {
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"   \"}"))
           .hasStatus(HttpStatus.BAD_REQUEST);
@@ -130,7 +130,7 @@ class AudioControllerTest {
     void shouldReturn400ForEmptyText() {
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"\"}"))
           .hasStatus(HttpStatus.BAD_REQUEST);
@@ -143,7 +143,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -156,7 +156,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -170,7 +170,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatus(HttpStatus.SERVICE_UNAVAILABLE);
@@ -184,7 +184,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -200,7 +200,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"" + longText + "\"}"))
           .hasStatusOk();
@@ -216,7 +216,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"你好，世界！\"}"))
           .hasStatusOk();
@@ -231,7 +231,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatusOk()
@@ -248,7 +248,7 @@ class AudioControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/audio/speak")
+                  .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatusOk()

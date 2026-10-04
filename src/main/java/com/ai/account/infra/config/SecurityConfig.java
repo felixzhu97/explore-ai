@@ -132,9 +132,9 @@ public class SecurityConfig {
   private static void authorizeModuleScopes(
       AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
           auth) {
-    auth.requestMatchers("/api/chat", "/api/sessions/**", "/api/text/**", "/api/privacy/**")
+    auth.requestMatchers("/api/chat", "/api/chat/**", "/api/privacy/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_chat"))
-        .requestMatchers("/api/audio/**", "/api/tts/**")
+        .requestMatchers("/api/audio/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_audio"))
         .requestMatchers("/api/rag/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_rag"))
@@ -143,7 +143,7 @@ public class SecurityConfig {
         .requestMatchers(
             "/api/pipelines/**", "/api/workflows/**", "/api/automations/**", "/api/skills/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_agent"))
-        .requestMatchers("/api/mcp/**", "/api/tools/**", "/api/eval/**")
+        .requestMatchers("/api/mcp/**", "/api/tools/**", "/api/text-analysis", "/api/eval/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_tools"))
         .anyRequest()
         .permitAll();

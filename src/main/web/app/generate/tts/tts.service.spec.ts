@@ -66,7 +66,7 @@ describe('TtsService', () => {
       expect(result).toBe(blob);
     });
 
-    const req = httpMock.expectOne(`${API_BASE_URL}/audio/speak`);
+    const req = httpMock.expectOne(`${API_BASE_URL}/audio/speech`);
     expect(req.request.body).toEqual({
       text: 'Hello',
       voice: 'alloy',

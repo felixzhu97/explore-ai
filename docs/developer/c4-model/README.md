@@ -112,7 +112,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
-| Worker 列表 / 健康 | `GET /api/pipelines/list`, `.../health` | `PipelineController`, `PipelineFacade` |
+| Worker 列表 / 健康 | `GET /api/pipelines/agent-types`, `.../health` | `PipelineController`, `PipelineFacade` |
 | 单 Worker SSE | `POST /api/pipelines/{type}/invoke/sse` | `SpringAiWorkerAgentInvoker` |
 | Supervisor SSE | `POST /api/pipelines/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
 | 画布图 SSE | `POST /api/pipelines/invoke/sse` | `OrchestratorWorkersUseCase`；节点可带 `systemPrompt`/`toolKeys` 快照 |
@@ -178,11 +178,11 @@ RAG 检索经 `H2SpringAiVectorStore`（Spring AI `VectorStore` SPI）+ `VectorS
 
 | 端点 | 说明 |
 | --- | --- |
-| `POST /api/text/chat/stream` | SSE 流式对话（`TextController`） |
-| `GET /api/text/providers` | 可用 LLM Provider |
-| `GET /api/text/models` | 模型列表 |
+| `POST /api/chat/stream` | SSE 流式对话（`TextController`） |
+| `GET /api/chat/providers` | 可用 LLM Provider |
+| `GET /api/chat/models` | 模型列表 |
 | `POST /api/chat` | 非流式对话（`ChatController`） |
-| `GET/POST /api/sessions` | 会话 CRUD |
+| `GET/POST /api/chat/sessions` | 会话 CRUD |
 
 ---
 

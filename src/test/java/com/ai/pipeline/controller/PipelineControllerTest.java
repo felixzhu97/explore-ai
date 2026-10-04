@@ -30,7 +30,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   @MockitoBean private PipelineService pipelineService;
 
   @Nested
-  @DisplayName("GET /api/pipelines/list")
+  @DisplayName("GET /api/pipelines/agent-types")
   class ListAgents {
 
     @Test
@@ -44,7 +44,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
 
       assertThat(
               mvc.get()
-                  .uri("/api/pipelines/list")
+                  .uri("/api/pipelines/agent-types")
                   .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()

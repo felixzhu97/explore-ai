@@ -33,7 +33,7 @@ BASE_URL="http://localhost:9000"
 Check if the service is running properly.
 
 ```bash
-curl -X GET "${BASE_URL}/api/health"
+curl -X GET "${BASE_URL}/api/chat/health"
 ```
 
 **Response Example**
@@ -53,19 +53,19 @@ The Angular frontend uses these endpoints for provider selection and SSE streami
 ### List Providers
 
 ```bash
-curl -X GET "${BASE_URL}/api/text/providers"
+curl -X GET "${BASE_URL}/api/chat/providers"
 ```
 
 ### List Models
 
 ```bash
-curl -X GET "${BASE_URL}/api/text/models?provider=openai"
+curl -X GET "${BASE_URL}/api/chat/models?provider=openai"
 ```
 
 ### Stream Chat (SSE)
 
 ```bash
-curl -N -X POST "${BASE_URL}/api/text/chat/stream" \
+curl -N -X POST "${BASE_URL}/api/chat/stream" \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream" \
   -d '{
@@ -103,7 +103,7 @@ Legacy SSE envelope events:
 
 ## Legacy Chat API
 
-Non-streaming endpoints retained for compatibility. Prefer `/api/text/chat/stream` for the web UI.
+Non-streaming endpoints retained for compatibility. Prefer `/api/chat/stream` for the web UI.
 
 ### Non-streaming Chat
 
@@ -119,7 +119,7 @@ curl -X POST "${BASE_URL}/api/chat" \
 ### Text Analysis
 
 ```bash
-curl -X POST "${BASE_URL}/api/chat/analyze" \
+curl -X POST "${BASE_URL}/api/text-analysis" \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Sample text to analyze",
@@ -136,7 +136,7 @@ curl -X POST "${BASE_URL}/api/chat/analyze" \
 Create a new chat session.
 
 ```bash
-curl -X POST "${BASE_URL}/api/sessions" \
+curl -X POST "${BASE_URL}/api/chat/sessions" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Travel Consultation"
@@ -170,7 +170,7 @@ curl -X POST "${BASE_URL}/api/sessions" \
 Get a list of all chat sessions.
 
 ```bash
-curl -X GET "${BASE_URL}/api/sessions"
+curl -X GET "${BASE_URL}/api/chat/sessions"
 ```
 
 **Response Example**
@@ -194,7 +194,7 @@ curl -X GET "${BASE_URL}/api/sessions"
 Get message history for a specific session.
 
 ```bash
-curl -X GET "${BASE_URL}/api/sessions/{sessionId}/messages"
+curl -X GET "${BASE_URL}/api/chat/sessions/{sessionId}/messages"
 ```
 
 **Path Parameters**
@@ -235,7 +235,7 @@ curl -X GET "${BASE_URL}/api/sessions/{sessionId}/messages"
 Delete a chat session and all its messages.
 
 ```bash
-curl -X DELETE "${BASE_URL}/api/sessions/{sessionId}"
+curl -X DELETE "${BASE_URL}/api/chat/sessions/{sessionId}"
 ```
 
 **Path Parameters**
@@ -561,7 +561,7 @@ curl -X GET "${BASE_URL}/api/tools/documents/search?query=warranty&docIds=uuid1,
 List all documents available for search.
 
 ```bash
-curl -X GET "${BASE_URL}/api/tools/documents/list"
+curl -X GET "${BASE_URL}/api/tools/documents"
 ```
 
 **Response Example**
@@ -835,7 +835,7 @@ Set `TTS_PROVIDER=openai` for OpenAI TTS (MP3).
 Convert text to speech and receive audio file.
 
 ```bash
-curl -X POST "${BASE_URL}/api/audio/speak" \
+curl -X POST "${BASE_URL}/api/audio/speech" \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Hello, welcome to our AI service!"
@@ -1375,7 +1375,7 @@ Billing defaults remain `free` when unset.
 ### Example
 
 ```bash
-curl -X GET "${BASE_URL}/api/sessions" \
+curl -X GET "${BASE_URL}/api/chat/sessions" \
   -H "X-Service-Key: ${EXPLORE_AI_SERVICE_KEY}" \
   -H "X-Client-Id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 ```

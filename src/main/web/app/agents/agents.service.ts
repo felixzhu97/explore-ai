@@ -11,11 +11,11 @@ import { HttpParams } from '@angular/common/http';
 export class AgentsService {
   private readonly http = inject(HttpClient);
   private readonly i18n = inject(I18nService);
-  private readonly libraryBase = `${API_BASE_URL}/pipelines/agents/library`;
+  private readonly libraryBase = `${API_BASE_URL}/pipelines/agents`;
 
   /** Merged builtins + enabled library (for display of effective catalog). */
   listCatalog(): Observable<AgentInfo[]> {
-    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/list`, {
+    return this.http.get<AgentInfo[]>(`${API_BASE_URL}/pipelines/agent-types`, {
       params: new HttpParams().set('lang', this.i18n.language()),
     });
   }

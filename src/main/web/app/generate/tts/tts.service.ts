@@ -21,7 +21,7 @@ export class TtsService {
 
   synthesizeSpeech(params: TtsRequest): Observable<Blob> {
     return this.http.post<Blob>(
-      `${API_BASE_URL}/audio/speak`,
+      `${API_BASE_URL}/audio/speech`,
       {
         text: params.text,
         voice: params.voice,

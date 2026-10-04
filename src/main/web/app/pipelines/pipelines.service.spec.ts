@@ -34,7 +34,7 @@ describe('PipelinesService', () => {
     });
 
     const req = httpMock.expectOne(
-      r => r.url === `${API_BASE_URL}/pipelines/list` && r.params.get('lang') === 'en',
+      r => r.url === `${API_BASE_URL}/pipelines/agent-types` && r.params.get('lang') === 'en',
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockAgents);

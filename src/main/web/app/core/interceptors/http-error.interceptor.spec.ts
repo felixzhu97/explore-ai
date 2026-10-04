@@ -496,11 +496,11 @@ describe('httpErrorInterceptor', () => {
       const mockErrorResponse = new HttpErrorResponse({
         status: 404,
         statusText: 'Not Found',
-        url: '/api/sessions/gone/messages',
+        url: '/api/chat/sessions/gone/messages',
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/sessions/gone/messages', {
+      const req = new HttpRequest('GET', '/api/chat/sessions/gone/messages', {
         context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
       });
 

@@ -36,13 +36,13 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
   @MockitoBean private ChatWebSourcesRepository chatWebSourcesRepository;
 
   @Nested
-  @DisplayName("GET /api/health")
+  @DisplayName("GET /api/chat/health")
   class HealthEndpoint {
 
     @Test
     @DisplayName("should return UP status")
     void shouldReturnUpStatus() {
-      assertThat(mvc.get().uri("/api/health"))
+      assertThat(mvc.get().uri("/api/chat/health"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.status")
@@ -138,7 +138,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   @Nested
-  @DisplayName("POST /api/sessions")
+  @DisplayName("POST /api/chat/sessions")
   class CreateSession {
 
     @Test
@@ -150,7 +150,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
 
       assertThat(
               mvc.post()
-                  .uri("/api/sessions")
+                  .uri("/api/chat/sessions")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"title\":\"Custom Title\"}"))
           .hasStatusOk()
@@ -167,7 +167,10 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
       when(chatService.createSession("New Chat", ownerKey())).thenReturn(session);
 
       assertThat(
-              mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON).content("{}"))
+              mvc.post()
+                  .uri("/api/chat/sessions")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{}"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.title")
@@ -181,13 +184,13 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
       when(chatService.createSession("New Chat", ownerKey())).thenReturn(session);
 
-      assertThat(mvc.post().uri("/api/sessions").contentType(MediaType.APPLICATION_JSON))
+      assertThat(mvc.post().uri("/api/chat/sessions").contentType(MediaType.APPLICATION_JSON))
           .hasStatusOk();
     }
   }
 
   @Nested
-  @DisplayName("GET /api/sessions")
+  @DisplayName("GET /api/chat/sessions")
   class GetAllSessions {
 
     @Test
@@ -199,7 +202,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
               createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
       when(chatService.listSessions(ownerKey())).thenReturn(sessions);
 
-      assertThat(mvc.get().uri("/api/sessions"))
+      assertThat(mvc.get().uri("/api/chat/sessions"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$")
@@ -212,7 +215,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldReturnEmptyListWhenNoSessions() {
       when(chatService.listSessions(ownerKey())).thenReturn(List.of());
 
-      assertThat(mvc.get().uri("/api/sessions"))
+      assertThat(mvc.get().uri("/api/chat/sessions"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$")
@@ -222,7 +225,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   @Nested
-  @DisplayName("GET /api/sessions/{sessionId}")
+  @DisplayName("GET /api/chat/sessions/{sessionId}")
   class GetSession {
 
     @Test
@@ -232,7 +235,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
       when(chatService.getSession("22222222-2222-2222-2222-222222222222", ownerKey()))
           .thenReturn(Optional.of(session));
 
-      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222"))
+      assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.title")
@@ -245,12 +248,12 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldReturn404WhenSessionNotFound() {
       when(chatService.getSession("missing", ownerKey())).thenReturn(Optional.empty());
 
-      assertThat(mvc.get().uri("/api/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
+      assertThat(mvc.get().uri("/api/chat/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
     }
   }
 
   @Nested
-  @DisplayName("GET /api/sessions/{sessionId}/messages")
+  @DisplayName("GET /api/chat/sessions/{sessionId}/messages")
   class GetSessionMessages {
 
     @Test
@@ -264,14 +267,14 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
       when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
           .thenReturn(Map.of());
 
-      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+      assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222/messages"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$")
           .asArray()
           .hasSize(2);
 
-      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+      assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222/messages"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$[0].role")
@@ -295,14 +298,14 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
                   List.of(
                       new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))));
 
-      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+      assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222/messages"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$[1].sources")
           .asArray()
           .hasSize(1);
 
-      assertThat(mvc.get().uri("/api/sessions/22222222-2222-2222-2222-222222222222/messages"))
+      assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222/messages"))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$[1].sources[0].url")
@@ -316,12 +319,13 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
       when(chatService.findSessionHistory("missing", ownerKey()))
           .thenThrow(new ChatSessionNotFoundException("missing"));
 
-      assertThat(mvc.get().uri("/api/sessions/missing/messages")).hasStatus(HttpStatus.NOT_FOUND);
+      assertThat(mvc.get().uri("/api/chat/sessions/missing/messages"))
+          .hasStatus(HttpStatus.NOT_FOUND);
     }
   }
 
   @Nested
-  @DisplayName("DELETE /api/sessions/{sessionId}")
+  @DisplayName("DELETE /api/chat/sessions/{sessionId}")
   class DeleteSession {
 
     @Test
@@ -329,7 +333,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldDeleteSessionAndReturn204() {
       doNothing().when(chatService).deleteSession("session-to-delete", ownerKey());
 
-      assertThat(mvc.delete().uri("/api/sessions/session-to-delete"))
+      assertThat(mvc.delete().uri("/api/chat/sessions/session-to-delete"))
           .hasStatus(HttpStatus.NO_CONTENT);
       verify(chatService).deleteSession("session-to-delete", ownerKey());
     }

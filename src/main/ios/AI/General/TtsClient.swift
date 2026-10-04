@@ -1,13 +1,13 @@
 import Foundation
 
-/// TTS client for `POST /api/audio/speak`.
+/// TTS client for `POST /api/audio/speech`.
 enum TtsClient {
   static func speak(
     accessToken: String,
     text: String,
     config: Config = .local
   ) async throws -> Data {
-    var request = URLRequest(url: config.apiBaseURL.appendingPathComponent("api/audio/speak"))
+    var request = URLRequest(url: config.apiBaseURL.appendingPathComponent("api/audio/speech"))
     request.httpMethod = "POST"
     request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
