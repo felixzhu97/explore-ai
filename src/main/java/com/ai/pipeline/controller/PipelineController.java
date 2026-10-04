@@ -1,10 +1,12 @@
 package com.ai.pipeline.controller;
 
 import com.ai.account.controller.OwnerContext;
+import com.ai.common.controller.dto.HealthStatus;
 import com.ai.pipeline.controller.dto.AgentHealthResponse;
 import com.ai.pipeline.controller.dto.AgentInfoResponse;
 import com.ai.pipeline.controller.dto.AgentInvokeRequest;
 import com.ai.pipeline.controller.dto.PipelineInvokeRequest;
+import com.ai.pipeline.controller.dto.PipelineModuleHealthResponse;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.vo.AgentType;
@@ -13,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
@@ -52,7 +53,7 @@ public class PipelineController {
   }
 
   @GetMapping("/{agentType}/health")
-  public ResponseEntity<?> health(
+  public ResponseEntity<AgentHealthResponse> health(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
@@ -67,7 +68,7 @@ public class PipelineController {
   }
 
   @GetMapping("/{agentType}")
-  public ResponseEntity<?> getAgent(
+  public ResponseEntity<AgentInfoResponse> getAgent(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
@@ -132,8 +133,9 @@ public class PipelineController {
   }
 
   @GetMapping("/health")
-  public ResponseEntity<Map<String, Object>> moduleHealth() {
-    return ResponseEntity.ok(Map.of("status", "UP", "agents", pipelineService.builtinCount()));
+  public ResponseEntity<PipelineModuleHealthResponse> moduleHealth() {
+    return ResponseEntity.ok(
+        new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.builtinCount()));
   }
 
   private static String resolveLanguage(String lang, HttpServletRequest request) {

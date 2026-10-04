@@ -1,7 +1,6 @@
 package com.ai.metrics.service.model;
 
 import java.util.List;
-import java.util.Map;
 
 public record MetricsOverview(
     String range,
@@ -14,4 +13,4 @@ public record MetricsOverview(
     Long promptTokens,
     Long completionTokens,
     List<NamedCount> requestsByDomain,
-    Map<String, Object> domains) {}
+    OverviewDomains domains) {}

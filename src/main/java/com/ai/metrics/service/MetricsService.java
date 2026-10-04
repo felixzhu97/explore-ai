@@ -5,18 +5,18 @@ import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsDomainSnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
+import com.ai.metrics.service.model.OverviewDomains;
 import com.ai.metrics.service.model.SeriesPoint;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -60,24 +60,8 @@ public class MetricsService {
             .map(nc -> new NamedCount(nc.name(), nc.count()))
             .toList();
 
-    Map<String, Object> domains = new LinkedHashMap<>();
-    domains.put(
-        "chat",
-        Map.of(
-            "sessionCount", chat.sessionCount(),
-            "activeSessionCount", chat.activeSessionCount(),
-            "messageCount", chat.messageCount(),
-            "webSourceReplyCount", chat.webSourceReplyCount()));
-    domains.put(
-        "rag",
-        Map.of(
-            "documentCount", rag.documentCount(),
-            "documentsByStatus", rag.documentsByStatus(),
-            "chunkCount", rag.chunkCount(),
-            "totalFileBytes", rag.totalFileBytes()));
-    domains.put("agents", agents);
-    domains.put("mcp", mcp);
-    domains.put("system", healthGateway.systemStatus());
+    OverviewDomains domains =
+        new OverviewDomains(chat, rag, agents, mcp, healthGateway.systemStatus());
 
     return new MetricsOverview(
         window.range(),
@@ -105,32 +89,19 @@ public class MetricsService {
     var tokens = queryRepository.tokenTotals(filter, window.from(), window.to());
     double errorRate = requests == 0 ? 0.0 : (double) errors / requests;
 
-    Map<String, Object> inventory =
+    DomainInventory inventory =
         switch (domain) {
-          case CHAT -> {
-            var chat = queryRepository.chatInventory(Instant.now().minus(24, ChronoUnit.HOURS));
-            yield Map.of(
-                "sessionCount", chat.sessionCount(),
-                "activeSessionCount", chat.activeSessionCount(),
-                "messageCount", chat.messageCount(),
-                "webSourceReplyCount", chat.webSourceReplyCount());
-          }
-          case RAG -> {
-            var rag = queryRepository.ragInventory();
-            yield Map.of(
-                "documentCount", rag.documentCount(),
-                "documentsByStatus", rag.documentsByStatus(),
-                "chunkCount", rag.chunkCount(),
-                "totalFileBytes", rag.totalFileBytes());
-          }
-          case AGENTS -> healthGateway.agentsHealth();
+          case CHAT ->
+              new DomainInventory.Chat(
+                  queryRepository.chatInventory(Instant.now().minus(24, ChronoUnit.HOURS)));
+          case RAG -> new DomainInventory.Rag(queryRepository.ragInventory());
+          case AGENTS -> new DomainInventory.Agents(healthGateway.agentsHealth());
           case TOOLS ->
-              Map.of(
-                  "topTools",
+              new DomainInventory.Tools(
                   queryRepository.topTools(filter, window.from(), window.to(), 10).stream()
                       .map(nc -> new NamedCount(nc.name(), nc.count()))
                       .toList());
-          case VISION, WORKFLOW -> Map.of("requests", requests, "errors", errors);
+          case VISION, WORKFLOW -> new DomainInventory.Requests(requests, errors);
         };
 
     return new MetricsDomainSnapshot(

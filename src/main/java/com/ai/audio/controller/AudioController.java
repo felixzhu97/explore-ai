@@ -1,12 +1,13 @@
 package com.ai.audio.controller;
 
 import com.ai.audio.controller.dto.TextToSpeechRequest;
+import com.ai.audio.controller.dto.TtsModelsResponse;
 import com.ai.audio.controller.dto.VoiceResponse;
+import com.ai.audio.controller.dto.VoicesResponse;
 import com.ai.audio.domain.exception.InvalidSpeechTextException;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.service.AudioService;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -63,15 +64,15 @@ public class AudioController {
 
   /** Get available TTS voices. */
   @GetMapping("/voices")
-  public ResponseEntity<Map<String, Object>> getVoices() {
+  public ResponseEntity<VoicesResponse> getVoices() {
     List<VoiceResponse> voices =
         audioService.getAvailableVoices().stream().map(VoiceResponse::from).toList();
-    return ResponseEntity.ok(Map.of("voices", voices));
+    return ResponseEntity.ok(new VoicesResponse(voices));
   }
 
   /** Get available TTS models. */
   @GetMapping("/models")
-  public ResponseEntity<Map<String, Object>> getTtsModels() {
-    return ResponseEntity.ok(Map.of("models", audioService.getAvailableTtsModels()));
+  public ResponseEntity<TtsModelsResponse> getTtsModels() {
+    return ResponseEntity.ok(new TtsModelsResponse(audioService.getAvailableTtsModels()));
   }
 }

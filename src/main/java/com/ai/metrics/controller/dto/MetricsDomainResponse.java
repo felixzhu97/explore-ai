@@ -1,7 +1,6 @@
 package com.ai.metrics.controller.dto;
 
 import java.util.List;
-import java.util.Map;
 
 public record MetricsDomainResponse(
     MetricsDomain domain,
@@ -13,6 +12,6 @@ public record MetricsDomainResponse(
     Double latencyP95Ms,
     Long promptTokens,
     Long completionTokens,
-    Map<String, Object> inventory,
+    DomainInventoryResponse inventory,
     List<SeriesPointResponse> requestSeries,
     List<SeriesPointResponse> modelSeries) {}

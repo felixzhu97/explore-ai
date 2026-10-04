@@ -1,12 +1,15 @@
 package com.ai.mcp.controller;
 
 import com.ai.mcp.controller.dto.McpChatRequest;
+import com.ai.mcp.controller.dto.McpChatResponse;
+import com.ai.mcp.controller.dto.McpClientStatusResponse;
+import com.ai.mcp.controller.dto.McpServerResponse;
+import com.ai.mcp.controller.dto.McpToolResponse;
 import com.ai.mcp.service.McpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,42 +36,34 @@ public class McpClientController {
 
   @GetMapping("/status")
   @Operation(summary = "Get MCP Client status")
-  public ResponseEntity<Map<String, Object>> getStatus() {
+  public ResponseEntity<McpClientStatusResponse> getStatus() {
     return ResponseEntity.ok(
-        Map.of(
-            "status", "READY",
-            "registeredTools", mcpService.getTotalToolCount(),
-            "connectedServers", mcpService.getConnectedServers().keySet().stream().toList()));
+        new McpClientStatusResponse(
+            McpClientStatusResponse.McpClientStatus.READY,
+            mcpService.getTotalToolCount(),
+            mcpService.getConnectedServers().keySet().stream().toList()));
   }
 
   @GetMapping("/tools")
   @Operation(summary = "List all registered MCP tools")
-  public ResponseEntity<List<Map<String, String>>> listTools() {
-    List<Map<String, String>> tools =
+  public ResponseEntity<List<McpToolResponse>> listTools() {
+    List<McpToolResponse> tools =
         mcpService.getToolDefinitions().stream()
-            .map(def -> Map.of("name", def.name(), "description", def.description()))
+            .map(def -> new McpToolResponse(def.name(), def.description()))
             .toList();
     return ResponseEntity.ok(tools);
   }
 
   @GetMapping("/servers")
   @Operation(summary = "List connected MCP servers")
-  public ResponseEntity<List<Map<String, Object>>> listServers() {
-    List<Map<String, Object>> servers =
-        mcpService.getConnectedServers().values().stream()
-            .map(
-                info ->
-                    Map.<String, Object>of(
-                        "name", info.name(),
-                        "toolCount", info.toolCount(),
-                        "status", info.status().name()))
-            .toList();
-    return ResponseEntity.ok(servers);
+  public ResponseEntity<List<McpServerResponse>> listServers() {
+    return ResponseEntity.ok(
+        mcpService.getConnectedServers().values().stream().map(McpServerResponse::from).toList());
   }
 
   @PostMapping("/chat")
   @Operation(summary = "Chat with AI using MCP tools")
-  public Map<String, String> chat(@Valid @RequestBody McpChatRequest request) {
-    return Map.of("response", mcpService.chatWithTools(request.question()));
+  public McpChatResponse chat(@Valid @RequestBody McpChatRequest request) {
+    return new McpChatResponse(mcpService.chatWithTools(request.question()));
   }
 }

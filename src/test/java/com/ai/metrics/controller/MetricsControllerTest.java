@@ -5,13 +5,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
+import com.ai.metrics.domain.repository.MetricsQueryRepository.ChatInventory;
+import com.ai.metrics.domain.repository.MetricsQueryRepository.RagInventory;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.ModuleStatus;
 import com.ai.metrics.service.MetricsService;
+import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsDomainSnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
+import com.ai.metrics.service.model.OverviewDomains;
 import com.ai.metrics.service.model.SeriesPoint;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -53,7 +60,12 @@ class MetricsControllerTest {
               1000L,
               500L,
               List.of(new NamedCount("chat", 80)),
-              Map.of("chat", Map.of("status", "UP")));
+              new OverviewDomains(
+                  new ChatInventory(3, 1, 10, 0),
+                  new RagInventory(2, Map.of("READY", 2L), 8, 1024),
+                  new AgentsHealth(ModuleStatus.UP, 2, 2),
+                  new McpHealth(ModuleStatus.DISABLED, 0, 0),
+                  ModuleStatus.UP));
       when(metricsService.overview("7d")).thenReturn(overview);
 
       var result = mvc.get().uri("/api/metrics/overview").param("range", "7d").exchange();
@@ -70,6 +82,16 @@ class MetricsControllerTest {
           .extractingPath("$.requestsByDomain[0].name")
           .asString()
           .isEqualTo("chat");
+      assertThat(result)
+          .bodyJson()
+          .extractingPath("$.domains.mcp.status")
+          .asString()
+          .isEqualTo("DISABLED");
+      assertThat(result)
+          .bodyJson()
+          .extractingPath("$.domains.system.status")
+          .asString()
+          .isEqualTo("UP");
       verify(metricsService).overview("7d");
     }
   }
@@ -92,7 +114,7 @@ class MetricsControllerTest {
               35.0,
               100L,
               50L,
-              Map.of("sessionCount", 3),
+              new DomainInventory.Chat(new ChatInventory(3, 1, 10, 0)),
               List.of(new SeriesPoint("2026-07-01", 5)),
               List.of(new SeriesPoint("gpt", 4)));
       when(metricsService.domain("chat", "7d")).thenReturn(snapshot);

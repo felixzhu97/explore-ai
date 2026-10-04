@@ -1,20 +1,31 @@
 package com.ai.metrics.controller;
 
+import com.ai.metrics.controller.dto.AgentsInventoryResponse;
+import com.ai.metrics.controller.dto.ChatInventoryResponse;
+import com.ai.metrics.controller.dto.DomainInventoryResponse;
 import com.ai.metrics.controller.dto.DrilldownPageResponse;
 import com.ai.metrics.controller.dto.InvocationEventResponse;
+import com.ai.metrics.controller.dto.McpInventoryResponse;
 import com.ai.metrics.controller.dto.MetricsDomain;
 import com.ai.metrics.controller.dto.MetricsDomainResponse;
+import com.ai.metrics.controller.dto.MetricsDomainsResponse;
 import com.ai.metrics.controller.dto.MetricsOutcome;
 import com.ai.metrics.controller.dto.MetricsOverviewResponse;
 import com.ai.metrics.controller.dto.MetricsRange;
 import com.ai.metrics.controller.dto.NamedCountResponse;
+import com.ai.metrics.controller.dto.RagInventoryResponse;
+import com.ai.metrics.controller.dto.RequestsInventoryResponse;
 import com.ai.metrics.controller.dto.SeriesPointResponse;
 import com.ai.metrics.controller.dto.SeriesResponse;
+import com.ai.metrics.controller.dto.SystemInventoryResponse;
+import com.ai.metrics.controller.dto.ToolsInventoryResponse;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.service.MetricsService;
+import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsDomainSnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
+import com.ai.metrics.service.model.OverviewDomains;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -93,7 +104,31 @@ public class MetricsController {
         overview.requestsByDomain().stream()
             .map(nc -> new NamedCountResponse(nc.name(), nc.count()))
             .toList(),
-        overview.domains());
+        toDomains(overview.domains()));
+  }
+
+  private MetricsDomainsResponse toDomains(OverviewDomains domains) {
+    return new MetricsDomainsResponse(
+        ChatInventoryResponse.from(domains.chat()),
+        RagInventoryResponse.from(domains.rag()),
+        AgentsInventoryResponse.from(domains.agents()),
+        McpInventoryResponse.from(domains.mcp()),
+        new SystemInventoryResponse(domains.system()));
+  }
+
+  private DomainInventoryResponse toInventory(DomainInventory inventory) {
+    return switch (inventory) {
+      case DomainInventory.Chat chat -> ChatInventoryResponse.from(chat.inventory());
+      case DomainInventory.Rag rag -> RagInventoryResponse.from(rag.inventory());
+      case DomainInventory.Agents agents -> AgentsInventoryResponse.from(agents.health());
+      case DomainInventory.Tools tools ->
+          new ToolsInventoryResponse(
+              tools.topTools().stream()
+                  .map(nc -> new NamedCountResponse(nc.name(), nc.count()))
+                  .toList());
+      case DomainInventory.Requests totals ->
+          new RequestsInventoryResponse(totals.requests(), totals.errors());
+    };
   }
 
   private MetricsDomainResponse toDomain(MetricsDomainSnapshot snapshot) {
@@ -107,7 +142,7 @@ public class MetricsController {
         snapshot.latencyP95Ms(),
         snapshot.promptTokens(),
         snapshot.completionTokens(),
-        snapshot.inventory(),
+        toInventory(snapshot.inventory()),
         snapshot.requestSeries().stream()
             .map(p -> new SeriesPointResponse(p.label(), p.value()))
             .toList(),
