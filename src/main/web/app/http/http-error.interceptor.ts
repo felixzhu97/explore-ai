@@ -16,6 +16,8 @@ export interface AppError {
   status: number;
   timestamp: Date;
   details?: unknown;
+  /** `ErrorResponse.errorCode` from the API, when the body carries one. */
+  errorCode?: string;
 }
 
 export { SKIP_ERROR_NOTIFICATION };
@@ -38,7 +40,9 @@ function normalizeError(error: HttpErrorResponse): AppError {
   if (error.error instanceof ErrorEvent) {
     return handleClientError(error);
   }
-  return handleServerError(error);
+  const appError = handleServerError(error);
+  const errorCode = (error.error as { errorCode?: unknown } | null)?.errorCode;
+  return typeof errorCode === 'string' ? { ...appError, errorCode } : appError;
 }
 
 function handleClientError(error: HttpErrorResponse): AppError {
@@ -134,7 +138,9 @@ function handleServerError(error: HttpErrorResponse): AppError {
     case 503:
       return {
         code: 'SERVICE_UNAVAILABLE',
-        message: 'The service is currently unavailable. Please try again later.',
+        message:
+          extractMessage(error)
+          || 'The service is currently unavailable. Please try again later.',
         status: 503,
         timestamp: new Date(),
       };

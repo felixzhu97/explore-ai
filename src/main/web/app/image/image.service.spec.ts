@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { httpErrorInterceptor } from '../http/http-error.interceptor';
+import { NotificationService } from '../ui/notification.service';
 import { ImageZoomService } from '../ui/image-zoom.service';
 import { DEFAULT_IMAGE_SIZES, ImageService } from './image.service';
 
@@ -13,8 +16,10 @@ describe('ImageService', () => {
     imageZoom = { open: vi.fn() };
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(withInterceptors([httpErrorInterceptor])),
+        provideHttpClientTesting(),
+        { provide: NotificationService, useValue: { showError: vi.fn() } },
         ImageService,
         { provide: ImageZoomService, useValue: imageZoom },
       ],
@@ -37,8 +42,10 @@ describe('ImageService', () => {
   it('should keep default sizes when catalog is empty', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(withInterceptors([httpErrorInterceptor])),
+        provideHttpClientTesting(),
+        { provide: NotificationService, useValue: { showError: vi.fn() } },
         ImageService,
         { provide: ImageZoomService, useValue: imageZoom },
       ],
@@ -89,12 +96,12 @@ describe('ImageService', () => {
     service.setPrompt('Fail case');
     service.generate();
     httpMock.expectOne('/api/images/generate').flush(
-      { message: 'Provider down' },
-      { status: 500, statusText: 'Error' },
+      { message: 'Image provider not configured', errorCode: 'IMAGE_PROVIDER_NOT_CONFIGURED' },
+      { status: 503, statusText: 'Service Unavailable' },
     );
 
     await vi.waitFor(() => {
-      expect(service.error()).toBe('Provider down');
+      expect(service.error()).toBe('Image provider not configured');
       expect(service.isGenerating()).toBe(false);
     });
   });

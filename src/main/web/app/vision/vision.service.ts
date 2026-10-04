@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
+import type { AppError } from '../http/http-error.interceptor';
 import { I18nService } from '../i18n';
 import { ImageZoomService } from '../ui/image-zoom.service';
 import type { Detection } from './detection-overlay.component';
@@ -20,11 +21,6 @@ export interface VisionTabState {
   file: File | null;
   result: VisionResult | null;
   error: string | null;
-}
-
-interface ApiErrorBody {
-  message?: string;
-  errorCode?: string;
 }
 
 const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
@@ -115,7 +111,7 @@ export class VisionService {
       next: (data) => {
         this.updateState({ result: data });
       },
-      error: (error: unknown) => {
+      error: (error: AppError) => {
         this.updateState({ error: this.resolveErrorMessage(error) });
         this.isLoading.set(false);
       },
@@ -152,23 +148,14 @@ export class VisionService {
     );
   }
 
-  private resolveErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const body = error.error as ApiErrorBody | null;
-      if (body?.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
-        return this.i18n.t().vision.errors.providerUnavailable;
-      }
-      if (body?.message) {
-        return body.message;
-      }
-      if (error.status === 0) {
-        return this.i18n.t().vision.errors.requestFailed;
-      }
+  private resolveErrorMessage(error: AppError): string {
+    if (error.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
+      return this.i18n.t().vision.errors.providerUnavailable;
     }
-    if (error instanceof Error) {
-      return error.message;
+    if (error.status === 0) {
+      return this.i18n.t().vision.errors.requestFailed;
     }
-    return this.i18n.t().vision.errors.processingFailed;
+    return error.message;
   }
 
   private updateState(partial: Partial<VisionTabState>): void {
