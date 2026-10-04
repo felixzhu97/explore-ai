@@ -105,10 +105,10 @@ describe('ChatBubbleListComponent', () => {
     const items = component.bubbleItems();
 
     expect(items).toHaveLength(2);
-    expect(items[0].role).toBe('user');
-    expect(items[0].placement).toBeUndefined();
-    expect(items[1].role).toBe('assistant');
-    expect(items[1].footerRender).toBeTruthy();
+    expect(items[0]?.role).toBe('user');
+    expect(items[0]?.placement).toBeUndefined();
+    expect(items[1]?.role).toBe('assistant');
+    expect(items[1]?.footerRender).toBeTruthy();
   });
 
   it('should detect streaming state when message id matches', () => {
@@ -144,7 +144,7 @@ describe('ChatBubbleListComponent', () => {
     fixture.detectChanges();
 
     const items = component.bubbleItems();
-    expect(items[0].loading).toBe(true);
+    expect(items[0]?.loading).toBe(true);
   });
 
   it('should not show thinking label when assistant is not streaming', () => {
@@ -385,7 +385,7 @@ describe('ChatBubbleListComponent', () => {
     const buttons = fixture.nativeElement.querySelectorAll(
       '[data-source-chips] button',
     ) as NodeListOf<HTMLButtonElement>;
-    buttons[0].getBoundingClientRect = () => ({
+    buttons[0]!.getBoundingClientRect = () => ({
       left: 40,
       top: 80,
       right: 100,
@@ -396,7 +396,7 @@ describe('ChatBubbleListComponent', () => {
       y: 80,
       toJSON: () => ({}),
     });
-    buttons[1].getBoundingClientRect = () => ({
+    buttons[1]!.getBoundingClientRect = () => ({
       left: 160,
       top: 80,
       right: 240,
@@ -408,13 +408,13 @@ describe('ChatBubbleListComponent', () => {
       toJSON: () => ({}),
     });
 
-    buttons[0].dispatchEvent(new Event('pointerenter', { bubbles: true }));
+    buttons[0]!.dispatchEvent(new Event('pointerenter', { bubbles: true }));
     vi.advanceTimersByTime(200);
     fixture.detectChanges();
     expect(component.openRef()?.x).toBe(40);
 
     // Already open: switching chips updates immediately (no second open delay).
-    buttons[1].dispatchEvent(new Event('pointerenter', { bubbles: true }));
+    buttons[1]!.dispatchEvent(new Event('pointerenter', { bubbles: true }));
     fixture.detectChanges();
     expect(component.openRef()?.x).toBe(160);
     expect(component.openRef()?.index).toBe(1);

@@ -18,7 +18,7 @@ export class I18nService {
       return stored as Language;
     }
 
-    const browserLang = navigator.language.split('-')[0];
+    const [browserLang = ''] = navigator.language.split('-');
     if (this.#isValidLanguage(browserLang)) {
       return browserLang as Language;
     }

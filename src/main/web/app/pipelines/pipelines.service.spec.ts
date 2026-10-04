@@ -30,7 +30,7 @@ describe('PipelinesService', () => {
 
     service.listAgents().subscribe((agents) => {
       expect(agents).toHaveLength(1);
-      expect(agents[0].type).toBe('supervisor');
+      expect(agents[0]?.type).toBe('supervisor');
     });
 
     const req = httpMock.expectOne(

@@ -182,9 +182,9 @@ describe('RagService', () => {
     });
     service.setInput('Question');
     service.sendMessage();
-    expect(service.messages()[1].content).toContain('Hello');
-    expect(service.messages()[1].sources?.[0].content).toBe('T');
-    expect(service.messages()[1].sources?.[0].metadata['url']).toBe('https://a.com');
+    expect(service.messages()[1]?.content).toContain('Hello');
+    expect(service.messages()[1]?.sources?.[0]?.content).toBe('T');
+    expect(service.messages()[1]?.sources?.[0]?.metadata['url']).toBe('https://a.com');
     expect(service.isLoading()).toBe(false);
   });
 
@@ -197,7 +197,7 @@ describe('RagService', () => {
     });
     service.setInput('Codename?');
     service.sendMessage();
-    expect(service.messages()[1].content).toBe('BLUE HERON');
+    expect(service.messages()[1]?.content).toBe('BLUE HERON');
   });
 
   it('should handle stream error prefix', () => {
@@ -207,7 +207,7 @@ describe('RagService', () => {
     });
     service.setInput('Fail');
     service.sendMessage();
-    expect(service.messages()[1].content).toContain('error occurred');
+    expect(service.messages()[1]?.content).toContain('error occurred');
   });
 
   it('should skip empty send', () => {

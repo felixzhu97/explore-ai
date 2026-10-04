@@ -30,7 +30,7 @@ describe('ChatWelcomePanelComponent', () => {
     const spy = vi.fn();
     fixture.componentInstance.promptSelected.subscribe(spy);
 
-    fixture.componentInstance.onPromptClick(prompts[0]);
+    fixture.componentInstance.onPromptClick(prompts[0]!);
 
     expect(spy).toHaveBeenCalledWith('Prompt A');
   });

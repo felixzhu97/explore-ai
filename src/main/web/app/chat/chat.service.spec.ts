@@ -29,8 +29,8 @@ describe('mergeHistoryWithLocalMessages', () => {
 
     const merged = mergeHistoryWithLocalMessages(history, previous);
 
-    expect(merged[0].id).toBe('uuid-assistant');
-    expect(merged[0].sources).toEqual(previous[0].sources);
+    expect(merged[0]?.id).toBe('uuid-assistant');
+    expect(merged[0]?.sources).toEqual(previous[0]?.sources);
   });
 
   it('should prefer api sources when present', () => {
@@ -55,6 +55,6 @@ describe('mergeHistoryWithLocalMessages', () => {
 
     const merged = mergeHistoryWithLocalMessages(history, previous);
 
-    expect(merged[0].sources?.[0].url).toBe('https://new.example');
+    expect(merged[0]?.sources?.[0]?.url).toBe('https://new.example');
   });
 });
