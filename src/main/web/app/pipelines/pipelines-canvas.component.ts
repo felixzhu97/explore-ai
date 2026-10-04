@@ -9,7 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import {
   type FCreateConnectionEvent,
   FFlowModule,
@@ -52,11 +52,13 @@ interface ApplyableTemplate {
 
 const DEFAULT_BRIEF = 'Follow the configured agent pipeline for the user task.';
 
+type NodeDraft = Pick<PipelineNode, 'name' | 'description' | 'systemPrompt' | 'toolKeys'>;
+
 @Component({
   selector: 'app-pipelines-canvas',
   imports: [
     FFlowModule,
-    FormsModule,
+    FormField,
     PipelinesGalleryComponent,
     PipelinesToolbarComponent,
     ZardButtonComponent,
@@ -94,10 +96,14 @@ export class PipelinesCanvasComponent implements OnInit {
 
   /** Node editor occupies the center work area (graph copy only). */
   readonly editingNodeId = signal<string | null>(null);
-  readonly editName = signal('');
-  readonly editDescription = signal('');
-  readonly editSystemPrompt = signal('');
-  readonly editToolKeys = signal<string[]>([]);
+  readonly #nodeDraft = signal<NodeDraft>({
+    name: '',
+    description: '',
+    systemPrompt: '',
+    toolKeys: [],
+  });
+
+  protected readonly nodeForm = form(this.#nodeDraft);
 
   /** One-shot agent picker for the current workflow — not a persistent Agents catalog. */
   readonly showAgentPicker = signal(false);
@@ -222,23 +228,22 @@ export class PipelinesCanvasComponent implements OnInit {
     }
     this.showAgentPicker.set(false);
     this.editingNodeId.set(node.id);
-    this.editName.set(node.name);
-    this.editDescription.set(node.description);
-    this.editSystemPrompt.set(node.systemPrompt);
-    this.editToolKeys.set([...node.toolKeys]);
+    this.#nodeDraft.set({
+      name: node.name,
+      description: node.description,
+      systemPrompt: node.systemPrompt,
+      toolKeys: [...node.toolKeys],
+    });
   }
 
   isEditToolSelected(toolKey: string): boolean {
-    return this.editToolKeys().includes(toolKey);
+    return this.#nodeDraft().toolKeys.includes(toolKey);
   }
 
   toggleEditTool(toolKey: string): void {
-    const current = this.editToolKeys();
-    if (current.includes(toolKey)) {
-      this.editToolKeys.set(current.filter(key => key !== toolKey));
-      return;
-    }
-    this.editToolKeys.set([...current, toolKey]);
+    this.nodeForm.toolKeys().value.update(current => (current.includes(toolKey)
+      ? current.filter(key => key !== toolKey)
+      : [...current, toolKey]));
   }
 
   cancelNodeEdit(): void {
@@ -250,11 +255,12 @@ export class PipelinesCanvasComponent implements OnInit {
     if (!nodeId) {
       return;
     }
-    const snapshot = {
-      name: this.editName().trim() || 'Agent',
-      description: this.editDescription().trim(),
-      systemPrompt: this.editSystemPrompt().trim(),
-      toolKeys: [...this.editToolKeys()],
+    const draft = this.#nodeDraft();
+    const snapshot: NodeDraft = {
+      name: draft.name.trim() || 'Agent',
+      description: draft.description.trim(),
+      systemPrompt: draft.systemPrompt.trim(),
+      toolKeys: [...draft.toolKeys],
     };
     this.nodes.update(list => list.map((node) => {
       if (node.id !== nodeId) {

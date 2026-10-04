@@ -14,9 +14,8 @@
         z-input
         class="min-h-28 resize-y"
         rows="5"
-        [ngModel]="text()"
+        [formField]="textField"
         [placeholder]="i18n.t().generate.tts.textPlaceholder"
-        (ngModelChange)="setText($event)"
       ></textarea>
     </div>
 

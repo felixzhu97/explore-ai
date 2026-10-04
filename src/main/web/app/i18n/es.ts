@@ -461,6 +461,7 @@ export const es: Translations = {
       deleteFailed: 'Error al eliminar',
       nameRequired: 'El nombre es obligatorio',
       emailRequired: 'El correo es obligatorio',
+      emailInvalid: 'Introduce un correo válido',
       briefRequired: 'El brief es obligatorio',
       runAtRequired: 'Elige una hora de ejecución',
       runAtPast: 'La hora de ejecución debe ser futura',

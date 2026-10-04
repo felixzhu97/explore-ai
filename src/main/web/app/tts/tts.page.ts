@@ -6,6 +6,7 @@ import {
   type OnDestroy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDownload, lucidePause, lucidePlay } from '@ng-icons/lucide';
 import { I18nService } from '../i18n';
@@ -20,6 +21,7 @@ import { ZardSliderComponent } from '../ui/slider';
 @Component({
   selector: 'app-tts-page',
   imports: [
+    FormField,
     FormsModule,
     NgIcon,
     ZardAlertComponent,
@@ -37,6 +39,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   protected readonly i18n = inject(I18nService);
 
   readonly text = signal('');
+  protected readonly textField = form(this.text);
   readonly voice = signal('alloy');
   readonly speed = signal(1.0);
   readonly availableVoices = signal<Voice[]>([]);
@@ -84,10 +87,6 @@ export class TtsPageComponent implements OnInit, OnDestroy {
         ]);
       },
     });
-  }
-
-  setText(text: string) {
-    this.text.set(text);
   }
 
   setVoice(voice: string) {

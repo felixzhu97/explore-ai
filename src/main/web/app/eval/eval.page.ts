@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { EvalService, type EvaluationResponse } from './eval.service';
 import { ZardButtonComponent } from '../ui/button';
 import { I18nService } from '../i18n';
+import { requiredText } from '../forms/required-text';
 
 @Component({
   selector: 'app-eval-page',
-  imports: [FormsModule, ZardButtonComponent],
+  imports: [FormField, ZardButtonComponent],
   templateUrl: './eval.page.html',
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
@@ -14,18 +15,22 @@ export class EvalPageComponent {
   readonly #evalService = inject(EvalService);
   protected readonly i18n = inject(I18nService);
 
-  readonly userMessage = signal('');
-  readonly assistantResponse = signal('');
+  readonly #draft = signal({ userMessage: '', assistantResponse: '' });
+  protected readonly draftForm = form(this.#draft, (path) => {
+    requiredText(path.userMessage);
+    requiredText(path.assistantResponse);
+  });
+
   readonly result = signal<EvaluationResponse | null>(null);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
 
   submit(): void {
-    const userMessage = this.userMessage().trim();
-    const assistantResponse = this.assistantResponse().trim();
-    if (!userMessage || !assistantResponse) {
+    if (this.draftForm().invalid()) {
       return;
     }
+    const userMessage = this.#draft().userMessage.trim();
+    const assistantResponse = this.#draft().assistantResponse.trim();
 
     this.isLoading.set(true);
     this.error.set(null);

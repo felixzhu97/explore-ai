@@ -6,6 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { ZardButtonComponent } from '../ui/button';
 import { ZardCardComponent } from '../ui/card';
 import { ZardInputDirective } from '../ui/input';
@@ -15,6 +16,7 @@ import type { ImageSize } from './image.service';
 @Component({
   selector: 'app-image-gen-form',
   imports: [
+    FormField,
     FormsModule,
     ZardButtonComponent,
     ZardCardComponent,
@@ -37,9 +39,8 @@ import type { ImageSize } from './image.service';
             z-input
             class="min-h-24 resize-y"
             rows="4"
-            [ngModel]="prompt()"
+            [formField]="promptField"
             [placeholder]="promptPlaceholder()"
-            (ngModelChange)="prompt.set($event)"
           ></textarea>
         </div>
 
@@ -84,6 +85,7 @@ export class ImageGenFormComponent {
   readonly generateLabel = input.required<string>();
   readonly generatingLabel = input.required<string>();
   readonly prompt = model.required<string>();
+  protected readonly promptField = form(this.prompt);
   readonly sizes = input.required<ImageSize[]>();
   readonly selectedSize = input.required<ImageSize>();
   readonly isGenerating = input(false);

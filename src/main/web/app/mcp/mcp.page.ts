@@ -1,5 +1,5 @@
 import { Component, inject, signal, type OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import {
   McpService,
   type McpClientStatusResponse,
@@ -11,7 +11,7 @@ import { I18nService } from '../i18n';
 
 @Component({
   selector: 'app-mcp-page',
-  imports: [FormsModule, ZardButtonComponent],
+  imports: [FormField, ZardButtonComponent],
   templateUrl: './mcp.page.html',
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
@@ -25,6 +25,7 @@ export class McpPageComponent implements OnInit {
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
   readonly question = signal('');
+  protected readonly questionField = form(this.question);
   readonly chatResponse = signal<string | null>(null);
   readonly isChatting = signal(false);
 
