@@ -271,7 +271,7 @@ export const ChartApi = {
           break;
         case 'boxplot': {
           const seriesOk = hasNamedSeries
-            && data.series!.every(s => s.values.length >= 5);
+            && data.series?.every(s => s.values.length >= 5);
           if (!hasBoxes && !seriesOk) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
@@ -283,7 +283,7 @@ export const ChartApi = {
         case 'candlestick':
           if (
             !hasCandles
-            && !(hasNamedSeries && data.series!.some(s => s.values.length >= 4))
+            && !(hasNamedSeries && data.series?.some(s => s.values.length >= 4))
           ) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,

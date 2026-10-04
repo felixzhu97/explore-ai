@@ -49,7 +49,7 @@ export class ChartPanelComponent {
   });
 
   onChartClick(event: ECElementEvent): void {
-    const label = String(event.name ?? '');
+    const label = event.name;
     const raw = Array.isArray(event.value) ? event.value[1] : event.value;
     const value = typeof raw === 'number' ? raw : Number(raw);
     if (!label || !Number.isFinite(value)) {

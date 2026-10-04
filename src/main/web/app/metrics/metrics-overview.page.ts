@@ -116,10 +116,10 @@ export class MetricsOverviewPageComponent {
     } | undefined;
     const system = overview.domains['system'] as { status?: string } | undefined;
     const chatSessions = Number(
-      (overview.domains['chat'] as { sessionCount?: number })?.sessionCount ?? 0,
+      (overview.domains['chat'] as { sessionCount?: number } | undefined)?.sessionCount ?? 0,
     );
     const ragDocuments = Number(
-      (overview.domains['rag'] as { documentCount?: number })?.documentCount ?? 0,
+      (overview.domains['rag'] as { documentCount?: number } | undefined)?.documentCount ?? 0,
     );
     return [
       {

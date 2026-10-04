@@ -219,7 +219,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.editName.set(node.name);
     this.editDescription.set(node.description);
     this.editSystemPrompt.set(node.systemPrompt);
-    this.editToolKeys.set([...(node.toolKeys ?? [])]);
+    this.editToolKeys.set([...node.toolKeys]);
   }
 
   isEditToolSelected(toolKey: string): boolean {

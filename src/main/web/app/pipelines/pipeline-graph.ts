@@ -69,8 +69,8 @@ export function validatePipeline(graph: PipelineGraph): PipelineValidationResult
     if (edge.sourceNodeId === edge.targetNodeId) {
       return { ok: false, reason: 'selfLoop' };
     }
-    const outs = outgoing.get(edge.sourceNodeId)!;
-    if (!outs.has(edge.targetNodeId)) {
+    const outs = outgoing.get(edge.sourceNodeId);
+    if (outs && !outs.has(edge.targetNodeId)) {
       outs.add(edge.targetNodeId);
       indegree.set(edge.targetNodeId, (indegree.get(edge.targetNodeId) ?? 0) + 1);
     }
@@ -90,9 +90,11 @@ export function validatePipeline(graph: PipelineGraph): PipelineValidationResult
   const remaining = new Map(indegree);
   const order: string[] = [];
 
-  while (ready.length > 0) {
-    const id = ready.shift()!;
-    order.push(byId.get(id)!.agentType);
+  for (let id = ready.shift(); id !== undefined; id = ready.shift()) {
+    const node = byId.get(id);
+    if (node) {
+      order.push(node.agentType);
+    }
     for (const next of outgoing.get(id) ?? []) {
       const nextDegree = (remaining.get(next) ?? 0) - 1;
       remaining.set(next, nextDegree);
@@ -115,8 +117,8 @@ function hasOrphan(ids: string[], outgoing: Map<string, Set<string>>): boolean {
   }
   for (const [source, targets] of outgoing) {
     for (const target of targets) {
-      undirected.get(source)!.add(target);
-      undirected.get(target)!.add(source);
+      undirected.get(source)?.add(target);
+      undirected.get(target)?.add(source);
     }
   }
   const [start] = ids;
@@ -125,8 +127,7 @@ function hasOrphan(ids: string[], outgoing: Map<string, Set<string>>): boolean {
   }
   const visited = new Set<string>([start]);
   const queue = [start];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
+  for (let current = queue.shift(); current !== undefined; current = queue.shift()) {
     for (const next of undirected.get(current) ?? []) {
       if (!visited.has(next)) {
         visited.add(next);

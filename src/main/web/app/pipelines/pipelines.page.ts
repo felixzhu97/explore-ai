@@ -133,7 +133,7 @@ export class PipelinesPageComponent implements OnDestroy {
     }
     event.preventDefault();
     this.isDraggingSplitter.set(true);
-    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
   }
 
   onDocumentPointerMove(event: PointerEvent): void {

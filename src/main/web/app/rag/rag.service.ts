@@ -90,7 +90,7 @@ export class RagService {
     this.isLoadingDocuments.set(true);
     this.#getDocuments().subscribe({
       next: (data) => {
-        const documents = (data.documents || []).map(item => ({
+        const documents = data.documents.map(item => ({
           id: item.id,
           title: item.title || 'Untitled',
         }));

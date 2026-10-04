@@ -873,17 +873,11 @@ function toNamedNodes(nodes?: ChartTreeNode[]): ChartNamedNode[] {
 
 function parseBox(item: unknown): ChartBox | null {
   if (Array.isArray(item) && item.length >= 5) {
-    const nums = item.slice(0, 5).map(toFiniteNumber);
-    if (nums.some(n => n === null)) {
+    const [min, q1, median, q3, max] = item.slice(0, 5).map(toFiniteNumber);
+    if (min == null || q1 == null || median == null || q3 == null || max == null) {
       return null;
     }
-    return {
-      min: nums[0]!,
-      q1: nums[1]!,
-      median: nums[2]!,
-      q3: nums[3]!,
-      max: nums[4]!,
-    };
+    return { min, q1, median, q3, max };
   }
   if (!item || typeof item !== 'object') {
     return null;
@@ -902,17 +896,12 @@ function parseBox(item: unknown): ChartBox | null {
 
 function parseCandle(item: unknown): ChartCandle | null {
   if (Array.isArray(item) && item.length >= 4) {
-    const nums = item.slice(0, 4).map(toFiniteNumber);
-    if (nums.some(n => n === null)) {
+    // ECharts candlestick: [open, close, low, high]
+    const [open, close, low, high] = item.slice(0, 4).map(toFiniteNumber);
+    if (open == null || close == null || low == null || high == null) {
       return null;
     }
-    // ECharts candlestick: [open, close, low, high]
-    return {
-      open: nums[0]!,
-      close: nums[1]!,
-      low: nums[2]!,
-      high: nums[3]!,
-    };
+    return { open, close, low, high };
   }
   if (!item || typeof item !== 'object') {
     return null;
@@ -977,7 +966,7 @@ function resolveBoxes(
         name: v.name,
         values: v.values,
       }));
-  if (fromSeries?.length) {
+  if (fromSeries.length) {
     const boxes = fromSeries
       .map(s => parseBox(s.values))
       .filter((b): b is ChartBox => b !== null);
@@ -1010,8 +999,8 @@ function resolveCandles(
   const onlySeries = input.series?.length === 1 ? input.series[0] : undefined;
   if (onlySeries && onlySeries.values.length >= 4) {
     const values = onlySeries.values;
-    const categoryCount = input.categories?.length ?? 0;
-    if (values.length % 4 === 0 && categoryCount === values.length / 4) {
+    const categories = input.categories ?? [];
+    if (values.length % 4 === 0 && categories.length === values.length / 4) {
       const candles: ChartCandle[] = [];
       for (let i = 0; i < values.length; i += 4) {
         const candle = parseCandle(values.slice(i, i + 4));
@@ -1020,7 +1009,7 @@ function resolveCandles(
         }
         candles.push(candle);
       }
-      return { categories: input.categories!, candles };
+      return { categories, candles };
     }
   }
   if (input.series?.length) {
