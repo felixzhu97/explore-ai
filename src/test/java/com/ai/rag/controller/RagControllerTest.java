@@ -3,6 +3,7 @@ package com.ai.rag.controller;
 import static com.ai.testsupport.MvcStreamTestSupport.STREAM_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
@@ -286,13 +287,13 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           .hasStatusOk();
       verify(visionChatService)
           .chatStreamWithImages(eq("Describe image"), isNull(), eq(images), eq(5));
-      verify(ragChatService, never()).chatStream(any(), any(), any(), any());
+      verify(ragChatService, never()).chatStream(any(), any(), anyInt(), any());
     }
 
     @Test
     @DisplayName("should propagate stream error from service")
     void shouldPropagateStreamErrorFromService() {
-      when(ragChatService.chatStream(any(), any(), any(), any()))
+      when(ragChatService.chatStream(any(), any(), anyInt(), any()))
           .thenReturn(Flux.error(new RuntimeException("Service error")));
 
       assertThat(

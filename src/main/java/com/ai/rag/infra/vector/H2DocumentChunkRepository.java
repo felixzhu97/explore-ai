@@ -178,7 +178,7 @@ public class H2DocumentChunkRepository
   }
 
   private String serializeMetadata(Map<String, Object> metadata) {
-    if (metadata == null || metadata.isEmpty()) {
+    if (metadata.isEmpty()) {
       return null;
     }
     try {

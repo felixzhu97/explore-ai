@@ -99,7 +99,7 @@ class RagChatServiceTest {
       Document sourceDoc = new Document("AI definition", Map.of("score", 0.95));
       stubChatClientResponse(aiResponse, List.of(sourceDoc));
 
-      RagChatResult result = ragChatService.chat(question, null, null);
+      RagChatResult result = ragChatService.chat(question, null, 5);
 
       assertThat(result).isNotNull();
       assertThat(result.response()).isEqualTo(aiResponse);
@@ -116,7 +116,7 @@ class RagChatServiceTest {
       String docId1 = UUID.randomUUID().toString();
       stubChatClientResponse("response", List.of());
 
-      ragChatService.chat(question, List.of(docId1), null);
+      ragChatService.chat(question, List.of(docId1), 5);
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<Consumer<ChatClient.AdvisorSpec>> advisorCaptor =
@@ -159,7 +159,7 @@ class RagChatServiceTest {
       when(compressionBuilder.build()).thenReturn(compressionClient);
       stubChatClientResponse("response", List.of());
 
-      ragChatService.chat("follow-up question", null, null, "session-1");
+      ragChatService.chat("follow-up question", null, 5, "session-1");
 
       verify(chatClientProvider)
           .create(any(TextChatOptions.class), eq(ChatClientProfile.MEMORY), eq("session-1"));

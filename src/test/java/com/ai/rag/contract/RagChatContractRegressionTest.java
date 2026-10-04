@@ -110,7 +110,7 @@ class RagChatContractRegressionTest {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse())
           .thenReturn(clientResponse("answer", List.of(new Document("ctx", Map.of("score", 0.8)))));
-      ragChatService.chat("What is AI?", null, null);
+      ragChatService.chat("What is AI?", null, 5);
       assertThat(captureRetrievalAdvisor()).isPresent();
       verify(requestSpec).call();
     }
@@ -123,7 +123,7 @@ class RagChatContractRegressionTest {
           .thenReturn(
               clientResponse(
                   "answer", List.of(new Document("retrieved chunk", Map.of("score", 0.91)))));
-      var result = ragChatService.chat("What is AI?", null, null);
+      var result = ragChatService.chat("What is AI?", null, 5);
       assertThat(result.sources()).hasSize(1);
       assertThat(result.sources().getFirst().content()).isEqualTo("retrieved chunk");
       assertThat(result.sources().getFirst().score()).isEqualTo(0.91);
@@ -147,7 +147,7 @@ class RagChatContractRegressionTest {
     void shouldApplyDefaultTopKOnRetrieverWhenTopKNull() {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
-      ragChatService.chat("q", null, null);
+      ragChatService.chat("q", null, 5);
       assertThat(extractTopK(captureRetrievalAdvisor().orElseThrow())).isEqualTo(5);
     }
 
@@ -156,7 +156,7 @@ class RagChatContractRegressionTest {
     void shouldPassDocIdsViaFilterExpressionWhenDocIdsProvided() {
       when(requestSpec.call()).thenReturn(callResponseSpec);
       when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
-      ragChatService.chat("q", List.of(UUID.randomUUID().toString()), null);
+      ragChatService.chat("q", List.of(UUID.randomUUID().toString()), 5);
       assertThat(captureFilterExpression()).isInstanceOf(Filter.Expression.class);
     }
   }

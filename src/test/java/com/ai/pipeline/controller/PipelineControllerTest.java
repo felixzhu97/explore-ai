@@ -149,23 +149,15 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   class InvokeAgent {
 
     @Test
-    @DisplayName("should emit error SSE when direct invoke unknown")
-    void shouldEmitErrorSseWhenDirectInvokeUnknown() {
-      when(pipelineService.invokeAgent(eq("missing"), eq("hi"), eq(ownerKey()), anyString()))
-          .thenReturn(Flux.error(new AgentNotFoundException(AgentType.of("missing"))));
-
+    @DisplayName("should reject blank message")
+    void shouldRejectBlankMessage() {
       assertThat(
-              exchangeStream(
-                  mvc.post()
-                      .uri("/api/pipelines/missing/invoke/sse")
-                      .contentType(MediaType.APPLICATION_JSON)
-                      .content("{\"message\":\"hi\"}")
-                      .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))))
-          .hasStatusOk()
-          .bodyText()
-          .asString()
-          .contains("Unknown agent type: missing")
-          .contains("[DONE]");
+              mvc.post()
+                  .uri("/api/pipelines/k8s/invoke/sse")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"message\":\" \"}")
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+          .hasStatus(400);
     }
   }
 

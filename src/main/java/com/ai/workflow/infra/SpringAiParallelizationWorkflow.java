@@ -18,7 +18,7 @@ public class SpringAiParallelizationWorkflow implements ParallelizationWorkflow 
   private final ChatClientProvider chatClientProvider;
 
   public SpringAiParallelizationWorkflow(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = Objects.requireNonNull(chatClientProvider);
+    this.chatClientProvider = chatClientProvider;
   }
 
   @Override

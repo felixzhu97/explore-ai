@@ -1,5 +1,6 @@
 package com.ai.chat.controller.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
  * @param skillIds optional skill ids
  */
 public record ChatStreamRequest(
-    List<Message> messages,
+    @NotEmpty List<Message> messages,
     String sessionId,
     String provider,
     String model,

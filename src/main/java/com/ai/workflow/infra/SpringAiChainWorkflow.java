@@ -43,7 +43,7 @@ public class SpringAiChainWorkflow implements ChainWorkflow {
   private final ChatClientProvider chatClientProvider;
 
   public SpringAiChainWorkflow(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = Objects.requireNonNull(chatClientProvider);
+    this.chatClientProvider = chatClientProvider;
   }
 
   @Override

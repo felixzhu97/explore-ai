@@ -77,12 +77,11 @@ public class ChatClientFactory implements ChatClientProvider {
   @Override
   public ChatClient create(
       TextChatOptions options, ChatClientProfile profile, String conversationId) {
-    ChatClientProfile effective = profile == null ? ChatClientProfile.MEMORY_TOOLS : profile;
     boolean withMemory =
-        effective == ChatClientProfile.MEMORY_TOOLS || effective == ChatClientProfile.MEMORY;
-    boolean withDefaults = effective != ChatClientProfile.BARE;
+        profile == ChatClientProfile.MEMORY_TOOLS || profile == ChatClientProfile.MEMORY;
+    boolean withDefaults = profile != ChatClientProfile.BARE;
     boolean withTools =
-        (effective == ChatClientProfile.MEMORY_TOOLS || effective == ChatClientProfile.TOOLS)
+        (profile == ChatClientProfile.MEMORY_TOOLS || profile == ChatClientProfile.TOOLS)
             && options.toolsEnabled();
     return buildClient(options, withMemory, withDefaults, withTools, conversationId);
   }

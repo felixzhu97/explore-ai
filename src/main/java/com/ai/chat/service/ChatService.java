@@ -153,12 +153,7 @@ public class ChatService {
                             .user(userMessage)
                             .stream()
                             .content()
-                            .doOnNext(
-                                token -> {
-                                  if (token != null && !token.isEmpty()) {
-                                    rawAssistant.updateAndGet(prev -> prev + token);
-                                  }
-                                }),
+                            .doOnNext(token -> rawAssistant.updateAndGet(prev -> prev + token)),
                         sessionId,
                         ownerKey,
                         options.toolsEnabled());
@@ -235,12 +230,7 @@ public class ChatService {
     StringBuilder repaired = new StringBuilder();
     return repairClient.prompt().messages(promptMessages).stream()
         .content()
-        .doOnNext(
-            token -> {
-              if (token != null) {
-                repaired.append(token);
-              }
-            })
+        .doOnNext(repaired::append)
         .map(this::sanitizeStreamToken)
         .filter(token -> !token.isEmpty())
         .map(this::messageEvent)
@@ -297,9 +287,6 @@ public class ChatService {
   }
 
   private String sanitizeStreamToken(String token) {
-    if (token == null || token.isEmpty()) {
-      return "";
-    }
     if (!ToolCallMarkupFilter.looksLikeToolMarkup(token)) {
       return token;
     }

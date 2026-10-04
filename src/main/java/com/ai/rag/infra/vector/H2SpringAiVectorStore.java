@@ -95,10 +95,7 @@ public class H2SpringAiVectorStore implements VectorStore {
   }
 
   private static Document toDocument(DocumentChunk chunk, double score) {
-    Map<String, Object> metadata = new HashMap<>();
-    if (chunk.getMetadata() != null) {
-      metadata.putAll(chunk.getMetadata());
-    }
+    Map<String, Object> metadata = new HashMap<>(chunk.getMetadata());
     metadata.put(DOCUMENT_ID_METADATA_KEY, chunk.getDocumentId().toString());
     metadata.put("score", score);
     return Document.builder()

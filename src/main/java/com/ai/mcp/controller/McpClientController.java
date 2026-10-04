@@ -72,7 +72,7 @@ public class McpClientController {
   @PostMapping("/chat")
   @Operation(summary = "Chat with AI using MCP tools")
   public ResponseEntity<Map<String, String>> chat(@RequestBody McpChatRequest request) {
-    if (request == null || request.question() == null || request.question().isBlank()) {
+    if (request.question() == null || request.question().isBlank()) {
       return ResponseEntity.badRequest().body(Map.of("error", "提问内容不能为空"));
     }
     try {

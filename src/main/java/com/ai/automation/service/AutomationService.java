@@ -64,10 +64,9 @@ public class AutomationService {
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
     }
     requireWorkflow(ownerKey, pipelineTemplateId);
-    ScheduleKind kind = scheduleKind == null ? ScheduleKind.CRON : scheduleKind;
     AutomationSchedule schedule =
         buildNew(
-            kind,
+            scheduleKind,
             ownerKey,
             name,
             cronExpression,
@@ -94,10 +93,16 @@ public class AutomationService {
       String brief) {
     AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
     requireWorkflow(ownerKey, pipelineTemplateId);
-    ScheduleKind kind = scheduleKind == null ? ScheduleKind.CRON : scheduleKind;
-    Instant next = resolveNextRunAt(kind, cronExpression, runAt, timezone);
+    Instant next = resolveNextRunAt(scheduleKind, cronExpression, runAt, timezone);
     schedule.update(
-        name, kind, cronExpression, timezone, pipelineTemplateId, recipientEmail, brief, next);
+        name,
+        scheduleKind,
+        cronExpression,
+        timezone,
+        pipelineTemplateId,
+        recipientEmail,
+        brief,
+        next);
     return scheduleRepository.save(schedule);
   }
 
@@ -148,9 +153,8 @@ public class AutomationService {
       String recipientEmail,
       String brief) {
     if (kind == ScheduleKind.ONCE) {
-      Instant target = Objects.requireNonNull(runAt, "runAt is required for ONCE schedules");
       return AutomationSchedule.createOnce(
-          ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, target);
+          ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, runAt);
     }
     cronCalculator.validate(cronExpression, timezone);
     Instant next = cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());

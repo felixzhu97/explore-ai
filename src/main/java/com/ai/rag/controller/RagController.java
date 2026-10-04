@@ -97,7 +97,7 @@ public class RagController {
   @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "RAG streaming chat")
   public Flux<ServerSentEvent<String>> ragChatStream(@Valid @RequestBody RagChatRequest request) {
-    if (hasImages(request.images())) {
+    if (!request.images().isEmpty()) {
       VisionChatService visionChat = visionChatService.getIfAvailable();
       if (visionChat == null) {
         return ragChatService.chatStream(
@@ -108,10 +108,6 @@ public class RagController {
     }
     return ragChatService.chatStream(
         request.question(), request.documentIds(), request.topK(), request.sessionId());
-  }
-
-  private boolean hasImages(List<String> images) {
-    return images != null && !images.isEmpty();
   }
 
   private DocumentSummaryResponse toSummary(RagDocument doc, Map<DocumentId, Integer> chunkCounts) {

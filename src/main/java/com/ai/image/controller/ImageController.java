@@ -42,9 +42,9 @@ public class ImageController {
               request.prompt(),
               request.model(),
               request.quality(),
-              request.width() != null ? request.width() : 1024,
-              request.height() != null ? request.height() : 1024,
-              request.n() != null ? request.n() : 1);
+              request.width(),
+              request.height(),
+              request.n());
 
       if (!image.isAvailable()) {
         return ResponseEntity.internalServerError()
