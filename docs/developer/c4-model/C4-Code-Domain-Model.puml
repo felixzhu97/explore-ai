@@ -59,9 +59,6 @@ package "Domain Kernel" as pkg_base {
     +id: IdT
     +createdAt: Instant
   }
-  class BaseJpaConfig <<Configuration>> {
-    EnableJpaRepositories
-  }
 }
 
 EntityId <|.. AbstractUuidId
@@ -75,7 +72,7 @@ package "Common" as pkg_common_kernel {
     +ownerKey: OwnerKey NOT NULL
     --
     +belongsTo(ownerKey)
-    +belongsToClient(value)
+    +getOwnerKeyValue()
     +rebindOwnerKey(ownerKey)
   }
   class AbstractNamedOwnerEntity <<Abstract>> {
@@ -113,16 +110,12 @@ package "Common" as pkg_common_kernel {
     +{static} forClient(id)
     +{static} forAccount(id)
   }
-  interface ClientOwnedRepository <<Repository>> {
+  interface OwnerScopedRepository<E, I> <<Repository>> {
+    +save(entity)
     +findByIdAndOwnerKey(id, ownerKey)
     +findAllByOwnerKey(ownerKey)
     +deleteByIdAndOwnerKey(id, ownerKey)
-  }
-  interface ClientIdOwnedNamedRepository <<Repository>> {
-    +findByIdAndClientId(id, clientId)
-    +findAllByClientId(clientId)
-    +deleteByIdAndClientId(id, clientId)
-    +existsByClientIdAndNameIgnoringId(clientId, name, excludeId)
+    +existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)
   }
 }
 
@@ -142,15 +135,14 @@ package "Chat" as pkg_chat {
     +ownerKey: OwnerKey
     +title: String
     --
-    +{static} create(title, clientId)
-    +{static} of(id, title, createdAt, clientId)
+    +{static} create(title, ownerKey)
+    +{static} of(id, title, createdAt, ownerKey)
     +rename(newTitle)
     +addUserMessage(text)
     +addAssistantMessage(text)
     +getRecentMessages(count)
     +clearMessages()
     +replaceMessages(messages)
-    +belongsTo(clientId)
     +isEmpty()
   }
   class ChatMessage <<Entity>> {
@@ -177,7 +169,7 @@ package "Chat" as pkg_chat {
     +findById(id)
   }
   interface ChatWebSourcesRepository <<Repository>> {
-    +findByContentHash(hash)
+    +findByConversationId(conversationId)
   }
 }
 
@@ -212,10 +204,10 @@ package "RAG" as pkg_rag {
     FAILED
   }
   class SourceDocument <<ValueObject>> {
-    +text: String
+    +content: String
     +score: double
   }
-  interface IDocumentRepository <<Repository>> {
+  interface DocumentRepository <<Repository>> {
     +save(document)
     +findById(id)
   }
@@ -245,10 +237,14 @@ package "Pipeline" as pkg_pipeline {
     +id: SavedAgentId
     +typeKey: String
   }
-  interface WorkflowTemplateRepository <<Repository>> {
+  interface PipelineTemplateRepository <<Repository>> {
+  }
+  interface SavedAgentRepository <<Repository>> {
+    +findEnabledByOwnerKey(ownerKey)
   }
   interface AgentRegistry <<Repository>> {
-    +findByType(type)
+    +listBuiltins(language)
+    +listAll(ownerKey, language)
   }
 }
 
@@ -264,7 +260,7 @@ package "Skill" as pkg_skill {
     +disable()
   }
   interface SkillRepository <<Repository>> {
-    +findEnabledByClientIdAndIds(clientId, ids)
+    +findEnabledByOwnerKeyAndIds(ownerKey, ids)
   }
 }
 
@@ -325,9 +321,10 @@ package "MCP" as pkg_mcp {
     +close()
     +isActive()
   }
-  class McpSessionManager <<DomainService>> {
-    +register(session)
-    +close(sessionId)
+  class McpSessionRegistry <<DomainService>> {
+    +registerSession(serverName, toolCount)
+    +closeSession(sessionId)
+    +activeSessions()
   }
 }
 
@@ -366,7 +363,7 @@ note as KERNEL_NOTE
   the **Common** package above.
   Attribute converters (OwnerKey, enums, JSON lists) live in domain.vo.
   Typed ids map to native UUID columns.
-  Owner-scoped adapters run inside OwnerPartitionScope (infra),
+  Owner-scoped repositories run inside OwnerPartitionScope (infra),
   which enables the ownerPartition filter; background jobs stay unfiltered.
   Default JPA snake_case naming; no @Table/@Column(name=) in domain.
 end note
@@ -381,8 +378,8 @@ AbstractTimedRunEntity <|-- AutomationRun
 AbstractEntity <|-- AccountUser
 AbstractAppendOnlyEvent <|-- AiInvocationEvent
 
-ClientIdOwnedNamedRepository <|-- SkillRepository
-ClientIdOwnedNamedRepository <|-- WorkflowTemplateRepository
+OwnerScopedRepository <|-- SkillRepository
+OwnerScopedRepository <|-- PipelineTemplateRepository
 
 ChatSession ..> OwnerKey : owned by
 RagDocument ..> OwnerKey : owned by

@@ -11,7 +11,7 @@ participant "Serper.dev" as serper <<external>>
 database "H2" as db <<db>>
 
 user -> ui: 1. Send message (tools on)
-ui -> api: 2. POST /api/text/chat/stream
+ui -> api: 2. POST /api/chat/stream
 api -> db: 3. Load ChatSession + memory
 api -> llm: 4. Chat + tool schemas
 llm --> api: 5. Tool call (optional)

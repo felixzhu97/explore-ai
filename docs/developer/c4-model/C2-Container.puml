@@ -13,7 +13,7 @@ Person(admin, "管理员/开发者", "评估、文本分析、AI 指标看板、
 ' ============================================================
 ' FRONTEND / NATIVE
 ' ============================================================
-Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag /metrics + flag: /agents /skills /vision /mcp /eval /asr\nLaunchDarkly + Datadog RUM")
+Container(angular_app, "Web Frontend", "Angular 22 + TypeScript", "/chat /generate /rag /metrics + flag: /agents /skills /vision /mcp /eval /speech-to-text\nLaunchDarkly + Datadog RUM")
 Container(ios_app, "AI iOS", "SwiftUI", "src/main/ios · PKCE · explore-ai-ios · API :9000")
 
 ' ============================================================
@@ -25,9 +25,9 @@ Container(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI
 ' DOMAIN 1: CHAT
 ' ============================================================
 Container_Boundary(chat_domain, "Chat Domain") {
-    Container(chat_controller, "ChatController", "@RestController", "/api/chat, /api/sessions, /api/health")
-    Container(text_controller, "TextController", "@RestController", "/api/text/providers, /api/text/chat/stream (SSE)")
-    Container(chat_usecase, "SpringAiChatUseCase", "Use Case", "Spring AI 对话 + 流式")
+    Container(chat_controller, "ChatController", "@RestController", "/api/chat/sessions, /api/chat/health")
+    Container(chat_stream_controller, "ChatStreamController", "@RestController", "/api/chat/providers, /api/chat/models, /api/chat/stream (SSE)")
+    Container(chat_service, "ChatService", "Application Service", "Spring AI 对话 + 流式")
     Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
     Container(jdbc_sess_repo, "JpaChatSessionRepository", "@Repository", "chat_session 元数据 JPA · ownerPartition 过滤")
     Container(jdbc_chat_memory, "JdbcChatMemoryRepository", "Spring AI", "消息记忆 JDBC")
@@ -37,12 +37,12 @@ Container_Boundary(chat_domain, "Chat Domain") {
 ' DOMAIN 2: PIPELINE [flag-guarded]
 ' ============================================================
 Container_Boundary(pipeline_domain, "Pipeline Domain") {
-    Container(pipeline_controller, "PipelineController", "@RestController", "/api/pipelines/* (list, invoke/sse)")
-    Container(workflow_template_controller, "WorkflowTemplateController", "@RestController", "/api/pipelines/templates catalog + library CRUD")
-    Container(pipeline_facade, "PipelineFacade", "Application Service", "Worker / Supervisor / Pipeline 门面")
-    Container(workflow_template_usecase, "WorkflowTemplateUseCase", "Use Case", "内置模版 + 用户库")
-    Container(workflow_template_repo, "JpaWorkflowTemplateRepository", "@Repository", "saved_workflow_template 表 JPA · ownerPartition 过滤")
-    Container(orch_usecase, "OrchestratorWorkersUseCase", "Use Case", "编排 Worker 流水线")
+    Container(pipeline_controller, "PipelineController", "@RestController", "/api/pipelines/* (agent-types, invoke/sse)")
+    Container(pipeline_template_controller, "PipelineTemplateController", "@RestController", "/api/pipelines/template-definitions + /api/pipelines/templates CRUD")
+    Container(pipeline_service, "PipelineService", "Application Service", "Worker / Supervisor / Pipeline 编排入口")
+    Container(pipeline_template_service, "PipelineTemplateService", "Application Service", "内置模版定义 + 已保存模版")
+    Container(pipeline_template_repo, "JpaPipelineTemplateRepository", "@Repository", "pipeline_template 表 JPA · ownerPartition 过滤")
+    Container(orchestration_service, "PipelineOrchestrationService", "Application Service", "编排 Worker 流水线")
     Container(agent_registry, "CatalogAgentRegistry", "@Component", "Agent 注册表")
     Container(supervisor_router, "SpringAiSupervisorRouter", "@Component", "Supervisor 路由")
     Container(worker_invoker, "SpringAiWorkerAgentInvoker", "@Component", "Worker 调用 + DSML 过滤")
@@ -53,7 +53,7 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
 ' ============================================================
 Container_Boundary(skill_domain, "Skill Domain") {
     Container(skill_controller, "SkillController", "@RestController", "/api/skills CRUD + templates")
-    Container(skill_usecase, "SkillUseCase", "Use Case", "用户 Skill 管理")
+    Container(skill_service, "SkillService", "Application Service", "用户 Skill 管理")
     Container(skill_repo, "JpaSkillRepository", "@Repository", "skill 表 JPA · ownerPartition 过滤")
     Container(skill_prompt, "SkillSystemPromptBuilder", "Application", "Chat system 注入 Active Skills")
 }
@@ -64,15 +64,15 @@ Container_Boundary(skill_domain, "Skill Domain") {
 Container_Boundary(rag_domain, "RAG Domain") {
     Container(rag_controller, "RagController", "@RestController", "/api/rag/*")
     Container(rag_app_svc, "RagApplicationService", "Application Service", "RAG 门面")
-    Container(doc_upload_svc, "DocumentUploadService", "Use Case", "文档上传/列表/删除 (ETL 编排)")
-    Container(rag_doc_search, "DocumentSearchService", "Use Case", "向量检索")
-    Container(rag_chat_svc, "RagChatUseCase", "Use Case", "RAG 聊天")
-    Container(vision_chat_svc, "VisionChatUseCase", "Use Case", "多模态 RAG (Ollama qwen3.5) [local]")
+    Container(doc_upload_svc, "DocumentUploadService", "Application Service", "文档上传/列表/删除 (ETL 编排)")
+    Container(rag_doc_search, "DocumentSearchService", "Application Service", "向量检索")
+    Container(rag_chat_svc, "RagChatService", "Application Service", "RAG 聊天")
+    Container(vision_chat_svc, "VisionChatService", "Application Service", "多模态 RAG (Ollama qwen3.5) [local]")
     Container(etl_reader, "PdfAndTextDocumentReader", "@Component", "PDF/TXT 读取")
     Container(etl_transformer, "ChunkingDocumentTransformer", "@Component", "分块转换")
     Container(etl_writer, "EmbeddingDocumentWriter", "@Component", "Embedding 写入")
-    Container(h2_vector, "H2VectorAdapter", "@Component", "H2 向量检索 (默认)")
-    Container(ollama_emb, "OllamaEmbeddingAdapter", "@Component", "qwen3-embedding:0.6b [local]")
+    Container(h2_vector, "H2DocumentChunkRepository", "@Repository", "H2 向量检索 (默认)")
+    Container(ollama_emb, "OllamaTextEmbeddingGateway", "@Component", "qwen3-embedding:0.6b [local]")
 }
 
 ' ============================================================
@@ -80,17 +80,17 @@ Container_Boundary(rag_domain, "RAG Domain") {
 ' ============================================================
 Container_Boundary(tool_domain, "Tools Domain") {
     Container(tool_controller, "ToolsController", "@RestController", "/api/tools/*")
-    Container(tool_facade, "ToolsFacade", "Application Service", "工具门面")
+    Container(tool_service, "ToolService", "Application Service", "工具调用入口")
     Container(weather_tool, "WeatherTools", "*Tool", "天气查询工具")
-    Container(web_search_tool, "SerperWebSearchAdapter", "*Tool", "Web 搜索 (Serper.dev)")
+    Container(web_search_tool, "SerperWebSearchTool", "*Tool", "Web 搜索 (Serper.dev)")
 }
 
 ' ============================================================
-' DOMAIN 5: ANALYSIS
+' DOMAIN 5: TEXT ANALYSIS
 ' ============================================================
-Container_Boundary(analysis_domain, "Analysis Domain") {
-    Container(analysis_controller, "AnalysisController", "@RestController", "/api/chat/analyze")
-    Container(analysis_facade, "AnalysisFacade", "Application Service", "结构化文本分析")
+Container_Boundary(text_analysis_domain, "Text Analysis Domain") {
+    Container(text_analysis_controller, "TextAnalysisController", "@RestController", "/api/text-analysis")
+    Container(text_analysis_service, "TextAnalysisService", "Application Service", "结构化文本分析")
 }
 
 ' ============================================================
@@ -106,8 +106,8 @@ Container_Boundary(eval_domain, "Evaluation Domain") {
 ' ============================================================
 Container_Boundary(image_domain, "Image Domain") {
     Container(image_controller, "ImageController", "@RestController", "/api/images/*")
-    Container(image_facade, "ImageFacade", "Application Service", "图像生成门面")
-    Container(image_repo, "SpringAiImageGenerationRepository", "@Component", "OpenAI DALL-E 适配器")
+    Container(image_service, "ImageGenerationService", "Application Service", "图像生成")
+    Container(image_gateway, "SpringAiImageGenerationGateway", "@Component", "OpenAI DALL-E")
 }
 
 ' ============================================================
@@ -115,7 +115,7 @@ Container_Boundary(image_domain, "Image Domain") {
 ' ============================================================
 Container_Boundary(vision_domain, "Image Analysis Domain") {
     Container(vision_controller, "VisionController", "@RestController", "/api/vision/{caption,detect,ocr,health}")
-    Container(vision_usecase, "VisionAnalysisUseCase", "Use Case", "Caption / Detect / OCR 编排")
+    Container(vision_service, "VisionAnalysisService", "Application Service", "Caption / Detect / OCR 编排")
     Container(onnx_captioner, "OnnxBlipCaptioner", "@Service", "BLIP ONNX [local]")
     Container(onnx_detector, "OnnxYoloDetector", "@Service", "YOLOv8 ONNX [local]")
     Container(tess4j_ocr, "Tess4jOcrEngine", "@Service", "Tesseract OCR [local]")
@@ -126,11 +126,11 @@ Container_Boundary(vision_domain, "Image Analysis Domain") {
 ' ============================================================
 Container_Boundary(audio_domain, "Audio Domain") {
     Container(audio_controller, "AudioController", "@RestController", "TTS HTTP + ASR WebSocket")
-    Container(audio_facade, "AudioFacade", "Application Service", "TTS 门面")
-    Container(asr_usecase, "StreamingTranscriptionUseCase", "Use Case", "流式转录")
+    Container(audio_service, "AudioService", "Application Service", "TTS")
+    Container(transcription_service, "StreamingTranscriptionService", "Application Service", "流式转录")
     Container(asr_ws_handler, "AudioTranscriptionWebSocketHandler", "@Component", "ASR WebSocket")
-    Container(asr_adapter, "SpeechStreamingTranscriptionAdapter", "@Component", "explore-ml Qwen3-ASR")
-    Container(tts_repo, "TextToSpeechRepository", "Repository", "OpenAI TTS or speech Qwen TTS")
+    Container(transcription_client, "SpeechStreamingTranscriptionClient", "@Component", "explore-ml Qwen3-ASR")
+    Container(tts_gateway, "TextToSpeechGateway", "Gateway", "OpenAI TTS or speech Qwen TTS")
 }
 
 ' ============================================================
@@ -138,7 +138,7 @@ Container_Boundary(audio_domain, "Audio Domain") {
 ' ============================================================
 Container_Boundary(mcp_server_domain, "MCP Server Domain") {
     Container(mcp_controller, "McpController", "@RestController", "/api/mcp/*")
-    Container(mcp_server_svc, "AiMcpServerService", "Infrastructure", "MCP Server 实现")
+    Container(mcp_server_svc, "McpServerToolsProvider", "Infrastructure", "MCP Server 工具注册")
 }
 
 ' ============================================================
@@ -146,8 +146,8 @@ Container_Boundary(mcp_server_domain, "MCP Server Domain") {
 ' ============================================================
 Container_Boundary(mcp_client_domain, "MCP Client Domain") {
     Container(mcp_client_controller, "McpClientController", "@RestController", "/api/mcp/client/*")
-    Container(mcp_facade, "McpFacade", "Application Service", "MCP Client 门面")
-    Container(mcp_client_repo, "SpringAiMcpClientRepository", "@Component", "MCP Client 适配器")
+    Container(mcp_service, "McpService", "Application Service", "MCP Client 调用入口")
+    Container(mcp_client_gateway, "SpringAiMcpClientGateway", "@Component", "MCP Client 连接")
 }
 
 ' ============================================================
@@ -155,7 +155,7 @@ Container_Boundary(mcp_client_domain, "MCP Client Domain") {
 ' ============================================================
 Container_Boundary(metrics_domain, "Metrics Domain") {
     Container(metrics_controller, "MetricsController", "@RestController", "/api/metrics/* (overview, domains, series, drilldown)")
-    Container(metrics_usecase, "MetricsUseCase", "Use Case", "概览 / 域快照 / 时序 / 下钻")
+    Container(metrics_service, "MetricsService", "Application Service", "概览 / 域快照 / 时序 / 下钻")
     Container(invocation_recorder, "AiInvocationRecorder", "Application", "业务路径旁路记录调用事件")
     Container(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
     Container(jdbc_invocation_repo, "JpaAiInvocationEventRepository", "@Repository", "@Immutable 事件 JPA persist · 下钻 JDBC")
@@ -195,7 +195,7 @@ Container_Ext(explore_iam, "Explore IAM", "OIDC Provider", "authorize / token / 
 Rel(user, angular_app, "使用 Web UI", "HTTP/SSE/WebSocket")
 Rel(user, ios_app, "使用 iOS", "SwiftUI")
 Rel(admin, eval_controller, "质量评估", "HTTP")
-Rel(admin, analysis_controller, "文本分析", "HTTP")
+Rel(admin, text_analysis_controller, "文本分析", "HTTP")
 Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
 
 Rel(ios_app, explore_iam, "OIDC + PKCE", "HTTPS :9100")
@@ -203,9 +203,9 @@ Rel(ios_app, backend, "Bearer access_token", "HTTPS :9000")
 Rel(backend, explore_iam, "JWKS / issuer validate", "HTTPS")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
-Rel(angular_app, text_controller, "流式对话", "SSE")
+Rel(angular_app, chat_stream_controller, "流式对话", "SSE")
 Rel(angular_app, pipeline_controller, "工作流画布 [flag]", "SSE")
-Rel(angular_app, workflow_template_controller, "工作流模版 [flag]", "HTTP")
+Rel(angular_app, pipeline_template_controller, "工作流模版 [flag]", "HTTP")
 Rel(angular_app, skill_controller, "Skills CRUD [flag]", "HTTP")
 Rel(angular_app, rag_controller, "RAG", "HTTP/SSE")
 Rel(angular_app, tool_controller, "工具", "HTTP")
@@ -217,28 +217,28 @@ Rel(angular_app, mcp_client_controller, "MCP Client [flag]", "HTTP")
 Rel(angular_app, metrics_controller, "AI 指标", "HTTP")
 Rel(angular_app, launchdarkly, "前端功能开关", "HTTPS")
 
-Rel(chat_controller, chat_usecase, "调用")
-Rel(text_controller, chat_usecase, "流式对话")
-Rel(text_controller, skill_repo, "解析 skillIds")
-Rel(text_controller, skill_prompt, "注入 Active Skills")
-Rel(skill_controller, skill_usecase, "调用")
-Rel(skill_usecase, skill_repo, "持久化")
+Rel(chat_controller, chat_service, "调用")
+Rel(chat_stream_controller, chat_service, "流式对话")
+Rel(chat_stream_controller, skill_repo, "解析 skillIds")
+Rel(chat_stream_controller, skill_prompt, "注入 Active Skills")
+Rel(skill_controller, skill_service, "调用")
+Rel(skill_service, skill_repo, "持久化")
 Rel(skill_repo, h2_db, "JDBC")
-Rel(chat_usecase, jdbc_sess_repo, "会话元数据")
-Rel(chat_usecase, jdbc_chat_memory, "消息记忆")
+Rel(chat_service, jdbc_sess_repo, "会话元数据")
+Rel(chat_service, jdbc_chat_memory, "消息记忆")
 Rel(jdbc_sess_repo, h2_db, "JPA")
 Rel(jdbc_chat_memory, h2_db, "JDBC")
-Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
-Rel(chat_usecase, prompt_templates, "defaultSystem")
+Rel(chat_service, deepseek_api, "LLM", "HTTPS")
+Rel(chat_service, prompt_templates, "defaultSystem")
 
-Rel(pipeline_controller, pipeline_facade, "调用")
-Rel(workflow_template_controller, workflow_template_usecase, "调用")
-Rel(workflow_template_usecase, workflow_template_repo, "持久化")
-Rel(workflow_template_repo, h2_db, "JDBC")
-Rel(pipeline_facade, orch_usecase, "编排")
-Rel(pipeline_facade, agent_registry, "注册表")
-Rel(orch_usecase, supervisor_router, "路由")
-Rel(orch_usecase, worker_invoker, "Worker")
+Rel(pipeline_controller, pipeline_service, "调用")
+Rel(pipeline_template_controller, pipeline_template_service, "调用")
+Rel(pipeline_template_service, pipeline_template_repo, "持久化")
+Rel(pipeline_template_repo, h2_db, "JDBC")
+Rel(pipeline_service, orchestration_service, "编排")
+Rel(pipeline_service, agent_registry, "注册表")
+Rel(orchestration_service, supervisor_router, "路由")
+Rel(orchestration_service, worker_invoker, "Worker")
 Rel(agent_registry, prompt_templates, "Agent system prompts")
 Rel(worker_invoker, deepseek_api, "LLM", "HTTPS")
 Rel(supervisor_router, deepseek_api, "LLM", "HTTPS")
@@ -262,47 +262,47 @@ Rel(h2_vector, h2_db, "向量存储", "JDBC")
 Rel(ollama_emb, ollama_svc, "Embedding", "HTTP")
 Rel(vision_chat_svc, ollama_svc, "多模态 RAG", "HTTP")
 
-Rel(vision_controller, vision_usecase, "调用")
-Rel(vision_usecase, onnx_captioner, "Caption")
-Rel(vision_usecase, onnx_detector, "Detect")
-Rel(vision_usecase, tess4j_ocr, "OCR")
+Rel(vision_controller, vision_service, "调用")
+Rel(vision_service, onnx_captioner, "Caption")
+Rel(vision_service, onnx_detector, "Detect")
+Rel(vision_service, tess4j_ocr, "OCR")
 Rel(tess4j_ocr, tesseract_svc, "OCR", "JNA")
 
-Rel(metrics_controller, metrics_usecase, "调用")
-Rel(metrics_usecase, jdbc_metrics_query, "聚合")
-Rel(metrics_usecase, jdbc_invocation_repo, "下钻")
+Rel(metrics_controller, metrics_service, "调用")
+Rel(metrics_service, jdbc_metrics_query, "聚合")
+Rel(metrics_service, jdbc_invocation_repo, "下钻")
 Rel(invocation_recorder, jdbc_invocation_repo, "写入事件")
 Rel(jdbc_invocation_repo, h2_db, "JPA + JDBC")
 Rel(jdbc_metrics_query, h2_db, "JDBC")
 
-Rel(tool_controller, tool_facade, "调用")
-Rel(tool_facade, weather_tool, "天气")
-Rel(tool_facade, rag_doc_search, "RAG 搜索")
-Rel(tool_facade, web_search_tool, "Web 搜索")
+Rel(tool_controller, tool_service, "调用")
+Rel(tool_service, weather_tool, "天气")
+Rel(tool_service, rag_doc_search, "RAG 搜索")
+Rel(tool_service, web_search_tool, "Web 搜索")
 Rel(web_search_tool, serper_api, "搜索", "HTTPS")
 
-Rel(analysis_controller, analysis_facade, "调用")
-Rel(analysis_facade, deepseek_api, "结构化输出", "HTTPS")
+Rel(text_analysis_controller, text_analysis_service, "调用")
+Rel(text_analysis_service, deepseek_api, "结构化输出", "HTTPS")
 
 Rel(eval_controller, eval_svc, "调用")
 Rel(eval_svc, deepseek_api, "LLM 评估", "HTTPS")
 
-Rel(image_controller, image_facade, "调用")
-Rel(image_facade, image_repo, "生成")
-Rel(image_repo, openai_api, "DALL-E", "HTTPS")
+Rel(image_controller, image_service, "调用")
+Rel(image_service, image_gateway, "生成")
+Rel(image_gateway, openai_api, "DALL-E", "HTTPS")
 
-Rel(audio_controller, audio_facade, "TTS")
+Rel(audio_controller, audio_service, "TTS")
 Rel(audio_controller, asr_ws_handler, "ASR WebSocket")
-Rel(audio_facade, tts_repo, "合成")
-Rel(asr_ws_handler, asr_usecase, "流式转录")
-Rel(asr_usecase, asr_adapter, "speech")
-Rel(asr_adapter, speech_svc, "WS /ws/v1/audios:transcribe", "WS :8000")
-Rel(tts_repo, openai_api, "OpenAI TTS", "HTTPS")
-Rel(tts_repo, speech_svc, "voices:synthesize", "HTTP :8000")
+Rel(audio_service, tts_gateway, "合成")
+Rel(asr_ws_handler, transcription_service, "流式转录")
+Rel(transcription_service, transcription_client, "speech")
+Rel(transcription_client, speech_svc, "WS /ws/v1/audios:transcribe", "WS :8000")
+Rel(tts_gateway, openai_api, "OpenAI TTS", "HTTPS")
+Rel(tts_gateway, speech_svc, "voices:synthesize", "HTTP :8000")
 
 Rel(mcp_controller, mcp_server_svc, "调用")
-Rel(mcp_client_controller, mcp_facade, "调用")
-Rel(mcp_facade, mcp_client_repo, "MCP 连接")
+Rel(mcp_client_controller, mcp_service, "调用")
+Rel(mcp_service, mcp_client_gateway, "MCP 连接")
 
 Rel(module_filter, feature_flag_svc, "查询开关")
 Rel(feature_flag_svc, ld_repo, "读取")

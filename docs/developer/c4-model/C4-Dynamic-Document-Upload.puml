@@ -11,7 +11,7 @@ database "H2" as db <<db>>
 
 user -> ui: 1. Choose PDF/text file
 ui -> api: 2. POST /api/rag/documents/upload
-api -> db: 3. Persist Document UPLOADING
+api -> db: 3. Persist RagDocument UPLOADING
 api -> api: 4. Read, chunk, mark PROCESSING
 api -> ollama: 5. Embed chunks
 ollama --> api: 6. Vectors
