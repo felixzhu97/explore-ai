@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,10 +33,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class ClientRateLimitFilter extends OncePerRequestFilter {
 
   private final RateLimitProperties properties;
+  private final Clock clock;
   private final Map<String, Window> windows = new ConcurrentHashMap<>();
 
-  public ClientRateLimitFilter(RateLimitProperties properties) {
+  public ClientRateLimitFilter(RateLimitProperties properties, Clock clock) {
     this.properties = properties;
+    this.clock = clock;
   }
 
   @Override
@@ -83,7 +86,7 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
   }
 
   private boolean allow(String key) {
-    long now = System.currentTimeMillis();
+    long now = clock.millis();
     long windowMs = properties.getWindowSeconds() * 1000L;
     int limit = properties.getRequestsPerWindow();
     Window window =

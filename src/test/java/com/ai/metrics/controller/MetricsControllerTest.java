@@ -210,5 +210,34 @@ class MetricsControllerTest {
           .asString()
           .isEqualTo("weather");
     }
+
+    @Test
+    @DisplayName("should serialize occurredAt as an ISO-8601 UTC string")
+    void shouldSerializeOccurredAtAsAnIso8601UtcString() {
+      AiInvocationEvent event =
+          AiInvocationEvent.builder()
+              .id(UUID.randomUUID())
+              .occurredAt(Instant.parse("2026-07-26T08:00:00.123Z"))
+              .domain(AiDomain.TOOLS)
+              .operation("tools.weather")
+              .outcome(InvocationOutcome.SUCCESS)
+              .latencyMs(25)
+              .build();
+      when(metricsService.drilldown("tools", null, null, null, null, null, null, null, 0, 20, "7d"))
+          .thenReturn(new DrilldownPage(List.of(event), 1, 0, 20));
+
+      assertThat(
+              mvc.get()
+                  .uri("/api/metrics/drilldown")
+                  .param("domain", "tools")
+                  .param("page", "0")
+                  .param("size", "20")
+                  .param("range", "7d"))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.items[0].occurredAt")
+          .asString()
+          .isEqualTo("2026-07-26T08:00:00.123Z");
+    }
   }
 }
