@@ -61,6 +61,18 @@ interface OpenSourceRef {
   anchorBottom: number;
 }
 
+const USER_COLLAPSE_CHARS = 160;
+const LABEL_MAX_CHARS = 14;
+const POPOVER_WIDTH = 320;
+/** First-paint estimate only; real height is measured and re-applied. */
+const POPOVER_EST_HEIGHT = 96;
+/** Keep the panel flush against the chip (no floating gap). */
+const POPOVER_GAP = 2;
+const VIEWPORT_PAD = 12;
+/** Brief hover intent delay so quick sweeps across chips do not flash the panel. */
+const OPEN_DELAY_MS = 160;
+const CLOSE_DELAY_MS = 160;
+
 @Component({
   selector: 'app-chat-bubble-list',
   imports: [NxBubbleListComponent, MarkdownWithA2uiComponent],
@@ -273,28 +285,16 @@ export class ChatBubbleListComponent implements OnDestroy {
     openReference: 'Open',
   });
 
-  private readonly expandedUserIds = signal<ReadonlySet<string>>(new Set());
+  readonly #expandedUserIds = signal<ReadonlySet<string>>(new Set());
   /** Immediate chip hover highlight (no delay). */
-  private readonly hoveredChip = signal<{
+  readonly #hoveredChip = signal<{
     messageId: string;
     index: number;
   } | null>(null);
 
   readonly openRef = signal<OpenSourceRef | null>(null);
-  private openTimer: ReturnType<typeof setTimeout> | null = null;
-  private closeTimer: ReturnType<typeof setTimeout> | null = null;
-
-  private static readonly USER_COLLAPSE_CHARS = 160;
-  private static readonly LABEL_MAX_CHARS = 14;
-  private static readonly POPOVER_WIDTH = 320;
-  /** First-paint estimate only; real height is measured and re-applied. */
-  private static readonly POPOVER_EST_HEIGHT = 96;
-  /** Keep the panel flush against the chip (no floating gap). */
-  private static readonly POPOVER_GAP = 2;
-  private static readonly VIEWPORT_PAD = 12;
-  /** Brief hover intent delay so quick sweeps across chips do not flash the panel. */
-  private static readonly OPEN_DELAY_MS = 160;
-  private static readonly CLOSE_DELAY_MS = 160;
+  #openTimer: ReturnType<typeof setTimeout> | null = null;
+  #closeTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly userMessageTpl =
     viewChild<TemplateRef<NxBubbleSlotType>>('userMessageTpl');
@@ -443,12 +443,12 @@ export class ChatBubbleListComponent implements OnDestroy {
   sourceLabel(source: ChatSourceView): string {
     const host = this.sourceHostname(source);
     if (host) {
-      return this.truncate(host, ChatBubbleListComponent.LABEL_MAX_CHARS);
+      return this.truncate(host, LABEL_MAX_CHARS);
     }
     if (source.title?.trim()) {
-      return this.truncate(source.title.trim(), ChatBubbleListComponent.LABEL_MAX_CHARS);
+      return this.truncate(source.title.trim(), LABEL_MAX_CHARS);
     }
-    return this.truncate(source.text, ChatBubbleListComponent.LABEL_MAX_CHARS)
+    return this.truncate(source.text, LABEL_MAX_CHARS)
       || this.footerLabels().sources;
   }
 
@@ -507,7 +507,7 @@ export class ChatBubbleListComponent implements OnDestroy {
   }
 
   isChipHighlighted(messageId: string, index: number): boolean {
-    const hover = this.hoveredChip();
+    const hover = this.#hoveredChip();
     if (hover?.messageId === messageId && hover.index === index) {
       return true;
     }
@@ -547,12 +547,12 @@ export class ChatBubbleListComponent implements OnDestroy {
   }
 
   onChipPointerEnter(event: Event, messageId: string, index: number): void {
-    this.hoveredChip.set({ messageId, index });
+    this.#hoveredChip.set({ messageId, index });
     this.scheduleShowSourceRef(event, messageId, index);
   }
 
   onChipPointerLeave(): void {
-    this.hoveredChip.set(null);
+    this.#hoveredChip.set(null);
     this.scheduleCloseSourceRef();
   }
 
@@ -565,55 +565,55 @@ export class ChatBubbleListComponent implements OnDestroy {
     }
     // Switching between chips while open should feel instant; first open waits briefly.
     if (this.openRef()) {
-      this.openSourceRefAt(target, messageId, index);
+      this.#openSourceRefAt(target, messageId, index);
       return;
     }
-    this.openTimer = setTimeout(() => {
-      this.openTimer = null;
-      this.openSourceRefAt(target, messageId, index);
-    }, ChatBubbleListComponent.OPEN_DELAY_MS);
+    this.#openTimer = setTimeout(() => {
+      this.#openTimer = null;
+      this.#openSourceRefAt(target, messageId, index);
+    }, OPEN_DELAY_MS);
   }
 
-  private openSourceRefAt(
+  #openSourceRefAt(
     target: HTMLElement,
     messageId: string,
     index: number,
   ): void {
     const rect = target.getBoundingClientRect();
-    const x = this.clampPopoverX(rect.left);
+    const x = this.#clampPopoverX(rect.left);
     this.openRef.set({
       messageId,
       index,
       x,
-      y: this.popoverTopForHeight(
+      y: this.#popoverTopForHeight(
         rect.top,
         rect.bottom,
-        ChatBubbleListComponent.POPOVER_EST_HEIGHT,
+        POPOVER_EST_HEIGHT,
       ),
       anchorTop: rect.top,
       anchorBottom: rect.bottom,
     });
     // Measure after paint so the panel sits flush against the chip.
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => this.refinePopoverPosition());
+      requestAnimationFrame(() => this.#refinePopoverPosition());
     });
   }
 
-  private clampPopoverX(left: number): number {
-    const pad = ChatBubbleListComponent.VIEWPORT_PAD;
+  #clampPopoverX(left: number): number {
+    const pad = VIEWPORT_PAD;
     return Math.min(
       Math.max(pad, left),
-      window.innerWidth - ChatBubbleListComponent.POPOVER_WIDTH - pad,
+      window.innerWidth - POPOVER_WIDTH - pad,
     );
   }
 
-  private popoverTopForHeight(
+  #popoverTopForHeight(
     anchorTop: number,
     anchorBottom: number,
     height: number,
   ): number {
-    const pad = ChatBubbleListComponent.VIEWPORT_PAD;
-    const gap = ChatBubbleListComponent.POPOVER_GAP;
+    const pad = VIEWPORT_PAD;
+    const gap = POPOVER_GAP;
     const spaceBelow = window.innerHeight - anchorBottom - pad;
     if (spaceBelow >= height + gap) {
       return anchorBottom + gap;
@@ -621,7 +621,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     return Math.max(pad, anchorTop - height - gap);
   }
 
-  private refinePopoverPosition(): void {
+  #refinePopoverPosition(): void {
     const current = this.openRef();
     if (!current) {
       return;
@@ -634,8 +634,8 @@ export class ChatBubbleListComponent implements OnDestroy {
     if (height <= 0) {
       return;
     }
-    const x = this.clampPopoverX(current.x);
-    const y = this.popoverTopForHeight(
+    const x = this.#clampPopoverX(current.x);
+    const y = this.#popoverTopForHeight(
       current.anchorTop,
       current.anchorBottom,
       height,
@@ -648,53 +648,53 @@ export class ChatBubbleListComponent implements OnDestroy {
   scheduleCloseSourceRef(): void {
     this.cancelOpenSourceRef();
     this.cancelCloseSourceRef();
-    this.closeTimer = setTimeout(() => {
-      this.closeTimer = null;
+    this.#closeTimer = setTimeout(() => {
+      this.#closeTimer = null;
       this.openRef.set(null);
-    }, ChatBubbleListComponent.CLOSE_DELAY_MS);
+    }, CLOSE_DELAY_MS);
   }
 
   cancelOpenSourceRef(): void {
-    if (this.openTimer !== null) {
-      clearTimeout(this.openTimer);
-      this.openTimer = null;
+    if (this.#openTimer !== null) {
+      clearTimeout(this.#openTimer);
+      this.#openTimer = null;
     }
   }
 
   cancelCloseSourceRef(): void {
-    if (this.closeTimer !== null) {
-      clearTimeout(this.closeTimer);
-      this.closeTimer = null;
+    if (this.#closeTimer !== null) {
+      clearTimeout(this.#closeTimer);
+      this.#closeTimer = null;
     }
   }
 
   closeSourceRef(): void {
     this.cancelOpenSourceRef();
     this.cancelCloseSourceRef();
-    this.hoveredChip.set(null);
+    this.#hoveredChip.set(null);
     this.openRef.set(null);
   }
 
   isLongUserMessage(message: ChatMessageView): boolean {
     return (
       this.collapseLongUserMessages()
-      && message.content.length > ChatBubbleListComponent.USER_COLLAPSE_CHARS
+      && message.content.length > USER_COLLAPSE_CHARS
     );
   }
 
   isUserExpanded(messageId: string): boolean {
-    return this.expandedUserIds().has(messageId);
+    return this.#expandedUserIds().has(messageId);
   }
 
   userMessageText(message: ChatMessageView): string {
     if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
       return message.content;
     }
-    return `${message.content.slice(0, ChatBubbleListComponent.USER_COLLAPSE_CHARS).trimEnd()}…`;
+    return `${message.content.slice(0, USER_COLLAPSE_CHARS).trimEnd()}…`;
   }
 
   toggleUserExpanded(messageId: string): void {
-    this.expandedUserIds.update((current) => {
+    this.#expandedUserIds.update((current) => {
       const next = new Set(current);
       if (next.has(messageId)) {
         next.delete(messageId);

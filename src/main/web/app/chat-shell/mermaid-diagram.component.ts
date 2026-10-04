@@ -68,8 +68,8 @@ async function loadMermaid(): Promise<MermaidApi> {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MermaidDiagramComponent {
-  private readonly sanitizer = inject(DomSanitizer);
-  private readonly dialog = inject(ZardDialogService);
+  readonly #sanitizer = inject(DomSanitizer);
+  readonly #dialog = inject(ZardDialogService);
   protected readonly i18n = inject(I18nService);
 
   readonly source = input.required<string>();
@@ -88,7 +88,7 @@ export class MermaidDiagramComponent {
         this.svgMarkup.set('');
         this.hasError.set(false);
       });
-      void this.renderDiagram(source, diagramId);
+      void this.#renderDiagram(source, diagramId);
     });
   }
 
@@ -97,7 +97,7 @@ export class MermaidDiagramComponent {
     if (!markup) {
       return;
     }
-    this.dialog.create({
+    this.#dialog.create({
       zContent: MermaidDiagramZoomDialogComponent,
       zData: {
         svgMarkup: markup,
@@ -110,7 +110,7 @@ export class MermaidDiagramComponent {
     });
   }
 
-  private async renderDiagram(source: string, diagramId: string): Promise<void> {
+  async #renderDiagram(source: string, diagramId: string): Promise<void> {
     const trimmed = source.trim();
     if (!trimmed) {
       this.hasError.set(true);
@@ -131,7 +131,7 @@ export class MermaidDiagramComponent {
         return;
       }
       this.svgMarkup.set(clean);
-      this.safeSvg.set(this.sanitizer.bypassSecurityTrustHtml(clean));
+      this.safeSvg.set(this.#sanitizer.bypassSecurityTrustHtml(clean));
       this.hasError.set(false);
     } catch {
       this.safeSvg.set(null);

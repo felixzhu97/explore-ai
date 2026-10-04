@@ -109,8 +109,8 @@ import { ZardSidebarMenuButtonDirective } from '../ui/layout/sidebar-menu-button
   },
 })
 export class SidebarMoreMenuComponent {
-  private readonly i18n = inject(I18nService);
-  private readonly router = inject(Router);
+  readonly #i18n = inject(I18nService);
+  readonly #router = inject(Router);
 
   readonly sections = input.required<ModuleNavSection[]>();
   readonly isCollapsed = input(false);
@@ -124,13 +124,13 @@ export class SidebarMoreMenuComponent {
     return this.sections().flatMap(section => section.tabs);
   });
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
+  readonly #currentUrl = toSignal(
+    this.#router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.router.url),
-      startWith(this.router.url),
+      map(() => this.#router.url),
+      startWith(this.#router.url),
     ),
-    { initialValue: this.router.url },
+    { initialValue: this.#router.url },
   );
 
   readonly moreActive = computed(() => {
@@ -138,7 +138,7 @@ export class SidebarMoreMenuComponent {
   });
 
   isTabActive(path: string): boolean {
-    const url = this.currentUrl().split('?')[0];
+    const url = this.#currentUrl().split('?')[0];
     return url === path || url.startsWith(`${path}/`);
   }
 
@@ -147,7 +147,7 @@ export class SidebarMoreMenuComponent {
   `;
 
   get t() {
-    return this.i18n.t;
+    return this.#i18n.t;
   }
 
   triggerClass(): string {

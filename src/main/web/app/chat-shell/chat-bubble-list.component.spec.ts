@@ -61,6 +61,7 @@ describe('ChatBubbleListComponent', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   function stubChipRect(chip: HTMLButtonElement): void {
@@ -315,6 +316,8 @@ describe('ChatBubbleListComponent', () => {
     fixture.detectChanges();
 
     const chip = fixture.nativeElement.querySelector('[data-source-chips] button') as HTMLButtonElement;
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => frames.push(callback));
     vi.stubGlobal('innerHeight', 400);
     vi.stubGlobal('innerWidth', 1200);
     chip.getBoundingClientRect = () => ({
@@ -346,8 +349,9 @@ describe('ChatBubbleListComponent', () => {
     }) as DOMRect;
 
     // Measured height 72 → top = 320 - 72 - 2 = 246 (flush above chip)
-    interface WithRefine { refinePopoverPosition: () => void }
-    (component as unknown as WithRefine).refinePopoverPosition();
+    while (frames.length > 0) {
+      frames.shift()!(0);
+    }
     expect(component.openRef()?.y).toBe(246);
   });
 

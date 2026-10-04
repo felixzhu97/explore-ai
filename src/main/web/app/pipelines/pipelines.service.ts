@@ -64,45 +64,45 @@ export interface PipelineTemplateWriteRequest {
 
 @Injectable({ providedIn: 'root' })
 export class PipelinesService {
-  private readonly http = inject(HttpClient);
-  private readonly i18n = inject(I18nService);
-  private readonly templatesBase = `${API_BASE_URL}/pipelines/templates`;
+  readonly #http = inject(HttpClient);
+  readonly #i18n = inject(I18nService);
+  readonly #templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
   listAgents(): Observable<AgentType[]> {
-    return this.http.get<AgentType[]>(`${API_BASE_URL}/pipelines/agent-types`, {
-      params: this.langParams(),
+    return this.#http.get<AgentType[]>(`${API_BASE_URL}/pipelines/agent-types`, {
+      params: this.#langParams(),
     });
   }
 
   getHealth(agentType: string): Observable<AgentHealth> {
-    return this.http.get<AgentHealth>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
-      params: this.langParams(),
+    return this.#http.get<AgentHealth>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
+      params: this.#langParams(),
     });
   }
 
   listTemplateDefinitions(): Observable<PipelineTemplateDefinition[]> {
-    return this.http.get<PipelineTemplateDefinition[]>(`${API_BASE_URL}/pipelines/template-definitions`, {
-      params: this.langParams(),
+    return this.#http.get<PipelineTemplateDefinition[]>(`${API_BASE_URL}/pipelines/template-definitions`, {
+      params: this.#langParams(),
     });
   }
 
   listTemplates(): Observable<PipelineTemplate[]> {
-    return this.http.get<PipelineTemplate[]>(this.templatesBase);
+    return this.#http.get<PipelineTemplate[]>(this.#templatesBase);
   }
 
   createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
-    return this.http.post<PipelineTemplate>(
-      `${this.templatesBase}/from-template`,
+    return this.#http.post<PipelineTemplate>(
+      `${this.#templatesBase}/from-template`,
       { templateId },
-      { params: this.langParams() },
+      { params: this.#langParams() },
     );
   }
 
   createTemplate(
     request: PipelineTemplateWriteRequest,
   ): Observable<PipelineTemplate> {
-    return this.http.post<PipelineTemplate>(
-      this.templatesBase,
+    return this.#http.post<PipelineTemplate>(
+      this.#templatesBase,
       request,
     );
   }
@@ -111,8 +111,8 @@ export class PipelinesService {
     id: string,
     request: PipelineTemplateWriteRequest,
   ): Observable<PipelineTemplate> {
-    return this.http.put<PipelineTemplate>(
-      `${this.templatesBase}/${id}`,
+    return this.#http.put<PipelineTemplate>(
+      `${this.#templatesBase}/${id}`,
       request,
     );
   }
@@ -121,14 +121,14 @@ export class PipelinesService {
     id: string,
     enabled: boolean,
   ): Observable<PipelineTemplate> {
-    return this.http.patch<PipelineTemplate>(
-      `${this.templatesBase}/${id}/enabled`,
+    return this.#http.patch<PipelineTemplate>(
+      `${this.#templatesBase}/${id}/enabled`,
       { enabled },
     );
   }
 
   deleteTemplate(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.templatesBase}/${id}`);
+    return this.#http.delete<void>(`${this.#templatesBase}/${id}`);
   }
 
   invokeStream(
@@ -144,7 +144,7 @@ export class PipelinesService {
         ? `${API_BASE_URL}/pipelines/supervisor/invoke/sse`
         : `${API_BASE_URL}/pipelines/${agentType}/invoke/sse`;
 
-    return this.openSse(path, request, onChunk, onHandoff, onDone, onError);
+    return this.#openSse(path, request, onChunk, onHandoff, onDone, onError);
   }
 
   invokePipelineStream(
@@ -154,7 +154,7 @@ export class PipelinesService {
     onDone: () => void,
     onError: (error: Error) => void,
   ): { abort: () => void } {
-    return this.openSse(
+    return this.#openSse(
       `${API_BASE_URL}/pipelines/invoke/sse`,
       request,
       onChunk,
@@ -164,11 +164,11 @@ export class PipelinesService {
     );
   }
 
-  private langParams(): HttpParams {
-    return new HttpParams().set('lang', this.i18n.language());
+  #langParams(): HttpParams {
+    return new HttpParams().set('lang', this.#i18n.language());
   }
 
-  private openSse(
+  #openSse(
     path: string,
     body: unknown,
     onChunk: (token: string) => void,
@@ -177,7 +177,7 @@ export class PipelinesService {
     onError: (error: Error) => void,
   ): { abort: () => void } {
     const separator = path.includes('?') ? '&' : '?';
-    const url = `${path}${separator}lang=${encodeURIComponent(this.i18n.language())}`;
+    const url = `${path}${separator}lang=${encodeURIComponent(this.#i18n.language())}`;
     return streamSsePost(url, body, {
       onEvent: ({ eventType, data }) => {
         if (data === '[DONE]' || eventType === 'done') {

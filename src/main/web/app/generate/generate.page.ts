@@ -27,18 +27,18 @@ type GenerateTab = 'image' | 'tts';
   host: { class: 'flex h-full min-h-0 w-full min-w-0 flex-col' },
 })
 export class GeneratePageComponent {
-  private readonly router = inject(Router);
+  readonly #router = inject(Router);
   protected readonly i18n = inject(I18nService);
 
-  private readonly currentPath = toSignal(
-    this.router.events.pipe(
+  readonly #currentPath = toSignal(
+    this.#router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       map(event => event.urlAfterRedirects),
     ),
-    { initialValue: this.router.url },
+    { initialValue: this.#router.url },
   );
 
-  readonly activeTab = computed<GenerateTab>(() => this.currentPath().includes('/tts') ? 'tts' : 'image',
+  readonly activeTab = computed<GenerateTab>(() => this.#currentPath().includes('/tts') ? 'tts' : 'image',
   );
 
   readonly tabOptions = computed(() => {
@@ -50,6 +50,6 @@ export class GeneratePageComponent {
   });
 
   onTabChange(tab: GenerateTab): void {
-    void this.router.navigate(['/generate', tab]);
+    void this.#router.navigate(['/generate', tab]);
   }
 }

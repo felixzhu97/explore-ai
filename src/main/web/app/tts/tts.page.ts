@@ -35,7 +35,7 @@ import { ZardSliderComponent } from '../ui/slider';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TtsPageComponent implements OnInit, OnDestroy {
-  private readonly tts = inject(TtsService);
+  readonly #tts = inject(TtsService);
   protected readonly i18n = inject(I18nService);
 
   readonly text = signal('');
@@ -49,15 +49,15 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   readonly isPlaying = signal(false);
   readonly progress = signal(0);
 
-  private audioElement: HTMLAudioElement | null = null;
+  #audioElement: HTMLAudioElement | null = null;
 
   ngOnInit() {
     this.loadVoices();
   }
 
   ngOnDestroy() {
-    if (this.audioElement) {
-      this.audioElement.pause();
+    if (this.#audioElement) {
+      this.#audioElement.pause();
     }
     if (this.audioUrl()) {
       URL.revokeObjectURL(this.audioUrl()!);
@@ -65,7 +65,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   loadVoices() {
-    this.tts.getVoices().subscribe({
+    this.#tts.getVoices().subscribe({
       next: (voices) => {
         this.availableVoices.set(voices);
         const defaultVoice = voices.find((v: Voice) => v.isDefault) || voices[0];
@@ -105,7 +105,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     this.isSynthesizing.set(true);
     this.error.set(null);
 
-    this.tts
+    this.#tts
       .synthesizeSpeech({
         text: this.text(),
         voice: this.voice() || undefined,
@@ -122,15 +122,15 @@ export class TtsPageComponent implements OnInit, OnDestroy {
           this.audioUrl.set(url);
           this.audioBlob.set(blob);
 
-          this.audioElement = new Audio(url);
-          this.audioElement.addEventListener('ended', () => {
+          this.#audioElement = new Audio(url);
+          this.#audioElement.addEventListener('ended', () => {
             return this.isPlaying.set(false);
           });
-          this.audioElement.addEventListener('timeupdate', () => {
-            if (this.audioElement) {
-              const duration = this.audioElement.duration;
+          this.#audioElement.addEventListener('timeupdate', () => {
+            if (this.#audioElement) {
+              const duration = this.#audioElement.duration;
               const progressValue = duration > 0
-                ? (this.audioElement.currentTime / duration) * 100
+                ? (this.#audioElement.currentTime / duration) * 100
                 : 0;
               return this.progress.set(progressValue);
             }
@@ -147,13 +147,13 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   }
 
   togglePlayPause() {
-    if (!this.audioElement) return;
+    if (!this.#audioElement) return;
 
     if (this.isPlaying()) {
-      this.audioElement.pause();
+      this.#audioElement.pause();
       this.isPlaying.set(false);
     } else {
-      this.audioElement.play();
+      this.#audioElement.play();
       this.isPlaying.set(true);
     }
   }
@@ -161,7 +161,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   download() {
     const blob = this.audioBlob();
     if (blob) {
-      this.tts.download(blob, `speech_${Date.now()}.mp3`);
+      this.#tts.download(blob, `speech_${Date.now()}.mp3`);
     }
   }
 }

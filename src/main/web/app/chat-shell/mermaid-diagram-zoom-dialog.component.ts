@@ -39,11 +39,11 @@ export interface MermaidDiagramZoomData {
   viewProviders: [provideIcons({ lucideDownload })],
 })
 export class MermaidDiagramZoomDialogComponent {
-  private readonly sanitizer = inject(DomSanitizer);
+  readonly #sanitizer = inject(DomSanitizer);
   protected readonly i18n = inject(I18nService);
   readonly data = inject<MermaidDiagramZoomData>(Z_MODAL_DATA);
 
-  readonly safeSvg = this.sanitizer.bypassSecurityTrustHtml(this.data.svgMarkup);
+  readonly safeSvg = this.#sanitizer.bypassSecurityTrustHtml(this.data.svgMarkup);
 
   download(): void {
     downloadSvgMarkup(this.data.svgMarkup, 'diagram.svg');

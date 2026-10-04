@@ -62,10 +62,10 @@ const DEFAULT_TOP_K = 5;
 
 @Injectable({ providedIn: 'root' })
 export class RagService {
-  private readonly http = inject(HttpClient);
-  private readonly notifications = inject(NotificationService);
-  private readonly i18n = inject(I18nService);
-  private readonly sessionId = `session_${Date.now()}`;
+  readonly #http = inject(HttpClient);
+  readonly #notifications = inject(NotificationService);
+  readonly #i18n = inject(I18nService);
+  readonly #sessionId = `session_${Date.now()}`;
 
   // Document state
   readonly availableDocuments = signal<RagDocumentItem[]>([]);
@@ -88,7 +88,7 @@ export class RagService {
 
   fetchAvailableDocuments(): void {
     this.isLoadingDocuments.set(true);
-    this.getDocuments().subscribe({
+    this.#getDocuments().subscribe({
       next: (data) => {
         const documents = (data.documents || []).map(item => ({
           id: item.id,
@@ -100,7 +100,7 @@ export class RagService {
         this.selectedDocumentIds.set(ids);
       },
       error: () => {
-        this.notifications.showError(this.i18n.t().common.errors.loadFailed);
+        this.#notifications.showError(this.#i18n.t().common.errors.loadFailed);
         this.availableDocuments.set([]);
       },
       complete: () => {
@@ -134,7 +134,7 @@ export class RagService {
 
   deleteDocument(documentId: string): void {
     if (!documentId || documentId === 'undefined' || documentId === 'null') {
-      this.notifications.showError('Cannot delete: document ID is invalid');
+      this.#notifications.showError('Cannot delete: document ID is invalid');
       return;
     }
 
@@ -142,7 +142,7 @@ export class RagService {
       return new Set(ids).add(documentId);
     });
 
-    this.deleteDocumentRequest(documentId).subscribe({
+    this.#deleteDocumentRequest(documentId).subscribe({
       next: () => {
         setTimeout(() => {
           this.availableDocuments.update((documents) => {
@@ -158,7 +158,7 @@ export class RagService {
             next.delete(documentId);
             return next;
           });
-          this.notifications.showSuccess(this.i18n.t().rag.documentDeleted);
+          this.#notifications.showSuccess(this.#i18n.t().rag.documentDeleted);
         }, 200);
       },
       error: () => {
@@ -167,7 +167,7 @@ export class RagService {
           next.delete(documentId);
           return next;
         });
-        this.notifications.showError(this.i18n.t().rag.errors.deleteFailed);
+        this.#notifications.showError(this.#i18n.t().rag.errors.deleteFailed);
       },
     });
   }
@@ -177,8 +177,8 @@ export class RagService {
       f => !this.pendingFiles().some(pf => pf.name === f.name),
     );
     this.pendingFiles.update(prev => [...prev, ...newFiles]);
-    this.notifications.showInfo(
-      this.i18n.t().rag.fileSelected.replace('{count}', newFiles.length.toString()),
+    this.#notifications.showInfo(
+      this.#i18n.t().rag.fileSelected.replace('{count}', newFiles.length.toString()),
     );
   }
 
@@ -217,7 +217,7 @@ export class RagService {
         return next;
       });
 
-      this.uploadDocument(file).pipe(finalize(settle)).subscribe({
+      this.#uploadDocument(file).pipe(finalize(settle)).subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress && event.total) {
             const progress = Math.round((100 * event.loaded) / event.total);
@@ -245,8 +245,8 @@ export class RagService {
             });
             return next;
           });
-          this.notifications.showSuccess(
-            this.i18n.t().rag.uploadSuccess.replace('{name}', file.name),
+          this.#notifications.showSuccess(
+            this.#i18n.t().rag.uploadSuccess.replace('{name}', file.name),
           );
 
           if (index === this.pendingFiles().length - 1) {
@@ -263,12 +263,12 @@ export class RagService {
               id: documentId,
               title: file.name,
               status: 'error',
-              error: this.i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
+              error: this.#i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
             });
             return next;
           });
-          this.notifications.showError(
-            this.i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
+          this.#notifications.showError(
+            this.#i18n.t().rag.errors.uploadFailed.replace('{name}', file.name),
           );
         },
       });
@@ -310,7 +310,7 @@ export class RagService {
 
     const requestBody: RagQuery = {
       question: userMessage.content,
-      sessionId: this.sessionId,
+      sessionId: this.#sessionId,
       topK: DEFAULT_TOP_K,
       temperature: DEFAULT_TEMPERATURE,
     };
@@ -319,7 +319,7 @@ export class RagService {
       requestBody.documentIds = Array.from(this.selectedDocumentIds());
     }
 
-    this.ragChat(
+    this.#ragChat(
       requestBody,
       (chunk: string) => {
         this.messages.update(messages => messages.map((message) => {
@@ -361,31 +361,31 @@ export class RagService {
     );
   }
 
-  private getDocuments(): Observable<DocumentListResponse> {
-    return this.http
+  #getDocuments(): Observable<DocumentListResponse> {
+    return this.#http
       .get<DocumentListResponse>(`${API_BASE_URL}/rag/documents`)
       .pipe(catchError(() => of({ documents: [] })));
   }
 
   /** Needs app-level withXhr(); FetchBackend cannot emit upload progress (AI-249). */
-  private uploadDocument(
+  #uploadDocument(
     file: File,
     title?: string,
   ): Observable<HttpEvent<{ id: string }>> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title ?? file.name);
-    return this.http.post<{ id: string }>(`${API_BASE_URL}/rag/documents/upload`, formData, {
+    return this.#http.post<{ id: string }>(`${API_BASE_URL}/rag/documents/upload`, formData, {
       reportProgress: true,
       observe: 'events',
     });
   }
 
-  private deleteDocumentRequest(documentId: string): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/rag/documents/${documentId}`);
+  #deleteDocumentRequest(documentId: string): Observable<void> {
+    return this.#http.delete<void>(`${API_BASE_URL}/rag/documents/${documentId}`);
   }
 
-  private ragChat(
+  #ragChat(
     query: RagQuery,
     onChunk: (text: string) => void,
     onSources: (sources: SourceDocument[]) => void,

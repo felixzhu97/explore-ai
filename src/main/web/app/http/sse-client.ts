@@ -103,8 +103,8 @@ export interface SseEventPayload {
 
 /** Accumulates SSE data lines until a blank line, joining with `\n` per SSE spec. */
 export class SseEventAssembler {
-  private eventType = '';
-  private dataLines: string[] = [];
+  #eventType = '';
+  #dataLines: string[] = [];
 
   pushLine(line: string): SseEventPayload | null {
     if (!line) {
@@ -112,7 +112,7 @@ export class SseEventAssembler {
     }
 
     if (line.startsWith('event:')) {
-      this.eventType = line.slice(6).trim();
+      this.#eventType = line.slice(6).trim();
       return null;
     }
 
@@ -121,24 +121,24 @@ export class SseEventAssembler {
       if (data.startsWith(' ')) {
         data = data.slice(1);
       }
-      this.dataLines.push(data);
+      this.#dataLines.push(data);
     }
 
     return null;
   }
 
   flush(): SseEventPayload | null {
-    if (this.dataLines.length === 0) {
-      this.eventType = '';
+    if (this.#dataLines.length === 0) {
+      this.#eventType = '';
       return null;
     }
 
     const payload: SseEventPayload = {
-      eventType: this.eventType,
-      data: this.dataLines.join('\n'),
+      eventType: this.#eventType,
+      data: this.#dataLines.join('\n'),
     };
-    this.dataLines = [];
-    this.eventType = '';
+    this.#dataLines = [];
+    this.#eventType = '';
     return payload;
   }
 }

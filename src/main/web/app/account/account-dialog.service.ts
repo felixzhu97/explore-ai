@@ -8,10 +8,10 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AccountDialogService {
-  private readonly dialog = inject(ZardDialogService);
+  readonly #dialog = inject(ZardDialogService);
 
   openLogin(): void {
-    this.dialog.create({
+    this.#dialog.create({
       zContent: AccountLoginDialogComponent,
       zHideFooter: true,
       zWidth: '24rem',
@@ -21,7 +21,7 @@ export class AccountDialogService {
   }
 
   openLogout(data: AccountLogoutDialogData): void {
-    this.dialog.create({
+    this.#dialog.create({
       zContent: AccountLogoutDialogComponent,
       zData: data,
       zHideFooter: true,

@@ -49,6 +49,8 @@ interface ApplyableTemplate {
   savedTemplateId?: string;
 }
 
+const DEFAULT_BRIEF = 'Follow the configured agent pipeline for the user task.';
+
 @Component({
   selector: 'app-pipelines-canvas',
   imports: [FFlowModule, FormsModule, ZardButtonComponent],
@@ -57,9 +59,9 @@ interface ApplyableTemplate {
   host: { class: 'flex min-h-0 flex-1 overflow-hidden' },
 })
 export class PipelinesCanvasComponent implements OnInit {
-  private readonly cdr = inject(ChangeDetectorRef);
-  private readonly pipelinesApi = inject(PipelinesService);
-  private readonly notifications = inject(NotificationService);
+  readonly #cdr = inject(ChangeDetectorRef);
+  readonly #pipelinesApi = inject(PipelinesService);
+  readonly #notifications = inject(NotificationService);
   readonly i18n = inject(I18nService);
 
   readonly agents = input.required<AgentType[]>();
@@ -96,12 +98,9 @@ export class PipelinesCanvasComponent implements OnInit {
 
   readonly availableToolKeys = ['web', 'weather', 'datetime', 'document'] as const;
 
-  private nodeSeq = 0;
-  private connectionSeq = 0;
-  private activeBrief = '';
-
-  private static readonly DEFAULT_BRIEF =
-    'Follow the configured agent pipeline for the user task.';
+  #nodeSeq = 0;
+  #connectionSeq = 0;
+  #activeBrief = '';
 
   readonly workers = computed(() => this.agents().filter(agent => !agent.supervisor));
 
@@ -118,13 +117,13 @@ export class PipelinesCanvasComponent implements OnInit {
   constructor() {
     effect(() => {
       this.i18n.language();
-      this.reloadBuiltinTemplates();
+      this.#reloadBuiltinTemplates();
     });
   }
 
   ngOnInit(): void {
-    this.reloadBuiltinTemplates();
-    this.reloadSavedTemplates();
+    this.#reloadBuiltinTemplates();
+    this.#reloadSavedTemplates();
   }
 
   openAgentPicker(): void {
@@ -143,13 +142,13 @@ export class PipelinesCanvasComponent implements OnInit {
     if (!this.isEditMode() || agent.supervisor) {
       return;
     }
-    this.addNode(agent, {
+    this.#addNode(agent, {
       x: 100 + this.nodes().length * 220,
       y: 120,
     });
     this.showAgentPicker.set(false);
     this.validationCleared.emit();
-    this.cdr.markForCheck();
+    this.#cdr.markForCheck();
   }
 
   onCreateConnection(event: FCreateConnectionEvent): void {
@@ -167,18 +166,18 @@ export class PipelinesCanvasComponent implements OnInit {
     if (exists) {
       return;
     }
-    this.connectionSeq += 1;
+    this.#connectionSeq += 1;
     this.connections.update(list => [
       ...list,
       {
-        id: `edge-${this.connectionSeq}`,
+        id: `edge-${this.#connectionSeq}`,
         sourceNodeId,
         targetNodeId,
       },
     ]);
-    this.emitGraph();
+    this.#emitGraph();
     this.validationCleared.emit();
-    this.cdr.markForCheck();
+    this.#cdr.markForCheck();
   }
 
   onMoveNodes(event: FMoveNodesEvent): void {
@@ -191,8 +190,8 @@ export class PipelinesCanvasComponent implements OnInit {
       return position ? { ...node, position: { x: position.x, y: position.y } } : node;
     }),
     );
-    this.emitGraph();
-    this.cdr.markForCheck();
+    this.#emitGraph();
+    this.#cdr.markForCheck();
   }
 
   removeNode(nodeId: string): void {
@@ -206,9 +205,9 @@ export class PipelinesCanvasComponent implements OnInit {
     this.connections.update(list => list.filter(
       edge => edge.sourceNodeId !== nodeId && edge.targetNodeId !== nodeId,
     ));
-    this.emitGraph();
+    this.#emitGraph();
     this.validationCleared.emit();
-    this.cdr.markForCheck();
+    this.#cdr.markForCheck();
   }
 
   openNodeEditor(node: PipelineNode): void {
@@ -258,8 +257,8 @@ export class PipelinesCanvasComponent implements OnInit {
       return { ...node, ...snapshot };
     }));
     this.editingNodeId.set(null);
-    this.emitGraph();
-    this.cdr.markForCheck();
+    this.#emitGraph();
+    this.#cdr.markForCheck();
   }
 
   backToGallery(): void {
@@ -271,12 +270,12 @@ export class PipelinesCanvasComponent implements OnInit {
     this.activeTemplateName.set('');
     this.editingTemplateId.set(null);
     this.isDraft.set(false);
-    this.activeBrief = '';
-    this.emitGraph();
+    this.#activeBrief = '';
+    this.#emitGraph();
     this.validationCleared.emit();
     this.templateHintChanged.emit(null);
-    this.reloadSavedTemplates();
-    this.cdr.markForCheck();
+    this.#reloadSavedTemplates();
+    this.#cdr.markForCheck();
   }
 
   addWorkflow(): void {
@@ -289,17 +288,17 @@ export class PipelinesCanvasComponent implements OnInit {
     this.activeTemplateName.set(
       this.i18n.t().pipelines.templates.newTemplateName,
     );
-    this.activeBrief = PipelinesCanvasComponent.DEFAULT_BRIEF;
+    this.#activeBrief = DEFAULT_BRIEF;
     this.task.set('');
     this.workspaceMode.set('edit');
-    this.emitGraph();
+    this.#emitGraph();
     this.validationCleared.emit();
     this.templateHintChanged.emit(null);
-    this.cdr.markForCheck();
+    this.#cdr.markForCheck();
   }
 
   editTemplate(template: PipelineTemplateDefinition): void {
-    this.applyTemplate({
+    this.#applyTemplate({
       id: template.id,
       name: template.name,
       description: template.description,
@@ -310,7 +309,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   useTemplate(template: PipelineTemplateDefinition): void {
-    this.applyTemplate({
+    this.#applyTemplate({
       id: template.id,
       name: template.name,
       description: template.description,
@@ -329,17 +328,17 @@ export class PipelinesCanvasComponent implements OnInit {
       return;
     }
     this.addingTemplateId.set(template.id);
-    this.pipelinesApi.createTemplateFromDefinition(template.id).subscribe({
+    this.#pipelinesApi.createTemplateFromDefinition(template.id).subscribe({
       next: () => {
         this.addingTemplateId.set(null);
-        this.notifications.showSuccess(
+        this.#notifications.showSuccess(
           this.i18n.t().pipelines.templates.added,
         );
-        this.reloadSavedTemplates();
+        this.#reloadSavedTemplates();
       },
       error: () => {
         this.addingTemplateId.set(null);
-        this.notifications.showError(
+        this.#notifications.showError(
           this.i18n.t().pipelines.templates.errors.saveFailed,
         );
       },
@@ -347,7 +346,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   editSavedTemplate(template: PipelineTemplate): void {
-    this.applyTemplate({
+    this.#applyTemplate({
       id: template.id,
       name: template.name,
       description: template.description,
@@ -359,7 +358,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   useSavedTemplate(template: PipelineTemplate): void {
-    this.applyTemplate({
+    this.#applyTemplate({
       id: template.id,
       name: template.name,
       description: template.description,
@@ -378,10 +377,10 @@ export class PipelinesCanvasComponent implements OnInit {
     if (!globalThis.confirm(message)) {
       return;
     }
-    this.pipelinesApi.deleteTemplate(template.id).subscribe({
-      next: () => this.reloadSavedTemplates(),
+    this.#pipelinesApi.deleteTemplate(template.id).subscribe({
+      next: () => this.#reloadSavedTemplates(),
       error: () => {
-        this.notifications.showError(
+        this.#notifications.showError(
           this.i18n.t().pipelines.templates.errors.deleteFailed,
         );
       },
@@ -390,20 +389,20 @@ export class PipelinesCanvasComponent implements OnInit {
 
   switchToUse(): void {
     if (this.nodes().length === 0) {
-      this.notifications.showWarning(
+      this.#notifications.showWarning(
         this.i18n.t().pipelines.templates.canvasEmpty,
       );
       return;
     }
     this.cancelNodeEdit();
     this.showAgentPicker.set(false);
-    this.persistTemplateIfNeeded(() => {
+    this.#persistTemplateIfNeeded(() => {
       this.workspaceMode.set('use');
       this.templateApplied.emit({
         topic: this.task().trim() || this.activeTemplateName(),
-        brief: this.activeBrief,
+        brief: this.#activeBrief,
       });
-      this.cdr.markForCheck();
+      this.#cdr.markForCheck();
     });
   }
 
@@ -412,7 +411,7 @@ export class PipelinesCanvasComponent implements OnInit {
       return;
     }
     this.workspaceMode.set('edit');
-    this.cdr.markForCheck();
+    this.#cdr.markForCheck();
   }
 
   templateOrder(agentTypes: readonly string[]): string {
@@ -434,25 +433,25 @@ export class PipelinesCanvasComponent implements OnInit {
     return connectorInId(nodeId);
   }
 
-  private applyTemplate(template: ApplyableTemplate, mode: 'edit' | 'use'): void {
+  #applyTemplate(template: ApplyableTemplate, mode: 'edit' | 'use'): void {
     this.cancelNodeEdit();
     this.showAgentPicker.set(false);
-    const seed = this.nodeSeq + 1;
+    const seed = this.#nodeSeq + 1;
     const result = applyPipelineTemplate(
       { id: template.id, agentTypes: template.agentTypes },
       this.workers(),
       seed,
     );
-    this.nodeSeq = seed + result.graph.nodes.length;
-    this.connectionSeq = seed + result.graph.connections.length;
+    this.#nodeSeq = seed + result.graph.nodes.length;
+    this.#connectionSeq = seed + result.graph.connections.length;
     this.nodes.set(result.graph.nodes);
     this.connections.set(result.graph.connections);
     this.workspaceMode.set(mode);
     this.activeTemplateName.set(template.name);
-    this.activeBrief = template.briefPrompt || PipelinesCanvasComponent.DEFAULT_BRIEF;
+    this.#activeBrief = template.briefPrompt || DEFAULT_BRIEF;
     this.editingTemplateId.set(template.savedTemplateId ?? null);
     this.isDraft.set(false);
-    this.emitGraph();
+    this.#emitGraph();
     this.validationCleared.emit();
     const defaultTask = template.shortTopic.trim();
     if (defaultTask) {
@@ -460,7 +459,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }
     this.templateApplied.emit({
       topic: defaultTask || template.name,
-      brief: this.activeBrief,
+      brief: this.#activeBrief,
     });
     if (result.skippedAgentTypes.length > 0) {
       const hint = this.i18n.t().pipelines.templates.skipped.replace(
@@ -471,18 +470,18 @@ export class PipelinesCanvasComponent implements OnInit {
     } else {
       this.templateHintChanged.emit(null);
     }
-    this.cdr.markForCheck();
+    this.#cdr.markForCheck();
   }
 
-  private persistTemplateIfNeeded(done: () => void): void {
+  #persistTemplateIfNeeded(done: () => void): void {
     const shouldPersist = this.isDraft() || this.editingTemplateId() != null;
     if (!shouldPersist) {
       done();
       return;
     }
-    const request = this.buildTemplateWriteRequest();
+    const request = this.#buildTemplateWriteRequest();
     if (!request) {
-      this.notifications.showWarning(
+      this.#notifications.showWarning(
         this.i18n.t().pipelines.templates.canvasEmpty,
       );
       return;
@@ -490,27 +489,27 @@ export class PipelinesCanvasComponent implements OnInit {
     this.isSaving.set(true);
     const savedTemplateId = this.editingTemplateId();
     const request$ = savedTemplateId
-      ? this.pipelinesApi.updateTemplate(savedTemplateId, request)
-      : this.pipelinesApi.createTemplate(request);
+      ? this.#pipelinesApi.updateTemplate(savedTemplateId, request)
+      : this.#pipelinesApi.createTemplate(request);
     request$.subscribe({
       next: (saved) => {
         this.isSaving.set(false);
         this.editingTemplateId.set(saved.id);
         this.isDraft.set(false);
         this.activeTemplateName.set(saved.name);
-        this.reloadSavedTemplates();
+        this.#reloadSavedTemplates();
         done();
       },
       error: () => {
         this.isSaving.set(false);
-        this.notifications.showError(
+        this.#notifications.showError(
           this.i18n.t().pipelines.templates.errors.saveFailed,
         );
       },
     });
   }
 
-  private buildTemplateWriteRequest(): PipelineTemplateWriteRequest | null {
+  #buildTemplateWriteRequest(): PipelineTemplateWriteRequest | null {
     const agentTypes = this.nodes().map(node => node.agentType);
     if (agentTypes.length === 0) {
       return null;
@@ -522,34 +521,34 @@ export class PipelinesCanvasComponent implements OnInit {
       description: '',
       agentTypes,
       shortTopic: this.task().trim(),
-      briefPrompt: this.activeBrief.trim() || PipelinesCanvasComponent.DEFAULT_BRIEF,
+      briefPrompt: this.#activeBrief.trim() || DEFAULT_BRIEF,
     };
   }
 
-  private reloadBuiltinTemplates(): void {
-    this.pipelinesApi.listTemplateDefinitions().subscribe({
+  #reloadBuiltinTemplates(): void {
+    this.#pipelinesApi.listTemplateDefinitions().subscribe({
       next: (templates) => {
         this.builtinTemplates.set(templates);
-        this.cdr.markForCheck();
+        this.#cdr.markForCheck();
       },
       error: () => undefined,
     });
   }
 
-  private reloadSavedTemplates(): void {
-    this.pipelinesApi.listTemplates().subscribe({
+  #reloadSavedTemplates(): void {
+    this.#pipelinesApi.listTemplates().subscribe({
       next: (savedTemplates) => {
         this.savedTemplates.set(savedTemplates);
-        this.cdr.markForCheck();
+        this.#cdr.markForCheck();
       },
       error: () => undefined,
     });
   }
 
-  private addNode(agent: AgentType, position: { x: number; y: number }): void {
-    const chainTailId = this.findChainTailId();
-    this.nodeSeq += 1;
-    const nodeId = `node-${this.nodeSeq}`;
+  #addNode(agent: AgentType, position: { x: number; y: number }): void {
+    const chainTailId = this.#findChainTailId();
+    this.#nodeSeq += 1;
+    const nodeId = `node-${this.#nodeSeq}`;
     this.nodes.update(list => [
       ...list,
       {
@@ -563,20 +562,20 @@ export class PipelinesCanvasComponent implements OnInit {
       },
     ]);
     if (chainTailId) {
-      this.connectionSeq += 1;
+      this.#connectionSeq += 1;
       this.connections.update(list => [
         ...list,
         {
-          id: `edge-${this.connectionSeq}`,
+          id: `edge-${this.#connectionSeq}`,
           sourceNodeId: chainTailId,
           targetNodeId: nodeId,
         },
       ]);
     }
-    this.emitGraph();
+    this.#emitGraph();
   }
 
-  private findChainTailId(): string | null {
+  #findChainTailId(): string | null {
     const nodes = this.nodes();
     if (nodes.length === 0) {
       return null;
@@ -589,7 +588,7 @@ export class PipelinesCanvasComponent implements OnInit {
     return nodes[nodes.length - 1].id;
   }
 
-  private emitGraph(): void {
+  #emitGraph(): void {
     this.graphChanged.emit(this.graph());
   }
 }

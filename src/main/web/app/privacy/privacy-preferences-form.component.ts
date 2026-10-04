@@ -80,8 +80,8 @@ export interface PrivacyPreferencesModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivacyPreferencesFormComponent implements OnInit {
-  private readonly consent = inject(PrivacyConsentService);
-  private readonly notify = inject(NotificationService);
+  readonly #consent = inject(PrivacyConsentService);
+  readonly #notify = inject(NotificationService);
 
   readonly copy = input.required<PrivacyPageCopy>();
 
@@ -108,7 +108,7 @@ export class PrivacyPreferencesFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const stored = this.consent.consent();
+    const stored = this.#consent.consent();
     this.preferencesModel.set({
       analytics: stored.analytics,
       contactEmail: stored.contactEmail,
@@ -119,9 +119,9 @@ export class PrivacyPreferencesFormComponent implements OnInit {
     submit(this.preferencesForm, async () => {
       this.saving.set(true);
       const { analytics, contactEmail } = this.preferencesModel();
-      this.consent.savePreferences({ analytics, contactEmail: contactEmail.trim() });
+      this.#consent.savePreferences({ analytics, contactEmail: contactEmail.trim() });
       this.preferencesForm().reset(this.preferencesModel());
-      this.notify.showSuccess(this.copy().savePreferencesSuccess);
+      this.#notify.showSuccess(this.copy().savePreferencesSuccess);
       this.saving.set(false);
     });
   }

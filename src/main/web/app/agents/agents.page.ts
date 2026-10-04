@@ -29,8 +29,8 @@ const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
   },
 })
 export class AgentsPageComponent implements OnInit {
-  private readonly agentsApi = inject(AgentsService);
-  private readonly notifications = inject(NotificationService);
+  readonly #agentsApi = inject(AgentsService);
+  readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
   readonly catalog = signal<AgentType[]>([]);
@@ -59,7 +59,7 @@ export class AgentsPageComponent implements OnInit {
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);
-    this.agentsApi.listCatalog().subscribe({
+    this.#agentsApi.listCatalog().subscribe({
       next: (catalog) => {
         this.catalog.set(catalog);
         this.isLoading.set(false);
@@ -69,7 +69,7 @@ export class AgentsPageComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
-    this.agentsApi.listSavedAgents().subscribe({
+    this.#agentsApi.listSavedAgents().subscribe({
       next: savedAgents => this.savedAgents.set(savedAgents),
       error: () => undefined,
     });
@@ -154,13 +154,13 @@ export class AgentsPageComponent implements OnInit {
     this.error.set(null);
     const id = this.editingId();
     const request$ = id
-      ? this.agentsApi.update(id, request)
-      : this.agentsApi.create({ ...request, typeKey });
+      ? this.#agentsApi.update(id, request)
+      : this.#agentsApi.create({ ...request, typeKey });
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
         this.showForm.set(false);
-        this.notifications.showSuccess(this.i18n.t().common.success);
+        this.#notifications.showSuccess(this.i18n.t().common.success);
         this.reload();
       },
       error: () => {
@@ -171,7 +171,7 @@ export class AgentsPageComponent implements OnInit {
   }
 
   toggleEnabled(agent: SavedAgent): void {
-    this.agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
+    this.#agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().agents.errors.updateFailed),
     });
@@ -182,7 +182,7 @@ export class AgentsPageComponent implements OnInit {
     if (!globalThis.confirm(message)) {
       return;
     }
-    this.agentsApi.delete(agent.id).subscribe({
+    this.#agentsApi.delete(agent.id).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().agents.errors.deleteFailed),
     });

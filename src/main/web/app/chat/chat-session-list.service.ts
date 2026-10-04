@@ -8,13 +8,13 @@ import { ChatService } from './chat.service';
 
 @Injectable()
 export class ChatSessionListService implements SessionList {
-  private readonly chatService = inject(ChatService);
+  readonly #chatService = inject(ChatService);
 
-  private readonly pinnedIds = signal<string[]>(readPinnedIds());
+  readonly #pinnedIds = signal<string[]>(readPinnedIds());
 
   readonly sessions = computed<SidebarSession[]>(() => {
-    const pinned = new Set(this.pinnedIds());
-    return this.chatService.sessions()
+    const pinned = new Set(this.#pinnedIds());
+    return this.#chatService.sessions()
       .filter(session => session.messageCount > 0)
       .map(session => ({
         id: session.sessionId,
@@ -24,44 +24,44 @@ export class ChatSessionListService implements SessionList {
       }));
   });
 
-  readonly activeSessionId = this.chatService.activeSessionId;
+  readonly activeSessionId = this.#chatService.activeSessionId;
 
   initializeSessions(): void {
-    this.chatService.initializeSessions();
+    this.#chatService.initializeSessions();
   }
 
   createSession(): void {
-    this.chatService.createSession();
+    this.#chatService.createSession();
   }
 
   selectSession(sessionId: string): void {
-    this.chatService.selectSession(sessionId, { navigateToChat: true });
+    this.#chatService.selectSession(sessionId, { navigateToChat: true });
   }
 
   deleteSession(sessionId: string): void {
-    this.removePinnedId(sessionId);
-    this.chatService.deleteSession(sessionId);
+    this.#removePinnedId(sessionId);
+    this.#chatService.deleteSession(sessionId);
   }
 
   togglePin(sessionId: string): void {
-    const current = this.pinnedIds();
+    const current = this.#pinnedIds();
     if (current.includes(sessionId)) {
-      this.writePinnedIds(current.filter(id => id !== sessionId));
+      this.#writePinnedIds(current.filter(id => id !== sessionId));
       return;
     }
-    this.writePinnedIds([...current, sessionId]);
+    this.#writePinnedIds([...current, sessionId]);
   }
 
-  private removePinnedId(sessionId: string): void {
-    const current = this.pinnedIds();
+  #removePinnedId(sessionId: string): void {
+    const current = this.#pinnedIds();
     if (!current.includes(sessionId)) {
       return;
     }
-    this.writePinnedIds(current.filter(id => id !== sessionId));
+    this.#writePinnedIds(current.filter(id => id !== sessionId));
   }
 
-  private writePinnedIds(ids: string[]): void {
-    this.pinnedIds.set(ids);
+  #writePinnedIds(ids: string[]): void {
+    this.#pinnedIds.set(ids);
     try {
       localStorage.setItem(STORAGE_KEYS.CHAT_PINNED_SESSION_IDS, JSON.stringify(ids));
     } catch {

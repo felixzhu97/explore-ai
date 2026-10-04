@@ -25,19 +25,19 @@ export interface TtsRequest {
 
 @Injectable({ providedIn: 'root' })
 export class TtsService {
-  private readonly http = inject(HttpClient);
+  readonly #http = inject(HttpClient);
 
   getVoices(): Observable<Voice[]> {
-    return this.http
+    return this.#http
       .get<{ voices: (Voice | string)[] }>(`${API_BASE_URL}/audio/voices`)
       .pipe(
-        map(response => this.normalizeVoices(response.voices)),
+        map(response => this.#normalizeVoices(response.voices)),
         catchError(() => of(DEFAULT_VOICES)),
       );
   }
 
   synthesizeSpeech(params: TtsRequest): Observable<Blob> {
-    return this.http.post<Blob>(
+    return this.#http.post<Blob>(
       `${API_BASE_URL}/audio/speech`,
       {
         text: params.text,
@@ -55,7 +55,7 @@ export class TtsService {
     downloadBlob(blob, filename);
   }
 
-  private normalizeVoices(voices: (Voice | string)[]): Voice[] {
+  #normalizeVoices(voices: (Voice | string)[]): Voice[] {
     if (!voices.length) {
       return DEFAULT_VOICES;
     }

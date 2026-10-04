@@ -11,17 +11,17 @@ import { FeatureFlagService } from '../feature-flags/feature-flag.service';
 
 @Injectable({ providedIn: 'root' })
 export class PrivacyConsentService {
-  private readonly featureFlags = inject(FeatureFlagService);
+  readonly #featureFlags = inject(FeatureFlagService);
 
   readonly consent = signal<PrivacyConsentState>(readPrivacyConsent());
   readonly needsDecision = signal(needsPrivacyConsentDecision());
 
   acceptAnalytics(): void {
-    this.applyChoice(true);
+    this.#applyChoice(true);
   }
 
   rejectAnalytics(): void {
-    this.applyChoice(false);
+    this.#applyChoice(false);
   }
 
   savePreferences(preferences: { analytics: boolean; contactEmail: string }): void {
@@ -30,11 +30,11 @@ export class PrivacyConsentService {
     this.needsDecision.set(false);
     if (preferences.analytics) {
       initDatadogRum();
-      void this.featureFlags.initialize();
+      void this.#featureFlags.initialize();
     }
   }
 
-  private applyChoice(analytics: boolean): void {
+  #applyChoice(analytics: boolean): void {
     const current = this.consent();
     const next = writePrivacyPreferences({
       analytics,
@@ -44,7 +44,7 @@ export class PrivacyConsentService {
     this.needsDecision.set(false);
     if (analytics) {
       initDatadogRum();
-      void this.featureFlags.initialize();
+      void this.#featureFlags.initialize();
     }
   }
 }

@@ -55,10 +55,10 @@ const MIN_PANE_PX = 240;
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-hidden bg-surface' },
 })
 export class PipelinesPageComponent implements OnDestroy {
-  private readonly agentsApi = inject(PipelinesService);
+  readonly #agentsApi = inject(PipelinesService);
   readonly i18n = inject(I18nService);
 
-  private readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
+  protected readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
   readonly agentsResource = httpResource<AgentType[]>(() => ({
     url: `${API_BASE_URL}/pipelines/agent-types`,
@@ -81,11 +81,10 @@ export class PipelinesPageComponent implements OnDestroy {
   readonly resultsRatio = signal(DEFAULT_RESULTS_RATIO);
   readonly isDraggingSplitter = signal(false);
 
-  private currentGraph: PipelineGraph = { nodes: [], connections: [] };
-  private activeBriefPrompt: string | null = null;
-  private streamAbort: (() => void) | null = null;
-  private messageSeq = 0;
-  private savedRatio = DEFAULT_RESULTS_RATIO;
+  #activeBriefPrompt: string | null = null;
+  #streamAbort: (() => void) | null = null;
+  #messageSeq = 0;
+  #savedRatio = DEFAULT_RESULTS_RATIO;
 
   constructor() {
     effect(() => {
@@ -96,13 +95,12 @@ export class PipelinesPageComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.streamAbort?.();
+    this.#streamAbort?.();
   }
 
   onGraphChange(graph: PipelineGraph): void {
-    this.currentGraph = graph;
     if (graph.nodes.length === 0) {
-      this.activeBriefPrompt = null;
+      this.#activeBriefPrompt = null;
     }
     this.pipelineHint.set(null);
   }
@@ -112,21 +110,20 @@ export class PipelinesPageComponent implements OnDestroy {
   }
 
   onTemplateApplied(event: { topic: string; brief: string }): void {
-    this.activeBriefPrompt = event.brief;
+    this.#activeBriefPrompt = event.brief;
   }
 
   runPipeline(event: { graph: PipelineGraph; task: string }): void {
-    this.currentGraph = event.graph;
-    this.executePipeline(event.graph, event.task);
+    this.#executePipeline(event.graph, event.task);
   }
 
   toggleResultsCollapsed(): void {
     if (this.isResultsCollapsed()) {
       this.isResultsCollapsed.set(false);
-      this.resultsRatio.set(this.savedRatio);
+      this.resultsRatio.set(this.#savedRatio);
       return;
     }
-    this.savedRatio = this.resultsRatio();
+    this.#savedRatio = this.resultsRatio();
     this.isResultsCollapsed.set(true);
   }
 
@@ -161,37 +158,37 @@ export class PipelinesPageComponent implements OnDestroy {
   onDocumentPointerUp(): void {
     if (this.isDraggingSplitter()) {
       this.isDraggingSplitter.set(false);
-      this.savedRatio = this.resultsRatio();
+      this.#savedRatio = this.resultsRatio();
     }
   }
 
-  private executePipeline(graph: PipelineGraph, task: string): void {
+  #executePipeline(graph: PipelineGraph, task: string): void {
     if (this.isLoading()) {
       return;
     }
 
     const result = validatePipeline(graph);
     if (!result.ok) {
-      this.pipelineHint.set(this.pipelineReasonMessage(result.reason));
+      this.pipelineHint.set(this.#pipelineReasonMessage(result.reason));
       return;
     }
 
     const topic =
       task.trim() || this.i18n.t().pipelines.defaultMessage;
-    const brief = this.activeBriefPrompt?.trim();
+    const brief = this.#activeBriefPrompt?.trim();
     const invokeMessage = brief ? `${topic}\n\n${brief}` : topic;
 
-    this.streamAbort?.();
+    this.#streamAbort?.();
     this.error.set(null);
     this.pipelineHint.set(null);
     this.isLoading.set(true);
     if (this.isResultsCollapsed()) {
       this.isResultsCollapsed.set(false);
-      this.resultsRatio.set(this.savedRatio);
+      this.resultsRatio.set(this.#savedRatio);
     }
 
-    const userId = this.nextId('user');
-    const assistantId = this.nextId('assistant');
+    const userId = this.#nextId('user');
+    const assistantId = this.#nextId('assistant');
 
     this.messages.update(messages => [
       ...messages,
@@ -220,7 +217,7 @@ export class PipelinesPageComponent implements OnDestroy {
         error ? 'error' : 'success',
       );
       const cleaned = stripToolCallMarkup(content);
-      this.patchAssistant(
+      this.#patchAssistant(
         assistantId,
         cleaned,
         false,
@@ -228,7 +225,7 @@ export class PipelinesPageComponent implements OnDestroy {
       );
       this.streamingMessageId.set(null);
       this.isLoading.set(false);
-      this.streamAbort = null;
+      this.#streamAbort = null;
       if (error) {
         this.error.set(error.message || this.i18n.t().pipelines.errors.generic);
       }
@@ -237,7 +234,7 @@ export class PipelinesPageComponent implements OnDestroy {
     const onChunk = (chunk: string) => {
       rawContent += chunk;
       const cleaned = stripToolCallMarkup(rawContent);
-      this.patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
+      this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
     };
     const onHandoff = (handoff: string) => {
       try {
@@ -247,7 +244,7 @@ export class PipelinesPageComponent implements OnDestroy {
           const note = `\n_Delegated to **${parsed.agentType}**_\n\n`;
           rawContent += note;
           const cleaned = stripToolCallMarkup(rawContent);
-          this.patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
+          this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
         }
       } catch {
         // ignore malformed handoff payloads
@@ -255,17 +252,17 @@ export class PipelinesPageComponent implements OnDestroy {
     };
 
     const request = toPipelineInvokeRequest(invokeMessage, graph);
-    const { abort } = this.agentsApi.invokePipelineStream(
+    const { abort } = this.#agentsApi.invokePipelineStream(
       request,
       onChunk,
       onHandoff,
       () => finish(rawContent || this.i18n.t().common.thinking),
       error => finish(rawContent || this.i18n.t().pipelines.errors.generic, error),
     );
-    this.streamAbort = abort;
+    this.#streamAbort = abort;
   }
 
-  private pipelineReasonMessage(reason: string): string {
+  #pipelineReasonMessage(reason: string): string {
     const hints = this.i18n.t().pipelines.hints;
     switch (reason) {
       case 'empty':
@@ -281,7 +278,7 @@ export class PipelinesPageComponent implements OnDestroy {
     }
   }
 
-  private patchAssistant(
+  #patchAssistant(
     id: string,
     content: string,
     streaming: boolean,
@@ -302,8 +299,8 @@ export class PipelinesPageComponent implements OnDestroy {
     });
   }
 
-  private nextId(prefix: string): string {
-    this.messageSeq += 1;
-    return `${prefix}-${this.messageSeq}-${Date.now()}`;
+  #nextId(prefix: string): string {
+    this.#messageSeq += 1;
+    return `${prefix}-${this.#messageSeq}-${Date.now()}`;
   }
 }

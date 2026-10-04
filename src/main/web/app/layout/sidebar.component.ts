@@ -45,27 +45,27 @@ import { FeatureFlagService } from '../feature-flags/feature-flag.service';
   },
 })
 export class AppSidebarComponent implements OnInit {
-  private readonly sanitizer = inject(DomSanitizer);
-  private readonly router = inject(Router);
+  readonly #sanitizer = inject(DomSanitizer);
+  readonly #router = inject(Router);
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
   protected readonly sessionList = inject(SESSION_LIST);
-  private readonly featureFlags = inject(FeatureFlagService);
+  readonly #featureFlags = inject(FeatureFlagService);
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
+  readonly #currentUrl = toSignal(
+    this.#router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.router.url),
-      startWith(this.router.url),
+      map(() => this.#router.url),
+      startWith(this.#router.url),
     ),
-    { initialValue: this.router.url },
+    { initialValue: this.#router.url },
   );
 
   readonly collapsed = this.sidebar.collapsed;
   readonly isPinnedExpanded = signal(true);
   readonly isRecentsExpanded = signal(true);
 
-  private readonly isMobile = signal(false);
+  readonly #isMobile = signal(false);
 
   readonly displaySessions = computed<SidebarSession[]>(
     () => this.sessionList.sessions(),
@@ -80,7 +80,7 @@ export class AppSidebarComponent implements OnInit {
   });
 
   readonly sidebarClasses = computed(() => {
-    const mobile = this.isMobile();
+    const mobile = this.#isMobile();
     const collapsed = this.collapsed();
     const mobileOpen = this.sidebar.mobileOpen();
 
@@ -107,7 +107,7 @@ export class AppSidebarComponent implements OnInit {
   });
 
   readonly tabs = computed<ModuleNavTab[]>(() => MODULE_NAV_TABS.filter(
-    tab => isNavTabEnabled(tab, this.featureFlags),
+    tab => isNavTabEnabled(tab, this.#featureFlags),
   ));
 
   readonly primaryTabs = computed(() => primaryNavTabs(this.tabs()));
@@ -117,28 +117,28 @@ export class AppSidebarComponent implements OnInit {
   readonly navIconFn = (key: string): SafeHtml => this.getIcon(key);
 
   isNavActive(path: string): boolean {
-    const url = this.currentUrl().split('?')[0];
+    const url = this.#currentUrl().split('?')[0];
     return url === path || url.startsWith(`${path}/`);
   }
 
   constructor() {
-    this.updateMobileState();
+    this.#updateMobileState();
   }
 
   ngOnInit(): void {
     this.sessionList.initializeSessions();
   }
 
-  private updateMobileState(): void {
+  #updateMobileState(): void {
     const mobile = window.innerWidth < 768;
-    this.isMobile.set(mobile);
+    this.#isMobile.set(mobile);
     if (mobile) {
       this.sidebar.collapsed.set(false);
     }
   }
 
   onResize(): void {
-    this.updateMobileState();
+    this.#updateMobileState();
   }
 
   get t() {
@@ -146,7 +146,7 @@ export class AppSidebarComponent implements OnInit {
   }
 
   toggleCollapse(): void {
-    if (!this.isMobile()) {
+    if (!this.#isMobile()) {
       this.collapsed.update(v => !v);
     }
   }
@@ -189,7 +189,7 @@ export class AppSidebarComponent implements OnInit {
       generate: `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`,
     };
     const iconSvg = icons[key] || `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
-    return this.sanitizer.bypassSecurityTrustHtml(iconSvg);
+    return this.#sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
   onDocumentPointerDown(event: PointerEvent): void {

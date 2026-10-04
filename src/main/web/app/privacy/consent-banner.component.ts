@@ -46,7 +46,7 @@ import { PrivacyConsentService } from './privacy-consent.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConsentBannerComponent {
-  private readonly i18n = inject(I18nService);
+  readonly #i18n = inject(I18nService);
   protected readonly consent = inject(PrivacyConsentService);
-  readonly t = this.i18n.t;
+  readonly t = this.#i18n.t;
 }

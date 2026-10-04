@@ -31,18 +31,18 @@ import {
   host: { class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6' },
 })
 export class MetricsOverviewPageComponent {
-  private readonly router = inject(Router);
+  readonly #router = inject(Router);
   protected readonly i18n = inject(I18nService);
 
   readonly range = signal<MetricsRange>('7d');
 
-  private readonly metrics = inject(MetricsService);
+  readonly #metrics = inject(MetricsService);
 
-  readonly overviewResource = this.metrics.overview(this.range);
+  readonly overviewResource = this.#metrics.overview(this.range);
 
-  readonly seriesResource = this.metrics.series(() => ({ name: 'requests', range: this.range() }));
+  readonly seriesResource = this.#metrics.series(() => ({ name: 'requests', range: this.range() }));
 
-  readonly drilldownResource = this.metrics.drilldown(() => ({
+  readonly drilldownResource = this.#metrics.drilldown(() => ({
     page: 0,
     size: 10,
     range: this.range(),
@@ -193,7 +193,7 @@ export class MetricsOverviewPageComponent {
   }
 
   openDomain(domain: string): void {
-    void this.router.navigate(['/metrics', domain], {
+    void this.#router.navigate(['/metrics', domain], {
       queryParams: { range: this.range() },
     });
   }
@@ -206,11 +206,11 @@ export class MetricsOverviewPageComponent {
 
   onRowClick(event: InvocationEvent): void {
     if (event.sessionId) {
-      void this.router.navigate(['/chat', event.sessionId]);
+      void this.#router.navigate(['/chat', event.sessionId]);
       return;
     }
     if (event.documentId || event.domain === 'rag') {
-      void this.router.navigate(['/rag']);
+      void this.#router.navigate(['/rag']);
     }
   }
 }

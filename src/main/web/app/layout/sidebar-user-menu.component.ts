@@ -210,10 +210,10 @@ import { SidebarService } from './sidebar.service';
   },
 })
 export class SidebarUserMenuComponent {
-  private readonly sanitizer = inject(DomSanitizer);
-  private readonly sidebar = inject(SidebarService);
-  private readonly accountService = inject(AccountService);
-  private readonly accountDialog = inject(AccountDialogService);
+  readonly #sanitizer = inject(DomSanitizer);
+  readonly #sidebar = inject(SidebarService);
+  readonly #accountService = inject(AccountService);
+  readonly #accountDialog = inject(AccountDialogService);
   protected readonly i18n = inject(I18nService);
 
   readonly isCollapsed = input(false);
@@ -222,38 +222,38 @@ export class SidebarUserMenuComponent {
   readonly isHelpPinned = signal(false);
   readonly isLanguagePinned = signal(false);
 
-  readonly account = this.accountService.account;
-  readonly showLogin = this.accountService.showLogin;
-  readonly showLogout = this.accountService.showLogout;
+  readonly account = this.#accountService.account;
+  readonly showLogin = this.#accountService.showLogin;
+  readonly showLogout = this.#accountService.showLogout;
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
   readonly languageNames = languageNames;
 
-  readonly helpIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly helpIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>`,
   );
 
-  readonly loginIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly loginIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>`,
   );
 
-  readonly logoutIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly logoutIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>`,
   );
 
-  readonly privacyIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly privacyIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>`,
   );
 
-  readonly legalIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly legalIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>`,
   );
 
-  readonly languageIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly languageIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
   );
 
-  readonly chevronIcon = this.sanitizer.bypassSecurityTrustHtml(
+  readonly chevronIcon = this.#sanitizer.bypassSecurityTrustHtml(
     `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
   );
 
@@ -301,7 +301,7 @@ export class SidebarUserMenuComponent {
     this.isMenuOpen.update((open) => {
       const next = !open;
       if (!next) {
-        this.closeSubmenus();
+        this.#closeSubmenus();
       }
       return next;
     });
@@ -323,26 +323,26 @@ export class SidebarUserMenuComponent {
 
   selectLanguage(lang: Language): void {
     this.i18n.setLanguage(lang);
-    this.closeSubmenus();
+    this.#closeSubmenus();
     this.isMenuOpen.set(false);
   }
 
   onItemClick(): void {
-    this.closeSubmenus();
+    this.#closeSubmenus();
     this.isMenuOpen.set(false);
-    this.sidebar.close();
+    this.#sidebar.close();
   }
 
   onLogin(): void {
-    this.closeSubmenus();
+    this.#closeSubmenus();
     this.isMenuOpen.set(false);
-    this.accountDialog.openLogin();
+    this.#accountDialog.openLogin();
   }
 
   onLogout(): void {
-    this.closeSubmenus();
+    this.#closeSubmenus();
     this.isMenuOpen.set(false);
-    this.accountDialog.openLogout({
+    this.#accountDialog.openLogout({
       email: this.account()?.email ?? null,
       displayName: this.displayName(),
     });
@@ -351,11 +351,11 @@ export class SidebarUserMenuComponent {
   onDocumentPointerDown(event: PointerEvent): void {
     if (!(event.target as Element).closest('app-sidebar-user-menu')) {
       this.isMenuOpen.set(false);
-      this.closeSubmenus();
+      this.#closeSubmenus();
     }
   }
 
-  private closeSubmenus(): void {
+  #closeSubmenus(): void {
     this.isHelpPinned.set(false);
     this.isLanguagePinned.set(false);
   }

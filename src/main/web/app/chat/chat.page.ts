@@ -73,20 +73,20 @@ import { ChatService } from './chat.service';
 export class ChatPageComponent implements OnInit, OnDestroy {
   protected readonly chat = inject(ChatService);
   protected readonly i18n = inject(I18nService);
-  private readonly featureFlags = inject(FeatureFlagService);
-  private readonly skillsApi = inject(SkillsService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly skillsPicker = viewChild<ElementRef<HTMLElement>>('skillsPicker');
+  readonly #featureFlags = inject(FeatureFlagService);
+  readonly #skillsApi = inject(SkillsService);
+  readonly #route = inject(ActivatedRoute);
+  readonly #router = inject(Router);
+  protected readonly skillsPicker = viewChild<ElementRef<HTMLElement>>('skillsPicker');
 
   readonly input = model('');
   readonly skillsEnabled = signal(false);
   readonly isSkillsMenuOpen = signal(false);
   readonly skillsMenuStyle = signal<{ top: string; right: string } | null>(null);
 
-  private readonly routeSessionId = toSignal(
-    this.route.paramMap.pipe(map(params => params.get('sessionId'))),
-    { initialValue: this.route.snapshot.paramMap.get('sessionId') },
+  readonly #routeSessionId = toSignal(
+    this.#route.paramMap.pipe(map(params => params.get('sessionId'))),
+    { initialValue: this.#route.snapshot.paramMap.get('sessionId') },
   );
 
   readonly selectedSkillCount = computed(() => this.chat.selectedSkillIds().length);
@@ -146,7 +146,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      const sessionId = this.routeSessionId();
+      const sessionId = this.#routeSessionId();
       if (!sessionId || !this.chat.sessionsReady()) {
         return;
       }
@@ -156,16 +156,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const legacySession = this.route.snapshot.queryParamMap.get('session');
+    const legacySession = this.#route.snapshot.queryParamMap.get('session');
     if (legacySession) {
-      void this.router.navigate(['/chat', legacySession], { replaceUrl: true });
+      void this.#router.navigate(['/chat', legacySession], { replaceUrl: true });
     }
 
     this.chat.loadProviders();
-    const skillsOn = this.featureFlags.isEnabled(FEATURE_FLAG_KEYS.MODULE_SKILLS);
+    const skillsOn = this.#featureFlags.isEnabled(FEATURE_FLAG_KEYS.MODULE_SKILLS);
     this.skillsEnabled.set(skillsOn);
     if (skillsOn) {
-      this.skillsApi.listEnabled().subscribe({
+      this.#skillsApi.listEnabled().subscribe({
         next: (skills) => {
           const options = skills.map(skill => ({
             id: skill.id,
@@ -187,7 +187,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     const willOpen = !this.isSkillsMenuOpen();
     if (willOpen) {
-      this.positionSkillsMenu();
+      this.#positionSkillsMenu();
     } else {
       this.skillsMenuStyle.set(null);
     }
@@ -209,7 +209,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chat.toggleSkillId(skillId);
   }
 
-  private positionSkillsMenu(): void {
+  #positionSkillsMenu(): void {
     const root = this.skillsPicker()?.nativeElement;
     if (!root) {
       return;
