@@ -28,8 +28,10 @@ package "com.ai.base" as pkg_base {
     +value()
   }
   class AbstractUuidId <<ValueObject>> {
-    +value: String
+    +value: UUID
     --
+    +value(): String
+    +asUuid(): UUID
     +{static} generate()
     +{static} of(uuid)
   }
@@ -57,7 +59,8 @@ AbstractUuidId --> AbstractImmutable : embedded id
 ' ── aggregate bases (com.ai.common.domain.model) ───────────
 package "com.ai.common.domain" as pkg_common_kernel {
   class AbstractOwnerKeyedEntity <<Abstract>> {
-    +ownerKey: OwnerKey
+    @Filter(ownerPartition)
+    +ownerKey: OwnerKey NOT NULL
     --
     +belongsTo(ownerKey)
     +belongsToClient(value)
@@ -68,20 +71,26 @@ package "com.ai.common.domain" as pkg_common_kernel {
     --
     +rename(name)
   }
-  class AbstractDescribedOwnerEntity <<Abstract>> {
-    +description: String
-  }
-  class AbstractEnableableDescribedOwnerEntity <<Abstract>> {
+  class AbstractEnableableNamedOwnerEntity <<Abstract>> {
     +enabled: boolean
     --
     +enable()
     +disable()
   }
+  class AbstractEnableableDescribedOwnerEntity <<Abstract>> {
+    +description: String
+    --
+    +updateDescription(text)
+  }
   class AbstractTimedRunEntity <<Abstract>> {
-    +startedAt: Instant
+    +startedAt: Instant (createdAt → started_at)
     +finishedAt: Instant
     --
     +markFinished(at)
+  }
+  class OwnerPartition <<FilterDef>> {
+    ownerPartition: owner_key = :ownerKey
+    applyToLoadByKey = true
   }
   class AbstractAppendOnlyEvent <<Abstract>> {
     +occurredAt: Instant
@@ -107,10 +116,12 @@ package "com.ai.common.domain" as pkg_common_kernel {
 
 AbstractEntity <|-- AbstractOwnerKeyedEntity
 AbstractOwnerKeyedEntity <|-- AbstractNamedOwnerEntity
-AbstractNamedOwnerEntity <|-- AbstractDescribedOwnerEntity
-AbstractDescribedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
+AbstractNamedOwnerEntity <|-- AbstractEnableableNamedOwnerEntity
+AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
 AbstractImmutable <|-- AbstractAppendOnlyEvent
+AbstractImmutable <|-- AbstractTimedRunEntity
 AbstractOwnerKeyedEntity --> OwnerKey
+AbstractOwnerKeyedEntity ..> OwnerPartition : filtered by
 
 ' ── chat ───────────────────────────────────────────────────
 package "com.ai.chat.domain" as pkg_chat {
@@ -120,7 +131,7 @@ package "com.ai.chat.domain" as pkg_chat {
     +title: String
     --
     +{static} create(title, clientId)
-    +{static} reconstitute(...)
+    +{static} of(id, title, createdAt, clientId)
     +rename(newTitle)
     +addUserMessage(text)
     +addAssistantMessage(text)
@@ -218,6 +229,10 @@ package "com.ai.pipeline.domain" as pkg_pipeline {
     +id: WorkflowTemplateId
     +name: String
   }
+  class SavedAgentDefinition <<Entity>> {
+    +id: SavedAgentId
+    +typeKey: String
+  }
   interface WorkflowTemplateRepository <<Repository>> {
   }
   interface AgentRegistry <<Repository>> {
@@ -232,7 +247,6 @@ package "com.ai.skill.domain" as pkg_skill {
     +enabled: boolean
     --
     +{static} create(...)
-    +{static} reconstitute(...)
     +update(name, instructions, tools)
     +enable()
     +disable()
@@ -245,8 +259,10 @@ package "com.ai.skill.domain" as pkg_skill {
 ' ── automation ─────────────────────────────────────────────
 package "com.ai.automation.domain" as pkg_automation {
   class AutomationSchedule <<AggregateRoot>> {
+    @DynamicUpdate
     +id: ScheduleId
     +kind: ScheduleKind
+    +workflowTemplateId: WorkflowTemplateId
     +enabled: boolean
     --
     +{static} create(...)
@@ -259,7 +275,9 @@ package "com.ai.automation.domain" as pkg_automation {
     +isOnce()
   }
   class AutomationRun <<Entity>> {
+    @DynamicUpdate @Filter(ownerPartition)
     +id: RunId
+    +ownerKey: OwnerKey
     +status: RunStatus
   }
   enum RunStatus <<Enum>> {
@@ -274,7 +292,8 @@ AutomationSchedule "1" o-- "0..*" AutomationRun
 ' ── account ────────────────────────────────────────────────
 package "com.ai.account.domain" as pkg_account {
   class AccountUser <<Entity>> {
-    +provider: String
+    +provider: String <<NaturalId>>
+    +subject: String <<NaturalId>>
     +linkedClientId: String
     --
     +{static} create(provider, subject, email, clientId)
@@ -303,8 +322,10 @@ package "com.ai.mcp.domain" as pkg_mcp {
 ' ── metrics ────────────────────────────────────────────────
 package "com.ai.metrics.domain" as pkg_metrics {
   class AiInvocationEvent <<DomainEvent>> {
+    @Immutable
     +domain: AiDomain
     +outcome: InvocationOutcome
+    +ownerKey: OwnerKey
     +latencyMs: long
     --
     +{static} builder()
@@ -315,6 +336,7 @@ package "com.ai.metrics.domain" as pkg_metrics {
     AGENTS
     TOOLS
     VISION
+    WORKFLOW
   }
 }
 
@@ -330,15 +352,19 @@ package "com.ai.tools.domain" as pkg_tools {
 note as KERNEL_NOTE
   OwnerKey and aggregate bases are defined in
   **com.ai.common.domain** (pkg_common_kernel above).
-  JSON list columns: StringListJsonAttributeConverter in infra.
+  Attribute converters (OwnerKey, enums, JSON lists) live in domain.vo.
+  Typed ids map to native UUID columns.
+  Owner-scoped adapters run inside OwnerPartitionScope (infra),
+  which enables the ownerPartition filter; background jobs stay unfiltered.
   Default JPA snake_case naming; no @Table/@Column(name=) in domain.
 end note
 
-AbstractEntity <|-- ChatSession : metadata only
+AbstractOwnerKeyedEntity <|-- ChatSession : metadata only
 AbstractOwnerKeyedEntity <|-- Document
 AbstractEnableableDescribedOwnerEntity <|-- Skill
 AbstractEnableableDescribedOwnerEntity <|-- SavedWorkflowTemplate
-AbstractNamedOwnerEntity <|-- AutomationSchedule
+AbstractEnableableDescribedOwnerEntity <|-- SavedAgentDefinition
+AbstractEnableableNamedOwnerEntity <|-- AutomationSchedule
 AbstractTimedRunEntity <|-- AutomationRun
 AbstractEntity <|-- AccountUser
 AbstractAppendOnlyEvent <|-- AiInvocationEvent
@@ -350,6 +376,9 @@ ChatSession ..> OwnerKey : owned by
 Document ..> OwnerKey : owned by
 Skill ..> OwnerKey : owned by
 AccountUser ..> OwnerKey : links browser
+AiInvocationEvent ..> OwnerKey : attributed to
+AutomationSchedule ..> SavedWorkflowTemplate : by id (WorkflowTemplateId)
+AutomationRun ..> OwnerPartition : filtered by
 
 N_LAYERS .. pkg_chat
 N_LAYERS .. pkg_base

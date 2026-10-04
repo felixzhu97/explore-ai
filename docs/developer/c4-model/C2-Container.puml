@@ -30,7 +30,7 @@ Container_Boundary(chat_domain, "Chat Domain") {
     Container(text_controller, "TextController", "@RestController", "/api/text/providers, /api/text/chat/stream (SSE)")
     Container(chat_usecase, "SpringAiChatUseCase", "Use Case", "Spring AI 对话 + 流式")
     Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
-    Container(jdbc_sess_repo, "JdbcChatSessionMetadataRepository", "@Repository", "会话元数据 JDBC")
+    Container(jdbc_sess_repo, "JpaChatSessionRepository", "@Repository", "chat_session 元数据 JPA · ownerPartition 过滤")
     Container(jdbc_chat_memory, "JdbcChatMemoryRepository", "Spring AI", "消息记忆 JDBC")
 }
 
@@ -42,7 +42,7 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
     Container(workflow_template_controller, "WorkflowTemplateController", "@RestController", "/api/pipelines/templates catalog + library CRUD")
     Container(pipeline_facade, "PipelineFacade", "Application Service", "Worker / Supervisor / Pipeline 门面")
     Container(workflow_template_usecase, "WorkflowTemplateUseCase", "Use Case", "内置模版 + 用户库")
-    Container(workflow_template_repo, "JdbcWorkflowTemplateRepository", "@Repository", "workflow_templates 表")
+    Container(workflow_template_repo, "JpaWorkflowTemplateRepository", "@Repository", "saved_workflow_template 表 JPA · ownerPartition 过滤")
     Container(orch_usecase, "OrchestratorWorkersUseCase", "Use Case", "编排 Worker 流水线")
     Container(agent_registry, "CatalogAgentRegistry", "@Component", "Agent 注册表")
     Container(supervisor_router, "SpringAiSupervisorRouter", "@Component", "Supervisor 路由")
@@ -55,7 +55,7 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
 Container_Boundary(skill_domain, "Skill Domain") {
     Container(skill_controller, "SkillController", "@RestController", "/api/skills CRUD + templates")
     Container(skill_usecase, "SkillUseCase", "Use Case", "用户 Skill 管理")
-    Container(skill_repo, "JdbcSkillRepository", "@Repository", "skills 表 JDBC")
+    Container(skill_repo, "JpaSkillRepository", "@Repository", "skill 表 JPA · ownerPartition 过滤")
     Container(skill_prompt, "SkillSystemPromptBuilder", "Application", "Chat system 注入 Active Skills")
 }
 
@@ -159,7 +159,7 @@ Container_Boundary(metrics_domain, "Metrics Domain") {
     Container(metrics_usecase, "MetricsUseCase", "Use Case", "概览 / 域快照 / 时序 / 下钻")
     Container(invocation_recorder, "AiInvocationRecorder", "Application", "业务路径旁路记录调用事件")
     Container(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
-    Container(jdbc_invocation_repo, "JdbcAiInvocationEventRepository", "@Repository", "调用事件 JDBC")
+    Container(jdbc_invocation_repo, "JpaAiInvocationEventRepository", "@Repository", "@Immutable 事件 JPA persist · 下钻 JDBC")
     Container(jdbc_metrics_query, "JdbcMetricsQueryRepository", "@Repository", "聚合查询 JDBC")
 }
 
@@ -227,7 +227,7 @@ Rel(skill_usecase, skill_repo, "持久化")
 Rel(skill_repo, h2_db, "JDBC")
 Rel(chat_usecase, jdbc_sess_repo, "会话元数据")
 Rel(chat_usecase, jdbc_chat_memory, "消息记忆")
-Rel(jdbc_sess_repo, h2_db, "JDBC")
+Rel(jdbc_sess_repo, h2_db, "JPA")
 Rel(jdbc_chat_memory, h2_db, "JDBC")
 Rel(chat_usecase, deepseek_api, "LLM", "HTTPS")
 Rel(chat_usecase, prompt_templates, "defaultSystem")
@@ -273,7 +273,7 @@ Rel(metrics_controller, metrics_usecase, "调用")
 Rel(metrics_usecase, jdbc_metrics_query, "聚合")
 Rel(metrics_usecase, jdbc_invocation_repo, "下钻")
 Rel(invocation_recorder, jdbc_invocation_repo, "写入事件")
-Rel(jdbc_invocation_repo, h2_db, "JDBC")
+Rel(jdbc_invocation_repo, h2_db, "JPA + JDBC")
 Rel(jdbc_metrics_query, h2_db, "JDBC")
 
 Rel(tool_controller, tool_facade, "调用")
