@@ -38,11 +38,11 @@ import { DetectionOverlayComponent, type Detection } from './detection-overlay.c
         (drop)="onDrop($event)"
         (dragover)="onDragOver($event)"
       >
-        @if (imagePreview()) {
+        @if (imagePreview(); as preview) {
           @if (showDetectionOverlay() && detections()?.length) {
             <app-detection-overlay
-              [imageSrc]="imagePreview()!"
-              [detections]="detections()!"
+              [imageSrc]="preview"
+              [detections]="detections() ?? []"
             />
           } @else {
             <img
@@ -50,7 +50,7 @@ import { DetectionOverlayComponent, type Detection } from './detection-overlay.c
               alt="Preview"
               tabindex="0"
               role="button"
-              [src]="imagePreview()"
+              [src]="preview"
               [attr.aria-label]="clickToEnlargeLabel()"
               (click)="onZoomClick($event)"
               (keydown.enter)="onZoomClick($event)"

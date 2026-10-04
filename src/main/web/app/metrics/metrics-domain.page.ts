@@ -31,6 +31,7 @@ import {
 export class MetricsDomainPageComponent {
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
+  readonly #metrics = inject(MetricsService);
   protected readonly i18n = inject(I18nService);
 
   readonly #routeDomain = toSignal(
@@ -55,8 +56,6 @@ export class MetricsDomainPageComponent {
   readonly day = computed(() => this.#queryParams().get('day') ?? undefined);
   readonly model = computed(() => this.#queryParams().get('model') ?? undefined);
   readonly page = signal(0);
-
-  readonly #metrics = inject(MetricsService);
 
   readonly domainResource = this.#metrics.domain(this.domain, this.range);
 

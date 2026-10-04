@@ -63,7 +63,8 @@ function expandMermaidInMarkdown(segments: ContentSegment[]): DisplaySegment[] {
         @case ('mermaid') {
           <app-mermaid-diagram [source]="segment.source" [diagramId]="segment.diagramId" />
         }
-        @case ('mermaid-pending') {
+        @default {
+          <!-- mermaid-pending -->
           <p class="my-2 text-sm text-text-tertiary">{{ i18n.t().chat.diagramPending }}</p>
         }
       }

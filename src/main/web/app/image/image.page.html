@@ -35,8 +35,8 @@
       }
     </app-media-preview-panel>
 
-    @if (imageGen.error()) {
-      <z-alert zType="destructive" [zDescription]="imageGen.error()!" />
+    @if (imageGen.error(); as error) {
+      <z-alert zType="destructive" [zDescription]="error" />
     }
   </div>
 </div>

@@ -72,11 +72,11 @@
         [emptyText]="i18n.t().pipelines.results.emptyState"
         [compact]="true"
       />
-      @if (error()) {
+      @if (error(); as errorText) {
         <z-alert
           class="rounded-none border-x-0 border-t"
           zType="destructive"
-          [zDescription]="error()!"
+          [zDescription]="errorText"
         />
       }
     }

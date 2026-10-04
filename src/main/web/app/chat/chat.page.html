@@ -117,11 +117,11 @@
   (promptSelected)="onPromptSelect($event)"
 />
 
-@if (chat.error()) {
+@if (chat.error(); as error) {
   <z-alert
     class="rounded-none border-x-0 border-t"
     zType="destructive"
-    [zDescription]="chat.error()!"
+    [zDescription]="error"
   />
 }
 

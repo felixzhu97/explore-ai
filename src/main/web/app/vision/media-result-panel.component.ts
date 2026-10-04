@@ -39,14 +39,14 @@ import type { VisionResult, VisionTaskType } from './vision.service';
         </button>
       </div>
 
-      @if (result()) {
+      @if (result(); as current) {
         @if (task() === 'caption') {
-          <p class="text-lg text-foreground italic">"{{ result()!.caption }}"</p>
+          <p class="text-lg text-foreground italic">"{{ current.caption }}"</p>
         }
         @if (task() === 'detect') {
-          @if (result()!.detections?.length) {
+          @if (current.detections?.length) {
             <div class="flex flex-col gap-2">
-              @for (det of result()!.detections; track det.className) {
+              @for (det of current.detections; track det.className) {
                 <div
                   class="
                     flex items-center justify-between rounded-lg border
@@ -72,7 +72,7 @@ import type { VisionResult, VisionTaskType } from './vision.service';
               m-0 flex-1 overflow-x-auto rounded-lg bg-muted/40 p-3 font-mono
               text-sm break-all whitespace-pre-wrap text-foreground
             "
-          >{{ result()!.fullText }}</pre>
+          >{{ current.fullText }}</pre>
         }
         @if (processingTimeLabel()) {
           <p class="mt-3 text-xs text-muted-foreground">{{ processingTimeLabel() }}</p>
@@ -83,8 +83,8 @@ import type { VisionResult, VisionTaskType } from './vision.service';
         </div>
       }
 
-      @if (error()) {
-        <z-alert zType="destructive" class="mt-4" [zDescription]="error()!" />
+      @if (error(); as errorText) {
+        <z-alert zType="destructive" class="mt-4" [zDescription]="errorText" />
       }
     </z-card>
   `,
