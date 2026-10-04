@@ -208,9 +208,9 @@ const HUB: Record<Language, PoliciesHubCopy> = {
 };
 
 export function policiesHubCopy(lang: Language): PoliciesHubCopy {
-  return HUB[lang] ?? HUB.en;
+  return HUB[lang];
 }
 
 export function policyDocCopy(slug: PolicySlug, lang: Language): PolicyDocCopy {
-  return (POLICY_DOCS[lang] ?? POLICY_DOCS.en)[slug];
+  return POLICY_DOCS[lang][slug];
 }

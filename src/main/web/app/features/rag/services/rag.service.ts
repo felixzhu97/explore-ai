@@ -190,7 +190,7 @@ export class RagService {
     return this.uploadStatuses().get(filename);
   }
 
-  uploadFiles(onComplete?: () => void): void {
+  uploadFiles(): void {
     if (this.pendingFiles().length === 0) return;
 
     this.isUploading.set(true);
@@ -267,7 +267,6 @@ export class RagService {
         complete: () => {
           if (index === this.pendingFiles().length - 1) {
             this.isUploading.set(false);
-            onComplete?.();
           }
         },
       });

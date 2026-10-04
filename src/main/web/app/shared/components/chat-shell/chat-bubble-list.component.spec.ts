@@ -121,8 +121,7 @@ describe('ChatBubbleListComponent', () => {
     expect(component.messageKey(undefined)).toBe('');
   });
 
-  it('should fallback to single streaming id when streaming ids are unavailable', () => {
-    fixture.componentRef.setInput('streamingMessageIds', null as unknown as ReadonlySet<string>);
+  it('should use single streaming id when streaming ids are not provided', () => {
     fixture.detectChanges();
 
     expect(component.isStreaming('assistant-1')).toBe(true);

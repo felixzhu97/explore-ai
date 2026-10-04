@@ -80,7 +80,7 @@ export class AccountLogoutDialogComponent {
   private readonly i18n = inject(I18nService);
 
   readonly avatarLetter = (
-    this.data.displayName?.trim() || this.data.email || 'G'
+    this.data.displayName.trim() || this.data.email || 'G'
   ).charAt(0).toUpperCase();
 
   get t() {

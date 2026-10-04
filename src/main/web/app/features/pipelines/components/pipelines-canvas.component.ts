@@ -454,7 +454,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.isDraft.set(false);
     this.emitGraph();
     this.validationCleared.emit();
-    const defaultTask = (template.shortTopic ?? '').trim();
+    const defaultTask = template.shortTopic.trim();
     if (defaultTask) {
       this.task.set(defaultTask);
     }
