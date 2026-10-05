@@ -90,7 +90,7 @@ See [`.env.example`](.env.example) for the full list.
 - Explore capabilities on the [User Story Map](docs/product-owner/User-Story-Map.md)
 - Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](vercel.json) (proxies `/api/*` to Render)
 
-Run unit tests with `./gradlew test`.
+Run unit tests with `./gradlew test`. Run end-to-end tests with `pnpm e2e`; it starts the backend on an in-memory H2 database and the web app, or reuses them if they are already running on ports 9000 and 4200.
 
 ## Contributing
 

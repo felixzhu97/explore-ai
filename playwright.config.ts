@@ -1,29 +1,15 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4200;
-const BASE_URL = `http://127.0.0.1:${PORT}`;
+const NO_PROXY = '127.0.0.1,localhost';
 
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
   reporter: [['list'], ['html', { open: 'never' }]],
-  snapshotPathTemplate: '{testDir}/../test-results/e2e-snapshots/{testFilePath}/{arg}{ext}',
-  expect: {
-    toHaveScreenshot: {
-      maxDiffPixelRatio: 0.02,
-      animations: 'disabled',
-    },
-  },
   use: {
-    baseURL: BASE_URL,
-    trace: 'on-first-retry',
-    viewport: { width: 1280, height: 900 },
+    baseURL: 'http://localhost:4200',
+    trace: 'retain-on-failure',
     locale: 'en-US',
-    timezoneId: 'UTC',
-    colorScheme: 'light',
   },
   projects: [
     {
@@ -31,13 +17,29 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: `NO_PROXY=127.0.0.1,localhost pnpm ng serve --port ${PORT} --host 127.0.0.1`,
-    url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-    env: {
-      NO_PROXY: '127.0.0.1,localhost',
+  webServer: [
+    {
+      command: './gradlew bootRun',
+      url: 'http://localhost:9000/actuator/health',
+      reuseExistingServer: true,
+      timeout: 300_000,
+      env: {
+        NO_PROXY,
+        H2_URL: 'jdbc:h2:mem:e2e;DB_CLOSE_DELAY=-1',
+        LAUNCHDARKLY_ENABLED: 'false',
+        APP_AUTOMATION_SCAN_ENABLED: 'false',
+        APP_OAUTH_GOOGLE_ENABLED: 'false',
+        APP_OAUTH_GITHUB_ENABLED: 'false',
+        APP_OAUTH_EXPLORE_IAM_ENABLED: 'false',
+        APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER: 'false',
+      },
     },
-  },
+    {
+      command: 'pnpm ng serve --port 4200 --host localhost',
+      url: 'http://localhost:4200',
+      reuseExistingServer: true,
+      timeout: 180_000,
+      env: { NO_PROXY },
+    },
+  ],
 });

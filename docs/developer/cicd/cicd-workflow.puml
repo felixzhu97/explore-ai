@@ -23,19 +23,8 @@ end note
  frontend: typecheck → lint → test → build);
 stop
 
-|#lightskyblue|**Workflow: e2e-nightly.yml**|
-start
-note right
-**Trigger:** cron + workflow_dispatch
-**Schedule:** cron: '0 2 * * *' (02:00 UTC daily)
-end note
-:**e2e-nightly**
-(Playwright visual regression);
-stop
-
 legend right
 | Workflow | Trigger | Color |
 | ci | push / pull_request | #palegreen |
-| e2e-nightly | cron / dispatch | #lightskyblue |
 endlegend
 @enduml
