@@ -1,9 +1,13 @@
 package com.ai.automation.infra.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Mail delivery settings bound from {@code app.mail}: toggle, provider, sender and Resend API. */
 @ConfigurationProperties(prefix = "app.mail")
+@Getter
+@Setter
 public class MailProperties {
 
   /** When false, emails are logged only ({@code LoggingEmailGateway}). */
@@ -19,44 +23,4 @@ public class MailProperties {
 
   /** Override for tests; production default is {@code https://api.resend.com}. */
   private String resendBaseUrl = "https://api.resend.com";
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public String getProvider() {
-    return provider;
-  }
-
-  public void setProvider(String provider) {
-    this.provider = provider;
-  }
-
-  public String getFrom() {
-    return from;
-  }
-
-  public void setFrom(String from) {
-    this.from = from;
-  }
-
-  public String getResendApiKey() {
-    return resendApiKey;
-  }
-
-  public void setResendApiKey(String resendApiKey) {
-    this.resendApiKey = resendApiKey;
-  }
-
-  public String getResendBaseUrl() {
-    return resendBaseUrl;
-  }
-
-  public void setResendBaseUrl(String resendBaseUrl) {
-    this.resendBaseUrl = resendBaseUrl;
-  }
 }

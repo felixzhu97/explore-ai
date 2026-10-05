@@ -1,9 +1,13 @@
 package com.ai.image.infra.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Configuration properties under {@code app.ai.image} selecting the Ollama or OpenAI provider. */
 @ConfigurationProperties(prefix = "app.ai.image")
+@Getter
+@Setter
 public class ImageProperties {
 
   public static final String PROVIDER_OLLAMA = "ollama";
@@ -14,46 +18,6 @@ public class ImageProperties {
   private String model = "x/flux2-klein";
   private String apiKey = "ollama";
   private String baseUrl = "http://localhost:11434/v1";
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public String getProvider() {
-    return provider;
-  }
-
-  public void setProvider(String provider) {
-    this.provider = provider;
-  }
-
-  public String getModel() {
-    return model;
-  }
-
-  public void setModel(String model) {
-    this.model = model;
-  }
-
-  public String getApiKey() {
-    return apiKey;
-  }
-
-  public void setApiKey(String apiKey) {
-    this.apiKey = apiKey;
-  }
-
-  public String getBaseUrl() {
-    return baseUrl;
-  }
-
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
 
   public boolean isOllamaProvider() {
     return PROVIDER_OLLAMA.equalsIgnoreCase(provider);

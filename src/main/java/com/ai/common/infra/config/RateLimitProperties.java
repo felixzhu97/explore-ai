@@ -1,36 +1,16 @@
 package com.ai.common.infra.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Rate limit settings: enabled flag and maximum requests per time window. */
 @ConfigurationProperties(prefix = "app.rate-limit")
+@Getter
+@Setter
 public class RateLimitProperties {
 
   private boolean enabled = true;
   private int requestsPerWindow = 60;
   private int windowSeconds = 60;
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public int getRequestsPerWindow() {
-    return requestsPerWindow;
-  }
-
-  public void setRequestsPerWindow(int requestsPerWindow) {
-    this.requestsPerWindow = requestsPerWindow;
-  }
-
-  public int getWindowSeconds() {
-    return windowSeconds;
-  }
-
-  public void setWindowSeconds(int windowSeconds) {
-    this.windowSeconds = windowSeconds;
-  }
 }

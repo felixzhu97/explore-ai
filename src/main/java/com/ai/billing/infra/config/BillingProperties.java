@@ -1,9 +1,13 @@
 package com.ai.billing.infra.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Billing settings: quota toggle, active plan, and daily request limits per plan. */
 @ConfigurationProperties(prefix = "app.billing")
+@Getter
+@Setter
 public class BillingProperties {
 
   private boolean quotaEnabled = true;
@@ -13,38 +17,6 @@ public class BillingProperties {
 
   private int freeDailyRequests = 50;
   private int proDailyRequests = 2000;
-
-  public boolean isQuotaEnabled() {
-    return quotaEnabled;
-  }
-
-  public void setQuotaEnabled(boolean quotaEnabled) {
-    this.quotaEnabled = quotaEnabled;
-  }
-
-  public String getPlan() {
-    return plan;
-  }
-
-  public void setPlan(String plan) {
-    this.plan = plan;
-  }
-
-  public int getFreeDailyRequests() {
-    return freeDailyRequests;
-  }
-
-  public void setFreeDailyRequests(int freeDailyRequests) {
-    this.freeDailyRequests = freeDailyRequests;
-  }
-
-  public int getProDailyRequests() {
-    return proDailyRequests;
-  }
-
-  public void setProDailyRequests(int proDailyRequests) {
-    this.proDailyRequests = proDailyRequests;
-  }
 
   /** Returns the daily request limit for the active plan, using the free limit unless pro. */
   public int dailyLimit() {
