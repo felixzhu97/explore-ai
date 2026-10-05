@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -31,26 +32,15 @@ import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/chat")
+@RequiredArgsConstructor
 public class ChatStreamController {
-
-  private final OwnerContext ownerContext;
-
-  private static final Logger log = LoggerFactory.getLogger(ChatStreamController.class);
 
   private final ChatService chatService;
   private final TextProviderCatalog providerCatalog;
   private final SkillRepository skillRepository;
+  private final OwnerContext ownerContext;
 
-  public ChatStreamController(
-      ChatService chatService,
-      TextProviderCatalog providerCatalog,
-      SkillRepository skillRepository,
-      OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.chatService = chatService;
-    this.providerCatalog = providerCatalog;
-    this.skillRepository = skillRepository;
-  }
+  private static final Logger log = LoggerFactory.getLogger(ChatStreamController.class);
 
   @GetMapping("/providers")
   public List<ProviderInfoResponse> listProviders() {

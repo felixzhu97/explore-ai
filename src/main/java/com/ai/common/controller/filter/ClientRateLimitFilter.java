@@ -12,6 +12,7 @@ import java.time.Clock;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -30,16 +31,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 25)
 @EnableConfigurationProperties(RateLimitProperties.class)
+@RequiredArgsConstructor
 public class ClientRateLimitFilter extends OncePerRequestFilter {
 
   private final RateLimitProperties properties;
   private final Clock clock;
   private final Map<String, Window> windows = new ConcurrentHashMap<>();
-
-  public ClientRateLimitFilter(RateLimitProperties properties, Clock clock) {
-    this.properties = properties;
-    this.clock = clock;
-  }
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {

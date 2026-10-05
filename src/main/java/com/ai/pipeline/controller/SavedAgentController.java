@@ -9,6 +9,7 @@ import com.ai.pipeline.service.SavedAgentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,16 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/pipelines/agents")
+@RequiredArgsConstructor
 public class SavedAgentController {
 
-  private final OwnerContext ownerContext;
-
   private final SavedAgentService savedAgentService;
-
-  public SavedAgentController(SavedAgentService savedAgentService, OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.savedAgentService = savedAgentService;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping
   public List<SavedAgentResponse> listLibrary(HttpServletRequest request) {

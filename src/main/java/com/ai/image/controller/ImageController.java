@@ -9,6 +9,7 @@ import com.ai.image.controller.dto.ImageSizesResponse;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.service.ImageGenerationService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,13 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 /** Image generation REST Controller. */
 @RestController
 @RequestMapping("/api/images")
+@RequiredArgsConstructor
 public class ImageController {
 
   private final ImageGenerationService imageGenerationService;
-
-  public ImageController(ImageGenerationService imageGenerationService) {
-    this.imageGenerationService = imageGenerationService;
-  }
 
   /** Generate an image from text prompt. */
   @PostMapping("/generate")

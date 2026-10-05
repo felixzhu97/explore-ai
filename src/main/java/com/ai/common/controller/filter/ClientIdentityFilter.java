@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -31,6 +32,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
 @EnableConfigurationProperties({ClientIdentityProperties.class, ServiceAuthProperties.class})
+@RequiredArgsConstructor
 public class ClientIdentityFilter extends OncePerRequestFilter {
 
   public static final String SERVICE_KEY_HEADER = "X-Service-Key";
@@ -42,12 +44,6 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
 
   private final ClientIdentityCookieFactory cookieFactory;
   private final ServiceAuthProperties serviceAuthProperties;
-
-  public ClientIdentityFilter(
-      ClientIdentityCookieFactory cookieFactory, ServiceAuthProperties serviceAuthProperties) {
-    this.cookieFactory = cookieFactory;
-    this.serviceAuthProperties = serviceAuthProperties;
-  }
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {

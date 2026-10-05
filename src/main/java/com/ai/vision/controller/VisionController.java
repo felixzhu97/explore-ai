@@ -7,6 +7,7 @@ import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.service.VisionAnalysisService;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,13 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
     name = "module-vision",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class VisionController {
 
   private final VisionAnalysisService visionAnalysisService;
-
-  public VisionController(VisionAnalysisService visionAnalysisService) {
-    this.visionAnalysisService = visionAnalysisService;
-  }
 
   @PostMapping("/caption")
   public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file)

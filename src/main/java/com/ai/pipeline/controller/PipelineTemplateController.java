@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,17 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/pipelines")
+@RequiredArgsConstructor
 public class PipelineTemplateController {
 
-  private final OwnerContext ownerContext;
-
   private final PipelineTemplateService pipelineTemplateService;
-
-  public PipelineTemplateController(
-      PipelineTemplateService pipelineTemplateService, OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.pipelineTemplateService = pipelineTemplateService;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping("/template-definitions")
   public List<PipelineTemplateDefinitionResponse> listTemplates(

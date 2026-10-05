@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
@@ -29,16 +30,11 @@ import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/pipelines")
+@RequiredArgsConstructor
 public class PipelineController {
 
-  private final OwnerContext ownerContext;
-
   private final PipelineService pipelineService;
-
-  public PipelineController(PipelineService pipelineService, OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.pipelineService = pipelineService;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping("/agent-types")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(

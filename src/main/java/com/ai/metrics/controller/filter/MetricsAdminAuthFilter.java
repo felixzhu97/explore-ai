@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -25,15 +26,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 18)
 @EnableConfigurationProperties(MetricsAdminProperties.class)
+@RequiredArgsConstructor
 public class MetricsAdminAuthFilter extends OncePerRequestFilter {
 
   public static final String ADMIN_KEY_HEADER = "X-Admin-Key";
 
   private final MetricsAdminProperties properties;
-
-  public MetricsAdminAuthFilter(MetricsAdminProperties properties) {
-    this.properties = properties;
-  }
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {

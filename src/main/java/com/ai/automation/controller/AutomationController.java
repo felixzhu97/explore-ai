@@ -10,6 +10,7 @@ import com.ai.automation.service.AutomationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,16 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/automations/schedules")
+@RequiredArgsConstructor
 public class AutomationController {
 
-  private final OwnerContext ownerContext;
-
   private final AutomationService automationService;
-
-  public AutomationController(AutomationService automationService, OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.automationService = automationService;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping
   public List<AutomationScheduleResponse> list(HttpServletRequest request) {

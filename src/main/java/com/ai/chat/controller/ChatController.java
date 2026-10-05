@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,21 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/chat")
+@RequiredArgsConstructor
 public class ChatController {
-
-  private final OwnerContext ownerContext;
 
   private final ChatService chatService;
   private final ChatWebSourcesRepository chatWebSourcesRepository;
-
-  public ChatController(
-      ChatService chatService,
-      ChatWebSourcesRepository chatWebSourcesRepository,
-      OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.chatService = chatService;
-    this.chatWebSourcesRepository = chatWebSourcesRepository;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping("/health")
   public ResponseEntity<HealthResponse> health() {

@@ -3,18 +3,16 @@ package com.ai.common.controller;
 import com.ai.common.infra.config.ClientIdentityProperties;
 import java.time.Duration;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 /** Builds Set-Cookie values for anonymous client identity. */
 @Component
+@RequiredArgsConstructor
 public class ClientIdentityCookieFactory {
 
   private final ClientIdentityProperties properties;
-
-  public ClientIdentityCookieFactory(ClientIdentityProperties properties) {
-    this.properties = properties;
-  }
 
   public String cookieName() {
     return properties.getCookieName();

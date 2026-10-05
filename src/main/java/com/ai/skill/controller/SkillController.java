@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,16 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/skills")
+@RequiredArgsConstructor
 public class SkillController {
 
-  private final OwnerContext ownerContext;
-
   private final SkillService skillService;
-
-  public SkillController(SkillService skillService, OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.skillService = skillService;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping
   public List<SkillResponse> list(HttpServletRequest request) {
