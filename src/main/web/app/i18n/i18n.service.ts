@@ -11,6 +11,15 @@ export class I18nService {
   readonly t = computed<Translations>(() => translations[this.#languageState()]);
   readonly languageName = computed(() => languageNames[this.#languageState()]);
 
+  setLanguage(lang: Language): void {
+    this.#languageState.set(lang);
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
+  }
+
+  tReplace(template: string, values: Record<string, string | number>): string {
+    return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? `{${key}}`));
+  }
+
   #getInitialLanguage(): Language {
     const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
     if (hasText(stored) && this.#isValidLanguage(stored)) {
@@ -27,14 +36,5 @@ export class I18nService {
 
   #isValidLanguage(lang: string): boolean {
     return ['en', 'zh', 'ja', 'fr', 'es'].includes(lang);
-  }
-
-  setLanguage(lang: Language): void {
-    this.#languageState.set(lang);
-    localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
-  }
-
-  tReplace(template: string, values: Record<string, string | number>): string {
-    return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? `{${key}}`));
   }
 }

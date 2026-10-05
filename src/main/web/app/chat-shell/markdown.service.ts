@@ -102,22 +102,6 @@ export class MarkdownService {
     return normalized;
   }
 
-  /** Outline sections written as "一、…" on their own line → GFM ## headings. */
-  #promoteOutlineSectionHeadings(content: string): string {
-    return content.replace(
-      /(^|\n)([一二三四五六七八九十]+、[^\n]+)(?=\n|$)/g,
-      '$1## $2',
-    );
-  }
-
-  #prepareSource(content: string, streaming: boolean): string {
-    let source = this.normalizeGfmSyntax(content);
-    if (streaming && !source.endsWith('\n')) {
-      source += '\n';
-    }
-    return source;
-  }
-
   processContent(content: string): SafeHtml {
     const processed = this.escapeHtml(content);
 
@@ -165,5 +149,21 @@ export class MarkdownService {
       && !trimmed.startsWith('```')
       && !trimmed.startsWith('#')
     );
+  }
+
+  /** Outline sections written as "一、…" on their own line → GFM ## headings. */
+  #promoteOutlineSectionHeadings(content: string): string {
+    return content.replace(
+      /(^|\n)([一二三四五六七八九十]+、[^\n]+)(?=\n|$)/g,
+      '$1## $2',
+    );
+  }
+
+  #prepareSource(content: string, streaming: boolean): string {
+    let source = this.normalizeGfmSyntax(content);
+    if (streaming && !source.endsWith('\n')) {
+      source += '\n';
+    }
+    return source;
   }
 }

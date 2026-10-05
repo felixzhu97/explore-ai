@@ -74,14 +74,18 @@ export class SkillsService {
     return this.list().pipe(map(skills => skills.filter(skill => skill.enabled)));
   }
 
-  get(id: string): Observable<Skill> {
-    return this.#http.get<SkillResponse>(`${this.#base}/${id}`).pipe(map(toSkill));
-  }
-
   listTemplates(): Observable<SkillTemplateResponse[]> {
     return this.#http.get<SkillTemplateResponse[]>(`${this.#base}/templates`, {
       params: this.#langParams(),
     });
+  }
+
+  get(id: string): Observable<Skill> {
+    return this.#http.get<SkillResponse>(`${this.#base}/${id}`).pipe(map(toSkill));
+  }
+
+  create(request: CreateSkillRequest): Observable<Skill> {
+    return this.#http.post<SkillResponse>(this.#base, request).pipe(map(toSkill));
   }
 
   createFromTemplate(templateId: string): Observable<Skill> {
@@ -92,10 +96,6 @@ export class SkillsService {
         { params: this.#langParams() },
       )
       .pipe(map(toSkill));
-  }
-
-  create(request: CreateSkillRequest): Observable<Skill> {
-    return this.#http.post<SkillResponse>(this.#base, request).pipe(map(toSkill));
   }
 
   update(id: string, request: UpdateSkillRequest): Observable<Skill> {
