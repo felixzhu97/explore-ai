@@ -66,24 +66,19 @@ import { hasItems, hasText } from '../shared/presence';
   },
 })
 export class ChatPageComponent implements OnInit, OnDestroy {
-  protected readonly chat = inject(ChatService);
-  protected readonly i18n = inject(I18nService);
   readonly #featureFlags = inject(FeatureFlagService);
   readonly #skillsApi = inject(SkillsService);
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
-  protected readonly skillsPicker = viewChild<ElementRef<HTMLElement>>('skillsPicker');
+  protected readonly chat = inject(ChatService);
+  protected readonly i18n = inject(I18nService);
 
   readonly input = model('');
+
+  protected readonly skillsPicker = viewChild<ElementRef<HTMLElement>>('skillsPicker');
+
   readonly skillsEnabled = signal(false);
   readonly isSkillsMenuOpen = signal(false);
-  readonly skillsMenuStyle = signal<{ top: string; right: string } | null>(null);
-
-  readonly #routeSessionId = toSignal(
-    this.#route.paramMap.pipe(map(params => params.get('sessionId'))),
-    { initialValue: this.#route.snapshot.paramMap.get('sessionId') },
-  );
-
   readonly selectedSkillCount = computed(() => this.chat.selectedSkillIds().length);
 
   readonly skillsTriggerLabel = computed(() => {
@@ -94,13 +89,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     return this.i18n.tReplace(this.i18n.t().chat.skillsSelected, { count });
   });
 
-  readonly chatPrompts = computed((): NxPrompt[] => {
-    return this.i18n.t().chat.suggestedPrompts.map(prompt => ({
-      key: prompt.key,
-      label: prompt.label,
-      description: prompt.description,
-    }));
-  });
+  readonly skillsMenuStyle = signal<{ top: string; right: string } | null>(null);
 
   readonly bubbleMessages = computed((): ChatMessageView[] => {
     const streamingId = this.chat.streamingMessageId();
@@ -136,6 +125,19 @@ export class ChatPageComponent implements OnInit, OnDestroy {
       openReference: t.openReference,
     };
   });
+
+  readonly chatPrompts = computed((): NxPrompt[] => {
+    return this.i18n.t().chat.suggestedPrompts.map(prompt => ({
+      key: prompt.key,
+      label: prompt.label,
+      description: prompt.description,
+    }));
+  });
+
+  readonly #routeSessionId = toSignal(
+    this.#route.paramMap.pipe(map(params => params.get('sessionId'))),
+    { initialValue: this.#route.snapshot.paramMap.get('sessionId') },
+  );
 
   constructor() {
     effect(() => {
@@ -175,6 +177,18 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chat.abortStream();
   }
 
+  onProviderChange(provider: string | string[]) {
+    if (typeof provider === 'string') {
+      this.chat.setProvider(provider);
+    }
+  }
+
+  setSelectedModel(modelName: string | string[]) {
+    if (typeof modelName === 'string') {
+      this.chat.setModel(modelName);
+    }
+  }
+
   toggleSkillsMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -187,43 +201,10 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.isSkillsMenuOpen.set(willOpen);
   }
 
-  onDocumentClick(event: MouseEvent): void {
-    const root = this.skillsPicker()?.nativeElement;
-    if (root?.contains(event.target as Node) === true) {
-      return;
-    }
-    this.isSkillsMenuOpen.set(false);
-    this.skillsMenuStyle.set(null);
-  }
-
   onSkillToggle(event: MouseEvent, skillId: string): void {
     event.preventDefault();
     event.stopPropagation();
     this.chat.toggleSkillId(skillId);
-  }
-
-  #positionSkillsMenu(): void {
-    const root = this.skillsPicker()?.nativeElement;
-    if (root === undefined) {
-      return;
-    }
-    const rect = root.getBoundingClientRect();
-    this.skillsMenuStyle.set({
-      top: `${String(Math.round(rect.bottom + 4))}px`,
-      right: `${String(Math.round(window.innerWidth - rect.right))}px`,
-    });
-  }
-
-  onProviderChange(provider: string | string[]) {
-    if (typeof provider === 'string') {
-      this.chat.setProvider(provider);
-    }
-  }
-
-  setSelectedModel(modelName: string | string[]) {
-    if (typeof modelName === 'string') {
-      this.chat.setModel(modelName);
-    }
   }
 
   onPromptSelect(label: string): void {
@@ -241,5 +222,26 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
     this.input.set('');
     this.chat.sendMessage(text);
+  }
+
+  onDocumentClick(event: MouseEvent): void {
+    const root = this.skillsPicker()?.nativeElement;
+    if (root?.contains(event.target as Node) === true) {
+      return;
+    }
+    this.isSkillsMenuOpen.set(false);
+    this.skillsMenuStyle.set(null);
+  }
+
+  #positionSkillsMenu(): void {
+    const root = this.skillsPicker()?.nativeElement;
+    if (root === undefined) {
+      return;
+    }
+    const rect = root.getBoundingClientRect();
+    this.skillsMenuStyle.set({
+      top: `${String(Math.round(rect.bottom + 4))}px`,
+      right: `${String(Math.round(window.innerWidth - rect.right))}px`,
+    });
   }
 }

@@ -19,15 +19,16 @@ export class McpPageComponent implements OnInit {
   readonly #mcp = inject(McpService);
   protected readonly i18n = inject(I18nService);
 
+  readonly isLoading = signal(true);
   readonly health = signal<McpHealthResponse | null>(null);
   readonly clientStatus = signal<McpClientStatusResponse | null>(null);
-  readonly tools = signal<McpToolResponse[]>([]);
-  readonly isLoading = signal(true);
+
   readonly error = signal<string | null>(null);
+  readonly tools = signal<McpToolResponse[]>([]);
   readonly question = signal('');
   protected readonly questionField = form(this.question);
-  readonly chatResponse = signal<string | null>(null);
   readonly isChatting = signal(false);
+  readonly chatResponse = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -35,6 +36,26 @@ export class McpPageComponent implements OnInit {
 
   toolsCountLabel(count: number): string {
     return this.i18n.tReplace(this.i18n.t().mcp.toolsCount, { count });
+  }
+
+  submitQuestion(): void {
+    const question = this.question().trim();
+    if (question === '') {
+      return;
+    }
+
+    this.isChatting.set(true);
+    this.chatResponse.set(null);
+    this.#mcp.chat(question).subscribe({
+      next: (response) => {
+        this.chatResponse.set(response.response);
+        this.isChatting.set(false);
+      },
+      error: () => {
+        this.error.set(this.i18n.t().mcp.errors.chatFailed);
+        this.isChatting.set(false);
+      },
+    });
   }
 
   loadDashboard(): void {
@@ -59,26 +80,6 @@ export class McpPageComponent implements OnInit {
       error: () => {
         this.error.set(this.i18n.t().mcp.errors.toolsFailed);
         this.isLoading.set(false);
-      },
-    });
-  }
-
-  submitQuestion(): void {
-    const question = this.question().trim();
-    if (question === '') {
-      return;
-    }
-
-    this.isChatting.set(true);
-    this.chatResponse.set(null);
-    this.#mcp.chat(question).subscribe({
-      next: (response) => {
-        this.chatResponse.set(response.response);
-        this.isChatting.set(false);
-      },
-      error: () => {
-        this.error.set(this.i18n.t().mcp.errors.chatFailed);
-        this.isChatting.set(false);
       },
     });
   }

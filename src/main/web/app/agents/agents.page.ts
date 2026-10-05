@@ -49,15 +49,13 @@ export class AgentsPageComponent implements OnInit {
   readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
-  readonly catalog = signal<AgentInfoResponse[]>([]);
-  readonly savedAgents = signal<SavedAgent[]>([]);
-  readonly isLoading = signal(true);
-  readonly isSaving = signal(false);
   readonly error = signal<string | null>(null);
+
   readonly showForm = signal(false);
   readonly editingId = signal<string | null>(null);
   readonly isFormTypeKeyLocked = signal(false);
   readonly #draft = signal<AgentDraft>(EMPTY_DRAFT);
+
   protected readonly draftForm = form(this.#draft, (path) => {
     disabled(path.typeKey, { when: () => this.isFormTypeKeyLocked() });
     requiredText(path.typeKey, () => !hasText(this.editingId()));
@@ -66,35 +64,18 @@ export class AgentsPageComponent implements OnInit {
   });
 
   readonly availableToolKeys = TOOL_KEYS;
+  readonly isSaving = signal(false);
+
+  readonly isLoading = signal(true);
+  readonly catalog = signal<AgentInfoResponse[]>([]);
 
   readonly builtins = computed(() => this.catalog().filter(agent => !agent.supervisor),
   );
 
+  readonly savedAgents = signal<SavedAgent[]>([]);
+
   ngOnInit(): void {
     this.reload();
-  }
-
-  reload(): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-    this.#agentsApi.listCatalog().subscribe({
-      next: (catalog) => {
-        this.catalog.set(catalog);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.error.set(this.i18n.t().agents.errors.loadFailed);
-        this.isLoading.set(false);
-      },
-    });
-    this.#agentsApi.listSavedAgents().subscribe({
-      next: savedAgents => this.savedAgents.set(savedAgents),
-      error: () => undefined,
-    });
-  }
-
-  savedAgentForType(typeKey: string): SavedAgent | undefined {
-    return this.savedAgents().find(item => item.typeKey === typeKey);
   }
 
   startCreate(): void {
@@ -102,43 +83,6 @@ export class AgentsPageComponent implements OnInit {
     this.isFormTypeKeyLocked.set(false);
     this.#draft.set(EMPTY_DRAFT);
     this.showForm.set(true);
-  }
-
-  startEditSavedAgent(agent: SavedAgent): void {
-    this.editingId.set(agent.id);
-    this.isFormTypeKeyLocked.set(true);
-    this.#draft.set({
-      typeKey: agent.typeKey,
-      name: agent.name,
-      description: agent.description,
-      systemPrompt: agent.systemPrompt,
-      toolKeys: [...agent.toolKeys],
-    });
-    this.showForm.set(true);
-  }
-
-  /** Open form to override a builtin: create or edit its saved agent. */
-  customizeBuiltin(agent: AgentInfoResponse): void {
-    const existing = this.savedAgentForType(agent.type);
-    if (existing !== undefined) {
-      this.startEditSavedAgent(existing);
-      return;
-    }
-    this.editingId.set(null);
-    this.isFormTypeKeyLocked.set(true);
-    this.#draft.set({
-      typeKey: agent.type,
-      name: agent.name,
-      description: agent.description,
-      systemPrompt: agent.systemPrompt,
-      toolKeys: [...agent.toolKeys],
-    });
-    this.showForm.set(true);
-  }
-
-  cancelForm(): void {
-    this.showForm.set(false);
-    this.editingId.set(null);
   }
 
   isToolSelected(toolKey: string): boolean {
@@ -184,6 +128,43 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.editingId.set(null);
+  }
+
+  /** Open form to override a builtin: create or edit its saved agent. */
+  customizeBuiltin(agent: AgentInfoResponse): void {
+    const existing = this.savedAgentForType(agent.type);
+    if (existing !== undefined) {
+      this.startEditSavedAgent(existing);
+      return;
+    }
+    this.editingId.set(null);
+    this.isFormTypeKeyLocked.set(true);
+    this.#draft.set({
+      typeKey: agent.type,
+      name: agent.name,
+      description: agent.description,
+      systemPrompt: agent.systemPrompt,
+      toolKeys: [...agent.toolKeys],
+    });
+    this.showForm.set(true);
+  }
+
+  startEditSavedAgent(agent: SavedAgent): void {
+    this.editingId.set(agent.id);
+    this.isFormTypeKeyLocked.set(true);
+    this.#draft.set({
+      typeKey: agent.typeKey,
+      name: agent.name,
+      description: agent.description,
+      systemPrompt: agent.systemPrompt,
+      toolKeys: [...agent.toolKeys],
+    });
+    this.showForm.set(true);
+  }
+
   toggleEnabled(agent: SavedAgent): void {
     this.#agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
       next: () => this.reload(),
@@ -200,5 +181,28 @@ export class AgentsPageComponent implements OnInit {
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().agents.errors.deleteFailed),
     });
+  }
+
+  reload(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.#agentsApi.listCatalog().subscribe({
+      next: (catalog) => {
+        this.catalog.set(catalog);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.error.set(this.i18n.t().agents.errors.loadFailed);
+        this.isLoading.set(false);
+      },
+    });
+    this.#agentsApi.listSavedAgents().subscribe({
+      next: savedAgents => this.savedAgents.set(savedAgents),
+      error: () => undefined,
+    });
+  }
+
+  savedAgentForType(typeKey: string): SavedAgent | undefined {
+    return this.savedAgents().find(item => item.typeKey === typeKey);
   }
 }

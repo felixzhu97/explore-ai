@@ -59,16 +59,21 @@ import {
 })
 export class ChatSourceCardComponent {
   readonly source = input.required<ChatSourceView>();
+
   /** Shown when the source has no hostname, title or text. */
   readonly fallbackLabel = input('Sources');
+
   readonly similarityLabel = input('Similarity');
+
   /** Emits when the reader follows the source link. */
   readonly jump = output<void>();
 
   readonly faviconUrl = computed(() => sourceFaviconUrl(this.source()));
+  readonly initial = computed(() => sourceInitial(this.source(), this.fallbackLabel()));
   readonly hostname = computed(() => sourceHostname(this.source()));
   readonly label = computed(() => sourceLabel(this.source(), this.fallbackLabel()));
-  readonly initial = computed(() => sourceInitial(this.source(), this.fallbackLabel()));
+
   readonly title = computed(() => sourceTitle(this.source(), this.fallbackLabel()));
+
   readonly publishedAt = computed(() => sourcePublishedAt(this.source()));
 }

@@ -45,12 +45,12 @@ export class SpeechToTextPageComponent implements OnDestroy {
     this.speechToText.disconnect();
   }
 
-  sendTestPayload(): void {
-    this.speechToText.sendTestAudioPayload();
-  }
-
   sendStop(): void {
     this.speechToText.sendStop();
+  }
+
+  sendTestPayload(): void {
+    this.speechToText.sendTestAudioPayload();
   }
 }
 

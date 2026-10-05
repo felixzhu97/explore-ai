@@ -60,6 +60,8 @@ export class PipelinesPageComponent implements OnDestroy {
 
   protected readonly splitHost = viewChild<ElementRef<HTMLElement>>('splitHost');
 
+  readonly isDraggingSplitter = signal(false);
+
   readonly agentsResource = httpResource<AgentInfoResponse[]>(() => ({
     url: `${API_BASE_URL}/pipelines/agent-types`,
     params: { lang: this.i18n.language() },
@@ -72,15 +74,14 @@ export class PipelinesPageComponent implements OnDestroy {
     return [];
   });
 
-  readonly messages = signal<ChatMessageView[]>([]);
-  readonly streamingMessageId = signal<string | null>(null);
-  readonly isLoading = signal(false);
-  readonly error = signal<string | null>(null);
   readonly pipelineHint = signal<string | null>(null);
   readonly isResultsCollapsed = signal(false);
   readonly resultsRatio = signal(DEFAULT_RESULTS_RATIO);
-  readonly isDraggingSplitter = signal(false);
+  readonly messages = signal<ChatMessageView[]>([]);
+  readonly streamingMessageId = signal<string | null>(null);
+  readonly error = signal<string | null>(null);
 
+  readonly isLoading = signal(false);
   #activeBriefPrompt: string | null = null;
   #streamAbort: (() => void) | null = null;
   #messageSeq = 0;
@@ -96,44 +97,6 @@ export class PipelinesPageComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.#streamAbort?.();
-  }
-
-  onGraphChange(graph: PipelineGraph): void {
-    if (graph.nodes.length === 0) {
-      this.#activeBriefPrompt = null;
-    }
-    this.pipelineHint.set(null);
-  }
-
-  onTemplateHint(hint: string | null): void {
-    this.pipelineHint.set(hint);
-  }
-
-  onTemplateApplied(event: { topic: string; brief: string }): void {
-    this.#activeBriefPrompt = event.brief;
-  }
-
-  runPipeline(event: { graph: PipelineGraph; task: string }): void {
-    this.#executePipeline(event.graph, event.task);
-  }
-
-  toggleResultsCollapsed(): void {
-    if (this.isResultsCollapsed()) {
-      this.isResultsCollapsed.set(false);
-      this.resultsRatio.set(this.#savedRatio);
-      return;
-    }
-    this.#savedRatio = this.resultsRatio();
-    this.isResultsCollapsed.set(true);
-  }
-
-  onSplitterPointerDown(event: PointerEvent): void {
-    if (this.isResultsCollapsed()) {
-      return;
-    }
-    event.preventDefault();
-    this.isDraggingSplitter.set(true);
-    (event.target as HTMLElement).setPointerCapture(event.pointerId);
   }
 
   onDocumentPointerMove(event: PointerEvent): void {
@@ -160,6 +123,44 @@ export class PipelinesPageComponent implements OnDestroy {
       this.isDraggingSplitter.set(false);
       this.#savedRatio = this.resultsRatio();
     }
+  }
+
+  runPipeline(event: { graph: PipelineGraph; task: string }): void {
+    this.#executePipeline(event.graph, event.task);
+  }
+
+  onGraphChange(graph: PipelineGraph): void {
+    if (graph.nodes.length === 0) {
+      this.#activeBriefPrompt = null;
+    }
+    this.pipelineHint.set(null);
+  }
+
+  onTemplateHint(hint: string | null): void {
+    this.pipelineHint.set(hint);
+  }
+
+  onTemplateApplied(event: { topic: string; brief: string }): void {
+    this.#activeBriefPrompt = event.brief;
+  }
+
+  onSplitterPointerDown(event: PointerEvent): void {
+    if (this.isResultsCollapsed()) {
+      return;
+    }
+    event.preventDefault();
+    this.isDraggingSplitter.set(true);
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  toggleResultsCollapsed(): void {
+    if (this.isResultsCollapsed()) {
+      this.isResultsCollapsed.set(false);
+      this.resultsRatio.set(this.#savedRatio);
+      return;
+    }
+    this.#savedRatio = this.resultsRatio();
+    this.isResultsCollapsed.set(true);
   }
 
   #executePipeline(graph: PipelineGraph, task: string): void {

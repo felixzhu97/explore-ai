@@ -103,17 +103,16 @@ export class AutomationsPageComponent implements OnInit {
   readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
-  readonly schedules = signal<AutomationSchedule[]>([]);
-  readonly templates = signal<PipelineTemplate[]>([]);
-  readonly runs = signal<AutomationRun[]>([]);
-  readonly isLoading = signal(true);
-  readonly isSaving = signal(false);
   readonly error = signal<string | null>(null);
-  readonly showForm = signal(false);
-  readonly editingId = signal<string | null>(null);
-  readonly historyScheduleId = signal<string | null>(null);
+  readonly templates = signal<PipelineTemplate[]>([]);
 
+  readonly enabledTemplates = computed(() => {
+    return this.templates().filter(template => template.enabled);
+  });
+
+  readonly showForm = signal(false);
   readonly #draft = signal<AutomationDraft>(emptyDraft());
+
   protected readonly draftForm = form(this.#draft, (path) => {
     requiredText(path.name);
     requiredText(path.email);
@@ -123,31 +122,16 @@ export class AutomationsPageComponent implements OnInit {
     required(path.runAt, { when: field => field.valueOf(path.preset) === 'custom' });
   });
 
-  readonly enabledTemplates = computed(() => {
-    return this.templates().filter(template => template.enabled);
-  });
+  readonly isSaving = signal(false);
+  readonly isLoading = signal(true);
+  readonly schedules = signal<AutomationSchedule[]>([]);
+  readonly historyScheduleId = signal<string | null>(null);
+  readonly runs = signal<AutomationRun[]>([]);
+
+  readonly editingId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.reload();
-  }
-
-  reload(): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-    this.#pipelinesApi.listTemplates().subscribe({
-      next: templates => this.templates.set(templates),
-      error: () => this.templates.set([]),
-    });
-    this.#automationsApi.list().subscribe({
-      next: (schedules) => {
-        this.schedules.set(schedules);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.error.set(this.i18n.t().automations.errors.loadFailed);
-        this.isLoading.set(false);
-      },
-    });
   }
 
   startCreate(): void {
@@ -171,37 +155,6 @@ export class AutomationsPageComponent implements OnInit {
     if (brief.trim() === '' || this.#isGenericPlaceholder(brief)) {
       this.draftForm.brief().value.set(this.#defaultBriefForTemplate(template));
     }
-  }
-
-  startEdit(schedule: AutomationSchedule): void {
-    this.editingId.set(schedule.id);
-    const templateId = schedule.pipelineTemplateId;
-    const template = this.enabledTemplates().find(item => item.id === templateId)
-      ?? this.templates().find(item => item.id === templateId);
-    this.#draft.set({
-      name: schedule.name,
-      email: schedule.recipientEmail,
-      timezone: schedule.timezone,
-      templateId,
-      brief: this.#isGenericPlaceholder(schedule.brief)
-        ? this.#defaultBriefForTemplate(template)
-        : schedule.brief,
-      preset: presetFromSchedule(schedule),
-      runAt: this.#runAtForEdit(schedule),
-    });
-    this.showForm.set(true);
-  }
-
-  #runAtForEdit(schedule: AutomationSchedule): Instant {
-    if (schedule.scheduleKind !== 'ONCE' || this.isOnceCompleted(schedule)) {
-      return defaultRunAt();
-    }
-    return schedule.runAt ?? schedule.nextRunAt;
-  }
-
-  cancelForm(): void {
-    this.showForm.set(false);
-    this.editingId.set(null);
   }
 
   onPresetChange(preset: string): void {
@@ -279,82 +232,9 @@ export class AutomationsPageComponent implements OnInit {
     });
   }
 
-  #firstInvalidMessage(): string | null {
-    const errors = this.i18n.t().automations.errors;
-    const fields = this.draftForm;
-    if (fields.name().invalid()) {
-      return errors.nameRequired;
-    }
-    if (fields.email().invalid()) {
-      return this.#draft().email.trim() !== '' ? errors.emailInvalid : errors.emailRequired;
-    }
-    if (fields.templateId().invalid()) {
-      return errors.pipelineTemplateRequired;
-    }
-    if (fields.brief().invalid()) {
-      return errors.briefRequired;
-    }
-    if (fields.runAt().invalid()) {
-      return errors.runAtRequired;
-    }
-    return null;
-  }
-
-  toggleEnabled(schedule: AutomationSchedule): void {
-    if (this.isOnceCompleted(schedule) && !schedule.enabled) {
-      this.#notifications.showWarning(this.i18n.t().automations.onceCompletedHint);
-      this.startEdit(schedule);
-      return;
-    }
-    this.#automationsApi.setEnabled(schedule.id, !schedule.enabled).subscribe({
-      next: () => this.reload(),
-      error: () => {
-        this.#notifications.showError(this.i18n.t().automations.errors.saveFailed);
-      },
-    });
-  }
-
-  remove(schedule: AutomationSchedule): void {
-    if (!confirm(this.i18n.t().automations.deleteConfirm)) {
-      return;
-    }
-    this.#automationsApi.delete(schedule.id).subscribe({
-      next: () => this.reload(),
-      error: () => {
-        this.#notifications.showError(this.i18n.t().automations.errors.deleteFailed);
-      },
-    });
-  }
-
-  showHistory(schedule: AutomationSchedule): void {
-    this.historyScheduleId.set(schedule.id);
-    this.#automationsApi.listRuns(schedule.id).subscribe({
-      next: runs => this.runs.set(runs),
-      error: () => {
-        this.runs.set([]);
-        this.#notifications.showError(this.i18n.t().automations.errors.loadFailed);
-      },
-    });
-  }
-
-  templateName(id: string): string {
-    return this.templates().find(template => template.id === id)?.name ?? id;
-  }
-
-  #defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
-    if (template === undefined) {
-      return '';
-    }
-    const topic = template.shortTopic.trim();
-    if (topic !== '') {
-      return topic;
-    }
-    return template.briefPrompt.trim();
-  }
-
-  #isGenericPlaceholder(brief: string): boolean {
-    return brief.trim().toLowerCase()
-      === 'follow the configured agent pipeline for the user task.';
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.editingId.set(null);
   }
 
   /** One-shot schedules auto-disable; nextRunAt becomes a far-future sentinel. */
@@ -374,6 +254,10 @@ export class AutomationsPageComponent implements OnInit {
       return t.statusCompleted;
     }
     return schedule.enabled ? t.statusEnabled : t.statusDisabled;
+  }
+
+  templateName(id: string): string {
+    return this.templates().find(template => template.id === id)?.name ?? id;
   }
 
   scheduleSummary(schedule: AutomationSchedule): string {
@@ -401,5 +285,124 @@ export class AutomationsPageComponent implements OnInit {
       return this.i18n.t().automations.nextRunNone;
     }
     return formatInstant(value, DATE_TIME);
+  }
+
+  startEdit(schedule: AutomationSchedule): void {
+    this.editingId.set(schedule.id);
+    const templateId = schedule.pipelineTemplateId;
+    const template = this.enabledTemplates().find(item => item.id === templateId)
+      ?? this.templates().find(item => item.id === templateId);
+    this.#draft.set({
+      name: schedule.name,
+      email: schedule.recipientEmail,
+      timezone: schedule.timezone,
+      templateId,
+      brief: this.#isGenericPlaceholder(schedule.brief)
+        ? this.#defaultBriefForTemplate(template)
+        : schedule.brief,
+      preset: presetFromSchedule(schedule),
+      runAt: this.#runAtForEdit(schedule),
+    });
+    this.showForm.set(true);
+  }
+
+  toggleEnabled(schedule: AutomationSchedule): void {
+    if (this.isOnceCompleted(schedule) && !schedule.enabled) {
+      this.#notifications.showWarning(this.i18n.t().automations.onceCompletedHint);
+      this.startEdit(schedule);
+      return;
+    }
+    this.#automationsApi.setEnabled(schedule.id, !schedule.enabled).subscribe({
+      next: () => this.reload(),
+      error: () => {
+        this.#notifications.showError(this.i18n.t().automations.errors.saveFailed);
+      },
+    });
+  }
+
+  showHistory(schedule: AutomationSchedule): void {
+    this.historyScheduleId.set(schedule.id);
+    this.#automationsApi.listRuns(schedule.id).subscribe({
+      next: runs => this.runs.set(runs),
+      error: () => {
+        this.runs.set([]);
+        this.#notifications.showError(this.i18n.t().automations.errors.loadFailed);
+      },
+    });
+  }
+
+  remove(schedule: AutomationSchedule): void {
+    if (!confirm(this.i18n.t().automations.deleteConfirm)) {
+      return;
+    }
+    this.#automationsApi.delete(schedule.id).subscribe({
+      next: () => this.reload(),
+      error: () => {
+        this.#notifications.showError(this.i18n.t().automations.errors.deleteFailed);
+      },
+    });
+  }
+
+  reload(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.#pipelinesApi.listTemplates().subscribe({
+      next: templates => this.templates.set(templates),
+      error: () => this.templates.set([]),
+    });
+    this.#automationsApi.list().subscribe({
+      next: (schedules) => {
+        this.schedules.set(schedules);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.error.set(this.i18n.t().automations.errors.loadFailed);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  #runAtForEdit(schedule: AutomationSchedule): Instant {
+    if (schedule.scheduleKind !== 'ONCE' || this.isOnceCompleted(schedule)) {
+      return defaultRunAt();
+    }
+    return schedule.runAt ?? schedule.nextRunAt;
+  }
+
+  #firstInvalidMessage(): string | null {
+    const errors = this.i18n.t().automations.errors;
+    const fields = this.draftForm;
+    if (fields.name().invalid()) {
+      return errors.nameRequired;
+    }
+    if (fields.email().invalid()) {
+      return this.#draft().email.trim() !== '' ? errors.emailInvalid : errors.emailRequired;
+    }
+    if (fields.templateId().invalid()) {
+      return errors.pipelineTemplateRequired;
+    }
+    if (fields.brief().invalid()) {
+      return errors.briefRequired;
+    }
+    if (fields.runAt().invalid()) {
+      return errors.runAtRequired;
+    }
+    return null;
+  }
+
+  #defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
+    if (template === undefined) {
+      return '';
+    }
+    const topic = template.shortTopic.trim();
+    if (topic !== '') {
+      return topic;
+    }
+    return template.briefPrompt.trim();
+  }
+
+  #isGenericPlaceholder(brief: string): boolean {
+    return brief.trim().toLowerCase()
+      === 'follow the configured agent pipeline for the user task.';
   }
 }

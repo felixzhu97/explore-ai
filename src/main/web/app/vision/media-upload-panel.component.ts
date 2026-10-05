@@ -132,7 +132,6 @@ export class MediaUploadPanelComponent {
   readonly clickToEnlargeLabel = input.required<string>();
   readonly showDetectionOverlay = input(false);
   readonly detections = input<DetectionResponse[] | undefined>(undefined);
-
   readonly fileSelected = output<File>();
   readonly cleared = output<void>();
   readonly zoomRequested = output<string>();
@@ -147,15 +146,6 @@ export class MediaUploadPanelComponent {
     }
   }
 
-  onFileInputChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file !== undefined) {
-      this.fileSelected.emit(file);
-    }
-    input.value = '';
-  }
-
   onDrop(event: DragEvent): void {
     event.preventDefault();
     const droppedFile = event.dataTransfer?.files[0];
@@ -168,16 +158,25 @@ export class MediaUploadPanelComponent {
     event.preventDefault();
   }
 
-  onClearClick(event: Event): void {
-    event.stopPropagation();
-    this.cleared.emit();
-  }
-
   onZoomClick(event: Event): void {
     event.stopPropagation();
     const image = this.imagePreview();
     if (hasText(image)) {
       this.zoomRequested.emit(image);
     }
+  }
+
+  onClearClick(event: Event): void {
+    event.stopPropagation();
+    this.cleared.emit();
+  }
+
+  onFileInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file !== undefined) {
+      this.fileSelected.emit(file);
+    }
+    input.value = '';
   }
 }

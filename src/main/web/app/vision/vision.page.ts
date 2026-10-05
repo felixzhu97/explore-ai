@@ -27,9 +27,6 @@ export class VisionPageComponent {
   protected readonly vision = inject(VisionService);
   protected readonly i18n = inject(I18nService);
 
-  readonly #selectedTask = linkedSignal(() => this.vision.activeTask());
-  protected readonly taskField = form(this.#selectedTask);
-
   readonly taskOptions = computed(() => {
     const t = this.i18n.t().vision;
     return [
@@ -38,6 +35,9 @@ export class VisionPageComponent {
       { value: 'ocr', label: t.ocr },
     ];
   });
+
+  readonly #selectedTask = linkedSignal(() => this.vision.activeTask());
+  protected readonly taskField = form(this.#selectedTask);
 
   onTaskChange(value: string): void {
     if (isVisionTask(value)) {

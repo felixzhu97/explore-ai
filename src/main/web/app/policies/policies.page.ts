@@ -149,10 +149,10 @@ export class PoliciesPageComponent {
     { initialValue: null as string | null },
   );
 
-  readonly hub = computed(() => policiesHubCopy(this.#i18n.language()));
-
   readonly doc = computed(() => {
     const slug = resolvePolicySlug(this.#rawSlug());
     return slug !== null ? policyDocCopy(slug, this.#i18n.language()) : null;
   });
+
+  readonly hub = computed(() => policiesHubCopy(this.#i18n.language()));
 }
