@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,24 +39,13 @@ import reactor.core.publisher.Flux;
 @RestController
 @RequestMapping("/api/rag")
 @Tag(name = "RAG", description = "RAG document management and chat")
+@RequiredArgsConstructor
 public class RagController {
-
-  private final OwnerContext ownerContext;
 
   private final RagApplicationService ragApplicationService;
   private final RagChatService ragChatService;
   private final ObjectProvider<VisionChatService> visionChatService;
-
-  public RagController(
-      RagApplicationService ragApplicationService,
-      RagChatService ragChatService,
-      ObjectProvider<VisionChatService> visionChatService,
-      OwnerContext ownerContext) {
-    this.ownerContext = ownerContext;
-    this.ragApplicationService = ragApplicationService;
-    this.ragChatService = ragChatService;
-    this.visionChatService = visionChatService;
-  }
+  private final OwnerContext ownerContext;
 
   @GetMapping("/documents")
   @Operation(summary = "List documents for the current owner")

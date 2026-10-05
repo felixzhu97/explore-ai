@@ -5,6 +5,7 @@ import com.ai.textanalysis.controller.dto.TextAnalysisResponse;
 import com.ai.textanalysis.domain.exception.InvalidAnalysisTextException;
 import com.ai.textanalysis.service.TextAnalysisService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,13 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/text-analysis")
+@RequiredArgsConstructor
 public class TextAnalysisController {
 
   private final TextAnalysisService textAnalysisService;
-
-  public TextAnalysisController(TextAnalysisService textAnalysisService) {
-    this.textAnalysisService = textAnalysisService;
-  }
 
   @PostMapping
   public ResponseEntity<TextAnalysisResponse> analyzeText(

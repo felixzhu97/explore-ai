@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -26,13 +27,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 28)
 @EnableConfigurationProperties(BillingProperties.class)
+@RequiredArgsConstructor
 public class UsageQuotaFilter extends OncePerRequestFilter {
 
   private final DailyUsageQuotaService dailyUsageQuotaService;
-
-  public UsageQuotaFilter(DailyUsageQuotaService dailyUsageQuotaService) {
-    this.dailyUsageQuotaService = dailyUsageQuotaService;
-  }
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {

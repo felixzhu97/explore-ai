@@ -6,6 +6,7 @@ import com.ai.eval.controller.dto.EvaluationResponse;
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.service.ChatQualityEvaluator;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,15 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
     name = "module-eval",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class EvalController {
 
   private static final Logger log = LoggerFactory.getLogger(EvalController.class);
 
   private final ChatQualityEvaluator evaluator;
-
-  public EvalController(ChatQualityEvaluator evaluator) {
-    this.evaluator = evaluator;
-  }
 
   @PostMapping("/chat")
   public ResponseEntity<EvaluationResponse> evaluateChat(

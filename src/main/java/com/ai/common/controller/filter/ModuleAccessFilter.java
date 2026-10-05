@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -16,13 +17,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /** Servlet filter that returns 404 for requests to modules disabled by feature flags. */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
+@RequiredArgsConstructor
 public class ModuleAccessFilter extends OncePerRequestFilter {
 
   private final FeatureFlagService featureFlagService;
-
-  public ModuleAccessFilter(FeatureFlagService featureFlagService) {
-    this.featureFlagService = featureFlagService;
-  }
 
   @Override
   protected void doFilterInternal(

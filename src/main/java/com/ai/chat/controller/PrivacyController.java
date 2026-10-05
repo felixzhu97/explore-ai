@@ -6,6 +6,7 @@ import com.ai.common.controller.ClientIdentityCookieFactory;
 import com.ai.common.domain.vo.OwnerKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,20 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/privacy")
+@RequiredArgsConstructor
 public class PrivacyController {
 
   private final OwnerContext ownerContext;
   private final OwnerErasureService ownerErasureService;
   private final ClientIdentityCookieFactory cookieFactory;
-
-  public PrivacyController(
-      OwnerContext ownerContext,
-      OwnerErasureService ownerErasureService,
-      ClientIdentityCookieFactory cookieFactory) {
-    this.ownerContext = ownerContext;
-    this.ownerErasureService = ownerErasureService;
-    this.cookieFactory = cookieFactory;
-  }
 
   /** Deletes all durable data owned by the current owner key. */
   @DeleteMapping("/sessions")

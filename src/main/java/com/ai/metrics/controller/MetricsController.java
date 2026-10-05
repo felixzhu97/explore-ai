@@ -29,6 +29,7 @@ import com.ai.metrics.service.model.OverviewDomains;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,13 +40,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/metrics")
 @Tag(name = "Metrics", description = "AI metrics overview and drill-down")
+@RequiredArgsConstructor
 public class MetricsController {
 
   private final MetricsService metricsService;
-
-  public MetricsController(MetricsService metricsService) {
-    this.metricsService = metricsService;
-  }
 
   @GetMapping("/overview")
   @Operation(summary = "AI metrics overview")

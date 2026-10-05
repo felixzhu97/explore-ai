@@ -8,6 +8,7 @@ import com.ai.audio.domain.exception.InvalidSpeechTextException;
 import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.service.AudioService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -23,15 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 /** Audio/TTS REST Controller. */
 @RestController
 @RequestMapping("/api/audio")
+@RequiredArgsConstructor
 public class AudioController {
 
   private static final Logger log = LoggerFactory.getLogger(AudioController.class);
 
   private final AudioService audioService;
-
-  public AudioController(AudioService audioService) {
-    this.audioService = audioService;
-  }
 
   /** Convert text to speech. */
   @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

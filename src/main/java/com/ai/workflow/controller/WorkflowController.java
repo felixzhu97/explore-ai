@@ -12,6 +12,7 @@ import com.ai.workflow.domain.model.ParallelizationResult;
 import com.ai.workflow.domain.model.RoutingResult;
 import com.ai.workflow.service.WorkflowService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,13 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/workflows")
+@RequiredArgsConstructor
 public class WorkflowController {
 
   private final WorkflowService workflowService;
-
-  public WorkflowController(WorkflowService workflowService) {
-    this.workflowService = workflowService;
-  }
 
   @PostMapping("/chain")
   public ResponseEntity<ChainResult> chain(@Valid @RequestBody ChainWorkflowRequest request) {
