@@ -15,7 +15,6 @@ export class PipelinesGalleryComponent {
   readonly builtinTemplates = input.required<PipelineTemplateDefinitionResponse[]>();
   readonly savedTemplates = input.required<PipelineTemplate[]>();
   readonly addingTemplateId = input<string | null>(null);
-
   readonly addWorkflow = output<void>();
   readonly useTemplate = output<PipelineTemplateDefinitionResponse>();
   readonly editTemplate = output<PipelineTemplateDefinitionResponse>();
@@ -24,11 +23,11 @@ export class PipelinesGalleryComponent {
   readonly editSavedTemplate = output<PipelineTemplate>();
   readonly deleteSavedTemplate = output<PipelineTemplate>();
 
-  isSaved(template: PipelineTemplateDefinitionResponse): boolean {
-    return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
-  }
-
   templateOrder(agentTypes: readonly string[]): string {
     return agentTypes.join(' → ');
+  }
+
+  isSaved(template: PipelineTemplateDefinitionResponse): boolean {
+    return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
   }
 }

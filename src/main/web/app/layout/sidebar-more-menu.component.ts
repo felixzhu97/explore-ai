@@ -114,7 +114,6 @@ export class SidebarMoreMenuComponent {
   readonly sections = input.required<ModuleNavSection[]>();
   readonly isCollapsed = input(false);
   readonly iconFor = input.required<(key: string) => SafeHtml>();
-
   readonly navigated = output<void>();
 
   readonly isPinned = signal(false);
@@ -122,6 +121,18 @@ export class SidebarMoreMenuComponent {
   readonly flatTabs = computed<ModuleNavTab[]>(() => {
     return this.sections().flatMap(section => section.tabs);
   });
+
+  readonly moreActive = computed(() => {
+    return this.flatTabs().some(tab => this.isTabActive(tab.path));
+  });
+
+  get t() {
+    return this.#i18n.t;
+  }
+
+  readonly itemClass = `
+    !h-auto min-h-8 !items-center gap-1.5 !rounded-md !px-2 !py-1.5
+  `;
 
   readonly #currentUrl = toSignal(
     this.#router.events.pipe(
@@ -132,23 +143,6 @@ export class SidebarMoreMenuComponent {
     { initialValue: this.#router.url },
   );
 
-  readonly moreActive = computed(() => {
-    return this.flatTabs().some(tab => this.isTabActive(tab.path));
-  });
-
-  isTabActive(path: string): boolean {
-    const [url = ''] = this.#currentUrl().split('?');
-    return url === path || url.startsWith(`${path}/`);
-  }
-
-  readonly itemClass = `
-    !h-auto min-h-8 !items-center gap-1.5 !rounded-md !px-2 !py-1.5
-  `;
-
-  get t() {
-    return this.#i18n.t;
-  }
-
   triggerClass(): string {
     return this.isCollapsed()
       ? '!size-7 !justify-center'
@@ -158,6 +152,11 @@ export class SidebarMoreMenuComponent {
   togglePinned(event: MouseEvent): void {
     event.stopPropagation();
     this.isPinned.update(open => !open);
+  }
+
+  isTabActive(path: string): boolean {
+    const [url = ''] = this.#currentUrl().split('?');
+    return url === path || url.startsWith(`${path}/`);
   }
 
   onNavigate(): void {

@@ -54,17 +54,9 @@ import { ZardButtonComponent } from '../ui/button';
 export class RagPageComponent implements OnInit {
   protected readonly ragService = inject(RagService);
   protected readonly i18n = inject(I18nService);
+
   /** Mobile document rail visibility; desktop rail is always shown. */
   readonly isDocumentPanelOpen = signal(false);
-
-  readonly ragPrompts = computed((): NxPrompt[] => {
-    const t = this.i18n.t().rag;
-    return [
-      { key: 'what', label: t.whatIsThis, description: t.askQuestion },
-      { key: 'summarize', label: t.summarize, description: t.explain },
-      { key: 'keyInfo', label: t.keyInfo, description: t.explain },
-    ];
-  });
 
   readonly bubbleMessages = computed((): ChatMessageView[] => {
     return this.ragService.messages().map(message => ({
@@ -91,13 +83,17 @@ export class RagPageComponent implements OnInit {
     };
   });
 
+  readonly ragPrompts = computed((): NxPrompt[] => {
+    const t = this.i18n.t().rag;
+    return [
+      { key: 'what', label: t.whatIsThis, description: t.askQuestion },
+      { key: 'summarize', label: t.summarize, description: t.explain },
+      { key: 'keyInfo', label: t.keyInfo, description: t.explain },
+    ];
+  });
+
   ngOnInit() {
     this.ragService.fetchAvailableDocuments();
-  }
-
-  deleteDocument(documentId: string, event: Event): void {
-    event.stopPropagation();
-    this.ragService.deleteDocument(documentId);
   }
 
   onFileSelect(event: Event): void {
@@ -109,6 +105,10 @@ export class RagPageComponent implements OnInit {
     input.value = '';
   }
 
+  getUploadStatus(name: string): UploadStatus | undefined {
+    return this.ragService.getUploadStatus(name);
+  }
+
   removePendingFile(index: number): void {
     this.ragService.removePendingFile(index);
   }
@@ -117,8 +117,9 @@ export class RagPageComponent implements OnInit {
     this.ragService.uploadFiles();
   }
 
-  getUploadStatus(name: string): UploadStatus | undefined {
-    return this.ragService.getUploadStatus(name);
+  deleteDocument(documentId: string, event: Event): void {
+    event.stopPropagation();
+    this.ragService.deleteDocument(documentId);
   }
 
   onPromptSelect(label: string): void {

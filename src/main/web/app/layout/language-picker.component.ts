@@ -45,11 +45,12 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
 })
 export class LanguagePickerComponent {
   protected readonly i18n = inject(I18nService);
-  protected readonly dropdownMenu = viewChild.required(ZardDropdownComponent);
 
   readonly showLabel = input(true);
   readonly showChevron = input(true);
   readonly fullWidth = input(false);
+
+  protected readonly dropdownMenu = viewChild.required(ZardDropdownComponent);
 
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
   readonly languageNames = languageNames;

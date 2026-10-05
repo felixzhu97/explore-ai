@@ -73,8 +73,10 @@ export class MermaidDiagramComponent {
   readonly diagramId = input.required<string>();
 
   readonly safeSvg = signal<SafeHtml | null>(null);
-  readonly svgMarkup = signal('');
+
   readonly hasError = signal(false);
+
+  readonly svgMarkup = signal('');
 
   constructor() {
     effect(() => {

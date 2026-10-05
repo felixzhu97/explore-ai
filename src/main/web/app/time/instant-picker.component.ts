@@ -28,6 +28,11 @@ export class InstantPickerComponent implements FormValueControl<Instant | null> 
   readonly dropdownClass = input('');
   readonly disablePast = input(false);
 
+  protected readonly disabledDate = (current: Date): boolean => {
+    const day = LocalDate.ofInstant(fromNativeDate(current));
+    return this.disablePast() && day.isBefore(LocalDate.now());
+  };
+
   readonly #native = linkedSignal<Date | null>(() => {
     const instant = this.value();
     return instant === null ? null : toNativeDate(instant);
@@ -50,9 +55,4 @@ export class InstantPickerComponent implements FormValueControl<Instant | null> 
       });
     });
   }
-
-  protected readonly disabledDate = (current: Date): boolean => {
-    const day = LocalDate.ofInstant(fromNativeDate(current));
-    return this.disablePast() && day.isBefore(LocalDate.now());
-  };
 }

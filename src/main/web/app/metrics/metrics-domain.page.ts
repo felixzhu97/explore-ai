@@ -40,46 +40,9 @@ export class MetricsDomainPageComponent {
     { initialValue: this.#route.snapshot.paramMap.get('domain') ?? '' },
   );
 
-  readonly #queryParams = toSignal(this.#route.queryParamMap, {
-    initialValue: this.#route.snapshot.queryParamMap,
-  });
-
   readonly domain = computed((): MetricsDomain | null => {
     const value = this.#routeDomain();
     return isMetricsDomain(value) ? value : null;
-  });
-
-  readonly range = computed((): MetricsRange => {
-    const value = this.#queryParams().get('range');
-    return value === '30d' ? '30d' : '7d';
-  });
-
-  readonly day = computed(() => textOr(this.#queryParams().get('day'), undefined));
-  readonly model = computed(() => textOr(this.#queryParams().get('model'), undefined));
-  readonly page = signal(0);
-
-  readonly domainResource = this.#metrics.domain(this.domain, this.range);
-
-  readonly docsSeriesResource = this.#metrics.series(() => {
-    if (this.domain() !== 'rag') {
-      return undefined;
-    }
-    return { name: 'documents_by_status', domain: 'rag', range: this.range() };
-  });
-
-  readonly drilldownResource = this.#metrics.drilldown(() => {
-    const domain = this.domain();
-    if (domain === null) {
-      return undefined;
-    }
-    return {
-      domain,
-      range: this.range(),
-      page: this.page(),
-      size: 20,
-      day: this.day(),
-      model: this.model(),
-    };
   });
 
   readonly title = computed(() => {
@@ -103,15 +66,30 @@ export class MetricsDomainPageComponent {
     return this.i18n.tReplace(template, { domain: this.title() });
   });
 
+  readonly #queryParams = toSignal(this.#route.queryParamMap, {
+    initialValue: this.#route.snapshot.queryParamMap,
+  });
+
+  readonly day = computed(() => textOr(this.#queryParams().get('day'), undefined));
+
   readonly dayFilterLabel = computed(() => {
     const template = this.i18n.t().metrics.dayFilter;
     return this.i18n.tReplace(template, { day: this.day() ?? '' });
   });
 
+  readonly model = computed(() => textOr(this.#queryParams().get('model'), undefined));
+
   readonly modelFilterLabel = computed(() => {
     const template = this.i18n.t().metrics.modelFilter;
     return this.i18n.tReplace(template, { model: this.model() ?? '' });
   });
+
+  readonly range = computed((): MetricsRange => {
+    const value = this.#queryParams().get('range');
+    return value === '30d' ? '30d' : '7d';
+  });
+
+  readonly domainResource = this.#metrics.domain(this.domain, this.range);
 
   readonly kpis = computed((): MetricsKpi[] => {
     const snapshot = this.domainResource.value();
@@ -162,6 +140,13 @@ export class MetricsDomainPageComponent {
     }));
   });
 
+  readonly docsSeriesResource = this.#metrics.series(() => {
+    if (this.domain() !== 'rag') {
+      return undefined;
+    }
+    return { name: 'documents_by_status', domain: 'rag', range: this.range() };
+  });
+
   readonly docsSeries = computed(() => {
     const response = this.docsSeriesResource.value();
     if (response === undefined) {
@@ -173,6 +158,23 @@ export class MetricsDomainPageComponent {
     }));
   });
 
+  readonly page = signal(0);
+
+  readonly drilldownResource = this.#metrics.drilldown(() => {
+    const domain = this.domain();
+    if (domain === null) {
+      return undefined;
+    }
+    return {
+      domain,
+      range: this.range(),
+      page: this.page(),
+      size: 20,
+      day: this.day(),
+      model: this.model(),
+    };
+  });
+
   readonly drilldownItems = computed(
     () => this.drilldownResource.value()?.items ?? [],
   );
@@ -180,6 +182,14 @@ export class MetricsDomainPageComponent {
   readonly drilldownTotal = computed(
     () => this.drilldownResource.value()?.total ?? 0,
   );
+
+  clearFilters(): void {
+    void this.#router.navigate([], {
+      relativeTo: this.#route,
+      queryParams: { range: this.range(), day: null, model: null },
+    });
+    this.page.set(0);
+  }
 
   setRange(range: MetricsRange): void {
     void this.#router.navigate([], {
@@ -204,14 +214,6 @@ export class MetricsDomainPageComponent {
       relativeTo: this.#route,
       queryParams: { model: payload.label, day: null },
       queryParamsHandling: 'merge',
-    });
-    this.page.set(0);
-  }
-
-  clearFilters(): void {
-    void this.#router.navigate([], {
-      relativeTo: this.#route,
-      queryParams: { range: this.range(), day: null, model: null },
     });
     this.page.set(0);
   }

@@ -84,21 +84,21 @@ export class ImageGenFormComponent {
   readonly generateLabel = input.required<string>();
   readonly generatingLabel = input.required<string>();
   readonly prompt = model.required<string>();
-  protected readonly promptField = form(this.prompt);
   readonly sizes = input.required<ImageSize[]>();
   readonly selectedSize = input.required<ImageSize>();
   readonly isGenerating = input(false);
-
-  readonly #sizeLabel = linkedSignal(() => this.selectedSize().label);
-  protected readonly sizeLabelField = form(this.#sizeLabel);
-
   readonly sizeSelected = output<ImageSize>();
   readonly generateRequested = output<void>();
+
+  protected readonly promptField = form(this.prompt);
 
   readonly sizeOptions = computed(() => this.sizes().map(size => ({
     value: size.label,
     label: size.label,
   })));
+
+  readonly #sizeLabel = linkedSignal(() => this.selectedSize().label);
+  protected readonly sizeLabelField = form(this.#sizeLabel);
 
   onSizeLabelChange(label: string): void {
     const size = this.sizes().find(item => item.label === label);

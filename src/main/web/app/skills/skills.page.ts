@@ -44,20 +44,24 @@ export class SkillsPageComponent implements OnInit {
   readonly #notifications = inject(NotificationService);
   protected readonly i18n = inject(I18nService);
 
-  readonly skills = signal<Skill[]>([]);
-  readonly templates = signal<SkillTemplateResponse[]>([]);
-  readonly isLoading = signal(true);
-  readonly isSaving = signal(false);
-  readonly addingTemplateId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
+
+  readonly templates = signal<SkillTemplateResponse[]>([]);
+  readonly addingTemplateId = signal<string | null>(null);
+
+  readonly showForm = signal(false);
   readonly editingId = signal<string | null>(null);
   readonly #draft = signal<SkillDraft>(EMPTY_DRAFT);
+
   protected readonly draftForm = form(this.#draft, (path) => {
     requiredText(path.name);
     requiredText(path.instructions);
   });
 
-  readonly showForm = signal(false);
+  readonly isSaving = signal(false);
+
+  readonly isLoading = signal(true);
+  readonly skills = signal<Skill[]>([]);
 
   readonly ownedNames = computed(() => {
     const names = new Set<string>();
@@ -78,6 +82,12 @@ export class SkillsPageComponent implements OnInit {
     this.reload();
   }
 
+  startCreate(): void {
+    this.editingId.set(null);
+    this.#draft.set(EMPTY_DRAFT);
+    this.showForm.set(true);
+  }
+
   isInLibrary(template: SkillTemplateResponse): boolean {
     const owned = this.ownedNames();
     const aliases = [template.name, ...template.nameAliases]
@@ -85,55 +95,6 @@ export class SkillsPageComponent implements OnInit {
       .filter(Boolean);
     return aliases.some(alias => owned.has(alias) || [...owned].some(ownedName => ownedName.startsWith(`${alias} (`)),
     );
-  }
-
-  reload(): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-    this.#skillsApi.list().subscribe({
-      next: (skills) => {
-        this.skills.set(skills);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.error.set(this.i18n.t().skills.errors.loadFailed);
-        this.isLoading.set(false);
-      },
-    });
-    this.#reloadTemplates();
-  }
-
-  #reloadTemplates(): void {
-    this.#skillsApi.listTemplates().subscribe({
-      next: templates => this.templates.set(templates),
-      error: () => undefined,
-    });
-  }
-
-  startCreate(): void {
-    this.editingId.set(null);
-    this.#draft.set(EMPTY_DRAFT);
-    this.showForm.set(true);
-  }
-
-  startEdit(skill: Skill): void {
-    this.editingId.set(skill.id);
-    this.#draft.set({
-      name: skill.name,
-      description: skill.description,
-      instructions: skill.instructions,
-    });
-    this.showForm.set(true);
-  }
-
-  customizeTemplate(template: SkillTemplateResponse): void {
-    this.editingId.set(null);
-    this.#draft.set({
-      name: template.name,
-      description: template.description,
-      instructions: template.instructions,
-    });
-    this.showForm.set(true);
   }
 
   addFromTemplate(template: SkillTemplateResponse): void {
@@ -155,9 +116,14 @@ export class SkillsPageComponent implements OnInit {
     });
   }
 
-  cancelForm(): void {
-    this.showForm.set(false);
+  customizeTemplate(template: SkillTemplateResponse): void {
     this.editingId.set(null);
+    this.#draft.set({
+      name: template.name,
+      description: template.description,
+      instructions: template.instructions,
+    });
+    this.showForm.set(true);
   }
 
   save(): void {
@@ -192,6 +158,21 @@ export class SkillsPageComponent implements OnInit {
     });
   }
 
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.editingId.set(null);
+  }
+
+  startEdit(skill: Skill): void {
+    this.editingId.set(skill.id);
+    this.#draft.set({
+      name: skill.name,
+      description: skill.description,
+      instructions: skill.instructions,
+    });
+    this.showForm.set(true);
+  }
+
   toggleEnabled(skill: Skill): void {
     this.#skillsApi.setEnabled(skill.id, !skill.enabled).subscribe({
       next: () => this.reload(),
@@ -209,6 +190,29 @@ export class SkillsPageComponent implements OnInit {
     this.#skillsApi.delete(skill.id).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().skills.errors.deleteFailed),
+    });
+  }
+
+  reload(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.#skillsApi.list().subscribe({
+      next: (skills) => {
+        this.skills.set(skills);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.error.set(this.i18n.t().skills.errors.loadFailed);
+        this.isLoading.set(false);
+      },
+    });
+    this.#reloadTemplates();
+  }
+
+  #reloadTemplates(): void {
+    this.#skillsApi.listTemplates().subscribe({
+      next: templates => this.templates.set(templates),
+      error: () => undefined,
     });
   }
 }

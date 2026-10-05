@@ -29,6 +29,14 @@ export class GeneratePageComponent {
   readonly #router = inject(Router);
   protected readonly i18n = inject(I18nService);
 
+  readonly tabOptions = computed(() => {
+    const tabs = this.i18n.t().generate.tabs;
+    return [
+      { value: 'image', label: tabs.image },
+      { value: 'tts', label: tabs.tts },
+    ];
+  });
+
   readonly #currentPath = toSignal(
     this.#router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -42,14 +50,6 @@ export class GeneratePageComponent {
 
   readonly #selectedTab = linkedSignal(() => this.activeTab());
   protected readonly tabField = form(this.#selectedTab);
-
-  readonly tabOptions = computed(() => {
-    const tabs = this.i18n.t().generate.tabs;
-    return [
-      { value: 'image', label: tabs.image },
-      { value: 'tts', label: tabs.tts },
-    ];
-  });
 
   onTabChange(value: string): void {
     const tab: GenerateTab = value === 'tts' ? 'tts' : 'image';

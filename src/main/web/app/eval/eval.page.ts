@@ -16,14 +16,16 @@ export class EvalPageComponent {
   protected readonly i18n = inject(I18nService);
 
   readonly #draft = signal({ userMessage: '', assistantResponse: '' });
+
   protected readonly draftForm = form(this.#draft, (path) => {
     requiredText(path.userMessage);
     requiredText(path.assistantResponse);
   });
 
-  readonly result = signal<EvaluationResponse | null>(null);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
+
+  readonly result = signal<EvaluationResponse | null>(null);
 
   submit(): void {
     if (this.draftForm().invalid()) {

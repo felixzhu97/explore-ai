@@ -42,15 +42,15 @@ export class TtsPageComponent implements OnInit, OnDestroy {
   readonly text = signal('');
   protected readonly textField = form(this.text);
   readonly voice = signal('alloy');
-  readonly speed = signal(1.0);
   readonly availableVoices = signal<VoiceResponse[]>([]);
+  readonly speed = signal(1.0);
   readonly isSynthesizing = signal(false);
   readonly error = signal<string | null>(null);
   readonly audioUrl = signal<string | null>(null);
-  readonly audioBlob = signal<Blob | null>(null);
   readonly isPlaying = signal(false);
   readonly progress = signal(0);
 
+  readonly audioBlob = signal<Blob | null>(null);
   #audioElement: HTMLAudioElement | null = null;
 
   ngOnInit() {
@@ -65,21 +65,6 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     if (hasText(audioUrl)) {
       URL.revokeObjectURL(audioUrl);
     }
-  }
-
-  loadVoices() {
-    this.#tts.getVoices().subscribe({
-      next: (voices) => {
-        this.availableVoices.set(voices);
-        const defaultVoice = voices[0];
-        if (defaultVoice !== undefined) {
-          this.voice.set(defaultVoice.id);
-        }
-      },
-      error: () => {
-        this.availableVoices.set(DEFAULT_VOICES);
-      },
-    });
   }
 
   setVoice(voice: string | string[]) {
@@ -164,5 +149,20 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     if (blob !== null) {
       this.#tts.download(blob, `speech_${String(Instant.now().toEpochMilli())}.mp3`);
     }
+  }
+
+  loadVoices() {
+    this.#tts.getVoices().subscribe({
+      next: (voices) => {
+        this.availableVoices.set(voices);
+        const defaultVoice = voices[0];
+        if (defaultVoice !== undefined) {
+          this.voice.set(defaultVoice.id);
+        }
+      },
+      error: () => {
+        this.availableVoices.set(DEFAULT_VOICES);
+      },
+    });
   }
 }

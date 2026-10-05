@@ -36,16 +36,7 @@ export class MetricsOverviewPageComponent {
   protected readonly i18n = inject(I18nService);
 
   readonly range = signal<MetricsRange>('7d');
-
   readonly overviewResource = this.#metrics.overview(this.range);
-
-  readonly seriesResource = this.#metrics.series(() => ({ name: 'requests', range: this.range() }));
-
-  readonly drilldownResource = this.#metrics.drilldown(() => ({
-    page: 0,
-    size: 10,
-    range: this.range(),
-  }));
 
   readonly kpis = computed((): MetricsKpi[] => {
     const overview = this.overviewResource.value();
@@ -96,6 +87,27 @@ export class MetricsOverviewPageComponent {
     ];
   });
 
+  readonly seriesResource = this.#metrics.series(() => ({ name: 'requests', range: this.range() }));
+
+  readonly requestSeries = computed(() => {
+    const points = this.seriesResource.value()?.points ?? [];
+    return points.map(point => ({
+      label: point.label,
+      value: point.value,
+    }));
+  });
+
+  readonly domainSeries = computed(() => {
+    const overview = this.overviewResource.value();
+    if (overview === undefined) {
+      return [];
+    }
+    return overview.requestsByDomain.map(item => ({
+      label: item.name,
+      value: item.count,
+    }));
+  });
+
   readonly healthItems = computed((): DomainHealthItem[] => {
     const overview = this.overviewResource.value();
     if (overview === undefined) {
@@ -143,24 +155,11 @@ export class MetricsOverviewPageComponent {
     ];
   });
 
-  readonly requestSeries = computed(() => {
-    const points = this.seriesResource.value()?.points ?? [];
-    return points.map(point => ({
-      label: point.label,
-      value: point.value,
-    }));
-  });
-
-  readonly domainSeries = computed(() => {
-    const overview = this.overviewResource.value();
-    if (overview === undefined) {
-      return [];
-    }
-    return overview.requestsByDomain.map(item => ({
-      label: item.name,
-      value: item.count,
-    }));
-  });
+  readonly drilldownResource = this.#metrics.drilldown(() => ({
+    page: 0,
+    size: 10,
+    range: this.range(),
+  }));
 
   readonly drilldownItems = computed(
     () => this.drilldownResource.value()?.items ?? [],
@@ -174,16 +173,16 @@ export class MetricsOverviewPageComponent {
     this.range.set(range);
   }
 
-  openDomain(domain: string): void {
-    void this.#router.navigate(['/metrics', domain], {
-      queryParams: { range: this.range() },
-    });
-  }
-
   onKpiClick(kpi: MetricsKpi): void {
     if (hasText(kpi.domain)) {
       this.openDomain(kpi.domain);
     }
+  }
+
+  openDomain(domain: string): void {
+    void this.#router.navigate(['/metrics', domain], {
+      queryParams: { range: this.range() },
+    });
   }
 
   onRowClick(event: InvocationEvent): void {

@@ -252,23 +252,13 @@ export class ChatBubbleListComponent implements OnDestroy {
   readonly collapseLabel = input('Show less');
   readonly toolStepDoneLabel = input('Done');
   readonly toolStepFailedLabel = input('Failed');
+
   readonly footerLabels = input<ChatBubbleFooterLabels>({
     sources: 'Sources',
     similarity: 'Similarity',
     basedOn: 'Based on {count} source(s)',
     openReference: 'Open',
   });
-
-  readonly #expandedUserIds = signal<ReadonlySet<string>>(new Set());
-  /** Immediate chip hover highlight (no delay). */
-  readonly #hoveredChip = signal<{
-    messageId: string;
-    index: number;
-  } | null>(null);
-
-  readonly openRef = signal<OpenSourceRef | null>(null);
-  #openTimer: ReturnType<typeof setTimeout> | null = null;
-  #closeTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly userMessageTpl =
     viewChild<TemplateRef<NxBubbleSlotType>>('userMessageTpl');
@@ -278,14 +268,6 @@ export class ChatBubbleListComponent implements OnDestroy {
 
   readonly assistantFooterTpl =
     viewChild<TemplateRef<NxBubbleSlotType>>('assistantFooterTpl');
-
-  readonly messageByIdMap = computed(() => {
-    const map = new Map<string, ChatMessageView>();
-    for (const message of this.messages()) {
-      map.set(message.id, message);
-    }
-    return map;
-  });
 
   readonly bubbleItems = computed((): NxBubbleListItem[] => {
     const userTpl = this.userMessageTpl();
@@ -349,9 +331,167 @@ export class ChatBubbleListComponent implements OnDestroy {
     },
   };
 
+  readonly openRef = signal<OpenSourceRef | null>(null);
+
+  readonly #expandedUserIds = signal<ReadonlySet<string>>(new Set());
+
+  /** Immediate chip hover highlight (no delay). */
+  readonly #hoveredChip = signal<{
+    messageId: string;
+    index: number;
+  } | null>(null);
+
+  #openTimer: ReturnType<typeof setTimeout> | null = null;
+  #closeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  readonly messageByIdMap = computed(() => {
+    const map = new Map<string, ChatMessageView>();
+    for (const message of this.messages()) {
+      map.set(message.id, message);
+    }
+    return map;
+  });
+
   ngOnDestroy(): void {
     this.cancelOpenSourceRef();
     this.cancelCloseSourceRef();
+  }
+
+  sourceAt(messageId: string, index: number): ChatSourceView | undefined {
+    return this.messageById(messageId)?.sources?.[index];
+  }
+
+  cancelCloseSourceRef(): void {
+    if (this.#closeTimer !== null) {
+      clearTimeout(this.#closeTimer);
+      this.#closeTimer = null;
+    }
+  }
+
+  scheduleCloseSourceRef(): void {
+    this.cancelOpenSourceRef();
+    this.cancelCloseSourceRef();
+    this.#closeTimer = setTimeout(() => {
+      this.#closeTimer = null;
+      this.openRef.set(null);
+    }, CLOSE_DELAY_MS);
+  }
+
+  onJumpClick(): void {
+    this.closeSourceRef();
+  }
+
+  messageById(id: string): ChatMessageView | undefined {
+    return this.messageByIdMap().get(id);
+  }
+
+  messageKey(info?: { key?: string | number }): string {
+    return String(info?.key ?? '');
+  }
+
+  userMessageText(message: ChatMessageView): string {
+    if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
+      return message.content;
+    }
+    return `${message.content.slice(0, USER_COLLAPSE_CHARS).trimEnd()}…`;
+  }
+
+  isLongUserMessage(message: ChatMessageView): boolean {
+    return (
+      this.collapseLongUserMessages()
+      && message.content.length > USER_COLLAPSE_CHARS
+    );
+  }
+
+  toggleUserExpanded(messageId: string): void {
+    this.#expandedUserIds.update((current) => {
+      const next = new Set(current);
+      if (next.has(messageId)) {
+        next.delete(messageId);
+      } else {
+        next.add(messageId);
+      }
+      return next;
+    });
+  }
+
+  isUserExpanded(messageId: string): boolean {
+    return this.#expandedUserIds().has(messageId);
+  }
+
+  isStreaming(messageId: string): boolean {
+    const singleId = this.streamingMessageId();
+    if (singleId === messageId) {
+      return true;
+    }
+    return this.streamingMessageIds().has(messageId);
+  }
+
+  formatBasedOn(count: number): string {
+    return this.footerLabels().basedOn.replace('{count}', String(count));
+  }
+
+  chipClass(messageId: string, index: number): string {
+    const base =
+      'inline-flex max-w-40 cursor-pointer items-center gap-1 rounded-full px-1.5 py-0.5 text-xs transition-colors';
+    if (this.isChipHighlighted(messageId, index)) {
+      return `${base} bg-foreground text-background`;
+    }
+    return `${base} bg-black/5 text-text-secondary`;
+  }
+
+  isChipOpen(messageId: string, index: number): boolean {
+    const ref = this.openRef();
+    return ref?.messageId === messageId && ref.index === index;
+  }
+
+  chipAriaLabel(index: number, source: ChatSourceView): string {
+    const title = `${String(index + 1)}. ${sourceTitle(source, this.footerLabels().sources)}`;
+    if (hasText(source.url)) {
+      return `${title}. ${this.footerLabels().openReference}`;
+    }
+    return title;
+  }
+
+  onChipPointerEnter(event: Event, messageId: string, index: number): void {
+    this.#hoveredChip.set({ messageId, index });
+    this.scheduleShowSourceRef(event, messageId, index);
+  }
+
+  onChipPointerLeave(): void {
+    this.#hoveredChip.set(null);
+    this.scheduleCloseSourceRef();
+  }
+
+  onChipClick(event: MouseEvent, source: ChatSourceView): void {
+    event.stopPropagation();
+    const url = source.url?.trim();
+    if (!hasText(url)) {
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+    this.closeSourceRef();
+  }
+
+  faviconUrl(source: ChatSourceView): string | null {
+    return sourceFaviconUrl(source);
+  }
+
+  isChipHighlighted(messageId: string, index: number): boolean {
+    const hover = this.#hoveredChip();
+    if (hover?.messageId === messageId && hover.index === index) {
+      return true;
+    }
+    // Keep highlight while the delayed panel is open (e.g. pointer moved onto it).
+    return this.isChipOpen(messageId, index);
+  }
+
+  sourceInitial(source: ChatSourceView): string {
+    return sourceInitial(source, this.footerLabels().sources);
+  }
+
+  sourceLabel(source: ChatSourceView): string {
+    return sourceLabel(source, this.footerLabels().sources);
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
@@ -373,97 +513,6 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
-  messageById(id: string): ChatMessageView | undefined {
-    return this.messageByIdMap().get(id);
-  }
-
-  messageKey(info?: { key?: string | number }): string {
-    return String(info?.key ?? '');
-  }
-
-  isStreaming(messageId: string): boolean {
-    const singleId = this.streamingMessageId();
-    if (singleId === messageId) {
-      return true;
-    }
-    return this.streamingMessageIds().has(messageId);
-  }
-
-  formatBasedOn(count: number): string {
-    return this.footerLabels().basedOn.replace('{count}', String(count));
-  }
-
-  sourceAt(messageId: string, index: number): ChatSourceView | undefined {
-    return this.messageById(messageId)?.sources?.[index];
-  }
-
-  sourceLabel(source: ChatSourceView): string {
-    return sourceLabel(source, this.footerLabels().sources);
-  }
-
-  faviconUrl(source: ChatSourceView): string | null {
-    return sourceFaviconUrl(source);
-  }
-
-  sourceInitial(source: ChatSourceView): string {
-    return sourceInitial(source, this.footerLabels().sources);
-  }
-
-  isChipOpen(messageId: string, index: number): boolean {
-    const ref = this.openRef();
-    return ref?.messageId === messageId && ref.index === index;
-  }
-
-  isChipHighlighted(messageId: string, index: number): boolean {
-    const hover = this.#hoveredChip();
-    if (hover?.messageId === messageId && hover.index === index) {
-      return true;
-    }
-    // Keep highlight while the delayed panel is open (e.g. pointer moved onto it).
-    return this.isChipOpen(messageId, index);
-  }
-
-  chipClass(messageId: string, index: number): string {
-    const base =
-      'inline-flex max-w-40 cursor-pointer items-center gap-1 rounded-full px-1.5 py-0.5 text-xs transition-colors';
-    if (this.isChipHighlighted(messageId, index)) {
-      return `${base} bg-foreground text-background`;
-    }
-    return `${base} bg-black/5 text-text-secondary`;
-  }
-
-  chipAriaLabel(index: number, source: ChatSourceView): string {
-    const title = `${String(index + 1)}. ${sourceTitle(source, this.footerLabels().sources)}`;
-    if (hasText(source.url)) {
-      return `${title}. ${this.footerLabels().openReference}`;
-    }
-    return title;
-  }
-
-  onJumpClick(): void {
-    this.closeSourceRef();
-  }
-
-  onChipClick(event: MouseEvent, source: ChatSourceView): void {
-    event.stopPropagation();
-    const url = source.url?.trim();
-    if (!hasText(url)) {
-      return;
-    }
-    window.open(url, '_blank', 'noopener,noreferrer');
-    this.closeSourceRef();
-  }
-
-  onChipPointerEnter(event: Event, messageId: string, index: number): void {
-    this.#hoveredChip.set({ messageId, index });
-    this.scheduleShowSourceRef(event, messageId, index);
-  }
-
-  onChipPointerLeave(): void {
-    this.#hoveredChip.set(null);
-    this.scheduleCloseSourceRef();
-  }
-
   scheduleShowSourceRef(event: Event, messageId: string, index: number): void {
     this.cancelCloseSourceRef();
     this.cancelOpenSourceRef();
@@ -480,6 +529,20 @@ export class ChatBubbleListComponent implements OnDestroy {
       this.#openTimer = null;
       this.#openSourceRefAt(target, messageId, index);
     }, OPEN_DELAY_MS);
+  }
+
+  cancelOpenSourceRef(): void {
+    if (this.#openTimer !== null) {
+      clearTimeout(this.#openTimer);
+      this.#openTimer = null;
+    }
+  }
+
+  closeSourceRef(): void {
+    this.cancelOpenSourceRef();
+    this.cancelCloseSourceRef();
+    this.#hoveredChip.set(null);
+    this.openRef.set(null);
   }
 
   #openSourceRefAt(
@@ -551,65 +614,5 @@ export class ChatBubbleListComponent implements OnDestroy {
     if (x !== current.x || y !== current.y) {
       this.openRef.set({ ...current, x, y });
     }
-  }
-
-  scheduleCloseSourceRef(): void {
-    this.cancelOpenSourceRef();
-    this.cancelCloseSourceRef();
-    this.#closeTimer = setTimeout(() => {
-      this.#closeTimer = null;
-      this.openRef.set(null);
-    }, CLOSE_DELAY_MS);
-  }
-
-  cancelOpenSourceRef(): void {
-    if (this.#openTimer !== null) {
-      clearTimeout(this.#openTimer);
-      this.#openTimer = null;
-    }
-  }
-
-  cancelCloseSourceRef(): void {
-    if (this.#closeTimer !== null) {
-      clearTimeout(this.#closeTimer);
-      this.#closeTimer = null;
-    }
-  }
-
-  closeSourceRef(): void {
-    this.cancelOpenSourceRef();
-    this.cancelCloseSourceRef();
-    this.#hoveredChip.set(null);
-    this.openRef.set(null);
-  }
-
-  isLongUserMessage(message: ChatMessageView): boolean {
-    return (
-      this.collapseLongUserMessages()
-      && message.content.length > USER_COLLAPSE_CHARS
-    );
-  }
-
-  isUserExpanded(messageId: string): boolean {
-    return this.#expandedUserIds().has(messageId);
-  }
-
-  userMessageText(message: ChatMessageView): string {
-    if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
-      return message.content;
-    }
-    return `${message.content.slice(0, USER_COLLAPSE_CHARS).trimEnd()}…`;
-  }
-
-  toggleUserExpanded(messageId: string): void {
-    this.#expandedUserIds.update((current) => {
-      const next = new Set(current);
-      if (next.has(messageId)) {
-        next.delete(messageId);
-      } else {
-        next.add(messageId);
-      }
-      return next;
-    });
   }
 }

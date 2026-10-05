@@ -74,18 +74,18 @@ export interface AccountLogoutDialogData {
   `,
 })
 export class AccountLogoutDialogComponent {
-  readonly data = inject<AccountLogoutDialogData>(Z_MODAL_DATA);
   readonly #account = inject(AccountService);
   readonly #dialogRef = inject(ZardDialogRef);
   readonly #i18n = inject(I18nService);
-
-  readonly avatarLetter = (
-    textOr(this.data.displayName.trim(), textOr(this.data.email, 'G'))
-  ).charAt(0).toUpperCase();
+  readonly data = inject<AccountLogoutDialogData>(Z_MODAL_DATA);
 
   get t() {
     return this.#i18n.t;
   }
+
+  readonly avatarLetter = (
+    textOr(this.data.displayName.trim(), textOr(this.data.email, 'G'))
+  ).charAt(0).toUpperCase();
 
   confirmLogout(): void {
     this.#dialogRef.close();

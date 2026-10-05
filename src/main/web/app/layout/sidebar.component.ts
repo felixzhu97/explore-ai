@@ -45,37 +45,13 @@ import { FeatureFlagService } from '../feature-flags/feature-flag.service';
 export class AppSidebarComponent implements OnInit {
   readonly #sanitizer = inject(DomSanitizer);
   readonly #router = inject(Router);
+  readonly #featureFlags = inject(FeatureFlagService);
   protected readonly i18n = inject(I18nService);
   readonly sidebar = inject(SidebarService);
   protected readonly sessionList = inject(SESSION_LIST);
-  readonly #featureFlags = inject(FeatureFlagService);
-
-  readonly #currentUrl = toSignal(
-    this.#router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.#router.url),
-      startWith(this.#router.url),
-    ),
-    { initialValue: this.#router.url },
-  );
 
   readonly collapsed = this.sidebar.collapsed;
-  readonly isPinnedExpanded = signal(true);
-  readonly isRecentsExpanded = signal(true);
-
   readonly #isMobile = signal(false);
-
-  readonly displaySessions = computed<SidebarSession[]>(
-    () => this.sessionList.sessions(),
-  );
-
-  readonly pinnedSessions = computed<SidebarSession[]>(() => {
-    return byNewest(this.displaySessions().filter(session => session.pinned));
-  });
-
-  readonly recentSessions = computed<SidebarSession[]>(() => {
-    return byNewest(this.displaySessions().filter(session => !session.pinned));
-  });
 
   readonly sidebarClasses = computed(() => {
     const mobile = this.#isMobile();
@@ -104,20 +80,42 @@ export class AppSidebarComponent implements OnInit {
     return classes.join(' ');
   });
 
+  get t() {
+    return this.i18n.t;
+  }
+
   readonly tabs = computed<ModuleNavTab[]>(() => MODULE_NAV_TABS.filter(
     tab => isNavTabEnabled(tab, this.#featureFlags),
   ));
 
   readonly primaryTabs = computed(() => primaryNavTabs(this.tabs()));
-
   readonly moreSections = computed(() => moreNavSections(this.tabs()));
-
   readonly navIconFn = (key: string): SafeHtml => this.getIcon(key);
 
-  isNavActive(path: string): boolean {
-    const [url = ''] = this.#currentUrl().split('?');
-    return url === path || url.startsWith(`${path}/`);
-  }
+  readonly displaySessions = computed<SidebarSession[]>(
+    () => this.sessionList.sessions(),
+  );
+
+  readonly pinnedSessions = computed<SidebarSession[]>(() => {
+    return byNewest(this.displaySessions().filter(session => session.pinned));
+  });
+
+  readonly isPinnedExpanded = signal(true);
+
+  readonly recentSessions = computed<SidebarSession[]>(() => {
+    return byNewest(this.displaySessions().filter(session => !session.pinned));
+  });
+
+  readonly isRecentsExpanded = signal(true);
+
+  readonly #currentUrl = toSignal(
+    this.#router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(() => this.#router.url),
+      startWith(this.#router.url),
+    ),
+    { initialValue: this.#router.url },
+  );
 
   constructor() {
     this.#updateMobileState();
@@ -127,30 +125,10 @@ export class AppSidebarComponent implements OnInit {
     this.sessionList.initializeSessions();
   }
 
-  #updateMobileState(): void {
-    const mobile = window.innerWidth < 768;
-    this.#isMobile.set(mobile);
-    if (mobile) {
-      this.sidebar.collapsed.set(false);
-    }
-  }
-
-  onResize(): void {
-    this.#updateMobileState();
-  }
-
-  get t() {
-    return this.i18n.t;
-  }
-
   toggleCollapse(): void {
     if (!this.#isMobile()) {
       this.collapsed.update(v => !v);
     }
-  }
-
-  onNavClick(): void {
-    this.sidebar.close();
   }
 
   newChat(): void {
@@ -158,17 +136,13 @@ export class AppSidebarComponent implements OnInit {
     this.sidebar.close();
   }
 
-  onSessionSelect(sessionId: string): void {
-    this.sessionList.selectSession(sessionId);
+  isNavActive(path: string): boolean {
+    const [url = ''] = this.#currentUrl().split('?');
+    return url === path || url.startsWith(`${path}/`);
+  }
+
+  onNavClick(): void {
     this.sidebar.close();
-  }
-
-  onSessionPin(sessionId: string): void {
-    this.sessionList.togglePin(sessionId);
-  }
-
-  onSessionDelete(sessionId: string): void {
-    this.sessionList.deleteSession(sessionId);
   }
 
   getIcon(key: string): SafeHtml {
@@ -190,11 +164,36 @@ export class AppSidebarComponent implements OnInit {
     return this.#sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
+  onSessionSelect(sessionId: string): void {
+    this.sessionList.selectSession(sessionId);
+    this.sidebar.close();
+  }
+
+  onSessionPin(sessionId: string): void {
+    this.sessionList.togglePin(sessionId);
+  }
+
+  onSessionDelete(sessionId: string): void {
+    this.sessionList.deleteSession(sessionId);
+  }
+
+  onResize(): void {
+    this.#updateMobileState();
+  }
+
   onDocumentPointerDown(event: PointerEvent): void {
     const isOutsideSidebar = (event.target as Element).closest('[data-sidebar-panel]') === null;
 
     if (this.sidebar.mobileOpen() && isOutsideSidebar) {
       this.sidebar.close();
+    }
+  }
+
+  #updateMobileState(): void {
+    const mobile = window.innerWidth < 768;
+    this.#isMobile.set(mobile);
+    if (mobile) {
+      this.sidebar.collapsed.set(false);
     }
   }
 }
