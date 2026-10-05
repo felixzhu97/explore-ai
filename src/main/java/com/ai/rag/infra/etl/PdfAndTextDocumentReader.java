@@ -5,17 +5,15 @@ import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.infra.parser.PdfTextExtractor;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /** Infrastructure adapter for reading PDF and plain text documents. */
 @Component
+@RequiredArgsConstructor
 public class PdfAndTextDocumentReader implements DocumentReader {
 
   private final PdfTextExtractor pdfTextExtractor;
-
-  public PdfAndTextDocumentReader(PdfTextExtractor pdfTextExtractor) {
-    this.pdfTextExtractor = pdfTextExtractor;
-  }
 
   @Override
   public RawDocument read(byte[] content, String fileName) {

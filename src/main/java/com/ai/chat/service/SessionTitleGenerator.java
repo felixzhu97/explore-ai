@@ -3,6 +3,7 @@ package com.ai.chat.service;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.AdvisorParams;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 /** Generates chat session titles of at most 50 characters in the user's language. */
 @Service
+@RequiredArgsConstructor
 public class SessionTitleGenerator {
 
   private static final Logger log = LoggerFactory.getLogger(SessionTitleGenerator.class);
@@ -23,10 +25,6 @@ public class SessionTitleGenerator {
             """;
 
   private final ChatClientProvider chatClientProvider;
-
-  public SessionTitleGenerator(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = chatClientProvider;
-  }
 
   /** Asks the LLM for a short title from the first exchange, falling back to the user message. */
   public String generate(String userMessage, String assistantReply) {

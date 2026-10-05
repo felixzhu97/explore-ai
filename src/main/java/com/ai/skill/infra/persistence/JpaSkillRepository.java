@@ -7,24 +7,20 @@ import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for skill aggregates. */
 @Repository
+@RequiredArgsConstructor
 public class JpaSkillRepository implements SkillRepository {
 
   private final SpringDataSkillRepository delegate;
   private static final Sort BY_NAME = Sort.by("name");
 
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaSkillRepository(
-      SpringDataSkillRepository delegate, OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional

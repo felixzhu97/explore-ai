@@ -9,17 +9,15 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /** Parallel sectioning/voting aligned with Spring AI agentic-patterns/parallelization-workflow. */
 @Component
+@RequiredArgsConstructor
 public class SpringAiParallelizationWorkflow implements ParallelizationWorkflow {
 
   private final ChatClientProvider chatClientProvider;
-
-  public SpringAiParallelizationWorkflow(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = chatClientProvider;
-  }
 
   @Override
   public ParallelizationResult parallel(String prompt, List<String> items, int parallelism) {

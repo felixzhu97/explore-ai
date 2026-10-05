@@ -11,12 +11,14 @@ import com.ai.rag.domain.vo.DocumentId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Document retrieval service - handles vector search and context building. */
 @Service
+@RequiredArgsConstructor
 public class DocumentSearchService {
 
   private static final Logger log = LoggerFactory.getLogger(DocumentSearchService.class);
@@ -27,15 +29,6 @@ public class DocumentSearchService {
   private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
   private final RagRetrievalSettings retrievalSettings;
-
-  public DocumentSearchService(
-      TextEmbeddingGateway embeddingRepository,
-      DocumentChunkSearchRepository chunkSearchRepository,
-      RagRetrievalSettings retrievalSettings) {
-    this.embeddingRepository = embeddingRepository;
-    this.chunkSearchRepository = chunkSearchRepository;
-    this.retrievalSettings = retrievalSettings;
-  }
 
   /**
    * Embeds the query and returns the owner's chunks above the score threshold as context and

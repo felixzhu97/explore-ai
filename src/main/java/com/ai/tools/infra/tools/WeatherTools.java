@@ -5,19 +5,17 @@ import com.ai.tools.domain.exception.InvalidWeatherQueryException;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 /** Spring AI tool callbacks exposing current weather and multi-day forecasts to the model. */
 @Component
+@RequiredArgsConstructor
 public class WeatherTools implements WeatherTool {
 
   private final WeatherReport weatherReport;
-
-  public WeatherTools(WeatherReport weatherReport) {
-    this.weatherReport = weatherReport;
-  }
 
   @Tool(
       description =

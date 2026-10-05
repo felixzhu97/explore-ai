@@ -4,6 +4,7 @@ import com.ai.chat.domain.service.LanguageDetectionService;
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
 import com.ai.common.infra.prompt.PromptTemplates;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,16 +12,11 @@ import org.springframework.stereotype.Component;
  * style fragment.
  */
 @Component
+@RequiredArgsConstructor
 public class LocalizedRagPromptBuilder {
 
   private final LanguageDetectionService languageDetectionService;
   private final PromptTemplates promptTemplates;
-
-  public LocalizedRagPromptBuilder(
-      LanguageDetectionService languageDetectionService, PromptTemplates promptTemplates) {
-    this.languageDetectionService = languageDetectionService;
-    this.promptTemplates = promptTemplates;
-  }
 
   public String build(String question, String context) {
     String languageCode = languageDetectionService.detect(question);

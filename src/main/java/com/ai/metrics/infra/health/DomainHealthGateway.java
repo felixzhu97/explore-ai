@@ -6,21 +6,17 @@ import com.ai.metrics.domain.vo.ModuleStatus;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.service.PipelineService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 /** Health gateway that reports system, agent pipeline, and MCP status for the metrics views. */
 @Component
+@RequiredArgsConstructor
 public class DomainHealthGateway implements MetricsHealthGateway {
 
   private final PipelineService pipelineService;
   private final ObjectProvider<McpHealthProbe> mcpHealthProbe;
-
-  public DomainHealthGateway(
-      PipelineService pipelineService, ObjectProvider<McpHealthProbe> mcpHealthProbe) {
-    this.pipelineService = pipelineService;
-    this.mcpHealthProbe = mcpHealthProbe;
-  }
 
   @Override
   public ModuleStatus systemStatus() {

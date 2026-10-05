@@ -7,24 +7,20 @@ import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for saved pipeline templates. */
 @Repository
+@RequiredArgsConstructor
 public class JpaPipelineTemplateRepository implements PipelineTemplateRepository {
 
   private final SpringDataPipelineTemplateRepository delegate;
   private static final Sort BY_NAME = Sort.by("name");
 
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaPipelineTemplateRepository(
-      SpringDataPipelineTemplateRepository delegate, OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional

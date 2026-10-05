@@ -6,20 +6,18 @@ import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 /** Shared in-process daily quota counter for HTTP filter and background automations. */
 @Service
 @EnableConfigurationProperties(BillingProperties.class)
+@RequiredArgsConstructor
 public class DailyUsageQuotaService {
 
   private final BillingProperties properties;
   private final Map<String, DayCounter> counters = new ConcurrentHashMap<>();
-
-  public DailyUsageQuotaService(BillingProperties properties) {
-    this.properties = properties;
-  }
 
   public boolean isEnabled() {
     return properties.isQuotaEnabled();

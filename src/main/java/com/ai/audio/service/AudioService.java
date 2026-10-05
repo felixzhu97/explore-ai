@@ -10,23 +10,20 @@ import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.domain.vo.VoiceSelection;
 import com.ai.common.infra.logging.LogSanitizer;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Entry point for text-to-speech synthesis and the catalog of available voices and models. */
 @Service
+@RequiredArgsConstructor
 public class AudioService {
 
   private static final Logger log = LoggerFactory.getLogger(AudioService.class);
 
   private final TextToSpeechGateway textToSpeechGateway;
   private final TtsConfiguration ttsConfiguration;
-
-  public AudioService(TextToSpeechGateway textToSpeechGateway, TtsConfiguration ttsConfiguration) {
-    this.textToSpeechGateway = textToSpeechGateway;
-    this.ttsConfiguration = ttsConfiguration;
-  }
 
   /** Synthesizes speech and returns the raw audio bytes, or {@code null} when nothing came back. */
   public byte[] synthesize(String text, String voice, Double speed) {

@@ -7,6 +7,7 @@ import com.ai.mcp.domain.repository.McpClientGateway;
 import com.ai.mcp.domain.vo.McpServerConnection;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -18,20 +19,12 @@ import org.springframework.stereotype.Service;
     name = "module-mcp",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class McpService {
 
   private final McpClientGateway mcpClientGateway;
   private final McpToolCallbackRegistry toolCallbackRegistry;
   private final ChatClientProvider chatClientProvider;
-
-  public McpService(
-      McpClientGateway mcpClientGateway,
-      McpToolCallbackRegistry toolCallbackRegistry,
-      ChatClientProvider chatClientProvider) {
-    this.mcpClientGateway = mcpClientGateway;
-    this.toolCallbackRegistry = toolCallbackRegistry;
-    this.chatClientProvider = chatClientProvider;
-  }
 
   public int getTotalToolCount() {
     return mcpClientGateway.toolCount();

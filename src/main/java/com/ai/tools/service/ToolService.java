@@ -12,6 +12,7 @@ import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 /** Entry point for tool-augmented chat and direct weather, document, and web search calls. */
 @Service
+@RequiredArgsConstructor
 public class ToolService {
 
   private static final Logger log = LoggerFactory.getLogger(ToolService.class);
@@ -29,21 +31,6 @@ public class ToolService {
   private final DocumentSearchTool documentSearchTool;
   private final WebSearchTool webSearchTool;
   private final AiInvocationRecorder invocationRecorder;
-
-  public ToolService(
-      ChatClientProvider chatClientProvider,
-      WeatherTools weatherTools,
-      WeatherReport weatherReport,
-      DocumentSearchTool documentSearchTool,
-      WebSearchTool webSearchTool,
-      AiInvocationRecorder invocationRecorder) {
-    this.chatClientProvider = chatClientProvider;
-    this.weatherTools = weatherTools;
-    this.weatherReport = weatherReport;
-    this.documentSearchTool = documentSearchTool;
-    this.webSearchTool = webSearchTool;
-    this.invocationRecorder = invocationRecorder;
-  }
 
   /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
   public String chatWithTools(String question) {

@@ -12,6 +12,7 @@ import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
 import java.time.Instant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Runs due automation schedules under daily quota, emails results and records each run. */
 @Service
+@RequiredArgsConstructor
 public class DueAutomationRunner {
 
   private static final Logger log = LoggerFactory.getLogger(DueAutomationRunner.class);
@@ -31,25 +33,6 @@ public class DueAutomationRunner {
   private final CronScheduleCalculator cronCalculator;
   private final DailyUsageQuotaService dailyUsageQuotaService;
   private final AutomationProperties properties;
-
-  public DueAutomationRunner(
-      AutomationScheduleRepository scheduleRepository,
-      AutomationRunRepository runRepository,
-      PipelineGateway pipelineGateway,
-      EmailGateway emailGateway,
-      AutomationMailFormatter mailFormatter,
-      CronScheduleCalculator cronCalculator,
-      DailyUsageQuotaService dailyUsageQuotaService,
-      AutomationProperties properties) {
-    this.scheduleRepository = scheduleRepository;
-    this.runRepository = runRepository;
-    this.pipelineGateway = pipelineGateway;
-    this.emailGateway = emailGateway;
-    this.mailFormatter = mailFormatter;
-    this.cronCalculator = cronCalculator;
-    this.dailyUsageQuotaService = dailyUsageQuotaService;
-    this.properties = properties;
-  }
 
   /** Claims and runs a batch of due schedules, returning how many this instance executed. */
   @Transactional

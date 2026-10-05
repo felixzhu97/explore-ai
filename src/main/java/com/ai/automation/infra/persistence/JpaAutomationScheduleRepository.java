@@ -8,6 +8,7 @@ import com.ai.common.infra.persistence.OwnerPartitionScope;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
@@ -15,18 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for automation schedules. */
 @Repository
+@RequiredArgsConstructor
 public class JpaAutomationScheduleRepository implements AutomationScheduleRepository {
 
   private final SpringDataAutomationScheduleRepository delegate;
   private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "createdAt");
 
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaAutomationScheduleRepository(
-      SpringDataAutomationScheduleRepository delegate, OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional

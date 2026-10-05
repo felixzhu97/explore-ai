@@ -5,6 +5,7 @@ import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.infra.config.MailProperties;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,17 +20,13 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "app.mail", name = "enabled", havingValue = "true")
 @ConditionalOnProperty(prefix = "app.mail", name = "provider", havingValue = "smtp")
 @EnableConfigurationProperties(MailProperties.class)
+@RequiredArgsConstructor
 public class SmtpEmailGateway implements EmailGateway {
 
   private static final Logger log = LoggerFactory.getLogger(SmtpEmailGateway.class);
 
   private final JavaMailSender mailSender;
   private final MailProperties mailProperties;
-
-  public SmtpEmailGateway(JavaMailSender mailSender, MailProperties mailProperties) {
-    this.mailSender = mailSender;
-    this.mailProperties = mailProperties;
-  }
 
   @Override
   public void send(EmailMessage message) {

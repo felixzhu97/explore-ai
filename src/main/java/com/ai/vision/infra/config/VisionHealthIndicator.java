@@ -3,6 +3,7 @@ package com.ai.vision.infra.config;
 import com.ai.vision.domain.repository.ImageCaptioner;
 import com.ai.vision.domain.repository.ObjectDetector;
 import com.ai.vision.domain.repository.OcrEngine;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
@@ -15,18 +16,12 @@ import org.springframework.stereotype.Component;
     name = "module-vision",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class VisionHealthIndicator implements HealthIndicator {
 
   private final ImageCaptioner captioner;
   private final ObjectDetector detector;
   private final OcrEngine ocrEngine;
-
-  public VisionHealthIndicator(
-      ImageCaptioner captioner, ObjectDetector detector, OcrEngine ocrEngine) {
-    this.captioner = captioner;
-    this.detector = detector;
-    this.ocrEngine = ocrEngine;
-  }
 
   @Override
   public Health health() {

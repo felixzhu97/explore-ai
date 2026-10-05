@@ -9,19 +9,17 @@ import com.ai.textanalysis.domain.repository.TextAnalysisGateway;
 import com.ai.textanalysis.domain.vo.AnalysisText;
 import com.ai.textanalysis.domain.vo.LanguageHint;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Repository;
 
 /** Spring AI repository that asks the chat model for structured JSON text analysis. */
 @Repository
+@RequiredArgsConstructor
 public class SpringAiTextAnalysisGateway implements TextAnalysisGateway {
 
   private final ChatClientProvider chatClientProvider;
-
-  public SpringAiTextAnalysisGateway(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = chatClientProvider;
-  }
 
   @Override
   public TextAnalysis analyze(AnalysisText text, LanguageHint hint) {

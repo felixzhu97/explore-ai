@@ -12,12 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Repository;
 
 /** Loads OpenAI Evals-style JSONL golden suites from {@code classpath:eval/golden/*.jsonl}. */
 @Repository
+@RequiredArgsConstructor
 public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
 
   private static final String PATTERN = "classpath:eval/golden/*.jsonl";
@@ -25,10 +27,6 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
   private final ObjectMapper objectMapper;
   private final PathMatchingResourcePatternResolver resolver =
       new PathMatchingResourcePatternResolver();
-
-  public ClasspathGoldenSuiteLoader(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
 
   @Override
   public List<GoldenEvalCase> loadAll() {

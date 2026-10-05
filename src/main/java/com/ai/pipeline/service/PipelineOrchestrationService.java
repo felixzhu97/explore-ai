@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -24,23 +25,13 @@ import reactor.core.scheduler.Schedulers;
 
 /** Orchestrator-workers engine that runs and records supervisor, agent and pipeline calls. */
 @Service
+@RequiredArgsConstructor
 public class PipelineOrchestrationService {
 
   private final AgentRegistry registry;
   private final SupervisorRouter supervisorRouter;
   private final WorkerAgentInvoker workerInvoker;
   private final AiInvocationRecorder invocationRecorder;
-
-  public PipelineOrchestrationService(
-      AgentRegistry registry,
-      SupervisorRouter supervisorRouter,
-      WorkerAgentInvoker workerInvoker,
-      AiInvocationRecorder invocationRecorder) {
-    this.registry = registry;
-    this.supervisorRouter = supervisorRouter;
-    this.workerInvoker = workerInvoker;
-    this.invocationRecorder = invocationRecorder;
-  }
 
   public List<AgentDefinition> listAgents(String ownerKey, String language) {
     return registry.listAll(ownerKey, language);

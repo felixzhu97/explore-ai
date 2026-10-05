@@ -2,6 +2,7 @@ package com.ai.mcp.infra.health;
 
 import com.ai.mcp.service.McpService;
 import com.ai.metrics.domain.repository.McpHealthProbe;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +13,10 @@ import org.springframework.stereotype.Component;
     name = "module-mcp",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class McpServiceHealthProbe implements McpHealthProbe {
 
   private final McpService mcpService;
-
-  public McpServiceHealthProbe(McpService mcpService) {
-    this.mcpService = mcpService;
-  }
 
   @Override
   public int registeredToolCount() {

@@ -8,6 +8,7 @@ import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
@@ -17,13 +18,10 @@ import org.springframework.stereotype.Component;
 
 /** Synchronizes Spring AI ChatMemory with domain ChatSession aggregates. */
 @Component
+@RequiredArgsConstructor
 public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
   private final ChatMemory chatMemory;
-
-  public ChatMemorySessionBridge(ChatMemory chatMemory) {
-    this.chatMemory = chatMemory;
-  }
 
   /** Seeds chat memory with the session's existing messages when the memory is still empty. */
   public void seedIfEmpty(String conversationId, List<ChatMessage> existingMessages) {

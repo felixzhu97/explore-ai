@@ -2,11 +2,13 @@ package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.repository.OwnerPartitionRepository;
 import com.ai.common.domain.vo.OwnerKey;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /** JDBC repository that reassigns or deletes all owner-partitioned rows across data tables. */
 @Repository
+@RequiredArgsConstructor
 public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
 
   private static final String[] OWNER_TABLES = {
@@ -22,10 +24,6 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
   };
 
   private final JdbcTemplate jdbcTemplate;
-
-  public JdbcOwnerPartitionRepository(JdbcTemplate jdbcTemplate) {
-    this.jdbcTemplate = jdbcTemplate;
-  }
 
   @Override
   public void reassignOwner(OwnerKey from, OwnerKey to) {

@@ -6,6 +6,7 @@ import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.infra.config.RagProperties;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpResource;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
     name = "module-mcp",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class McpServerToolsProvider {
 
   private static final Logger log = LoggerFactory.getLogger(McpServerToolsProvider.class);
@@ -29,17 +31,6 @@ public class McpServerToolsProvider {
   private final DocumentSearchTool documentSearchTool;
   private final ChatService chatService;
   private final RagProperties ragProperties;
-
-  public McpServerToolsProvider(
-      WeatherTools weatherTools,
-      DocumentSearchTool documentSearchTool,
-      ChatService chatService,
-      RagProperties ragProperties) {
-    this.weatherTools = weatherTools;
-    this.documentSearchTool = documentSearchTool;
-    this.chatService = chatService;
-    this.ragProperties = ragProperties;
-  }
 
   @McpTool(
       name = "get_weather",

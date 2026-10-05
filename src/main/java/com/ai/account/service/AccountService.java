@@ -13,6 +13,7 @@ import com.ai.billing.infra.config.BillingProperties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
   OAuthGithubProperties.class,
   OAuthExploreIamProperties.class
 })
+@RequiredArgsConstructor
 public class AccountService {
 
   private final AccountUserRepository accountUserRepository;
@@ -40,19 +42,6 @@ public class AccountService {
   private final OAuthGoogleProperties oauthGoogleProperties;
   private final OAuthGithubProperties oauthGithubProperties;
   private final OAuthExploreIamProperties oauthExploreIamProperties;
-
-  public AccountService(
-      AccountUserRepository accountUserRepository,
-      BillingProperties billingProperties,
-      OAuthGoogleProperties oauthGoogleProperties,
-      OAuthGithubProperties oauthGithubProperties,
-      OAuthExploreIamProperties oauthExploreIamProperties) {
-    this.accountUserRepository = accountUserRepository;
-    this.billingProperties = billingProperties;
-    this.oauthGoogleProperties = oauthGoogleProperties;
-    this.oauthGithubProperties = oauthGithubProperties;
-    this.oauthExploreIamProperties = oauthExploreIamProperties;
-  }
 
   /** Returns the viewer's account state for the request's Client Identity. */
   @Transactional

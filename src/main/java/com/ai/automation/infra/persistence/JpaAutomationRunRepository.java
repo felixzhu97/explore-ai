@@ -7,26 +7,19 @@ import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for automation run records. */
 @Repository
+@RequiredArgsConstructor
 public class JpaAutomationRunRepository implements AutomationRunRepository {
 
   private final SpringDataAutomationRunRepository delegate;
   private final EntityManager entityManager;
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaAutomationRunRepository(
-      SpringDataAutomationRunRepository delegate,
-      EntityManager entityManager,
-      OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.entityManager = entityManager;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional

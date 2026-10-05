@@ -5,21 +5,18 @@ import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.repository.AgentRegistry;
 import com.ai.pipeline.domain.vo.AgentType;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 /** Entry point for agent listing and supervisor, single-agent and pipeline invocations. */
 @Service
+@RequiredArgsConstructor
 public class PipelineService {
 
   private final AgentRegistry registry;
   private final PipelineOrchestrationService orchestrator;
-
-  public PipelineService(AgentRegistry registry, PipelineOrchestrationService orchestrator) {
-    this.registry = registry;
-    this.orchestrator = orchestrator;
-  }
 
   public List<AgentDefinition> listAgents(String ownerKey, String language) {
     return orchestrator.listAgents(ownerKey, language);

@@ -5,22 +5,18 @@ import com.ai.account.domain.repository.AccountUserRepository;
 import jakarta.persistence.EntityManager;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.KeyType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for account_users. */
 @Repository
+@RequiredArgsConstructor
 public class JpaAccountUserRepository implements AccountUserRepository {
 
   private final SpringDataAccountUserRepository delegate;
   private final EntityManager entityManager;
-
-  public JpaAccountUserRepository(
-      SpringDataAccountUserRepository delegate, EntityManager entityManager) {
-    this.delegate = delegate;
-    this.entityManager = entityManager;
-  }
 
   @Override
   @Transactional

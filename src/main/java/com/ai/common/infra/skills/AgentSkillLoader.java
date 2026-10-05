@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -21,14 +22,11 @@ import org.springframework.stereotype.Component;
 
 /** Discovers {@code SKILL.md} files and parses their frontmatter into agent skills. */
 @Component
+@RequiredArgsConstructor
 public class AgentSkillLoader {
   private static final Logger log = LoggerFactory.getLogger(AgentSkillLoader.class);
   private static final Pattern SKILL_NAME = Pattern.compile("^[a-z0-9-]{1,64}$");
   private final AgentSkillsProperties agentProperties;
-
-  public AgentSkillLoader(AgentSkillsProperties agentProperties) {
-    this.agentProperties = agentProperties;
-  }
 
   /** Loads the configured skill ids from the resource location, skipping invalid or duplicates. */
   public List<AgentSkill> loadEnabledSkills() {

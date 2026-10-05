@@ -7,24 +7,20 @@ import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for saved pipeline agent definitions. */
 @Repository
+@RequiredArgsConstructor
 public class JpaSavedAgentRepository implements SavedAgentRepository {
 
   private final SpringDataSavedAgentRepository delegate;
   private static final Sort BY_NAME = Sort.by("name");
 
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaSavedAgentRepository(
-      SpringDataSavedAgentRepository delegate, OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional

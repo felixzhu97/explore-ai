@@ -4,6 +4,7 @@ import com.ai.common.service.llm.ToolCallEvent;
 import com.ai.common.service.llm.ToolResultEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
@@ -13,17 +14,13 @@ import org.springframework.lang.Nullable;
  * Wraps a {@link ToolCallback} and emits SSE-friendly tool_call / tool_result events. Binds {@link
  * ToolEventChannel} to {@code conversationId} on the tool execution thread.
  */
+@RequiredArgsConstructor
 public final class NotifyingToolCallback implements ToolCallback {
 
   private static final ObjectMapper JSON = new ObjectMapper();
 
   private final ToolCallback delegate;
   private final String conversationId;
-
-  public NotifyingToolCallback(ToolCallback delegate, String conversationId) {
-    this.delegate = delegate;
-    this.conversationId = conversationId;
-  }
 
   @Override
   public ToolDefinition getToolDefinition() {

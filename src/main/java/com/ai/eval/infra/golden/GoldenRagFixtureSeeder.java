@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
     name = "module-eval",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class GoldenRagFixtureSeeder {
 
   private static final Logger log = LoggerFactory.getLogger(GoldenRagFixtureSeeder.class);
@@ -37,10 +39,6 @@ public class GoldenRagFixtureSeeder {
   private final DocumentUploadService documentUploadService;
   private final PathMatchingResourcePatternResolver resolver =
       new PathMatchingResourcePatternResolver();
-
-  public GoldenRagFixtureSeeder(DocumentUploadService documentUploadService) {
-    this.documentUploadService = documentUploadService;
-  }
 
   /**
    * Ensures golden RAG fixture documents exist and returns their ids.

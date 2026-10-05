@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -19,13 +20,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * the shared EntityManager opens a fresh session per call outside one.
  */
 @Component
+@RequiredArgsConstructor
 public class OwnerPartitionScope {
 
   private final EntityManager entityManager;
-
-  public OwnerPartitionScope(EntityManager entityManager) {
-    this.entityManager = entityManager;
-  }
 
   /** Returns the result of {@code work} with only {@code ownerKey} rows visible. */
   public <T> T apply(OwnerKey ownerKey, Supplier<T> work) {

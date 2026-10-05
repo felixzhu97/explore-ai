@@ -18,24 +18,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** Builds metrics overviews, per-domain snapshots, daily series, and event drilldowns. */
 @Service
+@RequiredArgsConstructor
 public class MetricsService {
 
   private final MetricsQueryRepository queryRepository;
   private final AiInvocationEventRepository eventRepository;
   private final MetricsHealthGateway healthGateway;
-
-  public MetricsService(
-      MetricsQueryRepository queryRepository,
-      AiInvocationEventRepository eventRepository,
-      MetricsHealthGateway healthGateway) {
-    this.queryRepository = queryRepository;
-    this.eventRepository = eventRepository;
-    this.healthGateway = healthGateway;
-  }
 
   /** Returns cross-domain request, error, latency, token, and inventory totals for the range. */
   public MetricsOverview overview(String range) {

@@ -8,18 +8,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /** JDBC repository that aggregates invocation, chat, and RAG metrics with SQL queries. */
 @Repository
+@RequiredArgsConstructor
 public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   private final JdbcTemplate jdbcTemplate;
-
-  public JdbcMetricsQueryRepository(JdbcTemplate jdbcTemplate) {
-    this.jdbcTemplate = jdbcTemplate;
-  }
 
   @Override
   public long countInvocations(Optional<AiDomain> domain, Instant from, Instant to) {

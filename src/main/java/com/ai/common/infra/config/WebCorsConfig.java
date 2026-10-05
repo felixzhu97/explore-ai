@@ -1,6 +1,7 @@
 package com.ai.common.infra.config;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -12,15 +13,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 @EnableConfigurationProperties(CorsProperties.class)
+@RequiredArgsConstructor
 public class WebCorsConfig implements WebMvcConfigurer {
 
   private static final String API_PATH_PATTERN = "/api/**";
 
   private final CorsProperties corsProperties;
-
-  public WebCorsConfig(CorsProperties corsProperties) {
-    this.corsProperties = corsProperties;
-  }
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {

@@ -3,6 +3,7 @@ package com.ai.audio.infra.config;
 import com.ai.audio.infra.websocket.AudioTranscriptionWebSocketHandler;
 import com.ai.common.infra.config.CorsProperties;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,16 +20,11 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
     name = "module-audio-asr",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class AudioWebSocketConfig implements WebSocketConfigurer {
 
   private final AudioTranscriptionWebSocketHandler transcriptionHandler;
   private final CorsProperties corsProperties;
-
-  public AudioWebSocketConfig(
-      AudioTranscriptionWebSocketHandler transcriptionHandler, CorsProperties corsProperties) {
-    this.transcriptionHandler = transcriptionHandler;
-    this.corsProperties = corsProperties;
-  }
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

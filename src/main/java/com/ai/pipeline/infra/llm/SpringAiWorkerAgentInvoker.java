@@ -13,6 +13,7 @@ import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.service.WorkerAgentInvoker;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -21,6 +22,7 @@ import reactor.core.scheduler.Schedulers;
 
 /** Spring AI worker invoker that prompts an agent with its system prompt and allowed tools. */
 @Component
+@RequiredArgsConstructor
 public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
   private final ChatClientProvider chatClientProvider;
@@ -29,21 +31,6 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   private final WeatherTool weatherTool;
   private final DateTimeTool dateTimeTool;
   private final AgentSkillsRuntime agentSkillsRuntime;
-
-  public SpringAiWorkerAgentInvoker(
-      ChatClientProvider chatClientProvider,
-      DocumentSearchTool documentSearchTool,
-      WebSearchTool webSearchTool,
-      WeatherTool weatherTool,
-      DateTimeTool dateTimeTool,
-      AgentSkillsRuntime agentSkillsRuntime) {
-    this.chatClientProvider = chatClientProvider;
-    this.documentSearchTool = documentSearchTool;
-    this.webSearchTool = webSearchTool;
-    this.weatherTool = weatherTool;
-    this.dateTimeTool = dateTimeTool;
-    this.agentSkillsRuntime = agentSkillsRuntime;
-  }
 
   @Override
   public Flux<String> invokeStream(AgentDefinition agent, String task) {

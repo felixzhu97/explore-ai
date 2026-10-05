@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
  * retrieval.
  */
 @Component
+@RequiredArgsConstructor
 public class H2SpringAiVectorStore implements VectorStore {
 
   public static final String DOCUMENT_ID_METADATA_KEY = "document_id";
@@ -34,13 +36,6 @@ public class H2SpringAiVectorStore implements VectorStore {
 
   private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
-
-  public H2SpringAiVectorStore(
-      TextEmbeddingGateway embeddingRepository,
-      DocumentChunkSearchRepository chunkSearchRepository) {
-    this.embeddingRepository = embeddingRepository;
-    this.chunkSearchRepository = chunkSearchRepository;
-  }
 
   @Override
   public String getName() {

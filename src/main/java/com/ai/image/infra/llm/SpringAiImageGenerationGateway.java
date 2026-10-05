@@ -4,6 +4,7 @@ import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.domain.vo.ImageOptions;
 import com.ai.image.domain.vo.ImagePrompt;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.image.ImageModel;
@@ -14,15 +15,12 @@ import org.springframework.util.StringUtils;
 
 /** Spring AI repository that generates images through an OpenAI-compatible image model. */
 @Repository
+@RequiredArgsConstructor
 public class SpringAiImageGenerationGateway implements ImageGenerationGateway {
 
   private static final Logger log = LoggerFactory.getLogger(SpringAiImageGenerationGateway.class);
 
   private final ImageModel imageModel;
-
-  public SpringAiImageGenerationGateway(ImageModel imageModel) {
-    this.imageModel = imageModel;
-  }
 
   @Override
   public GeneratedImage generate(ImagePrompt prompt, ImageOptions options) {
