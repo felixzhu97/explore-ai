@@ -19,12 +19,6 @@ public class JpaAccountUserRepository implements AccountUserRepository {
   private final EntityManager entityManager;
 
   @Override
-  @Transactional
-  public AccountUser save(AccountUser user) {
-    return delegate.saveAndFlush(user);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public Optional<AccountUser> findByProviderAndSubject(String provider, String subject) {
     if (provider == null || provider.isBlank() || subject == null || subject.isBlank()) {
@@ -42,5 +36,11 @@ public class JpaAccountUserRepository implements AccountUserRepository {
       return Optional.empty();
     }
     return delegate.findByLinkedClientId(linkedClientId);
+  }
+
+  @Override
+  @Transactional
+  public AccountUser save(AccountUser user) {
+    return delegate.saveAndFlush(user);
   }
 }

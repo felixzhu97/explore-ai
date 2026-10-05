@@ -25,24 +25,6 @@ public class ImageController {
 
   private final ImageGenerationService imageGenerationService;
 
-  /** Generate an image from text prompt. */
-  @PostMapping("/generate")
-  public ImageGenerationResponse generateImage(@Valid @RequestBody ImageGenerationRequest request) {
-    GeneratedImage image =
-        imageGenerationService.generateImage(
-            request.prompt(),
-            request.model(),
-            request.quality(),
-            request.width(),
-            request.height(),
-            request.n());
-    if (!image.isAvailable()) {
-      throw new AiServiceException("Failed to generate image", "IMAGE_GENERATION_FAILED", null);
-    }
-    String model = request.model() != null ? request.model() : image.model();
-    return ImageGenerationResponse.success(image.url(), image.base64(), model, request.prompt());
-  }
-
   /** Get available image generation models. */
   @GetMapping("/models")
   public ResponseEntity<ImageModelsResponse> getImageModels() {
@@ -62,5 +44,23 @@ public class ImageController {
   public ResponseEntity<ImageQualitiesResponse> getImageQualities() {
     return ResponseEntity.ok(
         new ImageQualitiesResponse(imageGenerationService.getAvailableImageQualities()));
+  }
+
+  /** Generate an image from text prompt. */
+  @PostMapping("/generate")
+  public ImageGenerationResponse generateImage(@Valid @RequestBody ImageGenerationRequest request) {
+    GeneratedImage image =
+        imageGenerationService.generateImage(
+            request.prompt(),
+            request.model(),
+            request.quality(),
+            request.width(),
+            request.height(),
+            request.n());
+    if (!image.isAvailable()) {
+      throw new AiServiceException("Failed to generate image", "IMAGE_GENERATION_FAILED", null);
+    }
+    String model = request.model() != null ? request.model() : image.model();
+    return ImageGenerationResponse.success(image.url(), image.base64(), model, request.prompt());
   }
 }

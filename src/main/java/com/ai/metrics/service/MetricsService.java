@@ -70,48 +70,6 @@ public class MetricsService {
         domains);
   }
 
-  /** Returns request stats, domain-specific inventory, and trend series for one AI domain. */
-  public MetricsDomainSnapshot domain(String domainRaw, String range) {
-    AiDomain domain = AiDomain.require(domainRaw);
-    RangeWindow window = parseRange(range);
-    Optional<AiDomain> filter = Optional.of(domain);
-
-    long requests = queryRepository.countInvocations(filter, window.from(), window.to());
-    long errors = queryRepository.countErrors(filter, window.from(), window.to());
-    var latency = queryRepository.latencyPercentiles(filter, window.from(), window.to());
-    var tokens = queryRepository.tokenTotals(filter, window.from(), window.to());
-    double errorRate = requests == 0 ? 0.0 : (double) errors / requests;
-
-    DomainInventory inventory =
-        switch (domain) {
-          case CHAT ->
-              new DomainInventory.Chat(
-                  queryRepository.chatInventory(Instant.now().minus(24, ChronoUnit.HOURS)));
-          case RAG -> new DomainInventory.Rag(queryRepository.ragInventory());
-          case AGENTS -> new DomainInventory.Agents(healthGateway.agentsHealth());
-          case TOOLS ->
-              new DomainInventory.Tools(
-                  queryRepository.topTools(filter, window.from(), window.to(), 10).stream()
-                      .map(nc -> new NamedCount(nc.name(), nc.count()))
-                      .toList());
-          case VISION, WORKFLOW -> new DomainInventory.Requests(requests, errors);
-        };
-
-    return new MetricsDomainSnapshot(
-        domain.value(),
-        window.range(),
-        requests,
-        errors,
-        errorRate,
-        latency.p50Ms(),
-        latency.p95Ms(),
-        tokens.promptTokens(),
-        tokens.completionTokens(),
-        inventory,
-        series("requests", domain.value(), window.range()).points(),
-        series("calls_by_model", domain.value(), window.range()).points());
-  }
-
   /** Returns the named chart series, optionally filtered by domain, over the given range. */
   public SeriesSnapshot series(String name, String domainRaw, String range) {
     RangeWindow window = parseRange(range);
@@ -201,6 +159,48 @@ public class MetricsService {
                 safeSize));
 
     return new DrilldownPage(result.items(), result.total(), safePage, safeSize);
+  }
+
+  /** Returns request stats, domain-specific inventory, and trend series for one AI domain. */
+  public MetricsDomainSnapshot domain(String domainRaw, String range) {
+    AiDomain domain = AiDomain.require(domainRaw);
+    RangeWindow window = parseRange(range);
+    Optional<AiDomain> filter = Optional.of(domain);
+
+    long requests = queryRepository.countInvocations(filter, window.from(), window.to());
+    long errors = queryRepository.countErrors(filter, window.from(), window.to());
+    var latency = queryRepository.latencyPercentiles(filter, window.from(), window.to());
+    var tokens = queryRepository.tokenTotals(filter, window.from(), window.to());
+    double errorRate = requests == 0 ? 0.0 : (double) errors / requests;
+
+    DomainInventory inventory =
+        switch (domain) {
+          case CHAT ->
+              new DomainInventory.Chat(
+                  queryRepository.chatInventory(Instant.now().minus(24, ChronoUnit.HOURS)));
+          case RAG -> new DomainInventory.Rag(queryRepository.ragInventory());
+          case AGENTS -> new DomainInventory.Agents(healthGateway.agentsHealth());
+          case TOOLS ->
+              new DomainInventory.Tools(
+                  queryRepository.topTools(filter, window.from(), window.to(), 10).stream()
+                      .map(nc -> new NamedCount(nc.name(), nc.count()))
+                      .toList());
+          case VISION, WORKFLOW -> new DomainInventory.Requests(requests, errors);
+        };
+
+    return new MetricsDomainSnapshot(
+        domain.value(),
+        window.range(),
+        requests,
+        errors,
+        errorRate,
+        latency.p50Ms(),
+        latency.p95Ms(),
+        tokens.promptTokens(),
+        tokens.completionTokens(),
+        inventory,
+        series("requests", domain.value(), window.range()).points(),
+        series("calls_by_model", domain.value(), window.range()).points());
   }
 
   private List<SeriesPoint> toPoints(List<MetricsQueryRepository.TimePoint> points) {

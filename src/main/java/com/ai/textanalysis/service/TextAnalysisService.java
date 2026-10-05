@@ -19,11 +19,6 @@ public class TextAnalysisService {
 
   private final TextAnalysisGateway textAnalysisGateway;
 
-  public TextAnalysis analyzeText(String text) {
-    log.info("TextAnalysisService.analyzeText: {}", LogSanitizer.truncate(text));
-    return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.none());
-  }
-
   /** Analyzes the text and asks the model to respond in the given language. */
   public TextAnalysis analyzeTextWithLanguage(String text, String language) {
     log.info(
@@ -31,5 +26,10 @@ public class TextAnalysisService {
         LogSanitizer.truncate(text),
         language);
     return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.of(language));
+  }
+
+  public TextAnalysis analyzeText(String text) {
+    log.info("TextAnalysisService.analyzeText: {}", LogSanitizer.truncate(text));
+    return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.none());
   }
 }

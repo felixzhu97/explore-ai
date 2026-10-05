@@ -77,13 +77,6 @@ public class RagController {
                 result.createdAt()));
   }
 
-  @DeleteMapping("/documents/{id}")
-  @Operation(summary = "Delete a document")
-  public ResponseEntity<Void> deleteDocument(@PathVariable UUID id, HttpServletRequest request) {
-    ragApplicationService.deleteDocument(id, ownerContext.requireValue(request));
-    return ResponseEntity.noContent().build();
-  }
-
   @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "RAG streaming chat")
   public Flux<ServerSentEvent<String>> ragChatStream(
@@ -98,6 +91,13 @@ public class RagController {
     }
     return ragChatService.chatStream(
         request.question(), request.documentIds(), request.topK(), request.sessionId(), ownerKey);
+  }
+
+  @DeleteMapping("/documents/{id}")
+  @Operation(summary = "Delete a document")
+  public ResponseEntity<Void> deleteDocument(@PathVariable UUID id, HttpServletRequest request) {
+    ragApplicationService.deleteDocument(id, ownerContext.requireValue(request));
+    return ResponseEntity.noContent().build();
   }
 
   private DocumentSummaryResponse toSummary(RagDocument doc, Map<DocumentId, Integer> chunkCounts) {

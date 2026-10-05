@@ -23,12 +23,6 @@ public class JpaSkillRepository implements SkillRepository {
   private final OwnerPartitionScope ownerPartition;
 
   @Override
-  @Transactional
-  public Skill save(Skill skill) {
-    return delegate.saveAndFlush(skill);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public Optional<Skill> findByIdAndOwnerKey(SkillId id, String ownerKey) {
     return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
@@ -51,12 +45,6 @@ public class JpaSkillRepository implements SkillRepository {
   }
 
   @Override
-  @Transactional
-  public void deleteByIdAndOwnerKey(SkillId id, String ownerKey) {
-    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public boolean existsByOwnerKeyAndNameIgnoringId(
       String ownerKey, String name, SkillId excludeId) {
@@ -66,5 +54,17 @@ public class JpaSkillRepository implements SkillRepository {
             excludeId == null
                 ? delegate.existsByName(name)
                 : delegate.existsByNameAndIdNot(name, excludeId));
+  }
+
+  @Override
+  @Transactional
+  public Skill save(Skill skill) {
+    return delegate.saveAndFlush(skill);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByIdAndOwnerKey(SkillId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 }

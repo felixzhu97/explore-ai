@@ -25,12 +25,6 @@ public class JpaAutomationScheduleRepository implements AutomationScheduleReposi
   private final OwnerPartitionScope ownerPartition;
 
   @Override
-  @Transactional
-  public AutomationSchedule save(AutomationSchedule schedule) {
-    return delegate.saveAndFlush(schedule);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, String ownerKey) {
     return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
@@ -49,16 +43,22 @@ public class JpaAutomationScheduleRepository implements AutomationScheduleReposi
   }
 
   @Override
-  @Transactional
-  public void deleteByIdAndOwnerKey(ScheduleId id, String ownerKey) {
-    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public List<AutomationSchedule> findDue(Instant asOf, int limit) {
     return delegate.findByEnabledTrueAndNextRunAtLessThanEqualOrderByNextRunAtAsc(
         asOf, PageRequest.of(0, limit));
+  }
+
+  @Override
+  @Transactional
+  public AutomationSchedule save(AutomationSchedule schedule) {
+    return delegate.saveAndFlush(schedule);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByIdAndOwnerKey(ScheduleId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 
   @Override

@@ -38,14 +38,6 @@ public class McpService {
     return mcpClientGateway.listTools();
   }
 
-  public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
-    toolCallbackRegistry.registerToolCallbacks(tools, serverName);
-  }
-
-  public void clearTools() {
-    mcpClientGateway.clearTools();
-  }
-
   /** Answers the question with a stateless chat that can call all registered MCP tools. */
   public String chatWithTools(String question) {
     ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
@@ -56,5 +48,13 @@ public class McpService {
         .tools(tools)
         .call()
         .content();
+  }
+
+  public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
+    toolCallbackRegistry.registerToolCallbacks(tools, serverName);
+  }
+
+  public void clearTools() {
+    mcpClientGateway.clearTools();
   }
 }

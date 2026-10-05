@@ -8,36 +8,19 @@ import java.util.Optional;
 
 /** Read-side repository for aggregated invocation counts, latencies, tokens, and inventories. */
 public interface MetricsQueryRepository {
-  record LatencyStats(Double p50Ms, Double p95Ms) {}
-
-  record TokenTotals(Long promptTokens, Long completionTokens) {}
-
-  record NamedCount(String name, long count) {}
-
-  record TimePoint(String day, long value) {}
-
-  record ChatInventory(
-      long sessionCount, long activeSessionCount, long messageCount, long webSourceReplyCount) {}
-
-  record RagInventory(
-      long documentCount,
-      Map<String, Long> documentsByStatus,
-      long chunkCount,
-      long totalFileBytes) {}
-
   long countInvocations(Optional<AiDomain> domain, Instant from, Instant to);
 
   long countErrors(Optional<AiDomain> domain, Instant from, Instant to);
-
-  LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to);
-
-  TokenTotals tokenTotals(Optional<AiDomain> domain, Instant from, Instant to);
 
   List<NamedCount> countByDomain(Instant from, Instant to);
 
   List<NamedCount> countByModel(Optional<AiDomain> domain, Instant from, Instant to);
 
   List<NamedCount> countByAgentType(Instant from, Instant to);
+
+  LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to);
+
+  TokenTotals tokenTotals(Optional<AiDomain> domain, Instant from, Instant to);
 
   List<NamedCount> topTools(Optional<AiDomain> domain, Instant from, Instant to, int limit);
 
@@ -56,4 +39,21 @@ public interface MetricsQueryRepository {
   ChatInventory chatInventory(Instant activeSince);
 
   RagInventory ragInventory();
+
+  record LatencyStats(Double p50Ms, Double p95Ms) {}
+
+  record TokenTotals(Long promptTokens, Long completionTokens) {}
+
+  record NamedCount(String name, long count) {}
+
+  record TimePoint(String day, long value) {}
+
+  record ChatInventory(
+      long sessionCount, long activeSessionCount, long messageCount, long webSourceReplyCount) {}
+
+  record RagInventory(
+      long documentCount,
+      Map<String, Long> documentsByStatus,
+      long chunkCount,
+      long totalFileBytes) {}
 }

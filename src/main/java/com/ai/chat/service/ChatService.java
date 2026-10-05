@@ -68,45 +68,61 @@ public class ChatService {
   private final AiInvocationRecorder invocationRecorder;
   private final AiInvocationEventRepository invocationEventRepository;
 
-  public String chat(String userMessage) {
-    return chat(userMessage, TextChatOptions.defaults());
+  /** Returns the client's sessions, most recently active first. */
+  public List<ChatSession> listSessions(String ownerKey) {
+    return repository.findByOwnerKey(ownerKey).stream()
+        .map(
+            session -> {
+              conversationMemoryRepository.syncToSession(session.getId().value(), session);
+              return session;
+            })
+        .toList();
   }
 
-  /** Sends one stateless message with retries and records the invocation. */
-  public String chat(String userMessage, TextChatOptions options) {
-    log.info("Chat request with retry: {}", LogSanitizer.truncate(userMessage, 100));
-    long startedAt = System.nanoTime();
-    try {
-      String response =
-          retryTemplate.execute(
-              context -> {
-                ChatClient chatClient = chatClientProvider.createStateless(options);
-                String content = chatClient.prompt().user(userMessage).call().content();
-                if (content == null || content.isBlank()) {
-                  throw new AiServiceException("AI returned empty response");
-                }
-                return content;
-              });
-      invocationRecorder.recordSuccess(
-          AiDomain.CHAT,
-          "chat.call",
-          elapsedMs(startedAt),
-          options.provider(),
-          options.model(),
-          null);
-      return response;
-    } catch (RuntimeException ex) {
-      invocationRecorder.recordError(
-          AiDomain.CHAT,
-          "chat.call",
-          elapsedMs(startedAt),
-          options.provider(),
-          options.model(),
-          null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
-      throw ex;
+  /** Returns the client's session messages in chronological order. */
+  public List<ChatMessage> findSessionHistory(String sessionId, String ownerKey) {
+    ChatSession session =
+        repository
+            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+    conversationMemoryRepository.syncToSession(sessionId, session);
+    return session.getMessages();
+  }
+
+  public String chatWithSession(String sessionId, String userMessage, String ownerKey) {
+    ChatSession session = loadOrCreateSession(sessionId, ownerKey);
+    return exchangeMessages(session, sessionId, userMessage, TextChatOptions.defaults());
+  }
+
+  public String chatWithSession(String userMessage, String ownerKey) {
+    ChatSession session = getOrCreateDefaultSession(ownerKey);
+    return exchangeMessages(
+        session, session.getId().value(), userMessage, TextChatOptions.defaults());
+  }
+
+  /** Creates an empty chat session owned by the client. */
+  public ChatSession createSession(String title, String ownerKey) {
+    ChatSession session = ChatSession.create(title, ownerKey);
+    repository.save(session);
+    log.info(
+        "Created new session title={} idFp={} clientFp={}",
+        title,
+        LogSanitizer.fingerprint(session.getId().value()),
+        LogSanitizer.fingerprint(ownerKey));
+    return session;
+  }
+
+  /** Deletes the client's session and its chat memory. */
+  public void deleteSession(String sessionId, String ownerKey) {
+    ChatSessionId id = ChatSessionId.of(sessionId);
+    if (repository.findByIdAndOwnerKey(id, ownerKey).isEmpty()) {
+      throw new ChatSessionNotFoundException(sessionId);
     }
+    conversationMemoryRepository.clear(sessionId);
+    chatWebSourcesRepository.deleteByConversationId(sessionId);
+    CapturedWebSources.clear(sessionId);
+    repository.delete(id);
+    log.info("Deleted sessionFp={}", LogSanitizer.fingerprint(sessionId));
   }
 
   /** Streams a reply within a session, persisting both turns after completion. */
@@ -177,6 +193,102 @@ public class ChatService {
               }
             })
         .subscribeOn(Schedulers.boundedElastic());
+  }
+
+  /** Streams a reply for an ad-hoc message list without a session. */
+  public Flux<String> chatStream(
+      List<ChatMessage> messages, TextChatOptions options, String ownerKey) {
+    String requestId = java.util.UUID.randomUUID().toString();
+    ToolEventChannel.setCurrentSessionId(requestId);
+    try {
+      ChatClient chatClient = chatClientProvider.createStateless(options);
+      return mergeToolEvents(
+          chatClient
+              .prompt()
+              .messages(messages.stream().map(this::toSpringMessage).toList())
+              .stream()
+              .content(),
+          requestId,
+          ownerKey,
+          options.toolsEnabled());
+    } finally {
+      ToolEventChannel.clearCurrentSessionId();
+    }
+  }
+
+  public String chat(String userMessage) {
+    return chat(userMessage, TextChatOptions.defaults());
+  }
+
+  /** Sends one stateless message with retries and records the invocation. */
+  public String chat(String userMessage, TextChatOptions options) {
+    log.info("Chat request with retry: {}", LogSanitizer.truncate(userMessage, 100));
+    long startedAt = System.nanoTime();
+    try {
+      String response =
+          retryTemplate.execute(
+              context -> {
+                ChatClient chatClient = chatClientProvider.createStateless(options);
+                String content = chatClient.prompt().user(userMessage).call().content();
+                if (content == null || content.isBlank()) {
+                  throw new AiServiceException("AI returned empty response");
+                }
+                return content;
+              });
+      invocationRecorder.recordSuccess(
+          AiDomain.CHAT,
+          "chat.call",
+          elapsedMs(startedAt),
+          options.provider(),
+          options.model(),
+          null);
+      return response;
+    } catch (RuntimeException ex) {
+      invocationRecorder.recordError(
+          AiDomain.CHAT,
+          "chat.call",
+          elapsedMs(startedAt),
+          options.provider(),
+          options.model(),
+          null,
+          ex.getClass().getSimpleName(),
+          ex.getMessage());
+      throw ex;
+    }
+  }
+
+  /** Returns the session when it belongs to the client. */
+  public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
+    return repository
+        .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+        .map(
+            session -> {
+              conversationMemoryRepository.syncToSession(sessionId, session);
+              return session;
+            });
+  }
+
+  /** Deletes every session owned by the client. */
+  public void deleteAllSessions(String ownerKey) {
+    List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
+    List<String> sessionIds = sessions.stream().map(session -> session.getId().value()).toList();
+    for (ChatSession session : sessions) {
+      String sessionId = session.getId().value();
+      conversationMemoryRepository.clear(sessionId);
+      chatWebSourcesRepository.deleteByConversationId(sessionId);
+      CapturedWebSources.clear(sessionId);
+      repository.delete(session.getId());
+    }
+    int metricsDeleted = invocationEventRepository.deleteBySessionIds(sessionIds);
+    log.info(
+        "Erased {} sessions and {} metrics events for clientFp={}",
+        sessions.size(),
+        metricsDeleted,
+        LogSanitizer.fingerprint(ownerKey));
+  }
+
+  public void clearConversationMemory(String conversationId) {
+    chatMemory.clear(conversationId);
   }
 
   private static long elapsedMs(long startedAtNanos) {
@@ -322,17 +434,6 @@ public class ChatService {
         conversationId, lastAssistant.getText(), capture.query(), capture.sources());
   }
 
-  public String chatWithSession(String sessionId, String userMessage, String ownerKey) {
-    ChatSession session = loadOrCreateSession(sessionId, ownerKey);
-    return exchangeMessages(session, sessionId, userMessage, TextChatOptions.defaults());
-  }
-
-  public String chatWithSession(String userMessage, String ownerKey) {
-    ChatSession session = getOrCreateDefaultSession(ownerKey);
-    return exchangeMessages(
-        session, session.getId().value(), userMessage, TextChatOptions.defaults());
-  }
-
   private String exchangeMessages(
       ChatSession session, String conversationId, String userMessage, TextChatOptions options) {
     conversationMemoryRepository.seedIfEmpty(conversationId, session.getMessages());
@@ -359,27 +460,6 @@ public class ChatService {
     }
 
     return aiResponse;
-  }
-
-  /** Streams a reply for an ad-hoc message list without a session. */
-  public Flux<String> chatStream(
-      List<ChatMessage> messages, TextChatOptions options, String ownerKey) {
-    String requestId = java.util.UUID.randomUUID().toString();
-    ToolEventChannel.setCurrentSessionId(requestId);
-    try {
-      ChatClient chatClient = chatClientProvider.createStateless(options);
-      return mergeToolEvents(
-          chatClient
-              .prompt()
-              .messages(messages.stream().map(this::toSpringMessage).toList())
-              .stream()
-              .content(),
-          requestId,
-          ownerKey,
-          options.toolsEnabled());
-    } finally {
-      ToolEventChannel.clearCurrentSessionId();
-    }
   }
 
   private void generateTitleAsync(
@@ -430,86 +510,6 @@ public class ChatService {
     ChatSession session = ChatSession.createWithId(id, ChatSession.DEFAULT_TITLE, ownerKey);
     repository.save(session);
     return session;
-  }
-
-  /** Creates an empty chat session owned by the client. */
-  public ChatSession createSession(String title, String ownerKey) {
-    ChatSession session = ChatSession.create(title, ownerKey);
-    repository.save(session);
-    log.info(
-        "Created new session title={} idFp={} clientFp={}",
-        title,
-        LogSanitizer.fingerprint(session.getId().value()),
-        LogSanitizer.fingerprint(ownerKey));
-    return session;
-  }
-
-  /** Returns the session when it belongs to the client. */
-  public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
-    return repository
-        .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
-        .map(
-            session -> {
-              conversationMemoryRepository.syncToSession(sessionId, session);
-              return session;
-            });
-  }
-
-  /** Returns the client's session messages in chronological order. */
-  public List<ChatMessage> findSessionHistory(String sessionId, String ownerKey) {
-    ChatSession session =
-        repository
-            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
-            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
-    conversationMemoryRepository.syncToSession(sessionId, session);
-    return session.getMessages();
-  }
-
-  /** Deletes the client's session and its chat memory. */
-  public void deleteSession(String sessionId, String ownerKey) {
-    ChatSessionId id = ChatSessionId.of(sessionId);
-    if (repository.findByIdAndOwnerKey(id, ownerKey).isEmpty()) {
-      throw new ChatSessionNotFoundException(sessionId);
-    }
-    conversationMemoryRepository.clear(sessionId);
-    chatWebSourcesRepository.deleteByConversationId(sessionId);
-    CapturedWebSources.clear(sessionId);
-    repository.delete(id);
-    log.info("Deleted sessionFp={}", LogSanitizer.fingerprint(sessionId));
-  }
-
-  /** Deletes every session owned by the client. */
-  public void deleteAllSessions(String ownerKey) {
-    List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
-    List<String> sessionIds = sessions.stream().map(session -> session.getId().value()).toList();
-    for (ChatSession session : sessions) {
-      String sessionId = session.getId().value();
-      conversationMemoryRepository.clear(sessionId);
-      chatWebSourcesRepository.deleteByConversationId(sessionId);
-      CapturedWebSources.clear(sessionId);
-      repository.delete(session.getId());
-    }
-    int metricsDeleted = invocationEventRepository.deleteBySessionIds(sessionIds);
-    log.info(
-        "Erased {} sessions and {} metrics events for clientFp={}",
-        sessions.size(),
-        metricsDeleted,
-        LogSanitizer.fingerprint(ownerKey));
-  }
-
-  /** Returns the client's sessions, most recently active first. */
-  public List<ChatSession> listSessions(String ownerKey) {
-    return repository.findByOwnerKey(ownerKey).stream()
-        .map(
-            session -> {
-              conversationMemoryRepository.syncToSession(session.getId().value(), session);
-              return session;
-            })
-        .toList();
-  }
-
-  public void clearConversationMemory(String conversationId) {
-    chatMemory.clear(conversationId);
   }
 
   private Message toSpringMessage(ChatMessage msg) {

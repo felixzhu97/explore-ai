@@ -32,6 +32,29 @@ public class ToolService {
   private final WebSearchTool webSearchTool;
   private final AiInvocationRecorder invocationRecorder;
 
+  public String lookupWeather(String city) {
+    log.info("ToolService.lookupWeather: {}", city);
+    return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
+  }
+
+  /** Returns a formatted weather forecast for the city over the requested number of days. */
+  public String lookupForecast(String city, Integer days) {
+    log.info("ToolService.lookupForecast: {} days={}", city, days);
+    return weatherReport
+        .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
+        .content();
+  }
+
+  public String searchDocuments(String query, List<String> documentIds) {
+    log.info("ToolService.searchDocuments: {}", LogSanitizer.truncate(query));
+    return documentSearchTool.searchDocuments(query, documentIds);
+  }
+
+  public String listDocuments() {
+    log.info("ToolService.listDocuments");
+    return documentSearchTool.listDocuments();
+  }
+
   /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
   public String chatWithTools(String question) {
     log.info("ToolService.chatWithTools: {}", LogSanitizer.truncate(question));
@@ -60,29 +83,6 @@ public class ToolService {
           ex.getMessage());
       throw ex;
     }
-  }
-
-  public String lookupWeather(String city) {
-    log.info("ToolService.lookupWeather: {}", city);
-    return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
-  }
-
-  /** Returns a formatted weather forecast for the city over the requested number of days. */
-  public String lookupForecast(String city, Integer days) {
-    log.info("ToolService.lookupForecast: {} days={}", city, days);
-    return weatherReport
-        .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
-        .content();
-  }
-
-  public String searchDocuments(String query, List<String> documentIds) {
-    log.info("ToolService.searchDocuments: {}", LogSanitizer.truncate(query));
-    return documentSearchTool.searchDocuments(query, documentIds);
-  }
-
-  public String listDocuments() {
-    log.info("ToolService.listDocuments");
-    return documentSearchTool.listDocuments();
   }
 
   public String searchWeb(String query) {

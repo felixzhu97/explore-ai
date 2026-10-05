@@ -22,6 +22,10 @@ public class PipelineService {
     return orchestrator.listAgents(ownerKey, language);
   }
 
+  public int builtinCount() {
+    return registry.listBuiltins("en").size();
+  }
+
   public AgentDefinition health(String agentType, String ownerKey, String language) {
     return orchestrator.health(AgentType.of(agentType), ownerKey, language);
   }
@@ -31,22 +35,18 @@ public class PipelineService {
     return orchestrator.invokeSupervisor(message, ownerKey, language);
   }
 
-  public Flux<ServerSentEvent<String>> invokeAgent(
-      String agentType, String message, String ownerKey, String language) {
-    return orchestrator.invokeAgent(AgentType.of(agentType), message, ownerKey, language);
-  }
-
   public Flux<ServerSentEvent<String>> invokePipeline(
       String message, AgentPipeline pipeline, String ownerKey, String language) {
     return orchestrator.invokePipeline(message, pipeline, ownerKey, language);
   }
 
+  public Flux<ServerSentEvent<String>> invokeAgent(
+      String agentType, String message, String ownerKey, String language) {
+    return orchestrator.invokeAgent(AgentType.of(agentType), message, ownerKey, language);
+  }
+
   public String invokePipelineSync(
       String message, AgentPipeline pipeline, String ownerKey, String language) {
     return orchestrator.invokePipelineSync(message, pipeline, ownerKey, language);
-  }
-
-  public int builtinCount() {
-    return registry.listBuiltins("en").size();
   }
 }

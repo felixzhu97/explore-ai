@@ -23,12 +23,6 @@ public class JpaPipelineTemplateRepository implements PipelineTemplateRepository
   private final OwnerPartitionScope ownerPartition;
 
   @Override
-  @Transactional
-  public PipelineTemplate save(PipelineTemplate template) {
-    return delegate.saveAndFlush(template);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public Optional<PipelineTemplate> findByIdAndOwnerKey(PipelineTemplateId id, String ownerKey) {
     return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
@@ -41,12 +35,6 @@ public class JpaPipelineTemplateRepository implements PipelineTemplateRepository
   }
 
   @Override
-  @Transactional
-  public void deleteByIdAndOwnerKey(PipelineTemplateId id, String ownerKey) {
-    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public boolean existsByOwnerKeyAndNameIgnoringId(
       String ownerKey, String name, PipelineTemplateId excludeId) {
@@ -56,5 +44,17 @@ public class JpaPipelineTemplateRepository implements PipelineTemplateRepository
             excludeId == null
                 ? delegate.existsByName(name)
                 : delegate.existsByNameAndIdNot(name, excludeId));
+  }
+
+  @Override
+  @Transactional
+  public PipelineTemplate save(PipelineTemplate template) {
+    return delegate.saveAndFlush(template);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByIdAndOwnerKey(PipelineTemplateId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 }
