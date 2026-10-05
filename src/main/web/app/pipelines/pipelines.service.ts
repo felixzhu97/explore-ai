@@ -149,6 +149,12 @@ export class PipelinesService {
       .pipe(map(templates => templates.map(toPipelineTemplate)));
   }
 
+  createTemplate(request: CreatePipelineTemplateRequest): Observable<PipelineTemplate> {
+    return this.#http
+      .post<PipelineTemplateResponse>(this.#templatesBase, request)
+      .pipe(map(toPipelineTemplate));
+  }
+
   createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
     return this.#http
       .post<PipelineTemplateResponse>(
@@ -156,12 +162,6 @@ export class PipelinesService {
         { templateId },
         { params: this.#langParams() },
       )
-      .pipe(map(toPipelineTemplate));
-  }
-
-  createTemplate(request: CreatePipelineTemplateRequest): Observable<PipelineTemplate> {
-    return this.#http
-      .post<PipelineTemplateResponse>(this.#templatesBase, request)
       .pipe(map(toPipelineTemplate));
   }
 

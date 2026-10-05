@@ -127,6 +127,13 @@ export class AutomationsService {
       .pipe(map(schedules => schedules.map(toAutomationSchedule)));
   }
 
+  listRuns(id: string, limit = 20): Observable<AutomationRun[]> {
+    const params = new HttpParams().set('limit', String(limit));
+    return this.#http
+      .get<AutomationRunResponse[]>(`${this.#base}/${id}/runs`, { params })
+      .pipe(map(runs => runs.map(toAutomationRun)));
+  }
+
   create(request: CreateAutomationScheduleRequest): Observable<AutomationSchedule> {
     return this.#http
       .post<AutomationScheduleResponse>(this.#base, request)
@@ -150,12 +157,5 @@ export class AutomationsService {
 
   delete(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#base}/${id}`);
-  }
-
-  listRuns(id: string, limit = 20): Observable<AutomationRun[]> {
-    const params = new HttpParams().set('limit', String(limit));
-    return this.#http
-      .get<AutomationRunResponse[]>(`${this.#base}/${id}/runs`, { params })
-      .pipe(map(runs => runs.map(toAutomationRun)));
   }
 }

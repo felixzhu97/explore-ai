@@ -138,6 +138,12 @@ export class ChatService {
   #streamAbort: (() => void) | null = null;
   #sessionLoadGeneration = 0;
 
+  #sessionsInitialized = false;
+  #initializationInProgress = false;
+  #sessionCreationInProgress = false;
+  /** Blocks selectSession/sync while a `/chat` redirect is in flight. */
+  #chatRedirectInFlight = false;
+
   loadProviders(): void {
     this.#getProviders().subscribe({
       next: (data) => {
@@ -264,41 +270,6 @@ export class ChatService {
     this.#refreshSessions({ createIfEmpty: true, finalizeBootstrap: true });
   }
 
-  #sessionsInitialized = false;
-  #initializationInProgress = false;
-  #sessionCreationInProgress = false;
-  /** Blocks selectSession/sync while a `/chat` redirect is in flight. */
-  #chatRedirectInFlight = false;
-
-  #markSessionsReady(): void {
-    this.#sessionsInitialized = true;
-    this.#initializationInProgress = false;
-    this.sessionsReady.set(true);
-  }
-
-  #refreshSessions(options: {
-    createIfEmpty: boolean;
-    finalizeBootstrap?: boolean;
-  }): void {
-    this.#getSessions().subscribe({
-      next: (sessions) => {
-        const sorted = this.#sortSessionsByActivity(sessions);
-        this.sessions.set(sorted);
-        this.#resolveBootstrapSession(sorted, options);
-        if (options.finalizeBootstrap === true) {
-          this.#markSessionsReady();
-        }
-      },
-      error: () => {
-        this.sessions.set([]);
-        if (options.finalizeBootstrap === true) {
-          this.#markSessionsReady();
-          this.#ensureEmptyDraft(options.createIfEmpty);
-        }
-      },
-    });
-  }
-
   createSession(): void {
     this.#ensureEmptyDraft(true, { navigateToChat: true });
   }
@@ -376,6 +347,197 @@ export class ChatService {
           } else {
             this.#clearActiveChat();
           }
+        }
+      },
+    });
+  }
+
+  sendMessage(content: string): void {
+    const sessionId = this.activeSessionId();
+    if (
+      !hasText(sessionId)
+      || content.trim() === ''
+      || this.isLoading()
+      || this.isLoadingSession()
+    ) {
+      return;
+    }
+
+    if (!this.isSelectedProviderAvailable()) {
+      const provider = this.providers().find(p => p.name === this.selectedProvider());
+      this.error.set(
+        `${provider?.displayName ?? this.selectedProvider()} is not configured. Configure the API key or enable the provider before chatting.`,
+      );
+      return;
+    }
+
+    if (this.#streamAbort !== null) {
+      this.#streamAbort();
+    }
+
+    const now = Instant.now();
+    const userMsg: ChatMessage = {
+      id: `user_${String(now.toEpochMilli())}`,
+      role: 'user',
+      content: content.trim(),
+      timestamp: now,
+    };
+    const assistantId = `assistant_${String(now.toEpochMilli())}`;
+
+    this.messages.update(messages => [
+      ...messages,
+      userMsg,
+      { id: assistantId, role: 'assistant', content: '', timestamp: now },
+    ]);
+    this.sessions.update(list => list.map(session => (
+      session.sessionId === sessionId
+        ? { ...session, messageCount: Math.max(session.messageCount, 1) }
+        : session
+    )));
+    // Promote bare `/chat` → `/chat/<id>` once the session has content.
+    this.#rememberActiveSessionIfNeeded(sessionId);
+    this.#syncChatUrl(sessionId);
+    this.isLoading.set(true);
+    this.streamingMessageId.set(assistantId);
+    this.error.set(null);
+
+    let fullContent = '';
+    const streamRequest: ChatStreamMessage[] = [{ role: 'user', content: userMsg.content }];
+
+    const { abort } = this.#chatStream(
+      {
+        messages: streamRequest,
+        sessionId,
+        provider: this.selectedProvider(),
+        model: this.selectedModel(),
+        toolsEnabled: this.toolsEnabled(),
+        skillIds: this.selectedSkillIds(),
+      },
+      (chunk) => {
+        fullContent += chunk;
+        const displayContent = stripToolCallMarkup(fullContent);
+        this.messages.update(messages => messages.map((message) => {
+          if (message.id !== assistantId) {
+            return message;
+          }
+          return { ...message, content: displayContent };
+        }),
+        );
+      },
+      () => {
+        // Drop empty placeholder before clearing streaming to avoid a blank-bubble flash.
+        this.messages.update((messages) => {
+          const target = messages.find(message => message.id === assistantId);
+          if (target !== undefined && !hasRenderableBody(target)) {
+            return messages.filter(message => message.id !== assistantId);
+          }
+          return messages;
+        });
+        this.isLoading.set(false);
+        this.streamingMessageId.set(null);
+        this.#streamAbort = null;
+        this.#syncSessionMessages(sessionId);
+        this.loadSessions();
+        setTimeout(() => {
+          this.#syncSessionMessages(sessionId);
+          this.loadSessions();
+        }, 2500);
+      },
+      (error) => {
+        this.error.set(error.message);
+        this.messages.update(messages => messages.map((message) => {
+          if (message.id !== assistantId) {
+            return message;
+          }
+          return { ...message, content: error.message };
+        }),
+        );
+        this.isLoading.set(false);
+        this.streamingMessageId.set(null);
+        this.#streamAbort = null;
+      },
+      (event) => {
+        if (event.type === 'message') {
+          return;
+        }
+        this.messages.update(messages => messages.map((message) => {
+          if (message.id !== assistantId) {
+            return message;
+          }
+          if (event.type === 'tool_call') {
+            const steps = [...(message.toolSteps ?? [])];
+            steps.push({
+              name: event.name,
+              label: toolLabel(event.name),
+              status: 'running',
+            });
+            return { ...message, toolSteps: steps };
+          }
+          if (event.type === 'tool_result') {
+            const steps = (message.toolSteps ?? []).map((step) => {
+              if (step.name !== event.name || step.status !== 'running') {
+                return step;
+              }
+              return {
+                ...step,
+                status: event.ok ? 'success' as const : 'error' as const,
+              };
+            });
+            return { ...message, toolSteps: steps };
+          }
+          return { ...message, sources: event.items };
+        }));
+      },
+    );
+    this.#streamAbort = abort;
+  }
+
+  abortStream(): void {
+    if (this.#streamAbort === null) {
+      return;
+    }
+    this.#streamAbort();
+    this.#streamAbort = null;
+    const streamingId = this.streamingMessageId();
+    this.isLoading.set(false);
+    this.streamingMessageId.set(null);
+    if (streamingId === null) {
+      return;
+    }
+    // Drop the empty assistant placeholder so the UI does not stay on "thinking".
+    this.messages.update((messages) => {
+      const target = messages.find(message => message.id === streamingId);
+      if (target !== undefined && !hasRenderableBody(target)) {
+        return messages.filter(message => message.id !== streamingId);
+      }
+      return messages;
+    });
+  }
+
+  #markSessionsReady(): void {
+    this.#sessionsInitialized = true;
+    this.#initializationInProgress = false;
+    this.sessionsReady.set(true);
+  }
+
+  #refreshSessions(options: {
+    createIfEmpty: boolean;
+    finalizeBootstrap?: boolean;
+  }): void {
+    this.#getSessions().subscribe({
+      next: (sessions) => {
+        const sorted = this.#sortSessionsByActivity(sessions);
+        this.sessions.set(sorted);
+        this.#resolveBootstrapSession(sorted, options);
+        if (options.finalizeBootstrap === true) {
+          this.#markSessionsReady();
+        }
+      },
+      error: () => {
+        this.sessions.set([]);
+        if (options.finalizeBootstrap === true) {
+          this.#markSessionsReady();
+          this.#ensureEmptyDraft(options.createIfEmpty);
         }
       },
     });
@@ -613,168 +775,6 @@ export class ChatService {
           });
         }
       },
-    });
-  }
-
-  sendMessage(content: string): void {
-    const sessionId = this.activeSessionId();
-    if (
-      !hasText(sessionId)
-      || content.trim() === ''
-      || this.isLoading()
-      || this.isLoadingSession()
-    ) {
-      return;
-    }
-
-    if (!this.isSelectedProviderAvailable()) {
-      const provider = this.providers().find(p => p.name === this.selectedProvider());
-      this.error.set(
-        `${provider?.displayName ?? this.selectedProvider()} is not configured. Configure the API key or enable the provider before chatting.`,
-      );
-      return;
-    }
-
-    if (this.#streamAbort !== null) {
-      this.#streamAbort();
-    }
-
-    const now = Instant.now();
-    const userMsg: ChatMessage = {
-      id: `user_${String(now.toEpochMilli())}`,
-      role: 'user',
-      content: content.trim(),
-      timestamp: now,
-    };
-    const assistantId = `assistant_${String(now.toEpochMilli())}`;
-
-    this.messages.update(messages => [
-      ...messages,
-      userMsg,
-      { id: assistantId, role: 'assistant', content: '', timestamp: now },
-    ]);
-    this.sessions.update(list => list.map(session => (
-      session.sessionId === sessionId
-        ? { ...session, messageCount: Math.max(session.messageCount, 1) }
-        : session
-    )));
-    // Promote bare `/chat` → `/chat/<id>` once the session has content.
-    this.#rememberActiveSessionIfNeeded(sessionId);
-    this.#syncChatUrl(sessionId);
-    this.isLoading.set(true);
-    this.streamingMessageId.set(assistantId);
-    this.error.set(null);
-
-    let fullContent = '';
-    const streamRequest: ChatStreamMessage[] = [{ role: 'user', content: userMsg.content }];
-
-    const { abort } = this.#chatStream(
-      {
-        messages: streamRequest,
-        sessionId,
-        provider: this.selectedProvider(),
-        model: this.selectedModel(),
-        toolsEnabled: this.toolsEnabled(),
-        skillIds: this.selectedSkillIds(),
-      },
-      (chunk) => {
-        fullContent += chunk;
-        const displayContent = stripToolCallMarkup(fullContent);
-        this.messages.update(messages => messages.map((message) => {
-          if (message.id !== assistantId) {
-            return message;
-          }
-          return { ...message, content: displayContent };
-        }),
-        );
-      },
-      () => {
-        // Drop empty placeholder before clearing streaming to avoid a blank-bubble flash.
-        this.messages.update((messages) => {
-          const target = messages.find(message => message.id === assistantId);
-          if (target !== undefined && !hasRenderableBody(target)) {
-            return messages.filter(message => message.id !== assistantId);
-          }
-          return messages;
-        });
-        this.isLoading.set(false);
-        this.streamingMessageId.set(null);
-        this.#streamAbort = null;
-        this.#syncSessionMessages(sessionId);
-        this.loadSessions();
-        setTimeout(() => {
-          this.#syncSessionMessages(sessionId);
-          this.loadSessions();
-        }, 2500);
-      },
-      (error) => {
-        this.error.set(error.message);
-        this.messages.update(messages => messages.map((message) => {
-          if (message.id !== assistantId) {
-            return message;
-          }
-          return { ...message, content: error.message };
-        }),
-        );
-        this.isLoading.set(false);
-        this.streamingMessageId.set(null);
-        this.#streamAbort = null;
-      },
-      (event) => {
-        if (event.type === 'message') {
-          return;
-        }
-        this.messages.update(messages => messages.map((message) => {
-          if (message.id !== assistantId) {
-            return message;
-          }
-          if (event.type === 'tool_call') {
-            const steps = [...(message.toolSteps ?? [])];
-            steps.push({
-              name: event.name,
-              label: toolLabel(event.name),
-              status: 'running',
-            });
-            return { ...message, toolSteps: steps };
-          }
-          if (event.type === 'tool_result') {
-            const steps = (message.toolSteps ?? []).map((step) => {
-              if (step.name !== event.name || step.status !== 'running') {
-                return step;
-              }
-              return {
-                ...step,
-                status: event.ok ? 'success' as const : 'error' as const,
-              };
-            });
-            return { ...message, toolSteps: steps };
-          }
-          return { ...message, sources: event.items };
-        }));
-      },
-    );
-    this.#streamAbort = abort;
-  }
-
-  abortStream(): void {
-    if (this.#streamAbort === null) {
-      return;
-    }
-    this.#streamAbort();
-    this.#streamAbort = null;
-    const streamingId = this.streamingMessageId();
-    this.isLoading.set(false);
-    this.streamingMessageId.set(null);
-    if (streamingId === null) {
-      return;
-    }
-    // Drop the empty assistant placeholder so the UI does not stay on "thinking".
-    this.messages.update((messages) => {
-      const target = messages.find(message => message.id === streamingId);
-      if (target !== undefined && !hasRenderableBody(target)) {
-        return messages.filter(message => message.id !== streamingId);
-      }
-      return messages;
     });
   }
 
