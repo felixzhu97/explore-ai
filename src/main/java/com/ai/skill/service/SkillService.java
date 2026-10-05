@@ -20,6 +20,10 @@ public class SkillService {
     return skillRepository.findAllByOwnerKey(ownerKey);
   }
 
+  public List<SkillTemplate> listTemplates(String language) {
+    return SkillTemplateCatalog.listAll(language);
+  }
+
   public Skill get(String ownerKey, String id) {
     return findOwnedSkill(ownerKey, id);
   }
@@ -33,6 +37,20 @@ public class SkillService {
     assertNameAvailable(ownerKey, name, null);
     Skill skill = Skill.create(ownerKey, name, description, instructions, allowedTools);
     return skillRepository.save(skill);
+  }
+
+  /** Copies a built-in skill template into the owner's skills. */
+  public Skill createFromTemplate(String ownerKey, String templateId, String language) {
+    SkillTemplate template =
+        SkillTemplateCatalog.findById(templateId, language)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Unknown skill template: " + templateId));
+    return create(
+        ownerKey,
+        nextAvailableName(ownerKey, template.name()),
+        template.description(),
+        template.instructions(),
+        template.allowedTools());
   }
 
   /** Replaces the owner's skill, keeping names unique per owner. */
@@ -63,24 +81,6 @@ public class SkillService {
   public void delete(String ownerKey, String id) {
     findOwnedSkill(ownerKey, id);
     skillRepository.deleteByIdAndOwnerKey(SkillId.of(id), ownerKey);
-  }
-
-  public List<SkillTemplate> listTemplates(String language) {
-    return SkillTemplateCatalog.listAll(language);
-  }
-
-  /** Copies a built-in skill template into the owner's skills. */
-  public Skill createFromTemplate(String ownerKey, String templateId, String language) {
-    SkillTemplate template =
-        SkillTemplateCatalog.findById(templateId, language)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Unknown skill template: " + templateId));
-    return create(
-        ownerKey,
-        nextAvailableName(ownerKey, template.name()),
-        template.description(),
-        template.instructions(),
-        template.allowedTools());
   }
 
   private Skill findOwnedSkill(String ownerKey, String id) {

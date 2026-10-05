@@ -57,6 +57,17 @@ public class VisionAnalysisService {
     this.invocationRecorder = invocationRecorder;
   }
 
+  /** Reports each vision provider's status, overall UP only when all three are available. */
+  public VisionHealthResponse health() {
+    VisionProvidersResponse providers =
+        new VisionProvidersResponse(
+            HealthStatus.of(captioner.isAvailable()),
+            HealthStatus.of(detector.isAvailable()),
+            HealthStatus.of(ocrEngine.isAvailable()));
+    boolean allUp = captioner.isAvailable() && detector.isAvailable() && ocrEngine.isAvailable();
+    return new VisionHealthResponse(allUp ? HealthStatus.UP : HealthStatus.DEGRADED, providers);
+  }
+
   /** Captions the uploaded image, recording latency and the invocation outcome. */
   public CaptionResponse caption(MultipartFile file) throws IOException {
     BufferedImage image = toImage(file);
@@ -72,31 +83,6 @@ public class VisionAnalysisService {
       invocationRecorder.recordError(
           AiDomain.VISION,
           "vision.caption",
-          elapsedMillis(startedAt),
-          null,
-          null,
-          null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
-      throw ex;
-    }
-  }
-
-  /** Extracts text from the uploaded image, recording latency and the invocation outcome. */
-  public OcrResponse ocr(MultipartFile file) throws IOException {
-    BufferedImage image = toImage(file);
-    long startedAt = System.nanoTime();
-    try {
-      var result = ocrEngine.extract(image);
-      long processingTimeMs = elapsedMillis(startedAt);
-      ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-      invocationRecorder.recordSuccess(
-          AiDomain.VISION, "vision.ocr", processingTimeMs, null, null, null);
-      return new OcrResponse(result.text(), processingTimeMs);
-    } catch (RuntimeException ex) {
-      invocationRecorder.recordError(
-          AiDomain.VISION,
-          "vision.ocr",
           elapsedMillis(startedAt),
           null,
           null,
@@ -133,15 +119,29 @@ public class VisionAnalysisService {
     }
   }
 
-  /** Reports each vision provider's status, overall UP only when all three are available. */
-  public VisionHealthResponse health() {
-    VisionProvidersResponse providers =
-        new VisionProvidersResponse(
-            HealthStatus.of(captioner.isAvailable()),
-            HealthStatus.of(detector.isAvailable()),
-            HealthStatus.of(ocrEngine.isAvailable()));
-    boolean allUp = captioner.isAvailable() && detector.isAvailable() && ocrEngine.isAvailable();
-    return new VisionHealthResponse(allUp ? HealthStatus.UP : HealthStatus.DEGRADED, providers);
+  /** Extracts text from the uploaded image, recording latency and the invocation outcome. */
+  public OcrResponse ocr(MultipartFile file) throws IOException {
+    BufferedImage image = toImage(file);
+    long startedAt = System.nanoTime();
+    try {
+      var result = ocrEngine.extract(image);
+      long processingTimeMs = elapsedMillis(startedAt);
+      ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
+      invocationRecorder.recordSuccess(
+          AiDomain.VISION, "vision.ocr", processingTimeMs, null, null, null);
+      return new OcrResponse(result.text(), processingTimeMs);
+    } catch (RuntimeException ex) {
+      invocationRecorder.recordError(
+          AiDomain.VISION,
+          "vision.ocr",
+          elapsedMillis(startedAt),
+          null,
+          null,
+          null,
+          ex.getClass().getSimpleName(),
+          ex.getMessage());
+      throw ex;
+    }
   }
 
   private DetectionResponse toDto(Detection detection) {

@@ -38,6 +38,17 @@ public class AutomationController {
     return automationService.list(ownerKey).stream().map(AutomationScheduleResponse::from).toList();
   }
 
+  @GetMapping("/{id}/runs")
+  public List<AutomationRunResponse> listRuns(
+      @PathVariable String id,
+      @RequestParam(value = "limit", defaultValue = "20") int limit,
+      HttpServletRequest request) {
+    String ownerKey = ownerContext.requireValue(request);
+    return automationService.listRuns(ownerKey, id, limit).stream()
+        .map(AutomationRunResponse::from)
+        .toList();
+  }
+
   @PostMapping
   public ResponseEntity<AutomationScheduleResponse> create(
       @Valid @RequestBody CreateAutomationScheduleRequest body, HttpServletRequest request) {
@@ -92,16 +103,5 @@ public class AutomationController {
     String ownerKey = ownerContext.requireValue(request);
     automationService.delete(ownerKey, id);
     return ResponseEntity.noContent().build();
-  }
-
-  @GetMapping("/{id}/runs")
-  public List<AutomationRunResponse> listRuns(
-      @PathVariable String id,
-      @RequestParam(value = "limit", defaultValue = "20") int limit,
-      HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
-    return automationService.listRuns(ownerKey, id, limit).stream()
-        .map(AutomationRunResponse::from)
-        .toList();
   }
 }

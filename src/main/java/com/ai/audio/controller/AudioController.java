@@ -31,6 +31,20 @@ public class AudioController {
 
   private final AudioService audioService;
 
+  /** Get available TTS voices. */
+  @GetMapping("/voices")
+  public ResponseEntity<VoicesResponse> getVoices() {
+    List<VoiceResponse> voices =
+        audioService.getAvailableVoices().stream().map(VoiceResponse::from).toList();
+    return ResponseEntity.ok(new VoicesResponse(voices));
+  }
+
+  /** Get available TTS models. */
+  @GetMapping("/models")
+  public ResponseEntity<TtsModelsResponse> getTtsModels() {
+    return ResponseEntity.ok(new TtsModelsResponse(audioService.getAvailableTtsModels()));
+  }
+
   /** Convert text to speech. */
   @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> speak(@RequestBody TextToSpeechRequest request) {
@@ -58,19 +72,5 @@ public class AudioController {
       log.error("Error synthesizing speech", e);
       return ResponseEntity.internalServerError().build();
     }
-  }
-
-  /** Get available TTS voices. */
-  @GetMapping("/voices")
-  public ResponseEntity<VoicesResponse> getVoices() {
-    List<VoiceResponse> voices =
-        audioService.getAvailableVoices().stream().map(VoiceResponse::from).toList();
-    return ResponseEntity.ok(new VoicesResponse(voices));
-  }
-
-  /** Get available TTS models. */
-  @GetMapping("/models")
-  public ResponseEntity<TtsModelsResponse> getTtsModels() {
-    return ResponseEntity.ok(new TtsModelsResponse(audioService.getAvailableTtsModels()));
   }
 }

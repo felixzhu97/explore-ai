@@ -36,18 +36,6 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
   }
 
   @Override
-  @Transactional
-  public void save(ChatSession session) {
-    delegate.saveAndFlush(session);
-  }
-
-  @Override
-  @Transactional
-  public void delete(ChatSessionId id) {
-    delegate.deleteById(id);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public List<ChatSession> findByOwnerKey(String ownerKey) {
     return ownerPartition.apply(
@@ -64,5 +52,17 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
   @Transactional(readOnly = true)
   public boolean exists(ChatSessionId id) {
     return delegate.existsById(id);
+  }
+
+  @Override
+  @Transactional
+  public void save(ChatSession session) {
+    delegate.saveAndFlush(session);
+  }
+
+  @Override
+  @Transactional
+  public void delete(ChatSessionId id) {
+    delegate.deleteById(id);
   }
 }

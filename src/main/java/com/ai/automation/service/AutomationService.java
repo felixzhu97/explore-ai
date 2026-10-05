@@ -35,6 +35,12 @@ public class AutomationService {
     return scheduleRepository.findAllByOwnerKey(ownerKey);
   }
 
+  public List<AutomationRun> listRuns(String ownerKey, String scheduleId, int limit) {
+    requireOwned(ownerKey, scheduleId);
+    int capped = Math.min(Math.max(limit, 1), 100);
+    return runRepository.findByScheduleIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey, capped);
+  }
+
   /** Creates a schedule for the owner and arms its first run. */
   @Transactional
   public AutomationSchedule create(
@@ -122,12 +128,6 @@ public class AutomationService {
   public void delete(String ownerKey, String scheduleId) {
     requireOwned(ownerKey, scheduleId);
     scheduleRepository.deleteByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey);
-  }
-
-  public List<AutomationRun> listRuns(String ownerKey, String scheduleId, int limit) {
-    requireOwned(ownerKey, scheduleId);
-    int capped = Math.min(Math.max(limit, 1), 100);
-    return runRepository.findByScheduleIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey, capped);
   }
 
   private AutomationSchedule buildNew(

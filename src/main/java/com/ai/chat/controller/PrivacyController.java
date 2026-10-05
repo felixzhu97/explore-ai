@@ -29,14 +29,6 @@ public class PrivacyController {
   private final OwnerErasureService ownerErasureService;
   private final ClientIdentityCookieFactory cookieFactory;
 
-  /** Deletes all durable data owned by the current owner key. */
-  @DeleteMapping("/sessions")
-  public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
-    OwnerKey owner = ownerContext.require(request);
-    ownerErasureService.eraseAllForOwner(owner);
-    return ResponseEntity.noContent().build();
-  }
-
   /**
    * Clears the client identity cookie and issues a new anonymous id (session fixation / privacy
    * reset).
@@ -46,6 +38,14 @@ public class PrivacyController {
     String nextId = cookieFactory.newClientId();
     response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.clear().toString());
     response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(nextId).toString());
+    return ResponseEntity.noContent().build();
+  }
+
+  /** Deletes all durable data owned by the current owner key. */
+  @DeleteMapping("/sessions")
+  public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
+    OwnerKey owner = ownerContext.require(request);
+    ownerErasureService.eraseAllForOwner(owner);
     return ResponseEntity.noContent().build();
   }
 }

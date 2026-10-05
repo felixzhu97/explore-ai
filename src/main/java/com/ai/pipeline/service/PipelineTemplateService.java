@@ -16,12 +16,28 @@ public class PipelineTemplateService {
 
   private final PipelineTemplateRepository repository;
 
+  public List<PipelineTemplateDefinition> listTemplates(String language) {
+    return PipelineTemplateCatalog.listAll(language);
+  }
+
   public List<PipelineTemplate> listLibrary(String ownerKey) {
     return repository.findAllByOwnerKey(ownerKey);
   }
 
-  public PipelineTemplate get(String ownerKey, String id) {
-    return findOwned(ownerKey, id);
+  /** Copies a built-in template into the owner's library. */
+  public PipelineTemplate createFromTemplate(String ownerKey, String templateId, String language) {
+    PipelineTemplateDefinition template =
+        PipelineTemplateCatalog.findById(templateId, language)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));
+    return create(
+        ownerKey,
+        nextAvailableName(ownerKey, template.name()),
+        template.description(),
+        template.agentTypes(),
+        template.shortTopic(),
+        template.briefPrompt(),
+        template.id());
   }
 
   /** Saves a new Pipeline Template for the owner. */
@@ -71,24 +87,8 @@ public class PipelineTemplateService {
     repository.deleteByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey);
   }
 
-  public List<PipelineTemplateDefinition> listTemplates(String language) {
-    return PipelineTemplateCatalog.listAll(language);
-  }
-
-  /** Copies a built-in template into the owner's library. */
-  public PipelineTemplate createFromTemplate(String ownerKey, String templateId, String language) {
-    PipelineTemplateDefinition template =
-        PipelineTemplateCatalog.findById(templateId, language)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));
-    return create(
-        ownerKey,
-        nextAvailableName(ownerKey, template.name()),
-        template.description(),
-        template.agentTypes(),
-        template.shortTopic(),
-        template.briefPrompt(),
-        template.id());
+  public PipelineTemplate get(String ownerKey, String id) {
+    return findOwned(ownerKey, id);
   }
 
   private PipelineTemplate findOwned(String ownerKey, String id) {

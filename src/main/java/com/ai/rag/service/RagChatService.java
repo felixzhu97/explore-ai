@@ -58,30 +58,6 @@ public class RagChatService {
   private final AiInvocationRecorder invocationRecorder;
   private final ObjectMapper objectMapper;
 
-  /**
-   * Answers the question with context retrieved from the owner's documents and records the
-   * invocation.
-   */
-  public RagChatResult chat(
-      String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
-    long startedAt = System.nanoTime();
-    TextChatOptions options = TextChatOptions.withoutTools();
-    String documentId =
-        documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
-    try {
-      ChatClient.ChatClientRequestSpec promptSpec =
-          buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
-      ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
-      String aiResponse = extractContent(clientResponse);
-      List<SourceDocument> sources = extractSources(clientResponse);
-      recordSuccess(options, sessionId, documentId, startedAt);
-      return new RagChatResult(aiResponse, sources);
-    } catch (RuntimeException ex) {
-      recordError(sessionId, startedAt, ex);
-      throw ex;
-    }
-  }
-
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStream(
       String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
@@ -116,6 +92,30 @@ public class RagChatService {
         .concatWith(Flux.defer(() -> sourceEvents(sourcesRef.get())))
         .doOnComplete(() -> recordSuccess(options, sessionId, documentId, startedAt))
         .doOnError(ex -> recordError(sessionId, startedAt, ex));
+  }
+
+  /**
+   * Answers the question with context retrieved from the owner's documents and records the
+   * invocation.
+   */
+  public RagChatResult chat(
+      String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
+    long startedAt = System.nanoTime();
+    TextChatOptions options = TextChatOptions.withoutTools();
+    String documentId =
+        documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
+    try {
+      ChatClient.ChatClientRequestSpec promptSpec =
+          buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
+      ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
+      String aiResponse = extractContent(clientResponse);
+      List<SourceDocument> sources = extractSources(clientResponse);
+      recordSuccess(options, sessionId, documentId, startedAt);
+      return new RagChatResult(aiResponse, sources);
+    } catch (RuntimeException ex) {
+      recordError(sessionId, startedAt, ex);
+      throw ex;
+    }
   }
 
   private ChatClient.ChatClientRequestSpec buildPrompt(

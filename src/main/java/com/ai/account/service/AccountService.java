@@ -81,20 +81,6 @@ public class AccountService {
         loginProviders());
   }
 
-  private AccountUser ensureIamUser(Jwt jwt) {
-    String subject = jwt.getSubject();
-    if (subject == null || subject.isBlank()) {
-      throw new IllegalArgumentException("IAM JWT subject is required");
-    }
-    String email = jwt.getClaimAsString("email");
-    return accountUserRepository
-        .findByProviderAndSubject("explore-iam", subject)
-        .orElseGet(
-            () ->
-                accountUserRepository.save(
-                    AccountUser.create("explore-iam", subject, email, null)));
-  }
-
   /** Links OAuth identity to the browser cookie and returns the account user id. */
   @Transactional
   public String linkOAuthUser(String provider, String subject, String email, String clientId) {
@@ -136,6 +122,20 @@ public class AccountService {
       providers.add(LoginProvider.EXPLORE_IAM);
     }
     return List.copyOf(providers);
+  }
+
+  private AccountUser ensureIamUser(Jwt jwt) {
+    String subject = jwt.getSubject();
+    if (subject == null || subject.isBlank()) {
+      throw new IllegalArgumentException("IAM JWT subject is required");
+    }
+    String email = jwt.getClaimAsString("email");
+    return accountUserRepository
+        .findByProviderAndSubject("explore-iam", subject)
+        .orElseGet(
+            () ->
+                accountUserRepository.save(
+                    AccountUser.create("explore-iam", subject, email, null)));
   }
 
   private AccountMeResponse authenticated(String clientId, String userId, String email) {

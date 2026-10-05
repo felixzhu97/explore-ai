@@ -10,6 +10,8 @@ import java.util.Optional;
 
 /** Repository that stores, purges, and pages through AI invocation events. */
 public interface AiInvocationEventRepository {
+  PageResult findDrilldown(DrilldownQuery query);
+
   void save(AiInvocationEvent event);
 
   default int deleteBySessionIds(Collection<String> sessionIds) {
@@ -33,6 +35,4 @@ public interface AiInvocationEventRepository {
       int size) {}
 
   record PageResult(List<AiInvocationEvent> items, long total) {}
-
-  PageResult findDrilldown(DrilldownQuery query);
 }

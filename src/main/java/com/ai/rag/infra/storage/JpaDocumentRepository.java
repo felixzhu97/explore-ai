@@ -24,12 +24,6 @@ public class JpaDocumentRepository implements DocumentRepository {
   private final OwnerPartitionScope ownerPartition;
 
   @Override
-  @Transactional
-  public RagDocument save(RagDocument document) {
-    return delegate.saveAndFlush(document);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public Optional<RagDocument> findById(UUID id) {
     return delegate.findById(DocumentId.of(id));
@@ -52,6 +46,12 @@ public class JpaDocumentRepository implements DocumentRepository {
   @Transactional(readOnly = true)
   public List<RagDocument> findAllByOwnerKey(String ownerKey) {
     return ownerPartition.apply(OwnerKey.parse(ownerKey), () -> delegate.findAll(NEWEST_FIRST));
+  }
+
+  @Override
+  @Transactional
+  public RagDocument save(RagDocument document) {
+    return delegate.saveAndFlush(document);
   }
 
   @Override

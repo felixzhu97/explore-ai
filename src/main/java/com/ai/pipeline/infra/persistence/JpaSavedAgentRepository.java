@@ -23,12 +23,6 @@ public class JpaSavedAgentRepository implements SavedAgentRepository {
   private final OwnerPartitionScope ownerPartition;
 
   @Override
-  @Transactional
-  public SavedAgent save(SavedAgent agent) {
-    return delegate.saveAndFlush(agent);
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public Optional<SavedAgent> findByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
     return ownerPartition.findOne(OwnerKey.parse(ownerKey), () -> delegate.findById(id));
@@ -48,12 +42,6 @@ public class JpaSavedAgentRepository implements SavedAgentRepository {
   }
 
   @Override
-  @Transactional
-  public void deleteByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
-    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public boolean existsByOwnerKeyAndTypeKeyIgnoringId(
       String ownerKey, String typeKey, SavedAgentId excludeId) {
@@ -63,5 +51,17 @@ public class JpaSavedAgentRepository implements SavedAgentRepository {
             excludeId == null
                 ? delegate.existsByTypeKey(typeKey)
                 : delegate.existsByTypeKeyAndIdNot(typeKey, excludeId));
+  }
+
+  @Override
+  @Transactional
+  public SavedAgent save(SavedAgent agent) {
+    return delegate.saveAndFlush(agent);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByIdAndOwnerKey(SavedAgentId id, String ownerKey) {
+    ownerPartition.run(OwnerKey.parse(ownerKey), () -> delegate.deleteById(id));
   }
 }

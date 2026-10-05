@@ -11,9 +11,6 @@ import java.util.UUID;
  */
 public interface DocumentRepository {
 
-  /** Saves a document and returns the saved entity. */
-  RagDocument save(RagDocument document);
-
   /** Finds a document by its ID. */
   Optional<RagDocument> findById(UUID id);
 
@@ -23,6 +20,9 @@ public interface DocumentRepository {
   List<RagDocument> findAllByOwnerKey(String ownerKey);
 
   Optional<RagDocument> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+
+  /** Saves a document and returns the saved entity. */
+  RagDocument save(RagDocument document);
 
   void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 

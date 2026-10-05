@@ -41,29 +41,6 @@ public class ChatController {
     return ResponseEntity.ok(HealthResponse.up());
   }
 
-  @PostMapping
-  public ResponseEntity<ChatResponse> chat(
-      @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
-    String ownerKey = ownerContext.requireValue(httpRequest);
-    String response;
-    if (request.sessionId() != null && !request.sessionId().isBlank()) {
-      response = chatService.chatWithSession(request.sessionId(), request.message(), ownerKey);
-    } else {
-      response = chatService.chatWithSession(request.message(), ownerKey);
-    }
-
-    return ResponseEntity.ok(ChatResponse.of(response));
-  }
-
-  @PostMapping("/sessions")
-  public ResponseEntity<SessionResponse> createSession(
-      @Valid @RequestBody(required = false) CreateSessionRequest body,
-      HttpServletRequest httpRequest) {
-    String title = body != null && body.title() != null ? body.title() : "New Chat";
-    var session = chatService.createSession(title, ownerContext.requireValue(httpRequest));
-    return ResponseEntity.ok(SessionResponse.from(session));
-  }
-
   @GetMapping("/sessions")
   public ResponseEntity<List<SessionResponse>> getAllSessions(HttpServletRequest httpRequest) {
     List<SessionResponse> sessions =
@@ -94,6 +71,36 @@ public class ChatController {
     return ResponseEntity.ok(messages);
   }
 
+  @PostMapping
+  public ResponseEntity<ChatResponse> chat(
+      @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
+    String ownerKey = ownerContext.requireValue(httpRequest);
+    String response;
+    if (request.sessionId() != null && !request.sessionId().isBlank()) {
+      response = chatService.chatWithSession(request.sessionId(), request.message(), ownerKey);
+    } else {
+      response = chatService.chatWithSession(request.message(), ownerKey);
+    }
+
+    return ResponseEntity.ok(ChatResponse.of(response));
+  }
+
+  @PostMapping("/sessions")
+  public ResponseEntity<SessionResponse> createSession(
+      @Valid @RequestBody(required = false) CreateSessionRequest body,
+      HttpServletRequest httpRequest) {
+    String title = body != null && body.title() != null ? body.title() : "New Chat";
+    var session = chatService.createSession(title, ownerContext.requireValue(httpRequest));
+    return ResponseEntity.ok(SessionResponse.from(session));
+  }
+
+  @DeleteMapping("/sessions/{sessionId}")
+  public ResponseEntity<Void> deleteSession(
+      @PathVariable String sessionId, HttpServletRequest httpRequest) {
+    chatService.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
+    return ResponseEntity.noContent().build();
+  }
+
   private static MessageInfoResponse toMessageInfo(
       ChatMessage message, Map<String, List<WebSource>> sourcesByHash) {
     if (!message.isFromAssistant() || sourcesByHash.isEmpty()) {
@@ -105,12 +112,5 @@ public class ChatController {
     }
     return MessageInfoResponse.from(
         message, sources.stream().map(WebSourceResponse::from).toList());
-  }
-
-  @DeleteMapping("/sessions/{sessionId}")
-  public ResponseEntity<Void> deleteSession(
-      @PathVariable String sessionId, HttpServletRequest httpRequest) {
-    chatService.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
-    return ResponseEntity.noContent().build();
   }
 }

@@ -49,37 +49,6 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   private final JdbcTemplate jdbcTemplate;
 
   @Override
-  @Transactional
-  public void save(AiInvocationEvent event) {
-    event.assignOwnerKey(resolveOwnerKey(event.getSessionId()));
-    entityManager.persist(event);
-    entityManager.flush();
-  }
-
-  @Override
-  @Transactional
-  public int deleteBySessionIds(Collection<String> sessionIds) {
-    if (sessionIds == null || sessionIds.isEmpty()) {
-      return 0;
-    }
-    List<String> ids =
-        sessionIds.stream().filter(id -> id != null && !id.isBlank()).distinct().toList();
-    if (ids.isEmpty()) {
-      return 0;
-    }
-    String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
-    return jdbcTemplate.update(
-        "DELETE FROM ai_invocation_event WHERE session_id IN (" + placeholders + ")",
-        ids.toArray());
-  }
-
-  @Override
-  @Transactional
-  public int deleteOlderThan(Instant cutoff) {
-    return jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE occurred_at < ?", cutoff);
-  }
-
-  @Override
   public PageResult findDrilldown(DrilldownQuery query) {
     StringBuilder where = new StringBuilder(" WHERE 1=1");
     List<Object> args = new ArrayList<>();
@@ -172,6 +141,37 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
             pageArgs.toArray());
 
     return new PageResult(items, totalCount);
+  }
+
+  @Override
+  @Transactional
+  public void save(AiInvocationEvent event) {
+    event.assignOwnerKey(resolveOwnerKey(event.getSessionId()));
+    entityManager.persist(event);
+    entityManager.flush();
+  }
+
+  @Override
+  @Transactional
+  public int deleteBySessionIds(Collection<String> sessionIds) {
+    if (sessionIds == null || sessionIds.isEmpty()) {
+      return 0;
+    }
+    List<String> ids =
+        sessionIds.stream().filter(id -> id != null && !id.isBlank()).distinct().toList();
+    if (ids.isEmpty()) {
+      return 0;
+    }
+    String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+    return jdbcTemplate.update(
+        "DELETE FROM ai_invocation_event WHERE session_id IN (" + placeholders + ")",
+        ids.toArray());
+  }
+
+  @Override
+  @Transactional
+  public int deleteOlderThan(Instant cutoff) {
+    return jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE occurred_at < ?", cutoff);
   }
 
   private String resolveOwnerKey(String sessionId) {

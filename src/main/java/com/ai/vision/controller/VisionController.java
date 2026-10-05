@@ -28,6 +28,11 @@ public class VisionController {
 
   private final VisionAnalysisService visionAnalysisService;
 
+  @GetMapping("/health")
+  public VisionHealthResponse health() {
+    return visionAnalysisService.health();
+  }
+
   @PostMapping("/caption")
   public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
@@ -47,11 +52,6 @@ public class VisionController {
       throws IOException {
     validateFile(file);
     return visionAnalysisService.ocr(file);
-  }
-
-  @GetMapping("/health")
-  public VisionHealthResponse health() {
-    return visionAnalysisService.health();
   }
 
   private void validateFile(MultipartFile file) {

@@ -12,13 +12,13 @@ public interface ChatSessionRepository {
 
   Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, String ownerKey);
 
-  void save(ChatSession session);
-
-  void delete(ChatSessionId id);
-
   List<ChatSession> findByOwnerKey(String ownerKey);
 
   List<ChatSession> findInactiveSince(Instant cutoff);
 
   boolean exists(ChatSessionId id);
+
+  void save(ChatSession session);
+
+  void delete(ChatSessionId id);
 }

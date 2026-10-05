@@ -11,14 +11,14 @@ import java.util.Map;
  */
 public interface DocumentChunkRepository {
 
-  /** Saves a document chunk. */
-  void saveChunk(DocumentChunk chunk);
-
   /** Finds all chunks belonging to a document. */
   List<DocumentChunk> findChunksByDocumentId(DocumentId documentId);
 
   /** Counts chunks per document; documents without chunks are absent from the result. */
   Map<DocumentId, Integer> countChunksByDocumentIds(List<DocumentId> documentIds);
+
+  /** Saves a document chunk. */
+  void saveChunk(DocumentChunk chunk);
 
   /** Deletes all chunks belonging to a document. */
   void deleteChunksByDocumentId(DocumentId documentId);

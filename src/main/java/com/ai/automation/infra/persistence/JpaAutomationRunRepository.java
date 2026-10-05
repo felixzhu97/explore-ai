@@ -22,19 +22,19 @@ public class JpaAutomationRunRepository implements AutomationRunRepository {
   private final OwnerPartitionScope ownerPartition;
 
   @Override
-  @Transactional
-  public AutomationRun save(AutomationRun run) {
-    entityManager.persist(run);
-    entityManager.flush();
-    return run;
-  }
-
-  @Override
   @Transactional(readOnly = true)
   public List<AutomationRun> findByScheduleIdAndOwnerKey(
       ScheduleId scheduleId, String ownerKey, int limit) {
     return ownerPartition.apply(
         OwnerKey.parse(ownerKey),
         () -> delegate.findByScheduleIdOrderByCreatedAtDesc(scheduleId, PageRequest.of(0, limit)));
+  }
+
+  @Override
+  @Transactional
+  public AutomationRun save(AutomationRun run) {
+    entityManager.persist(run);
+    entityManager.flush();
+    return run;
   }
 }

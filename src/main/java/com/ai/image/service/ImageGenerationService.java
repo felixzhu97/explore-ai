@@ -25,6 +25,18 @@ public class ImageGenerationService {
   private final ImageGenerationGateway imageGenerationGateway;
   private final ImageProperties imageProperties;
 
+  public List<String> getAvailableImageModels() {
+    return ImageCatalog.defaults().models();
+  }
+
+  public List<String> getAvailableImageSizes() {
+    return ImageCatalog.defaults().sizes();
+  }
+
+  public List<String> getAvailableImageQualities() {
+    return ImageCatalog.defaults().qualities();
+  }
+
   /** Generates an image after checking the provider is configured, or returns an empty image. */
   public GeneratedImage generateImage(
       String prompt, String model, String quality, int width, int height, int n) {
@@ -65,17 +77,5 @@ public class ImageGenerationService {
       return model.trim();
     }
     return imageProperties.getModel();
-  }
-
-  public List<String> getAvailableImageModels() {
-    return ImageCatalog.defaults().models();
-  }
-
-  public List<String> getAvailableImageSizes() {
-    return ImageCatalog.defaults().sizes();
-  }
-
-  public List<String> getAvailableImageQualities() {
-    return ImageCatalog.defaults().qualities();
   }
 }

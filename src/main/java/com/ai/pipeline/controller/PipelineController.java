@@ -48,19 +48,10 @@ public class PipelineController {
     return ResponseEntity.ok(agents);
   }
 
-  @GetMapping("/{agentType}/health")
-  public ResponseEntity<AgentHealthResponse> health(
-      @PathVariable String agentType,
-      @RequestParam(value = "lang", required = false) String lang,
-      HttpServletRequest request) {
-    try {
-      String ownerKey = ownerContext.requireValue(request);
-      return ResponseEntity.ok(
-          AgentHealthResponse.from(
-              pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
-    } catch (AgentNotFoundException e) {
-      return ResponseEntity.notFound().build();
-    }
+  @GetMapping("/health")
+  public ResponseEntity<PipelineModuleHealthResponse> moduleHealth() {
+    return ResponseEntity.ok(
+        new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.builtinCount()));
   }
 
   @GetMapping("/{agentType}")
@@ -72,6 +63,21 @@ public class PipelineController {
       String ownerKey = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentInfoResponse.from(
+              pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
+    } catch (AgentNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  @GetMapping("/{agentType}/health")
+  public ResponseEntity<AgentHealthResponse> health(
+      @PathVariable String agentType,
+      @RequestParam(value = "lang", required = false) String lang,
+      HttpServletRequest request) {
+    try {
+      String ownerKey = ownerContext.requireValue(request);
+      return ResponseEntity.ok(
+          AgentHealthResponse.from(
               pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
@@ -126,12 +132,6 @@ public class PipelineController {
     String ownerKey = ownerContext.requireValue(httpRequest);
     return pipelineService.invokeAgent(
         agentType, request.message(), ownerKey, resolveLanguage(lang, httpRequest));
-  }
-
-  @GetMapping("/health")
-  public ResponseEntity<PipelineModuleHealthResponse> moduleHealth() {
-    return ResponseEntity.ok(
-        new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.builtinCount()));
   }
 
   private static String resolveLanguage(String lang, HttpServletRequest request) {

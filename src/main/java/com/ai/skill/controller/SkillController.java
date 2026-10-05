@@ -47,19 +47,6 @@ public class SkillController {
     return skillService.listTemplates(language).stream().map(SkillTemplateResponse::from).toList();
   }
 
-  @PostMapping("/from-template")
-  public ResponseEntity<SkillResponse> createFromTemplate(
-      @Valid @RequestBody CreateSkillFromTemplateRequest body,
-      @RequestParam(value = "lang", required = false) String lang,
-      HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
-    String language = resolveLanguage(lang, request);
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(
-            SkillResponse.from(
-                skillService.createFromTemplate(ownerKey, body.templateId(), language)));
-  }
-
   @GetMapping("/{id}")
   public SkillResponse get(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
@@ -79,6 +66,19 @@ public class SkillController {
                     body.description(),
                     body.instructions(),
                     body.allowedTools())));
+  }
+
+  @PostMapping("/from-template")
+  public ResponseEntity<SkillResponse> createFromTemplate(
+      @Valid @RequestBody CreateSkillFromTemplateRequest body,
+      @RequestParam(value = "lang", required = false) String lang,
+      HttpServletRequest request) {
+    String ownerKey = ownerContext.requireValue(request);
+    String language = resolveLanguage(lang, request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            SkillResponse.from(
+                skillService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
   @PutMapping("/{id}")

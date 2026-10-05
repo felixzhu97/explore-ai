@@ -52,13 +52,6 @@ public class MetricsController {
     return ResponseEntity.ok(toOverview(metricsService.overview(range)));
   }
 
-  @GetMapping("/domains/{domain}")
-  @Operation(summary = "Domain-scoped AI metrics")
-  public ResponseEntity<MetricsDomainResponse> domain(
-      @PathVariable String domain, @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toDomain(metricsService.domain(domain, range)));
-  }
-
   @GetMapping("/series")
   @Operation(summary = "Metrics time series or categorical series")
   public ResponseEntity<SeriesResponse> series(
@@ -86,6 +79,13 @@ public class MetricsController {
         toDrilldown(
             metricsService.drilldown(
                 domain, from, to, day, outcome, model, agentType, toolName, page, size, range)));
+  }
+
+  @GetMapping("/domains/{domain}")
+  @Operation(summary = "Domain-scoped AI metrics")
+  public ResponseEntity<MetricsDomainResponse> domain(
+      @PathVariable String domain, @RequestParam(defaultValue = "7d") String range) {
+    return ResponseEntity.ok(toDomain(metricsService.domain(domain, range)));
   }
 
   private MetricsOverviewResponse toOverview(MetricsOverview overview) {
