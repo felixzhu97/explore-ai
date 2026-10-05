@@ -3,6 +3,7 @@ package com.ai.chat.infra.memory;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
@@ -12,13 +13,10 @@ import org.springframework.ai.chat.messages.MessageType;
  * Drops or strips DeepSeek DSML tool markup from assistant messages so ChatMemory never retains
  * phantom tool-call text after {@code toolChoice=none}.
  */
+@RequiredArgsConstructor
 public final class SanitizingChatMemory implements ChatMemory {
 
   private final ChatMemory delegate;
-
-  public SanitizingChatMemory(ChatMemory delegate) {
-    this.delegate = delegate;
-  }
 
   @Override
   public void add(String conversationId, List<Message> messages) {

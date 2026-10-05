@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.stereotype.Component;
 
@@ -19,13 +20,10 @@ import org.springframework.stereotype.Component;
  * prompt JSON + {@link BeanOutputConverter} instead of {@code .entity()}.
  */
 @Component
+@RequiredArgsConstructor
 public class SpringAiSupervisorRouter implements SupervisorRouter {
 
   private final ChatClientProvider chatClientProvider;
-
-  public SpringAiSupervisorRouter(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = chatClientProvider;
-  }
 
   @Override
   public RoutingPlan plan(String userMessage, List<AgentDefinition> workers) {

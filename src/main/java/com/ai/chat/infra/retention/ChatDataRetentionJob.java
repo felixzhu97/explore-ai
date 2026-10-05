@@ -8,6 +8,7 @@ import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Instant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @EnableConfigurationProperties(DataRetentionProperties.class)
+@RequiredArgsConstructor
 public class ChatDataRetentionJob {
 
   private static final Logger log = LoggerFactory.getLogger(ChatDataRetentionJob.class);
@@ -30,19 +32,6 @@ public class ChatDataRetentionJob {
   private final ConversationMemoryRepository conversationMemoryRepository;
   private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final AiInvocationEventRepository invocationEventRepository;
-
-  public ChatDataRetentionJob(
-      DataRetentionProperties properties,
-      ChatSessionRepository sessionRepository,
-      ConversationMemoryRepository conversationMemoryRepository,
-      ChatWebSourcesRepository chatWebSourcesRepository,
-      AiInvocationEventRepository invocationEventRepository) {
-    this.properties = properties;
-    this.sessionRepository = sessionRepository;
-    this.conversationMemoryRepository = conversationMemoryRepository;
-    this.chatWebSourcesRepository = chatWebSourcesRepository;
-    this.invocationEventRepository = invocationEventRepository;
-  }
 
   @Scheduled(cron = "${app.data-retention.cron:0 0 3 * * *}")
   public void purgeExpiredData() {

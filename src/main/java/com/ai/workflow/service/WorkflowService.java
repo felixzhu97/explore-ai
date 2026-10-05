@@ -12,10 +12,12 @@ import com.ai.workflow.domain.service.ParallelizationWorkflow;
 import com.ai.workflow.domain.service.RoutingWorkflow;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** Application orchestration for workflow pattern endpoints. */
 @Service
+@RequiredArgsConstructor
 public class WorkflowService {
 
   private final ChainWorkflow chainWorkflow;
@@ -23,19 +25,6 @@ public class WorkflowService {
   private final RoutingWorkflow routingWorkflow;
   private final OrchestratorWorkersWorkflow orchestratorWorkersWorkflow;
   private final EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow;
-
-  public WorkflowService(
-      ChainWorkflow chainWorkflow,
-      ParallelizationWorkflow parallelizationWorkflow,
-      RoutingWorkflow routingWorkflow,
-      OrchestratorWorkersWorkflow orchestratorWorkersWorkflow,
-      EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow) {
-    this.chainWorkflow = chainWorkflow;
-    this.parallelizationWorkflow = parallelizationWorkflow;
-    this.routingWorkflow = routingWorkflow;
-    this.orchestratorWorkersWorkflow = orchestratorWorkersWorkflow;
-    this.evaluatorOptimizerWorkflow = evaluatorOptimizerWorkflow;
-  }
 
   public ChainResult chain(String userInput, String[] systemPrompts) {
     return chainWorkflow.chain(userInput, systemPrompts);

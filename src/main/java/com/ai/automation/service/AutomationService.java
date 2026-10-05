@@ -14,6 +14,7 @@ import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.time.Instant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 /** Manages automation schedules, enforcing per-client limits, valid cron and owned workflows. */
 @Service
 @EnableConfigurationProperties(AutomationProperties.class)
+@RequiredArgsConstructor
 public class AutomationService {
 
   private final AutomationScheduleRepository scheduleRepository;
@@ -28,19 +30,6 @@ public class AutomationService {
   private final PipelineTemplateRepository pipelineTemplateRepository;
   private final CronScheduleCalculator cronCalculator;
   private final AutomationProperties properties;
-
-  public AutomationService(
-      AutomationScheduleRepository scheduleRepository,
-      AutomationRunRepository runRepository,
-      PipelineTemplateRepository pipelineTemplateRepository,
-      CronScheduleCalculator cronCalculator,
-      AutomationProperties properties) {
-    this.scheduleRepository = scheduleRepository;
-    this.runRepository = runRepository;
-    this.pipelineTemplateRepository = pipelineTemplateRepository;
-    this.cronCalculator = cronCalculator;
-    this.properties = properties;
-  }
 
   public List<AutomationSchedule> list(String ownerKey) {
     return scheduleRepository.findAllByOwnerKey(ownerKey);

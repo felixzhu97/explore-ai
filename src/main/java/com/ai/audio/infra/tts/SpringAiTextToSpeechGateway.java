@@ -4,6 +4,7 @@ import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceSelection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.audio.tts.TextToSpeechResponse;
@@ -15,13 +16,10 @@ import org.springframework.util.StringUtils;
 /** OpenAI text-to-speech repository via Spring AI, active when the TTS provider is openai. */
 @Repository
 @ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "openai")
+@RequiredArgsConstructor
 public class SpringAiTextToSpeechGateway implements TextToSpeechGateway {
 
   private final TextToSpeechModel textToSpeechModel;
-
-  public SpringAiTextToSpeechGateway(TextToSpeechModel textToSpeechModel) {
-    this.textToSpeechModel = textToSpeechModel;
-  }
 
   @Override
   public SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed) {

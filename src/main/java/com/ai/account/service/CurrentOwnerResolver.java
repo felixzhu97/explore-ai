@@ -4,6 +4,7 @@ import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
 import com.ai.common.domain.vo.OwnerKey;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -16,15 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Resolves data {@link OwnerKey} from guest Client Identity and/or OAuth / IAM JWT. */
 @Service
+@RequiredArgsConstructor
 public class CurrentOwnerResolver {
 
   public static final String EXPLORE_IAM_PROVIDER = "explore-iam";
 
   private final AccountUserRepository accountUserRepository;
-
-  public CurrentOwnerResolver(AccountUserRepository accountUserRepository) {
-    this.accountUserRepository = accountUserRepository;
-  }
 
   /** Resolves owner from guest Client Identity and/or OAuth / IAM JWT authentication. */
   @Transactional

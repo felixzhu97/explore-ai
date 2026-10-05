@@ -6,6 +6,7 @@ import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,18 +14,13 @@ import org.springframework.stereotype.Service;
  * DocumentSearchService (retrieve).
  */
 @Service
+@RequiredArgsConstructor
 public class RagApplicationService {
   public record RetrievalResult(
       String context, List<SourceDocument> sources, String enrichedQuery) {}
 
   private final DocumentUploadService uploadService;
   private final DocumentSearchService searchService;
-
-  public RagApplicationService(
-      DocumentUploadService uploadService, DocumentSearchService searchService) {
-    this.uploadService = uploadService;
-    this.searchService = searchService;
-  }
 
   public DocumentUploadService.UploadResult uploadDocument(
       String title, String fileName, Long fileSize, String content, String ownerKey) {

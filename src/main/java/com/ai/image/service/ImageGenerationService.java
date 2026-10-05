@@ -9,6 +9,7 @@ import com.ai.image.domain.vo.ImageOptions;
 import com.ai.image.domain.vo.ImagePrompt;
 import com.ai.image.infra.config.ImageProperties;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,18 +17,13 @@ import org.springframework.util.StringUtils;
 
 /** Entry point for image generation and the catalog of supported models, sizes, and qualities. */
 @Service
+@RequiredArgsConstructor
 public class ImageGenerationService {
 
   private static final Logger log = LoggerFactory.getLogger(ImageGenerationService.class);
 
   private final ImageGenerationGateway imageGenerationGateway;
   private final ImageProperties imageProperties;
-
-  public ImageGenerationService(
-      ImageGenerationGateway imageGenerationGateway, ImageProperties imageProperties) {
-    this.imageGenerationGateway = imageGenerationGateway;
-    this.imageProperties = imageProperties;
-  }
 
   /** Generates an image after checking the provider is configured, or returns an empty image. */
   public GeneratedImage generateImage(

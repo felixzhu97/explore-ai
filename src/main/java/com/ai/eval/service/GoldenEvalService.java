@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service;
     name = "module-eval",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class GoldenEvalService {
 
   private static final Logger log = LoggerFactory.getLogger(GoldenEvalService.class);
@@ -43,19 +45,6 @@ public class GoldenEvalService {
   private final ChatService chatService;
   private final RagChatService ragChatService;
   private final GoldenRagFixtureSeeder fixtureSeeder;
-
-  public GoldenEvalService(
-      GoldenSuiteRepository suiteRepository,
-      OfficialSpringAiEvaluators officialEvaluators,
-      ChatService chatService,
-      RagChatService ragChatService,
-      GoldenRagFixtureSeeder fixtureSeeder) {
-    this.suiteRepository = suiteRepository;
-    this.officialEvaluators = officialEvaluators;
-    this.chatService = chatService;
-    this.ragChatService = ragChatService;
-    this.fixtureSeeder = fixtureSeeder;
-  }
 
   /** Runs golden cases for the domains, optionally filtered by id, and aggregates a report. */
   public GoldenSuiteReport run(List<GoldenEvalDomain> domains, List<String> caseIds) {

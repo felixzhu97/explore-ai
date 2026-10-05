@@ -16,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -33,6 +34,7 @@ import reactor.core.publisher.Flux;
     name = "spring.ai.ollama.chat.enabled",
     havingValue = "true",
     matchIfMissing = true)
+@RequiredArgsConstructor
 public class VisionChatService {
 
   private static final Logger log = LoggerFactory.getLogger(VisionChatService.class);
@@ -46,17 +48,6 @@ public class VisionChatService {
   private final ObjectMapper objectMapper;
   private final HttpClient httpClient =
       HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-
-  public VisionChatService(
-      RagApplicationService ragApplicationService,
-      ChatClientProvider chatClientProvider,
-      LocalizedRagPromptBuilder localizedRagPromptBuilder,
-      ObjectMapper objectMapper) {
-    this.ragApplicationService = ragApplicationService;
-    this.chatClientProvider = chatClientProvider;
-    this.localizedRagPromptBuilder = localizedRagPromptBuilder;
-    this.objectMapper = objectMapper;
-  }
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> chatStreamWithImages(

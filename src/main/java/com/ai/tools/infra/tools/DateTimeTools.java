@@ -3,6 +3,7 @@ package com.ai.tools.infra.tools;
 import com.ai.common.domain.tool.DateTimeTool;
 import java.time.Clock;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,13 +17,10 @@ import org.springframework.stereotype.Component;
  *     Calling</a>
  */
 @Component
+@RequiredArgsConstructor
 public class DateTimeTools implements DateTimeTool {
 
   private final Clock clock;
-
-  public DateTimeTools(Clock clock) {
-    this.clock = clock;
-  }
 
   @Tool(
       description =

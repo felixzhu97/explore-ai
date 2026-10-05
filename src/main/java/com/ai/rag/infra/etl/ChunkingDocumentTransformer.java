@@ -3,19 +3,17 @@ package com.ai.rag.infra.etl;
 import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.stereotype.Component;
 
 /** Infrastructure adapter: splits documents with Spring AI {@link TokenTextSplitter}. */
 @Component
+@RequiredArgsConstructor
 public class ChunkingDocumentTransformer implements DocumentTransformer {
 
   private final TokenTextSplitter textSplitter;
-
-  public ChunkingDocumentTransformer(TokenTextSplitter textSplitter) {
-    this.textSplitter = textSplitter;
-  }
 
   @Override
   public List<RawDocument> transform(RawDocument document) {

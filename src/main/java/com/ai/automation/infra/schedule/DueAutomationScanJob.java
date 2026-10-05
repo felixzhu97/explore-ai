@@ -2,6 +2,7 @@ package com.ai.automation.infra.schedule;
 
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.automation.service.DueAutomationRunner;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,18 +12,13 @@ import org.springframework.stereotype.Component;
 /** Scheduled job that periodically executes automation schedules whose next run is due. */
 @Component
 @EnableConfigurationProperties(AutomationProperties.class)
+@RequiredArgsConstructor
 public class DueAutomationScanJob {
 
   private static final Logger log = LoggerFactory.getLogger(DueAutomationScanJob.class);
 
   private final DueAutomationRunner dueAutomationRunner;
   private final AutomationProperties properties;
-
-  public DueAutomationScanJob(
-      DueAutomationRunner dueAutomationRunner, AutomationProperties properties) {
-    this.dueAutomationRunner = dueAutomationRunner;
-    this.properties = properties;
-  }
 
   @Scheduled(fixedDelayString = "${app.automation.scan-fixed-delay-ms:60000}")
   public void scan() {

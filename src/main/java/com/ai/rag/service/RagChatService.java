@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -39,6 +40,7 @@ import reactor.core.publisher.Flux;
 
 /** RAG chat over uploaded documents via Spring AI's retrieval augmentation advisor. */
 @Service
+@RequiredArgsConstructor
 public class RagChatService {
 
   private static final Logger log = LoggerFactory.getLogger(RagChatService.class);
@@ -55,21 +57,6 @@ public class RagChatService {
   private final RagRetrievalSettings retrievalSettings;
   private final AiInvocationRecorder invocationRecorder;
   private final ObjectMapper objectMapper;
-
-  public RagChatService(
-      ChatClientProvider chatClientProvider,
-      LanguageDetectionService languageDetectionService,
-      VectorStore vectorStore,
-      RagRetrievalSettings retrievalSettings,
-      AiInvocationRecorder invocationRecorder,
-      ObjectMapper objectMapper) {
-    this.chatClientProvider = chatClientProvider;
-    this.languageDetectionService = languageDetectionService;
-    this.vectorStore = vectorStore;
-    this.retrievalSettings = retrievalSettings;
-    this.invocationRecorder = invocationRecorder;
-    this.objectMapper = objectMapper;
-  }
 
   /**
    * Answers the question with context retrieved from the owner's documents and records the

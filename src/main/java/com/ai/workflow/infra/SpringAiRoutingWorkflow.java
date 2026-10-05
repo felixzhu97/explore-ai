@@ -7,17 +7,15 @@ import com.ai.workflow.domain.service.RoutingWorkflow;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /** Classification + specialized prompt aligned with Spring AI agentic-patterns/routing-workflow. */
 @Component
+@RequiredArgsConstructor
 public class SpringAiRoutingWorkflow implements RoutingWorkflow {
 
   private final ChatClientProvider chatClientProvider;
-
-  public SpringAiRoutingWorkflow(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = chatClientProvider;
-  }
 
   @Override
   public RoutingResult route(String input, Map<String, String> routes) {

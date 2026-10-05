@@ -1,6 +1,7 @@
 package com.ai.common.infra.llm;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.model.tool.DefaultToolExecutionResult;
@@ -14,13 +15,10 @@ import org.springframework.ai.tool.definition.ToolDefinition;
  *
  * @see <a href="https://docs.spring.io/spring-ai/reference/api/tools.html">Tool Calling</a>
  */
+@RequiredArgsConstructor
 final class LoopGuardToolCallingManager implements ToolCallingManager {
 
   private final ToolCallingManager delegate;
-
-  LoopGuardToolCallingManager(ToolCallingManager delegate) {
-    this.delegate = delegate;
-  }
 
   @Override
   public List<ToolDefinition> resolveToolDefinitions(ToolCallingChatOptions chatOptions) {

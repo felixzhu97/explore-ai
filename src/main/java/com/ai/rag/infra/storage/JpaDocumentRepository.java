@@ -8,24 +8,20 @@ import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Document repository adapter delegating to Spring Data JPA. */
 @Component
+@RequiredArgsConstructor
 public class JpaDocumentRepository implements DocumentRepository {
 
   private final SpringDataDocumentRepository delegate;
   private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "createdAt");
 
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaDocumentRepository(
-      SpringDataDocumentRepository delegate, OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional

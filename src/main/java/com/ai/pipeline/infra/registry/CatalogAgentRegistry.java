@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,16 +24,11 @@ import org.springframework.stereotype.Component;
  * definitions (same typeKey overrides builtin).
  */
 @Component
+@RequiredArgsConstructor
 public class CatalogAgentRegistry implements AgentRegistry {
 
   private final PromptTemplates promptTemplates;
   private final SavedAgentRepository savedAgentRepository;
-
-  public CatalogAgentRegistry(
-      PromptTemplates promptTemplates, SavedAgentRepository savedAgentRepository) {
-    this.promptTemplates = promptTemplates;
-    this.savedAgentRepository = savedAgentRepository;
-  }
 
   /** Test helper: fixed in-memory catalog (not a Spring bean). */
   public static AgentRegistry fixed(List<AgentDefinition> definitions) {

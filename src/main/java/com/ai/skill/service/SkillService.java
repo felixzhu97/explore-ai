@@ -6,17 +6,15 @@ import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** Skill use case that enforces per-owner unique names and derives names from templates. */
 @Service
+@RequiredArgsConstructor
 public class SkillService {
 
   private final SkillRepository skillRepository;
-
-  public SkillService(SkillRepository skillRepository) {
-    this.skillRepository = skillRepository;
-  }
 
   public List<Skill> list(String ownerKey) {
     return skillRepository.findAllByOwnerKey(ownerKey);

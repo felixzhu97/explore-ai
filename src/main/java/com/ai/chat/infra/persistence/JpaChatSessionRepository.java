@@ -8,24 +8,20 @@ import com.ai.common.infra.persistence.OwnerPartitionScope;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** JPA adapter for chat session metadata (messages stored in ChatMemory). */
 @Repository
+@RequiredArgsConstructor
 public class JpaChatSessionRepository implements ChatSessionRepository {
 
   private final SpringDataChatSessionRepository delegate;
   private static final Sort MOST_RECENT_FIRST = Sort.by(Sort.Direction.DESC, "updatedAt");
 
   private final OwnerPartitionScope ownerPartition;
-
-  public JpaChatSessionRepository(
-      SpringDataChatSessionRepository delegate, OwnerPartitionScope ownerPartition) {
-    this.delegate = delegate;
-    this.ownerPartition = ownerPartition;
-  }
 
   @Override
   @Transactional(readOnly = true)

@@ -9,6 +9,7 @@ import com.ai.rag.service.RagApplicationService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
@@ -19,6 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 /** LLM tools that search the knowledge base and list the current owner's documents. */
 @Component
+@RequiredArgsConstructor
 public class RagSearchTool implements DocumentSearchTool {
 
   private static final Logger log = LoggerFactory.getLogger(RagSearchTool.class);
@@ -28,11 +30,6 @@ public class RagSearchTool implements DocumentSearchTool {
 
   private final RagApplicationService ragApplicationService;
   private final OwnerContext ownerContext;
-
-  public RagSearchTool(RagApplicationService ragApplicationService, OwnerContext ownerContext) {
-    this.ragApplicationService = ragApplicationService;
-    this.ownerContext = ownerContext;
-  }
 
   @Override
   @Tool(

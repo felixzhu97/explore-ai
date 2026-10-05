@@ -7,10 +7,12 @@ import com.ai.workflow.domain.service.ChainWorkflow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /** Prompt chaining aligned with Spring AI agentic-patterns/chain-workflow. */
 @Component
+@RequiredArgsConstructor
 public class SpringAiChainWorkflow implements ChainWorkflow {
 
   static final String[] DEFAULT_SYSTEM_PROMPTS = {
@@ -41,10 +43,6 @@ public class SpringAiChainWorkflow implements ChainWorkflow {
   };
 
   private final ChatClientProvider chatClientProvider;
-
-  public SpringAiChainWorkflow(ChatClientProvider chatClientProvider) {
-    this.chatClientProvider = chatClientProvider;
-  }
 
   @Override
   public ChainResult chain(String userInput, String[] systemPrompts) {

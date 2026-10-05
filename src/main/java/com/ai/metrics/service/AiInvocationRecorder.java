@@ -5,24 +5,20 @@ import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Records AI invocation events for metrics dashboards without failing the business path. */
 @Service
+@RequiredArgsConstructor
 public class AiInvocationRecorder {
 
   private static final Logger log = LoggerFactory.getLogger(AiInvocationRecorder.class);
 
   private final AiInvocationEventRepository eventRepository;
   private final MeterRegistry meterRegistry;
-
-  public AiInvocationRecorder(
-      AiInvocationEventRepository eventRepository, MeterRegistry meterRegistry) {
-    this.eventRepository = eventRepository;
-    this.meterRegistry = meterRegistry;
-  }
 
   /** Persists the event and updates Micrometer meters; failures are logged, never thrown. */
   public void record(AiInvocationEvent event) {

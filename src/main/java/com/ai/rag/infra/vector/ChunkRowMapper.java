@@ -10,16 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 
 /** Maps database rows to DocumentChunk domain objects. */
+@RequiredArgsConstructor
 public class ChunkRowMapper implements RowMapper<DocumentChunk> {
 
   private final ObjectMapper objectMapper;
-
-  public ChunkRowMapper(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
 
   @Override
   public DocumentChunk mapRow(ResultSet rs, int rowNum) throws SQLException {

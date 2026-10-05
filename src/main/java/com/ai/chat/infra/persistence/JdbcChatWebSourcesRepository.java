@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** JDBC store of web search sources keyed by conversation and assistant reply content hash. */
 @Repository
+@RequiredArgsConstructor
 public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
 
   private static final Logger log = LoggerFactory.getLogger(JdbcChatWebSourcesRepository.class);
@@ -25,11 +27,6 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
 
   private final JdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
-
-  public JdbcChatWebSourcesRepository(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
-    this.jdbcTemplate = jdbcTemplate;
-    this.objectMapper = objectMapper;
-  }
 
   @Override
   @Transactional

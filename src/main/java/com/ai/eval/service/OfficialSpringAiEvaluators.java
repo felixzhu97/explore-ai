@@ -3,6 +3,7 @@ package com.ai.eval.service;
 import com.ai.eval.domain.model.OfficialGateResult;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.document.Document;
@@ -22,16 +23,11 @@ import org.springframework.stereotype.Service;
     name = "module-eval",
     havingValue = "true",
     matchIfMissing = false)
+@RequiredArgsConstructor
 public class OfficialSpringAiEvaluators {
 
   private final RelevancyEvaluator relevancyEvaluator;
   private final FactCheckingEvaluator factCheckingEvaluator;
-
-  public OfficialSpringAiEvaluators(
-      RelevancyEvaluator relevancyEvaluator, FactCheckingEvaluator factCheckingEvaluator) {
-    this.relevancyEvaluator = relevancyEvaluator;
-    this.factCheckingEvaluator = factCheckingEvaluator;
-  }
 
   /** Checks relevancy, plus fact-checking when context is given, and combines a pass gate. */
   public OfficialGateResult evaluate(

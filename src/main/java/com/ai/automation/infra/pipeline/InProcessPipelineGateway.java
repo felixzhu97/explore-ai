@@ -11,6 +11,7 @@ import com.ai.pipeline.service.PipelineService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
  * output.
  */
 @Component
+@RequiredArgsConstructor
 public class InProcessPipelineGateway implements PipelineGateway {
 
   /** Same default as pipelines canvas when no real brief is configured. */
@@ -26,12 +28,6 @@ public class InProcessPipelineGateway implements PipelineGateway {
 
   private final PipelineTemplateRepository pipelineTemplateRepository;
   private final PipelineService pipelineService;
-
-  public InProcessPipelineGateway(
-      PipelineTemplateRepository pipelineTemplateRepository, PipelineService pipelineService) {
-    this.pipelineTemplateRepository = pipelineTemplateRepository;
-    this.pipelineService = pipelineService;
-  }
 
   @Override
   public String runSavedTemplate(

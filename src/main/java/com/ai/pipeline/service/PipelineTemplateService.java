@@ -6,17 +6,15 @@ import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** Manages a client's saved pipeline templates, including copies of built-in catalog templates. */
 @Service
+@RequiredArgsConstructor
 public class PipelineTemplateService {
 
   private final PipelineTemplateRepository repository;
-
-  public PipelineTemplateService(PipelineTemplateRepository repository) {
-    this.repository = repository;
-  }
 
   public List<PipelineTemplate> listLibrary(String ownerKey) {
     return repository.findAllByOwnerKey(ownerKey);

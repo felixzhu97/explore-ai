@@ -4,6 +4,7 @@ import com.ai.account.infra.config.OAuthSpaProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -13,13 +14,10 @@ import org.springframework.stereotype.Component;
 /** Sends the browser back to the SPA with {@code login=error} after a failed OAuth attempt. */
 @Component
 @ConditionalOnBean(ClientRegistrationRepository.class)
+@RequiredArgsConstructor
 public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
 
   private final OAuthSpaProperties spaProperties;
-
-  public OAuthLoginFailureHandler(OAuthSpaProperties spaProperties) {
-    this.spaProperties = spaProperties;
-  }
 
   @Override
   public void onAuthenticationFailure(

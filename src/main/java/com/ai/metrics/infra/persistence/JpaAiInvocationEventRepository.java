@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** JPA insert adapter with JDBC-backed drill-down and retention deletes. */
 @Repository
+@RequiredArgsConstructor
 public class JpaAiInvocationEventRepository implements AiInvocationEventRepository {
 
   private static final RowMapper<AiInvocationEvent> ROW_MAPPER =
@@ -45,11 +47,6 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
 
   private final EntityManager entityManager;
   private final JdbcTemplate jdbcTemplate;
-
-  public JpaAiInvocationEventRepository(EntityManager entityManager, JdbcTemplate jdbcTemplate) {
-    this.entityManager = entityManager;
-    this.jdbcTemplate = jdbcTemplate;
-  }
 
   @Override
   @Transactional

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -42,6 +43,7 @@ import reactor.core.scheduler.Schedulers;
 
 /** Spring AI chat use case with session memory, tool calls, web sources, and usage metrics. */
 @Service
+@RequiredArgsConstructor
 public class ChatService {
 
   private static final Logger log = LoggerFactory.getLogger(ChatService.class);
@@ -65,29 +67,6 @@ public class ChatService {
   private final PromptTemplates promptTemplates;
   private final AiInvocationRecorder invocationRecorder;
   private final AiInvocationEventRepository invocationEventRepository;
-
-  public ChatService(
-      ChatClientProvider chatClientProvider,
-      ChatSessionRepository repository,
-      RetryTemplate retryTemplate,
-      ChatMemory chatMemory,
-      ConversationMemoryRepository conversationMemoryRepository,
-      SessionTitleGenerator sessionTitleGenerator,
-      ChatWebSourcesRepository chatWebSourcesRepository,
-      PromptTemplates promptTemplates,
-      AiInvocationRecorder invocationRecorder,
-      AiInvocationEventRepository invocationEventRepository) {
-    this.chatClientProvider = chatClientProvider;
-    this.repository = repository;
-    this.retryTemplate = retryTemplate;
-    this.chatMemory = chatMemory;
-    this.conversationMemoryRepository = conversationMemoryRepository;
-    this.sessionTitleGenerator = sessionTitleGenerator;
-    this.chatWebSourcesRepository = chatWebSourcesRepository;
-    this.promptTemplates = promptTemplates;
-    this.invocationRecorder = invocationRecorder;
-    this.invocationEventRepository = invocationEventRepository;
-  }
 
   public String chat(String userMessage) {
     return chat(userMessage, TextChatOptions.defaults());
