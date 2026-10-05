@@ -1,9 +1,13 @@
 package com.ai.account.infra.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Configuration properties for Explore IAM OIDC login and JWT resource-server validation. */
 @ConfigurationProperties(prefix = "app.oauth.explore-iam")
+@Getter
+@Setter
 public class OAuthExploreIamProperties {
 
   /** When true and credentials + issuer are set, Explore IAM OIDC login is offered. */
@@ -22,56 +26,8 @@ public class OAuthExploreIamProperties {
    */
   private String redirectUri = "";
 
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public String getClientId() {
-    return clientId;
-  }
-
-  public void setClientId(String clientId) {
-    this.clientId = clientId;
-  }
-
-  public String getClientSecret() {
-    return clientSecret;
-  }
-
-  public void setClientSecret(String clientSecret) {
-    this.clientSecret = clientSecret;
-  }
-
-  public String getIssuerUri() {
-    return issuerUri;
-  }
-
-  public void setIssuerUri(String issuerUri) {
-    this.issuerUri = issuerUri;
-  }
-
-  public String getRedirectUri() {
-    return redirectUri;
-  }
-
-  public void setRedirectUri(String redirectUri) {
-    this.redirectUri = redirectUri;
-  }
-
   /** When true and issuer-uri is set, accept IAM JWT Bearer tokens. */
   private boolean resourceServerEnabled = true;
-
-  public boolean isResourceServerEnabled() {
-    return resourceServerEnabled;
-  }
-
-  public void setResourceServerEnabled(boolean resourceServerEnabled) {
-    this.resourceServerEnabled = resourceServerEnabled;
-  }
 
   public boolean isReady() {
     return enabled

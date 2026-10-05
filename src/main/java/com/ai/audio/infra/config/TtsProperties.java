@@ -1,10 +1,14 @@
 package com.ai.audio.infra.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
 /** Configuration properties under {@code app.ai.tts} for the speech or OpenAI TTS provider. */
 @ConfigurationProperties(prefix = "app.ai.tts")
+@Getter
+@Setter
 public class TtsProperties {
 
   private boolean enabled = true;
@@ -17,62 +21,6 @@ public class TtsProperties {
   private String apiKey = "";
   private String baseUrl = "https://api.openai.com/v1";
   private String speechBaseUrl = "http://localhost:8000";
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public String getProvider() {
-    return provider;
-  }
-
-  public void setProvider(String provider) {
-    this.provider = provider;
-  }
-
-  public String getModel() {
-    return model;
-  }
-
-  public void setModel(String model) {
-    this.model = model;
-  }
-
-  public String getVoice() {
-    return voice;
-  }
-
-  public void setVoice(String voice) {
-    this.voice = voice;
-  }
-
-  public String getApiKey() {
-    return apiKey;
-  }
-
-  public void setApiKey(String apiKey) {
-    this.apiKey = apiKey;
-  }
-
-  public String getBaseUrl() {
-    return baseUrl;
-  }
-
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-
-  public String getSpeechBaseUrl() {
-    return speechBaseUrl;
-  }
-
-  public void setSpeechBaseUrl(String speechBaseUrl) {
-    this.speechBaseUrl = speechBaseUrl;
-  }
 
   /** True when TTS is enabled and the active provider has required settings. */
   public boolean isConfigured() {
