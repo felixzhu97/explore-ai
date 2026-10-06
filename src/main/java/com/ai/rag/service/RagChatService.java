@@ -125,7 +125,7 @@ public class RagChatService {
       String sessionId,
       String ownerKey,
       TextChatOptions options) {
-    log.info("RAG chat request: {}", LogSanitizer.truncate(question));
+    log.info("RAG chat request: question length={}", LogSanitizer.lengthOf(question));
     Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
 
     String languageCode = languageDetectionService.detect(question);

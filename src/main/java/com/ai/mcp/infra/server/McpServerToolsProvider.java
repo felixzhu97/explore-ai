@@ -60,7 +60,7 @@ public class McpServerToolsProvider {
               description = "Optional document IDs to filter (comma-separated)",
               required = false)
           String documentIds) {
-    log.info("MCP tool: searchKnowledgeBase called with query: {}", query);
+    log.info("MCP tool: searchKnowledgeBase called, query length={}", LogSanitizer.lengthOf(query));
 
     List<String> documentIdList = null;
     if (documentIds != null && !documentIds.isBlank()) {
@@ -82,7 +82,7 @@ public class McpServerToolsProvider {
   public String aiChat(
       @McpToolParam(description = "The message to send to the AI", required = true)
           String message) {
-    log.info("MCP tool: aiChat called with message: {}", LogSanitizer.truncate(message, 50));
+    log.info("MCP tool: aiChat called, message length={}", LogSanitizer.lengthOf(message));
     return chatService.chat(message);
   }
 

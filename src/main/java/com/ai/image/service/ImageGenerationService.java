@@ -44,7 +44,8 @@ public class ImageGenerationService {
   public GeneratedImage generateImage(
       String prompt, String model, String quality, int width, int height, int n) {
     ensureProviderConfigured();
-    log.info("ImageGenerationService.generateImage: {}", LogSanitizer.truncate(prompt));
+    log.info(
+        "ImageGenerationService.generateImage: prompt length={}", LogSanitizer.lengthOf(prompt));
     GeneratedImage image =
         imageGenerationGateway.generate(
             ImagePrompt.of(prompt),

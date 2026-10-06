@@ -36,7 +36,7 @@ public class DocumentSearchService {
    */
   public RetrievalResult retrieve(
       String query, List<DocumentId> documentIds, int topK, String ownerKey) {
-    log.info("RAG retrieval for query: {}", query);
+    log.info("RAG retrieval for query length={}", LogSanitizer.lengthOf(query));
     float[] queryEmbedding = embeddingRepository.embed(query);
     int effectiveTopK = topK > 0 ? topK : retrievalSettings.getTopK();
     double scoreThreshold = retrievalSettings.getScoreThreshold();

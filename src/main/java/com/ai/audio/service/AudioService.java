@@ -38,7 +38,7 @@ public class AudioService {
   /** Synthesizes speech and returns the audio with its media type, possibly empty. */
   public SynthesizedAudio synthesizeAudio(String text, String voice, Double speed) {
     ensureProviderConfigured();
-    log.info("AudioService.synthesize: {}", LogSanitizer.truncate(text));
+    log.info("AudioService.synthesize: length={}", LogSanitizer.lengthOf(text));
     VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
     return textToSpeechGateway.synthesize(SpeechText.of(text), selection, speed);
   }
@@ -46,7 +46,7 @@ public class AudioService {
   /** Synthesizes speech and returns the raw audio bytes, or {@code null} when nothing came back. */
   public byte[] synthesize(String text, String voice, Double speed) {
     ensureProviderConfigured();
-    log.info("AudioService.synthesize: {}", LogSanitizer.truncate(text));
+    log.info("AudioService.synthesize: length={}", LogSanitizer.lengthOf(text));
     VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
     SynthesizedAudio audio = textToSpeechGateway.synthesize(SpeechText.of(text), selection, speed);
     return audio.isEmpty() ? null : audio.data();

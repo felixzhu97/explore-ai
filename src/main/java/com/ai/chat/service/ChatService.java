@@ -225,7 +225,7 @@ public class ChatService {
 
   /** Sends one stateless message with retries and records the invocation. */
   public String chat(String userMessage, TextChatOptions options) {
-    log.info("Chat request with retry: {}", LogSanitizer.truncate(userMessage, 100));
+    log.info("Chat request with retry: message length={}", LogSanitizer.lengthOf(userMessage));
     long startedAt = System.nanoTime();
     try {
       String response =
@@ -480,9 +480,9 @@ public class ChatService {
                             session.rename(title);
                             repository.save(session);
                             log.info(
-                                "Renamed sessionFp={} title={}",
+                                "Renamed sessionFp={} titleLength={}",
                                 LogSanitizer.fingerprint(sessionId.value()),
-                                title);
+                                LogSanitizer.lengthOf(title));
                           }
                         }),
             error ->

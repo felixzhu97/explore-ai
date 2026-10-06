@@ -35,7 +35,8 @@ public class EvalController {
   @PostMapping("/chat")
   public ResponseEntity<EvaluationResponse> evaluateChat(
       @Valid @RequestBody EvaluationRequest request) {
-    log.info("Evaluating chat: userMessage={}", LogSanitizer.truncate(request.userMessage()));
+    log.info(
+        "Evaluating chat: userMessage length={}", LogSanitizer.lengthOf(request.userMessage()));
 
     ChatEvaluationResult result =
         evaluator.evaluate(

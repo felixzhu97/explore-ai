@@ -2,6 +2,7 @@ package com.ai.rag.infra.websearch;
 
 import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.WebSourcesEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,7 +71,7 @@ public class SerperWebSearchTool implements WebSearchTool {
       return "Please provide a valid search query.";
     }
 
-    log.info("Web search query: {}", query);
+    log.info("Web search query length={}", LogSanitizer.lengthOf(query));
 
     if (apiKey == null || apiKey.isBlank()) {
       log.warn("Serper API key not configured");
@@ -101,7 +102,7 @@ public class SerperWebSearchTool implements WebSearchTool {
       return formatResults(query, response);
 
     } catch (Exception e) {
-      log.error("Web search failed for query: {}", query, e);
+      log.error("Web search failed, query length={}", LogSanitizer.lengthOf(query), e);
       return "Failed to search the web. Please try again later.";
     }
   }

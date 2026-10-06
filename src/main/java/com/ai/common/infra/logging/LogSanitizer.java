@@ -33,7 +33,18 @@ public final class LogSanitizer {
     return text.substring(0, maxLength) + "...";
   }
 
-  /** One-way short fingerprint for UUIDs / client ids (not reversible). */
+  /**
+   * Returns the character count of user-supplied text, the only property of prompts and queries
+   * that may be logged at INFO and above.
+   */
+  public static int lengthOf(String text) {
+    return text == null ? 0 : text.length();
+  }
+
+  /**
+   * One-way short fingerprint for high-entropy ids such as UUIDs. Do not use it for user text: the
+   * unkeyed 32-bit hash of a short prompt can be recovered by guessing.
+   */
   public static String fingerprint(String value) {
     if (value == null || value.isBlank()) {
       return "none";
