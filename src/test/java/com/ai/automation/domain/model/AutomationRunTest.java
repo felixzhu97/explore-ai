@@ -31,9 +31,34 @@ class AutomationRunTest {
     AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
     run.succeed("done", EmailDeliveryStatus.SENT);
 
-    assertThatThrownBy(() -> run.fail("late error", EmailDeliveryStatus.SKIPPED))
+    assertThatThrownBy(() -> run.failBeforeEmail("late error"))
         .isInstanceOf(IllegalStateException.class);
-    assertThatThrownBy(() -> run.skip("late skip")).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(run::skipForQuota).isInstanceOf(IllegalStateException.class);
     assertThat(run.getStatus()).isEqualTo(RunStatus.SUCCESS);
+  }
+
+  @Test
+  @DisplayName("should record a skipped run without email when the quota is used up")
+  void shouldRecordASkippedRunWithoutEmailWhenTheQuotaIsUsedUp() {
+    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
+
+    run.skipForQuota();
+
+    assertThat(run.getStatus()).isEqualTo(RunStatus.SKIPPED);
+    assertThat(run.getEmailStatus()).isEqualTo(EmailDeliveryStatus.SKIPPED);
+    assertThat(run.getErrorMessage()).isEqualTo("Daily plan quota exceeded");
+    assertThat(run.isFinished()).isTrue();
+  }
+
+  @Test
+  @DisplayName("should record a failed run without email when the pipeline fails")
+  void shouldRecordAFailedRunWithoutEmailWhenThePipelineFails() {
+    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
+
+    run.failBeforeEmail("  model timed out ");
+
+    assertThat(run.getStatus()).isEqualTo(RunStatus.FAILED);
+    assertThat(run.getEmailStatus()).isEqualTo(EmailDeliveryStatus.SKIPPED);
+    assertThat(run.getErrorMessage()).isEqualTo("model timed out");
   }
 }

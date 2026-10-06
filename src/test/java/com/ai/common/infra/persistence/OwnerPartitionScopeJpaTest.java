@@ -97,8 +97,8 @@ class OwnerPartitionScopeJpaTest extends AbstractDataJpaTest {
   }
 
   @Test
-  @DisplayName("should scope automation runs that do not share the owner keyed base")
-  void shouldScopeAutomationRunsThatDoNotShareTheOwnerKeyedBase() {
+  @DisplayName("should scope automation runs through the owner keyed run base")
+  void shouldScopeAutomationRunsThroughTheOwnerKeyedRunBase() {
     ScheduleId scheduleId = ScheduleId.generate();
     jpaRunRepository.save(AutomationRun.start(scheduleId, OWNER_A));
     em.clear();
