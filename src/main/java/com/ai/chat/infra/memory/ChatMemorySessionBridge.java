@@ -1,12 +1,11 @@
 package com.ai.chat.infra.memory;
 
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.model.ChatMessageType;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.domain.vo.MessageId;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -16,7 +15,7 @@ import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Component;
 
-/** Synchronizes Spring AI ChatMemory with domain ChatSession aggregates. */
+/** Reads and seeds Spring AI ChatMemory as domain chat messages. */
 @Component
 @RequiredArgsConstructor
 public class ChatMemorySessionBridge implements ConversationMemoryRepository {
@@ -24,6 +23,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
   private final ChatMemory chatMemory;
 
   /** Seeds chat memory with the session's existing messages when the memory is still empty. */
+  @Override
   public void seedIfEmpty(String conversationId, List<ChatMessage> existingMessages) {
     if (existingMessages == null || existingMessages.isEmpty()) {
       return;
@@ -36,20 +36,17 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     chatMemory.add(conversationId, toSeed);
   }
 
-  /** Replaces the session's messages with the conversation's current chat memory contents. */
-  public void syncToSession(String conversationId, ChatSession session) {
-    List<Message> memoryMessages = chatMemory.get(conversationId);
-    if (memoryMessages.isEmpty()) {
-      return;
-    }
-    List<ChatMessage> domainMessages = new ArrayList<>();
-    for (Message message : memoryMessages) {
-      domainMessages.add(toDomainMessage(message));
-    }
-    session.restoreMessages(domainMessages);
+  /** Loads the conversation's user and assistant messages; system and tool messages stay out. */
+  @Override
+  public List<ChatMessage> load(String conversationId) {
+    return chatMemory.get(conversationId).stream()
+        .filter(message -> toMessageType(message.getMessageType()) != null)
+        .map(this::toDomainMessage)
+        .toList();
   }
 
   /** Clears the model memory of a conversation. */
+  @Override
   public void clear(String conversationId) {
     chatMemory.clear(conversationId);
   }
@@ -61,12 +58,19 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
   }
 
   private ChatMessage toDomainMessage(Message message) {
-    String role = message.getMessageType().getValue();
+    ChatMessageType type = toMessageType(message.getMessageType());
     String text = message.getText() == null ? "" : message.getText();
-    if (message.getMessageType() == MessageType.ASSISTANT
-        && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
+    if (type == ChatMessageType.ASSISTANT && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
       text = ToolCallMarkupFilter.sanitize(text);
     }
-    return ChatMessage.of(MessageId.generate(), text, role, Instant.now());
+    return ChatMessage.restore(MessageId.generate(), text, type, Instant.now());
+  }
+
+  private static ChatMessageType toMessageType(MessageType type) {
+    return switch (type) {
+      case USER -> ChatMessageType.USER;
+      case ASSISTANT -> ChatMessageType.ASSISTANT;
+      default -> null;
+    };
   }
 }

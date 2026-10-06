@@ -2,8 +2,7 @@ package com.ai.chat.infra.retention;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
-import com.ai.chat.domain.repository.ChatWebSourcesRepository;
-import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.chat.service.ChatSessionEraser;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Instant;
@@ -29,8 +28,7 @@ public class ChatDataRetentionJob {
 
   private final DataRetentionProperties properties;
   private final ChatSessionRepository sessionRepository;
-  private final ConversationMemoryRepository conversationMemoryRepository;
-  private final ChatWebSourcesRepository chatWebSourcesRepository;
+  private final ChatSessionEraser sessionEraser;
   private final AiInvocationEventRepository invocationEventRepository;
 
   /** Deletes chat data older than the retention period. */
@@ -41,16 +39,7 @@ public class ChatDataRetentionJob {
     }
     Instant cutoff = Instant.now().minus(properties.getSessionMaxAge());
     List<ChatSession> expired = sessionRepository.findInactiveSince(cutoff);
-    List<String> sessionIds = expired.stream().map(session -> session.getId().value()).toList();
-
-    for (ChatSession session : expired) {
-      String sessionId = session.getId().value();
-      conversationMemoryRepository.clear(sessionId);
-      chatWebSourcesRepository.deleteByConversationId(sessionId);
-      sessionRepository.delete(session.getId());
-    }
-
-    int metricsBySession = invocationEventRepository.deleteBySessionIds(sessionIds);
+    int metricsBySession = sessionEraser.eraseAll(expired);
     int metricsByAge = invocationEventRepository.deleteOlderThan(cutoff);
     log.info(
         "Retention purge cutoff={} sessions={} metricsBySession={} metricsByAge={}",
@@ -58,8 +47,10 @@ public class ChatDataRetentionJob {
         expired.size(),
         metricsBySession,
         metricsByAge);
-    if (!sessionIds.isEmpty()) {
-      log.debug("Purged sessionFp sample={}", LogSanitizer.fingerprint(sessionIds.getFirst()));
+    if (!expired.isEmpty()) {
+      log.debug(
+          "Purged sessionFp sample={}",
+          LogSanitizer.fingerprint(expired.getFirst().getId().value()));
     }
   }
 }

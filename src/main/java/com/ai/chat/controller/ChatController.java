@@ -8,15 +8,11 @@ import com.ai.chat.controller.dto.HealthResponse;
 import com.ai.chat.controller.dto.MessageInfoResponse;
 import com.ai.chat.controller.dto.SessionResponse;
 import com.ai.chat.controller.dto.WebSourceResponse;
-import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.repository.ChatWebSourcesRepository;
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.service.ChatService;
+import com.ai.chat.service.SessionHistory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
   private final ChatService chatService;
-  private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final OwnerContext ownerContext;
 
   /** Reports that the chat API is up. */
@@ -66,11 +61,16 @@ public class ChatController {
   @GetMapping("/sessions/{sessionId}/messages")
   public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
-    Map<String, List<WebSource>> sourcesByHash =
-        chatWebSourcesRepository.findByConversationId(sessionId);
+    SessionHistory history =
+        chatService.findSessionHistoryWithSources(
+            sessionId, ownerContext.requireValue(httpRequest));
     List<MessageInfoResponse> messages =
-        chatService.findSessionHistory(sessionId, ownerContext.requireValue(httpRequest)).stream()
-            .map(message -> toMessageInfo(message, sourcesByHash))
+        history.messages().stream()
+            .map(
+                message ->
+                    MessageInfoResponse.from(
+                        message,
+                        history.sourcesFor(message).stream().map(WebSourceResponse::from).toList()))
             .toList();
     return ResponseEntity.ok(messages);
   }
@@ -106,18 +106,5 @@ public class ChatController {
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
     chatService.deleteSession(sessionId, ownerContext.requireValue(httpRequest));
     return ResponseEntity.noContent().build();
-  }
-
-  private static MessageInfoResponse toMessageInfo(
-      ChatMessage message, Map<String, List<WebSource>> sourcesByHash) {
-    if (!message.isFromAssistant() || sourcesByHash.isEmpty()) {
-      return MessageInfoResponse.from(message);
-    }
-    List<WebSource> sources = sourcesByHash.get(ContentHash.computeSha256(message.getText()));
-    if (sources == null || sources.isEmpty()) {
-      return MessageInfoResponse.from(message);
-    }
-    return MessageInfoResponse.from(
-        message, sources.stream().map(WebSourceResponse::from).toList());
   }
 }

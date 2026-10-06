@@ -177,9 +177,15 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     }
   }
 
-  /** Records that the session was just used, for example after a new exchange. */
-  public void recordActivity() {
+  /** Replaces the transient messages after a new exchange and records the activity. */
+  public void recordExchange(List<ChatMessage> storedMessages) {
+    restoreMessages(storedMessages);
     updateLastActivity();
+  }
+
+  /** Tells whether the session has not been used since {@code cutoff}. */
+  public boolean isInactiveSince(Instant cutoff) {
+    return getLastActivityAt().isBefore(cutoff);
   }
 
   private void updateLastActivity() {

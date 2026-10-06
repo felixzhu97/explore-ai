@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.service.ChatService;
+import com.ai.chat.service.SessionHistory;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.OwnerKeyFixtures;
@@ -32,8 +32,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 class ChatControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private ChatService chatService;
-
-  @MockitoBean private ChatWebSourcesRepository chatWebSourcesRepository;
 
   @Nested
   @DisplayName("GET /api/chat/health")
@@ -259,13 +257,14 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return messages for session")
     void shouldReturnMessagesForSession() {
-      when(chatService.findSessionHistory("22222222-2222-2222-2222-222222222222", ownerKey()))
+      when(chatService.findSessionHistoryWithSources(
+              "22222222-2222-2222-2222-222222222222", ownerKey()))
           .thenReturn(
-              List.of(
-                  ChatMessage.createUserMessage("Hello"),
-                  ChatMessage.createAssistantMessage("Hi")));
-      when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
-          .thenReturn(Map.of());
+              new SessionHistory(
+                  List.of(
+                      ChatMessage.createUserMessage("Hello"),
+                      ChatMessage.createAssistantMessage("Hi")),
+                  Map.of()));
 
       assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222/messages"))
           .hasStatusOk()
@@ -286,17 +285,18 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should attach persisted sources to assistant messages")
     void shouldAttachPersistedSourcesToAssistantMessages() {
       String reply = "Paris is the capital.";
-      when(chatService.findSessionHistory("22222222-2222-2222-2222-222222222222", ownerKey()))
+      when(chatService.findSessionHistoryWithSources(
+              "22222222-2222-2222-2222-222222222222", ownerKey()))
           .thenReturn(
-              List.of(
-                  ChatMessage.createUserMessage("Where is Paris?"),
-                  ChatMessage.createAssistantMessage(reply)));
-      when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
-          .thenReturn(
-              Map.of(
-                  ContentHash.computeSha256(reply),
+              new SessionHistory(
                   List.of(
-                      new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))));
+                      ChatMessage.createUserMessage("Where is Paris?"),
+                      ChatMessage.createAssistantMessage(reply)),
+                  Map.of(
+                      ContentHash.computeSha256(reply),
+                      List.of(
+                          new WebSource(
+                              "Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital")))));
 
       assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222/messages"))
           .hasStatusOk()
@@ -316,7 +316,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
-      when(chatService.findSessionHistory("missing", ownerKey()))
+      when(chatService.findSessionHistoryWithSources("missing", ownerKey()))
           .thenThrow(new ChatSessionNotFoundException("missing"));
 
       assertThat(mvc.get().uri("/api/chat/sessions/missing/messages"))

@@ -11,6 +11,7 @@ import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.service.ChatSessionEraser;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Duration;
 import java.util.List;
@@ -45,8 +46,11 @@ class ChatDataRetentionJobTest {
         new ChatDataRetentionJob(
             properties,
             sessionRepository,
-            conversationMemoryRepository,
-            chatWebSourcesRepository,
+            new ChatSessionEraser(
+                sessionRepository,
+                conversationMemoryRepository,
+                chatWebSourcesRepository,
+                invocationEventRepository),
             invocationEventRepository);
   }
 

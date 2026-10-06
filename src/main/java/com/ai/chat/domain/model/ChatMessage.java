@@ -4,24 +4,18 @@ import com.ai.chat.domain.vo.MessageId;
 import java.time.Instant;
 import java.util.Objects;
 
-/**
- * Chat message entity containing full message information. Immutable object, created through
- * factory methods. Role is represented as a simple String ("user" or "assistant").
- */
+/** Immutable chat message; who wrote it is a {@link ChatMessageType}. */
 public final class ChatMessage {
-
-  private static final String ROLE_USER = "user";
-  private static final String ROLE_ASSISTANT = "assistant";
 
   private final MessageId id;
   private final String text;
-  private final String role;
+  private final ChatMessageType messageType;
   private final Instant timestamp;
 
-  private ChatMessage(MessageId id, String text, String role, Instant timestamp) {
+  private ChatMessage(MessageId id, String text, ChatMessageType messageType, Instant timestamp) {
     this.id = Objects.requireNonNull(id, "MessageId cannot be null");
     this.text = validateText(text);
-    this.role = validateRole(role);
+    this.messageType = Objects.requireNonNull(messageType, "messageType");
     this.timestamp = Objects.requireNonNull(timestamp, "Timestamp cannot be null");
   }
 
@@ -32,30 +26,20 @@ public final class ChatMessage {
     return text.trim();
   }
 
-  private static String validateRole(String role) {
-    if (role == null || role.isBlank()) {
-      return ROLE_USER;
-    }
-    String normalized = role.toLowerCase().trim();
-    if (!ROLE_USER.equals(normalized) && !ROLE_ASSISTANT.equals(normalized)) {
-      return ROLE_USER;
-    }
-    return normalized;
-  }
-
   /** Creates a new user message. */
   public static ChatMessage createUserMessage(String text) {
-    return new ChatMessage(MessageId.generate(), text, ROLE_USER, Instant.now());
+    return new ChatMessage(MessageId.generate(), text, ChatMessageType.USER, Instant.now());
   }
 
   /** Creates a new assistant message. */
   public static ChatMessage createAssistantMessage(String text) {
-    return new ChatMessage(MessageId.generate(), text, ROLE_ASSISTANT, Instant.now());
+    return new ChatMessage(MessageId.generate(), text, ChatMessageType.ASSISTANT, Instant.now());
   }
 
   /** Rebuilds a stored message. */
-  public static ChatMessage of(MessageId id, String text, String role, Instant timestamp) {
-    return new ChatMessage(id, text, role, timestamp);
+  public static ChatMessage restore(
+      MessageId id, String text, ChatMessageType messageType, Instant timestamp) {
+    return new ChatMessage(id, text, messageType, timestamp);
   }
 
   /** Returns the message id. */
@@ -68,9 +52,9 @@ public final class ChatMessage {
     return text;
   }
 
-  /** Returns the sender role. */
-  public String role() {
-    return role;
+  /** Returns who wrote the message. */
+  public ChatMessageType getMessageType() {
+    return messageType;
   }
 
   /** Returns when the message was created. */
@@ -80,17 +64,17 @@ public final class ChatMessage {
 
   /** Tells whether the user sent the message. */
   public boolean isFromUser() {
-    return ROLE_USER.equals(role);
+    return messageType == ChatMessageType.USER;
   }
 
   /** Tells whether the assistant sent the message. */
   public boolean isFromAssistant() {
-    return ROLE_ASSISTANT.equals(role);
+    return messageType == ChatMessageType.ASSISTANT;
   }
 
   /** Returns a copy of the message with new text. */
   public ChatMessage withText(String newText) {
-    return new ChatMessage(this.id, newText, this.role, this.timestamp);
+    return new ChatMessage(this.id, newText, this.messageType, this.timestamp);
   }
 
   @Override
@@ -112,6 +96,6 @@ public final class ChatMessage {
 
   @Override
   public String toString() {
-    return "ChatMessage{id=%s, role='%s', timestamp=%s}".formatted(id, role, timestamp);
+    return "ChatMessage{id=%s, type=%s, timestamp=%s}".formatted(id, messageType, timestamp);
   }
 }

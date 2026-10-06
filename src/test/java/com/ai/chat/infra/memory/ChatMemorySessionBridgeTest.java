@@ -3,9 +3,7 @@ package com.ai.chat.infra.memory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.vo.ChatSessionId;
-import java.time.Instant;
+import com.ai.chat.domain.model.ChatMessageType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 
 @DisplayName("ChatMemorySessionBridge")
@@ -65,54 +64,42 @@ class ChatMemorySessionBridgeTest {
   }
 
   @Test
-  @DisplayName("should sync memory messages into session and sanitize tool markup")
-  void shouldSyncMemoryMessagesIntoSessionAndSanitizeToolMarkup() {
+  @DisplayName("should load memory messages in order and sanitize tool markup")
+  void shouldLoadMemoryMessagesInOrderAndSanitizeToolMarkup() {
     chatMemory.add(
         "conv-1",
         List.of(
             new UserMessage("chart please"),
             new AssistantMessage("前言\n<｜DSML｜tool_calls>x</｜DSML｜tool_calls>\n后记")));
 
-    ChatSession session = ChatSession.create("Title", "c:11111111-1111-1111-1111-111111111111");
-    session.addUserMessage("stale");
+    List<ChatMessage> loaded = bridge.load("conv-1");
 
-    bridge.syncToSession("conv-1", session);
-
-    assertThat(session.getMessageCount()).isEqualTo(2);
-    assertThat(session.getMessages().get(0).getText()).isEqualTo("chart please");
-    assertThat(session.getMessages().get(1).getText()).contains("前言");
-    assertThat(session.getMessages().get(1).getText()).contains("后记");
-    assertThat(session.getMessages().get(1).getText()).doesNotContain("DSML");
+    assertThat(loaded).hasSize(2);
+    assertThat(loaded.get(0).getMessageType()).isEqualTo(ChatMessageType.USER);
+    assertThat(loaded.get(0).getText()).isEqualTo("chart please");
+    assertThat(loaded.get(1).getMessageType()).isEqualTo(ChatMessageType.ASSISTANT);
+    assertThat(loaded.get(1).getText()).contains("前言").contains("后记").doesNotContain("DSML");
   }
 
   @Test
-  @DisplayName("should keep last activity when syncing memory on read")
-  void shouldKeepLastActivityWhenSyncingMemoryOnRead() {
-    chatMemory.add("conv-1", List.of(new UserMessage("hi"), new AssistantMessage("hello")));
-    Instant lastActive = Instant.parse("2026-01-01T00:00:00Z");
-    ChatSession session =
-        ChatSession.of(
-            ChatSessionId.generate(),
-            "Title",
-            lastActive,
-            "c:11111111-1111-1111-1111-111111111111");
+  @DisplayName("should leave system messages out when memory is loaded")
+  void shouldLeaveSystemMessagesOutWhenMemoryIsLoaded() {
+    chatMemory.add(
+        "conv-1",
+        List.of(
+            new SystemMessage("You are helpful."),
+            new UserMessage("hi"),
+            new AssistantMessage("hello")));
 
-    bridge.syncToSession("conv-1", session);
-
-    assertThat(session.getMessageCount()).isEqualTo(2);
-    assertThat(session.getLastActivityAt()).isEqualTo(lastActive);
+    assertThat(bridge.load("conv-1"))
+        .extracting(ChatMessage::getText)
+        .containsExactly("hi", "hello");
   }
 
   @Test
-  @DisplayName("should skip sync when memory empty")
-  void shouldSkipSyncWhenMemoryEmpty() {
-    ChatSession session = ChatSession.create("Title", "c:11111111-1111-1111-1111-111111111111");
-    session.addUserMessage("keep me");
-
-    bridge.syncToSession("conv-1", session);
-
-    assertThat(session.getMessageCount()).isEqualTo(1);
-    assertThat(session.getMessages().getFirst().getText()).isEqualTo("keep me");
+  @DisplayName("should load nothing when memory is empty")
+  void shouldLoadNothingWhenMemoryIsEmpty() {
+    assertThat(bridge.load("conv-1")).isEmpty();
   }
 
   @Test

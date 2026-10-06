@@ -1,5 +1,6 @@
 package com.ai.chat.controller.dto;
 
+import com.ai.chat.domain.model.ChatMessageType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
@@ -19,6 +20,16 @@ public enum ChatRole {
   @JsonValue
   public String value() {
     return value;
+  }
+
+  /** Returns the wire role of a domain message type. */
+  public static ChatRole of(ChatMessageType type) {
+    return type == ChatMessageType.ASSISTANT ? ASSISTANT : USER;
+  }
+
+  /** Returns the domain message type for this wire role. */
+  public ChatMessageType toMessageType() {
+    return this == ASSISTANT ? ChatMessageType.ASSISTANT : ChatMessageType.USER;
   }
 
   /** Parses a wire role case-insensitively; rejects unknown roles. */

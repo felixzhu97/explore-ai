@@ -15,7 +15,6 @@ import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,27 +65,25 @@ public class ChatService {
   private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final PromptTemplates promptTemplates;
   private final AiInvocationRecorder invocationRecorder;
-  private final AiInvocationEventRepository invocationEventRepository;
+  private final ChatSessionEraser sessionEraser;
 
   /** Returns the client's sessions, most recently active first. */
   public List<ChatSession> listSessions(String ownerKey) {
-    return repository.findByOwnerKey(ownerKey).stream()
-        .map(
-            session -> {
-              conversationMemoryRepository.syncToSession(session.getId().value(), session);
-              return session;
-            })
-        .toList();
+    return repository.findByOwnerKey(ownerKey).stream().map(this::withStoredMessages).toList();
   }
 
-  /** Returns the client's session messages in chronological order. */
-  public List<ChatMessage> findSessionHistory(String sessionId, String ownerKey) {
+  /**
+   * Returns the client's session messages in chronological order with their web sources. The owner
+   * is checked before any sources are read.
+   */
+  public SessionHistory findSessionHistoryWithSources(String sessionId, String ownerKey) {
     ChatSession session =
         repository
             .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+            .map(this::withStoredMessages)
             .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
-    conversationMemoryRepository.syncToSession(sessionId, session);
-    return session.getMessages();
+    return new SessionHistory(
+        session.getMessages(), chatWebSourcesRepository.findByConversationId(sessionId));
   }
 
   /** Sends a message in the session and returns the reply. */
@@ -116,14 +113,11 @@ public class ChatService {
 
   /** Deletes the client's session and its chat memory. */
   public void deleteSession(String sessionId, String ownerKey) {
-    ChatSessionId id = ChatSessionId.of(sessionId);
-    if (repository.findByIdAndOwnerKey(id, ownerKey).isEmpty()) {
-      throw new ChatSessionNotFoundException(sessionId);
-    }
-    conversationMemoryRepository.clear(sessionId);
-    chatWebSourcesRepository.deleteByConversationId(sessionId);
-    CapturedWebSources.clear(sessionId);
-    repository.delete(id);
+    ChatSession session =
+        repository
+            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+    sessionEraser.eraseAll(List.of(session));
     log.info("Deleted sessionFp={}", LogSanitizer.fingerprint(sessionId));
   }
 
@@ -264,25 +258,13 @@ public class ChatService {
   public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
     return repository
         .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
-        .map(
-            session -> {
-              conversationMemoryRepository.syncToSession(sessionId, session);
-              return session;
-            });
+        .map(this::withStoredMessages);
   }
 
   /** Deletes every session owned by the client. */
   public void deleteAllSessions(String ownerKey) {
     List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
-    List<String> sessionIds = sessions.stream().map(session -> session.getId().value()).toList();
-    for (ChatSession session : sessions) {
-      String sessionId = session.getId().value();
-      conversationMemoryRepository.clear(sessionId);
-      chatWebSourcesRepository.deleteByConversationId(sessionId);
-      CapturedWebSources.clear(sessionId);
-      repository.delete(session.getId());
-    }
-    int metricsDeleted = invocationEventRepository.deleteBySessionIds(sessionIds);
+    int metricsDeleted = sessionEraser.eraseAll(sessions);
     log.info(
         "Erased {} sessions and {} metrics events for clientFp={}",
         sessions.size(),
@@ -409,8 +391,7 @@ public class ChatService {
         .findById(sessionId)
         .ifPresent(
             session -> {
-              conversationMemoryRepository.syncToSession(conversationId, session);
-              session.recordActivity();
+              session.recordExchange(conversationMemoryRepository.load(conversationId));
               repository.save(session);
               persistCapturedSources(conversationId, session);
               if (isFirstTurn && session.needsGeneratedTitle()) {
@@ -452,8 +433,7 @@ public class ChatService {
       throw new AiServiceException("AI returned empty response");
     }
 
-    conversationMemoryRepository.syncToSession(conversationId, session);
-    session.recordActivity();
+    session.recordExchange(conversationMemoryRepository.load(conversationId));
     repository.save(session);
 
     if (isFirstTurn && session.needsGeneratedTitle()) {
@@ -486,6 +466,11 @@ public class ChatService {
                     "Async title generation failed for sessionFp={}",
                     LogSanitizer.fingerprint(sessionId.value()),
                     error));
+  }
+
+  private ChatSession withStoredMessages(ChatSession session) {
+    session.restoreMessages(conversationMemoryRepository.load(session.getId().value()));
+    return session;
   }
 
   private ChatSession getOrCreateDefaultSession(String ownerKey) {

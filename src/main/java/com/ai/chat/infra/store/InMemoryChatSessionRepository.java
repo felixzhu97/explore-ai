@@ -49,7 +49,7 @@ public class InMemoryChatSessionRepository implements ChatSessionRepository {
   @Override
   public List<ChatSession> findInactiveSince(Instant cutoff) {
     return storage.values().stream()
-        .filter(session -> session.getLastActivityAt().isBefore(cutoff))
+        .filter(session -> session.isInactiveSince(cutoff))
         .sorted(Comparator.comparing(ChatSession::getLastActivityAt))
         .toList();
   }

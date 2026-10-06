@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -18,12 +17,16 @@ import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.SessionTitle;
+import com.ai.chat.domain.vo.WebSource;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.service.AiInvocationRecorder;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -77,7 +80,11 @@ class ChatServiceTest {
             chatWebSourcesRepository,
             new PromptTemplates(),
             invocationRecorder,
-            invocationEventRepository);
+            new ChatSessionEraser(
+                repository,
+                conversationMemoryRepository,
+                chatWebSourcesRepository,
+                invocationEventRepository));
   }
 
   @Nested
@@ -122,7 +129,12 @@ class ChatServiceTest {
     @Test
     @DisplayName("should return session when owned by client")
     void shouldReturnSessionWhenOwnedByClient() {
-      ChatSession session = ChatSession.create("Test", CLIENT_A);
+      ChatSession session =
+          ChatSession.of(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+              "Test",
+              Instant.now(),
+              CLIENT_A);
       when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
@@ -131,8 +143,7 @@ class ChatServiceTest {
           useCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
       assertThat(result).isPresent().contains(session);
-      verify(conversationMemoryRepository)
-          .syncToSession(eq("22222222-2222-2222-2222-222222222222"), eq(session));
+      verify(conversationMemoryRepository).load("22222222-2222-2222-2222-222222222222");
     }
 
     @Test
@@ -150,25 +161,34 @@ class ChatServiceTest {
   }
 
   @Nested
-  @DisplayName("findSessionHistory()")
+  @DisplayName("findSessionHistoryWithSources()")
   class GetSessionHistory {
 
     @Test
-    @DisplayName("should return messages for owned session")
-    void shouldReturnMessagesWhenSessionOwned() {
-      ChatSession session = ChatSession.create("Test", CLIENT_A);
-      session.addUserMessage("Hello");
-      session.addAssistantMessage("Hi!");
+    @DisplayName("should return stored messages with their sources for an owned session")
+    void shouldReturnStoredMessagesWithTheirSourcesForAnOwnedSession() {
+      ChatSession session =
+          ChatSession.of(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+              "Test",
+              Instant.now(),
+              CLIENT_A);
       when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
+      ChatMessage reply = ChatMessage.createAssistantMessage("Hi!");
+      when(conversationMemoryRepository.load("22222222-2222-2222-2222-222222222222"))
+          .thenReturn(List.of(ChatMessage.createUserMessage("Hello"), reply));
+      List<WebSource> cited = List.of(new WebSource("Spring", "https://spring.io", "Docs"));
+      when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
+          .thenReturn(Map.of(ContentHash.computeSha256("Hi!"), cited));
 
-      List<ChatMessage> history =
-          useCase.findSessionHistory("22222222-2222-2222-2222-222222222222", CLIENT_A);
+      SessionHistory history =
+          useCase.findSessionHistoryWithSources("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
-      assertThat(history).hasSize(2);
-      verify(conversationMemoryRepository)
-          .syncToSession(eq("22222222-2222-2222-2222-222222222222"), eq(session));
+      assertThat(history.messages()).hasSize(2);
+      assertThat(history.sourcesFor(reply)).isEqualTo(cited);
+      assertThat(history.sourcesFor(history.messages().getFirst())).isEmpty();
     }
 
     @Test
@@ -179,8 +199,11 @@ class ChatServiceTest {
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(
-              () -> useCase.findSessionHistory("44444444-4444-4444-4444-444444444444", CLIENT_A))
+              () ->
+                  useCase.findSessionHistoryWithSources(
+                      "44444444-4444-4444-4444-444444444444", CLIENT_A))
           .isInstanceOf(ChatSessionNotFoundException.class);
+      verify(chatWebSourcesRepository, never()).findByConversationId(any());
     }
   }
 
@@ -195,7 +218,7 @@ class ChatServiceTest {
           ChatSession.of(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
               "Test",
-              java.time.Instant.now(),
+              Instant.now(),
               CLIENT_A);
       when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
@@ -208,6 +231,8 @@ class ChatServiceTest {
       verify(chatWebSourcesRepository)
           .deleteByConversationId("22222222-2222-2222-2222-222222222222");
       verify(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
+      verify(invocationEventRepository)
+          .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
     }
 
     @Test
@@ -230,7 +255,7 @@ class ChatServiceTest {
           ChatSession.of(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
               "Test",
-              java.time.Instant.now(),
+              Instant.now(),
               CLIENT_A);
       when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of(owned));
 
