@@ -56,6 +56,15 @@ class DailyUsageQuotaServiceTest {
   }
 
   @Test
+  @DisplayName("should count an anonymous request once when its client key is derived from the ip")
+  void shouldCountAnAnonymousRequestOnceWhenItsClientKeyIsDerivedFromTheIp() {
+    assertThat(service.tryConsume("ip:203.0.113.7", "203.0.113.7")).isTrue();
+    assertThat(service.tryConsume("ip:203.0.113.7", "203.0.113.7")).isTrue();
+
+    assertThat(service.countRemaining("ip:203.0.113.7")).isZero();
+  }
+
+  @Test
   @DisplayName("should skip ip limit when address is null")
   void shouldSkipIpLimitWhenAddressIsNull() {
     properties.setFreeDailyRequests(10);
