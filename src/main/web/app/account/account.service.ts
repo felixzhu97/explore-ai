@@ -18,6 +18,8 @@ export interface AccountMeResponse {
   clientId: string | null;
   userId: string | null;
   email: string | null;
+  /** Name to show for the account; may be a login handle rather than an email. */
+  displayName: string | null;
   plan: AccountPlan;
   loginAvailable: boolean;
   loginProviders: LoginProvider[];

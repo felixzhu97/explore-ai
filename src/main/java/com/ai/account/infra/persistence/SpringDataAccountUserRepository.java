@@ -2,6 +2,7 @@ package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.vo.AccountUserId;
+import com.ai.account.domain.vo.ClientId;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,5 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataAccountUserRepository extends JpaRepository<AccountUser, AccountUserId> {
 
-  Optional<AccountUser> findByLinkedClientId(String linkedClientId);
+  Optional<AccountUser> findByLinkedClientId(ClientId linkedClientId);
 }

@@ -2,6 +2,8 @@ package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.vo.ClientId;
+import com.ai.account.domain.vo.ExternalIdentity;
 import jakarta.persistence.EntityManager;
 import java.util.Map;
 import java.util.Optional;
@@ -20,21 +22,17 @@ public class JpaAccountUserRepository implements AccountUserRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<AccountUser> findByProviderAndSubject(String provider, String subject) {
-    if (provider == null || provider.isBlank() || subject == null || subject.isBlank()) {
-      return Optional.empty();
-    }
+  public Optional<AccountUser> findByIdentity(ExternalIdentity identity) {
     return Optional.ofNullable(
         entityManager.find(
-            AccountUser.class, Map.of("provider", provider, "subject", subject), KeyType.NATURAL));
+            AccountUser.class,
+            Map.of("provider", identity.provider(), "subject", identity.subject()),
+            KeyType.NATURAL));
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<AccountUser> findByLinkedClientId(String linkedClientId) {
-    if (linkedClientId == null || linkedClientId.isBlank()) {
-      return Optional.empty();
-    }
+  public Optional<AccountUser> findByLinkedClientId(ClientId linkedClientId) {
     return delegate.findByLinkedClientId(linkedClientId);
   }
 

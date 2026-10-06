@@ -2,14 +2,11 @@ package com.ai.account.service;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.vo.ClientId;
 import com.ai.common.domain.vo.OwnerKey;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -20,22 +17,24 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CurrentOwnerResolver {
 
-  public static final String EXPLORE_IAM_PROVIDER = "explore-iam";
-
   private final AccountUserRepository accountUserRepository;
+  private final IamAccountService iamAccountService;
 
   /** Resolves owner from guest Client Identity and/or OAuth / IAM JWT authentication. */
   @Transactional
   public OwnerKey resolve(String clientId, Authentication authentication) {
-    Optional<AccountUser> fromAuth = resolveLinkedUser(authentication);
+    Optional<AccountUser> fromAuth = resolveSignedInUser(authentication);
     if (fromAuth.isPresent()) {
-      return OwnerKey.forAccount(fromAuth.get().getId().value());
+      return fromAuth.get().ownerKey();
     }
-
-    return accountUserRepository
-        .findByLinkedClientId(clientId)
-        .map(user -> OwnerKey.forAccount(user.getId().value()))
-        .orElseGet(() -> OwnerKey.forClient(clientId));
+    if (ClientId.isValid(clientId)) {
+      Optional<AccountUser> linked =
+          accountUserRepository.findByLinkedClientId(ClientId.parse(clientId));
+      if (linked.isPresent()) {
+        return linked.get().ownerKey();
+      }
+    }
+    return OwnerKey.forClient(clientId);
   }
 
   /**
@@ -46,56 +45,14 @@ public class CurrentOwnerResolver {
    */
   @Transactional
   public OwnerKey resolveFromJwt(Jwt jwt) {
-    AccountUser user = ensureIamUser(jwt);
-    return OwnerKey.forAccount(user.getId().value());
+    return iamAccountService.signIn(jwt).ownerKey();
   }
 
-  private Optional<AccountUser> resolveLinkedUser(Authentication authentication) {
-    if (authentication == null
-        || !authentication.isAuthenticated()
-        || authentication instanceof AnonymousAuthenticationToken) {
-      return Optional.empty();
-    }
+  private Optional<AccountUser> resolveSignedInUser(Authentication authentication) {
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-      return Optional.of(ensureIamUser(jwtAuth.getToken()));
+      return Optional.of(iamAccountService.signIn(jwtAuth.getToken()));
     }
-    String provider = getRegistrationId(authentication);
-    String subject = getSubject(authentication);
-    if (subject == null || subject.isBlank()) {
-      return Optional.empty();
-    }
-    return accountUserRepository.findByProviderAndSubject(provider, subject);
-  }
-
-  private AccountUser ensureIamUser(Jwt jwt) {
-    String subject = jwt.getSubject();
-    if (subject == null || subject.isBlank()) {
-      throw new IllegalArgumentException("IAM JWT subject is required");
-    }
-    String email = jwt.getClaimAsString("email");
-    return accountUserRepository
-        .findByProviderAndSubject(EXPLORE_IAM_PROVIDER, subject)
-        .orElseGet(
-            () ->
-                accountUserRepository.save(
-                    AccountUser.create(EXPLORE_IAM_PROVIDER, subject, email, null)));
-  }
-
-  private static String getRegistrationId(Authentication authentication) {
-    if (authentication instanceof OAuth2AuthenticationToken token) {
-      return token.getAuthorizedClientRegistrationId();
-    }
-    return "unknown";
-  }
-
-  private static String getSubject(Authentication authentication) {
-    Object principal = authentication.getPrincipal();
-    if (principal instanceof OidcUser oidcUser) {
-      return oidcUser.getSubject();
-    }
-    if (principal instanceof OAuth2User oauth2User) {
-      return oauth2User.getName();
-    }
-    return null;
+    return OAuthSignIn.from(authentication)
+        .flatMap(signIn -> accountUserRepository.findByIdentity(signIn.identity()));
   }
 }

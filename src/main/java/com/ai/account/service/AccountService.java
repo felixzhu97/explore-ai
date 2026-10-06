@@ -6,6 +6,8 @@ import com.ai.account.controller.dto.AccountPlan;
 import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.vo.ClientId;
+import com.ai.account.domain.vo.ContactEmail;
 import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
@@ -15,13 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
   private final AccountUserRepository accountUserRepository;
+  private final IamAccountService iamAccountService;
   private final BillingProperties billingProperties;
   private final OAuthGoogleProperties oauthGoogleProperties;
   private final OAuthGithubProperties oauthGithubProperties;
@@ -48,26 +46,22 @@ public class AccountService {
   public AccountMeResponse getCurrentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-      AccountUser user = ensureIamUser(jwtAuth.getToken());
-      return buildAuthenticatedResponse(clientId, user.getId().value(), user.getEmail());
+      return authenticated(clientId, iamAccountService.signIn(jwtAuth.getToken()));
     }
-    if (isAuthenticated(authentication)) {
-      OAuthIdentity identity = extractIdentity(authentication);
-      if (identity != null) {
-        Optional<AccountUser> linked =
-            accountUserRepository.findByProviderAndSubject(identity.provider(), identity.subject());
-        String email = linked.map(AccountUser::getEmail).orElse(identity.email());
-        String userId = linked.map(user -> user.getId().value()).orElse(identity.subject());
-        return buildAuthenticatedResponse(clientId, userId, email);
-      }
+    Optional<OAuthSignIn> signIn = OAuthSignIn.from(authentication);
+    if (signIn.isPresent()) {
+      return accountUserRepository
+          .findByIdentity(signIn.get().identity())
+          .map(user -> authenticated(clientId, user))
+          .orElseGet(() -> authenticated(clientId, signIn.get()));
     }
 
     // Session may be missing after a host mismatch; Client Identity link still proves login.
-    if (clientId != null && !clientId.isBlank()) {
-      Optional<AccountUser> byClient = accountUserRepository.findByLinkedClientId(clientId);
+    if (ClientId.isValid(clientId)) {
+      Optional<AccountUser> byClient =
+          accountUserRepository.findByLinkedClientId(ClientId.parse(clientId));
       if (byClient.isPresent()) {
-        AccountUser user = byClient.get();
-        return buildAuthenticatedResponse(clientId, user.getId().value(), user.getEmail());
+        return authenticated(clientId, byClient.get());
       }
     }
 
@@ -76,18 +70,20 @@ public class AccountService {
         clientId,
         null,
         null,
+        null,
         AccountPlan.from(billingProperties.getPlan()),
         isLoginAvailable(),
         loginProviders());
   }
 
-  /** Links OAuth identity to the browser cookie and returns the account user id. */
+  /** Links the OAuth sign-in to the browser, unlinking any other account, and returns it. */
   @Transactional
-  public String linkOAuthUser(String provider, String subject, String email, String clientId) {
+  public AccountUser linkOAuthUser(OAuthSignIn signIn, ClientId clientId) {
     AccountUser user =
         accountUserRepository
-            .findByProviderAndSubject(provider, subject)
-            .orElseGet(() -> AccountUser.create(provider, subject, email, clientId));
+            .findByIdentity(signIn.identity())
+            .orElseGet(
+                () -> AccountUser.create(signIn.identity(), signIn.email(), signIn.displayName()));
     accountUserRepository
         .findByLinkedClientId(clientId)
         .filter(previous -> !previous.getId().equals(user.getId()))
@@ -96,16 +92,18 @@ public class AccountService {
               previous.unlinkBrowser();
               accountUserRepository.save(previous);
             });
-    user.linkSession(email, clientId);
-    accountUserRepository.save(user);
-    return user.getId().value();
+    user.linkBrowser(clientId, signIn.email(), signIn.displayName());
+    return accountUserRepository.save(user);
   }
 
   /** Clears OAuth ↔ Client Identity link so the browser returns to guest mode. */
   @Transactional
   public void unlinkClient(String clientId) {
+    if (!ClientId.isValid(clientId)) {
+      return;
+    }
     accountUserRepository
-        .findByLinkedClientId(clientId)
+        .findByLinkedClientId(ClientId.parse(clientId))
         .ifPresent(
             user -> {
               user.unlinkBrowser();
@@ -133,85 +131,26 @@ public class AccountService {
     return List.copyOf(providers);
   }
 
-  private AccountUser ensureIamUser(Jwt jwt) {
-    String subject = jwt.getSubject();
-    if (subject == null || subject.isBlank()) {
-      throw new IllegalArgumentException("IAM JWT subject is required");
-    }
-    String email = jwt.getClaimAsString("email");
-    return accountUserRepository
-        .findByProviderAndSubject("explore-iam", subject)
-        .orElseGet(
-            () ->
-                accountUserRepository.save(
-                    AccountUser.create("explore-iam", subject, email, null)));
+  private AccountMeResponse authenticated(String clientId, AccountUser user) {
+    return authenticated(
+        clientId, user.getId().value(), user.getEmail(), user.displayLabel().orElse(null));
   }
 
-  private AccountMeResponse buildAuthenticatedResponse(
-      String clientId, String userId, String email) {
+  private AccountMeResponse authenticated(String clientId, OAuthSignIn signIn) {
+    return authenticated(
+        clientId, signIn.identity().subject(), signIn.email(), signIn.displayLabel().orElse(null));
+  }
+
+  private AccountMeResponse authenticated(
+      String clientId, String userId, ContactEmail email, String displayName) {
     return new AccountMeResponse(
         AccountMode.AUTHENTICATED,
         clientId,
         userId,
-        email,
+        email == null ? null : email.value(),
+        displayName,
         AccountPlan.from(billingProperties.getPlan()),
         isLoginAvailable(),
         loginProviders());
   }
-
-  private static boolean isAuthenticated(Authentication authentication) {
-    return authentication != null
-        && authentication.isAuthenticated()
-        && !(authentication instanceof AnonymousAuthenticationToken);
-  }
-
-  private static OAuthIdentity extractIdentity(Authentication authentication) {
-    String provider = getRegistrationId(authentication);
-    Object principal = authentication.getPrincipal();
-    if (principal instanceof OidcUser oidcUser) {
-      String subject = oidcUser.getSubject();
-      if (subject == null || subject.isBlank()) {
-        return null;
-      }
-      String email = oidcUser.getEmail();
-      if (email == null || email.isBlank()) {
-        email = oidcUser.getAttribute("email");
-      }
-      return new OAuthIdentity(provider, subject, email);
-    }
-    if (principal instanceof OAuth2User oauth2User) {
-      String subject = oauth2User.getName();
-      if (subject == null || subject.isBlank()) {
-        return null;
-      }
-      // GitHub often omits email on /user; fall back to login/name for display.
-      return new OAuthIdentity(provider, subject, resolveOAuthEmail(oauth2User));
-    }
-    return null;
-  }
-
-  private static String resolveOAuthEmail(OAuth2User oauth2User) {
-    String email = oauth2User.getAttribute("email");
-    if (email != null && !email.isBlank()) {
-      return email.trim();
-    }
-    String login = oauth2User.getAttribute("login");
-    if (login != null && !login.isBlank()) {
-      return login.trim();
-    }
-    String name = oauth2User.getAttribute("name");
-    if (name != null && !name.isBlank()) {
-      return name.trim();
-    }
-    return null;
-  }
-
-  private static String getRegistrationId(Authentication authentication) {
-    if (authentication instanceof OAuth2AuthenticationToken token) {
-      return token.getAuthorizedClientRegistrationId();
-    }
-    return "unknown";
-  }
-
-  private record OAuthIdentity(String provider, String subject, String email) {}
 }

@@ -64,6 +64,24 @@ describe('SidebarUserMenuComponent', () => {
     expect(fixture.componentInstance.displayName()).toBe('user@example.com');
   });
 
+  it('should show the github login when the email is private', async () => {
+    account.load();
+    http.expectOne(`${API_BASE_URL}/account/me`).flush({
+      mode: 'authenticated',
+      clientId: 'c1',
+      userId: 'u1',
+      email: null,
+      displayName: 'octocat',
+      plan: 'free',
+      loginAvailable: true,
+      loginProviders: ['github'],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.displayName()).toBe('octocat');
+  });
+
   it('should show signed in when authenticated without email', async () => {
     account.load();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({

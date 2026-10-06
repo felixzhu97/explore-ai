@@ -1,22 +1,33 @@
 package com.ai.account.domain.model;
 
 import com.ai.account.domain.vo.AccountUserId;
+import com.ai.account.domain.vo.ClientId;
+import com.ai.account.domain.vo.ClientIdAttributeConverter;
+import com.ai.account.domain.vo.ContactEmail;
+import com.ai.account.domain.vo.ContactEmailAttributeConverter;
+import com.ai.account.domain.vo.ExternalIdentity;
 import com.ai.common.domain.model.AbstractEntity;
+import com.ai.common.domain.vo.OwnerKey;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NaturalId;
 
-/** Linked OAuth identity for a browser Client Identity partition. */
+/** Signed-in OAuth / IAM identity, optionally linked to one browser Client Identity. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AccountUser extends AbstractEntity<AccountUserId> {
+
+  static final int MAX_DISPLAY_NAME_LENGTH = 255;
 
   @NaturalId
   @NotBlank
@@ -30,75 +41,109 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   @Column(nullable = false, length = 255)
   private String subject;
 
-  @Size(max = 320)
+  @Convert(converter = ContactEmailAttributeConverter.class)
   @Column(length = 320)
-  private String email;
+  private ContactEmail email;
 
-  @Size(max = 64)
+  @Size(max = MAX_DISPLAY_NAME_LENGTH)
+  @Column(length = MAX_DISPLAY_NAME_LENGTH)
+  private String displayName;
+
+  @Convert(converter = ClientIdAttributeConverter.class)
   @Column(length = 64)
-  private String linkedClientId;
+  private ClientId linkedClientId;
 
-  /** Creates an account user for the provider and subject, optionally linked to a client id. */
+  /** Creates an account for the identity, not yet linked to a browser. */
   public static AccountUser create(
-      String provider, String subject, String email, String linkedClientId) {
+      ExternalIdentity identity, ContactEmail email, String displayName) {
+    Objects.requireNonNull(identity, "identity");
     AccountUser user = new AccountUser();
     user.id = AccountUserId.generate();
-    user.provider = requireProvider(provider);
-    user.subject = requireSubject(subject);
-    user.email = normalizeEmail(email);
-    user.linkedClientId = normalizeClientId(linkedClientId);
+    user.provider = identity.provider();
+    user.subject = identity.subject();
+    user.email = email;
+    user.displayName = normalizeDisplayName(displayName);
     Instant now = Instant.now();
     user.createdAt = now;
     user.updatedAt = now;
     return user;
   }
 
-  /** Links this account to a browser session and updates its email. */
-  public void linkSession(String email, String linkedClientId) {
-    this.email = normalizeEmail(email);
-    this.linkedClientId = requireClientId(linkedClientId);
+  /** Returns the provider and subject this account signs in with. */
+  public ExternalIdentity identity() {
+    return ExternalIdentity.of(provider, subject);
+  }
+
+  /** Links this account to the browser and refreshes the profile from the provider. */
+  public void linkBrowser(ClientId clientId, ContactEmail email, String displayName) {
+    this.linkedClientId = Objects.requireNonNull(clientId, "clientId");
+    applyProfile(email, displayName);
     touchUpdatedAt();
   }
 
-  /** Clears the browser partition link so logout returns to guest mode. */
+  /** Refreshes the profile on a sign-in that does not involve a browser, such as an IAM token. */
+  public void recordSignIn(ContactEmail email, String displayName) {
+    if (applyProfile(email, displayName)) {
+      touchUpdatedAt();
+    }
+  }
+
+  /** Clears the browser link so logout returns to guest mode. */
   public void unlinkBrowser() {
     this.linkedClientId = null;
     touchUpdatedAt();
   }
 
-  private static String requireProvider(String provider) {
-    if (provider == null || provider.isBlank()) {
-      throw new IllegalArgumentException("provider is required");
-    }
-    return provider.trim().toLowerCase();
+  /** Returns the data partition of this account. */
+  public OwnerKey ownerKey() {
+    return OwnerKey.forAccount(getId().value());
   }
 
-  private static String requireSubject(String subject) {
-    if (subject == null || subject.isBlank()) {
-      throw new IllegalArgumentException("subject is required");
-    }
-    return subject.trim();
+  /** Returns the guest partition of the linked browser, when one is linked. */
+  public Optional<OwnerKey> guestOwnerKey() {
+    return Optional.ofNullable(linkedClientId).map(id -> OwnerKey.forClient(id.value()));
   }
 
-  private static String requireClientId(String clientId) {
-    String normalized = normalizeClientId(clientId);
-    if (normalized == null) {
-      throw new IllegalArgumentException("linkedClientId is required");
+  /** Returns the name to show for this account: display name first, then email. */
+  public Optional<String> displayLabel() {
+    if (displayName != null) {
+      return Optional.of(displayName);
     }
-    return normalized;
+    return Optional.ofNullable(email).map(ContactEmail::value);
   }
 
-  private static String normalizeClientId(String clientId) {
-    if (clientId == null || clientId.isBlank()) {
+  /** Keeps stored values the provider did not send, since tokens may omit profile claims. */
+  private boolean applyProfile(ContactEmail email, String displayName) {
+    String name = normalizeDisplayName(displayName);
+    boolean changed = false;
+    if (email != null && !email.equals(this.email)) {
+      this.email = email;
+      changed = true;
+    }
+    if (name != null && !name.equals(this.displayName)) {
+      this.displayName = name;
+      changed = true;
+    }
+    return changed;
+  }
+
+  private static String normalizeDisplayName(String displayName) {
+    if (displayName == null || displayName.isBlank()) {
       return null;
     }
-    return clientId.trim();
+    String trimmed = displayName.trim();
+    if (trimmed.length() <= MAX_DISPLAY_NAME_LENGTH) {
+      return trimmed;
+    }
+    int end = MAX_DISPLAY_NAME_LENGTH;
+    if (Character.isHighSurrogate(trimmed.charAt(end - 1))) {
+      end--;
+    }
+    return trimmed.substring(0, end);
   }
 
-  private static String normalizeEmail(String email) {
-    if (email == null || email.isBlank()) {
-      return null;
-    }
-    return email.trim();
+  @Override
+  public String toString() {
+    return "AccountUser{id=%s, provider=%s}".formatted(getId(), provider);
   }
 }

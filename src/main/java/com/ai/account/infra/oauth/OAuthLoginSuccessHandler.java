@@ -1,24 +1,24 @@
 package com.ai.account.infra.oauth;
 
+import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.vo.ClientId;
 import com.ai.account.infra.config.OAuthSpaProperties;
 import com.ai.account.service.AccountService;
+import com.ai.account.service.OAuthSignIn;
 import com.ai.account.service.OwnerMergeService;
 import com.ai.common.controller.ClientIdentity;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
@@ -51,25 +51,13 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
   public void onAuthenticationSuccess(
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException, ServletException {
-    String clientId = resolveClientId(request);
-    String provider = getRegistrationId(authentication);
-    Object principal = authentication.getPrincipal();
-    if (clientId != null) {
-      String accountUserId = null;
-      if (principal instanceof OidcUser oidcUser) {
-        accountUserId =
-            accountService.linkOAuthUser(
-                provider, oidcUser.getSubject(), oidcUser.getEmail(), clientId);
-      } else if (principal instanceof OAuth2User oauth2User) {
-        accountUserId =
-            accountService.linkOAuthUser(
-                provider, oauth2User.getName(), resolveEmail(oauth2User), clientId);
-      }
-      if (accountUserId != null) {
-        ownerMergeService.mergeClientIntoAccount(clientId, accountUserId);
-      }
+    Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
+    Optional<OAuthSignIn> signIn = OAuthSignIn.from(authentication);
+    if (attribute instanceof String raw && ClientId.isValid(raw) && signIn.isPresent()) {
+      AccountUser user = accountService.linkOAuthUser(signIn.get(), ClientId.parse(raw));
+      ownerMergeService.mergeGuestIntoAccount(user);
     } else {
-      log.warn("OAuth success without Client Identity cookie; session auth only");
+      log.warn("OAuth success without Client Identity or sign-in identity; session auth only");
     }
 
     SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -81,49 +69,5 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         OAuthSpaRedirects.buildAfterLoginUrl(
             request, spaProperties.getSuccessRedirectUrl(), "success"));
     super.onAuthenticationSuccess(request, response, authentication);
-  }
-
-  private static String getRegistrationId(Authentication authentication) {
-    if (authentication instanceof OAuth2AuthenticationToken token) {
-      return token.getAuthorizedClientRegistrationId();
-    }
-    return "unknown";
-  }
-
-  /** Prefer email; GitHub may only expose {@code login} when the address is private. */
-  private static String resolveEmail(OAuth2User oauth2User) {
-    String email = oauth2User.getAttribute("email");
-    if (email != null && !email.isBlank()) {
-      return email.trim();
-    }
-    String login = oauth2User.getAttribute("login");
-    if (login != null && !login.isBlank()) {
-      return login.trim();
-    }
-    String name = oauth2User.getAttribute("name");
-    if (name != null && !name.isBlank()) {
-      return name.trim();
-    }
-    return null;
-  }
-
-  private static String resolveClientId(HttpServletRequest request) {
-    Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
-    if (attribute instanceof String id && !id.isBlank()) {
-      return id;
-    }
-    Cookie[] cookies = request.getCookies();
-    if (cookies == null) {
-      return null;
-    }
-    for (Cookie cookie : cookies) {
-      if ("ea_cid".equals(cookie.getName()) || "__Host-ea_cid".equals(cookie.getName())) {
-        String value = cookie.getValue();
-        if (value != null && !value.isBlank()) {
-          return value;
-        }
-      }
-    }
-    return null;
   }
 }
