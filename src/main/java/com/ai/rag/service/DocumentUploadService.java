@@ -11,15 +11,13 @@ import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.domain.repository.DocumentRepository;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
-import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,26 +69,31 @@ public class DocumentUploadService {
    * Ingests text content. Not transactional: the FAILED status must commit even when ingestion
    * rolls back.
    */
-  public UploadResult upload(
-      String title, String fileName, Long fileSize, String content, String ownerKey) {
-    return processUpload(title, fileName, fileSize, content.getBytes(), ownerKey);
+  public UploadResult upload(String title, String fileName, String content, String ownerKey) {
+    return upload(title, fileName, content.getBytes(StandardCharsets.UTF_8), ownerKey);
   }
 
   /**
    * Ingests file bytes. Not transactional: the FAILED status must commit even when ingestion rolls
    * back.
    */
-  public UploadResult upload(
-      String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
-    return processUpload(title, fileName, fileSize, fileContent, ownerKey);
+  public UploadResult upload(String title, String fileName, byte[] fileContent, String ownerKey) {
+    RagDocument document =
+        RagDocument.startIngestion(title, fileName, fileContent.length, ownerKey);
+    RagDocument processing = transactions.execute(status -> documentRepository.save(document));
+
+    try {
+      return transactions.execute(status -> ingest(processing, fileContent));
+    } catch (RuntimeException e) {
+      recordFailure(processing, e);
+      throw e;
+    }
   }
 
-  /** Ingests the uploaded file, using its file name as the title when none is given. */
+  /** Ingests the uploaded file; the title falls back to its file name. */
   public UploadResult upload(MultipartFile file, String title, String ownerKey) {
-    String fileName = file.getOriginalFilename();
-    String docTitle = title != null && !title.isBlank() ? title : fileName;
     try {
-      return upload(docTitle, fileName, file.getSize(), file.getBytes(), ownerKey);
+      return upload(title, file.getOriginalFilename(), file.getBytes(), ownerKey);
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to read file content", e);
     }
@@ -102,47 +105,24 @@ public class DocumentUploadService {
     return documentRepository.findAllByOwnerKey(ownerKey);
   }
 
-  /** Counts stored chunks for each document; documents without chunks map to 0. */
-  @Transactional(readOnly = true)
-  public Map<DocumentId, Integer> chunkCounts(List<RagDocument> documents) {
-    List<DocumentId> ids = documents.stream().map(RagDocument::getId).toList();
-    Map<DocumentId, Integer> stored = chunkRepository.countChunksByDocumentIds(ids);
-    Map<DocumentId, Integer> counts = new HashMap<>();
-    ids.forEach(id -> counts.put(id, stored.getOrDefault(id, 0)));
-    return counts;
-  }
-
   /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
   public void delete(UUID documentId, String ownerKey) {
-    DocumentId docId = DocumentId.of(documentId);
-    documentRepository
-        .findByIdAndOwnerKey(documentId, ownerKey)
-        .orElseThrow(() -> new DocumentNotFoundException(documentId));
-    log.info(
-        "Deleting document {} with {} chunks",
-        documentId,
-        chunkRepository.findChunksByDocumentId(docId).size());
-    chunkRepository.deleteChunksByDocumentId(docId);
+    RagDocument document =
+        documentRepository
+            .findByIdAndOwnerKey(documentId, ownerKey)
+            .orElseThrow(() -> new DocumentNotFoundException(documentId));
+    log.info("Deleting document {} with {} chunks", documentId, document.getChunkCount());
+    chunkRepository.deleteChunksByDocumentId(document.getId());
     documentRepository.deleteByIdAndOwnerKey(documentId, ownerKey);
   }
 
-  private UploadResult processUpload(
-      String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
-    if (fileContent.length == 0) {
-      throw new IllegalArgumentException("Uploaded file is empty");
-    }
-    RagDocument document =
-        new RagDocument(DocumentId.generate(), title, fileName, fileSize, ownerKey);
-    document.markProcessing();
-    RagDocument processing = transactions.execute(status -> documentRepository.save(document));
-
+  private void recordFailure(RagDocument document, RuntimeException cause) {
     try {
-      return transactions.execute(status -> ingest(processing, fileContent));
-    } catch (RuntimeException e) {
-      processing.markFailed();
-      transactions.executeWithoutResult(status -> documentRepository.save(processing));
-      throw e;
+      document.failIngestion();
+      transactions.executeWithoutResult(status -> documentRepository.save(document));
+    } catch (RuntimeException suppressed) {
+      cause.addSuppressed(suppressed);
     }
   }
 
@@ -157,20 +137,17 @@ public class DocumentUploadService {
     List<DocumentChunk> chunks = new ArrayList<>();
     for (int i = 0; i < chunkDocs.size(); i++) {
       RawDocument chunkDoc = chunkDocs.get(i);
-      Map<String, Object> metadata = new HashMap<>(chunkDoc.metadata());
-      metadata.put("title", document.getTitle());
-      metadata.put("fileName", fileName);
-      metadata.put("ownerKey", document.getOwnerKeyValue());
-
-      chunks.add(
-          DocumentChunk.create(
-              ChunkId.generate(), document.getId(), chunkDoc.content(), i, metadata));
+      chunks.add(document.newChunk(i, chunkDoc.content(), chunkDoc.metadata()));
     }
 
     writer.write(chunks);
-    document.markReady();
+    document.completeIngestion(chunks.size());
     RagDocument ready = documentRepository.save(document);
     return new UploadResult(
-        ready.getId(), ready.getTitle(), ready.getStatus(), chunks.size(), ready.getCreatedAt());
+        ready.getId(),
+        ready.getTitle(),
+        ready.getStatus(),
+        ready.getChunkCount(),
+        ready.getCreatedAt());
   }
 }

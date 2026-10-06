@@ -1,6 +1,7 @@
 package com.ai.rag.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
+import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +9,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +20,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
+
+  public static final String UNTITLED = "Untitled";
+  static final int MAX_TITLE_LENGTH = 255;
 
   @Column(nullable = false)
   private String title;
@@ -30,56 +36,110 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
   @Column(nullable = false)
   private DocumentStatus status;
 
-  public RagDocument(DocumentId id, String title, String fileName, Long fileSize, String ownerKey) {
-    super(id, ownerKey, Instant.now(), Instant.now());
-    this.title = validateTitle(title);
-    this.fileName = fileName;
-    this.fileSize = fileSize;
-    this.status = DocumentStatus.UPLOADING;
-  }
+  @Column(nullable = false)
+  private int chunkCount;
 
-  public RagDocument(
+  private RagDocument(
       DocumentId id,
       String title,
       String fileName,
       Long fileSize,
       DocumentStatus status,
+      int chunkCount,
       Instant createdAt,
       Instant updatedAt,
       String ownerKey) {
     super(id, ownerKey, createdAt, updatedAt);
-    this.title = validateTitle(title);
+    this.title = resolveTitle(title, fileName);
     this.fileName = fileName;
     this.fileSize = fileSize;
     this.status = status;
+    this.chunkCount = chunkCount;
   }
 
-  private static String validateTitle(String title) {
-    if (title == null || title.isBlank()) {
-      return null;
+  /**
+   * Starts ingesting an uploaded file. The title falls back to the file name, then to {@value
+   * #UNTITLED}; empty files are rejected.
+   */
+  public static RagDocument startIngestion(
+      String title, String fileName, long fileSize, String ownerKey) {
+    if (fileSize <= 0) {
+      throw new IllegalArgumentException("Uploaded file is empty");
     }
-    return title.length() > 255 ? title.substring(0, 255) : title.trim();
+    Instant now = Instant.now();
+    return new RagDocument(
+        DocumentId.generate(),
+        title,
+        fileName,
+        fileSize,
+        DocumentStatus.PROCESSING,
+        0,
+        now,
+        now,
+        ownerKey);
   }
 
-  /** Marks the document as processing. */
-  public void markProcessing() {
-    validateTransitionTo(DocumentStatus.PROCESSING);
-    this.status = DocumentStatus.PROCESSING;
-    touchUpdatedAt();
+  /** Restores a stored document. */
+  public static RagDocument restore(
+      DocumentId id,
+      String title,
+      String fileName,
+      Long fileSize,
+      DocumentStatus status,
+      int chunkCount,
+      Instant createdAt,
+      Instant updatedAt,
+      String ownerKey) {
+    return new RagDocument(
+        id, title, fileName, fileSize, status, chunkCount, createdAt, updatedAt, ownerKey);
   }
 
-  /** Marks the document as ready. */
-  public void markReady() {
-    validateTransitionTo(DocumentStatus.READY);
+  private static String resolveTitle(String title, String fileName) {
+    String resolved =
+        title != null && !title.isBlank()
+            ? title.trim()
+            : fileName != null && !fileName.isBlank() ? fileName.trim() : UNTITLED;
+    return resolved.length() > MAX_TITLE_LENGTH
+        ? resolved.substring(0, MAX_TITLE_LENGTH)
+        : resolved;
+  }
+
+  /** Marks ingestion done with the number of chunks stored. */
+  public void completeIngestion(int storedChunks) {
+    if (status != DocumentStatus.PROCESSING) {
+      throw new IllegalStateException("Only a processing document can complete ingestion");
+    }
+    if (storedChunks <= 0) {
+      throw new IllegalArgumentException("A ready document needs at least one chunk");
+    }
+    this.chunkCount = storedChunks;
     this.status = DocumentStatus.READY;
     touchUpdatedAt();
   }
 
-  /** Marks the document as failed. */
-  public void markFailed() {
-    validateTransitionTo(DocumentStatus.FAILED);
+  /** Marks ingestion failed; safe to call again so the original error stays visible. */
+  public void failIngestion() {
+    if (status == DocumentStatus.FAILED) {
+      return;
+    }
     this.status = DocumentStatus.FAILED;
+    this.chunkCount = 0;
     touchUpdatedAt();
+  }
+
+  /** Tells whether the document can be searched and offered to the model. */
+  public boolean isSearchable() {
+    return status == DocumentStatus.READY;
+  }
+
+  /** Creates the chunk at {@code index}, tagged with this document's owner, title and file. */
+  public DocumentChunk newChunk(int index, String content, Map<String, Object> sourceMetadata) {
+    Map<String, Object> metadata = new HashMap<>(sourceMetadata);
+    metadata.put(ChunkMetadataKeys.TITLE, title);
+    if (fileName != null) {
+      metadata.put(ChunkMetadataKeys.FILE_NAME, fileName);
+    }
+    return DocumentChunk.create(ChunkId.generate(), getId(), ownerKey, content, index, metadata);
   }
 
   /** Changes the title unless the document is already READY. */
@@ -87,37 +147,12 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
     if (status == DocumentStatus.READY) {
       throw new IllegalStateException("Cannot update title of ready document");
     }
-    this.title = validateTitle(newTitle);
+    this.title = resolveTitle(newTitle, fileName);
     touchUpdatedAt();
-  }
-
-  private void validateTransitionTo(DocumentStatus target) {
-    if (!isValidTransition(this.status, target)) {
-      throw new IllegalStateException(
-          "Invalid status transition from " + this.status + " to " + target);
-    }
-  }
-
-  private boolean isValidTransition(DocumentStatus from, DocumentStatus to) {
-    if (from == to) {
-      return false;
-    }
-    return switch (to) {
-      case PROCESSING ->
-          from == DocumentStatus.UPLOADING
-              || from == DocumentStatus.FAILED
-              || from == DocumentStatus.READY;
-      case READY -> from == DocumentStatus.PROCESSING;
-      case FAILED ->
-          from == DocumentStatus.UPLOADING
-              || from == DocumentStatus.PROCESSING
-              || from == DocumentStatus.FAILED;
-      case UPLOADING -> false;
-    };
   }
 
   @Override
   public String toString() {
-    return "RagDocument{id=%s, title='%s', status=%s}".formatted(getId(), title, status);
+    return "RagDocument{id=%s, status=%s, chunkCount=%d}".formatted(getId(), status, chunkCount);
   }
 }

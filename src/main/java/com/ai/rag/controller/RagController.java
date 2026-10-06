@@ -6,7 +6,6 @@ import com.ai.rag.controller.dto.DocumentSummaryResponse;
 import com.ai.rag.controller.dto.RagChatRequest;
 import com.ai.rag.controller.dto.UploadDocumentResponse;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.DocumentUploadService;
 import com.ai.rag.service.RagApplicationService;
 import com.ai.rag.service.RagChatService;
@@ -16,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
@@ -52,10 +50,8 @@ public class RagController {
   public ResponseEntity<DocumentListResponse> listDocuments(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     List<RagDocument> documents = ragApplicationService.listDocuments(ownerKey);
-    Map<DocumentId, Integer> chunkCounts = ragApplicationService.chunkCounts(documents);
     return ResponseEntity.ok(
-        new DocumentListResponse(
-            documents.stream().map(doc -> toSummary(doc, chunkCounts)).toList()));
+        new DocumentListResponse(documents.stream().map(RagController::toSummary).toList()));
   }
 
   @PostMapping("/documents/upload")
@@ -100,12 +96,12 @@ public class RagController {
     return ResponseEntity.noContent().build();
   }
 
-  private DocumentSummaryResponse toSummary(RagDocument doc, Map<DocumentId, Integer> chunkCounts) {
+  private static DocumentSummaryResponse toSummary(RagDocument doc) {
     return new DocumentSummaryResponse(
         doc.getId().uuidValue(),
         doc.getTitle(),
         doc.getStatus(),
         doc.getCreatedAt(),
-        chunkCounts.getOrDefault(doc.getId(), 0));
+        doc.getChunkCount());
   }
 }

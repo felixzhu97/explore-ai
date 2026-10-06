@@ -3,14 +3,11 @@ package com.ai.rag.infra.vector;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
-import com.ai.rag.domain.service.VectorSimilarity;
 import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.domain.vo.ScoredChunk;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +28,8 @@ public class H2DocumentChunkRepository
 
   private static final Logger log = LoggerFactory.getLogger(H2DocumentChunkRepository.class);
   private static final String TABLE_NAME = "document_chunks";
+  private static final String SELECT_COLUMNS =
+      "SELECT id, document_id, owner_key, content, chunk_index, embedding, metadata, created_at";
 
   private final JdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
@@ -47,8 +46,6 @@ public class H2DocumentChunkRepository
   public void saveChunk(DocumentChunk chunk) {
     String embeddingString = toJsonArray(chunk.getEmbedding());
     String metadataJson = serializeMetadata(chunk.getMetadata());
-
-    String ownerKey = resolveOwnerKey(chunk.getMetadata());
     String sql =
         "MERGE INTO "
             + TABLE_NAME
@@ -65,41 +62,14 @@ public class H2DocumentChunkRepository
         embeddingString,
         metadataJson,
         chunk.getCreatedAt().toString(),
-        ownerKey);
+        chunk.getOwnerKey().value());
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<DocumentChunk> findChunksByDocumentId(DocumentId documentId) {
-    String sql =
-        "SELECT id, document_id, content, chunk_index, embedding, metadata, created_at "
-            + "FROM "
-            + TABLE_NAME
-            + " WHERE document_id = ?";
+    String sql = SELECT_COLUMNS + " FROM " + TABLE_NAME + " WHERE document_id = ?";
     return jdbcTemplate.query(sql, chunkRowMapper, documentId.value());
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public Map<DocumentId, Integer> countChunksByDocumentIds(List<DocumentId> documentIds) {
-    if (documentIds == null || documentIds.isEmpty()) {
-      return Map.of();
-    }
-    String placeholders = documentIds.stream().map(id -> "?").collect(Collectors.joining(","));
-    String sql =
-        "SELECT document_id, COUNT(*) AS chunk_count FROM "
-            + TABLE_NAME
-            + " WHERE document_id IN ("
-            + placeholders
-            + ") GROUP BY document_id";
-    Map<DocumentId, Integer> counts = new HashMap<>();
-    jdbcTemplate.query(
-        sql,
-        (ResultSet rs) -> {
-          counts.put(DocumentId.of(rs.getString("document_id")), rs.getInt("chunk_count"));
-        },
-        documentIds.stream().map(DocumentId::value).toArray());
-    return counts;
   }
 
   @Override
@@ -111,24 +81,15 @@ public class H2DocumentChunkRepository
 
   @Override
   @Transactional(readOnly = true)
-  public List<DocumentChunk> search(
+  public List<ScoredChunk> search(
       float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds) {
     if (queryEmbedding.length == 0) {
       return List.of();
     }
-    List<DocumentChunk> candidates = loadCandidates(ownerKey, documentIds);
-
-    return candidates.stream()
-        .filter(
-            chunk ->
-                chunk.getEmbedding() != null
-                    && chunk.getEmbedding().length == queryEmbedding.length)
-        .sorted(
-            Comparator.comparingDouble(
-                    (DocumentChunk chunk) ->
-                        VectorSimilarity.calculateCosineSimilarity(
-                            queryEmbedding, chunk.getEmbedding()))
-                .reversed())
+    return loadCandidates(ownerKey, documentIds).stream()
+        .filter(chunk -> chunk.isComparableWith(queryEmbedding))
+        .map(chunk -> ScoredChunk.of(chunk, queryEmbedding))
+        .sorted(ScoredChunk.BEST_FIRST)
         .limit(topK)
         .toList();
   }
@@ -158,8 +119,8 @@ public class H2DocumentChunkRepository
 
   private static StringBuilder buildOwnerScopedSelect(List<UUID> documentIds) {
     StringBuilder sql =
-        new StringBuilder("SELECT id, document_id, content, chunk_index, embedding, metadata,")
-            .append(" created_at FROM ")
+        new StringBuilder(SELECT_COLUMNS)
+            .append(" FROM ")
             .append(TABLE_NAME)
             .append(" WHERE owner_key = ?");
     if (!documentIds.isEmpty()) {
@@ -168,13 +129,6 @@ public class H2DocumentChunkRepository
           .append(")");
     }
     return sql;
-  }
-
-  private static String resolveOwnerKey(Map<String, Object> metadata) {
-    if (metadata.get("ownerKey") instanceof String ownerKey && !ownerKey.isBlank()) {
-      return ownerKey.trim();
-    }
-    throw new IllegalArgumentException("Chunk metadata must carry an ownerKey");
   }
 
   private String toJsonArray(float[] array) {

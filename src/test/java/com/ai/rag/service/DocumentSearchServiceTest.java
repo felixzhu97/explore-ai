@@ -7,13 +7,15 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
-import java.time.Instant;
+import com.ai.rag.domain.vo.ScoredChunk;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class DocumentSearchServiceTest {
 
   private static final String OWNER = "c:owner";
+  private static final float[] QUERY_EMBEDDING = {0.1f, 0.2f};
 
   @Mock private TextEmbeddingGateway embeddingRepository;
 
@@ -42,6 +45,7 @@ class DocumentSearchServiceTest {
   void setUp() {
     lenient().when(retrievalSettings.getTopK()).thenReturn(5);
     lenient().when(retrievalSettings.getScoreThreshold()).thenReturn(0.0);
+    lenient().when(embeddingRepository.embed(any())).thenReturn(QUERY_EMBEDDING);
 
     service =
         new DocumentSearchService(embeddingRepository, chunkSearchRepository, retrievalSettings);
@@ -52,276 +56,131 @@ class DocumentSearchServiceTest {
   class Retrieve {
 
     @Test
-    @DisplayName("should retrieve documents for query without documentIds filter")
-    void shouldRetrieveDocumentsForQueryWithoutDocIdsFilter() {
-      String query = "What is AI?";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f, 0.3f};
-      List<DocumentChunk> chunks =
-          List.of(
-              createChunk("AI stands for Artificial Intelligence", 0),
-              createChunk("Machine learning is a subset of AI", 1));
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(chunks);
-
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
-
-      assertThat(result.context()).contains("AI stands for Artificial Intelligence");
-      assertThat(result.context()).contains("Machine learning is a subset of AI");
-      assertThat(result.sources()).hasSize(2);
-      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of());
-    }
-
-    @Test
-    @DisplayName("should filter by document IDs when provided")
-    void shouldFilterByDocumentIdsWhenProvided() {
-      String query = "test query";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
-      DocumentId docId = DocumentId.generate();
-      List<DocumentChunk> chunks = List.of(createChunk("filtered content", 0));
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of(docId.uuidValue())))
-          .thenReturn(chunks);
+    @DisplayName("should retrieve the owner chunks when no documents are selected")
+    void shouldRetrieveTheOwnerChunksWhenNoDocumentsAreSelected() {
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+          .thenReturn(
+              List.of(
+                  scored("AI stands for Artificial Intelligence", 0.9),
+                  scored("Machine learning is a subset of AI", 0.8)));
 
       DocumentSearchService.RetrievalResult result =
-          service.retrieve(query, List.of(docId), 5, OWNER);
+          service.retrieve("What is AI?", null, 5, OWNER);
+
+      assertThat(result.context())
+          .contains("AI stands for Artificial Intelligence")
+          .contains("Machine learning is a subset of AI");
+      assertThat(result.sources()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("should search only the selected documents when ids are given")
+    void shouldSearchOnlyTheSelectedDocumentsWhenIdsAreGiven() {
+      DocumentId docId = DocumentId.generate();
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of(docId.uuidValue())))
+          .thenReturn(List.of(scored("filtered content", 0.7)));
+
+      DocumentSearchService.RetrievalResult result =
+          service.retrieve("test query", List.of(docId), 5, OWNER);
 
       assertThat(result.sources()).hasSize(1);
-      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of(docId.uuidValue()));
     }
 
     @Test
-    @DisplayName("should use default topK when not specified")
-    void shouldUseDefaultTopKWhenNotSpecified() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(List.of());
-
-      service.retrieve(query, null, 0, OWNER);
-
-      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of());
-    }
-
-    @Test
-    @DisplayName("should use provided topK when positive")
-    void shouldUseProvidedTopKWhenPositive() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 10, OWNER, List.of()))
+    @DisplayName("should use the default topK when none is given")
+    void shouldUseTheDefaultTopKWhenNoneIsGiven() {
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
           .thenReturn(List.of());
 
-      service.retrieve(query, null, 10, OWNER);
+      service.retrieve("test", List.of(), 0, OWNER);
 
-      verify(chunkSearchRepository).search(queryEmbedding, 10, OWNER, List.of());
+      verify(chunkSearchRepository).search(QUERY_EMBEDDING, 5, OWNER, List.of());
     }
 
     @Test
-    @DisplayName("should sort sources by similarity score descending")
-    void shouldSortSourcesBySimilarityScoreDescending() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.5f, 0.5f};
-      float[] highSimEmbedding = new float[] {0.95f, 0.05f};
-      float[] medSimEmbedding = new float[] {0.75f, 0.25f};
-      float[] lowSimEmbedding = new float[] {0.5f, 0.5f};
+    @DisplayName("should use the given topK when it is positive")
+    void shouldUseTheGivenTopKWhenItIsPositive() {
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 10, OWNER, List.of()))
+          .thenReturn(List.of());
 
-      DocumentChunk highSimChunk =
-          DocumentChunk.reconstitute(
-              ChunkId.generate(),
-              DocumentId.generate(),
-              "high similarity content",
-              0,
-              Map.of(),
-              highSimEmbedding,
-              Instant.now());
-      DocumentChunk medSimChunk =
-          DocumentChunk.reconstitute(
-              ChunkId.generate(),
-              DocumentId.generate(),
-              "medium similarity content",
-              1,
-              Map.of(),
-              medSimEmbedding,
-              Instant.now());
-      DocumentChunk lowSimChunk =
-          DocumentChunk.reconstitute(
-              ChunkId.generate(),
-              DocumentId.generate(),
-              "low similarity content",
-              2,
-              Map.of(),
-              lowSimEmbedding,
-              Instant.now());
+      service.retrieve("test", null, 10, OWNER);
 
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
+      verify(chunkSearchRepository).search(QUERY_EMBEDDING, 10, OWNER, List.of());
+    }
+
+    @Test
+    @DisplayName("should order sources by score and keep the repository score")
+    void shouldOrderSourcesByScoreAndKeepTheRepositoryScore() {
       when(chunkSearchRepository.search(any(), anyInt(), any(), any()))
-          .thenReturn(List.of(lowSimChunk, highSimChunk, medSimChunk));
+          .thenReturn(List.of(scored("low", 0.2), scored("high", 0.9), scored("medium", 0.5)));
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
+      DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-      assertThat(result.sources()).hasSize(3);
-      assertThat(result.sources().get(0).score()).isGreaterThan(result.sources().get(1).score());
-      assertThat(result.sources().get(1).score()).isGreaterThan(result.sources().get(2).score());
+      assertThat(result.sources()).extracting(SourceDocument::score).containsExactly(0.9, 0.5, 0.2);
+      assertThat(result.context()).isEqualTo("high\n\nmedium\n\nlow");
     }
 
     @Test
-    @DisplayName("should return empty result when no chunks found")
-    void shouldReturnEmptyResultWhenNoChunksFound() {
-      String query = "nonexistent topic";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
+    @DisplayName("should drop chunks below the score threshold")
+    void shouldDropChunksBelowTheScoreThreshold() {
+      when(retrievalSettings.getScoreThreshold()).thenReturn(0.5);
+      when(chunkSearchRepository.search(any(), anyInt(), any(), any()))
+          .thenReturn(List.of(scored("kept", 0.5), scored("dropped", 0.49)));
 
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(List.of());
+      DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
+      assertThat(result.sources()).extracting(SourceDocument::content).containsExactly("kept");
+      assertThat(result.context()).isEqualTo("kept");
+    }
+
+    @Test
+    @DisplayName("should return an empty result when nothing matches")
+    void shouldReturnAnEmptyResultWhenNothingMatches() {
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+          .thenReturn(List.of());
+
+      DocumentSearchService.RetrievalResult result =
+          service.retrieve("nonexistent topic", null, 5, OWNER);
 
       assertThat(result.context()).isEmpty();
       assertThat(result.sources()).isEmpty();
     }
 
     @Test
-    @DisplayName("should join chunks with double newline separator")
-    void shouldJoinChunksWithDoubleNewlineSeparator() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
-      List<DocumentChunk> chunks =
-          List.of(
-              createChunk("First chunk", 0),
-              createChunk("Second chunk", 1),
-              createChunk("Third chunk", 2));
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(chunks);
-
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
-
-      assertThat(result.context()).isEqualTo("First chunk\n\nSecond chunk\n\nThird chunk");
-    }
-
-    @Test
-    @DisplayName("should truncate content longer than 500 characters")
-    void shouldTruncateContentLongerThan500Characters() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
+    @DisplayName("should cite an excerpt of long chunks and keep the full text as context")
+    void shouldCiteAnExcerptOfLongChunksAndKeepTheFullTextAsContext() {
       String longContent = "A".repeat(600);
-      DocumentChunk chunk = createChunk(longContent, 0);
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+          .thenReturn(List.of(scored(longContent, 0.8)));
 
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
-          .thenReturn(List.of(chunk));
+      DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
-
-      assertThat(result.sources().get(0).content()).hasSize(503); // 500 + "..."
-      assertThat(result.sources().get(0).content()).endsWith("...");
+      assertThat(result.sources().get(0).content()).hasSize(503).endsWith("...");
+      assertThat(result.context()).isEqualTo(longContent);
     }
 
     @Test
-    @DisplayName("should preserve content shorter than 500 characters")
-    void shouldPreserveContentShorterThan500Characters() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
-      String shortContent = "Short content";
-      DocumentChunk chunk = createChunk(shortContent, 0);
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
-          .thenReturn(List.of(chunk));
-
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
-
-      assertThat(result.sources().get(0).content()).isEqualTo(shortContent);
-    }
-
-    @Test
-    @DisplayName("should include metadata in source documents")
-    void shouldIncludeMetadataInSourceDocuments() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
+    @DisplayName("should include chunk metadata in sources")
+    void shouldIncludeChunkMetadataInSources() {
       Map<String, Object> metadata = Map.of("title", "Test Doc", "fileName", "test.txt");
-      DocumentChunk chunk =
-          DocumentChunk.reconstitute(
-              ChunkId.generate(),
-              DocumentId.generate(),
-              "Content",
-              0,
-              metadata,
-              queryEmbedding,
-              Instant.now());
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+          .thenReturn(List.of(new ScoredChunk(chunk("Content", metadata), 0.8)));
 
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
-          .thenReturn(List.of(chunk));
+      DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
-
-      assertThat(result.sources().get(0).metadata()).containsEntry("title", "Test Doc");
-      assertThat(result.sources().get(0).metadata()).containsEntry("fileName", "test.txt");
-    }
-
-    @Test
-    @DisplayName("should pass empty documentIds list to vector adapter")
-    void shouldPassEmptyDocIdsListToChunkRepository() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.1f, 0.2f};
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of())).thenReturn(List.of());
-
-      service.retrieve(query, List.of(), 5, OWNER);
-
-      verify(chunkSearchRepository).search(queryEmbedding, 5, OWNER, List.of());
-    }
-
-    @Test
-    @DisplayName("should calculate similarity score for each source")
-    void shouldCalculateSimilarityScoreForEachSource() {
-      String query = "test";
-      float[] queryEmbedding = new float[] {0.5f, 0.5f};
-      float[] chunkEmbedding = new float[] {0.5f, 0.5f};
-      DocumentChunk chunk = createChunkWithEmbedding("content", 0, 1.0f);
-      DocumentChunk chunkWithEmbedding =
-          DocumentChunk.reconstitute(
-              ChunkId.generate(),
-              DocumentId.generate(),
-              "content",
-              0,
-              Map.of(),
-              chunkEmbedding,
-              Instant.now());
-
-      when(embeddingRepository.embed(query)).thenReturn(queryEmbedding);
-      when(chunkSearchRepository.search(queryEmbedding, 5, OWNER, List.of()))
-          .thenReturn(List.of(chunkWithEmbedding));
-
-      DocumentSearchService.RetrievalResult result = service.retrieve(query, null, 5, OWNER);
-
-      assertThat(result.sources().get(0).score())
-          .isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.01));
+      assertThat(result.sources().get(0).metadata())
+          .containsEntry("title", "Test Doc")
+          .containsEntry("fileName", "test.txt");
     }
   }
 
-  private DocumentChunk createChunk(String content, int index) {
-    return createChunkWithEmbedding(content, index, 0.8f);
+  private static ScoredChunk scored(String content, double score) {
+    return new ScoredChunk(chunk(content, Map.of()), score);
   }
 
-  private DocumentChunk createChunkWithEmbedding(String content, int index, float similarity) {
-    float[] queryEmbedding = {0.5f, 0.5f};
-    float[] chunkEmbedding =
-        similarity > 0
-            ? new float[] {(float) (similarity * 0.7), (float) (similarity * 0.7)}
-            : new float[] {0.1f, 0.1f};
-    return DocumentChunk.reconstitute(
-        ChunkId.generate(),
-        DocumentId.generate(),
-        content,
-        index,
-        Map.of(),
-        chunkEmbedding,
-        Instant.now());
+  private static DocumentChunk chunk(String content, Map<String, Object> metadata) {
+    return DocumentChunk.create(
+            ChunkId.generate(), DocumentId.generate(), OwnerKey.parse(OWNER), content, 0, metadata)
+        .withEmbedding(QUERY_EMBEDDING);
   }
 }

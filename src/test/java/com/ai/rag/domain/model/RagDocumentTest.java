@@ -3,8 +3,10 @@ package com.ai.rag.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,218 +19,245 @@ class RagDocumentTest {
       DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
   private static final String TEST_TITLE = "Test Document";
   private static final String TEST_FILE_NAME = "test.pdf";
-  private static final Long TEST_FILE_SIZE = 1024L;
+  private static final long TEST_FILE_SIZE = 1024L;
   private static final String TEST_OWNER_KEY = "c:test";
 
+  private static RagDocument processing() {
+    return RagDocument.startIngestion(TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
+  }
+
   @Nested
-  @DisplayName("Creation")
-  class Creation {
+  @DisplayName("startIngestion()")
+  class StartIngestion {
 
     @Test
-    @DisplayName("should create document with UPLOADING status")
-    void shouldCreateWithUploadingStatus() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.UPLOADING);
-    }
-
-    @Test
-    @DisplayName("should initialize timestamps")
-    void shouldInitializeTimestamps() {
+    @DisplayName("should start processing with no chunks when a file is uploaded")
+    void shouldStartProcessingWithNoChunksWhenAFileIsUploaded() {
       Instant before = Instant.now();
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
+
+      RagDocument doc = processing();
+
+      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.PROCESSING);
+      assertThat(doc.getChunkCount()).isZero();
+      assertThat(doc.getFileSize()).isEqualTo(TEST_FILE_SIZE);
       assertThat(doc.getCreatedAt()).isAfterOrEqualTo(before);
-      assertThat(doc.getUpdatedAt()).isAfterOrEqualTo(before);
+      assertThat(doc.isSearchable()).isFalse();
     }
 
     @Test
-    @DisplayName("should allow null title")
-    void shouldAllowNullTitle() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, null, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      assertThat(doc.getTitle()).isNull();
+    @DisplayName("should fall back to the file name when the title is blank")
+    void shouldFallBackToTheFileNameWhenTheTitleIsBlank() {
+      RagDocument doc = RagDocument.startIngestion("  ", "guide.txt", 10, TEST_OWNER_KEY);
+
+      assertThat(doc.getTitle()).isEqualTo("guide.txt");
     }
 
     @Test
-    @DisplayName("should truncate long title")
-    void shouldTruncateLongTitle() {
-      String longTitle = "A".repeat(300);
-      RagDocument doc =
-          new RagDocument(TEST_ID, longTitle, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      assertThat(doc.getTitle()).hasSize(255);
+    @DisplayName("should fall back to Untitled when there is no title or file name")
+    void shouldFallBackToUntitledWhenThereIsNoTitleOrFileName() {
+      RagDocument doc = RagDocument.startIngestion(null, null, 10, TEST_OWNER_KEY);
+
+      assertThat(doc.getTitle()).isEqualTo(RagDocument.UNTITLED);
     }
 
     @Test
-    @DisplayName("should trim title whitespace")
-    void shouldTrimTitle() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, "  Test  ", TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      assertThat(doc.getTitle()).isEqualTo("Test");
+    @DisplayName("should trim and cap the title when it is long")
+    void shouldTrimAndCapTheTitleWhenItIsLong() {
+      RagDocument trimmed = RagDocument.startIngestion("  Test  ", null, 10, TEST_OWNER_KEY);
+      RagDocument capped =
+          RagDocument.startIngestion(" " + "A".repeat(300), null, 10, TEST_OWNER_KEY);
+
+      assertThat(trimmed.getTitle()).isEqualTo("Test");
+      assertThat(capped.getTitle()).hasSize(RagDocument.MAX_TITLE_LENGTH).startsWith("A");
+    }
+
+    @Test
+    @DisplayName("should reject an empty file")
+    void shouldRejectAnEmptyFile() {
+      assertThatThrownBy(() -> RagDocument.startIngestion("Empty", "e.txt", 0, TEST_OWNER_KEY))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Uploaded file is empty");
     }
   }
 
   @Nested
-  @DisplayName("Status Transitions")
-  class StatusTransitions {
+  @DisplayName("completeIngestion()")
+  class CompleteIngestion {
 
     @Test
-    @DisplayName("should transition UPLOADING -> PROCESSING")
-    void shouldTransitionUploadingToProcessing() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.UPLOADING);
-      doc.markProcessing();
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.PROCESSING);
-    }
+    @DisplayName("should become searchable with its chunk count when ingestion completes")
+    void shouldBecomeSearchableWithItsChunkCountWhenIngestionCompletes() {
+      RagDocument doc = processing();
 
-    @Test
-    @DisplayName("should transition PROCESSING -> READY")
-    void shouldTransitionProcessingToReady() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      doc.markProcessing();
-      doc.markReady();
+      doc.completeIngestion(3);
+
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.READY);
+      assertThat(doc.getChunkCount()).isEqualTo(3);
+      assertThat(doc.isSearchable()).isTrue();
     }
 
     @Test
-    @DisplayName("should transition PROCESSING -> FAILED")
-    void shouldTransitionProcessingToFailed() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      doc.markProcessing();
-      doc.markFailed();
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
+    @DisplayName("should reject completing without chunks")
+    void shouldRejectCompletingWithoutChunks() {
+      RagDocument doc = processing();
+
+      assertThatThrownBy(() -> doc.completeIngestion(0))
+          .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    @DisplayName("should transition FAILED -> PROCESSING")
-    void shouldTransitionFailedToProcessing() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      doc.markProcessing();
-      doc.markFailed();
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
-      doc.markProcessing();
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.PROCESSING);
-    }
+    @DisplayName("should reject completing twice")
+    void shouldRejectCompletingTwice() {
+      RagDocument doc = processing();
+      doc.completeIngestion(1);
 
-    @Test
-    @DisplayName("should not allow READY -> FAILED transition")
-    void shouldNotAllowReadyToFailed() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      doc.markProcessing();
-      doc.markReady();
-      assertThatThrownBy(doc::markFailed)
-          .isInstanceOf(IllegalStateException.class)
-          .hasMessageContaining("Invalid status transition");
-    }
-
-    @Test
-    @DisplayName("should update updatedAt on status change")
-    void shouldUpdateUpdatedAt() throws InterruptedException {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      Instant original = doc.getUpdatedAt();
-      Thread.sleep(10);
-      doc.markProcessing();
-      assertThat(doc.getUpdatedAt()).isAfter(original);
+      assertThatThrownBy(() -> doc.completeIngestion(1)).isInstanceOf(IllegalStateException.class);
     }
   }
 
   @Nested
-  @DisplayName("updateTitle")
+  @DisplayName("failIngestion()")
+  class FailIngestion {
+
+    @Test
+    @DisplayName("should fail without chunks when ingestion breaks")
+    void shouldFailWithoutChunksWhenIngestionBreaks() {
+      RagDocument doc = processing();
+
+      doc.failIngestion();
+
+      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
+      assertThat(doc.getChunkCount()).isZero();
+      assertThat(doc.isSearchable()).isFalse();
+    }
+
+    @Test
+    @DisplayName("should fail a document marked ready in memory when its save rolls back")
+    void shouldFailADocumentMarkedReadyInMemoryWhenItsSaveRollsBack() {
+      RagDocument doc = processing();
+      doc.completeIngestion(2);
+
+      doc.failIngestion();
+
+      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
+      assertThat(doc.getChunkCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("should keep the first failure time when failed again")
+    void shouldKeepTheFirstFailureTimeWhenFailedAgain() {
+      RagDocument doc = processing();
+      doc.failIngestion();
+      Instant failedAt = doc.getUpdatedAt();
+
+      doc.failIngestion();
+
+      assertThat(doc.getUpdatedAt()).isEqualTo(failedAt);
+    }
+  }
+
+  @Nested
+  @DisplayName("newChunk()")
+  class NewChunk {
+
+    @Test
+    @DisplayName("should tag the chunk with the document owner title and file name")
+    void shouldTagTheChunkWithTheDocumentOwnerTitleAndFileName() {
+      RagDocument doc = processing();
+
+      DocumentChunk chunk = doc.newChunk(2, "text", Map.of("page", 4));
+
+      assertThat(chunk.getDocumentId()).isEqualTo(doc.getId());
+      assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parse(TEST_OWNER_KEY));
+      assertThat(chunk.getChunkIndex()).isEqualTo(2);
+      assertThat(chunk.getMetadata())
+          .containsEntry("page", 4)
+          .containsEntry(ChunkMetadataKeys.TITLE, TEST_TITLE)
+          .containsEntry(ChunkMetadataKeys.FILE_NAME, TEST_FILE_NAME)
+          .doesNotContainKey(ChunkMetadataKeys.OWNER_KEY);
+    }
+
+    @Test
+    @DisplayName("should leave out the file name when the document has none")
+    void shouldLeaveOutTheFileNameWhenTheDocumentHasNone() {
+      RagDocument doc = RagDocument.startIngestion("Notes", null, 5, TEST_OWNER_KEY);
+
+      DocumentChunk chunk = doc.newChunk(0, "text", Map.of());
+
+      assertThat(chunk.getMetadata()).doesNotContainKey(ChunkMetadataKeys.FILE_NAME);
+    }
+  }
+
+  @Nested
+  @DisplayName("updateTitle()")
   class UpdateTitle {
 
     @Test
-    @DisplayName("should update title when not READY")
+    @DisplayName("should update title when not ready")
     void shouldUpdateTitleWhenNotReady() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
+      RagDocument doc = processing();
       doc.updateTitle("New Title");
       assertThat(doc.getTitle()).isEqualTo("New Title");
     }
 
     @Test
-    @DisplayName("should throw when updating READY document")
-    void shouldThrowWhenUpdatingReadyDocument() {
-      RagDocument doc =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      doc.markProcessing();
-      doc.markReady();
+    @DisplayName("should throw when updating a ready document")
+    void shouldThrowWhenUpdatingAReadyDocument() {
+      RagDocument doc = processing();
+      doc.completeIngestion(1);
       assertThatThrownBy(() -> doc.updateTitle("New Title"))
           .isInstanceOf(IllegalStateException.class);
     }
   }
 
   @Nested
-  @DisplayName("Equals & HashCode")
-  class EqualsAndHashCode {
+  @DisplayName("restore()")
+  class Restore {
 
     @Test
-    @DisplayName("should be equal when same ID")
-    void shouldEqualWhenSameId() {
-      RagDocument doc1 = new RagDocument(TEST_ID, "A", "a.pdf", 100L, TEST_OWNER_KEY);
-      RagDocument doc2 = new RagDocument(TEST_ID, "B", "b.pdf", 200L, TEST_OWNER_KEY);
-      assertThat(doc1).isEqualTo(doc2);
-      assertThat(doc1.hashCode()).isEqualTo(doc2.hashCode());
-    }
-
-    @Test
-    @DisplayName("should not equal different ID")
-    void shouldNotEqualDifferentId() {
-      DocumentId other = DocumentId.of(UUID.randomUUID());
-      RagDocument doc1 =
-          new RagDocument(TEST_ID, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      RagDocument doc2 =
-          new RagDocument(other, TEST_TITLE, TEST_FILE_NAME, TEST_FILE_SIZE, TEST_OWNER_KEY);
-      assertThat(doc1).isNotEqualTo(doc2);
-    }
-  }
-
-  @Nested
-  @DisplayName("Full Constructor")
-  class FullConstructor {
-
-    @Test
-    @DisplayName("should create with all fields")
-    void shouldCreateWithAllFields() {
+    @DisplayName("should restore every stored field")
+    void shouldRestoreEveryStoredField() {
       Instant created = Instant.now().minusSeconds(3600);
       Instant updated = Instant.now().minusSeconds(1800);
+
       RagDocument doc =
-          new RagDocument(
+          RagDocument.restore(
               TEST_ID,
               TEST_TITLE,
               TEST_FILE_NAME,
               TEST_FILE_SIZE,
               DocumentStatus.READY,
+              7,
               created,
               updated,
               TEST_OWNER_KEY);
+
       assertThat(doc.getId()).isEqualTo(TEST_ID);
       assertThat(doc.getStatus()).isEqualTo(DocumentStatus.READY);
+      assertThat(doc.getChunkCount()).isEqualTo(7);
       assertThat(doc.getCreatedAt()).isEqualTo(created);
       assertThat(doc.getUpdatedAt()).isEqualTo(updated);
     }
 
     @Test
-    @DisplayName("should allow restoring to FAILED")
-    void shouldAllowRestoringToFailed() {
-      Instant created = Instant.now().minusSeconds(3600);
-      Instant updated = Instant.now().minusSeconds(1800);
-      RagDocument doc =
-          new RagDocument(
-              TEST_ID,
-              TEST_TITLE,
-              TEST_FILE_NAME,
-              TEST_FILE_SIZE,
-              DocumentStatus.FAILED,
-              created,
-              updated,
-              TEST_OWNER_KEY);
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.FAILED);
+    @DisplayName("should be equal when ids match")
+    void shouldBeEqualWhenIdsMatch() {
+      Instant now = Instant.now();
+      RagDocument first =
+          RagDocument.restore(
+              TEST_ID, "A", "a.pdf", 1L, DocumentStatus.READY, 1, now, now, TEST_OWNER_KEY);
+      RagDocument second =
+          RagDocument.restore(
+              TEST_ID, "B", "b.pdf", 2L, DocumentStatus.FAILED, 0, now, now, TEST_OWNER_KEY);
+
+      assertThat(first).isEqualTo(second).hasSameHashCodeAs(second);
+      assertThat(processing()).isNotEqualTo(first);
+    }
+
+    @Test
+    @DisplayName("should not print the title")
+    void shouldNotPrintTheTitle() {
+      assertThat(processing().toString()).doesNotContain(TEST_TITLE);
     }
   }
 }

@@ -4,6 +4,7 @@ import com.ai.account.controller.OwnerContext;
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.common.infra.logging.LogSanitizer;
+import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
 import java.util.List;
@@ -79,7 +80,7 @@ public class RagSearchTool implements DocumentSearchTool {
       return UNKNOWN_OWNER_MESSAGE;
     }
     try {
-      var documents = ragApplicationService.listDocuments(ownerKey.get());
+      var documents = ragApplicationService.listSearchableDocuments(ownerKey.get());
 
       if (documents.isEmpty()) {
         return "知识库中暂无文档，请先上传文档。";
@@ -120,7 +121,8 @@ public class RagSearchTool implements DocumentSearchTool {
       var source = sources.get(i);
       String content = LogSanitizer.truncate(source.content(), MAX_CONTENT_LENGTH);
       sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
-      if (source.metadata() != null && source.metadata().get("title") instanceof String title) {
+      if (source.metadata() != null
+          && source.metadata().get(ChunkMetadataKeys.TITLE) instanceof String title) {
         sb.append(String.format("文档: %s\n", title));
       }
       sb.append("---\n\n");

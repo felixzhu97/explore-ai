@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
@@ -56,8 +57,8 @@ class EmbeddingDocumentWriterTest {
     assertThat(chunkCaptor.getAllValues())
         .extracting(DocumentChunk::getContent)
         .containsExactly("first chunk", "second chunk");
-    assertThat(chunkCaptor.getAllValues().get(0).getEmbedding()).isSameAs(firstEmbedding);
-    assertThat(chunkCaptor.getAllValues().get(1).getEmbedding()).isSameAs(secondEmbedding);
+    assertThat(chunkCaptor.getAllValues().get(0).getEmbedding()).containsExactly(firstEmbedding);
+    assertThat(chunkCaptor.getAllValues().get(1).getEmbedding()).containsExactly(secondEmbedding);
     assertThat(firstChunk.getEmbedding()).isNull();
     assertThat(secondChunk.getEmbedding()).isNull();
     verify(embeddingRepository).embed("first chunk");
@@ -74,6 +75,11 @@ class EmbeddingDocumentWriterTest {
 
   private DocumentChunk createChunk(String content, int chunkIndex) {
     return DocumentChunk.create(
-        ChunkId.generate(), DOCUMENT_ID, content, chunkIndex, Map.of("source", "guide.txt"));
+        ChunkId.generate(),
+        DOCUMENT_ID,
+        OwnerKey.parse("c:owner"),
+        content,
+        chunkIndex,
+        Map.of("source", "guide.txt"));
   }
 }
