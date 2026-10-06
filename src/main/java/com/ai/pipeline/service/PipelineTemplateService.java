@@ -1,5 +1,6 @@
 package com.ai.pipeline.service;
 
+import com.ai.common.domain.vo.DomainStrings;
 import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
 import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
@@ -76,11 +77,7 @@ public class PipelineTemplateService {
   /** Enables or disables the owner's Pipeline Template. */
   public PipelineTemplate setEnabled(String ownerKey, String id, boolean enabled) {
     PipelineTemplate template = findOwned(ownerKey, id);
-    if (enabled) {
-      template.enable();
-    } else {
-      template.disable();
-    }
+    template.changeEnabled(enabled);
     return repository.save(template);
   }
 
@@ -102,21 +99,21 @@ public class PipelineTemplateService {
   }
 
   private void assertNameAvailable(String ownerKey, String name, PipelineTemplateId excludeId) {
-    if (repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)) {
-      throw new PipelineTemplateNameConflictException(name);
+    String normalized = DomainStrings.normalizeName(name);
+    if (repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, normalized, excludeId)) {
+      throw new PipelineTemplateNameConflictException(normalized);
     }
   }
 
   private String findNextAvailableName(String ownerKey, String baseName) {
-    if (!repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, baseName, null)) {
-      return baseName;
-    }
-    for (int suffix = 2; suffix <= 99; suffix++) {
-      String candidate = baseName + " (" + suffix + ")";
-      if (!repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, candidate, null)) {
-        return candidate;
-      }
-    }
-    return baseName + " (" + PipelineTemplateId.generate().value().substring(0, 8) + ")";
+    return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
+        .filter(name -> !repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, null))
+        .findFirst()
+        .orElseGet(
+            () ->
+                DomainStrings.copyName(
+                    baseName,
+                    PipelineTemplateId.generate().value().substring(0, 8),
+                    DomainStrings.DEFAULT_NAME_MAX));
   }
 }

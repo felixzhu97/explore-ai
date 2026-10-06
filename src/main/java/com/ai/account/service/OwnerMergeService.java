@@ -18,9 +18,7 @@ public class OwnerMergeService {
   public void mergeClientIntoAccount(String clientId, String accountUserId) {
     OwnerKey from = OwnerKey.forClient(clientId);
     OwnerKey to = OwnerKey.forAccount(accountUserId);
-    if (from.equals(to)) {
-      return;
-    }
+    from.requireMergeableInto(to);
     ownerPartitionRepository.reassignOwner(from, to);
   }
 }

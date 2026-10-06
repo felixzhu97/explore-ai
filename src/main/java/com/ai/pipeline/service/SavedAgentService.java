@@ -51,11 +51,7 @@ public class SavedAgentService {
   /** Enables or disables the owner's saved agent. */
   public SavedAgent setEnabled(String ownerKey, String id, boolean enabled) {
     SavedAgent agent = findOwned(ownerKey, id);
-    if (enabled) {
-      agent.enable();
-    } else {
-      agent.disable();
-    }
+    agent.changeEnabled(enabled);
     return repository.save(agent);
   }
 

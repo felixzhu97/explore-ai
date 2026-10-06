@@ -48,6 +48,15 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractUui
     touchUpdatedAt();
   }
 
+  /** Turns the entity on or off. */
+  public void changeEnabled(boolean enabled) {
+    if (enabled) {
+      enable();
+    } else {
+      disable();
+    }
+  }
+
   /** Tells whether the entity is on. */
   public boolean isEnabled() {
     return enabled;

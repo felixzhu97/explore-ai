@@ -43,9 +43,16 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     return ownerKey.equals(candidate);
   }
 
-  /** Tells whether the entity belongs to the owner key value. */
+  /** Tells whether the entity belongs to the owner key value; invalid values never match. */
   public boolean belongsTo(String ownerKeyValue) {
-    return ownerKey.value().equals(ownerKeyValue);
+    if (ownerKeyValue == null || ownerKeyValue.isBlank()) {
+      return false;
+    }
+    try {
+      return belongsTo(OwnerKey.parse(ownerKeyValue));
+    } catch (IllegalArgumentException invalid) {
+      return false;
+    }
   }
 
   /** Returns the persisted owner_key value (c:… or u:…). */
@@ -53,13 +60,10 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     return ownerKey.value();
   }
 
-  /** Moves the entity to another owner. */
-  protected void rebindOwnerKey(OwnerKey nextOwnerKey) {
-    this.ownerKey = Objects.requireNonNull(nextOwnerKey, "ownerKey");
-  }
-
-  /** Moves the entity to the owner key value. */
-  public void rebindOwnerKey(String ownerKeyValue) {
-    rebindOwnerKey(OwnerKey.parse(ownerKeyValue));
+  /** Moves a guest row to the signed-in account that now owns it. */
+  public void transferTo(OwnerKey accountOwnerKey) {
+    ownerKey.requireMergeableInto(accountOwnerKey);
+    this.ownerKey = accountOwnerKey;
+    touchUpdatedAt();
   }
 }
