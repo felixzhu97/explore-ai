@@ -497,4 +497,21 @@
       <where>action_type = 'RUN_SAVED_WORKFLOW'</where>
     </update>
   </changeSet>
+
+  <!-- Keeps the most recently updated account on a browser that two accounts had linked. -->
+  <changeSet author="explore-ai" id="0.1-018-account-user-unique-linked-client" dbms="h2">
+    <sql>
+      UPDATE account_user a SET linked_client_id = NULL
+      WHERE a.linked_client_id IS NOT NULL
+        AND EXISTS (
+          SELECT 1 FROM account_user b
+          WHERE b.linked_client_id = a.linked_client_id
+            AND (b.updated_at &gt; a.updated_at OR (b.updated_at = a.updated_at AND b.id &gt; a.id)))
+    </sql>
+    <dropIndex indexName="idx_account_user_linked_client_id" tableName="account_user"/>
+    <addUniqueConstraint
+      tableName="account_user"
+      columnNames="linked_client_id"
+      constraintName="uk_account_user_linked_client_id"/>
+  </changeSet>
 </databaseChangeLog>

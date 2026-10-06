@@ -173,6 +173,34 @@ class AccountServiceTest {
   }
 
   @Test
+  @DisplayName("should unlink the previous account when another account signs in on the browser")
+  void shouldUnlinkThePreviousAccountWhenAnotherAccountSignsInOnTheBrowser() {
+    AccountUser previous = AccountUser.create("google", "sub-a", "a@example.com", "cid-shared");
+    when(accountUserRepository.findByProviderAndSubject("github", "sub-b"))
+        .thenReturn(Optional.empty());
+    when(accountUserRepository.findByLinkedClientId("cid-shared"))
+        .thenReturn(Optional.of(previous));
+
+    useCase.linkOAuthUser("github", "sub-b", "b@example.com", "cid-shared");
+
+    assertThat(previous.getLinkedClientId()).isNull();
+    verify(accountUserRepository).save(previous);
+  }
+
+  @Test
+  @DisplayName("should keep the link when the same account signs in again")
+  void shouldKeepTheLinkWhenTheSameAccountSignsInAgain() {
+    AccountUser user = AccountUser.create("google", "sub-a", "a@example.com", "cid-shared");
+    when(accountUserRepository.findByProviderAndSubject("google", "sub-a"))
+        .thenReturn(Optional.of(user));
+    when(accountUserRepository.findByLinkedClientId("cid-shared")).thenReturn(Optional.of(user));
+
+    useCase.linkOAuthUser("google", "sub-a", "a@example.com", "cid-shared");
+
+    assertThat(user.getLinkedClientId()).isEqualTo("cid-shared");
+  }
+
+  @Test
   void shouldReturnAuthenticatedWhenLinkedClientIdPresentWithoutSecurityContext() {
     AccountUser linked = AccountUser.create("google", "sub-2", "u@example.com", "cid-2");
     when(accountUserRepository.findByLinkedClientId("cid-2")).thenReturn(Optional.of(linked));

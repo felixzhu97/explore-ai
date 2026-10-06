@@ -88,6 +88,14 @@ public class AccountService {
         accountUserRepository
             .findByProviderAndSubject(provider, subject)
             .orElseGet(() -> AccountUser.create(provider, subject, email, clientId));
+    accountUserRepository
+        .findByLinkedClientId(clientId)
+        .filter(previous -> !previous.getId().equals(user.getId()))
+        .ifPresent(
+            previous -> {
+              previous.unlinkBrowser();
+              accountUserRepository.save(previous);
+            });
     user.linkSession(email, clientId);
     accountUserRepository.save(user);
     return user.getId().value();
