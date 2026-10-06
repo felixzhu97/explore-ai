@@ -1,5 +1,6 @@
 package com.ai.rag.infra.vector;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
@@ -23,6 +24,7 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
   public DocumentChunk mapRow(ResultSet rs, int rowNum) throws SQLException {
     ChunkId id = ChunkId.of(rs.getString("id"));
     DocumentId documentId = DocumentId.of(rs.getString("document_id"));
+    OwnerKey ownerKey = OwnerKey.parse(rs.getString("owner_key"));
     String content = rs.getString("content");
     int chunkIndex = rs.getInt("chunk_index");
     float[] embedding = parsePostgresVector(rs.getString("embedding"));
@@ -31,7 +33,7 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
     Instant createdAt = storedAt != null ? storedAt : Instant.now();
 
     return DocumentChunk.reconstitute(
-        id, documentId, content, chunkIndex, metadata, embedding, createdAt);
+        id, documentId, ownerKey, content, chunkIndex, metadata, embedding, createdAt);
   }
 
   private float[] parsePostgresVector(String vectorString) {

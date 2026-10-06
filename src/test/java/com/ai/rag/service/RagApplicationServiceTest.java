@@ -48,16 +48,16 @@ class RagApplicationServiceTest {
       var uploadResult =
           new DocumentUploadService.UploadResult(
               docId, "Test", DocumentStatus.READY, 3, Instant.EPOCH);
-      when(uploadService.upload("Test", "file.txt", 1024L, "content", "c:test-owner"))
+      when(uploadService.upload("Test", "file.txt", "content", "c:test-owner"))
           .thenReturn(uploadResult);
 
-      var result = service.uploadDocument("Test", "file.txt", 1024L, "content", "c:test-owner");
+      var result = service.uploadDocument("Test", "file.txt", "content", "c:test-owner");
 
       assertThat(result.documentId()).isEqualTo(docId);
       assertThat(result.title()).isEqualTo("Test");
       assertThat(result.status()).isEqualTo(DocumentStatus.READY);
       assertThat(result.chunkCount()).isEqualTo(3);
-      verify(uploadService).upload("Test", "file.txt", 1024L, "content", "c:test-owner");
+      verify(uploadService).upload("Test", "file.txt", "content", "c:test-owner");
     }
 
     @Test
@@ -68,11 +68,10 @@ class RagApplicationServiceTest {
       var uploadResult =
           new DocumentUploadService.UploadResult(
               docId, "Test", DocumentStatus.READY, 5, Instant.EPOCH);
-      when(uploadService.upload("Test", "file.bin", 12L, content, "c:test-owner"))
+      when(uploadService.upload("Test", "file.bin", content, "c:test-owner"))
           .thenReturn(uploadResult);
 
-      var result =
-          service.uploadDocumentFromBytes("Test", "file.bin", 12L, content, "c:test-owner");
+      var result = service.uploadDocumentFromBytes("Test", "file.bin", content, "c:test-owner");
 
       assertThat(result.documentId()).isEqualTo(docId);
       assertThat(result.chunkCount()).isEqualTo(5);
@@ -86,10 +85,8 @@ class RagApplicationServiceTest {
     @Test
     @DisplayName("should delegate to uploadService")
     void shouldDelegateToUploadService() {
-      RagDocument doc1 =
-          new RagDocument(DocumentId.generate(), "Doc1", "file1.txt", 100L, "c:test");
-      RagDocument doc2 =
-          new RagDocument(DocumentId.generate(), "Doc2", "file2.txt", 200L, "c:test");
+      RagDocument doc1 = RagDocument.startIngestion("Doc1", "file1.txt", 100L, "c:test");
+      RagDocument doc2 = RagDocument.startIngestion("Doc2", "file2.txt", 200L, "c:test");
       when(uploadService.listAll("c:test-owner")).thenReturn(List.of(doc1, doc2));
 
       List<RagDocument> result = service.listDocuments("c:test-owner");
@@ -106,6 +103,19 @@ class RagApplicationServiceTest {
       List<RagDocument> result = service.listDocuments("c:test-owner");
 
       assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("should offer only ready documents when listing searchable ones")
+    void shouldOfferOnlyReadyDocumentsWhenListingSearchableOnes() {
+      RagDocument ready = RagDocument.startIngestion("Ready", "r.txt", 10L, "c:test");
+      ready.completeIngestion(2);
+      RagDocument processing = RagDocument.startIngestion("Busy", "b.txt", 10L, "c:test");
+      RagDocument failed = RagDocument.startIngestion("Broken", "f.txt", 10L, "c:test");
+      failed.failIngestion();
+      when(uploadService.listAll("c:test-owner")).thenReturn(List.of(ready, processing, failed));
+
+      assertThat(service.listSearchableDocuments("c:test-owner")).containsExactly(ready);
     }
   }
 

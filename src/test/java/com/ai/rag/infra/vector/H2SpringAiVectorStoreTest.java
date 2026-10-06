@@ -9,11 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.domain.vo.ChunkId;
 import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.domain.vo.ScoredChunk;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,10 @@ class H2SpringAiVectorStoreTest {
     UUID docId = UUID.randomUUID();
     when(embeddingRepository.embed("apples")).thenReturn(query);
     when(chunkSearchRepository.search(eq(query), eq(2), eq(OWNER), eq(List.of())))
-        .thenReturn(List.of(chunk(docId, "high", high), chunk(docId, "low", low)));
+        .thenReturn(
+            List.of(
+                ScoredChunk.of(chunk(docId, "high", high), query),
+                ScoredChunk.of(chunk(docId, "low", low), query)));
 
     List<Document> docs =
         vectorStore.similaritySearch(
@@ -105,7 +110,7 @@ class H2SpringAiVectorStoreTest {
     UUID docId = UUID.randomUUID();
     when(embeddingRepository.embed("What is this about?")).thenReturn(query);
     when(chunkSearchRepository.search(query, 3, OWNER, List.of(docId)))
-        .thenReturn(List.of(chunk(docId, "middle", unrelated)));
+        .thenReturn(List.of(ScoredChunk.of(chunk(docId, "middle", unrelated), query)));
     when(chunkSearchRepository.findLeadingChunks(OWNER, List.of(docId), 3))
         .thenReturn(List.of(chunk(docId, "abstract", unrelated)));
 
@@ -128,7 +133,9 @@ class H2SpringAiVectorStoreTest {
     float[] query = new float[] {1f, 0f};
     when(embeddingRepository.embed("What is this about?")).thenReturn(query);
     when(chunkSearchRepository.search(query, 3, OWNER, List.of()))
-        .thenReturn(List.of(chunk(UUID.randomUUID(), "middle", new float[] {0f, 1f})));
+        .thenReturn(
+            List.of(
+                ScoredChunk.of(chunk(UUID.randomUUID(), "middle", new float[] {0f, 1f}), query)));
 
     List<Document> docs =
         vectorStore.similaritySearch(
@@ -177,6 +184,7 @@ class H2SpringAiVectorStoreTest {
     return DocumentChunk.reconstitute(
         ChunkId.generate(),
         DocumentId.of(documentId),
+        OwnerKey.parse(OWNER),
         content,
         0,
         Map.of("title", "t"),

@@ -35,8 +35,8 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should persist and reload document when round tripping")
   void shouldPersistAndReloadDocumentWhenRoundTripping() {
-    RagDocument document =
-        new RagDocument(DocumentId.generate(), "Guide", "guide.pdf", 2048L, OWNER_KEY);
+    RagDocument document = RagDocument.startIngestion("Guide", "guide.pdf", 2048L, OWNER_KEY);
+    document.completeIngestion(4);
 
     repository.saveAndFlush(document);
     em.clear();
@@ -47,19 +47,21 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
     assertThat(reloaded.get().getTitle()).isEqualTo("Guide");
     assertThat(reloaded.get().getFileName()).isEqualTo("guide.pdf");
     assertThat(reloaded.get().getFileSize()).isEqualTo(2048L);
-    assertThat(reloaded.get().getStatus()).isEqualTo(DocumentStatus.UPLOADING);
+    assertThat(reloaded.get().getStatus()).isEqualTo(DocumentStatus.READY);
+    assertThat(reloaded.get().getChunkCount()).isEqualTo(4);
   }
 
   @Test
   @DisplayName("should store owner key when persisting partitioned document")
   void shouldStoreOwnerKeyWhenPersistingPartitionedDocument() {
     RagDocument document =
-        new RagDocument(
+        RagDocument.restore(
             DocumentId.generate(),
             "Owned",
             "owned.pdf",
             512L,
             DocumentStatus.READY,
+            1,
             Instant.parse("2026-07-01T00:00:00Z"),
             Instant.parse("2026-07-02T00:00:00Z"),
             OWNER_KEY);
@@ -76,22 +78,24 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
   @DisplayName("should list documents by owner ordered by created at descending")
   void shouldListDocumentsByOwnerOrderedByCreatedAtDescending() {
     RagDocument older =
-        new RagDocument(
+        RagDocument.restore(
             DocumentId.generate(),
             "Older",
             "older.pdf",
             100L,
             DocumentStatus.READY,
+            1,
             Instant.parse("2026-01-01T00:00:00Z"),
             Instant.parse("2026-01-02T00:00:00Z"),
             OWNER_KEY);
     RagDocument newer =
-        new RagDocument(
+        RagDocument.restore(
             DocumentId.generate(),
             "Newer",
             "newer.pdf",
             200L,
             DocumentStatus.READY,
+            1,
             Instant.parse("2026-06-01T00:00:00Z"),
             Instant.parse("2026-06-02T00:00:00Z"),
             OWNER_KEY);
@@ -107,8 +111,7 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should find document by id and owner key when scoped lookup")
   void shouldFindDocumentByIdAndOwnerKeyWhenScopedLookup() {
-    RagDocument document =
-        new RagDocument(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
+    RagDocument document = RagDocument.startIngestion("Scoped", "scoped.pdf", 128L, OWNER_KEY);
     repository.saveAndFlush(document);
     em.clear();
 
@@ -122,8 +125,7 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should delete only the owner's document when scoped delete")
   void shouldDeleteOnlyTheOwnersDocumentWhenScopedDelete() {
-    RagDocument document =
-        new RagDocument(DocumentId.generate(), "Scoped", "scoped.pdf", 128L, OWNER_KEY);
+    RagDocument document = RagDocument.startIngestion("Scoped", "scoped.pdf", 128L, OWNER_KEY);
     repository.saveAndFlush(document);
     em.clear();
 

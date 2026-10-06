@@ -26,7 +26,6 @@ import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.service.VisionChatService;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -84,9 +83,8 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return stored chunk count for each document")
     void shouldReturnStoredChunkCountForEachDocument() {
-      RagDocument doc = createTestDocument("Chunked Doc", DocumentStatus.READY);
+      RagDocument doc = createTestDocument("Chunked Doc", DocumentStatus.READY, 17);
       when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
-      when(ragApplicationService.chunkCounts(List.of(doc))).thenReturn(Map.of(doc.getId(), 17));
 
       assertThat(
               mvc.get()
@@ -314,6 +312,12 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   private RagDocument createTestDocument(String title, DocumentStatus status) {
-    return new RagDocument(DocumentId.generate(), title, title, 1024L, "c:test");
+    return createTestDocument(title, status, status == DocumentStatus.READY ? 1 : 0);
+  }
+
+  private RagDocument createTestDocument(String title, DocumentStatus status, int chunkCount) {
+    Instant now = Instant.now();
+    return RagDocument.restore(
+        DocumentId.generate(), title, title, 1024L, status, chunkCount, now, now, "c:test");
   }
 }

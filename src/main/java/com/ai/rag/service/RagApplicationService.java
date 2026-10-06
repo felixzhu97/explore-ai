@@ -4,7 +4,6 @@ import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,8 @@ public class RagApplicationService {
 
   /** Uploads a text document. */
   public DocumentUploadService.UploadResult uploadDocument(
-      String title, String fileName, Long fileSize, String content, String ownerKey) {
-    return uploadService.upload(title, fileName, fileSize, content, ownerKey);
+      String title, String fileName, String content, String ownerKey) {
+    return uploadService.upload(title, fileName, content, ownerKey);
   }
 
   /** Uploads a multipart file. */
@@ -36,8 +35,8 @@ public class RagApplicationService {
 
   /** Uploads a document from bytes. */
   public DocumentUploadService.UploadResult uploadDocumentFromBytes(
-      String title, String fileName, Long fileSize, byte[] fileContent, String ownerKey) {
-    return uploadService.upload(title, fileName, fileSize, fileContent, ownerKey);
+      String title, String fileName, byte[] fileContent, String ownerKey) {
+    return uploadService.upload(title, fileName, fileContent, ownerKey);
   }
 
   /** Lists the owner's documents. */
@@ -45,9 +44,9 @@ public class RagApplicationService {
     return uploadService.listAll(ownerKey);
   }
 
-  /** Counts the chunks of each document. */
-  public Map<DocumentId, Integer> chunkCounts(List<RagDocument> documents) {
-    return uploadService.chunkCounts(documents);
+  /** Lists the owner's documents that are ready to search. */
+  public List<RagDocument> listSearchableDocuments(String ownerKey) {
+    return uploadService.listAll(ownerKey).stream().filter(RagDocument::isSearchable).toList();
   }
 
   /** Deletes the owner's document. */

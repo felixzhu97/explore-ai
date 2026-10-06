@@ -1,10 +1,11 @@
 package com.ai.rag.infra.vector;
 
 import com.ai.common.infra.logging.LogSanitizer;
+import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
-import com.ai.rag.domain.service.VectorSimilarity;
+import com.ai.rag.domain.vo.ScoredChunk;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +30,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class H2SpringAiVectorStore implements VectorStore {
 
-  public static final String DOCUMENT_ID_METADATA_KEY = "document_id";
-  public static final String OWNER_KEY_METADATA_KEY = "ownerKey";
+  public static final String DOCUMENT_ID_METADATA_KEY = ChunkMetadataKeys.DOCUMENT_ID;
+  public static final String OWNER_KEY_METADATA_KEY = ChunkMetadataKeys.OWNER_KEY;
   private static final Logger log = LoggerFactory.getLogger(H2SpringAiVectorStore.class);
-  private static final int MAX_CONTENT_LENGTH = 500;
 
   private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
@@ -81,19 +81,15 @@ public class H2SpringAiVectorStore implements VectorStore {
     float[] queryEmbedding = embeddingRepository.embed(query);
     int topK = Math.max(request.getTopK(), 1);
     List<UUID> documentIds = extractDocumentIds(filter);
-    List<DocumentChunk> chunks =
+    List<ScoredChunk> chunks =
         chunkSearchRepository.search(queryEmbedding, topK, ownerKey.get(), documentIds);
     double threshold = request.getSimilarityThreshold();
 
-    List<Document> results = new ArrayList<>();
-    for (DocumentChunk chunk : chunks) {
-      double score =
-          VectorSimilarity.calculateCosineSimilarity(queryEmbedding, chunk.getEmbedding());
-      if (score < threshold) {
-        continue;
-      }
-      results.add(toDocument(chunk, score));
-    }
+    List<Document> results =
+        chunks.stream()
+            .filter(scored -> scored.meets(threshold))
+            .map(H2SpringAiVectorStore::toDocument)
+            .toList();
     log.info("Retrieved {} chunks after score threshold {}", results.size(), threshold);
     if (results.isEmpty() && !documentIds.isEmpty()) {
       return selectLeadingChunks(queryEmbedding, ownerKey.get(), documentIds, topK);
@@ -109,26 +105,22 @@ public class H2SpringAiVectorStore implements VectorStore {
       float[] queryEmbedding, String ownerKey, List<UUID> documentIds, int topK) {
     List<Document> results =
         chunkSearchRepository.findLeadingChunks(ownerKey, documentIds, topK).stream()
-            .map(
-                chunk ->
-                    toDocument(
-                        chunk,
-                        VectorSimilarity.calculateCosineSimilarity(
-                            queryEmbedding, chunk.getEmbedding())))
+            .map(chunk -> toDocument(ScoredChunk.of(chunk, queryEmbedding)))
             .toList();
     log.info("Fell back to {} opening chunks of the selected documents", results.size());
     return results;
   }
 
-  private static Document toDocument(DocumentChunk chunk, double score) {
+  private static Document toDocument(ScoredChunk scored) {
+    DocumentChunk chunk = scored.chunk();
     Map<String, Object> metadata = new HashMap<>(chunk.getMetadata());
     metadata.put(DOCUMENT_ID_METADATA_KEY, chunk.getDocumentId().toString());
-    metadata.put("score", score);
+    metadata.put("score", scored.score());
     return Document.builder()
         .id(chunk.getId().toString())
-        .text(LogSanitizer.truncate(chunk.getContent(), MAX_CONTENT_LENGTH))
+        .text(chunk.excerpt())
         .metadata(metadata)
-        .score(score)
+        .score(scored.score())
         .build();
   }
 

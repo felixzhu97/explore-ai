@@ -64,12 +64,7 @@ public class GoldenRagFixtureSeeder {
         }
         String content = resource.getContentAsString(StandardCharsets.UTF_8);
         DocumentUploadService.UploadResult uploaded =
-            documentUploadService.upload(
-                title,
-                filename,
-                (long) content.getBytes(StandardCharsets.UTF_8).length,
-                content,
-                OWNER_KEY);
+            documentUploadService.upload(title, filename, content, OWNER_KEY);
         String id = uploaded.documentId().value().toString();
         resolved.put(key, id);
         byTitle.put(title, id);

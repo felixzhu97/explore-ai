@@ -57,7 +57,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
     when(reader.read(any(byte[].class), eq("broken.pdf")))
         .thenThrow(new DocumentProcessingException("Could not extract text from broken.pdf"));
 
-    assertThatThrownBy(() -> service.upload("Broken", "broken.pdf", 3L, new byte[] {1, 2}, owner))
+    assertThatThrownBy(() -> service.upload("Broken", "broken.pdf", new byte[] {1, 2}, owner))
         .isInstanceOf(DocumentProcessingException.class);
 
     assertThat(documentRepository.findAllByOwnerKey(owner))
@@ -74,7 +74,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
         .thenReturn(new RawDocument("  \n ", Map.of(), "blank.txt"));
     when(transformer.transform(any(RawDocument.class))).thenReturn(List.of());
 
-    assertThatThrownBy(() -> service.upload("Blank", "blank.txt", 4L, "  \n ", owner))
+    assertThatThrownBy(() -> service.upload("Blank", "blank.txt", "  \n ", owner))
         .isInstanceOf(DocumentProcessingException.class)
         .hasMessage("No text found in blank.txt");
 
@@ -89,7 +89,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   void shouldRejectAnEmptyFileWithoutStoringADocument() {
     String owner = newOwner();
 
-    assertThatThrownBy(() -> service.upload("Empty", "empty.txt", 0L, new byte[0], owner))
+    assertThatThrownBy(() -> service.upload("Empty", "empty.txt", new byte[0], owner))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Uploaded file is empty");
 

@@ -514,4 +514,17 @@
       columnNames="linked_client_id"
       constraintName="uk_account_user_linked_client_id"/>
   </changeSet>
+
+  <!-- Stores the chunk count on the document so listing no longer counts chunks per request. -->
+  <changeSet author="explore-ai" id="0.1-019-rag-document-chunk-count" dbms="h2">
+    <addColumn tableName="rag_document">
+      <column name="chunk_count" type="INT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <sql>
+      UPDATE rag_document d SET chunk_count =
+        (SELECT COUNT(*) FROM document_chunks c WHERE c.document_id = d.id)
+    </sql>
+  </changeSet>
 </databaseChangeLog>

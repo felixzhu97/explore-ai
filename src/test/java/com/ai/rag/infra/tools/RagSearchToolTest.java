@@ -13,10 +13,12 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -171,13 +173,14 @@ class RagSearchToolTest {
   class ListDocuments {
 
     @Test
-    @DisplayName("should list documents of owner bound to tool channel")
-    void shouldListDocumentsOfOwnerBoundToToolChannel() {
-      when(ragApplicationService.listDocuments(OWNER_KEY)).thenReturn(Collections.emptyList());
+    @DisplayName("should list only searchable documents of the owner bound to the tool channel")
+    void shouldListOnlySearchableDocumentsOfTheOwnerBoundToTheToolChannel() {
+      when(ragApplicationService.listSearchableDocuments(OWNER_KEY))
+          .thenReturn(Collections.emptyList());
 
       ragSearchTool.listDocuments();
 
-      verify(ragApplicationService).listDocuments(OWNER_KEY);
+      verify(ragApplicationService).listSearchableDocuments(OWNER_KEY);
     }
 
     @Test
@@ -195,8 +198,18 @@ class RagSearchToolTest {
     @DisplayName("should return document list")
     void shouldReturnDocumentList() {
       DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
-      RagDocument doc = new RagDocument(docId, TEST_DOC_TITLE, "test.pdf", 1024L, OWNER_KEY);
-      when(ragApplicationService.listDocuments(anyString())).thenReturn(List.of(doc));
+      RagDocument doc =
+          RagDocument.restore(
+              docId,
+              TEST_DOC_TITLE,
+              "test.pdf",
+              1024L,
+              DocumentStatus.READY,
+              1,
+              Instant.now(),
+              Instant.now(),
+              OWNER_KEY);
+      when(ragApplicationService.listSearchableDocuments(anyString())).thenReturn(List.of(doc));
 
       String result = ragSearchTool.listDocuments();
 
@@ -208,7 +221,8 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should return message when no documents")
     void shouldReturnMessageWhenNoDocuments() {
-      when(ragApplicationService.listDocuments(anyString())).thenReturn(Collections.emptyList());
+      when(ragApplicationService.listSearchableDocuments(anyString()))
+          .thenReturn(Collections.emptyList());
 
       String result = ragSearchTool.listDocuments();
 
@@ -218,7 +232,7 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should handle service exception")
     void shouldHandleServiceException() {
-      when(ragApplicationService.listDocuments(anyString()))
+      when(ragApplicationService.listSearchableDocuments(anyString()))
           .thenThrow(new RuntimeException("Service error"));
 
       String result = ragSearchTool.listDocuments();

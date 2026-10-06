@@ -10,6 +10,7 @@ import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import com.ai.metrics.service.AiInvocationRecorder;
+import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.service.dto.RagChatResult;
@@ -44,12 +45,6 @@ import reactor.core.publisher.Flux;
 public class RagChatService {
 
   private static final Logger log = LoggerFactory.getLogger(RagChatService.class);
-
-  /** Must match {@code H2SpringAiVectorStore.DOCUMENT_ID_METADATA_KEY}. */
-  private static final String DOCUMENT_ID_METADATA_KEY = "document_id";
-
-  /** Must match {@code H2SpringAiVectorStore.OWNER_KEY_METADATA_KEY}. */
-  private static final String OWNER_KEY_METADATA_KEY = "ownerKey";
 
   private final ChatClientProvider chatClientProvider;
   private final LanguageDetectionService languageDetectionService;
@@ -172,12 +167,12 @@ public class RagChatService {
 
   private static Filter.Expression buildRetrievalFilter(String ownerKey, List<String> documentIds) {
     FilterExpressionBuilder builder = new FilterExpressionBuilder();
-    FilterExpressionBuilder.Op ownedByCaller = builder.eq(OWNER_KEY_METADATA_KEY, ownerKey);
+    FilterExpressionBuilder.Op ownedByCaller = builder.eq(ChunkMetadataKeys.OWNER_KEY, ownerKey);
     if (documentIds == null || documentIds.isEmpty()) {
       return ownedByCaller.build();
     }
     List<Object> ids = List.copyOf(documentIds);
-    return builder.and(ownedByCaller, builder.in(DOCUMENT_ID_METADATA_KEY, ids)).build();
+    return builder.and(ownedByCaller, builder.in(ChunkMetadataKeys.DOCUMENT_ID, ids)).build();
   }
 
   private void recordSuccess(
