@@ -49,10 +49,10 @@ class McpServiceTest {
   @Test
   @DisplayName("should delegate tool count to repository")
   void shouldDelegateToolCountToRepository() {
-    when(mcpClientGateway.toolCount()).thenReturn(7);
+    when(mcpClientGateway.countTools()).thenReturn(7);
 
     assertThat(service.getTotalToolCount()).isEqualTo(7);
-    verify(mcpClientGateway).toolCount();
+    verify(mcpClientGateway).countTools();
   }
 
   @Test

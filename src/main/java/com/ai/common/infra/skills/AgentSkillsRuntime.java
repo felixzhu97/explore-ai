@@ -30,23 +30,23 @@ public class AgentSkillsRuntime {
     }
   }
 
-  public boolean enabled() {
+  public boolean isEnabled() {
     return enabled && !skills.isEmpty();
   }
 
-  public List<AgentSkill> skills() {
+  public List<AgentSkill> getSkills() {
     return skills;
   }
 
-  public Optional<ToolCallback> skillToolCallback() {
-    return (!enabled() || skillToolCallback == null)
+  public Optional<ToolCallback> findSkillToolCallback() {
+    return (!isEnabled() || skillToolCallback == null)
         ? Optional.empty()
         : Optional.of(skillToolCallback);
   }
 
   /** Appends a catalog of available skills to the base prompt when skills are enabled. */
   public String augmentSystemPrompt(String basePrompt) {
-    if (!enabled() || skills.isEmpty()) {
+    if (!isEnabled() || skills.isEmpty()) {
       return basePrompt;
     }
     String catalog =

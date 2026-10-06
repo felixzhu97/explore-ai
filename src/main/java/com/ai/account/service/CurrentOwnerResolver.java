@@ -59,8 +59,8 @@ public class CurrentOwnerResolver {
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return Optional.of(ensureIamUser(jwtAuth.getToken()));
     }
-    String provider = registrationId(authentication);
-    String subject = subject(authentication);
+    String provider = getRegistrationId(authentication);
+    String subject = getSubject(authentication);
     if (subject == null || subject.isBlank()) {
       return Optional.empty();
     }
@@ -81,14 +81,14 @@ public class CurrentOwnerResolver {
                     AccountUser.create(EXPLORE_IAM_PROVIDER, subject, email, null)));
   }
 
-  private static String registrationId(Authentication authentication) {
+  private static String getRegistrationId(Authentication authentication) {
     if (authentication instanceof OAuth2AuthenticationToken token) {
       return token.getAuthorizedClientRegistrationId();
     }
     return "unknown";
   }
 
-  private static String subject(Authentication authentication) {
+  private static String getSubject(Authentication authentication) {
     Object principal = authentication.getPrincipal();
     if (principal instanceof OidcUser oidcUser) {
       return oidcUser.getSubject();

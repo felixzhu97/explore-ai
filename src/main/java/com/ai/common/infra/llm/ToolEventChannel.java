@@ -35,7 +35,7 @@ public final class ToolEventChannel {
   }
 
   /** Owner key bound to the current thread's channel, if any. */
-  public static Optional<String> currentOwnerKey() {
+  public static Optional<String> getCurrentOwnerKey() {
     String id = CURRENT_ID.get();
     return id == null ? Optional.empty() : Optional.ofNullable(OWNER_BY_ID.get(id));
   }

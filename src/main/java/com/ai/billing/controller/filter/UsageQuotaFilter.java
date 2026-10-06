@@ -64,12 +64,12 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
     Object attr = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
     String clientId =
         attr instanceof String id && !id.isBlank() ? id : "ip:" + request.getRemoteAddr();
-    int limit = dailyUsageQuotaService.dailyLimit();
+    int limit = dailyUsageQuotaService.getDailyLimit();
     final boolean allowed = dailyUsageQuotaService.tryConsume(clientId);
     response.setHeader("X-Quota-Limit", String.valueOf(limit));
     response.setHeader(
-        "X-Quota-Remaining", String.valueOf(dailyUsageQuotaService.remaining(clientId)));
-    response.setHeader("X-Quota-Plan", dailyUsageQuotaService.plan());
+        "X-Quota-Remaining", String.valueOf(dailyUsageQuotaService.countRemaining(clientId)));
+    response.setHeader("X-Quota-Plan", dailyUsageQuotaService.getPlan());
     if (!allowed) {
       response.setStatus(429);
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);

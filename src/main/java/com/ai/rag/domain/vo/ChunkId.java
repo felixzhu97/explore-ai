@@ -19,6 +19,6 @@ public final class ChunkId extends AbstractUuidId {
   }
 
   public static ChunkId generate() {
-    return new ChunkId(newUuidString());
+    return new ChunkId(generateUuidString());
   }
 }

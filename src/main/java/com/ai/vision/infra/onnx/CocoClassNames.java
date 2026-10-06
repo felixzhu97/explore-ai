@@ -89,14 +89,14 @@ public final class CocoClassNames {
   private CocoClassNames() {}
 
   /** Returns the COCO label for the class id, or {@code "unknown"} when out of range. */
-  public static String label(int classId) {
+  public static String getLabel(int classId) {
     if (classId < 0 || classId >= CLASSES.length) {
       return "unknown";
     }
     return CLASSES[classId];
   }
 
-  public static int classCount() {
+  public static int countClasses() {
     return CLASSES.length;
   }
 }

@@ -73,7 +73,7 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
   }
 
   @Override
-  public EvaluatorOptimizerResult loop(String task) {
+  public EvaluatorOptimizerResult runLoop(String task) {
     if (task == null || task.isBlank()) {
       throw new IllegalArgumentException("task must not be empty");
     }

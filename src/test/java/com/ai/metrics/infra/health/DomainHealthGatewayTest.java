@@ -44,7 +44,7 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report system status up")
   void shouldReportSystemStatusUp() {
-    assertThat(gateway.systemStatus()).isEqualTo(ModuleStatus.UP);
+    assertThat(gateway.getSystemStatus()).isEqualTo(ModuleStatus.UP);
   }
 
   @Test
@@ -56,7 +56,7 @@ class DomainHealthGatewayTest {
                 AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
                 AgentDefinition.create(AgentType.supervisor(), "Supervisor", "desc", "prompt")));
 
-    assertThat(gateway.agentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
+    assertThat(gateway.checkAgentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
   }
 
   @Test
@@ -64,22 +64,24 @@ class DomainHealthGatewayTest {
   void shouldReportAgentsDegradedWhenListEmptyOrUnhealthy() {
     when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of());
 
-    assertThat(gateway.agentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 0, 0));
+    assertThat(gateway.checkAgentsHealth())
+        .isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 0, 0));
 
     AgentDefinition unhealthy = mock(AgentDefinition.class);
     when(unhealthy.healthy()).thenReturn(false);
     when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of(unhealthy));
 
-    assertThat(gateway.agentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 1, 0));
+    assertThat(gateway.checkAgentsHealth())
+        .isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 1, 0));
   }
 
   @Test
   @DisplayName("should report mcp health with tool and server counts")
   void shouldReportMcpHealthWithToolAndServerCounts() {
-    when(mcpHealthProbe.registeredToolCount()).thenReturn(5);
-    when(mcpHealthProbe.connectedServerCount()).thenReturn(2);
+    when(mcpHealthProbe.countRegisteredTools()).thenReturn(5);
+    when(mcpHealthProbe.countConnectedServers()).thenReturn(2);
 
-    assertThat(gateway.mcpHealth()).isEqualTo(new McpHealth(ModuleStatus.UP, 5, 2));
+    assertThat(gateway.checkMcpHealth()).isEqualTo(new McpHealth(ModuleStatus.UP, 5, 2));
   }
 
   @Test
@@ -88,6 +90,6 @@ class DomainHealthGatewayTest {
     when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(null);
     gateway = new DomainHealthGateway(pipelineService, mcpHealthProbeProvider);
 
-    assertThat(gateway.mcpHealth()).isEqualTo(new McpHealth(ModuleStatus.DISABLED, 0, 0));
+    assertThat(gateway.checkMcpHealth()).isEqualTo(new McpHealth(ModuleStatus.DISABLED, 0, 0));
   }
 }

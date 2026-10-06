@@ -61,7 +61,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when health unknown")
     void shouldReturn404WhenHealthUnknown() {
-      when(pipelineService.health(eq("missing"), eq(ownerKey()), anyString()))
+      when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
           .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
 
       assertThat(
@@ -74,7 +74,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return ok for known agent health")
     void shouldReturnOkForKnownAgentHealth() {
-      when(pipelineService.health(eq("k8s"), eq(ownerKey()), anyString()))
+      when(pipelineService.getHealth(eq("k8s"), eq(ownerKey()), anyString()))
           .thenReturn(AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
 
       assertThat(
@@ -92,7 +92,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return 404 when agent unknown")
     void shouldReturn404WhenGetAgentUnknown() {
-      when(pipelineService.health(eq("missing"), eq(ownerKey()), anyString()))
+      when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
           .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
 
       assertThat(
@@ -105,7 +105,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return ok when agent known")
     void shouldReturnOkWhenGetAgentKnown() {
-      when(pipelineService.health(eq("k8s"), eq(ownerKey()), anyString()))
+      when(pipelineService.getHealth(eq("k8s"), eq(ownerKey()), anyString()))
           .thenReturn(AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
 
       assertThat(
@@ -168,7 +168,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should report module health")
     void shouldReportModuleHealth() {
-      when(pipelineService.builtinCount()).thenReturn(1);
+      when(pipelineService.countBuiltins()).thenReturn(1);
 
       assertThat(mvc.get().uri("/api/pipelines/health"))
           .hasStatusOk()

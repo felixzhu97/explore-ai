@@ -126,7 +126,7 @@ public class ChatService {
   }
 
   /** Streams a reply within a session, persisting both turns after completion. */
-  public Flux<String> chatStreamWithSession(
+  public Flux<String> streamChatWithSession(
       String sessionId, String userMessage, TextChatOptions options, String ownerKey) {
     return Flux.defer(
             () -> {
@@ -161,13 +161,13 @@ public class ChatService {
                           invocationRecorder.recordSuccess(
                               AiDomain.CHAT,
                               "chat.stream",
-                              elapsedMs(startedAt),
+                              measureElapsedMs(startedAt),
                               options.provider(),
                               options.model(),
                               sessionId);
                           Mono.fromRunnable(
                                   () ->
-                                      afterSessionStream(
+                                      finishSessionStream(
                                           session.getId(), sessionId, isFirstTurn, userMessage))
                               .subscribeOn(Schedulers.boundedElastic())
                               .subscribe();
@@ -181,7 +181,7 @@ public class ChatService {
                           invocationRecorder.recordError(
                               AiDomain.CHAT,
                               "chat.stream",
-                              elapsedMs(startedAt),
+                              measureElapsedMs(startedAt),
                               options.provider(),
                               options.model(),
                               sessionId,
@@ -196,7 +196,7 @@ public class ChatService {
   }
 
   /** Streams a reply for an ad-hoc message list without a session. */
-  public Flux<String> chatStream(
+  public Flux<String> streamChat(
       List<ChatMessage> messages, TextChatOptions options, String ownerKey) {
     String requestId = java.util.UUID.randomUUID().toString();
     ToolEventChannel.setCurrentSessionId(requestId);
@@ -238,7 +238,7 @@ public class ChatService {
       invocationRecorder.recordSuccess(
           AiDomain.CHAT,
           "chat.call",
-          elapsedMs(startedAt),
+          measureElapsedMs(startedAt),
           options.provider(),
           options.model(),
           null);
@@ -247,7 +247,7 @@ public class ChatService {
       invocationRecorder.recordError(
           AiDomain.CHAT,
           "chat.call",
-          elapsedMs(startedAt),
+          measureElapsedMs(startedAt),
           options.provider(),
           options.model(),
           null,
@@ -291,7 +291,7 @@ public class ChatService {
     chatMemory.clear(conversationId);
   }
 
-  private static long elapsedMs(long startedAtNanos) {
+  private static long measureElapsedMs(long startedAtNanos) {
     return (System.nanoTime() - startedAtNanos) / 1_000_000L;
   }
 
@@ -324,7 +324,7 @@ public class ChatService {
         .doOnNext(repaired::append)
         .map(this::sanitizeStreamToken)
         .filter(token -> !token.isEmpty())
-        .map(StreamTokenEvent::json)
+        .map(StreamTokenEvent::toJson)
         .doOnComplete(
             () -> {
               String text = ToolCallMarkupFilter.sanitize(repaired.toString());
@@ -363,7 +363,7 @@ public class ChatService {
       Flux<String> content, String channelId, String ownerKey, boolean toolsEnabled) {
     Flux<String> textTokens = content.map(this::sanitizeStreamToken);
     if (!toolsEnabled) {
-      return textTokens.filter(token -> !token.isEmpty()).map(StreamTokenEvent::json);
+      return textTokens.filter(token -> !token.isEmpty()).map(StreamTokenEvent::toJson);
     }
     Sinks.Many<String> sink = ToolEventChannel.open(channelId);
     ToolEventChannel.bindOwnerKey(channelId, ownerKey);
@@ -372,7 +372,7 @@ public class ChatService {
     Flux<String> textEvents =
         textTokens
             .filter(token -> !token.isEmpty())
-            .map(StreamTokenEvent::json)
+            .map(StreamTokenEvent::toJson)
             .doFinally(signal -> ToolEventChannel.close(channelId));
     return Flux.merge(toolEvents, textEvents);
   }
@@ -399,7 +399,7 @@ public class ChatService {
     }
   }
 
-  private void afterSessionStream(
+  private void finishSessionStream(
       ChatSessionId sessionId, String conversationId, boolean isFirstTurn, String userMessage) {
     repository
         .findById(sessionId)

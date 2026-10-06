@@ -32,7 +32,7 @@ public class PipelineTemplateService {
                 () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));
     return create(
         ownerKey,
-        nextAvailableName(ownerKey, template.name()),
+        findNextAvailableName(ownerKey, template.name()),
         template.description(),
         template.agentTypes(),
         template.shortTopic(),
@@ -103,7 +103,7 @@ public class PipelineTemplateService {
     }
   }
 
-  private String nextAvailableName(String ownerKey, String baseName) {
+  private String findNextAvailableName(String ownerKey, String baseName) {
     if (!repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, baseName, null)) {
       return baseName;
     }

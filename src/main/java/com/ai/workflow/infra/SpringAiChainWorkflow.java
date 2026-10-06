@@ -45,7 +45,7 @@ public class SpringAiChainWorkflow implements ChainWorkflow {
   private final ChatClientProvider chatClientProvider;
 
   @Override
-  public ChainResult chain(String userInput, String[] systemPrompts) {
+  public ChainResult runChain(String userInput, String[] systemPrompts) {
     Objects.requireNonNull(userInput, "userInput");
     String[] prompts =
         (systemPrompts == null || systemPrompts.length == 0)

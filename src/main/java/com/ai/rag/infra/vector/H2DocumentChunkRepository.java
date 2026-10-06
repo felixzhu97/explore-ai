@@ -45,7 +45,7 @@ public class H2DocumentChunkRepository
   @Override
   @Transactional
   public void saveChunk(DocumentChunk chunk) {
-    String embeddingString = arrayToJsonString(chunk.getEmbedding());
+    String embeddingString = toJsonArray(chunk.getEmbedding());
     String metadataJson = serializeMetadata(chunk.getMetadata());
 
     String ownerKey = resolveOwnerKey(chunk.getMetadata());
@@ -126,7 +126,8 @@ public class H2DocumentChunkRepository
         .sorted(
             Comparator.comparingDouble(
                     (DocumentChunk chunk) ->
-                        VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()))
+                        VectorSimilarity.calculateCosineSimilarity(
+                            queryEmbedding, chunk.getEmbedding()))
                 .reversed())
         .limit(topK)
         .toList();
@@ -138,7 +139,7 @@ public class H2DocumentChunkRepository
     if (documentIds.isEmpty()) {
       return List.of();
     }
-    StringBuilder sql = ownerScopedSelect(documentIds);
+    StringBuilder sql = buildOwnerScopedSelect(documentIds);
     sql.append(" ORDER BY chunk_index, document_id LIMIT ?");
     List<Object> args = new ArrayList<>();
     args.add(ownerKey);
@@ -152,10 +153,10 @@ public class H2DocumentChunkRepository
     args.add(ownerKey);
     args.addAll(documentIds);
     return jdbcTemplate.query(
-        ownerScopedSelect(documentIds).toString(), chunkRowMapper, args.toArray());
+        buildOwnerScopedSelect(documentIds).toString(), chunkRowMapper, args.toArray());
   }
 
-  private static StringBuilder ownerScopedSelect(List<UUID> documentIds) {
+  private static StringBuilder buildOwnerScopedSelect(List<UUID> documentIds) {
     StringBuilder sql =
         new StringBuilder("SELECT id, document_id, content, chunk_index, embedding, metadata,")
             .append(" created_at FROM ")
@@ -176,7 +177,7 @@ public class H2DocumentChunkRepository
     throw new IllegalArgumentException("Chunk metadata must carry an ownerKey");
   }
 
-  private String arrayToJsonString(float[] array) {
+  private String toJsonArray(float[] array) {
     if (array == null) {
       return "[]";
     }

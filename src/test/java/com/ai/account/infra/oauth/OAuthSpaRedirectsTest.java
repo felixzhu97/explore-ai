@@ -18,7 +18,8 @@ class OAuthSpaRedirectsTest {
     when(request.getServerName()).thenReturn("localhost");
     when(request.getServerPort()).thenReturn(4200);
 
-    String target = OAuthSpaRedirects.afterLogin(request, "http://127.0.0.1:4200/", "success");
+    String target =
+        OAuthSpaRedirects.buildAfterLoginUrl(request, "http://127.0.0.1:4200/", "success");
 
     assertThat(target).isEqualTo("http://localhost:4200/?login=success");
   }
@@ -30,7 +31,8 @@ class OAuthSpaRedirectsTest {
     when(request.getServerName()).thenReturn("api.example.com");
     when(request.getServerPort()).thenReturn(443);
 
-    String target = OAuthSpaRedirects.afterLogin(request, "https://www.felixzhu.chat/", "success");
+    String target =
+        OAuthSpaRedirects.buildAfterLoginUrl(request, "https://www.felixzhu.chat/", "success");
 
     assertThat(target).isEqualTo("https://www.felixzhu.chat/?login=success");
   }

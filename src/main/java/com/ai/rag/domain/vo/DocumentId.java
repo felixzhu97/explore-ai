@@ -28,7 +28,7 @@ public final class DocumentId extends AbstractUuidId {
   }
 
   public static DocumentId generate() {
-    return new DocumentId(newUuidString());
+    return new DocumentId(generateUuidString());
   }
 
   public UUID uuidValue() {

@@ -87,7 +87,8 @@ public class H2SpringAiVectorStore implements VectorStore {
 
     List<Document> results = new ArrayList<>();
     for (DocumentChunk chunk : chunks) {
-      double score = VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding());
+      double score =
+          VectorSimilarity.calculateCosineSimilarity(queryEmbedding, chunk.getEmbedding());
       if (score < threshold) {
         continue;
       }
@@ -95,7 +96,7 @@ public class H2SpringAiVectorStore implements VectorStore {
     }
     log.info("Retrieved {} chunks after score threshold {}", results.size(), threshold);
     if (results.isEmpty() && !documentIds.isEmpty()) {
-      return leadingChunks(queryEmbedding, ownerKey.get(), documentIds, topK);
+      return selectLeadingChunks(queryEmbedding, ownerKey.get(), documentIds, topK);
     }
     return results;
   }
@@ -104,7 +105,7 @@ public class H2SpringAiVectorStore implements VectorStore {
    * Overview questions ("what is this about?") match no passage, so selected documents answer from
    * their opening chunks instead.
    */
-  private List<Document> leadingChunks(
+  private List<Document> selectLeadingChunks(
       float[] queryEmbedding, String ownerKey, List<UUID> documentIds, int topK) {
     List<Document> results =
         chunkSearchRepository.findLeadingChunks(ownerKey, documentIds, topK).stream()
@@ -112,7 +113,8 @@ public class H2SpringAiVectorStore implements VectorStore {
                 chunk ->
                     toDocument(
                         chunk,
-                        VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding())))
+                        VectorSimilarity.calculateCosineSimilarity(
+                            queryEmbedding, chunk.getEmbedding())))
             .toList();
     log.info("Fell back to {} opening chunks of the selected documents", results.size());
     return results;

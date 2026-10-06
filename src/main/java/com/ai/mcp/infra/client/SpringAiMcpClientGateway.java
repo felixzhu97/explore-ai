@@ -65,7 +65,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
   public Map<String, McpServerConnection> listServers() {
     Map<String, McpServerConnection> servers = new LinkedHashMap<>();
     sessionRegistry
-        .activeSessions()
+        .listActiveSessions()
         .forEach(
             session ->
                 servers.put(
@@ -75,7 +75,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
   }
 
   @Override
-  public int toolCount() {
+  public int countTools() {
     return serverTools.values().stream().mapToInt(List::size).sum();
   }
 

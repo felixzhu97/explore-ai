@@ -19,6 +19,6 @@ public final class ScheduleId extends AbstractUuidId {
   }
 
   public static ScheduleId generate() {
-    return new ScheduleId(newUuidString());
+    return new ScheduleId(generateUuidString());
   }
 }

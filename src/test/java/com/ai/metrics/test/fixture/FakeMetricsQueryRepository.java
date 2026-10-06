@@ -33,12 +33,13 @@ public class FakeMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to) {
+  public LatencyStats calculateLatencyPercentiles(
+      Optional<AiDomain> domain, Instant from, Instant to) {
     return new LatencyStats(10.0, 40.0);
   }
 
   @Override
-  public TokenTotals tokenTotals(Optional<AiDomain> domain, Instant from, Instant to) {
+  public TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to) {
     return new TokenTotals(11L, 22L);
   }
 
@@ -58,47 +59,49 @@ public class FakeMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<NamedCount> topTools(Optional<AiDomain> domain, Instant from, Instant to, int limit) {
+  public List<NamedCount> listTopTools(
+      Optional<AiDomain> domain, Instant from, Instant to, int limit) {
     return topTools;
   }
 
   @Override
-  public List<TimePoint> dailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
     return dailyRequests;
   }
 
   @Override
-  public List<TimePoint> dailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
     return dailyErrors;
   }
 
   @Override
-  public List<TimePoint> dailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<TimePoint> calculateDailyLatencyP95(
+      Optional<AiDomain> domain, Instant from, Instant to) {
     return dailyLatency;
   }
 
   @Override
-  public List<TimePoint> dailySessionsCreated(Instant from, Instant to) {
+  public List<TimePoint> countDailySessionsCreated(Instant from, Instant to) {
     return List.of();
   }
 
   @Override
-  public List<TimePoint> dailyMessagesCreated(Instant from, Instant to) {
+  public List<TimePoint> countDailyMessagesCreated(Instant from, Instant to) {
     return List.of();
   }
 
   @Override
-  public List<TimePoint> dailyDocumentsUploaded(Instant from, Instant to) {
+  public List<TimePoint> countDailyDocumentsUploaded(Instant from, Instant to) {
     return List.of();
   }
 
   @Override
-  public ChatInventory chatInventory(Instant activeSince) {
+  public ChatInventory getChatInventory(Instant activeSince) {
     return new ChatInventory(0, 0, 0, 0);
   }
 
   @Override
-  public RagInventory ragInventory() {
+  public RagInventory getRagInventory() {
     return new RagInventory(0, documentsByStatus, 0, 0);
   }
 }

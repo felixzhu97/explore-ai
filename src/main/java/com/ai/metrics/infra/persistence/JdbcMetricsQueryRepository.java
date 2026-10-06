@@ -31,7 +31,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to) {
+  public LatencyStats calculateLatencyPercentiles(
+      Optional<AiDomain> domain, Instant from, Instant to) {
     StringBuilder sql = new StringBuilder("SELECT latency_ms FROM ai_invocation_event WHERE 1=1");
     List<Object> args = new ArrayList<>();
     appendDomainAndRange(sql, args, domain, from, to, true);
@@ -42,11 +43,12 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     if (latencies.isEmpty()) {
       return new LatencyStats(null, null);
     }
-    return new LatencyStats(percentile(latencies, 0.50), percentile(latencies, 0.95));
+    return new LatencyStats(
+        calculatePercentile(latencies, 0.50), calculatePercentile(latencies, 0.95));
   }
 
   @Override
-  public TokenTotals tokenTotals(Optional<AiDomain> domain, Instant from, Instant to) {
+  public TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -70,7 +72,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public List<NamedCount> countByDomain(Instant from, Instant to) {
-    return namedCounts(
+    return queryNamedCounts(
         """
                 SELECT domain AS name, COUNT(*) AS cnt
                 FROM ai_invocation_event
@@ -102,7 +104,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public List<NamedCount> countByAgentType(Instant from, Instant to) {
-    return namedCounts(
+    return queryNamedCounts(
         """
                 SELECT COALESCE(agent_type, 'unknown') AS name, COUNT(*) AS cnt
                 FROM ai_invocation_event
@@ -115,7 +117,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<NamedCount> topTools(Optional<AiDomain> domain, Instant from, Instant to, int limit) {
+  public List<NamedCount> listTopTools(
+      Optional<AiDomain> domain, Instant from, Instant to, int limit) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -134,17 +137,18 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<TimePoint> dailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
-    return dailyFromEvents("COUNT(*)", domain, from, to, null);
+  public List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
+    return countDailyFromEvents("COUNT(*)", domain, from, to, null);
   }
 
   @Override
-  public List<TimePoint> dailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
-    return dailyFromEvents("COUNT(*)", domain, from, to, "outcome = 'error'");
+  public List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
+    return countDailyFromEvents("COUNT(*)", domain, from, to, "outcome = 'error'");
   }
 
   @Override
-  public List<TimePoint> dailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<TimePoint> calculateDailyLatencyP95(
+      Optional<AiDomain> domain, Instant from, Instant to) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -165,12 +169,13 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         args.toArray());
     List<TimePoint> points = new ArrayList<>();
     byDay.forEach(
-        (day, values) -> points.add(new TimePoint(day, Math.round(percentile(values, 0.95)))));
+        (day, values) ->
+            points.add(new TimePoint(day, Math.round(calculatePercentile(values, 0.95)))));
     return points;
   }
 
   @Override
-  public List<TimePoint> dailySessionsCreated(Instant from, Instant to) {
+  public List<TimePoint> countDailySessionsCreated(Instant from, Instant to) {
     return jdbcTemplate.query(
         """
                 SELECT CAST(created_at AS DATE) AS bucket_day, COUNT(*) AS metric_value
@@ -185,7 +190,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<TimePoint> dailyMessagesCreated(Instant from, Instant to) {
+  public List<TimePoint> countDailyMessagesCreated(Instant from, Instant to) {
     return jdbcTemplate.query(
         """
                 SELECT CAST(timestamp AS DATE) AS bucket_day, COUNT(*) AS metric_value
@@ -200,7 +205,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<TimePoint> dailyDocumentsUploaded(Instant from, Instant to) {
+  public List<TimePoint> countDailyDocumentsUploaded(Instant from, Instant to) {
     return jdbcTemplate.query(
         """
                 SELECT CAST(created_at AS DATE) AS bucket_day, COUNT(*) AS metric_value
@@ -215,7 +220,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public ChatInventory chatInventory(Instant activeSince) {
+  public ChatInventory getChatInventory(Instant activeSince) {
     Long sessions = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM chat_session", Long.class);
     Long active =
         jdbcTemplate.queryForObject(
@@ -227,11 +232,14 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     Long webSources =
         jdbcTemplate.queryForObject("SELECT COUNT(*) FROM chat_web_sources", Long.class);
     return new ChatInventory(
-        nullToZero(sessions), nullToZero(active), nullToZero(messages), nullToZero(webSources));
+        toZeroIfNull(sessions),
+        toZeroIfNull(active),
+        toZeroIfNull(messages),
+        toZeroIfNull(webSources));
   }
 
   @Override
-  public RagInventory ragInventory() {
+  public RagInventory getRagInventory() {
     Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM rag_document", Long.class);
     Long chunks = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document_chunks", Long.class);
     Long bytes =
@@ -243,10 +251,11 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         rs -> {
           byStatus.put(rs.getString("status"), rs.getLong("cnt"));
         });
-    return new RagInventory(nullToZero(documents), byStatus, nullToZero(chunks), nullToZero(bytes));
+    return new RagInventory(
+        toZeroIfNull(documents), byStatus, toZeroIfNull(chunks), toZeroIfNull(bytes));
   }
 
-  private List<TimePoint> dailyFromEvents(
+  private List<TimePoint> countDailyFromEvents(
       String valueExpr, Optional<AiDomain> domain, Instant from, Instant to, String extraWhere) {
     StringBuilder sql =
         new StringBuilder(
@@ -265,7 +274,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         args.toArray());
   }
 
-  private List<NamedCount> namedCounts(String sql, Instant from, Instant to) {
+  private List<NamedCount> queryNamedCounts(String sql, Instant from, Instant to) {
     return jdbcTemplate.query(
         sql, (rs, rowNum) -> new NamedCount(rs.getString("name"), rs.getLong("cnt")), from, to);
   }
@@ -284,7 +293,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     List<Object> args = new ArrayList<>();
     appendDomainAndRange(sql, args, domain, from, to, alreadyHasWhere);
     Long count = jdbcTemplate.queryForObject(sql.toString(), Long.class, args.toArray());
-    return nullToZero(count);
+    return toZeroIfNull(count);
   }
 
   private void appendDomainAndRange(
@@ -305,11 +314,11 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     args.add(to);
   }
 
-  private static long nullToZero(Long value) {
+  private static long toZeroIfNull(Long value) {
     return value == null ? 0L : value;
   }
 
-  private static double percentile(List<Long> sortedValues, double percentile) {
+  private static double calculatePercentile(List<Long> sortedValues, double percentile) {
     if (sortedValues.isEmpty()) {
       return 0.0;
     }

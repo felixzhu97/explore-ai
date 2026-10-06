@@ -119,7 +119,7 @@ public class OnnxYoloDetector implements ObjectDetector {
 
     float confidenceThreshold = properties.getDetect().getConfidenceThreshold();
     float nmsThreshold = properties.getDetect().getNmsThreshold();
-    int classCount = CocoClassNames.classCount();
+    int classCount = CocoClassNames.countClasses();
     float scaleX = (float) sourceWidth / inputSize;
     float scaleY = (float) sourceHeight / inputSize;
 
@@ -151,7 +151,7 @@ public class OnnxYoloDetector implements ObjectDetector {
 
       candidates.add(
           new Detection(
-              CocoClassNames.label(bestClass),
+              CocoClassNames.getLabel(bestClass),
               bestScore,
               clamp(x, sourceWidth),
               clamp(y, sourceHeight),

@@ -19,6 +19,6 @@ public final class SavedAgentId extends AbstractUuidId {
   }
 
   public static SavedAgentId generate() {
-    return new SavedAgentId(newUuidString());
+    return new SavedAgentId(generateUuidString());
   }
 }

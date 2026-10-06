@@ -29,15 +29,15 @@ public class VisionController {
   private final VisionAnalysisService visionAnalysisService;
 
   @GetMapping("/health")
-  public VisionHealthResponse health() {
-    return visionAnalysisService.health();
+  public VisionHealthResponse getHealth() {
+    return visionAnalysisService.getHealth();
   }
 
   @PostMapping("/caption")
-  public CaptionResponse caption(@RequestParam(value = "file", required = false) MultipartFile file)
-      throws IOException {
+  public CaptionResponse captionImage(
+      @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
     validateFile(file);
-    return visionAnalysisService.caption(file);
+    return visionAnalysisService.captionImage(file);
   }
 
   @PostMapping("/detect")
@@ -48,10 +48,10 @@ public class VisionController {
   }
 
   @PostMapping("/ocr")
-  public OcrResponse ocr(@RequestParam(value = "file", required = false) MultipartFile file)
-      throws IOException {
+  public OcrResponse recognizeText(
+      @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
     validateFile(file);
-    return visionAnalysisService.ocr(file);
+    return visionAnalysisService.recognizeText(file);
   }
 
   private void validateFile(MultipartFile file) {

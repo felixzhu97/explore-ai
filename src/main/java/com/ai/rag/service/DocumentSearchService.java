@@ -50,12 +50,13 @@ public class DocumentSearchService {
         chunks.stream()
             .filter(
                 chunk ->
-                    VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding())
+                    VectorSimilarity.calculateCosineSimilarity(queryEmbedding, chunk.getEmbedding())
                         >= scoreThreshold)
             .sorted(
                 Comparator.comparingDouble(
                         (DocumentChunk chunk) ->
-                            VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()))
+                            VectorSimilarity.calculateCosineSimilarity(
+                                queryEmbedding, chunk.getEmbedding()))
                     .reversed())
             .toList();
 
@@ -71,7 +72,8 @@ public class DocumentSearchService {
                 chunk ->
                     new SourceDocument(
                         LogSanitizer.truncate(chunk.getContent(), MAX_CONTENT_LENGTH),
-                        VectorSimilarity.cosineSimilarity(queryEmbedding, chunk.getEmbedding()),
+                        VectorSimilarity.calculateCosineSimilarity(
+                            queryEmbedding, chunk.getEmbedding()),
                         chunk.getMetadata()))
             .toList();
 

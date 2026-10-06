@@ -15,7 +15,7 @@ class CronScheduleCalculatorTest {
   @Test
   void shouldComputeNextRunWhenCronValid() {
     Instant after = Instant.parse("2026-08-06T00:00:00Z");
-    Instant next = calculator.nextRunAt("0 0 9 * * *", "UTC", after);
+    Instant next = calculator.calculateNextRunAt("0 0 9 * * *", "UTC", after);
 
     assertThat(next).isEqualTo(Instant.parse("2026-08-06T09:00:00Z"));
   }

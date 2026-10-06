@@ -49,7 +49,7 @@ final class ToolCallLoopGuard {
   private ToolCallLoopGuard() {}
 
   static boolean hasToolResults(List<Message> messages) {
-    return toolResponseMessages(messages).size() > 0;
+    return filterToolResponseMessages(messages).size() > 0;
   }
 
   /**
@@ -57,22 +57,22 @@ final class ToolCallLoopGuard {
    * → search → done).
    */
   static boolean shouldForceFinalAnswer(List<Message> messages) {
-    List<ToolResponseMessage> toolMessages = toolResponseMessages(messages);
+    List<ToolResponseMessage> toolMessages = filterToolResponseMessages(messages);
     if (toolMessages.isEmpty()) {
       return false;
     }
     if (toolMessages.size() >= MAX_TOOL_ROUNDS) {
       return true;
     }
-    return toolNames(toolMessages).anyMatch(ToolCallLoopGuard::isTerminalTool);
+    return streamToolNames(toolMessages).anyMatch(ToolCallLoopGuard::isTerminalTool);
   }
 
   static boolean hasOnlyBridgeToolResults(List<Message> messages) {
-    List<ToolResponseMessage> toolMessages = toolResponseMessages(messages);
+    List<ToolResponseMessage> toolMessages = filterToolResponseMessages(messages);
     if (toolMessages.isEmpty()) {
       return false;
     }
-    return toolNames(toolMessages).allMatch(ToolCallLoopGuard::isBridgeTool);
+    return streamToolNames(toolMessages).allMatch(ToolCallLoopGuard::isBridgeTool);
   }
 
   static ChatOptions disableFurtherToolUse(ChatOptions options) {
@@ -113,7 +113,7 @@ final class ToolCallLoopGuard {
     return history;
   }
 
-  static org.springframework.ai.chat.client.ChatClientRequest maybeDisableToolsRequest(
+  static org.springframework.ai.chat.client.ChatClientRequest disableToolsIfNeeded(
       org.springframework.ai.chat.client.ChatClientRequest request) {
     List<Message> instructions = request.prompt().getInstructions();
     if (!shouldForceFinalAnswer(instructions)) {
@@ -126,7 +126,7 @@ final class ToolCallLoopGuard {
         .build();
   }
 
-  private static List<ToolResponseMessage> toolResponseMessages(List<Message> messages) {
+  private static List<ToolResponseMessage> filterToolResponseMessages(List<Message> messages) {
     if (messages == null || messages.isEmpty()) {
       return List.of();
     }
@@ -136,7 +136,7 @@ final class ToolCallLoopGuard {
         .toList();
   }
 
-  private static Stream<String> toolNames(List<ToolResponseMessage> toolMessages) {
+  private static Stream<String> streamToolNames(List<ToolResponseMessage> toolMessages) {
     return toolMessages.stream()
         .flatMap(message -> message.getResponses().stream())
         .map(ToolResponseMessage.ToolResponse::name);

@@ -48,15 +48,15 @@ final class CapturedWebSources {
     for (JsonNode item : itemsNode) {
       sources.add(
           new WebSource(
-              text(item, "title"),
-              text(item, "url"),
-              text(item, "snippet"),
-              text(item, "publishedAt")));
+              readText(item, "title"),
+              readText(item, "url"),
+              readText(item, "snippet"),
+              readText(item, "publishedAt")));
     }
     return sources;
   }
 
-  private static String text(JsonNode node, String field) {
+  private static String readText(JsonNode node, String field) {
     JsonNode value = node.get(field);
     return value == null || value.isNull() ? "" : value.asText("");
   }

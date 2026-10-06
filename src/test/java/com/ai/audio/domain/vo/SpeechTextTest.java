@@ -13,7 +13,7 @@ class SpeechTextTest {
   @Test
   @DisplayName("should count words")
   void shouldCountWords() {
-    assertThat(SpeechText.of("hello world").wordCount()).isEqualTo(2);
+    assertThat(SpeechText.of("hello world").countWords()).isEqualTo(2);
   }
 
   @Test

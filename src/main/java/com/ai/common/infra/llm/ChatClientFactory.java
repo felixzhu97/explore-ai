@@ -127,7 +127,7 @@ public class ChatClientFactory implements ChatClientProvider {
       }
       builder.defaultSystem(systemPrompt);
       if (withTools) {
-        ToolCallback[] callbacks = notifyingCallbacks(channelId);
+        ToolCallback[] callbacks = createNotifyingCallbacks(channelId);
         if (callbacks.length > 0) {
           builder.defaultToolCallbacks(callbacks);
         }
@@ -157,7 +157,7 @@ public class ChatClientFactory implements ChatClientProvider {
     return toolSearchEnabled;
   }
 
-  private ToolCallback[] notifyingCallbacks(String channelId) {
+  private ToolCallback[] createNotifyingCallbacks(String channelId) {
     String id = channelId == null ? "" : channelId;
     List<ToolCallback> callbacks = new ArrayList<>();
     Set<String> names = new HashSet<>();

@@ -25,14 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class McpController {
   @GetMapping("/health")
   @Operation(summary = "MCP Server health check")
-  public ResponseEntity<McpHealthResponse> health() {
+  public ResponseEntity<McpHealthResponse> getHealth() {
     return ResponseEntity.ok(
         new McpHealthResponse(HealthStatus.UP, "explore-ai-mcp-server", "1.0.0", "MCP 1.0"));
   }
 
   @GetMapping("/info")
   @Operation(summary = "Get MCP Server information")
-  public ResponseEntity<McpInfoResponse> info() {
+  public ResponseEntity<McpInfoResponse> getInfo() {
     return ResponseEntity.ok(
         new McpInfoResponse(
             "explore-ai-mcp-server",

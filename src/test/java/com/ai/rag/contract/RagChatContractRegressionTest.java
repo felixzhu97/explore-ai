@@ -178,7 +178,7 @@ class RagChatContractRegressionTest {
                   clientResponse("world", List.of()),
                   clientResponse("", List.of(source))));
       List<ServerSentEvent<String>> events =
-          ragChatService.chatStream("q", null, 5, null, OWNER).collectList().block();
+          ragChatService.streamChat("q", null, 5, null, OWNER).collectList().block();
       verify(requestSpec).stream();
       verify(requestSpec, never()).call();
       assertThat(events).hasSize(3);

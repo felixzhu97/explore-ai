@@ -41,7 +41,7 @@ public final class AgentPipeline {
   }
 
   /** Validates the graph and returns worker nodes in topological order. */
-  public List<PipelineNode> executionOrder() {
+  public List<PipelineNode> resolveExecutionOrder() {
     if (nodes.isEmpty()) {
       throw new IllegalArgumentException("pipeline must contain at least one agent node");
     }

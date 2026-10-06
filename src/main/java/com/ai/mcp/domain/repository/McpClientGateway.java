@@ -13,7 +13,7 @@ public interface McpClientGateway {
 
   Map<String, McpServerConnection> listServers();
 
-  int toolCount();
+  int countTools();
 
   void clearTools();
 }

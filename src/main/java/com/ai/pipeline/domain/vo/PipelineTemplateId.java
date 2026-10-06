@@ -19,6 +19,6 @@ public final class PipelineTemplateId extends AbstractUuidId {
   }
 
   public static PipelineTemplateId generate() {
-    return new PipelineTemplateId(newUuidString());
+    return new PipelineTemplateId(generateUuidString());
   }
 }

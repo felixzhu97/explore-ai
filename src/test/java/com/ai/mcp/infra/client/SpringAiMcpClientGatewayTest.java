@@ -28,7 +28,7 @@ class SpringAiMcpClientGatewayTest {
     void shouldRegisterToolsFromMcpServer() {
       repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
 
-      assertThat(repository.toolCount()).isEqualTo(2);
+      assertThat(repository.countTools()).isEqualTo(2);
       assertThat(repository.listServers().keySet()).contains("test-server");
     }
 
@@ -38,7 +38,7 @@ class SpringAiMcpClientGatewayTest {
       repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
       repository.registerToolCallbacks(createMockTools("tool3", "tool4"), "server2");
 
-      assertThat(repository.toolCount()).isEqualTo(4);
+      assertThat(repository.countTools()).isEqualTo(4);
       assertThat(repository.listServers().keySet()).hasSize(2);
     }
 
@@ -48,7 +48,7 @@ class SpringAiMcpClientGatewayTest {
       repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
       repository.registerToolCallbacks(createMockTools("tool3"), "test-server");
 
-      assertThat(repository.toolCount()).isEqualTo(1);
+      assertThat(repository.countTools()).isEqualTo(1);
       assertThat(repository.listTools()).extracting("name").containsExactly("tool3");
       assertThat(repository.listServers().keySet()).contains("test-server");
     }
@@ -65,7 +65,7 @@ class SpringAiMcpClientGatewayTest {
 
       repository.clearTools();
 
-      assertThat(repository.toolCount()).isEqualTo(0);
+      assertThat(repository.countTools()).isEqualTo(0);
       assertThat(repository.listServers()).isEmpty();
     }
   }

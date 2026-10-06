@@ -73,7 +73,7 @@ class AccountServiceTest {
 
   @Test
   void shouldReturnAnonymousWhenNoAuthentication() {
-    var response = useCase.currentAccount("cid-1");
+    var response = useCase.getCurrentAccount("cid-1");
 
     assertThat(response.mode()).isEqualTo(AccountMode.ANONYMOUS);
     assertThat(response.clientId()).isEqualTo("cid-1");
@@ -88,7 +88,7 @@ class AccountServiceTest {
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-    var response = useCase.currentAccount("cid-1");
+    var response = useCase.getCurrentAccount("cid-1");
 
     assertThat(response.mode()).isEqualTo(AccountMode.ANONYMOUS);
   }
@@ -106,7 +106,7 @@ class AccountServiceTest {
     when(accountUserRepository.findByProviderAndSubject("google", "sub-1"))
         .thenReturn(Optional.of(linked));
 
-    var response = useCase.currentAccount("cid-1");
+    var response = useCase.getCurrentAccount("cid-1");
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("user@example.com");
@@ -132,7 +132,7 @@ class AccountServiceTest {
     when(accountUserRepository.findByProviderAndSubject("github", "42"))
         .thenReturn(Optional.of(linked));
 
-    var response = useCase.currentAccount("cid-gh");
+    var response = useCase.getCurrentAccount("cid-gh");
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("octocat@github.com");
@@ -156,7 +156,7 @@ class AccountServiceTest {
     when(accountUserRepository.findByProviderAndSubject("github", "42"))
         .thenReturn(Optional.of(linked));
 
-    var response = useCase.currentAccount("cid-gh");
+    var response = useCase.getCurrentAccount("cid-gh");
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("octocat");
@@ -177,7 +177,7 @@ class AccountServiceTest {
     AccountUser linked = AccountUser.create("google", "sub-2", "u@example.com", "cid-2");
     when(accountUserRepository.findByLinkedClientId("cid-2")).thenReturn(Optional.of(linked));
 
-    var response = useCase.currentAccount("cid-2");
+    var response = useCase.getCurrentAccount("cid-2");
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("u@example.com");
@@ -234,7 +234,7 @@ class AccountServiceTest {
     when(accountUserRepository.findByProviderAndSubject("explore-iam", "iam-sub-1"))
         .thenReturn(Optional.of(linked));
 
-    var response = useCase.currentAccount(null);
+    var response = useCase.getCurrentAccount(null);
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("iam@example.com");
@@ -260,7 +260,7 @@ class AccountServiceTest {
     when(accountUserRepository.save(org.mockito.ArgumentMatchers.any(AccountUser.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    var response = useCase.currentAccount(null);
+    var response = useCase.getCurrentAccount(null);
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("new@example.com");

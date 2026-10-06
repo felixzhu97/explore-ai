@@ -50,7 +50,7 @@ public class VisionChatService {
       HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
-  public Flux<ServerSentEvent<String>> chatStreamWithImages(
+  public Flux<ServerSentEvent<String>> streamChatWithImages(
       String question, List<String> documentIds, List<String> images, int topK, String ownerKey) {
     log.info(
         "Vision RAG stream request: {} with {} images",
@@ -65,7 +65,7 @@ public class VisionChatService {
     List<SourceDocument> sources = retrievalResult.sources();
 
     return streamVision(prompt, mediaList)
-        .concatWith(Flux.defer(() -> sourceEvents(sources)))
+        .concatWith(Flux.defer(() -> buildSourceEvents(sources)))
         .doOnComplete(() -> log.info("Vision RAG stream completed successfully"));
   }
 
@@ -89,23 +89,24 @@ public class VisionChatService {
           .content()
           .filter(piece -> !piece.isEmpty())
           .map(
-              piece -> ServerSentEvent.<String>builder().data(StreamTokenEvent.json(piece)).build())
+              piece ->
+                  ServerSentEvent.<String>builder().data(StreamTokenEvent.toJson(piece)).build())
           .onErrorResume(
               ex -> {
                 log.error("Error in vision stream: {}", ex.getMessage(), ex);
-                return Flux.just(errorEvent("Error processing images: " + ex.getMessage()));
+                return Flux.just(buildErrorEvent("Error processing images: " + ex.getMessage()));
               });
     } catch (RuntimeException ex) {
       log.error("Error starting vision stream: {}", ex.getMessage(), ex);
-      return Flux.just(errorEvent("Error processing images: " + ex.getMessage()));
+      return Flux.just(buildErrorEvent("Error processing images: " + ex.getMessage()));
     }
   }
 
-  private static ServerSentEvent<String> errorEvent(String message) {
+  private static ServerSentEvent<String> buildErrorEvent(String message) {
     return ServerSentEvent.<String>builder().event("error").data(message).build();
   }
 
-  private Flux<ServerSentEvent<String>> sourceEvents(List<SourceDocument> sources) {
+  private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceDocument> sources) {
     if (sources.isEmpty()) {
       return Flux.empty();
     }

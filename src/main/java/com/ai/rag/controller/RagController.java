@@ -79,17 +79,17 @@ public class RagController {
 
   @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "RAG streaming chat")
-  public Flux<ServerSentEvent<String>> ragChatStream(
+  public Flux<ServerSentEvent<String>> streamRagChat(
       @Valid @RequestBody RagChatRequest request, HttpServletRequest httpRequest) {
     String ownerKey = ownerContext.requireValue(httpRequest);
     if (!request.images().isEmpty()) {
       VisionChatService visionChat = visionChatService.getIfAvailable();
       if (visionChat != null) {
-        return visionChat.chatStreamWithImages(
+        return visionChat.streamChatWithImages(
             request.question(), request.documentIds(), request.images(), request.topK(), ownerKey);
       }
     }
-    return ragChatService.chatStream(
+    return ragChatService.streamChat(
         request.question(), request.documentIds(), request.topK(), request.sessionId(), ownerKey);
   }
 

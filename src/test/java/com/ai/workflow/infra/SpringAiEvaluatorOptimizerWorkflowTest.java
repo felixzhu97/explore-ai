@@ -48,7 +48,7 @@ class SpringAiEvaluatorOptimizerWorkflowTest {
             new SpringAiEvaluatorOptimizerWorkflow.EvaluationEntity(
                 SpringAiEvaluatorOptimizerWorkflow.EvaluationStatus.PASS, "looks good"));
 
-    EvaluatorOptimizerResult result = workflow.loop("Implement a counter");
+    EvaluatorOptimizerResult result = workflow.runLoop("Implement a counter");
 
     assertThat(result.solution()).isEqualTo("class Solution {}");
     assertThat(result.chainOfThought()).hasSize(1);

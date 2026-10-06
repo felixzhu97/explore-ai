@@ -114,7 +114,7 @@ public class AutomationService {
         schedule.enable(schedule.getNextRunAt());
       } else {
         Instant next =
-            cronCalculator.nextRunAt(
+            cronCalculator.calculateNextRunAt(
                 schedule.getCronExpression(), schedule.getTimezone(), Instant.now());
         schedule.enable(next);
       }
@@ -145,7 +145,7 @@ public class AutomationService {
           ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, runAt);
     }
     cronCalculator.validate(cronExpression, timezone);
-    Instant next = cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());
+    Instant next = cronCalculator.calculateNextRunAt(cronExpression, timezone, Instant.now());
     return AutomationSchedule.create(
         ownerKey, name, cronExpression, timezone, pipelineTemplateId, recipientEmail, brief, next);
   }
@@ -156,7 +156,7 @@ public class AutomationService {
       return AutomationSchedule.requireFutureRunAt(runAt, Instant.now());
     }
     cronCalculator.validate(cronExpression, timezone);
-    return cronCalculator.nextRunAt(cronExpression, timezone, Instant.now());
+    return cronCalculator.calculateNextRunAt(cronExpression, timezone, Instant.now());
   }
 
   private AutomationSchedule requireOwned(String ownerKey, String scheduleId) {

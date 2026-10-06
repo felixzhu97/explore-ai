@@ -48,7 +48,7 @@ class AccountControllerTest {
     @Test
     @DisplayName("should return anonymous account when client identity present")
     void shouldReturnAnonymousAccountWhenClientIdentityPresent() {
-      when(accountService.currentAccount("cid-123"))
+      when(accountService.getCurrentAccount("cid-123"))
           .thenReturn(
               new AccountMeResponse(
                   AccountMode.ANONYMOUS,
@@ -71,13 +71,13 @@ class AccountControllerTest {
       assertThat(result).bodyJson().extractingPath("$.plan").asString().isEqualTo("free");
       assertThat(result).bodyJson().extractingPath("$.loginAvailable").asBoolean().isFalse();
       assertThat(result).bodyJson().extractingPath("$.userId").isNull();
-      verify(accountService).currentAccount("cid-123");
+      verify(accountService).getCurrentAccount("cid-123");
     }
 
     @Test
     @DisplayName("should return account when IAM JWT present without client cookie")
     void shouldReturnAccountWhenIamJwtPresentWithoutClientCookie() {
-      when(accountService.currentAccount(null))
+      when(accountService.getCurrentAccount(null))
           .thenReturn(
               new AccountMeResponse(
                   AccountMode.AUTHENTICATED,
@@ -104,7 +104,7 @@ class AccountControllerTest {
 
       assertThat(result).hasStatusOk();
       assertThat(result).bodyJson().extractingPath("$.mode").asString().isEqualTo("authenticated");
-      verify(accountService).currentAccount(null);
+      verify(accountService).getCurrentAccount(null);
     }
 
     @Test

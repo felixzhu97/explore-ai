@@ -49,9 +49,9 @@ public class PipelineController {
   }
 
   @GetMapping("/health")
-  public ResponseEntity<PipelineModuleHealthResponse> moduleHealth() {
+  public ResponseEntity<PipelineModuleHealthResponse> getModuleHealth() {
     return ResponseEntity.ok(
-        new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.builtinCount()));
+        new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.countBuiltins()));
   }
 
   @GetMapping("/{agentType}")
@@ -63,14 +63,14 @@ public class PipelineController {
       String ownerKey = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentInfoResponse.from(
-              pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
+              pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
     }
   }
 
   @GetMapping("/{agentType}/health")
-  public ResponseEntity<AgentHealthResponse> health(
+  public ResponseEntity<AgentHealthResponse> getHealth(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
@@ -78,7 +78,7 @@ public class PipelineController {
       String ownerKey = ownerContext.requireValue(request);
       return ResponseEntity.ok(
           AgentHealthResponse.from(
-              pipelineService.health(agentType, ownerKey, resolveLanguage(lang, request))));
+              pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
     } catch (AgentNotFoundException e) {
       return ResponseEntity.notFound().build();
     }

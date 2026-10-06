@@ -6,7 +6,7 @@ package com.ai.metrics.domain.repository;
  */
 public interface McpHealthProbe {
 
-  int registeredToolCount();
+  int countRegisteredTools();
 
-  int connectedServerCount();
+  int countConnectedServers();
 }

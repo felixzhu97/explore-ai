@@ -80,7 +80,7 @@ class JdbcMetricsQueryRepositoryTest {
         .thenReturn(List.of());
 
     MetricsQueryRepository.LatencyStats stats =
-        repository.latencyPercentiles(Optional.of(AiDomain.RAG), from, to);
+        repository.calculateLatencyPercentiles(Optional.of(AiDomain.RAG), from, to);
 
     assertThat(stats.p50Ms()).isNull();
     assertThat(stats.p95Ms()).isNull();
@@ -104,7 +104,7 @@ class JdbcMetricsQueryRepositoryTest {
             });
 
     MetricsQueryRepository.LatencyStats stats =
-        repository.latencyPercentiles(Optional.empty(), from, to);
+        repository.calculateLatencyPercentiles(Optional.empty(), from, to);
 
     assertThat(stats.p50Ms()).isEqualTo(30.0);
     assertThat(stats.p95Ms()).isEqualTo(88.0);
@@ -128,7 +128,7 @@ class JdbcMetricsQueryRepositoryTest {
         .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
 
     MetricsQueryRepository.TokenTotals totals =
-        repository.tokenTotals(Optional.of(AiDomain.CHAT), from, to);
+        repository.sumTokens(Optional.of(AiDomain.CHAT), from, to);
 
     assertThat(totals.promptTokens()).isEqualTo(120L);
     assertThat(totals.completionTokens()).isEqualTo(45L);
@@ -149,7 +149,7 @@ class JdbcMetricsQueryRepositoryTest {
         .when(jdbcTemplate)
         .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
 
-    MetricsQueryRepository.TokenTotals totals = repository.tokenTotals(Optional.empty(), from, to);
+    MetricsQueryRepository.TokenTotals totals = repository.sumTokens(Optional.empty(), from, to);
 
     assertThat(totals.promptTokens()).isZero();
     assertThat(totals.completionTokens()).isZero();
@@ -182,7 +182,7 @@ class JdbcMetricsQueryRepositoryTest {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of());
 
-    repository.topTools(Optional.of(AiDomain.TOOLS), from, to, 0);
+    repository.listTopTools(Optional.of(AiDomain.TOOLS), from, to, 0);
 
     verify(jdbcTemplate).query(contains("LIMIT ?"), any(RowMapper.class), any(Object[].class));
   }
@@ -201,11 +201,11 @@ class JdbcMetricsQueryRepositoryTest {
               return List.of(mapper.mapRow(rs, 0));
             });
 
-    assertThat(repository.dailyRequests(Optional.of(AiDomain.CHAT), from, to)).hasSize(1);
-    assertThat(repository.dailyErrors(Optional.empty(), from, to)).hasSize(1);
-    assertThat(repository.dailySessionsCreated(from, to)).hasSize(1);
-    assertThat(repository.dailyMessagesCreated(from, to)).hasSize(1);
-    assertThat(repository.dailyDocumentsUploaded(from, to)).hasSize(1);
+    assertThat(repository.countDailyRequests(Optional.of(AiDomain.CHAT), from, to)).hasSize(1);
+    assertThat(repository.countDailyErrors(Optional.empty(), from, to)).hasSize(1);
+    assertThat(repository.countDailySessionsCreated(from, to)).hasSize(1);
+    assertThat(repository.countDailyMessagesCreated(from, to)).hasSize(1);
+    assertThat(repository.countDailyDocumentsUploaded(from, to)).hasSize(1);
   }
 
   @Test
@@ -226,7 +226,7 @@ class JdbcMetricsQueryRepositoryTest {
         .query(anyString(), any(RowCallbackHandler.class), any(Object[].class));
 
     List<MetricsQueryRepository.TimePoint> points =
-        repository.dailyLatencyP95(Optional.of(AiDomain.AGENTS), from, to);
+        repository.calculateDailyLatencyP95(Optional.of(AiDomain.AGENTS), from, to);
 
     assertThat(points).hasSize(2);
     assertThat(points.get(0).day()).isEqualTo("2026-07-01");
@@ -251,7 +251,7 @@ class JdbcMetricsQueryRepositoryTest {
     when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM chat_web_sources"), eq(Long.class)))
         .thenReturn(1L);
 
-    MetricsQueryRepository.ChatInventory inventory = repository.chatInventory(from);
+    MetricsQueryRepository.ChatInventory inventory = repository.getChatInventory(from);
 
     assertThat(inventory.sessionCount()).isZero();
     assertThat(inventory.activeSessionCount()).isEqualTo(2L);
@@ -283,7 +283,7 @@ class JdbcMetricsQueryRepositoryTest {
             eq("SELECT status, COUNT(*) AS cnt FROM rag_document GROUP BY status"),
             any(RowCallbackHandler.class));
 
-    MetricsQueryRepository.RagInventory inventory = repository.ragInventory();
+    MetricsQueryRepository.RagInventory inventory = repository.getRagInventory();
 
     assertThat(inventory.documentCount()).isEqualTo(4L);
     assertThat(inventory.chunkCount()).isEqualTo(12L);

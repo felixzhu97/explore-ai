@@ -115,7 +115,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use session stream when sessionId provided")
     void shouldUseSessionStreamWhenSessionIdProvided() {
-      when(chatService.chatStreamWithSession(
+      when(chatService.streamChatWithSession(
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
@@ -144,7 +144,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
           .contains("Hi")
           .contains("there");
       verify(chatService)
-          .chatStreamWithSession(
+          .streamChatWithSession(
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.of("openai", "deepseek-v4-flash", false),
@@ -168,7 +168,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use stateless stream when sessionId missing")
     void shouldUseStatelessStreamWhenSessionIdMissing() {
-      when(chatService.chatStream(any(), any(TextChatOptions.class), eq(ownerKey())))
+      when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerKey())))
           .thenReturn(Flux.just("token"));
 
       assertThat(
@@ -198,7 +198,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
       com.ai.skill.domain.vo.SkillId skillId = skill.getId();
       when(skillRepository.findEnabledByOwnerKeyAndIds(eq(ownerKey()), any()))
           .thenReturn(List.of(skill));
-      when(chatService.chatStream(any(), any(TextChatOptions.class), eq(ownerKey())))
+      when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerKey())))
           .thenReturn(Flux.just("ok"));
 
       assertThat(
@@ -221,7 +221,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
           .hasStatusOk();
 
       verify(chatService)
-          .chatStream(
+          .streamChat(
               any(),
               org.mockito.ArgumentMatchers.argThat(
                   options ->

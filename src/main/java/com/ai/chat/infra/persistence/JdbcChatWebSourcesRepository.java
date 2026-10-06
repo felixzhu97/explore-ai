@@ -40,7 +40,7 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
         || sources.isEmpty()) {
       return;
     }
-    String contentHash = ContentHash.sha256(assistantContent);
+    String contentHash = ContentHash.computeSha256(assistantContent);
     String sourcesJson;
     try {
       sourcesJson = objectMapper.writeValueAsString(sources);

@@ -11,7 +11,7 @@ public final class ContentHash {
   private ContentHash() {}
 
   /** Returns the lowercase hex SHA-256 digest of the UTF-8 content. */
-  public static String sha256(String content) {
+  public static String computeSha256(String content) {
     try {
       byte[] digest =
           MessageDigest.getInstance("SHA-256").digest(content.getBytes(StandardCharsets.UTF_8));

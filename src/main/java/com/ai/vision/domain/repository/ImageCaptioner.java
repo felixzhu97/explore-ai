@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 
 /** Generates a natural-language caption for an image and reports model availability. */
 public interface ImageCaptioner {
-  CaptionResult caption(BufferedImage image);
+  CaptionResult captionImage(BufferedImage image);
 
   boolean isAvailable();
 }

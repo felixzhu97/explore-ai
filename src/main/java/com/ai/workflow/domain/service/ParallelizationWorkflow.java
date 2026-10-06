@@ -13,5 +13,5 @@ public interface ParallelizationWorkflow {
    * @param items independent inputs (order preserved in the result)
    * @param parallelism fixed thread-pool size (&gt; 0)
    */
-  ParallelizationResult parallel(String prompt, List<String> items, int parallelism);
+  ParallelizationResult runParallel(String prompt, List<String> items, int parallelism);
 }

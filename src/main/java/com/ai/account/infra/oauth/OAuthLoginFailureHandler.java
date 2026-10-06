@@ -24,7 +24,8 @@ public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
       HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
       throws IOException {
     response.sendRedirect(
-        OAuthSpaRedirects.afterLogin(request, spaProperties.getSuccessRedirectUrl(), "error"));
+        OAuthSpaRedirects.buildAfterLoginUrl(
+            request, spaProperties.getSuccessRedirectUrl(), "error"));
   }
 
   /** Visible for unit tests. */

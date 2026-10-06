@@ -50,7 +50,7 @@ class JdbcChatWebSourcesRepositoryTest {
         .update(
             startsWith("MERGE INTO chat_web_sources"),
             eq("conv-1"),
-            eq(ContentHash.sha256("Assistant reply")),
+            eq(ContentHash.computeSha256("Assistant reply")),
             eq("query text"),
             contains("https://example.com"),
             any());
@@ -66,7 +66,7 @@ class JdbcChatWebSourcesRepositoryTest {
   @Test
   @DisplayName("should load sources by conversation")
   void shouldLoadSourcesByConversation() throws Exception {
-    String hash = ContentHash.sha256("reply");
+    String hash = ContentHash.computeSha256("reply");
     String json =
         new ObjectMapper().writeValueAsString(List.of(new WebSource("T", "https://a.com", "s")));
 

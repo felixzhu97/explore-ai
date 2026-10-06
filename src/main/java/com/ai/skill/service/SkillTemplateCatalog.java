@@ -50,7 +50,7 @@ public final class SkillTemplateCatalog {
   }
 
   /** Returns the template's display names across all supported languages. */
-  public static Set<String> namesForTemplate(String templateId) {
+  public static Set<String> listNamesForTemplate(String templateId) {
     Set<String> names = new LinkedHashSet<>();
     if (templateId == null || templateId.isBlank()) {
       return names;

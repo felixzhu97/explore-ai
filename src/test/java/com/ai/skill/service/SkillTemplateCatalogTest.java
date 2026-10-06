@@ -53,7 +53,7 @@ class SkillTemplateCatalogTest {
   @Test
   @DisplayName("should collect name aliases when template exists")
   void shouldCollectNameAliasesWhenTemplateExists() {
-    assertThat(SkillTemplateCatalog.namesForTemplate("brief-style"))
+    assertThat(SkillTemplateCatalog.listNamesForTemplate("brief-style"))
         .contains("Brief Style", "简洁风格", "簡潔スタイル", "Style concis", "Estilo breve");
   }
 

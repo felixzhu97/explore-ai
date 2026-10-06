@@ -38,11 +38,11 @@ public class McpSessionRegistry {
     }
   }
 
-  public List<McpSession> activeSessions() {
+  public List<McpSession> listActiveSessions() {
     return sessions.values().stream().filter(McpSession::isActive).toList();
   }
 
-  public int activeSessionCount() {
+  public int countActiveSessions() {
     return (int) sessions.values().stream().filter(McpSession::isActive).count();
   }
 

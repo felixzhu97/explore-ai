@@ -19,12 +19,12 @@ public class DomainHealthGateway implements MetricsHealthGateway {
   private final ObjectProvider<McpHealthProbe> mcpHealthProbe;
 
   @Override
-  public ModuleStatus systemStatus() {
+  public ModuleStatus getSystemStatus() {
     return ModuleStatus.UP;
   }
 
   @Override
-  public AgentsHealth agentsHealth() {
+  public AgentsHealth checkAgentsHealth() {
     List<AgentDefinition> agents = pipelineService.listAgents(null, "en");
     long healthy = agents.stream().filter(AgentDefinition::healthy).count();
     ModuleStatus status =
@@ -33,12 +33,12 @@ public class DomainHealthGateway implements MetricsHealthGateway {
   }
 
   @Override
-  public McpHealth mcpHealth() {
+  public McpHealth checkMcpHealth() {
     McpHealthProbe probe = mcpHealthProbe.getIfAvailable();
     if (probe == null) {
       return new McpHealth(ModuleStatus.DISABLED, 0, 0);
     }
     return new McpHealth(
-        ModuleStatus.UP, probe.registeredToolCount(), probe.connectedServerCount());
+        ModuleStatus.UP, probe.countRegisteredTools(), probe.countConnectedServers());
   }
 }

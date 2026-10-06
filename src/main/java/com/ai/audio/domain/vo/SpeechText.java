@@ -21,7 +21,7 @@ public record SpeechText(String value) {
   }
 
   /** Returns the number of whitespace-separated words in the text. */
-  public int wordCount() {
+  public int countWords() {
     if (value.isBlank()) {
       return 0;
     }

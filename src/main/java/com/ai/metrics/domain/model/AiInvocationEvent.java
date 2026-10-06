@@ -98,16 +98,16 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     this.operation = requireNonBlank(builder.operation, "operation");
     this.outcome = Objects.requireNonNull(builder.outcome, "outcome");
     this.latencyMs = Math.max(0L, builder.latencyMs);
-    this.provider = blankToNull(builder.provider);
-    this.model = blankToNull(builder.model);
-    this.sessionId = blankToNull(builder.sessionId);
-    this.documentId = blankToNull(builder.documentId);
-    this.agentType = blankToNull(builder.agentType);
-    this.toolName = blankToNull(builder.toolName);
+    this.provider = toNullIfBlank(builder.provider);
+    this.model = toNullIfBlank(builder.model);
+    this.sessionId = toNullIfBlank(builder.sessionId);
+    this.documentId = toNullIfBlank(builder.documentId);
+    this.agentType = toNullIfBlank(builder.agentType);
+    this.toolName = toNullIfBlank(builder.toolName);
     this.promptTokens = builder.promptTokens;
     this.completionTokens = builder.completionTokens;
-    this.errorCode = blankToNull(builder.errorCode);
-    this.errorMessage = truncate(blankToNull(builder.errorMessage), 512);
+    this.errorCode = toNullIfBlank(builder.errorCode);
+    this.errorMessage = truncate(toNullIfBlank(builder.errorMessage), 512);
     this.ownerKey = toOwnerKey(builder.ownerKey);
   }
 
@@ -131,7 +131,7 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     return value.trim();
   }
 
-  private static String blankToNull(String value) {
+  private static String toNullIfBlank(String value) {
     return value == null || value.isBlank() ? null : value.trim();
   }
 

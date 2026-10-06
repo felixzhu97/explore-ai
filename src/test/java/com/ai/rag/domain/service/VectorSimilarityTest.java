@@ -26,7 +26,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, 2.0f, 3.0f};
       float[] b = {1.0f, 2.0f, 3.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -37,7 +37,7 @@ class VectorSimilarityTest {
       float[] a = {0.0f, 0.0f, 0.0f};
       float[] b = {0.0f, 0.0f, 0.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(0.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -48,7 +48,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, 2.0f, 3.0f};
       float[] b = {-1.0f, -2.0f, -3.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(-1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -59,7 +59,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, 0.0f, 0.0f};
       float[] b = {0.0f, 1.0f, 0.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(0.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -70,7 +70,7 @@ class VectorSimilarityTest {
       float[] a = null;
       float[] b = {1.0f, 2.0f, 3.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isEqualTo(0.0);
     }
@@ -81,7 +81,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, 2.0f, 3.0f};
       float[] b = null;
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isEqualTo(0.0);
     }
@@ -92,7 +92,7 @@ class VectorSimilarityTest {
       float[] a = null;
       float[] b = null;
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isEqualTo(0.0);
     }
@@ -103,7 +103,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, 2.0f, 3.0f};
       float[] b = {1.0f, 2.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isEqualTo(0.0);
     }
@@ -114,7 +114,7 @@ class VectorSimilarityTest {
       float[] a = {5.0f};
       float[] b = {10.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -125,7 +125,7 @@ class VectorSimilarityTest {
       float[] a = {-1.0f, -2.0f, -3.0f};
       float[] b = {1.0f, 2.0f, 3.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(-1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -136,7 +136,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, -2.0f, 3.0f};
       float[] b = {2.0f, -4.0f, 6.0f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -151,7 +151,7 @@ class VectorSimilarityTest {
         b[i] = (float) Math.random();
       }
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isBetween(-1.0, 1.0);
     }
@@ -162,7 +162,7 @@ class VectorSimilarityTest {
       float[] a = {0.0001f, 0.0002f};
       float[] b = {0.0001f, 0.0002f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -173,7 +173,7 @@ class VectorSimilarityTest {
       float[] a = {1_000_000f, 2_000_000f};
       float[] b = {1_000_000f, 2_000_000f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.0001));
     }
@@ -184,7 +184,7 @@ class VectorSimilarityTest {
       float[] a = {1.0f, 0.0f};
       float[] b = {0.7071f, 0.7071f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isCloseTo(0.7071, org.assertj.core.data.Offset.offset(0.01));
     }
@@ -195,7 +195,7 @@ class VectorSimilarityTest {
       float[] a = {0.5f, -0.3f, 0.8f};
       float[] b = {0.2f, 0.4f, -0.1f};
 
-      double similarity = VectorSimilarity.cosineSimilarity(a, b);
+      double similarity = VectorSimilarity.calculateCosineSimilarity(a, b);
 
       assertThat(similarity).isBetween(-1.0, 1.0);
     }

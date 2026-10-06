@@ -11,14 +11,14 @@ class StreamTokenEventTest {
   @Test
   @DisplayName("should keep the leading space of a token inside the JSON payload")
   void shouldKeepTheLeadingSpaceOfATokenInsideTheJsonPayload() {
-    assertThat(StreamTokenEvent.json(" HER"))
+    assertThat(StreamTokenEvent.toJson(" HER"))
         .isEqualTo("{\"type\":\"message\",\"token\":\" HER\"}");
   }
 
   @Test
   @DisplayName("should escape newlines so a token stays on one SSE data line")
   void shouldEscapeNewlinesSoATokenStaysOnOneSseDataLine() {
-    assertThat(StreamTokenEvent.json("a\nb"))
+    assertThat(StreamTokenEvent.toJson("a\nb"))
         .isEqualTo("{\"type\":\"message\",\"token\":\"a\\nb\"}");
   }
 }

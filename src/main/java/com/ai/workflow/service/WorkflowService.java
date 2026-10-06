@@ -26,23 +26,23 @@ public class WorkflowService {
   private final OrchestratorWorkersWorkflow orchestratorWorkersWorkflow;
   private final EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow;
 
-  public ChainResult chain(String userInput, String[] systemPrompts) {
-    return chainWorkflow.chain(userInput, systemPrompts);
+  public ChainResult runChain(String userInput, String[] systemPrompts) {
+    return chainWorkflow.runChain(userInput, systemPrompts);
   }
 
-  public ParallelizationResult parallel(String prompt, List<String> items, int parallelism) {
-    return parallelizationWorkflow.parallel(prompt, items, parallelism);
+  public ParallelizationResult runParallel(String prompt, List<String> items, int parallelism) {
+    return parallelizationWorkflow.runParallel(prompt, items, parallelism);
   }
 
   public RoutingResult route(String input, Map<String, String> routes) {
     return routingWorkflow.route(input, routes);
   }
 
-  public OrchestratorWorkersResult orchestratorWorkers(String task) {
+  public OrchestratorWorkersResult runOrchestratorWorkers(String task) {
     return orchestratorWorkersWorkflow.process(task);
   }
 
-  public EvaluatorOptimizerResult evaluatorOptimizer(String task) {
-    return evaluatorOptimizerWorkflow.loop(task);
+  public EvaluatorOptimizerResult runEvaluatorOptimizer(String task) {
+    return evaluatorOptimizerWorkflow.runLoop(task);
   }
 }

@@ -19,6 +19,6 @@ public final class InvocationEventId extends AbstractUuidId {
   }
 
   public static InvocationEventId generate() {
-    return new InvocationEventId(newUuidString());
+    return new InvocationEventId(generateUuidString());
   }
 }

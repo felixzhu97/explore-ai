@@ -16,7 +16,7 @@ public class LaunchDarklyProperties {
   private String sdkKey = "";
   private Map<String, Boolean> fallback = new HashMap<>();
 
-  public boolean fallbackFor(String flagKey) {
+  public boolean resolveFallback(String flagKey) {
     return fallback.getOrDefault(flagKey, false);
   }
 }

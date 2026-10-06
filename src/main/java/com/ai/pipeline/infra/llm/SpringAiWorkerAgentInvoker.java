@@ -46,7 +46,7 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
                 return Flux.just(answer);
               });
     }
-    return basePrompt(agent, task).stream()
+    return buildBasePrompt(agent, task).stream()
         .content()
         .map(ToolCallMarkupFilter::sanitize)
         .filter(chunk -> chunk != null && !chunk.isEmpty());
@@ -54,7 +54,7 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
   @Override
   public String invoke(AgentDefinition agent, String task) {
-    String content = basePrompt(agent, task).call().content();
+    String content = buildBasePrompt(agent, task).call().content();
     return ToolCallMarkupFilter.sanitize(content == null ? "" : content);
   }
 
@@ -62,14 +62,14 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     return agent.toolKeys() != null && !agent.toolKeys().isEmpty();
   }
 
-  private ChatClient.ChatClientRequestSpec basePrompt(AgentDefinition agent, String task) {
+  private ChatClient.ChatClientRequestSpec buildBasePrompt(AgentDefinition agent, String task) {
     // BARE avoids factory-wide tool defaults; attach only this worker's tools below.
     ChatClient client =
         chatClientProvider.create(TextChatOptions.defaults(), ChatClientProfile.BARE, null);
     String systemPrompt = agentSkillsRuntime.augmentSystemPrompt(agent.systemPrompt());
     ChatClient.ChatClientRequestSpec spec = client.prompt().system(systemPrompt).user(task);
 
-    agentSkillsRuntime.skillToolCallback().ifPresent(spec::toolCallbacks);
+    agentSkillsRuntime.findSkillToolCallback().ifPresent(spec::toolCallbacks);
 
     Object[] tools = resolveTools(agent.toolKeys());
     if (tools.length > 0) {

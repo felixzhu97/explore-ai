@@ -21,6 +21,6 @@ public record PipelineTemplateDefinitionResponse(
         template.agentTypes(),
         template.shortTopic(),
         template.briefPrompt(),
-        List.copyOf(PipelineTemplateCatalog.namesForTemplate(template.id())));
+        List.copyOf(PipelineTemplateCatalog.listNamesForTemplate(template.id())));
   }
 }

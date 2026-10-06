@@ -19,6 +19,6 @@ public final class RunId extends AbstractUuidId {
   }
 
   public static RunId generate() {
-    return new RunId(newUuidString());
+    return new RunId(generateUuidString());
   }
 }

@@ -40,13 +40,13 @@ final class ToolCallLoopGuardAdvisor extends ToolCallingAdvisor {
   @Override
   protected ChatClientRequest doBeforeCall(
       ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {
-    return ToolCallLoopGuard.maybeDisableToolsRequest(chatClientRequest);
+    return ToolCallLoopGuard.disableToolsIfNeeded(chatClientRequest);
   }
 
   @Override
   protected ChatClientRequest doBeforeStream(
       ChatClientRequest chatClientRequest, StreamAdvisorChain streamAdvisorChain) {
-    return ToolCallLoopGuard.maybeDisableToolsRequest(chatClientRequest);
+    return ToolCallLoopGuard.disableToolsIfNeeded(chatClientRequest);
   }
 
   static final class Builder extends ToolCallingAdvisor.Builder<Builder> {

@@ -44,13 +44,13 @@ public class OAuthClientConfig {
       OAuthExploreIamProperties exploreIamProperties) {
     List<ClientRegistration> registrations = new ArrayList<>();
     if (googleProperties.isReady()) {
-      registrations.add(googleRegistration(googleProperties));
+      registrations.add(buildGoogleRegistration(googleProperties));
     }
     if (githubProperties.isReady()) {
-      registrations.add(githubRegistration(githubProperties));
+      registrations.add(buildGithubRegistration(githubProperties));
     }
     if (exploreIamProperties.isReady()) {
-      registrations.add(exploreIamRegistration(exploreIamProperties));
+      registrations.add(buildExploreIamRegistration(exploreIamProperties));
     }
     if (registrations.isEmpty()) {
       throw new IllegalStateException("OAuth enabled but no provider has client credentials ready");
@@ -58,7 +58,7 @@ public class OAuthClientConfig {
     return new InMemoryClientRegistrationRepository(registrations);
   }
 
-  private static ClientRegistration googleRegistration(OAuthGoogleProperties properties) {
+  private static ClientRegistration buildGoogleRegistration(OAuthGoogleProperties properties) {
     return ClientRegistration.withRegistrationId("google")
         .clientId(properties.getClientId())
         .clientSecret(properties.getClientSecret())
@@ -75,7 +75,7 @@ public class OAuthClientConfig {
         .build();
   }
 
-  private static ClientRegistration githubRegistration(OAuthGithubProperties properties) {
+  private static ClientRegistration buildGithubRegistration(OAuthGithubProperties properties) {
     return CommonOAuth2Provider.GITHUB
         .getBuilder("github")
         .clientId(properties.getClientId())
@@ -85,7 +85,8 @@ public class OAuthClientConfig {
         .build();
   }
 
-  private static ClientRegistration exploreIamRegistration(OAuthExploreIamProperties properties) {
+  private static ClientRegistration buildExploreIamRegistration(
+      OAuthExploreIamProperties properties) {
     return ClientRegistrations.fromIssuerLocation(properties.getIssuerUri())
         .registrationId("explore-iam")
         .clientId(properties.getClientId())

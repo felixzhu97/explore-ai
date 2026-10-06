@@ -237,7 +237,7 @@ class ToolCallLoopGuardTest {
                       List.of(toolResponse("call-1", "searchWeb", "hits")), options))
               .build();
 
-      var adjusted = ToolCallLoopGuard.maybeDisableToolsRequest(request);
+      var adjusted = ToolCallLoopGuard.disableToolsIfNeeded(request);
 
       OpenAiChatOptions disabled = (OpenAiChatOptions) adjusted.prompt().getOptions();
       assertThat(disabled.getToolChoice()).isEqualTo("none");
