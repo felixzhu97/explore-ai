@@ -47,7 +47,7 @@ public class SkillService {
                 () -> new IllegalArgumentException("Unknown skill template: " + templateId));
     return create(
         ownerKey,
-        nextAvailableName(ownerKey, template.name()),
+        findNextAvailableName(ownerKey, template.name()),
         template.description(),
         template.instructions(),
         template.allowedTools());
@@ -95,7 +95,7 @@ public class SkillService {
     }
   }
 
-  private String nextAvailableName(String ownerKey, String baseName) {
+  private String findNextAvailableName(String ownerKey, String baseName) {
     if (!skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, baseName, null)) {
       return baseName;
     }

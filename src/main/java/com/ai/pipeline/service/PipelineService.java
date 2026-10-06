@@ -22,12 +22,12 @@ public class PipelineService {
     return orchestrator.listAgents(ownerKey, language);
   }
 
-  public int builtinCount() {
+  public int countBuiltins() {
     return registry.listBuiltins("en").size();
   }
 
-  public AgentDefinition health(String agentType, String ownerKey, String language) {
-    return orchestrator.health(AgentType.of(agentType), ownerKey, language);
+  public AgentDefinition getHealth(String agentType, String ownerKey, String language) {
+    return orchestrator.getHealth(AgentType.of(agentType), ownerKey, language);
   }
 
   public Flux<ServerSentEvent<String>> invokeSupervisor(

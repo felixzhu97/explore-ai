@@ -103,7 +103,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
   }
 
   @Override
-  public CaptionResult caption(BufferedImage image) {
+  public CaptionResult captionImage(BufferedImage image) {
     ensureAvailable();
     try {
       float[] pixelValues = BlipImagePreprocessor.preprocess(image);
@@ -190,7 +190,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
             OnnxTensor.createTensor(
                 environment,
                 LongBuffer.wrap(encoderOutput.attentionMask()),
-                attentionMaskShape(encoderOutput))) {
+                buildAttentionMaskShape(encoderOutput))) {
 
       Map<String, OnnxTensor> decoderInputs = new HashMap<>();
       decoderInputs.put("input_ids", inputIdsTensor);
@@ -206,13 +206,13 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
         try (OnnxValue logits = logitsValue) {
           float[][][] logitsArray = (float[][][]) ((OnnxTensor) logits).getValue();
           float[] lastLogits = logitsArray[0][generated.size() - 1];
-          return argmax(lastLogits);
+          return findMaxIndex(lastLogits);
         }
       }
     }
   }
 
-  private long argmax(float[] values) {
+  private long findMaxIndex(float[] values) {
     long bestIndex = 0;
     float bestValue = Float.NEGATIVE_INFINITY;
     for (int i = 0; i < values.length; i++) {
@@ -241,7 +241,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
     }
   }
 
-  private long[] attentionMaskShape(EncoderOutput encoderOutput) {
+  private long[] buildAttentionMaskShape(EncoderOutput encoderOutput) {
     long maskLength = encoderOutput.attentionMask().length;
     if (maskLength == 1) {
       return new long[] {1};

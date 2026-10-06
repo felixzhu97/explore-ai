@@ -70,16 +70,16 @@ public class TextProviderCatalog {
   public List<ProviderInfoResponse> listProviders() {
     return List.of(
         new ProviderInfoResponse(
-            "openai", "DeepSeek", modelNames("openai"), ProviderStatus.AVAILABLE),
+            "openai", "DeepSeek", listModelNames("openai"), ProviderStatus.AVAILABLE),
         new ProviderInfoResponse(
             "anthropic",
             "Anthropic Claude",
-            modelNames("anthropic"),
+            listModelNames("anthropic"),
             ProviderStatus.of(anthropicEnabled)),
         new ProviderInfoResponse(
             "ollama",
             "Ollama (Local)",
-            modelNames("ollama"),
+            listModelNames("ollama"),
             ProviderStatus.of(ollamaChatEnabled)));
   }
 
@@ -88,7 +88,7 @@ public class TextProviderCatalog {
     return MODELS_BY_PROVIDER.getOrDefault(key, MODELS_BY_PROVIDER.get("openai"));
   }
 
-  private List<String> modelNames(String provider) {
+  private List<String> listModelNames(String provider) {
     return listModels(provider).stream().map(ModelInfoResponse::name).toList();
   }
 }

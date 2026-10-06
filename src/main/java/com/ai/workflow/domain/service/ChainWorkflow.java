@@ -11,5 +11,5 @@ public interface ChainWorkflow {
    * @param userInput initial user content
    * @param systemPrompts ordered step instructions; empty uses implementation defaults
    */
-  ChainResult chain(String userInput, String[] systemPrompts);
+  ChainResult runChain(String userInput, String[] systemPrompts);
 }

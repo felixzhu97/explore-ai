@@ -42,7 +42,7 @@ public class RagSearchTool implements DocumentSearchTool {
     if (query == null || query.isBlank()) {
       return "请提供有效的搜索查询";
     }
-    Optional<String> ownerKey = currentOwnerKey();
+    Optional<String> ownerKey = getCurrentOwnerKey();
     if (ownerKey.isEmpty()) {
       return UNKNOWN_OWNER_MESSAGE;
     }
@@ -74,7 +74,7 @@ public class RagSearchTool implements DocumentSearchTool {
   @Override
   @Tool(name = "list_documents", description = "List all documents in the knowledge base")
   public String listDocuments() {
-    Optional<String> ownerKey = currentOwnerKey();
+    Optional<String> ownerKey = getCurrentOwnerKey();
     if (ownerKey.isEmpty()) {
       return UNKNOWN_OWNER_MESSAGE;
     }
@@ -103,8 +103,8 @@ public class RagSearchTool implements DocumentSearchTool {
     }
   }
 
-  private Optional<String> currentOwnerKey() {
-    Optional<String> bound = ToolEventChannel.currentOwnerKey();
+  private Optional<String> getCurrentOwnerKey() {
+    Optional<String> bound = ToolEventChannel.getCurrentOwnerKey();
     if (bound.isPresent()) {
       return bound;
     }

@@ -47,23 +47,23 @@ public class MetricsController {
 
   @GetMapping("/overview")
   @Operation(summary = "AI metrics overview")
-  public ResponseEntity<MetricsOverviewResponse> overview(
+  public ResponseEntity<MetricsOverviewResponse> getOverview(
       @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toOverview(metricsService.overview(range)));
+    return ResponseEntity.ok(toOverview(metricsService.getOverview(range)));
   }
 
   @GetMapping("/series")
   @Operation(summary = "Metrics time series or categorical series")
-  public ResponseEntity<SeriesResponse> series(
+  public ResponseEntity<SeriesResponse> getSeries(
       @RequestParam String name,
       @RequestParam(required = false) String domain,
       @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toSeries(metricsService.series(name, domain, range)));
+    return ResponseEntity.ok(toSeries(metricsService.getSeries(name, domain, range)));
   }
 
   @GetMapping("/drilldown")
   @Operation(summary = "Paged AI invocation events for drill-down")
-  public ResponseEntity<DrilldownPageResponse> drilldown(
+  public ResponseEntity<DrilldownPageResponse> getDrilldown(
       @RequestParam(required = false) String domain,
       @RequestParam(required = false) String from,
       @RequestParam(required = false) String to,
@@ -77,15 +77,15 @@ public class MetricsController {
       @RequestParam(defaultValue = "7d") String range) {
     return ResponseEntity.ok(
         toDrilldown(
-            metricsService.drilldown(
+            metricsService.getDrilldown(
                 domain, from, to, day, outcome, model, agentType, toolName, page, size, range)));
   }
 
   @GetMapping("/domains/{domain}")
   @Operation(summary = "Domain-scoped AI metrics")
-  public ResponseEntity<MetricsDomainResponse> domain(
+  public ResponseEntity<MetricsDomainResponse> getDomain(
       @PathVariable String domain, @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toDomain(metricsService.domain(domain, range)));
+    return ResponseEntity.ok(toDomain(metricsService.getDomain(domain, range)));
   }
 
   private MetricsOverviewResponse toOverview(MetricsOverview overview) {

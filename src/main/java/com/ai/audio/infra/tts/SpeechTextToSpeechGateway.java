@@ -53,7 +53,7 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
   public SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("text", text.value());
-    String qwenSpeaker = qwenSpeakerOrNull(voiceSelection);
+    String qwenSpeaker = resolveQwenSpeaker(voiceSelection);
     if (qwenSpeaker != null) {
       body.put("voice", qwenSpeaker);
     }
@@ -87,7 +87,7 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
   }
 
   /** Prefer Qwen speakers; omit OpenAI aliases so speech picks TTS_SPEAKER. */
-  static String qwenSpeakerOrNull(VoiceSelection voiceSelection) {
+  static String resolveQwenSpeaker(VoiceSelection voiceSelection) {
     String voice = voiceSelection.voice();
     return OPENAI_VOICES.contains(voice.toLowerCase()) ? null : voice;
   }

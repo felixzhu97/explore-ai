@@ -19,6 +19,6 @@ public record SkillTemplateResponse(
         template.description(),
         template.instructions(),
         template.allowedTools(),
-        List.copyOf(SkillTemplateCatalog.namesForTemplate(template.id())));
+        List.copyOf(SkillTemplateCatalog.listNamesForTemplate(template.id())));
   }
 }

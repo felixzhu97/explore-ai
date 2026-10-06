@@ -18,27 +18,27 @@ public interface MetricsQueryRepository {
 
   List<NamedCount> countByAgentType(Instant from, Instant to);
 
-  LatencyStats latencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to);
+  LatencyStats calculateLatencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to);
 
-  TokenTotals tokenTotals(Optional<AiDomain> domain, Instant from, Instant to);
+  TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to);
 
-  List<NamedCount> topTools(Optional<AiDomain> domain, Instant from, Instant to, int limit);
+  List<NamedCount> listTopTools(Optional<AiDomain> domain, Instant from, Instant to, int limit);
 
-  List<TimePoint> dailyRequests(Optional<AiDomain> domain, Instant from, Instant to);
+  List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to);
 
-  List<TimePoint> dailyErrors(Optional<AiDomain> domain, Instant from, Instant to);
+  List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to);
 
-  List<TimePoint> dailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to);
+  List<TimePoint> calculateDailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to);
 
-  List<TimePoint> dailySessionsCreated(Instant from, Instant to);
+  List<TimePoint> countDailySessionsCreated(Instant from, Instant to);
 
-  List<TimePoint> dailyMessagesCreated(Instant from, Instant to);
+  List<TimePoint> countDailyMessagesCreated(Instant from, Instant to);
 
-  List<TimePoint> dailyDocumentsUploaded(Instant from, Instant to);
+  List<TimePoint> countDailyDocumentsUploaded(Instant from, Instant to);
 
-  ChatInventory chatInventory(Instant activeSince);
+  ChatInventory getChatInventory(Instant activeSince);
 
-  RagInventory ragInventory();
+  RagInventory getRagInventory();
 
   record LatencyStats(Double p50Ms, Double p95Ms) {}
 

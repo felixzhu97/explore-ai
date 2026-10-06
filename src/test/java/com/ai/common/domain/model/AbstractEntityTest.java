@@ -16,7 +16,7 @@ class AbstractEntityTest {
     }
 
     static TestEntityId generate() {
-      return new TestEntityId(newUuidString());
+      return new TestEntityId(generateUuidString());
     }
   }
 

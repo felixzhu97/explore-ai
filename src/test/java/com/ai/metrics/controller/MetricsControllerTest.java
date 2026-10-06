@@ -66,7 +66,7 @@ class MetricsControllerTest {
                   new AgentsHealth(ModuleStatus.UP, 2, 2),
                   new McpHealth(ModuleStatus.DISABLED, 0, 0),
                   ModuleStatus.UP));
-      when(metricsService.overview("7d")).thenReturn(overview);
+      when(metricsService.getOverview("7d")).thenReturn(overview);
 
       var result = mvc.get().uri("/api/metrics/overview").param("range", "7d").exchange();
 
@@ -92,7 +92,7 @@ class MetricsControllerTest {
           .extractingPath("$.domains.system.status")
           .asString()
           .isEqualTo("UP");
-      verify(metricsService).overview("7d");
+      verify(metricsService).getOverview("7d");
     }
   }
 
@@ -117,7 +117,7 @@ class MetricsControllerTest {
               new DomainInventory.Chat(new ChatInventory(3, 1, 10, 0)),
               List.of(new SeriesPoint("2026-07-01", 5)),
               List.of(new SeriesPoint("gpt", 4)));
-      when(metricsService.domain("chat", "7d")).thenReturn(snapshot);
+      when(metricsService.getDomain("chat", "7d")).thenReturn(snapshot);
 
       assertThat(mvc.get().uri("/api/metrics/domains/chat").param("range", "7d"))
           .hasStatusOk()
@@ -151,7 +151,7 @@ class MetricsControllerTest {
     void shouldMapSeriesResponseFromService() {
       SeriesSnapshot snapshot =
           new SeriesSnapshot("requests", "chat", "7d", List.of(new SeriesPoint("2026-07-01", 9)));
-      when(metricsService.series("requests", "chat", "7d")).thenReturn(snapshot);
+      when(metricsService.getSeries("requests", "chat", "7d")).thenReturn(snapshot);
 
       assertThat(
               mvc.get()
@@ -203,7 +203,8 @@ class MetricsControllerTest {
               .promptTokens(11)
               .completionTokens(22)
               .build();
-      when(metricsService.drilldown("tools", null, null, null, null, null, null, null, 0, 20, "7d"))
+      when(metricsService.getDrilldown(
+              "tools", null, null, null, null, null, null, null, 0, 20, "7d"))
           .thenReturn(new DrilldownPage(List.of(event), 1, 0, 20));
 
       assertThat(
@@ -245,7 +246,8 @@ class MetricsControllerTest {
               .outcome(InvocationOutcome.SUCCESS)
               .latencyMs(25)
               .build();
-      when(metricsService.drilldown("tools", null, null, null, null, null, null, null, 0, 20, "7d"))
+      when(metricsService.getDrilldown(
+              "tools", null, null, null, null, null, null, null, 0, 20, "7d"))
           .thenReturn(new DrilldownPage(List.of(event), 1, 0, 20));
 
       assertThat(

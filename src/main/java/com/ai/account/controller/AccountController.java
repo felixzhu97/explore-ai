@@ -28,12 +28,12 @@ public class AccountController {
   private final AccountService accountService;
 
   @GetMapping("/me")
-  public ResponseEntity<AccountMeResponse> me(HttpServletRequest request) {
+  public ResponseEntity<AccountMeResponse> getCurrentAccount(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken) {
-      return ResponseEntity.ok(accountService.currentAccount(null));
+      return ResponseEntity.ok(accountService.getCurrentAccount(null));
     }
     String clientId = ClientIdentity.require(request);
-    return ResponseEntity.ok(accountService.currentAccount(clientId));
+    return ResponseEntity.ok(accountService.getCurrentAccount(clientId));
   }
 }

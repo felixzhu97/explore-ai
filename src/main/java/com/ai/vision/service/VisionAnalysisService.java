@@ -58,7 +58,7 @@ public class VisionAnalysisService {
   }
 
   /** Reports each vision provider's status, overall UP only when all three are available. */
-  public VisionHealthResponse health() {
+  public VisionHealthResponse getHealth() {
     VisionProvidersResponse providers =
         new VisionProvidersResponse(
             HealthStatus.of(captioner.isAvailable()),
@@ -69,12 +69,12 @@ public class VisionAnalysisService {
   }
 
   /** Captions the uploaded image, recording latency and the invocation outcome. */
-  public CaptionResponse caption(MultipartFile file) throws IOException {
+  public CaptionResponse captionImage(MultipartFile file) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
-      var result = captioner.caption(image);
-      long processingTimeMs = elapsedMillis(startedAt);
+      var result = captioner.captionImage(image);
+      long processingTimeMs = measureElapsedMillis(startedAt);
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiDomain.VISION, "vision.caption", processingTimeMs, null, null, null);
@@ -83,7 +83,7 @@ public class VisionAnalysisService {
       invocationRecorder.recordError(
           AiDomain.VISION,
           "vision.caption",
-          elapsedMillis(startedAt),
+          measureElapsedMillis(startedAt),
           null,
           null,
           null,
@@ -100,7 +100,7 @@ public class VisionAnalysisService {
     try {
       List<DetectionResponse> detections =
           detector.detect(image).stream().map(this::toDto).toList();
-      long processingTimeMs = elapsedMillis(startedAt);
+      long processingTimeMs = measureElapsedMillis(startedAt);
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiDomain.VISION, "vision.detect", processingTimeMs, null, null, null);
@@ -109,7 +109,7 @@ public class VisionAnalysisService {
       invocationRecorder.recordError(
           AiDomain.VISION,
           "vision.detect",
-          elapsedMillis(startedAt),
+          measureElapsedMillis(startedAt),
           null,
           null,
           null,
@@ -120,12 +120,12 @@ public class VisionAnalysisService {
   }
 
   /** Extracts text from the uploaded image, recording latency and the invocation outcome. */
-  public OcrResponse ocr(MultipartFile file) throws IOException {
+  public OcrResponse recognizeText(MultipartFile file) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
       var result = ocrEngine.extract(image);
-      long processingTimeMs = elapsedMillis(startedAt);
+      long processingTimeMs = measureElapsedMillis(startedAt);
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiDomain.VISION, "vision.ocr", processingTimeMs, null, null, null);
@@ -134,7 +134,7 @@ public class VisionAnalysisService {
       invocationRecorder.recordError(
           AiDomain.VISION,
           "vision.ocr",
-          elapsedMillis(startedAt),
+          measureElapsedMillis(startedAt),
           null,
           null,
           null,
@@ -161,7 +161,7 @@ public class VisionAnalysisService {
     }
   }
 
-  private long elapsedMillis(long startedAtNanos) {
+  private long measureElapsedMillis(long startedAtNanos) {
     return (System.nanoTime() - startedAtNanos) / 1_000_000L;
   }
 }

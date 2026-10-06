@@ -37,7 +37,7 @@ public class ChatController {
   private final OwnerContext ownerContext;
 
   @GetMapping("/health")
-  public ResponseEntity<HealthResponse> health() {
+  public ResponseEntity<HealthResponse> getHealth() {
     return ResponseEntity.ok(HealthResponse.up());
   }
 
@@ -106,7 +106,7 @@ public class ChatController {
     if (!message.isFromAssistant() || sourcesByHash.isEmpty()) {
       return MessageInfoResponse.from(message);
     }
-    List<WebSource> sources = sourcesByHash.get(ContentHash.sha256(message.getText()));
+    List<WebSource> sources = sourcesByHash.get(ContentHash.computeSha256(message.getText()));
     if (sources == null || sources.isEmpty()) {
       return MessageInfoResponse.from(message);
     }

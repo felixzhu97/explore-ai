@@ -23,11 +23,11 @@ public class DailyUsageQuotaService {
     return properties.isQuotaEnabled();
   }
 
-  public int dailyLimit() {
-    return properties.dailyLimit();
+  public int getDailyLimit() {
+    return properties.resolveDailyLimit();
   }
 
-  public String plan() {
+  public String getPlan() {
     return properties.getPlan();
   }
 
@@ -51,7 +51,7 @@ public class DailyUsageQuotaService {
               return existing;
             });
     int used = counter.count.incrementAndGet();
-    if (used > properties.dailyLimit()) {
+    if (used > properties.resolveDailyLimit()) {
       counter.count.decrementAndGet();
       return false;
     }
@@ -59,16 +59,16 @@ public class DailyUsageQuotaService {
   }
 
   /** Returns the client's unused requests for the current UTC day. */
-  public int remaining(String clientId) {
+  public int countRemaining(String clientId) {
     if (!properties.isQuotaEnabled()) {
-      return properties.dailyLimit();
+      return properties.resolveDailyLimit();
     }
     String day = LocalDate.now(ZoneOffset.UTC).toString();
     DayCounter counter = counters.get(clientId);
     if (counter == null || !counter.day.equals(day)) {
-      return properties.dailyLimit();
+      return properties.resolveDailyLimit();
     }
-    return Math.max(0, properties.dailyLimit() - counter.count.get());
+    return Math.max(0, properties.resolveDailyLimit() - counter.count.get());
   }
 
   private static final class DayCounter {

@@ -27,7 +27,7 @@ public class McpService {
   private final ChatClientProvider chatClientProvider;
 
   public int getTotalToolCount() {
-    return mcpClientGateway.toolCount();
+    return mcpClientGateway.countTools();
   }
 
   public Map<String, McpServerConnection> getConnectedServers() {

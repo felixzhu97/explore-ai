@@ -11,9 +11,9 @@ public interface MetricsHealthGateway {
   /** MCP client health: DISABLED when the MCP module is off. */
   record McpHealth(ModuleStatus status, long registeredTools, long connectedServers) {}
 
-  ModuleStatus systemStatus();
+  ModuleStatus getSystemStatus();
 
-  AgentsHealth agentsHealth();
+  AgentsHealth checkAgentsHealth();
 
-  McpHealth mcpHealth();
+  McpHealth checkMcpHealth();
 }

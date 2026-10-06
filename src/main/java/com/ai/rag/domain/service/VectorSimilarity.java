@@ -17,7 +17,7 @@ public final class VectorSimilarity {
    * @param b Second vector
    * @return Cosine similarity score between -1 and 1, or 0.0 if vectors are invalid
    */
-  public static double cosineSimilarity(float[] a, float[] b) {
+  public static double calculateCosineSimilarity(float[] a, float[] b) {
     if (a == null || b == null || a.length != b.length) {
       return 0.0;
     }

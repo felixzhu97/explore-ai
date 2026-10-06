@@ -109,7 +109,7 @@ public class AgentSkillLoader {
             description,
             parseAllowedTools(frontmatter.get("allowed-tools")),
             content.substring(end + 3).trim(),
-            resourceLocationFor(resource)));
+            resolveResourceLocation(resource)));
   }
 
   private static Map<String, String> parseFrontmatter(String yaml) {
@@ -155,7 +155,7 @@ public class AgentSkillLoader {
     return List.copyOf(tools);
   }
 
-  private static String resourceLocationFor(Resource resource) throws IOException {
+  private static String resolveResourceLocation(Resource resource) throws IOException {
     String uri = resource.getURI().toString();
     int skillMarker = uri.lastIndexOf("/SKILL.md");
     return skillMarker >= 0 ? uri.substring(0, skillMarker) : uri;

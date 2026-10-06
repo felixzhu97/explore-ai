@@ -26,9 +26,9 @@ public class LocalizedRagPromptBuilder {
   /** Renders the user prompt for the language, or its no-context message when context is blank. */
   public String build(String question, String context, String languageCode) {
     if (context == null || context.isBlank()) {
-      return noContextMessage(languageCode);
+      return getNoContextMessage(languageCode);
     }
-    String template = userTemplate(languageCode);
+    String template = getUserTemplate(languageCode);
     return ClasspathPromptTemplate.render(
         template,
         Map.of(
@@ -40,7 +40,7 @@ public class LocalizedRagPromptBuilder {
             question));
   }
 
-  private String userTemplate(String languageCode) {
+  private String getUserTemplate(String languageCode) {
     return switch (languageCode) {
       case "zh" -> ClasspathPromptTemplate.load("rag/user-zh.st");
       case "ja" -> ClasspathPromptTemplate.load("rag/user-ja.st");
@@ -48,7 +48,7 @@ public class LocalizedRagPromptBuilder {
     };
   }
 
-  private String noContextMessage(String languageCode) {
+  private String getNoContextMessage(String languageCode) {
     return switch (languageCode) {
       case "zh" -> ClasspathPromptTemplate.load("rag/no-context-zh.st");
       case "ja" -> ClasspathPromptTemplate.load("rag/no-context-ja.st");

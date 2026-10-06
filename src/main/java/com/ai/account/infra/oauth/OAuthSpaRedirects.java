@@ -16,7 +16,7 @@ final class OAuthSpaRedirects {
 
   private OAuthSpaRedirects() {}
 
-  static String afterLogin(
+  static String buildAfterLoginUrl(
       HttpServletRequest request, String configuredRedirectUrl, String loginValue) {
     if (shouldUseConfiguredAbsolute(configuredRedirectUrl)) {
       return withLoginParam(configuredRedirectUrl, loginValue);

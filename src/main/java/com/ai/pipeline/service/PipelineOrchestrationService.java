@@ -37,7 +37,7 @@ public class PipelineOrchestrationService {
     return registry.listAll(ownerKey, language);
   }
 
-  public AgentDefinition health(AgentType type, String ownerKey, String language) {
+  public AgentDefinition getHealth(AgentType type, String ownerKey, String language) {
     return registry.require(type, ownerKey, language);
   }
 
@@ -59,9 +59,9 @@ public class PipelineOrchestrationService {
         .onErrorResume(
             err ->
                 Flux.just(
-                    errorEvent(
+                    buildErrorEvent(
                         err.getMessage() != null ? err.getMessage() : "orchestration failed"),
-                    doneEvent()));
+                    buildDoneEvent()));
   }
 
   /** Streams a direct invocation of one worker agent as SSE, delegating supervisor types. */
@@ -75,17 +75,17 @@ public class PipelineOrchestrationService {
     try {
       AgentDefinition agent = registry.require(type, ownerKey, language);
       return Flux.concat(
-              Flux.just(handoffEvent(type.value(), "direct invoke")),
+              Flux.just(buildHandoffEvent(type.value(), "direct invoke")),
               workerInvoker
                   .invokeStream(agent, message)
-                  .map(PipelineOrchestrationService::messageEvent),
-              Flux.just(doneEvent()))
+                  .map(PipelineOrchestrationService::buildMessageEvent),
+              Flux.just(buildDoneEvent()))
           .doOnComplete(() -> recordAgent(type.value(), "agent.invoke", startedAt, true, null))
           .doOnError(
               err -> recordAgent(type.value(), "agent.invoke", startedAt, false, err.getMessage()));
     } catch (AgentNotFoundException e) {
       recordAgent(type.value(), "agent.invoke", startedAt, false, e.getMessage());
-      return Flux.just(errorEvent(e.getMessage()), doneEvent());
+      return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
   }
 
@@ -107,15 +107,16 @@ public class PipelineOrchestrationService {
   public Flux<ServerSentEvent<String>> invokePipeline(
       String message, AgentPipeline pipeline, String ownerKey, String language) {
     try {
-      List<AgentPipeline.PipelineNode> order = pipeline.executionOrder();
+      List<AgentPipeline.PipelineNode> order = pipeline.resolveExecutionOrder();
       return runPipelineStreamed(message, order, ownerKey, language)
           .onErrorResume(
               err ->
                   Flux.just(
-                      errorEvent(err.getMessage() != null ? err.getMessage() : "pipeline failed"),
-                      doneEvent()));
+                      buildErrorEvent(
+                          err.getMessage() != null ? err.getMessage() : "pipeline failed"),
+                      buildDoneEvent()));
     } catch (IllegalArgumentException | AgentNotFoundException e) {
-      return Flux.just(errorEvent(e.getMessage()), doneEvent());
+      return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
   }
 
@@ -125,7 +126,7 @@ public class PipelineOrchestrationService {
     if (message == null || message.isBlank()) {
       throw new IllegalArgumentException("message must not be blank");
     }
-    List<AgentPipeline.PipelineNode> order = pipeline.executionOrder();
+    List<AgentPipeline.PipelineNode> order = pipeline.resolveExecutionOrder();
     String current = message;
     StringBuilder all = new StringBuilder();
     long startedAt = System.nanoTime();
@@ -178,33 +179,33 @@ public class PipelineOrchestrationService {
                       .formatted(message, current.get());
               StringBuilder stepOutput = new StringBuilder();
               return Flux.concat(
-                  Flux.just(handoffEvent(node.agentType().value(), "pipeline step")),
+                  Flux.just(buildHandoffEvent(node.agentType().value(), "pipeline step")),
                   workerInvoker
                       .invokeStream(agent, stepInput)
                       .doOnNext(stepOutput::append)
-                      .map(PipelineOrchestrationService::messageEvent),
+                      .map(PipelineOrchestrationService::buildMessageEvent),
                   Mono.fromRunnable(() -> current.set(stepOutput.toString()))
-                      .thenMany(Flux.just(messageEvent("\n\n"))));
+                      .thenMany(Flux.just(buildMessageEvent("\n\n"))));
             })
-        .concatWith(Flux.just(doneEvent()));
+        .concatWith(Flux.just(buildDoneEvent()));
   }
 
   private Flux<ServerSentEvent<String>> executePlan(
       String originalMessage, RoutingPlan plan, String ownerKey, String language) {
     List<Flux<ServerSentEvent<String>>> stages = new ArrayList<>();
-    stages.add(Flux.just(handoffEvent(plan.primaryAgent().value(), plan.reason())));
+    stages.add(Flux.just(buildHandoffEvent(plan.primaryAgent().value(), plan.reason())));
 
     if (plan.subtasks().isEmpty()) {
       AgentDefinition primary = registry.require(plan.primaryAgent(), ownerKey, language);
       stages.add(
           workerInvoker
               .invokeStream(primary, originalMessage)
-              .map(PipelineOrchestrationService::messageEvent));
+              .map(PipelineOrchestrationService::buildMessageEvent));
     } else {
       stages.add(runSubtasksAndSynthesize(originalMessage, plan, ownerKey, language));
     }
 
-    stages.add(Flux.just(doneEvent()));
+    stages.add(Flux.just(buildDoneEvent()));
     return Flux.concat(stages);
   }
 
@@ -255,7 +256,7 @@ public class PipelineOrchestrationService {
         .flatMapMany(
             text ->
                 Flux.fromArray(text.split("(?<=\\s)"))
-                    .map(PipelineOrchestrationService::messageEvent));
+                    .map(PipelineOrchestrationService::buildMessageEvent));
   }
 
   private AgentDefinition resolveNode(
@@ -280,20 +281,20 @@ public class PipelineOrchestrationService {
         AgentDefinition.RUNTIME_SINGLE);
   }
 
-  static ServerSentEvent<String> messageEvent(String data) {
+  static ServerSentEvent<String> buildMessageEvent(String data) {
     return ServerSentEvent.<String>builder().event("message").data(data).build();
   }
 
-  static ServerSentEvent<String> handoffEvent(String agentType, String reason) {
+  static ServerSentEvent<String> buildHandoffEvent(String agentType, String reason) {
     String payload = PipelineHandoffEvent.of(agentType, reason).toJson();
     return ServerSentEvent.<String>builder().event("agent_handoff").data(payload).build();
   }
 
-  static ServerSentEvent<String> doneEvent() {
+  static ServerSentEvent<String> buildDoneEvent() {
     return ServerSentEvent.<String>builder().event("done").data("[DONE]").build();
   }
 
-  static ServerSentEvent<String> errorEvent(String message) {
+  static ServerSentEvent<String> buildErrorEvent(String message) {
     return ServerSentEvent.<String>builder().event("error").data(message).build();
   }
 }

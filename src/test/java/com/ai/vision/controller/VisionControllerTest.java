@@ -53,7 +53,7 @@ class VisionControllerTest {
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
       doReturn(new CaptionResponse("A cat on a sofa", 120L))
           .when(visionAnalysisService)
-          .caption(any());
+          .captionImage(any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/caption").file(file))
           .hasStatusOk()
@@ -120,7 +120,9 @@ class VisionControllerTest {
     void shouldReturnExtractedText() throws Exception {
       MockMultipartFile file =
           new MockMultipartFile("file", "scan.png", "image/png", "image".getBytes());
-      doReturn(new OcrResponse("Hello World", 90L)).when(visionAnalysisService).ocr(any());
+      doReturn(new OcrResponse("Hello World", 90L))
+          .when(visionAnalysisService)
+          .recognizeText(any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/ocr").file(file))
           .hasStatusOk()
@@ -138,7 +140,7 @@ class VisionControllerTest {
     @Test
     @DisplayName("should report provider availability")
     void shouldReportProviderAvailability() {
-      when(visionAnalysisService.health())
+      when(visionAnalysisService.getHealth())
           .thenReturn(
               new VisionHealthResponse(
                   HealthStatus.DEGRADED,

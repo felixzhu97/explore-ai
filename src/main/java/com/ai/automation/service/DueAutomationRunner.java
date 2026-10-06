@@ -44,7 +44,8 @@ public class DueAutomationRunner {
       Instant provisional =
           schedule.isOnce()
               ? AutomationSchedule.ONCE_TERMINAL_NEXT
-              : cronCalculator.nextRunAt(schedule.getCronExpression(), schedule.getTimezone(), now);
+              : cronCalculator.calculateNextRunAt(
+                  schedule.getCronExpression(), schedule.getTimezone(), now);
       boolean claimed =
           scheduleRepository.claim(schedule.getId(), schedule.getNextRunAt(), provisional);
       if (!claimed) {
@@ -79,7 +80,7 @@ public class DueAutomationRunner {
       Instant next =
           schedule.isOnce()
               ? AutomationSchedule.ONCE_TERMINAL_NEXT
-              : cronCalculator.nextRunAt(
+              : cronCalculator.calculateNextRunAt(
                   schedule.getCronExpression(), schedule.getTimezone(), finished);
       finishSchedule(schedule, finished, next);
     } catch (Exception ex) {
@@ -90,7 +91,7 @@ public class DueAutomationRunner {
       Instant next =
           schedule.isOnce()
               ? AutomationSchedule.ONCE_TERMINAL_NEXT
-              : cronCalculator.nextRunAt(
+              : cronCalculator.calculateNextRunAt(
                   schedule.getCronExpression(), schedule.getTimezone(), finished);
       finishSchedule(schedule, finished, next);
     }

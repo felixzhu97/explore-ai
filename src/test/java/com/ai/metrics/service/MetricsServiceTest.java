@@ -36,17 +36,17 @@ class MetricsServiceTest {
     MetricsHealthGateway healthGateway =
         new MetricsHealthGateway() {
           @Override
-          public ModuleStatus systemStatus() {
+          public ModuleStatus getSystemStatus() {
             return ModuleStatus.UP;
           }
 
           @Override
-          public AgentsHealth agentsHealth() {
+          public AgentsHealth checkAgentsHealth() {
             return new AgentsHealth(ModuleStatus.UP, 2, 2);
           }
 
           @Override
-          public McpHealth mcpHealth() {
+          public McpHealth checkMcpHealth() {
             return new McpHealth(ModuleStatus.UP, 3, 1);
           }
         };
@@ -56,7 +56,7 @@ class MetricsServiceTest {
   @Test
   @DisplayName("should return zero rates when no invocations")
   void shouldReturnZeroRatesWhenNoInvocations() {
-    MetricsOverview overview = useCase.overview("7d");
+    MetricsOverview overview = useCase.getOverview("7d");
 
     assertThat(overview.requestCount()).isZero();
     assertThat(overview.errorCount()).isZero();
@@ -74,7 +74,7 @@ class MetricsServiceTest {
     queryRepository.errorCount = 2;
     queryRepository.byDomain = List.of(new MetricsQueryRepository.NamedCount("chat", 8));
 
-    MetricsOverview overview = useCase.overview("7d");
+    MetricsOverview overview = useCase.getOverview("7d");
 
     assertThat(overview.requestCount()).isEqualTo(10);
     assertThat(overview.errorCount()).isEqualTo(2);
@@ -96,7 +96,7 @@ class MetricsServiceTest {
             .build());
 
     DrilldownPage page =
-        useCase.drilldown("chat", null, null, "2026-07-26", null, null, null, null, 0, 20, "7d");
+        useCase.getDrilldown("chat", null, null, "2026-07-26", null, null, null, null, 0, 20, "7d");
 
     assertThat(page.total()).isEqualTo(1);
     assertThat(page.items()).hasSize(1);
@@ -107,7 +107,7 @@ class MetricsServiceTest {
   @Test
   @DisplayName("should reject unknown series name")
   void shouldRejectUnknownSeriesName() {
-    assertThatThrownBy(() -> useCase.series("unknown", "chat", "7d"))
+    assertThatThrownBy(() -> useCase.getSeries("unknown", "chat", "7d"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Unknown series");
   }
@@ -119,16 +119,17 @@ class MetricsServiceTest {
     queryRepository.errorCount = 1;
     queryRepository.topTools = List.of(new MetricsQueryRepository.NamedCount("weather", 2));
 
-    assertThat(useCase.domain("chat", "7d").inventory()).isInstanceOf(DomainInventory.Chat.class);
-    assertThat(useCase.domain("rag", "7d").inventory()).isInstanceOf(DomainInventory.Rag.class);
-    assertThat(useCase.domain("agents", "7d").inventory())
+    assertThat(useCase.getDomain("chat", "7d").inventory())
+        .isInstanceOf(DomainInventory.Chat.class);
+    assertThat(useCase.getDomain("rag", "7d").inventory()).isInstanceOf(DomainInventory.Rag.class);
+    assertThat(useCase.getDomain("agents", "7d").inventory())
         .isEqualTo(new DomainInventory.Agents(new AgentsHealth(ModuleStatus.UP, 2, 2)));
-    assertThat(useCase.domain("tools", "7d").inventory())
+    assertThat(useCase.getDomain("tools", "7d").inventory())
         .isEqualTo(new DomainInventory.Tools(List.of(new NamedCount("weather", 2))));
-    assertThat(useCase.domain("vision", "30d").inventory())
+    assertThat(useCase.getDomain("vision", "30d").inventory())
         .isEqualTo(new DomainInventory.Requests(4, 1));
-    assertThat(useCase.domain("vision", "30d").errorRate()).isEqualTo(0.25);
-    assertThat(useCase.domain("workflow", "7d").requestCount()).isEqualTo(4);
+    assertThat(useCase.getDomain("vision", "30d").errorRate()).isEqualTo(0.25);
+    assertThat(useCase.getDomain("workflow", "7d").requestCount()).isEqualTo(4);
   }
 
   @Test
@@ -142,26 +143,26 @@ class MetricsServiceTest {
     queryRepository.topTools = List.of(new MetricsQueryRepository.NamedCount("weather", 2));
     queryRepository.documentsByStatus.put("READY", 5L);
 
-    assertThat(useCase.series("requests", "chat", "7d").points()).hasSize(1);
-    assertThat(useCase.series("errors", null, "7d").points()).hasSize(1);
-    assertThat(useCase.series("latency_p95", "chat", "7d").points()).hasSize(1);
-    assertThat(useCase.series("sessions_created", null, "7d").points()).isEmpty();
-    assertThat(useCase.series("messages_created", null, "7d").points()).isEmpty();
-    assertThat(useCase.series("documents_uploaded", null, "7d").points()).isEmpty();
-    assertThat(useCase.series("documents_by_status", null, "7d").points())
+    assertThat(useCase.getSeries("requests", "chat", "7d").points()).hasSize(1);
+    assertThat(useCase.getSeries("errors", null, "7d").points()).hasSize(1);
+    assertThat(useCase.getSeries("latency_p95", "chat", "7d").points()).hasSize(1);
+    assertThat(useCase.getSeries("sessions_created", null, "7d").points()).isEmpty();
+    assertThat(useCase.getSeries("messages_created", null, "7d").points()).isEmpty();
+    assertThat(useCase.getSeries("documents_uploaded", null, "7d").points()).isEmpty();
+    assertThat(useCase.getSeries("documents_by_status", null, "7d").points())
         .extracting(p -> p.label())
         .contains("READY");
-    assertThat(useCase.series("calls_by_model", "chat", "7d").points()).hasSize(1);
-    assertThat(useCase.series("calls_by_agent", null, "7d").points()).hasSize(1);
-    assertThat(useCase.series("tool_top", "tools", "7d").points()).hasSize(1);
-    assertThat(useCase.series("tokens", "chat", "7d").points()).hasSize(2);
-    assertThat(useCase.series("  REQUESTS ", "chat", "7d").name()).isEqualTo("requests");
+    assertThat(useCase.getSeries("calls_by_model", "chat", "7d").points()).hasSize(1);
+    assertThat(useCase.getSeries("calls_by_agent", null, "7d").points()).hasSize(1);
+    assertThat(useCase.getSeries("tool_top", "tools", "7d").points()).hasSize(1);
+    assertThat(useCase.getSeries("tokens", "chat", "7d").points()).hasSize(2);
+    assertThat(useCase.getSeries("  REQUESTS ", "chat", "7d").name()).isEqualTo("requests");
   }
 
   @Test
   @DisplayName("should reject unsupported range when parsing")
   void shouldRejectUnsupportedRangeWhenParsing() {
-    assertThatThrownBy(() -> useCase.overview("90d"))
+    assertThatThrownBy(() -> useCase.getOverview("90d"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Unsupported range");
   }
@@ -170,7 +171,7 @@ class MetricsServiceTest {
   @DisplayName("should default page size and use explicit window when provided")
   void shouldDefaultPageSizeAndUseExplicitWindowWhenProvided() {
     DrilldownPage page =
-        useCase.drilldown(
+        useCase.getDrilldown(
             "chat",
             "2026-07-01T00:00:00Z",
             "2026-07-02T00:00:00Z",

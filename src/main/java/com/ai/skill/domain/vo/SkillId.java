@@ -19,6 +19,6 @@ public final class SkillId extends AbstractUuidId {
   }
 
   public static SkillId generate() {
-    return new SkillId(newUuidString());
+    return new SkillId(generateUuidString());
   }
 }

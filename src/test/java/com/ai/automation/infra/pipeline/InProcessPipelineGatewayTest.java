@@ -26,7 +26,7 @@ class InProcessPipelineGatewayTest {
 
     assertThat(pipeline.nodes()).hasSize(2);
     assertThat(pipeline.edges()).hasSize(1);
-    assertThat(pipeline.executionOrder())
+    assertThat(pipeline.resolveExecutionOrder())
         .extracting(node -> node.agentType().value())
         .containsExactly("research", "analyst");
   }

@@ -23,7 +23,7 @@ final class YoloNonMaxSuppression {
       Detection current = sorted.get(i);
       kept.add(current);
       for (int j = i + 1; j < sorted.size(); j++) {
-        if (!suppressed[j] && iou(current, sorted.get(j)) > nmsThreshold) {
+        if (!suppressed[j] && calculateIou(current, sorted.get(j)) > nmsThreshold) {
           suppressed[j] = true;
         }
       }
@@ -31,7 +31,7 @@ final class YoloNonMaxSuppression {
     return kept;
   }
 
-  private static float iou(Detection a, Detection b) {
+  private static float calculateIou(Detection a, Detection b) {
     double x1 = Math.max(a.x(), b.x());
     double y1 = Math.max(a.y(), b.y());
     double x2 = Math.min(a.x() + a.width(), b.x() + b.width());

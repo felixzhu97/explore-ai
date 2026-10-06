@@ -35,7 +35,7 @@ public class PrivacyController {
    */
   @PostMapping("/reset-identity")
   public ResponseEntity<Void> resetIdentity(HttpServletResponse response) {
-    String nextId = cookieFactory.newClientId();
+    String nextId = cookieFactory.generateClientId();
     response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.clear().toString());
     response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(nextId).toString());
     return ResponseEntity.noContent().build();

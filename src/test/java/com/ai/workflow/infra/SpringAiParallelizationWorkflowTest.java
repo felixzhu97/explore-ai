@@ -42,7 +42,7 @@ class SpringAiParallelizationWorkflowTest {
     when(callResponseSpec.content()).thenReturn("fr:Hello", "fr:World");
 
     ParallelizationResult result =
-        workflow.parallel("Translate to French:", List.of("Hello", "World"), 2);
+        workflow.runParallel("Translate to French:", List.of("Hello", "World"), 2);
 
     assertThat(result.outputs()).hasSize(2);
     assertThat(result.outputs()).containsExactlyInAnyOrder("fr:Hello", "fr:World");

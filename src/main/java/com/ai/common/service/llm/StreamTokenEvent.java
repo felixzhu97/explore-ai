@@ -18,7 +18,7 @@ public record StreamTokenEvent(String type, String token) {
   }
 
   /** Returns {@code {"type":"message","token":...}} for the token. */
-  public static String json(String token) {
+  public static String toJson(String token) {
     try {
       return JSON.writeValueAsString(of(token));
     } catch (JsonProcessingException e) {

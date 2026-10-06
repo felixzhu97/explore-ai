@@ -19,6 +19,6 @@ public final class AccountUserId extends AbstractUuidId {
   }
 
   public static AccountUserId generate() {
-    return new AccountUserId(newUuidString());
+    return new AccountUserId(generateUuidString());
   }
 }

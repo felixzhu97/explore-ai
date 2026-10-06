@@ -30,7 +30,7 @@ public abstract class AbstractUuidId implements EntityId {
     return trimmed;
   }
 
-  protected static String newUuidString() {
+  protected static String generateUuidString() {
     return UUID.randomUUID().toString();
   }
 

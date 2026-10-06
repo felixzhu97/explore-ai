@@ -65,7 +65,7 @@ class InMemoryChatSessionRepositoryTest {
       repository.save(session1);
 
       // Then
-      assertThat(repository.size()).isEqualTo(1);
+      assertThat(repository.countSessions()).isEqualTo(1);
     }
   }
 
@@ -179,13 +179,13 @@ class InMemoryChatSessionRepositoryTest {
       var session2 = ChatSession.create("Test Session 2", "c:client-a");
       repository.save(session1);
       repository.save(session2);
-      assertThat(repository.size()).isEqualTo(2);
+      assertThat(repository.countSessions()).isEqualTo(2);
 
       // When
       repository.clear();
 
       // Then
-      assertThat(repository.size()).isZero();
+      assertThat(repository.countSessions()).isZero();
       assertThat(repository.findByOwnerKey("c:client-a")).isEmpty();
     }
   }
@@ -198,7 +198,7 @@ class InMemoryChatSessionRepositoryTest {
     @DisplayName("should return zero for empty repository")
     void shouldReturnZeroForEmptyRepository() {
       // When & Then
-      assertThat(repository.size()).isZero();
+      assertThat(repository.countSessions()).isZero();
     }
 
     @Test
@@ -210,10 +210,10 @@ class InMemoryChatSessionRepositoryTest {
 
       // When
       repository.save(session1);
-      assertThat(repository.size()).isEqualTo(1);
+      assertThat(repository.countSessions()).isEqualTo(1);
 
       repository.save(session2);
-      assertThat(repository.size()).isEqualTo(2);
+      assertThat(repository.countSessions()).isEqualTo(2);
     }
   }
 }

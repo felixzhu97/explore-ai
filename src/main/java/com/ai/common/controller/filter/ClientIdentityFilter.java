@@ -73,7 +73,7 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     if (existing != null) {
       clientId = existing;
     } else {
-      clientId = cookieFactory.newClientId();
+      clientId = cookieFactory.generateClientId();
       response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(clientId).toString());
     }
     request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
@@ -100,7 +100,7 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     if (cookies == null) {
       return null;
     }
-    String cookieName = cookieFactory.cookieName();
+    String cookieName = cookieFactory.getCookieName();
     for (Cookie cookie : cookies) {
       if (cookieName.equals(cookie.getName())) {
         String value = cookie.getValue();

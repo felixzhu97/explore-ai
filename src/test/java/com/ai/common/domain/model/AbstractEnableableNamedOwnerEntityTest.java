@@ -17,7 +17,7 @@ class AbstractEnableableNamedOwnerEntityTest {
     }
 
     static TestId generate() {
-      return new TestId(newUuidString());
+      return new TestId(generateUuidString());
     }
   }
 

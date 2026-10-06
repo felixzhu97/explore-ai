@@ -28,7 +28,8 @@ class StreamEventWireFormatTest {
   @Test
   @DisplayName("should encode token event with type and raw token")
   void shouldEncodeTokenEventWithTypeAndRawToken() {
-    assertThat(StreamTokenEvent.json(" hi")).isEqualTo("{\"type\":\"message\",\"token\":\" hi\"}");
+    assertThat(StreamTokenEvent.toJson(" hi"))
+        .isEqualTo("{\"type\":\"message\",\"token\":\" hi\"}");
   }
 
   @Test

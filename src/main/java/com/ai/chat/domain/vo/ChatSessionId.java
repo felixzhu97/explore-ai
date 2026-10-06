@@ -19,6 +19,6 @@ public final class ChatSessionId extends AbstractUuidId {
   }
 
   public static ChatSessionId generate() {
-    return new ChatSessionId(newUuidString());
+    return new ChatSessionId(generateUuidString());
   }
 }

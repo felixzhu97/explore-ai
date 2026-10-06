@@ -20,7 +20,9 @@ class AgentPipelineTest {
 
     assertEquals(
         List.of(AgentType.of("k8s")),
-        pipeline.executionOrder().stream().map(AgentPipeline.PipelineNode::agentType).toList());
+        pipeline.resolveExecutionOrder().stream()
+            .map(AgentPipeline.PipelineNode::agentType)
+            .toList());
   }
 
   @Test
@@ -34,14 +36,16 @@ class AgentPipelineTest {
 
     assertEquals(
         List.of(AgentType.of("k8s"), AgentType.of("aiops")),
-        pipeline.executionOrder().stream().map(AgentPipeline.PipelineNode::agentType).toList());
+        pipeline.resolveExecutionOrder().stream()
+            .map(AgentPipeline.PipelineNode::agentType)
+            .toList());
   }
 
   @Test
   void shouldRejectEmptyPipeline() {
     AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
     IllegalArgumentException error =
-        assertThrows(IllegalArgumentException.class, pipeline::executionOrder);
+        assertThrows(IllegalArgumentException.class, pipeline::resolveExecutionOrder);
     assertTrue(error.getMessage().contains("at least one"));
   }
 
@@ -55,7 +59,7 @@ class AgentPipelineTest {
             List.of());
 
     IllegalArgumentException error =
-        assertThrows(IllegalArgumentException.class, pipeline::executionOrder);
+        assertThrows(IllegalArgumentException.class, pipeline::resolveExecutionOrder);
     assertTrue(error.getMessage().contains("connect"));
   }
 
@@ -71,7 +75,7 @@ class AgentPipelineTest {
                 new AgentPipeline.PipelineEdge("b", "a")));
 
     IllegalArgumentException error =
-        assertThrows(IllegalArgumentException.class, pipeline::executionOrder);
+        assertThrows(IllegalArgumentException.class, pipeline::resolveExecutionOrder);
     assertTrue(error.getMessage().contains("cycle"));
   }
 
@@ -81,7 +85,7 @@ class AgentPipelineTest {
         AgentPipeline.create(
             List.of(AgentPipeline.PipelineNode.of("s", AgentType.supervisor())), List.of());
 
-    assertThrows(IllegalArgumentException.class, pipeline::executionOrder);
+    assertThrows(IllegalArgumentException.class, pipeline::resolveExecutionOrder);
   }
 
   @Test

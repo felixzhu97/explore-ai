@@ -46,10 +46,10 @@ class VisionAnalysisServiceTest {
   @Test
   @DisplayName("should return caption from captioner port")
   void shouldReturnCaptionFromCaptionerPort() throws Exception {
-    when(captioner.caption(any(BufferedImage.class)))
+    when(captioner.captionImage(any(BufferedImage.class)))
         .thenReturn(new CaptionResult("A red bicycle"));
 
-    var response = useCase.caption(pngFile("photo.png"));
+    var response = useCase.captionImage(pngFile("photo.png"));
 
     assertThat(response.caption()).isEqualTo("A red bicycle");
     assertThat(response.processingTimeMs()).isGreaterThanOrEqualTo(0);
@@ -73,7 +73,7 @@ class VisionAnalysisServiceTest {
   void shouldReturnOcrTextFromOcrEnginePort() throws Exception {
     when(ocrEngine.extract(any(BufferedImage.class))).thenReturn(new OcrResult("Hello World"));
 
-    var response = useCase.ocr(pngFile("scan.png"));
+    var response = useCase.recognizeText(pngFile("scan.png"));
 
     assertThat(response.fullText()).isEqualTo("Hello World");
   }

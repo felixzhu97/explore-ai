@@ -50,7 +50,7 @@ public final class PipelineTemplateCatalog {
   }
 
   /** Returns the template's localized names across all supported languages. */
-  public static Set<String> namesForTemplate(String templateId) {
+  public static Set<String> listNamesForTemplate(String templateId) {
     Set<String> names = new LinkedHashSet<>();
     if (templateId == null || templateId.isBlank()) {
       return names;

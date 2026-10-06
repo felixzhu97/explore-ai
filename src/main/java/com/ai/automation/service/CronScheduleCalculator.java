@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CronScheduleCalculator {
   /** Returns the next cron fire time after {@code after}, evaluated in the given time zone. */
-  public Instant nextRunAt(String cronExpression, String timezone, Instant after) {
+  public Instant calculateNextRunAt(String cronExpression, String timezone, Instant after) {
     CronExpression cron = CronExpression.parse(cronExpression);
     ZoneId zone = ZoneId.of(timezone);
     ZonedDateTime base = after.atZone(zone);
@@ -25,6 +25,6 @@ public class CronScheduleCalculator {
   public void validate(String cronExpression, String timezone) {
     CronExpression.parse(cronExpression);
     ZoneId.of(timezone);
-    nextRunAt(cronExpression, timezone, Instant.now());
+    calculateNextRunAt(cronExpression, timezone, Instant.now());
   }
 }

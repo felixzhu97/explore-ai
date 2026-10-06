@@ -52,7 +52,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException, ServletException {
     String clientId = resolveClientId(request);
-    String provider = registrationId(authentication);
+    String provider = getRegistrationId(authentication);
     Object principal = authentication.getPrincipal();
     if (clientId != null) {
       String accountUserId = null;
@@ -78,11 +78,12 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     securityContextRepository.saveContext(context, request, response);
 
     setDefaultTargetUrl(
-        OAuthSpaRedirects.afterLogin(request, spaProperties.getSuccessRedirectUrl(), "success"));
+        OAuthSpaRedirects.buildAfterLoginUrl(
+            request, spaProperties.getSuccessRedirectUrl(), "success"));
     super.onAuthenticationSuccess(request, response, authentication);
   }
 
-  private static String registrationId(Authentication authentication) {
+  private static String getRegistrationId(Authentication authentication) {
     if (authentication instanceof OAuth2AuthenticationToken token) {
       return token.getAuthorizedClientRegistrationId();
     }

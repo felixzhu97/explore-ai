@@ -19,6 +19,6 @@ public final class MessageId extends AbstractUuidId {
   }
 
   public static MessageId generate() {
-    return new MessageId(newUuidString());
+    return new MessageId(generateUuidString());
   }
 }

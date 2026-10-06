@@ -20,7 +20,7 @@ public class SpringAiParallelizationWorkflow implements ParallelizationWorkflow 
   private final ChatClientProvider chatClientProvider;
 
   @Override
-  public ParallelizationResult parallel(String prompt, List<String> items, int parallelism) {
+  public ParallelizationResult runParallel(String prompt, List<String> items, int parallelism) {
     Objects.requireNonNull(prompt, "prompt");
     Objects.requireNonNull(items, "items");
     if (items.isEmpty()) {

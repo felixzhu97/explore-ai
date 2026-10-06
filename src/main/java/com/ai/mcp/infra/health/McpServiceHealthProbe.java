@@ -19,12 +19,12 @@ public class McpServiceHealthProbe implements McpHealthProbe {
   private final McpService mcpService;
 
   @Override
-  public int registeredToolCount() {
+  public int countRegisteredTools() {
     return mcpService.getTotalToolCount();
   }
 
   @Override
-  public int connectedServerCount() {
+  public int countConnectedServers() {
     return mcpService.getConnectedServers().size();
   }
 }

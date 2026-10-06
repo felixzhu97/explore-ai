@@ -59,7 +59,7 @@ public class RagChatService {
   private final ObjectMapper objectMapper;
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
-  public Flux<ServerSentEvent<String>> chatStream(
+  public Flux<ServerSentEvent<String>> streamChat(
       String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
@@ -87,9 +87,9 @@ public class RagChatService {
               if (piece.isEmpty()) {
                 return null;
               }
-              return ServerSentEvent.<String>builder().data(StreamTokenEvent.json(piece)).build();
+              return ServerSentEvent.<String>builder().data(StreamTokenEvent.toJson(piece)).build();
             })
-        .concatWith(Flux.defer(() -> sourceEvents(sourcesRef.get())))
+        .concatWith(Flux.defer(() -> buildSourceEvents(sourcesRef.get())))
         .doOnComplete(() -> recordSuccess(options, sessionId, documentId, startedAt))
         .doOnError(ex -> recordError(sessionId, startedAt, ex));
   }
@@ -126,7 +126,7 @@ public class RagChatService {
       String ownerKey,
       TextChatOptions options) {
     log.info("RAG chat request: {}", LogSanitizer.truncate(question));
-    Filter.Expression filter = retrievalFilter(ownerKey, documentIds);
+    Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
 
     String languageCode = languageDetectionService.detect(question);
     String languageHint =
@@ -170,7 +170,7 @@ public class RagChatService {
     return promptSpec;
   }
 
-  private static Filter.Expression retrievalFilter(String ownerKey, List<String> documentIds) {
+  private static Filter.Expression buildRetrievalFilter(String ownerKey, List<String> documentIds) {
     FilterExpressionBuilder builder = new FilterExpressionBuilder();
     FilterExpressionBuilder.Op ownedByCaller = builder.eq(OWNER_KEY_METADATA_KEY, ownerKey);
     if (documentIds == null || documentIds.isEmpty()) {
@@ -208,7 +208,7 @@ public class RagChatService {
         ex.getMessage());
   }
 
-  private Flux<ServerSentEvent<String>> sourceEvents(List<SourceDocument> sources) {
+  private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceDocument> sources) {
     if (sources.isEmpty()) {
       return Flux.empty();
     }

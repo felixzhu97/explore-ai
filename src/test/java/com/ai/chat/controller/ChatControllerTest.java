@@ -294,7 +294,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
       when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
           .thenReturn(
               Map.of(
-                  ContentHash.sha256(reply),
+                  ContentHash.computeSha256(reply),
                   List.of(
                       new WebSource("Wiki", "https://en.wikipedia.org/wiki/Paris", "Capital"))));
 

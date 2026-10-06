@@ -163,14 +163,14 @@ class PipelineOrchestrationServiceTest {
   @Test
   void shouldEscapeQuotesInHandoffReason() {
     ServerSentEvent<String> event =
-        PipelineOrchestrationService.handoffEvent("k8s", "say \"hello\" \\world");
+        PipelineOrchestrationService.buildHandoffEvent("k8s", "say \"hello\" \\world");
     assertEvent(event, "agent_handoff");
     assert event.data().contains("\\\"hello\\\"");
   }
 
   @Test
   void shouldUseEmptyReasonWhenNull() {
-    ServerSentEvent<String> event = PipelineOrchestrationService.handoffEvent("k8s", null);
+    ServerSentEvent<String> event = PipelineOrchestrationService.buildHandoffEvent("k8s", null);
     assert event.data().contains("\"reason\":\"\"");
   }
 

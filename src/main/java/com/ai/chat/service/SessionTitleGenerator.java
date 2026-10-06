@@ -32,7 +32,7 @@ public class SessionTitleGenerator {
         || userMessage.isBlank()
         || assistantReply == null
         || assistantReply.isBlank()) {
-      return fallback(userMessage);
+      return buildFallbackTitle(userMessage);
     }
     try {
       ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.withoutTools());
@@ -50,12 +50,12 @@ public class SessionTitleGenerator {
     } catch (Exception e) {
       log.warn("Failed to generate session title via LLM, using fallback", e);
     }
-    return fallback(userMessage);
+    return buildFallbackTitle(userMessage);
   }
 
   record SessionTitleResponse(String title) {}
 
-  String fallback(String userMessage) {
+  String buildFallbackTitle(String userMessage) {
     if (userMessage == null || userMessage.isBlank()) {
       return ChatSession.DEFAULT_TITLE;
     }

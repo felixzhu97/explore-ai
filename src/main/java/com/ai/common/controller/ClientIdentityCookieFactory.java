@@ -14,7 +14,7 @@ public class ClientIdentityCookieFactory {
 
   private final ClientIdentityProperties properties;
 
-  public String cookieName() {
+  public String getCookieName() {
     return properties.getCookieName();
   }
 
@@ -40,7 +40,7 @@ public class ClientIdentityCookieFactory {
         .build();
   }
 
-  public String newClientId() {
+  public String generateClientId() {
     return UUID.randomUUID().toString();
   }
 }

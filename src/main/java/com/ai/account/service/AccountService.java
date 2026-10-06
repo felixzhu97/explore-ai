@@ -45,11 +45,11 @@ public class AccountService {
 
   /** Returns the viewer's account state for the request's Client Identity. */
   @Transactional
-  public AccountMeResponse currentAccount(String clientId) {
+  public AccountMeResponse getCurrentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       AccountUser user = ensureIamUser(jwtAuth.getToken());
-      return authenticated(clientId, user.getId().value(), user.getEmail());
+      return buildAuthenticatedResponse(clientId, user.getId().value(), user.getEmail());
     }
     if (isAuthenticated(authentication)) {
       OAuthIdentity identity = extractIdentity(authentication);
@@ -58,7 +58,7 @@ public class AccountService {
             accountUserRepository.findByProviderAndSubject(identity.provider(), identity.subject());
         String email = linked.map(AccountUser::getEmail).orElse(identity.email());
         String userId = linked.map(user -> user.getId().value()).orElse(identity.subject());
-        return authenticated(clientId, userId, email);
+        return buildAuthenticatedResponse(clientId, userId, email);
       }
     }
 
@@ -67,7 +67,7 @@ public class AccountService {
       Optional<AccountUser> byClient = accountUserRepository.findByLinkedClientId(clientId);
       if (byClient.isPresent()) {
         AccountUser user = byClient.get();
-        return authenticated(clientId, user.getId().value(), user.getEmail());
+        return buildAuthenticatedResponse(clientId, user.getId().value(), user.getEmail());
       }
     }
 
@@ -138,7 +138,8 @@ public class AccountService {
                     AccountUser.create("explore-iam", subject, email, null)));
   }
 
-  private AccountMeResponse authenticated(String clientId, String userId, String email) {
+  private AccountMeResponse buildAuthenticatedResponse(
+      String clientId, String userId, String email) {
     return new AccountMeResponse(
         AccountMode.AUTHENTICATED,
         clientId,
@@ -156,7 +157,7 @@ public class AccountService {
   }
 
   private static OAuthIdentity extractIdentity(Authentication authentication) {
-    String provider = registrationId(authentication);
+    String provider = getRegistrationId(authentication);
     Object principal = authentication.getPrincipal();
     if (principal instanceof OidcUser oidcUser) {
       String subject = oidcUser.getSubject();
@@ -196,7 +197,7 @@ public class AccountService {
     return null;
   }
 
-  private static String registrationId(Authentication authentication) {
+  private static String getRegistrationId(Authentication authentication) {
     if (authentication instanceof OAuth2AuthenticationToken token) {
       return token.getAuthorizedClientRegistrationId();
     }

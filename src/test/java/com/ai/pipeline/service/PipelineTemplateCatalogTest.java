@@ -60,7 +60,7 @@ class PipelineTemplateCatalogTest {
   @Test
   @DisplayName("should collect name aliases when template exists")
   void shouldCollectNameAliasesWhenTemplateExists() {
-    assertThat(PipelineTemplateCatalog.namesForTemplate("competitiveIntel"))
+    assertThat(PipelineTemplateCatalog.listNamesForTemplate("competitiveIntel"))
         .contains("Competitive intelligence", "竞品情报");
   }
 

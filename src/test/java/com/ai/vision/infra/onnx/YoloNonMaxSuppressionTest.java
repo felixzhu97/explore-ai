@@ -27,7 +27,7 @@ class YoloNonMaxSuppressionTest {
   @Test
   @DisplayName("should use coco class names")
   void shouldUseCocoClassNames() {
-    assertThat(CocoClassNames.label(0)).isEqualTo("person");
-    assertThat(CocoClassNames.classCount()).isEqualTo(80);
+    assertThat(CocoClassNames.getLabel(0)).isEqualTo("person");
+    assertThat(CocoClassNames.countClasses()).isEqualTo(80);
   }
 }

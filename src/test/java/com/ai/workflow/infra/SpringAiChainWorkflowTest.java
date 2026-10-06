@@ -42,7 +42,7 @@ class SpringAiChainWorkflowTest {
   void shouldReturnFinalOutputWhenChainCompletesSequentially() {
     when(callResponseSpec.content()).thenReturn("step-1").thenReturn("step-2");
 
-    ChainResult result = workflow.chain("raw input", new String[] {"extract", "format"});
+    ChainResult result = workflow.runChain("raw input", new String[] {"extract", "format"});
 
     assertThat(result.output()).isEqualTo("step-2");
     assertThat(result.intermediateSteps()).containsExactly("raw input", "step-1", "step-2");

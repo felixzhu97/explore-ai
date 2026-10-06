@@ -26,7 +26,7 @@ class SpeechTextToSpeechGatewayTest {
     @Test
     @DisplayName("should omit OpenAI catalog voices for Qwen TTS")
     void shouldOmitOpenAiCatalogVoicesForQwenTts() {
-      assertThat(SpeechTextToSpeechGateway.qwenSpeakerOrNull(VoiceSelection.of("alloy", null)))
+      assertThat(SpeechTextToSpeechGateway.resolveQwenSpeaker(VoiceSelection.of("alloy", null)))
           .isNull();
     }
 
@@ -35,7 +35,7 @@ class SpeechTextToSpeechGatewayTest {
     void shouldKeepCustomQwenSpeakerName() {
       // VoiceSelection validates against OpenAI catalog; use raw record for Qwen speakers.
       assertThat(
-              SpeechTextToSpeechGateway.qwenSpeakerOrNull(
+              SpeechTextToSpeechGateway.resolveQwenSpeaker(
                   new VoiceSelection("vivian", "gpt-4o-mini-tts")))
           .isEqualTo("vivian");
     }

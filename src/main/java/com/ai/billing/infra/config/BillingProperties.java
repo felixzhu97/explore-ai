@@ -19,7 +19,7 @@ public class BillingProperties {
   private int proDailyRequests = 2000;
 
   /** Returns the daily request limit for the active plan, using the free limit unless pro. */
-  public int dailyLimit() {
+  public int resolveDailyLimit() {
     if ("pro".equalsIgnoreCase(plan)) {
       return proDailyRequests;
     }
