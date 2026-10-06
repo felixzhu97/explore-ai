@@ -18,6 +18,10 @@ import org.springframework.stereotype.Service;
 public class DailyUsageQuotaService {
 
   private static final String GLOBAL_KEY = "global";
+
+  /** Must differ from the {@code ip:} client key the filter uses for anonymous requests. */
+  private static final String ADDRESS_KEY_PREFIX = "address:";
+
   private static final int MAX_TRACKED_KEYS = 100_000;
 
   private final BillingProperties properties;
@@ -71,7 +75,8 @@ public class DailyUsageQuotaService {
     boolean allowed =
         consume(clientId, properties.resolveDailyLimit(), day, consumed)
             && (address == null
-                || consume("ip:" + address, properties.resolveIpDailyLimit(), day, consumed))
+                || consume(
+                    ADDRESS_KEY_PREFIX + address, properties.resolveIpDailyLimit(), day, consumed))
             && (properties.getGlobalDailyRequests() <= 0
                 || consume(GLOBAL_KEY, properties.getGlobalDailyRequests(), day, consumed));
     if (!allowed) {
