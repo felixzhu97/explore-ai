@@ -4,7 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
-    id("com.diffplug.spotless") version "8.10.2"
+    id("com.diffplug.spotless") version "8.10.3"
 }
 
 group = "com.ai"
@@ -55,7 +55,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
     implementation("org.springaicommunity:spring-ai-agent-utils:0.12.0")
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
-    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.0")
+    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.2")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
@@ -85,7 +85,7 @@ dependencies {
     testImplementation("org.springframework.ai:spring-ai-test")
     testImplementation("org.hamcrest:hamcrest:3.0")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
 }
 
 if (!cloudMinimal) {
