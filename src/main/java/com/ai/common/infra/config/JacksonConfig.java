@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 /** Jackson configuration for JSON serialization. */
 @Configuration
 public class JacksonConfig {
+  /** Creates the shared JSON mapper. */
   @Bean
   @Primary
   public ObjectMapper objectMapper() {

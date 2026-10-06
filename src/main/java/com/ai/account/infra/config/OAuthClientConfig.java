@@ -36,6 +36,7 @@ public class OAuthClientConfig {
 
   private static final String DEFAULT_REDIRECT = "{baseUrl}/login/oauth2/code/{registrationId}";
 
+  /** Registers every OAuth provider that has credentials configured. */
   @Bean
   @Conditional(AnyOAuthProviderReadyCondition.class)
   ClientRegistrationRepository oauthClientRegistrationRepository(

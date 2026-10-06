@@ -16,6 +16,7 @@ final class OAuthSpaRedirects {
 
   private OAuthSpaRedirects() {}
 
+  /** Builds the SPA URL to return to after an OAuth login attempt. */
   static String buildAfterLoginUrl(
       HttpServletRequest request, String configuredRedirectUrl, String loginValue) {
     if (shouldUseConfiguredAbsolute(configuredRedirectUrl)) {
@@ -32,6 +33,7 @@ final class OAuthSpaRedirects {
         .toUriString();
   }
 
+  /** Adds the {@code login} query parameter to the redirect URL. */
   static String withLoginParam(String redirectUrl, String loginValue) {
     String base = redirectUrl == null || redirectUrl.isBlank() ? "/" : redirectUrl.trim();
     if (base.startsWith("/")) {

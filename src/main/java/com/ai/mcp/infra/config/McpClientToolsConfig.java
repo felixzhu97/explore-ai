@@ -24,6 +24,7 @@ public class McpClientToolsConfig {
 
   private static final Logger log = LoggerFactory.getLogger(McpClientToolsConfig.class);
 
+  /** Loads the MCP tool callbacks and registers them. */
   @Bean
   @ConditionalOnProperty(
       prefix = "spring.ai.mcp.client",

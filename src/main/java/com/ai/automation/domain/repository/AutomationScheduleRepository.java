@@ -8,16 +8,22 @@ import java.util.Optional;
 
 /** Persists automation schedules and finds and claims those due for execution. */
 public interface AutomationScheduleRepository {
+  /** Finds the owner's schedule by id. */
   Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, String ownerKey);
 
+  /** Lists all schedules of the owner. */
   List<AutomationSchedule> findAllByOwnerKey(String ownerKey);
 
+  /** Counts the owner's schedules. */
   int countByOwnerKey(String ownerKey);
 
+  /** Lists enabled schedules due at or before the time. */
   List<AutomationSchedule> findDue(Instant asOf, int limit);
 
+  /** Saves the schedule and returns the stored copy. */
   AutomationSchedule save(AutomationSchedule schedule);
 
+  /** Deletes the owner's schedule by id. */
   void deleteByIdAndOwnerKey(ScheduleId id, String ownerKey);
 
   /**

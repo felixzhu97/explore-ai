@@ -43,42 +43,52 @@ public final class ChatMessage {
     return normalized;
   }
 
+  /** Creates a new user message. */
   public static ChatMessage createUserMessage(String text) {
     return new ChatMessage(MessageId.generate(), text, ROLE_USER, Instant.now());
   }
 
+  /** Creates a new assistant message. */
   public static ChatMessage createAssistantMessage(String text) {
     return new ChatMessage(MessageId.generate(), text, ROLE_ASSISTANT, Instant.now());
   }
 
+  /** Rebuilds a stored message. */
   public static ChatMessage of(MessageId id, String text, String role, Instant timestamp) {
     return new ChatMessage(id, text, role, timestamp);
   }
 
+  /** Returns the message id. */
   public MessageId getId() {
     return id;
   }
 
+  /** Returns the message text. */
   public String getText() {
     return text;
   }
 
+  /** Returns the sender role. */
   public String role() {
     return role;
   }
 
+  /** Returns when the message was created. */
   public Instant getTimestamp() {
     return timestamp;
   }
 
+  /** Tells whether the user sent the message. */
   public boolean isFromUser() {
     return ROLE_USER.equals(role);
   }
 
+  /** Tells whether the assistant sent the message. */
   public boolean isFromAssistant() {
     return ROLE_ASSISTANT.equals(role);
   }
 
+  /** Returns a copy of the message with new text. */
   public ChatMessage withText(String newText) {
     return new ChatMessage(this.id, newText, this.role, this.timestamp);
   }

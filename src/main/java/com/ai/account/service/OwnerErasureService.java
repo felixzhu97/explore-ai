@@ -14,6 +14,7 @@ public class OwnerErasureService {
 
   private final OwnerPartitionRepository ownerPartitionRepository;
 
+  /** Erases all data stored for the owner. */
   @Transactional
   public void eraseAllForOwner(OwnerKey ownerKey) {
     Objects.requireNonNull(ownerKey, "ownerKey");

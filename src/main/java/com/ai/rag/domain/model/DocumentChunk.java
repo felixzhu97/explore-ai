@@ -36,6 +36,7 @@ public class DocumentChunk {
     this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
   }
 
+  /** Creates a chunk without an embedding. */
   public static DocumentChunk create(
       ChunkId id,
       DocumentId documentId,
@@ -45,6 +46,7 @@ public class DocumentChunk {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, null, Instant.now());
   }
 
+  /** Restores a stored chunk. */
   public static DocumentChunk reconstitute(
       ChunkId id,
       DocumentId documentId,
@@ -56,34 +58,42 @@ public class DocumentChunk {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
   }
 
+  /** Returns a copy with the embedding. */
   public DocumentChunk withEmbedding(float[] embedding) {
     return new DocumentChunk(id, documentId, content, chunkIndex, metadata, embedding, createdAt);
   }
 
+  /** Returns the chunk id. */
   public ChunkId getId() {
     return id;
   }
 
+  /** Returns the document id. */
   public DocumentId getDocumentId() {
     return documentId;
   }
 
+  /** Returns the chunk text. */
   public String getContent() {
     return content;
   }
 
+  /** Returns the position of the chunk in the document. */
   public int getChunkIndex() {
     return chunkIndex;
   }
 
+  /** Returns the metadata. */
   public Map<String, Object> getMetadata() {
     return metadata;
   }
 
+  /** Returns the embedding. */
   public float[] getEmbedding() {
     return embedding;
   }
 
+  /** Returns when the chunk was created. */
   public Instant getCreatedAt() {
     return createdAt;
   }

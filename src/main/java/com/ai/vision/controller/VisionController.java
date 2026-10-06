@@ -28,11 +28,13 @@ public class VisionController {
 
   private final VisionAnalysisService visionAnalysisService;
 
+  /** Returns the vision module health. */
   @GetMapping("/health")
   public VisionHealthResponse getHealth() {
     return visionAnalysisService.getHealth();
   }
 
+  /** Describes the uploaded image. */
   @PostMapping("/caption")
   public CaptionResponse captionImage(
       @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
@@ -40,6 +42,7 @@ public class VisionController {
     return visionAnalysisService.captionImage(file);
   }
 
+  /** Detects objects in the uploaded image. */
   @PostMapping("/detect")
   public DetectResponse detect(@RequestParam(value = "file", required = false) MultipartFile file)
       throws IOException {
@@ -47,6 +50,7 @@ public class VisionController {
     return visionAnalysisService.detect(file);
   }
 
+  /** Reads the text in the uploaded image. */
   @PostMapping("/ocr")
   public OcrResponse recognizeText(
       @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {

@@ -16,10 +16,12 @@ public class PipelineTemplateService {
 
   private final PipelineTemplateRepository repository;
 
+  /** Lists the built-in pipeline templates. */
   public List<PipelineTemplateDefinition> listTemplates(String language) {
     return PipelineTemplateCatalog.listAll(language);
   }
 
+  /** Lists the owner's saved pipelines. */
   public List<PipelineTemplate> listLibrary(String ownerKey) {
     return repository.findAllByOwnerKey(ownerKey);
   }
@@ -82,11 +84,13 @@ public class PipelineTemplateService {
     return repository.save(template);
   }
 
+  /** Deletes the owner's saved pipeline. */
   public void delete(String ownerKey, String id) {
     findOwned(ownerKey, id);
     repository.deleteByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey);
   }
 
+  /** Returns the owner's saved pipeline. */
   public PipelineTemplate get(String ownerKey, String id) {
     return findOwned(ownerKey, id);
   }

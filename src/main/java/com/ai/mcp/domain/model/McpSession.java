@@ -19,10 +19,12 @@ public class McpSession {
     this.status = McpSessionStatus.ACTIVE;
   }
 
+  /** Opens a new session for the server. */
   public static McpSession open(String serverName, int toolCount) {
     return new McpSession(UUID.randomUUID(), serverName, toolCount);
   }
 
+  /** Restores a stored session. */
   public static McpSession reconstitute(
       UUID id, String serverName, int toolCount, McpSessionStatus status) {
     McpSession session = new McpSession(id, serverName, toolCount);
@@ -30,6 +32,7 @@ public class McpSession {
     return session;
   }
 
+  /** Marks the session active. */
   public void activate() {
     ensureNotClosed();
     status = McpSessionStatus.ACTIVE;
@@ -43,22 +46,27 @@ public class McpSession {
     status = McpSessionStatus.CLOSED;
   }
 
+  /** Tells whether the session is active. */
   public boolean isActive() {
     return status == McpSessionStatus.ACTIVE;
   }
 
+  /** Returns the session id. */
   public UUID id() {
     return id;
   }
 
+  /** Returns the server name. */
   public String serverName() {
     return serverName;
   }
 
+  /** Returns the number of tools. */
   public int toolCount() {
     return toolCount;
   }
 
+  /** Returns the session status. */
   public McpSessionStatus status() {
     return status;
   }

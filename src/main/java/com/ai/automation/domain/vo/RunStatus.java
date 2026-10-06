@@ -10,6 +10,7 @@ public enum RunStatus {
     return name();
   }
 
+  /** Parses a run status, ignoring case. */
   public static RunStatus from(String raw) {
     return RunStatus.valueOf(raw.trim().toUpperCase());
   }

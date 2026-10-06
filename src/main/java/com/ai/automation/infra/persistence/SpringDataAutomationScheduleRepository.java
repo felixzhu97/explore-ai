@@ -19,6 +19,7 @@ public interface SpringDataAutomationScheduleRepository
   List<AutomationSchedule> findByEnabledTrueAndNextRunAtLessThanEqualOrderByNextRunAtAsc(
       Instant asOf, Pageable pageable);
 
+  /** Moves the next run time only if it still matches, so one worker claims the run. */
   @Modifying
   @Query(
       """

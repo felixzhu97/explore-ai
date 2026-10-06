@@ -27,14 +27,17 @@ public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId>
     this.finishedAt = finishedAt;
   }
 
+  /** Returns when the run started. */
   public Instant getStartedAt() {
     return createdAt;
   }
 
+  /** Records when the run finished. */
   protected void markFinished(Instant finishedAt) {
     this.finishedAt = Objects.requireNonNull(finishedAt, "finishedAt");
   }
 
+  /** Tells whether the run has finished. */
   public boolean isFinished() {
     return finishedAt != null;
   }

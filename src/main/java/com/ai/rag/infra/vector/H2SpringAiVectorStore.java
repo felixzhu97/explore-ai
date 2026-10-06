@@ -132,6 +132,7 @@ public class H2SpringAiVectorStore implements VectorStore {
         .build();
   }
 
+  /** Extracts the document ids from a filter. */
   static List<UUID> extractDocumentIds(Filter.Expression expression) {
     return findValue(expression, Filter.ExpressionType.IN, DOCUMENT_ID_METADATA_KEY)
         .map(H2SpringAiVectorStore::toUuids)

@@ -9,6 +9,7 @@ import com.ai.chat.domain.vo.WebSource;
  */
 public record WebSourceResponse(String title, String url, String snippet, String publishedAt) {
 
+  /** Maps a web source to a response. */
   public static WebSourceResponse from(WebSource source) {
     String publishedAt = source.publishedAt().isBlank() ? null : source.publishedAt();
     return new WebSourceResponse(source.title(), source.url(), source.snippet(), publishedAt);

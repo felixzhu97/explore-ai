@@ -13,6 +13,7 @@ public record StreamTokenEvent(String type, String token) {
 
   private static final ObjectMapper JSON = new ObjectMapper();
 
+  /** Creates a token event. */
   public static StreamTokenEvent of(String token) {
     return new StreamTokenEvent("message", token);
   }

@@ -16,6 +16,7 @@ public record ImagePrompt(String value) {
     }
   }
 
+  /** Creates a prompt. */
   public static ImagePrompt of(String prompt) {
     return new ImagePrompt(prompt);
   }

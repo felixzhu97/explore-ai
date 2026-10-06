@@ -8,6 +8,7 @@ public final class DomainStrings {
 
   private DomainStrings() {}
 
+  /** Returns the trimmed name, rejecting blank or too long names. */
   public static String requireName(String name) {
     return requireName(name, DEFAULT_NAME_MAX);
   }
@@ -24,6 +25,7 @@ public final class DomainStrings {
     return trimmed;
   }
 
+  /** Returns the trimmed description, or null when blank. */
   public static String normalizeDescription(String description) {
     return normalizeDescription(description, DEFAULT_DESCRIPTION_MAX);
   }

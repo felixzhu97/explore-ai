@@ -23,6 +23,7 @@ public class OAuthGoogleProperties {
    */
   private String redirectUri = "";
 
+  /** Tells whether Google login is enabled and fully configured. */
   public boolean isReady() {
     return enabled
         && clientId != null

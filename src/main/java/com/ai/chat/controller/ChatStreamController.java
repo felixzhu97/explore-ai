@@ -42,11 +42,13 @@ public class ChatStreamController {
 
   private static final Logger log = LoggerFactory.getLogger(ChatStreamController.class);
 
+  /** Lists the chat providers and whether they are available. */
   @GetMapping("/providers")
   public List<ProviderInfoResponse> listProviders() {
     return providerCatalog.listProviders();
   }
 
+  /** Lists the chat models of a provider. */
   @GetMapping("/models")
   public ModelsListResponse listModels(@RequestParam(required = false) String provider) {
     var models = providerCatalog.listModels(provider);
@@ -55,6 +57,7 @@ public class ChatStreamController {
     return ModelsListResponse.of(resolvedProvider, models);
   }
 
+  /** Streams the chat reply as server-sent events. */
   @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<String> streamChat(
       @Valid @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {

@@ -17,13 +17,16 @@ public interface DocumentRepository {
   /** Retrieves all documents. */
   List<RagDocument> findAll();
 
+  /** Lists all documents of the owner. */
   List<RagDocument> findAllByOwnerKey(String ownerKey);
 
+  /** Finds the owner's document by id. */
   Optional<RagDocument> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
   /** Saves a document and returns the saved entity. */
   RagDocument save(RagDocument document);
 
+  /** Deletes the owner's document by id. */
   void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
 
   /** Deletes a document by its ID. */

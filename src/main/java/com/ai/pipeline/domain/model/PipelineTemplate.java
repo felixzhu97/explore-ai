@@ -99,6 +99,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
     return this;
   }
 
+  /** Returns the agent types as a read-only list. */
   public List<String> getAgentTypes() {
     return Collections.unmodifiableList(agentTypes);
   }

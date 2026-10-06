@@ -23,6 +23,7 @@ public class OAuthGithubProperties {
    */
   private String redirectUri = "";
 
+  /** Tells whether GitHub login is enabled and fully configured. */
   public boolean isReady() {
     return enabled
         && clientId != null

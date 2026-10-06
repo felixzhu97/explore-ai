@@ -11,6 +11,7 @@ final class LaunchDarklyInitializationWaiter {
 
   private LaunchDarklyInitializationWaiter() {}
 
+  /** Waits until the client is ready or the timeout passes. */
   static void waitForInitialization(LDClient client, Duration timeout) {
     long deadline = System.nanoTime() + timeout.toNanos();
     while (!client.isInitialized()) {

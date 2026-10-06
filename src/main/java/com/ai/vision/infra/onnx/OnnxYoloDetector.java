@@ -96,6 +96,7 @@ public class OnnxYoloDetector implements ObjectDetector {
     return available;
   }
 
+  /** Closes the ONNX session. */
   @PreDestroy
   void closeSession() {
     if (session == null) {

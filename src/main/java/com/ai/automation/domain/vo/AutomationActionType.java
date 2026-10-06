@@ -8,6 +8,7 @@ public enum AutomationActionType {
     return name();
   }
 
+  /** Parses an action type, ignoring case. */
   public static AutomationActionType from(String raw) {
     return AutomationActionType.valueOf(raw.trim().toUpperCase());
   }

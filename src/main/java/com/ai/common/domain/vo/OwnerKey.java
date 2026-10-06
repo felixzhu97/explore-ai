@@ -45,14 +45,17 @@ public record OwnerKey(String value) {
     return new OwnerKey(ACCOUNT_PREFIX + accountUserId.trim());
   }
 
+  /** Wraps a stored owner key value. */
   public static OwnerKey parse(String raw) {
     return new OwnerKey(raw);
   }
 
+  /** Tells whether the key belongs to a signed-in account. */
   public boolean isAccount() {
     return value.startsWith(ACCOUNT_PREFIX);
   }
 
+  /** Tells whether the key belongs to a guest client. */
   public boolean isClient() {
     return value.startsWith(CLIENT_PREFIX);
   }

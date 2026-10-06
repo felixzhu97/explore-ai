@@ -14,10 +14,12 @@ public final class PipelineTemplateId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing id. */
   public static PipelineTemplateId of(String value) {
     return new PipelineTemplateId(value);
   }
 
+  /** Creates a new random id. */
   public static PipelineTemplateId generate() {
     return new PipelineTemplateId(generateUuidString());
   }

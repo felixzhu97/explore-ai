@@ -14,6 +14,7 @@ final class JwtPresentScopeAuthorization {
 
   private JwtPresentScopeAuthorization() {}
 
+  /** Requires the scope when the request carries a JWT; allows other requests. */
   static AuthorizationManager<RequestAuthorizationContext> requireScope(String scope) {
     String authority = "SCOPE_" + scope;
     return (authentication, context) -> {

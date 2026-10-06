@@ -36,6 +36,7 @@ public abstract class AbstractNamedOwnerEntity<IdT extends AbstractUuidId>
     this.name = DomainStrings.requireName(name);
   }
 
+  /** Renames the entity. */
   protected void rename(String nextName) {
     this.name = DomainStrings.requireName(nextName);
     touchUpdatedAt();

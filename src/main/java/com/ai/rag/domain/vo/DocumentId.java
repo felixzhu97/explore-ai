@@ -23,14 +23,17 @@ public final class DocumentId extends AbstractUuidId {
     return new DocumentId(uuid.toString());
   }
 
+  /** Wraps an existing UUID string. */
   public static DocumentId of(String uuidString) {
     return new DocumentId(uuidString);
   }
 
+  /** Creates a new random id. */
   public static DocumentId generate() {
     return new DocumentId(generateUuidString());
   }
 
+  /** Returns the id as a UUID. */
   public UUID uuidValue() {
     return asUuid();
   }

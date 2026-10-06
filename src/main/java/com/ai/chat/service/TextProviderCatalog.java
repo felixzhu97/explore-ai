@@ -83,6 +83,7 @@ public class TextProviderCatalog {
             ProviderStatus.of(ollamaChatEnabled)));
   }
 
+  /** Lists the models of a provider, defaulting to OpenAI. */
   public List<ModelInfoResponse> listModels(String provider) {
     String key = provider == null || provider.isBlank() ? "openai" : provider.toLowerCase();
     return MODELS_BY_PROVIDER.getOrDefault(key, MODELS_BY_PROVIDER.get("openai"));

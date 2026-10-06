@@ -92,6 +92,7 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
     return OPENAI_VOICES.contains(voice.toLowerCase()) ? null : voice;
   }
 
+  /** Resolves the audio URL returned by the speech service to an absolute URI. */
   URI resolveAudioUri(String audioUrl) {
     if (audioUrl.startsWith("http://") || audioUrl.startsWith("https://")) {
       return URI.create(audioUrl);

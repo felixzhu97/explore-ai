@@ -94,6 +94,7 @@ public class AutomationMailFormatter {
         .replace("<a ", "<a style=\"color:#0071e3;\" ");
   }
 
+  /** Converts Markdown to readable plain text for email. */
   static String toReadablePlain(String markdown) {
     if (markdown == null || markdown.isBlank()) {
       return "—";

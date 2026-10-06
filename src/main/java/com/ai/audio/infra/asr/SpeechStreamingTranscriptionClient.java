@@ -156,6 +156,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
     }
   }
 
+  /** Converts the speech service HTTP base URL to its WebSocket URI. */
   static String toWsUri(String httpBase) {
     String base = httpBase == null ? "http://localhost:8000" : httpBase.trim();
     while (base.endsWith("/")) {

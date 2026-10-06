@@ -13,6 +13,7 @@ final class CapturedWebSources {
 
   private CapturedWebSources() {}
 
+  /** Remembers the web sources found for a stream. */
   static void remember(String channelId, String query, List<WebSource> sources) {
     if (channelId == null || channelId.isBlank() || sources == null || sources.isEmpty()) {
       return;
@@ -20,6 +21,7 @@ final class CapturedWebSources {
     BY_CHANNEL.put(channelId, new Capture(query == null ? "" : query, List.copyOf(sources)));
   }
 
+  /** Returns and removes the web sources of a stream. */
   static Capture take(String channelId) {
     if (channelId == null) {
       return null;
@@ -27,6 +29,7 @@ final class CapturedWebSources {
     return BY_CHANNEL.remove(channelId);
   }
 
+  /** Returns the web sources of a stream without removing them. */
   static Capture peek(String channelId) {
     if (channelId == null) {
       return null;
@@ -34,12 +37,14 @@ final class CapturedWebSources {
     return BY_CHANNEL.get(channelId);
   }
 
+  /** Forgets the web sources of a stream. */
   static void clear(String channelId) {
     if (channelId != null) {
       BY_CHANNEL.remove(channelId);
     }
   }
 
+  /** Parses web search result items into web sources. */
   static List<WebSource> parseItems(JsonNode itemsNode) {
     if (itemsNode == null || !itemsNode.isArray()) {
       return List.of();

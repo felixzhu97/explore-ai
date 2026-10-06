@@ -153,6 +153,7 @@ public class ChatClientFactory implements ChatClientProvider {
     return ToolCallLoopGuardAdvisor.builder().toolCallingManager(manager).build();
   }
 
+  /** Tells whether tool search is on. */
   boolean isToolSearchEnabled() {
     return toolSearchEnabled;
   }

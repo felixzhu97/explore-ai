@@ -10,6 +10,7 @@ public class SkillNotFoundException extends RuntimeException {
     this.skillId = skillId;
   }
 
+  /** Returns the skill id that was not found. */
   public String getSkillId() {
     return skillId;
   }

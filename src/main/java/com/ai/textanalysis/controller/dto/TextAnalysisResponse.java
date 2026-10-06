@@ -26,6 +26,7 @@ public record TextAnalysisResponse(
     NEUTRAL,
     NEGATIVE;
 
+    /** Maps a sentiment to its label, neutral when null. */
     static SentimentLabel fromDomain(Sentiment sentiment) {
       if (sentiment == null) {
         return SentimentLabel.NEUTRAL;

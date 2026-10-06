@@ -14,30 +14,37 @@ public class SynthesizedAudio {
     this.mediaType = mediaType == null || mediaType.isBlank() ? "audio/mpeg" : mediaType;
   }
 
+  /** Creates MP3 audio from the bytes. */
   public static SynthesizedAudio create(byte[] data) {
     return new SynthesizedAudio(data, "audio/mpeg");
   }
 
+  /** Creates audio from the bytes and media type. */
   public static SynthesizedAudio create(byte[] data, String mediaType) {
     return new SynthesizedAudio(data, mediaType);
   }
 
+  /** Creates empty MP3 audio. */
   public static SynthesizedAudio empty() {
     return new SynthesizedAudio(new byte[0], "audio/mpeg");
   }
 
+  /** Tells whether the audio has no bytes. */
   public boolean isEmpty() {
     return data.length == 0;
   }
 
+  /** Returns the audio size in bytes. */
   public int sizeInBytes() {
     return data.length;
   }
 
+  /** Returns a copy of the audio bytes. */
   public byte[] data() {
     return Arrays.copyOf(data, data.length);
   }
 
+  /** Returns the audio media type. */
   public String mediaType() {
     return mediaType;
   }

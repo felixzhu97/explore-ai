@@ -18,6 +18,7 @@ public enum ProviderStatus {
     return value;
   }
 
+  /** Maps availability to a provider status. */
   public static ProviderStatus of(boolean available) {
     return available ? AVAILABLE : UNAVAILABLE;
   }

@@ -96,6 +96,7 @@ public class DocumentUploadService {
     }
   }
 
+  /** Lists all documents of the owner. */
   @Transactional(readOnly = true)
   public List<RagDocument> listAll(String ownerKey) {
     return documentRepository.findAllByOwnerKey(ownerKey);

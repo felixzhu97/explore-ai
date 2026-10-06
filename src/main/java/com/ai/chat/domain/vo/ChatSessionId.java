@@ -14,10 +14,12 @@ public final class ChatSessionId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing session id. */
   public static ChatSessionId of(String value) {
     return new ChatSessionId(value);
   }
 
+  /** Creates a new random session id. */
   public static ChatSessionId generate() {
     return new ChatSessionId(generateUuidString());
   }

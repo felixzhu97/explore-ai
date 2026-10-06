@@ -14,10 +14,12 @@ public final class ScheduleId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing schedule id. */
   public static ScheduleId of(String value) {
     return new ScheduleId(value);
   }
 
+  /** Creates a new random schedule id. */
   public static ScheduleId generate() {
     return new ScheduleId(generateUuidString());
   }

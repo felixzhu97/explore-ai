@@ -28,6 +28,7 @@ final class ToolCallLoopGuardAdvisor extends ToolCallingAdvisor {
         conversationHistoryEnabled);
   }
 
+  /** Creates an advisor builder. */
   public static Builder builder() {
     return new Builder();
   }

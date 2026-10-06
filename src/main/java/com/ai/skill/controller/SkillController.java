@@ -34,12 +34,14 @@ public class SkillController {
   private final SkillService skillService;
   private final OwnerContext ownerContext;
 
+  /** Lists the owner's skills. */
   @GetMapping
   public List<SkillResponse> list(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return skillService.list(ownerKey).stream().map(SkillResponse::from).toList();
   }
 
+  /** Lists the built-in skill templates. */
   @GetMapping("/templates")
   public List<SkillTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
@@ -47,12 +49,14 @@ public class SkillController {
     return skillService.listTemplates(language).stream().map(SkillTemplateResponse::from).toList();
   }
 
+  /** Returns one skill. */
   @GetMapping("/{id}")
   public SkillResponse get(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return SkillResponse.from(skillService.get(ownerKey, id));
   }
 
+  /** Creates a skill. */
   @PostMapping
   public ResponseEntity<SkillResponse> create(
       @Valid @RequestBody CreateSkillRequest body, HttpServletRequest request) {
@@ -68,6 +72,7 @@ public class SkillController {
                     body.allowedTools())));
   }
 
+  /** Creates a skill from a template. */
   @PostMapping("/from-template")
   public ResponseEntity<SkillResponse> createFromTemplate(
       @Valid @RequestBody CreateSkillFromTemplateRequest body,
@@ -81,6 +86,7 @@ public class SkillController {
                 skillService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
+  /** Updates a skill. */
   @PutMapping("/{id}")
   public SkillResponse update(
       @PathVariable String id,
@@ -97,6 +103,7 @@ public class SkillController {
             body.allowedTools()));
   }
 
+  /** Turns a skill on or off. */
   @PatchMapping("/{id}/enabled")
   public SkillResponse setEnabled(
       @PathVariable String id,
@@ -106,6 +113,7 @@ public class SkillController {
     return SkillResponse.from(skillService.setEnabled(ownerKey, id, body.enabled()));
   }
 
+  /** Deletes a skill. */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);

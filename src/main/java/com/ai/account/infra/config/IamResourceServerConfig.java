@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 @EnableConfigurationProperties(OAuthExploreIamProperties.class)
 public class IamResourceServerConfig {
 
+  /** Creates the JWT decoder for Explore IAM access tokens. */
   @Bean
   @ConditionalOnProperty(
       prefix = "app.oauth.explore-iam",

@@ -19,14 +19,17 @@ public class DailyUsageQuotaService {
   private final BillingProperties properties;
   private final Map<String, DayCounter> counters = new ConcurrentHashMap<>();
 
+  /** Tells whether the daily quota is enforced. */
   public boolean isEnabled() {
     return properties.isQuotaEnabled();
   }
 
+  /** Returns the daily request limit for the current plan. */
   public int getDailyLimit() {
     return properties.resolveDailyLimit();
   }
 
+  /** Returns the configured billing plan. */
   public String getPlan() {
     return properties.getPlan();
   }

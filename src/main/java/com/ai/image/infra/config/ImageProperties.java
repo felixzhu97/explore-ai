@@ -19,10 +19,12 @@ public class ImageProperties {
   private String apiKey = "ollama";
   private String baseUrl = "http://localhost:11434/v1";
 
+  /** Tells whether Ollama is the image provider. */
   public boolean isOllamaProvider() {
     return PROVIDER_OLLAMA.equalsIgnoreCase(provider);
   }
 
+  /** Tells whether OpenAI is the image provider. */
   public boolean isOpenAiProvider() {
     return PROVIDER_OPENAI.equalsIgnoreCase(provider);
   }

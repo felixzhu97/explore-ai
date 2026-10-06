@@ -20,6 +20,7 @@ public record TextChatOptions(
     return new TextChatOptions(DEFAULT_PROVIDER, null, false, null);
   }
 
+  /** Creates options with tools on. */
   public static TextChatOptions of(String provider, String model) {
     return new TextChatOptions(provider, model, true, null);
   }
@@ -34,16 +35,19 @@ public record TextChatOptions(
     return new TextChatOptions(provider, model, toolsEnabled == null || toolsEnabled, null);
   }
 
+  /** Creates options with tools and an optional skill prompt. */
   public static TextChatOptions of(
       String provider, String model, Boolean toolsEnabled, String skillSystemPrompt) {
     return new TextChatOptions(
         provider, model, toolsEnabled == null || toolsEnabled, skillSystemPrompt);
   }
 
+  /** Creates options for an Ollama vision model without tools. */
   public static TextChatOptions ollamaVision(String model) {
     return new TextChatOptions("ollama", model, false, null);
   }
 
+  /** Returns a copy with the skill system prompt. */
   public TextChatOptions withSkillSystemPrompt(String skillSystemPrompt) {
     return new TextChatOptions(provider, model, toolsEnabled, skillSystemPrompt);
   }

@@ -18,6 +18,7 @@ public class RetryConfig {
   private static final double MULTIPLIER = 2.0;
   private static final long MAX_INTERVAL_MS = 5000;
 
+  /** Creates the retry policy for AI provider calls. */
   @Bean
   public RetryTemplate aiRetryTemplate() {
     RetryTemplate retryTemplate = new RetryTemplate();

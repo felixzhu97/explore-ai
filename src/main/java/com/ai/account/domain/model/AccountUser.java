@@ -53,6 +53,7 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
     return user;
   }
 
+  /** Links this account to a browser session and updates its email. */
   public void linkSession(String email, String linkedClientId) {
     this.email = normalizeEmail(email);
     this.linkedClientId = requireClientId(linkedClientId);

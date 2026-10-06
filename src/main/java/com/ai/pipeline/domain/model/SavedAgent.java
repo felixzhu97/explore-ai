@@ -102,6 +102,7 @@ public class SavedAgent extends AbstractEnableableDescribedOwnerEntity<SavedAgen
         AgentDefinition.RUNTIME_SINGLE);
   }
 
+  /** Returns the tool keys as a read-only list. */
   public List<String> getToolKeys() {
     return Collections.unmodifiableList(toolKeys);
   }

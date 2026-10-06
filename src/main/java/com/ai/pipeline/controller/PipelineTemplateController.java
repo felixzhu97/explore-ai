@@ -34,6 +34,7 @@ public class PipelineTemplateController {
   private final PipelineTemplateService pipelineTemplateService;
   private final OwnerContext ownerContext;
 
+  /** Lists the built-in pipeline templates. */
   @GetMapping("/template-definitions")
   public List<PipelineTemplateDefinitionResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
@@ -43,6 +44,7 @@ public class PipelineTemplateController {
         .toList();
   }
 
+  /** Lists the owner's saved pipelines. */
   @GetMapping("/templates")
   public List<PipelineTemplateResponse> listLibrary(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
@@ -51,6 +53,7 @@ public class PipelineTemplateController {
         .toList();
   }
 
+  /** Saves a copy of a built-in template. */
   @PostMapping("/templates/from-template")
   public ResponseEntity<PipelineTemplateResponse> createFromTemplate(
       @Valid @RequestBody CreatePipelineTemplateFromDefinitionRequest body,
@@ -64,6 +67,7 @@ public class PipelineTemplateController {
                 pipelineTemplateService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
+  /** Saves a new pipeline. */
   @PostMapping("/templates")
   public ResponseEntity<PipelineTemplateResponse> create(
       @Valid @RequestBody CreatePipelineTemplateRequest body, HttpServletRequest request) {
@@ -81,6 +85,7 @@ public class PipelineTemplateController {
                     null)));
   }
 
+  /** Updates a saved pipeline. */
   @PutMapping("/templates/{id}")
   public PipelineTemplateResponse update(
       @PathVariable String id,
@@ -98,6 +103,7 @@ public class PipelineTemplateController {
             body.briefPrompt()));
   }
 
+  /** Turns a saved pipeline on or off. */
   @PatchMapping("/templates/{id}/enabled")
   public PipelineTemplateResponse setEnabled(
       @PathVariable String id,
@@ -108,6 +114,7 @@ public class PipelineTemplateController {
         pipelineTemplateService.setEnabled(ownerKey, id, body.enabled()));
   }
 
+  /** Deletes a saved pipeline. */
   @DeleteMapping("/templates/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);

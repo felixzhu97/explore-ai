@@ -13,7 +13,9 @@ public interface ChatWebSourcesRepository {
    */
   Map<String, List<WebSource>> findByConversationId(String conversationId);
 
+  /** Saves the web sources used for an assistant reply. */
   void save(String conversationId, String assistantContent, String query, List<WebSource> sources);
 
+  /** Deletes all web sources of a conversation. */
   void deleteByConversationId(String conversationId);
 }

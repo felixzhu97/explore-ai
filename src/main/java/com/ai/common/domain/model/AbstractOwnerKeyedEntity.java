@@ -38,10 +38,12 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     this(id, OwnerKey.parse(ownerKeyValue), createdAt, updatedAt);
   }
 
+  /** Tells whether the entity belongs to the owner. */
   public boolean belongsTo(OwnerKey candidate) {
     return ownerKey.equals(candidate);
   }
 
+  /** Tells whether the entity belongs to the owner key value. */
   public boolean belongsTo(String ownerKeyValue) {
     return ownerKey.value().equals(ownerKeyValue);
   }
@@ -51,10 +53,12 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractUuidId>
     return ownerKey.value();
   }
 
+  /** Moves the entity to another owner. */
   protected void rebindOwnerKey(OwnerKey nextOwnerKey) {
     this.ownerKey = Objects.requireNonNull(nextOwnerKey, "ownerKey");
   }
 
+  /** Moves the entity to the owner key value. */
   public void rebindOwnerKey(String ownerKeyValue) {
     rebindOwnerKey(OwnerKey.parse(ownerKeyValue));
   }

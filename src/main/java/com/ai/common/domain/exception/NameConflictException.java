@@ -12,10 +12,12 @@ public class NameConflictException extends AbstractDomainException {
     this.name = name;
   }
 
+  /** Returns the kind of resource with the conflict. */
   public String getResourceType() {
     return resourceType;
   }
 
+  /** Returns the conflicting name. */
   public String getName() {
     return name;
   }

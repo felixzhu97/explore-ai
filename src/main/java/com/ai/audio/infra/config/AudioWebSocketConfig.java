@@ -39,6 +39,7 @@ public class AudioWebSocketConfig implements WebSocketConfigurer {
         .setAllowedOriginPatterns(allowedOriginPatterns);
   }
 
+  /** Configures WebSocket buffer sizes for audio streaming. */
   @Bean
   public ServletServerContainerFactoryBean createWebSocketContainer() {
     var container = new ServletServerContainerFactoryBean();

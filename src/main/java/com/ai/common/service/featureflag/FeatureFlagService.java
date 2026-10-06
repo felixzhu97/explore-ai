@@ -14,6 +14,7 @@ public class FeatureFlagService {
   private final FeatureFlagRepository repository;
   private final LaunchDarklyProperties properties;
 
+  /** Tells whether the module is on. */
   public boolean isModuleEnabled(ModuleFlag module) {
     return repository.isEnabled(module.key(), properties.resolveFallback(module.key()));
   }

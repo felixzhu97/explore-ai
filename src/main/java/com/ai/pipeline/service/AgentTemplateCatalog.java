@@ -22,14 +22,17 @@ public final class AgentTemplateCatalog {
 
   private AgentTemplateCatalog() {}
 
+  /** Lists the agent templates in English. */
   public static List<AgentTemplate> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
+  /** Lists the agent templates in the language. */
   public static List<AgentTemplate> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
+  /** Finds an English agent template by id. */
   public static Optional<AgentTemplate> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }

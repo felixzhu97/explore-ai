@@ -22,6 +22,7 @@ public class CronScheduleCalculator {
     return next.toInstant();
   }
 
+  /** Checks that the cron expression and time zone are valid. */
   public void validate(String cronExpression, String timezone) {
     CronExpression.parse(cronExpression);
     ZoneId.of(timezone);

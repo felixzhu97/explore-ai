@@ -8,6 +8,7 @@ public record ImageGenerationResponse(
     String prompt,
     String revisedPrompt,
     ImageGenerationStatus status) {
+  /** Creates a successful response. */
   public static ImageGenerationResponse success(
       String imageUrl, String imageBase64, String model, String prompt) {
     return new ImageGenerationResponse(

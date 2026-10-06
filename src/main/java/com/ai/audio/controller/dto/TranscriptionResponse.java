@@ -18,6 +18,7 @@ public record TranscriptionResponse(TranscriptionType type, String text) {
     text = text == null ? "" : text;
   }
 
+  /** Creates an error frame with the message. */
   public static TranscriptionResponse error(String text) {
     return new TranscriptionResponse(TranscriptionType.ERROR, text);
   }

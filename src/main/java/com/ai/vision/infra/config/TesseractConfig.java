@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
     matchIfMissing = false)
 public class TesseractConfig {
 
+  /** Creates the Tesseract OCR engine. */
   @Bean
   ITesseract tesseract(VisionModelProperties properties) {
     Tesseract tesseract = new Tesseract();

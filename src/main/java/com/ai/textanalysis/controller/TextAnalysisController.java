@@ -19,6 +19,7 @@ public class TextAnalysisController {
 
   private final TextAnalysisService textAnalysisService;
 
+  /** Analyzes the text. */
   @PostMapping
   public ResponseEntity<TextAnalysisResponse> analyzeText(
       @Valid @RequestBody TextAnalysisRequest request) {

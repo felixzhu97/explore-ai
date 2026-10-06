@@ -26,6 +26,7 @@ public class OllamaConfig {
   @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
   private String visionModelName;
 
+  /** Creates the Ollama embedding model. */
   @Bean
   @Conditional(OnOllamaEmbeddingProvider.class)
   @NonNull
@@ -38,6 +39,7 @@ public class OllamaConfig {
     return OllamaEmbeddingModel.builder().ollamaApi(api).options(options).build();
   }
 
+  /** Creates the Ollama vision chat model. */
   @Bean("ollamaVisionChatModel")
   @ConditionalOnProperty(
       name = "spring.ai.ollama.chat.enabled",

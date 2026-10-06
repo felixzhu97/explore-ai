@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ToolsConfig {
 
+  /** Creates the weather report. */
   @Bean
   WeatherReport weatherReport() {
     return new WeatherReport();

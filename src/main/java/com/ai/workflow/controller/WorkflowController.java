@@ -26,12 +26,14 @@ public class WorkflowController {
 
   private final WorkflowService workflowService;
 
+  /** Runs the chain workflow. */
   @PostMapping("/chain")
   public ResponseEntity<ChainResult> runChain(@Valid @RequestBody ChainWorkflowRequest request) {
     return ResponseEntity.ok(
         workflowService.runChain(request.userInput(), request.systemPrompts()));
   }
 
+  /** Runs the parallel workflow. */
   @PostMapping("/parallel")
   public ResponseEntity<ParallelizationResult> runParallel(
       @Valid @RequestBody ParallelizationWorkflowRequest request) {
@@ -40,17 +42,20 @@ public class WorkflowController {
         workflowService.runParallel(request.prompt(), request.items(), parallelism));
   }
 
+  /** Runs the routing workflow. */
   @PostMapping("/route")
   public ResponseEntity<RoutingResult> route(@Valid @RequestBody RoutingWorkflowRequest request) {
     return ResponseEntity.ok(workflowService.route(request.input(), request.routes()));
   }
 
+  /** Runs the orchestrator-workers workflow. */
   @PostMapping("/orchestrator-workers")
   public ResponseEntity<OrchestratorWorkersResult> runOrchestratorWorkers(
       @Valid @RequestBody OrchestratorWorkersRequest request) {
     return ResponseEntity.ok(workflowService.runOrchestratorWorkers(request.task()));
   }
 
+  /** Runs the evaluator-optimizer workflow. */
   @PostMapping("/evaluator-optimizer")
   public ResponseEntity<EvaluatorOptimizerResult> runEvaluatorOptimizer(
       @Valid @RequestBody EvaluatorOptimizerRequest request) {

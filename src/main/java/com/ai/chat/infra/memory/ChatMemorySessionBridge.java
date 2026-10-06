@@ -49,6 +49,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     session.replaceMessages(domainMessages);
   }
 
+  /** Clears the model memory of a conversation. */
   public void clear(String conversationId) {
     chatMemory.clear(conversationId);
   }

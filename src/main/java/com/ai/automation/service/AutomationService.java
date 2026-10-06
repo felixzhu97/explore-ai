@@ -31,10 +31,12 @@ public class AutomationService {
   private final CronScheduleCalculator cronCalculator;
   private final AutomationProperties properties;
 
+  /** Lists the owner's schedules. */
   public List<AutomationSchedule> list(String ownerKey) {
     return scheduleRepository.findAllByOwnerKey(ownerKey);
   }
 
+  /** Lists recent runs of the owner's schedule, capped at 100. */
   public List<AutomationRun> listRuns(String ownerKey, String scheduleId, int limit) {
     requireOwned(ownerKey, scheduleId);
     int capped = Math.min(Math.max(limit, 1), 100);
@@ -124,6 +126,7 @@ public class AutomationService {
     return scheduleRepository.save(schedule);
   }
 
+  /** Deletes the owner's schedule. */
   @Transactional
   public void delete(String ownerKey, String scheduleId) {
     requireOwned(ownerKey, scheduleId);

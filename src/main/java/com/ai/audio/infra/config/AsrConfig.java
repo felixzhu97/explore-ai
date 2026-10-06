@@ -9,6 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class AsrConfig {
 
+  /** Creates the thread pool for speech transcription work. */
   @Bean(name = "asrTranscriptionExecutor")
   TaskExecutor asrTranscriptionExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

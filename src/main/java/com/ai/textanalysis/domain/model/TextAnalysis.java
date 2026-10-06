@@ -27,6 +27,7 @@ public class TextAnalysis {
     this.language = language;
   }
 
+  /** Creates an analysis result. */
   public static TextAnalysis create(
       String summary,
       Sentiment sentiment,
@@ -36,10 +37,12 @@ public class TextAnalysis {
     return new TextAnalysis(summary, sentiment, keyPoints, entities, language);
   }
 
+  /** Tells whether the sentiment is positive. */
   public boolean isPositive() {
     return sentiment.isPositive();
   }
 
+  /** Tells whether any entities were found. */
   public boolean hasEntities() {
     return !entities.isEmpty();
   }
@@ -57,22 +60,27 @@ public class TextAnalysis {
     return create(truncated, sentiment, keyPoints, entities, language);
   }
 
+  /** Returns the summary. */
   public String summary() {
     return summary;
   }
 
+  /** Returns the sentiment. */
   public Sentiment sentiment() {
     return sentiment;
   }
 
+  /** Returns the key points. */
   public List<String> keyPoints() {
     return keyPoints;
   }
 
+  /** Returns the entities. */
   public List<String> entities() {
     return entities;
   }
 
+  /** Returns the language. */
   public String language() {
     return language;
   }

@@ -13,6 +13,7 @@ final class BlipImagePreprocessor {
 
   private BlipImagePreprocessor() {}
 
+  /** Turns the image into a BLIP input tensor. */
   static float[] preprocess(BufferedImage image) {
     BufferedImage resized = resize(image, IMAGE_SIZE, IMAGE_SIZE);
     float[] tensor = new float[3 * IMAGE_SIZE * IMAGE_SIZE];

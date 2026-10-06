@@ -27,6 +27,7 @@ public class AccountController {
 
   private final AccountService accountService;
 
+  /** Returns the signed-in or guest account for the current request. */
   @GetMapping("/me")
   public ResponseEntity<AccountMeResponse> getCurrentAccount(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

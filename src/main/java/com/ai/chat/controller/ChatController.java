@@ -36,11 +36,13 @@ public class ChatController {
   private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final OwnerContext ownerContext;
 
+  /** Reports that the chat API is up. */
   @GetMapping("/health")
   public ResponseEntity<HealthResponse> getHealth() {
     return ResponseEntity.ok(HealthResponse.up());
   }
 
+  /** Lists the owner's chat sessions. */
   @GetMapping("/sessions")
   public ResponseEntity<List<SessionResponse>> getAllSessions(HttpServletRequest httpRequest) {
     List<SessionResponse> sessions =
@@ -50,6 +52,7 @@ public class ChatController {
     return ResponseEntity.ok(sessions);
   }
 
+  /** Returns one chat session, or 404 when it does not exist. */
   @GetMapping("/sessions/{sessionId}")
   public ResponseEntity<SessionResponse> getSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
@@ -59,6 +62,7 @@ public class ChatController {
         .orElse(ResponseEntity.notFound().build());
   }
 
+  /** Lists the messages of a chat session with their web sources. */
   @GetMapping("/sessions/{sessionId}/messages")
   public ResponseEntity<List<MessageInfoResponse>> getSessionMessages(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
@@ -71,6 +75,7 @@ public class ChatController {
     return ResponseEntity.ok(messages);
   }
 
+  /** Sends a chat message and returns the reply. */
   @PostMapping
   public ResponseEntity<ChatResponse> chat(
       @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
@@ -85,6 +90,7 @@ public class ChatController {
     return ResponseEntity.ok(ChatResponse.of(response));
   }
 
+  /** Creates a chat session. */
   @PostMapping("/sessions")
   public ResponseEntity<SessionResponse> createSession(
       @Valid @RequestBody(required = false) CreateSessionRequest body,
@@ -94,6 +100,7 @@ public class ChatController {
     return ResponseEntity.ok(SessionResponse.from(session));
   }
 
+  /** Deletes a chat session. */
   @DeleteMapping("/sessions/{sessionId}")
   public ResponseEntity<Void> deleteSession(
       @PathVariable String sessionId, HttpServletRequest httpRequest) {

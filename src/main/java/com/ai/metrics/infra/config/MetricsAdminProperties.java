@@ -16,6 +16,7 @@ public class MetricsAdminProperties {
    */
   private String adminApiKey = "";
 
+  /** Tells whether the admin API key is set. */
   public boolean isAuthEnabled() {
     return adminApiKey != null && !adminApiKey.isBlank();
   }

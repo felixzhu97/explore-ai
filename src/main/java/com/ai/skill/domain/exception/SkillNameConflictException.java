@@ -10,6 +10,7 @@ public class SkillNameConflictException extends RuntimeException {
     this.name = name;
   }
 
+  /** Returns the conflicting name. */
   public String getName() {
     return name;
   }

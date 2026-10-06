@@ -26,6 +26,7 @@ public enum ModuleFlag {
     return pathPrefix;
   }
 
+  /** Returns the property that holds the module's bootstrap value. */
   public String bootstrapProperty() {
     return "launchdarkly.bootstrap." + key;
   }

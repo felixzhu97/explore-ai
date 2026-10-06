@@ -21,6 +21,7 @@ public abstract class AbstractAppendOnlyEvent<IdT extends AbstractUuidId>
     super(id, occurredAt);
   }
 
+  /** Returns when the event happened. */
   public Instant getOccurredAt() {
     return createdAt;
   }

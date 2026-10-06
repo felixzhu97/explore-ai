@@ -26,16 +26,19 @@ public final class AgentPipeline {
     this.edges = List.copyOf(edges);
   }
 
+  /** Creates a pipeline from nodes and edges. */
   public static AgentPipeline create(List<PipelineNode> nodes, List<PipelineEdge> edges) {
     Objects.requireNonNull(nodes, "nodes");
     Objects.requireNonNull(edges, "edges");
     return new AgentPipeline(nodes, edges);
   }
 
+  /** Returns the nodes. */
   public List<PipelineNode> nodes() {
     return nodes;
   }
 
+  /** Returns the edges. */
   public List<PipelineEdge> edges() {
     return edges;
   }
@@ -156,6 +159,7 @@ public final class AgentPipeline {
       toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
     }
 
+    /** Creates a node with default settings. */
     public static PipelineNode of(String id, AgentType agentType) {
       return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
     }
