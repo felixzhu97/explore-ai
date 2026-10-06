@@ -379,12 +379,13 @@ package "Account" as pkg_account {
     +linkedClientId: ClientId
     --
     +{static} create(identity, email, displayName)
+    +identity(): ExternalIdentity
     +linkBrowser(clientId, email, displayName)
     +recordSignIn(email, displayName)
     +unlinkBrowser()
     +ownerKey()
     +guestOwnerKey(): Optional
-    +displayLabel()
+    +displayLabel(): Optional
   }
   class ExternalIdentity <<ValueObject>> {
     +provider: String
@@ -402,7 +403,7 @@ package "Account" as pkg_account {
     +value: String (UUID)
     --
     +{static} parse(raw)
-    +{static} generate()
+    +{static} isValid(raw)
   }
 }
 

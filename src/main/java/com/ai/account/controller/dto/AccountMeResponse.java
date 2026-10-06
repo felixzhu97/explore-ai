@@ -8,6 +8,7 @@ public record AccountMeResponse(
     String clientId,
     String userId,
     String email,
+    String displayName,
     AccountPlan plan,
     boolean loginAvailable,
     List<LoginProvider> loginProviders) {}

@@ -527,4 +527,17 @@
         (SELECT COUNT(*) FROM document_chunks c WHERE c.document_id = d.id)
     </sql>
   </changeSet>
+
+  <!--
+    GitHub logins or full names used to land in email when the address was private. They are
+    cleared rather than copied: the next GitHub sign-in sets display_name from the login only.
+  -->
+  <changeSet author="explore-ai" id="0.1-020-account-user-display-name" dbms="h2">
+    <addColumn tableName="account_user">
+      <column name="display_name" type="${string.type}(255)"/>
+    </addColumn>
+    <sql>
+      UPDATE account_user SET email = NULL WHERE email IS NOT NULL AND email NOT LIKE '%@%'
+    </sql>
+  </changeSet>
 </databaseChangeLog>

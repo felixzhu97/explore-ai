@@ -55,6 +55,7 @@ class AccountControllerTest {
                   "cid-123",
                   null,
                   null,
+                  null,
                   AccountPlan.FREE,
                   false,
                   java.util.List.of()));
@@ -83,6 +84,7 @@ class AccountControllerTest {
                   AccountMode.AUTHENTICATED,
                   null,
                   "user-1",
+                  "iam@example.com",
                   "iam@example.com",
                   AccountPlan.FREE,
                   true,
