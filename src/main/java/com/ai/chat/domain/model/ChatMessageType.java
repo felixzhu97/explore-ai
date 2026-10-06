@@ -1,6 +1,6 @@
 package com.ai.chat.domain.model;
 
-/** Chat message type enum. */
+/** Who wrote a chat message. */
 public enum ChatMessageType {
   USER,
   ASSISTANT

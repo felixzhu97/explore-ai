@@ -6,6 +6,7 @@ import com.ai.chat.controller.dto.ChatStreamRequest;
 import com.ai.chat.controller.dto.ModelsListResponse;
 import com.ai.chat.controller.dto.ProviderInfoResponse;
 import com.ai.chat.domain.model.ChatMessage;
+import com.ai.chat.domain.vo.MessageId;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
@@ -69,10 +70,10 @@ public class ChatStreamController {
         request.messages().stream()
             .map(
                 dto ->
-                    ChatMessage.of(
-                        com.ai.chat.domain.vo.MessageId.generate(),
+                    ChatMessage.restore(
+                        MessageId.generate(),
                         dto.content(),
-                        dto.role().value(),
+                        dto.role().toMessageType(),
                         Instant.now()))
             .toList();
     return chatService.streamChat(messages, options, ownerKey);

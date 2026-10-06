@@ -69,80 +69,30 @@ class ChatMessageTest {
   }
 
   @Nested
-  @DisplayName("of()")
-  class Of {
+  @DisplayName("restore()")
+  class Restore {
 
     @Test
-    @DisplayName("should create message with all fields")
-    void shouldCreateMessageWithAllFields() {
+    @DisplayName("should keep every stored field when a message is restored")
+    void shouldKeepEveryStoredFieldWhenAMessageIsRestored() {
       MessageId id = MessageId.generate();
       Instant timestamp = Instant.now();
 
-      ChatMessage message = ChatMessage.of(id, "Test", "user", timestamp);
+      ChatMessage message = ChatMessage.restore(id, "Test", ChatMessageType.ASSISTANT, timestamp);
 
       assertThat(message.getId()).isEqualTo(id);
       assertThat(message.getText()).isEqualTo("Test");
-      assertThat(message.role()).isEqualTo("user");
+      assertThat(message.getMessageType()).isEqualTo(ChatMessageType.ASSISTANT);
+      assertThat(message.isFromAssistant()).isTrue();
       assertThat(message.getTimestamp()).isEqualTo(timestamp);
     }
-  }
-
-  @Nested
-  @DisplayName("role validation")
-  class RoleValidation {
 
     @Test
-    @DisplayName("should normalize role to lowercase")
-    void shouldNormalizeRoleToLowercase() {
-      MessageId id = MessageId.generate();
-      ChatMessage message = ChatMessage.of(id, "Text", "USER", Instant.now());
-
-      assertThat(message.role()).isEqualTo("user");
-    }
-
-    @Test
-    @DisplayName("should default to user for null role")
-    void shouldDefaultToUserForNullRole() {
-      MessageId id = MessageId.generate();
-      ChatMessage message = ChatMessage.of(id, "Text", null, Instant.now());
-
-      assertThat(message.role()).isEqualTo("user");
-    }
-
-    @Test
-    @DisplayName("should default to user for blank role")
-    void shouldDefaultToUserForBlankRole() {
-      MessageId id = MessageId.generate();
-      ChatMessage message = ChatMessage.of(id, "Text", "   ", Instant.now());
-
-      assertThat(message.role()).isEqualTo("user");
-    }
-
-    @Test
-    @DisplayName("should default to user for unknown role")
-    void shouldDefaultToUserForUnknownRole() {
-      MessageId id = MessageId.generate();
-      ChatMessage message = ChatMessage.of(id, "Text", "unknown", Instant.now());
-
-      assertThat(message.role()).isEqualTo("user");
-    }
-
-    @Test
-    @DisplayName("should accept valid user role")
-    void shouldAcceptValidUserRole() {
-      MessageId id = MessageId.generate();
-      ChatMessage message = ChatMessage.of(id, "Text", "user", Instant.now());
-
-      assertThat(message.role()).isEqualTo("user");
-    }
-
-    @Test
-    @DisplayName("should accept valid assistant role")
-    void shouldAcceptValidAssistantRole() {
-      MessageId id = MessageId.generate();
-      ChatMessage message = ChatMessage.of(id, "Text", "assistant", Instant.now());
-
-      assertThat(message.role()).isEqualTo("assistant");
+    @DisplayName("should reject a message when its type is missing")
+    void shouldRejectAMessageWhenItsTypeIsMissing() {
+      assertThatThrownBy(
+              () -> ChatMessage.restore(MessageId.generate(), "Text", null, Instant.now()))
+          .isInstanceOf(NullPointerException.class);
     }
   }
 
@@ -183,8 +133,8 @@ class ChatMessageTest {
     void shouldBeEqualWhenIdIsSame() {
       MessageId id = MessageId.of("11111111-1111-1111-1111-111111111111");
       Instant now = Instant.now();
-      ChatMessage msg1 = ChatMessage.of(id, "Text 1", "user", now);
-      ChatMessage msg2 = ChatMessage.of(id, "Text 2", "assistant", now);
+      ChatMessage msg1 = ChatMessage.restore(id, "Text 1", ChatMessageType.USER, now);
+      ChatMessage msg2 = ChatMessage.restore(id, "Text 2", ChatMessageType.ASSISTANT, now);
 
       assertThat(msg1).isEqualTo(msg2);
       assertThat(msg1.hashCode()).isEqualTo(msg2.hashCode());
@@ -195,9 +145,17 @@ class ChatMessageTest {
     void shouldNotBeEqualWhenIdIsDifferent() {
       Instant now = Instant.now();
       ChatMessage msg1 =
-          ChatMessage.of(MessageId.of("11111111-1111-1111-1111-111111111111"), "Text", "user", now);
+          ChatMessage.restore(
+              MessageId.of("11111111-1111-1111-1111-111111111111"),
+              "Text",
+              ChatMessageType.USER,
+              now);
       ChatMessage msg2 =
-          ChatMessage.of(MessageId.of("22222222-2222-2222-2222-222222222222"), "Text", "user", now);
+          ChatMessage.restore(
+              MessageId.of("22222222-2222-2222-2222-222222222222"),
+              "Text",
+              ChatMessageType.USER,
+              now);
 
       assertThat(msg1).isNotEqualTo(msg2);
     }
@@ -208,13 +166,13 @@ class ChatMessageTest {
   class ToString {
 
     @Test
-    @DisplayName("should contain id, role and timestamp")
-    void shouldContainIdRoleAndTimestamp() {
+    @DisplayName("should contain id, type and timestamp")
+    void shouldContainIdTypeAndTimestamp() {
       ChatMessage message = ChatMessage.createUserMessage("Test");
 
       String str = message.toString();
 
-      assertThat(str).contains("role='user'");
+      assertThat(str).contains("type=USER");
     }
   }
 }

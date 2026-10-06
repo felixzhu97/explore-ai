@@ -294,7 +294,7 @@ class ChatSessionTest {
   }
 
   @Nested
-  @DisplayName("restoreMessages() and recordActivity()")
+  @DisplayName("restoreMessages() and recordExchange()")
   class RestoreMessages {
 
     private final Instant lastActive = Instant.parse("2026-01-01T00:00:00Z");
@@ -313,15 +313,28 @@ class ChatSessionTest {
     }
 
     @Test
-    @DisplayName("should move last activity forward when activity is recorded")
-    void shouldMoveLastActivityForwardWhenActivityIsRecorded() {
+    @DisplayName("should move last activity forward when an exchange is recorded")
+    void shouldMoveLastActivityForwardWhenAnExchangeIsRecorded() {
       ChatSession session =
           ChatSession.of(
               com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
 
-      session.recordActivity();
+      session.recordExchange(
+          List.of(ChatMessage.createUserMessage("Hi"), ChatMessage.createAssistantMessage("Yo")));
 
+      assertThat(session.getMessageCount()).isEqualTo(2);
       assertThat(session.getLastActivityAt()).isAfter(lastActive);
+    }
+
+    @Test
+    @DisplayName("should be inactive only when last activity is before the cutoff")
+    void shouldBeInactiveOnlyWhenLastActivityIsBeforeTheCutoff() {
+      ChatSession session =
+          ChatSession.of(
+              com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
+
+      assertThat(session.isInactiveSince(lastActive.plusSeconds(1))).isTrue();
+      assertThat(session.isInactiveSince(lastActive)).isFalse();
     }
   }
 

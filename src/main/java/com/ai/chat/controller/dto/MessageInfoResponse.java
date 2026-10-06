@@ -17,7 +17,7 @@ public record MessageInfoResponse(
         sources == null || sources.isEmpty() ? null : List.copyOf(sources);
     return new MessageInfoResponse(
         message.getId().toString(),
-        ChatRole.from(message.role()),
+        ChatRole.of(message.getMessageType()),
         message.getText(),
         message.getTimestamp(),
         safeSources);
