@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -297,6 +298,38 @@ class ChatSessionTest {
       session.clearMessages();
 
       assertThat(session.getLastActivityAt()).isAfter(beforeClear);
+    }
+  }
+
+  @Nested
+  @DisplayName("restoreMessages() and recordActivity()")
+  class RestoreMessages {
+
+    private final Instant lastActive = Instant.parse("2026-01-01T00:00:00Z");
+
+    @Test
+    @DisplayName("should keep last activity when stored messages are restored")
+    void shouldKeepLastActivityWhenStoredMessagesAreRestored() {
+      ChatSession session =
+          ChatSession.of(
+              com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
+
+      session.restoreMessages(List.of(ChatMessage.createUserMessage("Hello")));
+
+      assertThat(session.getMessageCount()).isEqualTo(1);
+      assertThat(session.getLastActivityAt()).isEqualTo(lastActive);
+    }
+
+    @Test
+    @DisplayName("should move last activity forward when activity is recorded")
+    void shouldMoveLastActivityForwardWhenActivityIsRecorded() {
+      ChatSession session =
+          ChatSession.of(
+              com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
+
+      session.recordActivity();
+
+      assertThat(session.getLastActivityAt()).isAfter(lastActive);
     }
   }
 

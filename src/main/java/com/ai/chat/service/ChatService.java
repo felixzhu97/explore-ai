@@ -410,6 +410,7 @@ public class ChatService {
         .ifPresent(
             session -> {
               conversationMemoryRepository.syncToSession(conversationId, session);
+              session.recordActivity();
               repository.save(session);
               persistCapturedSources(conversationId, session);
               if (isFirstTurn && session.hasDefaultTitle()) {
@@ -457,6 +458,7 @@ public class ChatService {
     }
 
     conversationMemoryRepository.syncToSession(conversationId, session);
+    session.recordActivity();
     repository.save(session);
 
     if (isFirstTurn && session.hasDefaultTitle()) {

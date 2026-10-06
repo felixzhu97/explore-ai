@@ -46,7 +46,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     for (Message message : memoryMessages) {
       domainMessages.add(toDomainMessage(message));
     }
-    session.replaceMessages(domainMessages);
+    session.restoreMessages(domainMessages);
   }
 
   /** Clears the model memory of a conversation. */

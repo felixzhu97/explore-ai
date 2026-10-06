@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.vo.ChatSessionId;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,24 @@ class ChatMemorySessionBridgeTest {
     assertThat(session.getMessages().get(1).getText()).contains("前言");
     assertThat(session.getMessages().get(1).getText()).contains("后记");
     assertThat(session.getMessages().get(1).getText()).doesNotContain("DSML");
+  }
+
+  @Test
+  @DisplayName("should keep last activity when syncing memory on read")
+  void shouldKeepLastActivityWhenSyncingMemoryOnRead() {
+    chatMemory.add("conv-1", List.of(new UserMessage("hi"), new AssistantMessage("hello")));
+    Instant lastActive = Instant.parse("2026-01-01T00:00:00Z");
+    ChatSession session =
+        ChatSession.of(
+            ChatSessionId.generate(),
+            "Title",
+            lastActive,
+            "c:11111111-1111-1111-1111-111111111111");
+
+    bridge.syncToSession("conv-1", session);
+
+    assertThat(session.getMessageCount()).isEqualTo(2);
+    assertThat(session.getLastActivityAt()).isEqualTo(lastActive);
   }
 
   @Test

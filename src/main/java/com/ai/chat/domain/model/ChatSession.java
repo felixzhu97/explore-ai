@@ -160,12 +160,16 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     updateLastActivity();
   }
 
-  /** Replaces all transient messages with the given list and records activity. */
-  public void replaceMessages(List<ChatMessage> newMessages) {
+  /** Replaces the transient messages with the stored conversation without recording activity. */
+  public void restoreMessages(List<ChatMessage> storedMessages) {
     messages.clear();
-    if (newMessages != null) {
-      messages.addAll(newMessages);
+    if (storedMessages != null) {
+      messages.addAll(storedMessages);
     }
+  }
+
+  /** Records that the session was just used, for example after a new exchange. */
+  public void recordActivity() {
     updateLastActivity();
   }
 
