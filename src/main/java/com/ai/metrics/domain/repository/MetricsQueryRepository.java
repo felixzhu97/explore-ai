@@ -1,6 +1,8 @@
 package com.ai.metrics.domain.repository;
 
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationStats;
+import com.ai.metrics.domain.vo.LatencyStats;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +10,8 @@ import java.util.Optional;
 
 /** Read-side repository for aggregated invocation counts, latencies, tokens, and inventories. */
 public interface MetricsQueryRepository {
-  /** Counts calls in the time range. */
-  long countInvocations(Optional<AiDomain> domain, Instant from, Instant to);
-
-  /** Counts failed calls in the time range. */
-  long countErrors(Optional<AiDomain> domain, Instant from, Instant to);
+  /** Counts calls and failed calls in the time range in one read. */
+  InvocationStats countInvocationStats(Optional<AiDomain> domain, Instant from, Instant to);
 
   /** Counts calls per domain. */
   List<NamedCount> countByDomain(Instant from, Instant to);
@@ -55,8 +54,6 @@ public interface MetricsQueryRepository {
 
   /** Returns the document and chunk totals. */
   RagInventory getRagInventory();
-
-  record LatencyStats(Double p50Ms, Double p95Ms) {}
 
   record TokenTotals(Long promptTokens, Long completionTokens) {}
 

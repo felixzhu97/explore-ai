@@ -4,14 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
 import com.ai.metrics.domain.repository.MetricsQueryRepository.ChatInventory;
 import com.ai.metrics.domain.repository.MetricsQueryRepository.RagInventory;
 import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.domain.vo.ModuleStatus;
+import com.ai.metrics.domain.vo.TokenUsage;
 import com.ai.metrics.service.MetricsService;
 import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
@@ -189,19 +191,18 @@ class MetricsControllerTest {
       UUID id = UUID.randomUUID();
       Instant occurredAt = Instant.parse("2026-07-26T08:00:00Z");
       AiInvocationEvent event =
-          AiInvocationEvent.builder()
+          AiInvocationEvent.succeeded(
+                  AiDomain.TOOLS,
+                  "tools.weather",
+                  Latency.ofMillis(25),
+                  OwnerKey.forClient("11111111-1111-4111-8111-111111111111"))
               .id(id)
               .occurredAt(occurredAt)
-              .domain(AiDomain.TOOLS)
-              .operation("tools.weather")
-              .outcome(InvocationOutcome.SUCCESS)
-              .latencyMs(25)
               .provider("openai")
               .model("gpt")
               .sessionId("s1")
               .toolName("weather")
-              .promptTokens(11)
-              .completionTokens(22)
+              .tokens(new TokenUsage(11, 22))
               .build();
       when(metricsService.getDrilldown(
               "tools", null, null, null, null, null, null, null, 0, 20, "7d"))
@@ -232,19 +233,27 @@ class MetricsControllerTest {
           .extractingPath("$.items[0].toolName")
           .asString()
           .isEqualTo("weather");
+
+      assertThat(
+              mvc.get()
+                  .uri("/api/metrics/drilldown")
+                  .param("domain", "tools")
+                  .param("page", "0")
+                  .param("size", "20")
+                  .param("range", "7d"))
+          .hasStatusOk()
+          .bodyJson()
+          .doesNotHavePath("$.items[0].ownerKey");
     }
 
     @Test
     @DisplayName("should serialize occurredAt as an ISO-8601 UTC string")
     void shouldSerializeOccurredAtAsAnIso8601UtcString() {
       AiInvocationEvent event =
-          AiInvocationEvent.builder()
+          AiInvocationEvent.succeeded(
+                  AiDomain.TOOLS, "tools.weather", Latency.ofMillis(25), OwnerKey.UNOWNED)
               .id(UUID.randomUUID())
               .occurredAt(Instant.parse("2026-07-26T08:00:00.123Z"))
-              .domain(AiDomain.TOOLS)
-              .operation("tools.weather")
-              .outcome(InvocationOutcome.SUCCESS)
-              .latencyMs(25)
               .build();
       when(metricsService.getDrilldown(
               "tools", null, null, null, null, null, null, null, 0, 20, "7d"))

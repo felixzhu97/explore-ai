@@ -49,8 +49,7 @@ class JdbcMetricsQueryRepositorySchemaTest {
 
     assertThatCode(
             () -> {
-              repository.countInvocations(chat, FROM, TO);
-              repository.countErrors(chat, FROM, TO);
+              repository.countInvocationStats(chat, FROM, TO);
               repository.calculateLatencyPercentiles(chat, FROM, TO);
               repository.sumTokens(chat, FROM, TO);
               repository.countByDomain(FROM, TO);

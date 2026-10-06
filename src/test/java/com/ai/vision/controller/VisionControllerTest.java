@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.common.controller.GlobalExceptionHandler;
 import com.ai.common.controller.dto.HealthStatus;
+import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
@@ -19,26 +20,22 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @SliceWebMvcTest(controllers = VisionController.class)
 @Import(GlobalExceptionHandler.class)
 @DisplayName("VisionController")
-class VisionControllerTest {
+class VisionControllerTest extends AbstractOwnerScopedControllerTest {
 
   @DynamicPropertySource
   static void enableVisionModule(DynamicPropertyRegistry registry) {
     registry.add("launchdarkly.bootstrap.module-vision", () -> "true");
   }
-
-  @Autowired private MockMvcTester mvc;
 
   @MockitoBean private VisionAnalysisService visionAnalysisService;
 
@@ -53,7 +50,7 @@ class VisionControllerTest {
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
       doReturn(new CaptionResponse("A cat on a sofa", 120L))
           .when(visionAnalysisService)
-          .captionImage(any());
+          .captionImage(any(), any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/caption").file(file))
           .hasStatusOk()
@@ -93,7 +90,9 @@ class VisionControllerTest {
           new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
       List<DetectionResponse> detections =
           List.of(new DetectionResponse("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
-      doReturn(new DetectResponse(detections, 150L)).when(visionAnalysisService).detect(any());
+      doReturn(new DetectResponse(detections, 150L))
+          .when(visionAnalysisService)
+          .detect(any(), any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
           .hasStatusOk()
@@ -122,7 +121,7 @@ class VisionControllerTest {
           new MockMultipartFile("file", "scan.png", "image/png", "image".getBytes());
       doReturn(new OcrResponse("Hello World", 90L))
           .when(visionAnalysisService)
-          .recognizeText(any());
+          .recognizeText(any(), any());
 
       assertThat(mvc.post().multipart().uri("/api/vision/ocr").file(file))
           .hasStatusOk()

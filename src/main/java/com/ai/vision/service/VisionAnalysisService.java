@@ -1,7 +1,9 @@
 package com.ai.vision.service;
 
 import com.ai.common.controller.dto.HealthStatus;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
@@ -69,77 +71,74 @@ public class VisionAnalysisService {
   }
 
   /** Captions the uploaded image, recording latency and the invocation outcome. */
-  public CaptionResponse captionImage(MultipartFile file) throws IOException {
+  public CaptionResponse captionImage(MultipartFile file, OwnerKey owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
       var result = captioner.captionImage(image);
-      long processingTimeMs = measureElapsedMillis(startedAt);
+      long processingTimeMs = Latency.since(startedAt).millis();
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
-          AiDomain.VISION, "vision.caption", processingTimeMs, null, null, null);
+          AiDomain.VISION,
+          "vision.caption",
+          Latency.ofMillis(processingTimeMs),
+          owner,
+          null,
+          null,
+          null);
       return new CaptionResponse(result.text(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.VISION,
-          "vision.caption",
-          measureElapsedMillis(startedAt),
-          null,
-          null,
-          null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
+          AiDomain.VISION, "vision.caption", Latency.since(startedAt), owner, null, null, null, ex);
       throw ex;
     }
   }
 
   /** Detects objects in the uploaded image, recording latency and the invocation outcome. */
-  public DetectResponse detect(MultipartFile file) throws IOException {
+  public DetectResponse detect(MultipartFile file, OwnerKey owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
       List<DetectionResponse> detections =
           detector.detect(image).stream().map(this::toDto).toList();
-      long processingTimeMs = measureElapsedMillis(startedAt);
+      long processingTimeMs = Latency.since(startedAt).millis();
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
-          AiDomain.VISION, "vision.detect", processingTimeMs, null, null, null);
+          AiDomain.VISION,
+          "vision.detect",
+          Latency.ofMillis(processingTimeMs),
+          owner,
+          null,
+          null,
+          null);
       return new DetectResponse(detections, processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.VISION,
-          "vision.detect",
-          measureElapsedMillis(startedAt),
-          null,
-          null,
-          null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
+          AiDomain.VISION, "vision.detect", Latency.since(startedAt), owner, null, null, null, ex);
       throw ex;
     }
   }
 
   /** Extracts text from the uploaded image, recording latency and the invocation outcome. */
-  public OcrResponse recognizeText(MultipartFile file) throws IOException {
+  public OcrResponse recognizeText(MultipartFile file, OwnerKey owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
       var result = ocrEngine.extract(image);
-      long processingTimeMs = measureElapsedMillis(startedAt);
+      long processingTimeMs = Latency.since(startedAt).millis();
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
-          AiDomain.VISION, "vision.ocr", processingTimeMs, null, null, null);
+          AiDomain.VISION,
+          "vision.ocr",
+          Latency.ofMillis(processingTimeMs),
+          owner,
+          null,
+          null,
+          null);
       return new OcrResponse(result.text(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.VISION,
-          "vision.ocr",
-          measureElapsedMillis(startedAt),
-          null,
-          null,
-          null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
+          AiDomain.VISION, "vision.ocr", Latency.since(startedAt), owner, null, null, null, ex);
       throw ex;
     }
   }
@@ -159,9 +158,5 @@ public class VisionAnalysisService {
       }
       return image;
     }
-  }
-
-  private long measureElapsedMillis(long startedAtNanos) {
-    return (System.nanoTime() - startedAtNanos) / 1_000_000L;
   }
 }

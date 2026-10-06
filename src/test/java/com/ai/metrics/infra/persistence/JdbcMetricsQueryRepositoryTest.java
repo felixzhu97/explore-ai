@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationStats;
+import com.ai.metrics.domain.vo.LatencyStats;
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,32 +47,26 @@ class JdbcMetricsQueryRepositoryTest {
   }
 
   @Test
-  @DisplayName("should count invocations with optional domain filter")
-  void shouldCountInvocationsWithOptionalDomainFilter() {
-    when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), any(Object[].class)))
-        .thenReturn(7L);
+  @DisplayName("should count requests and errors in one query when stats are read")
+  void shouldCountRequestsAndErrorsInOneQueryWhenStatsAreRead() {
+    doAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              final ResultSetExtractor<InvocationStats> extractor = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.next()).thenReturn(true);
+              when(rs.getLong("requests")).thenReturn(7L);
+              when(rs.getLong("errors")).thenReturn(2L);
+              return extractor.extractData(rs);
+            })
+        .when(jdbcTemplate)
+        .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
 
-    long count = repository.countInvocations(Optional.of(AiDomain.CHAT), from, to);
+    InvocationStats stats = repository.countInvocationStats(Optional.of(AiDomain.CHAT), from, to);
 
-    assertThat(count).isEqualTo(7L);
+    assertThat(stats).isEqualTo(new InvocationStats(7L, 2L));
     verify(jdbcTemplate)
-        .queryForObject(
-            contains("SELECT COUNT(*) FROM ai_invocation_event"),
-            eq(Long.class),
-            any(Object[].class));
-  }
-
-  @Test
-  @DisplayName("should count errors and treat null as zero")
-  void shouldCountErrorsAndTreatNullAsZero() {
-    when(jdbcTemplate.queryForObject(anyString(), eq(Long.class), any(Object[].class)))
-        .thenReturn(null);
-
-    long count = repository.countErrors(Optional.empty(), from, to);
-
-    assertThat(count).isZero();
-    verify(jdbcTemplate)
-        .queryForObject(contains("outcome = 'error'"), eq(Long.class), any(Object[].class));
+        .query(contains("outcome = 'error'"), any(ResultSetExtractor.class), any(Object[].class));
   }
 
   @Test
@@ -79,7 +75,7 @@ class JdbcMetricsQueryRepositoryTest {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of());
 
-    MetricsQueryRepository.LatencyStats stats =
+    LatencyStats stats =
         repository.calculateLatencyPercentiles(Optional.of(AiDomain.RAG), from, to);
 
     assertThat(stats.p50Ms()).isNull();
@@ -103,8 +99,7 @@ class JdbcMetricsQueryRepositoryTest {
               return values;
             });
 
-    MetricsQueryRepository.LatencyStats stats =
-        repository.calculateLatencyPercentiles(Optional.empty(), from, to);
+    LatencyStats stats = repository.calculateLatencyPercentiles(Optional.empty(), from, to);
 
     assertThat(stats.p50Ms()).isEqualTo(30.0);
     assertThat(stats.p95Ms()).isEqualTo(88.0);

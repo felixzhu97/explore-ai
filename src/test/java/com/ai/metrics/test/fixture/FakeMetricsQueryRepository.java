@@ -2,6 +2,8 @@ package com.ai.metrics.test.fixture;
 
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationStats;
+import com.ai.metrics.domain.vo.LatencyStats;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,13 +25,8 @@ public class FakeMetricsQueryRepository implements MetricsQueryRepository {
   public final Map<String, Long> documentsByStatus = new LinkedHashMap<>();
 
   @Override
-  public long countInvocations(Optional<AiDomain> domain, Instant from, Instant to) {
-    return requestCount;
-  }
-
-  @Override
-  public long countErrors(Optional<AiDomain> domain, Instant from, Instant to) {
-    return errorCount;
+  public InvocationStats countInvocationStats(Optional<AiDomain> domain, Instant from, Instant to) {
+    return new InvocationStats(requestCount, errorCount);
   }
 
   @Override

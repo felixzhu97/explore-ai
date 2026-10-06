@@ -1,8 +1,10 @@
 package com.ai.tools.controller;
 
+import com.ai.account.controller.OwnerContext;
 import com.ai.tools.controller.dto.ToolChatRequest;
 import com.ai.tools.controller.dto.ToolChatResponse;
 import com.ai.tools.service.ToolService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ToolsController {
 
   private final ToolService toolService;
+  private final OwnerContext ownerContext;
 
   /** Get weather for a city. */
   @GetMapping("/weather")
@@ -51,7 +54,9 @@ public class ToolsController {
 
   /** Chat with function calling. */
   @PostMapping("/chat")
-  public ToolChatResponse chatWithTools(@Valid @RequestBody ToolChatRequest request) {
-    return new ToolChatResponse(toolService.chatWithTools(request.question()), null);
+  public ToolChatResponse chatWithTools(
+      @Valid @RequestBody ToolChatRequest request, HttpServletRequest httpRequest) {
+    return new ToolChatResponse(
+        toolService.chatWithTools(request.question(), ownerContext.require(httpRequest)), null);
   }
 }

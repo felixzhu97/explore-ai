@@ -1,8 +1,10 @@
 package com.ai.pipeline.service;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.ErrorSummary;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentDefinition;
@@ -54,10 +56,9 @@ public class PipelineOrchestrationService {
             })
         .subscribeOn(Schedulers.boundedElastic())
         .flatMapMany(plan -> executePlan(message, plan, ownerKey, language))
-        .doOnComplete(() -> recordAgent("supervisor", "agent.supervisor", startedAt, true, null))
-        .doOnError(
-            err ->
-                recordAgent("supervisor", "agent.supervisor", startedAt, false, err.getMessage()))
+        .doOnComplete(
+            () -> recordAgent("supervisor", "agent.supervisor", ownerKey, startedAt, null))
+        .doOnError(err -> recordAgent("supervisor", "agent.supervisor", ownerKey, startedAt, err))
         .onErrorResume(
             err ->
                 Flux.just(
@@ -82,27 +83,25 @@ public class PipelineOrchestrationService {
                   .invokeStream(agent, message)
                   .map(PipelineOrchestrationService::buildMessageEvent),
               Flux.just(buildDoneEvent()))
-          .doOnComplete(() -> recordAgent(type.value(), "agent.invoke", startedAt, true, null))
-          .doOnError(
-              err -> recordAgent(type.value(), "agent.invoke", startedAt, false, err.getMessage()));
+          .doOnComplete(() -> recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, null))
+          .doOnError(err -> recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, err));
     } catch (AgentNotFoundException e) {
-      recordAgent(type.value(), "agent.invoke", startedAt, false, e.getMessage());
+      recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, e);
       return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
   }
 
+  /** Records an agent run; a null error means it succeeded. */
   private void recordAgent(
-      String agentType, String operation, long startedAt, boolean success, String errorMessage) {
-    long latencyMs = (System.nanoTime() - startedAt) / 1_000_000L;
-    invocationRecorder.record(
-        AiInvocationEvent.builder()
-            .domain(AiDomain.AGENTS)
-            .operation(operation)
-            .outcome(success ? InvocationOutcome.SUCCESS : InvocationOutcome.ERROR)
-            .latencyMs(latencyMs)
-            .agentType(agentType)
-            .errorMessage(errorMessage)
-            .build());
+      String agentType, String operation, String ownerKey, long startedAt, Throwable error) {
+    Latency latency = Latency.since(startedAt);
+    OwnerKey owner = OwnerKey.parse(ownerKey);
+    AiInvocationEvent.Builder event =
+        error == null
+            ? AiInvocationEvent.succeeded(AiDomain.AGENTS, operation, latency, owner)
+            : AiInvocationEvent.failed(
+                AiDomain.AGENTS, operation, latency, owner, ErrorSummary.of(error));
+    invocationRecorder.record(event.agentType(agentType).build());
   }
 
   /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */
@@ -153,10 +152,10 @@ public class PipelineOrchestrationService {
         }
         all.append(current);
       }
-      recordAgent("pipeline", "agent.pipeline.sync", startedAt, true, null);
+      recordAgent("pipeline", "agent.pipeline.sync", ownerKey, startedAt, null);
       return all.toString().trim();
     } catch (RuntimeException ex) {
-      recordAgent("pipeline", "agent.pipeline.sync", startedAt, false, ex.getMessage());
+      recordAgent("pipeline", "agent.pipeline.sync", ownerKey, startedAt, ex);
       throw ex;
     }
   }

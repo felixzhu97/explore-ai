@@ -4,23 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
+import com.ai.testsupport.AbstractOwnerScopedControllerTest;
+import com.ai.testsupport.OwnerKeyFixtures;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.tools.service.ToolService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @SliceWebMvcTest(controllers = ToolsController.class)
 @DisplayName("ToolsController")
-class ToolsControllerTest {
+class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
 
-  @Autowired private MockMvcTester mvc;
+  private static final OwnerKey OWNER = OwnerKey.parse(OwnerKeyFixtures.CLIENT_FULL_KEY);
 
   @MockitoBean private ToolService toolService;
 
@@ -235,7 +236,7 @@ class ToolsControllerTest {
     void shouldReturnResponseForValidQuestion() {
       String question = "What's the weather in Beijing?";
       String answer = "It's sunny today!";
-      when(toolService.chatWithTools(question)).thenReturn(answer);
+      when(toolService.chatWithTools(question, OWNER)).thenReturn(answer);
 
       assertThat(
               mvc.post()
@@ -253,7 +254,7 @@ class ToolsControllerTest {
     @DisplayName("should pass documentIds to service")
     void shouldPassDocIdsToService() {
       String question = "Search in docs";
-      when(toolService.chatWithTools(question)).thenReturn("Result");
+      when(toolService.chatWithTools(question, OWNER)).thenReturn("Result");
 
       assertThat(
               mvc.post()
@@ -262,7 +263,7 @@ class ToolsControllerTest {
                   .content("{\"question\":\"Search in docs\",\"documentIds\":[\"doc1\",\"doc2\"]}"))
           .hasStatusOk();
 
-      verify(toolService).chatWithTools(question);
+      verify(toolService).chatWithTools(question, OWNER);
     }
 
     @Test
@@ -309,7 +310,7 @@ class ToolsControllerTest {
     @Test
     @DisplayName("should return 500 when service throws exception")
     void shouldReturn500WhenServiceThrowsException() {
-      when(toolService.chatWithTools("error question"))
+      when(toolService.chatWithTools("error question", OWNER))
           .thenThrow(new RuntimeException("Chat error"));
 
       assertThat(

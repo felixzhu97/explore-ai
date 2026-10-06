@@ -1,5 +1,6 @@
 package com.ai.pipeline.service;
 
+import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.pipeline.domain.model.AgentDefinition;
@@ -7,7 +8,9 @@ import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.model.RoutingPlan;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.infra.registry.CatalogAgentRegistry;
+import com.ai.testsupport.OwnerKeyFixtures;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,14 +22,19 @@ import reactor.test.StepVerifier;
 @DisplayName("PipelineOrchestrationService")
 class PipelineOrchestrationServiceTest {
 
+  private static final String OWNER = OwnerKeyFixtures.CLIENT_FULL_KEY;
+
   private PipelineOrchestrationService useCase;
   private RecordingInvoker invoker;
+  private final List<AiInvocationEvent> recorded = new ArrayList<>();
 
-  private static AiInvocationRecorder recorder() {
+  private AiInvocationRecorder recorder() {
     return new AiInvocationRecorder(
         new AiInvocationEventRepository() {
           @Override
-          public void save(com.ai.metrics.domain.model.AiInvocationEvent event) {}
+          public void save(AiInvocationEvent event) {
+            recorded.add(event);
+          }
 
           @Override
           public PageResult findDrilldown(DrilldownQuery query) {
@@ -52,7 +60,7 @@ class PipelineOrchestrationServiceTest {
 
   @Test
   void shouldEmitHandoffMessageAndDoneWhenSupervisorRoutes() {
-    StepVerifier.create(useCase.invokeSupervisor("list pods in prod", null, "en"))
+    StepVerifier.create(useCase.invokeSupervisor("list pods in prod", OWNER, "en"))
         .assertNext(
             event -> {
               assertEvent(event, "agent_handoff");
@@ -68,18 +76,21 @@ class PipelineOrchestrationServiceTest {
 
   @Test
   void shouldInvokeWorkerDirectlyWhenAgentTypeGiven() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("aiops"), "detect anomaly", null, "en"))
+    StepVerifier.create(useCase.invokeAgent(AgentType.of("aiops"), "detect anomaly", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "agent_handoff"))
         .assertNext(event -> assertEvent(event, "message"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();
 
     assert invoker.lastAgentType.equals("aiops");
+    assert recorded.size() == 1;
+    assert recorded.getFirst().getOwnerKey().value().equals(OWNER);
   }
 
   @Test
   void shouldDelegateToSupervisorWhenAgentTypeIsSupervisor() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.supervisor(), "scale deployment", null, "en"))
+    StepVerifier.create(
+            useCase.invokeAgent(AgentType.supervisor(), "scale deployment", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "agent_handoff"))
         .assertNext(event -> assertEvent(event, "message"))
         .assertNext(event -> assertEvent(event, "done"))
@@ -88,7 +99,7 @@ class PipelineOrchestrationServiceTest {
 
   @Test
   void shouldEmitErrorWhenAgentUnknown() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hello", null, "en"))
+    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hello", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "error"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();
@@ -97,7 +108,7 @@ class PipelineOrchestrationServiceTest {
   @Test
   @DisplayName("should emit error and done when direct invoke agent is unknown")
   void shouldEmitErrorAndDoneWhenDirectInvokeAgentIsUnknown() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hi", null, "en"))
+    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hi", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "error"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();
@@ -125,7 +136,7 @@ class PipelineOrchestrationServiceTest {
             invoker,
             recorder());
 
-    StepVerifier.create(useCase.invokeSupervisor("pod crash and anomaly", null, "en"))
+    StepVerifier.create(useCase.invokeSupervisor("pod crash and anomaly", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "agent_handoff"))
         .thenConsumeWhile(event -> "message".equals(event.event()))
         .expectNextMatches(event -> "done".equals(event.event()))
@@ -150,7 +161,7 @@ class PipelineOrchestrationServiceTest {
             invoker,
             recorder());
 
-    StepVerifier.create(useCase.invokeSupervisor("anything", null, "en"))
+    StepVerifier.create(useCase.invokeSupervisor("anything", OWNER, "en"))
         .assertNext(
             event -> {
               assertEvent(event, "error");
@@ -183,7 +194,7 @@ class PipelineOrchestrationServiceTest {
                 AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
             List.of(new AgentPipeline.PipelineEdge("a", "b")));
 
-    StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline, null, "en"))
+    StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline, OWNER, "en"))
         .assertNext(
             event -> {
               assertEvent(event, "agent_handoff");
@@ -220,7 +231,7 @@ class PipelineOrchestrationServiceTest {
                     List.of("datetime"))),
             List.of());
 
-    StepVerifier.create(useCase.invokePipeline("check pods", pipeline, null, "en"))
+    StepVerifier.create(useCase.invokePipeline("check pods", pipeline, OWNER, "en"))
         .assertNext(event -> assertEvent(event, "agent_handoff"))
         .assertNext(event -> assertEvent(event, "message"))
         .assertNext(event -> assertEvent(event, "message"))
@@ -254,7 +265,7 @@ class PipelineOrchestrationServiceTest {
                 AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
             List.of(new AgentPipeline.PipelineEdge("a", "b")));
 
-    StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline, null, "en"))
+    StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline, OWNER, "en"))
         .assertNext(
             event -> {
               assertEvent(event, "agent_handoff");
@@ -282,7 +293,7 @@ class PipelineOrchestrationServiceTest {
   void shouldEmitErrorWhenPipelineInvalid() {
     AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
 
-    StepVerifier.create(useCase.invokePipeline("x", pipeline, null, "en"))
+    StepVerifier.create(useCase.invokePipeline("x", pipeline, OWNER, "en"))
         .assertNext(event -> assertEvent(event, "error"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();

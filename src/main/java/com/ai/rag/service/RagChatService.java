@@ -1,6 +1,7 @@
 package com.ai.rag.service;
 
 import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
@@ -8,7 +9,7 @@ import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.model.SourceDocument;
@@ -66,7 +67,7 @@ public class RagChatService {
     try {
       promptSpec = buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
     } catch (RuntimeException ex) {
-      recordError(sessionId, startedAt, ex);
+      recordError(sessionId, ownerKey, startedAt, ex);
       return Flux.error(ex);
     }
 
@@ -85,8 +86,8 @@ public class RagChatService {
               return ServerSentEvent.<String>builder().data(StreamTokenEvent.toJson(piece)).build();
             })
         .concatWith(Flux.defer(() -> buildSourceEvents(sourcesRef.get())))
-        .doOnComplete(() -> recordSuccess(options, sessionId, documentId, startedAt))
-        .doOnError(ex -> recordError(sessionId, startedAt, ex));
+        .doOnComplete(() -> recordSuccess(options, sessionId, ownerKey, documentId, startedAt))
+        .doOnError(ex -> recordError(sessionId, ownerKey, startedAt, ex));
   }
 
   /**
@@ -105,10 +106,10 @@ public class RagChatService {
       ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
       String aiResponse = extractContent(clientResponse);
       List<SourceDocument> sources = extractSources(clientResponse);
-      recordSuccess(options, sessionId, documentId, startedAt);
+      recordSuccess(options, sessionId, ownerKey, documentId, startedAt);
       return new RagChatResult(aiResponse, sources);
     } catch (RuntimeException ex) {
-      recordError(sessionId, startedAt, ex);
+      recordError(sessionId, ownerKey, startedAt, ex);
       throw ex;
     }
   }
@@ -176,13 +177,14 @@ public class RagChatService {
   }
 
   private void recordSuccess(
-      TextChatOptions options, String sessionId, String documentId, long startedAt) {
+      TextChatOptions options,
+      String sessionId,
+      String ownerKey,
+      String documentId,
+      long startedAt) {
     invocationRecorder.record(
-        AiInvocationEvent.builder()
-            .domain(AiDomain.RAG)
-            .operation("rag.chat")
-            .outcome(InvocationOutcome.SUCCESS)
-            .latencyMs((System.nanoTime() - startedAt) / 1_000_000L)
+        AiInvocationEvent.succeeded(
+                AiDomain.RAG, "rag.chat", Latency.since(startedAt), OwnerKey.parse(ownerKey))
             .provider(options.provider())
             .model(options.model())
             .sessionId(sessionId)
@@ -191,16 +193,16 @@ public class RagChatService {
     log.info("RAG chat completed successfully");
   }
 
-  private void recordError(String sessionId, long startedAt, Throwable ex) {
+  private void recordError(String sessionId, String ownerKey, long startedAt, Throwable ex) {
     invocationRecorder.recordError(
         AiDomain.RAG,
         "rag.chat",
-        (System.nanoTime() - startedAt) / 1_000_000L,
+        Latency.since(startedAt),
+        OwnerKey.parse(ownerKey),
         "openai",
         null,
         sessionId,
-        ex.getClass().getSimpleName(),
-        ex.getMessage());
+        ex);
   }
 
   private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceDocument> sources) {
