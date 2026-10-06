@@ -1,19 +1,21 @@
 package com.ai.chat.domain.model;
 
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.vo.SessionTitle;
 import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
 import com.ai.common.domain.vo.OwnerKey;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,44 +32,39 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
 
-  public static final String DEFAULT_TITLE = "New Chat";
-
-  @NotBlank
-  @Size(max = 100)
-  @Column(nullable = false, length = 100)
-  private String title;
+  @NotNull @Valid @Embedded private SessionTitle title;
 
   @Transient private List<ChatMessage> messages = new ArrayList<>();
 
-  private ChatSession(ChatSessionId id, String title, Instant createdAt, OwnerKey ownerKey) {
+  private ChatSession(ChatSessionId id, SessionTitle title, Instant createdAt, OwnerKey ownerKey) {
     super(id, ownerKey, createdAt, createdAt);
-    this.title = validateTitle(title);
+    this.title = title;
   }
 
-  private static String validateTitle(String title) {
-    if (title == null || title.isBlank()) {
-      return DEFAULT_TITLE;
-    }
-    if (title.length() > 100) {
-      return title.substring(0, 100);
-    }
-    return title.trim();
-  }
-
-  /** Creates a new chat session for the owner. */
+  /** Creates a new chat session for the owner with the title the user typed. */
   public static ChatSession create(String title, String ownerKey) {
     return new ChatSession(
-        ChatSessionId.generate(), title, Instant.now(), OwnerKey.parse(ownerKey));
+        ChatSessionId.generate(), SessionTitle.of(title), Instant.now(), OwnerKey.parse(ownerKey));
   }
 
-  /** Creates a new chat session with a given id. */
-  public static ChatSession createWithId(ChatSessionId id, String title, String ownerKey) {
-    return new ChatSession(id, title, Instant.now(), OwnerKey.parse(ownerKey));
+  /** Starts the owner's default session; it gets a generated title after the first exchange. */
+  public static ChatSession startDefault(String ownerKey) {
+    return startWithId(ChatSessionId.generate(), ownerKey);
+  }
+
+  /** Starts an untitled session under an id the client chose. */
+  public static ChatSession startWithId(ChatSessionId id, String ownerKey) {
+    return new ChatSession(id, SessionTitle.DEFAULT, Instant.now(), OwnerKey.parse(ownerKey));
   }
 
   /** Rebuilds a stored chat session. */
   public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String ownerKey) {
-    return new ChatSession(id, title, createdAt, OwnerKey.parse(ownerKey));
+    return new ChatSession(id, SessionTitle.of(title), createdAt, OwnerKey.parse(ownerKey));
+  }
+
+  /** Returns the title text. */
+  public String getTitle() {
+    return title.value();
   }
 
   /** Returns when the session was last active. */
@@ -75,18 +72,34 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return getUpdatedAt();
   }
 
-  /** Tells whether the session still has the default title. */
-  public boolean hasDefaultTitle() {
-    return DEFAULT_TITLE.equals(title);
-  }
-
-  /** Renames the session, ignoring blank titles and truncating to 100 characters. */
+  /** Renames the session as the user asked, ignoring blank titles. */
   public void rename(String newTitle) {
     if (newTitle == null || newTitle.isBlank()) {
       return;
     }
-    this.title = validateTitle(newTitle);
+    this.title = SessionTitle.of(newTitle);
     updateLastActivity();
+  }
+
+  /** Tells whether the session is still untitled and has an exchange to name it after. */
+  public boolean needsGeneratedTitle() {
+    return title.isDefault()
+        && firstUserMessage().isPresent()
+        && lastAssistantMessage().filter(reply -> !reply.getText().isBlank()).isPresent();
+  }
+
+  /**
+   * Applies a generated title unless the user named the session meanwhile. Naming is not activity,
+   * so the last activity time stays as it was.
+   *
+   * @return whether the title was applied
+   */
+  public boolean applyGeneratedTitle(SessionTitle generated) {
+    if (!title.isDefault() || generated == null || generated.isDefault()) {
+      return false;
+    }
+    this.title = generated;
+    return true;
   }
 
   /** Appends a new user message and records activity. */
@@ -125,18 +138,14 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return (int) messages.stream().filter(ChatMessage::isFromAssistant).count();
   }
 
-  /** Returns the newest user message, or null. */
-  public ChatMessage getLastUserMessage() {
-    return getLastMessageByRole(ChatMessage::isFromUser);
+  /** Returns the message that opened the conversation, if the user has written one. */
+  public Optional<ChatMessage> firstUserMessage() {
+    return messages.stream().filter(ChatMessage::isFromUser).findFirst();
   }
 
-  /** Returns the newest assistant message, or null. */
-  public ChatMessage getLastAssistantMessage() {
-    return getLastMessageByRole(ChatMessage::isFromAssistant);
-  }
-
-  private ChatMessage getLastMessageByRole(Predicate<ChatMessage> filter) {
-    return messages.stream().filter(filter).reduce((first, second) -> second).orElse(null);
+  /** Returns the newest assistant reply, if there is one. */
+  public Optional<ChatMessage> lastAssistantMessage() {
+    return messages.stream().filter(ChatMessage::isFromAssistant).reduce((first, last) -> last);
   }
 
   /** Returns an unmodifiable view of the last {@code count} messages, or empty if non-positive. */
@@ -180,6 +189,6 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
   @Override
   public String toString() {
     return "ChatSession{id=%s, title='%s', messageCount=%d}"
-        .formatted(getId(), title, messages.size());
+        .formatted(getId(), title.value(), messages.size());
   }
 }

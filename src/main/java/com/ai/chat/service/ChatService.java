@@ -107,8 +107,8 @@ public class ChatService {
     ChatSession session = ChatSession.create(title, ownerKey);
     repository.save(session);
     log.info(
-        "Created new session title={} idFp={} clientFp={}",
-        title,
+        "Created new session titleLength={} idFp={} clientFp={}",
+        LogSanitizer.lengthOf(session.getTitle()),
         LogSanitizer.fingerprint(session.getId().value()),
         LogSanitizer.fingerprint(ownerKey));
     return session;
@@ -413,14 +413,9 @@ public class ChatService {
               session.recordActivity();
               repository.save(session);
               persistCapturedSources(conversationId, session);
-              if (isFirstTurn && session.hasDefaultTitle()) {
-                String assistantReply =
-                    session.getLastAssistantMessage() != null
-                        ? session.getLastAssistantMessage().getText()
-                        : "";
-                if (!assistantReply.isBlank()) {
-                  generateTitleAsync(sessionId, userMessage, assistantReply);
-                }
+              if (isFirstTurn && session.needsGeneratedTitle()) {
+                generateTitleAsync(
+                    sessionId, userMessage, session.lastAssistantMessage().orElseThrow().getText());
               }
             });
   }
@@ -430,13 +425,13 @@ public class ChatService {
     if (capture == null || capture.sources().isEmpty()) {
       return;
     }
-    ChatMessage lastAssistant = session.getLastAssistantMessage();
-    if (lastAssistant == null) {
-      CapturedWebSources.clear(conversationId);
-      return;
-    }
-    chatWebSourcesRepository.save(
-        conversationId, lastAssistant.getText(), capture.query(), capture.sources());
+    session
+        .lastAssistantMessage()
+        .ifPresentOrElse(
+            reply ->
+                chatWebSourcesRepository.save(
+                    conversationId, reply.getText(), capture.query(), capture.sources()),
+            () -> CapturedWebSources.clear(conversationId));
   }
 
   private String exchangeMessages(
@@ -461,7 +456,7 @@ public class ChatService {
     session.recordActivity();
     repository.save(session);
 
-    if (isFirstTurn && session.hasDefaultTitle()) {
+    if (isFirstTurn && session.needsGeneratedTitle()) {
       generateTitleAsync(session.getId(), userMessage, aiResponse);
     }
 
@@ -478,13 +473,12 @@ public class ChatService {
                     .findById(sessionId)
                     .ifPresent(
                         session -> {
-                          if (session.hasDefaultTitle()) {
-                            session.rename(title);
+                          if (session.applyGeneratedTitle(title)) {
                             repository.save(session);
                             log.info(
                                 "Renamed sessionFp={} titleLength={}",
                                 LogSanitizer.fingerprint(sessionId.value()),
-                                LogSanitizer.lengthOf(title));
+                                LogSanitizer.lengthOf(title.value()));
                           }
                         }),
             error ->
@@ -497,7 +491,7 @@ public class ChatService {
   private ChatSession getOrCreateDefaultSession(String ownerKey) {
     List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
     if (sessions.isEmpty()) {
-      ChatSession newSession = ChatSession.create(ChatSession.DEFAULT_TITLE, ownerKey);
+      ChatSession newSession = ChatSession.startDefault(ownerKey);
       repository.save(newSession);
       return newSession;
     }
@@ -513,7 +507,7 @@ public class ChatService {
     if (repository.exists(id)) {
       throw new ChatSessionNotFoundException(sessionId);
     }
-    ChatSession session = ChatSession.createWithId(id, ChatSession.DEFAULT_TITLE, ownerKey);
+    ChatSession session = ChatSession.startWithId(id, ownerKey);
     repository.save(session);
     return session;
   }

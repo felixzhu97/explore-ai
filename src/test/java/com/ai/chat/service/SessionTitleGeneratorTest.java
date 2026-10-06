@@ -54,7 +54,7 @@ class SessionTitleGeneratorTest {
     when(callResponseSpec.entity(eq(SessionTitleGenerator.SessionTitleResponse.class), any()))
         .thenReturn(new SessionTitleGenerator.SessionTitleResponse("Kubernetes 部署指南"));
 
-    String title = generator.generate("如何部署 K8s？", "你可以使用 kubectl apply...");
+    String title = generator.generate("如何部署 K8s？", "你可以使用 kubectl apply...").value();
 
     assertThat(title).isEqualTo("Kubernetes 部署指南");
   }
@@ -64,7 +64,7 @@ class SessionTitleGeneratorTest {
   void shouldFallbackToTruncatedUserMessageWhenLlmFails() {
     when(chatClient.prompt()).thenThrow(new RuntimeException("LLM unavailable"));
 
-    String title = generator.generate("这是一个非常长的用户消息".repeat(5), "reply");
+    String title = generator.generate("这是一个非常长的用户消息".repeat(5), "reply").value();
 
     assertThat(title).hasSize(50);
   }
@@ -82,7 +82,7 @@ class SessionTitleGeneratorTest {
             eq(SessionTitleGenerator.SessionTitleResponse.class), any(Consumer.class)))
         .thenReturn(new SessionTitleGenerator.SessionTitleResponse("   "));
 
-    String title = generator.generate("Hello world", "Hi there");
+    String title = generator.generate("Hello world", "Hi there").value();
 
     assertThat(title).isEqualTo("Hello world");
   }
@@ -90,7 +90,7 @@ class SessionTitleGeneratorTest {
   @Test
   @DisplayName("should fallback immediately when user message is blank")
   void shouldFallbackImmediatelyWhenUserMessageIsBlank() {
-    String title = generator.generate("   ", "reply");
+    String title = generator.generate("   ", "reply").value();
 
     assertThat(title).isEqualTo("New Chat");
     verifyNoInteractions(chatClient);
@@ -99,7 +99,7 @@ class SessionTitleGeneratorTest {
   @Test
   @DisplayName("should fallback immediately when assistant reply is blank")
   void shouldFallbackImmediatelyWhenAssistantReplyIsBlank() {
-    String title = generator.generate("Hello world", "   ");
+    String title = generator.generate("Hello world", "   ").value();
 
     assertThat(title).isEqualTo("Hello world");
     verifyNoInteractions(chatClient);

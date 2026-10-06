@@ -62,8 +62,11 @@ class ChatDataRetentionJobTest {
   @Test
   void shouldPurgeInactiveSessionsAndMetricsWhenEnabled() {
     ChatSession expired =
-        ChatSession.createWithId(
-            ChatSessionId.of("33333333-3333-3333-3333-333333333333"), "Old", "c:client-a");
+        ChatSession.of(
+            ChatSessionId.of("33333333-3333-3333-3333-333333333333"),
+            "Old",
+            java.time.Instant.now(),
+            "c:client-a");
     when(sessionRepository.findInactiveSince(any())).thenReturn(List.of(expired));
     when(invocationEventRepository.deleteBySessionIds(anyCollection())).thenReturn(2);
     when(invocationEventRepository.deleteOlderThan(any())).thenReturn(1);
