@@ -209,7 +209,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     return jdbcTemplate.query(
         """
                 SELECT CAST(created_at AS DATE) AS bucket_day, COUNT(*) AS metric_value
-                FROM document
+                FROM rag_document
                 WHERE created_at >= ? AND created_at < ?
                 GROUP BY CAST(created_at AS DATE)
                 ORDER BY bucket_day
