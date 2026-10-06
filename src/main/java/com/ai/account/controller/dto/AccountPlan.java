@@ -1,8 +1,9 @@
 package com.ai.account.controller.dto;
 
+import com.ai.billing.domain.vo.Plan;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-/** Billing plan shown for the account: {@code free} unless the configured plan is pro. */
+/** Billing plan shown for the account. */
 public enum AccountPlan {
   FREE("free"),
   PRO("pro");
@@ -18,8 +19,8 @@ public enum AccountPlan {
     return value;
   }
 
-  /** Maps the configured billing plan, case-insensitively, falling back to {@code free}. */
-  public static AccountPlan from(String configured) {
-    return PRO.value.equalsIgnoreCase(configured) ? PRO : FREE;
+  /** Maps the active billing plan. */
+  public static AccountPlan from(Plan plan) {
+    return plan == Plan.PRO ? PRO : FREE;
   }
 }

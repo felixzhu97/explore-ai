@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ai.billing.infra.config.BillingProperties;
+import com.ai.billing.service.BillingPlanService;
 import com.ai.billing.service.DailyUsageQuotaService;
 import com.ai.common.controller.ClientIdentity;
 import jakarta.servlet.FilterChain;
@@ -33,7 +34,7 @@ class UsageQuotaFilterTest {
     properties.setQuotaEnabled(true);
     properties.setPlan("free");
     properties.setFreeDailyRequests(2);
-    filter = new UsageQuotaFilter(new DailyUsageQuotaService(properties));
+    filter = new UsageQuotaFilter(new DailyUsageQuotaService(new BillingPlanService(properties)));
   }
 
   @Test
@@ -61,7 +62,22 @@ class UsageQuotaFilterTest {
 
     assertThat(third.getStatus()).isEqualTo(429);
     assertThat(third.getContentAsString()).contains("QUOTA_EXCEEDED");
+    assertThat(third.getHeader("X-Quota-Remaining")).isEqualTo("0");
     verify(filterChain, times(2)).doFilter(any(), any());
+  }
+
+  @Test
+  @DisplayName("should report nothing remaining when another limit refuses the request")
+  void shouldReportNothingRemainingWhenAnotherLimitRefusesTheRequest() throws Exception {
+    properties.setGlobalDailyRequests(1);
+    filter.doFilter(postChat("client-4"), new MockHttpServletResponse(), filterChain);
+    MockHttpServletResponse refused = new MockHttpServletResponse();
+
+    filter.doFilter(postChat("client-5"), refused, filterChain);
+
+    assertThat(refused.getStatus()).isEqualTo(429);
+    assertThat(refused.getHeader("X-Quota-Limit")).isEqualTo("2");
+    assertThat(refused.getHeader("X-Quota-Remaining")).isEqualTo("0");
   }
 
   @Test

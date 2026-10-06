@@ -21,6 +21,7 @@ import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
+import com.ai.common.domain.vo.OwnerKey;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,7 +81,7 @@ class DueAutomationRunnerTest {
             (expression, timezone, after) -> past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("workflow result");
 
@@ -110,7 +111,7 @@ class DueAutomationRunnerTest {
             (expression, timezone, after) -> past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(any(ScheduleId.class), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(false);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(false);
 
     useCase.executeDue();
 
@@ -137,7 +138,7 @@ class DueAutomationRunnerTest {
     ReflectionTestUtils.setField(schedule, "nextRunAt", past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("once result");
 

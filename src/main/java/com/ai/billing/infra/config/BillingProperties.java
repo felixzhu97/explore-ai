@@ -1,5 +1,7 @@
 package com.ai.billing.infra.config;
 
+import com.ai.billing.domain.vo.Plan;
+import com.ai.billing.domain.vo.QuotaPolicy;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,16 +26,10 @@ public class BillingProperties {
   /** Daily ceiling across all clients; 0 disables it. */
   private int globalDailyRequests = 5000;
 
-  /** Returns the daily request limit for the active plan, using the free limit unless pro. */
-  public int resolveDailyLimit() {
-    if ("pro".equalsIgnoreCase(plan)) {
-      return proDailyRequests;
-    }
-    return freeDailyRequests;
-  }
-
-  /** Returns the per-IP daily limit, never below the per-client plan limit. */
-  public int resolveIpDailyLimit() {
-    return Math.max(ipDailyRequests, resolveDailyLimit());
+  /** Builds the quota policy for the configured plan; unknown plans fall back to free. */
+  public QuotaPolicy toPolicy() {
+    Plan active = Plan.parse(plan);
+    int dailyLimit = active == Plan.PRO ? proDailyRequests : freeDailyRequests;
+    return new QuotaPolicy(quotaEnabled, active, dailyLimit, ipDailyRequests, globalDailyRequests);
   }
 }

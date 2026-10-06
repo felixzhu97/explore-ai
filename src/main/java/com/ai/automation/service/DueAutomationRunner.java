@@ -53,7 +53,7 @@ public class DueAutomationRunner {
 
   private void executeOne(AutomationSchedule schedule) {
     AutomationRun run = AutomationRun.start(schedule.getId(), schedule.getOwnerKeyValue());
-    if (!dailyUsageQuotaService.tryConsume(schedule.getOwnerKeyValue())) {
+    if (!dailyUsageQuotaService.tryConsume(schedule.getOwnerKey())) {
       run.skipForQuota();
     } else {
       try {

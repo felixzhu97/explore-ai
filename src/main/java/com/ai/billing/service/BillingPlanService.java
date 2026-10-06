@@ -1,0 +1,27 @@
+package com.ai.billing.service;
+
+import com.ai.billing.domain.vo.Plan;
+import com.ai.billing.domain.vo.QuotaPolicy;
+import com.ai.billing.infra.config.BillingProperties;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Service;
+
+/** Active billing plan and its quota policy. */
+@Service
+@EnableConfigurationProperties(BillingProperties.class)
+@RequiredArgsConstructor
+public class BillingPlanService {
+
+  private final BillingProperties properties;
+
+  /** Returns the active plan. */
+  public Plan currentPlan() {
+    return currentPolicy().plan();
+  }
+
+  /** Returns the quota policy of the active plan. */
+  public QuotaPolicy currentPolicy() {
+    return properties.toPolicy();
+  }
+}

@@ -418,6 +418,7 @@ package "Billing" as pkg_billing {
     PRO
   }
   class QuotaPolicy <<ValueObject>> {
+    +enforced: boolean
     +plan: Plan
     --
     +dailyLimit()
@@ -428,7 +429,10 @@ package "Billing" as pkg_billing {
     +day: LocalDate
     +count: int
     --
+    +{static} none(day)
     +remaining(limit, today)
+    +consume(today)
+    +release(today)
   }
   class QuotaSubject <<ValueObject>> {
     +key: String
@@ -442,6 +446,9 @@ package "Billing" as pkg_billing {
     +plan: Plan
     +limit: int
     +remaining: int
+    --
+    +{static} allow(plan, limit, remaining)
+    +{static} refuse(plan, limit)
   }
 }
 
