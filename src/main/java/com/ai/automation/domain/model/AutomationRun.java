@@ -94,6 +94,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
 
   /** Marks the run successful with a truncated result excerpt and stamps its finish time. */
   public void succeed(String resultExcerpt, EmailDeliveryStatus emailStatus) {
+    requireRunning();
     this.status = RunStatus.SUCCESS;
     this.resultExcerpt = truncate(resultExcerpt);
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
@@ -103,6 +104,7 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
 
   /** Marks the run failed with a truncated error message and stamps its finish time. */
   public void fail(String errorMessage, EmailDeliveryStatus emailStatus) {
+    requireRunning();
     this.status = RunStatus.FAILED;
     this.errorMessage = truncateMessage(errorMessage);
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
@@ -111,10 +113,17 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
 
   /** Marks the run skipped with the given reason and no email, and stamps its finish time. */
   public void skip(String reason) {
+    requireRunning();
     this.status = RunStatus.SKIPPED;
     this.errorMessage = truncateMessage(reason);
     this.emailStatus = EmailDeliveryStatus.SKIPPED;
     markFinished(Instant.now());
+  }
+
+  private void requireRunning() {
+    if (isFinished()) {
+      throw new IllegalStateException("Automation run already finished: " + getId().value());
+    }
   }
 
   /** Returns the persisted owner_key value (c:… or u:…). */
