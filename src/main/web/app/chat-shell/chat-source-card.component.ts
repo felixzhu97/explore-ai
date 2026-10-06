@@ -1,12 +1,12 @@
 import { Component, computed, input, output } from '@angular/core';
 import type { ChatSourceView } from './chat-bubble-list.component';
 import {
-  sourceFaviconUrl,
-  sourceHostname,
-  sourceInitial,
-  sourceLabel,
-  sourcePublishedAt,
-  sourceTitle,
+  getSourceFaviconUrl,
+  getSourceHostname,
+  getSourceInitial,
+  getSourceLabel,
+  getSourcePublishedAt,
+  getSourceTitle,
 } from './chat-source.util';
 
 @Component({
@@ -68,12 +68,17 @@ export class ChatSourceCardComponent {
   /** Emits when the reader follows the source link. */
   readonly jump = output<void>();
 
-  readonly faviconUrl = computed(() => sourceFaviconUrl(this.source()));
-  readonly initial = computed(() => sourceInitial(this.source(), this.fallbackLabel()));
-  readonly hostname = computed(() => sourceHostname(this.source()));
-  readonly label = computed(() => sourceLabel(this.source(), this.fallbackLabel()));
+  readonly faviconUrl = computed(() => getSourceFaviconUrl(this.source()));
 
-  readonly title = computed(() => sourceTitle(this.source(), this.fallbackLabel()));
+  readonly initial = computed(() => getSourceInitial(
+    this.source(),
+    this.fallbackLabel(),
+  ));
 
-  readonly publishedAt = computed(() => sourcePublishedAt(this.source()));
+  readonly hostname = computed(() => getSourceHostname(this.source()));
+  readonly label = computed(() => getSourceLabel(this.source(), this.fallbackLabel()));
+
+  readonly title = computed(() => getSourceTitle(this.source(), this.fallbackLabel()));
+
+  readonly publishedAt = computed(() => getSourcePublishedAt(this.source()));
 }

@@ -135,7 +135,7 @@ export class AgentsPageComponent implements OnInit {
 
   /** Open form to override a builtin: create or edit its saved agent. */
   customizeBuiltin(agent: AgentInfoResponse): void {
-    const existing = this.savedAgentForType(agent.type);
+    const existing = this.findSavedAgentForType(agent.type);
     if (existing !== undefined) {
       this.startEditSavedAgent(existing);
       return;
@@ -202,7 +202,7 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
-  savedAgentForType(typeKey: string): SavedAgent | undefined {
+  findSavedAgentForType(typeKey: string): SavedAgent | undefined {
     return this.savedAgents().find(item => item.typeKey === typeKey);
   }
 }

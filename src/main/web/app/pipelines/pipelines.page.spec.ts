@@ -19,7 +19,7 @@ describe('PipelinesPageComponent httpResource', () => {
   });
 
   afterEach(() => {
-    http.match(() => true).forEach(req => req.flush([]));
+    http.match(() => true).forEach(request => request.flush([]));
     http.verify();
   });
 
@@ -32,8 +32,8 @@ describe('PipelinesPageComponent httpResource', () => {
     });
 
     TestBed.tick();
-    const req = http.expectOne(`${API_BASE_URL}/pipelines/agent-types`);
-    req.flush([
+    const request = http.expectOne(`${API_BASE_URL}/pipelines/agent-types`);
+    request.flush([
       {
         type: 'supervisor',
         name: 'Supervisor',

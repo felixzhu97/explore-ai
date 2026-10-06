@@ -67,11 +67,11 @@ export interface PrivacyPreferencesModel {
           zType="default"
           class="rounded-full"
           [zDisabled]="
-            saving() || preferencesForm().invalid() || !preferencesForm().dirty()
+            isSaving() || preferencesForm().invalid() || !preferencesForm().dirty()
           "
           (click)="savePreferences()"
         >
-          {{ saving() ? copy().savePreferencesSaving : copy().savePreferencesButton }}
+          {{ isSaving() ? copy().savePreferencesSaving : copy().savePreferencesButton }}
         </button>
       </div>
     </section>
@@ -83,7 +83,7 @@ export class PrivacyPreferencesFormComponent implements OnInit {
 
   readonly copy = input.required<PrivacyPageCopy>();
 
-  readonly saving = signal(false);
+  readonly isSaving = signal(false);
 
   readonly preferencesModel = signal<PrivacyPreferencesModel>({
     analytics: false,
@@ -101,8 +101,8 @@ export class PrivacyPreferencesFormComponent implements OnInit {
       }
       return undefined;
     });
-    disabled(schemaPath.analytics, { when: () => this.saving() });
-    disabled(schemaPath.contactEmail, { when: () => this.saving() });
+    disabled(schemaPath.analytics, { when: () => this.isSaving() });
+    disabled(schemaPath.contactEmail, { when: () => this.isSaving() });
   });
 
   ngOnInit(): void {
@@ -115,12 +115,12 @@ export class PrivacyPreferencesFormComponent implements OnInit {
 
   savePreferences(): void {
     void submit(this.preferencesForm, () => {
-      this.saving.set(true);
+      this.isSaving.set(true);
       const { analytics, contactEmail } = this.preferencesModel();
       this.#consent.savePreferences({ analytics, contactEmail: contactEmail.trim() });
       this.preferencesForm().reset(this.preferencesModel());
       this.#notify.showSuccess(this.copy().savePreferencesSuccess);
-      this.saving.set(false);
+      this.isSaving.set(false);
       return Promise.resolve();
     });
   }

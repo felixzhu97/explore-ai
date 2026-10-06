@@ -68,13 +68,13 @@ describe('ImageService', () => {
     service.setPrompt('A sunset');
     service.generate();
 
-    const req = httpMock.expectOne('/api/images/generate');
-    expect(req.request.body).toEqual(expect.objectContaining({
+    const request = httpMock.expectOne('/api/images/generate');
+    expect(request.request.body).toEqual(expect.objectContaining({
       prompt: 'A sunset',
       width: expect.any(Number),
       height: expect.any(Number),
     }));
-    req.flush({ imageUrl: 'https://example.com/image.png', status: 'ok' });
+    request.flush({ imageUrl: 'https://example.com/image.png', status: 'ok' });
 
     await vi.waitFor(() => {
       expect(service.generatedImage()).toBe('https://example.com/image.png');

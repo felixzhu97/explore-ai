@@ -4,8 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { I18nService } from '../i18n';
 import {
-  policiesHubCopy,
-  policyDocCopy,
+  getPoliciesHubCopy,
+  getPolicyDocCopy,
   resolvePolicySlug,
 } from './policies.page.copy';
 
@@ -151,8 +151,8 @@ export class PoliciesPageComponent {
 
   readonly doc = computed(() => {
     const slug = resolvePolicySlug(this.#rawSlug());
-    return slug !== null ? policyDocCopy(slug, this.#i18n.language()) : null;
+    return slug !== null ? getPolicyDocCopy(slug, this.#i18n.language()) : null;
   });
 
-  readonly hub = computed(() => policiesHubCopy(this.#i18n.language()));
+  readonly hub = computed(() => getPoliciesHubCopy(this.#i18n.language()));
 }

@@ -3,7 +3,7 @@ import {
   parseA2uiNdjson,
   remapSurfaceIds,
   splitMarkdownAndA2ui,
-  stableSurfaceId,
+  buildStableSurfaceId,
 } from './a2ui-fence';
 
 describe('a2ui-fence', () => {
@@ -41,7 +41,7 @@ describe('a2ui-fence', () => {
       expect(segments.map(s => s.type)).toEqual(['markdown', 'a2ui', 'markdown']);
       if (segments[1]?.type === 'a2ui') {
         expect(segments[1].messages).toHaveLength(1);
-        expect(segments[1].surfaceId).toBe(stableSurfaceId(segments[1].raw));
+        expect(segments[1].surfaceId).toBe(buildStableSurfaceId(segments[1].raw));
       }
     });
 

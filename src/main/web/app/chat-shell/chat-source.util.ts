@@ -11,7 +11,7 @@ export function truncateText(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
 }
 
-export function sourceHostname(source: ChatSourceView): string {
+export function getSourceHostname(source: ChatSourceView): string {
   const raw = source.url?.trim();
   if (!hasText(raw)) {
     return '';
@@ -24,8 +24,8 @@ export function sourceHostname(source: ChatSourceView): string {
   }
 }
 
-export function sourceLabel(source: ChatSourceView, fallback: string): string {
-  const host = sourceHostname(source);
+export function getSourceLabel(source: ChatSourceView, fallback: string): string {
+  const host = getSourceHostname(source);
   if (host !== '') {
     return truncateText(host, LABEL_MAX_CHARS);
   }
@@ -36,32 +36,32 @@ export function sourceLabel(source: ChatSourceView, fallback: string): string {
   return textOr(truncateText(source.text, LABEL_MAX_CHARS), fallback);
 }
 
-export function sourceFaviconUrl(source: ChatSourceView): string | null {
-  const host = sourceHostname(source);
+export function getSourceFaviconUrl(source: ChatSourceView): string | null {
+  const host = getSourceHostname(source);
   if (host === '') {
     return null;
   }
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
 }
 
-export function sourceInitial(source: ChatSourceView, fallback: string): string {
-  const label = sourceLabel(source, fallback).trim();
+export function getSourceInitial(source: ChatSourceView, fallback: string): string {
+  const label = getSourceLabel(source, fallback).trim();
   return (label === '' ? '?' : label.charAt(0)).toUpperCase();
 }
 
-export function sourceTitle(source: ChatSourceView, fallback: string): string {
+export function getSourceTitle(source: ChatSourceView, fallback: string): string {
   const title = source.title?.trim();
   if (hasText(title)) {
     return title;
   }
-  const host = sourceHostname(source);
+  const host = getSourceHostname(source);
   if (host !== '') {
     return host;
   }
   return textOr(truncateText(source.text, TITLE_MAX_CHARS), fallback);
 }
 
-export function sourcePublishedAt(source: ChatSourceView): string {
+export function getSourcePublishedAt(source: ChatSourceView): string {
   const direct = source.publishedAt?.trim();
   if (hasText(direct)) {
     return direct;

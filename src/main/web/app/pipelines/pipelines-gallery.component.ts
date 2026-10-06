@@ -23,7 +23,7 @@ export class PipelinesGalleryComponent {
   readonly editSavedTemplate = output<PipelineTemplate>();
   readonly deleteSavedTemplate = output<PipelineTemplate>();
 
-  templateOrder(agentTypes: readonly string[]): string {
+  getTemplateOrder(agentTypes: readonly string[]): string {
     return agentTypes.join(' → ');
   }
 

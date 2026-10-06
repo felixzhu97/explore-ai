@@ -68,12 +68,12 @@ export function toMinimalToolSteps(
 ): ToolStep[] {
   return invocations.map(item => ({
     name: item.toolName,
-    label: minimalToolLabel(item.toolName, item.query),
+    label: formatMinimalToolLabel(item.toolName, item.query),
     status,
   }));
 }
 
-function minimalToolLabel(toolName: string, query: string): string {
+function formatMinimalToolLabel(toolName: string, query: string): string {
   const truncated = truncateQuery(query);
   if (toolName === 'searchWeb') {
     return truncated !== '' ? `搜索 · ${truncated}` : '搜索';
@@ -95,7 +95,7 @@ function removeDsmlPairBlocks(text: string): string {
   let cursor = 0;
   const parts: string[] = [];
   while (cursor < text.length) {
-    const openStart = indexOfDsmlOpenTag(text, lower, cursor);
+    const openStart = findDsmlOpenTagIndex(text, lower, cursor);
     if (openStart < 0) {
       parts.push(text.slice(cursor));
       break;
@@ -106,7 +106,7 @@ function removeDsmlPairBlocks(text: string): string {
       parts.push(text.slice(openStart));
       break;
     }
-    const closeStart = indexOfDsmlCloseTag(text, lower, openEnd + 1);
+    const closeStart = findDsmlCloseTagIndex(text, lower, openEnd + 1);
     if (closeStart < 0) {
       // Leave unclosed open for a later pass.
       parts.push(text.slice(openStart));
@@ -125,12 +125,12 @@ function removeDsmlPairBlocks(text: string): string {
 /** Drop trailing unclosed DSML open through end of string. */
 function removeUnclosedDsmlOpen(text: string): string {
   const lower = text.toLowerCase();
-  const openStart = indexOfDsmlOpenTag(text, lower, 0);
+  const openStart = findDsmlOpenTagIndex(text, lower, 0);
   if (openStart < 0) {
     return text;
   }
   // Only strip if no closing DSML tag remains after this open.
-  if (indexOfDsmlCloseTag(text, lower, openStart + 1) >= 0) {
+  if (findDsmlCloseTagIndex(text, lower, openStart + 1) >= 0) {
     return text;
   }
   return text.slice(0, openStart);
@@ -162,7 +162,7 @@ function removeDsmlTags(text: string): string {
   return parts.join('');
 }
 
-function indexOfDsmlOpenTag(text: string, lower: string, from: number): number {
+function findDsmlOpenTagIndex(text: string, lower: string, from: number): number {
   let cursor = from;
   while (cursor < text.length) {
     const start = text.indexOf('<', cursor);
@@ -185,7 +185,7 @@ function indexOfDsmlOpenTag(text: string, lower: string, from: number): number {
   return -1;
 }
 
-function indexOfDsmlCloseTag(text: string, lower: string, from: number): number {
+function findDsmlCloseTagIndex(text: string, lower: string, from: number): number {
   let cursor = from;
   while (cursor < text.length) {
     const start = lower.indexOf('</', cursor);

@@ -29,8 +29,8 @@ describe('TtsService', () => {
       expect(result).toEqual(voices);
     });
 
-    const req = httpMock.expectOne(`${API_BASE_URL}/audio/voices`);
-    req.flush({ voices });
+    const request = httpMock.expectOne(`${API_BASE_URL}/audio/voices`);
+    request.flush({ voices });
   });
 
   it('should return default voices when api fails', () => {
@@ -38,8 +38,8 @@ describe('TtsService', () => {
       expect(voices).toEqual(DEFAULT_VOICES);
     });
 
-    const req = httpMock.expectOne(`${API_BASE_URL}/audio/voices`);
-    req.error(new ProgressEvent('error'));
+    const request = httpMock.expectOne(`${API_BASE_URL}/audio/voices`);
+    request.error(new ProgressEvent('error'));
   });
 
   it('should return default voices when api empty', () => {
@@ -62,14 +62,14 @@ describe('TtsService', () => {
       expect(result).toBe(blob);
     });
 
-    const req = httpMock.expectOne(`${API_BASE_URL}/audio/speech`);
-    expect(req.request.body).toEqual({
+    const request = httpMock.expectOne(`${API_BASE_URL}/audio/speech`);
+    expect(request.request.body).toEqual({
       text: 'Hello',
       voice: 'alloy',
       speed: 1,
       outputFormat: 'mp3',
     });
-    req.flush(blob);
+    request.flush(blob);
   });
 
   it('should delegate download to download blob', () => {

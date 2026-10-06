@@ -9,7 +9,7 @@ export type ContentSegment =
 const A2UI_FENCE_RE = /```a2ui\s*\n([\s\S]*?)\n```[ \t]*(?:\n|$)/gi;
 
 /** Stable short id from fence body (djb2). */
-export function stableSurfaceId(raw: string): string {
+export function buildStableSurfaceId(raw: string): string {
   let hash = 5381;
   for (let i = 0; i < raw.length; i++) {
     hash = ((hash << 5) + hash) ^ raw.charCodeAt(i);
@@ -101,7 +101,7 @@ export function splitMarkdownAndA2ui(content: string): ContentSegment[] {
       segments.push({ type: 'markdown', content: before });
     }
     const raw = match[1] ?? '';
-    const surfaceId = stableSurfaceId(raw);
+    const surfaceId = buildStableSurfaceId(raw);
     const messages = remapSurfaceIds(parseA2uiNdjson(raw), surfaceId);
     segments.push({ type: 'a2ui', messages, surfaceId, raw });
     lastIndex = match.index + match[0].length;

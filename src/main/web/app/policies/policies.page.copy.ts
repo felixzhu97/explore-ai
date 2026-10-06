@@ -208,10 +208,10 @@ const HUB: Record<Language, PoliciesHubCopy> = {
   },
 };
 
-export function policiesHubCopy(lang: Language): PoliciesHubCopy {
+export function getPoliciesHubCopy(lang: Language): PoliciesHubCopy {
   return HUB[lang];
 }
 
-export function policyDocCopy(slug: PolicySlug, lang: Language): PolicyDocCopy {
+export function getPolicyDocCopy(slug: PolicySlug, lang: Language): PolicyDocCopy {
   return POLICY_DOCS[lang][slug];
 }

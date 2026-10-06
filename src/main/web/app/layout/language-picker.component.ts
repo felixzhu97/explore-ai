@@ -17,7 +17,7 @@ import { ZardDropdownImports } from '../ui/dropdown/dropdown.imports';
         type="button"
         z-button
         zType="ghost"
-        [class]="triggerClass()"
+        [class]="getTriggerClass()"
         [attr.aria-label]="i18n.t().account.language"
       >
         <span class="font-semibold">{{ i18n.language() | uppercase }}</span>
@@ -55,7 +55,7 @@ export class LanguagePickerComponent {
   readonly supportedLanguages = SUPPORTED_LANGUAGES;
   readonly languageNames = languageNames;
 
-  triggerClass(): string {
+  getTriggerClass(): string {
     return this.fullWidth()
       ? 'h-auto w-full justify-start gap-2 px-3 py-2 text-xs'
       : 'gap-1 px-2.5 py-1.5 text-xs';

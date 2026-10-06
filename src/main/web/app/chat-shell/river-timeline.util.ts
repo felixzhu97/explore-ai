@@ -50,7 +50,7 @@ export function parseRiverDay(label: string): LocalDate | null {
 }
 
 /** Month number for a label without a year, e.g. `1月` or `Jan`. */
-export function monthFromLabel(label: string): number | null {
+export function parseMonthFromLabel(label: string): number | null {
   const trimmed = label.trim();
   const bare = /^(\d{1,2})\s*月$/.exec(trimmed);
   if (bare !== null) {
@@ -79,7 +79,7 @@ export function buildRiverTimeline(
   const originalToAxis = new Map<string, LocalDate>();
   const axisToOriginal = new Map<string, string>();
   parsed.forEach(({ time, day }, index) => {
-    const month = monthFromLabel(time);
+    const month = parseMonthFromLabel(time);
     let axisDay: LocalDate;
     if (day !== null) {
       axisDay = day;
@@ -92,7 +92,7 @@ export function buildRiverTimeline(
     axisToOriginal.set(axisDay.toString(), time);
   });
 
-  const dayOfAxisValue = (axisValue: string | number): LocalDate | null => {
+  const getDayOfAxisValue = (axisValue: string | number): LocalDate | null => {
     if (typeof axisValue === 'string') {
       return parseRiverDay(axisValue);
     }
@@ -108,7 +108,7 @@ export function buildRiverTimeline(
       return day === null ? original : day.toString();
     },
     formatLabel: (axisValue) => {
-      const day = dayOfAxisValue(axisValue);
+      const day = getDayOfAxisValue(axisValue);
       if (day === null) {
         return String(axisValue);
       }

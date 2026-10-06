@@ -89,7 +89,7 @@ export class MetricsDomainPageComponent {
     return value === '30d' ? '30d' : '7d';
   });
 
-  readonly domainResource = this.#metrics.domain(this.domain, this.range);
+  readonly domainResource = this.#metrics.getDomain(this.domain, this.range);
 
   readonly kpis = computed((): MetricsKpi[] => {
     const snapshot = this.domainResource.value();
@@ -140,7 +140,7 @@ export class MetricsDomainPageComponent {
     }));
   });
 
-  readonly docsSeriesResource = this.#metrics.series(() => {
+  readonly docsSeriesResource = this.#metrics.getSeries(() => {
     if (this.domain() !== 'rag') {
       return undefined;
     }
@@ -160,7 +160,7 @@ export class MetricsDomainPageComponent {
 
   readonly page = signal(0);
 
-  readonly drilldownResource = this.#metrics.drilldown(() => {
+  readonly drilldownResource = this.#metrics.getDrilldown(() => {
     const domain = this.domain();
     if (domain === null) {
       return undefined;

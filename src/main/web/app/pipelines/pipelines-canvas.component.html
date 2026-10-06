@@ -5,7 +5,7 @@
       [templateName]="activeTemplateName()"
       [isSaving]="isSaving()"
       [(task)]="task"
-      (back)="backToGallery()"
+      (back)="goBackToGallery()"
       (addAgent)="openAgentPicker()"
       (useGraph)="switchToUse()"
       (editGraph)="switchToEdit()"
@@ -141,8 +141,8 @@
             <ng-container ngProjectAs="[fConnections]">
               @for (edge of connections(); track edge.id) {
                 <f-connection
-                  [fSourceId]="outId(edge.sourceNodeId)"
-                  [fTargetId]="inId(edge.targetNodeId)"
+                  [fSourceId]="getOutId(edge.sourceNodeId)"
+                  [fTargetId]="getInId(edge.targetNodeId)"
                 />
               }
             </ng-container>
@@ -174,13 +174,13 @@
                       class="absolute top-1/2 -left-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
                       fConnector
                       fConnectorType="target"
-                      [fConnectorId]="inId(node.id)"
+                      [fConnectorId]="getInId(node.id)"
                     ></div>
                     <div
                       class="absolute top-1/2 -right-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
                       fConnector
                       fConnectorType="source"
-                      [fConnectorId]="outId(node.id)"
+                      [fConnectorId]="getOutId(node.id)"
                     ></div>
                   </div>
                 } @else {
@@ -199,13 +199,13 @@
                       class="absolute top-1/2 -left-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500/70"
                       fConnector
                       fConnectorType="target"
-                      [fConnectorId]="inId(node.id)"
+                      [fConnectorId]="getInId(node.id)"
                     ></div>
                     <div
                       class="absolute top-1/2 -right-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500/70"
                       fConnector
                       fConnectorType="source"
-                      [fConnectorId]="outId(node.id)"
+                      [fConnectorId]="getOutId(node.id)"
                     ></div>
                   </div>
                 }

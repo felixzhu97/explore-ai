@@ -88,9 +88,9 @@ describe('VisionService', () => {
 
     service.analyze();
 
-    const req = httpMock.expectOne('/api/vision/caption');
-    expect(req.request.method).toBe('POST');
-    req.flush({ caption: 'A cat', processingTimeMs: 120 });
+    const request = httpMock.expectOne('/api/vision/caption');
+    expect(request.request.method).toBe('POST');
+    request.flush({ caption: 'A cat', processingTimeMs: 120 });
 
     await vi.waitFor(() => {
       expect(service.currentState().result).toEqual({ task: 'caption', caption: 'A cat', processingTimeMs: 120 });

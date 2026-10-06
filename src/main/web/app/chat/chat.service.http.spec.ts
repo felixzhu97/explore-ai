@@ -92,7 +92,7 @@ describe('ChatService http flows', () => {
     ]);
     httpMock
       .expectOne(
-        req => req.url === `${API_BASE_URL}/chat/models` && req.params.get('provider') === 'openai',
+        request => request.url === `${API_BASE_URL}/chat/models` && request.params.get('provider') === 'openai',
       )
       .flush({
         provider: 'openai',
@@ -535,8 +535,8 @@ describe('ChatService http flows', () => {
     service.activeSessionId.set(null);
 
     service.selectSession('gone');
-    const req = httpMock.expectOne(`${API_BASE_URL}/chat/sessions/gone/messages`);
-    req.flush(null, { status: 404, statusText: 'Not Found' });
+    const request = httpMock.expectOne(`${API_BASE_URL}/chat/sessions/gone/messages`);
+    request.flush(null, { status: 404, statusText: 'Not Found' });
     expect(navigateSpy).toHaveBeenCalledWith('/chat', { replaceUrl: true });
     await Promise.resolve();
     httpMock.expectOne(`${API_BASE_URL}/chat/sessions`).flush({

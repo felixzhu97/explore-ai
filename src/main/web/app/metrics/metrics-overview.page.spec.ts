@@ -65,7 +65,7 @@ describe('MetricsOverviewPageComponent', () => {
   });
 
   afterEach(() => {
-    http.match(() => true).forEach(req => req.flush({}));
+    http.match(() => true).forEach(request => request.flush({}));
     http.verify();
   });
 
@@ -74,19 +74,19 @@ describe('MetricsOverviewPageComponent', () => {
     overview = emptyOverview,
   ): Promise<void> {
     fixture.detectChanges();
-    for (const req of http.match(() => true)) {
-      const url = req.request.url;
+    for (const request of http.match(() => true)) {
+      const url = request.request.url;
       if (url.startsWith(`${API_BASE_URL}/metrics/overview`)) {
-        req.flush({ ...overview, range });
+        request.flush({ ...overview, range });
       } else if (url.startsWith(`${API_BASE_URL}/metrics/series`)) {
-        req.flush({
+        request.flush({
           name: 'requests',
           domain: null,
           range,
           points: [{ label: 'Mon', value: 10 }],
         });
       } else if (url.startsWith(`${API_BASE_URL}/metrics/drilldown`)) {
-        req.flush({ items: [], total: 0, page: 0, size: 10 });
+        request.flush({ items: [], total: 0, page: 0, size: 10 });
       }
     }
     await fixture.whenStable();

@@ -34,7 +34,7 @@ export class McpPageComponent implements OnInit {
     this.loadDashboard();
   }
 
-  toolsCountLabel(count: number): string {
+  formatToolsCountLabel(count: number): string {
     return this.i18n.tReplace(this.i18n.t().mcp.toolsCount, { count });
   }
 
@@ -46,7 +46,7 @@ export class McpPageComponent implements OnInit {
 
     this.isChatting.set(true);
     this.chatResponse.set(null);
-    this.#mcp.chat(question).subscribe({
+    this.#mcp.sendChat(question).subscribe({
       next: (response) => {
         this.chatResponse.set(response.response);
         this.isChatting.set(false);

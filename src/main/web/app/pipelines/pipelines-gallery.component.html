@@ -29,7 +29,7 @@
           <div class="text-sm font-medium text-foreground">{{ template.name }}</div>
           <p class="line-clamp-3 text-xs text-foreground/60">{{ template.description }}</p>
           <p class="font-mono text-[10px] text-foreground/60">
-            {{ templateOrder(template.agentTypes) }}
+            {{ getTemplateOrder(template.agentTypes) }}
           </p>
           <div class="mt-auto flex flex-wrap gap-2">
             <button
@@ -83,7 +83,7 @@
           </div>
           <p class="line-clamp-3 text-xs text-foreground/60">{{ template.description }}</p>
           <p class="font-mono text-[10px] text-foreground/60">
-            {{ templateOrder(template.agentTypes) }}
+            {{ getTemplateOrder(template.agentTypes) }}
           </p>
           <div class="mt-auto flex flex-wrap gap-2">
             <button

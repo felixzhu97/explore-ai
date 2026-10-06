@@ -36,7 +36,7 @@ export class MetricsOverviewPageComponent {
   protected readonly i18n = inject(I18nService);
 
   readonly range = signal<MetricsRange>('7d');
-  readonly overviewResource = this.#metrics.overview(this.range);
+  readonly overviewResource = this.#metrics.getOverview(this.range);
 
   readonly kpis = computed((): MetricsKpi[] => {
     const overview = this.overviewResource.value();
@@ -87,7 +87,7 @@ export class MetricsOverviewPageComponent {
     ];
   });
 
-  readonly seriesResource = this.#metrics.series(() => ({ name: 'requests', range: this.range() }));
+  readonly seriesResource = this.#metrics.getSeries(() => ({ name: 'requests', range: this.range() }));
 
   readonly requestSeries = computed(() => {
     const points = this.seriesResource.value()?.points ?? [];
@@ -155,7 +155,7 @@ export class MetricsOverviewPageComponent {
     ];
   });
 
-  readonly drilldownResource = this.#metrics.drilldown(() => ({
+  readonly drilldownResource = this.#metrics.getDrilldown(() => ({
     page: 0,
     size: 10,
     range: this.range(),

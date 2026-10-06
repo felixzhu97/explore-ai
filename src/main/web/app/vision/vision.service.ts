@@ -127,7 +127,7 @@ export class VisionService {
         request = this.#detectObjects(currentFile);
         break;
       case 'ocr':
-        request = this.#ocrImage(currentFile);
+        request = this.#recognizeText(currentFile);
         break;
     }
 
@@ -147,19 +147,19 @@ export class VisionService {
 
   #captionImage(file: File): Observable<VisionResult> {
     return this.#http
-      .post<CaptionResponse>(`${API_BASE_URL}/vision/caption`, imageForm(file))
+      .post<CaptionResponse>(`${API_BASE_URL}/vision/caption`, buildImageForm(file))
       .pipe(map(response => ({ task: 'caption', ...response })));
   }
 
   #detectObjects(file: File): Observable<VisionResult> {
     return this.#http
-      .post<DetectResponse>(`${API_BASE_URL}/vision/detect`, imageForm(file))
+      .post<DetectResponse>(`${API_BASE_URL}/vision/detect`, buildImageForm(file))
       .pipe(map(response => ({ task: 'detect', ...response })));
   }
 
-  #ocrImage(file: File): Observable<VisionResult> {
+  #recognizeText(file: File): Observable<VisionResult> {
     return this.#http
-      .post<OcrResponse>(`${API_BASE_URL}/vision/ocr`, imageForm(file))
+      .post<OcrResponse>(`${API_BASE_URL}/vision/ocr`, buildImageForm(file))
       .pipe(map(response => ({ task: 'ocr', ...response })));
   }
 
@@ -181,7 +181,7 @@ export class VisionService {
   }
 }
 
-function imageForm(file: File): FormData {
+function buildImageForm(file: File): FormData {
   const formData = new FormData();
   formData.append('file', file);
   return formData;

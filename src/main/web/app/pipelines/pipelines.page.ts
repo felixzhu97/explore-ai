@@ -170,7 +170,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
     const result = validatePipeline(graph);
     if (!result.ok) {
-      this.pipelineHint.set(this.#pipelineReasonMessage(result.reason));
+      this.pipelineHint.set(this.#buildPipelineReasonMessage(result.reason));
       return;
     }
 
@@ -189,8 +189,8 @@ export class PipelinesPageComponent implements OnDestroy {
     }
 
     const now = Instant.now();
-    const userId = this.#nextId('user');
-    const assistantId = this.#nextId('assistant');
+    const userId = this.#generateNextId('user');
+    const assistantId = this.#generateNextId('assistant');
 
     this.messages.update(messages => [
       ...messages,
@@ -208,7 +208,7 @@ export class PipelinesPageComponent implements OnDestroy {
     let rawContent = '';
     let pipelineStages: ToolStep[] = [];
 
-    const visibleSteps = (dsmlStatus: 'running' | 'success' | 'error') => mergeToolSteps(
+    const buildVisibleSteps = (dsmlStatus: 'running' | 'success' | 'error') => mergeToolSteps(
       pipelineStages,
       toMinimalToolSteps(parseDsmlToolInvocations(rawContent), dsmlStatus),
     );
@@ -223,7 +223,7 @@ export class PipelinesPageComponent implements OnDestroy {
         assistantId,
         cleaned,
         false,
-        visibleSteps(error !== undefined ? 'error' : 'success'),
+        buildVisibleSteps(error !== undefined ? 'error' : 'success'),
       );
       this.streamingMessageId.set(null);
       this.isLoading.set(false);
@@ -236,13 +236,13 @@ export class PipelinesPageComponent implements OnDestroy {
     const onChunk = (chunk: string) => {
       rawContent += chunk;
       const cleaned = stripToolCallMarkup(rawContent);
-      this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
+      this.#patchAssistant(assistantId, cleaned, true, buildVisibleSteps('running'));
     };
     const onHandoff = ({ agentType }: PipelineHandoffEvent) => {
       pipelineStages = appendPipelineStage(pipelineStages, agentType);
       rawContent += `\n_Delegated to **${agentType}**_\n\n`;
       const cleaned = stripToolCallMarkup(rawContent);
-      this.#patchAssistant(assistantId, cleaned, true, visibleSteps('running'));
+      this.#patchAssistant(assistantId, cleaned, true, buildVisibleSteps('running'));
     };
 
     const request = toPipelineInvokeRequest(invokeMessage, graph);
@@ -256,7 +256,7 @@ export class PipelinesPageComponent implements OnDestroy {
     this.#streamAbort = abort;
   }
 
-  #pipelineReasonMessage(reason: string): string {
+  #buildPipelineReasonMessage(reason: string): string {
     const hints = this.i18n.t().pipelines.hints;
     switch (reason) {
       case 'empty':
@@ -293,7 +293,7 @@ export class PipelinesPageComponent implements OnDestroy {
     });
   }
 
-  #nextId(prefix: string): string {
+  #generateNextId(prefix: string): string {
     this.#messageSeq += 1;
     return `${prefix}-${String(this.#messageSeq)}-${String(Instant.now().toEpochMilli())}`;
   }

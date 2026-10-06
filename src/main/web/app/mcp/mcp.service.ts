@@ -49,7 +49,7 @@ export class McpService {
     return this.#http.get<McpToolResponse[]>(`${API_BASE_URL}/mcp/client/tools`);
   }
 
-  chat(question: string): Observable<McpChatResponse> {
+  sendChat(question: string): Observable<McpChatResponse> {
     const request: McpChatRequest = { question };
     return this.#http.post<McpChatResponse>(`${API_BASE_URL}/mcp/client/chat`, request);
   }

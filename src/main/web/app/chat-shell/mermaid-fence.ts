@@ -7,7 +7,7 @@ export type MermaidSegment =
 const MERMAID_FENCE_RE = /```mermaid\s*\n([\s\S]*?)\n```[ \t]*(?:\n|$)/gi;
 
 /** Stable short id from fence body (djb2). */
-export function stableMermaidId(source: string): string {
+export function buildStableMermaidId(source: string): string {
   let hash = 5381;
   for (let i = 0; i < source.length; i++) {
     hash = ((hash << 5) + hash) ^ source.charCodeAt(i);
@@ -37,7 +37,7 @@ export function splitMarkdownAndMermaid(content: string): MermaidSegment[] {
     segments.push({
       type: 'mermaid',
       source,
-      diagramId: stableMermaidId(source),
+      diagramId: buildStableMermaidId(source),
     });
     lastIndex = match.index + match[0].length;
   }

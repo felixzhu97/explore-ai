@@ -15,10 +15,10 @@ import {
 import { MarkdownWithA2uiComponent } from './markdown-with-a2ui.component';
 import { ChatSourceCardComponent } from './chat-source-card.component';
 import {
-  sourceFaviconUrl,
-  sourceInitial,
-  sourceLabel,
-  sourceTitle,
+  getSourceFaviconUrl,
+  getSourceInitial,
+  getSourceLabel,
+  getSourceTitle,
 } from './chat-source.util';
 import { ChatToolStepsComponent } from './chat-tool-steps.component';
 import type { Instant } from '@js-joda/core';
@@ -97,7 +97,7 @@ const CLOSE_DELAY_MS = 160;
 
     @let ref = openRef();
     @if (ref !== null) {
-      @let source = sourceAt(ref.messageId, ref.index);
+      @let source = getSourceAt(ref.messageId, ref.index);
       @if (source !== undefined) {
         <div
           class="fixed z-80 w-80 max-w-[calc(100vw-1.5rem)] animate-in rounded-2xl border border-black/8 bg-white p-3.5 shadow-lg duration-150 fade-in-0 zoom-in-95"
@@ -121,11 +121,11 @@ const CLOSE_DELAY_MS = 160;
     }
 
     <ng-template #userMessageTpl let-info="info">
-      @let message = messageById(messageKey(info));
+      @let message = findMessageById(getMessageKey(info));
       @if (message !== undefined) {
         @if (message.content !== '') {
           <div class="wrap-break-word whitespace-pre-wrap">
-            {{ userMessageText(message) }}
+            {{ getUserMessageText(message) }}
           </div>
           @if (isLongUserMessage(message)) {
             <button
@@ -156,7 +156,7 @@ const CLOSE_DELAY_MS = 160;
     </ng-template>
 
     <ng-template #assistantMessageTpl let-content="content" let-info="info">
-      @let message = messageById(messageKey(info));
+      @let message = findMessageById(getMessageKey(info));
       <app-chat-tool-steps
         [steps]="message?.toolSteps ?? []"
         [doneLabel]="toolStepDoneLabel()"
@@ -165,10 +165,10 @@ const CLOSE_DELAY_MS = 160;
       @if (content !== '') {
         <app-markdown-with-a2ui
           [content]="content"
-          [isStreaming]="isStreaming(messageKey(info))"
+          [isStreaming]="isStreaming(getMessageKey(info))"
         />
       } @else if (
-        isStreaming(messageKey(info))
+        isStreaming(getMessageKey(info))
         && (message?.toolSteps?.length ?? 0) === 0
       ) {
         <span class="text-text-tertiary">{{ thinkingLabel() }}</span>
@@ -186,14 +186,14 @@ const CLOSE_DELAY_MS = 160;
           @for (source of message.sources.slice(0, 5); track source.url ?? $index) {
             <button
               type="button"
-              [class]="chipClass(message.id, $index)"
+              [class]="getChipClass(message.id, $index)"
               [attr.aria-expanded]="isChipOpen(message.id, $index)"
-              [attr.aria-label]="chipAriaLabel($index, source)"
+              [attr.aria-label]="getChipAriaLabel($index, source)"
               (pointerenter)="onChipPointerEnter($event, message.id, $index)"
               (pointerleave)="onChipPointerLeave()"
               (click)="onChipClick($event, source)"
             >
-              @let icon = faviconUrl(source);
+              @let icon = getFaviconUrl(source);
               @if (icon !== null) {
                 <img
                   class="size-3.5 shrink-0 rounded-sm"
@@ -210,10 +210,10 @@ const CLOSE_DELAY_MS = 160;
                   [class.bg-black/10]="!isChipHighlighted(message.id, $index)"
                   [class.text-text-secondary]="!isChipHighlighted(message.id, $index)"
                 >
-                  {{ sourceInitial(source) }}
+                  {{ getSourceInitial(source) }}
                 </span>
               }
-              <span class="truncate">{{ sourceLabel(source) }}</span>
+              <span class="truncate">{{ getSourceLabel(source) }}</span>
             </button>
           }
         </div>
@@ -221,7 +221,7 @@ const CLOSE_DELAY_MS = 160;
     </ng-template>
 
     <ng-template #assistantFooterTpl let-info="info">
-      @let timestamp = messageById(messageKey(info))?.timestamp;
+      @let timestamp = findMessageById(getMessageKey(info))?.timestamp;
       @if (timestamp !== undefined) {
         <span class="text-xs text-text-tertiary">{{ timestamp | instant: 'time' }}</span>
       }
@@ -357,8 +357,8 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.cancelCloseSourceRef();
   }
 
-  sourceAt(messageId: string, index: number): ChatSourceView | undefined {
-    return this.messageById(messageId)?.sources?.[index];
+  getSourceAt(messageId: string, index: number): ChatSourceView | undefined {
+    return this.findMessageById(messageId)?.sources?.[index];
   }
 
   cancelCloseSourceRef(): void {
@@ -381,15 +381,15 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
-  messageById(id: string): ChatMessageView | undefined {
+  findMessageById(id: string): ChatMessageView | undefined {
     return this.messageByIdMap().get(id);
   }
 
-  messageKey(info?: { key?: string | number }): string {
+  getMessageKey(info?: { key?: string | number }): string {
     return String(info?.key ?? '');
   }
 
-  userMessageText(message: ChatMessageView): string {
+  getUserMessageText(message: ChatMessageView): string {
     if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
       return message.content;
     }
@@ -431,7 +431,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.footerLabels().basedOn.replace('{count}', String(count));
   }
 
-  chipClass(messageId: string, index: number): string {
+  getChipClass(messageId: string, index: number): string {
     const base =
       'inline-flex max-w-40 cursor-pointer items-center gap-1 rounded-full px-1.5 py-0.5 text-xs transition-colors';
     if (this.isChipHighlighted(messageId, index)) {
@@ -445,8 +445,8 @@ export class ChatBubbleListComponent implements OnDestroy {
     return ref?.messageId === messageId && ref.index === index;
   }
 
-  chipAriaLabel(index: number, source: ChatSourceView): string {
-    const title = `${String(index + 1)}. ${sourceTitle(source, this.footerLabels().sources)}`;
+  getChipAriaLabel(index: number, source: ChatSourceView): string {
+    const title = `${String(index + 1)}. ${getSourceTitle(source, this.footerLabels().sources)}`;
     if (hasText(source.url)) {
       return `${title}. ${this.footerLabels().openReference}`;
     }
@@ -473,8 +473,8 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
-  faviconUrl(source: ChatSourceView): string | null {
-    return sourceFaviconUrl(source);
+  getFaviconUrl(source: ChatSourceView): string | null {
+    return getSourceFaviconUrl(source);
   }
 
   isChipHighlighted(messageId: string, index: number): boolean {
@@ -486,12 +486,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.isChipOpen(messageId, index);
   }
 
-  sourceInitial(source: ChatSourceView): string {
-    return sourceInitial(source, this.footerLabels().sources);
+  getSourceInitial(source: ChatSourceView): string {
+    return getSourceInitial(source, this.footerLabels().sources);
   }
 
-  sourceLabel(source: ChatSourceView): string {
-    return sourceLabel(source, this.footerLabels().sources);
+  getSourceLabel(source: ChatSourceView): string {
+    return getSourceLabel(source, this.footerLabels().sources);
   }
 
   onDocumentPointerDown(event: PointerEvent): void {
@@ -556,7 +556,7 @@ export class ChatBubbleListComponent implements OnDestroy {
       messageId,
       index,
       x,
-      y: this.#popoverTopForHeight(
+      y: this.#calculatePopoverTop(
         rect.top,
         rect.bottom,
         POPOVER_EST_HEIGHT,
@@ -578,7 +578,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     );
   }
 
-  #popoverTopForHeight(
+  #calculatePopoverTop(
     anchorTop: number,
     anchorBottom: number,
     height: number,
@@ -597,16 +597,16 @@ export class ChatBubbleListComponent implements OnDestroy {
     if (current === null) {
       return;
     }
-    const el = document.querySelector('[data-source-popover]');
-    if (!(el instanceof HTMLElement)) {
+    const element = document.querySelector('[data-source-popover]');
+    if (!(element instanceof HTMLElement)) {
       return;
     }
-    const height = el.getBoundingClientRect().height;
+    const height = element.getBoundingClientRect().height;
     if (height <= 0) {
       return;
     }
     const x = this.#clampPopoverX(current.x);
-    const y = this.#popoverTopForHeight(
+    const y = this.#calculatePopoverTop(
       current.anchorTop,
       current.anchorBottom,
       height,

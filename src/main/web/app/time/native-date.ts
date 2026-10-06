@@ -10,6 +10,6 @@ export function fromNativeDate(date: Date): Instant {
 }
 
 /** IANA name of the browser time zone, e.g. `Asia/Shanghai`. */
-export function systemZoneName(): string {
+export function getSystemZoneName(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }

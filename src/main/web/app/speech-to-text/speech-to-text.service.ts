@@ -1,6 +1,6 @@
 import { Service, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { objectOrNull, stringField } from '../http/sse-client';
+import { readObjectOrNull, readStringField } from '../http/sse-client';
 import { hasText, textOr } from '../shared/presence';
 
 export type SpeechToTextConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -31,11 +31,11 @@ export function parseTranscriptionResponse(
   } catch {
     return null;
   }
-  const frame = objectOrNull(json);
+  const frame = readObjectOrNull(json);
   if (frame === null || !isTranscriptionType(frame['type'])) {
     return null;
   }
-  return { type: frame['type'], text: stringField(frame['text']) };
+  return { type: frame['type'], text: readStringField(frame['text']) };
 }
 
 @Service()

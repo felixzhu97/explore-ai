@@ -42,7 +42,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   afterEach(() => {
-    http.match(() => true).forEach(req => req.flush(null));
+    http.match(() => true).forEach(request => request.flush(null));
     http.verify();
   });
 

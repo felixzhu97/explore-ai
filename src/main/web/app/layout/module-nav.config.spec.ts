@@ -3,8 +3,8 @@ import { FEATURE_FLAG_KEYS } from '../feature-flags/feature-flag-keys';
 import {
   isNavTabEnabled,
   MODULE_NAV_TABS,
-  moreNavSections,
-  primaryNavTabs,
+  listMoreNavSections,
+  listPrimaryNavTabs,
 } from './module-nav.config';
 
 describe('module-nav.config', () => {
@@ -41,7 +41,7 @@ describe('module-nav.config', () => {
   });
 
   it('should keep work tabs except chat in primary nav', () => {
-    expect(primaryNavTabs(MODULE_NAV_TABS).map(tab => tab.key)).toEqual([
+    expect(listPrimaryNavTabs(MODULE_NAV_TABS).map(tab => tab.key)).toEqual([
       'rag',
       'metrics',
       'pipelines',
@@ -52,7 +52,7 @@ describe('module-nav.config', () => {
   });
 
   it('should put create and lab into more sections', () => {
-    const sections = moreNavSections(MODULE_NAV_TABS);
+    const sections = listMoreNavSections(MODULE_NAV_TABS);
 
     expect(sections.map(section => section.group)).toEqual(['create', 'lab']);
     expect(sections[0]?.tabs.map(tab => tab.key)).toEqual(['generate']);
@@ -62,13 +62,13 @@ describe('module-nav.config', () => {
   it('should hide more sections when create and lab tabs are disabled', () => {
     const workOnly = MODULE_NAV_TABS.filter(tab => tab.group === 'work');
 
-    expect(moreNavSections(workOnly)).toEqual([]);
-    expect(primaryNavTabs(workOnly).length).toBeGreaterThan(0);
+    expect(listMoreNavSections(workOnly)).toEqual([]);
+    expect(listPrimaryNavTabs(workOnly).length).toBeGreaterThan(0);
   });
 
   it('should omit lab group from more when lab tabs disabled', () => {
     const withoutLab = MODULE_NAV_TABS.filter(tab => tab.group !== 'lab');
-    const sections = moreNavSections(withoutLab);
+    const sections = listMoreNavSections(withoutLab);
 
     expect(sections.map(section => section.group)).toEqual(['create']);
     expect(pipelinesTab?.group).toBe('work');

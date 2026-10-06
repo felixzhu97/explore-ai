@@ -16,7 +16,7 @@ import { fromNativeDate, toNativeDate } from './native-date';
       nzFormat="yyyy-MM-dd HH:mm:ss"
       [nzDropdownClassName]="dropdownClass()"
       [nzPlaceHolder]="placeholder()"
-      [nzDisabledDate]="disabledDate"
+      [nzDisabledDate]="isDateDisabled"
       [formField]="nativeField"
     />
   `,
@@ -28,7 +28,7 @@ export class InstantPickerComponent implements FormValueControl<Instant | null> 
   readonly dropdownClass = input('');
   readonly disablePast = input(false);
 
-  protected readonly disabledDate = (current: Date): boolean => {
+  protected readonly isDateDisabled = (current: Date): boolean => {
     const day = LocalDate.ofInstant(fromNativeDate(current));
     return this.disablePast() && day.isBefore(LocalDate.now());
   };

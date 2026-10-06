@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   splitMarkdownAndMermaid,
-  stableMermaidId,
+  buildStableMermaidId,
 } from './mermaid-fence';
 
 describe('mermaid-fence', () => {
@@ -23,7 +23,7 @@ describe('mermaid-fence', () => {
       expect(segments.map(s => s.type)).toEqual(['markdown', 'mermaid', 'markdown']);
       if (segments[1]?.type === 'mermaid') {
         expect(segments[1].source).toContain('sequenceDiagram');
-        expect(segments[1].diagramId).toBe(stableMermaidId(segments[1].source));
+        expect(segments[1].diagramId).toBe(buildStableMermaidId(segments[1].source));
       }
     });
 
@@ -106,9 +106,9 @@ describe('mermaid-fence', () => {
     });
   });
 
-  describe('stableMermaidId', () => {
+  describe('buildStableMermaidId', () => {
     it('should return stable id for same source', () => {
-      expect(stableMermaidId('graph TD\nA-->B')).toBe(stableMermaidId('graph TD\nA-->B'));
+      expect(buildStableMermaidId('graph TD\nA-->B')).toBe(buildStableMermaidId('graph TD\nA-->B'));
     });
   });
 });

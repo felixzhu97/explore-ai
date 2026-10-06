@@ -71,9 +71,9 @@ export class ZardButtonComponent implements OnDestroy {
       }
 
       const check = () => {
-        const el = this.elementRef.nativeElement;
-        const hasIcon = el.querySelector('ng-icon') !== null;
-        const children = Array.from<Node>(el.childNodes);
+        const element = this.elementRef.nativeElement;
+        const hasIcon = element.querySelector('ng-icon') !== null;
+        const children = Array.from<Node>(element.childNodes);
         const hasText = children.some((node) => {
           if (node.nodeType === 3) {
             return node.textContent?.trim() !== '';
