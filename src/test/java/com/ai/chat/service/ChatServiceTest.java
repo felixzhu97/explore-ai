@@ -2,8 +2,10 @@ package com.ai.chat.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -90,6 +93,23 @@ class ChatServiceTest {
       assertThat(result.getTitle()).isEqualTo("My Chat");
       assertThat(result.getOwnerKeyValue()).isEqualTo(CLIENT_A);
       verify(repository).save(any(ChatSession.class));
+    }
+  }
+
+  @Nested
+  @DisplayName("chatWithSession() without session id")
+  class ChatInDefaultSession {
+
+    @Test
+    @DisplayName("should create the default session with the default title when owner has none")
+    void shouldCreateTheDefaultSessionWithTheDefaultTitleWhenOwnerHasNone() {
+      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of());
+      ArgumentCaptor<ChatSession> saved = ArgumentCaptor.forClass(ChatSession.class);
+
+      catchThrowable(() -> useCase.chatWithSession("Hello", CLIENT_A));
+
+      verify(repository, atLeastOnce()).save(saved.capture());
+      assertThat(saved.getAllValues().getFirst().hasDefaultTitle()).isTrue();
     }
   }
 
